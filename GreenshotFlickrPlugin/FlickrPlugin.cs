@@ -153,6 +153,7 @@ namespace GreenshotFlickrPlugin {
 						uploader.upload(stream);
 						MessageBox.Show(lang.GetString(LangKey.upload_success));
 					} catch(Exception e) {
+						LOG.Debug("Problem uploading", e);
 						MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
 					}
 				}
