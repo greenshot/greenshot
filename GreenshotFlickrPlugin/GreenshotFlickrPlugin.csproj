@@ -44,7 +44,7 @@
       <HintPath>Lib\FlickrNet.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
-      <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
+      <HintPath>..\GreenshotCore\Lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
@@ -78,6 +78,10 @@
     <Folder Include="Lib" />
     <Folder Include="Languages" />
     <Folder Include="Forms" />
+    <ProjectReference Include="..\GreenshotCore\GreenshotCore.csproj">
+      <Project>{BDC408EE-DEA1-4474-B59D-7F05757B12EC}</Project>
+      <Name>GreenshotCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>

@@ -28,6 +28,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
+using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Microsoft.Win32;
