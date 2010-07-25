@@ -82,6 +82,10 @@ namespace GreenshotFlickrPlugin {
 			flickr.PhotosSetMeta(photoId, "New Title", "New Description");
 			// Get list of users sets
 			PhotosetCollection sets = flickr.PhotosetsGetList();
+			if (sets.Count == 0) {
+				flickr.PhotosetsCreate("Greenshot", "Greenshot screenshots", photoId);
+				sets = flickr.PhotosetsGetList();
+			}
 			// Get the first set in the collection
 			Photoset set = sets[0];
 			// Add the photo to that set
