@@ -1,0 +1,525 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Pусский" ietf="ru-RU" version="0.8.0">
+  <resources>
+	<!-- 
+	Note to translator: uncomment entry "about_translation" to have 
+	your efforts honored in the "About Greenshot" dialog 
+	-->
+	<resource name="about_translation">
+		Русский перевод: Алексей Сехан, sehan@mail.ru, 2010-06-30
+	</resource>
+	<resource name="application_title">
+		Greenshot — революционная утилита для получения экранных снимков
+	</resource>
+	<resource name="editor_drawrectangle">
+		Прямоугольник (R)
+	</resource>
+	<resource name="editor_save">
+		Сохранить
+	</resource>
+	<resource name="contextmenu_settings">
+		Параметры...
+	</resource>
+	<resource name="settings_storagelocation">
+		Папка для снимков
+	</resource>
+	<resource name="settings_title">
+		Настройки
+	</resource>
+	<resource name="settings_tooltip_storagelocation">
+		Папка по умолчанию для сохранения снимков (если пусто, то на Рабочий стол)
+	</resource>
+	<resource name="settings_language">
+		Язык (Language)
+	</resource>
+	<resource name="settings_filenamepattern">
+		Шаблон имени файла
+	</resource>
+	<resource name="settings_tooltip_language">
+		Язык интерфейса
+	</resource>
+	<resource name="settings_tooltip_filenamepattern">
+		Шаблон, используемый для генерации имен файлов при сохранении экранных снимков
+	</resource>
+	<resource name="settings_primaryimageformat">
+		Формат изображения
+	</resource>
+	<resource name="settings_tooltip_primaryimageformat">
+		Формат по умолчанию
+	</resource>
+	<resource name="contextmenu_capturearea">
+		Снимок области
+	</resource>
+	<resource name="contextmenu_capturelastregion">
+		Снимок той же области
+	</resource>
+	<resource name="contextmenu_exit">
+		Выход
+	</resource>
+	<resource name="settings_visualization">
+		Эффекты при снимке
+	</resource>
+	<resource name="settings_playsound">
+		Щелкнуть, как фотокамерой
+	</resource>
+	<resource name="settings_showflashlight">
+		Блеснуть, как фотовспышкой
+	</resource>
+	<resource name="error">
+		Ошибка
+	</resource>
+	<resource name="error_nowriteaccess">
+		Невозможно сохранить файл в {0}.
+Проверьте, доступна ли эта папка для записи.
+	</resource>
+	<resource name="contextmenu_capturefullscreen">
+		Снимок всего экрана
+	</resource>
+	<resource name="editor_cuttoclipboard">
+		Вырезать
+	</resource>
+	<resource name="editor_copytoclipboard">
+		Копировать
+	</resource>
+	<resource name="editor_pastefromclipboard">
+		Вставить
+	</resource>
+	<resource name="about_title">
+		О программе Greenshot
+	</resource>
+	<resource name="about_license">
+		Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot предоставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ. Greenshot — свободное программное обеспечение с лицензией GPL (GNU General Public License) и вы можете распростанять его, соблюдая лицензию:
+	</resource>
+	<resource name="error_openlink">
+		Не могу открыть ссылку.
+	</resource>
+	<resource name="error_save">
+		Не удалось сохранить снимок. Пожалуйста, найдите подходящее место!
+	</resource>
+	<resource name="about_icons">
+		Набор значков Fugue, автор Yusuke Kamiyamane, лицензия Creative Commons Attribution 3.0
+	</resource>
+	<resource name="about_host">
+		Greenshot размещается на sourceforge.net
+	</resource>
+	<resource name="about_bugs">
+		Об ошибках сообщайте на
+	</resource>
+	<resource name="about_donations">
+		Если вам понравился Greenshot, вы можете поддержать нас:
+	</resource>
+	<resource name="editor_imagesaved">
+		Изображение сохранено в {0}.
+	</resource>
+	<resource name="editor_storedtoclipboard">
+		Изображение помещено в буфер обмена.
+	</resource>
+	<resource name="editor_saveas">
+		Сохранить как...
+	</resource>
+	<resource name="editor_file">
+		Файл
+	</resource>
+	<resource name="editor_edit">
+		Правка
+	</resource>
+	<resource name="editor_object">
+		Объект
+	</resource>
+	<resource name="editor_drawellipse">
+		Эллипс (E)
+	</resource>
+	<resource name="editor_drawtextbox">
+		Текст (T)
+	</resource>
+	<resource name="editor_deleteelement">
+		Удалить
+	</resource>
+	<resource name="editor_selectall">
+		Выделить все
+	</resource>
+	<resource name="editor_copyimagetoclipboard">
+		Поместить в буфер обмена
+	</resource>
+	<resource name="contextmenu_capturewindow">
+		Снимок окна
+	</resource>
+	<resource name="editor_duplicate">
+		Дублировать
+	</resource>
+	<resource name="contextmenu_help">
+		Справка
+	</resource>
+	<resource name="contextmenu_about">
+		О программе
+	</resource>
+	<resource name="editor_title">
+		Greenshot: Редактор экранных снимков
+	</resource>
+	<resource name="settings_applicationsettings">
+		Настройки программы
+	</resource>
+	<resource name="settings_preferredfilesettings">
+		Параметры сохранения в файл
+	</resource>
+	<resource name="settings_skipimageeditor">
+		Не открывать редактор
+	</resource>
+	<resource name="settings_registerhotkeys">
+		Перехватывать горячие клавиши
+	</resource>
+	<resource name="settings_tooltip_registerhotkeys">
+		Клавиша Print (PrintScreen), сочетания Ctrl-Print, Alt-Print
+будут перехватываться программой Greenshot, пока она запущена.
+	</resource>
+	<resource name="editor_senttoprinter">
+		Задание печати отправлено на {0}.
+	</resource>
+	<resource name="editor_print">
+		Напечатать
+	</resource>
+	<resource name="help_title">
+		Справка Greenshot
+	</resource>
+	<resource name="settings_jpegsettings">
+		Параметры JPEG
+	</resource>
+	<resource name="settings_jpegquality">
+		Качество
+	</resource>
+	<resource name="settings_alwaysshowjpegqualitydialog">
+		Показывать диалог выбора качества при каждом сохранении в JPEG
+	</resource>
+	<resource name="jpegqualitydialog_title">
+		Качество Greenshot
+	</resource>
+	<resource name="jpegqualitydialog_choosejpegquality">
+		Выберите качество JPEG
+	</resource>
+	<resource name="jpegqualitydialog_dontaskagain">
+		Сохранить с выбранным качеством и больше не спрашивать
+	</resource>
+	<resource name="editor_forecolor">
+		Цвет контура
+	</resource>
+	<resource name="editor_backcolor">
+		Цвет заливки
+	</resource>
+	<resource name="editor_thickness">
+		Толщина контура
+	</resource>
+	<resource name="colorpicker_title">
+		Выбор цвета
+	</resource>
+	<resource name="colorpicker_apply">
+		Применить
+	</resource>
+	<resource name="colorpicker_transparent">
+		Прозрачный
+	</resource>
+	<resource name="colorpicker_htmlcolor">
+		Цвет в HTML
+	</resource>
+	<resource name="colorpicker_red">
+		Красный
+	</resource>
+	<resource name="colorpicker_green">
+		Зеленый
+	</resource>
+	<resource name="colorpicker_blue">
+		Синий
+	</resource>
+	<resource name="colorpicker_alpha">
+		Плотн.
+	</resource>
+	<resource name="colorpicker_recentcolors">
+		Недавно использованные цвета
+	</resource>
+	<resource name="editor_close">
+		Закрыть
+	</resource>
+	<resource name="warning">
+		Предупреждение
+	</resource>
+	<resource name="warning_hotkeys">
+		Не все горячие клавиши удалось зарегистрировать. Вероятно, они уже зарегистрированы другой программой.
+Чтобы клавишу Print (PrintScreen) и её сочетания обрабатывала программа Greenshot, следует закрыть (не свернуть) другие программы,
+перехватывающие те же горячие клавиши. Или же можно использовать команды контекстного меню Greenshot в системной области.
+	</resource>
+	<resource name="settings_destination_editor">
+		Открыть в редакторе
+	</resource>
+	<resource name="settings_destination_printer">
+		Напечатать
+	</resource>
+	<resource name="settings_destination_file">
+		Сохранить напрямую в файл
+	</resource>
+	<resource name="settings_destination_clipboard">
+		Поместить в буфер обмена
+	</resource>
+	<resource name="editor_drawline">
+		Отрезок (L)
+	</resource>
+	<resource name="settings_destination">
+		Сделанный снимок...
+	</resource>
+	<resource name="editor_drawarrow">
+		Стрелка (A)
+	</resource>
+	<resource name="editor_arrowheads">
+		Стрелка
+	</resource>
+	<resource name="editor_arrowheads_start">
+		В начале
+	</resource>
+	<resource name="editor_arrowheads_end">
+		В конце
+	</resource>
+	<resource name="editor_arrowheads_both">
+		С обеих сторон
+	</resource>
+	<resource name="editor_arrowheads_none">
+		Нет
+	</resource>
+	<resource name="editor_obfuscate_mode">
+		Режим затемнения
+	</resource>
+	<resource name="editor_highlight_mode">
+		Режим прояснения
+	</resource>
+	<resource name="error_multipleinstances">
+		Greenshot уже запущен.
+	</resource>
+	<resource name="settings_autostartshortcut">
+		Запускать Greenshot при входе в Windows
+	</resource>
+	<resource name="clipboard_inuse">
+		Не удалось записать данные в буфер обмена, который блокирован процессом {0}.
+	</resource>
+	<resource name="print_error">
+  		Ошибка при печати.
+	</resource>
+	<resource name="printoptions_title">
+		Параметры печати
+	</resource>
+	<resource name="printoptions_allowcenter">
+		Центрировать на странице
+	</resource>
+	<resource name="printoptions_allowenlarge">
+		Увеличить на всю страницу
+	</resource>
+	<resource name="printoptions_allowrotate">
+		Повернуть согласно ориентации страницы
+	</resource>
+	<resource name="printoptions_allowshrink">
+		Уменьшить, чтобы вместить в страницу
+	</resource>
+	<resource name="printoptions_dontaskagain">
+		Запомнить эти параметры и больше не спрашивать
+	</resource>
+	<resource name="settings_alwaysshowprintoptionsdialog">
+		Уточнять параметры печати перед каждой распечаткой
+	</resource>
+	<resource name="settings_printoptions">
+		Параметры печати
+	</resource>
+	<resource name="settings_output">
+		Снимки
+	</resource>
+	<resource name="settings_general">
+		Общие
+	</resource>
+	<resource name="editor_clipboardfailed">
+		Ошибка при доступе к буферу обмена. Попробуйте повторить.
+	</resource>
+	<resource name="editor_bold">
+		Полужирный
+	</resource>
+	<resource name="editor_italic">
+		Курсив
+	</resource>
+	<resource name="editor_arrange">
+		Порядок
+	</resource>
+	<resource name="editor_fontsize">
+		Размер
+	</resource>
+	<resource name="editor_uptotop">
+		На передний план
+	</resource>
+	<resource name="editor_uponelevel">
+		На один уровень вперед
+	</resource>
+	<resource name="editor_downonelevel">
+		На один уровень назад
+	</resource>
+	<resource name="editor_downtobottom">
+		На задний план
+	</resource>
+	<resource name="contextmenu_quicksettings">
+		Быстрые настройки
+	</resource>
+	<resource name="bugreport_title">
+		Ошибка
+	</resource>
+	<resource name="bugreport_info">
+		Увы, произошла непредвиденная ошибка.
+
+Хорошая новость: вы можете помочь исправить программу, отправив нам отчет об ошибке.
+По указанному ниже адресу создайте новый отчет об ошибке и скопируйте содержимое текстовой области в описание. Добавьте любую информацию, которая могла бы помочь нам воспроизвести обстоятельства проявления ошибки. Кроме того, мы были бы весьма признательны, если бы вы проверили, не сообщал ли уже кто-то о такой же ошибке (вы можете использовать поиск по сайту).
+
+Спасибо за содействие :) 
+	</resource>
+	<resource name="bugreport_cancel">
+		Закрыть
+	</resource>
+	<resource name="settings_copypathtoclipboard">
+		При сохранении копировать полное имя файла в буфер обмена
+	</resource>
+	<resource name="editor_copypathtoclipboard">
+		Копировать полное имя файла
+	</resource>
+	<resource name="settings_message_filenamepattern">
+		Подстановочные символы:
+
+%YYYY%	 год, 4 цифры
+%MM%	 месяц, 2 цифры
+%DD%	 день, 2 цифры
+%hh%	 часы, 2 цифры
+%mm%	 минуты, 2 цифры
+%ss%	 секунды, 2 цифры
+%NUM%	 возрастающий номер, 6 цифр
+%title%	 заголовок окна
+
+Greenshot может именовать по шаблону не только файлы, но и автоматически
+создаваемые папки, если в шаблоне используется обратная косая черта \
+
+Например, при указании шаблона %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+в папке по умолчанию будет создана папка для текущего дня, например, 2008-06-29,
+а имя помещённого в неё файла будет содержать текущее время, например 16-40-23
+(плюс расширение имени, заданное в настройках)
+	</resource>
+	<resource name="editor_cursortool">
+		Выбор объектов (ESC)
+	</resource>
+	<resource name="settings_destination_fileas">
+		Сохранить с выбором папки и имени файла
+	</resource>
+	<resource name="quicksettings_destination_file">
+		Сохранить в файл, указанный в настройках
+	</resource>
+	<resource name="editor_opendirinexplorer">
+		Открыть папку в Проводнике
+	</resource>
+	<resource name="printoptions_timestamp">
+		Печатать дату и время внизу страницы
+	</resource>
+	<resource name="editor_drawhighlighter">
+		Высветление
+	</resource>
+	<resource name="editor_obfuscate_blur">
+		Размытие (B)
+	</resource>
+	<resource name="editor_obfuscate_pixelize">
+		Квадратики (P)
+	</resource>
+	<resource name="editor_highlight_area">
+		Ясное среди мутного (I)
+	</resource>
+	<resource name="editor_highlight_text">
+		Цветовое выделение (H)
+	</resource>
+	<resource name="editor_highlight_grayscale">
+		Цветное среди серого
+	</resource>
+	<resource name="editor_highlight_magnify">
+		Увеличение
+	</resource>
+	<resource name="editor_pixel_size">
+		Размер квадратиков
+	</resource>
+	<resource name="editor_obfuscate">
+		Затемнение
+	</resource>
+	<resource name="editor_blur_radius">
+		Радиус размытия
+	</resource>
+	<resource name="editor_brightness">
+		Яркость
+	</resource>
+	<resource name="editor_preview_quality">
+		Качество предпросмотра
+	</resource>
+	<resource name="editor_magnification_factor">
+		Увеличение (M)
+	</resource>
+	<resource name="editor_shadow">
+		Тень
+	</resource>
+	<resource name="editor_confirm">
+		Подтвердить
+	</resource>
+	<resource name="editor_cancel">
+		Отмена
+	</resource>
+	<resource name="editor_crop">
+		Обрезать (C)
+	</resource>
+	<resource name="contextmenu_captureclipboard">
+		Открыть изображение из буфера обмена
+	</resource>
+	<resource name="clipboard_error">
+		Неожиданная ошибка произошла при записи в буфер обмена.
+	</resource>
+	<resource name="config_unauthorizedaccess_write">
+		Не удалось сохранить настройки программы. Проверьте, разрешена ли запись в {0}.
+	</resource>
+	<resource name="settings_printer">
+		Печать
+	</resource>
+	<resource name="settings_capture">
+		Снимок
+	</resource>
+	<resource name="settings_capture_mousepointer">
+		Захватить указатель мыши
+	</resource>
+	<resource name="contextmenu_openfile">
+		Открыть изображение из файла
+	</resource>
+	<resource name="error_openfile">
+		Не удалось открыть файл "{0}".
+	</resource>
+	<resource name="editor_close_on_save">
+		Сохранить экранный снимок?
+	</resource>
+	<resource name="editor_close_on_save_title">
+		Сохранить изображение?
+	</resource>
+	<resource name="settings_capture_windows_interactive">
+		Интерактивный выбор окна для снимка
+	</resource>
+	<resource name="settings_destination_email">
+		Отправить электронной почтой
+	</resource>
+	<resource name="editor_email">
+		Отправить электронной почтой
+	</resource>
+	<resource name="editor_load_objects">
+		Загрузить объекты из файла
+	</resource>
+	<resource name="editor_save_objects">
+		Сохранить объекты в файл
+	</resource>
+	<resource name="settings_waittime">
+		Задержка перед снимком (мс)
+	</resource>
+	<resource name="tooltip_firststart">
+		Щелкните правой кнопкой мыши или нажмите клавишу PrintScreen.
+	</resource>
+	<resource name="contextmenu_donate">
+		Поддержать проект
+	</resource>
+  </resources>
+</language>

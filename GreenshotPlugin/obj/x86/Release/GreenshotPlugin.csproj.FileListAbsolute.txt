@@ -1,0 +1,4 @@
+C:\Dokumente und Einstellungen\jens\Eigene Dateien\SharpDevelop Projects\Greenshot-RELEASE\GreenshotPlugin\bin\Release\GreenshotPlugin.dll
+C:\Dokumente und Einstellungen\jens\Eigene Dateien\SharpDevelop Projects\Greenshot-RELEASE\GreenshotPlugin\bin\Release\log4net.dll
+C:\Dokumente und Einstellungen\jens\Eigene Dateien\SharpDevelop Projects\Greenshot-RELEASE\GreenshotPlugin\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Dokumente und Einstellungen\jens\Eigene Dateien\SharpDevelop Projects\Greenshot-RELEASE\GreenshotPlugin\obj\x86\Release\GreenshotPlugin.dll

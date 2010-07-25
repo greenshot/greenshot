@@ -1,0 +1,527 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Čeština" ietf="cs-CZ" version="0.8.0">
+  <resources>
+	<!--    
+	Note to translator: uncomment entry "about_translation" to have 
+	your efforts honored in the "About Greenshot" dialog 
+	-->
+	<resource name="about_translation">
+        <!--English translation by YOUR_NAME-->
+    </resource>
+	<resource name="application_title">
+		Greenshot - revoluční screenshot utilita
+	</resource>
+	<resource name="editor_drawrectangle">
+		Nakresli obdélník (R)
+	</resource>
+	<resource name="editor_save">
+		Uložit
+	</resource>
+	<resource name="contextmenu_settings">
+		Předvolby...
+	</resource>
+	<resource name="settings_storagelocation">
+		Úložné místo
+	</resource>
+	<resource name="settings_title">
+		Nastavení
+	</resource>
+	<resource name="settings_tooltip_storagelocation">
+		Místo, kde jsou screenshoty uloženy ve výchozím nastavení (ponechte prázdné pro uložení do počítače)
+	</resource>
+	<resource name="settings_language">
+		Jazyk
+	</resource>
+	<resource name="settings_filenamepattern">
+		Jméno souboru vzor
+	</resource>
+	<resource name="settings_tooltip_language">
+		Jazyk uživatelského rozhraní (vyžaduje restart)
+	</resource>
+	<resource name="settings_tooltip_filenamepattern">
+		Vzor použit pro generování souborů při ukládání screenshotů
+	</resource>
+	<resource name="settings_primaryimageformat">
+		Formát obrázku
+	</resource>
+	<resource name="settings_tooltip_primaryimageformat">
+		Obrázek ve formátu použitý jako výchozí
+	</resource>
+	<resource name="contextmenu_capturearea">
+		Zachyťte oblast
+	</resource>
+	<resource name="contextmenu_capturelastregion">
+		Zachyťte předchozí oblast
+	</resource>
+	<resource name="contextmenu_exit">
+		Ukončit
+	</resource>
+	<resource name="settings_visualization">
+		Efekty
+	</resource>
+	<resource name="settings_playsound">
+		Přehrát zvuk fotoaparátu
+	</resource>
+	<resource name="settings_showflashlight">
+		Zobrazit baterku
+	</resource>
+	<resource name="error">
+		Chyba
+	</resource>
+	<resource name="error_nowriteaccess">
+		Nelze uložit soubor do {0}.
+Zkontrolujte prosím napište dostupnost vybraného umístění.
+	</resource>
+	<resource name="contextmenu_capturefullscreen">
+		Zachytit celou obrazovku
+	</resource>
+	<resource name="editor_cuttoclipboard">
+		Vyjmout
+	</resource>
+	<resource name="editor_copytoclipboard">
+		Kopírovat
+	</resource>
+	<resource name="editor_pastefromclipboard">
+		Vložit
+	</resource>
+	<resource name="about_title">
+		O Greenshotu
+	</resource>
+	<resource name="about_license">
+		Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot je ABSOLUTNĚ BEZ ZÁRUKY. Toto je svobodný software, a můžete jej dále šířit za určitých podmínek.
+Podrobnosti o GNU General Public License:
+	</resource>
+	<resource name="error_openlink">
+		Nelze otevřít odkaz.
+	</resource>
+	<resource name="error_save">
+		Nelze uložit screenshot, prosím, nalézt vhodné místo.
+	</resource>
+    <resource name="about_icons">
+		Ikony z Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)
+	</resource>
+	<resource name="about_host">
+		Greenshot hostí sourceforge.net na
+	</resource>
+	<resource name="about_bugs">
+		Prosím hlašte chyby na
+	</resource>
+	<resource name="about_donations">
+		Pokud se vám líbí Greenshot, uvítáme vaši podporu:
+	</resource>
+	<resource name="editor_imagesaved">
+		Obrázek uložen do {0}.
+	</resource>
+	<resource name="editor_storedtoclipboard">
+		Obrázek uložený do schránky.
+	</resource>
+	<resource name="editor_saveas">
+		Uložit jako...
+	</resource>
+	<resource name="editor_file">
+		Soubor
+	</resource>
+	<resource name="editor_edit">
+		Upravit
+	</resource>
+	<resource name="editor_object">
+		Objekt
+	</resource>
+	<resource name="editor_drawellipse">
+		Nakreslete elipsu (E)
+	</resource>
+	<resource name="editor_drawtextbox">
+		Přidat textbox (T)
+	</resource>
+	<resource name="editor_deleteelement">
+		Smazat
+	</resource>
+    <resource name="editor_selectall">
+		Vybrat všechny
+	</resource>
+	<resource name="editor_copyimagetoclipboard">
+		Kopírovat obrázek do schránky
+	</resource>
+	<resource name="contextmenu_capturewindow">
+		Okno zachycení
+	</resource>
+	<resource name="editor_duplicate">
+		Duplikuj vybraný prvek
+	</resource>
+	<resource name="contextmenu_help">
+		Nápověda
+	</resource>
+	<resource name="contextmenu_about">
+		O Greenshot
+	</resource>
+	<resource name="editor_title">
+		Greenshot editor obrázků
+	</resource>
+	<resource name="settings_applicationsettings">
+		Nastavení aplikace
+	</resource>
+	<resource name="settings_preferredfilesettings">
+		Preferované nastavení výstupní soubor
+	</resource>
+	<resource name="settings_skipimageeditor">
+		Přeskočit editor obrázků
+	</resource>
+	<resource name="settings_registerhotkeys">
+		Registrovat klávesové zkratky
+	</resource>
+	<resource name="settings_tooltip_registerhotkeys">
+		Definuje, zda zkratky Prnt, Ctrl + Print, Alt + Prnt jsou vyhrazeny pro globální použití Greenshot při startu programu, dokud program není ukončen.
+	</resource>
+	<resource name="editor_senttoprinter">
+		Tisková úloha byla zaslána '{0}'.
+	</resource>
+	<resource name="editor_print">
+		Tisk
+	</resource>
+	<resource name="help_title">
+		Greenshot nápověda
+	</resource>
+	<resource name="settings_jpegsettings">
+		JPEG nastavení
+	</resource>
+	<resource name="settings_jpegquality">
+		JPEG kavalita
+	</resource>
+	<resource name="settings_alwaysshowjpegqualitydialog">
+		Zobrazit dialog JPEG kvality pokaždé, když je obrázek ve formátu JPEG je ukládán
+	</resource>
+	<resource name="jpegqualitydialog_title">
+		Greenshot JPEG kvalita
+	</resource>
+	<resource name="jpegqualitydialog_choosejpegquality">
+		Prosím, vyberte kvalitu pro váš obrázek ve formátu JPEG.
+	</resource>
+	<resource name="jpegqualitydialog_dontaskagain">
+		Uložit jako výchozí JPEG kvalitu a neptat se znovu
+	</resource>
+	<resource name="editor_forecolor">
+		Barva linky
+	</resource>
+	<resource name="editor_backcolor">
+		Barva výplně
+	</resource>
+	<resource name="editor_thickness">
+		Tloušťka linky
+	</resource>
+	<resource name="colorpicker_title">
+		Sběrač barev
+	</resource>
+	<resource name="colorpicker_apply">
+		Použít
+	</resource>
+	<resource name="colorpicker_transparent">
+		Průhledný
+	</resource>
+	<resource name="colorpicker_htmlcolor">
+		HTML barva
+	</resource>
+	<resource name="colorpicker_red">
+		Červená
+	</resource>
+	<resource name="colorpicker_green">
+		Zelená
+	</resource>
+	<resource name="colorpicker_blue">
+		Modrá
+	</resource>
+	<resource name="colorpicker_alpha">
+		Alpha
+	</resource>
+	<resource name="colorpicker_recentcolors">
+		Naposledy použité barvy
+	</resource>
+	<resource name="editor_close">
+		Zavřít
+	</resource>
+	<resource name="warning">
+		Varování
+	</resource>
+	<resource name="warning_hotkeys">
+		Jedna nebo několik klávesových zkratek nemohla být zapsána. Proto by nemělo být možné použít Greenshot klávesové zkratky.
+Tento problém je pravděpodobně způsoben jiným nástrojem tvrzením, použití stejných klávesových zkratek.
+Prosím deaktivujte software s využitím na tlačítko Tisk. Můžete také jednoduše využít všech Greenshot funkcí z kontextového menu tray ikony.
+	</resource>
+	<resource name="settings_destination_editor">
+		Otevřít v editoru obrázků
+	</resource>
+	<resource name="settings_destination_printer">
+		Poslat na tiskárnu
+	</resource>
+	<resource name="settings_destination_file">
+		Uložit přímo (pomocí nastavení níže)
+	</resource>
+	<resource name="settings_destination_clipboard">
+		Kopírovat do schránky
+	</resource>
+	<resource name="editor_drawline">
+		Nakresli linku (L)
+	</resource>
+	<resource name="settings_destination">
+		Cíl screenshotu
+	</resource>
+	<resource name="editor_drawarrow">
+		Nakresli šipku (A)
+	</resource>
+	<resource name="editor_arrowheads">
+		Hlavička šipky
+	</resource>
+	<resource name="editor_arrowheads_start">
+		Začáteční bod
+	</resource>
+	<resource name="editor_arrowheads_end">
+		Koncový bod
+	</resource>
+	<resource name="editor_arrowheads_both">
+		Oba
+	</resource>
+	<resource name="editor_arrowheads_none">
+		Žádný
+	</resource>
+    <resource name="editor_obfuscate_mode">
+		Režim rozostření
+	</resource>
+    <resource name="editor_highlight_mode">
+		Režim zvýraznění
+	</resource>
+	<resource name="error_multipleinstances">
+		Greenshot je již spuštěn.
+	</resource>
+	<resource name="settings_autostartshortcut">
+		Spustit Greenshot při startu
+	</resource>
+	<resource name="clipboard_inuse">
+		Greenshot nemohl psát do schránky - proces {0} zablokoval přístup.
+	</resource>
+    <resource name="print_error">
+  		Nastala chyba při pokusu o tisk.
+</resource>
+	<resource name="printoptions_title">
+		Možností tisku
+	</resource>
+	<resource name="printoptions_allowcenter">
+		Zarovnat na střed
+	</resource>
+	<resource name="printoptions_allowenlarge">
+		Zvětšit na velikost papíru
+	</resource>
+	<resource name="printoptions_allowrotate">
+		Změnit orientaci papíru
+	</resource>
+	<resource name="printoptions_allowshrink">
+		Umístit do stránky
+	</resource>
+	<resource name="printoptions_dontaskagain">
+		Uložit možnosti jako výchozí, a už se znovu neptat
+	</resource>
+	<resource name="settings_alwaysshowprintoptionsdialog">
+		Ukázat možnosti tisku dialog pokaždé, když obraz je vytištěn
+	</resource>
+	<resource name="settings_printoptions">
+		Možnosti tisku
+	</resource>
+	<resource name="settings_output">
+		Output
+	</resource>
+	<resource name="settings_general">
+		Hlavní
+	</resource>
+	<resource name="editor_clipboardfailed">
+		Chyba při přístupu do schránky. Prosím zkuste to znovu.
+	</resource>
+	<resource name="editor_bold">
+		Tučné
+	</resource>
+	<resource name="editor_italic">
+		Kurzíva
+	</resource>
+	<resource name="editor_arrange">
+		Uspořádat
+	</resource>
+	<resource name="editor_fontsize">
+		Velikost
+	</resource>
+	<resource name="editor_uptotop">
+		Nahoru na začátek
+	</resource>
+	<resource name="editor_uponelevel">
+		Nahoru o jednu úroveň
+	</resource>
+	<resource name="editor_downonelevel">
+		Dolů o jednu úroveň
+	</resource>
+	<resource name="editor_downtobottom">
+		Dolů na dno
+	</resource>
+	<resource name="contextmenu_quicksettings">
+		Rychlé nastavení
+	</resource>
+	<resource name="bugreport_title">
+		Chyba
+	</resource>
+	<resource name="bugreport_info">
+		Omlouváme se za neočekávanou chybu.
+        
+Dobrou zprávou je: Můžete nám pomoci zbavit se jí podáním hlášení o chybě.
+Prosím, navštivte níže uvedenou URL adresu, vytvořte nové hlášení o chybě a vložit obsah z textové oblasti do popisu.
+
+Prosím, přidejte smysluplné shrnutí a přikládat žádné informace, které považujete za užitečné pro reprodukci tohoto problému.
+Také bychom velmi ocenili, kdybyste zkontrolovali, zda již neexistuje pro tuto chybu tracker. (Můžete použít vyhledávání) Děkuji :)
+	</resource>
+	<resource name="bugreport_cancel">
+		Zavřít
+	</resource>
+	<resource name="settings_copypathtoclipboard">
+		Kopírovat cestu k souboru do schránky při každém ukládání obrázku.
+	</resource>
+	<resource name="editor_copypathtoclipboard">
+		Kopírovat cestu do schránky
+	</resource>
+	<resource name="settings_message_filenamepattern">
+		Následující symboly budou nahrazeny automaticky v definované struktuře:
+%YYYY% rok, 4 číslice
+%MM% měsíc, 2 číslice
+%DD% den, 2 číslice
+%hh% hodina, 2 číslice
+%mm% minuta, 2 číslice
+%ss% sekunda, 2 číslice
+%NUM% zvyšování počtu, 6 číslice
+%title% Titulek okna
+%user% uživatel Windows
+%domain% doména Windows
+%hostname% jméno PC 
+
+Můžete také vytvářet adresáře Greenshot dynamicky, stačí použít zpětné lomítko symbol (\) do samostatné složky a název souboru.
+Příklad: vzor
+%YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+bude vytvářet složky pro aktuální den, ve vašem výchozím úložišti, např. 2008-06-29, název souboru bude založen na stávajícím
+času, např. 11_58_32 (plus rozšíření definice v Nastavení)
+	</resource>
+	<resource name="editor_cursortool">
+		Nástroj pro výběr (ESC)
+	</resource>
+	<resource name="settings_destination_fileas">
+		Uložit jako (zobraz dialog)
+	</resource>
+	<resource name="quicksettings_destination_file">
+		Uložit přímo (pomocí preferovaného nastavení výstupního souboru)
+	</resource>
+	<resource name="editor_opendirinexplorer">
+		Otevři adresář v Průzkumníku Windows
+	</resource>
+	<resource name="printoptions_timestamp">
+		Tisk data / času v dolní části stránky
+	</resource>
+	<resource name="editor_drawhighlighter">
+		Zvýraznění (H)
+	</resource>
+	<resource name="editor_obfuscate_blur">
+		Rozmazat
+	</resource>
+	<resource name="editor_obfuscate_pixelize">
+		Pixelizovat
+	</resource>
+	<resource name="editor_highlight_area">
+		Zvýraznit oblast
+	</resource>
+	<resource name="editor_highlight_text">
+		Zvýraznit text
+    </resource>
+    <resource name="editor_highlight_grayscale">
+        Ve stupních šedi
+    </resource>
+    <resource name="editor_highlight_magnify">
+		Zvětšit
+	</resource>
+	<resource name="editor_pixel_size">
+		Velikost pixelu
+	</resource>
+    <resource name="editor_obfuscate">
+		Rozostření (O)
+    </resource>
+    <resource name="editor_blur_radius">
+		Rozmazat radius
+    </resource>
+    <resource name="editor_brightness">
+		Jas
+	</resource>
+    <resource name="editor_preview_quality">
+		Ukázka kvality
+	</resource>
+    <resource name="editor_magnification_factor">
+		Faktor zvětšení
+    </resource>
+    <resource name="editor_shadow">
+		Stín
+	</resource>
+    <resource name="editor_confirm">
+		Potvrdit
+    </resource>
+    <resource name="editor_cancel">
+		Zrušit
+    </resource>
+    <resource name="editor_crop">
+		Ořezat (C)
+    </resource>
+	<resource name="contextmenu_captureclipboard">
+		Otevřít obrázek ze schránky
+	</resource>
+	<resource name="clipboard_error">
+		Neočekávaná chyba při zápisu do schránky.
+	</resource>
+	<resource name="config_unauthorizedaccess_write">
+		Nelze uložit Greenshot konfigurační soubor. Prosím zkontrolujte oprávnění k přístupu k '{0}'.
+	</resource>
+	<resource name="settings_printer">
+		Tiskárna
+	</resource>
+	<resource name="settings_capture">
+		Sejmout
+	</resource>
+	<resource name="settings_capture_mousepointer">
+		Sejmout ukazatel myši
+	</resource>
+	<resource name="contextmenu_openfile">
+		Otevřít obrázek ze souboru
+	</resource>
+	<resource name="error_openfile">
+		Soubor "{0}" nelze otevřít.
+	</resource>
+	<resource name="editor_close_on_save">
+		Přejete si uložit screenshot?
+	</resource>
+	<resource name="editor_close_on_save_title">
+		Uložit obrázek?
+	</resource>
+	<resource name="settings_capture_windows_interactive">
+		Použití interaktivních oken režimu snímání
+	</resource>
+	<resource name="settings_destination_email">
+		E-Mail
+	</resource>
+	<resource name="editor_email">
+		E-Mail
+	</resource>
+	<resource name="editor_load_objects">
+		Načíst objekty ze souboru
+	</resource>
+	<resource name="editor_save_objects">
+		Uložit objekty do souboru
+	</resource>
+	<resource name="settings_waittime">
+		Čekat milisekund před zachycením
+	</resource>
+	<resource name="tooltip_firststart">
+		Pravým klikem zde nebo stiskněte tlačítko Tisk.
+	</resource>
+	<resource name="contextmenu_donate">
+		Podpora Greenshotu
+	</resource>
+  </resources>
+</language>
+ 	  	 
