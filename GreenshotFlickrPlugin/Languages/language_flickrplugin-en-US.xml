@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="0.8.0">
+  <resources>
+	<resource name="login_error">
+		There was a problem during the login: {0}
+	</resource>
+  	<resource name="upload_success">
+		Successfully uploaded image to Flickr!
+	</resource>
+  	<resource name="upload_failure">
+		An error occured while uploading to Flickr:
+	</resource>
+  </resources>
+</language>
