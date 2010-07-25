@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot", "Greenshot.cspr
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotCore", "..\GreenshotCore\GreenshotCore.csproj", "{BDC408EE-DEA1-4474-B59D-7F05757B12EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotEditor", "..\GreenshotEditor\GreenshotEditor.csproj", "{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,5 +26,13 @@ Global
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|Any CPU.Build.0 = Release|x86
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|Any CPU.ActiveCfg = Release|x86
+		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Debug|Any CPU.Build.0 = Debug|x86
+		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Release|Any CPU.Build.0 = Release|x86
+		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Release|Any CPU.ActiveCfg = Release|x86
+		{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}.Debug|Any CPU.Build.0 = Debug|x86
+		{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}.Release|Any CPU.Build.0 = Release|x86
+		{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}.Release|Any CPU.ActiveCfg = Release|x86
 	EndGlobalSection
 EndGlobal

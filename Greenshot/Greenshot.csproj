@@ -39,11 +39,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>Lib\log4net.dll</HintPath>
+      <HintPath>..\GreenshotCore\Lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>Lib\nunit.framework.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\GreenshotCore\Lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -171,8 +170,6 @@
     <Compile Include="Test\Drawing\Properties\PropertyAggregatorTest.cs" />
     <Compile Include="Test\Drawing\Properties\SerializationTest.cs" />
     <Compile Include="Test\SaveImageFileDialogTest.cs" />
-    <Compile Include="UnmanagedHelpers\GDI32.cs" />
-    <Compile Include="UnmanagedHelpers\User32.cs" />
     <EmbeddedResource Include="Forms\AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -225,8 +222,6 @@
     <None Include="Languages\language-zh-tw.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Lib\log4net.dll" />
-    <None Include="Lib\nunit.framework.dll" />
     <None Include="log4net.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -254,8 +249,6 @@
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ColorDialog.cs" />
-    <Compile Include="UnmanagedHelpers\Win32Errors.cs" />
-    <Compile Include="UnmanagedHelpers\WinMM.cs" />
     <EmbeddedResource Include="Forms\ColorDialog.resx">
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -270,14 +263,20 @@
     <Folder Include="Helpers" />
     <Folder Include="Drawing" />
     <Folder Include="Controls" />
-    <Folder Include="Lib" />
     <Folder Include="Languages" />
     <Folder Include="Test" />
     <Folder Include="Test\Drawing" />
     <Folder Include="Test\Drawing\Filters" />
     <Folder Include="Test\Drawing\Properties" />
-    <Folder Include="UnmanagedHelpers" />
     <Folder Include="Help" />
+    <ProjectReference Include="..\GreenshotCore\GreenshotCore.csproj">
+      <Project>{BDC408EE-DEA1-4474-B59D-7F05757B12EC}</Project>
+      <Name>GreenshotCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotEditor\GreenshotEditor.csproj">
+      <Project>{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}</Project>
+      <Name>GreenshotEditor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
