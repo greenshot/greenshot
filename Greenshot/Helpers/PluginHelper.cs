@@ -26,7 +26,10 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Drawing;
+using Greenshot.Forms;
 using Greenshot.Plugin;
 
 namespace Greenshot.Helpers {

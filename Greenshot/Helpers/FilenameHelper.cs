@@ -23,6 +23,7 @@ using System.Collections;
 using System.IO;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
 using Greenshot.Configuration;
 using Greenshot.Plugin;
 

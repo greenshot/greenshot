@@ -24,7 +24,6 @@ using System.Drawing.Imaging;
 using System.Runtime.Serialization;
 
 using Greenshot.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()]

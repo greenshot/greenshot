@@ -29,6 +29,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
 using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Helpers;

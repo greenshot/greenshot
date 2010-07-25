@@ -29,6 +29,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 using Greenshot;
+using Greenshot.Capturing;
 using Greenshot.Configuration;
 using Greenshot.Plugin;
 using Greenshot.UnmanagedHelpers;

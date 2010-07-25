@@ -28,6 +28,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
 using Greenshot.Configuration;
 using Greenshot.Plugin;
 using Microsoft.Win32;

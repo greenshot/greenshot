@@ -24,7 +24,6 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
-using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing.Filters {
     [Serializable()] 

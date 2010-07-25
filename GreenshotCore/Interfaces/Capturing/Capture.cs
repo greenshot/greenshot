@@ -23,7 +23,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin {
+using Greenshot.Plugin;
+
+namespace Greenshot.Capturing {
 	/// <summary>
 	/// The capture mode for Greenshot
 	/// </summary>

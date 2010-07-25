@@ -25,7 +25,6 @@ using System.Drawing;
 
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing.Filters {
 	public interface IFilter : INotifyPropertyChanged, IFieldHolder {

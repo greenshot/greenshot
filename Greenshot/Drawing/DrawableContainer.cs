@@ -34,7 +34,6 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>

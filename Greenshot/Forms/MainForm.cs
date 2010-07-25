@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
 using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Forms;

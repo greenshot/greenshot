@@ -23,7 +23,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.Serialization;
 
-using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing.Filters {
 	/// <summary>

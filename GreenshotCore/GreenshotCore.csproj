@@ -41,16 +41,25 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Drawing" />
-    <Folder Include="Drawing\Fields" />
+    <Folder Include="Interfaces\Drawing" />
+    <Folder Include="Interfaces\Drawing\Fields" />
+    <Folder Include="Interfaces\Forms" />
+    <Folder Include="Interfaces\Capturing" />
+    <Folder Include="Interfaces\Plugin" />
     <Folder Include="Lib" />
+    <Folder Include="Interfaces" />
     <Folder Include="UnmanagedHelpers" />
-    <Compile Include="Drawing\Fields\FieldType.cs" />
-    <Compile Include="Drawing\Fields\IField.cs" />
-    <Compile Include="Drawing\Fields\IFieldHolder.cs" />
+    <Compile Include="Interfaces\Capturing\Capture.cs" />
+    <Compile Include="Interfaces\Drawing\IDrawableContainer.cs" />
+    <Compile Include="Interfaces\Drawing\Fields\IField.cs" />
+    <Compile Include="Interfaces\Drawing\Fields\IFieldHolder.cs" />
+    <Compile Include="Interfaces\Drawing\ISurface.cs" />
+    <Compile Include="Interfaces\Forms\IImageEditor.cs" />
+    <Compile Include="Interfaces\Plugin\PluginInterfaces.cs" />
     <Compile Include="UnmanagedHelpers\GDI32.cs" />
     <Compile Include="UnmanagedHelpers\User32.cs" />
     <Compile Include="UnmanagedHelpers\Win32Errors.cs" />

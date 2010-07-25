@@ -49,13 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\Capture.cs" />
     <Compile Include="Core\LanguageHelper.cs" />
     <Compile Include="Core\PropertyHelper.cs" />
-    <Compile Include="Interfaces\Drawing\Container.cs" />
-    <Compile Include="Interfaces\Forms\ImageEditor.cs" />
-    <Compile Include="Interfaces\Generic.cs" />
-    <Compile Include="Interfaces\Plugin\PluginInterfaces.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Properties\AssemblyInfo.cs.template" />
   </ItemGroup>
@@ -66,6 +61,10 @@
     <Folder Include="Interfaces" />
     <Folder Include="Core" />
     <Folder Include="Interfaces\Plugin" />
+    <ProjectReference Include="..\GreenshotCore\GreenshotCore.csproj">
+      <Project>{BDC408EE-DEA1-4474-B59D-7F05757B12EC}</Project>
+      <Name>GreenshotCore</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>rmdir /S /Q "$(SolutionDir)bin\$(Configuration)\Plugins"

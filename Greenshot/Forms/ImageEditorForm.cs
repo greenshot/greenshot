@@ -33,6 +33,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
 using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
@@ -42,7 +43,7 @@ using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	/// <summary>
 	/// Description of ImageEditorForm.
 	/// </summary>

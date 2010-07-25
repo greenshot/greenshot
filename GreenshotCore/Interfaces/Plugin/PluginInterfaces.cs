@@ -24,6 +24,10 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
+using Greenshot.Drawing;
+using Greenshot.Forms;
+
 namespace Greenshot.Plugin {
 	[Serializable]
 	[AttributeUsageAttribute(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]

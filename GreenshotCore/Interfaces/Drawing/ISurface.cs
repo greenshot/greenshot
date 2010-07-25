@@ -23,11 +23,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 
-using Greenshot.Plugin.Drawing;
-
-namespace Greenshot.Plugin {
+namespace Greenshot.Drawing {
 	/// <summary>
-	/// Alignment Enums for possitioning
+	/// Alignment Enums for positioning
 	/// </summary>
 	//public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
 	public enum VerticalAlignment {TOP, CENTER, BOTTOM};

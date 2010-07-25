@@ -28,12 +28,12 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
 using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing {
 	public delegate void SurfaceElementEventHandler(object source, DrawableContainerList element);

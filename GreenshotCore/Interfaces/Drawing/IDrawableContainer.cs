@@ -24,9 +24,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 
-using Greenshot.Plugin;
-
-namespace Greenshot.Plugin.Drawing {
+namespace Greenshot.Drawing {
 	public enum RenderMode {EDIT, EXPORT};
 	public enum EditStatus {UNDRAWN, DRAWING, MOVING, RESIZING, IDLE};
 

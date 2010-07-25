@@ -29,7 +29,6 @@ using System.Windows.Forms;
 
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>

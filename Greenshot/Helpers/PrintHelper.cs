@@ -24,6 +24,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
 using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Plugin;

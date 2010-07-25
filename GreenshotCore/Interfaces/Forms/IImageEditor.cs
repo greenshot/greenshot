@@ -23,7 +23,10 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin {
+using Greenshot.Capturing;
+using Greenshot.Drawing;
+
+namespace Greenshot.Forms {
 	/// <summary>
 	/// The IImageEditor is the Interface that the Greenshot ImageEditor has to implement
 	/// </summary>

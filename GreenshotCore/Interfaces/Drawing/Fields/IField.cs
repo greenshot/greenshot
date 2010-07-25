@@ -45,4 +45,37 @@ namespace Greenshot.Drawing.Fields {
 			this.Field = field;
 		}
 	}
+	
+	/// <summary>
+	/// All types of fields
+	/// </summary>
+	public enum FieldType {
+		ARROWHEADS, 
+		BLUR_RADIUS, 
+		BRIGHTNESS, 
+		FILL_COLOR,
+		FONT_BOLD,
+		FONT_FAMILY,
+		FONT_ITALIC,
+		FONT_SIZE,
+		HIGHLIGHT_COLOR,
+		LINE_COLOR,
+		LINE_THICKNESS,
+		MAGNIFICATION_FACTOR,
+		PIXEL_SIZE,
+		PREVIEW_QUALITY,
+		SHADOW,
+		PREPARED_FILTER_OBFUSCATE,
+		PREPARED_FILTER_HIGHLIGHT,
+		FLAGS
+	}
+	
+	/// <summary>
+	/// This enum provides values for FieldType.FLAGS
+	/// </summary>
+	[Flags]
+	public enum FieldFlag {
+		NONE = 0,
+		CONFIRMABLE = 1
+	}
 }

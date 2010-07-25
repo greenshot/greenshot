@@ -26,7 +26,6 @@ using System.Runtime.Serialization;
 
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
 
 /// <summary>
 /// Graphical filter which can be added to DrawableContainer.
