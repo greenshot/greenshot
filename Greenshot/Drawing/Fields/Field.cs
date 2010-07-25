@@ -27,7 +27,7 @@ namespace Greenshot.Drawing.Fields {
 	/// line thickness of a rectangle.
 	/// </summary>
 	[Serializable]
-	public class Field : INotifyPropertyChanged {
+	public class Field : IField {
 		[field:NonSerialized]
 		public event PropertyChangedEventHandler PropertyChanged;
 		
@@ -39,8 +39,17 @@ namespace Greenshot.Drawing.Fields {
 					if(PropertyChanged!=null) PropertyChanged(this, new PropertyChangedEventArgs("Value")); }
 			}
 		}
-		public FieldType FieldType;
-		public string Scope;
+		private FieldType fieldType;
+		public FieldType FieldType {
+			get { return fieldType; }
+			set { fieldType = value; }
+		}
+		
+		private string scope;
+		public string Scope {
+			get { return scope; }
+			set { scope = value; }
+		}
 		
 		/// <summary>
 		/// Constructs a new Field instance, usually you should be using FieldFactory
@@ -54,15 +63,15 @@ namespace Greenshot.Drawing.Fields {
 		/// should not be reused for FieldHolders of another Type (e.g. typeof(EllipseContainer))
 		/// </param>
 		public Field(FieldType fieldType, Type scope) {
-			FieldType = fieldType;
-			Scope = scope.FullName;
+			this.fieldType = fieldType;
+			this.scope = scope.FullName;
 		}
 		public Field(FieldType fieldType, string scope) {
-			FieldType = fieldType;
-			Scope = scope;
+			this.fieldType = fieldType;
+			this.scope = scope;
 		}
 		public Field(FieldType fieldType) {
-			FieldType = fieldType;
+			this.fieldType = fieldType;
 		}
 		/// <summary>
 		/// Returns true if this field holds a value other than null.
@@ -76,7 +85,7 @@ namespace Greenshot.Drawing.Fields {
 		/// </summary>
 		/// <returns></returns>
 		public Field Clone() {
-			Field ret = new Field(FieldType, Scope);
+			Field ret = new Field(fieldType, scope);
 			ret.Value = Value;
 			return ret;
 		}
@@ -84,9 +93,9 @@ namespace Greenshot.Drawing.Fields {
 		public override int GetHashCode() {
 			int hashCode = 0;
 			unchecked {
-				hashCode += 1000000009 * FieldType.GetHashCode();
-				if (Scope != null)
-					hashCode += 1000000021 * Scope.GetHashCode();
+				hashCode += 1000000009 * fieldType.GetHashCode();
+				if (scope != null)
+					hashCode += 1000000021 * scope.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -96,27 +105,12 @@ namespace Greenshot.Drawing.Fields {
 			if (other == null) {
 				return false;
 			}
-			return this.FieldType == other.FieldType && object.Equals(this.Scope, other.Scope);
+			return this.fieldType == other.fieldType && object.Equals(this.scope, other.scope);
 		}
 		
 		public override string ToString() {
-			return string.Format("[Field FieldType={1} Value={0} Scope={2}]", this.myValue, this.FieldType, this.Scope);
+			return string.Format("[Field FieldType={1} Value={0} Scope={2}]", this.myValue, this.fieldType, this.scope);
 		}
 	}
 	
-	
-	/// <summary>
-	/// EventHandler to be used when a field value changes
-	/// </summary>
-	public delegate void FieldChangedEventHandler(object sender, FieldChangedEventArgs e);
-	
-	/// <summary>
-	/// EventArgs to be used with FieldChangedEventHandler
-	/// </summary>
-	public class FieldChangedEventArgs : EventArgs {
-		public readonly Field Field;
-		public FieldChangedEventArgs(Field field) {
-			this.Field = field;
-		}
-	}
 }

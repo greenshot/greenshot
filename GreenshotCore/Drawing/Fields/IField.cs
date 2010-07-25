@@ -19,35 +19,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Greenshot.Drawing.Fields {
-	/// <summary>
-	/// Any element holding Fields must provide access to it.
-	/// AbstractFieldHolder is the basic implementation.
-	/// If you need the fieldHolder to have child fieldHolders,
-	/// you should consider using IFieldHolderWithChildren.
-	/// </summary>
-	public interface IFieldHolder {
-		
-		event FieldChangedEventHandler FieldChanged;
-		
-		void AddField(Field field);
-		void RemoveField(Field field);
-		List<Field> GetFields();
-		Field GetField(FieldType fieldType);
-		bool HasField(FieldType fieldType);
-		void SetFieldValue(FieldType fieldType, object value);
+
+	public interface IField : INotifyPropertyChanged
+	{
+		object Value { get; set; }
+		FieldType FieldType { get; set; }
+		string Scope { get; set; }
+		bool HasValue { get; }
 	}
 	
 	/// <summary>
-	/// Extended fieldHolder which has fieldHolder children.
-	/// Implementations should pass field values to and from 
-	/// their children.
-	/// AbstractFieldHolderWithChildren is the basic implementation.
+	/// EventHandler to be used when a field value changes
 	/// </summary>
-	public interface IFieldHolderWithChildren : IFieldHolder {
-		void AddChild(IFieldHolder fieldHolder);
-		void RemoveChild(IFieldHolder fieldHolder);
+	public delegate void FieldChangedEventHandler(object sender, FieldChangedEventArgs e);
+	
+	/// <summary>
+	/// EventArgs to be used with FieldChangedEventHandler
+	/// </summary>
+	public class FieldChangedEventArgs : EventArgs {
+		public readonly IField Field;
+		public FieldChangedEventArgs(IField field) {
+			this.Field = field;
+		}
 	}
 }

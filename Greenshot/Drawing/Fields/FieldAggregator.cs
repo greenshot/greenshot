@@ -59,7 +59,7 @@ namespace Greenshot.Drawing.Fields {
 		}
 		
 		
-		public override void AddField(Field field) {
+		public override void AddField(IField field) {
 			base.AddField(field);
 			field.PropertyChanged += new PropertyChangedEventHandler(OwnPropertyChanged);
 		}
@@ -142,24 +142,24 @@ namespace Greenshot.Drawing.Fields {
 			status = Status.IDLE;
 		}
 		
-		private List<Field> FindCommonFields() {
-			List<Field> ret = null;
+		private List<IField> FindCommonFields() {
+			List<IField> ret = null;
 			if(boundContainers.Count > 0) {
 				// take all fields from the least selected container...
 				ret = boundContainers[boundContainers.Count-1].GetFields();
 				for(int i=0;i<boundContainers.Count-1; i++) {
 					DrawableContainer dc = boundContainers[i];
-					List<Field> fieldsToRemove = new List<Field>();
-					foreach(Field f in ret) {
+					List<IField> fieldsToRemove = new List<IField>();
+					foreach(IField f in ret) {
 						// ... throw out those that do not apply to one of the other containers
 						if(!dc.HasField(f.FieldType)) fieldsToRemove.Add(f);
 					}
-					foreach(Field f in fieldsToRemove) {
+					foreach(IField f in fieldsToRemove) {
 						ret.Remove(f);
 					}
 				}
 			}
-			if(ret == null) ret = new List<Field>();
+			if(ret == null) ret = new List<IField>();
 			return ret;
 		}
 		
@@ -171,7 +171,7 @@ namespace Greenshot.Drawing.Fields {
 					if(f.Scope == null || dc.GetType().FullName.Equals(f.Scope)) {
 						if(LOG.IsDebugEnabled) LOG.Debug("Updating field: "+f.FieldType+": "+f.Value);
 						if(dc.HasField(f.FieldType)) {
-							Field dcf = dc.GetField(f.FieldType);
+							IField dcf = dc.GetField(f.FieldType);
 							dcf.Value = f.Value;
 							// update last used from DC field, so that scope is honored
 							AppConfig.GetInstance().UpdateLastUsedFieldValue(dcf);

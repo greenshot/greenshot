@@ -44,8 +44,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Drawing" />
+    <Folder Include="Drawing\Fields" />
     <Folder Include="Lib" />
     <Folder Include="UnmanagedHelpers" />
+    <Compile Include="Drawing\Fields\FieldType.cs" />
+    <Compile Include="Drawing\Fields\IField.cs" />
+    <Compile Include="Drawing\Fields\IFieldHolder.cs" />
     <Compile Include="UnmanagedHelpers\GDI32.cs" />
     <Compile Include="UnmanagedHelpers\User32.cs" />
     <Compile Include="UnmanagedHelpers\Win32Errors.cs" />

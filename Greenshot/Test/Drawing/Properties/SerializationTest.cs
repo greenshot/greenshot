@@ -87,8 +87,8 @@ namespace Greenshot.Test.Drawing.Properties
 			
 			ObfuscateContainer clone = (ObfuscateContainer)Objects.DeepClone(oc);
 			Assert.AreEqual(oc.Children.GetType(), clone.Children.GetType());
-			System.Collections.Generic.List<Field> ocFields = oc.GetFields();
-			System.Collections.Generic.List<Field> cloneFields = clone.GetFields();
+			System.Collections.Generic.List<IField> ocFields = oc.GetFields();
+			System.Collections.Generic.List<IField> cloneFields = clone.GetFields();
 			Assert.AreEqual(ocFields, cloneFields);
 		}
 		

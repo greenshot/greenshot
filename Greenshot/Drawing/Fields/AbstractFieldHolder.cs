@@ -48,8 +48,8 @@ namespace Greenshot.Drawing.Fields {
 		// we keep to Coolections of our fields, dictionary for quick access, list for serialization
 		// this allows us to use default serialization
 		[NonSerialized]
-		private Dictionary<FieldType, Field> fieldsByType = new Dictionary<FieldType, Field>();
-		private List<Field> fields = new List<Field>();
+		private Dictionary<FieldType, IField> fieldsByType = new Dictionary<FieldType, IField>();
+		private List<IField> fields = new List<IField>();
 		
 		
 		
@@ -58,7 +58,7 @@ namespace Greenshot.Drawing.Fields {
 		
 		[OnDeserializedAttribute()]
 		private void OnDeserialized(StreamingContext context) {
-			fieldsByType  = new Dictionary<FieldType, Field>();
+			fieldsByType  = new Dictionary<FieldType, IField>();
 			// listen to changing properties
 			foreach(Field field in fields) {
 				field.PropertyChanged += delegate { if(fieldChanged != null) fieldChanged(this, new FieldChangedEventArgs(field)); };
@@ -66,7 +66,7 @@ namespace Greenshot.Drawing.Fields {
 			}
 		}
 
-		public virtual void AddField(Field field) {
+		public virtual void AddField(IField field) {
 			if(fieldsByType != null && fieldsByType.ContainsKey(field.FieldType)) {
 				if(LOG.IsDebugEnabled) LOG.Debug("A field with of type '"+field.FieldType+"' already exists in this "+GetType()+", will overwrite.");
 			} 
@@ -76,18 +76,18 @@ namespace Greenshot.Drawing.Fields {
 			field.PropertyChanged += delegate { if(fieldChanged != null) fieldChanged(this, new FieldChangedEventArgs(field)); };
 		}
 		
-		public void RemoveField(Field field) {
+		public void RemoveField(IField field) {
 			fields.Remove(field);
 			fieldsByType.Remove(field.FieldType);
 			field.PropertyChanged -= delegate { if(fieldChanged != null) fieldChanged(this, new FieldChangedEventArgs(field)); };
 		}
 		
-		public List<Field> GetFields() {
+		public List<IField> GetFields() {
 			return fields;
 		}
 
 		
-		public Field GetField(FieldType fieldType) {
+		public IField GetField(FieldType fieldType) {
 			try {
 				return fieldsByType[fieldType];
 			} catch(KeyNotFoundException e) {

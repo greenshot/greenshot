@@ -33,7 +33,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	public class CropContainer : DrawableContainer {
 		public CropContainer(Surface parent) : base(parent) {
-			AddField(FieldFactory.CreateFieldWithValue(FieldType.FLAGS, FieldType.Flag.CONFIRMABLE));
+			AddField(FieldFactory.CreateFieldWithValue(FieldType.FLAGS, FieldFlag.CONFIRMABLE));
 		}
 		
 		public override void Draw(Graphics g, RenderMode rm) {

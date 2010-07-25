@@ -72,8 +72,8 @@ namespace Greenshot.Drawing.Fields {
 			if(childrenChanged != null) childrenChanged(this, EventArgs.Empty);
 		}
 		
-		public new List<Field> GetFields() {
-			List<Field> ret = new List<Field>();
+		public new List<IField> GetFields() {
+			List<IField> ret = new List<IField>();
 			ret.AddRange(base.GetFields());
 			foreach(IFieldHolder fh in Children) {
 				ret.AddRange(fh.GetFields());
@@ -81,8 +81,8 @@ namespace Greenshot.Drawing.Fields {
 			return ret;
 		}
 		
-		public new Field GetField(FieldType fieldType) {
-			Field ret = null;
+		public new IField GetField(FieldType fieldType) {
+			IField ret = null;
 			if(base.HasField(fieldType)) {
 				ret = base.GetField(fieldType);
 			} else {
@@ -113,12 +113,12 @@ namespace Greenshot.Drawing.Fields {
 		}
 		
 		public new bool HasFieldValue(FieldType fieldType) {
-			Field f = GetField(fieldType);
+			IField f = GetField(fieldType);
 			return f != null && f.HasValue;
 		}
 		
 		public new void SetFieldValue(FieldType fieldType, object value) {
-			Field f = GetField(fieldType);
+			IField f = GetField(fieldType);
 			if(f != null) f.Value = value;
 		}
 		

@@ -286,22 +286,18 @@ namespace Greenshot.Configuration {
 			}
 		}
 		
-		public void UpdateLastUsedFieldValue(Field f) {
+		public void UpdateLastUsedFieldValue(IField f) {
 			if(f.Value != null) {
 				string key = GetKeyForField(f);
 				LastUsedFieldValues[key] = f.Value;
 			}
 		}
 		
-		public Field GetLastUsedValueForField(Field f, object preferredDefaultValue) {
+		public IField GetLastUsedValueForField(IField f) {
 			string key = GetKeyForField(f);
 			if(LastUsedFieldValues.ContainsKey(key)) {
 				f.Value = LastUsedFieldValues[key];
-			} else if(preferredDefaultValue != null) {
-				f.Value = preferredDefaultValue;
-			}else {
-				f.Value = f.FieldType.DefaultValue;
-			}
+			} 
 			return f;
 		}
 		
@@ -309,11 +305,11 @@ namespace Greenshot.Configuration {
 		/// <returns></returns>
 		/// <param name="f"></param>
 		/// <returns>the key under which last used value for the Field can be stored/retrieved</returns>
-		private string GetKeyForField(Field f) {
+		private string GetKeyForField(IField f) {
 			if(f.Scope == null) {
-				return f.FieldType.Name;
+				return f.FieldType.ToString();
 			} else {
-				return f.FieldType.Name + "-" + f.Scope;
+				return f.FieldType.ToString() + "-" + f.Scope;
 			}
 		}
 	}

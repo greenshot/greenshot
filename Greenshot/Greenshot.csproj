@@ -98,8 +98,6 @@
     <Compile Include="Drawing\Fields\AbstractFieldHolder.cs" />
     <Compile Include="Drawing\Fields\Field.cs" />
     <Compile Include="Drawing\Fields\FieldFactory.cs" />
-    <Compile Include="Drawing\Fields\FieldType.cs" />
-    <Compile Include="Drawing\Fields\IFieldHolder.cs" />
     <Compile Include="Drawing\Fields\FieldAggregator.cs" />
     <Compile Include="Drawing\MetafileContainer.cs" />
     <Compile Include="Drawing\ObfuscateContainer.cs" />
