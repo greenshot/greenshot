@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 namespace GreenshotFlickrPlugin {
-	partial class FlickrUploadForm {
+	partial class FlickrAuthenticationForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
@@ -44,41 +44,66 @@ namespace GreenshotFlickrPlugin {
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
 		private void InitializeComponent() {
-			this.cancelButton = new System.Windows.Forms.Button();
 			this.okButton = new System.Windows.Forms.Button();
+			this.cancelButton = new System.Windows.Forms.Button();
+			this.button1 = new System.Windows.Forms.Button();
+			this.label1 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
-			// 
-			// cancelButton
-			// 
-			this.cancelButton.Location = new System.Drawing.Point(197, 229);
-			this.cancelButton.Name = "cancelButton";
-			this.cancelButton.Size = new System.Drawing.Size(75, 23);
-			this.cancelButton.TabIndex = 2;
-			this.cancelButton.Text = "Cancel";
-			this.cancelButton.UseVisualStyleBackColor = true;
-			this.cancelButton.Click += new System.EventHandler(this.CancelButtonClick);
 			// 
 			// okButton
 			// 
 			this.okButton.Location = new System.Drawing.Point(116, 229);
 			this.okButton.Name = "okButton";
 			this.okButton.Size = new System.Drawing.Size(75, 23);
-			this.okButton.TabIndex = 3;
+			this.okButton.TabIndex = 6;
 			this.okButton.Text = "OK";
 			this.okButton.UseVisualStyleBackColor = true;
 			this.okButton.Click += new System.EventHandler(this.OkButtonClick);
 			// 
-			// FlickrUploadForm
+			// cancelButton
+			// 
+			this.cancelButton.Location = new System.Drawing.Point(197, 229);
+			this.cancelButton.Name = "cancelButton";
+			this.cancelButton.Size = new System.Drawing.Size(75, 23);
+			this.cancelButton.TabIndex = 5;
+			this.cancelButton.Text = "Cancel";
+			this.cancelButton.UseVisualStyleBackColor = true;
+			this.cancelButton.Click += new System.EventHandler(this.CancelButtonClick);
+			// 
+			// button1
+			// 
+			this.button1.Location = new System.Drawing.Point(102, 89);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(89, 23);
+			this.button1.TabIndex = 4;
+			this.button1.Text = "Authentication";
+			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.AuthenticationButtonClick);
+			// 
+			// label1
+			// 
+			this.label1.Location = new System.Drawing.Point(13, 35);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(259, 51);
+			this.label1.TabIndex = 7;
+			this.label1.Text = "Please press the authentication button, this will open a browser. Login to Flickr" +
+			" and allow Greenshot access";
+			// 
+			// FlickrAuthenticationForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(284, 264);
+			this.Controls.Add(this.label1);
 			this.Controls.Add(this.okButton);
 			this.Controls.Add(this.cancelButton);
-			this.Name = "FlickrUploadForm";
-			this.Text = "FlickrUploadForm";
+			this.Controls.Add(this.button1);
+			this.Name = "FlickrAuthenticationForm";
+			this.Text = "FlickrAuthenticationForm";
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Button button1;
 		private System.Windows.Forms.Button cancelButton;
 		private System.Windows.Forms.Button okButton;
 	}

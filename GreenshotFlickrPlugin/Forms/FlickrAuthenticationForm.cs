@@ -20,20 +20,25 @@
  */
 using System;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 
 namespace GreenshotFlickrPlugin {
 	/// <summary>
-	/// Description of FlickrUploadForm.
+	/// Description of FlickrAuthenticationForm.
 	/// </summary>
-	public partial class FlickrUploadForm : Form {
-		
-		public FlickrUploadForm() {
+	public partial class FlickrAuthenticationForm : Form {
+		private string authenticationUrl = null;
+		public FlickrAuthenticationForm(string authenticationUrl) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			this.authenticationUrl = authenticationUrl;
+		}
+		
+		void AuthenticationButtonClick(object sender, EventArgs e) {
+			// The following line will load the URL in the users default browser.
+			System.Diagnostics.Process.Start(authenticationUrl);
 		}
 
 		void OkButtonClick(object sender, EventArgs e) {

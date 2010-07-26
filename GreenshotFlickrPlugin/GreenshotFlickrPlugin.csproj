@@ -52,6 +52,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FlickrPlugin.cs" />
+    <Compile Include="Forms\FlickrAuthenticationForm.cs" />
+    <Compile Include="Forms\FlickrAuthenticationForm.Designer.cs">
+      <DependentUpon>FlickrAuthenticationForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FlickrUploadForm.cs" />
     <Compile Include="Forms\FlickrUploadForm.Designer.cs">
       <DependentUpon>FlickrUploadForm.cs</DependentUpon>
@@ -70,9 +74,6 @@
     </None>
     <None Include="Lib\FlickrNet.dll" />
     <None Include="Properties\AssemblyInfo.cs.template" />
-    <EmbeddedResource Include="Forms\FlickrUploadForm.resx">
-      <DependentUpon>FlickrUploadForm.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Lib" />
