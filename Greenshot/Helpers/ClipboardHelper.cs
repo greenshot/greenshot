@@ -29,9 +29,9 @@ using System.Threading;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Drawing;
 using Greenshot.UnmanagedHelpers;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Helpers {
 	/// <summary>

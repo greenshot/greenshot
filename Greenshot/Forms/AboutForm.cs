@@ -24,7 +24,7 @@ using System.Reflection;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace Greenshot {
 	/// <summary>

@@ -39,12 +39,16 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>Lib\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Core" />
     <Folder Include="Interfaces\Drawing" />
     <Folder Include="Interfaces\Drawing\Fields" />
     <Folder Include="Interfaces\Forms" />
@@ -53,6 +57,8 @@
     <Folder Include="Lib" />
     <Folder Include="Interfaces" />
     <Folder Include="UnmanagedHelpers" />
+    <Compile Include="Core\LanguageHelper.cs" />
+    <Compile Include="Core\PropertyHelper.cs" />
     <Compile Include="Interfaces\Capturing\Capture.cs" />
     <Compile Include="Interfaces\Drawing\IDrawableContainer.cs" />
     <Compile Include="Interfaces\Drawing\Fields\IField.cs" />

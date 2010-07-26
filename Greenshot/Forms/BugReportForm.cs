@@ -25,8 +25,8 @@ using System.Web;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Helpers;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	public partial class BugReportForm : Form {

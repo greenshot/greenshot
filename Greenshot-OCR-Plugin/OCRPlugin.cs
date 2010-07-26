@@ -28,8 +28,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
+using Greenshot.Core;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using Microsoft.Win32;
 
 namespace GreenshotOCR {

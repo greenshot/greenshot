@@ -28,6 +28,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 
+using Greenshot.Capturing;
 using Greenshot.Plugin;
 
 namespace RunAtOutput {

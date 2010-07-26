@@ -27,7 +27,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace Greenshot.Configuration {
 	/// <summary>

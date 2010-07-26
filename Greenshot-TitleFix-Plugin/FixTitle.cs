@@ -25,8 +25,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
+using Greenshot.Core;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 
 namespace FixTitle {
 	/// <summary>

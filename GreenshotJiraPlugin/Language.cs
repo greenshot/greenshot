@@ -24,7 +24,7 @@ using System.Globalization;
 using System.Resources;
 using System.Threading;
 
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>

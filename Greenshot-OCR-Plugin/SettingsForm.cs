@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace GreenshotOCR {
 	/// <summary>

@@ -27,8 +27,10 @@ using System.Text;
 using System.Windows.Forms;
 
 using Confluence;
+using Greenshot.Capturing;
+using Greenshot.Core;
+using Greenshot.Forms;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>

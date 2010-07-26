@@ -41,7 +41,7 @@ using Greenshot.Drawing.Fields.Binding;
 using Greenshot.Help;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace Greenshot.Forms {
 	/// <summary>

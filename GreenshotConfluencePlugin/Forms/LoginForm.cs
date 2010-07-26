@@ -22,7 +22,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>

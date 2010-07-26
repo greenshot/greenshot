@@ -21,7 +21,7 @@
 using System;
 using System.IO;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace Greenshot.Help {
 	/// <summary>

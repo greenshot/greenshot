@@ -26,6 +26,9 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
+using Greenshot.Drawing;
+using Greenshot.Forms;
 using Greenshot.Plugin;
 
 namespace PluginExample {

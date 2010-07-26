@@ -31,9 +31,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Windows.Forms;
 
+using Greenshot.Core;
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Configuration {
 	public enum ScreenshotDestinations {Editor=1, FileDefault=2, FileWithDialog=4, Clipboard=8, Printer=16, EMail=32}

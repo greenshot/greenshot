@@ -29,7 +29,7 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace Greenshot {
 	/// <summary>

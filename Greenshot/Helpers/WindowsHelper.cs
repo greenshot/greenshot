@@ -29,8 +29,8 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
+using Greenshot.Core;
 using Greenshot.UnmanagedHelpers;
-using GreenshotPlugin.Core;
 
 /// <summary>
 /// Code for handling with "windows"

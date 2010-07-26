@@ -30,9 +30,9 @@ using System.Windows.Forms;
 
 using FlickrNet;
 using Greenshot.Capturing;
+using Greenshot.Core;
 using Greenshot.Forms;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using Microsoft.Win32;
 
 namespace GreenshotFlickrPlugin {

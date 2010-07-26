@@ -26,8 +26,10 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
+using Greenshot.Capturing;
+using Greenshot.Core;
+using Greenshot.Forms;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using Jira;
 
 namespace GreenshotJiraPlugin {

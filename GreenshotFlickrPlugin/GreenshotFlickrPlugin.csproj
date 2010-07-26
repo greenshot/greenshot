@@ -83,10 +83,6 @@
       <Project>{BDC408EE-DEA1-4474-B59D-7F05757B12EC}</Project>
       <Name>GreenshotCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
-      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
-      <Name>GreenshotPlugin</Name>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"</PreBuildEvent>

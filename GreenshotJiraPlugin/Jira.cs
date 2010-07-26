@@ -26,7 +26,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using GreenshotJiraPlugin;
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace Jira {
 	#region transport classes

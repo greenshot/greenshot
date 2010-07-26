@@ -31,11 +31,11 @@ using System.Windows.Forms;
 
 using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Drawing;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using Greenshot.UnmanagedHelpers;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	/// <summary>

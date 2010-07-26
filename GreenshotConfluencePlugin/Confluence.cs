@@ -26,7 +26,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using GreenshotConfluencePlugin;
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 /// <summary>
 /// For details see the Confluence API site

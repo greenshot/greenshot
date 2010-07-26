@@ -39,7 +39,7 @@ using Greenshot.Help;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using Greenshot.UnmanagedHelpers;
-using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 namespace Greenshot {
 	/// <summary>
