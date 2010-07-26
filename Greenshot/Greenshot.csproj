@@ -275,10 +275,6 @@
       <Project>{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}</Project>
       <Name>GreenshotEditor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
-      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
-      <Name>GreenshotPlugin</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
