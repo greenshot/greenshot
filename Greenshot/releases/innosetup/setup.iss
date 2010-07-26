@@ -2,6 +2,9 @@
 Source: ..\..\bin\Release\*; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\Languages\*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\additional_files\*; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
+;Flickr Plugin
+;Source: ..\..\bin\Release\Plugins\GreenshotFlickrPlugin\*; DestDir: {app}\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+;Source: ..\..\bin\Release\Languages\Plugins\GreenshotFlickrPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly ignoreversion replacesameversion;
 ;OCR Plugin
 ;Source: ..\..\bin\Release\Plugins\Greenshot-OCR-Plugin\*; DestDir: {app}\Plugins\Greenshot-OCR-Plugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;Source: ..\..\bin\Release\Languages\Plugins\Greenshot-OCR-Plugin\*; DestDir: {app}\Languages\Plugins\Greenshot-OCR-Plugin; Components: plugins\ocr; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -40,6 +43,7 @@ Name: startup; Description: "{cm:startup}";
 ;Name: "plugins\ocr"; Description: "OCR Plugin"; Types: Full
 ;Name: "plugins\jira"; Description: "JIRA Plugin"; Types: Full
 ;Name: "plugins\titlefix"; Description: "Title-fix Plugin"; Types: Full
+;Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
 [CustomMessages]
 en.dotnetmissing=This setup requires the .NET Framework v2.0.%nDo you want to download the framework now?
 de.dotnetmissing=Dieses Programm benötigt Microsoft .NET Framework v2.0.%nWollen Sie das Framework jetzt downloaden?
