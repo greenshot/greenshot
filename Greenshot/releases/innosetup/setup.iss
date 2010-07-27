@@ -16,11 +16,11 @@ Source: ..\additional_files\*; DestDir: {app}; Flags: overwritereadonly recurses
 ;Source: ..\..\bin\Release\Languages\Plugins\Greenshot-TitleFix-Plugin\*; DestDir: {app}\Languages\Plugins\Greenshot-TitleFix-Plugin; Components: plugins\titlefix; Flags: overwritereadonly ignoreversion replacesameversion;
 [Setup]
 OutputDir=..\
-OutputBaseFilename=Greenshot-INSTALLER-0.8.0.$WCREV$
+OutputBaseFilename=Greenshot-INSTALLER-0.9.0.$WCREV$
 DefaultDirName={pf}\Greenshot
 DefaultGroupName=Greenshot
 AppName=Greenshot
-AppVerName=0.8.0.$WCREV$
+AppVerName=0.9.0.$WCREV$
 AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
 PrivilegesRequired=admin
 ; Reference a bitmap, max size 164x314
@@ -30,7 +30,7 @@ WizardImageStretch=false
 WizardImageBackColor=$3f3f3f
 ; Reference a bitmap, max size 55x58
 WizardSmallImageFile=greenshot.bmp
-VersionInfoVersion=0.8.0.$WCREV$
+VersionInfoVersion=0.9.0.$WCREV$
 VersionInfoCompany=Greenshot
 VersionInfoProductName=Greenshot
 MinVersion=,5.01.2600
@@ -95,7 +95,7 @@ begin
 end;
 
 [Run]
-Filename: {app}\Greenshot.exe; Description: {cm:startgreenshot}; Parameters: --config Ui_Language={language}; WorkingDir: {app}; Flags: nowait postinstall runasoriginaluser skipifsilent
+Filename: {app}\Greenshot.exe; Description: {cm:startgreenshot}; Parameters: --configure Ui_Language={language}; WorkingDir: {app}; Flags: nowait postinstall runasoriginaluser skipifsilent
 [InstallDelete]
 Name: {app}; Type: filesandordirs; Languages: 
 Name: {userstartup}\Greenshot.lnk; Type: files; Languages: 
