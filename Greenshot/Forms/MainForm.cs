@@ -88,7 +88,7 @@ namespace Greenshot {
 						}
 						StringBuilder helpOutput = new StringBuilder();
 						helpOutput.AppendLine();
-						if (argumentNr + 1 < args.Length && args[argumentNr + 1].Equals("config")) {
+						if (argumentNr + 1 < args.Length && args[argumentNr + 1].Equals("configure")) {
 							helpOutput.AppendLine("Available configuration settings:");
 							
 							Properties properties = AppConfig.GetAvailableProperties();
