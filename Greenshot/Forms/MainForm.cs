@@ -99,8 +99,12 @@ namespace Greenshot {
 							helpOutput.AppendLine("Greenshot commandline options:");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--help [config]");
+							helpOutput.AppendLine("\t--help");
 							helpOutput.AppendLine("\t\tThis help.");
+							helpOutput.AppendLine();
+							helpOutput.AppendLine();
+							helpOutput.AppendLine("\t--help configure");
+							helpOutput.AppendLine("\t\tA detailed listing of available settings for the configure command.");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
 							helpOutput.AppendLine("\t--uninstall");
@@ -109,13 +113,18 @@ namespace Greenshot {
 							helpOutput.AppendLine();
 							helpOutput.AppendLine("\t--configure [property=value] ...");
 							helpOutput.AppendLine("\t\tChange the configuration of Greenshot via the commandline.");
-							helpOutput.AppendLine("\t\tExample to change the language to English: greenshot.exe --config Ui_Language=en-US");
-							helpOutput.AppendLine("\t\tExample to change the destination: greenshot.exe --config Output_File_Path=\"C:\\Documents and Settings\\\"");
+							helpOutput.AppendLine("\t\tExample to change the language to English: greenshot.exe --configure Ui_Language=en-US");
+							helpOutput.AppendLine("\t\tExample to change the destination: greenshot.exe --configure Output_File_Path=\"C:\\Documents and Settings\\\"");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
 							helpOutput.AppendLine("\t--openfile [filename]");
 							helpOutput.AppendLine("\t\tOpen the bitmap file in the running Greenshot instance or start a new instance");
-							
+							helpOutput.AppendLine();
+							helpOutput.AppendLine();
+							helpOutput.AppendLine("\t--exit");
+							helpOutput.AppendLine("\t\tCan be used if someone only wants to change the configuration.");
+							helpOutput.AppendLine("\t\tAs soon as this option is found Greenshot exits if not and there is no running instance it will stay running.");
+							helpOutput.AppendLine("\t\tExample: greenshot.exe --configure Output_File_Path=\"C:\\Documents and Settings\\\" --exit");
 						}
 						Console.WriteLine(helpOutput.ToString());
 
