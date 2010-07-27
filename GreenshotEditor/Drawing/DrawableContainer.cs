@@ -28,8 +28,6 @@ using System.Drawing.Imaging;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
-using Greenshot.Controls;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 using Greenshot.Helpers;

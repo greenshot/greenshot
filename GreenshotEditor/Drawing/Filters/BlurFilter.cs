@@ -21,7 +21,6 @@ using System.Drawing;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 

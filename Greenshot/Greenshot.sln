@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 # SharpDevelop 3.2.0.5505
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotPlugin", "..\GreenshotPlugin\GreenshotPlugin.csproj", "{5B924697-4DCD-4F98-85F1-105CB84B7341}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot", "Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -22,10 +20,6 @@ Global
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Debug|Any CPU.Build.0 = Debug|x86
-		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|Any CPU.Build.0 = Release|x86
-		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|Any CPU.ActiveCfg = Release|x86
 		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Debug|Any CPU.Build.0 = Debug|x86
 		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Release|Any CPU.Build.0 = Release|x86

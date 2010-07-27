@@ -20,49 +20,45 @@
  */
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 
 namespace Greenshot.Drawing {
 	/// <summary>
-	/// Description of CursorContainer.
+	/// Description of IconContainer.
 	/// </summary>
 	[Serializable()] 
-	public class CursorContainer : DrawableContainer, ICursorContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CursorContainer));
+	public class IconContainer : DrawableContainer, IIconContainer {
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconContainer));
 
-		protected Cursor cursor;
+		protected Icon icon;
 
-		public CursorContainer(Surface parent) : base(parent) {
+		public IconContainer(Surface parent) : base(parent) {
 		}
 
-		public CursorContainer(Surface parent, string filename) : base(parent) {
+		public IconContainer(Surface parent, string filename) : base(parent) {
 			Load(filename);
 		}
 
-		public Cursor Cursor {
+		public Icon Icon {
 			set {
-				if (cursor != null) {
-					cursor.Dispose();
+				if (icon != null) {
+					icon.Dispose();
 				}
-				// Clone cursor (is this correct??)
-				cursor = new Cursor(value.CopyHandle());
-				Width = value.Size.Width;
-				Height = value.Size.Height;
+				icon = (Icon)value.Clone();
+				Width = value.Width;
+				Height = value.Height;
 			}
-			get { return cursor; }
+			get { return icon; }
 		}
 
 		/**
 		 * Destructor
 		 */
-		~CursorContainer() {
+		~IconContainer() {
 			Dispose(false);
 		}
 
@@ -84,25 +80,25 @@ namespace Greenshot.Drawing {
 		 */
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (cursor != null) {
-					cursor.Dispose();
+				if (icon != null) {
+					icon.Dispose();
 				}
 			}
-			cursor = null;
+			icon = null;
 		}
 
 		public void Load(string filename) {
 			if (File.Exists(filename)) {
-				using (Cursor fileCursor = new Cursor(filename)) {
-					Cursor = fileCursor;
+				using (Icon fileIcon = new Icon(filename)) {
+					Icon = fileIcon;
 					LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 				}
 			}
 		}
-
+		
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (cursor != null) {
-				cursor.DrawStretched(graphics, Bounds);
+			if (icon != null) {
+				graphics.DrawIcon(icon, Bounds);
 			}
 		}
 	}

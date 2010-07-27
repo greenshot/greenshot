@@ -23,34 +23,34 @@ using System.Drawing;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 
 namespace Greenshot.Drawing {
 	/// <summary>
-	/// Description of EllipseContainer.
+	/// Represents a rectangular shape on the Surface
 	/// </summary>
 	[Serializable()] 
-	public class EllipseContainer : DrawableContainer {
+	public class RectangleContainer : DrawableContainer {
+		
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RectangleContainer));
 
-		public EllipseContainer(Surface parent) : base(parent) {
+		public RectangleContainer(Surface parent) : base(parent) {
 			AddField(FieldFactory.CreateField(FieldType.LINE_THICKNESS));
 			AddField(FieldFactory.CreateField(FieldType.LINE_COLOR));
 			AddField(FieldFactory.CreateField(FieldType.FILL_COLOR));
 			AddField(FieldFactory.CreateField(FieldType.SHADOW));
 		}
 		
-		public override void Draw(Graphics graphics, RenderMode renderMode) {
-			graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-			
+		
+		public override void Draw(Graphics g, RenderMode rm) {
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
-			// draw shadow before anything else
 			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
+				//draw shadow first
 				int basealpha = 100;
 				int alpha = basealpha;
 				int steps = 5;
@@ -58,34 +58,31 @@ namespace Greenshot.Drawing {
 				while (currentStep <= steps) {
 					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
 						shadowPen.Width = lineVisible ? lineThickness : 1;
-						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + currentStep, Top + currentStep, Width, Height);
-						graphics.DrawEllipse(shadowPen, shadowRect);
+						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(
+							this.Left + currentStep,
+							this.Top + currentStep,
+							this.Width,
+							this.Height);
+						g.DrawRectangle(shadowPen, shadowRect);
 						currentStep++;
-						alpha = alpha - basealpha / steps;
+						alpha = alpha - (basealpha / steps);
 					}
 				}
 			}
-
-			//draw the original shape
+			
 			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
 			
 			using (Brush brush = new SolidBrush(fillColor)) {
-				graphics.FillEllipse(brush, rect);
+				g.FillRectangle(brush, rect);
 			}
 			
 			using (Pen pen = new Pen(lineColor)) {
 				pen.Width = lineThickness;
-				if (pen.Width > 0) {
-					graphics.DrawEllipse(pen, rect);
+				if(pen.Width > 0) {
+					g.DrawRectangle(pen, rect);
 				}
 			}
 		}
 		
-		public override bool Contains(int x, int y) {
-			double xDistanceFromCenter = x - (Left+Width/2);
-			double yDistanceFromCenter = y - (Top+Height/2);
-			// ellipse: x^2/a^2 + y^2/b^2 = 1
-			return Math.Pow(xDistanceFromCenter,2)/Math.Pow(Width/2,2) + Math.Pow(yDistanceFromCenter,2)/Math.Pow(Height/2,2) < 1;
-		}
 	}
 }

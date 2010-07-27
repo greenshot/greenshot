@@ -23,7 +23,7 @@ using System.IO;
 using Greenshot.Configuration;
 using Greenshot.Core;
 
-namespace Greenshot.Help {
+namespace Greenshot.Forms {
 	/// <summary>
 	/// Description of HelpBrowserForm.
 	/// </summary>

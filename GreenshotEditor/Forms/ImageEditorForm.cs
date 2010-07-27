@@ -38,7 +38,7 @@ using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Fields.Binding;
-using Greenshot.Help;
+//using Greenshot.Help;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using Greenshot.Core;

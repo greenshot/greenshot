@@ -23,42 +23,32 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.Serialization;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 
-	public class MagnifierFilter : AbstractFilter {
+	public class BrightnessFilter : AbstractFilter {
 		
-		private BitmapBuffer bbbSrc;
-		private int magnificationFactor;
-				
-		public MagnifierFilter(DrawableContainer parent) : base(parent) {
-			AddField(FieldFactory.CreateField(FieldType.MAGNIFICATION_FACTOR));
-		}
+		private double brightness;
 		
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
-			applyRect = IntersectRectangle(applyBitmap.Size, rect);
-			
-			bbbSrc = new BitmapBuffer(applyBitmap, applyRect);
-			try {
-				bbbSrc.Lock();
-				base.Apply(graphics, applyBitmap, applyRect, renderMode);
-			} finally {
-				bbbSrc.Dispose();
-				bbbSrc = null;
-			}
+		public BrightnessFilter(DrawableContainer parent) : base(parent) {
+			AddField(FieldFactory.CreateField(FieldType.BRIGHTNESS, GetType()));
 		}
 		
 		protected override void IteratePixel(int x, int y) {
-			int halfWidth = bbb.Size.Width/2;
-			int halfHeight = bbb.Size.Height/2;
-			int yDistanceFromCenter = halfHeight-y;
-			int xDistanceFromCenter = halfWidth-x;
-			Color color = bbbSrc.GetColorAt(halfWidth-xDistanceFromCenter/magnificationFactor,halfHeight-yDistanceFromCenter/magnificationFactor);
-			bbb.SetColorAt(x, y, color);
+			Color color = bbb.GetColorAt(x, y);
+			int r = Convert.ToInt16(color.R*brightness);
+			int g = Convert.ToInt16(color.G*brightness);
+			int b = Convert.ToInt16(color.B*brightness);
+			r = (r>255) ? 255 : r;
+			g = (g>255) ? 255 : g;
+			b = (b>255) ? 255 : b;
+			bbb.SetColorAt(x, y, Color.FromArgb(color.A, r, g, b));
+		}
+		
+		public override void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode) {
+			brightness = GetFieldValueAsDouble(FieldType.BRIGHTNESS);
+			base.Apply(graphics, bmp, rect, renderMode);
 		}
 	}
-	
 }

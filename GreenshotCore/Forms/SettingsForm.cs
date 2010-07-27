@@ -214,7 +214,7 @@ namespace Greenshot {
 			conf.Ui_Language = combobox_language.SelectedValue.ToString();
 
 			// Make sure the current language is reflected in the Main-context menu
-			MainForm.instance.UpdateUI();
+			//MainForm.instance.UpdateUI(); // TODO
 						
 			conf.General_RegisterHotkeys = (bool?)checkbox_registerhotkeys.Checked;
 			conf.Output_File_Path = textbox_storagelocation.Text;

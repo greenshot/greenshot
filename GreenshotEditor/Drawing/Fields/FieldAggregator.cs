@@ -23,9 +23,9 @@ using System.Drawing;
 using System.Reflection;
 using System.ComponentModel;
 using System.Collections.Generic;
+
 using Greenshot.Configuration;
 using Greenshot.Drawing.Filters;
-using Greenshot.Helpers;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>

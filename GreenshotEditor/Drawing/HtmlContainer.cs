@@ -20,62 +20,54 @@
  */
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 
 namespace Greenshot.Drawing {
 	/// <summary>
-	/// Description of MetafileContainer.
+	/// Description of BitmapContainer.
 	/// </summary>
 	[Serializable()] 
-	public class MetafileContainer : DrawableContainer, IMetafileContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(MetafileContainer));
+	public class HtmlContainer : DrawableContainer {
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(HtmlContainer));
+		private const string SCRIPT_PATTERN = "<script(.*?)</script>";
+		private string html = null;
+		private Bitmap bitmap = null;
+		private Size lastSize = new Size(0,0);
 
-		protected Metafile metafile;
-
-		public MetafileContainer(Surface parent) : base(parent) {
+		public HtmlContainer(Surface parent, string html) : this(parent) {
+			Html = html;
 		}
 
-		public MetafileContainer(Surface parent, string filename) : base(parent) {
-			Load(filename);
+		public HtmlContainer(Surface parent) : base(parent) {
+			Width = 100;
+			Height = 100;
+		}
+		
+		private void removeScripts() {
+            Regex regExRemoveScript = new Regex(SCRIPT_PATTERN);
+			html = regExRemoveScript.Replace(html, "");
 		}
 
-		public Metafile Metafile {
+		public string Html {
 			set {
-				if (metafile != null) {
-					metafile.Dispose();
-				}
-				metafile = (Metafile)value.Clone();
-				Height = Math.Abs(value.Height);
-				if (Height == 0 ) {
-					Height = 100;
-				}
-				Width = Math.Abs(value.Width);
-				if (Width == 0 ) {
-					Width = 100;
-				}
-				while (Height > parent.Height) {
-					Height = Height / 4;
-					Width = Width / 4;
-				}
-				while (Width > parent.Width) {
-					Height = Height / 4;
-					Width = Width / 4;
-				}
+				html = value;
+				removeScripts();
+				lastSize = new Size(0, 0);
+				RedrawIfNeeded();
 			}
-			get { return metafile; }
+			get { return html; }
 		}
 
 		/**
 		 * Destructor
 		 */
-		~MetafileContainer() {
+		~HtmlContainer() {
 			Dispose(false);
 		}
 
@@ -97,25 +89,33 @@ namespace Greenshot.Drawing {
 		 */
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (metafile != null) {
-					metafile.Dispose();
+				if (bitmap != null) {
+					bitmap.Dispose();
 				}
 			}
-			metafile = null;
+			bitmap = null;
 		}
 		
-		public void Load(string filename) {
-			if (File.Exists(filename)) {
-				using (Metafile fileMetafile = new Metafile(filename)) {
-					Metafile = fileMetafile;
-					LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+		protected void RedrawIfNeeded() {
+			if (html == null) {
+				if (bitmap != null) {
+					bitmap.Dispose();
+				}
+				bitmap = null;
+				return;
+			}
+			if (bitmap == null || lastSize.Height != Height || lastSize.Width != Width) {
+				bitmap = WebsiteImageGenerator.GetImageFromHTML(html);
+				if (bitmap != null) {
+					lastSize = new Size(bitmap.Width, bitmap.Height);
 				}
 			}
 		}
-
-		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (metafile != null) {
-				graphics.DrawImage(metafile, Bounds);
+		
+		public override void Draw(Graphics g, RenderMode rm) {
+			RedrawIfNeeded();
+			if (bitmap != null) {
+				g.DrawImage(bitmap, Bounds);
 			}
 		}
 	}

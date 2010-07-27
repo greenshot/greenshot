@@ -35,7 +35,6 @@ using Greenshot.Capturing;
 using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Forms;
-using Greenshot.Help;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using Greenshot.UnmanagedHelpers;
@@ -274,7 +273,7 @@ namespace Greenshot {
 			captureForm = new CaptureForm();
 
 			// Load all the plugins
-			PluginHelper.instance.LoadPlugins(this, captureForm);
+			PluginHelper.instance.LoadPlugins(this.ContextMenuStrip, captureForm);
 			PluginHelper.instance.OnImageOutput += new OnImageOutputHandler(ImageWritten);
 			SoundHelper.Initialize();
 

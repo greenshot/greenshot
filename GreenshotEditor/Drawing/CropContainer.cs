@@ -23,8 +23,8 @@ using System.Drawing;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-using Greenshot.Helpers;
 using Greenshot.Drawing.Fields;
+using Greenshot.Helpers;
 
 namespace Greenshot.Drawing {
 	/// <summary>

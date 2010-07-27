@@ -164,7 +164,8 @@ namespace Greenshot.Helpers {
 		}
 		
 		public bool RegisterHotKey(int modifierKeyCode, int virtualKeyCode, HotKeyHandler handler) {
-			return HotkeyHelper.RegisterHotKey((int)MainForm.instance.Handle, modifierKeyCode, virtualKeyCode, handler);
+			//return HotkeyHelper.RegisterHotKey((int)MainForm.instance.Handle, modifierKeyCode, virtualKeyCode, handler);
+			return false; // TODO
 		}
 		#endregion
 
@@ -195,9 +196,9 @@ namespace Greenshot.Helpers {
 			return false;
 		}
 
-		public void LoadPlugins(MainForm mainForm, ICaptureHost captureHost) {
+		public void LoadPlugins(ContextMenuStrip mainMenu, ICaptureHost captureHost) {
 			// Copy ContextMenu
-			mainMenu = mainForm.MainMenu;
+			this.mainMenu = mainMenu;
 			
 			List<string> pluginFiles = new List<string>();
 			foreach(string pluginFile in Directory.GetFiles(configpath, "*.gsp", SearchOption.AllDirectories)) {

@@ -24,9 +24,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 
 namespace Greenshot.Drawing {
 	/// <summary>

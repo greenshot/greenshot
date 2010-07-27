@@ -53,70 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Configuration\AppConfig.cs" />
-    <Compile Include="Configuration\Language.cs" />
-    <Compile Include="Configuration\LanguageKeys.cs" />
-    <Compile Include="Configuration\RuntimeConfig.cs" />
-    <Compile Include="Controls\BindableToolStripComboBox.cs" />
-    <Compile Include="Controls\BindableToolStripButton.cs" />
-    <Compile Include="Controls\BindableToolStripDropDownButton.cs" />
-    <Compile Include="Controls\ColorButton.cs" />
-    <Compile Include="Controls\FontFamilyComboBox.cs" />
-    <Compile Include="Controls\ToolStripColorButton.cs" />
-    <Compile Include="Controls\ToolStripNumericUpDown.cs" />
-    <Compile Include="Drawing\ArrowContainer.cs" />
-    <Compile Include="Drawing\BitmapBuffer.cs" />
-    <Compile Include="Drawing\BitmapContainer.cs" />
-    <Compile Include="Drawing\CropContainer.cs" />
-    <Compile Include="Drawing\CursorContainer.cs" />
-    <Compile Include="Drawing\DrawableContainer.cs" />
-    <Compile Include="Drawing\DrawableContainerList.cs" />
-    <Compile Include="Drawing\EllipseContainer.cs" />
-    <Compile Include="Drawing\Fields\AbstractFieldHolderWithChildren.cs" />
-    <Compile Include="Drawing\Fields\Binding\AbstractBindingConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\BidirectionalBinding.cs" />
-    <Compile Include="Drawing\Fields\Binding\DecimalDoublePercentageConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\DecimalFloatConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\DecimalIntConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\IBindingConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\IBindingValidator.cs" />
-    <Compile Include="Drawing\Fields\Binding\NotNullValidator.cs" />
-    <Compile Include="Drawing\FilterContainer.cs" />
-    <Compile Include="Drawing\Filters\AbstractFilter.cs" />
-    <Compile Include="Drawing\Filters\BrightnessFilter.cs" />
-    <Compile Include="Drawing\Filters\FastSmoothFilter.cs" />
-    <Compile Include="Drawing\Filters\GrayscaleFilter.cs" />
-    <Compile Include="Drawing\Filters\HighlightFilter.cs" />
-    <Compile Include="Drawing\Filters\IFilter.cs" />
-    <Compile Include="Drawing\Filters\MagnifierFilter.cs" />
-    <Compile Include="Drawing\Filters\PixelizationFilter.cs" />
-    <Compile Include="Drawing\Filters\BlurFilter.cs" />
-    <Compile Include="Drawing\HighlightContainer.cs" />
-    <Compile Include="Drawing\HtmlContainer.cs" />
-    <Compile Include="Drawing\IconContainer.cs" />
-    <Compile Include="Drawing\LineContainer.cs" />
-    <Compile Include="Drawing\Fields\AbstractFieldHolder.cs" />
-    <Compile Include="Drawing\Fields\Field.cs" />
-    <Compile Include="Drawing\Fields\FieldFactory.cs" />
-    <Compile Include="Drawing\Fields\FieldAggregator.cs" />
-    <Compile Include="Drawing\MetafileContainer.cs" />
-    <Compile Include="Drawing\ObfuscateContainer.cs" />
-    <Compile Include="Drawing\RectangleContainer.cs" />
-    <Compile Include="Drawing\RoundedRectangle.cs" />
-    <Compile Include="Drawing\Surface.cs" />
-    <Compile Include="Drawing\TextContainer.cs" />
-    <Compile Include="Drawing\UrlContainer.cs" />
-    <Compile Include="Forms\AboutForm.cs" />
-    <Compile Include="Forms\AboutForm.Designer.cs">
-      <DependentUpon>AboutForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\CaptureForm.cs" />
     <Compile Include="Forms\CaptureForm.Designer.cs">
       <DependentUpon>CaptureForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ImageEditorForm.cs" />
-    <Compile Include="Forms\ImageEditorForm.Designer.cs">
-      <DependentUpon>ImageEditorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\LanguageDialog.cs" />
     <Compile Include="Forms\LanguageDialog.Designer.cs">
@@ -126,65 +65,23 @@
     <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\PrintOptionsDialog.cs" />
-    <Compile Include="Forms\PrintOptionsDialog.Designer.cs">
-      <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\SaveImageFileDialog.cs" />
-    <Compile Include="Forms\SettingsForm.cs" />
-    <Compile Include="Forms\SettingsForm.Designer.cs">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\ToolStripMenuSelectList.cs" />
     <Compile Include="Forms\BugReportForm.cs" />
     <Compile Include="Forms\BugReportForm.Designer.cs">
       <DependentUpon>BugReportForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\ClipboardHelper.cs" />
-    <Compile Include="Helpers\Colors.cs" />
-    <Compile Include="Helpers\CopyData.cs" />
-    <Compile Include="Helpers\DrawingHelper.cs" />
-    <Compile Include="Helpers\FormHelper.cs" />
-    <Compile Include="Helpers\ImageHelper.cs" />
-    <Compile Include="Helpers\WindowsHelper.cs" />
-    <Compile Include="Helpers\EnvironmentInfo.cs" />
-    <Compile Include="Helpers\GuiRectangle.cs" />
-    <Compile Include="Helpers\HotkeyHelper.cs" />
-    <Compile Include="Helpers\HtmlFragment.cs" />
     <Compile Include="Helpers\LogHelper.cs" />
-    <Compile Include="Helpers\MailHelper.cs" />
-    <Compile Include="Helpers\Objects.cs" />
-    <Compile Include="Helpers\PluginHelper.cs" />
-    <Compile Include="Helpers\PrintHelper.cs" />
-    <Compile Include="Helpers\ImageOutput.cs" />
-    <Compile Include="Helpers\ScaleHelper.cs" />
     <Compile Include="Helpers\SoundHelper.cs" />
-    <Compile Include="Helpers\StartupHelper.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
-    <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
-    <Compile Include="Helpers\WebToBitmap.cs" />
-    <Compile Include="Helpers\WindowCapture.cs" />
     <Compile Include="Test\Drawing\Filters\BitmapByteBufferTest.cs" />
     <Compile Include="Test\Drawing\Properties\PropertyAggregatorTest.cs" />
     <Compile Include="Test\Drawing\Properties\SerializationTest.cs" />
     <Compile Include="Test\SaveImageFileDialogTest.cs" />
-    <EmbeddedResource Include="Forms\AboutForm.resx">
-      <DependentUpon>AboutForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ImageEditorForm.resx">
-      <DependentUpon>ImageEditorForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\LanguageDialog.resx">
       <DependentUpon>LanguageDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\PrintOptionsDialog.resx">
-      <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\SettingsForm.resx">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\BugReportForm.resx">
       <DependentUpon>BugReportForm.cs</DependentUpon>
@@ -230,37 +127,11 @@
       <DependentUpon>FlashlightForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FlashlightForm.cs" />
-    <Compile Include="Help\HelpBrowserForm.cs" />
-    <Compile Include="Help\HelpBrowserForm.Designer.cs" />
-    <EmbeddedResource Include="Help\HelpBrowserForm.resx" />
-    <Compile Include="Helpers\FilenameHelper.cs" />
-    <Compile Include="Helpers\PropertyItemProvider.cs" />
-    <EmbeddedResource Include="Helpers\PropertyItemProvider.resx" />
-    <Compile Include="Forms\JpegQualityDialog.Designer.cs">
-      <DependentUpon>JpegQualityDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\JpegQualityDialog.cs" />
-    <EmbeddedResource Include="Forms\JpegQualityDialog.resx">
-      <DependentUpon>JpegQualityDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <Compile Include="Forms\ColorDialog.Designer.cs">
-      <DependentUpon>ColorDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ColorDialog.cs" />
-    <EmbeddedResource Include="Forms\ColorDialog.resx">
-      <DependentUpon>ColorDialog.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Drawing\Fields\Binding" />
-    <Folder Include="Drawing\Filters" />
-    <Folder Include="Drawing\Fields" />
     <Folder Include="Forms" />
     <Folder Include="Helpers" />
-    <Folder Include="Configuration" />
     <Folder Include="Helpers" />
-    <Folder Include="Drawing" />
-    <Folder Include="Controls" />
     <Folder Include="Languages" />
     <Folder Include="Test" />
     <Folder Include="Test\Drawing" />

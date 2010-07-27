@@ -56,9 +56,53 @@
     <Folder Include="Interfaces\Plugin" />
     <Folder Include="Lib" />
     <Folder Include="Interfaces" />
+    <Folder Include="Configuration" />
+    <Folder Include="Helpers" />
+    <Folder Include="Forms" />
     <Folder Include="UnmanagedHelpers" />
+    <Compile Include="Configuration\AppConfig.cs" />
+    <Compile Include="Configuration\Language.cs" />
+    <Compile Include="Configuration\LanguageKeys.cs" />
+    <Compile Include="Configuration\RuntimeConfig.cs" />
     <Compile Include="Core\LanguageHelper.cs" />
     <Compile Include="Core\PropertyHelper.cs" />
+    <Compile Include="Forms\AboutForm.cs" />
+    <Compile Include="Forms\AboutForm.Designer.cs">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\HelpBrowserForm.cs" />
+    <Compile Include="Forms\HelpBrowserForm.Designer.cs">
+      <DependentUpon>HelpBrowserForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\JpegQualityDialog.cs" />
+    <Compile Include="Forms\JpegQualityDialog.Designer.cs">
+      <DependentUpon>JpegQualityDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\PrintOptionsDialog.cs" />
+    <Compile Include="Forms\PrintOptionsDialog.Designer.cs">
+      <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SaveImageFileDialog.cs" />
+    <Compile Include="Forms\SettingsForm.cs" />
+    <Compile Include="Forms\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ClipboardHelper.cs" />
+    <Compile Include="Helpers\CopyData.cs" />
+    <Compile Include="Helpers\EnvironmentInfo.cs" />
+    <Compile Include="Helpers\FilenameHelper.cs" />
+    <Compile Include="Helpers\HotkeyHelper.cs" />
+    <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Helpers\ImageOutput.cs" />
+    <Compile Include="Helpers\MailHelper.cs" />
+    <Compile Include="Helpers\Objects.cs" />
+    <Compile Include="Helpers\PluginHelper.cs" />
+    <Compile Include="Helpers\PrintHelper.cs" />
+    <Compile Include="Helpers\PropertyItemProvider.cs" />
+    <Compile Include="Helpers\ScaleHelper.cs" />
+    <Compile Include="Helpers\StartupHelper.cs" />
+    <Compile Include="Helpers\WindowCapture.cs" />
+    <Compile Include="Helpers\WindowsHelper.cs" />
     <Compile Include="Interfaces\Capturing\Capture.cs" />
     <Compile Include="Interfaces\Drawing\IDrawableContainer.cs" />
     <Compile Include="Interfaces\Drawing\Fields\IField.cs" />
@@ -72,5 +116,23 @@
     <Compile Include="UnmanagedHelpers\WinMM.cs" />
     <None Include="Lib\log4net.dll" />
     <None Include="Lib\nunit.framework.dll" />
+    <EmbeddedResource Include="Forms\AboutForm.resx">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\HelpBrowserForm.resx">
+      <DependentUpon>HelpBrowserForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\JpegQualityDialog.resx">
+      <DependentUpon>JpegQualityDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\PrintOptionsDialog.resx">
+      <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SettingsForm.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Helpers\PropertyItemProvider.resx">
+      <DependentUpon>PropertyItemProvider.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
