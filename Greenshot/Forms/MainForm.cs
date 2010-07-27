@@ -328,20 +328,7 @@ namespace Greenshot {
 		#region mainform events
 		void MainFormFormClosing(object sender, FormClosingEventArgs e) {
 			LOG.Info("Closing with reason: " + e.CloseReason);
-			
-			// Inform all registed plugins
-			PluginHelper.instance.Shutdown();
-
-			conf.Store();
-			HotkeyHelper.UnregisterHotkeys((int)this.Handle);
-			SoundHelper.Deinitialize();
-			if (applicationMutex != null) {
-				try {
-					applicationMutex.ReleaseMutex();
-				} catch (Exception ex) {
-					LOG.Error("Error releasing Mutex!", ex);
-				}
-			}
+			exit();
 		}
 
 		#endregion
@@ -435,6 +422,7 @@ namespace Greenshot {
 		}
 		
 		void Contextmenu_exitClick(object sender, EventArgs e) {
+			exit();
 			Application.Exit();
 		}
 		
@@ -535,6 +523,25 @@ namespace Greenshot {
 		/// <param name="ImageOutputEventArgs">Has the full path</param>
 		private void ImageWritten(object sender, ImageOutputEventArgs eventArgs) {
 			lastImagePath = Path.GetDirectoryName(eventArgs.FullPath);
+		}
+		
+		/// <summary>
+		/// Exit/cleanup
+		/// </summary>
+		private void exit() {
+			// Inform all registed plugins
+			PluginHelper.instance.Shutdown();
+
+			conf.Store();
+			HotkeyHelper.UnregisterHotkeys((int)this.Handle);
+			SoundHelper.Deinitialize();
+			if (applicationMutex != null) {
+				try {
+					applicationMutex.ReleaseMutex();
+				} catch (Exception ex) {
+					LOG.Error("Error releasing Mutex!", ex);
+				}
+			}
 		}
 	}
 }
