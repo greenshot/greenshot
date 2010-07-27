@@ -107,7 +107,7 @@ namespace Greenshot {
 							helpOutput.AppendLine("\t\tUnstall is called from the unstaller and tries to close all running instances.");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--config [property=value] ...");
+							helpOutput.AppendLine("\t--configure [property=value] ...");
 							helpOutput.AppendLine("\t\tChange the configuration of Greenshot via the commandline.");
 							helpOutput.AppendLine("\t\tExample to change the language to English: greenshot.exe --config Ui_Language=en-US");
 							helpOutput.AppendLine("\t\tExample to change the destination: greenshot.exe --config Output_File_Path=\"C:\\Documents and Settings\\\"");
@@ -139,7 +139,7 @@ namespace Greenshot {
 					}
 
 					// Modify configuration
-					if (argument.Equals("--config")) {
+					if (argument.Equals("--configure")) {
 						LOG.Debug("Setting configuration!");
 						conf = AppConfig.GetInstance();
 						Properties properties = new Properties();
