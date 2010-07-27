@@ -43,7 +43,7 @@ Features added:
 * Changed language from compiled resources to flexible xml files, user can add their own languages
 * Added "Select all" option for image editor
 * Added "Drag to", you can now drag images or image files to the Greenshot image editor.
-* Added command-line options, now it is possible to change the configuration by using the commandline (e.g. for installers)
+* Added command-line options, now it is possible to change the configuration by using the commandline. See "installer.txt"
 
 0.7
 

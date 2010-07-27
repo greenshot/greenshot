@@ -1,0 +1,129 @@
+Here are some details about Greenshot that might be handy for silent/mass installations.
+
+The Greenshot installer is made with Inno Setup, see http://www.jrsoftware.org/isinfo.php
+For command line options of the installer see: http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline
+
+Since Greenshot build > 0.8.0.700 it is possible to configure Greenshot settings from the command-line.
+This will even work when Greenshot is already running!
+
+Greenshot commandline options:
+
+        --help
+                This help
+
+		--help configure
+                A list of the options that can be set
+
+        --uninstall
+                Unstall is called from the unstaller and tries to close all running instances.
+
+
+        --configure [property=value] ...
+                Change the configuration of Greenshot via the commandline, multiple properties can be specified after each other.
+                Example to change the language to English: greenshot.exe --configure Ui_Language=en-US
+                Example to change the destination: greenshot.exe --configure Output_File_Path="C:\Documents and Settings\"
+
+
+        --openfile [filename]
+                Open the bitmap file in the running Greenshot instance or start a new instance
+				
+With the --configure option many settings can be change, the --help configure will give a list of all available settings!
+Here are some described in detail:
+
+	General_RegisterHotkeys=Boolean
+This setting specified if the hotkeys will be registed, can be used to let Greenshot run side by side with other applications.
+All functions are than only available via the context menu of the Systray icon.
+Default is true.
+Example to change: greenshot.exe --configure General_RegisterHotkeys=false
+
+	General_IsFirstLaunch=Boolean
+This setting is actually for Greenshot internal usage, it specifies if someone already has used Greenshot or if it is the first start.
+If this is true Greenshot will show a balloon at the Systray Icon.
+Default is true, will be false after the first start.
+Example to change: greenshot.exe --configure General_IsFirstLaunch=false
+
+	Capture_Mousepointer=Boolean
+This setting, which is available in the settings window, specifies if Greenshot will capture the mouse cursor.
+Default is true.
+Example to change: greenshot.exe --configure Capture_Mousepointer=false
+
+	Capture_Windows_Interactive=Boolean
+This setting, which is available in the settings window, specifies if Greenshot will capture the current active window or will make it possible for the user to select a window with the mouse.
+Default is false.
+Example to change: greenshot.exe --configure Capture_Windows_Interactive=true
+
+	Capture_Wait_Time=Int32
+This setting, which is available in the settings window, specifies how many milliseconds Greenshot will wait after the capture is started.
+Usually there is no need to change this setting, but sometimes it might help with refresh problems and the captured picture is not what is expected.
+Default is 100.
+Example to change: greenshot.exe --configure Capture_Wait_Time=300
+
+	Ui_Language=String
+This setting, which is available in the settings window, specifies the used language.
+Languages should be set with their full "IETF" code, like "de-DE", "en-US" or "en-UK".
+The available language should be installed, otherwise a fallback at "en-US" will be made.
+It's also possible to specify only the first characters, like "en" for English, but there is no garantee what "variant" will be used.
+Default is the language selected in the installer.
+Example to change: greenshot.exe --configure Ui_Language=en-US
+
+	Ui_Effects_Flashlight=Boolean
+This setting, which is available in the settings window, specifies if the "flashlight" effect is shown after each capture.
+Default is false.
+Example to change: greenshot.exe --configure Ui_Effects_Flashlight=true
+
+	Ui_Effects_CameraSound=Boolean
+This setting, which is available in the settings window, specifies if the camera sound is played after each capture.
+Default is true.
+Example to change: greenshot.exe --configure Ui_Effects_CameraSound=false
+
+	Output_File_Path=String
+This setting, which is available in the settings window, specifies the default location for all captures.
+Default is the users desktop.
+Example to change: greenshot.exe --configure Output_File_Path="C:\Documents and Settings\"
+
+	Output_File_FilenamePattern=String
+This setting, which is available in the settings window, specifies the default filename pattern.
+Default is "%title%_%YYYY%-%MM%-%DD%_%hh%-%mm%-%ss%".
+Example to change: greenshot.exe --configure Output_File_FilenamePattern="%hostname%\%user%\%title%-%NUM%"
+
+	Output_File_Format=String
+This setting, which is available in the settings window, specifies the default file type.
+Default is "Png", available formats are: "Bmp", "Jpeg", "Gif" and "Png"
+Example to change: greenshot.exe --configure Output_File_Format=Gif
+
+	Output_File_CopyPathToClipboard=Boolean
+This setting, which is available in the settings window, specifies if the path of the written file will be pasted to the clipboard.
+Default is false
+Example to change: greenshot.exe --configure Output_File_CopyPathToClipboard=true
+
+	Output_File_JpegQuality=Int32
+This setting, which is available in the settings window, specifies the quality for the files that are written as Jpeg.
+Default is 80
+Example to change: greenshot.exe --configure Output_File_JpegQuality=50
+
+	Output_File_PromptJpegQuality=Boolean
+This setting, which is available in the settings window, specifies if the Jpeg settings should be asked at every save.
+Default is false
+Example to change: greenshot.exe --configure Output_File_PromptJpegQuality=true
+
+	Output_File_IncrementingNumber=Int32
+This setting specifies the number which is used in the filename pattern as "%NUM%".
+Default is 0, will increment at every save.
+Example to change: greenshot.exe --configure Output_File_IncrementingNumber=10
+
+	Output_FileAs_Fullpath=String
+This setting specifies the location of the last saved file, used when the "save" option is selected.
+Default is "desktop\dummy.png", will change at every save. Can't think of a reason to set it...
+Example to change: greenshot.exe --configure Output_FileAs_Fullpath="C:\tmp\greenshot.png"
+
+                Output_Print_PromptOptions=Boolean
+                Output_Print_AllowRotate=Boolean
+                Output_Print_AllowEnlarge=Boolean
+                Output_Print_AllowShrink=Boolean
+                Output_Print_Center=Boolean
+                Output_Print_Timestamp=Boolean
+
+	Editor_WindowState=String
+This setting specifies the state the Greenshot Image Editor opens, used internally for making the Editor open at the same location as it was closed.
+Default is empty, the setting is changed at every window close. Possible settings: "Normal" or "Maximized".
+Example to change: greenshot.exe --configure Editor_WindowState=Maximized
