@@ -95,7 +95,7 @@ begin
 end;
 
 [Run]
-Filename: {app}\Greenshot.exe; Description: {cm:startgreenshot}; Parameters: --configure Ui_Language={language}; WorkingDir: {app}; Flags: nowait postinstall runasoriginaluser skipifsilent
+Filename: {app}\Greenshot.exe; Description: {cm:startgreenshot}; Parameters: --configure Ui_Language={language}; WorkingDir: {app}; Flags: nowait postinstall runasoriginaluser
 [InstallDelete]
 Name: {app}; Type: filesandordirs; Languages: 
 Name: {userstartup}\Greenshot.lnk; Type: files; Languages: 
