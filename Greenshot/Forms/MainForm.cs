@@ -540,6 +540,9 @@ namespace Greenshot {
 			// Inform all registed plugins
 			PluginHelper.instance.Shutdown();
 
+			// Make the Greenshot icon invisible
+			notifyIcon.Visible = true;
+
 			conf.Store();
 			HotkeyHelper.UnregisterHotkeys((int)this.Handle);
 			SoundHelper.Deinitialize();
