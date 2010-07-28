@@ -41,8 +41,6 @@ Name: {group}\Greenshot; Filename: {app}\Greenshot.exe; WorkingDir: {app}
 Name: {group}\Uninstall Greenshot; Filename: {app}\unins000.exe; WorkingDir: {app}
 Name: {group}\Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
 Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
-[UninstallRun]
-Filename: {app}\Greenshot.exe; Parameters: uninstall; WorkingDir: {app}; Languages: 
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
 Name: de; MessagesFile: compiler:Languages\German.isl
@@ -91,11 +89,24 @@ begin
 			);
 		end;
 	end;
-
 end;
 
+function InitializeUninstall():Boolean;
+var
+	bMutex : Boolean;
+	resultCode: Integer;
+begin
+	bMutex:= CheckForMutexes ('Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08');
+	if bMutex = True then
+	begin
+		Exec(ExpandConstant('{app}\greenshot.exe'), '--uninstall', '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
+	end;
+	Result := True;
+end;
 [Run]
 Filename: {app}\Greenshot.exe; Description: {cm:startgreenshot}; Parameters: --configure Ui_Language={language}; WorkingDir: {app}; Flags: nowait postinstall runasoriginaluser
+[UninstallRun]
+Filename: {app}\Greenshot.exe; Parameters: --uninstall; WorkingDir: {app}; Languages: 
 [InstallDelete]
 Name: {app}; Type: filesandordirs; Languages: 
 Name: {userstartup}\Greenshot.lnk; Type: files; Languages: 
