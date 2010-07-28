@@ -137,6 +137,7 @@ namespace Greenshot {
 					// unregister application on uninstall (allow uninstall)
 					if (argument.Equals("--uninstall") || argument.Equals("uninstall")) {
 						try {
+							LOG.Info("Sending all instances the exit command.");
 							// Pass Exit to running instance, if any
 							dataTransport = new DataTransport(CommandEnum.Exit, args[0]);
 	    					SendData(dataTransport);
@@ -431,7 +432,6 @@ namespace Greenshot {
 		
 		void Contextmenu_exitClick(object sender, EventArgs e) {
 			exit();
-			Application.Exit();
 		}
 		
 		private void InitializeQuickSettingsMenu() {
@@ -536,12 +536,12 @@ namespace Greenshot {
 		/// <summary>
 		/// Exit/cleanup
 		/// </summary>
-		private void exit() {
+		public void exit() {
 			// Inform all registed plugins
 			PluginHelper.instance.Shutdown();
 
 			// Make the Greenshot icon invisible
-			notifyIcon.Visible = true;
+			notifyIcon.Visible = false;
 
 			conf.Store();
 			HotkeyHelper.UnregisterHotkeys((int)this.Handle);
@@ -553,6 +553,7 @@ namespace Greenshot {
 					LOG.Error("Error releasing Mutex!", ex);
 				}
 			}
+			Application.Exit();
 		}
 	}
 }

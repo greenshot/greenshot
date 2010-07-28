@@ -94,7 +94,7 @@ namespace Greenshot.Forms {
 			LOG.Debug("Data received, Command = " + dataTransport.Command + ", Data: " + dataTransport.CommandData);
 			switch(dataTransport.Command) {
 				case CommandEnum.Exit:
-					Application.Exit();
+					MainForm.instance.exit();
 					break;
 				case CommandEnum.ReloadConfig:
 					AppConfig.Reload();
