@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="日本語 (Japanese)" ietf="ja-JP" version="0.8.0">
   <resources>
 	<!--    
@@ -131,7 +131,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		楕円を描画 (E)
 	</resource>
 	<resource name="editor_drawtextbox">
-		テキスト ボックスを追加 (T)
+		テキスト ボックスを挿入 (T)
 	</resource>
 	<resource name="editor_deleteelement">
 		削除
@@ -243,8 +243,9 @@ Greenshot には一切の保障がありません。GNU General Public License �
 	</resource>
 	<resource name="warning_hotkeys">
 		既に登録されているホットキーがあります。他のツールがこれらのホットキーを使用しているために
-		Greenshot のホットキーとして使用することができません。Print Screen キーを使用するソフトウェアを
-		無効化すれば、Greenshot のトレイ アイコンの右クリック メニューからすべての操作を行うことができます。
+Greenshot のホットキーとして使用することができません。
+Print Screen キーを使用するソフトウェアを無効化してください。
+また、Greenshot のトレイ アイコンの右クリック メニューからすべての操作を行うこともできます。
 	</resource>
 	<resource name="settings_destination_editor">
 		イメージ エディターで開く
@@ -283,10 +284,10 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		なし
 	</resource>
     <resource name="editor_obfuscate_mode">
-		ぼかし効果モード
+		ぼかし効果のモード
 	</resource>
     <resource name="editor_highlight_mode">
-		ハイライト モード
+		ハイライトのモード
 	</resource>
 	<resource name="error_multipleinstances">
 		Greenshot の他のインスタンスがすでに実行されています。
@@ -396,9 +397,13 @@ Greenshot には一切の保障がありません。GNU General Public License �
 %domain% Windows ドメイン
 %hostname% PC の名称
 
-このファイル名パターンを使用してファイルの保存時に動的なディレクトリを作成することもできます。バックスラッシュ (\) でフォルダとファイル名を区切ってください。　
-例 :  %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss% のパターンを使用すれば、デフォルトの保存先に現在の日付 （例: 2008-06-29）を名称としたサブフォルダ
-を作成して、その中へ現在の時刻 （例: 11_58_32）を名称とする画像ファイルを保存することができます（定義済みの拡張子が付加されます）。
+このファイル名パターンを使用してファイルの保存時に動的なディレクトリを作成することもできます。
+フォルダとファイル名の区切りにはバックスラッシュ (\) を使用します。
+
+例 :  %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss% 
+保存先フォルダへ、現在の日付  [例: 2008-06-29] を名称とするサブフォルダを作成し、
+その中へ現在の時刻 [例: 11-58-32] を名称とする画像ファイルを保存することができます。
+ファイル名には定義済みの画像フォーマットの拡張子が付加されます。
 	</resource>
 	<resource name="editor_cursortool">
 		選択ツール (ESC)
@@ -458,7 +463,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		シャドウ
 	</resource>
 	<resource name="editor_confirm">
-		確認
+		チェック
 	</resource>
 	<resource name="editor_cancel">
 		キャンセル
@@ -529,5 +534,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
   </resources>
 </language>
 
+
+ 	  	 
 
  	  	 
