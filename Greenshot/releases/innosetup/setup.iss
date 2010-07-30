@@ -20,16 +20,13 @@ OutputBaseFilename=Greenshot-INSTALLER-0.9.0.$WCREV$
 DefaultDirName={pf}\Greenshot
 DefaultGroupName=Greenshot
 AppName=Greenshot
-AppVerName=0.9.0.$WCREV$
+AppVerName=Greenshot 0.9.0.$WCREV$
 AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
 PrivilegesRequired=admin
 ; Reference a bitmap, max size 164x314
-WizardImageFile=greenshot.bmp
-WizardImageStretch=false
-; Color for rest (needed when stretch=false)
-WizardImageBackColor=$3f3f3f
+WizardImageFile=installer-large.bmp
 ; Reference a bitmap, max size 55x58
-WizardSmallImageFile=greenshot.bmp
+WizardSmallImageFile=installer-small.bmp
 VersionInfoVersion=0.9.0.$WCREV$
 VersionInfoCompany=Greenshot
 VersionInfoProductName=Greenshot
