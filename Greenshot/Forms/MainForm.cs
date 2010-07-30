@@ -537,23 +537,34 @@ namespace Greenshot {
 		/// Exit/cleanup
 		/// </summary>
 		public void exit() {
-			// Inform all registed plugins
-			PluginHelper.instance.Shutdown();
-
-			// Make the Greenshot icon invisible
-			notifyIcon.Visible = false;
-
-			conf.Store();
-			HotkeyHelper.UnregisterHotkeys((int)this.Handle);
-			SoundHelper.Deinitialize();
-			if (applicationMutex != null) {
-				try {
-					applicationMutex.ReleaseMutex();
-				} catch (Exception ex) {
-					LOG.Error("Error releasing Mutex!", ex);
+			try {
+				// Make sure hotkeys are disabled
+				HotkeyHelper.UnregisterHotkeys((int)this.Handle);
+	
+				// Now the sound isn't needed anymore
+				SoundHelper.Deinitialize();
+	
+				// Making sure all Windows are closed, gracefull shutdown
+				Application.Exit();
+	
+				// Inform all registed plugins
+				PluginHelper.instance.Shutdown();
+	
+				// Store any open configuration changes
+				conf.Store();
+			} finally {
+				// Remove the application mutex
+				if (applicationMutex != null) {
+					try {
+						applicationMutex.ReleaseMutex();
+					} catch (Exception ex) {
+						LOG.Error("Error releasing Mutex!", ex);
+					}
 				}
+	
+				// make the icon invisible otherwise it stays even after exit!!
+				notifyIcon.Visible = false;
 			}
-			Application.Exit();
 		}
 	}
 }
