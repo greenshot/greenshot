@@ -568,7 +568,12 @@ namespace Greenshot.Forms {
 		
 		void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e) {
 			if (!saved) {
-				DialogResult result = MessageBox.Show(lang.GetString(LangKey.editor_close_on_save), lang.GetString(LangKey.editor_close_on_save_title), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+				MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
+				// Dissallow "CANCEL" if the application needs to shutdown
+				if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown) {
+					buttons = MessageBoxButtons.YesNo;
+				}
+				DialogResult result = MessageBox.Show(lang.GetString(LangKey.editor_close_on_save), lang.GetString(LangKey.editor_close_on_save_title), buttons, MessageBoxIcon.Question);
 				if (result.Equals(DialogResult.Cancel)) {
 					e.Cancel = true;
 					return;
