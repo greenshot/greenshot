@@ -570,7 +570,7 @@ namespace Greenshot.Forms {
 			if (!saved) {
 				MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
 				// Dissallow "CANCEL" if the application needs to shutdown
-				if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown) {
+				if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing) {
 					buttons = MessageBoxButtons.YesNo;
 				}
 				DialogResult result = MessageBox.Show(lang.GetString(LangKey.editor_close_on_save), lang.GetString(LangKey.editor_close_on_save_title), buttons, MessageBoxIcon.Question);

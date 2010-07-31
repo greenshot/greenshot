@@ -89,6 +89,7 @@ namespace Greenshot.Helpers {
 			foreach(IGreenshotPlugin plugin in plugins.Values) {
 				plugin.Shutdown();
 			}
+			plugins.Clear();
 		}
 
 		// Add plugins to the Listview

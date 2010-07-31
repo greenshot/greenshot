@@ -63,7 +63,7 @@ namespace Greenshot {
     		// Setup log4j, currently the file is called log4net.xml
     		string log4netFilename = Path.Combine(Application.StartupPath, LOG4NET_FILE);
     		if (File.Exists(log4netFilename)) {
-	    		log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo(log4netFilename)); 
+	    		log4net.Config.XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
     		} else {
     			MessageBox.Show("Can't find file " + LOG4NET_FILE);
     		}
@@ -230,7 +230,7 @@ namespace Greenshot {
 					dataTransport = new DataTransport(CommandEnum.FirstLaunch, null);
 				}
 				MainForm mainForm = new MainForm(dataTransport);
-				Application.Run();
+				Application.Run(mainForm);
 			} catch(Exception ex) {
 				LOG.Error("Exception in startup.", ex);
 				Application_ThreadException(MainForm.ActiveForm, new ThreadExceptionEventArgs(ex));
@@ -336,8 +336,13 @@ namespace Greenshot {
 		
 		#region mainform events
 		void MainFormFormClosing(object sender, FormClosingEventArgs e) {
-			LOG.Info("Closing with reason: " + e.CloseReason);
+			instance = null;
 			exit();
+		}
+		
+		void MainFormActivated(object sender, EventArgs e) {
+			Hide();
+			ShowInTaskbar = false;
 		}
 
 		#endregion
@@ -534,36 +539,58 @@ namespace Greenshot {
 		}
 		
 		/// <summary>
-		/// Exit/cleanup
+		/// Shutdown / cleanup
 		/// </summary>
 		public void exit() {
+			LOG.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
 			try {
 				// Make sure hotkeys are disabled
-				HotkeyHelper.UnregisterHotkeys((int)this.Handle);
+				HotkeyHelper.UnregisterHotkeys(Handle.ToInt32());
+			} catch (Exception e) {
+				LOG.Error("Error unregistering hotkeys!", e);
+			}
 	
+			try {
 				// Now the sound isn't needed anymore
 				SoundHelper.Deinitialize();
+			} catch (Exception e) {
+				LOG.Error("Error deinitializing sound!", e);
+			}
 	
-				// Making sure all Windows are closed, gracefull shutdown
-				Application.Exit();
-	
+			try {
 				// Inform all registed plugins
 				PluginHelper.instance.Shutdown();
-	
+			} catch (Exception e) {
+				LOG.Error("Error shutting down plugins!", e);
+			}
+			try {
+				// Making sure all Windows are closed, gracefull shutdown
+				Application.Exit();
+			} catch (Exception e) {
+				LOG.Error("Error closing application!", e);
+			}
+				
+			try {
 				// Store any open configuration changes
 				conf.Store();
-			} finally {
-				// Remove the application mutex
-				if (applicationMutex != null) {
-					try {
-						applicationMutex.ReleaseMutex();
-					} catch (Exception ex) {
-						LOG.Error("Error releasing Mutex!", ex);
-					}
+			} catch (Exception e) {
+				LOG.Error("Error storing configuration!", e);
+			}
+			// Remove the application mutex
+			if (applicationMutex != null) {
+				try {
+					applicationMutex.ReleaseMutex();
+					applicationMutex = null;
+				} catch (Exception ex) {
+					LOG.Error("Error releasing Mutex!", ex);
 				}
+			}
 	
-				// make the icon invisible otherwise it stays even after exit!!
+			// make the icon invisible otherwise it stays even after exit!!
+			if (notifyIcon != null) {
 				notifyIcon.Visible = false;
+				notifyIcon.Dispose();
+				notifyIcon = null;
 			}
 		}
 	}

@@ -219,6 +219,7 @@ namespace Greenshot {
 			this.Text = "Greenshot";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
+			this.Activated += new System.EventHandler(this.MainFormActivated);
 			this.contextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}

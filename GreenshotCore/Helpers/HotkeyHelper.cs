@@ -74,6 +74,8 @@ namespace Greenshot.Helpers {
 			foreach(int hotkey in keyHandlers.Keys) {
 				UnregisterHotKey(hnd, hotkey);
 			}
+			// Remove all key handlers
+			keyHandlers.Clear();
 		}
 		
 		public static void HandleMessages(ref Message m) {
