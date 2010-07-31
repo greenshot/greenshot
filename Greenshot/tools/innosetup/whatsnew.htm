@@ -19,7 +19,7 @@
 </head>
 <body>
 
-<!-- $jrsoftware: issrc/whatsnew.htm,v 1.664 2010/04/09 19:37:09 jr Exp $ -->
+<!-- $jrsoftware: issrc/whatsnew.htm,v 1.672 2010/06/10 13:48:26 mlaan Exp $ -->
 
 <div class="bluehead"><span class="head1">Inno Setup 5</span><br /><span class="head2">Revision History</span></div>
 
@@ -27,6 +27,33 @@
 Portions Copyright &copy; 2000-2010 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
+
+<p><a name="5.3.10"></a><span class="ver">5.3.10 </span><span class="date">(2010-06-11)</span></p>
+<ul>
+<li>Added .NET Framework 4.0 support:
+  <ul>
+  <li>Added constants <tt>{dotnet40}</tt>, <tt>{dotnet4032}</tt>, and <tt>{dotnet4064}</tt>. An exception will be raised if an attempt is made to expand these constants on a system with no .NET Framework version 4.0 present.</li>
+  <li>[Files] section flag <tt>gacinstall</tt> can now be used on .NET Framework 4.0 assemblies too.</li>
+  </ul>
+</li>
+<li>Windows 7 changes:
+  <ul>
+  <li>[Icons] section flag <tt>foldershortcut</tt> is now ignored when running on Windows 7 (or later), as folder shortcuts do not expand properly on the Start Menu anymore.</li>
+  </ul>
+</li>
+<li>[Setup] section directive changes:
+  <ul>
+  <li>When <tt>SignedUninstaller</tt> is set to <tt>yes</tt>, any temporary self-copies used by Setup are now digitally signed too.</li>
+  <li><tt>Uninstallable</tt> may now be set to a boolean expression, which may contain calls to check functions. For example: <tt>Uninstallable=not IsTaskSelected('portablemode')</tt>. See the <tt>Uninstallable</tt> documentation for details.</li>
+  <li><tt>AppVerName</tt> is no longer required if <tt>AppVersion</tt> is specified. It will now effectively default to: <tt>{cm:NameAndVersion,[AppName],[AppVersion]}</tt>. The Compiler IDE's New Script Wizard now also asks for an <tt>AppVersion</tt> instead of an <tt>AppVerName</tt>.</li>
+  <li>If a text <tt>VersionInfo*</tt> directive is set to an empty string (as opposed to not being specified), then the version info field is really set to an empty string now, instead of forcing a default value.</li>
+  <li><tt>VersionInfoProductTextVersion</tt> now defaults to <tt>VersionInfoProductVersion</tt> if set, else <tt>AppVersion</tt> if <tt>AppVersion</tt> is set and does not include constants, else <tt>VersionInfoTextVersion</tt>.</li>
+  </ul>
+</li>
+<li>Unicode Inno Setup: an issue with the taskbar button re-appearing on /VERYSILENT installs has been fixed.</li>
+<li>Unicode [Code] based on RemObjects Pascal Script SVN code revision 228.</li>
+<li>Minor tweaks.</li>
+</ul>
 
 <p><a name="5.3.9"></a><span class="ver">5.3.9 </span><span class="date">(2010-04-10)</span></p>
 <ul>
