@@ -1,14 +1,21 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
+﻿Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-# SharpDevelop 3.2.0.5505
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot", "Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
+# SharpDevelop 3.2.0.5777
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotCore", "..\GreenshotCore\GreenshotCore.csproj", "{BDC408EE-DEA1-4474-B59D-7F05757B12EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotEditor", "..\GreenshotEditor\GreenshotEditor.csproj", "{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot-OCR-Plugin", "..\Greenshot-OCR-Plugin\Greenshot-OCR-Plugin.csproj", "{C6988EE8-2FEE-4349-9F09-F9628A0D8965}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot-TitleFix-Plugin", "..\Greenshot-TitleFix-Plugin\Greenshot-TitleFix-Plugin.csproj", "{0A07500E-7404-48D7-8789-7EB2A23E0DD5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot", "Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BDC408EE-DEA1-4474-B59D-7F05757B12EC} = {BDC408EE-DEA1-4474-B59D-7F05757B12EC}
+		{DAA9A7D9-E781-4B00-A3BE-221349BC98A0} = {DAA9A7D9-E781-4B00-A3BE-221349BC98A0}
+		{C6988EE8-2FEE-4349-9F09-F9628A0D8965} = {C6988EE8-2FEE-4349-9F09-F9628A0D8965}
+		{0A07500E-7404-48D7-8789-7EB2A23E0DD5} = {0A07500E-7404-48D7-8789-7EB2A23E0DD5}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,17 +23,26 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Debug|Any CPU.Build.0 = Debug|x86
 		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Release|Any CPU.Build.0 = Release|x86
 		{BDC408EE-DEA1-4474-B59D-7F05757B12EC}.Release|Any CPU.ActiveCfg = Release|x86
+		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|Any CPU.Build.0 = Debug|x86
+		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|Any CPU.Build.0 = Release|x86
+		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|Any CPU.ActiveCfg = Release|x86
 		{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}.Debug|Any CPU.Build.0 = Debug|x86
 		{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}.Release|Any CPU.Build.0 = Release|x86
 		{DAA9A7D9-E781-4B00-A3BE-221349BC98A0}.Release|Any CPU.ActiveCfg = Release|x86
+		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Debug|Any CPU.Build.0 = Debug|x86
+		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Release|Any CPU.Build.0 = Release|x86
+		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Release|Any CPU.ActiveCfg = Release|x86
+		{0A07500E-7404-48D7-8789-7EB2A23E0DD5}.Debug|Any CPU.Build.0 = Debug|x86
+		{0A07500E-7404-48D7-8789-7EB2A23E0DD5}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{0A07500E-7404-48D7-8789-7EB2A23E0DD5}.Release|Any CPU.Build.0 = Release|x86
+		{0A07500E-7404-48D7-8789-7EB2A23E0DD5}.Release|Any CPU.ActiveCfg = Release|x86
 	EndGlobalSection
 EndGlobal
+
