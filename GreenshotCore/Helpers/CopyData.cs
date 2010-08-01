@@ -20,6 +20,7 @@
  */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -34,25 +35,32 @@ namespace Greenshot.Helpers {
 	public enum CommandEnum { OpenFile, Exit, FirstLaunch, ReloadConfig };
 
 	[Serializable()]
-	public class DataTransport {
-		private CommandEnum command;
-		private string commandData;
-		public CommandEnum Command {
-			get {return command;}
+	public class CopyDataTransport {
+		List<KeyValuePair<CommandEnum, string>> commands;
+		public List<KeyValuePair<CommandEnum, string>> Commands {
+			get {return commands;}
 		}
-		public string CommandData {
-			get {return commandData;}
+		public CopyDataTransport() {
+			this.commands = new List<KeyValuePair<CommandEnum, string>>();
 		}
-		public DataTransport(CommandEnum command) {
-			this.command = command;
+		
+		public CopyDataTransport(CommandEnum command) : this() {
+			AddCommand(command, null);
 		}
 
-		public DataTransport(CommandEnum command, string commandData) : this(command){
-			this.commandData = commandData;
+		public CopyDataTransport(CommandEnum command, string commandData) : this() {
+			AddCommand(command, commandData);
 		}
+		public void AddCommand(CommandEnum command) {
+			this.commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
+		}
+		public void AddCommand(CommandEnum command, string commandData) {
+			this.commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
+		}
+		
 	}
 
-	public delegate void DataReceivedEventHandler(object sender, DataReceivedEventArgs e);
+	public delegate void CopyDataReceivedEventHandler(object sender, CopyDataReceivedEventArgs e);
 	
 	/// <summary>
 	/// A class which wraps using Windows native WM_COPYDATA
@@ -68,7 +76,7 @@ namespace Greenshot.Helpers {
 		/// Event raised when data is received on any of the channels 
 		/// this class is subscribed to.
 		/// </summary>
-		public event DataReceivedEventHandler DataReceived;
+		public event CopyDataReceivedEventHandler CopyDataReceived;
 
 		[StructLayout(LayoutKind.Sequential)]
 		private struct COPYDATASTRUCT {
@@ -102,8 +110,8 @@ namespace Greenshot.Helpers {
 					CopyDataObjectData cdo = (CopyDataObjectData) b.Deserialize(stream);
 					
 					if (channels.Contains(cdo.Channel)) {
-						DataReceivedEventArgs d = new DataReceivedEventArgs(cdo.Channel, cdo.Data, cdo.Sent);
-						OnDataReceived(d);
+						CopyDataReceivedEventArgs d = new CopyDataReceivedEventArgs(cdo.Channel, cdo.Data, cdo.Sent);
+						OnCopyDataReceived(d);
 						m.Result = (IntPtr) 1;
 					}				
 				}
@@ -121,8 +129,8 @@ namespace Greenshot.Helpers {
 		/// Raises the DataReceived event from this class.
 		/// </summary>
 		/// <param name="e">The data which has been received.</param>
-		protected void OnDataReceived(DataReceivedEventArgs e) {
-			DataReceived(this, e);
+		protected void OnCopyDataReceived(CopyDataReceivedEventArgs e) {
+			CopyDataReceived(this, e);
 		}
 
 		/// <summary>
@@ -180,7 +188,7 @@ namespace Greenshot.Helpers {
 	/// Contains data and other information associated with data
 	/// which has been sent from another application.
 	/// </summary>
-	public class DataReceivedEventArgs {
+	public class CopyDataReceivedEventArgs {
 		private string channelName = "";
 		private object data = null;
 		private DateTime sent;
@@ -226,7 +234,7 @@ namespace Greenshot.Helpers {
 		/// <param name="channelName">The channel that the data was received from</param>
 		/// <param name="data">The data which was sent</param>
 		/// <param name="sent">The date and time the data was sent</param>
-		internal DataReceivedEventArgs(string channelName, object data, DateTime sent) {
+		internal CopyDataReceivedEventArgs(string channelName, object data, DateTime sent) {
 			this.channelName = channelName;
 			this.data = data;
 			this.sent = sent;

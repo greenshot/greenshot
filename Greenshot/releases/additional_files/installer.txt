@@ -3,7 +3,7 @@ Here are some details about Greenshot that might be handy for silent/mass instal
 The Greenshot installer is made with Inno Setup, see http://www.jrsoftware.org/isinfo.php
 For command line options of the installer see: http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline
 
-Since Greenshot build > 0.8.0.700 it is possible to configure Greenshot settings from the command-line.
+Since Greenshot 0.8.1 it is possible to configure Greenshot settings from the command-line.
 This will even work when Greenshot is already running!
 
 Greenshot commandline options:
@@ -14,18 +14,20 @@ Greenshot commandline options:
 		--help configure
                 A list of the options that can be set
 
-        --uninstall
-                Unstall is called from the unstaller and tries to close all running instances.
-
+        --exit
+                Try to close all running instances, could be used for installers
 
         --configure [property=value] ...
                 Change the configuration of Greenshot via the commandline, multiple properties can be specified after each other.
                 Example to change the language to English: greenshot.exe --configure Ui_Language=en-US
                 Example to change the destination: greenshot.exe --configure Output_File_Path="C:\Documents and Settings\"
 
-
         --openfile [filename]
                 Open the bitmap file in the running Greenshot instance or start a new instance
+				
+		--norun
+				Use as last option if you don't want the started executable to spawn a Greenshot instance.
+				e.g. when you only want to change settings but don't want to have a running Greenshot afterwards.
 				
 With the --configure option many settings can be change, the --help configure will give a list of all available settings!
 Here are some described in detail:

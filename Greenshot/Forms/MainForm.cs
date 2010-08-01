@@ -49,11 +49,13 @@ namespace Greenshot {
 		private static log4net.ILog LOG = null;
 		private static AppConfig conf;
 
-		static Mutex applicationMutex = null;
+		private static Mutex applicationMutex = null;
 		
 		[STAThread]
 		public static void Main(string[] args) {
-			DataTransport dataTransport = null;
+			bool isAlreadyRunning = false;
+			List<string> filesToOpen = new List<string>();
+
 			// Set the Thread name, is better than "1"
 			Thread.CurrentThread.Name = Application.ProductName;
 			
@@ -74,6 +76,16 @@ namespace Greenshot {
 			// Log the startup
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 			try {
+				// Fix for Bug 2495900, Multi-user Environment
+				// check whether there's an local instance running already
+				
+				// 1) Create Mutex
+    			applicationMutex = new Mutex(false, @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08");
+    			// 2) Get the right to it, this returns false if it's already locked
+				if (!applicationMutex.WaitOne(0, false)) {
+    				isAlreadyRunning = true;
+				}
+				
 				for(int argumentNr = 0; argumentNr < args.Length; argumentNr++) {
 					string argument = args[argumentNr];
 					
@@ -106,8 +118,8 @@ namespace Greenshot {
 							helpOutput.AppendLine("\t\tA detailed listing of available settings for the configure command.");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--uninstall");
-							helpOutput.AppendLine("\t\tUnstall is called from the unstaller and tries to close all running instances.");
+							helpOutput.AppendLine("\t--exit");
+							helpOutput.AppendLine("\t\tTries to close all running instances.");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
 							helpOutput.AppendLine("\t--configure [property=value] ...");
@@ -120,7 +132,7 @@ namespace Greenshot {
 							helpOutput.AppendLine("\t\tOpen the bitmap file in the running Greenshot instance or start a new instance");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--exit");
+							helpOutput.AppendLine("\t--norun");
 							helpOutput.AppendLine("\t\tCan be used if someone only wants to change the configuration.");
 							helpOutput.AppendLine("\t\tAs soon as this option is found Greenshot exits if not and there is no running instance it will stay running.");
 							helpOutput.AppendLine("\t\tExample: greenshot.exe --configure Output_File_Path=\"C:\\Documents and Settings\\\" --exit");
@@ -131,19 +143,20 @@ namespace Greenshot {
 						if (!attachedToConsole) {
 							Console.ReadKey();
 						}
+						FreeMutex();
 						return;
 					}
 
-					// unregister application on uninstall (allow uninstall)
-					if (argument.Equals("--uninstall") || argument.Equals("uninstall")) {
+					// exit application
+					if (argument.Equals("--exit")) {
 						try {
 							LOG.Info("Sending all instances the exit command.");
 							// Pass Exit to running instance, if any
-							dataTransport = new DataTransport(CommandEnum.Exit, args[0]);
-	    					SendData(dataTransport);
+							SendData(new CopyDataTransport(CommandEnum.Exit));
 						} catch (Exception e) {
 							LOG.Warn("Exception by exit.", e);
 						}
+						FreeMutex();
 						return;
 					}
 
@@ -165,7 +178,7 @@ namespace Greenshot {
 							conf.SetProperties(properties);
 							conf.Store();
 							// Update running instances
-							SendData(new DataTransport(CommandEnum.ReloadConfig));
+							SendData(new CopyDataTransport(CommandEnum.ReloadConfig));
 							LOG.Debug("Configuration modified!");
 						} else {
 							LOG.Debug("Configuration NOT modified!");
@@ -173,33 +186,38 @@ namespace Greenshot {
 					}
 
 					// Make an exit possible
-					if (argument.Equals("--exit")) {
+					if (argument.Equals("--norun")) {
+						FreeMutex();
 	    				return;
 					}					
 
 					if (argument.Equals("--openfile")) {
-	    				// Take filename and send it to running instance or take it while opening
-	    				dataTransport = new DataTransport(CommandEnum.OpenFile, args[0]);
+						string filename = args[++argumentNr];
+						filesToOpen.Add(filename);
 					}
 				}
 
-				// Fix for Bug 2495900, Multi-user Environment
-				// check whether there's an local instance running already
-				
-				// 1) Create Mutex
-    			applicationMutex = new Mutex(false, @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08");
-    			// 2) Get the right to it, this returns false if it's already locked
-				if (!applicationMutex.WaitOne(0, false)) {
-    				if (dataTransport != null) {
-    					SendData(dataTransport);
-    				} else {
+				// Finished parsing the command line arguments, see if we need to do anything
+				CopyDataTransport transport = new CopyDataTransport();
+				if (filesToOpen.Count > 0) {
+					foreach(string fileToOpen in filesToOpen) {
+						transport.AddCommand(CommandEnum.OpenFile, fileToOpen);
+					}
+				}
+				if (isAlreadyRunning) {
+					if (filesToOpen.Count > 0) {
+						SendData(transport);
+					} else {
 						conf = AppConfig.GetInstance();
 						ILanguage lang = Language.GetInstance();
 						MessageBox.Show(lang.GetString(LangKey.error_multipleinstances), lang.GetString(LangKey.error));
-    				}
+					}
+					FreeMutex();
 					Application.Exit();
 					return;
 				}
+
+				// From here on we continue starting Greenshot
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 
@@ -216,20 +234,11 @@ namespace Greenshot {
 				// Check if it's the first time launch?
 				bool firstLaunch = (bool)conf.General_IsFirstLaunch;
 	   			if(firstLaunch) {
-					// todo: display basic instructions
-					try {
-					} catch (Exception ex) {
-						LOG.Error("Exception in MainForm.", ex);
-					} finally {
-						conf.General_IsFirstLaunch = false;
-						conf.Store();
-					}
+					conf.General_IsFirstLaunch = false;
+					conf.Store();
+					transport.AddCommand(CommandEnum.FirstLaunch);
 				}
-				// Pass firstlaunch if it is the firstlaunch and no filename is given
-				if (dataTransport ==  null && firstLaunch) {
-					dataTransport = new DataTransport(CommandEnum.FirstLaunch, null);
-				}
-				MainForm mainForm = new MainForm(dataTransport);
+				MainForm mainForm = new MainForm(transport);
 				Application.Run(mainForm);
 			} catch(Exception ex) {
 				LOG.Error("Exception in startup.", ex);
@@ -241,21 +250,34 @@ namespace Greenshot {
 		/// Send DataTransport Object via Window-messages
 		/// </summary>
 		/// <param name="dataTransport">DataTransport with data for a running instance</param>
-		private static void SendData(DataTransport dataTransport) {
+		private static void SendData(CopyDataTransport copyDataTransport) {
 			string appName = Application.ProductName;
 			CopyData copyData = new CopyData();
 			copyData.Channels.Add(appName);
-			copyData.Channels[appName].Send(dataTransport);
+			copyData.Channels[appName].Send(copyDataTransport);
 		}
-		
+
+		private static void FreeMutex() {
+			// Remove the application mutex
+			if (applicationMutex != null) {
+				try {
+					applicationMutex.ReleaseMutex();
+					applicationMutex = null;
+				} catch (Exception ex) {
+					LOG.Error("Error releasing Mutex!", ex);
+				}
+			}
+		}
+
 		public static MainForm instance = null;
 
 		private ILanguage lang;
 		private ToolTip tooltip;
 		private CaptureForm captureForm = null;
 		private string lastImagePath = null;
-		
-		public MainForm(DataTransport dataTransport) {
+		private CopyData copyData = null;
+				
+		public MainForm(CopyDataTransport dataTransport) {
 			instance = this;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -280,21 +302,60 @@ namespace Greenshot {
 
 			// Enable the Greenshot icon to be visible, this prevents Problems with the context menu
 			notifyIcon.Visible = true;
-			
+
+			// Create a new instance of the class: copyData = new CopyData();
+			copyData = new CopyData();
+
+			// Assign the handle:
+			copyData.AssignHandle(this.Handle);
+			// Create the channel to send on:
+			copyData.Channels.Add("Greenshot");     
+			// Hook up received event:
+			copyData.CopyDataReceived += new CopyDataReceivedEventHandler(CopyDataDataReceived);
+
 			if (dataTransport != null) {
-			// See what the dataTransport from the static main brought us!
-				switch (dataTransport.Command) {
-					case CommandEnum.FirstLaunch:
-						// Show user where Greenshot is, only at first start
-						notifyIcon.ShowBalloonTip(3000, "Greenshot", lang.GetString(LangKey.tooltip_firststart), ToolTipIcon.Info);
+				HandleDataTransport(dataTransport);
+			}
+		}
+
+		/// <summary>
+		/// DataReceivedEventHandler
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="dataReceivedEventArgs"></param>
+		private void CopyDataDataReceived(object sender, CopyDataReceivedEventArgs copyDataReceivedEventArgs) {
+			// Cast the data to the type of object we sent:
+			CopyDataTransport dataTransport = (CopyDataTransport)copyDataReceivedEventArgs.Data;
+			HandleDataTransport(dataTransport);
+		}
+
+		private void HandleDataTransport(CopyDataTransport dataTransport) {
+			foreach(KeyValuePair<CommandEnum, string> command in dataTransport.Commands) {
+				LOG.Debug("Data received, Command = " + command.Key + ", Data: " + command.Value);
+				switch(command.Key) {
+					case CommandEnum.Exit:
+						exit();
+						break;
+					case CommandEnum.ReloadConfig:
+						AppConfig.Reload();
+						// Even update language when needed
+						UpdateUI();
 						break;
 					case CommandEnum.OpenFile:
-						captureForm.HandleDataTransport(dataTransport);
+						string filename = command.Value;
+						if (File.Exists(filename)) {
+							captureForm.MakeCapture(filename);	
+						} else {
+							LOG.Warn("No such file: " + filename);
+						}
+						break;
+					default:
+						LOG.Error("Unknown command!");
 						break;
 				}
 			}
 		}
-
+	
 		public ContextMenuStrip MainMenu {
 			get {return contextMenu;}
 		}
@@ -577,14 +638,7 @@ namespace Greenshot {
 				LOG.Error("Error storing configuration!", e);
 			}
 			// Remove the application mutex
-			if (applicationMutex != null) {
-				try {
-					applicationMutex.ReleaseMutex();
-					applicationMutex = null;
-				} catch (Exception ex) {
-					LOG.Error("Error releasing Mutex!", ex);
-				}
-			}
+			FreeMutex();
 	
 			// make the icon invisible otherwise it stays even after exit!!
 			if (notifyIcon != null) {

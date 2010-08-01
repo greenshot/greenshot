@@ -29,6 +29,8 @@ AppSupportURL=http://getgreenshot.org
 AppUpdatesURL=http://getgreenshot.org
 AppVerName={#ExeName} {#Version}
 AppVersion={#Version}
+; changes associations is used when the installer installs new extensions, it  clears the explorer icon cache
+;ChangesAssociations=yes
 Compression=lzma/ultra64
 InternalCompressLevel=ultra64
 LanguageDetectionMethod=uilanguage
@@ -38,7 +40,7 @@ VersionInfoCompany={#ExeName}
 VersionInfoTextVersion={#Version}
 VersionInfoVersion={#Version}
 VersionInfoProductName={#ExeName}
-PrivilegesRequired=admin
+PrivilegesRequired=poweruser
 ; Reference a bitmap, max size 164x314
 WizardImageFile=installer-large.bmp
 ; Reference a bitmap, max size 55x58
@@ -46,6 +48,11 @@ WizardSmallImageFile=installer-small.bmp
 MinVersion=,5.01.2600
 [Registry]
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue; Tasks: startup
+; Register our own filetype
+;Root: HKCR; Subkey: ".gsb"; ValueType: string; ValueName: ""; ValueData: "GreenshotFile"; Flags: uninsdeletevalue
+;Root: HKCR; Subkey: "GreenshotFile"; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletekey
+;Root: HKCR; Subkey: "GreenshotFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"
+;Root: HKCR; Subkey: "GreenshotFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}
 Name: {group}\Uninstall {#ExeName}; Filename: {app}\unins000.exe; WorkingDir: {app}
@@ -80,47 +87,49 @@ Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full
 Name: "plugins\titlefix"; Description: {cm:titlefix}; Types: Full
 ;Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
 [Code]
-function InitializeSetup(): Boolean;
+function KillGreenshot() : Boolean;
 var
-	ErrorCode : Integer;
-	NetFrameWorkInstalled : Boolean;
-	MsgBoxResult : Boolean;
 	bMutex : Boolean;
 	resultCode: Integer;
 begin
-
-	NetFrameWorkInstalled := RegKeyExists(HKLM, 'SOFTWARE\Microsoft\.NETFramework\policy\v2.0');
-	if NetFrameWorkInstalled = true then
+	bMutex:= True
+	while bMutex do
 	begin
 		bMutex:= CheckForMutexes ('Local\{#Mutex}');
 		if bMutex = True then
 		begin
 			Exec('taskkill.exe', '/F /IM Greenshot.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+			Sleep(1200);
 		end;
-		Result := true;
 	end;
+	Result := True;
+end;
 
-	if NetFrameWorkInstalled = false then
-	begin
+function InitializeSetup(): Boolean;
+var
+	ErrorCode : Integer;
+	NetFrameWorkInstalled : Boolean;
+	MsgBoxResult : Boolean;
+begin
+
+	NetFrameWorkInstalled := RegKeyExists(HKLM, 'SOFTWARE\Microsoft\.NETFramework\policy\v2.0');
+	if NetFrameWorkInstalled = true then begin
+		KillGreenshot();
+		Result := true;
+	end
+	else begin
 		MsgBoxResult := MsgBox(ExpandConstant('{cm:dotnetmissing}'), mbConfirmation, MB_YESNO) = idYes;
 		Result := false;
 		if MsgBoxResult = true then
 		begin
-			ShellExec('open', 'http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/dotnetfx.exe', '','',SW_SHOWNORMAL,ewNoWait,ErrorCode);
+			ShellExec('open', 'http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/dotnetfx.exe', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 		end;
 	end;
 end;
 
 function InitializeUninstall():Boolean;
-var
-	bMutex : Boolean;
-	resultCode: Integer;
 begin
-	bMutex:= CheckForMutexes ('Local\{#Mutex}');
-	if bMutex = True then
-	begin
-		Exec(ExpandConstant('{app}\{#ExeName}.exe'), '--uninstall', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-	end;
+	KillGreenshot();
 	Result := True;
 end;
 [Run]

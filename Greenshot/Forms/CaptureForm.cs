@@ -57,7 +57,6 @@ namespace Greenshot.Forms {
 		private Rectangle captureRect = Rectangle.Empty;
 		private ICapture capture = null;
 		private AppConfig conf = AppConfig.GetInstance();
-		private CopyData copyData = null;
 		private ILanguage lang = Language.GetInstance();
 
 		public CaptureForm() {
@@ -65,54 +64,9 @@ namespace Greenshot.Forms {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			// Create a new instance of the class: copyData = new CopyData();
-			copyData = new CopyData();
 
-			// Assign the handle:
-			copyData.AssignHandle(this.Handle);
-			// Create the channel to send on:
-			copyData.Channels.Add("Greenshot");     
-			// Hook up received event:
-			copyData.DataReceived += new DataReceivedEventHandler(CopyDataDataReceived);
-			
 			// Make sure the form is hidden (might be overdoing it...)
 			this.Hide();
-		}
-
-		/// <summary>
-		/// DataReceivedEventHandler
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="dataReceivedEventArgs"></param>
-		private void CopyDataDataReceived(object sender, DataReceivedEventArgs dataReceivedEventArgs) {
-			// Cast the data to the type of object we sent:
-			DataTransport dataTransport = (DataTransport)dataReceivedEventArgs.Data;
-			HandleDataTransport(dataTransport);
-		}
-
-		public void HandleDataTransport(DataTransport dataTransport) {
-			LOG.Debug("Data received, Command = " + dataTransport.Command + ", Data: " + dataTransport.CommandData);
-			switch(dataTransport.Command) {
-				case CommandEnum.Exit:
-					MainForm.instance.exit();
-					break;
-				case CommandEnum.ReloadConfig:
-					AppConfig.Reload();
-					// Even update language when needed
-					MainForm.instance.UpdateUI();
-					break;
-				case CommandEnum.OpenFile:
-					string filename = dataTransport.CommandData;
-					if (File.Exists(filename)) {
-						MakeCapture(filename);	
-					} else {
-						LOG.Warn("No such file: " + filename);
-					}
-					break;
-				default:
-					LOG.Error("Unknown command!");
-					break;
-			}
 		}
 
 		void DoCaptureFeedback() {
