@@ -217,7 +217,8 @@ namespace Greenshot {
 			this.Name = "MainForm";
 			this.ShowInTaskbar = false;
 			this.Text = "Greenshot";
-			this.TopMost = true;
+			this.ShowIcon = false;
+			this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			this.Activated += new System.EventHandler(this.MainFormActivated);
 			this.contextMenu.ResumeLayout(false);
