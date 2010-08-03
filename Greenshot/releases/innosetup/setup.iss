@@ -5,6 +5,7 @@
 ;#define Mutex "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08"
 
 ; Include the scripts to install .NET Framework 2.0
+; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
 #include "scripts\products.iss"
 #include "scripts\products\winversion.iss"
 #include "scripts\products\fileversion.iss"
