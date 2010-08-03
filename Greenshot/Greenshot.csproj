@@ -155,7 +155,9 @@
     <PostBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\releases\innosetup\setup.iss" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
 cd "$(MSBuildProjectDirectory)\bin\Release"
 "$(MSBuildProjectDirectory)\tools\FileVerifier++\fvc.exe" -c -a MD5 -r -o "checksum.MD5" *.dll *.exe
+"$(MSBuildProjectDirectory)\tools\7zip\7za.exe" a -x!.SVN -r "$(MSBuildProjectDirectory)\releases\Greenshot-NO-INSTALLER.zip" "$(MSBuildProjectDirectory)\bin\Release\*" "$(MSBuildProjectDirectory)\releases\additional_files\*"
+cd "$(MSBuildProjectDirectory)\releases\innosetup"
 "$(MSBuildProjectDirectory)\tools\innosetup\ISCC.exe" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
-"$(MSBuildProjectDirectory)\tools\7zip\7za.exe" a -x!.SVN -r "$(MSBuildProjectDirectory)\releases\Greenshot-NO-INSTALLER.zip" "$(MSBuildProjectDirectory)\bin\Release\*" "$(MSBuildProjectDirectory)\releases\additional_files\*"</PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

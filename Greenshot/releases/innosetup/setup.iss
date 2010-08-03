@@ -161,10 +161,6 @@ begin
 end;
 
 function InitializeSetup(): Boolean;
-var
-	ErrorCode : Integer;
-	NetFrameWorkInstalled : Boolean;
-	MsgBoxResult : Boolean;
 begin
 	// Enhance installer otherwise .NET installations won't work
 	msi20('2.0');

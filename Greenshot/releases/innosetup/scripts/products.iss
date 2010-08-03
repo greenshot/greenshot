@@ -35,9 +35,9 @@ en.depinstall_error=An error occured while installing the dependencies. Please r
 de.depinstall_error=Ein Fehler ist während der Installation der Abghängigkeiten aufgetreten. Bitte starten Sie den Computer neu und führen Sie das Setup erneut aus oder installieren Sie die folgenden Abhängigkeiten per Hand:%n
 de.depinstall_error=Er is een fout tijdens de installatie van de afhankelijkheiden opgetreden. Start uw computer door en laat de setup nog een keer lopen of installeer de volgende afhankelijkheiden met de hand:%n
 
-nl.isxdl_langfile=english.ini
+en.isxdl_langfile=english.ini
 de.isxdl_langfile=german2.ini
-
+nl.isxdl_langfile=english.ini
 
 [Files]
 Source: "scripts\isxdl\german2.ini"; Flags: dontcopy
