@@ -296,7 +296,7 @@ namespace Greenshot {
 			captureForm = new CaptureForm();
 
 			// Load all the plugins
-			PluginHelper.instance.LoadPlugins(this.ContextMenuStrip, captureForm);
+			PluginHelper.instance.LoadPlugins(this.contextMenu, captureForm);
 			PluginHelper.instance.OnImageOutput += new OnImageOutputHandler(ImageWritten);
 			SoundHelper.Initialize();
 
