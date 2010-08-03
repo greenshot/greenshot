@@ -1,6 +1,22 @@
 #define ExeName "Greenshot"
 #define Version "0.9.0.$WCREV$"
-#define Mutex "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08"
+
+; Mutex is no longer needed!
+;#define Mutex "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08"
+
+; Include the scripts to install .NET Framework 2.0
+#include "scripts\products.iss"
+#include "scripts\products\winversion.iss"
+#include "scripts\products\fileversion.iss"
+#include "scripts\products\msi20.iss"
+#include "scripts\products\msi31.iss"
+#include "scripts\products\dotnetfx20.iss"
+#include "scripts\products\dotnetfx20lp.iss"
+#include "scripts\products\dotnetfx20sp1.iss"
+#include "scripts\products\dotnetfx20sp1lp.iss"
+#include "scripts\products\dotnetfx20sp2.iss"
+#include "scripts\products\dotnetfx20sp2lp.iss"
+
 [Files]
 Source: ..\..\bin\Release\*; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\Languages\*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion
@@ -16,6 +32,16 @@ Source: ..\..\bin\Release\Languages\Plugins\Greenshot-OCR-Plugin\*; DestDir: {ap
 ;Source: ..\..\bin\Release\Languages\Plugins\GreenshotJiraPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Title-Fix Plugin
 Source: ..\..\bin\Release\Plugins\Greenshot-TitleFix-Plugin\*; DestDir: {app}\Plugins\Greenshot-TitleFix-Plugin; Components: plugins\titlefix; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+
+;------
+; Add the "Files In Use Extension"
+Source: IssProc\IssProc.dll; DestDir: {tmp}; Flags: dontcopy
+; Add Files In Use Extension extra language file (you don t need to add this file if you are using english only)
+Source: IssProc\IssProcLanguage.ini; DestDir: {tmp}; Flags: dontcopy
+;------ Copy IssProc.dll in your app folder if you want to use it on unistall
+Source: IssProc\IssProc.dll; DestDir: {app}
+Source: IssProc\IssProcLanguage.ini; DestDir: {app}
+;------
 [Setup]
 OutputDir=..\
 OutputBaseFilename={#ExeName}-INSTALLER-{#Version}
@@ -65,9 +91,6 @@ Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 [Tasks]
 Name: startup; Description: {cm:startup}
 [CustomMessages]
-en.dotnetmissing=This setup requires the .NET Framework v2.0.%nDo you want to download the framework now?
-de.dotnetmissing=Dieses Programm benötigt Microsoft .NET Framework v2.0.%nWollen Sie das Framework jetzt downloaden?
-nl.dotnetmissing=Dit programma heeft Microsoft .NET Framework v2.0. nodig%nWilt u het Framework nu downloaden?
 en.startup=Start {#ExeName} with Windows start
 de.startup={#ExeName} starten wenn Windows hochfahrt
 nl.startup=Start {#ExeName} wanneer Windows opstart
@@ -87,22 +110,53 @@ Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full
 Name: "plugins\titlefix"; Description: {cm:titlefix}; Types: Full
 ;Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
 [Code]
-function KillGreenshot() : Boolean;
+// IssFindModule see http://raz-soft.com/display-english-posts-only/files-in-use-extension-for-inno-setup/
+// IssFindModule called on install
+function IssFindModule(hWnd: Integer; Modulename: PAnsiChar; Language: PAnsiChar; Silent: Boolean; CanIgnore: Boolean ): Integer;
+external 'IssFindModule@files:IssProc.dll stdcall setuponly';
+
+// IssFindModule called on uninstall
+function IssFindModuleU(hWnd: Integer; Modulename: PAnsiChar; Language: PAnsiChar; Silent: Boolean; CanIgnore: Boolean ): Integer;
+external 'IssFindModule@{app}\IssProc.dll stdcall uninstallonly';
+
+// Don't install as long as Greenshot is running
+function NextButtonClick(CurPage: Integer): Boolean;
 var
-	bMutex : Boolean;
-	resultCode: Integer;
+  hWnd: Integer;
+  sModuleName: String;
+  sApp: String;
+  nCode: Integer;
 begin
-	bMutex:= True
-	while bMutex do
+	Result := true;
+	if CurPage = wpReady then
 	begin
-		bMutex:= CheckForMutexes ('Local\{#Mutex}');
-		if bMutex = True then
-		begin
-			Exec('taskkill.exe', '/F /IM Greenshot.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-			Sleep(1200);
+		Result := false;
+		ExtractTemporaryFile('IssProcLanguage.ini');
+		hWnd := StrToInt(ExpandConstant('{wizardhwnd}'));
+		sApp := ExpandConstant('{app}');
+		// Check on all Greenshot binary files (plugins, exe & DLL's
+		sModuleName := sApp + '\{#ExeName}.exe;' + sApp + '\{#ExeName}*.dll;' + sApp + '\*\*.dll;' + sApp + '\*\*.gsp';
+
+		nCode:=IssFindModule(hWnd, sModuleName, ExpandConstant('{language}'), WizardSilent(), false);
+		if nCode=1 then begin
+			if WizardSilent() then begin
+				while IssFindModule(hWnd, sModuleName, ExpandConstant('{language}'), WizardSilent(), false) = 1 do
+				begin
+					Exec('taskkill.exe', '/IM greenshot.exe', '', SW_HIDE, ewWaitUntilTerminated, nCode);
+					Sleep(1200);
+				end;
+
+				Result := IssFindModule(hWnd, sModuleName, ExpandConstant('{language}'), WizardSilent(), false) = 0;
+			end else begin
+				PostMessage (WizardForm.Handle, $0010, 0, 0);
+			end;
+		end else if (nCode=0) or (nCode=2) then begin
+			Result := true;
 		end;
 	end;
-	Result := True;
+
+	// Check missing Dependencies
+	ProductNextButtonClick(CurPage);
 end;
 
 function InitializeSetup(): Boolean;
@@ -111,26 +165,46 @@ var
 	NetFrameWorkInstalled : Boolean;
 	MsgBoxResult : Boolean;
 begin
-
-	NetFrameWorkInstalled := RegKeyExists(HKLM, 'SOFTWARE\Microsoft\.NETFramework\policy\v2.0');
-	if NetFrameWorkInstalled = true then begin
-		KillGreenshot();
-		Result := true;
-	end
-	else begin
-		MsgBoxResult := MsgBox(ExpandConstant('{cm:dotnetmissing}'), mbConfirmation, MB_YESNO) = idYes;
-		Result := false;
-		if MsgBoxResult = true then
-		begin
-			ShellExec('open', 'http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/dotnetfx.exe', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+	// Enhance installer otherwise .NET installations won't work
+	msi20('2.0');
+	msi31('3.0');
+	
+	//install .netfx 2.0 sp2 if possible; if not sp1 if possible; if not .netfx 2.0
+	if minwinversion(5, 1) then begin
+		dotnetfx20sp2();
+		dotnetfx20sp2lp();
+	end else begin
+		if minwinversion(5, 0) and minwinspversion(5, 0, 4) then begin
+			// kb835732();
+			dotnetfx20sp1();
+			dotnetfx20sp1lp();
+		end else begin
+			dotnetfx20();
+			dotnetfx20lp();
 		end;
 	end;
+	Result := true;
 end;
 
-function InitializeUninstall():Boolean;
+function InitializeUninstall(): Boolean;
+var
+	sModuleName: String;
+	nCode: Integer;
+	sApp: String;
 begin
-	KillGreenshot();
-	Result := True;
+    Result := false;
+	sApp := ExpandConstant('{app}');
+
+	// Check on all Greenshot binary files (plugins, exe & DLL's
+	sModuleName := sApp + '\{#ExeName}.exe;' + sApp + '\{#ExeName}*.dll;' + sApp + '\*\*.dll;' + sApp + '\*\*.gsp';
+
+	nCode:=IssFindModuleU(0, sModuleName, 'enu', false, false);
+	if (nCode=0) then begin
+          Result := true;
+    end;
+
+    // Unload the extension, otherwise it will not be deleted by the uninstaller
+    UnloadDLL(ExpandConstant('{app}\IssProc.dll'));
 end;
 [Run]
 Filename: {app}\{#ExeName}.exe; Description: {cm:startgreenshot}; Parameters: --configure Ui_Language={language}; WorkingDir: {app}; Flags: nowait postinstall runasoriginaluser
