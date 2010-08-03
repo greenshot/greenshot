@@ -5,28 +5,37 @@ DependenciesDir=MyProgramDependencies
 
 en.depdownload_msg=The following applications are required before setup can continue:%n%n%1%nDownload and install now?
 de.depdownload_msg=Die folgenden Programme werden benötigt bevor das Setup fortfahren kann:%n%n%1%nJetzt downloaden und installieren?
+nl.depdownload_msg=Die volgende programmas zijn nodig voor dat de setup door kan gaan:%n%n%1%nNu downloaden en installeren?
 
 en.depdownload_memo_title=Download dependencies
 de.depdownload_memo_title=Abhängigkeiten downloaden
+nl.depdownload_memo_title=Afhankelijkheiden downloaden
 
 en.depinstall_memo_title=Install dependencies
 de.depinstall_memo_title=Abhängigkeiten installieren
+nl.depinstall_memo_title=Afhankelijkheiden installeren
 
 en.depinstall_title=Installing dependencies
 de.depinstall_title=Installiere Abhängigkeiten
+nl.depinstall_title=Installeer afhankelijkheiden
 
 en.depinstall_description=Please wait while Setup installs dependencies on your computer.
 de.depinstall_description=Warten Sie bitte während Abhängigkeiten auf Ihrem Computer installiert wird.
+nl.depinstall_description=Wachten AUB terwijl de afhankelijkheiden op uw computer geinstalleerd worden.
 
 en.depinstall_status=Installing %1...
 de.depinstall_status=Installiere %1...
+nl.depinstall_status=Installeer %1...
 
 en.depinstall_missing=%1 must be installed before setup can continue. Please install %1 and run Setup again.
 de.depinstall_missing=%1 muss installiert werden bevor das Setup fortfahren kann. Bitte installieren Sie %1 und starten Sie das Setup erneut.
+nl.depinstall_missing=%1 moet geinstalleerd worden voordat de setup door kan gaan. Installeer AUB %1 en start de setup nogmals.
 
 en.depinstall_error=An error occured while installing the dependencies. Please restart the computer and run the setup again or install the following dependencies manually:%n
 de.depinstall_error=Ein Fehler ist während der Installation der Abghängigkeiten aufgetreten. Bitte starten Sie den Computer neu und führen Sie das Setup erneut aus oder installieren Sie die folgenden Abhängigkeiten per Hand:%n
+de.depinstall_error=Er is een fout tijdens de installatie van de afhankelijkheiden opgetreden. Start uw computer door en laat de setup nog een keer lopen of installeer de volgende afhankelijkheiden met de hand:%n
 
+nl.isxdl_langfile=english.ini
 de.isxdl_langfile=german2.ini
 
 
