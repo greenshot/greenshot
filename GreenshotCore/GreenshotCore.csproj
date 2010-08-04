@@ -59,6 +59,7 @@
     <Folder Include="Configuration" />
     <Folder Include="Helpers" />
     <Folder Include="Forms" />
+    <Folder Include="Properties" />
     <Folder Include="UnmanagedHelpers" />
     <Compile Include="Configuration\AppConfig.cs" />
     <Compile Include="Configuration\Language.cs" />
@@ -110,12 +111,14 @@
     <Compile Include="Interfaces\Drawing\ISurface.cs" />
     <Compile Include="Interfaces\Forms\IImageEditor.cs" />
     <Compile Include="Interfaces\Plugin\PluginInterfaces.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnmanagedHelpers\GDI32.cs" />
     <Compile Include="UnmanagedHelpers\User32.cs" />
     <Compile Include="UnmanagedHelpers\Win32Errors.cs" />
     <Compile Include="UnmanagedHelpers\WinMM.cs" />
     <None Include="Lib\log4net.dll" />
     <None Include="Lib\nunit.framework.dll" />
+    <None Include="Properties\AssemblyInfo.cs.template" />
     <EmbeddedResource Include="Forms\AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -135,4 +138,7 @@
       <DependentUpon>PropertyItemProvider.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"</PreBuildEvent>
+  </PropertyGroup>
 </Project>
