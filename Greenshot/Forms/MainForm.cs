@@ -80,10 +80,15 @@ namespace Greenshot {
 				// check whether there's an local instance running already
 				
 				// 1) Create Mutex
-    			applicationMutex = new Mutex(false, @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08");
-    			// 2) Get the right to it, this returns false if it's already locked
-				if (!applicationMutex.WaitOne(0, false)) {
-    				isAlreadyRunning = true;
+				try {
+	    			applicationMutex = new Mutex(false, @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08");
+	    			// 2) Get the right to it, this returns false if it's already locked
+					if (!applicationMutex.WaitOne(0, false)) {
+	    				isAlreadyRunning = true;
+					}
+				} catch (Exception e) {
+					LOG.Error("Can't create Mutex, for now we assume it's already there.", e);
+					isAlreadyRunning = true;
 				}
 				
 				for(int argumentNr = 0; argumentNr < args.Length; argumentNr++) {
