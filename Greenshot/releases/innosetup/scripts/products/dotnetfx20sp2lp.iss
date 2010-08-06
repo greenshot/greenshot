@@ -1,12 +1,22 @@
 //http://www.microsoft.com/downloads/details.aspx?FamilyID=c69789e0-a4fa-4b2e-a6b5-3b3695825992
 
 [CustomMessages]
+nl.dotnetfx20sp2lp_title=.NET Framework 2.0 SP2 Taalpakket: Nederlands
 de.dotnetfx20sp2lp_title=.NET Framework 2.0 SP2 Sprachpaket: Deutsch
+en.dotnetfx20sp2lp_title=
 
-de.dotnetfx20sp2lp_size=3,4 MB
+dotnetfx20sp2lp_size=3,4 MB
 
 ;http://www.microsoft.com/globaldev/reference/lcid-all.mspx
-de.dotnetfx20sp2lp_lcid=1031
+dotnetfx20sp2lp_lcid=1031
+
+en.dotnetfx20sp2lp_url=
+en.dotnetfx20sp2lp_url_x64=
+en.dotnetfx20sp2lp_url_ia64=
+
+nl.dotnetfx20sp2lp_url=http://download.microsoft.com/download/7/a/5/7a5ca52b-08ac-40f5-9a6d-6cce78b1db28/NetFx20SP2_x86nl.exe
+nl.dotnetfx20sp2lp_url_x64=
+nl.dotnetfx20sp2lp_url_ia64=
 
 de.dotnetfx20sp2lp_url=http://download.microsoft.com/download/0/b/1/0b175c8e-34bd-46c0-bfcd-af8d33770c58/netfx20sp2_x86de.exe
 de.dotnetfx20sp2lp_url_x64=http://download.microsoft.com/download/4/e/c/4ec67a11-879d-4550-9c25-fd9ab4261b46/netfx20sp2_x64de.exe

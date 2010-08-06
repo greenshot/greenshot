@@ -196,6 +196,7 @@ namespace Greenshot {
 			this.combobox_language.Name = "combobox_language";
 			this.combobox_language.Size = new System.Drawing.Size(213, 21);
 			this.combobox_language.TabIndex = 0;
+			this.combobox_language.MaxDropDownItems = 15;
 			// 
 			// combobox_primaryimageformat
 			// 

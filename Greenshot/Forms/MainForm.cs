@@ -60,42 +60,51 @@ namespace Greenshot {
 			Thread.CurrentThread.Name = Application.ProductName;
 			
 			Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
-    		AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-    		
-    		// Setup log4j, currently the file is called log4net.xml
-    		string log4netFilename = Path.Combine(Application.StartupPath, LOG4NET_FILE);
-    		if (File.Exists(log4netFilename)) {
-	    		log4net.Config.XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
-    		} else {
-    			MessageBox.Show("Can't find file " + LOG4NET_FILE);
-    		}
-    		
-    		// Setup the LOG
+			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+			
+			// Setup log4j, currently the file is called log4net.xml
+			string log4netFilename = Path.Combine(Application.StartupPath, LOG4NET_FILE);
+			if (File.Exists(log4netFilename)) {
+				log4net.Config.XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
+			} else {
+				MessageBox.Show("Can't find file " + LOG4NET_FILE);
+			}
+			
+			// Setup the LOG
 			LOG = log4net.LogManager.GetLogger(typeof(MainForm));
 
 			// Log the startup
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
+
 			try {
 				// Fix for Bug 2495900, Multi-user Environment
 				// check whether there's an local instance running already
 				
-				// 1) Create Mutex
 				try {
-	    			applicationMutex = new Mutex(false, @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08");
-	    			// 2) Get the right to it, this returns false if it's already locked
+					// 1) Create Mutex
+					applicationMutex = new Mutex(false, @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08");
+					// 2) Get the right to it, this returns false if it's already locked
 					if (!applicationMutex.WaitOne(0, false)) {
-	    				isAlreadyRunning = true;
+						isAlreadyRunning = true;
 					}
 				} catch (Exception e) {
 					LOG.Error("Can't create Mutex, for now we assume it's already there.", e);
 					isAlreadyRunning = true;
 				}
-				
+
+				if (args.Length > 0 && LOG.IsDebugEnabled) {
+					StringBuilder argumentString = new StringBuilder();
+					for(int argumentNr = 0; argumentNr < args.Length; argumentNr++) {
+						argumentString.Append("[").Append(args[argumentNr]).Append("] ");
+					}
+					LOG.Debug("Greenshot arguments: " + argumentString.ToString());
+				}
+
 				for(int argumentNr = 0; argumentNr < args.Length; argumentNr++) {
 					string argument = args[argumentNr];
 					
 					// Help
-					if (argument.Equals("--help")) {
+					if (argument.ToLower().Equals("/help")) {
 						// Try to attach to the console
 						bool attachedToConsole = User32.AttachConsole(User32.ATTACH_PARENT_PROCESS);
 						// If attach didn't work, open a console
@@ -104,7 +113,7 @@ namespace Greenshot {
 						}
 						StringBuilder helpOutput = new StringBuilder();
 						helpOutput.AppendLine();
-						if (argumentNr + 1 < args.Length && args[argumentNr + 1].Equals("configure")) {
+						if (argumentNr + 1 < args.Length && args[argumentNr + 1].ToLower().Equals("configure")) {
 							helpOutput.AppendLine("Available configuration settings:");
 							
 							Properties properties = AppConfig.GetAvailableProperties();
@@ -115,32 +124,32 @@ namespace Greenshot {
 							helpOutput.AppendLine("Greenshot commandline options:");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--help");
+							helpOutput.AppendLine("\t/help");
 							helpOutput.AppendLine("\t\tThis help.");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--help configure");
+							helpOutput.AppendLine("\t/help configure");
 							helpOutput.AppendLine("\t\tA detailed listing of available settings for the configure command.");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--exit");
+							helpOutput.AppendLine("\t/exit");
 							helpOutput.AppendLine("\t\tTries to close all running instances.");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--configure [property=value] ...");
+							helpOutput.AppendLine("\t/configure [property=value] [property=value] ...");
 							helpOutput.AppendLine("\t\tChange the configuration of Greenshot via the commandline.");
-							helpOutput.AppendLine("\t\tExample to change the language to English: greenshot.exe --configure Ui_Language=en-US");
-							helpOutput.AppendLine("\t\tExample to change the destination: greenshot.exe --configure Output_File_Path=\"C:\\Documents and Settings\\\"");
+							helpOutput.AppendLine("\t\tExample to change the language to English: greenshot.exe /configure Ui_Language=en-US");
+							helpOutput.AppendLine("\t\tExample to change the destination: greenshot.exe /configure Output_File_Path=\"C:\\Documents and Settings\\\"");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--openfile [filename]");
+							helpOutput.AppendLine("\t/openfile [filename]");
 							helpOutput.AppendLine("\t\tOpen the bitmap file in the running Greenshot instance or start a new instance");
 							helpOutput.AppendLine();
 							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t--norun");
+							helpOutput.AppendLine("\t/norun");
 							helpOutput.AppendLine("\t\tCan be used if someone only wants to change the configuration.");
 							helpOutput.AppendLine("\t\tAs soon as this option is found Greenshot exits if not and there is no running instance it will stay running.");
-							helpOutput.AppendLine("\t\tExample: greenshot.exe --configure Output_File_Path=\"C:\\Documents and Settings\\\" --exit");
+							helpOutput.AppendLine("\t\tExample: greenshot.exe /configure Output_File_Path=\"C:\\Documents and Settings\\\" --exit");
 						}
 						Console.WriteLine(helpOutput.ToString());
 
@@ -153,7 +162,7 @@ namespace Greenshot {
 					}
 
 					// exit application
-					if (argument.Equals("--exit")) {
+					if (argument.ToLower().Equals("/exit")) {
 						try {
 							LOG.Info("Sending all instances the exit command.");
 							// Pass Exit to running instance, if any
@@ -166,7 +175,7 @@ namespace Greenshot {
 					}
 
 					// Modify configuration
-					if (argument.Equals("--configure")) {
+					if (argument.ToLower().Equals("/configure")) {
 						LOG.Debug("Setting configuration!");
 						conf = AppConfig.GetInstance();
 						Properties properties = new Properties();
@@ -191,12 +200,12 @@ namespace Greenshot {
 					}
 
 					// Make an exit possible
-					if (argument.Equals("--norun")) {
+					if (argument.ToLower().Equals("/norun")) {
 						FreeMutex();
-	    				return;
-					}					
+						return;
+					}
 
-					if (argument.Equals("--openfile")) {
+					if (argument.ToLower().Equals("/openfile")) {
 						string filename = args[++argumentNr];
 						filesToOpen.Add(filename);
 					}
@@ -360,7 +369,7 @@ namespace Greenshot {
 				}
 			}
 		}
-	
+
 		public ContextMenuStrip MainMenu {
 			get {return contextMenu;}
 		}
@@ -405,12 +414,11 @@ namespace Greenshot {
 			instance = null;
 			exit();
 		}
-		
+
 		void MainFormActivated(object sender, EventArgs e) {
 			Hide();
 			ShowInTaskbar = false;
 		}
-
 		#endregion
 
 		#region key handlers
@@ -502,7 +510,7 @@ namespace Greenshot {
 		}
 		
 		void Contextmenu_exitClick(object sender, EventArgs e) {
-			exit();
+			Application.Exit();
 		}
 		
 		private void InitializeQuickSettingsMenu() {
@@ -644,7 +652,7 @@ namespace Greenshot {
 			}
 			// Remove the application mutex
 			FreeMutex();
-	
+
 			// make the icon invisible otherwise it stays even after exit!!
 			if (notifyIcon != null) {
 				notifyIcon.Visible = false;

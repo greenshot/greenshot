@@ -1,9 +1,6 @@
 #define ExeName "Greenshot"
 #define Version "0.9.0.$WCREV$"
 
-; Mutex is no longer needed!
-;#define Mutex "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08"
-
 ; Include the scripts to install .NET Framework 2.0
 ; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
 #include "scripts\products.iss"
@@ -160,6 +157,59 @@ begin
 	ProductNextButtonClick(CurPage);
 end;
 
+// Build a list of greenshot parameters from the supplied installer parameters
+function GetParamsForGS(argument: String): String;
+var
+	i: Integer;
+	parametersString: String;
+	currentParameter: String;
+	equalsSignPos: Integer;
+	foundStart: Boolean;
+	foundNoRun: Boolean;
+	foundLanguage: Boolean;
+begin
+	foundNoRun := false;
+	foundLanguage := false;
+	foundStart := false;
+	for i:= 0 to ParamCount() do begin
+		currentParameter := ParamStr(i);
+		
+		// check if norun is supplied
+		if Lowercase(currentParameter) = '/norun' then begin
+			foundNoRun := true;
+			continue;
+		end;
+
+		if foundStart then begin
+			equalsSignPos := Pos('=', currentParameter);
+			if equalsSignPos > 0 then begin
+				if Pos('Ui_Language', currentParameter) > 0 then begin
+					// Was language supplied?
+					foundLanguage := true;
+				end;
+				// Make sure the parameter is in quotes
+				Insert('"', currentParameter, equalsSignPos + 1);
+				parametersString := parametersString + ' ' + currentParameter + '"';
+			end;
+		end
+		else begin
+			if Lowercase(currentParameter) = '/configure' then begin
+				foundStart := true;
+			end;
+		end;
+	end;
+	if not foundLanguage then begin
+		parametersString := parametersString + ' Ui_Language=' + ExpandConstant('{language}');
+	end;
+	if foundNoRun then begin
+		parametersString := parametersString + ' /norun';
+	end;
+	// For debugging comment out the following
+	//MsgBox(parametersString, mbInformation, MB_OK);
+
+	Result := parametersString;
+end;
+
 function InitializeSetup(): Boolean;
 begin
 	// Enhance installer otherwise .NET installations won't work
@@ -204,8 +254,6 @@ begin
     UnloadDLL(ExpandConstant('{app}\IssProc.dll'));
 end;
 [Run]
-Filename: {app}\{#ExeName}.exe; Description: {cm:startgreenshot}; Parameters: --configure Ui_Language={language}; WorkingDir: {app}; Flags: nowait postinstall runasoriginaluser
+Filename: {app}\{#ExeName}.exe; Description: {cm:startgreenshot}; Parameters: /configure {code:GetParamsForGS}; WorkingDir: {app}; Flags: nowait postinstall runasoriginaluser
 [InstallDelete]
-Name: {app}; Type: filesandordirs; Languages: 
-Name: {userstartup}\{#ExeName}.lnk; Type: files; Languages: 
-Name: {commonstartup}\{#ExeName}.lnk; Type: files; Languages: 
+Name: {app}; Type: filesandordirs;
