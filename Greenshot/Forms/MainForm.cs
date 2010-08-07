@@ -87,8 +87,15 @@ namespace Greenshot {
 					if (!applicationMutex.WaitOne(0, false)) {
 						isAlreadyRunning = true;
 					}
+				} catch (AbandonedMutexException e) {
+					// Another Greenshot instance didn't cleanup correctly!
+					// we can ignore the exception, it happend on the "waitone" but still the mutex belongs to us
+					LOG.Warn("Greenshot didn't cleanup correctly!", e);
+				} catch (UnauthorizedAccessException e) {
+					LOG.Warn("Greenshot is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
+					isAlreadyRunning = true;
 				} catch (Exception e) {
-					LOG.Error("Can't create Mutex, for now we assume it's already there.", e);
+					LOG.Warn("Problem obtaining the Mutex, assuming it was already taken!", e);
 					isAlreadyRunning = true;
 				}
 
