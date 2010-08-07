@@ -1,10 +1,24 @@
 Here are some details about Greenshot that might be handy for silent/mass installations.
+The information in this text file is only for Greenshot versions 0.8.1 (build >=760)
 
+INSTALLER
 The Greenshot installer is made with Inno Setup, see http://www.jrsoftware.org/isinfo.php
 For command line options of the installer see: http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline
+Additionally some Greenshot options can also be passed to the installer, these are the /norun and /configure options.
+Passed to the installer these work exactly like using them with the Greenshot.exe when installed!
 
-Since Greenshot 0.8.1 it is possible to configure Greenshot settings from the command-line.
-This will even work when Greenshot is already running!
+Important facts to the installer:
+1) When doing a normal installation and Greenshot is running the installer will show this, Greenshot needs to be terminated.
+2) When doing a silent installation and Greenshot is running the installer will kill Greenshot itself.
+3) Installations where configure options are passed will only work for the user that started the installation!
+	Work is being done to fix this in a newer Greenshot but this is currently a limitation.
+4) Installations done as Admin will be available to all users. (configure options will not!)
+	This is also for the "Start Greenshot with Windows start", when installing as Admin this is for all users!
+
+
+GREENSHOT COMMAND-LINE
+It is possible to configure Greenshot settings from the command-line, this will even work when Greenshot is already running.
+The configure option will only work on the configuration of the user which starts Greenshot with these options!
 
 Greenshot commandline options:
 
@@ -17,7 +31,7 @@ Greenshot commandline options:
         /exit
                 Try to close all running instances, could be used for installers
 
-        /configure [property=value] ...
+        /configure [property1=value] [property2=value] ...
                 Change the configuration of Greenshot via the commandline, multiple properties can be specified after each other.
                 Example to change the language to English: greenshot.exe /configure Ui_Language=en-US
                 Example to change the destination: greenshot.exe /configure Output_File_Path="C:\Documents and Settings\"
@@ -130,3 +144,4 @@ Finally there are multiple Printer options which should explain themselves:
                 Output_Print_AllowShrink=Boolean
                 Output_Print_Center=Boolean
                 Output_Print_Timestamp=Boolean
+
