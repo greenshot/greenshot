@@ -650,10 +650,22 @@ namespace Greenshot.Drawing {
 					}
 				}
 			} else if ( ClipboardHelper.GetFormats().Contains("HTML Format")) {
-				HtmlFragment htmlFragment = HtmlFragment.FromClipboard();
-				DeselectAllElements();
-				HtmlContainer htmlContainer = AddHtmlContainer(htmlFragment.Fragment, 0, 0);
-				SelectElement(htmlContainer);
+				try {
+					HtmlFragment htmlFragment = HtmlFragment.FromClipboard();
+					DeselectAllElements();
+					HtmlContainer htmlContainer = AddHtmlContainer(htmlFragment.Fragment, 0, 0);
+					SelectElement(htmlContainer);
+				} catch (Exception e) {
+					LOG.Warn("Problem pasting HTML from the clipboard: ", e);
+					// Switch to plain text
+					string text = Clipboard.GetText();
+					if (text != null) {
+						DeselectAllElements();
+						ITextContainer textContainer = AddTextContainer(text, HorizontalAlignment.Center, VerticalAlignment.CENTER,
+							FontFamily.GenericSansSerif, 12f, false, false, false, 2, Color.Black, Color.Transparent);
+						SelectElement(textContainer);
+					}
+				}
 			} else if (Clipboard.ContainsText()) {
 				string text = Clipboard.GetText();
 				if (text != null) {
