@@ -38,7 +38,7 @@ namespace Greenshot.Helpers {
 		/// <param name="cropRectangle">Rectangle with bitmap coordinates, will be "intersected" to the bitmap</param>
 		public static void Crop(ref Image image, ref Rectangle cropRectangle) {
 			Image returnImage = null;
-			if (image != null && image is Bitmap) {
+			if (image != null && image is Bitmap && ((image.Width * image.Height) > 0))  {
 				cropRectangle.Intersect(new Rectangle(0,0, image.Width, image.Height));
 				returnImage = (image as Bitmap).Clone(cropRectangle, image.PixelFormat);
 				image.Dispose();
