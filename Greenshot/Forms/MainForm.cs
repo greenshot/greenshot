@@ -33,12 +33,13 @@ using System.Windows.Forms;
 
 using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Drawing;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using Greenshot.UnmanagedHelpers;
-using Greenshot.Core;
+using GreenshotCore.Configuration;
 
 namespace Greenshot {
 	/// <summary>
@@ -48,20 +49,10 @@ namespace Greenshot {
 		private const string LOG4NET_FILE = "log4net.xml";
 		private static log4net.ILog LOG = null;
 		private static AppConfig conf;
-
 		private static Mutex applicationMutex = null;
+		private static CoreConfiguration coreConfiguration;
 		
-		[STAThread]
-		public static void Main(string[] args) {
-			bool isAlreadyRunning = false;
-			List<string> filesToOpen = new List<string>();
-
-			// Set the Thread name, is better than "1"
-			Thread.CurrentThread.Name = Application.ProductName;
-			
-			Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
-			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-			
+		private static void InitializeLog4NET() {
 			// Setup log4j, currently the file is called log4net.xml
 			string log4netFilename = Path.Combine(Application.StartupPath, LOG4NET_FILE);
 			if (File.Exists(log4netFilename)) {
@@ -72,9 +63,29 @@ namespace Greenshot {
 			
 			// Setup the LOG
 			LOG = log4net.LogManager.GetLogger(typeof(MainForm));
+		}
 
+		[STAThread]
+		public static void Main(string[] args) {
+			bool isAlreadyRunning = false;
+			Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
+			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+			
+			List<string> filesToOpen = new List<string>();
+
+			// Init Log4NET
+			InitializeLog4NET();
+			
 			// Log the startup
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
+
+			// Set the Thread name, is better than "1"
+			Thread.CurrentThread.Name = Application.ProductName;
+
+			// Read configuration
+			coreConfiguration = IniConfig.GetInstance().GetSection<CoreConfiguration>();
+			IniConfig.GetInstance().Save();
+			LOG.Info(coreConfiguration.IsFirstLaunch);
 
 			try {
 				// Fix for Bug 2495900, Multi-user Environment
