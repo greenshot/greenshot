@@ -62,9 +62,11 @@
     <Folder Include="Properties" />
     <Folder Include="UnmanagedHelpers" />
     <Compile Include="Configuration\AppConfig.cs" />
+    <Compile Include="Configuration\CoreConfiguration.cs" />
     <Compile Include="Configuration\Language.cs" />
     <Compile Include="Configuration\LanguageKeys.cs" />
     <Compile Include="Configuration\RuntimeConfig.cs" />
+    <Compile Include="Core\ConfigHelper.cs" />
     <Compile Include="Core\LanguageHelper.cs" />
     <Compile Include="Core\PropertyHelper.cs" />
     <Compile Include="Forms\AboutForm.cs" />
