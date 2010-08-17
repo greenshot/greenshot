@@ -19,8 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
 
 namespace GreenshotCore.Configuration {
+	public enum Destinations {Editor=1, FileDefault=2, FileWithDialog=4, Clipboard=8, Printer=16, EMail=32}
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
@@ -32,5 +34,7 @@ namespace GreenshotCore.Configuration {
 		public bool RegisterHotkeys;
 		[IniProperty("IsFirstLaunch", Description="Is this the first time launch?", DefaultValue="true")]
 		public bool IsFirstLaunch;
+		[IniProperty("Destinations", Description="Which destinations? Options are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail", DefaultValue="Editor")]
+		public List<Destinations> OutputDestinations;
 	}
 }

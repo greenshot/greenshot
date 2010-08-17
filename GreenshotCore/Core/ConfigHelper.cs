@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Windows.Forms;
 
 namespace GreenshotCore.Configuration {
@@ -104,7 +105,9 @@ namespace GreenshotCore.Configuration {
 		/// <param name="iniLocation"></param>
 		private IniConfig() {
 			this.iniLocation = CreateIniLocation(CONFIG_FILE_NAME);
+			// Load the defaults
 			Read(CreateIniLocation(DEFAULTS_CONFIG_FILE_NAME));
+			// Load the normal
 			Read(CreateIniLocation(iniLocation));
 		}
 		
@@ -120,7 +123,7 @@ namespace GreenshotCore.Configuration {
 			LOG.Info("Reading ini-properties from file: " + iniLocation);
 
 			String currentSection = null;
-			foreach (string line in File.ReadAllLines(iniLocation)) {
+			foreach (string line in File.ReadAllLines(iniLocation, Encoding.UTF8)) {
 				if (line == null) {
 					continue;
 				}
@@ -182,81 +185,66 @@ namespace GreenshotCore.Configuration {
 							propertyValue = properties[propertyName];
 						} else {
 							propertyValue = iniPropertyAttribute.DefaultValue;
+							LOG.Debug("Using default property for " + propertyName + " : " + propertyValue);
 						}
 
 						// Get the type, or the underlying type for nullables
 						Type fieldType = field.FieldType;
-						if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
-							// We are dealing with a generic type that is nullable
-							fieldType = Nullable.GetUnderlyingType(fieldType);
-						}
 
 						// Now set the value
-						if (fieldType == typeof(string)) {
-							field.SetValue(section, propertyValue);
-						} else if (fieldType == typeof(bool) || fieldType == typeof(bool?)) {
-							field.SetValue(section,  bool.Parse(propertyValue));
-						} else if (fieldType == typeof(int) || fieldType == typeof(int?)) {
-							field.SetValue(section, int.Parse(propertyValue));
-						} else if (fieldType.IsEnum) {
-							field.SetValue(section, Enum.Parse(fieldType, propertyValue));
+						if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>)) {
+							string[] arrayValues = propertyValue.Split(new Char[] {','});
+							if (arrayValues != null) {
+								object list = Activator.CreateInstance(fieldType);
+								MethodInfo methodInfo = fieldType.GetMethod("Add");
+								
+								foreach(string arrayValue in arrayValues) {
+									if (arrayValue != null && arrayValue.Length > 0) {
+										object newValue = ConvertValueToFieldType(fieldType.GetGenericArguments()[0], arrayValue);
+										LOG.Debug("Adding: " + newValue);
+										if (newValue != null) {
+											methodInfo.Invoke(list, new object[] {newValue});
+										}
+									}
+								}
+								field.SetValue(section, list);
+								
+							}
+						} else {
+							if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
+								// We are dealing with a generic type that is nullable
+								fieldType = Nullable.GetUnderlyingType(fieldType);
+							}
+							field.SetValue(section,ConvertValueToFieldType(fieldType, propertyValue));
 						}
 					}
 				}
 			}
 			return section;
 		}
-
-		public IniSection GetSection(Type iniSectionType) {
-			IniSection section = null;
-			string sectionName = getSectionName(iniSectionType);
-			if (sectionMap.ContainsKey(sectionName)) {
-				section = sectionMap[sectionName];
-			} else {
-				// Create instance of this type
-				section = (IniSection)Activator.CreateInstance(iniSectionType);
-				
-				// Get the properties for the section
-				Dictionary<string, string> properties = null;
-				if (iniProperties.ContainsKey(sectionName)) {
-					properties = iniProperties[sectionName];
-				}
-
-				// Iterate over the fields and fill them
-				FieldInfo[] fields = iniSectionType.GetFields();
-				foreach(FieldInfo field in fields) {
-					if (Attribute.IsDefined(field, typeof(IniPropertyAttribute))) {
-						IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)field.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
-						string propertyName = iniPropertyAttribute.Name;
-						string propertyValue = null;
-						// Get the value from the ini file, if there is none take the default
-						if (properties != null && properties.ContainsKey(propertyName)) {
-							propertyValue = properties[propertyName];
-						} else {
-							propertyValue = iniPropertyAttribute.DefaultValue;
-						}
-
-						// Get the type, or the underlying type for nullables
-						Type fieldType = field.FieldType;
-						if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
-							// We are dealing with a generic type that is nullable
-							fieldType = Nullable.GetUnderlyingType(fieldType);
-						}
-
-						// Now set the value
-						if (fieldType == typeof(string)) {
-							field.SetValue(section, propertyValue);
-						} else if (fieldType == typeof(bool) || fieldType == typeof(bool?)) {
-							field.SetValue(section,  bool.Parse(propertyValue));
-						} else if (fieldType == typeof(int) || fieldType == typeof(int?)) {
-							field.SetValue(section, int.Parse(propertyValue));
-						} else if (fieldType.IsEnum) {
-							field.SetValue(section, Enum.Parse(fieldType, propertyValue));
-						}
-					}
+		
+		private List<T> CreateList<T>() {
+			List<T> mylist = new List<T>();
+			return mylist;
+		}
+		private object ConvertValueToFieldType(Type fieldType, string value) {
+			if (value == null && value.Length == 0) {
+				return null;
+			}
+			if (fieldType == typeof(string)) {
+				return value;
+			} else if (fieldType == typeof(bool) || fieldType == typeof(bool?)) {
+				return bool.Parse(value);
+			} else if (fieldType == typeof(int) || fieldType == typeof(int?)) {
+				return int.Parse(value);
+			} else if (fieldType.IsEnum) {
+				try {
+					return Enum.Parse(fieldType, value);
+				} catch (Exception e) {
+					LOG.Error("Can't parse value: " + value, e);
 				}
 			}
-			return section;
+			return null;
 		}
 
 		private string getSectionName(Type iniSectionType) {
@@ -346,7 +334,7 @@ namespace GreenshotCore.Configuration {
 
 		public void Save() {
 			LOG.Info("Saving configuration to: " + iniLocation);
-			TextWriter writer = new StreamWriter(iniLocation);
+			TextWriter writer = new StreamWriter(iniLocation, false, Encoding.UTF8);
 			foreach(IniSection section in sectionMap.Values) {
 				Type classType = section.GetType();
 				Attribute[] classAttributes = Attribute.GetCustomAttributes(classType);
@@ -361,10 +349,28 @@ namespace GreenshotCore.Configuration {
 								IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)field.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
 								writer.WriteLine("; {0}", iniPropertyAttribute.Description);
 								object value = field.GetValue(section);
+								Type fieldType = field.FieldType;
 								if (value == null) {
 									value = iniPropertyAttribute.DefaultValue;
+									fieldType = typeof(string);
 								}
-								writer.WriteLine("{0}={1}", iniPropertyAttribute.Name, value);
+								if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>)) {
+									writer.Write("{0}=", iniPropertyAttribute.Name);
+									int listCount = (int)fieldType.GetProperty("Count").GetValue(value, null);
+									// Loop though generic list
+									for (int index = 0; index < listCount; index++) {
+									   object item = fieldType.GetMethod("get_Item").Invoke(value, new object[] { index });
+									   // Now you have an instance of the item in the generic list
+									   if (index < listCount -1) {
+										   writer.Write("{0},", item);
+									   } else {
+										   writer.Write("{0}", item);
+									   }
+									}
+									writer.WriteLine();
+								} else {
+									writer.WriteLine("{0}={1}", iniPropertyAttribute.Name, value);
+								}
 							}
 						}
 					}
