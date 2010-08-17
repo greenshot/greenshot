@@ -85,7 +85,13 @@ namespace Greenshot {
 			// Read configuration
 			coreConfiguration = IniConfig.GetInstance().GetSection<CoreConfiguration>();
 			IniConfig.GetInstance().Save();
-			LOG.Info(coreConfiguration.IsFirstLaunch);
+			LOG.Info("Firstlaunch: " + coreConfiguration.IsFirstLaunch);
+			LOG.Info("Destinations:");
+			if (coreConfiguration.OutputDestinations != null) {
+				foreach(Destinations destination in coreConfiguration.OutputDestinations) {
+					LOG.Info(destination);
+				}
+			}
 
 			try {
 				// Fix for Bug 2495900, Multi-user Environment
