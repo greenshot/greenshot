@@ -21,7 +21,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GreenshotCore.Configuration {
+namespace Greenshot.Core {
 	public enum Destinations {Editor=1, FileDefault=2, FileWithDialog=4, Clipboard=8, Printer=16, EMail=32}
 	/// <summary>
 	/// Description of CoreConfiguration.

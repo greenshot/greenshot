@@ -25,7 +25,7 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 
-namespace GreenshotCore.Configuration {
+namespace Greenshot.Core {
 	
 	/// <summary>
 	/// Attribute for telling that this class is linked to a section in the ini-configuration
@@ -61,7 +61,9 @@ namespace GreenshotCore.Configuration {
 	}
 	
 	// Interface for 
-	public interface IniSection {
+	public class IniSection {
+		// Flag to specify if values have been changed
+		public bool IsDirty = false;
 	}
 	
 	public class IniConfig {
@@ -184,6 +186,8 @@ namespace GreenshotCore.Configuration {
 						if (properties != null && properties.ContainsKey(propertyName)) {
 							propertyValue = properties[propertyName];
 						} else {
+							// Mark as dirty, we didn't use properties from the file (even defaults from the default file are allowed)
+							section.IsDirty = true;
 							propertyValue = iniPropertyAttribute.DefaultValue;
 							LOG.Debug("Using default property for " + propertyName + " : " + propertyValue);
 						}
@@ -376,6 +380,7 @@ namespace GreenshotCore.Configuration {
 					}
 				}
 				writer.WriteLine();
+				section.IsDirty = false;
 			}
 			
 			// Write left over properties
