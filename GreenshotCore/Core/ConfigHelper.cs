@@ -387,6 +387,7 @@ namespace Greenshot.Core {
 			foreach(string sectionName in iniProperties.Keys) {
 				// Check if the section is one that is "registered", if so skip it!
 				if (!sectionMap.ContainsKey(sectionName)) {
+					writer.WriteLine("; The section {0} might be obsolete/unused, or a plugin hasn't claimed it due to errors.", sectionName);
 					// Write section name
 					writer.WriteLine("[{0}]", sectionName);
 					Dictionary<string, string> properties = iniProperties[sectionName];
