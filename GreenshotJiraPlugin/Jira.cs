@@ -98,7 +98,6 @@ namespace Jira {
 		private const string JIRA_URL_PROPERTY = "url";
 		private const string JIRA_USER_PROPERTY = "user";
 		private const string JIRA_PASSWORD_PROPERTY = "password";
-        private const int DEFAULT_TIMEOUT = 29;
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.jira.rpc.exception.RemoteAuthenticationException";
         private string credentials = null;
         private DateTime loggedInTime = DateTime.Now;
@@ -162,7 +161,7 @@ namespace Jira {
 
         private void checkCredentials() {
             if (loggedIn) {
-				if (loggedInTime.AddMinutes(DEFAULT_TIMEOUT).CompareTo(DateTime.Now) < 0) {
+				if (loggedInTime.AddMinutes(config.Timeout-1).CompareTo(DateTime.Now) < 0) {
                     logout();
                     login();
                 }
