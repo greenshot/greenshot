@@ -82,9 +82,9 @@ namespace Greenshot {
 			Thread.CurrentThread.Name = Application.ProductName;
 
 			// Read configuration
-			coreConfiguration = IniConfig.GetInstance().GetSection<CoreConfiguration>();
+			coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 			if (coreConfiguration.IsDirty) {
-				IniConfig.GetInstance().Save();
+				IniConfig.Save();
 			}
 			LOG.Info("Firstlaunch: " + coreConfiguration.IsFirstLaunch);
 			LOG.Info("Destinations:");
