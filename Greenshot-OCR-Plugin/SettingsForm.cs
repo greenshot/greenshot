@@ -31,14 +31,13 @@ namespace GreenshotOCR {
 	/// </summary>
 	public partial class SettingsForm : Form {
 		private ILanguage language = Language.GetInstance();
-		private string selectedLanguage;
-		private bool orientImage;
-		private bool straightenImage;
+		private OCRConfiguration config;
 		        
-		public SettingsForm(string [] languages, Properties config) {
+		public SettingsForm(string [] languages, OCRConfiguration config) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
+			this.config = config;
 			InitializeComponent();
 			language.SynchronizeLanguageToCulture();
 			initializeComponentText();
@@ -48,13 +47,13 @@ namespace GreenshotOCR {
 			foreach(string availableLanguage in languages) {
 				string displayLanguage = cleanLanguage(availableLanguage);
 				comboBox_languages.Items.Add(displayLanguage);
-				if (availableLanguage.Equals(config["language"])) {
+				if (availableLanguage.Equals(config.Language)) {
 					comboBox_languages.SelectedIndex = index;
 				}
 				index++;
 			}
-			checkBox_orientImage.Checked = config.GetBoolProperty("orientImage");
-			checkBox_straightenImage.Checked = config.GetBoolProperty("straightenImage");
+			checkBox_orientImage.Checked = config.Orientimage;
+			checkBox_straightenImage.Checked = config.StraightenImage;
 		}
 		private void initializeComponentText() {
 			this.label_language.Text = language.GetString(LangKey.language);
@@ -70,16 +69,6 @@ namespace GreenshotOCR {
 			return displayLanguage;
 		}
 		
-		public string OCRLanguage {
-			get {return selectedLanguage;}
-		}
-		public bool OrientImage {
-			get {return orientImage;}
-		}
-		public bool StraightenImage {
-			get {return straightenImage;}
-		}
-		
 		void ButtonCancelClick(object sender, EventArgs e) {
 			DialogResult = DialogResult.Cancel;
 		}
@@ -87,10 +76,10 @@ namespace GreenshotOCR {
 		void ButtonOKClick(object sender, EventArgs e) {
 			string selectedString = (string) comboBox_languages.SelectedItem;
 			if (selectedString != null) {
-				selectedLanguage = "miLANG_" + selectedString.ToUpper().Replace(" ", "_");
+				config.Language = "miLANG_" + selectedString.ToUpper().Replace(" ", "_");
 			}
-			orientImage = checkBox_orientImage.Checked;
-			straightenImage = checkBox_straightenImage.Checked;
+			config.Orientimage = checkBox_orientImage.Checked;
+			config.StraightenImage = checkBox_straightenImage.Checked;
 
 			DialogResult = DialogResult.OK;
 			

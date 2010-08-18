@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Language.cs" />
     <Compile Include="LanguageKeys.cs" />
+    <Compile Include="OCRConfiguration.cs" />
     <Compile Include="OCRPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingsForm.cs" />

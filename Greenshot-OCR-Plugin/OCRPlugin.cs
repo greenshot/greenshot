@@ -39,15 +39,13 @@ namespace GreenshotOCR {
 	/// </summary>
 	public class OcrPlugin : IGreenshotPlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
-		private const string CONFIG_FILENAME = "ocr-config.properties";
-
 		private const string MODI_OFFICE11 = @"Software\Microsoft\Office\11.0\MODI";
 		private const string MODI_OFFICE12 = @"Software\Microsoft\Office\12.0\MODI";
 
 		private IGreenshotPluginHost host;
 		private ICaptureHost captureHost = null;
 		private PluginAttribute myAttributes;
-		private Properties config = new Properties();
+		private OCRConfiguration config;
 
 		public OcrPlugin() { }
 
@@ -70,7 +68,12 @@ namespace GreenshotOCR {
 				LOG.Warn("No MODI found!");
 				return;
 			}
-			LoadConfig();
+			
+			// Load configuration
+			config = IniConfig.GetInstance().GetSection<OCRConfiguration>();
+			if (config.IsDirty) {
+				IniConfig.GetInstance().Save();
+			}
 			this.host.RegisterHotKey(3, 0x2C, new HotKeyHandler(MyHotkeyHandler));
 
 			// Here we can hang ourselves to the main context menu!
@@ -109,13 +112,10 @@ namespace GreenshotOCR {
 				MessageBox.Show("Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.");
 				return;
 			}
-			SettingsForm settingsForm = new SettingsForm(GetLanguages(),config);
+			SettingsForm settingsForm = new SettingsForm(GetLanguages(), config);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
-				config.ChangeProperty("language", settingsForm.OCRLanguage);
-				config.ChangeBoolProperty("orientImage", settingsForm.OrientImage);
-				config.ChangeBoolProperty("straightenImage", settingsForm.StraightenImage);;
-				SaveConfig();
+				IniConfig.GetInstance().Save();
 			}
 		}
 
@@ -133,41 +133,6 @@ namespace GreenshotOCR {
 				return Assembly.LoadFile(Path.Combine(dllPath, dllFilename));
 			}
 			return null;
-		}
-
-		private void LoadConfig() {
-			string filename = Path.Combine(host.ConfigurationPath, CONFIG_FILENAME);
-			if (File.Exists(filename)) {
-				LOG.Debug("Loading configuration from: " + filename);
-				config = Properties.read(filename);
-			}
-			bool changed = false;
-			if (config == null) {
-				config = new Properties();
-				changed = true;
-			}
-			if (!config.ContainsKey("language")) {
-				config.AddProperty("language", "miLANG_ENGLISH");
-				changed = true;
-			}
-			if (!config.ContainsKey("straightenImage")) {
-				config.AddBoolProperty("straightenImage", false);
-				changed = true;
-			}
-			if (!config.ContainsKey("orientImage")) {
-				config.AddBoolProperty("orientImage", false);
-				changed = true;
-			}
-			if (changed) {
-				SaveConfig();
-			}
-
-		}
-
-		private void SaveConfig() {
-			string filename = Path.Combine(host.ConfigurationPath, CONFIG_FILENAME);
-			LOG.Debug("Saving configuration to: " + filename);
-			config.write(filename, "# The configuration file for the Greenshot OCR Plugin");
 		}
 
 		private void StartOCRRegion() {
@@ -236,7 +201,7 @@ namespace GreenshotOCR {
 						//md.OnOCRProgress += ;
 						
 						// Do the OCR.
-						modi11Document.OCR((MODI11.MiLANGUAGES)Enum.Parse(typeof(MODI11.MiLANGUAGES), config.GetProperty("language")), config.GetBoolProperty("orientImage"), config.GetBoolProperty("straightenImage"));
+						modi11Document.OCR((MODI11.MiLANGUAGES)Enum.Parse(typeof(MODI11.MiLANGUAGES), config.Language), config.Orientimage, config.StraightenImage);
 						// Get the first (and only image)
 						MODI11.Image modi11Image = (MODI11.Image)modi11Document.Images[0];
 						// Get the layout.
@@ -255,7 +220,7 @@ namespace GreenshotOCR {
 						//md.OnOCRProgress += ;
 						
 						// Do the OCR.
-						modi12Document.OCR((MODI12.MiLANGUAGES)Enum.Parse(typeof(MODI12.MiLANGUAGES), config.GetProperty("language")), config.GetBoolProperty("orientImage"), config.GetBoolProperty("straightenImage"));
+						modi12Document.OCR((MODI12.MiLANGUAGES)Enum.Parse(typeof(MODI12.MiLANGUAGES), config.Language), config.Orientimage, config.StraightenImage);
 						// Get the first (and only image)
 						MODI12.Image modi12Image = (MODI12.Image)modi12Document.Images[0];
 						// Get the layout.
