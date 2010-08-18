@@ -59,6 +59,7 @@
       <DependentUpon>LoginForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Jira.cs" />
+    <Compile Include="JiraConfiguration.cs" />
     <Compile Include="JiraPluginBase.cs" />
     <Compile Include="Language.cs" />
     <Compile Include="LanguageKeys.cs" />
@@ -83,6 +84,9 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <EmbeddedResource Include="Forms\LoginForm.resx">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Forms" />

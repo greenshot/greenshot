@@ -45,6 +45,7 @@ namespace GreenshotJiraPlugin {
 			this.label_password.Text = lang.GetString(LangKey.label_password);
 			this.buttonOK.Text = lang.GetString(LangKey.OK);
 			this.buttonCancel.Text = lang.GetString(LangKey.CANCEL);
+			this.checkBoxDoNotStorePassword.Text = lang.GetString(LangKey.label_no_password_store);
 			this.Text = lang.GetString(LangKey.login_title);
 		}
 
@@ -62,7 +63,12 @@ namespace GreenshotJiraPlugin {
 			get {return textBoxPassword.Text;}
 			set {textBoxPassword.Text = value;}
 		}
-		
+
+		public bool DoNotStorePassword {
+			get {return checkBoxDoNotStorePassword.Checked;}
+			set {checkBoxDoNotStorePassword.Checked = value;}
+		}
+
 		void ButtonOKClick(object sender, EventArgs e) {
 			this.DialogResult = DialogResult.OK;
 		}

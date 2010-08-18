@@ -99,117 +99,58 @@ namespace Jira {
 		private const string JIRA_USER_PROPERTY = "user";
 		private const string JIRA_PASSWORD_PROPERTY = "password";
         private const int DEFAULT_TIMEOUT = 29;
-		public const string CONFIG_FILENAME = "jira.properties";
-		private const string DEFAULT_JIRA_URL = "http://jira/rpc/soap/jirasoapservice-v2?wsdl";
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.jira.rpc.exception.RemoteAuthenticationException";
-		private string configurationPath = null;
         private string credentials = null;
         private DateTime loggedInTime = DateTime.Now;
         private bool loggedIn = false;
-        private string tmpPassword = null;
-        private Properties config;
+        private JiraConfiguration config;
         private JiraSoapServiceService jira;
         private Dictionary<string, string> userMap = new Dictionary<string, string>();
 
-        public JiraConnector(string configurationPath) {
-        	this.configurationPath = configurationPath;
-        	this.config = LoadConfig();
+        public JiraConnector() {
+        	this.config = IniConfig.GetIniSection<JiraConfiguration>();
             jira = new JiraSoapServiceService();
-            jira.Url = config.GetProperty(JIRA_URL_PROPERTY);
+            jira.Url = config.Url;
         }
 
         ~JiraConnector() {
             logout();
         }
-
-        public bool HasPassword() {
-        	return config.ContainsKey(JIRA_PASSWORD_PROPERTY);
-        }
-        
-        public void SetTmpPassword(string password) {
-        	tmpPassword = password;
-        }
-
-		private Properties LoadConfig() {
-			Properties config = null;
-			string filename = Path.Combine(configurationPath, CONFIG_FILENAME);
-			if (File.Exists(filename)) {
-				LOG.Debug("Loading configuration from: " + filename);
-				config = Properties.read(filename);
-			}
-			bool changed = false;
-			if (config == null) {
-				config = new Properties();
-				changed = true;
-			}
-			if (!config.ContainsKey(JIRA_URL_PROPERTY)) {
-				config.AddProperty(JIRA_URL_PROPERTY, DEFAULT_JIRA_URL);
-				changed = true;
-			}
-			if (!config.ContainsKey(JIRA_USER_PROPERTY)) {
-				config.AddProperty(JIRA_USER_PROPERTY, Environment.UserName);
-				changed = true;
-			}
-			if (changed) {
-				SaveConfig(config);
-			}
-			return config;
-		}
-
-		private void SaveConfig(Properties config) {
-			string filename = Path.Combine(configurationPath, CONFIG_FILENAME);
-			LOG.Debug("Saving configuration to: " + filename);
-			StringBuilder comment = new StringBuilder();
-			comment.AppendLine("# The configuration file for the JIRA Plugin");
-			comment.AppendLine("#");
-			comment.AppendLine("# Example settings:");
-			comment.AppendLine("# " + JIRA_URL_PROPERTY + "=" + DEFAULT_JIRA_URL);
-			comment.AppendLine("# " + JIRA_USER_PROPERTY + "=Username");
-			config.write(filename, comment.ToString());
-		}
         
         public void login() {
         	logout();
             try {
-	            if (HasPassword()) {
-	            	this.credentials = jira.login(config.GetProperty(JIRA_USER_PROPERTY), config.GetProperty(JIRA_PASSWORD_PROPERTY));
-	            } else if (tmpPassword != null) {
-	            	this.credentials = jira.login(config.GetProperty(JIRA_USER_PROPERTY), tmpPassword);
+	            if (config.HasPassword()) {
+	            	this.credentials = jira.login(config.User, config.Password);
+	            } else if (config.HasTmpPassword()) {
+	            	this.credentials = jira.login(config.User, config.TmpPassword);
 	            } else {
-	            	LoginForm pwForm = new LoginForm();
-	            	pwForm.User = config.GetProperty(JIRA_USER_PROPERTY);
-	            	pwForm.Url = config.GetProperty(JIRA_URL_PROPERTY);
-	            	DialogResult result = pwForm.ShowDialog();
-	            	if (result == DialogResult.OK) {
-		            	tmpPassword = pwForm.Password;
-		            	if (!pwForm.User.Equals(config.GetProperty(JIRA_USER_PROPERTY)) ||!pwForm.Url.Equals(config.GetProperty(JIRA_URL_PROPERTY))) {
-		            		config.ChangeProperty(JIRA_USER_PROPERTY, pwForm.User);
-		            		config.ChangeProperty(JIRA_URL_PROPERTY, pwForm.Url);
-		            		jira.Url = config.GetProperty(JIRA_URL_PROPERTY);
-		            		SaveConfig(config);
-		            	}
-	            		this.credentials = jira.login(config.GetProperty(JIRA_USER_PROPERTY), tmpPassword);
+        			if (config.ShowConfigDialog()) {
+        				if (config.HasPassword()) {
+	            			this.credentials = jira.login(config.User, config.Password);
+	            		} else if (config.HasTmpPassword()) {
+	            			this.credentials = jira.login(config.User, config.TmpPassword);
+        				}
 	            	} else {
 		            	throw new Exception("User pressed cancel!");
 	            	}
-
 	            }
 				this.loggedInTime = DateTime.Now;
 				this.loggedIn = true;
             } catch (Exception e) {
             	this.loggedIn = false;
             	this.credentials = null;
-            	e.Data.Add("user",config.GetProperty(JIRA_USER_PROPERTY));
-            	e.Data.Add("url",config.GetProperty(JIRA_URL_PROPERTY));
+            	e.Data.Add("user",config.User);
+            	e.Data.Add("url",config.Url);
             	if (e.Message.Contains(AUTH_FAILED_EXCEPTION_NAME)) {
             		// Login failed due to wrong user or password, password should be removed!
-	            	this.tmpPassword = null;
+	            	config.Password = null;
+	            	config.TmpPassword = null;
             		throw new Exception(e.Message.Replace(AUTH_FAILED_EXCEPTION_NAME+ ": ",""));
             	}
             	throw e;
             }
         }
-
 
         public void logout() {
             if (credentials != null) {

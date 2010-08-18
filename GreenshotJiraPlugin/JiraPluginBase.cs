@@ -58,8 +58,6 @@ namespace GreenshotJiraPlugin {
 			this.captureHost = captureHost;
 			this.myAttributes = myAttributes;
 			host.OnImageEditorOpen += new OnImageEditorOpenHandler(ImageEditorOpened);
-	
-			this.jiraConnector = new JiraConnector(host.ConfigurationPath);
 		}
 
 		public virtual void Shutdown() {
@@ -72,12 +70,9 @@ namespace GreenshotJiraPlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.AppendLine("This plugin doesn't have a configuration screen.");
-			stringBuilder.AppendLine("Configuration is stored at: " + Path.Combine(host.ConfigurationPath, JiraConnector.CONFIG_FILENAME));
-			MessageBox.Show(stringBuilder.ToString());
+			IniConfig.GetIniSection<JiraConfiguration>().ShowConfigDialog();
 		}
-
+		
 		/// <summary>
 		/// This will be called when Greenshot is shutting down
 		/// </summary>
@@ -108,6 +103,10 @@ namespace GreenshotJiraPlugin {
 		public void EditMenuClick(object sender, EventArgs eventArgs) {
 			ToolStripMenuItem item = (ToolStripMenuItem)sender;
 			IImageEditor imageEditor = (IImageEditor)item.Tag;
+
+			if (jiraConnector == null) {
+				this.jiraConnector = new JiraConnector();
+			}
 
 			JiraForm jiraForm = new JiraForm(jiraConnector);
 			if (jiraConnector.isLoggedIn()) {
