@@ -26,7 +26,7 @@ namespace GreenshotOCR {
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
-	[IniSection("OCR", Description="Greenshot OCR configuration")]
+	[IniSection("OCR", Description="Greenshot OCR Plugin configuration")]
 	public class OCRConfiguration : IniSection {
 		[IniProperty("Language", Description="Language for OCR", DefaultValue="miLANG_ENGLISH")]
 		public string Language;
