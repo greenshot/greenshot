@@ -217,7 +217,7 @@ namespace Greenshot.Core {
 		}
 
 		private static object ConvertValueToFieldType(Type fieldType, string value) {
-			if (value == null && value.Length == 0) {
+			if (value == null || value.Length == 0) {
 				return null;
 			}
 			if (fieldType == typeof(string)) {
