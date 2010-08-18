@@ -71,23 +71,21 @@ namespace Greenshot.Core {
 		private const string CONFIG_FILE_NAME = "greenshot.ini";
 		private const string DEFAULTS_CONFIG_FILE_NAME = "greenshot-defaults.ini";
 
-		private static IniConfig instance = null;
-		
-		private string iniLocation = null;
-		private Dictionary<string, IniSection> sectionMap = new Dictionary<string, IniSection>();
-		private Dictionary<string, Dictionary<string, string >> iniProperties = new Dictionary<string, Dictionary<string, string>>();
-
 		/// <summary>
-		/// get an instance of IniConfig
+		/// Static code for loading
 		/// </summary>
-		/// <returns></returns>
-		public static IniConfig GetInstance() {
-			if (instance == null) {
-				instance = new IniConfig();
-			}
-			return instance;
+		static IniConfig() {
+			iniLocation = CreateIniLocation(CONFIG_FILE_NAME);
+			// Load the defaults
+			Read(CreateIniLocation(DEFAULTS_CONFIG_FILE_NAME));
+			// Load the normal
+			Read(CreateIniLocation(iniLocation));
 		}
 		
+		private static string iniLocation = null;
+		private static Dictionary<string, IniSection> sectionMap = new Dictionary<string, IniSection>();
+		private static Dictionary<string, Dictionary<string, string >> iniProperties = new Dictionary<string, Dictionary<string, string>>();
+
 		/// <summary>
 		/// Create the location of the configuration file
 		/// </summary>
@@ -101,23 +99,13 @@ namespace Greenshot.Core {
 			return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),@"Greenshot\" + configFilename);
 		}
 		
-		/// <summary>
-		/// Private Constuctor, 
-		/// </summary>
-		/// <param name="iniLocation"></param>
-		private IniConfig() {
-			this.iniLocation = CreateIniLocation(CONFIG_FILE_NAME);
-			// Load the defaults
-			Read(CreateIniLocation(DEFAULTS_CONFIG_FILE_NAME));
-			// Load the normal
-			Read(CreateIniLocation(iniLocation));
-		}
+
 		
 		/// <summary>
 		/// Read the ini file into the Dictionary
 		/// </summary>
 		/// <param name="iniLocation">Path & Filename of ini file</param>
-		private void Read(string iniLocation) {
+		private static void Read(string iniLocation) {
 			if (!File.Exists(iniLocation)) {
 				LOG.Info("Can't find file: " + iniLocation);
 				return;
@@ -156,8 +144,9 @@ namespace Greenshot.Core {
 		/// A generic method which returns an instance of the supplied type, filled with it's configuration
 		/// </summary>
 		/// <returns>Filled instance of IniSection type which was supplied</returns>
-		public T GetSection<T>() where T : IniSection {
+		public static T GetIniSection<T>() where T : IniSection {
 			T section;
+			
 			Type iniSectionType = typeof(T);
 			string sectionName = getSectionName(iniSectionType);
 			if (sectionMap.ContainsKey(sectionName)) {
@@ -226,12 +215,8 @@ namespace Greenshot.Core {
 			}
 			return section;
 		}
-		
-		private List<T> CreateList<T>() {
-			List<T> mylist = new List<T>();
-			return mylist;
-		}
-		private object ConvertValueToFieldType(Type fieldType, string value) {
+
+		private static object ConvertValueToFieldType(Type fieldType, string value) {
 			if (value == null && value.Length == 0) {
 				return null;
 			}
@@ -251,7 +236,7 @@ namespace Greenshot.Core {
 			return null;
 		}
 
-		private string getSectionName(Type iniSectionType) {
+		private static string getSectionName(Type iniSectionType) {
 			Attribute[] classAttributes = Attribute.GetCustomAttributes(iniSectionType);
 			foreach(Attribute attribute in classAttributes) {
 				if (attribute is IniSectionAttribute) {
@@ -262,14 +247,14 @@ namespace Greenshot.Core {
 			return null;
 		}
 
-		private Dictionary<string, string> getProperties(string section) {
+		private static Dictionary<string, string> getProperties(string section) {
 			if (iniProperties.ContainsKey(section)) {
 				return iniProperties[section];
 			}
 			return null;
 		}
 
-		public void ChangeProperty(string section, string name, string value) {
+		public static void ChangeProperty(string section, string name, string value) {
 			if (section != null) {
 				Dictionary<string, string> properties = iniProperties[section];
 				properties[name] = value;
@@ -279,7 +264,7 @@ namespace Greenshot.Core {
 			}
 		}
 
-		public void SetProperty(string section, string name, string value) {
+		public static void SetProperty(string section, string name, string value) {
 			if (section != null) {
 				Dictionary<string, string> properties = null;
 				if (!iniProperties.ContainsKey(section)) {
@@ -296,7 +281,7 @@ namespace Greenshot.Core {
 		}
 
 
-		public bool HasProperty(string section, string name) {
+		public static bool HasProperty(string section, string name) {
 			Dictionary<string, string> properties = getProperties(section);
 			if (properties != null && properties.ContainsKey(name)) {
 				return true;
@@ -304,7 +289,7 @@ namespace Greenshot.Core {
 			return false;
 		}
 		
-		public string GetProperty(string section, string name) {
+		public static string GetProperty(string section, string name) {
 			Dictionary<string, string> properties = getProperties(section);
 			if (properties != null && properties.ContainsKey(name)) {
 				return properties[name];
@@ -315,7 +300,7 @@ namespace Greenshot.Core {
 		/// <summary>
 		/// Split property with ',' and return the splitted string as a string[]
 		/// </summary>
-		public string[] GetPropertyAsArray(string section, string key) {
+		public static string[] GetPropertyAsArray(string section, string key) {
 			Dictionary<string, string> properties = getProperties(section);
 			string value = GetProperty(section, key);
 			if (value != null) {
@@ -324,19 +309,19 @@ namespace Greenshot.Core {
 			return null;
 		}
 
-		public bool GetBoolProperty(string section, string key) {
+		public static bool GetBoolProperty(string section, string key) {
 			Dictionary<string, string> properties = getProperties(section);
 			string value = GetProperty(section, key);
 			return bool.Parse(value);
 		}
 
-		public int GetIntProperty(string section, string key) {
+		public static int GetIntProperty(string section, string key) {
 			Dictionary<string, string> properties = getProperties(section);
 			string value = GetProperty(section, key);
 			return int.Parse(value);
 		}
 
-		public void Save() {
+		public static void Save() {
 			LOG.Info("Saving configuration to: " + iniLocation);
 			TextWriter writer = new StreamWriter(iniLocation, false, Encoding.UTF8);
 			foreach(IniSection section in sectionMap.Values) {
