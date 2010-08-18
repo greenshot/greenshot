@@ -70,9 +70,9 @@ namespace GreenshotOCR {
 			}
 			
 			// Load configuration
-			config = IniConfig.GetInstance().GetSection<OCRConfiguration>();
+			config = IniConfig.GetIniSection<OCRConfiguration>();
 			if (config.IsDirty) {
-				IniConfig.GetInstance().Save();
+				IniConfig.Save();
 			}
 			this.host.RegisterHotKey(3, 0x2C, new HotKeyHandler(MyHotkeyHandler));
 
@@ -115,7 +115,7 @@ namespace GreenshotOCR {
 			SettingsForm settingsForm = new SettingsForm(GetLanguages(), config);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
-				IniConfig.GetInstance().Save();
+				IniConfig.Save();
 			}
 		}
 
