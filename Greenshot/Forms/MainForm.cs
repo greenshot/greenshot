@@ -407,10 +407,10 @@ namespace Greenshot {
 		
 		private void RegisterHotkeys() {
 			bool suc = true;
-			suc &= HotkeyHelper.RegisterHotKey((int)this.Handle, (int)HotkeyHelper.Modifiers.NONE, HotkeyHelper.VK_SNAPSHOT, new HotKeyHandler(CaptureRegion));
-			suc &= HotkeyHelper.RegisterHotKey((int)this.Handle, (int)HotkeyHelper.Modifiers.ALT, HotkeyHelper.VK_SNAPSHOT, new HotKeyHandler(CaptureWindow));
-			suc &= HotkeyHelper.RegisterHotKey((int)this.Handle, (int)HotkeyHelper.Modifiers.CTRL, HotkeyHelper.VK_SNAPSHOT, new HotKeyHandler(CaptureFullScreen));
-			suc &= HotkeyHelper.RegisterHotKey((int)this.Handle, (int)HotkeyHelper.Modifiers.SHIFT, HotkeyHelper.VK_SNAPSHOT, new HotKeyHandler(CaptureLastRegion));
+			suc &= HotkeyHelper.RegisterHotKey(this.Handle, (uint)HotkeyHelper.Modifiers.NONE, HotkeyHelper.VK_SNAPSHOT, new HotKeyHandler(CaptureRegion));
+			suc &= HotkeyHelper.RegisterHotKey(this.Handle, (uint)HotkeyHelper.Modifiers.ALT, HotkeyHelper.VK_SNAPSHOT, new HotKeyHandler(CaptureWindow));
+			suc &= HotkeyHelper.RegisterHotKey(this.Handle, (uint)HotkeyHelper.Modifiers.CTRL, HotkeyHelper.VK_SNAPSHOT, new HotKeyHandler(CaptureFullScreen));
+			suc &= HotkeyHelper.RegisterHotKey(this.Handle, (uint)HotkeyHelper.Modifiers.SHIFT, HotkeyHelper.VK_SNAPSHOT, new HotKeyHandler(CaptureLastRegion));
 			if (!suc) {
 				MessageBox.Show(lang.GetString(LangKey.warning_hotkeys),lang.GetString(LangKey.warning));
 			}
@@ -644,7 +644,7 @@ namespace Greenshot {
 			LOG.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
 			try {
 				// Make sure hotkeys are disabled
-				HotkeyHelper.UnregisterHotkeys(Handle.ToInt32());
+				HotkeyHelper.UnregisterHotkeys(Handle);
 			} catch (Exception e) {
 				LOG.Error("Error unregistering hotkeys!", e);
 			}

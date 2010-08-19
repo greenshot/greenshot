@@ -32,11 +32,11 @@ namespace Greenshot.Helpers {
 	public class HotkeyHelper {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(HotkeyHelper));
 		
-		private const int WM_HOTKEY = 0x312;
-		public const int VK_SNAPSHOT = 0x2C;
+		private const uint WM_HOTKEY = 0x312;
+		public const uint VK_SNAPSHOT = 0x2C;
 		
 		#region enums
-		public enum Modifiers : int {
+		public enum Modifiers : uint {
 			NONE = 0,
 			ALT = 1,
 			CTRL = 2,
@@ -53,14 +53,25 @@ namespace Greenshot.Helpers {
 		}
 
 		#region User32
-		[DllImport("user32.dll")]
-		private static extern bool RegisterHotKey (int hwnd, int id, int fsModifiers, int vk);
-		[DllImport("user32.dll")]
-		private static extern bool UnregisterHotKey (int hwnd, int id);
+		[DllImport("user32.dll", SetLastError = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint virtualKeyCode);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 		#endregion
 		
-		public static bool RegisterHotKey(int hnd, int modifierKeyCode, int virtualKeyCode, HotKeyHandler handler) {
-			if (RegisterHotKey(hnd, hotKeyCounter, modifierKeyCode, virtualKeyCode)) {
+		/// <summary>
+		/// Register a hotkey
+		/// </summary>
+		/// <param name="hWnd">The window which will get the event</param>
+		/// <param name="modifierKeyCode">The modifier, e.g.: Modifiers.CTRL, Modifiers.NONE or Modifiers.ALT</param>
+		/// <param name="virtualKeyCode">The virtual key code</param>
+		/// <param name="handler">A HotKeyHandler, this will be called to handle the hotkey press</param>
+		/// <returns></returns>
+		public static bool RegisterHotKey(IntPtr hWnd, uint modifierKeyCode, uint virtualKeyCode, HotKeyHandler handler) {
+			if (RegisterHotKey(hWnd, hotKeyCounter, modifierKeyCode, virtualKeyCode)) {
 				keyHandlers.Add(hotKeyCounter, handler);
 				hotKeyCounter++;
 				return true;
@@ -70,9 +81,9 @@ namespace Greenshot.Helpers {
 			}
 		}
 		
-		public static void UnregisterHotkeys(int hnd) {
+		public static void UnregisterHotkeys(IntPtr hWnd) {
 			foreach(int hotkey in keyHandlers.Keys) {
-				UnregisterHotKey(hnd, hotkey);
+				UnregisterHotKey(hWnd, hotkey);
 			}
 			// Remove all key handlers
 			keyHandlers.Clear();
