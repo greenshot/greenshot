@@ -202,7 +202,7 @@ namespace Greenshot.Plugin {
 		/// <param name="virtualKeyCode"></param>
 		/// <param name="handler"></param>
 		/// <returns>bool true if all went okay</returns>
-		bool RegisterHotKey(int modifierKeyCode, int virtualKeyCode, HotKeyHandler handler);
+		bool RegisterHotKey(uint modifierKeyCode, uint virtualKeyCode, HotKeyHandler handler);
 	}
 
 	public interface IGreenshotPlugin {
