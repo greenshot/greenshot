@@ -106,7 +106,7 @@ de.ocr=OCR Plugin (braucht Microsoft Office 2003 oder 2007)
 nl.ocr=OCR Plugin (heeft Microsoft Office 2003 of 2007 nodig)
 [Components]
 Name: "plugins"; Description: "Plugins"; Types: Full
-Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full
+Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full; Check: CheckMODI
 ;Name: "plugins\jira"; Description: "JIRA Plugin"; Types: Full
 Name: "plugins\titlefix"; Description: {cm:titlefix}; Types: Full
 ;Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
@@ -119,6 +119,11 @@ external 'IssFindModule@files:IssProc.dll stdcall setuponly';
 // IssFindModule called on uninstall
 function IssFindModuleU(hWnd: Integer; Modulename: PAnsiChar; Language: PAnsiChar; Silent: Boolean; CanIgnore: Boolean ): Integer;
 external 'IssFindModule@{app}\IssProc.dll stdcall uninstallonly';
+
+function CheckMODI(): Boolean;
+begin
+	Result := RegKeyExists(HKEY_CURRENT_USER, 'Software\Microsoft\Office\11.0\MODI') or RegKeyExists(HKEY_CURRENT_USER, 'Software\Microsoft\Office\12.0\MODI');
+end;
 
 // Don't install as long as Greenshot is running
 function NextButtonClick(CurPage: Integer): Boolean;
