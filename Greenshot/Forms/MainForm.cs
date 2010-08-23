@@ -89,7 +89,7 @@ namespace Greenshot {
 			LOG.Info("Firstlaunch: " + coreConfiguration.IsFirstLaunch);
 			LOG.Info("Destinations:");
 			if (coreConfiguration.OutputDestinations != null) {
-				foreach(string destination in coreConfiguration.OutputDestinations) {
+				foreach(Destination destination in coreConfiguration.OutputDestinations) {
 					LOG.Info("\t" + destination);
 				}
 			}
