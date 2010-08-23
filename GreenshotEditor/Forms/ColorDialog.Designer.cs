@@ -67,7 +67,7 @@ namespace Greenshot {
 			this.btnTransparent.BackColor = System.Drawing.Color.Transparent;
 			this.btnTransparent.Location = new System.Drawing.Point(210, 4);
 			this.btnTransparent.Name = "btnTransparent";
-			this.btnTransparent.Size = new System.Drawing.Size(78, 23);
+			this.btnTransparent.Size = new System.Drawing.Size(104, 23);
 			this.btnTransparent.TabIndex = 0;
 			this.btnTransparent.TabStop = false;
 			this.btnTransparent.Text = "Transparent";
@@ -79,7 +79,7 @@ namespace Greenshot {
 			this.colorPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.colorPanel.Location = new System.Drawing.Point(210, 31);
 			this.colorPanel.Name = "colorPanel";
-			this.colorPanel.Size = new System.Drawing.Size(78, 23);
+			this.colorPanel.Size = new System.Drawing.Size(104, 23);
 			this.colorPanel.TabIndex = 1;
 			// 
 			// labelHtmlColor
@@ -87,7 +87,7 @@ namespace Greenshot {
 			this.labelHtmlColor.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
 			this.labelHtmlColor.Location = new System.Drawing.Point(210, 57);
 			this.labelHtmlColor.Name = "labelHtmlColor";
-			this.labelHtmlColor.Size = new System.Drawing.Size(78, 17);
+			this.labelHtmlColor.Size = new System.Drawing.Size(104, 17);
 			this.labelHtmlColor.TabIndex = 2;
 			this.labelHtmlColor.Text = "HTML color";
 			// 
@@ -95,11 +95,11 @@ namespace Greenshot {
 			// 
 			this.textBoxHtmlColor.Location = new System.Drawing.Point(210, 71);
 			this.textBoxHtmlColor.Name = "textBoxHtmlColor";
-			this.textBoxHtmlColor.Size = new System.Drawing.Size(78, 20);
+			this.textBoxHtmlColor.Size = new System.Drawing.Size(104, 20);
 			this.textBoxHtmlColor.TabIndex = 1;
+			this.textBoxHtmlColor.TextChanged += new System.EventHandler(this.TextBoxHexadecimalTextChanged);
 			this.textBoxHtmlColor.Click += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxHtmlColor.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxHtmlColor.TextChanged += new System.EventHandler(this.TextBoxHexadecimalTextChanged);
 			this.textBoxHtmlColor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// labelRed
@@ -131,38 +131,38 @@ namespace Greenshot {
 			// 
 			// textBoxRed
 			// 
-			this.textBoxRed.Location = new System.Drawing.Point(258, 95);
+			this.textBoxRed.Location = new System.Drawing.Point(284, 95);
 			this.textBoxRed.Name = "textBoxRed";
 			this.textBoxRed.Size = new System.Drawing.Size(30, 20);
 			this.textBoxRed.TabIndex = 2;
 			this.textBoxRed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.textBoxRed.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
 			this.textBoxRed.Click += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxRed.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxRed.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
 			this.textBoxRed.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// textBoxGreen
 			// 
-			this.textBoxGreen.Location = new System.Drawing.Point(258, 119);
+			this.textBoxGreen.Location = new System.Drawing.Point(284, 119);
 			this.textBoxGreen.Name = "textBoxGreen";
 			this.textBoxGreen.Size = new System.Drawing.Size(30, 20);
 			this.textBoxGreen.TabIndex = 3;
 			this.textBoxGreen.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.textBoxGreen.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
 			this.textBoxGreen.Click += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxGreen.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxGreen.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
 			this.textBoxGreen.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// textBoxBlue
 			// 
-			this.textBoxBlue.Location = new System.Drawing.Point(258, 143);
+			this.textBoxBlue.Location = new System.Drawing.Point(284, 143);
 			this.textBoxBlue.Name = "textBoxBlue";
 			this.textBoxBlue.Size = new System.Drawing.Size(30, 20);
 			this.textBoxBlue.TabIndex = 4;
 			this.textBoxBlue.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.textBoxBlue.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
 			this.textBoxBlue.Click += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxBlue.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxBlue.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
 			this.textBoxBlue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// labelRecentColors
@@ -175,14 +175,14 @@ namespace Greenshot {
 			// 
 			// textBoxAlpha
 			// 
-			this.textBoxAlpha.Location = new System.Drawing.Point(258, 167);
+			this.textBoxAlpha.Location = new System.Drawing.Point(284, 167);
 			this.textBoxAlpha.Name = "textBoxAlpha";
 			this.textBoxAlpha.Size = new System.Drawing.Size(30, 20);
 			this.textBoxAlpha.TabIndex = 5;
 			this.textBoxAlpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.textBoxAlpha.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
 			this.textBoxAlpha.Click += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxAlpha.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxAlpha.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
 			this.textBoxAlpha.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// labelAlpha
@@ -199,7 +199,7 @@ namespace Greenshot {
 			this.btnApply.BackColor = System.Drawing.Color.Transparent;
 			this.btnApply.Location = new System.Drawing.Point(210, 191);
 			this.btnApply.Name = "btnApply";
-			this.btnApply.Size = new System.Drawing.Size(78, 23);
+			this.btnApply.Size = new System.Drawing.Size(104, 23);
 			this.btnApply.TabIndex = 12;
 			this.btnApply.TabStop = false;
 			this.btnApply.Text = "Apply";
@@ -210,7 +210,7 @@ namespace Greenshot {
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(292, 218);
+			this.ClientSize = new System.Drawing.Size(326, 218);
 			this.Controls.Add(this.btnApply);
 			this.Controls.Add(this.textBoxAlpha);
 			this.Controls.Add(this.labelAlpha);
