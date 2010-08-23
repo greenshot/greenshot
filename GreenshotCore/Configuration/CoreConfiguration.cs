@@ -25,6 +25,12 @@ using System.Drawing.Imaging;
 using System.IO;
 
 namespace Greenshot.Core {
+	public enum Destination {
+		Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail
+	}
+	public enum OutputFormat {
+		Bmp, Gif, Jepg, Png, Tiff
+	}
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
@@ -37,7 +43,7 @@ namespace Greenshot.Core {
 		[IniProperty("IsFirstLaunch", Description="Is this the first time launch?", DefaultValue="true")]
 		public bool IsFirstLaunch;
 		[IniProperty("Destinations", Description="Which destinations? Options are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail", DefaultValue="Editor")]
-		public List<String> OutputDestinations;
+		public List<Destination> OutputDestinations;
 
 		[IniProperty("CaptureMousepointer", Description="Should the mouse be captured?", DefaultValue="true")]
 		public bool CaptureMousepointer;
@@ -48,7 +54,7 @@ namespace Greenshot.Core {
 		[IniProperty("CaptureCompleteWindow", Description="Try capturing the complete window.", DefaultValue="false")]
 		public bool CaptureCompleteWindow;
 		[IniProperty("CaptureWindowContent", Description="Try capturing only the content of the window (IE/Firefox).", DefaultValue="false")]
-		public bool? CaptureWindowContent;
+		public bool CaptureWindowContent;
 
 		[IniProperty("ShowFlashlight", Description="Show a flash after taking a capture.", DefaultValue="false")]
 		public bool ShowFlash = false;
@@ -59,7 +65,7 @@ namespace Greenshot.Core {
 		[IniProperty("OutputFileFilenamePattern", Description="Filename pattern for screenshot.", DefaultValue="%title%_%YYYY%-%MM%-%DD%_%hh%-%mm%-%ss%")]
 		public string OutputFileFilenamePattern;
 		[IniProperty("OutputFileFormat", Description="Default file type for writing screenshots. (Bmp, Gif, Jepg, Png, Tiff)", DefaultValue="Png")]
-		public ImageFormat OutputFileFormat = ImageFormat.Png;
+		public OutputFormat OutputFileFormat = OutputFormat.Png;
 		[IniProperty("OutputFileCopyPathToClipboard", Description="When saving a screenshot, copy the path to the clipboard?", DefaultValue="true")]
 		public bool OutputFileCopyPathToClipboard;
 
@@ -84,18 +90,5 @@ namespace Greenshot.Core {
 		public bool OutputPrintCenter;
 		[IniProperty("OutputPrintTimestamp", Description="Print timestamp on print?", DefaultValue="true")]
 		public bool OutputPrintTimestamp;
-
-		[IniProperty("EditorWindowSize", Description="Size of the editor.", DefaultValue="540, 380")]
-		public Size EditorWindowSize;
-		[IniProperty("EditorWindowLocation", Description="Location of the editor.", DefaultValue="100, 100")]
-		public Point EditorWindowLocation;
-		[IniProperty("EditorWindowState", Description="The window state of the editor. (Normal or Maximized)", DefaultValue="Normal")]
-		public String EditorWindowState;
-
-		public Color[] Editor_RecentColors = new Color[12];
-		public Font Editor_Font = null;
-		
-		// Not storing, this doesn't make sense to store (or does it?)
-		public Rectangle EditorPreviousScreenbounds = Rectangle.Empty;
 	}
 }

@@ -28,6 +28,7 @@ using System.Windows.Forms;
 
 using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 
@@ -42,6 +43,7 @@ namespace Greenshot.Forms {
 		private FilterOption[] filterOptions;
 		private DirectoryInfo eagerlyCreatedDirectory;
 		private ICaptureDetails captureDetails = null;
+		private CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		public SaveImageFileDialog() {
 			init();
@@ -55,7 +57,7 @@ namespace Greenshot.Forms {
 		private void init() {
 			saveFileDialog = new SaveFileDialog();
 			applyFilterOptions();
-			saveFileDialog.InitialDirectory = Path.GetDirectoryName(AppConfig.GetInstance().Output_FileAs_Fullpath);
+			saveFileDialog.InitialDirectory = Path.GetDirectoryName(conf.Output_FileAs_Fullpath);
 			// The following property fixes a problem that the directory where we save is locked (bug #2899790)
 			saveFileDialog.RestoreDirectory = true;
 
@@ -66,7 +68,6 @@ namespace Greenshot.Forms {
 
 		private void applyFilterOptions() {
 			prepareFilterOptions();
-			AppConfig conf = AppConfig.GetInstance();
 			string fdf = "";
 			int preselect = 0;
 			for(int i=0; i<filterOptions.Length; i++){
@@ -153,11 +154,9 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="sfd">a SaveFileDialog instance</param>
 		private void ApplySuggestedValues() {
-			
-			AppConfig conf = AppConfig.GetInstance();
 			string rootDir = GetRootDirFromConfig();
 			// build the full path and set dialog properties
-			string filenameFromPattern = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.Output_File_FilenamePattern, captureDetails);
+			string filenameFromPattern = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, captureDetails);
 			string fullpath = Path.Combine(rootDir, filenameFromPattern);
 			string dir = CreateDirectoryIfNotExists(fullpath);
 			
@@ -204,7 +203,7 @@ namespace Greenshot.Forms {
 		}
 		
 		private string GetRootDirFromConfig() {
-			string rootDir = AppConfig.GetInstance().Output_File_Path;
+			string rootDir =conf.Output_File_Path;
 			// the idea was to let the user choose whether to suggest the dir
 			// configured in the settings dialog or just remember the latest path.
 			// however, we'd need an extra option for this, making the settings dialog

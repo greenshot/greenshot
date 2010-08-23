@@ -30,8 +30,8 @@ namespace Greenshot {
 	/// Description of JpegQualityDialog.
 	/// </summary>
 	public partial class JpegQualityDialog : Form {
-		AppConfig conf;
-		ILanguage lang;
+		private CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private ILanguage lang;
 		public int Quality = 0;
 		public JpegQualityDialog() {
 			//
@@ -39,10 +39,9 @@ namespace Greenshot {
 			//
 			InitializeComponent();
 			
-			conf = AppConfig.GetInstance();
 			lang = Language.GetInstance();
-			this.trackBarJpegQuality.Value = conf.Output_File_JpegQuality;
-			this.textBoxJpegQuality.Text = conf.Output_File_JpegQuality.ToString();
+			this.trackBarJpegQuality.Value = conf.OutputFileJpegQuality;
+			this.textBoxJpegQuality.Text = conf.OutputFileJpegQuality.ToString();
 			UpdateUI();
 		}
 		
@@ -50,9 +49,9 @@ namespace Greenshot {
 		void Button_okClick(object sender, System.EventArgs e) {
 			Quality = this.trackBarJpegQuality.Value;
 			if(this.checkbox_dontaskagain.Checked) {
-				conf.Output_File_JpegQuality = Quality;
-				conf.Output_File_PromptJpegQuality = false;
-				conf.Store();
+				conf.OutputFileJpegQuality = Quality;
+				conf.OutputFilePromptJpegQuality = false;
+				IniConfig.Save();
 			}
 		}
 		

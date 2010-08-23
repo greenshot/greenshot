@@ -30,30 +30,21 @@ namespace Greenshot.Forms {
 	/// Description of PrintOptionsDialog.
 	/// </summary>
 	public partial class PrintOptionsDialog : Form {
-		AppConfig conf;
-		ILanguage lang;
+		private CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private ILanguage lang;
 		
-		public bool AllowPrintCenter;
-		public bool AllowPrintEnlarge;
-		public bool AllowPrintRotate;
-		public bool AllowPrintShrink;
-		public bool PrintDateTime;
-		
-		public PrintOptionsDialog()
-		{
+		public PrintOptionsDialog() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-
-			conf = AppConfig.GetInstance();
 			lang = Language.GetInstance();
 			
-			this.AllowPrintCenter = this.checkboxAllowCenter.Checked = (bool)conf.Output_Print_Center;
-			this.AllowPrintEnlarge = this.checkboxAllowEnlarge.Checked = (bool)conf.Output_Print_AllowEnlarge;
-			this.AllowPrintRotate = this.checkboxAllowRotate.Checked = (bool)conf.Output_Print_AllowRotate;
-			this.AllowPrintShrink = this.checkboxAllowShrink.Checked = (bool)conf.Output_Print_AllowShrink;
-			this.PrintDateTime = this.checkboxDateTime.Checked = (bool)conf.Output_Print_Timestamp;
+			this.checkboxAllowCenter.Checked = conf.OutputPrintCenter;
+			this.checkboxAllowEnlarge.Checked = conf.OutputPrintAllowEnlarge;
+			this.checkboxAllowRotate.Checked = conf.OutputPrintAllowRotate;
+			this.checkboxAllowShrink.Checked = conf.OutputPrintAllowShrink;
+			this.checkboxDateTime.Checked = conf.OutputPrintTimestamp;
 			this.checkbox_dontaskagain.Checked = false;
 			UpdateUI();
 		}
@@ -69,23 +60,15 @@ namespace Greenshot.Forms {
 		}
 		
 		
-		void Button_okClick(object sender, EventArgs e)
-		{
-			this.AllowPrintCenter = this.checkboxAllowCenter.Checked;
-			this.AllowPrintEnlarge = this.checkboxAllowEnlarge.Checked;
-			this.AllowPrintRotate = this.checkboxAllowRotate.Checked;
-			this.AllowPrintShrink = this.checkboxAllowShrink.Checked;
-			this.PrintDateTime = this.checkboxDateTime.Checked;
-
+		void Button_okClick(object sender, EventArgs e) {
 			// update config
-			conf.Output_Print_Center = (bool?)this.AllowPrintCenter;
-			conf.Output_Print_AllowEnlarge = (bool?)this.AllowPrintEnlarge;
-			conf.Output_Print_AllowRotate = (bool?)this.AllowPrintRotate;
-			conf.Output_Print_AllowShrink = (bool?)this.AllowPrintShrink;
-			conf.Output_Print_Timestamp = (bool?)this.PrintDateTime;
-			conf.Output_Print_PromptOptions = !this.checkbox_dontaskagain.Checked;
-			conf.Store();
-			
+			conf.OutputPrintCenter = this.checkboxAllowCenter.Checked;
+			conf.OutputPrintAllowEnlarge = this.checkboxAllowEnlarge.Checked;
+			conf.OutputPrintAllowRotate = this.checkboxAllowRotate.Checked;
+			conf.OutputPrintAllowShrink = this.checkboxAllowShrink.Checked;
+			conf.OutputPrintTimestamp = this.checkboxDateTime.Checked;
+			conf.OutputPrintPromptOptions = !this.checkbox_dontaskagain.Checked;
+			IniConfig.Save();
 		}
 	}
 }

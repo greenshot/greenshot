@@ -41,9 +41,8 @@ namespace Greenshot.Helpers {
 		private Image image;
 		private PrintDocument printDocument = new PrintDocument();
 		private PrintDialog printDialog = new PrintDialog();
-		private AppConfig conf = AppConfig.GetInstance();
-		private PrintOptionsDialog printOptionsDialog = null;
-		
+		private CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+	
 		public PrintHelper(Image image, ICaptureDetails captureDetails) {
 			this.image = image;
 			printDialog.UseEXDialog = true;
@@ -77,12 +76,10 @@ namespace Greenshot.Helpers {
 				if(image != null) image.Dispose();
 				if(printDocument != null) printDocument.Dispose();
 				if(printDialog != null) printDialog.Dispose();
-				if(printOptionsDialog != null) printOptionsDialog.Dispose();
 			}
 			image = null;
 			printDocument = null;
 			printDialog = null;
-			printOptionsDialog = null;
 		}
 		
 		/// <summary>
@@ -94,8 +91,8 @@ namespace Greenshot.Helpers {
 			PrinterSettings ret = null;
 			if (printDialog.ShowDialog() == DialogResult.OK) {
 				bool cancelled = false;
-				printOptionsDialog = new PrintOptionsDialog();
-				if (conf.Output_Print_PromptOptions == true) {
+				if (conf.OutputPrintPromptOptions == true) {
+					PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog();
 					DialogResult result = printOptionsDialog.ShowDialog();
 					if(result != DialogResult.OK) {
 						cancelled = true;
@@ -119,15 +116,13 @@ namespace Greenshot.Helpers {
 		}
 		
 		void DrawImageForPrint(object sender, PrintPageEventArgs e) {
-			PrintOptionsDialog pod = printOptionsDialog;
-			
-			ContentAlignment alignment = pod.AllowPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
+			ContentAlignment alignment = conf.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
 			
 			RectangleF pageRect = e.PageSettings.PrintableArea;
 			GraphicsUnit gu = GraphicsUnit.Pixel;
 			RectangleF imageRect = image.GetBounds(ref gu);
 			// rotate the image if it fits the page better
-			if(pod.AllowPrintRotate) {
+			if(conf.OutputPrintAllowRotate) {
 				if((pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height) ||
 				   (pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)) {
 					image.RotateFlip(RotateFlipType.Rotate90FlipNone);
@@ -137,10 +132,10 @@ namespace Greenshot.Helpers {
 			}
 			RectangleF printRect = new RectangleF(0,0,imageRect.Width, imageRect.Height);;
 			// scale the image to fit the page better
-			if(pod.AllowPrintEnlarge || pod.AllowPrintShrink) {
+			if(conf.OutputPrintAllowEnlarge || conf.OutputPrintAllowShrink) {
 				SizeF resizedRect = ScaleHelper.GetScaledSize(imageRect.Size,pageRect.Size,false);
-				if((pod.AllowPrintShrink && resizedRect.Width < printRect.Width) ||
-				   pod.AllowPrintEnlarge && resizedRect.Width > printRect.Width) {
+				if((conf.OutputPrintAllowShrink && resizedRect.Width < printRect.Width) ||
+				   conf.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width) {
 					printRect.Size = resizedRect;
 				}
 				
@@ -149,7 +144,7 @@ namespace Greenshot.Helpers {
 			// prepare timestamp
 			float dateStringWidth = 0;
 			float dateStringHeight = 0;
-			if (conf.Output_Print_Timestamp == true) {
+			if (conf.OutputPrintTimestamp == true) {
 				Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
 				string dateString = DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
 				dateStringWidth = e.Graphics.MeasureString(dateString, f).Width;

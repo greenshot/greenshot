@@ -21,15 +21,16 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
-using Greenshot.Core;
 
 namespace Greenshot {
 	/// <summary>
@@ -38,12 +39,11 @@ namespace Greenshot {
 	public partial class SettingsForm : Form {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
 		ILanguage lang;
-		AppConfig conf;
+		private CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private ToolTip toolTip;
 		
 		public SettingsForm() {
 			InitializeComponent();
-			conf = AppConfig.GetInstance();
 			lang = Language.GetInstance();
 			// Force loading of languages
 			lang.Load();
@@ -169,35 +169,35 @@ namespace Greenshot {
 
 		private void DisplaySettings() {
 			combobox_language.SelectedValue = lang.CurrentLanguage;
-			checkbox_registerhotkeys.Checked = (bool)conf.General_RegisterHotkeys;
+			checkbox_registerhotkeys.Checked = conf.RegisterHotkeys;
 			textbox_storagelocation.Text = conf.Output_File_Path;
-			textbox_screenshotname.Text = conf.Output_File_FilenamePattern;
-			combobox_primaryimageformat.Text = conf.Output_File_Format.ToString();
-			checkbox_copypathtoclipboard.Checked = (bool)conf.Output_File_CopyPathToClipboard;
-			trackBarJpegQuality.Value = conf.Output_File_JpegQuality;
-			textBoxJpegQuality.Text = conf.Output_File_JpegQuality+"%";
-			checkbox_alwaysshowjpegqualitydialog.Checked = (bool)conf.Output_File_PromptJpegQuality;
-			checkbox_showflashlight.Checked = (bool)conf.Ui_Effects_Flashlight;
-			checkbox_playsound.Checked = (bool)conf.Ui_Effects_CameraSound;
+			textbox_screenshotname.Text = conf.OutputFileFilenamePattern;
+			combobox_primaryimageformat.Text = conf.OutputFileFormat.ToString();
+			checkbox_copypathtoclipboard.Checked = conf.OutputFileCopyPathToClipboard;
+			trackBarJpegQuality.Value = conf.OutputFileJpegQuality;
+			textBoxJpegQuality.Text = conf.OutputFileJpegQuality+"%";
+			checkbox_alwaysshowjpegqualitydialog.Checked = conf.OutputFilePromptJpegQuality;
+			checkbox_showflashlight.Checked = conf.ShowFlash;
+			checkbox_playsound.Checked = conf.PlayCameraSound;
 			
-			checkbox_clipboard.Checked = (conf.Output_Destinations&ScreenshotDestinations.Clipboard) == ScreenshotDestinations.Clipboard;
-			checkbox_file.Checked = (conf.Output_Destinations&ScreenshotDestinations.FileDefault) == ScreenshotDestinations.FileDefault;
-			checkbox_fileas.Checked = (conf.Output_Destinations&ScreenshotDestinations.FileWithDialog) == ScreenshotDestinations.FileWithDialog;
-			checkbox_printer.Checked = (conf.Output_Destinations&ScreenshotDestinations.Printer) == ScreenshotDestinations.Printer;
-			checkbox_editor.Checked = (conf.Output_Destinations&ScreenshotDestinations.Editor) == ScreenshotDestinations.Editor;
-			checkbox_email.Checked = (conf.Output_Destinations&ScreenshotDestinations.EMail) == ScreenshotDestinations.EMail;
+			checkbox_clipboard.Checked = conf.OutputDestinations.Contains(Destination.Clipboard);
+			checkbox_file.Checked = conf.OutputDestinations.Contains(Destination.FileDefault);
+			checkbox_fileas.Checked = conf.OutputDestinations.Contains(Destination.FileWithDialog);
+			checkbox_printer.Checked = conf.OutputDestinations.Contains(Destination.Printer);
+			checkbox_editor.Checked = conf.OutputDestinations.Contains(Destination.Editor);
+			checkbox_email.Checked = conf.OutputDestinations.Contains(Destination.EMail);
 
-			checkboxAllowCenter.Checked = (bool)conf.Output_Print_Center;
-			checkboxAllowEnlarge.Checked = (bool)conf.Output_Print_AllowEnlarge;
-			checkboxAllowRotate.Checked = (bool)conf.Output_Print_AllowRotate;
-			checkboxAllowShrink.Checked = (bool)conf.Output_Print_AllowShrink;
-			checkboxTimestamp.Checked = (bool)conf.Output_Print_Timestamp;
-			checkbox_alwaysshowprintoptionsdialog.Checked = (bool)conf.Output_Print_PromptOptions;
-			checkbox_capture_mousepointer.Checked = (bool)conf.Capture_Mousepointer;
-			checkbox_capture_windows_interactive.Checked = (bool)conf.Capture_Windows_Interactive;
-			checkbox_capture_complete_windows.Checked = (bool)conf.Capture_Complete_Window;
-			checkbox_capture_window_content.Checked = (bool)conf.Capture_Window_Content;
-			numericUpDownWaitTime.Value = conf.Capture_Wait_Time;
+			checkboxAllowCenter.Checked = conf.OutputPrintCenter;
+			checkboxAllowEnlarge.Checked = conf.OutputPrintAllowEnlarge;
+			checkboxAllowRotate.Checked = conf.OutputPrintAllowRotate;
+			checkboxAllowShrink.Checked = conf.OutputPrintAllowShrink;
+			checkboxTimestamp.Checked = conf.OutputPrintTimestamp;
+			checkbox_alwaysshowprintoptionsdialog.Checked = conf.OutputPrintPromptOptions;
+			checkbox_capture_mousepointer.Checked = conf.CaptureMousepointer;
+			checkbox_capture_windows_interactive.Checked = conf.CaptureWindowsInteractive;
+			checkbox_capture_complete_windows.Checked = conf.CaptureCompleteWindow;
+			checkbox_capture_window_content.Checked = conf.CaptureWindowContent;
+			numericUpDownWaitTime.Value = conf.CaptureDelay;
 
 			// If the run for all is set we disable and set the checkbox
 			if (StartupHelper.checkRunAll()) {
@@ -211,27 +211,30 @@ namespace Greenshot {
 		}
 
 		private void SaveSettings() {
-			conf.Ui_Language = combobox_language.SelectedValue.ToString();
+			conf.Language = combobox_language.SelectedValue.ToString();
 
 			// Make sure the current language is reflected in the Main-context menu
 			//MainForm.instance.UpdateUI(); // TODO
 						
-			conf.General_RegisterHotkeys = (bool?)checkbox_registerhotkeys.Checked;
+			conf.RegisterHotkeys = checkbox_registerhotkeys.Checked;
 			conf.Output_File_Path = textbox_storagelocation.Text;
-			conf.Output_File_FilenamePattern = textbox_screenshotname.Text;
-			conf.Output_File_Format = combobox_primaryimageformat.Text;
-			conf.Output_File_CopyPathToClipboard = (bool?)checkbox_copypathtoclipboard.Checked;
-			conf.Output_File_JpegQuality = trackBarJpegQuality.Value;
-			conf.Output_File_PromptJpegQuality = (bool?)checkbox_alwaysshowjpegqualitydialog.Checked;
-			conf.Ui_Effects_Flashlight = (bool?)checkbox_showflashlight.Checked;
-			conf.Ui_Effects_CameraSound = (bool?)checkbox_playsound.Checked;
-			ScreenshotDestinations dest = 0;
-			if(checkbox_clipboard.Checked) dest |= ScreenshotDestinations.Clipboard;
-			if(checkbox_file.Checked) dest |= ScreenshotDestinations.FileDefault;
-			if(checkbox_fileas.Checked) dest |= ScreenshotDestinations.FileWithDialog;
-			if(checkbox_printer.Checked) dest |= ScreenshotDestinations.Printer;
-			if(checkbox_editor.Checked) dest |= ScreenshotDestinations.Editor;
-			if(checkbox_email.Checked) dest |= ScreenshotDestinations.EMail;
+			conf.OutputFileFilenamePattern = textbox_screenshotname.Text;
+			conf.OutputFileFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), combobox_primaryimageformat.Text);
+			conf.OutputFileCopyPathToClipboard = checkbox_copypathtoclipboard.Checked;
+			conf.OutputFileJpegQuality = trackBarJpegQuality.Value;
+			conf.OutputFilePromptJpegQuality = checkbox_alwaysshowjpegqualitydialog.Checked;
+			conf.ShowFlash = checkbox_showflashlight.Checked;
+			conf.PlayCameraSound = checkbox_playsound.Checked;
+
+			List<Destination> destinations = new List<Destination>();
+			if(checkbox_clipboard.Checked) destinations.Add(Destination.Clipboard);
+			if(checkbox_file.Checked) destinations.Add(Destination.FileDefault);
+			if(checkbox_fileas.Checked) destinations.Add(Destination.FileWithDialog);
+			if(checkbox_printer.Checked) destinations.Add(Destination.Printer);
+			if(checkbox_editor.Checked) destinations.Add(Destination.Editor);
+			if(checkbox_email.Checked) destinations.Add(Destination.EMail);
+			conf.OutputDestinations = destinations;
+
 			if (!MapiMailMessage.HasMAPI()) {
 				// Disable MAPI functionality as it's not available
 				checkbox_email.Enabled = false;
@@ -241,21 +244,20 @@ namespace Greenshot {
 				checkbox_email.Enabled = true;
 			}
 			
-			conf.Output_Destinations = dest;
-			conf.Output_Print_Center = (bool?)checkboxAllowCenter.Checked;
-			conf.Output_Print_AllowEnlarge = (bool?)checkboxAllowEnlarge.Checked;
-			conf.Output_Print_AllowRotate = (bool?)checkboxAllowRotate.Checked;
-			conf.Output_Print_AllowShrink = (bool?)checkboxAllowShrink.Checked;
-			conf.Output_Print_Timestamp = (bool?)checkboxTimestamp.Checked;
-			conf.Output_Print_PromptOptions = (bool?)checkbox_alwaysshowprintoptionsdialog.Checked;
-			conf.Capture_Mousepointer = (bool?)checkbox_capture_mousepointer.Checked;
-			conf.Capture_Windows_Interactive = (bool?)checkbox_capture_windows_interactive.Checked;
-			conf.Capture_Window_Content = (bool?)checkbox_capture_window_content.Checked;
+			conf.OutputPrintCenter = checkboxAllowCenter.Checked;
+			conf.OutputPrintAllowEnlarge = checkboxAllowEnlarge.Checked;
+			conf.OutputPrintAllowRotate = checkboxAllowRotate.Checked;
+			conf.OutputPrintAllowShrink = checkboxAllowShrink.Checked;
+			conf.OutputPrintTimestamp = checkboxTimestamp.Checked;
+			conf.OutputPrintPromptOptions = checkbox_alwaysshowprintoptionsdialog.Checked;
+			conf.CaptureMousepointer = checkbox_capture_mousepointer.Checked;
+			conf.CaptureWindowsInteractive = checkbox_capture_windows_interactive.Checked;
+			conf.CaptureWindowContent = checkbox_capture_window_content.Checked;
 
-			conf.Capture_Complete_Window = (bool?)checkbox_capture_complete_windows.Checked;
-			conf.Capture_Wait_Time = (int)numericUpDownWaitTime.Value;
+			conf.CaptureCompleteWindow = checkbox_capture_complete_windows.Checked;
+			conf.CaptureDelay = (int)numericUpDownWaitTime.Value;
 
-			conf.Store();
+			IniConfig.Save();
 			
 			// Check if the Run for all is set
 			if(!StartupHelper.checkRunAll()) {
