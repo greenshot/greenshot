@@ -20,6 +20,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -149,6 +150,7 @@ namespace Greenshot.Core {
 			
 			Type iniSectionType = typeof(T);
 			string sectionName = getSectionName(iniSectionType);
+			LOG.Debug("Trying to find section for: " + sectionName);
 			if (sectionMap.ContainsKey(sectionName)) {
 				section = (T)sectionMap[sectionName];
 			} else {
@@ -193,9 +195,14 @@ namespace Greenshot.Core {
 								
 								foreach(string arrayValue in arrayValues) {
 									if (arrayValue != null && arrayValue.Length > 0) {
-										object newValue = ConvertValueToFieldType(fieldType.GetGenericArguments()[0], arrayValue);
-										LOG.Debug("Adding: " + newValue);
+										object newValue = null;
+										try {
+											newValue = ConvertValueToFieldType(fieldType.GetGenericArguments()[0], arrayValue);
+										} catch (Exception e) {
+											LOG.Error("Problem converting " + fieldType.FullName, e);
+										}
 										if (newValue != null) {
+											LOG.Debug("Adding: " + newValue);
 											methodInfo.Invoke(list, new object[] {newValue});
 										}
 									}
@@ -208,7 +215,15 @@ namespace Greenshot.Core {
 								// We are dealing with a generic type that is nullable
 								fieldType = Nullable.GetUnderlyingType(fieldType);
 							}
-							field.SetValue(section,ConvertValueToFieldType(fieldType, propertyValue));
+							object newValue = null;
+							try {
+								newValue = ConvertValueToFieldType(fieldType, propertyValue);
+							} catch (Exception e) {
+								LOG.Warn("Problem converting " + fieldType.FullName + " taking defaults", e);
+								newValue = ConvertValueToFieldType(fieldType, iniPropertyAttribute.DefaultValue);
+							}
+
+							field.SetValue(section, newValue);
 						}
 					}
 				}
@@ -216,24 +231,51 @@ namespace Greenshot.Core {
 			return section;
 		}
 
-		private static object ConvertValueToFieldType(Type fieldType, string value) {
-			if (value == null || value.Length == 0) {
+		private static object ConvertValueToFieldType(Type fieldType, string valueString) {
+			if (valueString == null || valueString.Length == 0) {
 				return null;
 			}
 			if (fieldType == typeof(string)) {
-				return value;
+				return valueString;
 			} else if (fieldType == typeof(bool) || fieldType == typeof(bool?)) {
-				return bool.Parse(value);
+				return bool.Parse(valueString);
 			} else if (fieldType == typeof(int) || fieldType == typeof(int?)) {
-				return int.Parse(value);
+				return int.Parse(valueString);
+			} else if (fieldType == typeof(uint) || fieldType == typeof(uint?)) {
+				return uint.Parse(valueString);
+			} else if (fieldType == typeof(Point)) {
+				string[] pointValues = valueString.Split(new Char[] {','});
+				int x = int.Parse(pointValues[0].Trim());
+				int y = int.Parse(pointValues[1].Trim());
+				return new Point(x, y);
+			} else if (fieldType == typeof(Size)) {
+				string[] sizeValues = valueString.Split(new Char[] {','});
+				int width = int.Parse(sizeValues[0].Trim());
+				int height = int.Parse(sizeValues[1].Trim());
+				return new Size(width, height);
 			} else if (fieldType.IsEnum) {
 				try {
-					return Enum.Parse(fieldType, value);
+					return Enum.Parse(fieldType, valueString);
 				} catch (Exception e) {
-					LOG.Error("Can't parse value: " + value, e);
+					LOG.Error("Can't parse value: " + valueString, e);
 				}
 			}
 			return null;
+		}
+
+		private static string ConvertValueToString(object valueObject) {
+			if (valueObject == null) {
+				return "";
+			}
+			Type fieldType = valueObject.GetType();
+			if (fieldType == typeof(Point)) {
+				Point p = (Point)valueObject;
+				return String.Format("{0},{1}", p.X, p.Y);
+			} else if (fieldType == typeof(Size)) {
+				Size size = (Size)valueObject;
+				return String.Format("{0},{1}", size.Width, size.Height);
+			}
+			return valueObject.ToString();
 		}
 
 		private static string getSectionName(Type iniSectionType) {
@@ -349,11 +391,12 @@ namespace Greenshot.Core {
 									// Loop though generic list
 									for (int index = 0; index < listCount; index++) {
 									   object item = fieldType.GetMethod("get_Item").Invoke(value, new object[] { index });
+									   
 									   // Now you have an instance of the item in the generic list
 									   if (index < listCount -1) {
-										   writer.Write("{0},", item);
+									   	writer.Write("{0},", ConvertValueToString(item));
 									   } else {
-										   writer.Write("{0}", item);
+										   writer.Write("{0}", ConvertValueToString(item));
 									   }
 									}
 									writer.WriteLine();
