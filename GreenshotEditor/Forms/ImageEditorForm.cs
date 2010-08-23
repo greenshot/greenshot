@@ -35,13 +35,13 @@ using System.Windows.Forms;
 
 using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Fields.Binding;
-//using Greenshot.Help;
+using Greenshot.Editor;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
-using Greenshot.Core;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -51,7 +51,8 @@ namespace Greenshot.Forms {
 		
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageEditorForm));
 
-		private AppConfig conf = AppConfig.GetInstance();
+		private EditorConfiguration conf = IniConfig.GetIniSection<EditorConfiguration>();
+		private CoreConfiguration coreConf = IniConfig.GetIniSection<CoreConfiguration>();
 		private ILanguage lang;
 		
 		private string lastSaveFullPath;
@@ -85,7 +86,7 @@ namespace Greenshot.Forms {
 			InitializeComponent();
 
 			// Restore to previous location
-			FormHelper.RestoreGeometry(this, conf.Editor_WindowSize, conf.Editor_WindowLocation, conf.Editor_WindowState, conf.Editor_Previous_Screenbounds);
+			FormHelper.RestoreGeometry(this, conf.EditorWindowSize, conf.EditorWindowLocation, conf.EditorWindowState, conf.EditorPreviousScreenbounds);
 
 			// Intial "saved" flag for asking if the image needs to be save
 			saved = outputMade;
@@ -541,7 +542,7 @@ namespace Greenshot.Forms {
 		
 		#region help
 		void HelpToolStripMenuItem1Click(object sender, System.EventArgs e) {
-			new HelpBrowserForm(conf.Ui_Language).Show();
+			new HelpBrowserForm(coreConf.Language).Show();
 		}
 
 		void AboutToolStripMenuItemClick(object sender, System.EventArgs e) {
@@ -592,8 +593,8 @@ namespace Greenshot.Forms {
 				}
 			}
 			// persist our geometry string.
-			FormHelper.StoreGeometry(this, out conf.Editor_WindowSize, out conf.Editor_WindowLocation, out conf.Editor_WindowState, out conf.Editor_Previous_Screenbounds);
-			conf.Store();
+			FormHelper.StoreGeometry(this, out conf.EditorWindowSize, out conf.EditorWindowLocation, out conf.EditorWindowState, out conf.EditorPreviousScreenbounds);
+			IniConfig.Save();
 			
 			surface.Dispose();
 			
@@ -861,7 +862,7 @@ namespace Greenshot.Forms {
 		void SaveElementsToolStripMenuItemClick(object sender, EventArgs e) {
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
 			saveFileDialog.Filter = "Greenshot templates (*.gst)|*.gst";
-			saveFileDialog.FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.Output_File_FilenamePattern, surface.CaptureDetails);
+			saveFileDialog.FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConf.OutputFileFilenamePattern, surface.CaptureDetails);
 			DialogResult dialogResult = saveFileDialog.ShowDialog();
 			if(dialogResult.Equals(DialogResult.OK)) {
 				using (Stream streamWrite = File.OpenWrite(saveFileDialog.FileName)) {

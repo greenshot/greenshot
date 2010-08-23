@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\EditorConfiguration.cs" />
     <Compile Include="Controls\BindableToolStripButton.cs" />
     <Compile Include="Controls\BindableToolStripComboBox.cs" />
     <Compile Include="Controls\BindableToolStripDropDownButton.cs" />
@@ -140,6 +141,7 @@
     <Folder Include="Forms" />
     <Folder Include="Controls" />
     <Folder Include="Helpers" />
+    <Folder Include="Configuration" />
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"</PreBuildEvent>

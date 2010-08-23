@@ -25,14 +25,14 @@ using System.Windows.Forms;
 namespace Greenshot.Helpers {
 	public class FormHelper {
 		#region static
-		public static void RestoreGeometry(Form formIn, Size size, Point location, String state, Rectangle previousScreenbounds) {
+		public static void RestoreGeometry(Form formIn, Size size, Point location, FormWindowState state, Rectangle previousScreenbounds) {
 			Rectangle screenbounds = WindowCapture.GetScreenBounds();
 			
 			// Used default settings if no previous screenbounds were given
 			if (previousScreenbounds == Rectangle.Empty) {
 				previousScreenbounds = screenbounds;
 			}
-			if (state != "Maximized" && state != "Normal") {
+			if (state != FormWindowState.Maximized && state != FormWindowState.Normal) {
 				// Form was most likely minimized, should NOT use size/location!!
 				formIn.WindowState = FormWindowState.Normal;
 				return;
@@ -51,17 +51,15 @@ namespace Greenshot.Helpers {
 			}
 			
 			// Set state
-			if (state == "Maximized") {
-				formIn.WindowState = FormWindowState.Maximized;
-			} else if (state == "Normal") {
-				formIn.WindowState = FormWindowState.Normal;
+			if (state == FormWindowState.Maximized || state == FormWindowState.Normal) {
+				formIn.WindowState = state;
 			}
 		}
 		
-		public static void StoreGeometry(Form formIn, out Size size, out Point location, out String state, out Rectangle previousScreenbounds ) {
+		public static void StoreGeometry(Form formIn, out Size size, out Point location, out FormWindowState state, out Rectangle previousScreenbounds ) {
 			size = formIn.Size;
 			location = formIn.Location;
-			state = formIn.WindowState.ToString();
+			state = formIn.WindowState;
 			previousScreenbounds = WindowCapture.GetScreenBounds();
 		}
 		#endregion
