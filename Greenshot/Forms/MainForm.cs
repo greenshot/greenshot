@@ -47,9 +47,8 @@ namespace Greenshot {
 	public partial class MainForm : Form {
 		private const string LOG4NET_FILE = "log4net.xml";
 		private static log4net.ILog LOG = null;
-		private static AppConfig conf;
 		private static Mutex applicationMutex = null;
-		private static CoreConfiguration coreConfiguration;
+		private static CoreConfiguration conf;
 		
 		private static void InitializeLog4NET() {
 			// Setup log4j, currently the file is called log4net.xml
@@ -82,14 +81,14 @@ namespace Greenshot {
 			Thread.CurrentThread.Name = Application.ProductName;
 
 			// Read configuration
-			coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
-			if (coreConfiguration.IsDirty) {
+			conf = IniConfig.GetIniSection<CoreConfiguration>();
+			if (conf.IsDirty) {
 				IniConfig.Save();
 			}
-			LOG.Info("Firstlaunch: " + coreConfiguration.IsFirstLaunch);
+			LOG.Info("Firstlaunch: " + conf.IsFirstLaunch);
 			LOG.Info("Destinations:");
-			if (coreConfiguration.OutputDestinations != null) {
-				foreach(Destination destination in coreConfiguration.OutputDestinations) {
+			if (conf.OutputDestinations != null) {
+				foreach(Destination destination in conf.OutputDestinations) {
 					LOG.Info("\t" + destination);
 				}
 			}
@@ -202,7 +201,6 @@ namespace Greenshot {
 					// Modify configuration
 					if (argument.ToLower().Equals("/configure")) {
 						LOG.Debug("Setting configuration!");
-						conf = AppConfig.GetInstance();
 						Properties properties = new Properties();
 						int propertyNr = argumentNr + 1;
 						while(propertyNr < args.Length && args[propertyNr].Contains("=")) {
@@ -214,8 +212,9 @@ namespace Greenshot {
 							propertyNr++;
 						}
 						if (properties.Count > 0) {
-							conf.SetProperties(properties);
-							conf.Store();
+							// TODO: Check properties!
+							//conf.SetProperties(properties);
+							//conf.Store();
 							// Update running instances
 							SendData(new CopyDataTransport(CommandEnum.ReloadConfig));
 							LOG.Debug("Configuration modified!");
@@ -247,7 +246,6 @@ namespace Greenshot {
 					if (filesToOpen.Count > 0) {
 						SendData(transport);
 					} else {
-						conf = AppConfig.GetInstance();
 						ILanguage lang = Language.GetInstance();
 						MessageBox.Show(lang.GetString(LangKey.error_multipleinstances), lang.GetString(LangKey.error));
 					}
@@ -260,21 +258,18 @@ namespace Greenshot {
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 
-				conf = AppConfig.GetInstance();
-
 				// if language is not set, show language dialog
-				if(conf.Ui_Language.Equals("")) {
+				if(conf.Language.Equals("")) {
 					LanguageDialog ld = LanguageDialog.GetInstance();
 					ld.ShowDialog();
-					conf.Ui_Language = ld.Language;
-					conf.Store();
+					conf.Language = ld.Language;
+					IniConfig.Save();
 				}
 
 				// Check if it's the first time launch?
-				bool firstLaunch = (bool)conf.General_IsFirstLaunch;
-	   			if(firstLaunch) {
-					conf.General_IsFirstLaunch = false;
-					conf.Store();
+	   			if(conf.IsFirstLaunch) {
+					conf.IsFirstLaunch = false;
+					IniConfig.Save();
 					transport.AddCommand(CommandEnum.FirstLaunch);
 				}
 				MainForm mainForm = new MainForm(transport);
@@ -323,7 +318,7 @@ namespace Greenshot {
 			//
 			InitializeComponent();
 			lang = Language.GetInstance();
-			if((bool)conf.General_RegisterHotkeys) {
+			if(conf.RegisterHotkeys) {
 				RegisterHotkeys();
 			}
 			
@@ -470,7 +465,7 @@ namespace Greenshot {
 		}
 		void CaptureWindow() {
 			CaptureMode captureMode = CaptureMode.None;
-			if ((conf.Capture_Windows_Interactive.HasValue && conf.Capture_Windows_Interactive.Value)) {
+			if (conf.CaptureWindowsInteractive) {
 				captureMode = CaptureMode.Window;
 			} else {
 				captureMode = CaptureMode.ActiveWindow;
@@ -530,7 +525,7 @@ namespace Greenshot {
 		}
 		
 		void Contextmenu_helpClick(object sender, System.EventArgs e) {
-			HelpBrowserForm hpf = new HelpBrowserForm(conf.Ui_Language);
+			HelpBrowserForm hpf = new HelpBrowserForm(conf.Language);
 			hpf.Show();
 		}
 		
@@ -543,27 +538,28 @@ namespace Greenshot {
 			// screenshot destination
 			ToolStripMenuSelectList sel = new ToolStripMenuSelectList("destination",true);
 			sel.Text = lang.GetString(LangKey.settings_destination);
-			sel.AddItem(lang.GetString(LangKey.settings_destination_editor), ScreenshotDestinations.Editor, (conf.Output_Destinations&ScreenshotDestinations.Editor)==ScreenshotDestinations.Editor);
-			sel.AddItem(lang.GetString(LangKey.settings_destination_clipboard), ScreenshotDestinations.Clipboard, (conf.Output_Destinations&ScreenshotDestinations.Clipboard)==ScreenshotDestinations.Clipboard);
-			sel.AddItem(lang.GetString(LangKey.quicksettings_destination_file), ScreenshotDestinations.FileDefault, (conf.Output_Destinations&ScreenshotDestinations.FileDefault)==ScreenshotDestinations.FileDefault);
-			sel.AddItem(lang.GetString(LangKey.settings_destination_fileas), ScreenshotDestinations.FileWithDialog, (conf.Output_Destinations&ScreenshotDestinations.FileWithDialog)==ScreenshotDestinations.FileWithDialog);
-			sel.AddItem(lang.GetString(LangKey.settings_destination_printer), ScreenshotDestinations.Printer, (conf.Output_Destinations&ScreenshotDestinations.Printer)==ScreenshotDestinations.Printer);
+			sel.AddItem(lang.GetString(LangKey.settings_destination_editor), Destination.Editor, conf.OutputDestinations.Contains(Destination.Editor));
+			sel.AddItem(lang.GetString(LangKey.settings_destination_clipboard), Destination.Clipboard, conf.OutputDestinations.Contains(Destination.Clipboard));
+			sel.AddItem(lang.GetString(LangKey.quicksettings_destination_file), Destination.FileDefault, conf.OutputDestinations.Contains(Destination.FileDefault));
+			sel.AddItem(lang.GetString(LangKey.settings_destination_fileas), Destination.FileWithDialog, conf.OutputDestinations.Contains(Destination.FileWithDialog));
+			sel.AddItem(lang.GetString(LangKey.settings_destination_printer), Destination.Printer, conf.OutputDestinations.Contains(Destination.Printer));
+			sel.AddItem(lang.GetString(LangKey.settings_destination_email), Destination.EMail, conf.OutputDestinations.Contains(Destination.EMail));
 			sel.CheckedChanged += new EventHandler(this.QuickSettingItemChanged);
 			this.contextmenu_quicksettings.DropDownItems.Add(sel);
 			// print options
 			sel = new ToolStripMenuSelectList("printoptions",true);
 			sel.Text = lang.GetString(LangKey.settings_printoptions);
-			sel.AddItem(lang.GetString(LangKey.printoptions_allowshrink), "AllowPrintShrink", (bool)conf.Output_Print_AllowShrink);
-			sel.AddItem(lang.GetString(LangKey.printoptions_allowenlarge), "AllowPrintEnlarge", (bool)conf.Output_Print_AllowEnlarge);
-			sel.AddItem(lang.GetString(LangKey.printoptions_allowrotate), "AllowPrintRotate", (bool)conf.Output_Print_AllowRotate);
-			sel.AddItem(lang.GetString(LangKey.printoptions_allowcenter), "AllowPrintCenter", (bool)conf.Output_Print_Center);
+			sel.AddItem(lang.GetString(LangKey.printoptions_allowshrink), "AllowPrintShrink", conf.OutputPrintAllowShrink);
+			sel.AddItem(lang.GetString(LangKey.printoptions_allowenlarge), "AllowPrintEnlarge", conf.OutputPrintAllowEnlarge);
+			sel.AddItem(lang.GetString(LangKey.printoptions_allowrotate), "AllowPrintRotate", conf.OutputPrintAllowRotate);
+			sel.AddItem(lang.GetString(LangKey.printoptions_allowcenter), "AllowPrintCenter", conf.OutputPrintCenter);
 			sel.CheckedChanged += new EventHandler(this.QuickSettingItemChanged);
 			this.contextmenu_quicksettings.DropDownItems.Add(sel);
 			// effects
 			sel = new ToolStripMenuSelectList("effects",true);
 			sel.Text = lang.GetString(LangKey.settings_visualization);
-			sel.AddItem(lang.GetString(LangKey.settings_playsound), "PlaySound", (bool)conf.Ui_Effects_CameraSound);
-			sel.AddItem(lang.GetString(LangKey.settings_showflashlight), "ShowFlashlight", (bool)conf.Ui_Effects_Flashlight);
+			sel.AddItem(lang.GetString(LangKey.settings_playsound), "PlaySound", conf.PlayCameraSound);
+			sel.AddItem(lang.GetString(LangKey.settings_showflashlight), "ShowFlashlight", conf.ShowFlash);
 			sel.CheckedChanged += new EventHandler(this.QuickSettingItemChanged);
 			this.contextmenu_quicksettings.DropDownItems.Add(sel);
 		}
@@ -573,23 +569,24 @@ namespace Greenshot {
 			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;;
 			if(selectList.Identifier.Equals("destination")) {
 				IEnumerator en = selectList.DropDownItems.GetEnumerator();
-				ScreenshotDestinations dest = 0;
+				List<Destination> destinations = new List<Destination>();;
 				while(en.MoveNext()) {
 					ToolStripMenuSelectListItem i = (ToolStripMenuSelectListItem)en.Current;
-					if(i.Checked) dest |= (ScreenshotDestinations)i.Data;
+					destinations.Add((Destination)i.Data);
 				}
-				conf.Output_Destinations = dest;
-			   	conf.Store();
+				conf.OutputDestinations = destinations;
+				IniConfig.Save();
 			} else if(selectList.Identifier.Equals("printoptions")) {
-				if(item.Data.Equals("AllowPrintShrink")) conf.Output_Print_AllowShrink = (bool?)item.Checked;
-				else if(item.Data.Equals("AllowPrintEnlarge")) conf.Output_Print_AllowEnlarge = (bool?)item.Checked;
-				else if(item.Data.Equals("AllowPrintRotate")) conf.Output_Print_AllowRotate = (bool?)item.Checked;
-				else if(item.Data.Equals("AllowPrintCenter")) conf.Output_Print_Center = (bool?)item.Checked;
-				conf.Store();
+				if(item.Data.Equals("AllowPrintShrink")) conf.OutputPrintAllowShrink = item.Checked;
+				else if(item.Data.Equals("AllowPrintEnlarge")) conf.OutputPrintAllowEnlarge = item.Checked;
+				else if(item.Data.Equals("AllowPrintRotate")) conf.OutputPrintAllowRotate = item.Checked;
+				else if(item.Data.Equals("AllowPrintCenter")) conf.OutputPrintCenter = item.Checked;
+				IniConfig.Save();
 			} else if(selectList.Identifier.Equals("effects")) {
-				if(item.Data.Equals("PlaySound")) conf.Ui_Effects_CameraSound = (bool?)item.Checked;
-				else if(item.Data.Equals("ShowFlashlight")) conf.Ui_Effects_Flashlight = (bool?)item.Checked;
-				conf.Store();
+				if(item.Data.Equals("PlaySound")) conf.PlayCameraSound = item.Checked;
+				else if(item.Data.Equals("ShowFlashlight")) conf.ShowFlash = item.Checked;
+				IniConfig.Save();
+
 			}
 		}
 		#endregion
@@ -671,7 +668,7 @@ namespace Greenshot {
 				
 			try {
 				// Store any open configuration changes
-				conf.Store();
+				IniConfig.Save();
 			} catch (Exception e) {
 				LOG.Error("Error storing configuration!", e);
 			}
