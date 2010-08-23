@@ -94,7 +94,10 @@
     <None Include="Languages\help-de-DE.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\help-hu-HU.html" />
     <None Include="Languages\help-ru-RU.html" />
+    <None Include="Languages\help-tr-TR.html" />
+    <None Include="Languages\help-zh-CN.html" />
     <None Include="Languages\language-cs-CZ.xml" />
     <None Include="Languages\language-de-DE.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -106,13 +109,16 @@
     <None Include="Languages\language-fr-FR.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\language-hu-HU.xml" />
     <None Include="Languages\language-ja-JP.xml" />
     <None Include="Languages\language-nl-NL.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\language-pl-PL.xml" />
     <None Include="Languages\language-ru-RU.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\language-tr-TR.xml" />
     <None Include="Languages\language-zh-CN.xml" />
     <None Include="Languages\language-zh-tw.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
