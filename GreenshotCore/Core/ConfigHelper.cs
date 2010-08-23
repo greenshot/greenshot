@@ -253,6 +253,13 @@ namespace Greenshot.Core {
 				int width = int.Parse(sizeValues[0].Trim());
 				int height = int.Parse(sizeValues[1].Trim());
 				return new Size(width, height);
+			} else if (fieldType == typeof(Rectangle)) {
+				string[] rectValues = valueString.Split(new Char[] {','});
+				int x = int.Parse(rectValues[0].Trim());
+				int y = int.Parse(rectValues[1].Trim());
+				int width = int.Parse(rectValues[2].Trim());
+				int height = int.Parse(rectValues[3].Trim());
+				return new Rectangle(x, y, width, height);
 			} else if (fieldType.IsEnum) {
 				try {
 					return Enum.Parse(fieldType, valueString);
@@ -274,6 +281,9 @@ namespace Greenshot.Core {
 			} else if (fieldType == typeof(Size)) {
 				Size size = (Size)valueObject;
 				return String.Format("{0},{1}", size.Width, size.Height);
+			} else if (fieldType == typeof(Rectangle)) {
+				Rectangle rectangle = (Rectangle)valueObject;
+				return String.Format("{0},{1},{2},{3}", rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
 			}
 			return valueObject.ToString();
 		}
@@ -401,7 +411,7 @@ namespace Greenshot.Core {
 									}
 									writer.WriteLine();
 								} else {
-									writer.WriteLine("{0}={1}", iniPropertyAttribute.Name, value);
+									writer.WriteLine("{0}={1}", iniPropertyAttribute.Name,  ConvertValueToString(value));
 								}
 							}
 						}
