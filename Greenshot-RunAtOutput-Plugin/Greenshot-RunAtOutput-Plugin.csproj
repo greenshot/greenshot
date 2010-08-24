@@ -49,15 +49,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration.cs" />
     <Compile Include="RunAtOutput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RunAtOutputConfiguration.cs" />
     <Compile Include="SettingsForm.cs" />
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
     <None Include="Properties\AssemblyInfo.cs.template" />
-    <None Include="runatoutput.properties" />
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"</PreBuildEvent>

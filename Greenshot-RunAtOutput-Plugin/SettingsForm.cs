@@ -22,16 +22,18 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
+using Greenshot.Core;
+
 namespace RunAtOutput {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : Form {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private Configuration config;
+		private RunAtOutputConfiguration config;
 		
-		public SettingsForm(Configuration config) {
-			this.config = config;
+		public SettingsForm() {
+			this.config = IniConfig.GetIniSection<RunAtOutputConfiguration>();
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -40,6 +42,7 @@ namespace RunAtOutput {
 		}
 		
 		void ButtonOkClick(object sender, EventArgs e) {
+			IniConfig.Save();
 			DialogResult = DialogResult.OK;
 		}
 		
@@ -49,38 +52,43 @@ namespace RunAtOutput {
 
 		void ShowSelectedItem() {
 			foreach ( ListViewItem item in listView1.SelectedItems ) {
-				Commando commando = item.Tag as Commando;
-				textBox_arguments.Text = commando.Arguments;
-				textBox_commandline.Text = commando.Commandline;
-				textBox_name.Text = commando.Name;
+				string commando = item.Tag as string;
+				textBox_name.Text = commando;
+				textBox_commandline.Text = config.commandlines[commando];
+				textBox_arguments.Text = config.arguments[commando];
 			}
 		}
 		
 		void ButtonAddClick(object sender, EventArgs e) {
-			Commando commando = new Commando();
-			commando.Arguments = textBox_arguments.Text;
-			commando.Commandline = textBox_commandline.Text;
-			commando.Name = textBox_name.Text;
-			config.Commands.Add(commando);
+			config.commands.Add(textBox_name.Text);
+			config.commandlines.Add(textBox_name.Text, textBox_commandline.Text);
+			config.arguments.Add(textBox_name.Text, textBox_arguments.Text);
 			UpdateView();
 		}
 
 		void ButtonDeleteClick(object sender, EventArgs e) {
 			foreach ( ListViewItem item in listView1.SelectedItems ) {
-				Commando commando = item.Tag as Commando;
-				config.Commands.Remove(commando);
+				string commando = item.Tag as string;
+				config.active.Remove(textBox_name.Text);
+				config.commands.Remove(textBox_name.Text);
+				config.commandlines.Remove(textBox_name.Text);
+				config.arguments.Remove(textBox_name.Text);
 			}
 			UpdateView();
 		}
 
 		void UpdateView() {
 			listView1.Items.Clear();
-			foreach(Commando commando in config.Commands) {
-				ListViewItem item = new ListViewItem("");
-				item.SubItems.Add(commando.Name);
-				item.Checked = commando.Active;
-				item.Tag = commando;
-				listView1.Items.Add(item);
+			if (config.commands != null) {
+				foreach(string commando in config.commands) {
+					ListViewItem item = new ListViewItem("");
+					item.SubItems.Add(commando);
+					if (config.active != null) {
+						item.Checked = config.active.Contains(commando);
+					}
+					item.Tag = commando;
+					listView1.Items.Add(item);
+				}
 			}
 		}
 		
@@ -90,9 +98,14 @@ namespace RunAtOutput {
 		}
 		
 		void ListView1ItemChecked(object sender, ItemCheckedEventArgs e) {
-			Commando commando = e.Item.Tag as Commando;
-			LOG.Debug("ItemChecked " + commando.Name + " to " + e.Item.Checked);
-			commando.Active = e.Item.Checked;
+			string commando = e.Item.Tag as string;
+			LOG.Debug("ItemChecked " + commando + " to " + e.Item.Checked);
+			if (e.Item.Checked && !config.active.Contains(commando)) {
+				config.active.Add(commando);
+			}
+			if (!e.Item.Checked) {
+				config.active.Remove(commando);
+			}
 		}
 	}
 }

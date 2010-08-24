@@ -29,6 +29,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 
 using Greenshot.Capturing;
+using Greenshot.Core;
 using Greenshot.Plugin;
 
 namespace RunAtOutput {
@@ -40,7 +41,7 @@ namespace RunAtOutput {
 		private IGreenshotPluginHost host;
 		private ICaptureHost captureHost = null;
 		private PluginAttribute myAttributes;
-		private Configuration config = new Configuration();
+		private RunAtOutputConfiguration config;
 
 		public RunAtOutputPlugin() {
 		}
@@ -59,7 +60,7 @@ namespace RunAtOutput {
 			this.myAttributes = myAttributes;
 			this.host.OnImageOutput += new OnImageOutputHandler(ImageOutput);
 			
-			LoadConfig();
+			this.config = IniConfig.GetIniSection<RunAtOutputConfiguration>();
 		}
 
 		public virtual void Shutdown() {
@@ -72,29 +73,7 @@ namespace RunAtOutput {
 		/// </summary>
 		public virtual void Configure() {
 			LOG.Debug("Configure called");
-			SettingsForm settingsForm = new SettingsForm(config);
-			if (settingsForm.ShowDialog() == DialogResult.OK) {
-				SaveConfig();
-			}
-			settingsForm.Dispose();
-		}
-
-		private void LoadConfig() {
-			XmlSerializer xmlSerializer = new XmlSerializer(typeof(Configuration));
-			string filename = Path.Combine(host.ConfigurationPath, "RunAtOutputPlugin.xml");
-			if (File.Exists(filename)) {
-				using (TextReader reader = new StreamReader(filename)) {
-					config = (Configuration)xmlSerializer.Deserialize(reader);
-				}
-			}
-		}
-
-		private void SaveConfig() {
-			XmlSerializer xmlSerializer = new XmlSerializer(typeof(Configuration));
-			string filename = Path.Combine(host.ConfigurationPath, "RunAtOutputPlugin.xml");
-			using (TextWriter writer = new StreamWriter(filename)) {
-				xmlSerializer.Serialize(writer, config);
-			}
+			new SettingsForm().ShowDialog();
 		}
 
 		/// <summary>
@@ -103,23 +82,23 @@ namespace RunAtOutput {
 		/// <param name="ImageOutputEventArgs">Has the FullPath to the image</param>
 		private void ImageOutput(object sender, ImageOutputEventArgs eventArgs) {
 			LOG.Debug("ImageOutput called with full path: " + eventArgs.FullPath);
-			foreach(Commando commando in config.Commands) {
-				if (commando.Active) {
-					if (commando.Commandline != null && commando.Commandline.Length > 0) {
-						Process p = new Process();
-				        p.StartInfo.FileName = commando.Commandline;
-				        p.StartInfo.Arguments = String.Format(commando.Arguments, eventArgs.FullPath);
-				        p.StartInfo.UseShellExecute = false;
-				        p.StartInfo.RedirectStandardOutput = true;
-						LOG.Info("Starting : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
-				        p.Start();
-				        string output = p.StandardOutput.ReadToEnd();
-				        if (output != null && output.Trim().Length > 0) {
-					        LOG.Info("Output:\n" + output);
-				        }
-						LOG.Info("Finished : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
-					}					
-				}
+			foreach(string commando in config.active) {
+				string commandline = config.commandlines[commando];
+				string arguments = config.arguments[commando];
+				if (commandline != null && commandline.Length > 0) {
+					Process p = new Process();
+			        p.StartInfo.FileName = commandline;
+			        p.StartInfo.Arguments = String.Format(arguments, eventArgs.FullPath);
+			        p.StartInfo.UseShellExecute = false;
+			        p.StartInfo.RedirectStandardOutput = true;
+					LOG.Info("Starting : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
+			        p.Start();
+			        string output = p.StandardOutput.ReadToEnd();
+			        if (output != null && output.Trim().Length > 0) {
+				        LOG.Info("Output:\n" + output);
+			        }
+					LOG.Info("Finished : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
+				}					
 			}
 		}
 	}
