@@ -5,7 +5,31 @@ capture of window, region or full screenshot. Supports several image formats.
 
 CHANGE LOG:
 
-0.8:
+0.9.0
+Bugs resolved:
+
+Features added:
+
+0.8.1
+
+Bugs resolved:
+* Image editor can't cancel the shutdown of Greenshot.
+* Systray icon wasn't removed when stopping Greenshot
+* Installer fixes for silent installation and the selected installer language will be passed to Greenshot
+* Hotkeys on Windows 7 x64 weren't working, should be okay now.
+
+Features added:
+* Dutch is added to all Greenshot parts (application, plugins and installer)
+* Added command-line options, now it is possible to change the configuration by using the commandline. See "installer.txt"
+* Added OCR Plugin, this will only work when Microsoft Office 2003 or 2007 is installed.
+  Unfortunately there is no way to check what languages Office supports, this needs to be set manually!
+  To set the language, go into the Greenshot configuration screen, a new "plugin" tab is available.
+  Click on the tab, on the OCR plugin and on the configure button.
+  This should allow you to change the language which is used to OCR your selection!
+* Added a simple plugin that will cut the "garbage" from the Internet Explorer and Firefox title when capturing
+  currently the behaviour can only be controlled by changing the configuration manually (titlefix.properties in the configuration directory)
+  
+0.8.0:
 
 Bugs resolved:
 * save-as dialog honors default storage location again
