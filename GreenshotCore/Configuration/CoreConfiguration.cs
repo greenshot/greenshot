@@ -92,7 +92,7 @@ namespace Greenshot.Core {
 		[IniProperty("OutputPrintTimestamp", Description="Print timestamp on print?", DefaultValue="true")]
 		public bool OutputPrintTimestamp;
 
-		[IniProperty("Test", Description="Test property", DefaultValue="")]
+		[IniProperty("Test", Description="Test property")]
 		public Dictionary<string, bool> testProp;
 		
 		/// <summary>

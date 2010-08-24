@@ -245,7 +245,6 @@ namespace Greenshot.Core {
 								LOG.Error("Problem converting " + fieldType.FullName, e);
 							}
 							if (newValue != null) {
-								LOG.Debug("Adding: " + newValue);
 								addMethodInfo.Invoke(list, new object[] {newValue});
 							}
 						}
@@ -486,12 +485,12 @@ namespace Greenshot.Core {
 				writer.WriteLine();
 				section.IsDirty = false;
 			}
-			
+			writer.WriteLine();
 			// Write left over properties
 			foreach(string sectionName in iniProperties.Keys) {
 				// Check if the section is one that is "registered", if so skip it!
 				if (!sectionMap.ContainsKey(sectionName)) {
-					writer.WriteLine("; The section {0} might be obsolete/unused, or a plugin hasn't claimed it due to errors.", sectionName);
+					writer.WriteLine("; The section {0} is not registered, maybe a plugin hasn't claimed it due to errors or some functionality isn't used yet.", sectionName);
 					// Write section name
 					writer.WriteLine("[{0}]", sectionName);
 					Dictionary<string, string> properties = iniProperties[sectionName];
@@ -499,6 +498,7 @@ namespace Greenshot.Core {
 					foreach(string propertyName in properties.Keys) {
 						writer.WriteLine("{0}={1}", propertyName, properties[propertyName]);
 					}
+					writer.WriteLine();
 				}
 			}
 			writer.Close();
