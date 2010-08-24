@@ -210,6 +210,10 @@ namespace Greenshot.Core {
 								field.SetValue(section, list);
 								
 							}
+						} else if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+							Type type1 = fieldType.GetGenericArguments()[0];
+							Type type2 = fieldType.GetGenericArguments()[1];
+							LOG.Info(String.Format("Found Dictionary<{0},{1}>",type1.Name, type2.Name));
 						} else {
 							if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
 								// We are dealing with a generic type that is nullable
