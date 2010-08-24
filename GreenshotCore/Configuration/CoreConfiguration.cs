@@ -92,8 +92,8 @@ namespace Greenshot.Core {
 		[IniProperty("OutputPrintTimestamp", Description="Print timestamp on print?", DefaultValue="true")]
 		public bool OutputPrintTimestamp;
 
-		//[IniProperty("Test", Description="Print timestamp on print?", DefaultValue="")]
-		//public Dictionary<string, bool> testProp;
+		[IniProperty("Test", Description="Test property", DefaultValue="")]
+		public Dictionary<string, bool> testProp;
 		
 		/// <summary>
 		/// Supply values we can't put as defaults

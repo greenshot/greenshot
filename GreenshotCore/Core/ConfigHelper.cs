@@ -183,6 +183,11 @@ namespace Greenshot.Core {
 					if (Attribute.IsDefined(field, typeof(IniPropertyAttribute))) {
 						IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)field.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
 						string propertyName = iniPropertyAttribute.Name;
+						string propertyDefaultValue = iniPropertyAttribute.DefaultValue;
+						if (propertyDefaultValue == null) {
+							propertyDefaultValue = section.GetDefault(propertyName);
+						}
+
 						string propertyValue = null;
 						// Get the value from the ini file, if there is none take the default
 						if (properties != null && properties.ContainsKey(propertyName)) {
@@ -190,64 +195,83 @@ namespace Greenshot.Core {
 						} else {
 							// Mark as dirty, we didn't use properties from the file (even defaults from the default file are allowed)
 							section.IsDirty = true;
-							if (iniPropertyAttribute.DefaultValue != null) {
-								propertyValue = iniPropertyAttribute.DefaultValue;
-							} else {
-								propertyValue = section.GetDefault(propertyName);
-							}
+							propertyValue = propertyDefaultValue;
 							LOG.Debug("Using default: " + propertyName + "=" + propertyValue);
 						}
 
 						// Get the type, or the underlying type for nullables
 						Type fieldType = field.FieldType;
-
-						// Now set the value
-						if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>)) {
-							string[] arrayValues = propertyValue.Split(new Char[] {','});
-							if (arrayValues != null) {
-								object list = Activator.CreateInstance(fieldType);
-								MethodInfo methodInfo = fieldType.GetMethod("Add");
-								
-								foreach(string arrayValue in arrayValues) {
-									if (arrayValue != null && arrayValue.Length > 0) {
-										object newValue = null;
-										try {
-											newValue = ConvertValueToFieldType(fieldType.GetGenericArguments()[0], arrayValue);
-										} catch (Exception e) {
-											LOG.Error("Problem converting " + fieldType.FullName, e);
-										}
-										if (newValue != null) {
-											LOG.Debug("Adding: " + newValue);
-											methodInfo.Invoke(list, new object[] {newValue});
-										}
-									}
-								}
-								field.SetValue(section, list);
-								
-							}
-						} else if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
-							Type type1 = fieldType.GetGenericArguments()[0];
-							Type type2 = fieldType.GetGenericArguments()[1];
-							LOG.Info(String.Format("Found Dictionary<{0},{1}>",type1.Name, type2.Name));
-						} else {
-							if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
-								// We are dealing with a generic type that is nullable
-								fieldType = Nullable.GetUnderlyingType(fieldType);
-							}
-							object newValue = null;
-							try {
-								newValue = ConvertValueToFieldType(fieldType, propertyValue);
-							} catch (Exception e) {
-								LOG.Warn("Problem converting " + fieldType.FullName + " taking defaults", e);
-								newValue = ConvertValueToFieldType(fieldType, iniPropertyAttribute.DefaultValue);
-							}
-
-							field.SetValue(section, newValue);
+						try {
+							field.SetValue(section, CreateFieldValue(fieldType, sectionName, propertyName, propertyValue));
+						} catch (Exception) {
+							// Mark as dirty, we didn't use properties from the file (even defaults from the default file are allowed)
+							section.IsDirty = true;
+							field.SetValue(section, CreateFieldValue(fieldType, sectionName, propertyName, propertyDefaultValue));
 						}
 					}
 				}
 			}
 			return section;
+		}
+		
+		/// <summary>
+		/// Helper method for creating a value
+		/// </summary>
+		/// <param name="fieldType">Type of the value to create</param>
+		/// <param name="propertyValue">Value as string</param>
+		/// <returns>object instance of the value</returns>
+		private static object CreateFieldValue(Type fieldType, string sectionName, string propertyName, string propertyValue) {
+			// Now set the value
+			if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>)) {
+				// Logic for List<>
+				string[] arrayValues = propertyValue.Split(new Char[] {','});
+				if (arrayValues != null) {
+					object list = Activator.CreateInstance(fieldType);
+					MethodInfo addMethodInfo = fieldType.GetMethod("Add");
+					
+					foreach(string arrayValue in arrayValues) {
+						if (arrayValue != null && arrayValue.Length > 0) {
+							object newValue = null;
+							try {
+								newValue = ConvertValueToFieldType(fieldType.GetGenericArguments()[0], arrayValue);
+							} catch (Exception e) {
+								LOG.Error("Problem converting " + fieldType.FullName, e);
+							}
+							if (newValue != null) {
+								LOG.Debug("Adding: " + newValue);
+								addMethodInfo.Invoke(list, new object[] {newValue});
+							}
+						}
+					}
+					return list;
+				}
+			} else if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+				// Logic for Dictionary<,>
+				Type type1 = fieldType.GetGenericArguments()[0];
+				Type type2 = fieldType.GetGenericArguments()[1];
+				LOG.Info(String.Format("Found Dictionary<{0},{1}>",type1.Name, type2.Name));
+				object dictionary = Activator.CreateInstance(fieldType);
+				MethodInfo addMethodInfo = fieldType.GetMethod("Add");
+				Dictionary<string, string> properties = iniProperties[sectionName];
+				foreach(string key in properties.Keys) {
+					if (key != null && key.StartsWith(propertyName + ".")) {
+						// What "key" do we need to store it under?
+						string subPropertyName = key.Substring(propertyName.Length + 1);
+						string stringValue = properties[key];
+						object newValue1 = ConvertValueToFieldType(type1, subPropertyName);
+						object newValue2 = ConvertValueToFieldType(type2, stringValue);
+						addMethodInfo.Invoke(dictionary, new object[] {newValue1, newValue2});
+				    }
+				}
+				return dictionary;
+			} else {
+				if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
+					// We are dealing with a generic type that is nullable
+					fieldType = Nullable.GetUnderlyingType(fieldType);
+				}
+				return ConvertValueToFieldType(fieldType, propertyValue);
+			}
+			return null;
 		}
 
 		private static object ConvertValueToFieldType(Type fieldType, string valueString) {
@@ -429,6 +453,22 @@ namespace Greenshot.Core {
 									   }
 									}
 									writer.WriteLine();
+								} else if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+									// Handle dictionaries.
+
+									// Get the methods we need to deal with dictionaries.
+									var keys = fieldType.GetProperty("Keys").GetValue(value, null);
+									var item = fieldType.GetProperty("Item");
+									var enumerator = keys.GetType().GetMethod("GetEnumerator").Invoke(keys, null);
+									var moveNext = enumerator.GetType().GetMethod("MoveNext");
+									var current = enumerator.GetType().GetProperty("Current").GetGetMethod();
+									// Get all the values.
+									while ((bool)moveNext.Invoke(enumerator, null)) {
+										var key = current.Invoke(enumerator, null);
+										var valueObject = item.GetValue(value, new object[] { key });
+										// Write to ini file!
+										writer.WriteLine("{0}.{1}={2}", iniPropertyAttribute.Name, ConvertValueToString(key), ConvertValueToString(valueObject));
+									}
 								} else {
 									writer.WriteLine("{0}={1}", iniPropertyAttribute.Name,  ConvertValueToString(value));
 								}

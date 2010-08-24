@@ -92,6 +92,11 @@ namespace Greenshot {
 					LOG.Info("\t" + destination);
 				}
 			}
+			if (conf.testProp != null) {
+				foreach(string key in conf.testProp.Keys) {
+					LOG.Info("\t" + String.Format("{0}={1}", key, conf.testProp[key]));
+				}
+			}
 
 			try {
 				// Fix for Bug 2495900, Multi-user Environment
