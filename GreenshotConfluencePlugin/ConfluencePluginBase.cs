@@ -58,6 +58,9 @@ namespace GreenshotConfluencePlugin {
 			this.captureHost = captureHost;
 			this.myAttributes = myAttributes;
 			host.OnImageEditorOpen += new OnImageEditorOpenHandler(ImageEditorOpened);
+			
+			// Register configuration (don't need the configuration itself)
+			IniConfig.GetIniSection<ConfluenceConfiguration>();
 		}
 
 		public virtual void Shutdown() {

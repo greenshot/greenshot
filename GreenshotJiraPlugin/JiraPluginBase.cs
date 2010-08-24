@@ -58,6 +58,10 @@ namespace GreenshotJiraPlugin {
 			this.captureHost = captureHost;
 			this.myAttributes = myAttributes;
 			host.OnImageEditorOpen += new OnImageEditorOpenHandler(ImageEditorOpened);
+
+			// Register configuration (don't need the configuration itself)
+			IniConfig.GetIniSection<JiraConfiguration>();
+
 		}
 
 		public virtual void Shutdown() {
