@@ -31,7 +31,7 @@ namespace TitleFix {
 		[IniProperty("ActiveFixes", Description="The fixes that are active.")]
 		public List<string> active;
 		
-		[IniProperty("Matcher", Description="A regular expressions to match the title with.")]
+		[IniProperty("Matcher", Description="The regular expressions to match the title with.")]
 		public Dictionary<string, string> matchers;
 
 		[IniProperty("Replacer", Description="The replacements for the matchers.")]
