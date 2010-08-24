@@ -601,8 +601,8 @@ namespace Greenshot {
 			string path;
 			if (lastImagePath != null && Directory.Exists(lastImagePath)) {
 				path = lastImagePath;
-			} else if (Directory.Exists(conf.Output_File_Path)) {
-				path = conf.Output_File_Path;
+			} else if (Directory.Exists(conf.OutputFilePath)) {
+				path = conf.OutputFilePath;
 			} else {
 				// What do I open when nothing can be found? Right, nothing...
 				return;

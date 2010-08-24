@@ -61,22 +61,23 @@ namespace Greenshot.Core {
 		[IniProperty("PlayCameraSound", Description="Play a camera sound after taking a capture.", DefaultValue="false")]
 		public bool PlayCameraSound = false;
 		
-		public string Output_File_Path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+		[IniProperty("OutputFilePath", Description="Output file path.")]
+		public string OutputFilePath;
 		[IniProperty("OutputFileFilenamePattern", Description="Filename pattern for screenshot.", DefaultValue="%title%_%YYYY%-%MM%-%DD%_%hh%-%mm%-%ss%")]
 		public string OutputFileFilenamePattern;
 		[IniProperty("OutputFileFormat", Description="Default file type for writing screenshots. (Bmp, Gif, Jepg, Png, Tiff)", DefaultValue="Png")]
 		public OutputFormat OutputFileFormat = OutputFormat.Png;
 		[IniProperty("OutputFileCopyPathToClipboard", Description="When saving a screenshot, copy the path to the clipboard?", DefaultValue="true")]
 		public bool OutputFileCopyPathToClipboard;
-
+		[IniProperty("OutputFileAsFullpath", Description="SaveAs Full path?")]
+		public string OutputFileAsFullpath;
+		
 		[IniProperty("OutputFileJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int OutputFileJpegQuality;
 		[IniProperty("OutputFilePromptJpegQuality", Description="Ask for the JPEQ quality before saving?", DefaultValue="false")]
 		public bool OutputFilePromptJpegQuality;
 		[IniProperty("OutputFileIncrementingNumber", Description="The number for the %NUM% in the filename pattern, is increased automatically after each save.", DefaultValue="1")]
 		public uint OutputFileIncrementingNumber;
-		
-		public string Output_FileAs_Fullpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"dummy.png");
 		
 		[IniProperty("OutputPrintPromptOptions", Description="Ask for print options when printing?", DefaultValue="true")]
 		public bool OutputPrintPromptOptions;
@@ -90,5 +91,23 @@ namespace Greenshot.Core {
 		public bool OutputPrintCenter;
 		[IniProperty("OutputPrintTimestamp", Description="Print timestamp on print?", DefaultValue="true")]
 		public bool OutputPrintTimestamp;
+
+		//[IniProperty("Test", Description="Print timestamp on print?", DefaultValue="")]
+		//public Dictionary<string, bool> testProp;
+		
+		/// <summary>
+		/// Supply values we can't put as defaults
+		/// </summary>
+		/// <param name="property">The property to return a default for</param>
+		/// <returns>string with the default value for the supplied property</returns>
+		public override string GetDefault(string property) {
+			switch(property) {
+				case "OutputFileAsFullpath":
+					return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"dummy.png");
+				case "OutputFilePath":
+					return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+			}
+			return null;
+		}
 	}
 }

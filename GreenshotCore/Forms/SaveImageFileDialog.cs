@@ -57,7 +57,7 @@ namespace Greenshot.Forms {
 		private void init() {
 			saveFileDialog = new SaveFileDialog();
 			applyFilterOptions();
-			saveFileDialog.InitialDirectory = Path.GetDirectoryName(conf.Output_FileAs_Fullpath);
+			saveFileDialog.InitialDirectory = Path.GetDirectoryName(conf.OutputFileAsFullpath);
 			// The following property fixes a problem that the directory where we save is locked (bug #2899790)
 			saveFileDialog.RestoreDirectory = true;
 
@@ -73,7 +73,7 @@ namespace Greenshot.Forms {
 			for(int i=0; i<filterOptions.Length; i++){
 				FilterOption fo = filterOptions[i];
 				fdf +=  fo.Label + "|*." + fo.Extension + "|";
-				if(conf.Output_FileAs_Fullpath.EndsWith(fo.Extension, StringComparison.CurrentCultureIgnoreCase)) preselect = i;
+				if(conf.OutputFileAsFullpath.EndsWith(fo.Extension, StringComparison.CurrentCultureIgnoreCase)) preselect = i;
 			}
 			fdf = fdf.Substring(0, fdf.Length-1);
 			saveFileDialog.Filter = fdf;
@@ -203,7 +203,7 @@ namespace Greenshot.Forms {
 		}
 		
 		private string GetRootDirFromConfig() {
-			string rootDir =conf.Output_File_Path;
+			string rootDir =conf.OutputFilePath;
 			// the idea was to let the user choose whether to suggest the dir
 			// configured in the settings dialog or just remember the latest path.
 			// however, we'd need an extra option for this, making the settings dialog

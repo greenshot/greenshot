@@ -157,7 +157,7 @@ namespace Greenshot.Helpers
 					string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
 					ImageOutput.Save(image, fileNameWithExtension, captureDetails);
 					returnValue = fileNameWithExtension;
-					conf.Output_FileAs_Fullpath = fileNameWithExtension;
+					conf.OutputFileAsFullpath = fileNameWithExtension;
 					IniConfig.Save();
 				} catch(System.Runtime.InteropServices.ExternalException) {
 					MessageBox.Show(Language.GetInstance().GetFormattedString(LangKey.error_nowriteaccess,saveImageFileDialog.FileName).Replace(@"\\",@"\"), Language.GetInstance().GetString(LangKey.error));

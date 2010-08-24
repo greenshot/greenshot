@@ -335,7 +335,7 @@ namespace Greenshot.Forms {
 				bool fileWritten = false;
 				if (captureDestinations.Contains(CaptureDestination.File)) {
 					string filename = FilenameHelper.GetFilenameFromPattern(conf.OutputFileFilenamePattern, conf.OutputFileFormat, captureDetails);
-					fullPath = Path.Combine(conf.Output_File_Path,filename);
+					fullPath = Path.Combine(conf.OutputFilePath,filename);
 					
 					// Catching any exception to prevent that the user can't write in the directory.
 					// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642

@@ -170,7 +170,7 @@ namespace Greenshot {
 		private void DisplaySettings() {
 			combobox_language.SelectedValue = lang.CurrentLanguage;
 			checkbox_registerhotkeys.Checked = conf.RegisterHotkeys;
-			textbox_storagelocation.Text = conf.Output_File_Path;
+			textbox_storagelocation.Text = conf.OutputFilePath;
 			textbox_screenshotname.Text = conf.OutputFileFilenamePattern;
 			combobox_primaryimageformat.Text = conf.OutputFileFormat.ToString();
 			checkbox_copypathtoclipboard.Checked = conf.OutputFileCopyPathToClipboard;
@@ -217,7 +217,7 @@ namespace Greenshot {
 			//MainForm.instance.UpdateUI(); // TODO
 						
 			conf.RegisterHotkeys = checkbox_registerhotkeys.Checked;
-			conf.Output_File_Path = textbox_storagelocation.Text;
+			conf.OutputFilePath = textbox_storagelocation.Text;
 			conf.OutputFileFilenamePattern = textbox_screenshotname.Text;
 			conf.OutputFileFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), combobox_primaryimageformat.Text);
 			conf.OutputFileCopyPathToClipboard = checkbox_copypathtoclipboard.Checked;

@@ -61,10 +61,21 @@ namespace Greenshot.Core {
 		}
 	}
 	
-	// Interface for 
-	public class IniSection {
-		// Flag to specify if values have been changed
+	/// <summary>
+	/// Base class for all IniSections
+	/// </summary>
+	public abstract class IniSection {
+		/// Flag to specify if values have been changed
 		public bool IsDirty = false;
+
+		/// <summary>
+		/// Supply values we can't put as defaults
+		/// </summary>
+		/// <param name="property">The property to return a default for</param>
+		/// <returns>string with the default value for the supplied property</returns>
+		public virtual string GetDefault(string property) {
+			return null;
+		}
 	}
 	
 	public class IniConfig {
@@ -179,8 +190,12 @@ namespace Greenshot.Core {
 						} else {
 							// Mark as dirty, we didn't use properties from the file (even defaults from the default file are allowed)
 							section.IsDirty = true;
-							propertyValue = iniPropertyAttribute.DefaultValue;
-							LOG.Debug("Using default property for " + propertyName + " : " + propertyValue);
+							if (iniPropertyAttribute.DefaultValue != null) {
+								propertyValue = iniPropertyAttribute.DefaultValue;
+							} else {
+								propertyValue = section.GetDefault(propertyName);
+							}
+							LOG.Debug("Using default: " + propertyName + "=" + propertyValue);
 						}
 
 						// Get the type, or the underlying type for nullables
