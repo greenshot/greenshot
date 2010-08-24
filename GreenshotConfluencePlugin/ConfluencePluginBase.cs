@@ -58,8 +58,6 @@ namespace GreenshotConfluencePlugin {
 			this.captureHost = captureHost;
 			this.myAttributes = myAttributes;
 			host.OnImageEditorOpen += new OnImageEditorOpenHandler(ImageEditorOpened);
-	
-			this.confluenceConnector = new ConfluenceConnector(host.ConfigurationPath);
 		}
 
 		public virtual void Shutdown() {
@@ -106,6 +104,9 @@ namespace GreenshotConfluencePlugin {
 			ToolStripMenuItem item = (ToolStripMenuItem)sender;
 			IImageEditor imageEditor = (IImageEditor)item.Tag;
 
+			if (confluenceConnector == null) {
+				this.confluenceConnector = new ConfluenceConnector();
+			}
 			ConfluenceForm confluenceForm = new ConfluenceForm(confluenceConnector);
 			confluenceForm.setFilename(host.GetFilename(OutputFormat.Png, imageEditor.CaptureDetails));
 			DialogResult result = confluenceForm.ShowDialog();

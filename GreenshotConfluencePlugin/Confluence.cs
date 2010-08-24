@@ -56,7 +56,7 @@ namespace Confluence {
         private ConfluenceSoapServiceService confluence;
         private Dictionary<string, string> userMap = new Dictionary<string, string>();
 
-        public ConfluenceConnector(string configurationPath) {
+        public ConfluenceConnector() {
         	this.config = IniConfig.GetIniSection<ConfluenceConfiguration>();
             confluence = new ConfluenceSoapServiceService();
             confluence.Url = config.Url;
