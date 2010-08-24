@@ -27,6 +27,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using Greenshot.Capturing;
+using Greenshot.Core;
 using Greenshot.Drawing;
 using Greenshot.Forms;
 using Greenshot.Plugin;
@@ -40,7 +41,7 @@ namespace PluginExample {
 		private IGreenshotPluginHost host;
 		private ICaptureHost captureHost = null;
 		private PluginAttribute myAttributes;
-		private bool testAnnotations = false;
+		private ExampleConfiguration config;
 
 		public PluginExample() {
 		}
@@ -61,6 +62,8 @@ namespace PluginExample {
 			this.host.OnImageEditorOpen += new OnImageEditorOpenHandler(ImageEditorOpened);
 			this.host.OnSurfaceFromCapture += new OnSurfaceFromCaptureHandler(SurfaceFromCapture);
 			this.host.OnImageOutput += new OnImageOutputHandler(ImageOutput);
+			
+			this.config = IniConfig.GetIniSection<ExampleConfiguration>();
 		}
 
 		public virtual void Shutdown() {
@@ -75,10 +78,10 @@ namespace PluginExample {
 		/// </summary>
 		public virtual void Configure() {
 			LOG.Debug("Configure called");
-			SettingsForm settingsForm = new SettingsForm(testAnnotations);
+			SettingsForm settingsForm = new SettingsForm(config.AddAnnotations);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
-				testAnnotations = settingsForm.TestAnnotations;
+				config.AddAnnotations = settingsForm.TestAnnotations;
 			}
 			settingsForm.Dispose();
 		}
@@ -118,10 +121,10 @@ namespace PluginExample {
 			ToolStripMenuItem item = (ToolStripMenuItem)sender;
 			IImageEditor imageEditor = (IImageEditor)item.Tag;
 			
-			string file = host.GetFilename("png", null);
+			string file = host.GetFilename(OutputFormat.Png, null);
 			string filePath = Path.Combine(host.ConfigurationPath,file);
 			using (FileStream stream = new FileStream(filePath, FileMode.Create)) {
-				imageEditor.SaveToStream(stream, "PNG", 100);
+				imageEditor.SaveToStream(stream, OutputFormat.Png, 100);
 			}
 			LOG.Debug("Saved test file to: " + filePath);
 		}
@@ -170,28 +173,87 @@ namespace PluginExample {
 		/// <param name="SurfaceFromCaptureEventArgs">Has the ICapture and ISurface</param>
 		public void SurfaceFromCapture(object sender, SurfaceFromCaptureEventArgs eventArgs) {
 			LOG.Debug("SurfaceFromCapture called");
-			if (!testAnnotations) {
+			if (!config.AddAnnotations) {
 				return;
 			}
 			ISurface surface = eventArgs.Surface;
 			
-			surface.SelectElement(surface.AddCursorContainer(Cursors.Hand, 100, 100));
-			// Do something with the screenshot
-			string title = eventArgs.Capture.CaptureDetails.Title;
-			if (title != null) {
-				LOG.Debug("Added title to surface: " + title);
-				surface.SelectElement(surface.AddTextContainer(title, HorizontalAlignment.Center, VerticalAlignment.CENTER,
-				                                               FontFamily.GenericSansSerif, 12f, false, false, false, 2, Color.Red, Color.White));
-				surface.SelectElement(surface.AddTextContainer(Environment.UserName, HorizontalAlignment.Right, VerticalAlignment.TOP,
-			                                                               FontFamily.GenericSansSerif, 12f, false, false, false, 2, Color.Red, Color.White));
-				surface.SelectElement(surface.AddTextContainer(Environment.MachineName, HorizontalAlignment.Right, VerticalAlignment.BOTTOM,
-				                                                               FontFamily.GenericSansSerif, 12f, false, false, false, 2, Color.Red, Color.White));
-				surface.SelectElement(surface.AddTextContainer(eventArgs.Capture.CaptureDetails.DateTime.ToLongDateString(), HorizontalAlignment.Left, VerticalAlignment.BOTTOM,
-				                                                               FontFamily.GenericSansSerif, 12f, false, false, false, 2, Color.Red, Color.White));
+			// Example, add a Cursor
+			//surface.SelectElement(surface.AddCursorContainer(Cursors.Hand, 100, 100));
 
-			} else {
-				LOG.Debug("No title available, doing nothing.");
+			DateTime captureTaken = DateTime.Now;
+			// Use default application name for title
+			string title = Application.ProductName;
+
+			// Check if we have capture details
+			if ( eventArgs.Capture.CaptureDetails != null) {
+				captureTaken = eventArgs.Capture.CaptureDetails.DateTime;
+				if (eventArgs.Capture.CaptureDetails.Title != null) {
+					title = eventArgs.Capture.CaptureDetails.Title;
+				}
 			}
+			foreach(Location location in config.annotations.Keys) {
+				string pattern = config.annotations[location];
+				pattern = pattern.Replace("%YYYY%",captureTaken.Year.ToString());
+				pattern = pattern.Replace("%MM%", zeroPad(captureTaken.Month.ToString(), 2));
+				pattern = pattern.Replace("%DD%", zeroPad(captureTaken.Day.ToString(), 2));
+				pattern = pattern.Replace("%hh%", zeroPad(captureTaken.Hour.ToString(), 2));
+				pattern = pattern.Replace("%mm%", zeroPad(captureTaken.Minute.ToString(), 2));
+				pattern = pattern.Replace("%ss%", zeroPad(captureTaken.Second.ToString(), 2));
+				pattern = pattern.Replace("%domain%", Environment.UserDomainName);
+				pattern = pattern.Replace("%user%", Environment.UserName);
+				pattern = pattern.Replace("%hostname%", Environment.MachineName);
+				pattern = pattern.Replace("%title%", title);
+				HorizontalAlignment hAlign = HorizontalAlignment.Center;
+				VerticalAlignment vAlign = VerticalAlignment.CENTER;
+				switch(location) {
+					case Location.TopLeft:
+						hAlign = HorizontalAlignment.Left;
+						vAlign = VerticalAlignment.TOP;
+						break;
+					case Location.TopCenter:
+						hAlign = HorizontalAlignment.Center;
+						vAlign = VerticalAlignment.TOP;
+						break;
+					case Location.TopRight:
+						hAlign = HorizontalAlignment.Right;
+						vAlign = VerticalAlignment.TOP;
+						break;
+
+					case Location.CenterLeft:
+						hAlign = HorizontalAlignment.Left;
+						vAlign = VerticalAlignment.CENTER;
+						break;
+					case Location.CenterCenter:
+						hAlign = HorizontalAlignment.Center;
+						vAlign = VerticalAlignment.CENTER;
+						break;
+					case Location.CenterRight:
+						hAlign = HorizontalAlignment.Right;
+						vAlign = VerticalAlignment.CENTER;
+						break;
+
+					case Location.BottomLeft:
+						hAlign = HorizontalAlignment.Left;
+						vAlign = VerticalAlignment.BOTTOM;
+						break;
+					case Location.BottomCenter:
+						hAlign = HorizontalAlignment.Center;
+						vAlign = VerticalAlignment.BOTTOM;
+						break;
+					case Location.BottomRight:
+						hAlign = HorizontalAlignment.Right;
+						vAlign = VerticalAlignment.BOTTOM;
+						break;
+				}
+				surface.SelectElement(surface.AddTextContainer(pattern, hAlign, vAlign,
+				                                               FontFamily.GenericSansSerif, 12f, false, false, false, 2, Color.Red, Color.White));
+			}
+		}
+				
+		private static string zeroPad(string input, int chars) {
+			while(input.Length < chars) input = "0" + input;
+			return input;
 		}
 	}
 }
