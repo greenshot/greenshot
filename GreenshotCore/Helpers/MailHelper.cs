@@ -30,6 +30,7 @@ using System.Windows.Forms;
 
 using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Plugin;
 using Microsoft.Win32;
 
@@ -76,8 +77,8 @@ namespace Greenshot.Helpers {
 		/// <param name="image">The image to send</param>
 		/// <param name="captureDetails">ICaptureDetails</param>
 		public static void SendImage(Image image, ICaptureDetails captureDetails) {
-			AppConfig conf = AppConfig.GetInstance();
-			string filename = FilenameHelper.GetFilenameFromPattern(conf.Output_File_FilenamePattern, conf.Output_File_Format, captureDetails);
+			CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+			string filename = FilenameHelper.GetFilenameFromPattern(conf.OutputFileFilenamePattern, conf.OutputFileFormat, captureDetails);
 			string tmpFile = Path.Combine(Path.GetTempPath(),filename);
 			LOG.Debug("Creating TMP File for Email: " + tmpFile);
 			

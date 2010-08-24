@@ -29,7 +29,7 @@ namespace Greenshot.Core {
 		Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail
 	}
 	public enum OutputFormat {
-		Bmp, Gif, Jepg, Png, Tiff
+		Bmp, Gif, Jpeg, Png, Tiff
 	}
 	/// <summary>
 	/// Description of CoreConfiguration.

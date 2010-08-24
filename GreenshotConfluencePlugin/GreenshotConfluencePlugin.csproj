@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfluenceConfiguration.cs" />
     <Compile Include="ConfluencePluginBase.cs" />
     <Compile Include="Forms\ConfluenceForm.cs" />
     <Compile Include="Forms\ConfluenceForm.Designer.cs">

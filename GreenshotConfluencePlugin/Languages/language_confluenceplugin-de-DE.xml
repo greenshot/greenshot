@@ -16,6 +16,9 @@
 	<resource name="label_password">
 		Password
 	</resource>
+	<resource name="label_no_password_store">
+		Kennwort nicht speichern
+	</resource>
   	<resource name="OK">
 		OK
 	</resource>

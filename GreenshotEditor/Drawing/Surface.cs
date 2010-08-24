@@ -30,6 +30,7 @@ using System.Windows.Forms;
 
 using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 using Greenshot.Helpers;
@@ -50,7 +51,6 @@ namespace Greenshot.Drawing {
 		
 		public FieldAggregator FieldAggregator = new FieldAggregator();
 		
-		private AppConfig conf = AppConfig.GetInstance();
 		private ICaptureDetails captureDetails = null;
 
 		private int mX;

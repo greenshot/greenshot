@@ -51,6 +51,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FlickrConfiguration.cs" />
     <Compile Include="FlickrPlugin.cs" />
     <Compile Include="Forms\FlickrAuthenticationForm.cs" />
     <Compile Include="Forms\FlickrAuthenticationForm.Designer.cs">

@@ -27,6 +27,7 @@ namespace GreenshotConfluencePlugin {
 		label_url,
 		label_user,
 		label_password,
+		label_no_password_store,
 		OK,
 		CANCEL,
 		upload_success,

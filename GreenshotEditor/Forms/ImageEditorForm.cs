@@ -291,7 +291,7 @@ namespace Greenshot.Forms {
 			get { return surface.CaptureDetails; }
 		}
 		
-		public void SaveToStream(Stream stream, string extension, int quality) {
+		public void SaveToStream(Stream stream, OutputFormat extension, int quality) {
 			using (Image image = surface.GetImageForExport()) {
 				ImageOutput.SaveToStream(image, stream, extension, quality);
 			}

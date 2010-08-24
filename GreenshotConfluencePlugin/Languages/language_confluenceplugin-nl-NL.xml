@@ -13,6 +13,9 @@
 	<resource name="label_password">
 		Password
 	</resource>
+	<resource name="label_no_password_store">
+		Het wachtwoord niet opslaan
+	</resource>
   	<resource name="login_title">
 		Geef uw Confluence login data
 	</resource>

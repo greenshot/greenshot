@@ -95,9 +95,6 @@ namespace Jira {
 
 	public class JiraConnector {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraConnector));
-		private const string JIRA_URL_PROPERTY = "url";
-		private const string JIRA_USER_PROPERTY = "user";
-		private const string JIRA_PASSWORD_PROPERTY = "password";
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.jira.rpc.exception.RemoteAuthenticationException";
         private string credentials = null;
         private DateTime loggedInTime = DateTime.Now;

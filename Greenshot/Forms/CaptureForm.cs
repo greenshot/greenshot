@@ -56,7 +56,7 @@ namespace Greenshot.Forms {
 		private bool mouseDown = false;
 		private Rectangle captureRect = Rectangle.Empty;
 		private ICapture capture = null;
-		private AppConfig conf = AppConfig.GetInstance();
+		private CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private ILanguage lang = Language.GetInstance();
 
 		public CaptureForm() {
@@ -70,10 +70,10 @@ namespace Greenshot.Forms {
 		}
 
 		void DoCaptureFeedback() {
-			if((bool)conf.Ui_Effects_CameraSound) {
+			if(conf.PlayCameraSound) {
 				SoundHelper.Play();
 			}
-			if((bool)conf.Ui_Effects_Flashlight) {
+			if(conf.ShowFlash) {
 				FlashlightForm flashlightForm = new FlashlightForm();
 				flashlightForm.Bounds = capture.ScreenBounds;
 				flashlightForm.FadeIn();
@@ -153,14 +153,14 @@ namespace Greenshot.Forms {
 			capture.CaptureDetails.CaptureMode = mode;
 
 			// Delay for the Context menu
-			System.Threading.Thread.Sleep(conf.Capture_Wait_Time);
+			System.Threading.Thread.Sleep(conf.CaptureDelay);
 
 			// Allways capture Mousecursor, only show when needed
 			capture = WindowCapture.CaptureCursor(capture);
 			capture.CursorVisible = false;
 			// Check if needed
 			if (captureMouseCursor && mode != CaptureMode.Clipboard && mode != CaptureMode.File) {
-				capture.CursorVisible = (conf.Capture_Mousepointer.HasValue && conf.Capture_Mousepointer.Value);
+				capture.CursorVisible = conf.CaptureMousepointer;
 			}
 
 			switch(mode) {
@@ -240,27 +240,27 @@ namespace Greenshot.Forms {
 		}
 
 		private ICapture AddConfiguredDestination(ICapture capture) {
-			if ((conf.Output_Destinations & ScreenshotDestinations.FileDefault) == ScreenshotDestinations.FileDefault) {
+			if (conf.OutputDestinations.Contains(Destination.FileDefault)) {
 				capture.CaptureDetails.AddDestination(CaptureDestination.File);
 			}
 
-			if ((conf.Output_Destinations & ScreenshotDestinations.FileWithDialog) == ScreenshotDestinations.FileWithDialog) {
+			if (conf.OutputDestinations.Contains(Destination.FileWithDialog)) {
 				capture.CaptureDetails.AddDestination(CaptureDestination.FileWithDialog);
 			}
 
-			if ((conf.Output_Destinations & ScreenshotDestinations.Clipboard) == ScreenshotDestinations.Clipboard) {
+			if (conf.OutputDestinations.Contains(Destination.Clipboard)) {
 				capture.CaptureDetails.AddDestination(CaptureDestination.Clipboard);
 			}
 
-			if ((conf.Output_Destinations & ScreenshotDestinations.Printer) == ScreenshotDestinations.Printer) {
+			if (conf.OutputDestinations.Contains(Destination.Printer)) {
 				capture.CaptureDetails.AddDestination(CaptureDestination.Printer);
 			}
 
-			if ((conf.Output_Destinations & ScreenshotDestinations.Editor) == ScreenshotDestinations.Editor) {
+			if (conf.OutputDestinations.Contains(Destination.Editor)) {
 				capture.CaptureDetails.AddDestination(CaptureDestination.Editor);
 			}
 
-			if ((conf.Output_Destinations & ScreenshotDestinations.EMail) == ScreenshotDestinations.EMail) {
+			if (conf.OutputDestinations.Contains(Destination.EMail)) {
 				capture.CaptureDetails.AddDestination(CaptureDestination.EMail);
 			}
 			return capture;
@@ -334,7 +334,7 @@ namespace Greenshot.Forms {
 				// or use the file that was written
 				bool fileWritten = false;
 				if (captureDestinations.Contains(CaptureDestination.File)) {
-					string filename = FilenameHelper.GetFilenameFromPattern(conf.Output_File_FilenamePattern, conf.Output_File_Format, captureDetails);
+					string filename = FilenameHelper.GetFilenameFromPattern(conf.OutputFileFilenamePattern, conf.OutputFileFormat, captureDetails);
 					fullPath = Path.Combine(conf.Output_File_Path,filename);
 					
 					// Catching any exception to prevent that the user can't write in the directory.
@@ -405,8 +405,6 @@ namespace Greenshot.Forms {
 		 * Finishing the whole Capture with Feedback flow, passing the result on to the HandleCapture
 		 */
 		private void finishCapture() {
-			bool fromWindow = (conf.Capture_Complete_Window.HasValue && conf.Capture_Complete_Window.Value);
-
 			// Get title
 			if (selectedCaptureWindow != null) {
 				if (capture == null) {
@@ -418,7 +416,7 @@ namespace Greenshot.Forms {
 			if ( (captureMode == CaptureMode.Window || captureMode == CaptureMode.ActiveWindow) && selectedCaptureWindow != null) {
 				Image capturedWindowImage = null;
 				// What type of capturing? (From Screen or from window)
-				if (fromWindow) {
+				if (conf.CaptureCompleteWindow) {
 					// "Capture" the windows content
 					capturedWindowImage = selectedCaptureWindow.Image;
 					if (capturedWindowImage != null) {
@@ -510,7 +508,7 @@ namespace Greenshot.Forms {
 				capture = WindowCapture.CaptureScreen(capture);
 				selectedCaptureWindow = new WindowDetails(hWnd);
 				// Content only
-				if ((conf.Capture_Window_Content.HasValue && conf.Capture_Window_Content.Value)) {
+				if (conf.CaptureWindowContent) {
 					// Print Tree for debugging
 					selectedCaptureWindow.PrintTree("");
 					WindowDetails contentWindow = selectedCaptureWindow.GetContent();
@@ -553,7 +551,7 @@ namespace Greenshot.Forms {
 				if (windowRectangle.Contains(Cursor.Position)) {
 					WindowDetails selectedChild = null;
 					// Content only
-					if ((conf.Capture_Window_Content.HasValue && conf.Capture_Window_Content.Value)) {
+					if (conf.CaptureWindowContent) {
 						WindowDetails childWindow = window.GetContent();
 						if (childWindow != null && childWindow.Rectangle.Contains(Cursor.Position)) {
 							return childWindow;

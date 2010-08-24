@@ -163,7 +163,7 @@ namespace GreenshotOCR {
 			if (eventArgs.Capture.Image == null) {
 				return;
 			}
-			string file = host.GetFilename("bmp", eventArgs.Capture.CaptureDetails);
+			string file = host.GetFilename(OutputFormat.Bmp, eventArgs.Capture.CaptureDetails);
 			string filePath = Path.Combine(Path.GetTempPath(),file);
 			
 			using (FileStream stream = File.Create(filePath)) {
@@ -177,10 +177,10 @@ namespace GreenshotOCR {
 							graphics.Clear(Color.White);
 							graphics.DrawImage(capturedImage, Point.Empty);
 						}
-						host.SaveToStream(tmpImage, stream, "bmp", 100);
+						host.SaveToStream(tmpImage, stream, OutputFormat.Bmp, 100);
 					}
 				} else {
-					host.SaveToStream(capturedImage, stream, "bmp", 100);
+					host.SaveToStream(capturedImage, stream, OutputFormat.Bmp, 100);
 				}
 			}
 		

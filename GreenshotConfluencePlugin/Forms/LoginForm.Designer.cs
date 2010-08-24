@@ -54,14 +54,16 @@ namespace GreenshotConfluencePlugin {
 			this.textBoxUser = new System.Windows.Forms.TextBox();
 			this.label_url = new System.Windows.Forms.Label();
 			this.textBoxUrl = new System.Windows.Forms.TextBox();
+			this.checkBoxDoNotStorePassword = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// textBoxPassword
 			// 
-			this.textBoxPassword.Location = new System.Drawing.Point(118, 73);
+			this.textBoxPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxPassword.Location = new System.Drawing.Point(102, 73);
 			this.textBoxPassword.Name = "textBoxPassword";
 			this.textBoxPassword.PasswordChar = '*';
-			this.textBoxPassword.Size = new System.Drawing.Size(190, 20);
+			this.textBoxPassword.Size = new System.Drawing.Size(276, 20);
 			this.textBoxPassword.TabIndex = 0;
 			this.textBoxPassword.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TextBoxPasswordKeyUp);
 			// 
@@ -69,13 +71,14 @@ namespace GreenshotConfluencePlugin {
 			// 
 			this.label_password.Location = new System.Drawing.Point(12, 73);
 			this.label_password.Name = "label_password";
-			this.label_password.Size = new System.Drawing.Size(100, 20);
+			this.label_password.Size = new System.Drawing.Size(84, 20);
 			this.label_password.TabIndex = 1;
 			this.label_password.Text = "Password";
 			// 
 			// buttonOK
 			// 
-			this.buttonOK.Location = new System.Drawing.Point(152, 102);
+			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonOK.Location = new System.Drawing.Point(222, 139);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 2;
@@ -85,7 +88,8 @@ namespace GreenshotConfluencePlugin {
 			// 
 			// buttonCancel
 			// 
-			this.buttonCancel.Location = new System.Drawing.Point(233, 102);
+			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonCancel.Location = new System.Drawing.Point(303, 139);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 3;
@@ -97,37 +101,50 @@ namespace GreenshotConfluencePlugin {
 			// 
 			this.label_user.Location = new System.Drawing.Point(12, 47);
 			this.label_user.Name = "label_user";
-			this.label_user.Size = new System.Drawing.Size(100, 20);
+			this.label_user.Size = new System.Drawing.Size(84, 20);
 			this.label_user.TabIndex = 5;
 			this.label_user.Text = "User";
 			// 
 			// textBoxUser
 			// 
-			this.textBoxUser.Location = new System.Drawing.Point(118, 47);
+			this.textBoxUser.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxUser.Location = new System.Drawing.Point(102, 47);
 			this.textBoxUser.Name = "textBoxUser";
-			this.textBoxUser.Size = new System.Drawing.Size(190, 20);
+			this.textBoxUser.Size = new System.Drawing.Size(276, 20);
 			this.textBoxUser.TabIndex = 4;
 			// 
 			// label_url
 			// 
 			this.label_url.Location = new System.Drawing.Point(12, 21);
 			this.label_url.Name = "label_url";
-			this.label_url.Size = new System.Drawing.Size(100, 20);
+			this.label_url.Size = new System.Drawing.Size(84, 20);
 			this.label_url.TabIndex = 7;
 			this.label_url.Text = "Url";
 			// 
 			// textBoxUrl
 			// 
-			this.textBoxUrl.Location = new System.Drawing.Point(118, 21);
+			this.textBoxUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxUrl.Location = new System.Drawing.Point(102, 21);
 			this.textBoxUrl.Name = "textBoxUrl";
-			this.textBoxUrl.Size = new System.Drawing.Size(190, 20);
+			this.textBoxUrl.Size = new System.Drawing.Size(276, 20);
 			this.textBoxUrl.TabIndex = 6;
+			// 
+			// checkBoxDoNotStorePassword
+			// 
+			this.checkBoxDoNotStorePassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.checkBoxDoNotStorePassword.Location = new System.Drawing.Point(102, 99);
+			this.checkBoxDoNotStorePassword.Name = "checkBoxDoNotStorePassword";
+			this.checkBoxDoNotStorePassword.Size = new System.Drawing.Size(276, 24);
+			this.checkBoxDoNotStorePassword.TabIndex = 8;
+			this.checkBoxDoNotStorePassword.Text = "Do not store the password";
+			this.checkBoxDoNotStorePassword.UseVisualStyleBackColor = true;
 			// 
 			// LoginForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(320, 139);
+			this.ClientSize = new System.Drawing.Size(387, 174);
+			this.Controls.Add(this.checkBoxDoNotStorePassword);
 			this.Controls.Add(this.label_url);
 			this.Controls.Add(this.textBoxUrl);
 			this.Controls.Add(this.label_user);
@@ -137,10 +154,11 @@ namespace GreenshotConfluencePlugin {
 			this.Controls.Add(this.label_password);
 			this.Controls.Add(this.textBoxPassword);
 			this.Name = "LoginForm";
-			this.Text = "Please enter your Confluence password";
+			this.Text = "Please enter your Confluence data";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.CheckBox checkBoxDoNotStorePassword;
 		private System.Windows.Forms.TextBox textBoxUrl;
 		private System.Windows.Forms.Label label_url;
 		private System.Windows.Forms.TextBox textBoxUser;
@@ -149,6 +167,5 @@ namespace GreenshotConfluencePlugin {
 		private System.Windows.Forms.TextBox textBoxPassword;
 		private System.Windows.Forms.Button buttonCancel;
 		private System.Windows.Forms.Button buttonOK;
-	
 	}
 }

@@ -36,13 +36,14 @@ namespace Greenshot.Configuration {
 	public class Language : LanguageContainer, ILanguage  {
 		private static ILanguage uniqueInstance;
 		private const string LANGUAGE_FILENAME_PATTERN = @"language-*.xml";
+		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public static ILanguage GetInstance() {
 			if(uniqueInstance == null) {
 				uniqueInstance = new LanguageContainer();
 				uniqueInstance.LanguageFilePattern = LANGUAGE_FILENAME_PATTERN;
 				uniqueInstance.Load();
-				uniqueInstance.SetLanguage(AppConfig.GetInstance().Ui_Language);
+				uniqueInstance.SetLanguage(conf.Language);
 				Thread.CurrentThread.CurrentUICulture = new CultureInfo(uniqueInstance.CurrentLanguage);
 			}
 			return uniqueInstance;

@@ -25,11 +25,14 @@ using System.Windows.Forms;
 
 using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Plugin;
 
 namespace Greenshot.Helpers {
 	public class FilenameHelper {
 		private const int MAX_TITLE_LENGTH = 80;
+		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+
 		private FilenameHelper() {
 		}
 		/// <summary>
@@ -82,22 +85,12 @@ namespace Greenshot.Helpers {
 			return FillPattern(pattern, captureDetails);
 		}
 
-		public static string GetFilenameFromPattern(string pattern, string imageFormat) {
+		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat) {
 			return GetFilenameFromPattern(pattern, imageFormat, null);
 		}
 
-		public static string GetFilenameFromPattern(string pattern, string imageFormat, ICaptureDetails captureDetails) {
-			string ext;
-			if (imageFormat.IndexOf('.') >= 0) {
-				ext = imageFormat.Substring(imageFormat.IndexOf('.')+1);
-			} else {
-				ext = imageFormat;
-			}
-			ext = ext.ToLower();
-			if(ext.Equals("jpeg")) {
-				ext = "jpg";
-			}
-			return FillPattern(pattern, captureDetails) + "." + ext;
+		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails) {
+			return FillPattern(pattern, captureDetails) + "." + imageFormat;
 		}
 		
 		private static string FillPattern(string initialPattern, ICaptureDetails captureDetails) {
@@ -127,9 +120,8 @@ namespace Greenshot.Helpers {
 			pattern = pattern.Replace("%user%", Environment.UserName);
 			pattern = pattern.Replace("%hostname%", Environment.MachineName);
 			if(pattern.Contains("%NUM%")) {
-			   	AppConfig conf = AppConfig.GetInstance();
-			   	int num = conf.Output_File_IncrementingNumber++;
-			   	conf.Store();
+			   	uint num = conf.OutputFileIncrementingNumber++;
+			   	IniConfig.Save();
 			   	pattern = pattern.Replace("%NUM%", zeroPad(num.ToString(), 6));
             }
 			// Use the last as it "might" have some nasty strings in it.

@@ -46,7 +46,7 @@ namespace Greenshot.Helpers {
 		public PrintHelper(Image image, ICaptureDetails captureDetails) {
 			this.image = image;
 			printDialog.UseEXDialog = true;
-			printDocument.DocumentName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(AppConfig.GetInstance().Output_File_FilenamePattern, captureDetails);
+			printDocument.DocumentName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, captureDetails);
 			printDocument.PrintPage += DrawImageForPrint;
 			printDialog.Document = printDocument;
 		}

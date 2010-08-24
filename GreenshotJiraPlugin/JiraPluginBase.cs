@@ -114,7 +114,7 @@ namespace GreenshotJiraPlugin {
 				DialogResult result = jiraForm.ShowDialog();
 				if (result == DialogResult.OK) {
 					using (MemoryStream stream = new MemoryStream()) {
-						imageEditor.SaveToStream(stream, "PNG", 100);
+						imageEditor.SaveToStream(stream, OutputFormat.Png, 100);
 						byte [] buffer = stream.GetBuffer();
 						try {
 							jiraForm.upload(buffer);

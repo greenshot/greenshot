@@ -29,6 +29,7 @@ using System.Windows.Forms;
 
 using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 
@@ -39,6 +40,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class ImageOutput {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageOutput));
+		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		private ImageOutput() {
 		}
@@ -47,36 +49,29 @@ namespace Greenshot.Helpers
 		/// <summary>
 		/// Saves image to stream with specified quality
 		/// </summary>
-		public static void SaveToStream(Image img, Stream stream, string extension, int quality) {
+		public static void SaveToStream(Image img, Stream stream, OutputFormat extension, int quality) {
 			ImageFormat imfo = null;
-
-			// Make sure the extension is always without "." in front
-			if (extension.IndexOf('.') == 0) {
-				extension = extension.Substring(1);
-			}
 			
-			// Make sure the extension is always lowercase, before comparing with "jpg"
-			if (extension.ToLower().Equals("jpg")) {
-				// we need jpeg string with e for reflection
-				extension = "jpeg";
-			}
-
-			// Get the extension and use it with the first character in uppercase
-			// for the GetProperty call
-			extension = extension.Substring(0, 1).ToUpper() + extension.Substring(1).ToLower();
-			try {
-				Type t = typeof(ImageFormat);
-				PropertyInfo pi = t.GetProperty(extension, typeof(ImageFormat));
-				imfo = (ImageFormat)pi.GetValue(null, null);
-			} catch (Exception e) {
-				MessageBox.Show(e.ToString());
-				MessageBox.Show("Could not use " + extension + " as image format. Using Jpeg.");
-				imfo = ImageFormat.Jpeg;
-				extension = imfo.ToString();
+			switch (extension) {
+				case OutputFormat.Bmp:
+					imfo = ImageFormat.Bmp;
+					break;
+				case OutputFormat.Gif:
+					imfo = ImageFormat.Gif;
+					break;
+				case OutputFormat.Jpeg:
+					imfo = ImageFormat.Jpeg;
+					break;
+				case OutputFormat.Png:
+					imfo = ImageFormat.Png;
+					break;
+				default:
+					imfo = ImageFormat.Png;
+					break;
 			}
 			PropertyItem pit = PropertyItemProvider.GetPropertyItem(0x0131, "Greenshot");
 			img.SetPropertyItem(pit);
-			if (extension.Equals("Jpeg")) {
+			if (imfo == ImageFormat.Jpeg) {
 				EncoderParameters parameters = new EncoderParameters(1);
 				parameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(Encoder.Quality, quality);
 				ImageCodecInfo[] ies = ImageCodecInfo.GetImageEncoders();
@@ -98,16 +93,25 @@ namespace Greenshot.Helpers
 			if (!di.Exists) {
 				Directory.CreateDirectory(di.FullName);
 			}
-
+			string extension = Path.GetExtension(fullPath);
+			if (extension != null && extension.StartsWith(".")) {
+				extension = extension.Substring(1);
+			}
+			OutputFormat format = OutputFormat.Png;
+			try {
+				format = (OutputFormat)Enum.Parse(typeof(OutputFormat), extension);
+			} catch(ArgumentException ae) {
+				LOG.Warn("Couldn't parse extension: " + extension, ae);
+			}
 			// Create the stream and call SaveToStream
 			using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) {
-				SaveToStream(image, stream, Path.GetExtension(fullPath), quality);
+				SaveToStream(image, stream, format, quality);
 			}
 			
 			// Inform all registered code (e.g. Plugins) of file output
 			PluginHelper.instance.CreateImageOutputEvent(fullPath, image, captureDetails);
 			
-			if ((bool)AppConfig.GetInstance().Output_File_CopyPathToClipboard) {
+			if (conf.OutputFileCopyPathToClipboard) {
 				ClipboardHelper.SetClipboardData(fullPath);
 			}
 		}
@@ -118,7 +122,6 @@ namespace Greenshot.Helpers
 		/// <param name="img">the image to save</param>
 		/// <param name="fullPath">the absolute destination path including file name</param>
 		public static void Save(Image img, string fullPath, ICaptureDetails captureDetails) {
-			AppConfig conf = AppConfig.GetInstance();
 			int q;
 			
 			// Fix for bug 2912959
@@ -128,12 +131,12 @@ namespace Greenshot.Helpers
 				isJPG = "JPG".Equals(extension.ToUpper()) || "JPEG".Equals(extension.ToUpper());
 			}
 			
-			if(isJPG && (bool)conf.Output_File_PromptJpegQuality) {
+			if(isJPG && conf.OutputFilePromptJpegQuality) {
 				JpegQualityDialog jqd = new JpegQualityDialog();
 				jqd.ShowDialog();
 				q = jqd.Quality;
 			} else {
-				q = AppConfig.GetInstance().Output_File_JpegQuality;
+				q = conf.OutputFileJpegQuality;
 			}
 			Save(img, fullPath, q, captureDetails);
 		}
@@ -147,7 +150,6 @@ namespace Greenshot.Helpers
 
 		public static string SaveWithDialog(Image image, ICaptureDetails captureDetails) {
 			string returnValue = null;
-			AppConfig conf = AppConfig.GetInstance();
 			SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails);
 			DialogResult dialogResult = saveImageFileDialog.ShowDialog();
 			if(dialogResult.Equals(DialogResult.OK)) {
@@ -156,7 +158,7 @@ namespace Greenshot.Helpers
 					ImageOutput.Save(image, fileNameWithExtension, captureDetails);
 					returnValue = fileNameWithExtension;
 					conf.Output_FileAs_Fullpath = fileNameWithExtension;
-					conf.Store();
+					IniConfig.Save();
 				} catch(System.Runtime.InteropServices.ExternalException) {
 					MessageBox.Show(Language.GetInstance().GetFormattedString(LangKey.error_nowriteaccess,saveImageFileDialog.FileName).Replace(@"\\",@"\"), Language.GetInstance().GetString(LangKey.error));
 					//eagerlyCreatedDir = null;

@@ -19,11 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using NUnit.Framework;
 using System.Windows.Forms;
-using Greenshot.Forms;
 using Greenshot.Configuration;
-
+using Greenshot.Core;
+using Greenshot.Forms;
+using NUnit.Framework;
 
 namespace Greenshot.Test
 {
@@ -62,12 +62,12 @@ namespace Greenshot.Test
 		
 		[Test]
 		public void SuggestBasicFileNameTest() {
-			AppConfig conf = AppConfig.GetInstance();
+			CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 			//conf.Output_FileAs_Fullpath = @"c:\path\to\greenshot_testdir\gstest_28.jpg";
 			conf.Output_File_Path = @"c:\path\to\greenshot_testdir\";
-			conf.Output_File_FilenamePattern = "gstest_%NUM%";
-			conf.Output_File_Format = "Jpeg";
-			conf.Output_File_IncrementingNumber = 28;
+			conf.OutputFileFilenamePattern = "gstest_%NUM%";
+			conf.OutputFileFormat = OutputFormat.Jpeg;
+			conf.OutputFileIncrementingNumber = 28;
 			SaveImageFileDialog sifd = new SaveImageFileDialog();
 			
 			Assert.AreEqual(sifd.InitialDirectory, @"c:\path\to\greenshot_testdir");

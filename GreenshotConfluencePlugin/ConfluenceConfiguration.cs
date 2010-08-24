@@ -24,19 +24,19 @@ using System.Windows.Forms;
 
 using Greenshot.Core;
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotConfluencePlugin {
 	/// <summary>
-	/// Description of JiraConfiguration.
+	/// Description of ConfluenceConfiguration.
 	/// </summary>
-	[IniSection("Jira", Description="Greenshot Jira Plugin configuration")]
-	public class JiraConfiguration : IniSection {
-		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue="http://jira/rpc/soap/jirasoapservice-v2?wsdl")]
+	[IniSection("Confluence", Description="Greenshot Confluence Plugin configuration")]
+	public class ConfluenceConfiguration : IniSection {
+		[IniProperty("Url", Description="Url to Confluence system, including wsdl.", DefaultValue="http://confluence/rpc/soap-axis/confluenceservice-v1?wsdl")]
 		public string Url;
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
 		public int Timeout;
-		[IniProperty("User", Description="User for the Jira System")]
+		[IniProperty("User", Description="User for the Confluence System")]
 		public string User;
-		[IniProperty("Password", Description="Password for the Jira System, belonging to user.")]
+		[IniProperty("Password", Description="Password for the Confluence System, belonging to user.")]
 		public string Password;
 		
 		// This will not be stored

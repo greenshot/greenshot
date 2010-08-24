@@ -19,11 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.ComponentModel;
 using System.Windows.Forms;
+
 using Greenshot.Configuration;
+using Greenshot.Core;
+using Greenshot.Editor;
 
 namespace Greenshot.Controls {
 	public class ColorButton : ToolStripButton, INotifyPropertyChanged {
@@ -68,9 +71,9 @@ namespace Greenshot.Controls {
 			colorDialog.ShowDialog();
 			if (colorDialog.DialogResult != DialogResult.Cancel) {
 				if(!colorDialog.Color.Equals(SelectedColor)) {
-					AppConfig conf = AppConfig.GetInstance();
+					EditorConfiguration conf = IniConfig.GetIniSection<EditorConfiguration>();
 					conf.Editor_RecentColors = colorDialog.RecentColors;
-					conf.Store();
+					IniConfig.Save();
 					SelectedColor = colorDialog.Color;
 					if(PropertyChanged != null) {
 						PropertyChanged(this, new PropertyChangedEventArgs("SelectedColor"));

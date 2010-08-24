@@ -24,6 +24,7 @@ using System.IO;
 using System.Windows.Forms;
 
 using Greenshot.Capturing;
+using Greenshot.Core;
 using Greenshot.Drawing;
 
 namespace Greenshot.Forms {
@@ -52,7 +53,7 @@ namespace Greenshot.Forms {
 		/// <param name="stream">The stream the image is stored on</param>
 		/// <param name="extension">The image type (extension), e.g. "png", "jpg", "bmp"</param>
 		/// <param name="quality">Only needed for "jpg"</param>
-		void SaveToStream(Stream stream, string extension, int quality);
+		void SaveToStream(Stream stream, OutputFormat extension, int quality);
 		
 		/// <summary>
 		/// Get the ToolStripMenuItem where plugins can place their Menu entrys

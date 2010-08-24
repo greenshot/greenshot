@@ -13,6 +13,9 @@
 	<resource name="label_password">
 		Password
 	</resource>
+	<resource name="label_no_password_store">
+		Do not store the password
+	</resource>
   	<resource name="login_title">
 		Please enter your Confluence login data
 	</resource>

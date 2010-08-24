@@ -25,6 +25,7 @@ using System.IO;
 using System.Windows.Forms;
 
 using Greenshot.Capturing;
+using Greenshot.Core;
 using Greenshot.Drawing;
 using Greenshot.Forms;
 
@@ -170,7 +171,7 @@ namespace Greenshot.Plugin {
 		/// <param name="stream">The Stream to save to</param>
 		/// <param name="format">The format to save with (png, jpg etc)</param>
 		/// <param name="quality">Jpeg quality</param>
-		void SaveToStream(Image image, Stream stream, string format, int quality);
+		void SaveToStream(Image image, Stream stream, OutputFormat format, int quality);
 		
 		/// <summary>
 		/// Return a filename for the current image format (png,jpg etc) with the default file pattern
@@ -178,7 +179,7 @@ namespace Greenshot.Plugin {
 		/// </summary>
 		/// <param name="format">A string with the format</param>
 		/// <returns>The filename which should be used to save the image</returns>
-		string GetFilename(string format, ICaptureDetails captureDetails);
+		string GetFilename(OutputFormat format, ICaptureDetails captureDetails);
 		
 		/// <summary>
 		/// Create a Thumbnail

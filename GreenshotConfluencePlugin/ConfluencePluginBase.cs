@@ -72,10 +72,7 @@ namespace GreenshotConfluencePlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.AppendLine("This plugin doesn't have a configuration screen.");
-			stringBuilder.AppendLine("Configuration is stored at: " + Path.Combine(host.ConfigurationPath, ConfluenceConnector.CONFIG_FILENAME));
-			MessageBox.Show(stringBuilder.ToString());
+			IniConfig.GetIniSection<ConfluenceConfiguration>().ShowConfigDialog();
 		}
 
 		/// <summary>
@@ -110,21 +107,21 @@ namespace GreenshotConfluencePlugin {
 			IImageEditor imageEditor = (IImageEditor)item.Tag;
 
 			ConfluenceForm confluenceForm = new ConfluenceForm(confluenceConnector);
-			confluenceForm.setFilename(host.GetFilename("png", imageEditor.CaptureDetails));
+			confluenceForm.setFilename(host.GetFilename(OutputFormat.Png, imageEditor.CaptureDetails));
 			DialogResult result = confluenceForm.ShowDialog();
 			if (result == DialogResult.OK) {
 				using (MemoryStream stream = new MemoryStream()) {
-					imageEditor.SaveToStream(stream, "PNG", 100);
+					imageEditor.SaveToStream(stream, OutputFormat.Png, 100);
 					byte [] buffer = stream.GetBuffer();
 					try {
 						confluenceForm.upload(buffer);
+						LOG.Debug("Uploaded to Confluence.");
 						MessageBox.Show(lang.GetString(LangKey.upload_success));
 					} catch(Exception e) {
 						MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
 					}
 				}
 			}
-			LOG.Debug("Uploaded to Confluence.");
 		}
 	}
 }

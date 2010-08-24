@@ -137,44 +137,35 @@ namespace Greenshot {
 						}
 						StringBuilder helpOutput = new StringBuilder();
 						helpOutput.AppendLine();
-						if (argumentNr + 1 < args.Length && args[argumentNr + 1].ToLower().Equals("configure")) {
-							helpOutput.AppendLine("Available configuration settings:");
-							
-							Properties properties = AppConfig.GetAvailableProperties();
-							foreach(string key in properties.Keys) {
-								helpOutput.AppendLine("\t\t" + key + "=" + properties.GetProperty(key));
-							}
-						} else {
-							helpOutput.AppendLine("Greenshot commandline options:");
-							helpOutput.AppendLine();
-							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t/help");
-							helpOutput.AppendLine("\t\tThis help.");
-							helpOutput.AppendLine();
-							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t/help configure");
-							helpOutput.AppendLine("\t\tA detailed listing of available settings for the configure command.");
-							helpOutput.AppendLine();
-							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t/exit");
-							helpOutput.AppendLine("\t\tTries to close all running instances.");
-							helpOutput.AppendLine();
-							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t/configure [property=value] [property=value] ...");
-							helpOutput.AppendLine("\t\tChange the configuration of Greenshot via the commandline.");
-							helpOutput.AppendLine("\t\tExample to change the language to English: greenshot.exe /configure Ui_Language=en-US");
-							helpOutput.AppendLine("\t\tExample to change the destination: greenshot.exe /configure Output_File_Path=\"C:\\Documents and Settings\\\"");
-							helpOutput.AppendLine();
-							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t/openfile [filename]");
-							helpOutput.AppendLine("\t\tOpen the bitmap file in the running Greenshot instance or start a new instance");
-							helpOutput.AppendLine();
-							helpOutput.AppendLine();
-							helpOutput.AppendLine("\t/norun");
-							helpOutput.AppendLine("\t\tCan be used if someone only wants to change the configuration.");
-							helpOutput.AppendLine("\t\tAs soon as this option is found Greenshot exits if not and there is no running instance it will stay running.");
-							helpOutput.AppendLine("\t\tExample: greenshot.exe /configure Output_File_Path=\"C:\\Documents and Settings\\\" --exit");
-						}
+						helpOutput.AppendLine("Greenshot commandline options:");
+						helpOutput.AppendLine();
+						helpOutput.AppendLine();
+						helpOutput.AppendLine("\t/help");
+						helpOutput.AppendLine("\t\tThis help.");
+						helpOutput.AppendLine();
+						helpOutput.AppendLine();
+						helpOutput.AppendLine("\t/help configure");
+						helpOutput.AppendLine("\t\tA detailed listing of available settings for the configure command.");
+						helpOutput.AppendLine();
+						helpOutput.AppendLine();
+						helpOutput.AppendLine("\t/exit");
+						helpOutput.AppendLine("\t\tTries to close all running instances.");
+						helpOutput.AppendLine();
+						helpOutput.AppendLine();
+						helpOutput.AppendLine("\t/configure [property=value] [property=value] ...");
+						helpOutput.AppendLine("\t\tChange the configuration of Greenshot via the commandline.");
+						helpOutput.AppendLine("\t\tExample to change the language to English: greenshot.exe /configure Ui_Language=en-US");
+						helpOutput.AppendLine("\t\tExample to change the destination: greenshot.exe /configure Output_File_Path=\"C:\\Documents and Settings\\\"");
+						helpOutput.AppendLine();
+						helpOutput.AppendLine();
+						helpOutput.AppendLine("\t/openfile [filename]");
+						helpOutput.AppendLine("\t\tOpen the bitmap file in the running Greenshot instance or start a new instance");
+						helpOutput.AppendLine();
+						helpOutput.AppendLine();
+						helpOutput.AppendLine("\t/norun");
+						helpOutput.AppendLine("\t\tCan be used if someone only wants to change the configuration.");
+						helpOutput.AppendLine("\t\tAs soon as this option is found Greenshot exits if not and there is no running instance it will stay running.");
+						helpOutput.AppendLine("\t\tExample: greenshot.exe /configure Output_File_Path=\"C:\\Documents and Settings\\\" --exit");
 						Console.WriteLine(helpOutput.ToString());
 
 						// If attach didn't work, wait for key otherwise the console will close to quickly
@@ -371,7 +362,7 @@ namespace Greenshot {
 						exit();
 						break;
 					case CommandEnum.ReloadConfig:
-						AppConfig.Reload();
+						// TODO: Reload the configuration
 						// Even update language when needed
 						UpdateUI();
 						break;

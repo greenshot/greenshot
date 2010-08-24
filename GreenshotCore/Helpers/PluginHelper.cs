@@ -28,6 +28,7 @@ using System.Windows.Forms;
 
 using Greenshot.Capturing;
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Drawing;
 using Greenshot.Forms;
 using Greenshot.Plugin;
@@ -130,13 +131,13 @@ namespace Greenshot.Helpers {
 		public event OnImageOutputHandler OnImageOutput;
 		private ContextMenuStrip mainMenu = null;
 
-		public void SaveToStream(Image img, Stream stream, string extension, int quality) {
+		public void SaveToStream(Image img, Stream stream, OutputFormat extension, int quality) {
 			ImageOutput.SaveToStream(img, stream, extension, quality);
 		}
 		
-		public string GetFilename(string format, ICaptureDetails captureDetails) {
-			AppConfig conf = AppConfig.GetInstance();
-			return FilenameHelper.GetFilenameFromPattern(conf.Output_File_FilenamePattern, format, captureDetails);
+		public string GetFilename(OutputFormat format, ICaptureDetails captureDetails) {
+			CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+			return FilenameHelper.GetFilenameFromPattern(conf.OutputFileFilenamePattern, format, captureDetails);
 		}
 		
 		/// <summary>

@@ -41,17 +41,15 @@ namespace GreenshotFlickrPlugin {
 	/// </summary>
 	public class FlickrPlugin : IGreenshotPlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FlickrPlugin));
-		private const string CONFIG_FILENAME = "flickr-config.properties";
-		private const string AUTHENTICATION_TOKEN_PROPERTY = "authentication.token";
 		private const string ApiKey = "f967e5148945cb3c4e149cc5be97796a";
 		private const string SharedSecret = "4180a21a1d2f8666";
 		private ILanguage lang = Language.GetInstance();
 		private IGreenshotPluginHost host;
 		private ICaptureHost captureHost = null;
 		private PluginAttribute myAttributes;
-		private Properties config = null;
+		private FlickrConfiguration config;
 
-		public FlickrPlugin() { }
+		public FlickrPlugin() {}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
@@ -70,7 +68,7 @@ namespace GreenshotFlickrPlugin {
 			// Make sure the MODI-DLLs are found by adding a resolver
 			AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(MyAssemblyResolver);
 
-			LoadConfig();
+			this.config = IniConfig.GetIniSection<FlickrConfiguration>();
 		}
 
 		/// <summary>
@@ -100,12 +98,11 @@ namespace GreenshotFlickrPlugin {
 		public virtual void Configure() {
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.AppendLine("This plugin doesn't have a configuration screen.");
-			stringBuilder.AppendLine("Configuration is stored at: " + Path.Combine(host.ConfigurationPath, CONFIG_FILENAME));
 			MessageBox.Show(stringBuilder.ToString());
 		}
 
 		/// <summary>
-		/// This method helps to resolve the MODI DLL files
+		/// This method helps to resolve the Flickr DLL file
 		/// </summary>
 		/// <param name="sender">object which is starting the resolve</param>
 		/// <param name="args">ResolveEventArgs describing the Assembly that needs to be found</param>
@@ -120,24 +117,6 @@ namespace GreenshotFlickrPlugin {
 			return null;
 		}
 
-		private void LoadConfig() {
-			string filename = Path.Combine(host.ConfigurationPath, CONFIG_FILENAME);
-			if (File.Exists(filename)) {
-				config = Properties.read(filename);
-			} else {
-				LOG.Debug("No flickr configuration found at: " + filename);
-			}
-			if (config == null) {
-				config = new Properties();
-			}
-		}
-
-		private void SaveConfig() {
-			string filename = Path.Combine(host.ConfigurationPath, CONFIG_FILENAME);
-			LOG.Debug("Saving configuration to: " + filename);
-			config.write(filename, "# The configuration file for the Greenshot Flickr Plugin");
-		}
-
 		/// <summary>
 		/// This will be called when the menu item in the Editor is clicked
 		/// </summary>
@@ -147,7 +126,7 @@ namespace GreenshotFlickrPlugin {
 			bool authentication = false;
 				
 			Flickr flickr = new Flickr(ApiKey, SharedSecret);
-			if(config.GetProperty(AUTHENTICATION_TOKEN_PROPERTY) == null) {
+			if(config.Token == null) {
 				string frob = flickr.AuthGetFrob();
 				// Calculate the URL at Flickr to redirect the user to
 				string flickrUrl = flickr.AuthCalcUrl(frob, AuthLevel.Write);
@@ -164,8 +143,8 @@ namespace GreenshotFlickrPlugin {
 						LOG.Debug("User id is " + auth.User.UserId);
 						LOG.Debug("User name is " + auth.User.UserName);
 						LOG.Debug("User fullname is " + auth.User.FullName);
-						config.AddProperty(AUTHENTICATION_TOKEN_PROPERTY, auth.Token);
-						SaveConfig();
+						config.Token = auth.Token;
+						IniConfig.Save();
 						authentication = true;
 					} catch (FlickrException ex) {
 						// If user did not authenticat your application 
@@ -181,12 +160,12 @@ namespace GreenshotFlickrPlugin {
 				MessageBox.Show("No Authentication made!");
 				return;
 			}
-			flickr.AuthToken = config.GetProperty(AUTHENTICATION_TOKEN_PROPERTY);
+			flickr.AuthToken = config.Token;
 			FlickrUploadForm uploader = new FlickrUploadForm();
 			DialogResult uploaderResult = uploader.ShowDialog();
 			if (uploaderResult == DialogResult.OK) {
 				using (MemoryStream stream = new MemoryStream()) {
-					imageEditor.SaveToStream(stream, "PNG", 100);
+					imageEditor.SaveToStream(stream, OutputFormat.Png, 100);
 					stream.Seek(0, SeekOrigin.Begin);
 					try {
 						string file = "test.png";
