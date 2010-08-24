@@ -99,13 +99,17 @@ namespace Greenshot.Core {
 		/// Supply values we can't put as defaults
 		/// </summary>
 		/// <param name="property">The property to return a default for</param>
-		/// <returns>string with the default value for the supplied property</returns>
-		public override string GetDefault(string property) {
+		/// <returns>object with the default value for the supplied property</returns>
+		public override object GetDefault(string property) {
 			switch(property) {
 				case "OutputFileAsFullpath":
 					return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"dummy.png");
 				case "OutputFilePath":
 					return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+				case "Test":
+					Dictionary<string, bool> testvalues = new Dictionary<string, bool>();
+					testvalues.Add("Robin", true);
+					return testvalues; 
 			}
 			return null;
 		}

@@ -72,8 +72,8 @@ namespace Greenshot.Core {
 		/// Supply values we can't put as defaults
 		/// </summary>
 		/// <param name="property">The property to return a default for</param>
-		/// <returns>string with the default value for the supplied property</returns>
-		public virtual string GetDefault(string property) {
+		/// <returns>object with the default value for the supplied property</returns>
+		public virtual object GetDefault(string property) {
 			return null;
 		}
 	}
@@ -184,19 +184,26 @@ namespace Greenshot.Core {
 						IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)field.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
 						string propertyName = iniPropertyAttribute.Name;
 						string propertyDefaultValue = iniPropertyAttribute.DefaultValue;
-						if (propertyDefaultValue == null) {
-							propertyDefaultValue = section.GetDefault(propertyName);
-						}
 
 						string propertyValue = null;
 						// Get the value from the ini file, if there is none take the default
 						if (properties != null && properties.ContainsKey(propertyName)) {
 							propertyValue = properties[propertyName];
-						} else {
+						} else if (propertyDefaultValue != null) {
 							// Mark as dirty, we didn't use properties from the file (even defaults from the default file are allowed)
 							section.IsDirty = true;
 							propertyValue = propertyDefaultValue;
 							LOG.Debug("Using default: " + propertyName + "=" + propertyValue);
+						} else if (propertyValue == null) {
+							// Use GetDefault to fill the field if none is set
+							object defaultValue = section.GetDefault(propertyName);
+							if (defaultValue != null) {
+								field.SetValue(section, defaultValue);
+								continue;
+							} else {
+								LOG.Debug("No default value, setting to null");
+								continue;
+							}
 						}
 
 						// Get the type, or the underlying type for nullables

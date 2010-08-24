@@ -71,9 +71,7 @@ namespace GreenshotOCR {
 			
 			// Load configuration
 			config = IniConfig.GetIniSection<OCRConfiguration>();
-			if (config.IsDirty) {
-				IniConfig.Save();
-			}
+
 			this.host.RegisterHotKey(3, 0x2C, new HotKeyHandler(MyHotkeyHandler));
 
 			// Here we can hang ourselves to the main context menu!

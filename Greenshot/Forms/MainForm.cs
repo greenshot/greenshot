@@ -327,6 +327,9 @@ namespace Greenshot {
 
 			// Load all the plugins
 			PluginHelper.instance.LoadPlugins(this.contextMenu, captureForm);
+			// Making sure changes are written
+			IniConfig.Save();
+
 			PluginHelper.instance.OnImageOutput += new OnImageOutputHandler(ImageWritten);
 			SoundHelper.Initialize();
 

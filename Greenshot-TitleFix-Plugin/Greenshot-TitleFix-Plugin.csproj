@@ -47,8 +47,9 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FixTitle.cs" />
+    <Compile Include="TitleFix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TitleFixConfiguration.cs" />
     <None Include="Properties\AssemblyInfo.cs.template" />
   </ItemGroup>
   <PropertyGroup>

@@ -29,23 +29,19 @@ using Greenshot.Capturing;
 using Greenshot.Core;
 using Greenshot.Plugin;
 
-namespace FixTitle {
+namespace TitleFix {
 	/// <summary>
 	/// An example Plugin so developers can see how they can develop their own plugin
 	/// </summary>
-	public class FixTitle : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FixTitle));
-		private const string CONFIG_FILE_NAME = "titlefix.properties";
-		private const string ACTIVE_PROPERTY = "active";
-		private const string REGEXP_PROPERTY = ".regexp";
-		private const string REPLACE_PROPERTY = ".replace";
+	public class TitleFix : IGreenshotPlugin {
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(TitleFix));
 
 		private IGreenshotPluginHost host;
 		private ICaptureHost captureHost = null;
 		private PluginAttribute myAttributes;
-		private Properties config = null;
+		private TitleFixConfiguration config = null;
 
-		public FixTitle() {
+		public TitleFix() {
 		}
 
 		/// <summary>
@@ -61,14 +57,29 @@ namespace FixTitle {
 			this.captureHost = captureHost;
 			this.myAttributes = myAttributes;
 
-			LoadConfig();
+			this.config = IniConfig.GetIniSection<TitleFixConfiguration>();
+
+			// check configuration
+			List<string> corruptKeys = new List<string>();
+			foreach(string key in config.active) {
+				if (!config.matchers.ContainsKey(key) || !config.matchers.ContainsKey(key)) {
+					LOG.Warn("Key " + key + " not found, configuration is broken! Disabling this key!");
+					corruptKeys.Add(key);
+				}
+			}
 			
-			if (config != null) {
-				this.host.OnCaptureTaken += new OnCaptureTakenHandler(CaptureTaken);
-			} else {
-				LOG.Warn("Not registering FixTitle plugin due to missing configuration");
+			// Fix configuration if needed
+			if(corruptKeys.Count > 0) {
+				foreach(string corruptKey in corruptKeys) {
+					// Removing any reference to the key
+					config.active.Remove(corruptKey);
+					config.matchers.Remove(corruptKey);
+					config.replacers.Remove(corruptKey);
+				}
+				config.IsDirty = true;
 			}
 
+			this.host.OnCaptureTaken += new OnCaptureTakenHandler(CaptureTaken);
 		}
 
 		public virtual void Shutdown() {
@@ -91,9 +102,9 @@ namespace FixTitle {
 			LOG.Debug("Title before: " + title);
 			if (title != null && title.Length > 0) {
 				title = title.Trim();
-				foreach(string titleIdentifier in config.GetPropertyAsArray(ACTIVE_PROPERTY)) {
-					string regexpString = config.GetProperty(titleIdentifier + REGEXP_PROPERTY);
-					string replaceString = config.GetProperty(titleIdentifier + REPLACE_PROPERTY);
+				foreach(string titleIdentifier in config.active) {
+					string regexpString = config.matchers[titleIdentifier];
+					string replaceString = config.replacers[titleIdentifier];
 					if (regexpString != null && regexpString.Length > 0) {
 						Regex regex = new Regex(regexpString);
 						title = regex.Replace(title, replaceString);
@@ -102,27 +113,6 @@ namespace FixTitle {
 			}
 			LOG.Debug("Title after: " + title);
 			eventArgs.Capture.CaptureDetails.Title = title;
-		}
-		
-		private void LoadConfig() {
-			string configfilename = Path.Combine(host.ConfigurationPath, CONFIG_FILE_NAME);
-			if (File.Exists(configfilename)) {
-				config = Properties.read(configfilename);
-			} else {
-				config = new Properties();
-			}
-			// Check if we have a configuration
-			if (!config.ContainsKey(ACTIVE_PROPERTY)) {
-				// Create default with FireFox
-				config.AddProperty("Firefox"+REGEXP_PROPERTY, " - Mozilla Firefox.*");
-				config.AddProperty("Firefox"+REPLACE_PROPERTY, "");
-				// and IE
-				config.AddProperty("IE"+REGEXP_PROPERTY, " - Microsoft Internet Explorer.*");
-				config.AddProperty("IE"+REPLACE_PROPERTY, "");
-				// Activate both
-				config.AddProperty(ACTIVE_PROPERTY, "IE,Firefox");
-				config.write(configfilename);
-			}
 		}
 	}
 }
