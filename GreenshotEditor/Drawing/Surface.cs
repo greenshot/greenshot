@@ -370,22 +370,23 @@ namespace Greenshot.Drawing {
 //		}
 		#endregion
 
-		void ApplyCrop() {
-			Rectangle r = cropContainer.Bounds;
-			r = Helpers.GuiRectangle.GetGuiRectangle(r.Left, r.Top, r.Width, r.Height);
-			if (r.Left < 0) r = new Rectangle(0, r.Top, r.Width + r.Left, r.Height);
-			if (r.Top < 0) r = new Rectangle(r.Left, 0, r.Width, r.Height + r.Top);
-			if (r.Left + r.Width > Width) r = new Rectangle(r.Left, r.Top, Width - r.Left, r.Height);
-			if (r.Top + r.Height > Height) r = new Rectangle(r.Left, r.Top, r.Width, Height - r.Top);
+		bool ApplyCrop(Rectangle cropRectangle) {
+			cropRectangle = Helpers.GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
+			if (cropRectangle.Left < 0) cropRectangle = new Rectangle(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
+			if (cropRectangle.Top < 0) cropRectangle = new Rectangle(cropRectangle.Left, 0, cropRectangle.Width, cropRectangle.Height + cropRectangle.Top);
+			if (cropRectangle.Left + cropRectangle.Width > Width) cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, Width - cropRectangle.Left, cropRectangle.Height);
+			if (cropRectangle.Top + cropRectangle.Height > Height) cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Height - cropRectangle.Top);
 
-			if (r.Height > 0 && r.Width > 0) {
+			if (cropRectangle.Height > 0 && cropRectangle.Width > 0) {
 				// we should not forget to Dispose the images!!
-				using (Bitmap tmpImage = ((Bitmap)originalImage).Clone(r, originalImage.PixelFormat)) {
+				using (Bitmap tmpImage = ((Bitmap)originalImage).Clone(cropRectangle, originalImage.PixelFormat)) {
 					tmpImage.SetResolution(originalImage.HorizontalResolution, originalImage.VerticalResolution);
 					SetImage(tmpImage);
-					elements.MoveBy(-r.Left, -r.Top);
+					elements.MoveBy(-cropRectangle.Left, -cropRectangle.Top);
 				}
+				return true;
 			}
+			return false;
 		}
 		
 		void SurfaceMouseDown(object sender, MouseEventArgs e) {
@@ -616,11 +617,11 @@ namespace Greenshot.Drawing {
 			List<DrawableContainer> selectedDCs = new List<DrawableContainer>(selectedElements);
 			foreach(DrawableContainer dc in selectedDCs){
 				if(dc.Equals(cropContainer)){
-					if(confirm) {
-						ApplyCrop();
-					}
 					DrawingMode = DrawingModes.None;
 					RemoveElement(cropContainer);
+					if(confirm) {
+						ApplyCrop(cropContainer.Bounds);
+					}
 					cropContainer.Dispose();
 				}
 			}
