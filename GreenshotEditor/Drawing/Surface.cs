@@ -104,14 +104,21 @@ namespace Greenshot.Drawing {
 		}
 		
 		private void SetImage(Image image) {
-			if (originalImage != null) {
-				originalImage.Dispose();
-			}
-			if (Image != null) {
-				Image.Dispose();
-			}
+			// Store old value
+			Image tmpOriginal = originalImage;
+			Image tmpImage = Image;
+
+			// Set new values
 			originalImage = new Bitmap(image);
 			Image = new Bitmap(image);
+
+			// Dispose them
+			if (tmpOriginal != null) {
+				tmpOriginal.Dispose();
+			}
+			if (tmpImage != null) {
+				tmpImage.Dispose();
+			}
 		}
 
 		public Surface(Image image) : this() {
