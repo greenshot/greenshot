@@ -66,7 +66,9 @@ namespace GreenshotConfluencePlugin {
 		public virtual void Shutdown() {
 			LOG.Debug("Plugin shutdown.");
 			host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
-			confluenceConnector.logout();
+			if (confluenceConnector != null) {
+				confluenceConnector.logout();
+			}
 		}
 
 		/// <summary>

@@ -67,7 +67,9 @@ namespace GreenshotJiraPlugin {
 		public virtual void Shutdown() {
 			LOG.Debug("Plugin shutdown.");
 			host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
-			jiraConnector.logout();
+			if (jiraConnector != null) {
+				jiraConnector.logout();
+			}
 		}
 
 		/// <summary>
