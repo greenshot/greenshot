@@ -175,6 +175,9 @@ namespace Greenshot.Core {
 				Dictionary<string, string> properties = null;
 				if (iniProperties.ContainsKey(sectionName)) {
 					properties = iniProperties[sectionName];
+				} else {
+					iniProperties.Add(sectionName, new Dictionary<string, string>());
+					properties = iniProperties[sectionName];
 				}
 
 				// Iterate over the fields and fill them
@@ -184,36 +187,35 @@ namespace Greenshot.Core {
 						IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)field.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
 						string propertyName = iniPropertyAttribute.Name;
 						string propertyDefaultValue = iniPropertyAttribute.DefaultValue;
-
-						string propertyValue = null;
-						// Get the value from the ini file, if there is none take the default
-						if (properties != null && properties.ContainsKey(propertyName)) {
-							propertyValue = properties[propertyName];
-						} else if (propertyDefaultValue != null) {
-							// Mark as dirty, we didn't use properties from the file (even defaults from the default file are allowed)
-							section.IsDirty = true;
-							propertyValue = propertyDefaultValue;
-							LOG.Debug("Using default: " + propertyName + "=" + propertyValue);
-						} else if (propertyValue == null) {
-							// Use GetDefault to fill the field if none is set
-							object defaultValue = section.GetDefault(propertyName);
-							if (defaultValue != null) {
-								field.SetValue(section, defaultValue);
-								continue;
-							} else {
-								LOG.Debug("No default value, setting to null");
-								continue;
-							}
-						}
-
 						// Get the type, or the underlying type for nullables
 						Type fieldType = field.FieldType;
-						try {
-							field.SetValue(section, CreateFieldValue(fieldType, sectionName, propertyName, propertyValue));
-						} catch (Exception) {
+
+						// Get the value from the ini file, if there is none take the default
+						if (!properties.ContainsKey(propertyName) && propertyDefaultValue != null) {
 							// Mark as dirty, we didn't use properties from the file (even defaults from the default file are allowed)
 							section.IsDirty = true;
-							field.SetValue(section, CreateFieldValue(fieldType, sectionName, propertyName, propertyDefaultValue));
+							LOG.Debug("Passing default: " + propertyName + "=" + propertyDefaultValue);
+						}
+						
+						// Try to get the field value from the properties or use the default value
+						object fieldValue = null;
+						try {
+							fieldValue = CreateFieldValue(fieldType, sectionName, propertyName, propertyDefaultValue);
+						} catch (Exception e) {
+							LOG.Warn("Couldn't parse field: " + sectionName + "." + propertyName, e);
+						}
+
+						// If still no value, check if the GetDefault delivers a value
+						if (fieldValue == null) {
+							// Use GetDefault to fill the field if none is set
+							fieldValue = section.GetDefault(propertyName);
+						}
+
+						// Set the value
+						try {
+							field.SetValue(section,fieldValue);
+						} catch (Exception e) {
+							LOG.Warn("Couldn't set field: " + sectionName + "." + propertyName, e);
 						}
 					}
 				}
@@ -227,12 +229,24 @@ namespace Greenshot.Core {
 		/// <param name="fieldType">Type of the value to create</param>
 		/// <param name="propertyValue">Value as string</param>
 		/// <returns>object instance of the value</returns>
-		private static object CreateFieldValue(Type fieldType, string sectionName, string propertyName, string propertyValue) {
+		private static object CreateFieldValue(Type fieldType, string sectionName, string propertyName, string defaultValue) {
+			Dictionary<string, string> properties = iniProperties[sectionName];
+			string propertyValue = null;
+			if (properties.ContainsKey(propertyName)) {
+				propertyValue = properties[propertyName];
+			} else {
+				propertyValue = defaultValue;
+			}
+
 			// Now set the value
 			if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>)) {
 				// Logic for List<>
+				if (propertyValue == null) {
+					return null;
+				}
 				string[] arrayValues = propertyValue.Split(new Char[] {','});
 				if (arrayValues != null) {
+					bool addedElements = false;
 					object list = Activator.CreateInstance(fieldType);
 					MethodInfo addMethodInfo = fieldType.GetMethod("Add");
 					
@@ -242,14 +256,19 @@ namespace Greenshot.Core {
 							try {
 								newValue = ConvertValueToFieldType(fieldType.GetGenericArguments()[0], arrayValue);
 							} catch (Exception e) {
-								LOG.Error("Problem converting " + fieldType.FullName, e);
+								LOG.Error("Problem converting " + arrayValue + " to type " + fieldType.FullName, e);
 							}
 							if (newValue != null) {
 								addMethodInfo.Invoke(list, new object[] {newValue});
+								addedElements = true;
 							}
 						}
 					}
-					return list;
+					// No need to return something that isn't filled!
+					if (addedElements) {
+						return list;
+					}
+					return null;
 				}
 			} else if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
 				// Logic for Dictionary<,>
@@ -258,82 +277,161 @@ namespace Greenshot.Core {
 				LOG.Info(String.Format("Found Dictionary<{0},{1}>",type1.Name, type2.Name));
 				object dictionary = Activator.CreateInstance(fieldType);
 				MethodInfo addMethodInfo = fieldType.GetMethod("Add");
-				Dictionary<string, string> properties = iniProperties[sectionName];
+				bool addedElements = false;
 				foreach(string key in properties.Keys) {
 					if (key != null && key.StartsWith(propertyName + ".")) {
 						// What "key" do we need to store it under?
 						string subPropertyName = key.Substring(propertyName.Length + 1);
 						string stringValue = properties[key];
-						object newValue1 = ConvertValueToFieldType(type1, subPropertyName);
-						object newValue2 = ConvertValueToFieldType(type2, stringValue);
+						object newValue1 = null;
+						object newValue2 = null;
+						try {
+							newValue1 = ConvertValueToFieldType(type1, subPropertyName);
+						} catch (Exception e) {
+							LOG.Error("Problem converting " + subPropertyName + " to type " + type1.FullName, e);
+						}
+						try {
+							newValue2 = ConvertValueToFieldType(type2, stringValue);
+						} catch (Exception e) {
+							LOG.Error("Problem converting " + stringValue + " to type " + type2.FullName, e);
+						}
 						addMethodInfo.Invoke(dictionary, new object[] {newValue1, newValue2});
+						addedElements = true;
 				    }
 				}
-				return dictionary;
+				// No need to return something that isn't filled!
+				if (addedElements) {
+					return dictionary;
+				}
+				return null;
 			} else {
 				if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
 					// We are dealing with a generic type that is nullable
 					fieldType = Nullable.GetUnderlyingType(fieldType);
 				}
-				return ConvertValueToFieldType(fieldType, propertyValue);
+				object newValue = null;
+				try {
+					newValue =  ConvertValueToFieldType(fieldType, propertyValue);
+				} catch (Exception e) {
+					LOG.Error("Problem converting " + propertyValue + " to type " + fieldType.FullName, e);
+				}
+				return newValue;
 			}
 			return null;
 		}
 
 		private static object ConvertValueToFieldType(Type fieldType, string valueString) {
-			if (valueString == null || valueString.Length == 0) {
+			if (valueString == null) {
 				return null;
 			}
 			if (fieldType == typeof(string)) {
 				return valueString;
 			} else if (fieldType == typeof(bool) || fieldType == typeof(bool?)) {
-				return bool.Parse(valueString);
+				if (valueString.Length > 0) {
+					return bool.Parse(valueString);
+				}
 			} else if (fieldType == typeof(int) || fieldType == typeof(int?)) {
-				return int.Parse(valueString);
+				if (valueString.Length > 0) {
+					return int.Parse(valueString);
+				}
 			} else if (fieldType == typeof(uint) || fieldType == typeof(uint?)) {
-				return uint.Parse(valueString);
+				if (valueString.Length > 0) {
+					return uint.Parse(valueString);
+				}
+				return 0;
 			} else if (fieldType == typeof(Point)) {
-				string[] pointValues = valueString.Split(new Char[] {','});
-				int x = int.Parse(pointValues[0].Trim());
-				int y = int.Parse(pointValues[1].Trim());
-				return new Point(x, y);
+				if (valueString.Length > 0) {
+					string[] pointValues = valueString.Split(new Char[] {','});
+					int x = int.Parse(pointValues[0].Trim());
+					int y = int.Parse(pointValues[1].Trim());
+					return new Point(x, y);
+				}
 			} else if (fieldType == typeof(Size)) {
-				string[] sizeValues = valueString.Split(new Char[] {','});
-				int width = int.Parse(sizeValues[0].Trim());
-				int height = int.Parse(sizeValues[1].Trim());
-				return new Size(width, height);
+				if (valueString.Length > 0) {
+					string[] sizeValues = valueString.Split(new Char[] {','});
+					int width = int.Parse(sizeValues[0].Trim());
+					int height = int.Parse(sizeValues[1].Trim());
+					return new Size(width, height);
+				}
 			} else if (fieldType == typeof(Rectangle)) {
-				string[] rectValues = valueString.Split(new Char[] {','});
-				int x = int.Parse(rectValues[0].Trim());
-				int y = int.Parse(rectValues[1].Trim());
-				int width = int.Parse(rectValues[2].Trim());
-				int height = int.Parse(rectValues[3].Trim());
-				return new Rectangle(x, y, width, height);
+				if (valueString.Length > 0) {
+					string[] rectValues = valueString.Split(new Char[] {','});
+					int x = int.Parse(rectValues[0].Trim());
+					int y = int.Parse(rectValues[1].Trim());
+					int width = int.Parse(rectValues[2].Trim());
+					int height = int.Parse(rectValues[3].Trim());
+					return new Rectangle(x, y, width, height);
+				}
+			} else if (fieldType == typeof(Color)) {
+				if (valueString.Length > 0) {
+					string[] colorValues = valueString.Split(new Char[] {','});
+					int alpha = int.Parse(colorValues[0].Trim());
+					int red = int.Parse(colorValues[1].Trim());
+					int green = int.Parse(colorValues[2].Trim());
+					int blue = int.Parse(colorValues[3].Trim());
+					return Color.FromArgb(alpha, red, green, blue);
+				}
+			} else if (fieldType == typeof(object)) {
+				if (valueString.Length > 0) {
+					LOG.Debug("Parsing: " + valueString);
+					string[] values = valueString.Split(new Char[] {':'});
+					LOG.Debug("Type: " + values[0]);
+					LOG.Debug("Value: " + values[1]);
+					Type fieldTypeForValue = Type.GetType(values[0], true);
+					LOG.Debug("Type after GetType: " + fieldTypeForValue);
+					return ConvertValueToFieldType(fieldTypeForValue, values[1]);
+				}
 			} else if (fieldType.IsEnum) {
-				try {
+				if (valueString.Length > 0) {
 					return Enum.Parse(fieldType, valueString);
-				} catch (Exception e) {
-					LOG.Error("Can't parse value: " + valueString, e);
 				}
 			}
 			return null;
 		}
 
-		private static string ConvertValueToString(object valueObject) {
+		private static string ConvertValueToString(Type fieldType, object valueObject) {
 			if (valueObject == null) {
+				// If there is nothing, deliver nothing!
 				return "";
 			}
-			Type fieldType = valueObject.GetType();
 			if (fieldType == typeof(Point)) {
+				// Point to String
 				Point p = (Point)valueObject;
 				return String.Format("{0},{1}", p.X, p.Y);
 			} else if (fieldType == typeof(Size)) {
+				// Size to String
 				Size size = (Size)valueObject;
 				return String.Format("{0},{1}", size.Width, size.Height);
 			} else if (fieldType == typeof(Rectangle)) {
+				// Rectangle to String
 				Rectangle rectangle = (Rectangle)valueObject;
 				return String.Format("{0},{1},{2},{3}", rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+			} else if (fieldType == typeof(Color)) {
+				// Color to String
+				Color color = (Color)valueObject;
+				return String.Format("{0},{1},{2},{3}", color.A, color.R, color.G, color.B);
+			} else if (fieldType == typeof(object)) {
+				// object to String, this is the hardest
+				// Format will be "FQTypename[,Assemblyname]:Value"
+
+				// Get the type so we can call ourselves recursive
+				Type valueType = valueObject.GetType();
+				
+				// Get the value as string
+				string ourValue = ConvertValueToString(valueType, valueObject);
+
+				// Get the valuetype as string
+				string valueTypeName = valueType.FullName;
+				// Find the assembly name and only append it if it's not already in the fqtypename (like System.Drawing)
+				string assemblyName = valueType.Assembly.FullName;
+				LOG.Debug("FQN: " + assemblyName);
+				// correct assemblyName, this also has version information etc.
+				if (assemblyName.StartsWith("Green")) {
+					assemblyName = assemblyName.Substring(0,assemblyName.IndexOf(','));
+				}
+				return String.Format("{0},{1}:{2}", valueTypeName, assemblyName, ourValue);
 			}
+			// All other types
 			return valueObject.ToString();
 		}
 
@@ -375,7 +473,7 @@ namespace Greenshot.Core {
 					properties = iniProperties[section];
 				}
 				properties.Add(name, value);
-				LOG.Debug(String.Format("Added property {0} to section: {0}.", name, section));
+				LOG.Debug(String.Format("Added property {0} with value {1} to section: {2}.", name, value, section));
 			} else {
 				LOG.Debug("Property without section: " + name);
 			}
@@ -445,6 +543,7 @@ namespace Greenshot.Core {
 									fieldType = typeof(string);
 								}
 								if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>)) {
+									Type valueType = fieldType.GetGenericArguments()[0];
 									writer.Write("{0}=", iniPropertyAttribute.Name);
 									int listCount = (int)fieldType.GetProperty("Count").GetValue(value, null);
 									// Loop though generic list
@@ -453,15 +552,16 @@ namespace Greenshot.Core {
 									   
 									   // Now you have an instance of the item in the generic list
 									   if (index < listCount -1) {
-									   	writer.Write("{0},", ConvertValueToString(item));
+									   	writer.Write("{0},", ConvertValueToString(valueType, item));
 									   } else {
-										   writer.Write("{0}", ConvertValueToString(item));
+										   writer.Write("{0}", ConvertValueToString(valueType, item));
 									   }
 									}
 									writer.WriteLine();
 								} else if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
 									// Handle dictionaries.
-
+									Type valueType1 = fieldType.GetGenericArguments()[0];
+									Type valueType2 = fieldType.GetGenericArguments()[1];
 									// Get the methods we need to deal with dictionaries.
 									var keys = fieldType.GetProperty("Keys").GetValue(value, null);
 									var item = fieldType.GetProperty("Item");
@@ -473,10 +573,10 @@ namespace Greenshot.Core {
 										var key = current.Invoke(enumerator, null);
 										var valueObject = item.GetValue(value, new object[] { key });
 										// Write to ini file!
-										writer.WriteLine("{0}.{1}={2}", iniPropertyAttribute.Name, ConvertValueToString(key), ConvertValueToString(valueObject));
+										writer.WriteLine("{0}.{1}={2}", iniPropertyAttribute.Name, ConvertValueToString(valueType1, key), ConvertValueToString(valueType2, valueObject));
 									}
 								} else {
-									writer.WriteLine("{0}={1}", iniPropertyAttribute.Name,  ConvertValueToString(value));
+									writer.WriteLine("{0}={1}", iniPropertyAttribute.Name,  ConvertValueToString(fieldType, value));
 								}
 							}
 						}

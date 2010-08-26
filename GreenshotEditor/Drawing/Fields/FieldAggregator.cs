@@ -19,13 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Reflection;
-using System.ComponentModel;
-using System.Collections.Generic;
 
 using Greenshot.Configuration;
+using Greenshot.Core;
 using Greenshot.Drawing.Filters;
+using Greenshot.Editor;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>
@@ -40,7 +42,7 @@ namespace Greenshot.Drawing.Fields {
 	///    If the property values of the selected elements differ, the value of the last bound element wins.
 	/// </summary>
 	public class FieldAggregator : AbstractFieldHolder {
-		
+		private static EditorConfiguration config = IniConfig.GetIniSection<EditorConfiguration>();
 		private List<DrawableContainer> boundContainers;
 		private bool internalUpdateRunning = false;
 		
@@ -174,7 +176,7 @@ namespace Greenshot.Drawing.Fields {
 							IField dcf = dc.GetField(f.FieldType);
 							dcf.Value = f.Value;
 							// update last used from DC field, so that scope is honored
-							AppConfig.GetInstance().UpdateLastUsedFieldValue(dcf);
+							config.UpdateLastUsedFieldValue(dcf);
 						}
 						
 					}

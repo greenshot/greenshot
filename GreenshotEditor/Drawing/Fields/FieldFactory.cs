@@ -19,10 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Drawing;
 using System.Collections.Generic;
+using System.Drawing;
 
 using Greenshot.Configuration;
+using Greenshot.Core;
+using Greenshot.Editor;
 
 namespace Greenshot.Drawing.Fields {
 	
@@ -31,30 +33,7 @@ namespace Greenshot.Drawing.Fields {
 	/// Add new FieldTypes in FieldType.cs
 	/// </summary>
 	public class FieldFactory {
-		
-		private static Dictionary<FieldType, object> DEFAULT_VALUES;
-		
-		static FieldFactory() {
-			DEFAULT_VALUES = new Dictionary<FieldType, object>();
-			DEFAULT_VALUES.Add(FieldType.ARROWHEADS, ArrowContainer.ArrowHeadCombination.END_POINT);
-			DEFAULT_VALUES.Add(FieldType.BLUR_RADIUS, 3);
-			DEFAULT_VALUES.Add(FieldType.BRIGHTNESS, 0.9d);
-			DEFAULT_VALUES.Add(FieldType.FILL_COLOR, Color.Transparent);
-			DEFAULT_VALUES.Add(FieldType.FLAGS, null);
-			DEFAULT_VALUES.Add(FieldType.FONT_BOLD, false);
-			DEFAULT_VALUES.Add(FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
-			DEFAULT_VALUES.Add(FieldType.FONT_ITALIC, false);
-			DEFAULT_VALUES.Add(FieldType.FONT_SIZE, 11f);
-			DEFAULT_VALUES.Add(FieldType.HIGHLIGHT_COLOR, Color.Yellow);
-			DEFAULT_VALUES.Add(FieldType.LINE_COLOR, Color.Red);
-			DEFAULT_VALUES.Add(FieldType.LINE_THICKNESS, 1);
-			DEFAULT_VALUES.Add(FieldType.MAGNIFICATION_FACTOR, 2);
-			DEFAULT_VALUES.Add(FieldType.PIXEL_SIZE, 5);
-			DEFAULT_VALUES.Add(FieldType.PREVIEW_QUALITY, 1.0d);
-			DEFAULT_VALUES.Add(FieldType.SHADOW, false);
-			DEFAULT_VALUES.Add(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.PIXELIZE);
-			DEFAULT_VALUES.Add(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT);
-		}
+		private static EditorConfiguration config = IniConfig.GetIniSection<EditorConfiguration>();
 		
 		private FieldFactory() {}
 		
@@ -98,30 +77,20 @@ namespace Greenshot.Drawing.Fields {
 			} else {
 				ret = new Field(fieldType);
 			}
-			AppConfig.GetInstance().GetLastUsedValueForField(ret);
+			config.GetLastUsedValueForField(ret);
 			if(ret.Value == null) {
-				if(preferredDefaultValue != null) ret.Value = preferredDefaultValue;
-				else ret.Value = GetDefaultValueForField(ret);
+				if(preferredDefaultValue != null) {
+					ret.Value = preferredDefaultValue;
+				}
 			} 
 			return ret;
 		}
-		
-		private static object GetDefaultValueForField(Field f) {
-			if(DEFAULT_VALUES.ContainsKey(f.FieldType)) {
-				return DEFAULT_VALUES[f.FieldType];
-			} else {
-				throw new KeyNotFoundException("No default value has been defined for "+f.FieldType);
-			}
-		}
-
 		
 		/// <returns>a List of all available fields with their respective default value</returns>
 		public static List<Field> GetDefaultFields() {
 			List<Field> ret = new List<Field>();
 			foreach(FieldType ft in FieldType.GetValues(typeof(FieldType))) {
-				Field f = CreateField(ft);
-				f.Value = GetDefaultValueForField(f);
-				ret.Add(f);
+				ret.Add(CreateField(ft));
 			}
 			return ret;
 		}
