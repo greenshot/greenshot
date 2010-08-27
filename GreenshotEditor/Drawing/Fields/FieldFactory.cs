@@ -34,6 +34,29 @@ namespace Greenshot.Drawing.Fields {
 	/// </summary>
 	public class FieldFactory {
 		private static EditorConfiguration config = IniConfig.GetIniSection<EditorConfiguration>();
+		private static Dictionary<FieldType, object> DEFAULT_VALUES;
+		
+		static FieldFactory() {
+			DEFAULT_VALUES = new Dictionary<FieldType, object>();
+			DEFAULT_VALUES.Add(FieldType.ARROWHEADS, ArrowContainer.ArrowHeadCombination.END_POINT);
+			DEFAULT_VALUES.Add(FieldType.BLUR_RADIUS, 3);
+			DEFAULT_VALUES.Add(FieldType.BRIGHTNESS, 0.9d);
+			DEFAULT_VALUES.Add(FieldType.FILL_COLOR, Color.Transparent);
+			DEFAULT_VALUES.Add(FieldType.FLAGS, null);
+			DEFAULT_VALUES.Add(FieldType.FONT_BOLD, false);
+			DEFAULT_VALUES.Add(FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
+			DEFAULT_VALUES.Add(FieldType.FONT_ITALIC, false);
+			DEFAULT_VALUES.Add(FieldType.FONT_SIZE, 11f);
+			DEFAULT_VALUES.Add(FieldType.HIGHLIGHT_COLOR, Color.Yellow);
+			DEFAULT_VALUES.Add(FieldType.LINE_COLOR, Color.Red);
+			DEFAULT_VALUES.Add(FieldType.LINE_THICKNESS, 1);
+			DEFAULT_VALUES.Add(FieldType.MAGNIFICATION_FACTOR, 2);
+			DEFAULT_VALUES.Add(FieldType.PIXEL_SIZE, 5);
+			DEFAULT_VALUES.Add(FieldType.PREVIEW_QUALITY, 1.0d);
+			DEFAULT_VALUES.Add(FieldType.SHADOW, false);
+			DEFAULT_VALUES.Add(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.PIXELIZE);
+			DEFAULT_VALUES.Add(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT);
+		}
 		
 		private FieldFactory() {}
 		
@@ -66,7 +89,8 @@ namespace Greenshot.Drawing.Fields {
 		public static Field CreateField(FieldType fieldType, Type scope) {
 			return CreateField(fieldType, scope, null);
 		}
-		
+
+
 		/// <param name="fieldType">FieldType of the field to construct</param>
 		/// <param name="preferredDefaultValue">overwrites the original default value being defined in FieldType</param>
 		/// <returns>a new Field of the given fieldType and preferredDefaultValue, with the scope of it's value being restricted to the Type scope</returns>
@@ -81,16 +105,29 @@ namespace Greenshot.Drawing.Fields {
 			if(ret.Value == null) {
 				if(preferredDefaultValue != null) {
 					ret.Value = preferredDefaultValue;
+				} else {
+					ret.Value = GetDefaultValueForField(ret);
 				}
 			} 
 			return ret;
 		}
 		
+		private static object GetDefaultValueForField(Field f) {
+			if(DEFAULT_VALUES.ContainsKey(f.FieldType)) {
+				return DEFAULT_VALUES[f.FieldType];
+			} else {
+				throw new KeyNotFoundException("No default value has been defined for "+f.FieldType);
+			}
+		}
+
+		
 		/// <returns>a List of all available fields with their respective default value</returns>
 		public static List<Field> GetDefaultFields() {
 			List<Field> ret = new List<Field>();
 			foreach(FieldType ft in FieldType.GetValues(typeof(FieldType))) {
-				ret.Add(CreateField(ft));
+				Field f = CreateField(ft);
+				f.Value = GetDefaultValueForField(f);
+				ret.Add(f);
 			}
 			return ret;
 		}

@@ -178,7 +178,6 @@ namespace Greenshot.Drawing.Fields {
 							// update last used from DC field, so that scope is honored
 							config.UpdateLastUsedFieldValue(dcf);
 						}
-						
 					}
 				}
 			}
