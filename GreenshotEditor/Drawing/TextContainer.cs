@@ -254,7 +254,7 @@ namespace Greenshot.Drawing {
 			UpdateFont();
 
 			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
-			if (Selected && !rm.Equals(RenderMode.EXPORT)) {
+			if (Selected && rm == RenderMode.EDIT) {
 				DrawSelectionBorder(g, rect);
 			}
 			
@@ -276,7 +276,9 @@ namespace Greenshot.Drawing {
 				while (currentStep <= steps) {
 					int offset = currentStep;
 					Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + offset, Top + offset, Width, Height);
-					if(lineThickness>0) shadowRect.Inflate(-textOffset, -textOffset);
+					if(lineThickness > 0) {
+						shadowRect.Inflate(-textOffset, -textOffset);
+					}
 					using (Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100))) {
 						g.DrawString(text, font, fontBrush, shadowRect);
 						currentStep++;
@@ -287,13 +289,12 @@ namespace Greenshot.Drawing {
 
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			Rectangle fontRect = rect;
-			if(lineThickness>0) fontRect.Inflate(-textOffset,-textOffset);
+			if(lineThickness > 0) {
+				fontRect.Inflate(-textOffset,-textOffset);
+			}
 			using (Brush fontBrush = new SolidBrush(lineColor)) {
 				g.DrawString(text, font, fontBrush, fontRect);
 			}
-			
 		}
-		
-		
 	}
 }

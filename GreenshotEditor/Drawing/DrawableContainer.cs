@@ -307,7 +307,7 @@ namespace Greenshot.Drawing {
 		public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode) {
 			//if(LOG.IsDebugEnabled) LOG.Debug("Drawing container "+this+" with bounds "+Bounds+" and " + Children.Count + " children and status: "+Status);
 			if(Children.Count>0) {
-				if(!Status.Equals(EditStatus.IDLE)) {
+				if(Status != EditStatus.IDLE) {
 					DrawSelectionBorder(graphics, Bounds);
 				} else {
 					Rectangle effRect = Bounds;
@@ -321,7 +321,7 @@ namespace Greenshot.Drawing {
 	
 				}
 			}
-			Draw(graphics, RenderMode.EDIT);
+			Draw(graphics, renderMode);
 		}
 		
 		public virtual bool Contains(int x, int y) {

@@ -145,10 +145,10 @@ namespace Greenshot.Drawing {
 		/// Triggers all elements in the list ot be redrawn.
 		/// </summary>
 		/// <param name="g">the related Graphics object</param>
-		/// <param name="rm">the rendermode in which the element is to be drawn</param>
-		public void Draw(Graphics g, Bitmap bitmap, RenderMode rm) {
+		/// <param name="renderMode">the rendermode in which the element is to be drawn</param>
+		public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode) {
 			foreach(DrawableContainer dc in this) {
-				dc.DrawContent(g, bitmap, rm);
+				dc.DrawContent(g, bitmap, renderMode);
 			}
 		}
 		

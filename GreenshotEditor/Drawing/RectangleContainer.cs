@@ -82,6 +82,7 @@ namespace Greenshot.Drawing {
 					g.DrawRectangle(pen, rect);
 				}
 			}
+
 		}
 		
 	}
