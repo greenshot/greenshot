@@ -29,6 +29,7 @@ using System.Windows.Forms;
 /// <summary>
 /// The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
 /// and is slightly modified so it works for us.
+/// Oh, try Start-> Run and type "Control keymgr.dll" to see your usernames and passwords
 /// The following code is an example for a login, it will call the Authenticate with user/password
 /// which should return true if the login worked, false if not.
 ///		private static bool Login(string system, string name) {
@@ -45,6 +46,7 @@ using System.Windows.Forms;
 ///						} catch (ApplicationException) {
 ///							// exception handling ...
 ///						}
+///						dialog.IncorrectPassword = true;
 ///					}
 ///				}
 ///			} catch (ApplicationException) {
@@ -129,6 +131,17 @@ namespace Greenshot.Helpers {
 			}
 			set {
 				_persist = value;
+			}
+		}
+
+		private bool _incorrectPassword = false;
+		/// <summary>Gets or sets if the incorrect password balloontip needs to be shown. Introduced AFTER Windows XP</summary>Gets></summary>
+		public bool IncorrectPassword {
+			get {
+				return _incorrectPassword;
+			}
+			set {
+				_incorrectPassword = value;
 			}
 		}
 
@@ -439,6 +452,10 @@ namespace Greenshot.Helpers {
 		/// <summary>Returns the flags for dialog display options.</summary>
 		private CREDUI.FLAGS GetFlags() {
 			CREDUI.FLAGS flags = CREDUI.FLAGS.GENERIC_CREDENTIALS;
+
+			if (this.IncorrectPassword) {
+				flags = flags | CREDUI.FLAGS.INCORRECT_PASSWORD;
+			}
 
 			if (this.AlwaysDisplay) {
 				flags = flags | CREDUI.FLAGS.ALWAYS_SHOW_UI;
