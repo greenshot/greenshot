@@ -29,7 +29,8 @@ using System.Windows.Forms;
 /// <summary>
 /// The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
 /// and is slightly modified so it works for us.
-/// Oh, try Start-> Run and type "Control keymgr.dll" to see your usernames and passwords
+/// As the "Stored usernames and passwords" which can be accessed by: Start-> Run and type "Control keymgr.dll"
+/// doesn't show all credentials use the tool here: http://www.microsoft.com/indonesia/msdn/credmgmt.aspx
 /// The following code is an example for a login, it will call the Authenticate with user/password
 /// which should return true if the login worked, false if not.
 ///		private static bool Login(string system, string name) {
