@@ -132,6 +132,8 @@ namespace GreenshotJiraPlugin {
 			// checkBoxDoNotStorePassword
 			// 
 			this.checkBoxDoNotStorePassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.checkBoxDoNotStorePassword.Checked = true;
+			this.checkBoxDoNotStorePassword.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.checkBoxDoNotStorePassword.Location = new System.Drawing.Point(102, 99);
 			this.checkBoxDoNotStorePassword.Name = "checkBoxDoNotStorePassword";
 			this.checkBoxDoNotStorePassword.Size = new System.Drawing.Size(276, 24);
