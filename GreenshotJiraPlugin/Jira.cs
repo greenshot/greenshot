@@ -141,7 +141,9 @@ namespace Jira {
         public void login() {
         	logout();
             try {
-        		CredentialsDialog dialog = new CredentialsDialog(config.Url.Replace(JiraConfiguration.DEFAULT_PREFIX,"").Replace(JiraConfiguration.DEFAULT_POSTFIX,""));
+        		// Get the system name, so the user knows where to login to
+        		string systemName = config.Url.Replace(JiraConfiguration.DEFAULT_POSTFIX,"");
+           		CredentialsDialog dialog = new CredentialsDialog(systemName);
 				dialog.Name = null;
 				while (dialog.Show(dialog.Name) == DialogResult.OK) {
 					if (doLogin(dialog.Name, dialog.Password)) {
@@ -156,7 +158,10 @@ namespace Jira {
 							// exception handling ...
 							LOG.Error("Problem using the credentials dialog", e);
 						}
+						// For every windows version after XP show an incorrect password baloon
 						dialog.IncorrectPassword = true;
+						// Make sure the dialog is display, the password was false!
+						dialog.AlwaysDisplay = true;
 					}
 				}
 			} catch (ApplicationException e) {
