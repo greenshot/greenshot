@@ -34,14 +34,8 @@
 	<resource name="label_url">
 		Url
 	</resource>
-	<resource name="label_user">
-		Gebruiker
-	</resource>
-	<resource name="label_password">
-		Wachtwoord
-	</resource>
-	<resource name="label_no_password_store">
-		Het wachtwoord niet opslaan
+	<resource name="label_upload_format">
+		Beeld formaat
 	</resource>
   	<resource name="login_title">
 		Geef uw Jira login data

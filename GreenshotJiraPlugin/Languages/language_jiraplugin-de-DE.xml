@@ -37,14 +37,8 @@
 	<resource name="label_url">
 		Url
 	</resource>
-  	<resource name="label_user">
-		Benutzer
-	</resource>
-	<resource name="label_password">
-		Password
-	</resource>
-	<resource name="label_no_password_store">
-		Kennwort nicht speichern
+	<resource name="label_upload_format">
+		Bildformat
 	</resource>
 	<resource name="OK">
 		OK

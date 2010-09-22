@@ -34,14 +34,8 @@
 	<resource name="label_url">
 		Url
 	</resource>
-	<resource name="label_user">
-		User
-	</resource>
-	<resource name="label_password">
-		Password
-	</resource>
-	<resource name="label_no_password_store">
-		Do not store the password
+	<resource name="label_upload_format">
+		Upload format
 	</resource>
   	<resource name="login_title">
 		Please enter your Jira login data

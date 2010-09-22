@@ -49,12 +49,14 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
         public bool ShowConfigDialog() {
-			SettingsForm pwForm = new SettingsForm();
-        	pwForm.Url = Url;
-        	DialogResult result = pwForm.ShowDialog();
+			SettingsForm settingsForm = new SettingsForm(this);
+        	settingsForm.Url = Url;
+        	settingsForm.UploadFormat = UploadFormat.ToString();
+        	DialogResult result = settingsForm.ShowDialog();
         	if (result == DialogResult.OK) {
-            	if (!pwForm.Url.Equals(Url)) {
-            		Url = pwForm.Url;
+        		if (!settingsForm.Url.Equals(Url) || !settingsForm.UploadFormat.Equals(UploadFormat.ToString())) {
+            		Url = settingsForm.Url;
+            		UploadFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), settingsForm.UploadFormat);
             	}
            		IniConfig.Save();
         		return true;

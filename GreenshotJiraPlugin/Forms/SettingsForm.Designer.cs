@@ -50,6 +50,8 @@ namespace GreenshotJiraPlugin {
 			this.buttonCancel = new System.Windows.Forms.Button();
 			this.label_url = new System.Windows.Forms.Label();
 			this.textBoxUrl = new System.Windows.Forms.TextBox();
+			this.combobox_uploadimageformat = new System.Windows.Forms.ComboBox();
+			this.label_upload_format = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// buttonOK
@@ -90,11 +92,30 @@ namespace GreenshotJiraPlugin {
 			this.textBoxUrl.Size = new System.Drawing.Size(276, 20);
 			this.textBoxUrl.TabIndex = 6;
 			// 
+			// combobox_uploadimageformat
+			// 
+			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.combobox_uploadimageformat.FormattingEnabled = true;
+			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 47);
+			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
+			this.combobox_uploadimageformat.Size = new System.Drawing.Size(276, 21);
+			this.combobox_uploadimageformat.TabIndex = 8;
+			// 
+			// label_upload_format
+			// 
+			this.label_upload_format.Location = new System.Drawing.Point(12, 50);
+			this.label_upload_format.Name = "label_upload_format";
+			this.label_upload_format.Size = new System.Drawing.Size(84, 20);
+			this.label_upload_format.TabIndex = 9;
+			this.label_upload_format.Text = "Upload format";
+			// 
 			// SettingsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(387, 174);
+			this.Controls.Add(this.label_upload_format);
+			this.Controls.Add(this.combobox_uploadimageformat);
 			this.Controls.Add(this.label_url);
 			this.Controls.Add(this.textBoxUrl);
 			this.Controls.Add(this.buttonCancel);
@@ -104,6 +125,8 @@ namespace GreenshotJiraPlugin {
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.ComboBox combobox_uploadimageformat;
+		private System.Windows.Forms.Label label_upload_format;
 		private System.Windows.Forms.TextBox textBoxUrl;
 		private System.Windows.Forms.Label label_url;
 		private System.Windows.Forms.Button buttonCancel;
