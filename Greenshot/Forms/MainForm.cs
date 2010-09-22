@@ -607,10 +607,11 @@ namespace Greenshot {
 		/// </summary>
 		private void ContextMenuDoubleClick(object sender, EventArgs eventArgs) {
 			string path;
+			string configPath = FilenameHelper.FillVariables(conf.OutputFilePath);
 			if (lastImagePath != null && Directory.Exists(lastImagePath)) {
 				path = lastImagePath;
-			} else if (Directory.Exists(conf.OutputFilePath)) {
-				path = conf.OutputFilePath;
+			} else if (Directory.Exists(configPath)) {
+				path = configPath;
 			} else {
 				// What do I open when nothing can be found? Right, nothing...
 				return;

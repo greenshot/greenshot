@@ -26,8 +26,8 @@ Source: ..\additional_files\*; DestDir: {app}; Flags: overwritereadonly recurses
 Source: ..\..\bin\Release\Plugins\Greenshot-OCR-Plugin\*; DestDir: {app}\Plugins\Greenshot-OCR-Plugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\Greenshot-OCR-Plugin\*; DestDir: {app}\Languages\Plugins\Greenshot-OCR-Plugin; Components: plugins\ocr; Flags: overwritereadonly ignoreversion replacesameversion;
 ;JIRA Plugin
-;Source: ..\..\bin\Release\Plugins\GreenshotJiraPlugin\*; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-;Source: ..\..\bin\Release\Languages\Plugins\GreenshotJiraPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Plugins\GreenshotJiraPlugin\*; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\Plugins\GreenshotJiraPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Title-Fix Plugin
 Source: ..\..\bin\Release\Plugins\Greenshot-TitleFix-Plugin\*; DestDir: {app}\Plugins\Greenshot-TitleFix-Plugin; Components: plugins\titlefix; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 
@@ -107,7 +107,7 @@ nl.ocr=OCR Plugin (heeft Microsoft Office 2003 of 2007 nodig)
 [Components]
 Name: "plugins"; Description: "Plugins"; Types: Full
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full; Check: CheckMODI
-;Name: "plugins\jira"; Description: "JIRA Plugin"; Types: Full
+Name: "plugins\jira"; Description: "JIRA Plugin"; Types: Full
 Name: "plugins\titlefix"; Description: {cm:titlefix}; Types: Full
 ;Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
 [Code]

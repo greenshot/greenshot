@@ -158,7 +158,7 @@ namespace Greenshot {
 		// Check the settings and somehow visibly mark when something is incorrect
 		private bool CheckSettings() {
 			bool settingsOk = true;
-			if(!Directory.Exists(textbox_storagelocation.Text)) {
+			if(!Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text))) {
 				textbox_storagelocation.BackColor = Color.Red;
 				settingsOk = false;
 			} else {
@@ -259,17 +259,21 @@ namespace Greenshot {
 
 			IniConfig.Save();
 			
-			// Check if the Run for all is set
-			if(!StartupHelper.checkRunAll()) {
-				// If not set the registry according to the settings
-				if (checkbox_autostartshortcut.Checked) {
-					StartupHelper.setRunUser();
+			try {
+				// Check if the Run for all is set
+				if(!StartupHelper.checkRunAll()) {
+					// If not set the registry according to the settings
+					if (checkbox_autostartshortcut.Checked) {
+						StartupHelper.setRunUser();
+					} else {
+						StartupHelper.deleteRunUser();
+					}
 				} else {
+					// The run key for Greenshot is set for all users, delete the local version!
 					StartupHelper.deleteRunUser();
 				}
-			} else {
-				// The run key for Greenshot is set for all users, delete the local version!
-				StartupHelper.deleteRunUser();
+			} catch (Exception e) {
+				LOG.Warn("Problem checking registry, ignoring for now: ", e);
 			}
 		}
 		
@@ -278,14 +282,22 @@ namespace Greenshot {
 		}
 		
 		void Settings_okayClick(object sender, System.EventArgs e) {
-			SaveSettings();
-			this.Close();
+			if (CheckSettings()) {
+				SaveSettings();
+				this.Close();
+			} else {
+				this.tabcontrol.SelectTab(this.tab_output);
+			}
 		}
 		
 		void BrowseClick(object sender, System.EventArgs e) {
-			this.folderBrowserDialog1.SelectedPath = this.textbox_storagelocation.Text;
+			// Get the storage location and replace the environment variables
+			this.folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(this.textbox_storagelocation.Text);
 			if(this.folderBrowserDialog1.ShowDialog() == DialogResult.OK) {
-				this.textbox_storagelocation.Text = this.folderBrowserDialog1.SelectedPath;
+				// Only change if there is a change, otherwise we might overwrite the environment variables
+				if (this.folderBrowserDialog1.SelectedPath != null && !this.folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(this.textbox_storagelocation.Text))) {
+					this.textbox_storagelocation.Text = this.folderBrowserDialog1.SelectedPath;
+				}
 			}
 			CheckSettings();
 		}

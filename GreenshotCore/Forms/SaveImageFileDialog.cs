@@ -204,6 +204,7 @@ namespace Greenshot.Forms {
 		
 		private string GetRootDirFromConfig() {
 			string rootDir =conf.OutputFilePath;
+			rootDir = FilenameHelper.FillVariables(rootDir);
 			// the idea was to let the user choose whether to suggest the dir
 			// configured in the settings dialog or just remember the latest path.
 			// however, we'd need an extra option for this, making the settings dialog
