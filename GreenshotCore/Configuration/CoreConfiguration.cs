@@ -63,7 +63,7 @@ namespace Greenshot.Core {
 		
 		[IniProperty("OutputFilePath", Description="Output file path.")]
 		public string OutputFilePath;
-		[IniProperty("OutputFileFilenamePattern", Description="Filename pattern for screenshot.", DefaultValue="%title%_%YYYY%-%MM%-%DD%_%hh%-%mm%-%ss%")]
+		[IniProperty("OutputFileFilenamePattern", Description="Filename pattern for screenshot.", DefaultValue="${capturetime}_${title}")]
 		public string OutputFileFilenamePattern;
 		[IniProperty("OutputFileFormat", Description="Default file type for writing screenshots. (Bmp, Gif, Jepg, Png, Tiff)", DefaultValue="Png")]
 		public OutputFormat OutputFileFormat = OutputFormat.Png;
