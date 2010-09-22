@@ -20,11 +20,13 @@
  */
 using System;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+
+using Greenshot.UnmanagedHelpers;
 
 /// <summary>
 /// The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
@@ -423,10 +425,12 @@ namespace Greenshot.Helpers {
 				password, CREDUI.MAX_PASSWORD_LENGTH,
 				ref saveChecked,
 				flags
-				);
+			);
 
 			// clean up resources
-			if (this.Banner != null) GDI32.DeleteObject(info.hbmBanner);
+			if (this.Banner != null) {
+				GDI32.DeleteObject(info.hbmBanner);
+			}
 
 			// set the accessors from the api call parameters
 			this.Name = name.ToString();
@@ -512,14 +516,6 @@ namespace Greenshot.Helpers {
 			}
 			return result;
 		}
-	}
-
-	public sealed class GDI32 {
-		private GDI32() {
-		}
-
-		[DllImport("gdi32.dll", EntryPoint="DeleteObject")]
-		public static extern bool DeleteObject(IntPtr hObject);
 	}
 
 	public sealed class CREDUI {

@@ -91,6 +91,7 @@
     </Compile>
     <Compile Include="Helpers\ClipboardHelper.cs" />
     <Compile Include="Helpers\CopyData.cs" />
+    <Compile Include="Helpers\CredentialsHelper.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />
     <Compile Include="Helpers\FilenameHelper.cs" />
     <Compile Include="Helpers\HotkeyHelper.cs" />
