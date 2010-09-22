@@ -33,12 +33,17 @@ namespace GreenshotJiraPlugin {
 		public const string DEFAULT_POSTFIX = "/rpc/soap/jirasoapservice-v2?wsdl";
 		public const string DEFAULT_PREFIX = "http://";
 		private const string DEFAULT_URL = DEFAULT_PREFIX + "jira" + DEFAULT_POSTFIX;
+
 		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue=DEFAULT_URL)]
 		public string Url;
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
 		public int Timeout;
 		
-		
+		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="Png")]
+		public OutputFormat UploadFormat;
+		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
+		public int UploadJpegQuality;
+
 		/// <summary>
 		/// A form for username/password
 		/// </summary>

@@ -100,14 +100,16 @@ namespace Jira {
         private string credentials = null;
         private DateTime loggedInTime = DateTime.Now;
         private bool loggedIn = false;
-        private JiraConfiguration config;
         private JiraSoapServiceService jira;
+        private int timeout;
+        private string url;
         private Dictionary<string, string> userMap = new Dictionary<string, string>();
 
-        public JiraConnector() {
-        	this.config = IniConfig.GetIniSection<JiraConfiguration>();
+        public JiraConnector(string url, int timeout) {
+        	this.url = url;
+        	this.timeout = timeout;
             jira = new JiraSoapServiceService();
-            jira.Url = config.Url;
+            jira.Url = url;
         }
 
         ~JiraConnector() {
@@ -132,7 +134,7 @@ namespace Jira {
             	this.loggedIn = false;
             	this.credentials = null;
             	e.Data.Add("user", user);
-            	e.Data.Add("url", config.Url);
+            	e.Data.Add("url", url);
             	throw e;
             }
         	return true;
@@ -142,7 +144,7 @@ namespace Jira {
         	logout();
             try {
         		// Get the system name, so the user knows where to login to
-        		string systemName = config.Url.Replace(JiraConfiguration.DEFAULT_POSTFIX,"");
+        		string systemName = url.Replace(JiraConfiguration.DEFAULT_POSTFIX,"");
            		CredentialsDialog dialog = new CredentialsDialog(systemName);
 				dialog.Name = null;
 				while (dialog.Show(dialog.Name) == DialogResult.OK) {
@@ -180,7 +182,7 @@ namespace Jira {
 
         private void checkCredentials() {
             if (loggedIn) {
-				if (loggedInTime.AddMinutes(config.Timeout-1).CompareTo(DateTime.Now) < 0) {
+				if (loggedInTime.AddMinutes(timeout-1).CompareTo(DateTime.Now) < 0) {
                     logout();
                     login();
                 }

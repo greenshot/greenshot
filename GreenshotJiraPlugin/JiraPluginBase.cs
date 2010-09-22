@@ -43,6 +43,7 @@ namespace GreenshotJiraPlugin {
 		private ICaptureHost captureHost = null;
 		private JiraConnector jiraConnector = null;
 		private PluginAttribute myAttributes;
+        private JiraConfiguration config = null;
 
 		public JiraPlugin() {
 		}
@@ -60,8 +61,10 @@ namespace GreenshotJiraPlugin {
 			host.OnImageEditorOpen += new OnImageEditorOpenHandler(ImageEditorOpened);
 
 			// Register configuration (don't need the configuration itself)
-			IniConfig.GetIniSection<JiraConfiguration>();
-
+			config = IniConfig.GetIniSection<JiraConfiguration>();
+			if(config.IsDirty) {
+				IniConfig.Save();
+			}
 		}
 
 		public virtual void Shutdown() {
@@ -76,7 +79,7 @@ namespace GreenshotJiraPlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			IniConfig.GetIniSection<JiraConfiguration>().ShowConfigDialog();
+			config.ShowConfigDialog();
 		}
 		
 		/// <summary>
@@ -111,16 +114,16 @@ namespace GreenshotJiraPlugin {
 			IImageEditor imageEditor = (IImageEditor)item.Tag;
 
 			if (jiraConnector == null) {
-				this.jiraConnector = new JiraConnector();
+				this.jiraConnector = new JiraConnector(config.Url, config.Timeout);
 			}
 
 			JiraForm jiraForm = new JiraForm(jiraConnector);
 			if (jiraConnector.isLoggedIn()) {
-				//jiraForm.setFilename(host.GetFilename("png"));
+				jiraForm.setFilename(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
 				DialogResult result = jiraForm.ShowDialog();
 				if (result == DialogResult.OK) {
 					using (MemoryStream stream = new MemoryStream()) {
-						imageEditor.SaveToStream(stream, OutputFormat.Png, 100);
+						imageEditor.SaveToStream(stream, config.UploadFormat, config.UploadJpegQuality);
 						byte [] buffer = stream.GetBuffer();
 						try {
 							jiraForm.upload(buffer);
