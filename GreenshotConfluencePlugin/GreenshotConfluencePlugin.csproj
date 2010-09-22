@@ -56,9 +56,9 @@
     <Compile Include="Forms\ConfluenceForm.Designer.cs">
       <DependentUpon>ConfluenceForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\LoginForm.cs" />
-    <Compile Include="Forms\LoginForm.Designer.cs">
-      <DependentUpon>LoginForm.cs</DependentUpon>
+    <Compile Include="Forms\SettingsForm.cs" />
+    <Compile Include="Forms\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Confluence.cs" />
     <Compile Include="Language.cs" />

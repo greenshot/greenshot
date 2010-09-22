@@ -38,7 +38,7 @@ namespace GreenshotJiraPlugin {
 		public string Url;
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
 		public int Timeout;
-		
+
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="Png")]
 		public OutputFormat UploadFormat;
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]

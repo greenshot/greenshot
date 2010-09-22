@@ -30,50 +30,33 @@ namespace GreenshotConfluencePlugin {
 	/// </summary>
 	[IniSection("Confluence", Description="Greenshot Confluence Plugin configuration")]
 	public class ConfluenceConfiguration : IniSection {
-		[IniProperty("Url", Description="Url to Confluence system, including wsdl.", DefaultValue="http://confluence/rpc/soap-axis/confluenceservice-v1?wsdl")]
+		public const string DEFAULT_POSTFIX = "/rpc/soap-axis/confluenceservice-v1?wsdl";
+		public const string DEFAULT_PREFIX = "http://";
+		private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence" + DEFAULT_POSTFIX;
+
+		[IniProperty("Url", Description="Url to Confluence system, including wsdl.", DefaultValue=DEFAULT_URL)]
 		public string Url;
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
 		public int Timeout;
-		[IniProperty("User", Description="User for the Confluence System")]
-		public string User;
-		[IniProperty("Password", Description="Password for the Confluence System, belonging to user.")]
-		public string Password;
-		
-		// This will not be stored
-		public string TmpPassword;
-		
-		public bool HasPassword() {
-        	return (Password != null && Password.Length > 0);
-		}
 
-		public bool HasTmpPassword() {
-        	return (TmpPassword != null && TmpPassword.Length > 0);
-		}
+		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="Png")]
+		public OutputFormat UploadFormat;
+		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
+		public int UploadJpegQuality;
 
 		/// <summary>
 		/// A form for username/password
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
         public bool ShowConfigDialog() {
-			LoginForm pwForm = new LoginForm();
-			if (User == null || User.Length == 0) {
-				User = Environment.UserName;
-			}
-        	pwForm.User = User;
-        	pwForm.Url = Url;
-        	DialogResult result = pwForm.ShowDialog();
+			SettingsForm settingsForm = new SettingsForm();
+        	settingsForm.Url = Url;
+        	settingsForm.UploadFormat = UploadFormat.ToString();
+        	DialogResult result = settingsForm.ShowDialog();
         	if (result == DialogResult.OK) {
-        		if (pwForm.DoNotStorePassword) {
-        			TmpPassword = pwForm.Password;
-        			Password = null;
-        		} else {
-        			Password = pwForm.Password;
-        			TmpPassword = null;
-        		}
-            	
-            	if (!pwForm.User.Equals(User) ||!pwForm.Url.Equals(Url)) {
-            		User = pwForm.User;
-            		Url = pwForm.Url;
+        		if (!settingsForm.Url.Equals(Url) || !settingsForm.UploadFormat.Equals(UploadFormat.ToString())) {
+            		Url = settingsForm.Url;
+            		UploadFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), settingsForm.UploadFormat);
             	}
            		IniConfig.Save();
         		return true;

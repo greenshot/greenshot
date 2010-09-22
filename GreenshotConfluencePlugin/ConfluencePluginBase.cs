@@ -43,6 +43,7 @@ namespace GreenshotConfluencePlugin {
 		private ICaptureHost captureHost = null;
 		private ConfluenceConnector confluenceConnector = null;
 		private PluginAttribute myAttributes;
+        private ConfluenceConfiguration config = null;
 
 		public ConfluencePlugin() {
 		}
@@ -60,7 +61,10 @@ namespace GreenshotConfluencePlugin {
 			host.OnImageEditorOpen += new OnImageEditorOpenHandler(ImageEditorOpened);
 			
 			// Register configuration (don't need the configuration itself)
-			IniConfig.GetIniSection<ConfluenceConfiguration>();
+			config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+			if(config.IsDirty) {
+				IniConfig.Save();
+			}
 		}
 
 		public virtual void Shutdown() {
@@ -75,7 +79,7 @@ namespace GreenshotConfluencePlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			IniConfig.GetIniSection<ConfluenceConfiguration>().ShowConfigDialog();
+			config.ShowConfigDialog();
 		}
 
 		/// <summary>
@@ -110,21 +114,24 @@ namespace GreenshotConfluencePlugin {
 			IImageEditor imageEditor = (IImageEditor)item.Tag;
 
 			if (confluenceConnector == null) {
-				this.confluenceConnector = new ConfluenceConnector();
+				confluenceConnector = new ConfluenceConnector(config.Url, config.Timeout);
 			}
-			ConfluenceForm confluenceForm = new ConfluenceForm(confluenceConnector);
-			confluenceForm.setFilename(host.GetFilename(OutputFormat.Png, imageEditor.CaptureDetails));
-			DialogResult result = confluenceForm.ShowDialog();
-			if (result == DialogResult.OK) {
-				using (MemoryStream stream = new MemoryStream()) {
-					imageEditor.SaveToStream(stream, OutputFormat.Png, 100);
-					byte [] buffer = stream.GetBuffer();
-					try {
-						confluenceForm.upload(buffer);
-						LOG.Debug("Uploaded to Confluence.");
-						MessageBox.Show(lang.GetString(LangKey.upload_success));
-					} catch(Exception e) {
-						MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
+
+			if (confluenceConnector.isLoggedIn()) {
+				ConfluenceForm confluenceForm = new ConfluenceForm(confluenceConnector);
+				confluenceForm.setFilename(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
+				DialogResult result = confluenceForm.ShowDialog();
+				if (result == DialogResult.OK) {
+					using (MemoryStream stream = new MemoryStream()) {
+						imageEditor.SaveToStream(stream, config.UploadFormat, config.UploadJpegQuality);
+						byte [] buffer = stream.GetBuffer();
+						try {
+							confluenceForm.upload(buffer);
+							LOG.Debug("Uploaded to Confluence.");
+							MessageBox.Show(lang.GetString(LangKey.upload_success));
+						} catch(Exception e) {
+							MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
+						}
 					}
 				}
 			}

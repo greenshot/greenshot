@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 namespace GreenshotConfluencePlugin {
-	partial class LoginForm {
+	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
@@ -46,34 +46,13 @@ namespace GreenshotConfluencePlugin {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.textBoxPassword = new System.Windows.Forms.TextBox();
-			this.label_password = new System.Windows.Forms.Label();
 			this.buttonOK = new System.Windows.Forms.Button();
 			this.buttonCancel = new System.Windows.Forms.Button();
-			this.label_user = new System.Windows.Forms.Label();
-			this.textBoxUser = new System.Windows.Forms.TextBox();
 			this.label_url = new System.Windows.Forms.Label();
 			this.textBoxUrl = new System.Windows.Forms.TextBox();
-			this.checkBoxDoNotStorePassword = new System.Windows.Forms.CheckBox();
+			this.combobox_uploadimageformat = new System.Windows.Forms.ComboBox();
+			this.label_upload_format = new System.Windows.Forms.Label();
 			this.SuspendLayout();
-			// 
-			// textBoxPassword
-			// 
-			this.textBoxPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.textBoxPassword.Location = new System.Drawing.Point(102, 73);
-			this.textBoxPassword.Name = "textBoxPassword";
-			this.textBoxPassword.PasswordChar = '*';
-			this.textBoxPassword.Size = new System.Drawing.Size(276, 20);
-			this.textBoxPassword.TabIndex = 0;
-			this.textBoxPassword.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TextBoxPasswordKeyUp);
-			// 
-			// label_password
-			// 
-			this.label_password.Location = new System.Drawing.Point(12, 73);
-			this.label_password.Name = "label_password";
-			this.label_password.Size = new System.Drawing.Size(84, 20);
-			this.label_password.TabIndex = 1;
-			this.label_password.Text = "Password";
 			// 
 			// buttonOK
 			// 
@@ -97,22 +76,6 @@ namespace GreenshotConfluencePlugin {
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
-			// label_user
-			// 
-			this.label_user.Location = new System.Drawing.Point(12, 47);
-			this.label_user.Name = "label_user";
-			this.label_user.Size = new System.Drawing.Size(84, 20);
-			this.label_user.TabIndex = 5;
-			this.label_user.Text = "User";
-			// 
-			// textBoxUser
-			// 
-			this.textBoxUser.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.textBoxUser.Location = new System.Drawing.Point(102, 47);
-			this.textBoxUser.Name = "textBoxUser";
-			this.textBoxUser.Size = new System.Drawing.Size(276, 20);
-			this.textBoxUser.TabIndex = 4;
-			// 
 			// label_url
 			// 
 			this.label_url.Location = new System.Drawing.Point(12, 21);
@@ -129,44 +92,43 @@ namespace GreenshotConfluencePlugin {
 			this.textBoxUrl.Size = new System.Drawing.Size(276, 20);
 			this.textBoxUrl.TabIndex = 6;
 			// 
-			// checkBoxDoNotStorePassword
+			// combobox_uploadimageformat
 			// 
-			this.checkBoxDoNotStorePassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.checkBoxDoNotStorePassword.Checked = true;
-			this.checkBoxDoNotStorePassword.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.checkBoxDoNotStorePassword.Location = new System.Drawing.Point(102, 99);
-			this.checkBoxDoNotStorePassword.Name = "checkBoxDoNotStorePassword";
-			this.checkBoxDoNotStorePassword.Size = new System.Drawing.Size(276, 24);
-			this.checkBoxDoNotStorePassword.TabIndex = 8;
-			this.checkBoxDoNotStorePassword.Text = "Do not store the password";
-			this.checkBoxDoNotStorePassword.UseVisualStyleBackColor = true;
+			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.combobox_uploadimageformat.FormattingEnabled = true;
+			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 47);
+			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
+			this.combobox_uploadimageformat.Size = new System.Drawing.Size(276, 21);
+			this.combobox_uploadimageformat.TabIndex = 8;
 			// 
-			// LoginForm
+			// label_upload_format
+			// 
+			this.label_upload_format.Location = new System.Drawing.Point(12, 50);
+			this.label_upload_format.Name = "label_upload_format";
+			this.label_upload_format.Size = new System.Drawing.Size(84, 20);
+			this.label_upload_format.TabIndex = 9;
+			this.label_upload_format.Text = "Upload format";
+			// 
+			// SettingsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(387, 174);
-			this.Controls.Add(this.checkBoxDoNotStorePassword);
+			this.Controls.Add(this.label_upload_format);
+			this.Controls.Add(this.combobox_uploadimageformat);
 			this.Controls.Add(this.label_url);
 			this.Controls.Add(this.textBoxUrl);
-			this.Controls.Add(this.label_user);
-			this.Controls.Add(this.textBoxUser);
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
-			this.Controls.Add(this.label_password);
-			this.Controls.Add(this.textBoxPassword);
-			this.Name = "LoginForm";
+			this.Name = "SettingsForm";
 			this.Text = "Please enter your Confluence data";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
-		private System.Windows.Forms.CheckBox checkBoxDoNotStorePassword;
+		private System.Windows.Forms.ComboBox combobox_uploadimageformat;
+		private System.Windows.Forms.Label label_upload_format;
 		private System.Windows.Forms.TextBox textBoxUrl;
 		private System.Windows.Forms.Label label_url;
-		private System.Windows.Forms.TextBox textBoxUser;
-		private System.Windows.Forms.Label label_password;
-		private System.Windows.Forms.Label label_user;
-		private System.Windows.Forms.TextBox textBoxPassword;
 		private System.Windows.Forms.Button buttonCancel;
 		private System.Windows.Forms.Button buttonOK;
 	}

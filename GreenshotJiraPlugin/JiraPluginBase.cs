@@ -81,7 +81,7 @@ namespace GreenshotJiraPlugin {
 		public virtual void Configure() {
 			config.ShowConfigDialog();
 		}
-		
+
 		/// <summary>
 		/// This will be called when Greenshot is shutting down
 		/// </summary>
@@ -114,11 +114,11 @@ namespace GreenshotJiraPlugin {
 			IImageEditor imageEditor = (IImageEditor)item.Tag;
 
 			if (jiraConnector == null) {
-				this.jiraConnector = new JiraConnector(config.Url, config.Timeout);
+				jiraConnector = new JiraConnector(config.Url, config.Timeout);
 			}
 
-			JiraForm jiraForm = new JiraForm(jiraConnector);
 			if (jiraConnector.isLoggedIn()) {
+				JiraForm jiraForm = new JiraForm(jiraConnector);
 				jiraForm.setFilename(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
 				DialogResult result = jiraForm.ShowDialog();
 				if (result == DialogResult.OK) {
@@ -127,6 +127,7 @@ namespace GreenshotJiraPlugin {
 						byte [] buffer = stream.GetBuffer();
 						try {
 							jiraForm.upload(buffer);
+							LOG.Debug("Uploaded to Jira.");
 							MessageBox.Show(lang.GetString(LangKey.upload_success));
 						} catch(Exception e) {
 							MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);

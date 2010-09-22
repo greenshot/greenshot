@@ -25,8 +25,9 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
-using GreenshotConfluencePlugin;
 using Greenshot.Core;
+using Greenshot.Helpers;
+using GreenshotConfluencePlugin;
 
 /// <summary>
 /// For details see the Confluence API site
@@ -52,53 +53,75 @@ namespace Confluence {
         private string credentials = null;
         private DateTime loggedInTime = DateTime.Now;
         private bool loggedIn = false;
-        private ConfluenceConfiguration config;
         private ConfluenceSoapServiceService confluence;
+        private int timeout;
+        private string url;
         private Dictionary<string, string> userMap = new Dictionary<string, string>();
 
-        public ConfluenceConnector() {
-        	this.config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+        public ConfluenceConnector(string url, int timeout) {
+        	this.url = url;
+        	this.timeout = timeout;
             confluence = new ConfluenceSoapServiceService();
-            confluence.Url = config.Url;
+            confluence.Url = url;
         }
 
         ~ConfluenceConnector() {
             logout();
         }
+        /// <summary>
+        /// Internal login which catches the exceptions
+        /// </summary>
+        /// <returns>true if login was done sucessfully</returns>
+        private bool doLogin(string user, string password) {
+        	try {
+	        	this.credentials = confluence.login(user, password);
+	        	this.loggedInTime = DateTime.Now;
+				this.loggedIn = true;
+        	} catch (Exception e) {
+        		// check if auth failed
+            	if (e.Message.Contains(AUTH_FAILED_EXCEPTION_NAME)) {
+					return false;
+            	}
+            	// Not an authentication issue
+            	this.loggedIn = false;
+            	this.credentials = null;
+            	e.Data.Add("user", user);
+            	e.Data.Add("url", url);
+            	throw e;
+            }
+        	return true;
+        }
 
         public void login() {
             logout();
             try {
-	            if (config.HasPassword()) {
-	            	this.credentials = confluence.login(config.User, config.Password);
-            	} else if (config.HasTmpPassword()) {
-	            	this.credentials = confluence.login(config.User, config.TmpPassword);
-	            } else {
-        			if (config.ShowConfigDialog()) {
-        				if (config.HasPassword()) {
-	            			this.credentials = confluence.login(config.User, config.Password);
-	            		} else if (config.HasTmpPassword()) {
-	            			this.credentials = confluence.login(config.User, config.TmpPassword);
-        				}
-	            	} else {
-		            	throw new Exception("User pressed cancel!");
-	            	}
-	            }
-				this.loggedInTime = DateTime.Now;
-				this.loggedIn = true;
-            } catch (Exception e) {
-            	this.loggedIn = false;
-            	this.credentials = null;
-            	e.Data.Add("user",config.User);
-            	e.Data.Add("url",config.Url);
-            	if (e.Message.Contains(AUTH_FAILED_EXCEPTION_NAME)) {
-            		// Login failed due to wrong user or password, password should be removed!
-	            	config.Password = null;
-	            	config.TmpPassword = null;
-            		throw new Exception(e.Message.Replace(AUTH_FAILED_EXCEPTION_NAME+ ": ",""));
-            	}
-            	throw e;
-            }
+        		// Get the system name, so the user knows where to login to
+        		string systemName = url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX,"");
+           		CredentialsDialog dialog = new CredentialsDialog(systemName);
+				dialog.Name = null;
+				while (dialog.Show(dialog.Name) == DialogResult.OK) {
+					if (doLogin(dialog.Name, dialog.Password)) {
+						if (dialog.SaveChecked) {
+							dialog.Confirm(true);
+						}
+						return;
+					} else {
+						try {
+							dialog.Confirm(false);
+						} catch (ApplicationException e) {
+							// exception handling ...
+							LOG.Error("Problem using the credentials dialog", e);
+						}
+						// For every windows version after XP show an incorrect password baloon
+						dialog.IncorrectPassword = true;
+						// Make sure the dialog is display, the password was false!
+						dialog.AlwaysDisplay = true;
+					}
+				}
+			} catch (ApplicationException e) {
+				// exception handling ...
+				LOG.Error("Problem using the credentials dialog", e);
+			}
         }
 
         public void logout() {
@@ -111,7 +134,7 @@ namespace Confluence {
 
         private void checkCredentials() {
             if (loggedIn) {
-				if (loggedInTime.AddMinutes(config.Timeout-1).CompareTo(DateTime.Now) < 0) {
+				if (loggedInTime.AddMinutes(timeout-1).CompareTo(DateTime.Now) < 0) {
                     logout();
                     login();
                 }
