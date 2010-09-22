@@ -58,6 +58,15 @@ If this is true Greenshot will show a balloon at the Systray Icon.
 Default is true, will be false after the first start.
 Example to change: greenshot.exe /configure General_IsFirstLaunch=false
 
+	Hotkey=UInt32
+This setting is currently for Greenshot internal usage, it specifies which the hotkey to use (default PrintScreen)!
+Although one could change his Hotkey, for instance to the ScrollLock, there is currently no way of changing the modifieds (Shift/Alt etc)
+and the changes won't be reflected in the context menu. (Due to work on the Greenshot 0.9 version)
+You can lookup the codes here: http://www.liquidcabaret.com/webhelp/ams/Program_Reference/Misc/Virtual_Key_Codes.htm
+Only decimal can be passed to Greenshot!
+Example, changeing the hotkey to be "ScrollLock": greenshot.exe /configure Hotkey=44 /norun
+Changeing back to "PrintScreen": greenshot.exe /configure Hotkey=145 /norun
+
 	Capture_Mousepointer=Boolean
 This setting, which is available in the settings window, specifies if Greenshot will capture the mouse cursor.
 Default is true.
@@ -94,13 +103,15 @@ Example to change: greenshot.exe /configure Ui_Effects_CameraSound=false
 
 	Output_File_Path=String
 This setting, which is available in the settings window, specifies the default location for all captures.
+This value can also contain environment variables which will be expanded at runtime, e.g. ${TMP}
 Default is the users desktop.
-Example to change: greenshot.exe /configure Output_File_Path="C:\Documents and Settings\"
+Example to change: greenshot.exe /configure Output_File_Path="${USERPROFILE}\Pictures"
 
 	Output_File_FilenamePattern=String
 This setting, which is available in the settings window, specifies the default filename pattern.
-Default is "%title%_%YYYY%-%MM%-%DD%_%hh%-%mm%-%ss%".
-Example to change: greenshot.exe /configure Output_File_FilenamePattern="%hostname%\%user%\%title%-%NUM%"
+This value can also contain environment variables which will be expanded at runtime, e.g. ${USERNAME}
+Default is "${capturetime}_${title}"
+Example to change: greenshot.exe /configure Output_File_FilenamePattern="${hostname}\${user}\${title}-${NUM}"
 
 	Output_File_Format=String
 This setting, which is available in the settings window, specifies the default file type.
@@ -123,7 +134,7 @@ Default is false
 Example to change: greenshot.exe /configure Output_File_PromptJpegQuality=true
 
 	Output_File_IncrementingNumber=Int32
-This setting specifies the number which is used in the filename pattern as "%NUM%".
+This setting specifies the number which is used in the filename pattern as "${NUM}".
 Default is 0, will increment at every save.
 Example to change: greenshot.exe /configure Output_File_IncrementingNumber=10
 

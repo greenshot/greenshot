@@ -17,6 +17,7 @@ Bugs resolved:
 * Systray icon wasn't removed when stopping Greenshot
 * Installer fixes for silent installation and the selected installer language will be passed to Greenshot
 * Hotkeys on Windows 7 x64 weren't working, should be okay now.
+* Changed variable naming from %VAR% to ${VAR} to prevent early resolving on the command-line
 
 Features added:
 * Dutch is added to all Greenshot parts (application, plugins and installer)
@@ -28,8 +29,9 @@ Features added:
   This should allow you to change the language which is used to OCR your selection!
 * Added a simple plugin that will cut the "garbage" from the Internet Explorer and Firefox title when capturing
   currently the behaviour can only be controlled by changing the configuration manually (titlefix.properties in the configuration directory)
-  
-0.8.0:
+* Added environment variable support for the filename and path. Now one can use e.g. "${TMP}"...
+
+0.8.0
 
 Bugs resolved:
 * save-as dialog honors default storage location again
@@ -67,7 +69,6 @@ Features added:
 * Changed language from compiled resources to flexible xml files, user can add their own languages
 * Added "Select all" option for image editor
 * Added "Drag to", you can now drag images or image files to the Greenshot image editor.
-* Added command-line options, now it is possible to change the configuration by using the commandline. See "installer.txt"
 
 0.7
 
