@@ -378,17 +378,17 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 	</resource>
 	<resource name="settings_message_filenamepattern">
 		Les variables suivantes seront automatiquement remplacées dans votre morif :
-%YYYY% Année sur 4 chiffres
-%MM% mois sur 2 chiffres
-%DD% jour sur 2 chiffres
-%hh% heure sur 2 chiffres
-%mm% minutes sur 2 chiffres
-%ss% secondes sur 2 chiffres
-%NUM% Incrément sur 6 chiffres
-%title% Titre de la fenêtre
-%user% Nom d'utilisateur Windows
-%domain% Domaine Windows
-%hostname% Nom d'hôte du PC
+${YYYY} Année sur 4 chiffres
+${MM} mois sur 2 chiffres
+${DD} jour sur 2 chiffres
+${hh} heure sur 2 chiffres
+${mm} minutes sur 2 chiffres
+${ss} secondes sur 2 chiffres
+${NUM} Incrément sur 6 chiffres
+${title} Titre de la fenêtre
+${user} Nom d'utilisateur Windows
+${domain} Domaine Windows
+${hostname} Nom d'hôte du PC
 	</resource>
 	<resource name="editor_cursortool">
 		Outil de sélection (ESC)

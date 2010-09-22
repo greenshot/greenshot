@@ -1,0 +1,334 @@
+﻿
+<html>
+	<head>
+		<title>Greenshot Help</title>
+		
+		<style>
+		* {
+			font-family: Tahoma, Arial, Sans-serif;
+		}
+		h1 {font-size:16px;}
+		h2 {font-size:14px;color:#009900;margin-top:24px;}
+		h3 {font-size:12px;margin-top:18px;}
+		small {font-size:10px;}
+		p, li {font-size:12px;line-height:1.5em}
+		a:link, a:hover, a:visited, a:active {color:#009900;}
+		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
+		
+		</style>
+	</head>
+	<body>
+	<h1>Greenshot Help</h1>
+	<!-- 
+	Note to translator: uncomment entry below to have your effort honored 
+	-->
+	<small>Version 0.8 Nederlanse vertaling van de help door Jurjen Ladenius</small>
+	
+	<h2>Inhoud</h2>
+	<ol>
+		<li><a href="#screenshot">Een screenshot maken</a></li>
+		<ol>
+			<li><a href="#capture-region">Regio vastleggen</a></li>
+			<li><a href="#capture-last-region">Laast gebruikte regio vastleggen</a></li>
+			<li><a href="#capture-window">Window vangen</a></li>
+			<li><a href="#capture-fullscreen">Gehele beeldscherm vastleggen</a></li>
+		</ol>
+	
+		<li><a href="#editor">Using the image editor</a></li>
+		<ol>
+			<li><a href="#editor-shapes">Drawing shapes</a></li>
+			<li><a href="#editor-text">Adding text</a></li>
+			<li><a href="#editor-highlight">Highlighting things</a></li>
+			<li><a href="#editor-obfuscate">Obfuscating things</a></li>
+			<li><a href="#editor-crop">Cropping the screenshot</a></li>
+			<li><a href="#editor-reuse-elements">Re-using drawn elements</a></li>
+			<li><a href="#editor-export">Exporting the screenshot</a></li>
+		</ol>
+		<li><a href="#settings">The settings dialog</a></li>
+		<ol>
+			<li><a href="#settings-general">General settings</a></li>
+			<li><a href="#settings-output">Output settings</a></li>
+			<li><a href="#settings-printer">Printer settings</a></li>
+		</ol>
+		<li><a href="#help">Want to help?</a></li>
+		<ol>
+			<li><a href="#help-donate">Consider a donation</a></li>
+			<li><a href="#help-spread">Spread the word</a></li>
+			<li><a href="#help-translate">Submit a translation</a></li>
+		</ol>
+	</ol>
+	
+	<a name="screenshot"></a>
+	<h2>Een screenshot maken</h2>
+	<p>
+		U kunt een screenshot maken door de <kbd>Print</kbd> toets van uw keyboard te drukken of
+		rechts op het Greenshot icon in de systray te klikken<br>
+		Er zijn meerdere mogelijkheden om een screenshot te maken:
+	</p>
+	
+	<a name="capture-region"></a>
+	<h3>Regio vastleggen <kbd>Print</kbd></h3>
+	<p>
+		De "regio vastleggen" modus maakt het mogelijk om een gebied van het beeldscherm te markeren voor een screenshot.<br>
+		Nadat de regio vastlegen modus gestart wordt verandert de mouse-cursor in een kruis.
+		Stuur de muis naar een hoek van het gebied waarvan u een screenshot wilt hebben en
+		druk op de linker muisknop en hou deze gedrukt. Beweeg nu de muis naar de tegenovergestelde hoek
+		van uw doelgebied, tijdens het bewegen ziet u een groeiende groene rechthoek.
+		Op het moment dat u de linker muisknop los laat word het gehele groene gebied vastgelegd.
+	</p>
+	<p class="hint">
+		U kunt de <kbd>spatie</kbd> toets gebruiken om tussen de "regio vastleggen" en de
+		<a href="#capture-window">window</a> modus te wisselen. De Esc-toets breekt het vastleggen af.
+	</p>
+	<p class="hint">
+		Als u een zeer exact gebied wilt vastleggen is het misschen eenvoudiger om eerst een groter
+		gebied te nemen en dan de screeshot <a href="#editor-crop">bij te snijden</a> in de
+		Greenshot beeld bewerking.
+	</p>
+	
+	<a name="capture-last-region"></a>
+	<h3>Laast gebruikte regio vastleggen <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
+	<p>
+		Als u al een keer een <a href="#capture-region">regio</a> of een <a href="#capture-window">window</a>
+		vastgelegt heeft, heeft u met deze optie de mogelijkheid nog een keer de zelfde regio vast te leggen. 
+	</p>
+	
+	<a name="capture-window"></a>
+	<h3>Window vangen <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
+	<p>
+		Maakt een screenshot van het aktive window.
+	</p>
+	<p class="hint">
+		In de <a href="#settings">voorkeursinstellingen</a> is een optie om niet
+		het aktive window te vangen, maar om een window interaktiv uit te kiezen.
+		Als deze optie aan staat kunt u een window selekteren door erop te klikken.
+		(net als in de <a href="#capture-region">regio vastleggen</a> modus tekent Greenshot
+		een groene rechhoek om het window wat gekozen wordt.)<br>
+		Als u gedeeltes van een window wilt vangen, bijvoorbeeld het zichtbare gedeelte
+		van de website die op dit moment in Internet Explorer getoont word, dan beweeg de muis
+		over het window een druk de <kbd>PgDown</kbd> toets. Op dit moment is het mogelijk
+		om kleinere gedeeltes van het window te selekteren en te vangen.
+	</p>
+	
+	<a name="capture-fullscreen"></a>
+	<h3>Gehele beeldscherm vastleggen <kbd>Control</kbd> + <kbd>Print</kbd></h3>
+	<p>
+		Maakt een screenshot van het gehele beeldscherm, ook als er meerdere monitoren gebruikt worden.
+	</p>
+	
+	<a name="editor"></a>
+	<h2>De Greenshot beeld bewerking gebruiken</h2>
+	<p>
+		Greenshot komt met een eenvoudig te gebruiken beeld bewerking die verschillende handige werktuigen heeft en het
+		mogelijk maakt om vormen en annotaties op een screenshot te maken. Het is zelfs mogelijk om bepaalde delen van
+		uw screenshot onherkenbaar te maken of te markeren waardoor het beter opvalt.
+	</p>
+	<p class="hint">
+		De Greenshot beeld bewerking kan niet alleen voor screenshot maar ook voor andere beelden uit bestanden of het klembord gebruikt worden.
+		Klik hiervoor met de rechter muis knop op het Greenshot icon in de systray en selekteer <em>Open beeld uit bestand</em> 
+		of <em>Laad beeld van het klembord</em>.
+	</p>
+	<p class="hint">
+		By default, the image editor will be opened whenever a screenshot is
+		captured. If you do not want to use the image editor, you can disable this
+		behavior in the <a href="#settings">settings dialog</a>.
+	</p>
+	
+	
+	<a name="editor-shapes"></a>
+	<h3>Drawing shapes</h3>
+	<p>
+		Select one of the shape drawing tools from the toolbar on the left hand side
+		of the image editor or from the <em>Object</em> menu. There is also a key assigned
+		to each tool for your convenience.<br>
+		Available shapes are: rectangle <kbd>R</kbd>, ellipse <kbd>E</kbd>, line <kbd>L</kbd>
+		and arrow <kbd>A</kbd>.<br>
+		Click, hold down the mouse button and drag to define position and size of the shape. 
+		Release the mouse button when you are done.
+	</p>
+	<p>
+		You can move or resize existing shapes after selecting the selection tool 
+		<kbd>ESC</kbd> from the toolbar.<br>For every element type there is a specific 
+		set of options available to change the look of the element (e.g. line thickness, 
+		line color, fill color). You can change the options for an existing element after
+		selecting it, but also for the next element to be drawn after selecting a drawing tool.
+	</p>
+	<p class="hint">
+		You can select multiple elements for editing at a time. In order to select multiple
+		elements, hold down the <kbd>Shift</kbd> key while clicking the elements.
+	</p>
+	
+	<a name="editor-text"></a>
+	<h3>Adding text</h3>
+	<p>
+		Usage of the text tool <kbd>T</kbd> is similar to the usage of the 
+		<a href="#editor-shapes">shape</a> tools. Just draw the text element to the desired
+		size, then type in the text.<br>
+		Double click an existing text element to edit the text.
+	</p>
+	
+	<a name="editor-highlight"></a>
+	<h3>Highlighting things</h3>
+	<p>
+		After selecting the highlight tool <kbd>H</kbd>, you can define the area to be 
+		highlighted exactly like you would draw a <a href="#editor-shapes">shape</a>.<br>
+		There are several options for highlighting, which you can choose from by clicking
+		the leftmost button in the toolbar on top:
+	</p>
+	<ul>
+		<li><em>Highlight text</em>: highlights an area by applying a bright color to it, like
+			an office text highlighter</li>
+		<li><em>Highlight area</em>: blurs<a href="#hint-blur">*</a> and darkens everything outside the selected area</li>
+		<li><em>Grayscale</em>: everything outside the selected area will be turned to grayscale</li>
+		<li><em>Magnify</em>: the selected area will be displayed magnified</li>
+	</ul>
+	
+	<a name="editor-obfuscate"></a>
+	<h3>Obfuscating things</h3>
+	<p>
+		Obfuscating parts of a screenshot is a good idea if it contains data which is not
+		intended for other people to see, e.g. bank account data, names, passwords or faces on images.<br>
+		Use the obfuscate tool <kbd>O</kbd> exactly like the <a href="#editor-highlight">highlight</a> 
+		tool.<br>
+		Available options for obfuscation are:
+	</p>
+	<ul>
+		<li><em>Pixelize</em>: increases the pixel size for the selected area</li>
+		<li><em>Blur</em><a href="#hint-blur">*</a>: blurs the selected area</li>
+	</ul>
+	<a name="hint-blur"></a>
+	<p class="hint">
+		* Depeding on the performance of your computer, applying a blur effect might slow down 
+		Greenshot's image editor. If you feel the image editor reacting slowly as soon as a 
+		blur is applied, try reducing the value for <em>Preview quality</em> in the toolbar or 
+		decrease the value for <em>Blur radius</em>.<br>
+		If the blur performance is still too bad for you to work with, you might prefer
+		to use the pixelize effect instead.
+	</p>
+	
+	<a name="editor-crop"></a>
+	<h3>Cropping the screenshot</h3>
+	<p>
+		If you only need a part of the screenshot you have captured, use the crop tool <kbd>C</kbd>
+		to crop it to the desired area.<br>
+		After selecting the crop tool, draw a rectangle for the area of the screenshot you want
+		to keep. You can resize the selected area like any other element.<br>
+		When you are content with your selection, use the confirm button in the toolbar or hit
+		the <kbd>Enter</kbd> key. You can cancel cropping by clicking the cancel button or hitting 
+		<kbd>ESC</kbd>.
+	</p>
+	
+	<a name="editor-reuse-elements"></a>
+	<h3>Re-using drawn elements</h3>
+	<p>
+		If you find yourself using the same or similar elements on most of your screenshots
+		(e.g. a textfield containing browser type and version, or obfuscating the same
+		element on several screenshots) you can re-use elements.<br>
+		Select <em>Save objects to file</em> from the <em>Object</em> menu to save the current
+		set of elements for re-using it later. <em>Load objects from file</em> applies the
+		same elements to another screenshot.
+	</p>
+	
+	<a name="editor-export"></a>
+	<h3>Exporting the screenshot</h3>
+	<p>
+		After editing the screenshot, you can export the result for different purposes,
+		depending on your needs. You can access all export options through the <em>File</em>
+		menu, the topmost toolbar or via shortcuts:
+	</p>
+	<ul>
+		<li><em>Save</em> <kbd>Control</kbd> + <kbd>S</kbd>: saves the image to a file (if the image has already been saved, else displays <em>Save as...</em> dialog</li>
+		<li><em>Save as...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: lets you choose location, filename and image format for the file to save</li>
+		<li><em>Copy image to clipboard</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: puts a copy of the image into the clipboard, allowing to paste into other programs</li>
+		<li><em>Print...</em> <kbd>Control</kbd> + <kbd>P</kbd>: sends the image to a printer</li>
+		<li><em>E-Mail</em> <kbd>Control</kbd> + <kbd>E</kbd>: opens a new message in your default e-mail client, adding the image as attachment</li>
+	</ul>
+	<p class="hint">
+		After saving an image from the editor, right-click the status bar at the bottom of
+		the editor window to either copy the file path into the clipboard or open the
+		containing directory in Windows Explorer.
+	</p>
+	
+	
+	<a name="settings"></a>
+	<h2>The settings dialog</h2>
+	
+	<a name="settings-general"></a>
+	<h3>General settings</h3>
+	<ul>
+		<li><em>Language</em>: The language you prefer to be used.<br>
+			You can download additional language files for Greenshot <a href="#">here</a>. </li>
+		<li><em>Register hotkeys</em>: If checked, Greenshot can be used with the <kbd>Print</kbd> key.</li>
+		<li><em>Launch Greenshot on startup</em>: Start the program when the system has been booted.</li>
+		<li><em>Show flashlight</em>: Visual feedback when doing a capture</li>
+		<li><em>Play camera sound</em>: Audible feedback when doing a capture</li>
+		<li><em>Capture mousepointer</em>: If checked, the mousepointer will be captured. The pointer is handled is a separate element in the editor, so that you can move or remove it later.</li>
+		<li><em>Use interactive window capture mode</em>: Instead of capturing the active window right away, interactive mode
+			allows you to select the window to capture. It is also possible to capture child windows, see <a href="#capture-window">window capture</a>.</li>
+	</ul>
+	
+	<a name="settings-output"></a>
+	<h3>Output settings</h3>
+	<ul>
+		<li><em>Screenshot destination</em>: Allows you to choose the destination(s) for your screenshot right after capturing it.</li>
+		<li><em>Preferred output file settings</em>: Directory and filename to be used when saving directly or to be suggested when saving (using the save-as dialog). Click the <em>?</em> button to learn more about the placeholders that can be used as filename pattern.</li>
+		<li><em>JPEG settings</em>: Quality to be used when saving JPEG files</li>
+	</ul>
+	
+	<a name="settings-printer"></a>
+	<h3>Printer settings</h3>
+	<ul>
+		<li><em>Shrink printout to fit paper size</em>: If the image would exceed paper size, it will be shrinked to fit on the page.</li>
+		<li><em>Enlarge printout to fit paper size</em>: If the image is smaller than the paper size, it will be scaled to be printed as large as possible without exceeding paper size.</li>
+		<li><em>Rotate printout to page orientation</em>: Will rotate a landscape format image by 90� for printing.</li>
+	</ul>
+	
+	
+	<a name="help"></a>
+	<h2>U wilt helpen?</h2>
+	
+	<p>
+		Op dit moment zoeken we geen hulp voor de ontwikkeling. Maar u kunt meerdere dingen doen om
+		het Greenshot ontwikkelteam te ondersteunen.<br>
+		Bij voorbaat dank :)
+	</p>
+	
+	<a name="help-donate"></a>
+	<h3>Overweeg een donatie</h3>
+	<p>
+		We stoppen een hoop tijd en werk in Greenshot om goede software gratis en open tot uw beschiking te stellen!
+		Als u het gevoel heeft dat Greenshot u meer produktief maakt, u of uw firma een hoop tijd en geld bespaard
+		of als u eenvoudig Greenshot en het idee van open source software goed vindt:
+		Overweeg een donatie ter eren van onze inspanningen.<br>
+		Kijk AUB op onze home page om te lezen hoe u het Greenshot ontwikkelteam kunt ondersteunen:<br>
+		<a href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+	</p>
+	
+	<a name="help-spread"></a>
+	<h3>Vertel het door</h3>
+	<p>
+		Als u Greenshot goed vind, vertel het door: vertel uw vrienden en kollegas over Greenshot.
+		Uw aanhang en achterban ook! :)<br>
+		Geef Greenshot goede kritiek in software portals of verlink Greenshot in uw blog of website.
+	</p>
+	
+	<a name="help-translate"></a>
+	<h3>Maak een vertaling</h3>
+	<p>
+		Greenshot is niet in uw favorite taal vertaald? Als u denkt dat u software kunt vertalen dan bent u welkom!
+		Als u een geregisteerde gebruiker bij sourceforge.net bent kunt u uw vertaling in onze 
+		<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">vertalings tracker</a> bekent maken.<br>
+		Voordat u begin is het verstandig om te kijken of Greenshot niet al in de taal vertaalt is, zie de 
+		<a href="#">downloads pagina</a>. Ook kunt u op onze <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">vertalings tracker</a> kijken,
+		het zou kunnen dat al iemand aan de vertaling werkt of misschien hierover een diskussie heeft.<br>
+		
+		Een belangrijk punt is dat we vertalingen alleen op onze website zetten als het door iemand vertaalt is die
+		ook een sourceforge.net gebruiker is. Omdat we zeer waarschijnlijk de vertaling niet begrijpen is het nodig
+		dat we de gebruiker kunnen vinden, alleen dan kunnen we bij nieuwe Greenshot versies ook deze taal weer uitleveren.
+	</p>
+	
+	
+	
+	</body>
+</html>

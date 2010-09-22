@@ -384,20 +384,20 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 	</resource>
 	<resource name="settings_message_filenamepattern">
 		A következő minták válthatják fel az automatikus meghatározást:
-%YYYY% év, 4 karakter
-%MM% hónap, 2 karakter
-%DD% nap, 2 karakter
-%hh% óra, 2 karakter
-%mm% perc, 2 karakter
-%ss% másodperc, 2 karakter
-%NUM% növekvő szám, 6 karakter
-%title% Az ablak neve
-%user% Windows felhasználó
-%domain% Windows tartomány
-%hostname% Számítógép név
+${YYYY} év, 4 karakter
+${MM} hónap, 2 karakter
+${DD} nap, 2 karakter
+${hh} óra, 2 karakter
+${mm} perc, 2 karakter
+${ss} másodperc, 2 karakter
+${NUM} növekvő szám, 6 karakter
+${title} Az ablak neve
+${user} Windows felhasználó
+${domain} Windows tartomány
+${hostname} Számítógép név
 
 Könyvtárak lehet létrehozni a Greenshot -tal, a visszaper jeletet (\) használja a mappák és fájlnevek elválasztásánál.
-Például: a minta %YYYY%-%MM%-%DD%_%hh%-%mm%-%ss%
+Például: a minta ${YYYY}-${MM}-${DD}_${hh}-${mm}-${ss}
 fájl mentése az aktuális dátummal és időponttal, a megadott tárolási helyre, pl.: 2008-06-29_14-34-21, ezzel a mentési meghatározással a képernyőkép mindig az aktuális dátummal, idővel lesz elmentve.
 	</resource>
 	<resource name="editor_cursortool">

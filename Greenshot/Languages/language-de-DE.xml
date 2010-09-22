@@ -385,19 +385,19 @@ schnell zu finden. Vielen Dank :)
 	</resource>
 	<resource name="settings_message_filenamepattern">
 		Die folgenden Platzhalter werden im festgelegten Muster automatisch ersetzt:
-%YYYY% Jahr, 4-stellig
-%MM% Monat, 2-stellig
-%DD% Tag, 2-stellig
-%hh% Stunde, 2-stellig
-%mm% Minute, 2-stellig
-%ss% Sekunde, 2-stellig
-%NUM% inkrementierende Zahl, 6-stellig
-%title% Fenstertitel
-%user% Windows-Benutzername
-%domain% Windows-Domäne
-%hostname% PC Name
+${YYYY} Jahr, 4-stellig
+${MM} Monat, 2-stellig
+${DD} Tag, 2-stellig
+${hh} Stunde, 2-stellig
+${mm} Minute, 2-stellig
+${ss} Sekunde, 2-stellig
+${NUM} inkrementierende Zahl, 6-stellig
+${title} Fenstertitel
+${user} Windows-Benutzername
+${domain} Windows-Domäne
+${hostname} PC Name
 Greenshot kann auch Verzeichnisse dynamisch erstellen, verwenden Sie das Backslash-Symbol (\) um Verzeichnisse vom Dateinamen zu trennen.
-Beispiel: das Muster %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+Beispiel: das Muster ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 generiert ein Verzeichnis für den aktuellen Tag in ihrem Standard-Speicherort an, z.B. 2008-06-29, der Name des enthaltenen Screenshots basiert auf der aktuellen
 Zeit, z.B. 11_58_32 (plus Dateinamenerweiterung wie in den Einstellungen definiert)
 	</resource>

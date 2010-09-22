@@ -384,20 +384,20 @@ También, no sotros apreciaremos mucho si tu marcas si uno de los existentes art
 	</resource>
 	<resource name="settings_message_filenamepattern">
 		Los siguientes marcadores de posición serán reemplazados automáticamente por el formato definido:
-%YYYY% año, 4 digitos
-%MM% mes, 2 digitos
-%DD% día, 2 digitos
-%hh% hora, 2 digitos
-%mm% minuto, 2 digitos
-%ss% segundo, 2 digitos
-%NUM% número incremento, 6 digitos
-%title% Titulo de ventana
-%user% Usuario de Windows
-%domain% Dominio de Windows
-%hostname% Nombre del Equipo
+${YYYY} año, 4 digitos
+${MM} mes, 2 digitos
+${DD} día, 2 digitos
+${hh} hora, 2 digitos
+${mm} minuto, 2 digitos
+${ss} segundo, 2 digitos
+${NUM} número incremento, 6 digitos
+${title} Titulo de ventana
+${user} Usuario de Windows
+${domain} Dominio de Windows
+${hostname} Nombre del Equipo
 
 También puedes crear Greenshot ubicaciones dinámicamente, simplemente usa el simbolo de diagonal (\) para separar carpetas y nombres de archivo.
-Ejemplo: el formato %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+Ejemplo: el formato ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 generará una carpeta para el dia presente dentro de tu folder de almacenamiento por defento, ejemplo: 2008-06-29, los nombre de las imagenes contenidas serán basados en el momento
 presente, ejemplo: 11_58_32 (más la extension definida en la configuración)
 	</resource>

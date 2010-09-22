@@ -383,20 +383,20 @@ Alt+Print	抓取程序窗口（如果没有选择交互式抓取方式，将会�
 	</resource>
 	<resource name="settings_message_filenamepattern">
 	您可以使用以下格式来为文件命名，百分号之间代表变量，将会被自动替换：
-%YYYY% 年, 4位数字
-%MM% 月, 2位数字
-%DD% 日, 2位数字
-%hh% 小时, 2位数字
-%mm% 分钟, 2位数字
-%ss% 秒, 2位数字
-%NUM% 自动编号,6位数字
-%title% Window窗口标题
-%user% Windows用户名
-%domain% Windows网域名
-%hostname% PC名称
+${YYYY} 年, 4位数字
+${MM} 月, 2位数字
+${DD} 日, 2位数字
+${hh} 小时, 2位数字
+${mm} 分钟, 2位数字
+${ss} 秒, 2位数字
+${NUM} 自动编号,6位数字
+${title} Window窗口标题
+${user} Windows用户名
+${domain} Windows网域名
+${hostname} PC名称
 
 您也可以让 Greenshot 动态创建文件夹，很简单只需要使用斜杠符号 （\） 将文件名和文件夹名分隔开来即可。
-例如： %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+例如： ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 使用此格式将在你的默认保存位置生成一个以当前日期命名的文件夹，例如,2008-06-29,而生成的抓图文件的文件名将以当前时间命名，例如，11_58_32（可以在扩展设置里定义）。
 	</resource>
 	<resource name="editor_cursortool">

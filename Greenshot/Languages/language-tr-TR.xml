@@ -384,20 +384,20 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 	</resource>
 	<resource name="settings_message_filenamepattern">
 		Şu ifadeler kullanıldığında aşağıdaki tanımlar yazılır:
-%YYYY% yıl, 4 hane
-%MM% ay, 2 hane
-%DD% gün, 2 hane
-%hh% saat, 2 hane
-%mm% dakika, 2 hane
-%ss% saniye, 2 hane
-%NUM% artan sayı, 6 hane
-%title% Pencere başlığı
-%user% Windows kullanıcısı
-%domain% Windows etki alanı
-%hostname% Bilgisayar adı
+${YYYY} yıl, 4 hane
+${MM} ay, 2 hane
+${DD} gün, 2 hane
+${hh} saat, 2 hane
+${mm} dakika, 2 hane
+${ss} saniye, 2 hane
+${NUM} artan sayı, 6 hane
+${title} Pencere başlığı
+${user} Windows kullanıcısı
+${domain} Windows etki alanı
+${hostname} Bilgisayar adı
 
 Klasör ve dosya adı arasında (\) karakterini kullanarak Greenshot'un istediğiniz klasörleri oluşturmasını sağlayabilirsiniz.
-Örneğin: %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss% biçimi, varsayılan kayıt klasörünüzün altına içinde bulunulan gün şeklinde bir klasör açar (2010-06-29 gibi), ekran görüntüsü dosyasının adı o anki zamana göre verilir (11-58-32 gibi) ve sonuna ayarlarda tanımlanmış uzantı varsa eklenir.
+Örneğin: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} biçimi, varsayılan kayıt klasörünüzün altına içinde bulunulan gün şeklinde bir klasör açar (2010-06-29 gibi), ekran görüntüsü dosyasının adı o anki zamana göre verilir (11-58-32 gibi) ve sonuna ayarlarda tanımlanmış uzantı varsa eklenir.
 	</resource>
 	<resource name="editor_cursortool">
 		Seçim Aracı (ESC)

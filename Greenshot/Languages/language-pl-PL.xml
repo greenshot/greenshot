@@ -380,20 +380,20 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 	</resource>
 	<resource name="settings_message_filenamepattern">
         Wzorce symboliczne w zdefiniowanych szablonach zostaną zastąpione automatycznie:
-%YYYY% - rok, 4 cyfry
-%MM% - miesiąc, 2 cyfry
-%DD% - dzień, 2 cyfry
-%hh% - godzina, 2 cyfry
-%mm% - minuta, 2 cyfry
-%ss% - sekunda, 2 cyfry
-%NUM% - liczba zwiększana o 1 (autonumeracja), 6 cyfr
-%title% - tytuł okna
-%user% - zalogowany użytkownik
-%domain% - nazwa domeny
-%hostname% - nazwa komputera
+${YYYY} - rok, 4 cyfry
+${MM} - miesiąc, 2 cyfry
+${DD} - dzień, 2 cyfry
+${hh} - godzina, 2 cyfry
+${mm} - minuta, 2 cyfry
+${ss} - sekunda, 2 cyfry
+${NUM} - liczba zwiększana o 1 (autonumeracja), 6 cyfr
+${title} - tytuł okna
+${user} - zalogowany użytkownik
+${domain} - nazwa domeny
+${hostname} - nazwa komputera
 
 Możliwe jest także dynamiczne tworzenie folderów - wystarczy użyć znaku odwrotnego ukośnika (\) do rozdzielenia nazw folderów i plików.
-Przykład: szablon %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+Przykład: szablon ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 utworzy w domyślnym miejscu zapisu folder dla bieżącego dnia, np. 2008-06-29, a nazwy plików ze zrzutami ekranu będą tworzone
 na podstawie bieżącego czasu, np. 11-58-32 (plus rozszerzenie zdefiniowane w ustawieniach).
 	</resource>

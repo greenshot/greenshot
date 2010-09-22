@@ -377,19 +377,19 @@ We stellen het zeer op prijs als u eerst zoekt of dit probleem misschien al best
 	</resource>
 	<resource name="settings_message_filenamepattern">
 		De volgende variabelen worden automatisch vervangen in het ingestelde patroon:
-%YYYY% jaar, 4 cijfers
-%MM% maand, 2 cijfers
-%DD% dag, 2 cijfers
-%hh% uur, 2 cijfers
-%mm% minuut, 2 cijfers
-%ss% seconde, 2 cijfers
-%NUM% oplopend nummer, 6 cijfers
-%title% venster titel
-%user% Windows gebruikersnaam
-%domain% Windows domein
-%hostname% PC naam
+${YYYY} jaar, 4 cijfers
+${MM} maand, 2 cijfers
+${DD} dag, 2 cijfers
+${hh} uur, 2 cijfers
+${mm} minuut, 2 cijfers
+${ss} seconde, 2 cijfers
+${NUM} oplopend nummer, 6 cijfers
+${title} venster titel
+${user} Windows gebruikersnaam
+${domain} Windows domein
+${hostname} PC naam
 U kunt ook Greenshot automatisch directories laten aanmaken door eenvoudig een backslash symbool (\) te gebruiken.
-Voorbeeld: Het patroon %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+Voorbeeld: Het patroon ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v. 2008-06-29, de naam van het bestand heeft dan de tijd
 , b.v. 11-58-32 (plus de extensie zoals in de voorkeursinstellingen staat)
 	</resource>

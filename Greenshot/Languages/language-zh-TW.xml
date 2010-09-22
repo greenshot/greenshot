@@ -383,19 +383,19 @@ Alt+Print	抓取視窗(如果沒有選取互動式抓圖的話, 程式會抓取�
 	</resource>
 	<resource name="settings_message_filenamepattern">
 		您可以使用以下的格式來指定檔名, 兩個%括起來的地方會被取代為日期、時間等:
-%YYYY%  年,  4個數字
-%MM%  月,  2個數字
-%DD%  日,  2個數字
-%hh%  時,  2個數字
-%mm%  分,  2個數字
-%ss%  秒,  2個數字
-%NUM%  自動編號,  6個數字
-%title%   抓取視窗的標題
-%user%   Windows 使用者名稱
-%domain%   Windows   網域名稱
-%hostname%   電腦名稱
+${YYYY}  年,  4個數字
+${MM}  月,  2個數字
+${DD}  日,  2個數字
+${hh}  時,  2個數字
+${mm}  分,  2個數字
+${ss}  秒,  2個數字
+${NUM}  自動編號,  6個數字
+${title}   抓取視窗的標題
+${user}   Windows 使用者名稱
+${domain}   Windows   網域名稱
+${hostname}   電腦名稱
 您也可以讓 Greenshot 自動產生資料夾, 只要用把右斜線( \ )放在資料夾名稱和檔名的中間就可以了
-例: %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+例: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 這樣寫的話, Greenshot 會在預設儲存路徑下建立一個以今天日期為名稱的資料夾(如 2008-06-29), 然後在這個資料夾下儲存圖片檔, 檔名為目前的時間(如 11-58-32)再加上圖片的副檔名 
 	</resource>
 	<resource name="editor_cursortool">

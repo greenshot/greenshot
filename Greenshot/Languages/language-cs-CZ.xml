@@ -384,20 +384,20 @@ Také bychom velmi ocenili, kdyby jste zkontrolovali, zda položka pro tuto chyb
 	</resource>
 	<resource name="settings_message_filenamepattern">
 		Následující symboly budou nahrazeny automaticky v definované struktuře:
-%YYYY% rok, 4 číslice
-%MM% měsíc, 2 číslice
-%DD% den, 2 čílice
-%hh% hodin, 2 číslice
-%mm% minut, 2 číslice
-%ss% sekund, 2 číslice
-%NUM% zvyšování počtu, 6 číslic
-%title% titulek okna
-%user% uživatel Windows
-%domain% Windows doména
-%hostname% jméno PC
+${YYYY} rok, 4 číslice
+${MM} měsíc, 2 číslice
+${DD} den, 2 číslice
+${hh} hodina, 2 číslice
+${mm} minuta, 2 číslice
+${ss} sekunda, 2 číslice
+${NUM} zvyšování počtu, 6 číslice
+${title} titulek okna
+${user} uživatel Windows
+${domain} Windows doména
+${hostname} jméno PC 
 
 Můžete také vytvářet adresáře Greenshotu dynamicky, stačí použít zpětné lomítko (symbol \) pro určení složky.
-Například: %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss% bude vytvářet složky ve výchozím úložišti pro příslušný den, např. 2008-06-29, ty budou obsahovat snímky s názvem souboru tvořeným aktuálním časem PC, např. 11_58_32 (plus rozšíření definováno v nastavení).
+Například: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} bude vytvářet složky ve výchozím úložišti pro příslušný den, např. 2008-06-29, ty budou obsahovat snímky s názvem souboru tvořeným aktuálním časem PC, např. 11_58_32 (plus rozšíření definováno v nastavení).
 	</resource>
 	<resource name="editor_cursortool">
 		Výběr objektů (ESC)
