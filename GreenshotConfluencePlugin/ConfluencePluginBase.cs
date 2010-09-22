@@ -117,8 +117,8 @@ namespace GreenshotConfluencePlugin {
 				confluenceConnector = new ConfluenceConnector(config.Url, config.Timeout);
 			}
 
+			ConfluenceForm confluenceForm = new ConfluenceForm(confluenceConnector);
 			if (confluenceConnector.isLoggedIn()) {
-				ConfluenceForm confluenceForm = new ConfluenceForm(confluenceConnector);
 				confluenceForm.setFilename(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
 				DialogResult result = confluenceForm.ShowDialog();
 				if (result == DialogResult.OK) {

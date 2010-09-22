@@ -23,20 +23,30 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using Confluence;
+using Greenshot.Core;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
 	/// Description of ConfluenceForm.
 	/// </summary>
 	public partial class ConfluenceForm : Form {
-		private ConfluenceConnector confluence;
-		public ConfluenceForm(ConfluenceConnector confluence) {
+		private ConfluenceConnector confluenceConnector;
+		private ILanguage language = Language.GetInstance();
+
+		public ConfluenceForm(ConfluenceConnector confluenceConnector) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 
-			this.confluence = confluence;
+			this.confluenceConnector = confluenceConnector;
+			try {
+				if (!confluenceConnector.isLoggedIn()) {
+					confluenceConnector.login();
+				}
+			} catch (Exception e) {
+				MessageBox.Show(language.GetFormattedString(LangKey.login_error, e.Message));
+			}
 		}
 		
 		public void setFilename(string filename) {
@@ -44,8 +54,8 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		public void upload(byte [] buffer) {
-			Page page = confluence.getPage(textBox_space.Text, textBox_page.Text);
-			confluence.addAttachment(page.id, " image/png", "HALLO", textBox_filename.Text, buffer);
+			Page page = confluenceConnector.getPage(textBox_space.Text, textBox_page.Text);
+			confluenceConnector.addAttachment(page.id, " image/png", "HALLO", textBox_filename.Text, buffer);
 		}
 		
 		void ButtonCancelClick(object sender, EventArgs e) {

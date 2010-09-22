@@ -116,9 +116,9 @@ namespace GreenshotJiraPlugin {
 			if (jiraConnector == null) {
 				jiraConnector = new JiraConnector(config.Url, config.Timeout);
 			}
+			JiraForm jiraForm = new JiraForm(jiraConnector);
 
 			if (jiraConnector.isLoggedIn()) {
-				JiraForm jiraForm = new JiraForm(jiraConnector);
 				jiraForm.setFilename(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
 				DialogResult result = jiraForm.ShowDialog();
 				if (result == DialogResult.OK) {
