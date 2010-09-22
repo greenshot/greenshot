@@ -30,49 +30,25 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	[IniSection("Jira", Description="Greenshot Jira Plugin configuration")]
 	public class JiraConfiguration : IniSection {
-		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue="http://jira/rpc/soap/jirasoapservice-v2?wsdl")]
+		public const string DEFAULT_POSTFIX = "/rpc/soap/jirasoapservice-v2?wsdl";
+		public const string DEFAULT_PREFIX = "http://";
+		private const string DEFAULT_URL = DEFAULT_PREFIX + "jira" + DEFAULT_POSTFIX;
+		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue=DEFAULT_URL)]
 		public string Url;
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
 		public int Timeout;
-		[IniProperty("User", Description="User for the Jira System")]
-		public string User;
-		[IniProperty("Password", Description="Password for the Jira System, belonging to user.")]
-		public string Password;
 		
-		// This will not be stored
-		public string TmpPassword;
 		
-		public bool HasPassword() {
-        	return (Password != null && Password.Length > 0);
-		}
-
-		public bool HasTmpPassword() {
-        	return (TmpPassword != null && TmpPassword.Length > 0);
-		}
-
 		/// <summary>
 		/// A form for username/password
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
         public bool ShowConfigDialog() {
-			LoginForm pwForm = new LoginForm();
-			if (User == null || User.Length == 0) {
-				User = Environment.UserName;
-			}
-        	pwForm.User = User;
+			SettingsForm pwForm = new SettingsForm();
         	pwForm.Url = Url;
         	DialogResult result = pwForm.ShowDialog();
         	if (result == DialogResult.OK) {
-        		if (pwForm.DoNotStorePassword) {
-        			TmpPassword = pwForm.Password;
-        			Password = null;
-        		} else {
-        			Password = pwForm.Password;
-        			TmpPassword = null;
-        		}
-            	
-            	if (!pwForm.User.Equals(User) ||!pwForm.Url.Equals(Url)) {
-            		User = pwForm.User;
+            	if (!pwForm.Url.Equals(Url)) {
             		Url = pwForm.Url;
             	}
            		IniConfig.Save();

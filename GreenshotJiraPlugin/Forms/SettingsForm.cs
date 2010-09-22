@@ -28,10 +28,10 @@ namespace GreenshotJiraPlugin {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class LoginForm : Form {
+	public partial class SettingsForm : Form {
 		private ILanguage lang = Language.GetInstance();
 
-		public LoginForm() {
+		public SettingsForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -41,11 +41,8 @@ namespace GreenshotJiraPlugin {
 				
 		private void InitializeTexts() {
 			this.label_url.Text = lang.GetString(LangKey.label_url);
-			this.label_user.Text = lang.GetString(LangKey.label_user);
-			this.label_password.Text = lang.GetString(LangKey.label_password);
 			this.buttonOK.Text = lang.GetString(LangKey.OK);
 			this.buttonCancel.Text = lang.GetString(LangKey.CANCEL);
-			this.checkBoxDoNotStorePassword.Text = lang.GetString(LangKey.label_no_password_store);
 			this.Text = lang.GetString(LangKey.login_title);
 		}
 
@@ -54,33 +51,12 @@ namespace GreenshotJiraPlugin {
 			set {textBoxUrl.Text = value;}
 		}
 
-		public string User {
-			get {return textBoxUser.Text;}
-			set {textBoxUser.Text = value;}
-		}
-
-		public string Password {
-			get {return textBoxPassword.Text;}
-			set {textBoxPassword.Text = value;}
-		}
-
-		public bool DoNotStorePassword {
-			get {return checkBoxDoNotStorePassword.Checked;}
-			set {checkBoxDoNotStorePassword.Checked = value;}
-		}
-
 		void ButtonOKClick(object sender, EventArgs e) {
 			this.DialogResult = DialogResult.OK;
 		}
 		
 		void ButtonCancelClick(object sender, System.EventArgs e) {
 			this.DialogResult = DialogResult.Cancel;
-		}
-
-		void TextBoxPasswordKeyUp(object sender, KeyEventArgs e) {
-			if (e.KeyCode == Keys.Enter) {
-				this.DialogResult = DialogResult.OK;
-			}
 		}
 	}
 }

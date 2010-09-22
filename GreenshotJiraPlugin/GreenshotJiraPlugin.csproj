@@ -54,9 +54,9 @@
     <Compile Include="Forms\JiraForm.cs" />
     <Compile Include="Forms\JiraForm.Designer.cs" />
     <Compile Include="Forms\ListViewColumnSorter.cs" />
-    <Compile Include="Forms\LoginForm.cs" />
-    <Compile Include="Forms\LoginForm.Designer.cs">
-      <DependentUpon>LoginForm.cs</DependentUpon>
+    <Compile Include="Forms\SettingsForm.cs" />
+    <Compile Include="Forms\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Jira.cs" />
     <Compile Include="JiraConfiguration.cs" />

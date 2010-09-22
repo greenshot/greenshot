@@ -25,8 +25,9 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
-using GreenshotJiraPlugin;
 using Greenshot.Core;
+using Greenshot.Helpers;
+using GreenshotJiraPlugin;
 
 namespace Jira {
 	#region transport classes
@@ -113,39 +114,55 @@ namespace Jira {
             logout();
         }
         
+        /// <summary>
+        /// Internal login which catches the exceptions
+        /// </summary>
+        /// <returns>true if login was done sucessfully</returns>
+        private bool doLogin(string user, string password) {
+        	try {
+	        	this.credentials = jira.login(user, password);
+	        	this.loggedInTime = DateTime.Now;
+				this.loggedIn = true;
+        	} catch (Exception e) {
+        		// check if auth failed
+            	if (e.Message.Contains(AUTH_FAILED_EXCEPTION_NAME)) {
+					return false;
+            	}
+            	// Not an authentication issue
+            	this.loggedIn = false;
+            	this.credentials = null;
+            	e.Data.Add("user", user);
+            	e.Data.Add("url", config.Url);
+            	throw e;
+            }
+        	return true;
+        }
+        
         public void login() {
         	logout();
             try {
-	            if (config.HasPassword()) {
-	            	this.credentials = jira.login(config.User, config.Password);
-	            } else if (config.HasTmpPassword()) {
-	            	this.credentials = jira.login(config.User, config.TmpPassword);
-	            } else {
-        			if (config.ShowConfigDialog()) {
-        				if (config.HasPassword()) {
-	            			this.credentials = jira.login(config.User, config.Password);
-	            		} else if (config.HasTmpPassword()) {
-	            			this.credentials = jira.login(config.User, config.TmpPassword);
-        				}
-	            	} else {
-		            	throw new Exception("User pressed cancel!");
-	            	}
-	            }
-				this.loggedInTime = DateTime.Now;
-				this.loggedIn = true;
-            } catch (Exception e) {
-            	this.loggedIn = false;
-            	this.credentials = null;
-            	e.Data.Add("user",config.User);
-            	e.Data.Add("url",config.Url);
-            	if (e.Message.Contains(AUTH_FAILED_EXCEPTION_NAME)) {
-            		// Login failed due to wrong user or password, password should be removed!
-	            	config.Password = null;
-	            	config.TmpPassword = null;
-            		throw new Exception(e.Message.Replace(AUTH_FAILED_EXCEPTION_NAME+ ": ",""));
-            	}
-            	throw e;
-            }
+        		CredentialsDialog dialog = new CredentialsDialog(config.Url.Replace(JiraConfiguration.DEFAULT_PREFIX,"").Replace(JiraConfiguration.DEFAULT_POSTFIX,""));
+				dialog.Name = null;
+				while (dialog.Show(dialog.Name) == DialogResult.OK) {
+					if (doLogin(dialog.Name, dialog.Password)) {
+						if (dialog.SaveChecked) {
+							dialog.Confirm(true);
+						}
+						return;
+					} else {
+						try {
+							dialog.Confirm(false);
+						} catch (ApplicationException e) {
+							// exception handling ...
+							LOG.Error("Problem using the credentials dialog", e);
+						}
+						dialog.IncorrectPassword = true;
+					}
+				}
+			} catch (ApplicationException e) {
+				// exception handling ...
+				LOG.Error("Problem using the credentials dialog", e);
+			}
         }
 
         public void logout() {
