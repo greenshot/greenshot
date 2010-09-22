@@ -65,7 +65,7 @@ namespace Greenshot.Test
 			CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 			//conf.Output_FileAs_Fullpath = @"c:\path\to\greenshot_testdir\gstest_28.jpg";
 			conf.OutputFilePath = @"c:\path\to\greenshot_testdir\";
-			conf.OutputFileFilenamePattern = "gstest_%NUM%";
+			conf.OutputFileFilenamePattern = "gstest_${NUM}";
 			conf.OutputFileFormat = OutputFormat.Jpeg;
 			conf.OutputFileIncrementingNumber = 28;
 			SaveImageFileDialog sifd = new SaveImageFileDialog();
