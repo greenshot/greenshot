@@ -91,6 +91,8 @@ namespace Greenshot.Core {
 		public bool OutputPrintCenter;
 		[IniProperty("OutputPrintTimestamp", Description="Print timestamp on print?", DefaultValue="true")]
 		public bool OutputPrintTimestamp;
+		[IniProperty("UseProxy", Description="Use your global proxy?", DefaultValue="True")]
+		public bool UseProxy;
 
 		[IniProperty("Test", Description="Test property")]
 		public Dictionary<string, bool> testProp;
