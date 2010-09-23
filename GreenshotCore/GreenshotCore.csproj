@@ -98,6 +98,7 @@
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ImageOutput.cs" />
     <Compile Include="Helpers\MailHelper.cs" />
+    <Compile Include="Helpers\NetworkHelper.cs" />
     <Compile Include="Helpers\Objects.cs" />
     <Compile Include="Helpers\PluginHelper.cs" />
     <Compile Include="Helpers\PrintHelper.cs" />

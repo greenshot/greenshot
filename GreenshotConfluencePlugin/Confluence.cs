@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using Greenshot.Core;
 using Greenshot.Helpers;
 using GreenshotConfluencePlugin;
+using GreenshotCore.Helpers;
 
 /// <summary>
 /// For details see the Confluence API site
@@ -47,57 +48,58 @@ namespace Confluence {
 	#endregion
 
 	public class ConfluenceConnector {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.confluence.rpc.AuthenticationFailedException";
 
-        private string credentials = null;
-        private DateTime loggedInTime = DateTime.Now;
-        private bool loggedIn = false;
-        private ConfluenceSoapServiceService confluence;
-        private int timeout;
-        private string url;
-        private Dictionary<string, string> userMap = new Dictionary<string, string>();
+		private string credentials = null;
+		private DateTime loggedInTime = DateTime.Now;
+		private bool loggedIn = false;
+		private ConfluenceSoapServiceService confluence;
+		private int timeout;
+		private string url;
+		private Dictionary<string, string> userMap = new Dictionary<string, string>();
 
-        public ConfluenceConnector(string url, int timeout) {
-        	this.url = url;
-        	this.timeout = timeout;
-            confluence = new ConfluenceSoapServiceService();
-            confluence.Url = url;
-        }
+		public ConfluenceConnector(string url, int timeout) {
+			this.url = url;
+			this.timeout = timeout;
+			confluence = new ConfluenceSoapServiceService();
+			confluence.Url = url;
+			confluence.Proxy = NetworkHelper.CreateProxy(new Uri(url));
+		}
 
-        ~ConfluenceConnector() {
-            logout();
-        }
-        /// <summary>
-        /// Internal login which catches the exceptions
-        /// </summary>
-        /// <returns>true if login was done sucessfully</returns>
-        private bool doLogin(string user, string password) {
-        	try {
-	        	this.credentials = confluence.login(user, password);
-	        	this.loggedInTime = DateTime.Now;
+		~ConfluenceConnector() {
+			logout();
+		}
+		/// <summary>
+		/// Internal login which catches the exceptions
+		/// </summary>
+		/// <returns>true if login was done sucessfully</returns>
+		private bool doLogin(string user, string password) {
+			try {
+				this.credentials = confluence.login(user, password);
+				this.loggedInTime = DateTime.Now;
 				this.loggedIn = true;
-        	} catch (Exception e) {
-        		// check if auth failed
-            	if (e.Message.Contains(AUTH_FAILED_EXCEPTION_NAME)) {
+			} catch (Exception e) {
+				// check if auth failed
+				if (e.Message.Contains(AUTH_FAILED_EXCEPTION_NAME)) {
 					return false;
-            	}
-            	// Not an authentication issue
-            	this.loggedIn = false;
-            	this.credentials = null;
-            	e.Data.Add("user", user);
-            	e.Data.Add("url", url);
-            	throw e;
-            }
-        	return true;
-        }
+				}
+				// Not an authentication issue
+				this.loggedIn = false;
+				this.credentials = null;
+				e.Data.Add("user", user);
+				e.Data.Add("url", url);
+				throw e;
+			}
+			return true;
+		}
 
-        public void login() {
-            logout();
-            try {
-        		// Get the system name, so the user knows where to login to
-        		string systemName = url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX,"");
-           		CredentialsDialog dialog = new CredentialsDialog(systemName);
+		public void login() {
+			logout();
+			try {
+				// Get the system name, so the user knows where to login to
+				string systemName = url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX,"");
+		   		CredentialsDialog dialog = new CredentialsDialog(systemName);
 				dialog.Name = null;
 				while (dialog.Show(dialog.Name) == DialogResult.OK) {
 					if (doLogin(dialog.Name, dialog.Password)) {
@@ -122,45 +124,45 @@ namespace Confluence {
 				// exception handling ...
 				LOG.Error("Problem using the credentials dialog", e);
 			}
-        }
+		}
 
-        public void logout() {
-            if (credentials != null) {
-                confluence.logout(credentials);
-                credentials = null;
-                loggedIn = false;
-            }
-        }
+		public void logout() {
+			if (credentials != null) {
+				confluence.logout(credentials);
+				credentials = null;
+				loggedIn = false;
+			}
+		}
 
-        private void checkCredentials() {
-            if (loggedIn) {
+		private void checkCredentials() {
+			if (loggedIn) {
 				if (loggedInTime.AddMinutes(timeout-1).CompareTo(DateTime.Now) < 0) {
-                    logout();
-                    login();
-                }
-            } else {
-                login();
-            }
-        }
+					logout();
+					login();
+				}
+			} else {
+				login();
+			}
+		}
 
-        public bool isLoggedIn() {
-            return loggedIn;
-        }
-        
-        public void addAttachment(long pageId, string mime, string comment, string filename, byte[] buffer) {
-        	checkCredentials();
+		public bool isLoggedIn() {
+			return loggedIn;
+		}
+		
+		public void addAttachment(long pageId, string mime, string comment, string filename, byte[] buffer) {
+			checkCredentials();
 			RemoteAttachment attachment = new RemoteAttachment();
 			// Comment is ignored, see: http://jira.atlassian.com/browse/CONF-9395
 			attachment.comment = comment;
 			attachment.fileName = filename;
 			attachment.contentType = mime;
 			confluence.addAttachment(credentials, pageId, attachment, buffer);
-        }
-        
-        public Page getPage(string spaceKey, string pageTitle) {
-        	checkCredentials();
-        	RemotePage page = confluence.getPage(credentials, spaceKey, pageTitle);
-        	return new Page(page);
-        }
-    }
+		}
+		
+		public Page getPage(string spaceKey, string pageTitle) {
+			checkCredentials();
+			RemotePage page = confluence.getPage(credentials, spaceKey, pageTitle);
+			return new Page(page);
+		}
+	}
 }

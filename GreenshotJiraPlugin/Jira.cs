@@ -22,72 +22,77 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Windows.Forms;
 
 using Greenshot.Core;
 using Greenshot.Helpers;
+using GreenshotCore.Helpers;
 using GreenshotJiraPlugin;
 
 namespace Jira {
 	#region transport classes
     public class JiraFilter {
         public JiraFilter(string name, string id) {
-            this.name = name;
-            this.id = id;
+            this.Name = name;
+            this.Id = id;
         }
-        public string name {
+        public string Name {
             get;
             set;
         }
-        public string id;
-    }
+		public string Id {
+            get;
+            set;
+        }
+	}
 
     public class JiraIssue {
         public JiraIssue(string key, DateTime? created, string reporter, string assignee, string project, string summary, string description, string environment, string [] attachmentNames) {
-            this.key = key;
-            this.created = created;
-            this.reporter = reporter;
-            this.assignee = assignee;
-            this.project = project;
-            this.summary = summary;
-            this.description = description;
-            this.environment = environment;
-            this.attachmentNames = attachmentNames;
+            this.Key = key;
+            this.Created = created;
+            this.Reporter = reporter;
+            this.Assignee = assignee;
+            this.Project = project;
+            this.Summary = summary;
+            this.Description = description;
+            this.Environment = environment;
+            this.AttachmentNames = attachmentNames;
         }
-        public string key {
+        public string Key {
             get;
             private set;
         }
-        public DateTime? created {
+        public DateTime? Created {
             get;
             private set;
         }
-        public string reporter {
+        public string Reporter {
             get;
             private set;
         }
-        public string assignee {
+        public string Assignee {
             get;
             private set;
         }
-        public string project {
+        public string Project {
             get;
             private set;
         }
-        public string summary {
+        public string Summary {
             get;
             private set;
         }
-        public string description {
+        public string Description {
             get;
             private set;
         }
-        public string environment {
+        public string Environment {
             get;
             private set;
         }
-        public string[] attachmentNames {
+        public string[] AttachmentNames {
             get;
             private set;
         }
@@ -95,11 +100,11 @@ namespace Jira {
 	#endregion
 
 	public class JiraConnector {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraConnector));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.jira.rpc.exception.RemoteAuthenticationException";
-        private string credentials = null;
+        private string credentials;
         private DateTime loggedInTime = DateTime.Now;
-        private bool loggedIn = false;
+        private bool loggedIn;
         private JiraSoapServiceService jira;
         private int timeout;
         private string url;
@@ -110,6 +115,7 @@ namespace Jira {
         	this.timeout = timeout;
             jira = new JiraSoapServiceService();
             jira.Url = url;
+           	jira.Proxy = NetworkHelper.CreateProxy(new Uri(url));
         }
 
         ~JiraConnector() {
@@ -135,7 +141,7 @@ namespace Jira {
             	this.credentials = null;
             	e.Data.Add("user", user);
             	e.Data.Add("url", url);
-            	throw e;
+            	throw;
             }
         	return true;
         }
