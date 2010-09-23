@@ -34,7 +34,7 @@ namespace Jira
         /// <remarks/>
         public JiraSoapServiceService()
         {
-            this.Url = "http://jira.famkrom.nl/rpc/soap/jirasoapservice-v2";
+            this.Url = "http://jira/rpc/soap/jirasoapservice-v2";
         }
         
         /// <remarks/>
