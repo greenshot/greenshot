@@ -27,7 +27,7 @@ using System.Reflection;
 
 namespace Greenshot.Helpers {
     public class WebsiteImageGenerator {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WebsiteImageGenerator));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WebsiteImageGenerator));
 
 		private const int MAX_HEIGHT = 2048;
 		private const int MAX_WIDTH = 2048;

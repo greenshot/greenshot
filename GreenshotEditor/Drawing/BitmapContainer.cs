@@ -32,7 +32,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class BitmapContainer : DrawableContainer, IBitmapContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapContainer));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapContainer));
 
 		protected Bitmap bitmap;
 

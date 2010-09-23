@@ -216,7 +216,7 @@ namespace Greenshot.Helpers  {
 	/// enumeration
 	/// </summary>
 	public class WindowDetails {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WindowDetails));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WindowDetails));
 		private static Dictionary<string, List<string>> classnameTree = new Dictionary<string, List<string>>();
 		private const string CONFIG_FILE_NAME = "windowcontent.properties";
 		private static string configfilename = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),@"Greenshot\" + CONFIG_FILE_NAME);

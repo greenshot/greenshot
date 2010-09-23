@@ -33,7 +33,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class MetafileContainer : DrawableContainer, IMetafileContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(MetafileContainer));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(MetafileContainer));
 
 		protected Metafile metafile;
 

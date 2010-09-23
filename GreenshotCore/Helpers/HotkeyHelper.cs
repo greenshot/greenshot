@@ -30,7 +30,7 @@ namespace Greenshot.Helpers {
 	/// Description of HotkeyHelper.
 	/// </summary>
 	public class HotkeyHelper {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(HotkeyHelper));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(HotkeyHelper));
 		
 		private const uint WM_HOTKEY = 0x312;
 		public const uint VK_SNAPSHOT = 0x2C;

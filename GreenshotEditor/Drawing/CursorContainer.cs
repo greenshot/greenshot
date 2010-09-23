@@ -33,7 +33,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class CursorContainer : DrawableContainer, ICursorContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CursorContainer));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CursorContainer));
 
 		protected Cursor cursor;
 

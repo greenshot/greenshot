@@ -28,7 +28,7 @@ using Greenshot.Drawing.Fields;
 namespace Greenshot.Drawing.Filters {
 	[Serializable()]
 	public class FastSmoothFilter : AbstractFilter {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FastSmoothFilter));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FastSmoothFilter));
 
 		public FastSmoothFilter(DrawableContainer parent) : base(parent) {
 			AddField(FieldFactory.CreateField(FieldType.BLUR_RADIUS, GetType()));

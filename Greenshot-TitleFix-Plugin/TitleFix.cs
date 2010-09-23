@@ -34,7 +34,7 @@ namespace TitleFix {
 	/// An example Plugin so developers can see how they can develop their own plugin
 	/// </summary>
 	public class TitleFix : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(TitleFix));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(TitleFix));
 
 		private IGreenshotPluginHost host;
 		private ICaptureHost captureHost = null;

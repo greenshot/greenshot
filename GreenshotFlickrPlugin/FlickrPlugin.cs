@@ -40,7 +40,7 @@ namespace GreenshotFlickrPlugin {
 	/// OCR Plugin Greenshot
 	/// </summary>
 	public class FlickrPlugin : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FlickrPlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FlickrPlugin));
 		private const string ApiKey = "f967e5148945cb3c4e149cc5be97796a";
 		private const string SharedSecret = "4180a21a1d2f8666";
 		private ILanguage lang = Language.GetInstance();

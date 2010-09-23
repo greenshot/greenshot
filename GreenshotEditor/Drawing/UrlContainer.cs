@@ -33,7 +33,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class UrlContainer : DrawableContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(UrlContainer));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(UrlContainer));
 
 		protected Bitmap bitmap = null;
 		protected string url = null;

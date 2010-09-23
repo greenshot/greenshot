@@ -38,7 +38,7 @@ namespace Greenshot.Forms {
 	/// For some reason SFD is sealed :(
 	/// </summary>
 	public class SaveImageFileDialog {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SaveImageFileDialog));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SaveImageFileDialog));
 		protected SaveFileDialog saveFileDialog;
 		private FilterOption[] filterOptions;
 		private DirectoryInfo eagerlyCreatedDirectory;

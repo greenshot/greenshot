@@ -79,7 +79,7 @@ namespace Greenshot.Core {
 	}
 	
 	public class IniConfig {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IniConfig));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IniConfig));
 		private const string CONFIG_FILE_NAME = "greenshot.ini";
 		private const string DEFAULTS_CONFIG_FILE_NAME = "greenshot-defaults.ini";
 

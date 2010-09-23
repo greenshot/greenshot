@@ -38,7 +38,7 @@ namespace GreenshotOCR {
 	/// OCR Plugin Greenshot
 	/// </summary>
 	public class OcrPlugin : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
 		private const string MODI_OFFICE11 = @"Software\Microsoft\Office\11.0\MODI";
 		private const string MODI_OFFICE12 = @"Software\Microsoft\Office\12.0\MODI";
 

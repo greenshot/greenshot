@@ -100,16 +100,16 @@ namespace GreenshotJiraPlugin {
 		}
 
 		public void upload(string text) {
-			jiraConnector.addAttachment(selectedIssue.key, jiraFilenameBox.Text, text);
+			jiraConnector.addAttachment(selectedIssue.Key, jiraFilenameBox.Text, text);
 			if (jiraCommentBox.Text != null && jiraCommentBox.Text.Length > 0) {
-				jiraConnector.addComment(selectedIssue.key, jiraCommentBox.Text);
+				jiraConnector.addComment(selectedIssue.Key, jiraCommentBox.Text);
 			}
 		}
 
 		public void upload(byte [] attachment) {
-			jiraConnector.addAttachment(selectedIssue.key, jiraFilenameBox.Text, attachment);
+			jiraConnector.addAttachment(selectedIssue.Key, jiraFilenameBox.Text, attachment);
 			if (jiraCommentBox.Text != null && jiraCommentBox.Text.Length > 0) {
-				jiraConnector.addComment(selectedIssue.key, jiraCommentBox.Text);
+				jiraConnector.addComment(selectedIssue.Key, jiraCommentBox.Text);
 			}
 		}
 
@@ -126,7 +126,7 @@ namespace GreenshotJiraPlugin {
 			if (jiraConnector.isLoggedIn()) {
 				JiraFilter filter = (JiraFilter)jiraFilterBox.SelectedItem;
 				if (filter != null) {
-					JiraIssue[] issues = jiraConnector.getIssuesForFilter(filter.id);
+					JiraIssue[] issues = jiraConnector.getIssuesForFilter(filter.Id);
 					jiraListView.BeginUpdate();
 					jiraListView.Items.Clear();
 					if (issues.Length > 0) {
@@ -136,12 +136,12 @@ namespace GreenshotJiraPlugin {
 							jiraListView.Columns.Add(language.GetString(column));
 						}
 						foreach (JiraIssue issue in issues) {
-							ListViewItem item = new ListViewItem(issue.key);
+							ListViewItem item = new ListViewItem(issue.Key);
 							item.Tag = issue;
-							item.SubItems.Add(issue.created.Value.ToString("d", DateTimeFormatInfo.InvariantInfo));
-							item.SubItems.Add(issue.assignee);
-							item.SubItems.Add(issue.reporter);
-							item.SubItems.Add(issue.summary);
+							item.SubItems.Add(issue.Created.Value.ToString("d", DateTimeFormatInfo.InvariantInfo));
+							item.SubItems.Add(issue.Assignee);
+							item.SubItems.Add(issue.Reporter);
+							item.SubItems.Add(issue.Summary);
 							jiraListView.Items.Add(item);
 						}
 						for (int i = 0; i < columns.Length; i++) {

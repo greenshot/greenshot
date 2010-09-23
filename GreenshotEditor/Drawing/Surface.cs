@@ -45,7 +45,7 @@ namespace Greenshot.Drawing {
 	/// Description of Surface.
 	/// </summary>
 	public class Surface : PictureBox, ISurface {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Surface));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Surface));
 		public event SurfaceElementEventHandler MovingElementChanged;
 		public event SurfaceDrawingModeEventHandler DrawingModeChanged;
 		

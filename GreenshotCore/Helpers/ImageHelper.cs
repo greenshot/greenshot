@@ -26,7 +26,7 @@ namespace Greenshot.Helpers {
 	/// Description of ImageHelper.
 	/// </summary>
 	public class ImageHelper {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageHelper));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageHelper));
 
 		private ImageHelper() {
 		}

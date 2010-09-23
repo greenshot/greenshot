@@ -166,8 +166,7 @@ namespace Greenshot.Helpers {
 		}
 		
 		public bool RegisterHotKey(uint modifierKeyCode, uint virtualKeyCode, HotKeyHandler handler) {
-			//return HotkeyHelper.RegisterHotKey(MainForm.instance.Handle, modifierKeyCode, virtualKeyCode, handler);
-			return false; // TODO
+			return false; //HotkeyHelper.RegisterHotKey(MainForm.instance.Handle, modifierKeyCode, virtualKeyCode, handler);
 		}
 		#endregion
 

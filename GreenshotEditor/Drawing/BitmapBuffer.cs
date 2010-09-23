@@ -30,7 +30,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public unsafe class BitmapBuffer : IDisposable {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapBuffer));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapBuffer));
 		private Bitmap bitmap;
 		public Bitmap Bitmap {
 			get {return bitmap;}

@@ -37,7 +37,7 @@ namespace GreenshotJiraPlugin {
 	/// This is the JiraPlugin base code
 	/// </summary>
 	public class JiraPlugin : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
 		private ILanguage lang = Language.GetInstance();
 		private IGreenshotPluginHost host;
 		private ICaptureHost captureHost = null;

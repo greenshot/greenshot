@@ -37,7 +37,7 @@ namespace GreenshotConfluencePlugin {
 	/// This is the ConfluencePlugin base code
 	/// </summary>
 	public class ConfluencePlugin : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
 		private ILanguage lang = Language.GetInstance();
 		private IGreenshotPluginHost host;
 		private ICaptureHost captureHost = null;

@@ -89,7 +89,7 @@ namespace Confluence {
 				this.credentials = null;
 				e.Data.Add("user", user);
 				e.Data.Add("url", url);
-				throw e;
+				throw;
 			}
 			return true;
 		}

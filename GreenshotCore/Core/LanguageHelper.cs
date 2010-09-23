@@ -60,7 +60,7 @@ namespace Greenshot.Core {
 	/// Description of Language.
 	/// </summary>
 	public class LanguageContainer : ILanguage {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(LanguageContainer));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(LanguageContainer));
 		private static char [] TRIMCHARS = new char[] {' ', '\t', '\n', '\r'};
 		private const string DEFAULT_LANGUAGE= "en-US";
 		private static string APPLICATIONDATA_LANGUAGE_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),@"Greenshot\Languages\");
@@ -350,7 +350,7 @@ namespace Greenshot.Core {
 	
 	public class LanguageConfiguration {
 		
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(LanguageConfiguration));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(LanguageConfiguration));
 		
 		public string description;
 		public string Description {get;set;}

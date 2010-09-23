@@ -104,7 +104,7 @@ namespace Greenshot.Helpers {
 	/// Having the Bitmap, eventually the Windows Title and cursor all together.
 	/// </summary>
 	public class Capture : IDisposable, ICapture {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Capture));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Capture));
 		
 		private Rectangle screenBounds;
 		/// <summary>

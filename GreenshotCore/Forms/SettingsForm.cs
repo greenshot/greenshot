@@ -37,7 +37,7 @@ namespace Greenshot {
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : Form {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
 		ILanguage lang;
 		private CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private ToolTip toolTip;

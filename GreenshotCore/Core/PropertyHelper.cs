@@ -27,7 +27,7 @@ namespace Greenshot.Core {
 	/// A Class to representate a simple "java" properties file
 	/// </summary>
 	public class Properties : Dictionary<string, string >{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Properties));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Properties));
 
 		public string GetProperty(string key) {
 			try {

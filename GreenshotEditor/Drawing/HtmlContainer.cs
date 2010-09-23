@@ -34,7 +34,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class HtmlContainer : DrawableContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(HtmlContainer));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(HtmlContainer));
 		private const string SCRIPT_PATTERN = "<script(.*?)</script>";
 		private string html = null;
 		private Bitmap bitmap = null;

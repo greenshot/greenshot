@@ -42,7 +42,7 @@ namespace Greenshot.Forms {
 	/// Description of CaptureForm.
 	/// </summary>
 	public partial class CaptureForm : Form, ICaptureHost {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CaptureForm));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CaptureForm));
 
 		private int mX;
 		private int mY;

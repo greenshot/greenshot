@@ -37,7 +37,7 @@ namespace RunAtOutput {
 	/// An Plugin to run commands after an image was written
 	/// </summary>
 	public class RunAtOutputPlugin : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RunAtOutputPlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RunAtOutputPlugin));
 		private IGreenshotPluginHost host;
 		private ICaptureHost captureHost = null;
 		private PluginAttribute myAttributes;
