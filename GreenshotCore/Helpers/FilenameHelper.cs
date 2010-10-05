@@ -93,7 +93,7 @@ namespace Greenshot.Helpers {
 		}
 
 		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails) {
-			return FillPattern(pattern, captureDetails) + "." + imageFormat;
+			return FillPattern(pattern, captureDetails) + "." + imageFormat.ToString().ToLower();
 		}
 		
 		/// <summary>
