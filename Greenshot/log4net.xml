@@ -8,7 +8,7 @@
 					<name value="folder" />
     				<type value="Greenshot.Helpers.SpecialFolderPatternConverter" />
   				</converter>
-				<conversionPattern value="%folder{ApplicationData}\Greenshot\Greenshot.log" />
+				<conversionPattern value="%folder{LocalApplicationData}\Greenshot\Greenshot.log" />
 			</file>
 			<encoding value="utf-8" />
 			<appendToFile value="true" />
