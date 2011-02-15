@@ -588,6 +588,7 @@ namespace Greenshot.Forms {
 			this.drawLineToolStripMenuItem.Name = "drawLineToolStripMenuItem";
 			this.drawLineToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
 			this.drawLineToolStripMenuItem.Text = "Draw line";
+			this.drawLineToolStripMenuItem.Click += new System.EventHandler(this.DrawLineToolStripMenuItemClick);
 			// 
 			// drawArrowToolStripMenuItem
 			// 
