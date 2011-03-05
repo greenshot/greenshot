@@ -652,6 +652,21 @@ namespace Greenshot.Helpers  {
 			SM_REMOTECONTROL=0x2001
 		}
 
+		// See http://msdn.microsoft.com/en-us/library/aa969530(v=vs.85).aspx
+		public enum DWMWINDOWATTRIBUTE {
+			DWMWA_NCRENDERING_ENABLED = 1,
+			DWMWA_NCRENDERING_POLICY,
+			DWMWA_TRANSITIONS_FORCEDISABLED,
+			DWMWA_ALLOW_NCPAINT,
+			DWMWA_CAPTION_BUTTON_BOUNDS,
+			DWMWA_NONCLIENT_RTL_LAYOUT,
+			DWMWA_FORCE_ICONIC_REPRESENTATION,
+			DWMWA_FLIP3D_POLICY,
+			DWMWA_EXTENDED_FRAME_BOUNDS, // This is the one we need for retrieving the Window size since Windows Vista
+			DWMWA_HAS_ICONIC_BITMAP,
+			DWMWA_DISALLOW_PEEK,
+			DWMWA_LAST
+		}
 		#endregion
 
 		#region UnManagedMethods
@@ -685,6 +700,8 @@ namespace Greenshot.Helpers  {
 			public extern static uint GetWindowLong(IntPtr hwnd, int nIndex);
 			[DllImport("user32.dll")]
 			public static extern int GetSystemMetrics(SystemMetric smIndex);
+			[DllImport("dwmapi.dll")]
+			public static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, ref RECT lpRect, int size);
 
 			public const int WM_COMMAND = 0x111;
 			public const int WM_SYSCOMMAND = 0x112;
@@ -750,6 +767,9 @@ namespace Greenshot.Helpers  {
 
 		public List<WindowDetails> Children {
 			get {
+				if (childWindows == null) {
+					 GetChildren();
+				}
 				return childWindows;
 			}
 		}
@@ -944,13 +964,24 @@ namespace Greenshot.Helpers  {
 			get {
 				if (!cachedRectangle.HasValue || (DateTime.Now.Ticks-cachedTime >CACHE_TIME_TICKS) ) {
 					RECT rc = new RECT();
-					UnManagedMethods.GetWindowRect(this.hWnd, ref rc);
+					// Since Vista the GetWindowRect doesn't always work, e.g.: for Client Windows like an About the size is to little.
+					// Here we should use the DwmGetWindowAttribute instead!
+					if (OSInfo.Version.Major >= 6) {
+						int result = UnManagedMethods.DwmGetWindowAttribute(this.hWnd, (int)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, ref rc, Marshal.SizeOf(typeof(RECT)));
+						if (result >= 0) {
+							LOG.Debug(rc.ToString());
+						}
+					} else {
+						// Until Windows Vista we use this to calculate the "WindowRect"
+						UnManagedMethods.GetWindowRect(this.hWnd, ref rc);
+					}
 					cachedRectangle = new Rectangle(rc.Left, rc.Top, rc.Right - rc.Left, rc.Bottom - rc.Top);
 					cachedTime = DateTime.Now.Ticks;
 				}
 				return cachedRectangle.Value;
 			}
 		}
+
 		/// <summary>
 		/// Gets the bounding rectangle of the window
 		/// </summary>
