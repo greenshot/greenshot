@@ -1,0 +1,530 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="ελληνικά" ietf="el-GR" version="0.8.0">
+  <resources>
+	<!--    
+	Note to translator: uncomment entry "about_translation" to have 
+	your efforts honored in the "About Greenshot" dialog 
+	-->
+	<resource name="about_translation">
+		Μετάφραση στα Ελληνικά από τον ΓΙΩΡΓΟ ΣΚΟΥΝΤΖΗ
+	</resource>
+	<resource name="application_title">
+		Greenshot - Το τελειότερο πρόγραμμα για τη καταγραφή στιγμιότυπων οθόνης
+	</resource>
+	<resource name="editor_drawrectangle">
+		Δημιουργία ορθογωνίου (R)
+	</resource>
+	<resource name="editor_save">
+		Αποθήκευση
+	</resource>
+	<resource name="contextmenu_settings">
+		Προτιμήσεις...
+	</resource>
+	<resource name="settings_storagelocation">
+		Θέση αποθήκευσης
+	</resource>
+	<resource name="settings_title">
+		Ρυθμίσεις
+	</resource>
+	<resource name="settings_tooltip_storagelocation">
+		Θέση εξ ορισμού αποθήκευσης στιγμιότυπων (αφήστε το κενό για αποθήκευση στην επιφάνεια εργασίας)
+	</resource>
+	<resource name="settings_language">
+		Γλώσσα
+	</resource>
+	<resource name="settings_filenamepattern">
+		Πρότυπο όνομα αρχείου
+	</resource>
+	<resource name="settings_tooltip_language">
+		Γλώσσα διεπαφής χρήστη (απαιτείται επανεκκίνηση)
+	</resource>
+	<resource name="settings_tooltip_filenamepattern">
+		Πρότυπα που χρησιμοποιούνται για τα παραγόμενα ονόματα αρχείων όταν αποθηκεύονται στιγμιότυπα
+	</resource>
+	<resource name="settings_primaryimageformat">
+		Μορφή εικόνας
+	</resource>
+	<resource name="settings_tooltip_primaryimageformat">
+		Προκαθορισμένη μορφή εικόνας
+	</resource>
+	<resource name="contextmenu_capturearea">
+		Περιοχή καταγραφής
+	</resource>
+	<resource name="contextmenu_capturelastregion">
+		Καταγραφή τελευταίας περιοχής
+	</resource>
+	<resource name="contextmenu_exit">
+		Έξοδος
+	</resource>
+	<resource name="settings_visualization">
+		Εφέ
+	</resource>
+	<resource name="settings_playsound">
+		Ήχος φωτογραφικής μηχανής
+	</resource>
+	<resource name="settings_showflashlight">
+		Εμφάνιση Flash
+	</resource>
+	<resource name="error">
+		Σφάλμα
+	</resource>
+	<resource name="error_nowriteaccess">
+		Το αρχείο δεν μπορεί να αποθηκευτεί στο {0}.
+Παρακαλω ελέγξτε τη δυνατότητα εγγραφής - πρόσβασης στη συγκεκριμένη θέση αποθήκευσης.
+	</resource>
+	<resource name="contextmenu_capturefullscreen">
+		Καταγραφή πλήρους οθόνης
+	</resource>
+	<resource name="editor_cuttoclipboard">
+		Αποκοπή
+	</resource>
+	<resource name="editor_copytoclipboard">
+		Αντιγραφή
+	</resource>
+	<resource name="editor_pastefromclipboard">
+		Επικόλληση
+	</resource>
+	<resource name="about_title">
+		Πληροφορίες για το Greenshot
+	</resource>
+	<resource name="about_license">
+		Πνευματικά δικαιώματα (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
+Δεν παρέχεται ΚΑΜΙΑ ΕΓΓΥΗΣΗ για το Greenshot. Είναι ελεύθερο λογισμικό. Είστε ελεύθεροι να το αναδιανείμετε κάτω από ορισμένες συνθήκες.
+Λεπτομέρειες σχετικά με την GNU General Public License:
+	</resource>
+	<resource name="error_openlink">
+		Η υπερσύνδεση δεν μπορεί να ανοίξει.
+	</resource>
+	<resource name="error_save">
+		Δεν είναι δυνατή η αποθήκευση του στιγμιότυπου, παρακαλώ στην εύρεση κατάλληλης θέσης.
+	</resource>
+	<resource name="about_icons">
+		Εικονίδια από Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)
+	</resource>
+	<resource name="about_host">
+		Το Greenshot φιλοξενείται από τη sourceforge.net:
+	</resource>
+	<resource name="about_bugs">
+		Αναφορά προβλημάτων:
+	</resource>
+	<resource name="about_donations">
+		Αν σας αρέσει το Greenshot, είστε ευπρόσδεκτοι να μας υποστηρίξετε:
+	</resource>
+	<resource name="editor_imagesaved">
+		Αποθήκευση εικόνας στη {0}.
+	</resource>
+	<resource name="editor_storedtoclipboard">
+		Η εικόνα αποθηκεύτηκε στο πρόχειρο.
+	</resource>
+	<resource name="editor_saveas">
+		Αποθήκευση ως...
+	</resource>
+	<resource name="editor_file">
+		Αρχείο
+	</resource>
+	<resource name="editor_edit">
+		Επεξεργασία
+	</resource>
+	<resource name="editor_object">
+		Αντικείμενο
+	</resource>
+	<resource name="editor_drawellipse">
+		Δημιουργία έλλειψης (E)
+	</resource>
+	<resource name="editor_drawtextbox">
+		Προσθήκη πλαισίου κειμένου (T)
+	</resource>
+	<resource name="editor_deleteelement">
+		Διαγραφή
+	</resource>
+	<resource name="editor_selectall">
+		Επιλογή όλων
+	</resource>
+	<resource name="editor_copyimagetoclipboard">
+		Αντιγραφή εικόνας στο πρόχειρο
+	</resource>
+	<resource name="contextmenu_capturewindow">
+		Καταγραφή ενεργού παραθύρου
+	</resource>
+	<resource name="editor_duplicate">
+		Διπλασιασμός επιλεγμένου στοιχείου
+	</resource>
+	<resource name="contextmenu_help">
+		Βοήθεια
+	</resource>
+	<resource name="contextmenu_about">
+		Πληροφορίες για το Greenshot
+	</resource>
+	<resource name="editor_title">
+		Επεξεργαστής εικόνας του Greenshot
+	</resource>
+	<resource name="settings_applicationsettings">
+		Ρυθμίσεις εφαρμογής
+	</resource>
+	<resource name="settings_preferredfilesettings">
+		Προτιμώμενες ρυθμίσεις αρχείου εξόδου
+	</resource>
+	<resource name="settings_skipimageeditor">
+		Παράλειψη επεξεργαστή κειμένου
+	</resource>
+	<resource name="settings_registerhotkeys">
+		Χρήση προτιμώμενων συνδυασμών πλήκτρων
+	</resource>
+	<resource name="settings_tooltip_registerhotkeys">
+		Καθορισμός του κατά πόσο οι συντομεύσεις PrtScr, Ctrl + PrtScr, Alt + PrtScr θα χρησιμοποιηθούν από το Greenshot από την εκκίνηση του προγράμματος μέχρι του τερματισμού του.
+	</resource>
+	<resource name="editor_senttoprinter">
+		Η εκτύπωση στάλθηκε στον '{0}'.
+	</resource>
+	<resource name="editor_print">
+		Εκτύπωση
+	</resource>
+	<resource name="help_title">
+		Βοήθεια για το Greenshot
+	</resource>
+	<resource name="settings_jpegsettings">
+		Ρυθμίσεις JPEG
+	</resource>
+	<resource name="settings_jpegquality">
+		Ποιότητα JPEG
+	</resource>
+	<resource name="settings_alwaysshowjpegqualitydialog">
+		Επιλογή της ποιότητας JPEG πάντα κατά την αποθήκευση ως JPEG
+	</resource>
+	<resource name="jpegqualitydialog_title">
+		Greenshot ποιότητα JPEG
+	</resource>
+	<resource name="jpegqualitydialog_choosejpegquality">
+		Παρακαλώ επιλέξτε τη ποιότητα για την JPEG εικόνα σας.
+	</resource>
+	<resource name="jpegqualitydialog_dontaskagain">
+		Αποθήκευση ως προκαθορισμένη ποιότητα JPEG και να μη ξαναρωτηθώ
+	</resource>
+	<resource name="editor_forecolor">
+		Χρώμα γραμμής
+	</resource>
+	<resource name="editor_backcolor">
+		Γέμισμα
+	</resource>
+	<resource name="editor_thickness">
+		Πάχος γραμμής
+	</resource>
+	<resource name="colorpicker_title">
+		Επιλογή χρώματος
+	</resource>
+	<resource name="colorpicker_apply">
+		Εφαρμογή
+	</resource>
+	<resource name="colorpicker_transparent">
+		Διαφάνεια
+	</resource>
+	<resource name="colorpicker_htmlcolor">
+		Χρώμα HTML
+	</resource>
+	<resource name="colorpicker_red">
+		Κόκκινο
+	</resource>
+	<resource name="colorpicker_green">
+		Πράσινο
+	</resource>
+	<resource name="colorpicker_blue">
+		Μπλε
+	</resource>
+	<resource name="colorpicker_alpha">
+		Άλφα
+	</resource>
+	<resource name="colorpicker_recentcolors">
+		Πρόσφατα
+	</resource>
+	<resource name="editor_close">
+		Κλείσιμο
+	</resource>
+	<resource name="warning">
+		Προειδοποίηση
+	</resource>
+	<resource name="warning_hotkeys">
+		Ένας ή περισσότεροι συνδυασμοί πλήκτρων δεν μπορούν να καταχωριστούν. Ως εκ τούτου, μπορεί να μην είναι δυνατή η χρήση του συνδυασμού πλήκτρων από το Greenshot.
+Αυτό το πρόβλημα πιθανόν να προκλήθηκε επειδή ένα άλλο εργαλείο χρησιμοποιεί τον ίδιο συνδυασμό πλήκτων.
+Παρακαλούμε να απενεργοποιήσετε το λογισμικό κάνοντας χρήση του κουμπιού PrtScr/Prnt. Μπορείτε επίσης απλά να χρησιμοποιήσετε όλα τα χαρακτηριστικά του Greenshot από το σχετικό μενού επιλογών κάνοντας δεξί κλικ στο εικονίδιο του προγράμματος στη γραμμή εργασιών.
+	</resource>
+	<resource name="settings_destination_editor">
+		Άνοιγμα για επεξεργασία
+	</resource>
+	<resource name="settings_destination_printer">
+		Αποστολή για εκτύπωση
+	</resource>
+	<resource name="settings_destination_file">
+		Άμεση αποθήκευση (με τις παρακάτω ρυθμίσεις)
+	</resource>
+	<resource name="settings_destination_clipboard">
+		Αντιγραφή στο πρόχειρο
+	</resource>
+	<resource name="editor_drawline">
+		Δημιουργία γραμμής (L)
+	</resource>
+	<resource name="settings_destination">
+		Προορισμός Στιγμιότυπου Οθόνης
+	</resource>
+	<resource name="editor_drawarrow">
+		Δημιουργία βέλους (A)
+	</resource>
+	<resource name="editor_arrowheads">
+		Αιχμή Βέλους
+	</resource>
+	<resource name="editor_arrowheads_start">
+		Σημείο έναρξης
+	</resource>
+	<resource name="editor_arrowheads_end">
+		Σημείο λήξης
+	</resource>
+	<resource name="editor_arrowheads_both">
+		Αμφότερα
+	</resource>
+	<resource name="editor_arrowheads_none">
+		Κανένα
+	</resource>
+    <resource name="editor_obfuscate_mode">
+		Λειτουργία απόκρυψης
+	</resource>
+    <resource name="editor_highlight_mode">
+		Λειτουργία επισήμανσης
+	</resource>
+	<resource name="error_multipleinstances">
+		Ένα στιγμιότυπο του Greenshot εκτελείται ήδη.
+	</resource>
+	<resource name="settings_autostartshortcut">
+		Έναρξη του Greenshot κατά την εκκίνηση
+	</resource>
+	<resource name="clipboard_inuse">
+		Το Greenshot δεν ήταν σε θέση να εγγράψει στο πρόχειρο καθώς η διαδικασία {0} παρεμποδίζει την πρόσβαση.
+	</resource>
+    <resource name="print_error">
+  		Ένα σφάλμα προέκυψε κατά τη διαδικασία εκτύπωσης.
+	</resource>
+	<resource name="printoptions_title">
+		Ρυθμίσεις εκτύπωσης του Greenshot
+	</resource>
+	<resource name="printoptions_allowcenter">
+		Εκτύπωση στο κέντρο της σελίδας
+	</resource>
+	<resource name="printoptions_allowenlarge">
+		Μεγέθυνση στο μέγεθος της σελίδας
+	</resource>
+	<resource name="printoptions_allowrotate">
+		Περιστροφή στο προσανατολισμό της σελίδας
+	</resource>
+	<resource name="printoptions_allowshrink">
+		Συρρίκνωση στο μέγεθος της σελίδας
+	</resource>
+	<resource name="printoptions_dontaskagain">
+		Αποθήκευση των επιλογών ως προεπιλογή και να μην ξαναρωτηθώ
+	</resource>
+	<resource name="settings_alwaysshowprintoptionsdialog">
+		Εμφάνιση παραθύρου διαλόγου επιλογών εκτύπωσης κατά την εκτύπωση
+	</resource>
+	<resource name="settings_printoptions">
+		Επιλογές Εκτύπωσης
+	</resource>
+	<resource name="settings_output">
+		Αρχείο Εξόδου
+	</resource>
+	<resource name="settings_general">
+		Γενικά
+	</resource>
+	<resource name="editor_clipboardfailed">
+		Σφάλμα κατά την πρόσβαση στο πρόχειρο. Παρακαλώ προσπαθήστε και πάλι.
+	</resource>
+	<resource name="editor_bold">
+		Έντονη γραφή
+	</resource>
+	<resource name="editor_italic">
+		Πλάγια γραφή
+	</resource>
+	<resource name="editor_arrange">
+		Διάταξη
+	</resource>
+	<resource name="editor_fontsize">
+		Μέγεθος
+	</resource>
+	<resource name="editor_uptotop">
+		Μεταφορά σε πρώτο πλάνο
+	</resource>
+	<resource name="editor_uponelevel">
+		Μεταφορά ένα επίπεδο εμπρός
+	</resource>
+	<resource name="editor_downonelevel">
+		Μεταφορά ένα επίπεδο πίσω
+	</resource>
+	<resource name="editor_downtobottom">
+		Μεταφορά στο φόντο
+	</resource>
+	<resource name="contextmenu_quicksettings">
+		Γρήγορες Προτιμήσεις
+	</resource>
+	<resource name="bugreport_title">
+		Σφάλμα
+	</resource>
+	<resource name="bugreport_info">
+		Λυπούμαστε, αλλά προέκυψε ένα μη αναμενόμενο σφάλμα.
+
+Οι καλές ειδήσεις είναι: μπορείτε να μας βοηθήσετε να απαλλαγούμε από αυτό, υποβάλλοντας μια αναφορά σφάλματος.
+Παρακαλούμε επισκεφθείτε την ηλεκτρονική διεύθυνση παρακάτω, δημιουργήσετε μια νέα αναφορά σφάλματος και επικολλήστε το περιεχόμενο από την περιοχή του κειμένου στην περιγραφή.
+
+Παρακαλείσθε να προσθέσετε μια περιεκτική περίληψη και να συμπεριλάβετε τις σχετικές πληροφορίες που θεωρείτε χρήσιμες για την αναπαραγωγή του προβλήματος.
+Επίσης, θα ήταν ιδιαίτερα χρήσιμο να γίνει έλεγχος για το αν υπάρχει ήδη καταγραφή για αυτό το σφάλμα. (Μπορείτε να χρησιμοποιήσετε την αναζήτηση για να βρείτε την ανάλογη καταγραφή πιο γρήγορα.) Σας ευχαριστούμε :)
+	</resource>
+	<resource name="bugreport_cancel">
+		Κλείσιμο
+	</resource>
+	<resource name="settings_copypathtoclipboard">
+		Αντιγραφή της θέσης του αρχείου στο πρόχειρο κατά την αποθήκευση
+	</resource>
+	<resource name="editor_copypathtoclipboard">
+		Αντιγραφή της θέσης του αρχείου στο πρόχειρο
+	</resource>
+	<resource name="settings_message_filenamepattern">
+		Τα ακόλουθα σύμβολα κράτησης θέσης θα αντικατασταθούν αυτόματα στο προκαθορισμένο πρότυπο:
+%YYYY% έτη, 4 ψηφία
+%MM% μήνες, 2 ψηφία
+%DD% ημέρες, 2 ψηφία
+%hh% ώρες, 2 ψηφία
+%mm% λεπτά, 2 ψηφία
+%ss% δευτερόλεπτα, 2 ψηφία
+%NUM% αυξανόμενος αριθμός, 6 ψηφία
+%title% Τίτλος Παραθύρου
+%user% Χρήστης Windows
+%domain% Κυριότητα Windows
+%hostname% Όναμα Υπολογιστή
+
+Μπορείτε επίσης να δημιουργήσετε με το Greenshot καταλόγους δυναμικά, χρησιμοποιώντας το σύμβολο backslash, ανάποδη κάθετο (\) για το διαχωρισμό του ονόματος φακέλων και του όνοματος των αρχείων.
+Παράδειγμα: το πρότυπο %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+θα δημιουργήσει ένα φάκελο, με όνομα την τρέχουσα ημέρα, στην προεπιλεγμένη θέση αποθήκευσης, π.χ. 2011-04-13, το δε όνομα του αρχείου θα βασίζεται στην τρέχουσα ώρα, π.χ. 11_58_32 (συν την επέκταση που έχει καθοριστεί στις ρυθμίσεις)
+	</resource>
+	<resource name="editor_cursortool">
+		Εργαλείο Επιλογής (ESC)
+	</resource>
+	<resource name="settings_destination_fileas">
+		Αποθήκευση ως (εμφάνιση διαλόγου)
+	</resource>
+	<resource name="quicksettings_destination_file">
+		Άμεση αποθήκευση (με χρήση των προτιμώμενων ρυθμίσεων)
+	</resource>
+	<resource name="editor_opendirinexplorer">
+		Άνοιγμα καταλόγου στην Εξερεύνηση των Windows
+	</resource>
+	<resource name="printoptions_timestamp">
+		Εκτύπωση ημέρας / ώρας στο κάτω μέρος της σελίδας
+	</resource>
+	<resource name="editor_drawhighlighter">
+		Επισήμανση (H)
+	</resource>
+	<resource name="editor_obfuscate_blur">
+		Θόλωμα
+	</resource>
+	<resource name="editor_obfuscate_pixelize">
+		Παραμόρφωση με χρήση pixel
+	</resource>
+	<resource name="editor_highlight_area">
+		Επισήμανση περιοχής
+	</resource>
+	<resource name="editor_highlight_text">
+		Επισήμανση Κειμένου
+	</resource>
+	<resource name="editor_highlight_grayscale">
+		Απόχρωση του γκρι
+	</resource>
+	<resource name="editor_highlight_magnify">
+		Μεγέθυνση
+	</resource>
+	<resource name="editor_pixel_size">
+		Μέγεθος Pixel
+	</resource>
+	<resource name="editor_obfuscate">
+		Απόκρυψη (O)
+	</resource>
+	<resource name="editor_blur_radius">
+		Θόλωμα
+	</resource>
+	<resource name="editor_brightness">
+		Φωτεινότητα
+	</resource>
+	<resource name="editor_preview_quality">
+		Ποιότητα προεπισκόπησης
+	</resource>
+	<resource name="editor_magnification_factor">
+		Συντελεστής μεγέθυνσης
+	</resource>
+	<resource name="editor_shadow">
+		Σκιά
+	</resource>
+	<resource name="editor_confirm">
+		Επιβεβαίωση
+	</resource>
+	<resource name="editor_cancel">
+		Ακύρωση
+	</resource>
+	<resource name="editor_crop">
+		Περικοπή (C)
+	</resource>
+	<resource name="contextmenu_captureclipboard">
+		Άνοιγμα εικόνας από το πρόχειρο
+	</resource>
+	<resource name="clipboard_error">
+		Παρουσιάστηκε ένα απροσδόκητο σφάλμα κατά την εγγραφή στο πρόχειρο.
+	</resource>
+	<resource name="config_unauthorizedaccess_write">
+		Δεν ήταν δυνατή η αποθήκευση του αρχείου διαμόρφωσης του Greenshot. Παρακαλώ ελέγξτε τα δικαιώματα πρόσβασης για '{0}'.
+	</resource>
+	<resource name="settings_printer">
+		Εκτύπωση
+	</resource>
+	<resource name="settings_capture">
+		Καταγραφή
+	</resource>
+	<resource name="settings_capture_mousepointer">
+		Καταγραφή δείκτη κατάδειξης
+	</resource>
+	<resource name="contextmenu_openfile">
+		Άνοιγμα εικόνας από αρχείο
+	</resource>
+	<resource name="error_openfile">
+		Το αρχείο "{0}" δεν είναι δυνατό να προσπελαστεί.
+	</resource>
+	<resource name="editor_close_on_save">
+		Θέλετε να αποθηκεύσετε το στιγμιότυπο οθόνης;
+	</resource>
+	<resource name="editor_close_on_save_title">
+		Αποθήκευση εικόνας;
+	</resource>
+	<resource name="settings_capture_windows_interactive">
+		Χρήση της διαδραστικής λειτουργίας καταγραφής παραθύρου
+	</resource>
+	<resource name="settings_capture_window_full">
+		Καταγραφή παραθύρου ακόμη και αν παρεμποδίζεται
+	</resource>
+	<resource name="settings_capture_window_content">
+		Καταγραφή περιεχομένου μόνο από τις εφαρμογές που υποστηρίζονται
+	</resource>
+	<resource name="settings_destination_email">
+		Αποστολή στιγμιότυπου με e-mail
+	</resource>
+	<resource name="editor_email">
+		Αποστολή στιγμιότυπου με e-mail
+	</resource>
+	<resource name="editor_load_objects">
+		Φόρτωμα αντικειμένων από αρχείο
+	</resource>
+	<resource name="editor_save_objects">
+		Αποθήκευση αντικειμένων σε αρχείο
+	</resource>
+	<resource name="settings_waittime">
+		Χιλιοστά του δ/λέπτου πριν τη καταγραφή
+	</resource>
+	<resource name="tooltip_firststart">
+		Κάντε δεξί κλικ εδώ ή πατήστε το κουμπί PrtScr/Prnt.
+	</resource>
+	<resource name="contextmenu_donate">
+		Υποστήριξη του Greenshot
+	</resource>
+  </resources>
+</language>
