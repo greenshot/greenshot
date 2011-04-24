@@ -37,6 +37,13 @@
     <PlatformTarget>x86</PlatformTarget>
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>x86</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
       <HintPath>..\GreenshotCore\Lib\log4net.dll</HintPath>
@@ -94,22 +101,30 @@
     <None Include="Languages\help-de-DE.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\help-es-ES.html" />
     <None Include="Languages\help-hu-HU.html" />
+    <None Include="Languages\help-it-IT.html" />
+    <None Include="Languages\help-nl-NL.html" />
     <None Include="Languages\help-ru-RU.html" />
+    <None Include="Languages\help-sv-SE.html" />
     <None Include="Languages\help-tr-TR.html" />
     <None Include="Languages\help-zh-CN.html" />
     <None Include="Languages\language-cs-CZ.xml" />
     <None Include="Languages\language-de-DE.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\language-el-GR.xml" />
     <None Include="Languages\language-en-US.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\language-es-ES.xml" />
+    <None Include="Languages\language-fi-FI.xml" />
     <None Include="Languages\language-fr-FR.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\language-he-IL.xml" />
     <None Include="Languages\language-hu-HU.xml" />
+    <None Include="Languages\language-it-IT.xml" />
     <None Include="Languages\language-ja-JP.xml" />
     <None Include="Languages\language-nl-NL.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -118,6 +133,7 @@
     <None Include="Languages\language-ru-RU.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\language-sv-SE.xml" />
     <None Include="Languages\language-tr-TR.xml" />
     <None Include="Languages\language-zh-CN.xml" />
     <None Include="Languages\language-zh-tw.xml">
