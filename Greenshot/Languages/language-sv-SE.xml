@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="0.8.0">
+  <resources>
+	<!--    
+	Note to translator: uncomment entry "about_translation" to have 
+	your efforts honored in the "About Greenshot" dialog 
+
+	/* Kommentarer till översättningen finns i hjälpfilen. /Eric */
+	-->
+	<resource name="about_translation">
+		Svensk översättning av Eric F :: April 9, 2011
+	</resource>
+	<resource name="application_title">
+		Greenshot - Det  revolutionära skärmbildsverktyget
+	</resource>
+	<resource name="editor_drawrectangle">
+		Rita en rektangel (R)
+	</resource>
+	<resource name="editor_save">
+		Spara
+	</resource>
+	<resource name="contextmenu_settings">
+		Inställningar...
+	</resource>
+	<resource name="settings_storagelocation">
+		Mapp för lagring
+	</resource>
+	<resource name="settings_title">
+		Inställningar
+	</resource>
+	<resource name="settings_tooltip_storagelocation">
+		Var på datorn dina skärmbilder skall sparas (lämna tomt för att spara på skrivbordet)
+	</resource>
+	<resource name="settings_language">
+		Språk
+	</resource>
+	<resource name="settings_filenamepattern">
+		Filnamnsmönster
+	</resource>
+	<resource name="settings_tooltip_language">
+		Språk som används i Greenshot (kräver omstart)
+	</resource>
+	<resource name="settings_tooltip_filenamepattern">
+		Det mönster som används för att generera filnamn när man sparar skärmbilderna
+	</resource>
+	<resource name="settings_primaryimageformat">
+		Bildformat
+	</resource>
+	<resource name="settings_tooltip_primaryimageformat">
+		Förvalt bildformat
+	</resource>
+	<resource name="contextmenu_capturearea">
+		Ta bild på yta
+	</resource>
+	<resource name="contextmenu_capturelastregion">
+		Ta bild på senaste ytan
+	</resource>
+	<resource name="contextmenu_exit">
+		Avsluta
+	</resource>
+	<resource name="settings_visualization">
+		Effekter
+	</resource>
+	<resource name="settings_playsound">
+		Spela upp kameraljud
+	</resource>
+	<resource name="settings_showflashlight">
+		Visa en blixt
+	</resource>
+	<resource name="error">
+		Fel
+	</resource>
+	<resource name="error_nowriteaccess">
+		Kan inte spara filen till {0}.
+VAr god kontrollera skrivrättigheterna till den förvalda mappen.
+	</resource>
+	<resource name="contextmenu_capturefullscreen">
+		Skärmbild på helskärm
+	</resource>
+	<resource name="editor_cuttoclipboard">
+		Klipp ut
+	</resource>
+	<resource name="editor_copytoclipboard">
+		Kopiera
+	</resource>
+	<resource name="editor_pastefromclipboard">
+		Klistra in
+	</resource>
+	<resource name="about_title">
+		Om Greenshot
+	</resource>
+	<resource name="about_license">
+		Copyright (C) 2007-2011 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot lämnar ABSOLUT INGA GARANTIER. Detta är ett gratisprogram, och du kan/får videredistribuera programmet under vissa villkor.
+Detaljer om "GNU General Public License":
+	</resource>
+	<resource name="error_openlink">
+		Kunde inte öppna länken.
+	</resource>
+	<resource name="error_save">
+		Kunde inte spara skärmbilden. Försök hitta en bra mapp att spara i.
+	</resource>
+	<resource name="about_icons">
+		Ikoner från "Yusuke Kamiyamane's Fugue icon set" (Creative Commons Attribution 3.0 license)
+	</resource>
+	<resource name="about_host">
+		Greenshot finns på sourceforge.net på:
+	</resource>
+	<resource name="about_bugs">
+		Var vänlig att rapportera in fel till
+	</resource>
+	<resource name="about_donations">
+		Om du gillar Greenshot, så är du välkommen att stödja oss:
+	</resource>
+	<resource name="editor_imagesaved">
+		Bilden sparades till {0}.
+	</resource>
+	<resource name="editor_storedtoclipboard">
+		Bilden sparades i klippminnet.
+	</resource>
+	<resource name="editor_saveas">
+		Spara som...
+	</resource>
+	<resource name="editor_file">
+		Arkiv
+	</resource>
+	<resource name="editor_edit">
+		Editera
+	</resource>
+	<resource name="editor_object">
+		Objekt
+	</resource>
+	<resource name="editor_drawellipse">
+		Rita en cirkel (E)
+	</resource>
+	<resource name="editor_drawtextbox">
+		Lägg till en textruta (T)
+	</resource>
+	<resource name="editor_deleteelement">
+		Radera
+	</resource>
+	<resource name="editor_selectall">
+		Markera allt
+	</resource>
+	<resource name="editor_copyimagetoclipboard">
+		Kopiera bilden till klippminnet
+	</resource>
+	<resource name="contextmenu_capturewindow">
+		Ta bild på fönster
+	</resource>
+	<resource name="editor_duplicate">
+		Duplicera valt element
+	</resource>
+	<resource name="contextmenu_help">
+		Hjälp
+	</resource>
+	<resource name="contextmenu_about">
+		Om Greenshot
+	</resource>
+	<resource name="editor_title">
+		Greenshot Bildredigerare
+	</resource>
+	<resource name="settings_applicationsettings">
+		Programinställningar
+	</resource>
+	<resource name="settings_preferredfilesettings">
+		Önskade inställningar för fil/bild
+	</resource>
+	<resource name="settings_skipimageeditor">
+		Hoppa över bildredigeraren
+	</resource>
+	<resource name="settings_registerhotkeys">
+		Registrera kortkommandon
+	</resource>
+	<resource name="settings_tooltip_registerhotkeys">
+		Definierar ifall ett kortkommando (Prnt, Ctrl + Print, Alt + Prnt) är reserverade att användas globalt av Greenshot när programmet startar, tills programmet stängs ner.
+	</resource>
+	<resource name="editor_senttoprinter">
+		Utskriften skickades till '{0}'.
+	</resource>
+	<resource name="editor_print">
+		Skriv ut
+	</resource>
+	<resource name="help_title">
+		Greenshot Hjälp
+	</resource>
+	<resource name="settings_jpegsettings">
+		JPEG-inställningar
+	</resource>
+	<resource name="settings_jpegquality">
+		JPEG-kvalitet
+	</resource>
+	<resource name="settings_alwaysshowjpegqualitydialog">
+		Visa dialogrutan för JPEG-kvalitet varje gång en JPEG-bild sparas
+	</resource>
+	<resource name="jpegqualitydialog_title">
+		Greenshot JPEG-kvalitet
+	</resource>
+	<resource name="jpegqualitydialog_choosejpegquality">
+		Välj kvalitetsgrad för din JPEG-bild.
+	</resource>
+	<resource name="jpegqualitydialog_dontaskagain">
+		Spara med förvald JPEG-kvalitet och fråga inte igen
+	</resource>
+	<resource name="editor_forecolor">
+		Linjens färg
+	</resource>
+	<resource name="editor_backcolor">
+		Fyllnadsfärg
+	</resource>
+	<resource name="editor_thickness">
+		Linjens tjocklek
+	</resource>
+	<resource name="colorpicker_title">
+		Färgväljare
+	</resource>
+	<resource name="colorpicker_apply">
+		Verkställ
+	</resource>
+	<resource name="colorpicker_transparent">
+		Transparent
+	</resource>
+	<resource name="colorpicker_htmlcolor">
+		HTMLfärg
+	</resource>
+	<resource name="colorpicker_red">
+		Röd
+	</resource>
+	<resource name="colorpicker_green">
+		Grön
+	</resource>
+	<resource name="colorpicker_blue">
+		Blå
+	</resource>
+	<resource name="colorpicker_alpha">
+		Alpha
+	</resource>
+	<resource name="colorpicker_recentcolors">
+		Senaste använda färgerna
+	</resource>
+	<resource name="editor_close">
+		Stäng
+	</resource>
+	<resource name="warning">
+		Varning
+	</resource>
+	<resource name="warning_hotkeys">
+		En eller flera kortkommandon kunde inte registreras. Därför kanske det inte är möjligt att använda Greenshot's kortkomandon.
+Problemet är troligen orsakat av att ett annat program/verktyg har lagt beslag på samma kortkommando(n).
+Försök att avaktivera de program som använder sig av knappen "Print". Men du kan också använda dig av dessa funktioner genom att högerklicka på Greenshotikonen i aktivitesfältet.
+	</resource>
+	<resource name="settings_destination_editor">
+		Öppna i bildredigeraren
+	</resource>
+	<resource name="settings_destination_printer">
+		Skicka till skrivare
+	</resource>
+	<resource name="settings_destination_file">
+		Spara direkt (använd inställningarna nedanför)
+	</resource>
+	<resource name="settings_destination_clipboard">
+		Kopiera till klippminnet
+	</resource>
+	<resource name="editor_drawline">
+		Rita en line (L)
+	</resource>
+	<resource name="settings_destination">
+		Destination för skärmbilder
+	</resource>
+	<resource name="editor_drawarrow">
+		Rita en pil (A)
+	</resource>
+	<resource name="editor_arrowheads">
+		Pilhuvud
+	</resource>
+	<resource name="editor_arrowheads_start">
+		Startpunkt
+	</resource>
+	<resource name="editor_arrowheads_end">
+		Slutpunkt
+	</resource>
+	<resource name="editor_arrowheads_both">
+		Båda
+	</resource>
+	<resource name="editor_arrowheads_none">
+		Ingen
+	</resource>
+    <resource name="editor_obfuscate_mode">
+		&quot;Blurrning&quot;
+	</resource>
+    <resource name="editor_highlight_mode">
+		Belysning
+	</resource>
+	<resource name="error_multipleinstances">
+		Programmet Greenshot körs redan.
+	</resource>
+	<resource name="settings_autostartshortcut">
+		Dra igång Greenshot när datorn startas
+	</resource>
+	<resource name="clipboard_inuse">
+		Greenshot kunde inte skriva till klippminnet eftersom processen {0} blockerade åtkomst dit.
+	</resource>
+    <resource name="print_error">
+  		Ett fel uppstod vid försöket att skriva ut.
+	</resource>
+	<resource name="printoptions_title">
+		Greenshot skrivarinställningar
+	</resource>
+	<resource name="printoptions_allowcenter">
+		Centrera utskriften på sidan
+	</resource>
+	<resource name="printoptions_allowenlarge">
+		Förstora/anpassa utskriften till papprets storlek
+	</resource>
+	<resource name="printoptions_allowrotate">
+		Rotera utskriften till sidans orientering
+	</resource>
+	<resource name="printoptions_allowshrink">
+		Förminska/anpassa utskriften till papprets storlek
+	</resource>
+	<resource name="printoptions_dontaskagain">
+		Spara insällningar som förvalda och fråga inte igen
+	</resource>
+	<resource name="settings_alwaysshowprintoptionsdialog">
+		Visa dialogfönstret varje gång en bild skall skrivas ut
+	</resource>
+	<resource name="settings_printoptions">
+		Skrivarinställningar
+	</resource>
+	<resource name="settings_output">
+		Bild/fil
+	</resource>
+	<resource name="settings_general">
+		Allmänt
+	</resource>
+	<resource name="editor_clipboardfailed">
+		Ett fel uppstod för att komma åt klippminnet. Försök igen.
+	</resource>
+	<resource name="editor_bold">
+		Fetstil
+	</resource>
+	<resource name="editor_italic">
+		Kursiv
+	</resource>
+	<resource name="editor_arrange">
+		Arrangera
+	</resource>
+	<resource name="editor_fontsize">
+		Storlek
+	</resource>
+	<resource name="editor_uptotop">
+		Upp till toppen
+	</resource>
+	<resource name="editor_uponelevel">
+		Upp en nivå
+	</resource>
+	<resource name="editor_downonelevel">
+		Ner en nivå
+	</resource>
+	<resource name="editor_downtobottom">
+		Ner till botten
+	</resource>
+	<resource name="contextmenu_quicksettings">
+		Snabbinställningar
+	</resource>
+	<resource name="bugreport_title">
+		Fel
+	</resource>
+	<resource name="bugreport_info">
+		Oops, ett oväntat fel uppstod.
+
+Den goda nyheten är att du kan hjälpa oss att lösa problemet med att rapportera felet till oss.
+
+Var vänlig och gå till länken (URL'en) nedanför, och skapa en ny felrapport (bug report). Klistra in felmeddelandets innehåll/text in beskrivningen.
+
+Lägg till en saklig summering och ta med sådan information som du tror kan vara till hjälp för att kunna återskapa detta fel.
+
+Innan du skickar uppskattar vi verkligen om du har kontrollerat ifall felet redan har blivit rapporterat. (Du kan använda sökfunktionen för att snabbt hitta dem.) Tack! :)
+	</resource>
+	<resource name="bugreport_cancel">
+		Stäng
+	</resource>
+	<resource name="settings_copypathtoclipboard">
+		Kopiera bildens sökväg till klippminet varje gång en bild sparas
+	</resource>
+	<resource name="editor_copypathtoclipboard">
+		Kopiera sökväg till klippminnet
+	</resource>
+	<resource name="settings_message_filenamepattern">
+		Följande platshållare kommer att bytas ut automatiskt enligt det definierade mönstret:
+
+%YYYY% år, 4 siffror
+%MM% månader, 2 siffror
+%DD% dagar, 2 siffror
+%hh% timmar, 2 siffror
+%mm% minut, 2 siffror
+%ss% sekunder, 2 siffror
+%NUM% ökande nummer, 6 siffror
+%title% Fönsrets titel
+%user% Användarnamn
+%domain% Windows domän
+%hostname% Datorns namn
+
+~ ~ ~
+
+Du kan också göra så att Greenshot skapar mappar dynamiskt. Använd helt enkelt en "backslashsymbol" (\) för att separera mapp-/filnamn.
+
+Exempel: %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+
+Mönstret kommer att skapa en mapp med dagens datum på ditt förvalda ställe, e.g. 2008-06-29, och bildens filnamn blir den aktuella tiden, e.g. 11-58-32.xxx
+
+(xxx = det filformat du angett)
+	</resource>
+	<resource name="editor_cursortool">
+		Markeringsverktyg (ESC)
+	</resource>
+	<resource name="settings_destination_fileas">
+		Spara som (visa dialogruta)
+	</resource>
+	<resource name="quicksettings_destination_file">
+		Spara direkt (använd önskade filinställningar)
+	</resource>
+	<resource name="editor_opendirinexplorer">
+		Utforska mappen
+	</resource>
+	<resource name="printoptions_timestamp">
+		Utskriftsdatum / klockslag i sidans nedre kant
+	</resource>
+	<resource name="editor_drawhighlighter">
+		Belysning (H)
+	</resource>
+	<resource name="editor_obfuscate_blur">
+		Oskärpa
+	</resource>
+	<resource name="editor_obfuscate_pixelize">
+		Pixling
+	</resource>
+	<resource name="editor_highlight_area">
+		Belys yta
+	</resource>
+	<resource name="editor_highlight_text">
+		Belys text
+	</resource>
+	<resource name="editor_highlight_grayscale">
+		Gråskala
+	</resource>
+	<resource name="editor_highlight_magnify">
+		Förstora
+	</resource>
+	<resource name="editor_pixel_size">
+		Pixelstorlek
+	</resource>
+	<resource name="editor_obfuscate">
+		&quot;Blurra&quot; (O)
+	</resource>
+	<resource name="editor_blur_radius">
+		Oskärpa :: styrka
+	</resource>
+	<resource name="editor_brightness">
+		Ljusskala
+	</resource>
+	<resource name="editor_preview_quality">
+		Förhandsgranskning :: kvalitet
+	</resource>
+	<resource name="editor_magnification_factor">
+		Förstorningsgrad
+	</resource>
+	<resource name="editor_shadow">
+		Skugga
+	</resource>
+	<resource name="editor_confirm">
+		Konfirmera
+	</resource>
+	<resource name="editor_cancel">
+		Avbryt
+	</resource>
+	<resource name="editor_crop">
+		Beskär (C)
+	</resource>
+	<resource name="contextmenu_captureclipboard">
+		Öppna bild från klippminnet
+	</resource>
+	<resource name="clipboard_error">
+		Ett oväntat fel uppstod då bilden skrevs till klippminnet.
+	</resource>
+	<resource name="config_unauthorizedaccess_write">
+		Kunde inte spara Greenshot's konfigurationsfil. Var vänlig kontrollera åtkomsträttigheterna för '{0}'.
+	</resource>
+	<resource name="settings_printer">
+		Utskrift
+	</resource>
+	<resource name="settings_capture">
+		Skärmbild
+	</resource>
+	<resource name="settings_capture_mousepointer">
+		Inkludera markören
+	</resource>
+	<resource name="contextmenu_openfile">
+		Öppna bild från fil
+	</resource>
+	<resource name="error_openfile">
+		Filen "{0}" kunde inte öppnas.
+	</resource>
+	<resource name="editor_close_on_save">
+		Vill du spara skärmbilden?
+	</resource>
+	<resource name="editor_close_on_save_title">
+		Spara bild?
+	</resource>
+	<resource name="settings_capture_windows_interactive">
+		Använd det interaktiva fönstret 
+	</resource>
+	<resource name="settings_capture_window_full">
+		Ta bild på fönstret även om det blir obstruerat
+	</resource>
+	<resource name="settings_capture_window_content">
+		Ta endast skärmbild på innehåll med programstöd
+	</resource>
+	<resource name="settings_destination_email">
+		Email
+	</resource>
+	<resource name="editor_email">
+		Email
+	</resource>
+	<resource name="editor_load_objects">
+		Ladda in objekt från fil
+	</resource>
+	<resource name="editor_save_objects">
+		Spara objekt till fil
+	</resource>
+	<resource name="settings_waittime">
+		Fördröjning i millisekunder före bilden blir tagen
+	</resource>
+	<resource name="tooltip_firststart">
+		Högerklicka här eller tryck på tangenten Print.
+	</resource>
+	<resource name="contextmenu_donate">
+		Stöd Greenshot
+	</resource>
+  </resources>
+</language>

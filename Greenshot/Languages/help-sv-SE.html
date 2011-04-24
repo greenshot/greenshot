@@ -1,0 +1,263 @@
+
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<title>Greenshot Hjälp</title>
+		<style type="text/css">
+		<!--
+		* { font-family: Tahoma, Arial, Sans-serif; }
+		h1 { font-size: 16px; }
+		h2 { font-size: 14px; margin-top: 34px; }
+		h3 { font-size: 12px; margin-top: 28px; }
+		small { font-size: 10px; }
+		p, li { font-size: 12px; line-height: 1.5em }
+		h2, a:link, a:hover, a:visited, a:active { color: #090; }
+
+		/* .editors_note is a custom class made for a few
+		comments I've made along the way. */
+		kbd, p.editors_note {
+			border: 1px solid #bbb;
+			border-radius: 2px;
+			-ms-border-radius: 2px; /* IE9 */
+		}
+		kbd { background-color: #ddd; padding: 0 2px; }
+		p.editors_note {
+			font: italic normal 11px/12px Helvetica, Arial, sans-serif;
+			color: #666;
+			background: #f6f6f6;
+			padding: 5px;
+		}
+		p.hint {
+			background-color: #ffd;
+			border: 1px solid #ddb;
+			padding: 5px;
+			border-radius: 8px;
+			-ms-border-radius: 8px; /* IE9 */
+		}
+		-->
+		</style>
+	</head>
+	<body>
+	<h1>Greenshot Hjälp</h1>
+	<!-- 
+	Översättarens kommentar:
+
+	Vissa delar och språk kan/kommer att behöva omabetas en bit, men översättningen är i a f fullständig även om vissa ord och uttryck kunde vara annorlunda.
+
+	Det finns ord och uttryck som det helt enkelt inte finns ngn bra översättning på, och ibland får man skriva på ett annat sätt.
+
+	Ord som: Obfuscate, Highlight och Capture - är sådana ord som är en lagom bra översättning på, där vi på svenska använder olika ord i olika sammanhang.
+
+	(T ex: ordet highlight används (missbrukas) ofta av olika program - bl a Adobe med översättningen: "markera" vilket är en helt felaktig användning av ordet i sig. Man markerar texten först ... & SEN lägger en highlight på den.)
+
+	Kommentarer och synpunkter välkomnas. Förslag på bättre översättning till "highlight" - så länge det inte är "markera/markering". ;)
+
+	---
+
+	/Eric
+
+	===================================================
+	<!-- Note to translator: uncomment entry below to have your effort honored -->
+	<small>Version 0.8<!-- English translation of help content by YOUR_NAME --></small>
+	
+	<h2>Innehåll</h2>
+	<ol>
+		<li><a href="#screenshot">Göra en skärmbild</a></li>
+		<ol>
+			<li><a href="#capture-region">Bild på yta</a></li>
+			<li><a href="#capture-last-region">Bild på senaste yta</a></li>
+			<li><a href="#capture-window">Bild på fönster</a></li>
+			<li><a href="#capture-fullscreen">Bild på helskärm</a></li>
+		</ol>
+
+		<li><a href="#editor">Använda bildredigeraren</a></li>
+		<ol>
+			<li><a href="#editor-shapes">Rita olika former</a></li>
+			<li><a href="#editor-text">Lägga till text</a></li>
+			<li><a href="#editor-highlight">Belysning av delar</a></li>
+			<li><a href="#editor-obfuscate">&quot;Blurra&quot; olika delar</a></li>
+			<li><a href="#editor-crop">Beskära skärmbilden</a></li>
+			<li><a href="#editor-reuse-elements">Återanvända uppritade element</a></li>
+			<li><a href="#editor-export">Exportera skärmbilden</a></li>
+		</ol>
+		<li><a href="#settings">Dialogruta &middot; Inställningar</a></li>
+		<ol>
+			<li><a href="#settings-general">Allmänna inställningar</a></li>
+			<li><a href="#settings-output">Fil-/bildinställningar</a></li>
+			<li><a href="#settings-printer">Utskriftsinställningar</a></li>
+		</ol>
+		<li><a href="#help">Vill du hjälpa till?</a></li>
+		<ol>
+			<li><a href="#help-donate">Överväg en donation</a></li>
+			<li><a href="#help-spread">Sprid budskapet</a></li>
+			<li><a href="#help-translate">Skicka in en översättning</a></li>
+		</ol>
+	</ol>
+
+
+	<a name="screenshot"></a>
+	<h2>Göra en skärmbild</h2>
+	<p>Du kan göra en skärmbild genom att antingen använda tangenten <kbd>Print</kbd> på ditt tangenbord, eller så högerklickar du på Greenshotikonen i aktivitetsfältet.<br>
+		Där finns flera olika val för att göra en skärmbild:</p>
+
+	<a name="capture-region"></a>
+	<h3>Bild på yta <kbd>Print</kbd></h3>
+	<p>Att använda detta läge gör att du kan en bild av en del på din skärm.<br>
+		Efter att du har startat detta läge, så visas ett s k &quot;crosshair&quot;, som visar markörens position på skärmen. Klicka och håll nere där du vill att första hörnet på din bild skall börja. Fortsätt att håll nere knappen och dra/markera sedan den ytan som du vill att din bild skall täcka. När den gröna ytan täcker det du vill ha med på bilden - släpper du bara knappen.</p>
+
+	<p class="hint">Du kan använda tangenten för <kbd>Mellanslag</kbd> för att växla läge mellan yta och <a href="#capture-window">fönster</a>.</p>
+
+	<p class="hint">OM du skall göra en bild på en exakt utvald yta, så kan det vara lättare att göra en bild av en något större yta, som du sen kan  <a href="#editor-crop">beskära</a> i Greenshot's bildredigerare.</p>
+
+	<a name="capture-last-region"></a>
+	<h3>Bild på senaste yta <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
+	<p>Om du har gjort en bild av en <a href="#capture-region">yta</a> eller <a href="#capture-window">fönster</a> innan, så kan du använda samma yta igen.</p>
+
+	<a name="capture-window"></a>
+	<h3>Bild på fönster <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
+	<p>Gör en skärmbild av det fönstret som är aktivt (överst).</p>
+
+	<p class="hint">I <a href="#settings">dialogrutan med inställningar</a> finns ett tillval att inte ta bilden på en gång, utan att det låter dig interaktivt välja ett fönster.
+		Om denna inställning är gjord, kan du välja ett fönster genom att klicka på det (precis som i läget för <a href="#capture-region">yta</a>, kommer Greenshot att färglägga den ytan som skall bli en bild).<br>Om du vill att ett underliggande fönster skall bli valt (e.g. webläsarens fönster (utan verktygsrad osv. ...eller en enskid ram på en sida som använder sig av ramar) placera markören på det önskade fönstret och därefter klicka på tangenten <kbd>PgDown</kbd>. Efter det kan du välja olika element av det fönstret som skall bli din bild.</p>
+
+	<a name="capture-fullscreen"></a>
+	<h3>Bild på helskärm <kbd>Ctrl</kbd> + <kbd>Print</kbd></h3>
+	<p>Gör en bild av hela din skärm.</p>
+
+
+	<a name="editor"></a>
+	<h2>Använda bildredigeraren</h2>
+	<p>Greenshot har en bildredigerare som är enkel att använda, med funktioner som att lägga till kommentarer och olika former till bilden. Den kan också göra olika områden belysta eller &quot;blurrade&quot;.</p>
+
+	<p class="hint">Greenshot's bildredigerare kan användas för mer än skärmbilder. Du kan också öppna bilder från från en fil eller klippminnet. Högerklicka på Greenshotikonen i aktivitesfältet och välj antingen <em>Öppna bild från fil</em> eller <em>Öppna bild från klippminne</em>.</p>
+
+	<p class="hint">Som förvald inställning, kommer bildredigeraren öppnas så fort en bild är skapad. Om du inte vill använda bildredigeraren så kan du ändra det i dialogrutan med <a href="#settings">inställningar</a>.</p>
+
+	<a name="editor-shapes"></a>
+	<h3>Rita olika former</h3>
+	<p>Välj ett av de olika verktygen för former i menyn till vänster om redigerarens fönster, eller från <em>objektmenyn</em>. För att underlätta finns också en tangent adresserad för varje verktyg.<br>
+		Tillgängliga former: rektangel <kbd>R</kbd>, cirklar <kbd>E</kbd>, linje <kbd>L</kbd>
+		och pil <kbd>A</kbd>.<br>
+		Klicka och håll ner musknappen, och dra för att definiera position och storlek på formen.
+		Släpp musknappen när du är klar.</p>
+
+	<p>Du kan flytta och ändra storlek på befintliga former när du har valt markeringsvertyget <kbd>ESC</kbd> i verktygsfältet.<br>För varje typ av element finns olika val att kunna ändra utseendet på elementet (e.g. tjocklek och färg på linje, fyllnadsfärg). Du kan ändra dessa val på ett existerande element efter att du har valt det, men också för nästa element skall bli uppritat efter att ha valt ett ritverkyg.</p>
+
+	<p class="hint">Du kan välja flera element och redigera samtidigt. För att välja flera element, håll ner tangenten <kbd>Shift</kbd> medan du klickar på de olika elementen.</p>
+
+	<a name="editor-text"></a>
+	<h3>Lägga till text</h3>
+	<p>Användandet av textverktyget <kbd>T</kbd> är liknande det för <a href="#editor-shapes">former</a>. Rita upp textelementet till önskad storlek, och skriv sedan in texten.<br>
+		Dubbelklicka på ett befintligt textelement för att redigera texten.</p>
+
+	<a name="editor-highlight"></a>
+	<h3>Belysning av delar</h3>
+	<p>När du har valt belysningsverktyget <kbd>H</kbd>, kan du välja en yta att belysas på exakt samma sätt som du skulle rita upp en <a href="#editor-shapes">form</a>.<br>
+		Det finns flera val för belysning, som du kan välja mellan genom att klicka på knappen allra längst till vänster i det övre verktygsfältet:</p>
+	<ul>
+		<li><em>Belys text</em> :: Belyser en yta genom att lägga till en ljus färg till den, precis som belysningsverkyg i office-program</li>
+		<li><em>Belys yta</em> :: Skapar oskärpa<a href="#hint-blur">*</a> och gör allting utanför den valda ytan mörktonad</li>
+		<li><em>Gråskala</em> :: Allting utanför den valda ytan ändras till gråskala</li>
+		<li><em>Förstora</em> :: Den valda ytan kommer att vissa förstorad</li>
+	</ul>
+	<p class="editors_note">Kommentar: &quot;<b>Belysning</b>&quot; är det man kallar för &quot;<b>Highlight</b>&quot;.</p>
+
+	<a name="editor-obfuscate"></a>
+	<h3>&quot;Blurra&quot; olika delar</h3>
+	<p>&quot;Blurrning&quot; av olika delar på skärmbilden är en bra att kunna göra om det t ex innehåller olika slags data som inte är avsedd för andra att ta del av, (e.g. bankkontonr, namn, lösenord eller ansikten på bilder).<br>
+		Använd &quot;blurrningsverktyget&quot; <kbd>O</kbd> på samma sätt som <a href="#editor-highlight">belysning</a>sverktyget 
+		tool.<br>
+		Tillgängliga val för &quot;blurrning&quot; är:</p>
+	<ul>
+		<li><em>Pixling</em> :: Ökar pixlarnas storlek på den valda ytan</li>
+		<li><em>Oskärpa</em><a href="#hint-blur">*</a> :: Gör den valda yta oskarp/suddig</li>
+	</ul>
+
+	<a name="hint-blur"></a>
+	<p class="hint"> * Beroende på din dators prestanda, kan Greenshot's bildredigerare slöas ner något då du lägger till oskärpa. Om du upplever att bildredigeraren blir slöare så fort du lägger till oskärpa, kan du försöka med att minska värdet för <em>Förhandsgranskning :: kvalitet</em> i verktygsfältet eller minska <em>Oskärpa :: styrka</em>.<br>
+		Om infogandet av oskärpa förtfarande är för långsamt/dåligt, kanske du borde använda Pixeleffekten istället.</p>
+
+	<p class="editors_note">Kommentar: Det Engelska ordet för &quot;<b>Blurra</b>&quot; är &quot;Obfuscate&quot;, vilket det inte finns något eg. bra Svenskt ord för, eller..? :) &quot;Blurrning&quot; är ett ord man ibland hör i TV-sammanhang, och du har säkert sätt på TV någon gång hur dem har &quot;blurrat&quot; delar av bilden - en logotyp, nakna kroppsdelar osv. Det är vad &quot;blurrning&quot; är.</p>
+
+	<a name="editor-crop"></a>
+	<h3>Beskära skärmbilden</h3>
+	<p>Om du bara behöver en del av skärmbilden du har gjort - använd verktyget för beskärning <kbd>C</kbd> för att skala ner det till önskat yta.<br>
+		När du har valt verktyget - rita en rektangel över den ytan av skärmbilden du vill ha kvar. Du kan ändra storlek på ytan precis som med alla andra element.<br>
+		När du gjort klart din yta som skall beskäras, klicka på konfirmera i verktygsfältet, eller använd tangenten <kbd>Enter</kbd>. Du kan avbryta beskärningen genom att klicka på knappen avbryt eller tangenten <kbd>ESC</kbd>.</p>
+
+	<a name="editor-reuse-elements"></a>
+	<h3>Återanvända uppritade element</h3>
+	<p>Om du upptäcker att du som oftast använder samma eller liknande element till de flesta av dina skärmbilder (e.g. ett text fält som innehåller webläsarens namn och version, eller &quot;blurrar&quot; samma element på flera skärmbilder) kan du återanvända elementen.<br>
+		Välj <em>Spara objekt till fil</em> från menyn <em>Objekt</em> för att spara det aktuella elementet för att återanvända senare. <em>Ladda objekt från fil</em> använder samma element på en annan skärmbild.</p>
+
+	<a name="editor-export"></a>
+	<h3>Exportera skärmbilden</h3>
+	<p>Efter att du har redigerat din skärmbild, kan du exportera det färdiga resultatet till olika användingar, beroende på ditt behov. Du kommer åt de olika valen för export i menyn <em>Arkiv</em>, in det översta verktygsfältet eller via kortkommandon:</p>
+	<ul>
+		<li><em>Spara</em> <kbd>Ctrl</kbd> + <kbd>S</kbd> :: Sparar bilden till en fil (om bilden redan är sparad, annars visas dialogrutan <em>Spara som...</em>)</li>
+		<li><em>Spara som...</em> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> :: Där du kan välja ny/annan mapp, filnamn och bildformat för att spara filen.</li>
+		<li><em>Kopiera bild till klippminnet</em> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> :: Spara en kopia av bilden i datorns klippminne, som du sedan kan använda för att t ex klistra in i andra program.</li>
+		<li><em>Skriv ut...</em> <kbd>Ctrl</kbd> + <kbd>P</kbd> :: Skickar bilden till en skrivare för utskrift</li>
+		<li><em>Email</em> <kbd>Ctrl</kbd> + <kbd>E</kbd> :: Öppnar ett nytt meddeland i ditt förvalda epostprogram, och lägger till bilden som &quot;bifogad fil&quot;</li>
+	</ul>
+	<p class="hint">När du har sparat en bild i bildredigeraren, högerklicka på statusraden nertill i redigeraren fönster för att antingen kopiera bildens sökväg eller för att öppna mappen med skärmbilden i Windows Explorer.</p>
+
+
+	<a name="settings"></a>
+	<h2>Dialogruta &middot; Inställningar</h2>
+
+	<a name="settings-general"></a>
+	<h3>Allmänna inställningar</h3>
+	<ul>
+		<li><em>Språk</em> :: Det språk du föredrar att använda.<br>
+			Du kan ladda ner ytterligare språkfiler för Greenshot <a href="http://getgreenshot.org/downloads/#post-5" title="http://getgreenshot.org/downloads/">här</a>. </li>
+		<li><em>Registrera kortkommandon</em> :: Om denna är i kryssad, så kan Greenshot använda tangenten <kbd>Print</kbd>.</li>
+		<li><em>Dra igång Greenshot när datorn startas</em> :: Startar när systemet har laddats in.</li>
+		<li><em>Visa blixt</em> :: En visuell bekräftelse på att bilden togs</li>
+		<li><em>Spela upp kameraljud</em> :: En hörbar bekräftelse på att bilden togs</li>
+		<li><em>Inkludera markören</em> :: Om denna är i kryssad, kommer även markören med på bild. Markören hanteras i ett eget element i bildredigeraren, och kan på så sätt tas bort vid ett senare tillfälle.</li>
+		<li><em>Använd det interaktiva fönstret</em> :: Istället för att på en gång ta en bild av det aktiva fönstret så gör det interaktiva fönstret att du kan välja vilket fönster du vill göra en bild av. Det är också möjligt att ta bild på underliggande fönster, se <a href="#capture-window">Bild på fönster</a>.</li>
+	</ul>
+
+	<a name="settings-output"></a>
+	<h3>Fil-/bildinställningar</h3>
+	<ul>
+		<li><em>Mapp för lagring</em> :: Här kan du välja mapp(ar) för dina bilder att läggas i efter att du tagit dem.</li>
+		<li><em>Önskade inställningar för fil/bild</em> :: Mapp och filnamn som skall användas när man sparar direkt, eller blir föreslagna när man sparar (när man använder &quot;Spara som...&quot;). Klicka på <b><em>?</em></b> för att lära dig mer om platshållare och hur dem kan användas till filen/filnamnet.</li>
+		<li><em>JPEG-inställningar</em> :: Den kvalitet som skall användas för att spara bilder som JPEG</li>
+	</ul>
+
+	<a name="settings-printer"></a>
+	<h3>Utskriftsinställningar</h3>
+	<ul>
+		<li><em>Förminska/anpassa utskriften till papprets storlek</em> :: Om bilden är större än papprets storlek - förminskas bilden för att passa in på sidan.</li>
+		<li><em>Förstora/anpassa utskriften till papprets storlek</em> :: Om bilden är mindre än papprets storlek - kommer bilden anpassas för att bli utskriven så stor som möjligt, utan att vara större än papprets storlek.</li>
+		<li><em>Rotera utskriften till sidans orientering</em> :: Roterar en bild i liggande format med 90&deg; för utskriften.</li>
+	</ul>
+
+
+	<a name="help"></a>
+	<h2>Vill du hjälpa till?</h2>
+	<p>För närvarande behöver vi ingen hjälp med själva utvecklingen. Däremot finns det ett flertal saker du kan göra för att stödja Greenshot utvecklingsteamet.<br>
+		Tack på förhand :)</p>
+
+	<a name="help-donate"></a>
+	<h3>Överväg en donation</h3>
+	<p>Vi lägger ner otroligt mycket arbete med Greenshot och spenderar en hel del tid på att ett pra program som är gratis, med öppen källkod. Om programmet får dig att bli mer produktiv, och sparar dig och/eller din arbetsplats både tid och pengar, eller om du helt enkelt bara gillar Greenshot och idén med öppna källkodsprogram... Överväg gärna då att uppskatta vårt arbete med en donation.<br>
+		Besök vår webplats för att se hur du kan stödja Greenshot's utvecklingsteam:<br>
+		<a href="http://getgreenshot.org/support/" title="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a></p>
+
+	<a name="help-spread"></a>
+	<h3>Sprid budskapet</h3>
+	<p>Om du gillar Greenshot, låt folk få veta det. Berätta för dina vänner och kollegor om  Greenshot. Dina Facebook-/Twittervänner med... :)<br>
+		Rösta/gradera Greenshot på olika mjukvaruportaler eller lägg en länk till oss på din blog eller webplats.</p>
+
+	<a name="help-translate"></a>
+	<h3>Skicka in en översättning</h3>
+	<p>Finns inte Greenshot i på ditt språk? Om du känner dig upplagd för att översätta en bit av ett program, så är du mer än välkommen.
+		Om du är registrerad användare på <b>sourceforge.net</b>, kan du skicka översättningar till oss via vår &quot;<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020" title="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>&quot;.<br>
+		Försäkra dig om att det inte redan finns en existerande översättning på vår <a href="http://getgreenshot.org/downloads/#post-5" title="http://getgreenshot.org/downloads/">nerladdningssida</a>. Kontrollera även &quot;<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020" title="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations trackern</a>&quot;. Det kan finnas en pågående översättning, eller åtminstone en diskussion.<br>
+		Var vänlig att notera att vi endast kommer att lägga ut en övesättning på vår nerladdningssida om den blev inskickad via ditt användarkonto på sourceforge.net. Eftersom vi förmodligen inte kommer kunna att förstå din översättning, så är det bra för andra sourceforgeanvändare att kunna ta kontakt med dig angående ändringar/förbättringar då det kommer en ny version av Greenshot.</p>
+	<p><small style="color: #999;">Svensk översättning av Eric F :: April 9, 2011</small></p>
+	</body>
+</html>
