@@ -9,7 +9,7 @@
 		Italian translation by tonytogna
 	</resource>
 	<resource name="application_title">
-		Greenshot - Uno straordinario strumento per copiare immagini dal video
+		Greenshot - Uno straordinario strumento per copiare immagini dallo schermo
 	</resource>
 	<resource name="editor_drawrectangle">
 		Disegna rettangolo (R)
@@ -21,13 +21,13 @@
 		Preferenze...
 	</resource>
 	<resource name="settings_storagelocation">
-		Destinazione di salvataggio
+		Destinaz. salvataggio
 	</resource>
 	<resource name="settings_title">
 		Impostazioni
 	</resource>
 	<resource name="settings_tooltip_storagelocation">
-		Destinazione dove le immagini del video vengono salvate per default (lasciare vuoto per salvare sul desktop)
+		Destinazione dove le immagini dello schermo vengono salvate per default (lasciare vuoto per salvare sul desktop)
 	</resource>
 	<resource name="settings_language">
 		Lingua
@@ -126,7 +126,7 @@ Dettagli sulla General Public License GNU:
 		Modifica
 	</resource>
 	<resource name="editor_object">
-		Oggetto
+		Oggetti
 	</resource>
 	<resource name="editor_drawellipse">
 		Disegna ellisse (E)
@@ -165,7 +165,7 @@ Dettagli sulla General Public License GNU:
 		Impostazioni Preferite per l'Emissione File
 	</resource>
 	<resource name="settings_skipimageeditor">
-		Salta gestione immagini
+		Salta Gestione Immagini
 	</resource>
 	<resource name="settings_registerhotkeys">
 		Registra scorciatoie di tastiera
@@ -189,7 +189,7 @@ Dettagli sulla General Public License GNU:
 		Qualità JPEG
 	</resource>
 	<resource name="settings_alwaysshowjpegqualitydialog">
-		Visualizza scelta qualità JPEG ogni qualvolta una immagine JPEG viene salvata
+		Visualizza scelta qualità ogni volta che si salva una immagine JPEG
 	</resource>
 	<resource name="jpegqualitydialog_title">
 		Qualità JPEG di Greenshot
@@ -248,7 +248,7 @@ Questo errore è causato probabilmente da un altro software che richiede l'uso d
 Disattivare il software usando il pulsante Stamp. Si possono comunque usare tutte le funzioni di Greenshot dal menù visualizzabile con tasto destro del mouse sull'icona G nella barra.
 	</resource>
 	<resource name="settings_destination_editor">
-		Apri in Gestione delle Immagini
+		Apri in Gest. Immagini
 	</resource>
 	<resource name="settings_destination_printer">
 		Invia alla stampante
@@ -293,7 +293,7 @@ Disattivare il software usando il pulsante Stamp. Si possono comunque usare tutt
 		Un istanza di Greenshot è già attiva.
 	</resource>
 	<resource name="settings_autostartshortcut">
-		Lanciare Greenshot all'avvio
+		Lancia Greenshot all'avvio
 	</resource>
 	<resource name="clipboard_inuse">
 		Greenshot non è riuscito a scrivere sugli appunti poichè il processo {0} teneva l'accesso bloccato.
@@ -329,7 +329,7 @@ Disattivare il software usando il pulsante Stamp. Si possono comunque usare tutt
 		Emissione
 	</resource>
 	<resource name="settings_general">
-		Generale
+		Generali
 	</resource>
 	<resource name="editor_clipboardfailed">
 		Errore durante l'accesso agli appunti. Ritenta nuovamente.
