@@ -57,7 +57,7 @@
 		Išeiti
 	</resource>
 	<resource name="settings_visualization">
-		Nuotraukos efektai
+		Fotoefektai
 	</resource>
 	<resource name="settings_playsound">
 		Fotoaparato garsas
@@ -89,7 +89,7 @@ Patikrinkite ar turite tam teises.
 	</resource>
 	<resource name="about_license">
 		Visos teisės saugomos (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot pateikiama BE JOKIŲ GARANTIJŲ. Greenshot — laisvai platinama programinė įranga su GPL licencija (GNU General Public License) ir jūs galite laisvai ją platinti, laikydamasi licencinės sutarties:
+Greenshot pateikiama BE JOKIŲ GARANTIJŲ. Greenshot — laisvai platinama PĮ su GPL licencija ir jūs galite laisvai ją platinti, laikydamasi licencinės sutarties:
 	</resource>
 	<resource name="error_openlink">
 		Nepavyko atidaryti nuorodos.
@@ -143,7 +143,7 @@ Greenshot pateikiama BE JOKIŲ GARANTIJŲ. Greenshot — laisvai platinama progr
 		Patalpinti į iškarpinių podelį
 	</resource>
 	<resource name="contextmenu_capturewindow">
-		Ekrano nuotrauka
+		Lango nuotrauka
 	</resource>
 	<resource name="editor_duplicate">
 		Dubliuoti
@@ -167,7 +167,7 @@ Greenshot pateikiama BE JOKIŲ GARANTIJŲ. Greenshot — laisvai platinama progr
 		Redagtoriaus neatidaryti
 	</resource>
 	<resource name="settings_registerhotkeys">
-		Perimti mygtukas kombinacijas
+		Perimti mygtuko kombinacijas
 	</resource>
 	<resource name="settings_tooltip_registerhotkeys">
 		Mygtukas Print (PrintScreen), derinys Ctrl-Print, Alt-Print
@@ -257,7 +257,7 @@ kurios naudoja šiuos mygtukus. Arba galima naudoti komandas iš Greenshot progr
 		Išsaugoti į failą
 	</resource>
 	<resource name="settings_destination_clipboard">
-		Patalpinti į apsikeitimo podelį
+		Patalpinti į podelį
 	</resource>
 	<resource name="editor_drawline">
 		Atkarpa (L)
@@ -509,7 +509,7 @@ Pvz, šablonas ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} rodo, kad šios dienos dato
 		Išsaugoti objektus į failą
 	</resource>
 	<resource name="settings_waittime">
-		Išlaikymas prieš fotografuojant (мс)
+		Išlaikymas prieš fotografuojant (ms)
 	</resource>
 	<resource name="tooltip_firststart">
 		Spauskite dešiniu pelės klavišu arba spauskite "PrintScreen".
