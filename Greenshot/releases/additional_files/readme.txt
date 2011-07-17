@@ -19,22 +19,21 @@ Bugs resolved:
 * At first start all available languages can be selected
 
 Features added:
+* Changed the configuration from a proprietary binary format to a readable & modifiable "greenshot.ini".
 * Added the Dutch language as a third default language for all Greenshot parts (application, plugins and installer)
 * Added all currently available languages to the installer.
 * Added configurable hotkeys
 * Added Aero (DWM) window capture on Windows Vista and later! Either the window is captured with transparency or it is possible to replace the transparent window border with a background color, making the capture look cleaner.
 * Added Internet Explorer capture. Select your IE - Tab from the Greenshot context menu or use the default hotkey "Ctrl + Shift + PrintScreen" to capture the active IE page.
 * Added OCR Plugin, this will only work when Microsoft Office 2003 or 2007 is installed. Unfortunately there is no way to check what languages Office supports, this needs to be set manually! To set the language, go into the Greenshot configuration screen, a new "plugin" tab is available. Click on the tab, on the OCR plugin and on the configure button. This should allow you to change the language which is used to OCR your selection!
-* Added a simple plugin that will cut the "garbage" from the Internet Explorer and Firefox title when capturing currently the behaviour can only be controlled by changing the configuration manually (titlefix.properties in the configuration directory)
 * Added environment variable support for the filename and path. Now one can use e.g. "${TMP}"…
-* Changed the configuration from a proprietary binary format to a readable & modifiable "greenshot.ini".
 * Added "experimental" Windows "Enhanced" MetaFile (=Vector graphics) support. The bitmap can be resized "without" quality loss. To use this, e.g. drag/drop a "WMF" file from the Microsoft Office "Clipart" directory on the open Greenshot editor.
 * Added Imgur (see: http://Imgur.com) plugin
 * Added plugin white/black listing, mainly needed for administrators specifying which plugins will be loaded and which not.
-* Added Outlook support, creating HTML email with "in-body" image using the default signature for new Emails.
+* Added better Email export: Outlook support, creating HTML email with "in-body" image using the default signature for new Emails.
 * Added GDI capturing windows with transparency, only works if Aero (DWM) is disabled!
-* Added update check
-
+* Added update check, if an update is detected a popup is shown asking if the user wants to download this
+* Added HTML as clipboard format
 
 
 Known bugs:

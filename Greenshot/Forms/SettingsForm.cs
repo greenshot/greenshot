@@ -40,7 +40,8 @@ namespace Greenshot {
 	/// </summary>
 	public partial class SettingsForm : Form {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		ILanguage lang;
 		private ToolTip toolTip;
 		
@@ -113,6 +114,9 @@ namespace Greenshot {
 
 			this.groupbox_iecapture.Text = lang.GetString(LangKey.settings_iecapture);
 			this.checkbox_ie_capture.Text = lang.GetString(LangKey.settings_iecapture);
+
+			this.groupbox_editor.Text = lang.GetString(LangKey.settings_editor);
+			this.checkbox_editor_match_capture_size.Text = lang.GetString(LangKey.editor_match_capture_size);
 
 			this.groupbox_windowscapture.Text  = lang.GetString(LangKey.settings_windowscapture);
 			this.label_window_capture_mode.Text = lang.GetString(LangKey.settings_window_capture_mode);
@@ -195,51 +199,53 @@ namespace Greenshot {
 		}
 
 		private void DisplaySettings() {
-			region_hotkeyControl.SetHotkey(conf.RegionHotkey);
-			fullscreen_hotkeyControl.SetHotkey(conf.FullscreenHotkey);
-			window_hotkeyControl.SetHotkey(conf.WindowHotkey);
-			lastregion_hotkeyControl.SetHotkey(conf.LastregionHotkey);
-			ie_hotkeyControl.SetHotkey(conf.IEHotkey);
-			colorButton_window_background.SelectedColor = conf.DWMBackgroundColor;
+			region_hotkeyControl.SetHotkey(coreConfiguration.RegionHotkey);
+			fullscreen_hotkeyControl.SetHotkey(coreConfiguration.FullscreenHotkey);
+			window_hotkeyControl.SetHotkey(coreConfiguration.WindowHotkey);
+			lastregion_hotkeyControl.SetHotkey(coreConfiguration.LastregionHotkey);
+			ie_hotkeyControl.SetHotkey(coreConfiguration.IEHotkey);
+			colorButton_window_background.SelectedColor = coreConfiguration.DWMBackgroundColor;
 			
-			checkbox_ie_capture.Checked = conf.IECapture;
+			checkbox_ie_capture.Checked = coreConfiguration.IECapture;
 			combobox_language.SelectedValue = lang.CurrentLanguage;
-			textbox_storagelocation.Text = FilenameHelper.FillVariables(conf.OutputFilePath);
-			textbox_screenshotname.Text = conf.OutputFileFilenamePattern;
-			combobox_primaryimageformat.SelectedItem = conf.OutputFileFormat;
-			combobox_emailformat.SelectedItem = conf.OutputEMailFormat;
+			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath);
+			textbox_screenshotname.Text = coreConfiguration.OutputFileFilenamePattern;
+			combobox_primaryimageformat.SelectedItem = coreConfiguration.OutputFileFormat;
+			combobox_emailformat.SelectedItem = coreConfiguration.OutputEMailFormat;
 			if (!DWM.isDWMEnabled()) {
 				// Remove DWM from configuration, as DWM is disabled!
-				if (conf.WindowCaptureMode == WindowCaptureMode.Aero || conf.WindowCaptureMode == WindowCaptureMode.AeroTransparent) {
-					conf.WindowCaptureMode = WindowCaptureMode.GDI;
+				if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent) {
+					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;
 				}
 			}
-			combobox_window_capture_mode.SelectedItem = conf.WindowCaptureMode;
+			combobox_window_capture_mode.SelectedItem = coreConfiguration.WindowCaptureMode;
 
-			checkbox_copypathtoclipboard.Checked = conf.OutputFileCopyPathToClipboard;
-			trackBarJpegQuality.Value = conf.OutputFileJpegQuality;
-			textBoxJpegQuality.Text = conf.OutputFileJpegQuality+"%";
-			checkbox_alwaysshowjpegqualitydialog.Checked = conf.OutputFilePromptJpegQuality;
-			checkbox_playsound.Checked = conf.PlayCameraSound;
+			checkbox_copypathtoclipboard.Checked = coreConfiguration.OutputFileCopyPathToClipboard;
+			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
+			textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality+"%";
+			checkbox_alwaysshowjpegqualitydialog.Checked = coreConfiguration.OutputFilePromptJpegQuality;
+			checkbox_playsound.Checked = coreConfiguration.PlayCameraSound;
 			
-			checkbox_clipboard.Checked = conf.OutputDestinations.Contains(Destination.Clipboard);
-			checkbox_file.Checked = conf.OutputDestinations.Contains(Destination.FileDefault);
-			checkbox_fileas.Checked = conf.OutputDestinations.Contains(Destination.FileWithDialog);
-			checkbox_printer.Checked = conf.OutputDestinations.Contains(Destination.Printer);
-			checkbox_editor.Checked = conf.OutputDestinations.Contains(Destination.Editor);
-			checkbox_email.Checked = conf.OutputDestinations.Contains(Destination.EMail);
+			checkbox_clipboard.Checked = coreConfiguration.OutputDestinations.Contains(Destination.Clipboard);
+			checkbox_file.Checked = coreConfiguration.OutputDestinations.Contains(Destination.FileDefault);
+			checkbox_fileas.Checked = coreConfiguration.OutputDestinations.Contains(Destination.FileWithDialog);
+			checkbox_printer.Checked = coreConfiguration.OutputDestinations.Contains(Destination.Printer);
+			checkbox_editor.Checked = coreConfiguration.OutputDestinations.Contains(Destination.Editor);
+			checkbox_email.Checked = coreConfiguration.OutputDestinations.Contains(Destination.EMail);
 
-			checkboxPrintInverted.Checked = conf.OutputPrintInverted;
-			checkboxAllowCenter.Checked = conf.OutputPrintCenter;
-			checkboxAllowEnlarge.Checked = conf.OutputPrintAllowEnlarge;
-			checkboxAllowRotate.Checked = conf.OutputPrintAllowRotate;
-			checkboxAllowShrink.Checked = conf.OutputPrintAllowShrink;
-			checkboxTimestamp.Checked = conf.OutputPrintTimestamp;
-			checkbox_alwaysshowprintoptionsdialog.Checked = conf.OutputPrintPromptOptions;
-			checkbox_capture_mousepointer.Checked = conf.CaptureMousepointer;
-			checkbox_capture_windows_interactive.Checked = conf.CaptureWindowsInteractive;
+			checkboxPrintInverted.Checked = coreConfiguration.OutputPrintInverted;
+			checkboxAllowCenter.Checked = coreConfiguration.OutputPrintCenter;
+			checkboxAllowEnlarge.Checked = coreConfiguration.OutputPrintAllowEnlarge;
+			checkboxAllowRotate.Checked = coreConfiguration.OutputPrintAllowRotate;
+			checkboxAllowShrink.Checked = coreConfiguration.OutputPrintAllowShrink;
+			checkboxTimestamp.Checked = coreConfiguration.OutputPrintTimestamp;
+			checkbox_alwaysshowprintoptionsdialog.Checked = coreConfiguration.OutputPrintPromptOptions;
+			checkbox_capture_mousepointer.Checked = coreConfiguration.CaptureMousepointer;
+			checkbox_capture_windows_interactive.Checked = coreConfiguration.CaptureWindowsInteractive;
+			
+			checkbox_editor_match_capture_size.Checked = editorConfiguration.MatchSizeToCapture;
 
-			numericUpDownWaitTime.Value = conf.CaptureDelay >=0?conf.CaptureDelay:0;
+			numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >=0?coreConfiguration.CaptureDelay:0;
 
 			// If the run for all is set we disable and set the checkbox
 			if (StartupHelper.checkRunAll()) {
@@ -264,25 +270,25 @@ namespace Greenshot {
 				}
 			}
 			
-			checkbox_usedefaultproxy.Checked = conf.UseProxy;
-			numericUpDown_daysbetweencheck.Value = conf.UpdateCheckInterval;
+			checkbox_usedefaultproxy.Checked = coreConfiguration.UseProxy;
+			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 		}
 
 		private void SaveSettings() {
-			conf.Language = combobox_language.SelectedValue.ToString();
+			coreConfiguration.Language = combobox_language.SelectedValue.ToString();
 
-			conf.WindowCaptureMode = (WindowCaptureMode)combobox_window_capture_mode.SelectedItem;
-			conf.OutputFileFilenamePattern = textbox_screenshotname.Text;
-			if (!FilenameHelper.FillVariables(conf.OutputFilePath).Equals(textbox_storagelocation.Text)) {
-				conf.OutputFilePath = textbox_storagelocation.Text;
+			coreConfiguration.WindowCaptureMode = (WindowCaptureMode)combobox_window_capture_mode.SelectedItem;
+			coreConfiguration.OutputFileFilenamePattern = textbox_screenshotname.Text;
+			if (!FilenameHelper.FillVariables(coreConfiguration.OutputFilePath).Equals(textbox_storagelocation.Text)) {
+				coreConfiguration.OutputFilePath = textbox_storagelocation.Text;
 			}
-			conf.OutputFileFormat = (OutputFormat)combobox_primaryimageformat.SelectedItem;
-			conf.OutputEMailFormat = (EmailFormat)combobox_emailformat.SelectedItem;
+			coreConfiguration.OutputFileFormat = (OutputFormat)combobox_primaryimageformat.SelectedItem;
+			coreConfiguration.OutputEMailFormat = (EmailFormat)combobox_emailformat.SelectedItem;
 
-			conf.OutputFileCopyPathToClipboard = checkbox_copypathtoclipboard.Checked;
-			conf.OutputFileJpegQuality = trackBarJpegQuality.Value;
-			conf.OutputFilePromptJpegQuality = checkbox_alwaysshowjpegqualitydialog.Checked;
-			conf.PlayCameraSound = checkbox_playsound.Checked;
+			coreConfiguration.OutputFileCopyPathToClipboard = checkbox_copypathtoclipboard.Checked;
+			coreConfiguration.OutputFileJpegQuality = trackBarJpegQuality.Value;
+			coreConfiguration.OutputFilePromptJpegQuality = checkbox_alwaysshowjpegqualitydialog.Checked;
+			coreConfiguration.PlayCameraSound = checkbox_playsound.Checked;
 
 			List<Destination> destinations = new List<Destination>();
 			if (checkbox_clipboard.Checked) destinations.Add(Destination.Clipboard);
@@ -291,30 +297,32 @@ namespace Greenshot {
 			if (checkbox_printer.Checked) destinations.Add(Destination.Printer);
 			if (checkbox_editor.Checked) destinations.Add(Destination.Editor);
 			if (checkbox_email.Checked) destinations.Add(Destination.EMail);
-			conf.OutputDestinations = destinations;
+			coreConfiguration.OutputDestinations = destinations;
 			
-			conf.OutputPrintInverted = checkboxPrintInverted.Checked;
-			conf.OutputPrintCenter = checkboxAllowCenter.Checked;
-			conf.OutputPrintAllowEnlarge = checkboxAllowEnlarge.Checked;
-			conf.OutputPrintAllowRotate = checkboxAllowRotate.Checked;
-			conf.OutputPrintAllowShrink = checkboxAllowShrink.Checked;
-			conf.OutputPrintTimestamp = checkboxTimestamp.Checked;
-			conf.OutputPrintPromptOptions = checkbox_alwaysshowprintoptionsdialog.Checked;
-			conf.CaptureMousepointer = checkbox_capture_mousepointer.Checked;
-			conf.CaptureWindowsInteractive = checkbox_capture_windows_interactive.Checked;
-			conf.CaptureDelay = (int)numericUpDownWaitTime.Value;
-			conf.DWMBackgroundColor = colorButton_window_background.SelectedColor;
+			coreConfiguration.OutputPrintInverted = checkboxPrintInverted.Checked;
+			coreConfiguration.OutputPrintCenter = checkboxAllowCenter.Checked;
+			coreConfiguration.OutputPrintAllowEnlarge = checkboxAllowEnlarge.Checked;
+			coreConfiguration.OutputPrintAllowRotate = checkboxAllowRotate.Checked;
+			coreConfiguration.OutputPrintAllowShrink = checkboxAllowShrink.Checked;
+			coreConfiguration.OutputPrintTimestamp = checkboxTimestamp.Checked;
+			coreConfiguration.OutputPrintPromptOptions = checkbox_alwaysshowprintoptionsdialog.Checked;
+			coreConfiguration.CaptureMousepointer = checkbox_capture_mousepointer.Checked;
+			coreConfiguration.CaptureWindowsInteractive = checkbox_capture_windows_interactive.Checked;
+			coreConfiguration.CaptureDelay = (int)numericUpDownWaitTime.Value;
+			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
 
-			conf.RegionHotkey = region_hotkeyControl.ToString();
-			conf.FullscreenHotkey = fullscreen_hotkeyControl.ToString();
-			conf.WindowHotkey = window_hotkeyControl.ToString();
-			conf.LastregionHotkey = lastregion_hotkeyControl.ToString();
-			conf.IEHotkey = ie_hotkeyControl.ToString();
+			coreConfiguration.RegionHotkey = region_hotkeyControl.ToString();
+			coreConfiguration.FullscreenHotkey = fullscreen_hotkeyControl.ToString();
+			coreConfiguration.WindowHotkey = window_hotkeyControl.ToString();
+			coreConfiguration.LastregionHotkey = lastregion_hotkeyControl.ToString();
+			coreConfiguration.IEHotkey = ie_hotkeyControl.ToString();
 
-			conf.IECapture = checkbox_ie_capture.Checked;
+			coreConfiguration.IECapture = checkbox_ie_capture.Checked;
 
-			conf.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
-			conf.UseProxy = checkbox_usedefaultproxy.Checked;
+			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
+			coreConfiguration.UseProxy = checkbox_usedefaultproxy.Checked;
+
+			editorConfiguration.MatchSizeToCapture = checkbox_editor_match_capture_size.Checked;
 
 			IniConfig.Save();
 

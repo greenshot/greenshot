@@ -493,6 +493,9 @@ genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v
 	<resource name="settings_iecapture">
 		Internet Explorer vastleggen
 	</resource>
+	<resource name="settings_editor">
+		Beeld bewerken
+	</resource>
 	<resource name="contextmenu_openfile">
 		Open beeld uit bestand
 	</resource>
@@ -519,6 +522,9 @@ genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v
 	</resource>
 	<resource name="editor_save_objects">
 		Objecten in bestand opslaan
+	</resource>
+	<resource name="editor_match_capture_size">
+		Pas groote aan screenshot aan
 	</resource>
 	<resource name="settings_waittime">
 		Milliseconden wachten voor vastleggen

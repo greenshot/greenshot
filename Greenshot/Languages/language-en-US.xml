@@ -503,6 +503,9 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	<resource name="settings_iecapture">
 		Internet Explorer capture
 	</resource>
+	<resource name="settings_editor">
+		Editor
+	</resource>
 	<resource name="error_openfile">
 		The file "{0}" could not be opened.
 	</resource>
@@ -526,6 +529,9 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	</resource>
 	<resource name="editor_save_objects">
 		Save objects to file
+	</resource>
+	<resource name="editor_match_capture_size">
+		Match capture size
 	</resource>
 	<resource name="settings_waittime">
 		Milliseconds to wait before capture

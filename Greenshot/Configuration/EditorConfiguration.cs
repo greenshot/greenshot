@@ -43,7 +43,7 @@ namespace Greenshot.Configuration {
 		[IniProperty("LastFieldValue", Separator="|", Description="Field values, make sure the last used settings are re-used")]
 		public Dictionary<string, object> LastUsedFieldValues;
 
-		[IniProperty("MatchSizeToCapture", Description="Match the editor window size to the capture", DefaultValue="false")]
+		[IniProperty("MatchSizeToCapture", Description="Match the editor window size to the capture", DefaultValue="True")]
 		public bool MatchSizeToCapture;
 		[IniProperty("WindowPlacementFlags", Description="Placement flags", DefaultValue="0")]
 		public WindowPlacementFlags WindowPlacementFlags;

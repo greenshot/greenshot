@@ -500,6 +500,9 @@ Zeit, z.B. 11_58_32 (plus Dateinamenerweiterung wie in den Einstellungen definie
 	<resource name="settings_iecapture">
 		Internet Explorer abfotografieren
 	</resource>
+	<resource name="settings_editor">
+		Editor
+	</resource>
 	<resource name="contextmenu_openfile">
 		Bild aus Datei öffnen
 	</resource>
@@ -526,6 +529,9 @@ Zeit, z.B. 11_58_32 (plus Dateinamenerweiterung wie in den Einstellungen definie
 	</resource>
 	<resource name="editor_save_objects">
 		Objekte in Datei speichern
+	</resource>
+	<resource name="editor_match_capture_size">
+		Mache dem Editor so groß wie dem screenshot
 	</resource>
 	<resource name="settings_waittime">
 		Millisekunden warten vor abfotografieren

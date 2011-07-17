@@ -95,6 +95,8 @@ namespace Greenshot {
 			this.window_hotkeyControl = new GreenshotPlugin.Controls.HotkeyControl();
 			this.fullscreen_hotkeyControl = new GreenshotPlugin.Controls.HotkeyControl();
 			this.tab_capture = new System.Windows.Forms.TabPage();
+			this.groupbox_editor = new System.Windows.Forms.GroupBox();
+			this.checkbox_editor_match_capture_size = new System.Windows.Forms.CheckBox();
 			this.groupbox_iecapture = new System.Windows.Forms.GroupBox();
 			this.checkbox_ie_capture = new System.Windows.Forms.CheckBox();
 			this.groupbox_windowscapture = new System.Windows.Forms.GroupBox();
@@ -132,6 +134,7 @@ namespace Greenshot {
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDown_daysbetweencheck)).BeginInit();
 			this.groupbox_hotkeys.SuspendLayout();
 			this.tab_capture.SuspendLayout();
+			this.groupbox_editor.SuspendLayout();
 			this.groupbox_iecapture.SuspendLayout();
 			this.groupbox_windowscapture.SuspendLayout();
 			this.groupbox_capture.SuspendLayout();
@@ -611,6 +614,7 @@ namespace Greenshot {
 			// 
 			// tab_capture
 			// 
+			this.tab_capture.Controls.Add(this.groupbox_editor);
 			this.tab_capture.Controls.Add(this.groupbox_iecapture);
 			this.tab_capture.Controls.Add(this.groupbox_windowscapture);
 			this.tab_capture.Controls.Add(this.groupbox_capture);
@@ -620,6 +624,25 @@ namespace Greenshot {
 			this.tab_capture.TabIndex = 3;
 			this.tab_capture.Text = "Capture";
 			this.tab_capture.UseVisualStyleBackColor = true;
+			// 
+			// groupbox_editor
+			// 
+			this.groupbox_editor.Controls.Add(this.checkbox_editor_match_capture_size);
+			this.groupbox_editor.Location = new System.Drawing.Point(4, 260);
+			this.groupbox_editor.Name = "groupbox_editor";
+			this.groupbox_editor.Size = new System.Drawing.Size(416, 50);
+			this.groupbox_editor.TabIndex = 27;
+			this.groupbox_editor.TabStop = false;
+			this.groupbox_editor.Text = "Editor";
+			// 
+			// checkbox_editor_match_capture_size
+			// 
+			this.checkbox_editor_match_capture_size.Location = new System.Drawing.Point(6, 19);
+			this.checkbox_editor_match_capture_size.Name = "checkbox_editor_match_capture_size";
+			this.checkbox_editor_match_capture_size.Size = new System.Drawing.Size(213, 24);
+			this.checkbox_editor_match_capture_size.TabIndex = 26;
+			this.checkbox_editor_match_capture_size.Text = "Match capture size";
+			this.checkbox_editor_match_capture_size.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_iecapture
 			// 
@@ -952,6 +975,7 @@ namespace Greenshot {
 			this.groupbox_hotkeys.ResumeLayout(false);
 			this.groupbox_hotkeys.PerformLayout();
 			this.tab_capture.ResumeLayout(false);
+			this.groupbox_editor.ResumeLayout(false);
 			this.groupbox_iecapture.ResumeLayout(false);
 			this.groupbox_windowscapture.ResumeLayout(false);
 			this.groupbox_windowscapture.PerformLayout();
@@ -965,6 +989,8 @@ namespace Greenshot {
 			this.groupbox_plugins.PerformLayout();
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.GroupBox groupbox_editor;
+		private System.Windows.Forms.CheckBox checkbox_editor_match_capture_size;
 		private System.Windows.Forms.NumericUpDown numericUpDown_daysbetweencheck;
 		private System.Windows.Forms.GroupBox groupbox_network;
 		private System.Windows.Forms.CheckBox checkbox_usedefaultproxy;
