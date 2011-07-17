@@ -780,8 +780,9 @@ namespace Greenshot {
 		private void Contextmenu_OpenRecent(object sender, EventArgs eventArgs) {
 			string path;
 			string configPath = FilenameHelper.FillVariables(conf.OutputFilePath);
-			if (File.Exists(conf.OutputFileAsFullpath)) {
-				path = conf.OutputFileAsFullpath;
+			string lastFilePath = Path.GetDirectoryName(conf.OutputFileAsFullpath);
+			if (Directory.Exists(lastFilePath)) {
+				path = lastFilePath;
 			} else if (Directory.Exists(configPath)) {
 				path = configPath;
 			} else {

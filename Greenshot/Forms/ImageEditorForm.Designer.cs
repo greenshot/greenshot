@@ -427,6 +427,7 @@ namespace Greenshot {
 			// 
 			// saveAsToolStripMenuItem
 			// 
+			this.saveAsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
 			this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
 			this.saveAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
 									| System.Windows.Forms.Keys.S)));
