@@ -1,0 +1,70 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{EFD01BC7-15E5-48AD-BE68-D7B62FEEED2D}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GreenshotTest</RootNamespace>
+    <AssemblyName>GreenshotTest</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SourceAnalysisOverrideSettingsFile>C:\Users\Robin\AppData\Roaming\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test\Drawing\Filters\BitmapByteBufferTest.cs" />
+    <Compile Include="Test\Drawing\Properties\PropertyAggregatorTest.cs" />
+    <Compile Include="Test\SaveImageFileDialogTest.cs" />
+    <None Include="lib\nunit.framework.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib" />
+    <Folder Include="Test" />
+    <Folder Include="Test\Drawing" />
+    <Folder Include="Test\Drawing\Filters" />
+    <Folder Include="Test\Drawing\Properties" />
+    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
+      <Name>GreenshotPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot\Greenshot.csproj">
+      <Project>{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}</Project>
+      <Name>Greenshot</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

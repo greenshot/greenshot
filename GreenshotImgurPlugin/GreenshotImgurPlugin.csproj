@@ -1,0 +1,97 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{80D8DEB9-94E3-4876-8CCA-2DF1ED5F2C50}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GreenshotImgurPlugin</RootNamespace>
+    <AssemblyName>GreenshotImgurPlugin</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SourceAnalysisOverrideSettingsFile>C:\Users\Robin\AppData\Roaming\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Forms\ImgurHistory.cs" />
+    <Compile Include="Forms\ImgurHistory.Designer.cs">
+      <DependentUpon>ImgurHistory.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ListViewColumnSorter.cs" />
+    <Compile Include="Forms\SettingsForm.cs" />
+    <Compile Include="Forms\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ImgurInfo.cs" />
+    <Compile Include="ImgurPlugin.cs" />
+    <Compile Include="ImgurConfiguration.cs" />
+    <Compile Include="ImgurUtils.cs" />
+    <Compile Include="Language.cs" />
+    <Compile Include="LanguageKeys.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Languages\language_imgurplugin-de-DE.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language_imgurplugin-en-US.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language_imgurplugin-nl-NL.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Properties\AssemblyInfo.cs.template" />
+    <EmbeddedResource Include="ImgurPlugin.resx">
+      <DependentUpon>ImgurPlugin.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
+      <Name>GreenshotPlugin</Name>
+    </ProjectReference>
+    <Folder Include="Forms" />
+    <Folder Include="Languages" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"</PreBuildEvent>
+    <PostBuildEvent>mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
+mkdir "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
+copy "$(ProjectDir)bin\$(Configuration)\Languages\*.xml" "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"</PostBuildEvent>
+  </PropertyGroup>
+</Project>

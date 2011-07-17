@@ -1,0 +1,363 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <ProjectGuid>{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Greenshot</RootNamespace>
+    <AssemblyName>Greenshot</AssemblyName>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
+    <SourceAnalysisOverrideSettingsFile>C:\Dokumente und Einstellungen\jens\Anwendungsdaten\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <ApplicationManifest>greenshot.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>None</DebugType>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>x86</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Accessibility" />
+    <Reference Include="log4net">
+      <HintPath>Lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Configuration\AppConfig.cs" />
+    <Compile Include="Configuration\EditorConfiguration.cs" />
+    <Compile Include="Configuration\Language.cs" />
+    <Compile Include="Configuration\LanguageKeys.cs" />
+    <Compile Include="Configuration\RuntimeConfig.cs" />
+    <Compile Include="Controls\BindableToolStripComboBox.cs" />
+    <Compile Include="Controls\BindableToolStripButton.cs" />
+    <Compile Include="Controls\BindableToolStripDropDownButton.cs" />
+    <Compile Include="Controls\ColorButton.cs" />
+    <Compile Include="Controls\NonJumpingPanel.cs" />
+    <Compile Include="Controls\ToolStripColorButton.cs" />
+    <Compile Include="Controls\FontFamilyComboBox.cs" />
+    <Compile Include="Controls\ToolStripNumericUpDown.cs" />
+    <Compile Include="Drawing\ArrowContainer.cs" />
+    <Compile Include="Drawing\BitmapBuffer.cs" />
+    <Compile Include="Drawing\BitmapContainer.cs" />
+    <Compile Include="Drawing\CropContainer.cs" />
+    <Compile Include="Drawing\CursorContainer.cs" />
+    <Compile Include="Drawing\DrawableContainer.cs" />
+    <Compile Include="Drawing\DrawableContainerList.cs" />
+    <Compile Include="Drawing\EllipseContainer.cs" />
+    <Compile Include="Drawing\Fields\AbstractFieldHolderWithChildren.cs" />
+    <Compile Include="Drawing\Fields\Binding\AbstractBindingConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\BidirectionalBinding.cs" />
+    <Compile Include="Drawing\Fields\Binding\DecimalDoublePercentageConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\DecimalFloatConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\DecimalIntConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\IBindingConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\IBindingValidator.cs" />
+    <Compile Include="Drawing\Fields\Binding\NotNullValidator.cs" />
+    <Compile Include="Drawing\FilterContainer.cs" />
+    <Compile Include="Drawing\Filters\AbstractFilter.cs" />
+    <Compile Include="Drawing\Filters\BrightnessFilter.cs" />
+    <Compile Include="Drawing\Filters\FastSmoothFilter.cs" />
+    <Compile Include="Drawing\Filters\GrayscaleFilter.cs" />
+    <Compile Include="Drawing\Filters\HighlightFilter.cs" />
+    <Compile Include="Drawing\Filters\IFilter.cs" />
+    <Compile Include="Drawing\Filters\MagnifierFilter.cs" />
+    <Compile Include="Drawing\Filters\PixelizationFilter.cs" />
+    <Compile Include="Drawing\Filters\BlurFilter.cs" />
+    <Compile Include="Drawing\HighlightContainer.cs" />
+    <Compile Include="Drawing\IconContainer.cs" />
+    <Compile Include="Drawing\LineContainer.cs" />
+    <Compile Include="Drawing\Fields\AbstractFieldHolder.cs" />
+    <Compile Include="Drawing\Fields\Field.cs" />
+    <Compile Include="Drawing\Fields\FieldType.cs" />
+    <Compile Include="Drawing\Fields\IFieldHolder.cs" />
+    <Compile Include="Drawing\Fields\FieldAggregator.cs" />
+    <Compile Include="Drawing\MetafileContainer.cs" />
+    <Compile Include="Drawing\ObfuscateContainer.cs" />
+    <Compile Include="Drawing\RectangleContainer.cs" />
+    <Compile Include="Drawing\RoundedRectangle.cs" />
+    <Compile Include="Drawing\Surface.cs" />
+    <Compile Include="Drawing\TextContainer.cs" />
+    <Compile Include="Forms\AboutForm.cs" />
+    <Compile Include="Forms\AboutForm.Designer.cs">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CaptureForm.cs" />
+    <Compile Include="Forms\CaptureForm.Designer.cs">
+      <DependentUpon>CaptureForm.cs</DependentUpon>
+    </Compile>
+    <None Include="Forms\DestinationPickerForm.cs" />
+    <None Include="Forms\DestinationPickerForm.Designer.cs">
+      <DependentUpon>DestinationPickerForm.cs</DependentUpon>
+    </None>
+    <Compile Include="Forms\ImageEditorForm.cs" />
+    <Compile Include="Forms\ImageEditorForm.Designer.cs">
+      <DependentUpon>ImageEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\LanguageDialog.cs" />
+    <Compile Include="Forms\LanguageDialog.Designer.cs">
+      <DependentUpon>LanguageDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MainForm.cs" />
+    <Compile Include="Forms\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\PrintOptionsDialog.cs" />
+    <Compile Include="Forms\PrintOptionsDialog.Designer.cs">
+      <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SaveImageFileDialog.cs" />
+    <Compile Include="Forms\SettingsForm.cs" />
+    <Compile Include="Forms\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ToolStripMenuSelectList.cs" />
+    <Compile Include="Forms\BugReportForm.cs" />
+    <Compile Include="Forms\BugReportForm.Designer.cs">
+      <DependentUpon>BugReportForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ClipboardHelper.cs" />
+    <Compile Include="Helpers\Colors.cs" />
+    <Compile Include="Helpers\CopyData.cs" />
+    <Compile Include="Helpers\DrawingHelper.cs" />
+    <Compile Include="Helpers\IECaptureHelper.cs" />
+    <Compile Include="Helpers\AccessibleHelper.cs" />
+    <Compile Include="Helpers\IEInterop\IEContainer.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLBodyElement.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLElement2.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLFrameBase.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLFramesCollection2.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLRect.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLSelectionObject.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLStyle.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLTxtRange.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLWindow4.cs" />
+    <Compile Include="Helpers\IEInterop\IOleWindow.cs" />
+    <Compile Include="Helpers\IEInterop\IServiceProvider.cs" />
+    <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLDocument.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLDocument2.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLDocument3.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLDocument4.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLDocument5.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLElement.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLElementCollection.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLScreen.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLScreen2.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLWindow2.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLWindow3.cs" />
+    <Compile Include="Helpers\IEInterop\IWebBrowser2.cs" />
+    <None Include="Helpers\OfficeInterop\ExcelWrapper.cs" />
+    <Compile Include="Helpers\OfficeInterop\OfficeWrappers.cs" />
+    <Compile Include="Helpers\OfficeInterop\OutlookWrapper.cs" />
+    <None Include="Helpers\OfficeInterop\PowerpointWrapper.cs" />
+    <Compile Include="Helpers\OfficeInterop\WordWrapper.cs" />
+    <Compile Include="Helpers\QuantizerHelper.cs" />
+    <Compile Include="Helpers\UpdateHelper.cs" />
+    <Compile Include="Helpers\WindowsHelper.cs" />
+    <Compile Include="Helpers\EnvironmentInfo.cs" />
+    <Compile Include="Helpers\GuiRectangle.cs" />
+    <Compile Include="Helpers\LogHelper.cs" />
+    <Compile Include="Helpers\MailHelper.cs" />
+    <Compile Include="Helpers\Objects.cs" />
+    <Compile Include="Helpers\PluginHelper.cs" />
+    <Compile Include="Helpers\PrintHelper.cs" />
+    <Compile Include="Helpers\ImageOutput.cs" />
+    <Compile Include="Helpers\ScaleHelper.cs" />
+    <Compile Include="Helpers\SoundHelper.cs" />
+    <Compile Include="Helpers\StartupHelper.cs" />
+    <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
+    <Compile Include="Helpers\WindowCapture.cs" />
+    <Compile Include="UnmanagedHelpers\DWM.cs" />
+    <Compile Include="UnmanagedHelpers\Enumerations.cs" />
+    <Compile Include="UnmanagedHelpers\GDI32.cs" />
+    <Compile Include="UnmanagedHelpers\Kernel32.cs" />
+    <Compile Include="UnmanagedHelpers\Structs.cs" />
+    <Compile Include="UnmanagedHelpers\User32.cs" />
+    <EmbeddedResource Include="Forms\ImageEditorForm.resx">
+      <DependentUpon>ImageEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SettingsForm.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sounds.resx" />
+    <None Include="greenshot.manifest" />
+    <None Include="AssemblyInfo.cs.template" />
+    <None Include="Languages\help-en-US.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-de-DE.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-es-ES.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-hu-HU.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-it-IT.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-nl-NL.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-ru-RU.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-sv-SE.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-tr-TR.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-zh-CN.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-cs-CZ.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-de-DE.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-el-GR.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-en-US.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-es-ES.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-fi-FI.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-fr-FR.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-he-IL.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-hu-HU.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-it-IT.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-ja-JP.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-lt-LT.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-nl-NL.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-pl-PL.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-pt-BR.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-ru-RU.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-sv-SE.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-tr-TR.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-zh-CN.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-zh-tw.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Lib\log4net.dll" />
+    <None Include="log4net-debug.xml" />
+    <None Include="log4net.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <Compile Include="Help\HelpBrowserForm.cs" />
+    <Compile Include="Help\HelpBrowserForm.Designer.cs">
+      <DependentUpon>HelpBrowserForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\FilenameHelper.cs" />
+    <Compile Include="Forms\JpegQualityDialog.Designer.cs">
+      <DependentUpon>JpegQualityDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\JpegQualityDialog.cs" />
+    <Compile Include="Forms\ColorDialog.Designer.cs">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ColorDialog.cs" />
+    <Compile Include="UnmanagedHelpers\Win32Errors.cs" />
+    <Compile Include="UnmanagedHelpers\WinMM.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Drawing\Fields\Binding" />
+    <Folder Include="Drawing\Filters" />
+    <Folder Include="Drawing\Fields" />
+    <Folder Include="Forms" />
+    <Folder Include="Helpers" />
+    <Folder Include="Configuration" />
+    <Folder Include="Helpers" />
+    <Folder Include="Drawing" />
+    <Folder Include="Controls" />
+    <Folder Include="Helpers\IEInterop" />
+    <Folder Include="Helpers\OfficeInterop" />
+    <Folder Include="Lib" />
+    <Folder Include="Languages" />
+    <Folder Include="UnmanagedHelpers" />
+    <Folder Include="Help" />
+    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
+      <Name>GreenshotPlugin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PostBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\releases\innosetup\setup.iss" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
+cd "$(MSBuildProjectDirectory)\bin\Release"
+"$(MSBuildProjectDirectory)\tools\FileVerifier++\fvc.exe" -c -a MD5 -r -o "checksum.MD5" *.dll *.exe
+"$(MSBuildProjectDirectory)\tools\7zip\7za.exe" a -x!.SVN -r "$(MSBuildProjectDirectory)\releases\Greenshot-NO-INSTALLER.zip" "$(MSBuildProjectDirectory)\bin\Release\*" "$(MSBuildProjectDirectory)\releases\additional_files\*"
+cd "$(MSBuildProjectDirectory)\releases\innosetup"
+"$(MSBuildProjectDirectory)\tools\innosetup\ISCC.exe" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
+</PostBuildEvent>
+    <PreBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\AssemblyInfo.cs.template" "$(MSBuildProjectDirectory)\AssemblyInfo.cs"
+copy "$(ProjectDir)log4net.xml" "$(SolutionDir)bin\$(Configuration)\log4net.xml"</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PreBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\AssemblyInfo.cs.template" "$(MSBuildProjectDirectory)\AssemblyInfo.cs"
+copy "$(ProjectDir)log4net-debug.xml" "$(SolutionDir)bin\$(Configuration)\log4net.xml"</PreBuildEvent>
+  </PropertyGroup>
+</Project>

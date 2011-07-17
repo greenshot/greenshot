@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="0.8.0">
+  <resources>
+	<resource name="login_error">
+		Es gab ein Problem während dem Login: {0}
+	</resource>
+  	<resource name="login_title">
+		Bitte geben Sie ihr Confluence anmelde Daten ein
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+  	<resource name="label_user">
+		Benutzer
+	</resource>
+	<resource name="label_password">
+		Password
+	</resource>
+  	<resource name="OK">
+		OK
+	</resource>
+  	<resource name="CANCEL">
+		Cancel
+	</resource>
+  	<resource name="upload_success">
+		Ein erfolg beim Hochladen zum Confluence!
+	</resource>
+  	<resource name="upload_failure">
+		Es gab einen Fehler beim Hochladen zum Confluence:
+	</resource>
+  </resources>
+</language>

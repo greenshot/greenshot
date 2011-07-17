@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:winset="http://schemas.microsoft.com/SMI/2005/WindowsSettings" manifestVersion="1.0">
+	<!-- Make sure windows Vista and above treat Greenshot as "DPI Aware"
+		See: http://msdn.microsoft.com/en-us/library/ms633543.aspx -->
+	<asmv3:application>
+		<asmv3:windowsSettings>
+			<winset:dpiAware>true</winset:dpiAware>
+		</asmv3:windowsSettings>
+	</asmv3:application>
+	<!-- Set UAC level to "asInvoker" and disable registry virtualization -->
+	<asmv2:trustInfo>
+		<asmv2:security>
+			<asmv3:requestedPrivileges>
+				<!--
+					The presence of the "requestedExecutionLevel" node will disable
+					file and registry virtualization on Vista. See:
+					http://msdn.microsoft.com/en-us/library/aa965884%28v=vs.85%29.aspx
+					
+					Use the "level" attribute to specify the User Account Control level:
+						asInvoker            = Never prompt for elevation
+						requireAdministrator = Always prompt for elevation
+						highestAvailable     = Prompt for elevation when started by administrator,
+						                       but do not prompt for administrator password when started by
+						                       standard user.
+				-->
+				<asmv3:requestedExecutionLevel level="asInvoker"/>
+			</asmv3:requestedPrivileges>
+		</asmv2:security>
+	</asmv2:trustInfo>
+</assembly>

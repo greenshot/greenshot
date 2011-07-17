@@ -1,0 +1,523 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Magyar" ietf="hu-HU" version="0.8.1">
+  <resources>
+	<!--    
+	Note to translator: uncomment entry "about_translation" to have 
+	your efforts honored in the "About Greenshot" dialog 
+	-->
+	<resource name="about_translation">
+		A magyar fordítást Bordán Róbert készítette.
+	</resource>
+	<resource name="application_title">
+		Greenshot - Egy forradalmian új képernyőkép készítő program
+	</resource>
+	<resource name="editor_drawrectangle">
+		Téglalap eszköz (R)
+	</resource>
+	<resource name="editor_save">
+		Mentés
+	</resource>
+	<resource name="contextmenu_settings">
+		Beállítások
+	</resource>
+	<resource name="settings_storagelocation">
+		Tárolási hely
+	</resource>
+	<resource name="settings_title">
+		Beállítások
+	</resource>
+	<resource name="settings_tooltip_storagelocation">
+		Alapértelmezési tárolási hely (Ha üresen hagyja a mezőt az asztal fog menteni)
+	</resource>
+	<resource name="settings_language">
+		Nyelv
+	</resource>
+	<resource name="settings_filenamepattern">
+		Fájlnév formátum
+	</resource>
+	<resource name="settings_tooltip_language">
+		A Greenshot felhasználói felület nyelve (újraidítást igényel)
+	</resource>
+	<resource name="settings_tooltip_filenamepattern">
+		Képernyőkép mentésekor a beállított fájlnév formátumot generálja
+	</resource>
+	<resource name="settings_primaryimageformat">
+		Kép formátum
+	</resource>
+	<resource name="settings_tooltip_primaryimageformat">
+		Az alapértelmezett képformátumot használja
+	</resource>
+	<resource name="contextmenu_capturearea">
+		A kijelöt rész mentése
+	</resource>
+	<resource name="contextmenu_capturelastregion">
+		Az utoljára kijelölt rész
+	</resource>
+	<resource name="contextmenu_exit">
+		Kilépés
+	</resource>
+	<resource name="settings_visualization">
+		Hatások
+	</resource>
+	<resource name="settings_playsound">
+		Fényképező zárhang
+	</resource>
+	<resource name="settings_showflashlight">
+		Fényképező vaku
+	</resource>
+	<resource name="error">
+		Hiba
+	</resource>
+	<resource name="error_nowriteaccess">
+		Nem lehet menteni a fájlt {0}.
+Kérjük ellenőrizze a mentési hely hozzáférhetőségét.
+	</resource>
+	<resource name="contextmenu_capturefullscreen">
+		Teljes képernyőkép mentés
+	</resource>
+	<resource name="editor_cuttoclipboard">
+		Kivágás
+	</resource>
+	<resource name="editor_copytoclipboard">
+		Másolás
+	</resource>
+	<resource name="editor_pastefromclipboard">
+		Beillesztés
+	</resource>
+	<resource name="about_title">
+		Greenshot névjegye
+	</resource>
+	<resource name="about_license">
+		Szerzői jog (C) 2007-2011 Thomas Braun, Jens Klingen, Robin Krom
+SEMMIFÉLE GARANCIA sincs a Greenshot -hoz. Ez egy ingyenes program, és hálásak vagyunk, hogy terjeszted bizonyos feltételekkel.
+Részletek a GNU Fő Nyílvános Engedélyről:
+	</resource>
+	<resource name="error_openlink">
+		Nem sikerült megnyitni a helyet.
+	</resource>
+	<resource name="error_save">
+		Nem lehet menteni a képernyőképet, keressen megfelelő helyet.
+	</resource>
+	<resource name="about_icons">
+		Az ikonokat Yusuke Kamiyamane's Fugue készítette (Creative Commons Attribution 3.0 license)
+	</resource>
+	<resource name="about_host">
+		Greenshot kiszolgálója a sourceforge.net
+	</resource>
+	<resource name="about_bugs">
+		Kérük a hibákat az alábbi helyen jelezzék
+	</resource>
+	<resource name="about_donations">
+		Ha szereted Greenshot -ot, akkor támogass minket:
+	</resource>
+	<resource name="editor_imagesaved">
+		Kép mentése {0}.
+	</resource>
+	<resource name="editor_storedtoclipboard">
+		A tárolt képet a vágólapra.
+	</resource>
+	<resource name="editor_saveas">
+		Mentés másként
+	</resource>
+	<resource name="editor_file">
+		Fájl
+	</resource>
+	<resource name="editor_edit">
+		Szerkesztés
+	</resource>
+	<resource name="editor_object">
+		Eszközök
+	</resource>
+	<resource name="editor_drawellipse">
+		Elipszis eszköz (E)
+	</resource>
+	<resource name="editor_drawtextbox">
+		Szövegdoboz hozzáadása (T)
+	</resource>
+	<resource name="editor_deleteelement">
+		Törlés
+	</resource>
+	<resource name="editor_selectall">
+		Mindet kijelöl
+	</resource>
+	<resource name="editor_copyimagetoclipboard">
+		A kép másolása a vágólapra
+	</resource>
+	<resource name="contextmenu_capturewindow">
+		Az ablak mentése
+	</resource>
+	<resource name="editor_duplicate">
+		A kijelölt elem klónozása
+	</resource>
+	<resource name="contextmenu_help">
+		Súgó
+	</resource>
+	<resource name="contextmenu_about">
+		Greenshot névjegye
+	</resource>
+	<resource name="editor_title">
+		Greenshot kép szerkesztő
+	</resource>
+	<resource name="settings_applicationsettings">
+		Program beállítások
+	</resource>
+	<resource name="settings_preferredfilesettings">
+		Kimeneti fájl beállítása
+	</resource>
+	<resource name="settings_registerhotkeys">
+		Gyorsbillentyűk használata
+	</resource>
+	<resource name="settings_tooltip_registerhotkeys">
+		Greenshot inditása után használhatóak a gyorbillenytűk PrintScrn, Ctrl + PrintScrn, Alt + PrintScrn, a program bezárása után nem használhatóak a gyors billentyűk.
+	</resource>
+	<resource name="editor_senttoprinter">
+		Nyomtatási feladat küldése '{0}'.
+	</resource>
+	<resource name="editor_print">
+		Nyomtatás
+	</resource>
+	<resource name="help_title">
+		Greenshot Súgó
+	</resource>
+	<resource name="settings_jpegsettings">
+		JPEG beállítások
+	</resource>
+	<resource name="settings_jpegquality">
+		JPEG minőség
+	</resource>
+	<resource name="settings_alwaysshowjpegqualitydialog">
+		Ha JPEG képet mentünk, kérdezzen rá a minőségre.
+	</resource>
+	<resource name="jpegqualitydialog_title">
+		Greenshot JPEG minőség
+	</resource>
+	<resource name="jpegqualitydialog_choosejpegquality">
+		Kérjük válassza ki a JPEG kép minőségét.
+	</resource>
+	<resource name="jpegqualitydialog_dontaskagain">
+		Mentés az alapértelmezett JPEG minőségben, ne kérdezd újra.
+	</resource>
+	<resource name="editor_forecolor">
+		Vonal szín
+	</resource>
+	<resource name="editor_backcolor">
+		Kitöltési szín
+	</resource>
+	<resource name="editor_thickness">
+		Vonal vastagság
+	</resource>
+	<resource name="colorpicker_title">
+		Szín választó
+	</resource>
+	<resource name="colorpicker_apply">
+		Alkamaz
+	</resource>
+	<resource name="colorpicker_transparent">
+		Áttetsző
+	</resource>
+	<resource name="colorpicker_htmlcolor">
+		HTML szín
+	</resource>
+	<resource name="colorpicker_red">
+		Piros
+	</resource>
+	<resource name="colorpicker_green">
+		Zöld
+	</resource>
+	<resource name="colorpicker_blue">
+		Kék
+	</resource>
+	<resource name="colorpicker_alpha">
+		Erősség
+	</resource>
+	<resource name="colorpicker_recentcolors">
+		Legutóbb használt színek
+	</resource>
+	<resource name="editor_close">
+		Bezárni
+	</resource>
+	<resource name="warning">
+		Figyelem
+	</resource>
+	<resource name="warning_hotkeys">
+		Egy vagy több gyors billentyű nincs regisztrálva. Ezért lehet az, hogy nem lehet használni.
+Ez a hiba akkor fordulhat elő, ha egy másik program használja.
+Kapcsolja ki a szotvert és használja PrintScrn billentyűt. Egyszerűen használhatja a Greenshot -ot a tálca ikon helyi menüjéből.
+	</resource>
+	<resource name="settings_destination_editor">
+		Megnyitás képszerkesztővel
+	</resource>
+	<resource name="settings_destination_printer">
+		Nyomtatás
+	</resource>
+	<resource name="settings_destination_file">
+		Mentés közvetlenül (lentebb)
+	</resource>
+	<resource name="settings_destination_clipboard">
+		Másolás vágólapra
+	</resource>
+	<resource name="editor_drawline">
+		Vonal eszköz (L)
+	</resource>
+	<resource name="settings_destination">
+		Mit csináljak a képernyőképpel?
+	</resource>
+	<resource name="editor_drawarrow">
+		Nyíl eszköz (A)
+	</resource>
+	<resource name="editor_arrowheads">
+		Nyíl végek
+	</resource>
+	<resource name="editor_arrowheads_start">
+		Kezdő pont
+	</resource>
+	<resource name="editor_arrowheads_end">
+		Vég pont
+	</resource>
+	<resource name="editor_arrowheads_both">
+		Mindkettő
+	</resource>
+	<resource name="editor_arrowheads_none">
+		Egyiksem
+	</resource>
+    <resource name="editor_obfuscate_mode">
+		Homályosítás
+	</resource>
+    <resource name="editor_highlight_mode">
+		Kiemelés
+	</resource>
+	<resource name="error_multipleinstances">
+		A Greenshot egy példánya már fut.
+	</resource>
+	<resource name="settings_autostartshortcut">
+		Greenshot futtatás induláskor
+	</resource>
+	<resource name="clipboard_inuse">
+		Greenshot nem tudott a vágólapra másolni {0} hozzáférés megtagadva.
+	</resource>
+    <resource name="print_error">
+  		Hiba történt nyomtatás közben.
+	</resource>
+	<resource name="printoptions_title">
+		Greenshot nyomtatási beállítások
+	</resource>
+	<resource name="printoptions_allowcenter">
+		Középre igazítás
+	</resource>
+	<resource name="printoptions_allowenlarge">
+		Igazítás a nyomtatható területhez
+	</resource>
+	<resource name="printoptions_allowrotate">
+		Automatikus forgatás és középre igazítás
+	</resource>
+	<resource name="printoptions_allowshrink">
+		Zsugorítás a nyomtatható területhez
+	</resource>
+	<resource name="printoptions_dontaskagain">
+		Mentés az alapértelmezett beállításokkal(ne kérdezd újra)
+	</resource>
+	<resource name="settings_alwaysshowprintoptionsdialog">
+		Nyomtatási beállítások párbeszéd ablak megjelenítése minden alkalommal.
+	</resource>
+	<resource name="settings_printoptions">
+		Nyomtatási beállítások
+	</resource>
+	<resource name="settings_output">
+		Mentés
+	</resource>
+	<resource name="settings_general">
+		Általános
+	</resource>
+	<resource name="editor_clipboardfailed">
+		Hiba a vágólap elérése közben. Kérjük, próbálja újra.
+	</resource>
+	<resource name="editor_bold">
+		Félkövér
+	</resource>
+	<resource name="editor_italic">
+		Dőlt
+	</resource>
+	<resource name="editor_arrange">
+		Elrendezés
+	</resource>
+	<resource name="editor_fontsize">
+		Méret
+	</resource>
+	<resource name="editor_uptotop">
+		Előre hozás
+	</resource>
+	<resource name="editor_uponelevel">
+		Előrébb hozás
+	</resource>
+	<resource name="editor_downonelevel">
+		Hátrébb küldés
+	</resource>
+	<resource name="editor_downtobottom">
+		Hátra küldés
+	</resource>
+	<resource name="contextmenu_quicksettings">
+		Gyors beállítások
+	</resource>
+	<resource name="bugreport_title">
+		Hiba
+	</resource>
+	<resource name="bugreport_info">
+		Elnézést, váratlan hiba történt!
+
+A jó hír: ha jelzi felénk a hibát segítűnk megoldani.
+Kérjük látogassa meg az alábbi URL-t, hozzon létre egy új hibabejegyzés és másolja be a hibaüzenetet.
+
+Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt, ami a segítségünkre lehet.
+Örülnénk, ha ellenőrizné, hogy a hibát jelentette e már valaki. (Ha használja a keresőt, gyorsabban megtalálhatja) Köszönjük :)
+	</resource>
+	<resource name="bugreport_cancel">
+		Bezárni
+	</resource>
+	<resource name="settings_copypathtoclipboard">
+		Másolja a fájl egy példányát a vágólapra minden alkalommal.
+	</resource>
+	<resource name="editor_copypathtoclipboard">
+		Másolja a vágólapra
+	</resource>
+	<resource name="settings_message_filenamepattern">
+		A következő minták válthatják fel az automatikus meghatározást:
+${YYYY} év, 4 karakter
+${MM} hónap, 2 karakter
+${DD} nap, 2 karakter
+${hh} óra, 2 karakter
+${mm} perc, 2 karakter
+${ss} másodperc, 2 karakter
+${NUM} növekvő szám, 6 karakter
+${title} Az ablak neve
+${user} Windows felhasználó
+${domain} Windows tartomány
+${hostname} Számítógép név
+
+Könyvtárak lehet létrehozni a Greenshot -tal, a visszaper jeletet (\) használja a mappák és fájlnevek elválasztásánál.
+Például: a minta ${YYYY}-${MM}-${DD}_${hh}-${mm}-${ss}
+fájl mentése az aktuális dátummal és időponttal, a megadott tárolási helyre, pl.: 2008-06-29_14-34-21, ezzel a mentési meghatározással a képernyőkép mindig az aktuális dátummal, idővel lesz elmentve.
+	</resource>
+	<resource name="editor_cursortool">
+		Kiválasztó eszköz (ESC)
+	</resource>
+	<resource name="settings_destination_fileas">
+		Mentés másként(párbeszédablak)
+	</resource>
+	<resource name="quicksettings_destination_file">
+		Mentés közvetlenül (a megadott tárolási helyre)
+	</resource>
+	<resource name="editor_opendirinexplorer">
+		Mentési hely megnyitása
+	</resource>
+	<resource name="printoptions_timestamp">
+		Dátum és idő nyomtatása a lap aljára
+	</resource>
+	<resource name="editor_drawhighlighter">
+		Kiemelés (H)
+	</resource>
+	<resource name="editor_obfuscate_blur">
+		Folt
+	</resource>
+	<resource name="editor_obfuscate_pixelize">
+		Pixelesítő szűrő
+	</resource>
+	<resource name="editor_highlight_area">
+		Terület kiemelés
+	</resource>
+	<resource name="editor_highlight_text">
+		Szöveg kiemelés
+	</resource>
+	<resource name="editor_highlight_grayscale">
+		Szürkeárnyalat
+	</resource>
+	<resource name="editor_highlight_magnify">
+		Nagyítás
+	</resource>
+	<resource name="editor_pixel_size">
+		Pixel méret
+	</resource>
+	<resource name="editor_obfuscate">
+		Homályosítás (O)
+	</resource>
+	<resource name="editor_blur_radius">
+		Homályosítás mértéke
+	</resource>
+	<resource name="editor_brightness">
+		Fényerő
+	</resource>
+	<resource name="editor_preview_quality">
+		Előnézet minősége
+	</resource>
+	<resource name="editor_magnification_factor">
+		Nagyítás mértéke
+	</resource>
+	<resource name="editor_shadow">
+		Árnyékolás
+	</resource>
+	<resource name="editor_confirm">
+		Alkalmaz
+	</resource>
+	<resource name="editor_cancel">
+		Mégsem
+	</resource>
+	<resource name="editor_crop">
+		Vágás eszköz (C)
+	</resource>
+	<resource name="contextmenu_captureclipboard">
+		Kép megnyitása a vágólapról
+	</resource>
+	<resource name="clipboard_error">
+		Váratlan hiba történt a vágólapra másoláskor.
+	</resource>
+	<resource name="config_unauthorizedaccess_write">
+		Nem tudta menteni a Greenshot konfigurációs fájlt. Kérjük ellenőrizze a hozzáférési jogosultságokat '{0}'.
+	</resource>
+	<resource name="settings_printer">
+		Nyomtatás
+	</resource>
+	<resource name="settings_capture">
+		Kijelölés
+	</resource>
+	<resource name="settings_capture_mousepointer">
+		Kijelölés egér mutatóval
+	</resource>
+	<resource name="contextmenu_openfile">
+		Kép megnyitása fájlból
+	</resource>
+	<resource name="error_openfile">
+		A fájlt "{0}" nem sikerült megnyitni.
+	</resource>
+	<resource name="editor_close_on_save">
+		Szeretné menteni a képernyőképet?
+	</resource>
+	<resource name="editor_close_on_save_title">
+		Menti a képet?
+	</resource>
+	<resource name="settings_capture_windows_interactive">
+		Használja az interakív kijelölési módot
+	</resource>
+	<resource name="settings_destination_email">
+		E-Mail
+	</resource>
+	<resource name="editor_email">
+		E-Mail
+	</resource>
+	<resource name="editor_load_objects">
+		Kijelölés megnyitása fájlból
+	</resource>
+	<resource name="editor_save_objects">
+		Kijelölés mentése fájlba
+	</resource>
+	<resource name="settings_waittime">
+		Ezredmásodpercet várjon kijelölés előtt
+	</resource>
+	<resource name="tooltip_firststart">
+		Jobb klikk ide vagy nyomja meg a PrinScrn gombot.
+	</resource>
+	<resource name="contextmenu_donate">
+		Greenshot támogatás
+	</resource>
+  </resources>
+</language>
+
+ 	  	 

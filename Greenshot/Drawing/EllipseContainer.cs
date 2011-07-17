@@ -1,0 +1,91 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2011  Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+using System;
+using System.Drawing;
+using System.Runtime.Serialization;
+using System.Windows.Forms;
+
+using Greenshot.Configuration;
+using Greenshot.Drawing.Fields;
+using Greenshot.Helpers;
+using Greenshot.Plugin.Drawing;
+
+namespace Greenshot.Drawing {
+	/// <summary>
+	/// Description of EllipseContainer.
+	/// </summary>
+	[Serializable()] 
+	public class EllipseContainer : DrawableContainer {
+		public EllipseContainer(Surface parent) : base(parent) {
+			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
+			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
+			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
+			AddField(GetType(), FieldType.SHADOW, false);
+		}
+		
+		public override void Draw(Graphics graphics, RenderMode renderMode) {
+			graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+			
+			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
+			// draw shadow before anything else
+			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
+				int basealpha = 100;
+				int alpha = basealpha;
+				int steps = 5;
+				int currentStep = lineVisible ? 1 : 0;
+				while (currentStep <= steps) {
+					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
+						shadowPen.Width = lineVisible ? lineThickness : 1;
+						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + currentStep, Top + currentStep, Width, Height);
+						graphics.DrawEllipse(shadowPen, shadowRect);
+						currentStep++;
+						alpha = alpha - basealpha / steps;
+					}
+				}
+			}
+
+			//draw the original shape
+			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
+			
+			using (Brush brush = new SolidBrush(fillColor)) {
+				graphics.FillEllipse(brush, rect);
+			}
+			
+			using (Pen pen = new Pen(lineColor)) {
+				pen.Width = lineThickness;
+				if (pen.Width > 0) {
+					graphics.DrawEllipse(pen, rect);
+				}
+			}
+		}
+		
+		public override bool Contains(int x, int y) {
+			double xDistanceFromCenter = x - (Left+Width/2);
+			double yDistanceFromCenter = y - (Top+Height/2);
+			// ellipse: x^2/a^2 + y^2/b^2 = 1
+			return Math.Pow(xDistanceFromCenter,2)/Math.Pow(Width/2,2) + Math.Pow(yDistanceFromCenter,2)/Math.Pow(Height/2,2) < 1;
+		}
+	}
+}

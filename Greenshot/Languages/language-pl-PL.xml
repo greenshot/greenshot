@@ -1,0 +1,519 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Polski" ietf="pl-PL" version="0.8.1">
+  <resources>
+	<resource name="about_translation">
+		Polskie tłumaczenie: Paweł Matyja
+	</resource>
+	<resource name="application_title">
+		Greenshot - rewolucyjne narzędzie do zrzutów ekranu
+	</resource>
+	<resource name="editor_drawrectangle">
+		Rysuj prostokąt (R)
+	</resource>
+	<resource name="editor_save">
+		Zapisz
+	</resource>
+	<resource name="contextmenu_settings">
+		Preferencje...
+	</resource>
+	<resource name="settings_storagelocation">
+		Miejsce zapisu
+	</resource>
+	<resource name="settings_title">
+		Ustawienia
+	</resource>
+	<resource name="settings_tooltip_storagelocation">
+        Domyślne miejsce zapisywania zrzutów ekranu (pozostaw puste, aby zapis odbywał się na pulpit)
+	</resource>
+	<resource name="settings_language">
+		Język
+	</resource>
+	<resource name="settings_filenamepattern">
+		Szablon nazwy pliku
+	</resource>
+	<resource name="settings_tooltip_language">
+		Język interfejsu użytkownika Greenshota (wymaga restartu)
+	</resource>
+	<resource name="settings_tooltip_filenamepattern">
+        Szablon używany do tworzenia nazw plików podczas zapisywania zrzutów ekranu
+	</resource>
+	<resource name="settings_primaryimageformat">
+		Format obrazu
+	</resource>
+	<resource name="settings_tooltip_primaryimageformat">
+		Domyślny format pliku graficznego ze zrzutem ekranu
+	</resource>
+	<resource name="contextmenu_capturearea">
+		Zrzuć obszar
+	</resource>
+	<resource name="contextmenu_capturelastregion">
+		Zrzuć poprzedni obszar
+	</resource>
+	<resource name="contextmenu_exit">
+		Wyjście
+	</resource>
+	<resource name="settings_visualization">
+		Efekty
+	</resource>
+	<resource name="settings_playsound">
+		Odtwarzaj dźwięk migawki aparatu
+	</resource>
+	<resource name="settings_showflashlight">
+		Pokazuj błysk flesza
+	</resource>
+	<resource name="error">
+		Błąd
+	</resource>
+	<resource name="error_nowriteaccess">
+		Nie można wykonać zapisu do {0}.
+Sprawdź możliwość zapisu w wybranej lokalizacji.
+	</resource>
+	<resource name="contextmenu_capturefullscreen">
+		Zrzuć pełny ekran
+	</resource>
+	<resource name="editor_cuttoclipboard">
+		Wytnij
+	</resource>
+	<resource name="editor_copytoclipboard">
+		Kopiuj
+	</resource>
+	<resource name="editor_pastefromclipboard">
+		Wstaw
+	</resource>
+	<resource name="about_title">
+		O Greenshot
+	</resource>
+	<resource name="about_license">
+		Copyright (C) 2007-2011 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jako wolne oprogramowanie może być rozpowszechniany na określonych warunkach.
+Szczegóły na temat Powszechnej Licencji Publicznej GNU:
+	</resource>
+	<resource name="error_openlink">
+		Nie można otworzyć odsyłacza.
+	</resource>
+	<resource name="error_save">
+		Nie można zapisać zrzutu ekranu, proszę wskazać bardziej odpowiednią lokalizację.
+	</resource>
+	<resource name="about_icons">
+		Ikony z zestawu Fugue od Yusuke Kamiyamane (licencja Creative Commons Attribution 3.0):
+	</resource>
+	<resource name="about_host">
+		Greenshot jest utrzymywany przez sourceforge.net pod adresem:
+	</resource>
+	<resource name="about_bugs">
+		Tutaj proszę zgłaszać błędy:
+	</resource>
+	<resource name="about_donations">
+		Jeśli podoba Ci się Greenshot, chętnie przyjmiemy Twoje wsparcie:
+	</resource>
+	<resource name="editor_imagesaved">
+		Obraz został zapisany w {0}.
+	</resource>
+	<resource name="editor_storedtoclipboard">
+		Obraz został zapisany w schowku.
+	</resource>
+	<resource name="editor_saveas">
+		Zapisz jako...
+	</resource>
+	<resource name="editor_file">
+		Plik
+	</resource>
+	<resource name="editor_edit">
+		Edycja
+	</resource>
+	<resource name="editor_object">
+		Obiekt
+	</resource>
+	<resource name="editor_drawellipse">
+		Rysuj elipsę (E)
+	</resource>
+	<resource name="editor_drawtextbox">
+		Dodaj pole tekstowe (T)
+	</resource>
+	<resource name="editor_deleteelement">
+		Usuń
+	</resource>
+	<resource name="editor_selectall">
+		Zaznacz wszystko
+	</resource>
+	<resource name="editor_copyimagetoclipboard">
+		Kopiuj obraz do schowka
+	</resource>
+	<resource name="contextmenu_capturewindow">
+		Zrzuć okno
+	</resource>
+	<resource name="editor_duplicate">
+        Duplikuj wybrany element
+	</resource>
+	<resource name="contextmenu_help">
+		Pomoc
+	</resource>
+	<resource name="contextmenu_about">
+		O Greenshot
+	</resource>
+	<resource name="editor_title">
+		Greenshot - edytor obrazów
+	</resource>
+	<resource name="settings_applicationsettings">
+		Ustawienia aplikacji
+	</resource>
+	<resource name="settings_preferredfilesettings">
+		Preferowane ustawienia pliku wyjściowego
+	</resource>
+	<resource name="settings_registerhotkeys">
+        Zarejestruj skróty klawiaturowe
+	</resource>
+	<resource name="settings_tooltip_registerhotkeys">
+        Określa, czy skróty klawiaturowe Print, Ctrl + Print, Alt + Print są zarezerwowane do globalnego użytku przez Greenshot od chwili jego uruchomienia aż do momentu zamknięcia.
+	</resource>
+	<resource name="editor_senttoprinter">
+		Zadanie drukowania zostało wysłane do '{0}'.
+	</resource>
+	<resource name="editor_print">
+		Drukuj
+	</resource>
+	<resource name="help_title">
+		Greenshot - pomoc
+	</resource>
+	<resource name="settings_jpegsettings">
+		Ustawienia JPEG
+	</resource>
+	<resource name="settings_jpegquality">
+		Jakość JPEG
+	</resource>
+	<resource name="settings_alwaysshowjpegqualitydialog">
+        Pokazuj okno ustawień jakości JPEG przy każdym zapisie obrazu
+	</resource>
+	<resource name="jpegqualitydialog_title">
+		Greenshot - jakość JPEG
+	</resource>
+	<resource name="jpegqualitydialog_choosejpegquality">
+        Proszę wybrać poziom jakości dla pliku JPEG.
+	</resource>
+	<resource name="jpegqualitydialog_dontaskagain">
+        Zapisz jako domyślny poziom jakości JPEG i nie pytaj ponownie
+	</resource>
+	<resource name="editor_forecolor">
+        Kolor linii
+	</resource>
+	<resource name="editor_backcolor">
+		Kolor wypełnienia
+	</resource>
+	<resource name="editor_thickness">
+		Grubość linii
+	</resource>
+	<resource name="colorpicker_title">
+		Pobieranie koloru
+	</resource>
+	<resource name="colorpicker_apply">
+		Zastosuj
+	</resource>
+	<resource name="colorpicker_transparent">
+		Przezroczysty
+	</resource>
+	<resource name="colorpicker_htmlcolor">
+		Kolor HTML
+	</resource>
+	<resource name="colorpicker_red">
+		Czerwony
+	</resource>
+	<resource name="colorpicker_green">
+		Zielony
+	</resource>
+	<resource name="colorpicker_blue">
+		Niebieski
+	</resource>
+	<resource name="colorpicker_alpha">
+		Kanał alfa
+	</resource>
+	<resource name="colorpicker_recentcolors">
+		Ostatnio używane kolory
+	</resource>
+	<resource name="editor_close">
+		Zamknij
+	</resource>
+	<resource name="warning">
+		Ostrzeżenie
+	</resource>
+	<resource name="warning_hotkeys">
+        Nie udało się zarejestrować jednego lub kilku skrótów klawiaturowych. Z tego powodu używanie skrótów klawiaturowych Greenshota może nie być możliwe.
+Przyczyną problemu może być wykorzystywanie tych samych skrótów klawiaturowych przez inną aplikację.
+Proszę wyłączyć oprogramowanie korzystające z klawisza Print. Możliwe jest również zwyczajne korzystanie ze wszystkich funkcji Greenshota za pomocą menu kontekstowego ikony w obszarze powiadomień na pasku zadań.
+	</resource>
+	<resource name="settings_destination_editor">
+		Otwórz w edytorze obrazów
+	</resource>
+	<resource name="settings_destination_printer">
+		Wyślij do drukarki
+	</resource>
+	<resource name="settings_destination_file">
+		Zapisz bezpośrednio (wg ustawień poniżej)
+	</resource>
+	<resource name="settings_destination_clipboard">
+		Kopiuj do schowka
+	</resource>
+	<resource name="editor_drawline">
+		Rysuj linię (L)
+	</resource>
+	<resource name="settings_destination">
+		Miejsce zrzutu ekranu
+	</resource>
+	<resource name="editor_drawarrow">
+		Rysuj strzałkę (A)
+	</resource>
+	<resource name="editor_arrowheads">
+		Groty strzałki
+	</resource>
+	<resource name="editor_arrowheads_start">
+		Początkowy
+	</resource>
+	<resource name="editor_arrowheads_end">
+		Końcowy
+	</resource>
+	<resource name="editor_arrowheads_both">
+		Oba
+	</resource>
+	<resource name="editor_arrowheads_none">
+		Żaden
+	</resource>
+    <resource name="editor_obfuscate_mode">
+		Tryb zamglenia
+	</resource>
+    <resource name="editor_highlight_mode">
+		Tryb uwydatnienia
+	</resource>
+	<resource name="error_multipleinstances">
+		Instancja aplikacji Greenshot jest już uruchomiona.
+	</resource>
+	<resource name="settings_autostartshortcut">
+		Uruchom Greenshot podczas startu systemu
+	</resource>
+	<resource name="clipboard_inuse">
+        Greenshot nie mógł dokonać zapisu do schowka, ponieważ proces {0} zablokował dostęp.
+	</resource>
+    <resource name="print_error">
+        Podczas próby wydruku wystąpił błąd.
+	</resource>
+	<resource name="printoptions_title">
+		Greenshot - opcje drukowania
+	</resource>
+	<resource name="printoptions_allowcenter">
+        Wycentruj wydruk na stronie
+	</resource>
+	<resource name="printoptions_allowenlarge">
+        Powiększ wydruk do rozmiaru papieru
+	</resource>
+	<resource name="printoptions_allowrotate">
+        Obróć wydruk odpowiednio do ułożenia strony
+	</resource>
+	<resource name="printoptions_allowshrink">
+        Pomniejsz wydruk do rozmiaru papieru
+	</resource>
+	<resource name="printoptions_dontaskagain">
+        Zapisz opcje jako domyślne i nie pytaj ponownie
+	</resource>
+	<resource name="settings_alwaysshowprintoptionsdialog">
+        Pokazuj okno opcji wydruku przy każdej próbie wydruku obrazu
+	</resource>
+	<resource name="settings_printoptions">
+        Opcje drukowania
+	</resource>
+	<resource name="settings_output">
+		Wyjście
+	</resource>
+	<resource name="settings_general">
+		Ogólne
+	</resource>
+	<resource name="editor_clipboardfailed">
+        Błąd przy próbie dostępu do schowka. Spróbuj ponownie.
+	</resource>
+	<resource name="editor_bold">
+		Pogrubienie
+	</resource>
+	<resource name="editor_italic">
+		Pochylenie
+	</resource>
+	<resource name="editor_arrange">
+		Zmień rozmieszczenie
+	</resource>
+	<resource name="editor_fontsize">
+		Rozmiar
+	</resource>
+	<resource name="editor_uptotop">
+		Na samą górę
+	</resource>
+	<resource name="editor_uponelevel">
+		Jeden poziom w górę
+	</resource>
+	<resource name="editor_downonelevel">
+		Jeden poziom w dół
+	</resource>
+	<resource name="editor_downtobottom">
+		Na sam dół
+	</resource>
+	<resource name="contextmenu_quicksettings">
+		Szybki dostęp do opcji
+	</resource>
+	<resource name="bugreport_title">
+		Błąd
+	</resource>
+	<resource name="bugreport_info">
+        Niestety, wystąpił nieoczekiwany błąd.
+
+Dobra wiadomość: możesz nam się go pozbyć wypełniając raport błędu.
+Odwiedź poniższy URL, utwórz nowy raport błędu i wstaw do pola opisu zawartość pola tekstowego z formularza.
+
+Dodaj sensowne podsumowanie oraz wszelkie informacje, które uważasz za istotne do odtworzenia zaistniałej sytuacji.
+Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zostało już zarejestrowane. (Użyj wyszukiwarki, aby to zweryfikować.) Dziękujemy :)
+	</resource>
+	<resource name="bugreport_cancel">
+		Zamknij
+	</resource>
+	<resource name="settings_copypathtoclipboard">
+        Kopiuj ścieżkę pliku do schowka przy każdym zapisie obrazu
+	</resource>
+	<resource name="editor_copypathtoclipboard">
+        Kopiuj ścieżkę do schowka
+	</resource>
+	<resource name="settings_message_filenamepattern">
+        Wzorce symboliczne w zdefiniowanych szablonach zostaną zastąpione automatycznie:
+${YYYY} - rok, 4 cyfry
+${MM} - miesiąc, 2 cyfry
+${DD} - dzień, 2 cyfry
+${hh} - godzina, 2 cyfry
+${mm} - minuta, 2 cyfry
+${ss} - sekunda, 2 cyfry
+${NUM} - liczba zwiększana o 1 (autonumeracja), 6 cyfr
+${title} - tytuł okna
+${user} - zalogowany użytkownik
+${domain} - nazwa domeny
+${hostname} - nazwa komputera
+
+Możliwe jest także dynamiczne tworzenie folderów - wystarczy użyć znaku odwrotnego ukośnika (\) do rozdzielenia nazw folderów i plików.
+Przykład: szablon ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+utworzy w domyślnym miejscu zapisu folder dla bieżącego dnia, np. 2008-06-29, a nazwy plików ze zrzutami ekranu będą tworzone
+na podstawie bieżącego czasu, np. 11-58-32 (plus rozszerzenie zdefiniowane w ustawieniach).
+	</resource>
+	<resource name="editor_cursortool">
+		Narzędzie wyboru (ESC)
+	</resource>
+	<resource name="settings_destination_fileas">
+		Zapisz jako (z oknem dialogowym)
+	</resource>
+	<resource name="quicksettings_destination_file">
+		Zapisz bezpośrednio (używając ustawień dla pliku wyjściowego)
+	</resource>
+	<resource name="editor_opendirinexplorer">
+		Otwórz folder w Eksploratorze Windows
+	</resource>
+	<resource name="printoptions_timestamp">
+        Drukuj datę/czas u dołu strony
+	</resource>
+	<resource name="editor_drawhighlighter">
+		Uwydatnienie (H)
+	</resource>
+	<resource name="editor_obfuscate_blur">
+		Rozmywanie
+	</resource>
+	<resource name="editor_obfuscate_pixelize">
+		Pikselizacja
+	</resource>
+	<resource name="editor_highlight_area">
+        Uwydatnienie obszaru
+	</resource>
+	<resource name="editor_highlight_text">
+        Uwydatnienie tekstu
+	</resource>
+	<resource name="editor_highlight_grayscale">
+		Wyszarzenie
+	</resource>
+	<resource name="editor_highlight_magnify">
+		Powiększenie
+	</resource>
+	<resource name="editor_pixel_size">
+		Rozmiar piksela
+	</resource>
+	<resource name="editor_obfuscate">
+		Zamglenie (O)
+	</resource>
+	<resource name="editor_blur_radius">
+		Promień rozmycia
+	</resource>
+	<resource name="editor_brightness">
+		Jaskrawość
+	</resource>
+	<resource name="editor_preview_quality">
+		Jakość podglądu
+	</resource>
+	<resource name="editor_magnification_factor">
+		Współczynnik powiększenia
+	</resource>
+	<resource name="editor_shadow">
+		Cień
+	</resource>
+	<resource name="editor_confirm">
+		Zatwierdź
+	</resource>
+	<resource name="editor_cancel">
+		Anuluj
+	</resource>
+	<resource name="editor_crop">
+		Przytnij (C)
+	</resource>
+	<resource name="contextmenu_captureclipboard">
+        Otwórz obraz ze schowka
+	</resource>
+	<resource name="clipboard_error">
+        Podczas zapisu do schowka wystąpił nieprzewidziany błąd.
+	</resource>
+	<resource name="config_unauthorizedaccess_write">
+        Nie powiódł się zapis pliku konfiguracyjnego Greenshota. Proszę sprawdzić uprawnienia dostępu dla {0}.
+	</resource>
+	<resource name="settings_printer">
+        Drukarka
+	</resource>
+	<resource name="settings_capture">
+        Zrzucanie ekranu
+	</resource>
+	<resource name="settings_capture_mousepointer">
+        Zrzucaj wskaźnik myszy
+	</resource>
+	<resource name="contextmenu_openfile">
+        Otwórz obraz z pliku
+	</resource>
+	<resource name="error_openfile">
+        Nie można otworzyć pliku {0}.
+	</resource>
+	<resource name="editor_close_on_save">
+        Czy chcesz zapisać zrzut ekranu?
+	</resource>
+	<resource name="editor_close_on_save_title">
+        Zapisać obraz?
+	</resource>
+	<resource name="settings_capture_windows_interactive">
+        Tryb interaktywnego zrzucania okna
+	</resource>
+	<resource name="settings_destination_email">
+		Wyślij e-mailem
+	</resource>
+	<resource name="editor_email">
+		Wyślij e-mailem
+	</resource>
+	<resource name="editor_load_objects">
+        Załaduj obiekty z pliku
+	</resource>
+	<resource name="editor_save_objects">
+        Zapisz obiekty do pliku
+	</resource>
+	<resource name="settings_waittime">
+        milisekund oczekiwania przed wykonaniem zrzutu ekranu
+	</resource>
+	<resource name="tooltip_firststart">
+        Kliknij prawym klawiszem myszy lub naciśnij klawisz Print.
+	</resource>
+	<resource name="contextmenu_donate">
+		Wsparcie Greenshota
+	</resource>
+  </resources>
+</language>
+ 	  	 
