@@ -1,4 +1,4 @@
-﻿
+
 <html>
 	<head>
 		<title>Greenshot Help</title>
@@ -33,6 +33,7 @@
 			<li><a href="#capture-last-region">Capture last region</a></li>
 			<li><a href="#capture-window">Capture window</a></li>
 			<li><a href="#capture-fullscreen">Capture fullscreen</a></li>
+			<li><a href="#capture-ie">Capture Internet Explorer</a></li>
 		</ol>
 	
 		<li><a href="#editor">Using the image editor</a></li>
@@ -42,12 +43,14 @@
 			<li><a href="#editor-highlight">Highlighting things</a></li>
 			<li><a href="#editor-obfuscate">Obfuscating things</a></li>
 			<li><a href="#editor-crop">Cropping the screenshot</a></li>
+			<li><a href="#editor-adding-graphics">Adding graphics to a screenshot</a></li>
 			<li><a href="#editor-reuse-elements">Re-using drawn elements</a></li>
 			<li><a href="#editor-export">Exporting the screenshot</a></li>
 		</ol>
 		<li><a href="#settings">The settings dialog</a></li>
 		<ol>
 			<li><a href="#settings-general">General settings</a></li>
+			<li><a href="#settings-capture">Capture settings</a></li>
 			<li><a href="#settings-output">Output settings</a></li>
 			<li><a href="#settings-printer">Printer settings</a></li>
 		</ol>
@@ -115,6 +118,15 @@
 	<p>
 		Creates a screenshot of the complete screen.
 	</p>
+
+	<a name="capture-ie"></a>
+	<h3>Capture Internet Explorer <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
+	<p>
+		Comfortably creates a screenshot of a web page currently opened in Internet Explorer. 
+		Use Greenshot's context menu to select the Internet Explorer tab to capture, or hit
+		<kbd>Crtl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd> to capture the active tab.
+	</p>
+
 	
 	<a name="editor"></a>
 	<h2>Using the image editor</h2>
@@ -218,6 +230,20 @@
 		the <kbd>Enter</kbd> key. You can cancel cropping by clicking the cancel button or hitting 
 		<kbd>ESC</kbd>.
 	</p>
+	<p class="hint">
+		<em>Auto-Crop</em>: If you need to crop a border of solid background color from your screenshot,
+		simply choose <em>Auto-Crop</em> from the <em>Edit</em> menu and Greenshot will automatically 
+		select the area for cropping.
+	</p>
+
+	<a name="editor-adding-graphics"></a>
+	<h3>Adding graphics to a screenshot</h3>
+	<p>
+		You can simply add graphics or images to your screenshot by dragging and dropping an image
+		file into the editor window. You can also insert screenshots of other windows by selecting
+		<em>Insert window</em> from the <em>Edit</em> menu. A list of all open windows appears, 
+		allowing you to select one for insertion.
+	</p>
 	
 	<a name="editor-reuse-elements"></a>
 	<h3>Re-using drawn elements</h3>
@@ -259,13 +285,38 @@
 	<ul>
 		<li><em>Language</em>: The language you prefer to be used.<br>
 			You can download additional language files for Greenshot <a target="_blank" href="http://getgreenshot.org/downloads/">here</a>. </li>
-		<li><em>Register hotkeys</em>: If checked, Greenshot can be used with the <kbd>Print</kbd> key.</li>
 		<li><em>Launch Greenshot on startup</em>: Start the program when the system has been booted.</li>
-		<li><em>Show flashlight</em>: Visual feedback when doing a capture</li>
-		<li><em>Play camera sound</em>: Audible feedback when doing a capture</li>
+		<li><em>Hotkeys</em>: Customize the hotkeys to be used to create screenshots.</li>
+		<li><em>Use default system proxy</em>: If checked, Greenshot uses the default system proxy to check for updates.</li>
+		<li><em>Update check interval in days</em>: Greenshot can check for updates automatically. Use this setting to adjust the
+			interval (in days) or set it to 0 to turn off update checks.</li>
+	</ul>
+
+	<a name="settings-capture"></a>
+	<h3>Capture settings</h3>
+	<ul>
 		<li><em>Capture mousepointer</em>: If checked, the mousepointer will be captured. The pointer is handled is a separate element in the editor, so that you can move or remove it later.</li>
+		<li><em>Play camera sound</em>: Audible feedback when doing a capture</li>
+		<li><em>Milliseconds to wait before capture</em>: Add a custom time lag before actually capturing the screen.</li>
 		<li><em>Use interactive window capture mode</em>: Instead of capturing the active window right away, interactive mode
 			allows you to select the window to capture. It is also possible to capture child windows, see <a href="#capture-window">window capture</a>.</li>
+		<li>
+			<em>Aero style capture (Windows Vista / 7 only)</em>: If you are using Greenshot on Windows Vista or Windows 7 with aero-style windows enabled, you can 
+			choose how transparent window borders are to be handled when creating a screenshot in window mode. Use this setting to avoid capturing elements in the 
+			background shining through transparent borders.
+			<ul>
+				<li><em>Auto</em>: Let Greenshot decide how to handle transparency.</li>
+				<li><em>As displayed</em>: Transparent borders are captured as displayed on screen.</li>
+				<li><em>Use default color</em>: A solid default color is applied instead of transparency.</li>
+				<li><em>Use custom color</em>: Pick a custom color to be applied instad of transparency.</li>
+				<li><em>Preserve transparency</em>: Borders are captured preserving transparency, not capturing elements which might be in the background. (Note: transparent
+					areas are displayed using a checked pattern in the editor. The pattern is not exported when saving the screenshot to a file. Keep in mind to save as PNG
+					file for full transparency support.)</li>
+			</ul>
+		</li>
+		<li><em>Internet Explorer capture</em>: Enable comfortable capturing of web pages using Internet Explorer.</li>
+		<li><em>Resize editor window to screenshot size</em>: If selected, the editor window will automatically be resized to fit the size of the screenshot.</li>
+
 	</ul>
 	
 	<a name="settings-output"></a>
@@ -282,7 +333,15 @@
 		<li><em>Shrink printout to fit paper size</em>: If the image would exceed paper size, it will be shrinked to fit on the page.</li>
 		<li><em>Enlarge printout to fit paper size</em>: If the image is smaller than the paper size, it will be scaled to be printed as large as possible without exceeding paper size.</li>
 		<li><em>Rotate printout to page orientation</em>: Will rotate a landscape format image by 90&deg; for printing.</li>
+		<li><em>Print with inverted colors</em>: Will invert the screenshot before printing it, useful e.g. when printing a screenshot of white text on black background (to save toner/ink).</li>
 	</ul>
+
+	<a name="settings-plugins"></a>
+	<h3>Plugin settings</h3>
+	<p>
+		Displays a list of installed Greenshot plugins. Select one from the list and click <em>Configure</em> in order to access
+		the configuration of a plugin.
+	</p>
 	
 	
 	<a name="help"></a>
