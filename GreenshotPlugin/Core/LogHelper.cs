@@ -20,6 +20,7 @@
  */
 using System;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 
 using log4net;
@@ -38,22 +39,39 @@ namespace GreenshotPlugin.Core {
 			// Setup log4j, currently the file is called log4net.xml
 			string pafLog4NetFilename =  Path.Combine(Application.StartupPath, @"App\Greenshot\" + LOG4NET_FILE);
 			string log4netFilename = Path.Combine(Application.StartupPath, LOG4NET_FILE);
+			
+			bool isLog4NetConfigured = false;
 			if (File.Exists(log4netFilename)) {
-				XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
+				try {
+					XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
+					isLog4NetConfigured = true;
+				} catch {}
 			} else if (File.Exists(pafLog4NetFilename)) {
-				XmlConfigurator.Configure(new FileInfo(pafLog4NetFilename)); 
-			} else {
-				MessageBox.Show("Can't find file " + LOG4NET_FILE);
+				try {
+					XmlConfigurator.Configure(new FileInfo(pafLog4NetFilename)); 
+					isLog4NetConfigured = true;
+				} catch {}
+			}
+			if (!isLog4NetConfigured) {
+				try {
+					Assembly assem = typeof(LogHelper).Assembly;
+					using (Stream stream = assem.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml")) {
+						XmlConfigurator.Configure(stream);
+						isLog4NetConfigured = true;
+					}
+				} catch {}
 			}
 			
-			// Get the logfile
-			try {
-				IAppender appender = ((Hierarchy)LogManager.GetRepository()).Root.Appenders[0];
-				if (appender is FileAppender) {
-					return ((FileAppender)appender).File;
-				}
-			} catch (Exception) {
-				// Ignore
+			if (isLog4NetConfigured) {
+				// Get the logfile name
+				try {
+					if (((Hierarchy)LogManager.GetRepository()).Root.Appenders.Count > 0) {
+						IAppender appender = ((Hierarchy)LogManager.GetRepository()).Root.Appenders[0];
+						if (appender is FileAppender) {
+							return ((FileAppender)appender).File;
+						}
+					}
+				} catch {}
 			}
 			return null;
 		}

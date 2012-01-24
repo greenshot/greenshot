@@ -106,6 +106,7 @@
     <Compile Include="UnmanagedHelpers\User32.cs" />
     <Compile Include="UnmanagedHelpers\Win32Errors.cs" />
     <Compile Include="UnmanagedHelpers\WinMM.cs" />
+    <EmbeddedResource Include="log4net-embedded.xml" />
     <None Include="Properties\AssemblyInfo.cs.template" />
     <EmbeddedResource Include="Core\GreenshotResources.resx">
       <DependentUpon>GreenshotResources.cs</DependentUpon>
