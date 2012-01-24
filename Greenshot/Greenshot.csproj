@@ -275,9 +275,9 @@
     <None Include="Languages\language-el-GR.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\language-en-US.xml">
+    <EmbeddedResource Include="Languages\language-en-US.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </EmbeddedResource>
     <None Include="Languages\language-es-ES.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

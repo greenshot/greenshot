@@ -73,9 +73,7 @@ namespace IniFile {
 			}
 			string forcedIni =  Path.Combine(applicationStartupPath, applicationName + INI_EXTENSION);
 			if (!File.Exists(forcedIni)) {
-				using (File.Create(forcedIni)) {
-					
-				}
+				using (File.Create(forcedIni)) {}
 			}
 		}
 

@@ -279,6 +279,21 @@ namespace GreenshotPlugin.Core {
 					LOG.Error("Error trying for read directory " + path, e);
 				}
 			}
+
+			if (loadedLanguages.Count == 0) {
+				// Try to force internal english
+				try {
+					LOG.Info("No languages found, using embedded en-US.");
+					using (Stream stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Greenshot.Languages.language-en-US.xml")) {
+						LanguageConfiguration languageConfig = LanguageConfiguration.Load(stream);
+						if (languageConfig != null) {
+							loadedLanguages.Add(languageConfig);
+						}
+					}
+				} catch (Exception ie) {
+					LOG.Error("Can't read internal 'Greenshot.Languages.language-en-US.xml'", ie);
+				}
+			}
 			return loadedLanguages;
 		}
 		
@@ -499,39 +514,60 @@ namespace GreenshotPlugin.Core {
 		/// loads a language configuration from a file path
 		/// </summary>
 		public static LanguageConfiguration Load(string path) {
-			LanguageConfiguration ret = null;
+			LanguageConfiguration languageConfiguration = null;
 			try {
-				XmlDocument doc = new XmlDocument();
-				doc.Load(path);
-				XmlNodeList nodes = doc.GetElementsByTagName("language");
-				if(nodes.Count > 0) {
-					ret = new LanguageConfiguration();
-					ret.File = path;
-					XmlNode node = nodes.Item(0);
-					ret.Description = node.Attributes["description"].Value;
-					ret.Ietf = node.Attributes["ietf"].Value;
-					ret.Version = node.Attributes["version"].Value;
-					if (node.Attributes["languagegroup"] != null) {
-						string languageGroup = node.Attributes["languagegroup"].Value;
-						ret.LanguageGroup = languageGroup.ToLower();
-					}
-					
-					XmlNodeList resourceNodes = doc.GetElementsByTagName("resource");
-					ret.Resources = new List<Resource>(resourceNodes.Count);
-					foreach(XmlNode resourceNode in resourceNodes) {
-						Resource res = new Resource();
-						res.Name = resourceNode.Attributes["name"].Value;
-						res.Text = resourceNode.InnerText;
-						ret.Resources.Add(res);
-					}
-				} else {
-					throw new XmlException("Root element <language> is missing");
-				}
+				XmlDocument xmlDocument = new XmlDocument();
+				xmlDocument.Load(path);
+				languageConfiguration = ProcessXML(xmlDocument);
+				languageConfiguration.File = path;
 			} catch(Exception e) {
 				LOG.Error("Could not load language file "+path, e);
 			}
-			return ret;
-			
+			return languageConfiguration;
+		}
+
+		/// <summary>
+		/// loads a language configuration from a stream
+		/// </summary>
+		public static LanguageConfiguration Load(Stream stream) {
+			LanguageConfiguration languageConfiguration = null;
+			try {
+				XmlDocument xmlDocument = new XmlDocument();
+				xmlDocument.Load(stream);
+				languageConfiguration = ProcessXML(xmlDocument);
+				languageConfiguration.File = "internal";
+			} catch(Exception e) {
+				LOG.Error("Could not load internal language file", e);
+			}
+			return languageConfiguration;
+		}
+
+		private static LanguageConfiguration ProcessXML(XmlDocument xmlDocument) {
+			LanguageConfiguration languageConfiguration = null;
+			XmlNodeList nodes = xmlDocument.GetElementsByTagName("language");
+			if(nodes.Count > 0) {
+				languageConfiguration = new LanguageConfiguration();
+				XmlNode node = nodes.Item(0);
+				languageConfiguration.Description = node.Attributes["description"].Value;
+				languageConfiguration.Ietf = node.Attributes["ietf"].Value;
+				languageConfiguration.Version = node.Attributes["version"].Value;
+				if (node.Attributes["languagegroup"] != null) {
+					string languageGroup = node.Attributes["languagegroup"].Value;
+					languageConfiguration.LanguageGroup = languageGroup.ToLower();
+				}
+				
+				XmlNodeList resourceNodes = xmlDocument.GetElementsByTagName("resource");
+				languageConfiguration.Resources = new List<Resource>(resourceNodes.Count);
+				foreach(XmlNode resourceNode in resourceNodes) {
+					Resource res = new Resource();
+					res.Name = resourceNode.Attributes["name"].Value;
+					res.Text = resourceNode.InnerText;
+					languageConfiguration.Resources.Add(res);
+				}
+			} else {
+				throw new XmlException("Root element <language> is missing");
+			}
+			return languageConfiguration;
 		}
 	}
 
