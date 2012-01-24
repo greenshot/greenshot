@@ -19,12 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Forms;
-
 using Greenshot.Drawing.Fields;
+using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 
@@ -85,6 +83,22 @@ namespace Greenshot.Drawing {
 		}
 		
 		/// <summary>
+		/// Make a following bounds change on this containerlist undoable!
+		/// </summary>
+		/// <param name="allowMerge">true means allow the moves to be merged</param>
+		public void MakeBoundsChangeUndoable(bool allowMerge) {
+			List<IDrawableContainer> movingList = new List<IDrawableContainer>();
+			Surface surface = null;
+			foreach(DrawableContainer dc in this) {
+				movingList.Add(dc);
+				surface = dc.parent;
+			}
+			if (movingList.Count > 0 && surface != null) {
+				surface.MakeUndoable(new DrawableContainerBoundsChangeMemento(movingList), allowMerge);
+			}
+		}
+
+		/// <summary>
 		/// Moves all elements in the list by the given amount of pixels.
 		/// </summary>
 		/// <param name="dx">pixels to move horizontally</param>
@@ -93,14 +107,13 @@ namespace Greenshot.Drawing {
 			// Track modifications
 			bool modified = false;
 
-			// Invalidate before moving (otherwise the old locations aren't refreshed
+			// Invalidate before moving, otherwise the old locations aren't refreshed
 			this.Invalidate();
 			foreach(DrawableContainer dc in this) {
 				dc.Left += dx;
 				dc.Top += dy;
 				modified = true;
 			}
-
 			// Invalidate after
 			this.Invalidate();
 

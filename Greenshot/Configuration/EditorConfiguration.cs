@@ -21,15 +21,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Windows.Forms;
 
-using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
-using Greenshot.UnmanagedHelpers;
-using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
+using IniFile;
 
 namespace Greenshot.Configuration {
 	/// <summary>
@@ -56,19 +51,8 @@ namespace Greenshot.Configuration {
 		[IniProperty("WindowNormalPosition", Description="Position of normal window", DefaultValue="100,100,400,400")]
 		public Rectangle WindowNormalPosition;
 
-		/// <summary>
-		/// Supply values we can't put as defaults
-		/// </summary>
-		/// <param name="property">The property to return a default for</param>
-		/// <returns>object with the default value for the supplied property</returns>
-		public override object GetDefault(string property) {
-			switch(property) {
-				case "RecentColors":
-					return new List<Color>();
-			}
-			return null;
-		}
-
+		[IniProperty("SuppressSaveDialogAtClose", Description="Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue="False")]
+		public bool SuppressSaveDialogAtClose;
 		/// <param name="requestingType">Type of the class for which to create the field</param>
 		/// <param name="fieldType">FieldType of the field to construct</param>
 		/// <param name="scope">FieldType of the field to construct</param>

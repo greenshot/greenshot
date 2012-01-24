@@ -70,7 +70,7 @@ namespace Greenshot {
 			this.lblTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblTitle.Location = new System.Drawing.Point(108, 12);
 			this.lblTitle.Name = "lblTitle";
-			this.lblTitle.Size = new System.Drawing.Size(227, 19);
+			this.lblTitle.Size = new System.Drawing.Size(263, 19);
 			this.lblTitle.TabIndex = 2;
 			this.lblTitle.Text = "Greenshot x.x.xxx";
 			// 
@@ -166,9 +166,9 @@ namespace Greenshot {
 			// 
 			// linkLabel1
 			// 
-			this.linkLabel1.Location = new System.Drawing.Point(304, 8);
+			this.linkLabel1.Location = new System.Drawing.Point(377, 8);
 			this.linkLabel1.Name = "linkLabel1";
-			this.linkLabel1.Size = new System.Drawing.Size(203, 23);
+			this.linkLabel1.Size = new System.Drawing.Size(130, 23);
 			this.linkLabel1.TabIndex = 13;
 			this.linkLabel1.TabStop = true;
 			this.linkLabel1.Text = "http://getgreenshot.org";
@@ -247,7 +247,7 @@ namespace Greenshot {
 				link.LinkVisited = true;
    				System.Diagnostics.Process.Start(link.Text);
 			} catch (Exception) {
-				MessageBox.Show(lang.GetString(LangKey.error_openlink),lang.GetString(LangKey.error));
+				MessageBox.Show(lang.GetFormattedString(LangKey.error_openlink, link.Text),lang.GetString(LangKey.error));
 			}
 		}
 	}

@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Greenshot.Helpers.IEInterop {
 	[ComImport, Guid("3050F1D8-98B5-11CF-BB82-00AA00BDCE0B"),

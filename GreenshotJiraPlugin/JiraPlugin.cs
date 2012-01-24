@@ -22,14 +22,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using IniFile;
 using Jira;
 
 namespace GreenshotJiraPlugin {
@@ -38,14 +37,58 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	public class JiraPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
+		private PluginAttribute jiraPluginAttributes;
 		private ILanguage lang = Language.GetInstance();
-		private IGreenshotPluginHost host;
-		private ICaptureHost captureHost = null;
+		private IGreenshotHost host;
 		private JiraConnector jiraConnector = null;
-		public static PluginAttribute JiraPluginAttributes;
 		private JiraConfiguration config = null;
 		private ComponentResourceManager resources;
+		private static JiraPlugin instance = null;
+		
+		public static JiraPlugin Instance {
+			get {
+				return instance;
+			}
+		}
+
 		public JiraPlugin() {
+			instance = this;
+		}
+		
+		public PluginAttribute JiraPluginAttributes {
+			get {
+				return jiraPluginAttributes;
+			}
+		}
+		
+		public IGreenshotHost Host {
+			get {
+				return host;
+			}
+		}
+
+		public IEnumerable<IDestination> Destinations() {
+			yield return new JiraDestination(this);
+		}
+
+		public IEnumerable<IProcessor> Processors() {
+			yield break;
+		}
+
+		//Needed for a fail-fast
+		//public JiraConnector CurrentJiraConnector {
+		//	get {
+		//		return jiraConnector;
+		//	}
+		//}
+		
+		public JiraConnector JiraConnector {
+			get {
+				if (jiraConnector == null) {
+					jiraConnector = new JiraConnector(true);
+				}
+				return jiraConnector;
+			}
 		}
 
 		/// <summary>
@@ -54,20 +97,19 @@ namespace GreenshotJiraPlugin {
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual void Initialize(IGreenshotPluginHost pluginHost, ICaptureHost captureHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotPluginHost)pluginHost;
-			this.captureHost = captureHost;
-			JiraPluginAttributes = myAttributes;
-			host.OnImageEditorOpen += new OnImageEditorOpenHandler(ImageEditorOpened);
+		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
+		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+			this.host = (IGreenshotHost)pluginHost;
+			jiraPluginAttributes = myAttributes;
 
 			// Register configuration (don't need the configuration itself)
 			config = IniConfig.GetIniSection<JiraConfiguration>();
 			resources = new ComponentResourceManager(typeof(JiraPlugin));
+			return true;
 		}
 
 		public virtual void Shutdown() {
 			LOG.Debug("Jira Plugin shutdown.");
-			host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
 			if (jiraConnector != null) {
 				jiraConnector.logout();
 			}
@@ -88,58 +130,6 @@ namespace GreenshotJiraPlugin {
 		public void Closing(object sender, FormClosingEventArgs e) {
 			LOG.Debug("Application closing, calling logout of jira!");
 			Shutdown();
-		}
-
-		/// <summary>
-		/// Implementation of the OnImageEditorOpen event
-		/// Using the ImageEditor interface to register in the plugin menu
-		/// </summary>
-		private void ImageEditorOpened(object sender, ImageEditorOpenEventArgs eventArgs) {
-			ToolStripMenuItem item = new ToolStripMenuItem();
-			// Set the image
-			item.Image = (Image)resources.GetObject("Jira");
-			item.Text = lang.GetString(LangKey.upload_menu_item); //"Upload to Jira";
-			item.Tag = eventArgs.ImageEditor;
-			item.ShortcutKeys = ((Keys)((Keys.Control | Keys.J)));
-			item.Click += new System.EventHandler(EditMenuClick);
-			PluginUtils.AddToFileMenu(eventArgs.ImageEditor, item);
-		}
-
-		/// <summary>
-		/// This will be called when the menu item in the Editor is clicked
-		/// </summary>
-		public void EditMenuClick(object sender, EventArgs eventArgs) {
-			ToolStripMenuItem item = (ToolStripMenuItem)sender;
-			IImageEditor imageEditor = (IImageEditor)item.Tag;
-
-			// Show form in background
-			if (jiraConnector == null) {
-				jiraConnector = new JiraConnector();
-			}
-			JiraForm jiraForm = new JiraForm(jiraConnector);
-
-			if (jiraConnector.isLoggedIn()) {
-				string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
-				jiraForm.setFilename(filename);
-				DialogResult result = jiraForm.ShowDialog(imageEditor.WindowHandle);
-				if (result != DialogResult.OK) {
-					return;
-				}
-				using (MemoryStream stream = new MemoryStream()) {
-					BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPluginAttributes.Name, lang.GetString(LangKey.communication_wait));
-					try {
-						imageEditor.SaveToStream(stream, config.UploadFormat, config.UploadJpegQuality);
-						byte [] buffer = stream.GetBuffer();
-						jiraForm.upload(buffer);
-						LOG.Debug("Uploaded to Jira.");
-						MessageBox.Show(lang.GetString(LangKey.upload_success));
-					} catch(Exception e) {
-						MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
-					} finally {
-						backgroundForm.CloseDialog();
-					}
-				}
-			}
 		}
 	}
 }

@@ -27,8 +27,8 @@ using System.Net;
 using System.Text;
 using System.Web;
 
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -126,20 +126,6 @@ namespace GreenshotImgurPlugin {
 			ImgurInfo imgurInfo = ImgurInfo.ParseResponse(responseString);
 			return imgurInfo;
         }
-
-		public static Image CreateThumbnail(Image image, int thumbWidth, int thumbHeight) {
-			int srcWidth=image.Width;
-			int srcHeight=image.Height; 
-			Bitmap bmp = new Bitmap(thumbWidth, thumbHeight);  
-			using (Graphics gr = System.Drawing.Graphics.FromImage(bmp)) {
-				gr.SmoothingMode = SmoothingMode.HighQuality  ; 
-				gr.CompositingQuality = CompositingQuality.HighQuality; 
-				gr.InterpolationMode = InterpolationMode.High; 
-				System.Drawing.Rectangle rectDestination = new System.Drawing.Rectangle(0, 0, thumbWidth, thumbHeight);
-				gr.DrawImage(image, rectDestination, 0, 0, srcWidth, srcHeight, GraphicsUnit.Pixel);  
-			}
-			return bmp;
-		}
 
 		public static void RetrieveImgurThumbnail(ImgurInfo imgurInfo) {
 			LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo);

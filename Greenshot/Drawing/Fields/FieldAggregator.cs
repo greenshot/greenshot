@@ -21,13 +21,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Reflection;
 
 using Greenshot.Configuration;
-using Greenshot.Drawing.Filters;
-using Greenshot.Helpers;
-using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>
@@ -69,8 +65,9 @@ namespace Greenshot.Drawing.Fields {
 				BindElement(dc);
 			}
 		}
+
 		public void BindElement(DrawableContainer dc) {
-			if(!boundContainers.Contains(dc)) {
+			if (!boundContainers.Contains(dc)) {
 				boundContainers.Add(dc);
 				dc.ChildrenChanged += delegate { UpdateFromBoundElements(); };
 				UpdateFromBoundElements();
@@ -85,7 +82,7 @@ namespace Greenshot.Drawing.Fields {
 		public void UpdateElement(DrawableContainer dc) {
 			internalUpdateRunning = true;
 			foreach(Field field in GetFields()) {
-				if(dc.HasField(field.FieldType) && field.HasValue) {
+				if (dc.HasField(field.FieldType) && field.HasValue) {
 					//if(LOG.IsDebugEnabled) LOG.Debug("   "+field+ ": "+field.Value);
 					dc.SetFieldValue(field.FieldType, field.Value);
 				}
@@ -94,7 +91,7 @@ namespace Greenshot.Drawing.Fields {
 		}
 				
 		public void UnbindElement(DrawableContainer dc) {
-			if(boundContainers.Contains(dc)) {
+			if (boundContainers.Contains(dc)) {
 				boundContainers.Remove(dc);
 				UpdateFromBoundElements();
 			}
@@ -111,7 +108,6 @@ namespace Greenshot.Drawing.Fields {
 		/// </summary>
 		private void ClearFields() {
 			internalUpdateRunning = true;
-			//if(LOG.IsDebugEnabled) LOG.Debug("Clearing fields internally");
 			foreach(Field field in GetFields()) {
 				field.Value = null;
 			}
@@ -134,7 +130,7 @@ namespace Greenshot.Drawing.Fields {
 		
 		private List<Field> FindCommonFields() {
 			List<Field> ret = null;
-			if(boundContainers.Count > 0) {
+			if (boundContainers.Count > 0) {
 				// take all fields from the least selected container...
 				ret = boundContainers[boundContainers.Count-1].GetFields();
 				for(int i=0;i<boundContainers.Count-1; i++) {
@@ -142,7 +138,7 @@ namespace Greenshot.Drawing.Fields {
 					List<Field> fieldsToRemove = new List<Field>();
 					foreach(Field f in ret) {
 						// ... throw out those that do not apply to one of the other containers
-						if(!dc.HasField(f.FieldType)) {
+						if (!dc.HasField(f.FieldType)) {
 							fieldsToRemove.Add(f);
 						}
 					}
@@ -151,19 +147,24 @@ namespace Greenshot.Drawing.Fields {
 					}
 				}
 			}
-			if(ret == null) ret = new List<Field>();
+			if (ret == null) {
+				ret = new List<Field>();
+			}
 			return ret;
 		}
 		
 		public void OwnPropertyChanged(object sender, PropertyChangedEventArgs ea) {
 			Field field = (Field) sender;
-			if(!internalUpdateRunning && field.Value!=null) {
-				foreach(DrawableContainer dc in boundContainers) {
-					if(dc.HasField(field.FieldType)) {
-						Field dcf = dc.GetField(field.FieldType);
-						dcf.Value = field.Value;
+			if (!internalUpdateRunning && field.Value != null) {
+				foreach(DrawableContainer drawableContainer in boundContainers) {
+					if (drawableContainer.HasField(field.FieldType)) {
+						Field drawableContainerField = drawableContainer.GetField(field.FieldType);
+						// Notify before change, so we can e.g. invalidate the area
+						drawableContainer.BeforeFieldChange(drawableContainerField, field.Value);
+
+						drawableContainerField.Value = field.Value;
 						// update last used from DC field, so that scope is honored
-						editorConfiguration.UpdateLastFieldValue(dcf);
+						editorConfiguration.UpdateLastFieldValue(drawableContainerField);
 					}
 				}
 			}

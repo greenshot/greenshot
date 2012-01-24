@@ -21,17 +21,22 @@
 using System;
 
 namespace GreenshotImgurPlugin {
-    public enum LangKey {
+	public enum LangKey {
 		upload_menu_item,
 		settings_title,
 		label_url,
 		label_upload_format,
+		label_clear,
 		OK,
 		CANCEL,
 		upload_success,
 		upload_failure,
 		communication_wait,
 		delete_question,
-		delete_title
-    }
+		clear_question,
+		delete_title,
+		use_page_link,
+		imgur_history,
+		imgur_configure
+	}
 }

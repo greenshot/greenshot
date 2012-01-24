@@ -19,12 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Diagnostics;
-using System.Runtime.Remoting.Proxies;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
-using System.Runtime.Remoting;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting;
+using System.Runtime.Remoting.Messaging;
+using System.Runtime.Remoting.Proxies;
 
 namespace Greenshot.Interop {
 	/// <summary>
@@ -53,9 +52,49 @@ namespace Greenshot.Interop {
 		#endregion
 
 		#region Construction
-		
+
 		/// <summary>
-		/// Gets a COM object and returns the transparent proxy 
+		/// Gets a COM object and returns the transparent proxy which intercepts all calls to the object
+		/// </summary>
+		/// <param name="type">Interface which defines the method and properties to intercept</param>
+		/// <returns>Transparent proxy to the real proxy for the object</returns>
+		/// <remarks>The <paramref name="type"/> must be an interface decorated with the <see cref="ComProgIdAttribute"/>attribute.</remarks>
+		public static object GetInstance(Type type) {
+			if (null == type) {
+				throw new ArgumentNullException("type");
+			}
+			if (!type.IsInterface) {
+				throw new ArgumentException("The specified type must be an interface.", "type");
+			}
+			
+			ComProgIdAttribute progID = ComProgIdAttribute.GetAttribute(type);
+			if (null == progID || null == progID.Value || 0 == progID.Value.Length) {
+				throw new ArgumentException("The specified type must define a ComProgId attribute.", "type");
+			}
+			
+			object comObject = null;
+			Type comType = Type.GetTypeFromProgID(progID.Value, true);
+			try {
+				comObject = Marshal.GetActiveObject(progID.Value);
+			} catch (COMException comE) {
+				if (comE.ErrorCode == MK_E_UNAVAILABLE) {
+					LOG.DebugFormat("No current instance of {0} object available.", progID.Value);
+				} else {
+					LOG.Warn("Error getting active object for " + progID.Value, comE);
+				}
+			} catch (Exception e) {
+				LOG.Warn("Error getting active object for " + progID.Value, e);
+			}
+
+			if (comObject != null) {
+				COMWrapper wrapper = new COMWrapper(comObject, type);
+				return wrapper.GetTransparentProxy();
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Gets or creates a COM object and returns the transparent proxy 
 		/// which intercepts all calls to the object
 		/// </summary>
 		/// <param name="type">Interface which defines the method and properties to intercept</param>

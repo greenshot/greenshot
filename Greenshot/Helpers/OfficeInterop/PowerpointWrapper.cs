@@ -21,7 +21,7 @@
 using System;
 using System.Collections;
 using System.Drawing;
-
+using System.Runtime.Remoting.Messaging;
 using Greenshot.Interop;
 using Greenshot.Plugin;
 
@@ -37,18 +37,19 @@ namespace Greenshot.Helpers.OfficeInterop {
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.slides_members.aspx
 	public interface ISlides : Common {
 		int Count {get;}
-		ISlide Add(int Index, PPSlideLayout Layout);
+		ISlide Add(int Index, int layout);
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.presentation_members.aspx
 	public interface IPresentation : Common {
+		string Name { get; }
 		ISlides Slides{ get;}
 	}
 	
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.presentations_members.aspx
-	public interface IPresentations : Common {
-		int Count {get;}
+	public interface IPresentations : Common, Collection {
 		IPresentation Add(MsoTriState WithWindow);
+		IPresentation item(int index);
 	}
 	
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.slide_members.aspx
@@ -126,49 +127,108 @@ namespace Greenshot.Helpers.OfficeInterop {
 	public class PowerpointExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointExporter));
 
-		private static IPowerpointApplication PowerpointApplication() {
+		private static IPowerpointApplication GetOrCreatePowerpointApplication() {
 			return (IPowerpointApplication)COMWrapper.GetOrCreateInstance(typeof(IPowerpointApplication));
 		}
 
-		private static void AddPictureToPresentation(IPresentation presentation, string tmpFile, Image image, ICaptureDetails captureDetails) {
+		private static IPowerpointApplication GetPowerpointApplication() {
+			return (IPowerpointApplication)COMWrapper.GetInstance(typeof(IPowerpointApplication));
+		}
+
+		/// <summary>
+		/// Get the captions of all the open powerpoint presentations
+		/// </summary>
+		/// <returns></returns>
+		public static System.Collections.Generic.List<string> GetPowerpointPresentations() {
+			System.Collections.Generic.List<string> presentations = new System.Collections.Generic.List<string>();
+			try {
+				using( IPowerpointApplication powerpointApplication = GetPowerpointApplication() ) {
+					if (powerpointApplication != null) {
+						LOG.DebugFormat("Open Presentations: {0}", powerpointApplication.Presentations.Count);
+						for(int i = 1; i <= powerpointApplication.Presentations.Count ; i ++) {
+							IPresentation presentation = powerpointApplication.Presentations.item(i);
+							if (presentation != null) {
+								presentations.Add(presentation.Name);
+							}
+						}
+					}
+				}
+			} catch (Exception ex) {
+				LOG.Warn("Problem retrieving word destinations, ignoring: ", ex);
+			}
+
+			return presentations;
+		}
+		
+		/// <summary>
+		/// Export the image from the tmpfile to the presentation with the supplied name
+		/// </summary>
+		/// <param name="presentationName"></param>
+		/// <param name="tmpFile"></param>
+		/// <param name="imageSize"></param>
+		/// <param name="captureDetails"></param>
+		/// <returns></returns>
+		public static bool ExportToPresentation(string presentationName, string tmpFile, Size imageSize, ICaptureDetails captureDetails) {
+			using( IPowerpointApplication powerpointApplication = GetPowerpointApplication() ) {
+				if (powerpointApplication != null) {
+					LOG.DebugFormat("Open Presentations: {0}", powerpointApplication.Presentations.Count);
+					for(int i = 1; i <= powerpointApplication.Presentations.Count ; i ++) {
+						IPresentation presentation = powerpointApplication.Presentations.item(i);
+						if (presentation != null && presentation.Name.StartsWith(presentationName)) {
+							try {
+								AddPictureToPresentation(presentation, tmpFile, imageSize, captureDetails);
+								return true;
+							} catch (Exception e){
+								LOG.Error(e);
+							}
+						}
+					}
+				}
+			}
+			return false;
+		}
+
+		private static void AddPictureToPresentation(IPresentation presentation, string tmpFile, Size imageSize, ICaptureDetails captureDetails) {
 			if (presentation != null) {
 				//ISlide slide = presentation.Slides.AddSlide( presentation.Slides.Count + 1, PPSlideLayout.ppLayoutPictureWithCaption);
-				LOG.DebugFormat("Slides before {0}", presentation.Slides.Count);
-				ISlide slide = presentation.Slides.Add( presentation.Slides.Count + 1,  PPSlideLayout.ppLayoutPictureWithCaption);
-				LOG.DebugFormat("Slides after {0}", presentation.Slides.Count);
-				// Shapes[2] is the image shape on this layout.
-				IShape shapeForLocation = slide.Shapes.item(2);
-				shapeForLocation.Width = image.Width;
-				shapeForLocation.Height = image.Height;
-				LOG.DebugFormat("Shape {0},{1},{2},{3}", shapeForLocation.Left, shapeForLocation.Top, image.Width, image.Height);
-				IShape shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, shapeForLocation.Left, shapeForLocation.Top, image.Width, image.Height);
-				shape.Width = image.Width;
-				shape.Height = image.Height;
+				ISlide slide;
+				float left = 0;
+				float top = 0;
+				bool isLayoutPictureWithCaption = false;
+				try {
+					slide = presentation.Slides.Add( presentation.Slides.Count + 1,  (int)PPSlideLayout.ppLayoutPictureWithCaption);
+					isLayoutPictureWithCaption = true;
+					// Shapes[2] is the image shape on this layout.
+					IShape shapeForLocation = slide.Shapes.item(2);
+					shapeForLocation.Width = imageSize.Width;
+					shapeForLocation.Height = imageSize.Height;
+					left = shapeForLocation.Left;
+					top = shapeForLocation.Top;
+					LOG.DebugFormat("Shape {0},{1},{2},{3}", shapeForLocation.Left, shapeForLocation.Top, imageSize.Width, imageSize.Height);
+				} catch (Exception e) {
+					LOG.Error(e);
+					slide = presentation.Slides.Add( presentation.Slides.Count + 1,  (int)PPSlideLayout.ppLayoutBlank);
+				}
+				IShape shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, left, top, imageSize.Width, imageSize.Height);
+				shape.Width = imageSize.Width;
+				shape.Height = imageSize.Height;
 				shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
 				shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
-				slide.Shapes.item(1).TextFrame.TextRange.Text = captureDetails.Title;
+				if (isLayoutPictureWithCaption) {
+					try {
+						// Using try/catch to make sure problems with the text range don't give an exception.
+						shape.TextFrame.TextRange.Text = captureDetails.Title;
+					} catch {};
+				}
 			}
 		}
 
-		private static void InsertIntoNewPresentation(IPowerpointApplication powerpointApplication, string tmpFile, Image image, ICaptureDetails captureDetails) {
-			LOG.Debug("No Presentation, creating a new Presentation");
-			IPresentation presentation = powerpointApplication.Presentations.Add(MsoTriState.msoTrue);
-			AddPictureToPresentation(presentation, tmpFile, image, captureDetails);
-		}
-
-		public static void ExportToPowerpoint(string tmpFile, Image image, ICaptureDetails captureDetails) {
-			using( IPowerpointApplication powerpointApplication = PowerpointApplication() ) {
+		public static void InsertIntoNewPresentation(string tmpFile, Size imageSize, ICaptureDetails captureDetails) {
+			using( IPowerpointApplication powerpointApplication = GetOrCreatePowerpointApplication() ) {
 				if (powerpointApplication != null) {
-					LOG.DebugFormat("Open Presentations: {0}", powerpointApplication.Presentations.Count);
-					if (powerpointApplication.Presentations.Count > 0) {
-						if (powerpointApplication.ActivePresentation != null) {
-							LOG.Debug("Presentation found!");
-							AddPictureToPresentation(powerpointApplication.ActivePresentation, tmpFile, image, captureDetails);
-						}
-					} else {
-						InsertIntoNewPresentation(powerpointApplication, tmpFile, image, captureDetails);
-					}
 					powerpointApplication.Visible = true;
+					IPresentation presentation = powerpointApplication.Presentations.Add(MsoTriState.msoTrue);
+					AddPictureToPresentation(presentation, tmpFile, imageSize, captureDetails);
 				}
 			}
 		}

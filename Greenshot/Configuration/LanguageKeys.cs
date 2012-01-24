@@ -22,6 +22,7 @@ using System;
 
 namespace Greenshot.Configuration {
     public enum LangKey {
+		none,
 		about_bugs,
 		about_donations,
 		about_host,
@@ -88,6 +89,7 @@ namespace Greenshot.Configuration {
 		editor_drawellipse,
 		editor_drawhighlighter,
 		editor_drawline,
+		editor_drawfreehand,
 		editor_drawrectangle,
 		editor_drawtextbox,
 		editor_duplicate,
@@ -127,6 +129,9 @@ namespace Greenshot.Configuration {
 		editor_title,
 		editor_uponelevel,
 		editor_uptotop,
+		editor_autocrop,
+		editor_undo,
+		editor_redo,
 		error,
 		error_multipleinstances,
 		error_nowriteaccess,
@@ -162,6 +167,7 @@ namespace Greenshot.Configuration {
 		settings_destination_file,
 		settings_destination_fileas,
 		settings_destination_printer,
+		settings_destination_picker,
 		settings_editor,
 		settings_filenamepattern,
 		settings_general,
@@ -187,6 +193,7 @@ namespace Greenshot.Configuration {
 		settings_tooltip_registerhotkeys,
 		settings_tooltip_storagelocation,
 		settings_visualization,
+		settings_shownotify,
 		settings_waittime,
 		settings_windowscapture,
 		settings_window_capture_mode,
@@ -198,6 +205,7 @@ namespace Greenshot.Configuration {
 		warning_hotkeys,
 		hotkeys,
 		wait_ie_capture,
-		update_found
+		update_found,
+		exported_to
     }
 }

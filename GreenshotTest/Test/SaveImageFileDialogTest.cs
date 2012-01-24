@@ -23,6 +23,7 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
+using IniFile;
 using NUnit.Framework;
 
 namespace Greenshot.Test

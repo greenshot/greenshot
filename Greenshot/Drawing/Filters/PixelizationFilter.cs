@@ -21,13 +21,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.Serialization;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 

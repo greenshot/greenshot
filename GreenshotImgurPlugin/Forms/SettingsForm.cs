@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Drawing;
 using System.Windows.Forms;
-
 using GreenshotImgurPlugin.Forms;
 using GreenshotPlugin.Core;
 
@@ -58,6 +56,8 @@ namespace GreenshotImgurPlugin {
 			this.buttonCancel.Text = lang.GetString(LangKey.CANCEL);
 			this.Text = lang.GetString(LangKey.settings_title);
 			this.label_upload_format.Text = lang.GetString(LangKey.label_upload_format);
+			this.checkbox_usepagelink.Text = lang.GetString(LangKey.use_page_link);
+			this.historyButton.Text = lang.GetString(LangKey.imgur_history);
 		}
 
 		public string Url {
@@ -68,6 +68,11 @@ namespace GreenshotImgurPlugin {
 		public string UploadFormat {
 			get {return combobox_uploadimageformat.Text;}
 			set {combobox_uploadimageformat.Text = value;}
+		}
+
+		public bool UsePageLink {
+			get { return checkbox_usepagelink.Checked; }
+			set { checkbox_usepagelink.Checked = value; }
 		}
 
 		void ButtonOKClick(object sender, EventArgs e) {

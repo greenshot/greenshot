@@ -20,7 +20,6 @@
  */
 using System;
 using System.Drawing;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 
 using Greenshot.Drawing.Fields;
@@ -56,6 +55,10 @@ namespace Greenshot.Drawing {
 				// bottom
 				g.FillRectangle(cropBrush, new Rectangle(0, r.Top + r.Height, parent.Width, parent.Height - (r.Top + r.Height)));
 			}
+		}
+		
+		public override void ShowContextMenu(MouseEventArgs e) {
+			// No context menu for the CropContainer
 		}
 	}
 }

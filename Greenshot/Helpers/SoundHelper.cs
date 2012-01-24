@@ -19,12 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.IO;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
-using Greenshot.UnmanagedHelpers;
+using GreenshotPlugin.UnmanagedHelpers;
 
 /// <summary>
 /// Create to fix the sometimes wrongly played sample, especially after first start from IDE
@@ -34,15 +33,11 @@ namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of SoundHelper.
 	/// </summary>
-	public class SoundHelper {
+	public static class SoundHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SoundHelper));
 
 		private static GCHandle? gcHandle = null;
 	    private static byte[] soundBuffer = null;
-
-		private SoundHelper() {
-			// Prevent instanciating
-		}
 		
 		public static void Initialize() {
 	    	try {

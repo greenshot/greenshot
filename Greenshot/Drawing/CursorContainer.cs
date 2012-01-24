@@ -20,14 +20,9 @@
  */
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
-using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing {
@@ -105,6 +100,18 @@ namespace Greenshot.Drawing {
 			if (cursor != null) {
 				cursor.DrawStretched(graphics, Bounds);
 			}
+		}
+		
+		public override void AddContextMenuItems(ContextMenuStrip menu) {
+			base.AddContextMenuItems(menu);
+			ToolStripMenuItem resetItem = new ToolStripMenuItem("Reset size");
+			resetItem.Click += delegate {
+				this.Invalidate();
+				Width = cursor.Size.Width;
+				Height = cursor.Size.Height;
+				this.Invalidate();
+			};
+			menu.Items.Add(resetItem);
 		}
 	}
 }

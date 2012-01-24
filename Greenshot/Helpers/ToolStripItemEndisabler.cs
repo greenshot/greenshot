@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace Greenshot.Helpers {
@@ -28,12 +27,9 @@ namespace Greenshot.Helpers {
 	/// (parent) OwnerItems are ENabled with ToolStripItems, 
 	/// (child) DropDownItems are ENabled and DISabled with ToolStripItems.
 	/// </summary>
-	public class ToolStripItemEndisabler {
+	public static class ToolStripItemEndisabler {
 		[Flags]
 		enum PropagationMode {NONE=0, CHILDREN=1, ANCESTORS=2};
-		
-		private ToolStripItemEndisabler() {
-		}
 		
 		/// <summary>
 		/// Enables all of a ToolStrip's children (recursively),

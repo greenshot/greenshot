@@ -1,10 +1,22 @@
 ﻿/*
- * Created by SharpDevelop.
- * User: Robin
- * Date: 05.06.2011
- * Time: 21:13
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2011  Thomas Braun, Jens Klingen, Robin Krom
  * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 namespace GreenshotImgurPlugin.Forms
 {
@@ -42,6 +54,7 @@ namespace GreenshotImgurPlugin.Forms
 			this.openButton = new System.Windows.Forms.Button();
 			this.finishedButton = new System.Windows.Forms.Button();
 			this.clipboardButton = new System.Windows.Forms.Button();
+			this.clearHistoryButton = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -62,14 +75,18 @@ namespace GreenshotImgurPlugin.Forms
 			// 
 			// pictureBox1
 			// 
+			this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.pictureBox1.InitialImage = null;
 			this.pictureBox1.Location = new System.Drawing.Point(13, 272);
 			this.pictureBox1.Name = "pictureBox1";
 			this.pictureBox1.Size = new System.Drawing.Size(90, 90);
 			this.pictureBox1.TabIndex = 1;
 			this.pictureBox1.TabStop = false;
+			this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			// 
 			// deleteButton
 			// 
+			this.deleteButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.deleteButton.AutoSize = true;
 			this.deleteButton.Location = new System.Drawing.Point(109, 272);
 			this.deleteButton.Name = "deleteButton";
@@ -81,6 +98,7 @@ namespace GreenshotImgurPlugin.Forms
 			// 
 			// openButton
 			// 
+			this.openButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.openButton.AutoSize = true;
 			this.openButton.Location = new System.Drawing.Point(109, 305);
 			this.openButton.Name = "openButton";
@@ -92,7 +110,8 @@ namespace GreenshotImgurPlugin.Forms
 			// 
 			// finishedButton
 			// 
-			this.finishedButton.Location = new System.Drawing.Point(447, 337);
+			this.finishedButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.finishedButton.Location = new System.Drawing.Point(447, 338);
 			this.finishedButton.Name = "finishedButton";
 			this.finishedButton.Size = new System.Drawing.Size(75, 23);
 			this.finishedButton.TabIndex = 4;
@@ -104,7 +123,7 @@ namespace GreenshotImgurPlugin.Forms
 			// 
 			this.clipboardButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.clipboardButton.AutoSize = true;
-			this.clipboardButton.Location = new System.Drawing.Point(109, 337);
+			this.clipboardButton.Location = new System.Drawing.Point(109, 338);
 			this.clipboardButton.Name = "clipboardButton";
 			this.clipboardButton.Size = new System.Drawing.Size(129, 23);
 			this.clipboardButton.TabIndex = 5;
@@ -112,11 +131,23 @@ namespace GreenshotImgurPlugin.Forms
 			this.clipboardButton.UseVisualStyleBackColor = true;
 			this.clipboardButton.Click += new System.EventHandler(this.ClipboardButtonClick);
 			// 
+			// clearHistoryButton
+			// 
+			this.clearHistoryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.clearHistoryButton.Location = new System.Drawing.Point(447, 272);
+			this.clearHistoryButton.Name = "clearHistoryButton";
+			this.clearHistoryButton.Size = new System.Drawing.Size(75, 23);
+			this.clearHistoryButton.TabIndex = 6;
+			this.clearHistoryButton.Text = "Clear history";
+			this.clearHistoryButton.UseVisualStyleBackColor = true;
+			this.clearHistoryButton.Click += new System.EventHandler(this.ClearHistoryButtonClick);
+			// 
 			// ImgurHistory
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(534, 372);
+			this.Controls.Add(this.clearHistoryButton);
 			this.Controls.Add(this.clipboardButton);
 			this.Controls.Add(this.finishedButton);
 			this.Controls.Add(this.openButton);
@@ -131,6 +162,7 @@ namespace GreenshotImgurPlugin.Forms
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.Button clearHistoryButton;
 		private System.Windows.Forms.Button clipboardButton;
 		private System.Windows.Forms.Button finishedButton;
 		private System.Windows.Forms.Button deleteButton;

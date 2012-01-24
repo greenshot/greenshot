@@ -33,10 +33,16 @@ namespace Greenshot.Drawing.Fields {
 		
 		public object myValue;
 		public object Value {
-			get { return myValue; }
-			set { if(!object.Equals(myValue,value)) {
+			get {
+				return myValue;
+			}
+			set {
+				if (!object.Equals(myValue,value)) {
 					myValue = value; 
-					if(PropertyChanged!=null) PropertyChanged(this, new PropertyChangedEventArgs("Value")); }
+					if (PropertyChanged!=null) {
+						PropertyChanged(this, new PropertyChangedEventArgs("Value"));
+					}
+				}
 			}
 		}
 		public FieldType FieldType;

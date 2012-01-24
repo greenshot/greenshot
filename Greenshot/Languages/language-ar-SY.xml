@@ -1,0 +1,526 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Arabic - العربية" ietf="ar-SY" version="0.8.1" languagegroup="d">
+  <resources>
+	<resource name="about_translation">
+		Translated by Ramzy Samman and Jamal Mashal تُرجم بواسطة رمزي السمان وجمال مشعل
+	</resource>
+	<resource name="application_title">
+		جرين شوت - الاداة الثورية في تصوير الشاشة
+	</resource>
+	<resource name="editor_drawrectangle">
+		ارسم مستطيل (R)
+	</resource>
+	<resource name="editor_save">
+		احفظ
+	</resource>
+	<resource name="contextmenu_settings">
+		التفضيلات...
+	</resource>
+	<resource name="settings_storagelocation">
+		مكان الحفظ
+	</resource>
+	<resource name="settings_title">
+		الاعدادات
+	</resource>
+	<resource name="settings_tooltip_storagelocation">
+		مكان حفظ اللقطات بشكل افتراضي (اتركها فارغة للحفظ على سطح المكتب)
+	</resource>
+	<resource name="settings_language">
+		اللغة
+	</resource>
+	<resource name="settings_filenamepattern">
+		نمط اسم الملف
+	</resource>
+	<resource name="settings_tooltip_language">
+		لغة واجهة جرين شوت (يتطلب اعادة تشغيل البرنامج)
+	</resource>
+	<resource name="settings_tooltip_filenamepattern">
+		النمط المستخدم في تسمية الملفات عند حفظ الصورة
+	</resource>
+	<resource name="settings_primaryimageformat">
+		نوع الصورة
+	</resource>
+	<resource name="settings_tooltip_primaryimageformat">
+		نوع الصورة الافتراضي
+	</resource>
+	<resource name="contextmenu_capturearea">
+		منطقة الالتقاط
+	</resource>
+	<resource name="contextmenu_capturelastregion">
+		التقط المنطقة السابقة
+	</resource>
+	<resource name="contextmenu_exit">
+		خروج
+	</resource>
+	<resource name="settings_visualization">
+		مؤثرات
+	</resource>
+	<resource name="settings_playsound">
+		تشغيل صوت عند الالتقاط
+	</resource>
+	<resource name="settings_showflashlight">
+		اظهار وميض
+	</resource>
+	<resource name="error">
+		خطأ
+	</resource>
+	<resource name="error_nowriteaccess">
+		لايمكن حفظ الصورة في {0}.
+رجاء تاكد من القدرة على حفظ الملف في هذا المكان.
+	</resource>
+	<resource name="contextmenu_capturefullscreen">
+		التقط كامل الشاشة
+	</resource>
+	<resource name="editor_cuttoclipboard">
+		قص
+	</resource>
+	<resource name="editor_copytoclipboard">
+		نسخ
+	</resource>
+	<resource name="editor_pastefromclipboard">
+		لصق
+	</resource>
+	<resource name="about_title">
+		حول جرين شوت
+	</resource>
+	<resource name="about_license">
+		حقوق النشر © 2007 - 2010 توماس براون, جينس كلنجين, روبين كروم
+جرين شوت لا يأتي مع أية ضمان. هذا برنامج حر, مرحبا بك لتعيد توزيعه تحت شروط معينة.
+تفاصيل حول رخصة جنو العمومية:
+	</resource>
+	<resource name="error_openlink">
+		لا يمكن فتح الوصلة.
+	</resource>
+	<resource name="error_save">
+		لا يمكن حفظ اللقطة, جد مكان مناسب للحفظ.
+	</resource>
+	<resource name="about_icons">
+		الايقونات بواسطة مجموعة ايقونات يوسوكي كامياماني (تحت رخصة المشاع الإبداعي الاصدار 3.0)
+	</resource>
+	<resource name="about_host">
+		جرين شوت استضيف بواسطة sourceforge.net في
+	</resource>
+	<resource name="about_bugs">
+		رجاء بلغ عن الاخطاء الى
+	</resource>
+	<resource name="about_donations">
+		اذا اعجبك البرنامج انت مدعو لدعمنا:
+	</resource>
+	<resource name="editor_imagesaved">
+		تم حفظ الصورة في {0}.
+	</resource>
+	<resource name="editor_storedtoclipboard">
+		ثم حفظ الصورة في الذاكرة.
+	</resource>
+	<resource name="editor_saveas">
+		احفظ باسم...
+	</resource>
+	<resource name="editor_file">
+		ملف
+	</resource>
+	<resource name="editor_edit">
+		عدل
+	</resource>
+	<resource name="editor_object">
+		عنصر
+	</resource>
+	<resource name="editor_drawellipse">
+		ارسم شكل دائري (E)
+	</resource>
+	<resource name="editor_drawtextbox">
+		اضف صندوق كتابة (T)
+	</resource>
+	<resource name="editor_deleteelement">
+		احذف
+	</resource>
+	<resource name="editor_selectall">
+		حدد الكل
+	</resource>
+	<resource name="editor_copyimagetoclipboard">
+		انسخ الصورة للذاكرة
+	</resource>
+	<resource name="contextmenu_capturewindow">
+		التقط النافذة
+	</resource>
+	<resource name="editor_duplicate">
+		كرر العنصر المحدد
+	</resource>
+	<resource name="contextmenu_help">
+		مساعدة
+	</resource>
+	<resource name="contextmenu_about">
+		حول البرنامج
+	</resource>
+	<resource name="editor_title">
+		محرر جرين شوت للصور 
+	</resource>
+	<resource name="settings_applicationsettings">
+		اعدادات التطبيق
+	</resource>
+	<resource name="settings_preferredfilesettings">
+		اعدادات المفضلة لملف النتائج
+	</resource>
+	<resource name="settings_skipimageeditor">
+		تجاهل محرر الصور
+	</resource>
+	<resource name="settings_registerhotkeys">
+		تسجيل الاختصارات
+	</resource>
+	<resource name="settings_tooltip_registerhotkeys">
+		عرف ما اذا كانت الاختصارات Prnt, Ctrl + Print, Alt + Prnt محفوظة للاستعمال العام بواسطة جرين شوت في بداية البرنامج, وحتى اغلاقه
+	</resource>
+	<resource name="editor_senttoprinter">
+		امر الطباعة ارسل الى '{0}'.
+	</resource>
+	<resource name="editor_print">
+		اطبع
+	</resource>
+	<resource name="help_title">
+		مساعدة
+	</resource>
+	<resource name="settings_jpegsettings">
+		JPEG اعدادات
+	</resource>
+	<resource name="settings_jpegquality">
+		JPEG جودة
+	</resource>
+	<resource name="settings_alwaysshowjpegqualitydialog">
+		اظهر نافذة جودة JPEG في كل مرة تحفظ فيها صورة JPEG
+	</resource>
+	<resource name="jpegqualitydialog_title">
+		جودة JPEG
+	</resource>
+	<resource name="jpegqualitydialog_choosejpegquality">
+		رجاء اختار جودة صورة JPEG
+	</resource>
+	<resource name="jpegqualitydialog_dontaskagain">
+		احفظ جودة JPEG الافتراضية ولا تسالني مجددا
+	</resource>
+	<resource name="editor_forecolor">
+		لون الخط
+	</resource>
+	<resource name="editor_backcolor">
+		لون التعبئة
+	</resource>
+	<resource name="editor_thickness">
+		سماكة الخط
+	</resource>
+	<resource name="colorpicker_title">
+		منتقي الالوان
+	</resource>
+	<resource name="colorpicker_apply">
+		طبق
+	</resource>
+	<resource name="colorpicker_transparent">
+		شفاف
+	</resource>
+	<resource name="colorpicker_htmlcolor">
+		HTML لون
+	</resource>
+	<resource name="colorpicker_red">
+		أحمر
+	</resource>
+	<resource name="colorpicker_green">
+		أخضر
+	</resource>
+	<resource name="colorpicker_blue">
+		أزرق
+	</resource>
+	<resource name="colorpicker_alpha">
+		ألفا
+	</resource>
+	<resource name="colorpicker_recentcolors">
+		اخر لون استعمل
+	</resource>
+	<resource name="editor_close">
+		اغلق
+	</resource>
+	<resource name="warning">
+		تحذير
+	</resource>
+	<resource name="warning_hotkeys">
+		لا يمكن تسجيل اختصار واحد او اكثر. لذلك, قد لا يكون بالامكان استخدام اختصارات جرين شوت.
+هذه المشكلة على الاغلب سببها برنامج اخر يدعي استخدام نفس الاختصارات.
+رجاء قم بالغاء البرنامج الذي يقوم باستخدام مفتاح الطباعة. يمكنك ايضا استخدام كل ميزات جرين شوت من الايقونة على شريط المهام.
+	</resource>
+	<resource name="settings_destination_editor">
+		افتح في محرر الصور
+	</resource>
+	<resource name="settings_destination_printer">
+		ارسل للطباعة
+	</resource>
+	<resource name="settings_destination_file">
+		احفظ مباشرة (باستخدام الاعدادات بالأسفل)
+	</resource>
+	<resource name="settings_destination_clipboard">
+		انسخ للذاكرة
+	</resource>
+	<resource name="editor_drawline">
+		ارسم خط (L)
+	</resource>
+	<resource name="settings_destination">
+		‫بعد التقاط الشاشة ..
+	</resource>
+	<resource name="editor_drawarrow">
+		ارسم سهم (A) 
+	</resource>
+	<resource name="editor_arrowheads">
+		رؤوس السهم
+	</resource>
+	<resource name="editor_arrowheads_start">
+		نقطة البداية
+	</resource>
+	<resource name="editor_arrowheads_end">
+		نقطة النهاية
+	</resource>
+	<resource name="editor_arrowheads_both">
+		كلاهما
+	</resource>
+	<resource name="editor_arrowheads_none">
+		لاشيء
+	</resource>
+    <resource name="editor_obfuscate_mode">
+		وضع التعتيم
+	</resource>
+    <resource name="editor_highlight_mode">
+		وضع التظليل
+	</resource>
+	<resource name="error_multipleinstances">
+		برنامج جرين شوت يعمل حاليا
+	</resource>
+	<resource name="settings_autostartshortcut">
+		تشغيل جرين شوت مع بدأ التشغيل
+	</resource>
+	<resource name="clipboard_inuse">
+		جرين شوت لم يستطع الحفظ في الذاكرة, العملية {0} حجبت الوصول. 
+	</resource>
+    <resource name="print_error">
+  		حدث خطأ خلال عملية الطباعة
+	</resource>
+	<resource name="printoptions_title">
+		خصائص جرين شوت للطباعة
+	</resource>
+	<resource name="printoptions_allowcenter">
+		ضع المطبوعة في وسط الصفحة
+	</resource>
+	<resource name="printoptions_allowenlarge">
+		كبر المطبوعة لملائمة حجم الصفحة
+	</resource>
+	<resource name="printoptions_allowrotate">
+		ادر المطبوعة مع اتجاه الصفحة
+	</resource>
+	<resource name="printoptions_allowshrink">
+		صغر المطبوعة لملائمة حجم الصفحة
+	</resource>
+	<resource name="printoptions_dontaskagain">
+		احفظ الخيارات كافتراضية ولا تسالني مجددا
+	</resource>
+	<resource name="settings_alwaysshowprintoptionsdialog">
+		اظهر نافذة خيارات الطباعة في كل مرة تطبع صورة
+	</resource>
+	<resource name="settings_printoptions">
+		خصائص الطباعة
+	</resource>
+	<resource name="settings_output">
+		النتائج
+	</resource>
+	<resource name="settings_general">
+		عام
+	</resource>
+	<resource name="editor_clipboardfailed">
+		خطأ في الوصول إلى الذاكرة. حاول مجددا.
+	</resource>
+	<resource name="editor_bold">
+		عريض
+	</resource>
+	<resource name="editor_italic">
+		مائل
+	</resource>
+	<resource name="editor_arrange">
+		الترتيب
+	</resource>
+	<resource name="editor_fontsize">
+		الحجم
+	</resource>
+	<resource name="editor_uptotop">
+		إلى الأعلى
+	</resource>
+	<resource name="editor_uponelevel">
+		مستوى واحد إلى الأعلى 
+	</resource>
+	<resource name="editor_downonelevel">
+		مستوى واحد إلى الأسفل
+	</resource>
+	<resource name="editor_downtobottom">
+		إلى الأسفل
+	</resource>
+	<resource name="contextmenu_quicksettings">
+		تفضيلات سريعة
+	</resource>
+	<resource name="bugreport_title">
+		خطأ
+	</resource>
+	<resource name="bugreport_info">
+		عذرا, حدث خطأ غير متوقع.
+		الخبر الجيد: انت تستطيع التخلص من هذا عن طريق تعبئة تقرير الاخطاء.
+		رجاء قم بزيارة الرابط اسفل, انشئ تقرير اخطاء جديد والصق النص من المربع الى الوصف.
+
+		رجاء قم باضافة تلخيص ذو معنى وارفق اية معلومات تعتبرها مفيدة في اكتشاف الخطأ
+		أيضا, سوف نقدر وبشدة اذا قمت بفحص ما إذا ما قد تم البلاغ عن الخطأ من قبل. شكرا :)
+	</resource>
+	<resource name="bugreport_cancel">
+		إغلاق
+	</resource>
+	<resource name="settings_copypathtoclipboard">
+		نسخ مسار الملف الى الذاكرة في كل مرة يتم حفظ صورة
+	</resource>
+	<resource name="editor_copypathtoclipboard">
+		انسخ المسار الي الذاكرة
+	</resource>
+	<resource name="settings_message_filenamepattern">
+		سوف يتم استبدال الرموز التالية تلقائيا في النمط المعرف:
+
+${YYYY} السنة, 4 منازل
+${MM} الشهر, منزلتان
+${DD} اليوم, منزلتان
+${hh} الساعة, منزلتان
+${mm} الدقيقة, منزلتان
+${ss} الثواني, منزلتان
+${NUM} incrementing number, 6 منازل
+${title} عنوان النافذة
+${user} مستخدم الوندوز
+${domain} نطاق وندوز
+${hostname} اسم الحاسوب
+
+بامكانك ايضا جعل جرين شوت ينشئ مجلدات بصورة ديناميكية, ببساطة استخدم رمز (/) لفصل المجلدات واسماء الملفات.
+مثال: النمط ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+سيولد مجلدا لليوم الحالي في مكان الحفظ الافتراضي, مثلا 28-09-2011, اسم ملف لقطة الشاشة سيكون على اساس الوقت الحالي, مثلا 14_13_15 (مع امتداد الحفظ)
+	</resource>
+	<resource name="editor_cursortool">
+		اداة التحديد (ESC)
+	</resource>
+	<resource name="settings_destination_fileas">
+		احفظ باسم..
+	</resource>
+	<resource name="quicksettings_destination_file">
+		احفظ مباشرة (باستخدام الخيارات المفضلة)
+	</resource>
+	<resource name="editor_opendirinexplorer">
+		افتح المجلد في مستكشف ويندوز
+	</resource>
+	<resource name="printoptions_timestamp">	
+		اطبع التاريخ / الوقت اسفل الصفحة
+	</resource>
+	<resource name="editor_drawhighlighter">
+		تظليل (H)
+	</resource>
+	<resource name="editor_obfuscate_blur">
+		التأثير الضبابي
+	</resource>
+	<resource name="editor_obfuscate_pixelize">
+		تشويش
+	</resource>
+	<resource name="editor_highlight_area">
+		منطقة التظليل
+	</resource>
+	<resource name="editor_highlight_text">
+		تظليل النص
+	</resource>
+	<resource name="editor_highlight_grayscale">
+		مقياس اللون الرمادي
+	</resource>
+	<resource name="editor_highlight_magnify">
+		تكبير
+	</resource>
+	<resource name="editor_pixel_size">
+		حجم البيكسل
+	</resource>
+	<resource name="editor_obfuscate">
+		تعتيم (O)
+	</resource>
+	<resource name="editor_blur_radius">
+		قطر التأثير الضبابي
+	</resource>
+	<resource name="editor_brightness">
+		السطوع
+	</resource>
+	<resource name="editor_preview_quality">
+		معاينة الجودة
+	</resource>
+	<resource name="editor_magnification_factor">
+		عامل التضخيم
+	</resource>
+	<resource name="editor_shadow">
+		الظل
+	</resource>
+	<resource name="editor_confirm">
+		تأكيد
+	</resource>
+	<resource name="editor_cancel">
+		الغاء
+	</resource>
+	<resource name="editor_crop">
+		قص (C)
+	</resource>
+	<resource name="contextmenu_captureclipboard">
+		فتح صورة من الذاكرة
+	</resource>
+	<resource name="clipboard_error">
+		خطأ غير متوقع حدث عند المحاولة للكتابة على الذاكرة.
+	</resource>
+	<resource name="config_unauthorizedaccess_write">
+		لا يمكن حفظ ملف الاعدادات. رجاء تأكد من صلاحيات الوصول ل '{0}'.
+	</resource>
+	<resource name="settings_printer">
+		الطابعة
+	</resource>
+	<resource name="settings_capture">
+		إلتقط صورة
+	</resource>
+	<resource name="settings_capture_mousepointer">
+		التقط مؤشر الفأرة
+	</resource>
+	<resource name="contextmenu_openfile">
+		فتح صورة من ملف
+	</resource>
+	<resource name="error_openfile">
+		الملف "{0}" لا يمكن فتحه.
+	</resource>
+	<resource name="editor_close_on_save">
+		هل تريد حفظ اللقطة?
+	</resource>
+	<resource name="editor_close_on_save_title">
+		حفظ الصورة?
+	</resource>
+	<resource name="settings_capture_windows_interactive">
+		استخدم وضع نافذة الالتقاط التفاعلي
+	</resource>
+	<resource name="settings_capture_window_full">
+		التقط النافذة حتى لو كانت محجوبة
+	</resource>
+	<resource name="settings_capture_window_content">
+		التقط المحتوى فقط بواسطة التطبيقات المدعومة
+	</resource>
+	<resource name="settings_destination_email">
+		بريد الكتروني
+	</resource>
+	<resource name="editor_email">
+		البريد الالكتروني
+	</resource>
+	<resource name="editor_load_objects">
+		تحميل العنصر من ملف
+	</resource>
+	<resource name="editor_save_objects">
+		حفظ العنصر في ملف
+	</resource>
+	<resource name="settings_waittime">
+		وقت الانتظار بالجزء من الثانية قبل الإلتقاط
+	</resource>
+	<resource name="tooltip_firststart">
+		انقر الزر  الايمن هنا أو اضغط مفتاح الطباعة.
+	</resource>
+	<resource name="contextmenu_donate">
+		ادعم جرين شوت
+	</resource>
+  </resources>
+</language>

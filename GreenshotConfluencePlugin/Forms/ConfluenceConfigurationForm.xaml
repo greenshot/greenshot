@@ -1,0 +1,32 @@
+﻿<Window x:Class="GreenshotConfluencePlugin.ConfluenceConfigurationForm"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:gscp="clr-namespace:GreenshotConfluencePlugin"
+    xmlns:l="clr-namespace:TranslationByMarkupExtension"
+    xmlns:gsc="clr-namespace:GreenshotPlugin.Core;assembly=GreenshotPlugin"
+	Title="Confluence plugin settings" SizeToContent="WidthAndHeight" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
+	<Window.Resources>
+        <gscp:EnumDisplayer Type="{x:Type gsc:OutputFormat}" x:Key="outputFormats"/>
+	</Window.Resources>
+
+	<StackPanel>
+		<CheckBox IsChecked="{Binding OpenPageAfterUpload}" Content="{l:Translate open_page_after_upload}"/>
+		<CheckBox IsChecked="{Binding CopyWikiMarkupForImageToClipboard}" Content="{l:Translate copy_wikimarkup}"/>
+		<StackPanel Orientation="Horizontal">
+			<Label Content="{l:Translate label_url}" />
+			<TextBox Text="{Binding Url}"/>
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label Content="{l:Translate label_timeout}" />
+			<TextBox Text="{Binding Timeout}"/>
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label Content="{l:Translate upload_format}" />
+			<ComboBox ItemsSource="{Binding Source={StaticResource outputFormats},Path=DisplayNames}" SelectedValue="{Binding UploadFormat, Converter={StaticResource outputFormats}}" />
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Button IsCancel="True" Content="Cancel"/>
+			<Button IsDefault="True" Content="OK" Click="Button_Click"/>
+		</StackPanel>
+	</StackPanel>
+</Window>

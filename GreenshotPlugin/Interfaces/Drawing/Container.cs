@@ -21,10 +21,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Windows.Forms;
-
-using Greenshot.Plugin;
 
 namespace Greenshot.Plugin.Drawing {
 	public enum RenderMode {EDIT, EXPORT};
@@ -57,6 +54,14 @@ namespace Greenshot.Plugin.Drawing {
 		int Height {
 			get;
 			set;
+		}
+		
+		Point Location {
+			get;
+		}
+
+		Size Size {
+			get;
 		}
 		
 		Rectangle Bounds {

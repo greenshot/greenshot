@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="简体中文" ietf="zh-CN" version="0.8.1">
+<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="0.8.1" languagegroup="a">
   <resources>
 	<resource name="about_translation">
 		简体中文翻译: uralhan
@@ -52,6 +52,9 @@
 	<resource name="contextmenu_exit">
 		退出
 	</resource>
+	<resource name="contextmenu_openrecentcapture">
+		打开上次保存位置
+	</resource>
 	<resource name="settings_visualization">
 		特效
 	</resource>
@@ -99,7 +102,7 @@
 		图标来源： Yusuke Kamiyamane 的 Fugue 图标 基于 (Creative Commons Attribution 3.0 协议)
 	</resource>
 	<resource name="about_host">
-		Greenshot 官方网站地址在sourceforge.net
+		Greenshot 托管在 sourceforge.net
 	</resource>
 	<resource name="about_bugs">
 		如果发现任何错误，请到以下网址报告
@@ -411,6 +414,9 @@ ${hostname} PC名称
 	<resource name="printoptions_timestamp">
 		在页尾打印日期/时间
 	</resource>
+	<resource name="printoptions_inverted">
+		反片打印
+	</resource>
 	<resource name="editor_drawhighlighter">
 		高亮显示 (H)
 	</resource>
@@ -477,11 +483,26 @@ ${hostname} PC名称
 	<resource name="settings_capture">
 		抓图
 	</resource>
+	<resource name="settings_plugins">
+		插件
+	</resource>
 	<resource name="settings_capture_mousepointer">
 		抓取鼠标箭头
 	</resource>
 	<resource name="contextmenu_openfile">
 		从文件载入图片
+	</resource>
+	<resource name="settings_window_capture_mode">
+		抓取窗口模式
+	</resource>
+	<resource name="settings_windowscapture">
+		抓取窗口
+	</resource>
+	<resource name="settings_iecapture">
+		抓取 Internet Explorer
+	</resource>
+	<resource name="settings_editor">
+		编辑器
 	</resource>
 	<resource name="error_openfile">
 		无法打开 "{0}"
@@ -507,6 +528,9 @@ ${hostname} PC名称
 	<resource name="editor_save_objects">
 		保存物件到文件
 	</resource>
+	<resource name="editor_match_capture_size">
+		匹配抓取尺寸
+	</resource>
 	<resource name="settings_waittime">
 		在抓图前等待时间（毫秒）
 	</resource>
@@ -515,6 +539,42 @@ ${hostname} PC名称
 	</resource>
 	<resource name="contextmenu_donate">
 		捐助 Greenshot
+	</resource>
+	<resource name="contextmenu_captureie">
+		抓取 Internet Explorer
+	</resource>
+  	<resource name="hotkeys">
+		热键
+	</resource>
+	<resource name="hotkey_fullscreen">
+		抓取全屏
+	</resource>
+	<resource name="hotkey_ie">
+		抓取 Internet Explorer
+	</resource>
+	<resource name="hotkey_lastregion">
+		抓取上次选择的区域
+	</resource>
+	<resource name="hotkey_region">
+		抓取屏幕的一部分
+	</resource>
+	<resource name="hotkey_window">
+		抓取窗口
+	</resource>
+	<resource name="wait_ie_capture">
+		请稍候，正在抓取 Internet Explorer 的页面...
+	</resource>
+	<resource name="settings_network">
+		网络和更新
+	</resource>
+	<resource name="settings_checkperiod">
+		检查更新的间隔天数 (0=不检查)
+	</resource>
+	<resource name="settings_usedefaultproxy">
+		使用系统默认的代理服务器
+	</resource>
+	<resource name="update_found">
+		发现新版本的 Greenshot ！ 您是否要下载 Greenshot {0}?
 	</resource>
   </resources>
 </language>

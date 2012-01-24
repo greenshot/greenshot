@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<overlay id="greenshotOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+	<script type="text/javascript" src="jquery-1.7.1.min.js"/>
+	<script type="text/javascript" src="overlay.js"/>
+	<menupopup id="menu_ToolsPopup">
+		<menuitem id="greenshotPopupMenuitem" label="Capture with Greenshot" insertbefore="sanitizeSeparator" oncommand="doMenuClick();"/>
+	</menupopup>
+	<statusbar id="status-bar">
+		<statusbarpanel class="statusbarpanel-iconic" id="greenshot_statusbar" onclick="doStatusbarClick();" src="chrome://greenshot/skin/greenshot16.png" />
+	</statusbar>
+	<popup id="contentAreaContextMenu">
+		<menuitem id="greenshot-menu-item" label="Send image to Greenshot" oncommand="captureImage(gContextMenu.target);"/>
+	</popup>
+</overlay>

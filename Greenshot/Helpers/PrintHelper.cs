@@ -20,7 +20,6 @@
  */
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 
@@ -29,6 +28,7 @@ using Greenshot.Drawing;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -124,16 +124,16 @@ namespace Greenshot.Helpers {
 
 			if (conf.OutputPrintInverted) {
 				// Invert Bitmap
-				BitmapBuffer bb = new BitmapBuffer((Bitmap)image, false);
-				bb.Lock();
-				for(int y=0;y<bb.Height; y++) {
-					for(int x=0;x<bb.Width; x++) {
-						Color color = bb.GetColorAt(x, y);
-						Color invertedColor = Color.FromArgb(color.A, color.R ^ 255, color.G ^ 255, color.B ^ 255);
-						bb.SetColorAt(x, y, invertedColor);
+				using (BitmapBuffer bb = new BitmapBuffer((Bitmap)image, false)) {
+					bb.Lock();
+					for(int y=0;y<bb.Height; y++) {
+						for(int x=0;x<bb.Width; x++) {
+							Color color = bb.GetColorAt(x, y);
+							Color invertedColor = Color.FromArgb(color.A, color.R ^ 255, color.G ^ 255, color.B ^ 255);
+							bb.SetColorAt(x, y, invertedColor);
+						}
 					}
 				}
-				bb.Dispose();
 			}
 
 			RectangleF pageRect = e.PageSettings.PrintableArea;

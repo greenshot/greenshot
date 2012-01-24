@@ -19,11 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Collections;
 using Greenshot.Interop;
-	
+
 namespace GreenshotOCR {
 	[ComProgId("MODI.Document")]
 	public interface ModiDocu : Common {
@@ -33,6 +31,7 @@ namespace GreenshotOCR {
 		}
 		void Create(string file);
 		void OCR(ModiLanguage language, bool Orientimage, bool StraightenImage);
+		void SaveAs(string filename, FileFormat fileFormat, CompressionLevel compressionLevel);
 	}
 
 	public interface Common : IDisposable {
@@ -83,5 +82,17 @@ namespace GreenshotOCR {
 		SWEDISH = 29,
 		TURKISH = 31,
 		SYSDEFAULT = 2048
+	}
+	
+	public enum CompressionLevel {
+		miCOMP_LEVEL_LOW = 0,
+		miCOMP_LEVEL_MEDIUM = 1,
+		miCOMP_LEVEL_HIGH = 2
+	}
+	public enum FileFormat {
+		miFILE_FORMAT_DEFAULTVALUE = -1,
+		miFILE_FORMAT_TIFF = 1,
+		miFILE_FORMAT_TIFF_LOSSLESS = 2,
+		miFILE_FORMAT_MDI = 4
 	}
 }

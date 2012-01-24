@@ -20,14 +20,14 @@
  */
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -40,10 +40,12 @@ namespace Greenshot.Drawing {
 		protected Bitmap bitmap;
 
 		public BitmapContainer(Surface parent, string filename) : this(parent) {
+			AddField(GetType(), FieldType.SHADOW, false);
 			Load(filename);
 		}
 
 		public BitmapContainer(Surface parent) : base(parent) {
+			AddField(GetType(), FieldType.SHADOW, false);
 		}
 
 
@@ -93,17 +95,38 @@ namespace Greenshot.Drawing {
 
 		public void Load(string filename) {
 			if (File.Exists(filename)) {
-				using (Bitmap fileBitmap = new Bitmap(filename)) {
-					Bitmap = fileBitmap;
-					LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
-				}
+				Bitmap = ImageHelper.LoadBitmap(filename);
+				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 			}
 		}
 		
-		public override void Draw(Graphics g, RenderMode rm) {
+		public override void Draw(Graphics graphics, RenderMode rm) {
 			if (bitmap != null) {
-				g.DrawImage(bitmap, Bounds);
+				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+				if (shadow) {
+					ImageAttributes ia = new ImageAttributes();
+					ColorMatrix cm = new ColorMatrix();
+					cm.Matrix00 = 0;
+					cm.Matrix11 = 0;
+					cm.Matrix22 = 0;
+					cm.Matrix33 = 0.25f;
+					ia.SetColorMatrix(cm);
+					graphics.DrawImage(bitmap, new Rectangle(Bounds.Left+2, Bounds.Top+2, Bounds.Width, Bounds.Height), 0, 0, bitmap.Width, bitmap.Height, GraphicsUnit.Pixel, ia); 
+				}
+				graphics.DrawImage(bitmap, Bounds); 
 			}
+		}
+		
+		public override void AddContextMenuItems(ContextMenuStrip menu) {
+			base.AddContextMenuItems(menu);
+			ToolStripMenuItem resetItem = new ToolStripMenuItem("Reset size");
+			resetItem.Click += delegate {
+				this.Invalidate();
+				Width = Bitmap.Width;
+				Height = Bitmap.Height;
+				this.Invalidate();
+			};
+			menu.Items.Add(resetItem);
 		}
 	}
 }

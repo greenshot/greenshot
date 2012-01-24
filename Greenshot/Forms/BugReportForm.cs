@@ -19,11 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Drawing;
-using System.Net;
-using System.Web;
 using System.Windows.Forms;
-
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using GreenshotPlugin.Core;
@@ -59,9 +55,9 @@ namespace Greenshot.Forms {
 		private void openLink(LinkLabel link) {
 			try {
 				link.LinkVisited = true;
-   				System.Diagnostics.Process.Start(link.Text);
+				System.Diagnostics.Process.Start(link.Text);
 			} catch (Exception) {
-				MessageBox.Show(lang.GetString(LangKey.error_openlink),lang.GetString(LangKey.error));
+				MessageBox.Show(lang.GetFormattedString(LangKey.error_openlink, link.Text),lang.GetString(LangKey.error));
 			}
 		}
 	}

@@ -19,11 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace GreenshotRemotePlugin {
 	/// <summary>
@@ -31,13 +33,19 @@ namespace GreenshotRemotePlugin {
 	/// </summary>
 	public class RemotePlugin : IGreenshotPlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RemotePlugin));
-		private IGreenshotPluginHost host;
-		private ICaptureHost captureHost = null;
+		private IGreenshotHost host;
 		private PluginAttribute myAttributes;
 		private Server httpServer = null;
 		private RemoteConfiguration config;
 				
 		public RemotePlugin() { }
+
+		public IEnumerable<IDestination> Destinations() {
+			yield break;
+		}
+		public IEnumerable<IProcessor> Processors() {
+			yield break;
+		}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
@@ -45,10 +53,9 @@ namespace GreenshotRemotePlugin {
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public void Initialize(IGreenshotPluginHost host, ICaptureHost captureHost, PluginAttribute myAttributes) {
+		public bool Initialize(IGreenshotHost host, PluginAttribute myAttributes) {
 			LOG.Debug("Initialize called of " + myAttributes.Name);
-			this.host = (IGreenshotPluginHost)host;
-			this.captureHost = captureHost;
+			this.host = (IGreenshotHost)host;
 			this.myAttributes = myAttributes;
 
 			// Load configuration
@@ -63,6 +70,7 @@ namespace GreenshotRemotePlugin {
 
 			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
 			ReloadConfiguration(null, null);
+			return true;
 		}
 		
 		private void ReloadConfiguration(object source, FileSystemEventArgs e) {
@@ -72,7 +80,6 @@ namespace GreenshotRemotePlugin {
 			}
 			if (config.RemoteEnabled) {
 				httpServer = new Server(config.ListenerURL, config.AccessKey);
-				httpServer.SetCaptureHost(captureHost);
 				httpServer.SetGreenshotPluginHost(host);
 				httpServer.StartListening();
 			}
@@ -96,6 +103,5 @@ namespace GreenshotRemotePlugin {
 		public virtual void Configure() {
 			return;
 		}
-
 	}
 }

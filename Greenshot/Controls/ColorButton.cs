@@ -24,8 +24,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-using GreenshotPlugin.Core;
-
 namespace Greenshot.Controls {
 	/// <summary>
 	/// Description of ColorButton.

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -31,19 +30,17 @@ using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using IniFile;
 
-namespace Greenshot.Helpers
-{
+namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of ImageOutput.
 	/// </summary>
-	public class ImageOutput {
+	public static class ImageOutput {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageOutput));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
-
-		private ImageOutput() {
-		}
+		private static CacheHelper<string> tmpFileCache = new CacheHelper<string>("tmpfile", 60*60*10, new CacheObjectExpired(RemoveExpiredTmpFile));
 		
 		/// <summary>
 		/// Creates a PropertyItem (Metadata) to store with the image.
@@ -143,29 +140,9 @@ namespace Greenshot.Helpers
 		}
 		
 		/// <summary>
-		/// Helper method to create a temp image file
-		/// </summary>
-		/// <param name="image"></param>
-		/// <returns></returns>
-		public static string SaveToTmpFile(Image image) {
-			string tmpFile = Path.Combine(Path.GetTempPath(),Path.GetRandomFileName() + "." + conf.OutputFileFormat.ToString());
-			// Prevent problems with "spaces", which causes a problem in e.g. Outlook 2007
-			tmpFile = tmpFile.Replace(" ", "_");
-			tmpFile = tmpFile.Replace("%", "_");
-			LOG.Debug("Creating TMP File : " + tmpFile);
-			
-			try {
-				ImageOutput.Save(image, tmpFile, conf.OutputFileJpegQuality, false);
-			} catch (Exception) {
-				return null;
-			}
-			return tmpFile;
-		}
-
-		/// <summary>
 		/// Saves image to specific path with specified quality
 		/// </summary>
-		public static void Save(Image image, string fullPath, int quality, bool copyPathToClipboard) {
+		public static void Save(Image image, string fullPath, bool allowOverwrite, int quality, bool copyPathToClipboard) {
 			fullPath = FilenameHelper.MakeFQFilenameSafe(fullPath);
 			string path = Path.GetDirectoryName(fullPath);
 
@@ -186,6 +163,11 @@ namespace Greenshot.Helpers
 			} catch(ArgumentException ae) {
 				LOG.Warn("Couldn't parse extension: " + extension, ae);
 			}
+			if (!allowOverwrite && File.Exists(fullPath)) {
+				ArgumentException throwingException = new ArgumentException("File '" + fullPath + "' already exists.");
+				throwingException.Data.Add("fullPath", fullPath);
+				throw throwingException;
+			}
 			LOG.DebugFormat("Saving image to {0}", fullPath);
 			// Create the stream and call SaveToStream
 			using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) {
@@ -202,7 +184,8 @@ namespace Greenshot.Helpers
 		/// </summary>
 		/// <param name="img">the image to save</param>
 		/// <param name="fullPath">the absolute destination path including file name</param>
-		public static void Save(Image img, string fullPath) {
+		/// <param name="allowOverwrite">true if overwrite is allowed, false if not</param>
+		public static void Save(Image img, string fullPath, bool allowOverwrite) {
 			int q;
 			
 			// Fix for bug 2912959
@@ -219,7 +202,7 @@ namespace Greenshot.Helpers
 			} else {
 				q = conf.OutputFileJpegQuality;
 			}
-			Save(img, fullPath, q, conf.OutputFileCopyPathToClipboard);
+			Save(img, fullPath, allowOverwrite, q, conf.OutputFileCopyPathToClipboard);
 		}
 		#endregion
 		
@@ -232,10 +215,11 @@ namespace Greenshot.Helpers
 			string returnValue = null;
 			SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails);
 			DialogResult dialogResult = saveImageFileDialog.ShowDialog();
-			if(dialogResult.Equals(DialogResult.OK)) {
+			if (dialogResult.Equals(DialogResult.OK)) {
 				try {
 					string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-					ImageOutput.Save(image, fileNameWithExtension);
+					// TODO: For now we overwrite, should be changed
+					ImageOutput.Save(image, fileNameWithExtension, true);
 					returnValue = fileNameWithExtension;
 					conf.OutputFileAsFullpath = fileNameWithExtension;
 					IniConfig.Save();
@@ -246,5 +230,79 @@ namespace Greenshot.Helpers
 			return returnValue;
 		}
 		#endregion
+
+		public static string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality) {
+			string pattern = conf.OutputFileFilenamePattern;
+			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
+				pattern = "greenshot ${capturetime}";
+			}
+			string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputFormat, captureDetails);
+			// Prevent problems with "other characters", which causes a problem in e.g. Outlook 2007 or break our HTML
+			filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
+			// Remove multiple "_"
+			filename = Regex.Replace(filename, @"_+", "_");
+			string tmpFile = Path.Combine(Path.GetTempPath(),filename);
+
+			LOG.Debug("Creating TMP File: " + tmpFile);
+			
+			// Catching any exception to prevent that the user can't write in the directory.
+			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
+			try {
+				ImageOutput.Save(image, tmpFile, true, quality, false);
+				tmpFileCache.Add(tmpFile, tmpFile);
+			} catch (Exception e) {
+				// Show the problem
+				MessageBox.Show(e.Message, "Error");
+				// when save failed we present a SaveWithDialog
+				tmpFile = ImageOutput.SaveWithDialog(image, captureDetails);
+			}
+			return tmpFile;
+		}
+		
+				/// <summary>
+		/// Helper method to create a temp image file
+		/// </summary>
+		/// <param name="image"></param>
+		/// <returns></returns>
+		public static string SaveToTmpFile(Image image, OutputFormat outputFormat, int quality) {
+			string tmpFile = Path.GetRandomFileName() + "." + outputFormat.ToString();
+			// Prevent problems with "other characters", which could cause problems
+			tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", "");
+			string tmpPath = Path.Combine(Path.GetTempPath(), tmpFile);
+			LOG.Debug("Creating TMP File : " + tmpPath);
+			
+			try {
+				ImageOutput.Save(image, tmpPath, true, quality, false);
+				tmpFileCache.Add(tmpPath, tmpPath);
+			} catch (Exception) {
+				return null;
+			}
+			return tmpPath;
+		}
+
+		/// <summary>
+		/// Cleanup all created tmpfiles
+		/// </summary>	
+		public static void RemoveTmpFiles() {
+			foreach(string tmpFile in tmpFileCache.GetElements()) {
+				if (File.Exists(tmpFile)) {
+					LOG.DebugFormat("Removing old temp file {0}", tmpFile);
+					File.Delete(tmpFile);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// Cleanup handler for expired tempfiles
+		/// </summary>
+		/// <param name="filename"></param>
+		/// <param name="alsoTheFilename"></param>
+		private static void RemoveExpiredTmpFile(string filekey, object filename) {
+			string path = filename as string;
+			if (path != null && File.Exists(path)) {
+				LOG.DebugFormat("Removing expired file {0}", path);
+				File.Delete(path);
+			}
+		}
 	}
 }

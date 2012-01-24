@@ -28,6 +28,7 @@ namespace GreenshotConfluencePlugin {
 		label_upload_format,
 		OK,
 		CANCEL,
+		upload_menu_item,
 		upload_success,
 		upload_failure
 	}

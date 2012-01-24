@@ -49,7 +49,6 @@ namespace GreenshotPlugin.Controls
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BackgroundForm));
 			this.label_pleasewait = new System.Windows.Forms.Label();
 			this.timer_checkforclose = new System.Windows.Forms.Timer(this.components);
 			this.SuspendLayout();
@@ -69,7 +68,7 @@ namespace GreenshotPlugin.Controls
 			// 
 			// timer_checkforclose
 			// 
-			this.timer_checkforclose.Interval = 500;
+			this.timer_checkforclose.Interval = 200;
 			this.timer_checkforclose.Tick += new System.EventHandler(this.Timer_checkforcloseTick);
 			// 
 			// BackgroundForm
@@ -78,10 +77,10 @@ namespace GreenshotPlugin.Controls
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSize = true;
 			this.ClientSize = new System.Drawing.Size(169, 52);
-			this.ControlBox = false;
+			this.ControlBox = true;
 			this.Controls.Add(this.label_pleasewait);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "BackgroundForm";

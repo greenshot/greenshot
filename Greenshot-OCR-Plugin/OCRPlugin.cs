@@ -21,17 +21,15 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Windows.Forms;
 
 using Greenshot.Interop;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using IniFile;
+
 //using Microsoft.Win32;
 
 namespace GreenshotOCR {
@@ -42,14 +40,20 @@ namespace GreenshotOCR {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
 		private const string CONFIG_FILENAME = "ocr-config.properties";
 
-		private IGreenshotPluginHost host;
-		private ICaptureHost captureHost = null;
+		private static IGreenshotHost host;
+		private static OCRConfiguration config;
 		private PluginAttribute myAttributes;
-		private OCRConfiguration config;
 		private ToolStripMenuItem ocrMenuItem = new ToolStripMenuItem();
 		private int hotkeyIdentifier = 0;
 
 		public OcrPlugin() { }
+
+		public IEnumerable<IDestination> Destinations() {
+			yield break;
+		}
+		public IEnumerable<IProcessor> Processors() {
+			yield break;
+		}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
@@ -57,15 +61,15 @@ namespace GreenshotOCR {
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public void Initialize(IGreenshotPluginHost host, ICaptureHost captureHost, PluginAttribute myAttributes) {
+		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
+		public virtual bool Initialize(IGreenshotHost greenshotHost, PluginAttribute myAttributes) {
 			LOG.Debug("Initialize called of " + myAttributes.Name);
-			this.host = (IGreenshotPluginHost)host;
-			this.captureHost = captureHost;
+			host = greenshotHost;
 			this.myAttributes = myAttributes;
 
 			if (!HasMODI()) {
 				LOG.Warn("No MODI found!");
-				return;
+				return false;
 			}
 			// Load configuration
 			config = IniConfig.GetIniSection<OCRConfiguration>();
@@ -79,22 +83,8 @@ namespace GreenshotOCR {
 			// Here we can hang ourselves to the main context menu!
 			ocrMenuItem.Text = "Region OCR";
 			ocrMenuItem.Click += new System.EventHandler(MainMenuClick);
-
-			ContextMenuStrip contextMenu = host.MainMenu;
-			bool addedItem = false;
-
-			// Try to find a separator, so we insert ourselves before
-			for(int i=0; i < contextMenu.Items.Count; i++) {
-				if (contextMenu.Items[i].GetType() == typeof(ToolStripSeparator)) {
-					contextMenu.Items.Insert(i, ocrMenuItem);
-					addedItem = true;
-					break;
-				}
-			}
-			// If we didn't insert the item, we just add it...
-			if (!addedItem) {
-				contextMenu.Items.Add(ocrMenuItem);
-			}
+			PluginUtils.AddToContextMenu(host, ocrMenuItem);
+			return true;
 		}
 		
 		/// <summary>
@@ -138,7 +128,7 @@ namespace GreenshotOCR {
 
 		private void StartOCRRegion() {
 			LOG.Debug("Starting OCR!");
-			captureHost.MakeCapture(CaptureMode.Region, false, new CaptureHandler(DoOCR));
+			host.CaptureRegion(false, new OCRDestination());
 		}
 		
 		private void MyHotkeyHandler() {
@@ -160,15 +150,10 @@ namespace GreenshotOCR {
 		/// <param name="ImageOutputEventArgs">Has the Image and the capture details</param>
 		private const int MIN_WIDTH = 130;
 		private const int MIN_HEIGHT = 130;
-		private void DoOCR(object sender, CaptureTakenEventArgs eventArgs) {
-			if (eventArgs.Capture.Image == null) {
-				return;
-			}
-			string file = host.GetFilename(OutputFormat.bmp, eventArgs.Capture.CaptureDetails);
-			string filePath = Path.Combine(Path.GetTempPath(),file);
-			
-			using (FileStream stream = File.Create(filePath)) {
-				Image capturedImage = eventArgs.Capture.Image;
+		public static void DoOCR(ISurface surface) {
+			string filePath = null;
+		
+			using (Image capturedImage = surface.GetImageForExport()) {
 				if (capturedImage.Width < MIN_WIDTH || capturedImage.Height < MIN_HEIGHT) {
 					LOG.Debug("Captured image is not big enough for OCR, growing image...");
 					int newWidth = Math.Max(capturedImage.Width, MIN_WIDTH);
@@ -178,10 +163,10 @@ namespace GreenshotOCR {
 							graphics.Clear(Color.White);
 							graphics.DrawImage(capturedImage, Point.Empty);
 						}
-						host.SaveToStream(tmpImage, stream, OutputFormat.bmp, 100);
+						filePath = host.SaveToTmpFile(tmpImage, OutputFormat.bmp, 100);
 					}
 				} else {
-					host.SaveToStream(capturedImage, stream, OutputFormat.bmp, 100);
+					filePath = host.SaveToTmpFile(capturedImage, OutputFormat.bmp, 100);
 				}
 			}
 		
@@ -227,7 +212,7 @@ namespace GreenshotOCR {
 				}
 				return true;
 			} catch(Exception e) {
-				LOG.Debug("Error trying to initiate MODI:", e);
+				LOG.DebugFormat("Error trying to initiate MODI: {0}", e.Message);
 			}
 			LOG.InfoFormat("No Microsoft Office Document Imaging (MODI) found, disabling OCR");
 			return false;

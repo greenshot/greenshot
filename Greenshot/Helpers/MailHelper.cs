@@ -21,19 +21,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Helpers.OfficeInterop;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Microsoft.Win32;
+using IniFile;
 
 /// <summary>
 /// Author: Andrew Baker
@@ -49,32 +47,16 @@ namespace Greenshot.Helpers {
 	public class MapiMailMessage {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(MapiMailMessage));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private const string MAPI_LOCATION_KEY = @"SOFTWARE\Microsoft\Windows Messaging Subsystem";
-		private const string MAPI_KEY = @"MAPI";
-	
-		public static bool HasMAPI() {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MAPI_LOCATION_KEY, false)) {
-				if (key != null) {
-					return "1".Equals(key.GetValue(MAPI_KEY, "0"));
-				} else {
-					return false;
-				}
-			}
-		}
-
-		public static bool HasMAPIorOutlook() {
-			return OutlookExporter.HasOutlook() || HasMAPI();
-		}
 		
 		/// <summary>
 		/// Helper Method for creating an Email with Attachment
 		/// </summary>
 		/// <param name="fullpath">Path to file</param>
 		/// <param name="captureDetails"></param>
-		public static void SendImage(string fullPath, string title, bool deleteFileOnExit) {
+		public static void SendImage(string fullPath, string title) {
 			MapiMailMessage message = new MapiMailMessage(title, null);
 			message.Files.Add(fullPath);
-			message.ShowDialog(deleteFileOnExit);
+			message.ShowDialog();
 		}
 		
 
@@ -84,35 +66,19 @@ namespace Greenshot.Helpers {
 		/// <param name="image">The image to send</param>
 		/// <param name="captureDetails">ICaptureDetails</param>
 		public static void SendImage(Image image, ICaptureDetails captureDetails) {
-			string pattern = conf.OutputFileFilenamePattern;
-			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
-				pattern = "greenshot ${capturetime}";
-			}
-			string filename = FilenameHelper.GetFilenameFromPattern(pattern, conf.OutputFileFormat, captureDetails);
-			string tmpFile = Path.Combine(Path.GetTempPath(),filename);
-			// Prevent problems with "spaces", which causes a problem in e.g. Outlook 2007
-			tmpFile = tmpFile.Replace(" ", "_");
-			tmpFile = tmpFile.Replace("%", "_");
-			LOG.Debug("Creating TMP File for Email: " + tmpFile);
-			
-			// Catching any exception to prevent that the user can't write in the directory.
-			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
-			try {
-				ImageOutput.Save(image, tmpFile, conf.OutputFileJpegQuality, false);
-			} catch (Exception e) {
-				// Show the problem
-				MessageBox.Show(e.Message, "Error");
-				// when save failed we present a SaveWithDialog
-				tmpFile = ImageOutput.SaveWithDialog(image, captureDetails);
-			}
+			string tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, conf.OutputFileFormat, conf.OutputFileJpegQuality);
 
 			if (tmpFile != null) {
 				// Store the list of currently active windows, so we can make sure we show the email window later!
 				List<WindowDetails> windowsBefore = WindowDetails.GetVisibleWindows();
-				if (!OutlookExporter.HasOutlook() || !OutlookExporter.ExportToOutlook(tmpFile, captureDetails)) {
+				bool isEmailSend = false;
+				//if (EmailConfigHelper.HasOutlook() && (conf.OutputEMailFormat == EmailFormat.OUTLOOK_HTML || conf.OutputEMailFormat == EmailFormat.OUTLOOK_TXT)) {
+				//	isEmailSend = OutlookExporter.ExportToOutlook(tmpFile, captureDetails);
+				//}
+				if (!isEmailSend && EmailConfigHelper.HasMAPI()) {
 					// Fallback to MAPI
-					// Send the email and Cleanup the tmp files on exit
-					SendImage(tmpFile, captureDetails.Title, true);
+					// Send the email
+					SendImage(tmpFile, captureDetails.Title);
 				}
 				WindowDetails.ActiveNewerWindows(windowsBefore);
 			}
@@ -232,13 +198,13 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Displays the mail message dialog asynchronously.
 		/// </summary>
-		public void ShowDialog(bool deleteFilesOnExit) {
+		public void ShowDialog() {
 			// Create the mail message in an STA thread
-			Thread t = new Thread(new ParameterizedThreadStart(_ShowMail));
+			Thread t = new Thread(new ThreadStart(_ShowMail));
 			t.IsBackground = true;
 			t.Name = Application.ProductName;
 			t.SetApartmentState(ApartmentState.STA);
-			t.Start(deleteFilesOnExit);
+			t.Start();
 	
 			// only return when the new thread has built it's interop representation
 			_manualResetEvent.WaitOne();
@@ -252,7 +218,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Sends the mail message.
 		/// </summary>
-		private void _ShowMail(object deleteFilesOnExit) {
+		private void _ShowMail() {
 			MAPIHelperInterop.MapiMessage message = new MAPIHelperInterop.MapiMessage();
 	
 			using (RecipientCollection.InteropRecipientCollection interopRecipients = _recipientCollection.GetInteropRepresentation()) {
@@ -278,18 +244,6 @@ namespace Greenshot.Helpers {
 				if (_files.Count > 0) {
 					// Deallocate the files
 					_DeallocFiles(message);
-					if ((bool)deleteFilesOnExit) {
-						foreach(string file in _files) {
-							try {
-								if (File.Exists(file)) {
-									LOG.Debug("Deleting file " + file);
-									File.Delete(file);
-								}
-							} catch (Exception e) {
-								LOG.Error("Can't delete file " + file, e);
-							}
-						}
-					}
 				}
 				MAPI_CODES errorCode = (MAPI_CODES)Enum.ToObject(typeof(MAPI_CODES), error);
 

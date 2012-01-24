@@ -24,11 +24,13 @@ using System.IO;
 using System.Net;
 using System.Text;
 
+using IniFile;
+
 namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Description of NetworkHelper.
 	/// </summary>
-	public class NetworkHelper {
+	public static class NetworkHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(NetworkHelper));
 		private static CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 
@@ -64,8 +66,9 @@ namespace GreenshotPlugin.Core {
 				HttpWebRequest request = (HttpWebRequest)NetworkHelper.CreatedWebRequest(url);
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 				if (request.HaveResponse) {
-					Image image = Image.FromStream(response.GetResponseStream());
-					return (image.Height > 16 && image.Width > 16) ? new Bitmap(image, 16, 16) : new Bitmap(image);
+					using (Image image = Image.FromStream(response.GetResponseStream())) {
+						return (image.Height > 16 && image.Width > 16) ? new Bitmap(image, 16, 16) : new Bitmap(image);
+					}
 				}
 				
 			} catch (Exception e) {

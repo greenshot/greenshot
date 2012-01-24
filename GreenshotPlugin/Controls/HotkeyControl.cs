@@ -402,23 +402,29 @@ namespace GreenshotPlugin.Controls {
 
 		public static Keys HotkeyModifiersFromString(string modifiersString) {
 			Keys modifiers = Keys.None;
-			if (modifiersString.ToLower().Contains("alt")) {
-				modifiers |= Keys.Alt;
-			}
-			if (modifiersString.ToLower().Contains("ctrl")) {
-				modifiers |= Keys.Control;
-			}
-			if (modifiersString.ToLower().Contains("shift")) {
-				modifiers |= Keys.Shift;
+			if (!string.IsNullOrEmpty(modifiersString)) {
+				if (modifiersString.ToLower().Contains("alt")) {
+					modifiers |= Keys.Alt;
+				}
+				if (modifiersString.ToLower().Contains("ctrl")) {
+					modifiers |= Keys.Control;
+				}
+				if (modifiersString.ToLower().Contains("shift")) {
+					modifiers |= Keys.Shift;
+				}
 			}
 			return modifiers;
 		}
 
 		public static Keys HotkeyFromString(string hotkey) {
-			if (hotkey.LastIndexOf('+') > 0) {
-				hotkey = hotkey.Remove(0,hotkey.LastIndexOf('+')+1).Trim();
+			Keys key = Keys.None;
+			if (!string.IsNullOrEmpty(hotkey)) {
+				if (hotkey.LastIndexOf('+') > 0) {
+					hotkey = hotkey.Remove(0,hotkey.LastIndexOf('+')+1).Trim();
+				}
+				key = (Keys)Keys.Parse(typeof(Keys), hotkey);
 			}
-			return (Keys)Keys.Parse(typeof(Keys), hotkey);
+			return key;
 		}
 
 		public static void RegisterHotkeyHWND(IntPtr hWnd) {

@@ -19,16 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
-using System.IO;
-using System.Net;
-using System.Text;
 using System.Windows.Forms;
 
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using IniFile;
 using Jira;
 
 namespace GreenshotJiraPlugin {
@@ -51,7 +47,7 @@ namespace GreenshotJiraPlugin {
 
 			changeModus(false);
 			try {
-				if (!jiraConnector.isLoggedIn()) {
+				if (!jiraConnector.isLoggedIn) {
 					jiraConnector.login();
 				}
 			} catch (Exception e) {
@@ -69,7 +65,7 @@ namespace GreenshotJiraPlugin {
 		}
 
 		private void updateForm() {
-			if (jiraConnector.isLoggedIn()) {
+			if (jiraConnector.isLoggedIn) {
 				JiraFilter[] filters = jiraConnector.getFilters();
 				if (filters.Length > 0) {
 					foreach (JiraFilter filter in filters) {
@@ -127,8 +123,8 @@ namespace GreenshotJiraPlugin {
 		}
 
 		private void jiraFilterBox_SelectedIndexChanged(object sender, EventArgs e) {
-			if (jiraConnector.isLoggedIn()) {
-				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.JiraPluginAttributes.Name, language.GetString(LangKey.communication_wait));
+			if (jiraConnector.isLoggedIn) {
+				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, language.GetString(LangKey.communication_wait));
 				try {
 					uploadButton.Enabled = false;
 					JiraFilter filter = (JiraFilter)jiraFilterBox.SelectedItem;

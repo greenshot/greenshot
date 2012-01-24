@@ -21,12 +21,8 @@
 using System;
 using System.Drawing;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
-using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing {
@@ -103,6 +99,18 @@ namespace Greenshot.Drawing {
 			if (icon != null) {
 				graphics.DrawIcon(icon, Bounds);
 			}
+		}
+
+		public override void AddContextMenuItems(ContextMenuStrip menu) {
+			base.AddContextMenuItems(menu);
+			ToolStripMenuItem resetItem = new ToolStripMenuItem("Reset size");
+			resetItem.Click += delegate {
+				this.Invalidate();
+				Width = icon.Size.Width;
+				Height = icon.Size.Height;
+				this.Invalidate();
+			};
+			menu.Items.Add(resetItem);
 		}
 	}
 }

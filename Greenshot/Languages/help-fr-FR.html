@@ -1,0 +1,289 @@
+
+<html>
+	<head>
+		<title>Aide Greenshot - version française</title>
+		<style>
+		* {
+			font-family: Tahoma, Arial, Sans-serif;
+		}
+		h1 {font-size:16px;}
+		h2 {font-size:14px;color:#009900;margin-top:24px;}
+		h3 {font-size:12px;margin-top:18px;}
+		small {font-size:10px;}
+		p, li {font-size:12px;line-height:1.5em}
+		a:link, a:hover, a:visited, a:active {color:#009900;}
+		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
+
+		</style>
+	</head>
+	<body>
+	<h1>Aide Greenshot</h1>
+	<!--
+	Note to translator: uncomment entry below to have your effort honored
+	-->
+	<small>Version 0.8 - traduction française par Thierry Henkart</small>
+
+	<h2>Contenu</h2>
+	<ol>
+		<li><a href="#screenshot">Créer une copie d'écran</a></li>
+		<ol>
+			<li><a href="#capture-region">Capturer une zone d'écran</a></li>
+			<li><a href="#capture-last-region">Capturer la dernière zone d'écran</a></li>
+			<li><a href="#capture-window">Capturer une fenêtre</a></li>
+			<li><a href="#capture-fullscreen">Capturer tout l'écran</a></li>
+		</ol>
+
+		<li><a href="#editor">Utilisation de l'éditeur d'image</a></li>
+		<ol>
+			<li><a href="#editor-shapes">Dessiner des formes</a></li>
+			<li><a href="#editor-text">Ajouter du texte</a></li>
+			<li><a href="#editor-highlight">Mettre en surbrillance</a></li>
+			<li><a href="#editor-obfuscate">Masquer</a></li>
+			<li><a href="#editor-crop">Rogner</a></li>
+			<li><a href="#editor-reuse-elements">Réutiliser des éléments</a></li>
+			<li><a href="#editor-export">Exporter la capture d'écran</a></li>
+		</ol>
+		<li><a href="#settings">Dialogue Préférences</a></li>
+		<ol>
+			<li><a href="#settings-general">Général</a></li>
+			<li><a href="#settings-output">Sortie</a></li>
+			<li><a href="#settings-printer">Imprimante</a></li>
+		</ol>
+		<li><a href="#help">Désirez-vous collaborer?</a></li>
+		<ol>
+			<li><a href="#help-donate">Pensez à un don</a></li>
+			<li><a href="#help-spread">Faites connaître l'outil</a></li>
+			<li><a href="#help-translate">Proposez une traduction</a></li>
+		</ol>
+	</ol>
+
+	<a name="screenshot"></a>
+	<h2>Créer une copie d'écran</h2>
+	<p>
+		Vous pouvez créer une copie d'écran soit en utilisant la touche <kbd>Print</kbd> de votre clavier,
+		soit en effectuant un click droit sur l'icône Greenshot dans la barre de tâches.<br>
+		Il y a plusieurs options de création d'une capture d'écran :
+	</p>
+	<a name="capture-region"></a>
+	<h3>Capturer une zone d'écran <kbd>Print</kbd></h3>
+	<p>
+		Le mode "capture de zone d'écran" vous permet de sélectionner la partie de votre écran à capturer.<br>
+		Lorsque vous êtes dans ce mode, vous verrez le pointeur de votre souris remplacé par une croix.
+		Faites un click gauche sur l'un des coins de la zone que vous voulez sélectionnez, et
+		maintenez le bouton enfoncé. Déplacez votre souris, toujours bouton gauche enfoncé,
+		afin de déterminer la zone rectangulaire que vous désirez sélectionner.
+		Lorsque le rectangle vert recouvre la surface que vous souhaitez capturer,
+		relachez le bouton de la souris.
+	</p>
+	<p class="hint">
+		Vous pouvez utiliser la barre d'espace <kbd>Space</kbd> pour switcher entre
+		le mode "zone d'écran" et le mode <a href="#capture-window">"fenêtre"</a>.
+	</p>
+	<p class="hint">
+		Si vous souhaitez capturer une zone avec précision, il peut être plus facile de sélectionner une capture d'écran
+		initiale légèrement plus grande et de <a href="#editor-crop">rogner</a> la capture ensuite en utilisant l'éditeur
+		d'image de Greenshot
+	</p>
+
+	<a name="capture-last-region"></a>
+	<h3>Capturer la dernière zone d'écran <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
+	<p>
+		Si vous avez effectué une capture de <a href="#capture-region">zone</a> ou de <a href="#capture-window">fenêtre</a>
+		auparavant, vous pouvez re-capturer la même région grâce à cette option.
+	</p>
+
+	<a name="capture-window"></a>
+	<h3>Capturer une fenêtre <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
+	<p>
+		Crée une capture d'écran de la fenêtre active.
+	</p>
+	<p class="hint">
+		Le dialogue <a href="#settings">Préférences</a> offre l'option de ne pas capturer
+		d'office la fenêtre active, mais de sélectionner une fenêtre de manière interactive.
+		Si cette option est sélectionnée, vous pouvez sélectionner une fenêtre en cliquant dessus
+		(comme dans la <a href="#capture-region">capture de zone d'écran</a>, Greenshot va
+		mettre en surbrillance la zone qui va être capturée.<br> Si vous désirez qu'une fenêtre "fille" soit capturée ou un simple cadre, positionnez le curseur de la souris et appuyez sur la touche "Page Down"		 <kbd>PgDown</kbd>. Vous pourrez ensuite sélectionner l'élément souhaité.
+	</p>
+
+	<a name="capture-fullscreen"></a>
+	<h3>Capturer tout l'écran <kbd>Control</kbd> + <kbd>Print</kbd></h3>
+	<p>
+		Crée une copie de tout l'écran.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Utiliser l'éditeur d'image</h2>
+	<p>
+		Greenshot est fourni avec un éditeur d'images d'utilisation simple, proposant une panoplie
+		d'outils permettant des annotations ou l'ajout de formes à la capture d'écran. Il permet également de mettre en évidence ou de masquer certaines parties de la capture d'écran.
+	</p>
+	<p class="hint">
+		L'éditeur d'image Greenshot peut être utilisé également pour ouvrir des images à partir de fichiers ou du bloc-notes. Faites simplement un click droit sur l'icône Greenshot dans la barre d'outils
+		et choisissez respectivement <em>Ouvrir à partir du fichier</em>
+		ou <em>Ouvrir l'image du presse-papier</em>.
+	</p>
+	<p class="hint">
+		Par défaut, l'éditeur d'image s'ouvre lorsqu'un écran est capturé. Si vous ne désirez pas utiliser l'éditeur d'images, vous pouvez le désactiver dans les <a href="#settings">Préférences</a>.
+	</p>
+
+
+	<a name="editor-shapes"></a>
+	<h3>Dessiner des formes</h3>
+	<p>
+		Sélectionnez un des outils de dessin de formes depuis la barre d'outils à gauche de l'éditeur d'images   ou du menu <em>Objet</em>. Il existe aussi une touche assignée à chaque outil, à votre convenance.<br>
+		Les formes disponibles sont: le rectangle <kbd>R</kbd>, l'ellipse <kbd>E</kbd>, la ligne <kbd>L</kbd>
+		et la flèche <kbd>A</kbd>.<br>
+		Cliquez, maintenez le bouton de la souris, et déplacez-la pour définir la position et la taille de la forme. Libérez le bouton de souris quand vous avez terminé.
+	</p>
+	<p>
+		Vous pouvez déplacer ou redimensionner des formes existantes après avoir sélectionné l'outil de sélection <kbd>ESC</kbd> depuis la barre d'outils.<br>Pour chaque type d'élément , il y a une série d'options disponibles pour changer l'aspect des éléments (par exemple, l'épaisseur du trait, la couleur de la ligne, la couleur de remplissage). Vous pouvez changer les options d'un élément existant après l'avoir sélectionné, mais également celle de l'élément que vous allez dessiner ensuite.	</p>
+	<p class="hint">
+		Vous pouvez sélectionner en une seule fois plusieurs éléments à éditer en maintenant la touche <kbd>Shift</kbd> enfoncée lorsque vous sélectionnez les éléments choisis.
+	</p>
+
+	<a name="editor-text"></a>
+	<h3>Ajouter du texte</h3>
+	<p>
+		L'utilisation de l'outil texte <kbd>T</kbd> est semblable à celle de l'outil
+		<a href="#editor-shapes">formes</a>. Dessinez simplement la boîte de texte à la taille désirée, et introduisez alors le texte.<br>Pour éditer un texte existant, double-clickez sur celui-ci.	</p>
+
+	<a name="editor-highlight"></a>
+	<h3>Mettre des éléments en surbrillance</h3>
+	<p>
+		Après avoir sélectionné l'outil de surbrillance, faites exactement comme si vouliez dessiner une <a href="#editor-shapes">forme</a>.<br>
+		Il y a plusieurs options de surbrillance que vous pouvez sélectionner en cliquant sur le bouton à gauche dans la barre d'outil au dessus.
+	</p>
+	<ul>
+		<li><em>Mettre un texte en surbrillance</em> : met en évidence un texte en lui appliquant une couleur brillante, comme le ferait un marqueur fluo</li>
+		<li><em>Mettre une zone en surbrillance</em> : floute <a href="#hint-blur">*</a> et assombrit tout ce qui est en dehors de la zone sélectionnée</li>
+		<li><em>Echelle de gris</em> : tout ce qui est en dehors de la zone sélectionnée est grisé</li>
+		<li><em>Agrandissement</em> : la zone sélectionnée est affichée agrandie.</li>
+	</ul>
+
+	<a name="editor-obfuscate"></a>
+	<h3>Masquer des éléments</h3>
+	<p>
+		Masquer des éléments de la capture d'écran est une bonne idée, à partir du moment où celle-ci contient des données confidentielles, par exemple des numéros de compte, des noms, des mots de passe, des visages.<br> Utilisez l'outil de masquage <kbd>O</kbd> exactement comme l'outil de <a href="#editor-highlight"> surbrillance</a>.<br>
+		Les options disponibles pour le masquage sont :
+	</p>
+	<ul>
+		<li><em>Pixelisation</em>: augmente la taille des pixels pour la zone sélectionnée</li>
+		<li><em>Floutage</em><a href="#hint-blur">*</a>: floute la zone sélectionnée</li>
+	</ul>
+	<a name="hint-blur"></a>
+	<p class="hint">
+		* Suivant les capacités de votre ordinateur, le floutage peut altérer les performances
+		de l'éditeur d'images Greenshot. S'il vous semble que l'éditeur d'image ralentit sensiblement en cas de floutage, essayez de réduire les valeurs de <em>Preview quality</em> dans la barre d'outils, ou diminuez la <em>taille de pixel</em>.<br>
+		Si la performance de floutage est toujours trop mauvaise, utilisez alors plutôt la pixelisation.
+	</p>
+
+	<a name="editor-crop"></a>
+	<h3>Rogner la capture d'écran</h3>
+	<p>
+		Si vous n'avez besoin que d'une partie de l'écran capturé, utilisez l'outil de rognage <kbd>C</kbd>
+		pour sélectionner uniquement la surface souhaitée.<br>
+		Après avoir sélectionné l'outil de rognage, dessinez un rectangle représentant la surface que vous souhaitez conserver. Vous pouvez modifier la taille de cet élément à votre gré.<br>
+		Lorsque vous êtes satisfait de votre sélection, confirmez votre choix dans la barre d'outil, ou tapez  <kbd>Enter</kbd>. Vous pouvez annuler le rognage via le bouton "Cancel" ou en tapant
+		<kbd>ESC</kbd>.
+	</p>
+
+	<a name="editor-reuse-elements"></a>
+	<h3>Réutilisation d'éléments dessinés</h3>
+	<p>
+		Si vous vous apercevez que vous réutilisez des éléments identiques ou similaires
+		dans vos captures d'écrans (par ex. des éléments de texte contenant le type et version du browser, ou que vous masquez le même élément sur plusieurs captures d'écrans), vous pouvez réutiliser certains éléments.<br>
+		Sélectionnez <em>Sauvegarder les objets dans un fichier</em> depuis le menu <em>Objet</em> pour sauvegarder les éléments que vous désirez réutiliser plus tard. <em>Charger les objets depuis un fichier</em> permet d'appliquer les mêmes éléments à une nouvelle capture d'écran.
+	</p>
+
+	<a name="editor-export"></a>
+	<h3>Exporter une capture d'écran</h3>
+	<p>
+		Après avoir édité votre capture d'écran, vous pouvez exporter le résultat pour différents usages, selon vos besoins.
+        Vous pouvez accéder à toutes les options d'export vie le menu <em>Fichier</em> ou via des shortcuts.
+	</p>
+	<ul>
+		<li><em>Sauvegarder</em> <kbd>Control</kbd> + <kbd>S</kbd>: sauvegarde l'image dans un fichier (si l'image a déjà été sauvegardée, sinon affiche le dialogue <em>Sauvegarder sous...</em></li>
+		<li><em>Sauvegarder sous...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: vous permet de choisir le chemin, le nom de fichier et le format du fichier à sauvegarder</li>
+		<li><em>Copier l'image vers le presse-papier</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: insère une copie de l'image dans le presse-papier, ce qui vous permet de la copier dans d'autres programmes</li>
+		<li><em>Imprimer...</em> <kbd>Control</kbd> + <kbd>P</kbd>: envoie l'image à l'imprimante</li>
+		<li><em>e-mail</em> <kbd>Control</kbd> + <kbd>E</kbd>: ouvre un nouveau message dans votre client mail par défaut, en ajoutant l'image comme annexe</li>
+	</ul>
+	<p class="hint">
+		Après avoir sauvegardé une image depuis l'éditeur, vous pouvez clicker dans la barre d'état en bas de l'éditeur (click droit) afin de soit copier le chemin de sauvegarde dans le presse-papier, soit ouvrir le répertoire dans l'explorateur Windows.
+	</p>
+
+
+	<a name="settings"></a>
+	<h2>Le dialogue "Préférences"</h2>
+
+	<a name="settings-general"></a>
+	<h3>Général</h3>
+	<ul>
+		<li><em>Langue</em> : Langue préférée.<br>
+			Vous pouvez télécharger des langues additionnelles pour Greenshot <a href="http://netcologne.dl.sourceforge.net/project/greenshot/Greenshot/Translations/">ici</a>. </li>
+		<li><em>Enregistrer les raccourcis clavier</em>: Si sélectionné, Greenshot peut être utilisé avec la touche <kbd>Print</kbd>.</li>
+		<li><em>Lancer Greenshot au démarrage</em> : Démarre le programme au boot du système.</li>
+		<li><em>Faire flasher l'écran</em> : Retour visuel lors d'une capture d'écran</li>
+		<li><em>Jouer un son d'appareil photo</em> : Retour audio lors d'une capture d'écran</li>
+		<li><em>Capturer le pointeur de la souris</em> : Si sélectionné, le pointeur de la souris sera capturé. Le pointeur sera géré comme un élément séparé dans l'éditeur, de manière à pouvoir le déplacer ou le supprimer plus tard.</li>
+		<li><em>Utiliser le mode interactif de capture de fenêtre</em> : Plutôt que de capturer directement la fenêtre active, le mode interactif vous permet de sélectionner la fenêtre à capturer. Il est également possible de capturer des fenêtres imbriquées, voir <a href="#capture-window">capturer une fenêtre</a>.</li>
+	</ul>
+
+	<a name="settings-output"></a>
+	<h3>Sortie</h3>
+	<ul>
+		<li><em>Destination de la capture d'écran</em> : Vous permet de choisir la ou les destination(s) de votre capture d'écran.</li>
+		<li><em>Préférences d'enregistrement</em> : Répertoire et nom de fichier à utiliser lors de la sauvegarde direct ou à suggérer lors de la sauvegarde avec le dialogue "sauver comme...". Cliquer sur le bouton <em>?</em> pour obtenir plus d'information sur les variables utilisables comme paramètres dans le nom de fichier.</li>
+		<li><em>Paramètres JPEG</em> : Qualité à utiliser lors d'une sauvegarde JPEG</li>
+	</ul>
+
+	<a name="settings-printer"></a>
+	<h3>Imprimante</h3>
+	<ul>
+		<li><em>Réduire aux dimensions de la page</em> : Si l'image dépasse la taille du papier, elle sera réduite aux dimensions de la page.</li>
+		<li><em>Elargir aux dimensions de la page</em> : Si l'image est inférieure à la taille du papier, elle sera élargie pour être imprimée aussi grande que possible, sans dépasser la taille du papier.</li>
+		<li><em>Tourner l'impression selon l'orientation de la page</em>: Va retourner un format d'image paysage de 90° pour l'imprimer.</li>
+	</ul>
+
+
+	<a name="help"></a>
+	<h2>Désirez-vous collaborer?</h2>
+
+	<p>
+		Actuellement, nous n'avons pas besoin d'aide au niveau développement. Cependant, il y a plusieurs choses que vous pouvez faire pour aider Greenshot et l'équipe de développement. Merci d'avance :)
+	</p>
+
+	<a name="help-donate"></a>
+	<h3>Envisagez un don</h3>
+	<p>
+		Nous nous investissons dans Greenshot et dépensons pas mal de notre temps pour développer un logiciel gratuit et opensource. Si vous avez l'impression que cela vous rend plus productif, si cela vous fait gagner du temps et de l'argent (à vous ou votre compagnie), ou si simplement vous aimez Greenshot et l'idée d'un software opensource : pensez à récompenser nos efforts par une petite participation.<br>
+		Jetez un coup d'oeil à notre site pour voir comment supporter l'équipe de développement Greenshot:<br>
+		<a href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Faites connaître l'outil</h3>
+	<p>
+		Si vous appréciez Greenshot, faites-le connaître aux autres : parlez de Greenshot à vos amis et vos collègues. Sur les sites sociaux également.<br>
+		Recommandez Greenshot dans les forums ; rajoutez des liens sur vos sites ou vos blogs.</p>
+
+	<a name="help-translate"></a>
+	<h3>Proposez une traduction</h3>
+	<p>
+		Greenshot n'est pas disponible dans votre langue préférée? Si vous vous sentez d'attaque pour traduire une partie de l'application , vous êtes plus que bienvenu.
+		Si vous êtes un utilisateur enregistré sur sourceforge.net, vous pouvez soumettre des traductions à
+		<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>.<br>
+		Assurez-vous qu'il n'y a pas de traduction dans votre langue sur
+		<a href="#">downloads page</a>. Vérifiez également sur <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>,
+		il pourrait y avoir une traduction en cours ou au moins en discussion.<br>
+		Veuillez prendre note du fait que nous ne publierons sur notre page de téléchargement que les traductions qui auront été introduites via votre compte utilisateur sourceforge.net. Vu qu'il est plus que probable que nous ne pourrons comprendre votre traduction, ce serait bien que les autres utilisateurs de sourceforge puissent vous contacter pour des améliorations ou des adaptations dans le cas d'une nouvelle version de Greenshot.
+	</p>
+	<br><br>
+<i><small>
+Des remarques, des commentaires, des corrections ?
+Merci de contacter traducere@henkart.be
+</small></i>
+
+	</body>
+</html>

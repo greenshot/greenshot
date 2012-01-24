@@ -61,23 +61,23 @@ namespace Greenshot {
 			this.btnArrow = new System.Windows.Forms.ToolStripButton();
 			this.btnText = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripSeparator15 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripSeparator16 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnHighlight = new System.Windows.Forms.ToolStripButton();
 			this.btnObfuscate = new System.Windows.Forms.ToolStripButton();
+			this.btnFreehand = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnCrop = new System.Windows.Forms.ToolStripButton();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.fileStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.copyImageToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.printToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.emailToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.duplicateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
@@ -85,6 +85,7 @@ namespace Greenshot {
 			this.objectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.addRectangleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.addEllipseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.drawFreehandToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.drawLineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.drawArrowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.addTextBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -113,6 +114,8 @@ namespace Greenshot {
 			this.btnCut = new System.Windows.Forms.ToolStripButton();
 			this.btnCopy = new System.Windows.Forms.ToolStripButton();
 			this.btnPaste = new System.Windows.Forms.ToolStripButton();
+			this.btnUndo = new System.Windows.Forms.ToolStripButton();
+			this.btnRedo = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnSettings = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
@@ -162,9 +165,10 @@ namespace Greenshot {
 			this.fileSavedStatusContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.copyPathMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openDirectoryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.btnEmail = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.insert_window_toolstripmenuitem = new System.Windows.Forms.ToolStripMenuItem();
+			this.dimensionsLabel = new System.Windows.Forms.ToolStripStatusLabel();
+			this.autoCropToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripContainer1.BottomToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.LeftToolStripPanel.SuspendLayout();
@@ -211,8 +215,7 @@ namespace Greenshot {
 			// statusStrip1
 			// 
 			this.statusStrip1.Dock = System.Windows.Forms.DockStyle.None;
-			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.statusLabel});
+			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.dimensionsLabel, this.statusLabel});
 			this.statusStrip1.Location = new System.Drawing.Point(0, 0);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(785, 22);
@@ -221,6 +224,11 @@ namespace Greenshot {
 			// 
 			// statusLabel
 			// 
+			this.statusLabel.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+									| System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+									| System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.statusLabel.BorderStyle = System.Windows.Forms.Border3DStyle.Sunken;
+			this.statusLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.statusLabel.Name = "statusLabel";
 			this.statusLabel.Size = new System.Drawing.Size(0, 17);
 			this.statusLabel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.StatusLabelClicked);
@@ -262,6 +270,7 @@ namespace Greenshot {
 									this.btnEllipse,
 									this.btnLine,
 									this.btnArrow,
+									this.btnFreehand,
 									this.btnText,
 									this.toolStripSeparator14,
 									this.btnHighlight,
@@ -300,7 +309,6 @@ namespace Greenshot {
 			this.btnRect.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnRect.Name = "btnRect";
 			this.btnRect.Size = new System.Drawing.Size(22, 20);
-			this.btnRect.Text = "Draw rectangle";
 			this.btnRect.Click += new System.EventHandler(this.BtnRectClick);
 			// 
 			// btnEllipse
@@ -311,7 +319,6 @@ namespace Greenshot {
 			this.btnEllipse.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnEllipse.Name = "btnEllipse";
 			this.btnEllipse.Size = new System.Drawing.Size(22, 20);
-			this.btnEllipse.Text = "Draw ellipse";
 			this.btnEllipse.Click += new System.EventHandler(this.BtnEllipseClick);
 			// 
 			// btnLine
@@ -322,7 +329,6 @@ namespace Greenshot {
 			this.btnLine.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnLine.Name = "btnLine";
 			this.btnLine.Size = new System.Drawing.Size(22, 20);
-			this.btnLine.Text = "Draw line";
 			this.btnLine.Click += new System.EventHandler(this.BtnLineClick);
 			// 
 			// btnArrow
@@ -333,7 +339,6 @@ namespace Greenshot {
 			this.btnArrow.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnArrow.Name = "btnArrow";
 			this.btnArrow.Size = new System.Drawing.Size(22, 20);
-			this.btnArrow.Text = "Draw arrow";
 			this.btnArrow.Click += new System.EventHandler(this.BtnArrowClick);
 			// 
 			// btnText
@@ -344,13 +349,22 @@ namespace Greenshot {
 			this.btnText.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnText.Name = "btnText";
 			this.btnText.Size = new System.Drawing.Size(22, 20);
-			this.btnText.Text = "Add text";
 			this.btnText.Click += new System.EventHandler(this.BtnTextClick);
 			// 
 			// toolStripSeparator14
 			// 
 			this.toolStripSeparator14.Name = "toolStripSeparator14";
 			this.toolStripSeparator14.Size = new System.Drawing.Size(22, 6);
+			// 
+			// toolStripSeparator15
+			// 
+			this.toolStripSeparator15.Name = "toolStripSeparator15";
+			this.toolStripSeparator15.Size = new System.Drawing.Size(22, 6);
+			// 
+			// toolStripSeparator16
+			// 
+			this.toolStripSeparator16.Name = "toolStripSeparator16";
+			this.toolStripSeparator16.Size = new System.Drawing.Size(22, 6);
 			// 
 			// btnHighlight
 			// 
@@ -359,7 +373,6 @@ namespace Greenshot {
 			this.btnHighlight.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnHighlight.Name = "btnHighlight";
 			this.btnHighlight.Size = new System.Drawing.Size(22, 20);
-			this.btnHighlight.Text = "Highlight";
 			this.btnHighlight.Click += new System.EventHandler(this.BtnHighlightClick);
 			// 
 			// btnObfuscate
@@ -369,13 +382,21 @@ namespace Greenshot {
 			this.btnObfuscate.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnObfuscate.Name = "btnObfuscate";
 			this.btnObfuscate.Size = new System.Drawing.Size(22, 20);
-			this.btnObfuscate.Text = "Obfuscate";
 			this.btnObfuscate.Click += new System.EventHandler(this.BtnObfuscateClick);
+			// 
+			// btnFreehand
+			// 
+			this.btnFreehand.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnFreehand.Image = ((System.Drawing.Image)(resources.GetObject("freehand.Image")));
+			this.btnFreehand.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnFreehand.Name = "btnFreehand";
+			this.btnFreehand.Size = new System.Drawing.Size(30, 20);
+			this.btnFreehand.Click += new System.EventHandler(this.BtnFreehandClick);
 			// 
 			// toolStripSeparator13
 			// 
 			this.toolStripSeparator13.Name = "toolStripSeparator13";
-			this.toolStripSeparator13.Size = new System.Drawing.Size(22, 6);
+			this.toolStripSeparator13.Size = new System.Drawing.Size(30, 6);
 			// 
 			// btnCrop
 			// 
@@ -384,7 +405,6 @@ namespace Greenshot {
 			this.btnCrop.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCrop.Name = "btnCrop";
 			this.btnCrop.Size = new System.Drawing.Size(22, 20);
-			this.btnCrop.Text = "Crop";
 			this.btnCrop.Click += new System.EventHandler(this.BtnCropClick);
 			// 
 			// menuStrip1
@@ -400,69 +420,13 @@ namespace Greenshot {
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(785, 24);
 			this.menuStrip1.TabIndex = 1;
-			this.menuStrip1.Text = "menuStrip1";
 			// 
 			// fileStripMenuItem
 			// 
-			this.fileStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.saveToolStripMenuItem,
-									this.saveAsToolStripMenuItem,
-									this.copyImageToClipboardToolStripMenuItem,
-									this.printToolStripMenuItem,
-									this.emailToolStripMenuItem,
-									this.toolStripSeparator9,
-									this.closeToolStripMenuItem});
 			this.fileStripMenuItem.Name = "fileStripMenuItem";
 			this.fileStripMenuItem.Size = new System.Drawing.Size(35, 20);
 			this.fileStripMenuItem.Text = "File";
-			// 
-			// saveToolStripMenuItem
-			// 
-			this.saveToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
-			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-			this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(307, 22);
-			this.saveToolStripMenuItem.Text = "Save";
-			this.saveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItemClick);
-			// 
-			// saveAsToolStripMenuItem
-			// 
-			this.saveAsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
-			this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-			this.saveAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-									| System.Windows.Forms.Keys.S)));
-			this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(307, 22);
-			this.saveAsToolStripMenuItem.Text = "Save as...";
-			this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItemClick);
-			// 
-			// copyImageToClipboardToolStripMenuItem
-			// 
-			this.copyImageToClipboardToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copyImageToClipboardToolStripMenuItem.Image")));
-			this.copyImageToClipboardToolStripMenuItem.Name = "copyImageToClipboardToolStripMenuItem";
-			this.copyImageToClipboardToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-									| System.Windows.Forms.Keys.C)));
-			this.copyImageToClipboardToolStripMenuItem.Size = new System.Drawing.Size(307, 22);
-			this.copyImageToClipboardToolStripMenuItem.Text = "Copy image to clipboard";
-			this.copyImageToClipboardToolStripMenuItem.Click += new System.EventHandler(this.CopyImageToClipboardToolStripMenuItemClick);
-			// 
-			// printToolStripMenuItem
-			// 
-			this.printToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("printToolStripMenuItem.Image")));
-			this.printToolStripMenuItem.Name = "printToolStripMenuItem";
-			this.printToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
-			this.printToolStripMenuItem.Size = new System.Drawing.Size(307, 22);
-			this.printToolStripMenuItem.Text = "Print...";
-			this.printToolStripMenuItem.Click += new System.EventHandler(this.PrintToolStripMenuItemClick);
-			// 
-			// emailToolStripMenuItem
-			// 
-			this.emailToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("emailToolStripMenuItem.Image")));
-			this.emailToolStripMenuItem.Name = "emailToolStripMenuItem";
-			this.emailToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-			this.emailToolStripMenuItem.Size = new System.Drawing.Size(307, 22);
-			this.emailToolStripMenuItem.Text = "EMail";
-			this.emailToolStripMenuItem.Click += new System.EventHandler(this.EmailToolStripMenuItemClick);
-			// 
+			this.fileStripMenuItem.DropDownOpening += new System.EventHandler(this.FileMenuDropDownOpening);
 			// toolStripSeparator9
 			// 
 			this.toolStripSeparator9.Name = "toolStripSeparator9";
@@ -477,9 +441,19 @@ namespace Greenshot {
 			this.closeToolStripMenuItem.Text = "Close";
 			this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItemClick);
 			// 
+			// autoCropToolStripMenuItem
+			// 
+			this.autoCropToolStripMenuItem.Name = "autoCropToolStripMenuItem";
+			this.autoCropToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+			this.autoCropToolStripMenuItem.Text = "Auto Crop";
+			this.autoCropToolStripMenuItem.Click += new System.EventHandler(this.AutoCropToolStripMenuItemClick);
+			// 
 			// editToolStripMenuItem
 			// 
 			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.undoToolStripMenuItem,
+									this.redoToolStripMenuItem,
+									this.toolStripSeparator15,
 									this.cutToolStripMenuItem,
 									this.copyToolStripMenuItem,
 									this.pasteToolStripMenuItem,
@@ -488,6 +462,7 @@ namespace Greenshot {
 									this.toolStripSeparator12,
 									this.preferencesToolStripMenuItem,
 									this.toolStripSeparator5,
+									this.autoCropToolStripMenuItem,
 									this.insert_window_toolstripmenuitem});
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -524,6 +499,26 @@ namespace Greenshot {
 			this.pasteToolStripMenuItem.Text = "Paste";
 			this.pasteToolStripMenuItem.Click += new System.EventHandler(this.PasteToolStripMenuItemClick);
 			// 
+			// undoToolStripMenuItem
+			// 
+			this.undoToolStripMenuItem.Enabled = false;
+			this.undoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
+			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
+			this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+			this.undoToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.undoToolStripMenuItem.Text = "Undo";
+			this.undoToolStripMenuItem.Click += new System.EventHandler(this.UndoToolStripMenuItemClick);
+			// 
+			// redoToolStripMenuItem
+			// 
+			this.redoToolStripMenuItem.Enabled = false;
+			this.redoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnRedo.Image")));
+			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
+			this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
+			this.redoToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.redoToolStripMenuItem.Text = "Redo";
+			this.redoToolStripMenuItem.Click += new System.EventHandler(this.RedoToolStripMenuItemClick);
+			// 
 			// toolStripSeparator4
 			// 
 			this.toolStripSeparator4.Name = "toolStripSeparator4";
@@ -558,6 +553,7 @@ namespace Greenshot {
 									this.addEllipseToolStripMenuItem,
 									this.drawLineToolStripMenuItem,
 									this.drawArrowToolStripMenuItem,
+									this.drawFreehandToolStripMenuItem,
 									this.addTextBoxToolStripMenuItem,
 									this.toolStripSeparator8,
 									this.selectAllToolStripMenuItem,
@@ -585,6 +581,14 @@ namespace Greenshot {
 			this.addEllipseToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
 			this.addEllipseToolStripMenuItem.Text = "Draw ellipse";
 			this.addEllipseToolStripMenuItem.Click += new System.EventHandler(this.AddEllipseToolStripMenuItemClick);
+			// 
+			// drawFreehandToolStripMenuItem
+			// 
+			this.drawFreehandToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("freehand.Image")));
+			this.drawFreehandToolStripMenuItem.Name = "drawFreehandToolStripMenuItem";
+			this.drawFreehandToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+			this.drawFreehandToolStripMenuItem.Text = "Draw freehand";
+			this.drawFreehandToolStripMenuItem.Click += new System.EventHandler(this.DrawFreehandToolStripMenuItemClick);
 			// 
 			// drawLineToolStripMenuItem
 			// 
@@ -740,16 +744,18 @@ namespace Greenshot {
 									this.btnSave,
 									this.btnClipboard,
 									this.btnPrint,
-									this.btnEmail,
 									this.toolStripSeparator2,
 									this.btnDelete,
 									this.toolStripSeparator3,
 									this.btnCut,
 									this.btnCopy,
 									this.btnPaste,
+									this.btnUndo,
+									this.btnRedo,
 									this.toolStripSeparator6,
 									this.btnSettings,
 									this.toolStripSeparator11,
+									this.toolStripSeparator16,
 									this.btnHelp});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 24);
 			this.toolStrip1.Name = "toolStrip1";
@@ -840,6 +846,25 @@ namespace Greenshot {
 			this.btnPaste.Size = new System.Drawing.Size(23, 22);
 			this.btnPaste.Text = "Paste element from clipboard";
 			this.btnPaste.Click += new System.EventHandler(this.BtnPasteClick);
+			// btnUndo
+			// 
+			this.btnUndo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnUndo.Enabled = false;
+			this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
+			this.btnUndo.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnUndo.Name = "btnUndo";
+			this.btnUndo.Size = new System.Drawing.Size(23, 22);
+			this.btnUndo.Click += new System.EventHandler(this.BtnUndoClick);
+			// 
+			// btnRedo
+			// 
+			this.btnRedo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnRedo.Enabled = false;
+			this.btnRedo.Image = ((System.Drawing.Image)(resources.GetObject("btnRedo.Image")));
+			this.btnRedo.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnRedo.Name = "btnRedo";
+			this.btnRedo.Size = new System.Drawing.Size(23, 22);
+			this.btnRedo.Click += new System.EventHandler(this.BtnRedoClick);
 			// 
 			// toolStripSeparator6
 			// 
@@ -1351,7 +1376,6 @@ namespace Greenshot {
 			this.shadowButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.shadowButton.Name = "shadowButton";
 			this.shadowButton.Size = new System.Drawing.Size(23, 20);
-			this.shadowButton.Text = "Shadow";
 			// 
 			// toolStripSeparator
 			// 
@@ -1425,16 +1449,6 @@ namespace Greenshot {
 			this.openDirectoryMenuItem.Text = "Open directory in Windows Explorer";
 			this.openDirectoryMenuItem.Click += new System.EventHandler(this.OpenDirectoryMenuItemClick);
 			// 
-			// btnEmail
-			// 
-			this.btnEmail.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnEmail.Image = ((System.Drawing.Image)(resources.GetObject("btnEmail.Image")));
-			this.btnEmail.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnEmail.Name = "btnEmail";
-			this.btnEmail.Size = new System.Drawing.Size(23, 22);
-			this.btnEmail.Text = "Email";
-			this.btnEmail.Click += new System.EventHandler(this.BtnEmailClick);
-			// 
 			// toolStripSeparator5
 			// 
 			this.toolStripSeparator5.Name = "toolStripSeparator5";
@@ -1446,6 +1460,15 @@ namespace Greenshot {
 			this.insert_window_toolstripmenuitem.Size = new System.Drawing.Size(157, 22);
 			this.insert_window_toolstripmenuitem.Text = "Insert window";
 			this.insert_window_toolstripmenuitem.MouseEnter += new System.EventHandler(this.Insert_window_toolstripmenuitemMouseEnter);
+			// 
+			// dimensionsLabel
+			//
+			this.dimensionsLabel.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.dimensionsLabel.BorderStyle = System.Windows.Forms.Border3DStyle.Sunken;
+			this.dimensionsLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.dimensionsLabel.Name = "dimensionsLabel";
+			this.dimensionsLabel.Size = new System.Drawing.Size(48, 17);
+			this.dimensionsLabel.Text = "123x321";
 			// 
 			// ImageEditorForm
 			// 
@@ -1482,9 +1505,9 @@ namespace Greenshot {
 			this.fileSavedStatusContextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.ToolStripStatusLabel dimensionsLabel;
 		private System.Windows.Forms.ToolStripMenuItem insert_window_toolstripmenuitem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
-		private System.Windows.Forms.ToolStripButton btnEmail;
 		private System.Windows.Forms.ToolStripMenuItem grayscaleHighlightMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem areaHighlightMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem textHighlightMenuItem;
@@ -1501,7 +1524,6 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripMenuItem blurToolStripMenuItem;
 		private Greenshot.Controls.BindableToolStripDropDownButton obfuscateModeButton;
 		private System.Windows.Forms.ToolStripButton btnHighlight;
-		private System.Windows.Forms.ToolStripMenuItem emailToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem loadElementsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem saveElementsToolStripMenuItem;
 		private Greenshot.Controls.FontFamilyComboBox fontFamilyComboBox;
@@ -1531,6 +1553,9 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripLabel lineThicknessLabel;
 		private Greenshot.Controls.ToolStripNumericUpDown lineThicknessUpDown;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator15;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator16;
+		private System.Windows.Forms.ToolStripButton btnFreehand;
 		private System.Windows.Forms.ToolStripButton btnObfuscate;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator13;
 		private System.Windows.Forms.ToolStripButton btnCrop;
@@ -1546,6 +1571,7 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStrip toolStrip2;
 		private System.Windows.Forms.ToolStripButton btnArrow;
 		private System.Windows.Forms.ToolStripMenuItem drawArrowToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem drawFreehandToolStripMenuItem;
 		private System.Windows.Forms.ToolStripButton btnText;
 		private System.Windows.Forms.ToolStripMenuItem drawLineToolStripMenuItem;
 		private System.Windows.Forms.ToolStripButton btnLine;
@@ -1563,29 +1589,29 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
 		private System.Windows.Forms.ToolStripButton btnPrint;
-		private System.Windows.Forms.ToolStripMenuItem printToolStripMenuItem;
 		private System.Windows.Forms.PrintDialog printDialog1;
 		private System.Windows.Forms.ToolStripMenuItem duplicateToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
 		private System.Windows.Forms.ToolStripMenuItem fileStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem removeObjectToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem addTextBoxToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem addEllipseToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem addRectangleToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem objectToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem redoToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem copyImageToClipboardToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
 		private System.Windows.Forms.MenuStrip menuStrip1;
 		private System.Windows.Forms.ToolStripStatusLabel statusLabel;
 		private System.Windows.Forms.StatusStrip statusStrip1;
 		private System.Windows.Forms.ToolStripButton btnCut;
-		private System.Windows.Forms.ToolStripButton btnPaste;
 		private System.Windows.Forms.ToolStripButton btnCopy;
+		private System.Windows.Forms.ToolStripButton btnPaste;
+		private System.Windows.Forms.ToolStripButton btnUndo;
+		private System.Windows.Forms.ToolStripButton btnRedo;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripButton btnClipboard;
 		private System.Windows.Forms.ToolStripButton btnDelete;
@@ -1600,5 +1626,6 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.NonJumpingPanel panel1;
 		private Greenshot.Controls.ToolStripColorButton btnFillColor;
 		private Greenshot.Controls.ToolStripColorButton btnLineColor;
+		private System.Windows.Forms.ToolStripMenuItem autoCropToolStripMenuItem;
 	}
 }

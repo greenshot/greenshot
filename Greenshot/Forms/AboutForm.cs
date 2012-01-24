@@ -19,12 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
+using System.IO;
 
+using Greenshot.Helpers;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Greenshot {
 	/// <summary>
@@ -41,7 +43,7 @@ namespace Greenshot {
 			
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
-			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision;
+			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable?" Portable":"") + (" (" + OSInfo.Bits +" bit)");
 			lang = Language.GetInstance();
 			updateUI();
 		}
@@ -58,14 +60,37 @@ namespace Greenshot {
 
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
 			try {
-				if (msg.WParam.ToInt32() == (int)Keys.Escape) {
-				    this.Close();
-				} else {
-				    return base.ProcessCmdKey(ref msg, keyData);
+				switch (keyData) {
+					case Keys.Escape:
+						DialogResult = DialogResult.OK;
+						break;
+					case Keys.E:
+						MessageBox.Show(EnvironmentInfo.EnvironmentToString(true));
+						break;
+					case Keys.L:
+						try {
+							if (File.Exists( MainForm.LogFileLocation)) {
+								System.Diagnostics.Process.Start("\"" + MainForm.LogFileLocation + "\"");
+							} else {
+								MessageBox.Show("Greenshot can't write to logfile, otherwise it would be here: " + MainForm.LogFileLocation);
+							}
+						} catch (Exception) {
+							MessageBox.Show("Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, "Error opening greeenshot.log", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+						}
+						break;
+					case Keys.I:
+						try {
+							System.Diagnostics.Process.Start("\"" + IniFile.IniConfig.ConfigLocation + "\"");
+						} catch (Exception) {
+							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniFile.IniConfig.ConfigLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+						}
+						break;
+					default:
+						return base.ProcessCmdKey(ref msg, keyData);
 				}
 			} catch (Exception) {
 			}
-			return base.ProcessCmdKey(ref msg,keyData);
+			return true;
 		}
 	}
 }

@@ -1,0 +1,17 @@
+{
+  "name": "Greenshot",
+  "version": "1.0",
+  "description": "Adds a Greenshot capture button",
+  "icons": { "128": "greenshot.png" },
+  "permissions": [
+		"tabs",
+		"clipboardRead",
+		"clipboardWrite",
+		"http://*/*"
+	],
+  "background_page": "background.html",
+  "browser_action": {
+   "default_icon": "greenshot.png",
+   "default_title": "Greenshot"
+  }
+}

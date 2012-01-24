@@ -19,49 +19,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
 	/// Description of ConfluenceConfiguration.
 	/// </summary>
+	[Serializable]
 	[IniSection("Confluence", Description="Greenshot Confluence Plugin configuration")]
 	public class ConfluenceConfiguration : IniSection {
 		public const string DEFAULT_POSTFIX = "/rpc/soap-axis/confluenceservice-v1?wsdl";
 		public const string DEFAULT_PREFIX = "http://";
-		private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence" + DEFAULT_POSTFIX;
+		private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence";
 
 		[IniProperty("Url", Description="Url to Confluence system, including wsdl.", DefaultValue=DEFAULT_URL)]
-		public string Url;
+		public string Url {
+			get;
+			set;
+		}
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
-		public int Timeout;
+		public int Timeout {
+			get;
+			set;
+		}
 
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+		public OutputFormat UploadFormat {
+			get;
+			set;
+		}
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
-
-		/// <summary>
-		/// A form for username/password
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-        public bool ShowConfigDialog() {
-			SettingsForm settingsForm = new SettingsForm();
-        	settingsForm.Url = Url;
-        	settingsForm.UploadFormat = UploadFormat.ToString();
-        	DialogResult result = settingsForm.ShowDialog();
-        	if (result == DialogResult.OK) {
-        		if (!settingsForm.Url.Equals(Url) || !settingsForm.UploadFormat.Equals(UploadFormat.ToString())) {
-            		Url = settingsForm.Url;
-            		UploadFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), settingsForm.UploadFormat);
-            	}
-           		IniConfig.Save();
-        		return true;
-        	}
-        	return false;
-        }
+		public int UploadJpegQuality {
+			get;
+			set;
+		}
+		[IniProperty("OpenPageAfterUpload", Description="Open the page where the picture is uploaded after upload", DefaultValue="True")]
+		public bool OpenPageAfterUpload {
+			get;
+			set;
+		}
+		[IniProperty("CopyWikiMarkupForImageToClipboard", Description="Copy the Wikimarkup for the recently uploaded image to the Clipboard", DefaultValue="True")]
+		public bool CopyWikiMarkupForImageToClipboard {
+			get;
+			set;
+		}
+		[IniProperty("SearchSpaceKey", Description="Key of last space that was searched for")]
+		public string SearchSpaceKey {
+			get;
+			set;
+		}
 	}
 }

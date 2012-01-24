@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Svenska" ietf="sv-SE" version="0.8.1">
+<language description="Svenska" ietf="sv-SE" version="0.8.1" languagegroup="1">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
@@ -95,7 +95,7 @@ Greenshot lämnar ABSOLUT INGA GARANTIER. Detta är ett gratisprogram, och du ka
 Detaljer om "GNU General Public License":
 	</resource>
 	<resource name="error_openlink">
-		Kunde inte öppna länken.
+		Kunde inte öppna länken '{0}'.
 	</resource>
 	<resource name="error_save">
 		Kunde inte spara skärmbilden. Försök hitta en bra mapp att spara i.

@@ -128,6 +128,7 @@ namespace GreenshotImgurPlugin
 			image = null;
 		}
 		public static ImgurInfo ParseResponse(string response) {
+			LOG.Debug(response);
 			ImgurInfo imgurInfo = new ImgurInfo();
 			try {
 				XmlDocument doc = new XmlDocument();

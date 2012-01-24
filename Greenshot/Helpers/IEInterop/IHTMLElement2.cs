@@ -19,17 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Greenshot.Helpers.IEInterop {
 	[ComImport, Guid("3050F434-98B5-11CF-BB82-00AA00BDCE0B"),
 	 TypeLibType(TypeLibTypeFlags.FDual),
 	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
 	public interface IHTMLElement2 {
-        [DispId(-2147417067)]
-        [return: MarshalAs(UnmanagedType.IDispatch)]
-        IHTMLRect getBoundingClientRect();
+		[DispId(-2147417067)]
+		[return: MarshalAs(UnmanagedType.IDispatch)]
+		IHTMLRect getBoundingClientRect();
+
+		IHTMLCurrentStyle currentStyle {
+			[DispId(-2147417105)]
+			[return: MarshalAs(UnmanagedType.Interface)] //IHTMLCurrentStyle
+			get;
+		}
 	}
 }

@@ -7,6 +7,9 @@
 	<resource name="label_url">
 		Url
 	</resource>
+  	<resource name="label_timeout">
+		Timeout
+	</resource>
 	<resource name="label_user">
 		Gebruiker
 	</resource>
@@ -22,11 +25,26 @@
   	<resource name="CANCEL">
 		Afbreken
 	</resource>
+  	  <resource name="upload_menu_item">
+		Upload naar Confluence
+	</resource>
   	<resource name="upload_success">
 		Het uploaden naar Confluence is geslaagt!
 	</resource>
   	<resource name="upload_failure">
 		Tijdens het uploaden naar Confluence is een fout opgetreden:
+	</resource>
+	<resource name="open_page_after_upload">
+		Open pagina na het uploaden
+	</resource>
+  	<resource name="upload_format">
+		Upload formaat
+	</resource>
+	<resource name="copy_wikimarkup">
+  		Copy the Wikimarkup for image to the Clipboard
+  	</resource>
+  	<resource name="filename">
+		Filename
 	</resource>
   </resources>
 </language>

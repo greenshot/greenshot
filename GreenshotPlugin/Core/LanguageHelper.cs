@@ -22,17 +22,24 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using System.Xml;
+
+using IniFile;
+using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core {
 	
 	public interface ILanguage {
 		void Load();
+		bool hasKey(Enum key);
+		bool hasKey(string key);
 		string GetString(Enum id);
+		string GetString(string id);
 		string GetFormattedString(Enum id, object param);
+		string GetFormattedString(string id, object param);
 		string GetHelpFilePath();
 
 		/// <summary>
@@ -42,6 +49,8 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Actuall IETF </returns>
 		string SetLanguage(string cultureInfo);
 		void SynchronizeLanguageToCulture();
+		void FreeResources();
+		
 		string CurrentLanguage {
 			get;
 		}
@@ -58,7 +67,6 @@ namespace GreenshotPlugin.Core {
 		LanguageConfiguration CurrentLanguageConfiguration {
 			get;
 		}
-
 	}
 	/// <summary>
 	/// Description of Language.
@@ -68,13 +76,36 @@ namespace GreenshotPlugin.Core {
 		private static char [] TRIMCHARS = new char[] {' ', '\t', '\n', '\r'};
 		private const string DEFAULT_LANGUAGE= "en-US";
 		private static string APPLICATIONDATA_LANGUAGE_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),@"Greenshot\Languages\");
-		private static string STARTUP_LANGUAGE_PATH = Path.Combine(Application.StartupPath, @"Languages\");
+		private static string APPLICATION_PATH = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+		private static string STARTUP_LANGUAGE_PATH = Path.Combine(APPLICATION_PATH, @"Languages");
+		private static string PAF_LANGUAGE_PATH = Path.Combine(APPLICATION_PATH, @"App\Greenshot\Languages");
 		private const string HELP_FILENAME_PATTERN = @"help-*.html";
+		private const string LANGUAGE_GROUPS_KEY = @"SYSTEM\CurrentControlSet\Control\Nls\Language Groups";
 
 		private Dictionary<string, string> strings = new Dictionary<string, string>();
 		private List<LanguageConfiguration> languages = new List<LanguageConfiguration>();
 		private string currentIETF = null;
 		private string languageFilePattern;
+		private static List<string> supportedLanguageGroups = new List<string>();
+
+		static LanguageContainer() {
+			try {
+				using (RegistryKey languageGroupsKey = Registry.LocalMachine.OpenSubKey(LANGUAGE_GROUPS_KEY, false)) {
+					if (languageGroupsKey != null) {
+						string [] groups = languageGroupsKey.GetValueNames();
+						foreach(string group in groups) {
+							string groupValue = (string)languageGroupsKey.GetValue(group);
+							bool isGroupInstalled = "1".Equals(groupValue);
+							if (isGroupInstalled) {
+								supportedLanguageGroups.Add(group.ToLower());
+							}
+						}
+					}
+				}
+			} catch(Exception e) {
+				LOG.Warn("Couldn't read the installed language groups.", e);
+			}
+		}
 
 		public LanguageContainer() {
 		}
@@ -129,7 +160,7 @@ namespace GreenshotPlugin.Core {
 		public string SetLanguage(string wantedIETF) {
 			LOG.Debug("SetLanguage called for : " + wantedIETF);
 			Dictionary<string, LanguageConfiguration> identifiedLanguages = new Dictionary<string, LanguageConfiguration>();
-						
+
 			if (languages == null || languages.Count == 0) {
 				throw new FileNotFoundException("No language files found!");
 			}
@@ -137,7 +168,11 @@ namespace GreenshotPlugin.Core {
 			// Find selected languages in available languages
 			foreach(LanguageConfiguration language in languages) {
 				LOG.Debug("Found language: " + language.Ietf);
-				identifiedLanguages.Add(language.Ietf, language);
+				if (!identifiedLanguages.ContainsKey(language.Ietf)) {
+					identifiedLanguages.Add(language.Ietf, language);
+				} else {
+					LOG.WarnFormat("Found double language file: {0}", language.File);
+				}
 			}
 			
 			LanguageConfiguration selectedLanguage = null;
@@ -181,11 +216,22 @@ namespace GreenshotPlugin.Core {
 			foreach(Resource resource in selectedLanguage.Resources) {
 				AddResource(resource);
 			}
+			
+			// Make sure we have all the missing resources, right after setting the language
+			// this way we can free all other resources.
+			AdoptMissingResourcesFromDefaultLanguage();
 
 			currentIETF = selectedLanguage.Ietf;
 			Thread.CurrentThread.CurrentUICulture = new CultureInfo(currentIETF);
 
 			return currentIETF;
+		}
+		
+		/// <summary>
+		/// Free all language resources which aren't needed
+		/// </summary>
+		public void FreeResources() {
+			languages = null;
 		}
 
 		private void AddResource(Resource resource) {
@@ -205,18 +251,32 @@ namespace GreenshotPlugin.Core {
 		private List<LanguageConfiguration> LoadFiles(string languageFilePattern) {
 			List<LanguageConfiguration> loadedLanguages = new List<LanguageConfiguration>();
 			List<string> languageDirectories = new List<string>();
+			if (IniConfig.IsPortable) {
+				languageDirectories.Add(PAF_LANGUAGE_PATH);
+			} else {
+				languageDirectories.Add(APPLICATIONDATA_LANGUAGE_PATH);
+			}
 			languageDirectories.Add(STARTUP_LANGUAGE_PATH);
-			languageDirectories.Add(APPLICATIONDATA_LANGUAGE_PATH);
 			foreach(string path in languageDirectories) {
 				// Search in executable directory
-				if (Directory.Exists(path)) {
+				LOG.DebugFormat("Searching language directory '{0}' for language files with pattern '{1}'", path, languageFilePattern);
+				try {
 					foreach(string languageFile in Directory.GetFiles(path, languageFilePattern, SearchOption.AllDirectories)) {
+						LOG.DebugFormat("Found language file: {0}", languageFile);
 						LanguageConfiguration languageConfig = LanguageConfiguration.Load(languageFile);
 						if (languageConfig != null) {
-							LOG.Info("Loaded language: " + languageConfig.Description);
-							loadedLanguages.Add(languageConfig);
+							if (string.IsNullOrEmpty(languageConfig.LanguageGroup) || supportedLanguageGroups.Contains(languageConfig.LanguageGroup)) {
+								LOG.InfoFormat("Loaded language: {0}", languageConfig.Description);
+								loadedLanguages.Add(languageConfig);
+							} else {
+								LOG.InfoFormat("Skipping unsupported language: {0}", languageConfig.Description);
+							}
 						}
 					}
+				} catch (DirectoryNotFoundException) {
+					LOG.InfoFormat("Non existing language directory: {0}", path);
+				} catch (Exception e) {
+					LOG.Error("Error trying for read directory " + path, e);
 				}
 			}
 			return loadedLanguages;
@@ -289,26 +349,36 @@ namespace GreenshotPlugin.Core {
 			EnumClass.AppendLine("}");
 			LOG.Debug("LangKeys should be: \r\n" + EnumClass.ToString());
 		}
+		
+		public bool hasKey(Enum key) {
+			return hasKey(key.ToString());
+		}
 
-		public string GetString(Enum id) {
-			if(!strings.ContainsKey(id.ToString())) {
-				AdoptMissingResourcesFromDefaultLanguage();
-			}
+		public bool hasKey(string key) {
+			return strings.ContainsKey(key);
+		}
+
+		public string GetString(Enum key) {
+			return GetString(key.ToString());
+		}
+
+		public string GetString(string key) {
 			try {
-				return strings[id.ToString()];
+				return strings[key];
 			} catch (KeyNotFoundException) {
-				return "string ###"+id+"### not found";
+				return "string ###"+key+"### not found";
 			}
 		}
 
-		public string GetFormattedString(Enum id, object param) {
-			if(!strings.ContainsKey(id.ToString())) {
-				AdoptMissingResourcesFromDefaultLanguage();
-			}
+		public string GetFormattedString(Enum key, object param) {
+			return GetFormattedString(key.ToString(), param);
+		}
+
+		public string GetFormattedString(string key, object param) {
 			try {
-				return String.Format(strings[id.ToString()], param);
+				return String.Format(strings[key], param);
 			} catch (KeyNotFoundException) {
-				return "string ###"+id+"### not found";
+				return "string ###"+key+"### not found";
 			}
 		}
 		
@@ -399,6 +469,16 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
+		public string languageGroup;
+		public string LanguageGroup {
+			get {
+				return languageGroup;
+			}
+			set {
+				languageGroup = value;
+			}
+		}
+		
 		public string file;
 		public string File {
 			get {
@@ -431,6 +511,10 @@ namespace GreenshotPlugin.Core {
 					ret.Description = node.Attributes["description"].Value;
 					ret.Ietf = node.Attributes["ietf"].Value;
 					ret.Version = node.Attributes["version"].Value;
+					if (node.Attributes["languagegroup"] != null) {
+						string languageGroup = node.Attributes["languagegroup"].Value;
+						ret.LanguageGroup = languageGroup.ToLower();
+					}
 					
 					XmlNodeList resourceNodes = doc.GetElementsByTagName("resource");
 					ret.Resources = new List<Resource>(resourceNodes.Count);

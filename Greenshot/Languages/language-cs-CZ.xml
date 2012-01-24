@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Čeština" ietf="cs-CZ" version="0.8.1">
+<language description="Čeština" ietf="cs-CZ" version="0.8.1" languagegroup="2">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 

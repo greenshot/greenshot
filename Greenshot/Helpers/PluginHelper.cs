@@ -23,55 +23,30 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
 using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// The PluginHelper takes care of all plugin related functionality
 	/// </summary>
 	[Serializable]
-	public class PluginHelper : IGreenshotPluginHost {
+	public class PluginHelper : IGreenshotHost {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PluginHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
-		public static string configpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
-		public static string applicationpath = Path.GetDirectoryName(Application.ExecutablePath);
+		public static string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
+		public static string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
+		public static string pafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
 		public static readonly PluginHelper instance = new PluginHelper();
 
 		private static Dictionary<PluginAttribute, IGreenshotPlugin> plugins = new Dictionary<PluginAttribute, IGreenshotPlugin>();
 
 		private PluginHelper() {
-		}
-
-		public string ConfigurationPath {
-			get {return configpath;}
-		}
-		
-		public void CreateImageEditorOpenEvent(IImageEditor imageEditor) {
-			if (OnImageEditorOpen != null) {
-				ImageEditorOpenEventArgs eventArgs = new ImageEditorOpenEventArgs(imageEditor);
-				OnImageEditorOpen(this, eventArgs);
-			}
-		}
-		
-		public void CreateCaptureTakenEvent(ICapture capture) {
-			if (OnCaptureTaken != null) {
-				CaptureTakenEventArgs eventArgs = new CaptureTakenEventArgs(capture);
-				OnCaptureTaken(this, eventArgs);
-			}
-		}
-
-		public void CreateSurfaceFromCaptureEvent(ICapture capture, ISurface surface) {
-			if (OnSurfaceFromCapture != null) {
-				SurfaceFromCaptureEventArgs eventArgs = new SurfaceFromCaptureEventArgs(capture, surface);
-				OnSurfaceFromCapture(this, eventArgs);
-			}
 		}
 
 		public bool HasPlugins() {
@@ -89,10 +64,10 @@ namespace Greenshot.Helpers {
 		public void FillListview(ListView listview) {
 			foreach(PluginAttribute pluginAttribute in plugins.Keys) {
 				ListViewItem item = new ListViewItem(pluginAttribute.Name);
-                item.SubItems.Add(pluginAttribute.Version);
-                item.SubItems.Add(pluginAttribute.DllFile);
-                item.Tag = pluginAttribute;
-                listview.Items.Add(item);
+				item.SubItems.Add(pluginAttribute.Version);
+				item.SubItems.Add(pluginAttribute.DllFile);
+				item.Tag = pluginAttribute;
+				listview.Items.Add(item);
 			}
 		}
 		
@@ -117,13 +92,24 @@ namespace Greenshot.Helpers {
 		}
 
 		#region Implementation of IGreenshotPluginHost
-		public event OnImageEditorOpenHandler OnImageEditorOpen;
-		public event OnCaptureTakenHandler OnCaptureTaken;
-		public event OnSurfaceFromCaptureHandler OnSurfaceFromCapture;
 		private ContextMenuStrip mainMenu = null;
+
+		public ILanguage CoreLanguage {
+			get {
+				return Language.GetInstance();
+			}
+		}
 
 		public void SaveToStream(Image img, Stream stream, OutputFormat extension, int quality) {
 			ImageOutput.SaveToStream(img, stream, extension, quality);
+		}
+
+		public string SaveToTmpFile(Image img, OutputFormat outputFormat, int quality) {
+			return ImageOutput.SaveToTmpFile(img, outputFormat, quality);
+		}
+		
+		public string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality) {
+			return ImageOutput.SaveNamedTmpFile(image, captureDetails, outputFormat, quality);
 		}
 		
 		public string GetFilename(OutputFormat format, ICaptureDetails captureDetails) {
@@ -159,6 +145,36 @@ namespace Greenshot.Helpers {
 			get {return plugins;}
 		}
 
+		/// <summary>
+		/// Make Capture with specified Handler
+		/// </summary>
+		/// <param name="captureMouseCursor">bool false if the mouse should not be captured, true if the configuration should be checked</param>
+		/// <param name="destination">IDestination</param>
+		public void CaptureRegion(bool captureMouseCursor, IDestination destination) {
+			CaptureHelper.CaptureRegion(captureMouseCursor, destination);
+		}
+
+		/// <summary>
+		/// Use the supplied image, and handle it as if it's captured.
+		/// </summary>
+		/// <param name="imageToImport">Image to handle</param>
+		public void ImportCapture(ICapture captureToImport) {
+			MainForm.instance.BeginInvoke((MethodInvoker)delegate {
+				CaptureHelper.ImportCapture(captureToImport);
+			});
+		}
+		
+		/// <summary>
+		/// Get an ICapture object, so the plugin can modify this
+		/// </summary>
+		/// <returns></returns>
+		public ICapture GetCapture(Image imageToCapture) {
+			Capture capture = new Capture(imageToCapture);
+			capture.CaptureDetails = new CaptureDetails();
+			capture.CaptureDetails.CaptureMode = CaptureMode.Import;
+			capture.CaptureDetails.Title = "Imported";
+			return capture;
+		}
 		#endregion
 
 		#region Plugin loading
@@ -188,21 +204,27 @@ namespace Greenshot.Helpers {
 			return false;
 		}
 
-		public void LoadPlugins(MainForm mainForm, ICaptureHost captureHost) {
+		public void LoadPlugins(MainForm mainForm) {
 			// Copy ContextMenu
 			mainMenu = mainForm.MainMenu;
 			
 			List<string> pluginFiles = new List<string>();
 
-			if (Directory.Exists(configpath)) {
-				foreach(string pluginFile in Directory.GetFiles(configpath, "*.gsp", SearchOption.AllDirectories)) {
+			if (IniConfig.IsPortable && Directory.Exists(pafPath)) {
+				foreach(string pluginFile in Directory.GetFiles(pafPath, "*.gsp", SearchOption.AllDirectories)) {
 					pluginFiles.Add(pluginFile);
 				}
-			}
-
-			if (Directory.Exists(applicationpath)) {
-				foreach(string pluginFile in Directory.GetFiles(applicationpath, "*.gsp", SearchOption.AllDirectories)) {
-					pluginFiles.Add(pluginFile);
+			} else {
+				if (Directory.Exists(pluginPath)) {
+					foreach(string pluginFile in Directory.GetFiles(pluginPath, "*.gsp", SearchOption.AllDirectories)) {
+						pluginFiles.Add(pluginFile);
+					}
+				}
+	
+				if (Directory.Exists(applicationPath)) {
+					foreach(string pluginFile in Directory.GetFiles(applicationPath, "*.gsp", SearchOption.AllDirectories)) {
+						pluginFiles.Add(pluginFile);
+					}
 				}
 			}
 
@@ -269,23 +291,30 @@ namespace Greenshot.Helpers {
 				}
 			}
 			foreach(string pluginName in tmpAttributes.Keys) {
-				PluginAttribute pluginAttribute = tmpAttributes[pluginName];
-				Assembly assembly = tmpAssemblies[pluginName];
-				Type entryType = assembly.GetType(pluginAttribute.EntryType);
-				if (entryType == null) {
-					LOG.ErrorFormat("Can't find the in the PluginAttribute referenced type {0} in \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
-					continue;
-				}
 				try {
-					IGreenshotPlugin plugin = (IGreenshotPlugin)Activator.CreateInstance(entryType);
-					if (plugin != null) {
-						plugin.Initialize(this, captureHost, pluginAttribute);
-						plugins.Add(pluginAttribute, plugin);
-					} else {
-						LOG.ErrorFormat("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
+					PluginAttribute pluginAttribute = tmpAttributes[pluginName];
+					Assembly assembly = tmpAssemblies[pluginName];
+					Type entryType = assembly.GetType(pluginAttribute.EntryType);
+					if (entryType == null) {
+						LOG.ErrorFormat("Can't find the in the PluginAttribute referenced type {0} in \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
+						continue;
+					}
+					try {
+						IGreenshotPlugin plugin = (IGreenshotPlugin)Activator.CreateInstance(entryType);
+						if (plugin != null) {
+							if (plugin.Initialize(this, pluginAttribute)) {
+								plugins.Add(pluginAttribute, plugin);
+							} else {
+								LOG.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
+							}
+						} else {
+							LOG.ErrorFormat("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
+						}
+					} catch(Exception e) {
+						LOG.Error("Can't load Plugin: " + pluginAttribute.Name, e);
 					}
 				} catch(Exception e) {
-					LOG.Error("Can't load Plugin: " + pluginAttribute.Name, e);
+					LOG.Error("Can't load Plugin: " + pluginName, e);
 				}
 			}
 		}

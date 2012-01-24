@@ -58,7 +58,7 @@ namespace Greenshot.Forms {
 			this.comboBoxLanguage.FormattingEnabled = true;
 			this.comboBoxLanguage.Location = new System.Drawing.Point(13, 15);
 			this.comboBoxLanguage.Name = "comboBoxLanguage";
-			this.comboBoxLanguage.Size = new System.Drawing.Size(299, 21);
+			this.comboBoxLanguage.Size = new System.Drawing.Size(360, 21);
 			this.comboBoxLanguage.TabIndex = 3;
 			// 
 			// btnOK
@@ -76,17 +76,19 @@ namespace Greenshot.Forms {
 			this.AcceptButton = this.btnOK;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(327, 77);
-			this.ControlBox = false;
+			this.ClientSize = new System.Drawing.Size(390, 77);
+			this.ControlBox = true;
 			this.Controls.Add(this.btnOK);
 			this.Controls.Add(this.comboBoxLanguage);
 			this.Controls.Add(this.lblSelectLanguage);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "LanguageDialog";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.Text = "Choose language / Sprache wählen / Taal kiezen";
+			this.Text = "Greenshot: Choose language / Sprache wählen / Taal kiezen";
+			this.TopMost = true;
 			this.ResumeLayout(false);
 		}
 		private System.Windows.Forms.Label lblSelectLanguage;

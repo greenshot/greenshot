@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<language description="Suomi" ietf="fi-FI" version="0.8.1">
+<language description="Suomi" ietf="fi-FI" version="0.8.1" languagegroup="1">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
@@ -93,7 +93,7 @@ Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are 
 Details about the GNU General Public License:
 	</resource>
 	<resource name="error_openlink">
-		Linkin avaaminen epäonnistui.
+		Linkin '{0}' avaaminen epäonnistui.
 	</resource>
 	<resource name="error_save">
 		Kuvan tallennus epäonnistui. Valitse uusi tallennuspaikka.

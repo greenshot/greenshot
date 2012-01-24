@@ -19,17 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
-using System.Drawing;
 using System.IO;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -168,7 +164,7 @@ namespace Greenshot.Forms {
 		
 		private string GetRootDirFromConfig() {
 			string rootDir = conf.OutputFilePath;
-			rootDir = FilenameHelper.FillVariables(rootDir);
+			rootDir = FilenameHelper.FillVariables(rootDir, false);
 			return rootDir;
 		}
 		
@@ -178,10 +174,14 @@ namespace Greenshot.Forms {
 		}
 		
 		private void CleanUp() {
-			if(eagerlyCreatedDirectory!=null
-			   && eagerlyCreatedDirectory.GetFiles().Length==0 
-			   && eagerlyCreatedDirectory.GetDirectories().Length==0) {
-				eagerlyCreatedDirectory.Delete();
+			// fix for bug #3379053
+			try {
+				if(eagerlyCreatedDirectory != null && eagerlyCreatedDirectory.GetFiles().Length == 0  && eagerlyCreatedDirectory.GetDirectories().Length == 0) {
+					eagerlyCreatedDirectory.Delete();
+					eagerlyCreatedDirectory = null;
+				}
+			} catch (Exception e) {
+				LOG.WarnFormat("Couldn't cleanup directory due to: {0}", e.Message);
 				eagerlyCreatedDirectory = null;
 			}
 		}

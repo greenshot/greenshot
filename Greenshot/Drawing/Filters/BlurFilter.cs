@@ -16,15 +16,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.Serialization;
-using System.Windows.Forms;
-
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
-using Greenshot.Drawing.Filters;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Drawing.Filters {
     [Serializable()] 
@@ -78,14 +73,13 @@ namespace Greenshot.Drawing.Filters {
 		        	int r = blurRadius;
 		            int[] w = CreateGaussianBlurRow(r);
 		            int wlen = w.Length;
-
+	            	long[] waSums = new long[wlen];
+	                long[] wcSums = new long[wlen];
+	                long[] aSums = new long[wlen];
+	                long[] bSums = new long[wlen];
+	                long[] gSums = new long[wlen];
+	                long[] rSums = new long[wlen];
 		            for (int y = 0; y < applyRect.Height; ++y) {
-		                long* waSums = stackalloc long[wlen];
-		                long* wcSums = stackalloc long[wlen];
-		                long* aSums = stackalloc long[wlen];
-		                long* bSums = stackalloc long[wlen];
-		                long* gSums = stackalloc long[wlen];
-		                long* rSums = stackalloc long[wlen];
 		                long waSum = 0;
 		                long wcSum = 0;
 		                long aSum = 0;

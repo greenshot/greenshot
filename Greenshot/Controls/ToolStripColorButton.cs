@@ -24,9 +24,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
-using GreenshotPlugin.Core;
-
 namespace Greenshot.Controls {
 	public class ToolStripColorButton : ToolStripButton, INotifyPropertyChanged {
 		public event PropertyChangedEventHandler PropertyChanged;

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Polski" ietf="pl-PL" version="0.8.1">
+<language description="Polski" ietf="pl-PL" version="0.8.1" languagegroup="2">
   <resources>
 	<resource name="about_translation">
 		Polskie tłumaczenie: Paweł Matyja

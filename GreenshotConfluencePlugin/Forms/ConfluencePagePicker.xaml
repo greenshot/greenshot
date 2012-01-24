@@ -1,0 +1,12 @@
+﻿<Page x:Class="GreenshotConfluencePlugin.ConfluencePagePicker"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:TranslationByMarkupExtension" Loaded="Page_Loaded">
+	<ListView Name="PageListView" SelectionMode="Single" ItemsSource="{Binding}" SelectionChanged="PageListView_SelectionChanged" Width="480" Height="500">
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <Label Content="{Binding Title}"/>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
+</Page>

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <!-- Unique ID for extension. Can be in e-mail address format or GUID format -->
+    <em:id>greenshot@getgreenshot.org</em:id>
+    <!-- Indicates that this add-on is an extension -->
+    <em:type>2</em:type>
+    <!-- Extension name displayed in Add-on Manager -->
+    <em:name>Greenshot</em:name>
+    <!-- Extension version number. There is a version numbering scheme you must follow -->
+    <em:version>0.1</em:version>
+    <!-- Brief description displayed in Add-on Manager -->
+    <em:description>A simple capture to Greenshot extension.</em:description>
+    <!-- Name of extension's primary developer. Change to your name -->
+    <em:creator>Lakritzator</em:creator>
+    <!-- Web page address through which extension is distributed -->
+    <em:homepageURL>http://getgreenshot.org</em:homepageURL>
+    <!-- This section gives details of the target application for the extension (in this case: Firefox 2) -->
+	<em:iconURL>chrome://greenshot/skin/greenshot90.png</em:iconURL>
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>3.5.*</em:minVersion>
+        <em:maxVersion>10.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+  </Description>
+</RDF>

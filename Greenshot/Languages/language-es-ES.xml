@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Español" ietf="es-ES" version="0.8.1">
+<language description="Español" ietf="es-ES" version="0.8.1" languagegroup="1">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
@@ -93,7 +93,7 @@ Greenshot viene ABSOLUTAMENTE SIN GARANTIA. Este es software gratuito, y eres bi
 Detalles acerca de la Licencia General Publica GNU:
 	</resource>
 	<resource name="error_openlink">
-		No se puede abrir la dirección.
+		No se puede abrir la dirección '{0}'.
 	</resource>
 	<resource name="error_save">
 		No se puede guardar la captura, por favor busque una ubicación adecuada.
@@ -254,7 +254,7 @@ Porfavor desactive el programa haciendo uso del boton imprimir. Tu puedes tambi�
 		Guardar directamente (Usando los valores debajo)
 	</resource>
 	<resource name="settings_destination_clipboard">
-		CCopiar al portapapeles
+		Copiar al portapapeles
 	</resource>
 	<resource name="editor_drawline">
 		Dibujar linea (L)

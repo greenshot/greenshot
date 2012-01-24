@@ -21,18 +21,16 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
-using System.Threading;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using Greenshot.Helpers.OfficeInterop;
-using Greenshot.Plugin;
-using Greenshot.UnmanagedHelpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
+using Greenshot.Plugin;
+using IniFile;
 
 namespace Greenshot {
 	/// <summary>
@@ -42,7 +40,7 @@ namespace Greenshot {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
 		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-		ILanguage lang;
+		private ILanguage lang;
 		private ToolTip toolTip;
 		
 		public SettingsForm() {
@@ -60,15 +58,93 @@ namespace Greenshot {
 			toolTip = new ToolTip();
 			AddPluginTab();
 			this.combobox_primaryimageformat.Items.AddRange(new object[]{OutputFormat.bmp, OutputFormat.gif, OutputFormat.jpg, OutputFormat.png, OutputFormat.tiff});
-			this.combobox_emailformat.Items.AddRange(new object[]{EmailFormat.TXT, EmailFormat.HTML});
-			this.combobox_window_capture_mode.Items.AddRange(new object[]{WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI});
-			if (DWM.isDWMEnabled()) {
-				this.combobox_window_capture_mode.Items.Add(WindowCaptureMode.Aero);
-				this.combobox_window_capture_mode.Items.Add(WindowCaptureMode.AeroTransparent);
-			}
 			UpdateUI();
 			DisplaySettings();
 			CheckSettings();
+		}
+		
+		/// <summary>
+		/// This is a method to popululate the ComboBox
+		/// with the items from the enumeration
+		/// </summary>
+		/// <param name="comboBox">ComboBox to populate</param>
+		/// <param name="enumeration">Enum to populate with</param>
+		private void PopulateComboBox<ET>(ComboBox comboBox) {
+			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
+			PopulateComboBox<ET>(comboBox, availableValues, availableValues[0]);
+		}
+
+		/// <summary>
+		/// This is a method to popululate the ComboBox
+		/// with the items from the enumeration
+		/// </summary>
+		/// <param name="comboBox">ComboBox to populate</param>
+		/// <param name="enumeration">Enum to populate with</param>
+		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) {
+			comboBox.Items.Clear();
+			string enumTypeName = typeof(ET).Name;
+			foreach(ET enumValue in availableValues) {
+				string translation = lang.GetString(enumTypeName + "." + enumValue.ToString());
+				comboBox.Items.Add(translation);
+			}
+			comboBox.SelectedItem = lang.GetString(enumTypeName + "." + selectedValue.ToString());
+		}
+		
+		
+		/// <summary>
+		/// Get the selected enum value from the combobox, uses generics
+		/// </summary>
+		/// <param name="comboBox">Combobox to get the value from</param>
+		/// <returns>The generics value of the combobox</returns>
+		private ET GetSelected<ET>(ComboBox comboBox) {
+			string enumTypeName = typeof(ET).Name;
+			string selectedValue = comboBox.SelectedItem as string;
+			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
+			ET returnValue = availableValues[0];
+			foreach(ET enumValue in availableValues) {
+				string translation = lang.GetString(enumTypeName + "." + enumValue.ToString());
+				if (translation.Equals(selectedValue)) {
+					returnValue = enumValue;
+					break;
+				}
+			}
+			return returnValue;
+		}
+		
+		private void SetEmailFormat(EmailFormat selectedEmailFormat) {
+			// TODO: Fix!!
+			// Setup the email settings
+			EmailFormat [] availableValues;
+			if (EmailConfigHelper.HasMAPI()) {
+				//checkbox_email.Enabled = true;
+				//combobox_emailformat.Visible = true;
+				if (EmailConfigHelper.HasOutlook()) {
+					availableValues = new EmailFormat[]{EmailFormat.MAPI, EmailFormat.OUTLOOK_TXT, EmailFormat.OUTLOOK_HTML};
+				} else {
+					// Force MAPI in configuration if no Outlook
+					coreConfiguration.OutputEMailFormat = EmailFormat.MAPI;
+					availableValues = new EmailFormat[]{EmailFormat.MAPI};
+				}
+				//PopulateComboBox<EmailFormat>(combobox_emailformat, availableValues, selectedEmailFormat);
+			} else {
+				//checkbox_email.Enabled = false;
+				//checkbox_email.Checked = false;
+				//combobox_emailformat.Visible = false;
+			}
+		}
+		
+		private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode) {
+			WindowCaptureMode[] availableModes;
+			if (!DWM.isDWMEnabled()) {
+				// Remove DWM from configuration, as DWM is disabled!
+				if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent) {
+					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;
+				}
+				availableModes = new WindowCaptureMode[]{WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI};
+			} else {
+				availableModes = new WindowCaptureMode[]{WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI, WindowCaptureMode.Aero, WindowCaptureMode.AeroTransparent};
+			}
+			PopulateComboBox<WindowCaptureMode>(combobox_window_capture_mode, availableModes, selectedWindowCaptureMode);
 		}
 		
 		private void AddPluginTab() {
@@ -133,13 +209,7 @@ namespace Greenshot {
 			this.checkbox_autostartshortcut.Text = lang.GetString(LangKey.settings_autostartshortcut);
 			
 			this.groupbox_destination.Text = lang.GetString(LangKey.settings_destination);
-			this.checkbox_clipboard.Text = lang.GetString(LangKey.settings_destination_clipboard);
-			this.checkbox_printer.Text = lang.GetString(LangKey.settings_destination_printer);
-			this.checkbox_file.Text = lang.GetString(LangKey.settings_destination_file);
-			this.checkbox_fileas.Text = lang.GetString(LangKey.settings_destination_fileas);
-			this.checkbox_editor.Text = lang.GetString(LangKey.settings_destination_editor);
-			this.checkbox_email.Text = lang.GetString(LangKey.settings_destination_email);
-			
+		
 			this.groupbox_preferredfilesettings.Text = lang.GetString(LangKey.settings_preferredfilesettings);
 			
 			this.label_storagelocation.Text = lang.GetString(LangKey.settings_storagelocation);
@@ -177,7 +247,9 @@ namespace Greenshot {
 			// Initialize the Language ComboBox
 			this.combobox_language.DisplayMember = "Description";
 			this.combobox_language.ValueMember = "Ietf";
-			this.combobox_language.SelectedValue = lang.CurrentLanguage;
+			if (lang.CurrentLanguage != null) {
+				this.combobox_language.SelectedValue = lang.CurrentLanguage;
+			}
 			// Set datasource last to prevent problems
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
 			this.combobox_language.DataSource = lang.SupportedLanguages;
@@ -189,7 +261,7 @@ namespace Greenshot {
 		// Check the settings and somehow visibly mark when something is incorrect
 		private bool CheckSettings() {
 			bool settingsOk = true;
-			if(!Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text))) {
+			if(!Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text, false))) {
 				textbox_storagelocation.BackColor = Color.Red;
 				settingsOk = false;
 			} else {
@@ -207,18 +279,15 @@ namespace Greenshot {
 			colorButton_window_background.SelectedColor = coreConfiguration.DWMBackgroundColor;
 			
 			checkbox_ie_capture.Checked = coreConfiguration.IECapture;
-			combobox_language.SelectedValue = lang.CurrentLanguage;
-			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath);
+			if (lang.CurrentLanguage != null) {
+				combobox_language.SelectedValue = lang.CurrentLanguage;
+			}
+			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
 			textbox_screenshotname.Text = coreConfiguration.OutputFileFilenamePattern;
 			combobox_primaryimageformat.SelectedItem = coreConfiguration.OutputFileFormat;
-			combobox_emailformat.SelectedItem = coreConfiguration.OutputEMailFormat;
-			if (!DWM.isDWMEnabled()) {
-				// Remove DWM from configuration, as DWM is disabled!
-				if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent) {
-					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;
-				}
-			}
-			combobox_window_capture_mode.SelectedItem = coreConfiguration.WindowCaptureMode;
+			
+			SetEmailFormat(coreConfiguration.OutputEMailFormat);
+			SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
 
 			checkbox_copypathtoclipboard.Checked = coreConfiguration.OutputFileCopyPathToClipboard;
 			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
@@ -226,12 +295,16 @@ namespace Greenshot {
 			checkbox_alwaysshowjpegqualitydialog.Checked = coreConfiguration.OutputFilePromptJpegQuality;
 			checkbox_playsound.Checked = coreConfiguration.PlayCameraSound;
 			
-			checkbox_clipboard.Checked = coreConfiguration.OutputDestinations.Contains(Destination.Clipboard);
-			checkbox_file.Checked = coreConfiguration.OutputDestinations.Contains(Destination.FileDefault);
-			checkbox_fileas.Checked = coreConfiguration.OutputDestinations.Contains(Destination.FileWithDialog);
-			checkbox_printer.Checked = coreConfiguration.OutputDestinations.Contains(Destination.Printer);
-			checkbox_editor.Checked = coreConfiguration.OutputDestinations.Contains(Destination.Editor);
-			checkbox_email.Checked = coreConfiguration.OutputDestinations.Contains(Destination.EMail);
+			checkedDestinationsListBox.Items.Clear();
+			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
+				checkedDestinationsListBox.Items.Add(destination, coreConfiguration.OutputDestinations.Contains(destination.Designation));
+			}
+//			checkbox_clipboard.Checked = coreConfiguration.OutputDestinations.Contains("Clipboard");
+//			checkbox_file.Checked = coreConfiguration.OutputDestinations.Contains("File");
+//			checkbox_fileas.Checked = coreConfiguration.OutputDestinations.Contains("FileWithDialog");
+//			checkbox_printer.Checked = coreConfiguration.OutputDestinations.Contains("Printer");
+//			checkbox_editor.Checked = coreConfiguration.OutputDestinations.Contains("Editor");
+//			checkbox_email.Checked = coreConfiguration.OutputDestinations.Contains("EMail");
 
 			checkboxPrintInverted.Checked = coreConfiguration.OutputPrintInverted;
 			checkboxAllowCenter.Checked = coreConfiguration.OutputPrintCenter;
@@ -257,46 +330,43 @@ namespace Greenshot {
 				checkbox_autostartshortcut.Checked = StartupHelper.checkRunUser();
 			}
 			
-			if (!MapiMailMessage.HasMAPIorOutlook()) {
-				// Disable MAPI functionality as it's not available
-				checkbox_email.Enabled = false;
-				checkbox_email.Checked = false;
-				combobox_emailformat.Visible = false;
-			} else {
-				// Enable MAPI functionality
-				checkbox_email.Enabled = true;
-				if (OutlookExporter.HasOutlook()) {
-					combobox_emailformat.Visible = true;
-				}
-			}
-			
 			checkbox_usedefaultproxy.Checked = coreConfiguration.UseProxy;
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
+			CheckDestinationSettings();
 		}
 
 		private void SaveSettings() {
-			coreConfiguration.Language = combobox_language.SelectedValue.ToString();
+			if (combobox_language.SelectedItem != null) {
+				coreConfiguration.Language = combobox_language.SelectedValue.ToString();
+			}
 
-			coreConfiguration.WindowCaptureMode = (WindowCaptureMode)combobox_window_capture_mode.SelectedItem;
+			coreConfiguration.WindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			coreConfiguration.OutputFileFilenamePattern = textbox_screenshotname.Text;
-			if (!FilenameHelper.FillVariables(coreConfiguration.OutputFilePath).Equals(textbox_storagelocation.Text)) {
+			if (!FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false).Equals(textbox_storagelocation.Text)) {
 				coreConfiguration.OutputFilePath = textbox_storagelocation.Text;
 			}
-			coreConfiguration.OutputFileFormat = (OutputFormat)combobox_primaryimageformat.SelectedItem;
-			coreConfiguration.OutputEMailFormat = (EmailFormat)combobox_emailformat.SelectedItem;
+			if (combobox_primaryimageformat.SelectedItem != null) {
+				coreConfiguration.OutputFileFormat = (OutputFormat)combobox_primaryimageformat.SelectedItem;
+			} else {
+				coreConfiguration.OutputFileFormat = OutputFormat.png;
+			}
+
+			// TODO: Fix
+			//coreConfiguration.OutputEMailFormat = GetSelected<EmailFormat>(combobox_emailformat);
+			coreConfiguration.OutputEMailFormat = EmailFormat.OUTLOOK_HTML;
 
 			coreConfiguration.OutputFileCopyPathToClipboard = checkbox_copypathtoclipboard.Checked;
 			coreConfiguration.OutputFileJpegQuality = trackBarJpegQuality.Value;
 			coreConfiguration.OutputFilePromptJpegQuality = checkbox_alwaysshowjpegqualitydialog.Checked;
 			coreConfiguration.PlayCameraSound = checkbox_playsound.Checked;
 
-			List<Destination> destinations = new List<Destination>();
-			if (checkbox_clipboard.Checked) destinations.Add(Destination.Clipboard);
-			if (checkbox_file.Checked) destinations.Add(Destination.FileDefault);
-			if (checkbox_fileas.Checked) destinations.Add(Destination.FileWithDialog);
-			if (checkbox_printer.Checked) destinations.Add(Destination.Printer);
-			if (checkbox_editor.Checked) destinations.Add(Destination.Editor);
-			if (checkbox_email.Checked) destinations.Add(Destination.EMail);
+			List<string> destinations = new List<string>();
+			foreach(int index in checkedDestinationsListBox.CheckedIndices) {
+				IDestination destination = (IDestination)checkedDestinationsListBox.Items[index];
+				if (checkedDestinationsListBox.GetItemCheckState(index) == CheckState.Checked) {
+					destinations.Add(destination.Designation);
+				}
+			}
 			coreConfiguration.OutputDestinations = destinations;
 			
 			coreConfiguration.OutputPrintInverted = checkboxPrintInverted.Checked;
@@ -348,24 +418,26 @@ namespace Greenshot {
 		}
 		
 		void Settings_cancelClick(object sender, System.EventArgs e) {
-			this.Close();
+			DialogResult = DialogResult.Cancel;
+			lang.FreeResources();
 		}
 		
 		void Settings_okayClick(object sender, System.EventArgs e) {
 			if (CheckSettings()) {
 				SaveSettings();
-				this.Close();
+				DialogResult = DialogResult.OK;
 			} else {
 				this.tabcontrol.SelectTab(this.tab_output);
 			}
+			lang.FreeResources();
 		}
 		
 		void BrowseClick(object sender, System.EventArgs e) {
 			// Get the storage location and replace the environment variables
-			this.folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(this.textbox_storagelocation.Text);
+			this.folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(this.textbox_storagelocation.Text, false);
 			if (this.folderBrowserDialog1.ShowDialog() == DialogResult.OK) {
 				// Only change if there is a change, otherwise we might overwrite the environment variables
-				if (this.folderBrowserDialog1.SelectedPath != null && !this.folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(this.textbox_storagelocation.Text))) {
+				if (this.folderBrowserDialog1.SelectedPath != null && !this.folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(this.textbox_storagelocation.Text, false))) {
 					this.textbox_storagelocation.Text = this.folderBrowserDialog1.SelectedPath;
 				}
 			}
@@ -390,23 +462,33 @@ namespace Greenshot {
 		}
 		
 		void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {
-			LOG.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
-			lang.SetLanguage((string)combobox_language.SelectedValue);
+			// Get the combobox values BEFORE changing the language
+			//EmailFormat selectedEmailFormat = GetSelected<EmailFormat>(combobox_emailformat);
+			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
+			if (combobox_language.SelectedItem != null) {
+				LOG.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
+				lang.SetLanguage((string)combobox_language.SelectedValue);
+			}
 			// Reflect language changes to the settings form
 			UpdateUI();
+			
+			// Update the email & windows capture mode
+			//SetEmailFormat(selectedEmailFormat);
+			SetWindowCaptureMode(selectedWindowCaptureMode);
 		}
 		
 		void Combobox_window_capture_modeSelectedIndexChanged(object sender, EventArgs e) {
 			int windowsVersion = Environment.OSVersion.Version.Major;
-			string modeText = combobox_window_capture_mode.Text;
-			string dwmMode = WindowCaptureMode.Aero.ToString();
-			string autoMode = WindowCaptureMode.Auto.ToString();
-			if (modeText.Equals(dwmMode, StringComparison.CurrentCultureIgnoreCase)
-				|| (modeText.Equals(autoMode, StringComparison.CurrentCultureIgnoreCase) && windowsVersion >= 6) ) {
-				colorButton_window_background.Visible = true;
-			} else {
-				colorButton_window_background.Visible = false;
+			WindowCaptureMode mode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
+			if (windowsVersion >= 6) {
+				switch (mode) {
+					case WindowCaptureMode.Aero:
+					case WindowCaptureMode.Auto:
+						colorButton_window_background.Visible = true;
+						return;
+				}
 			}
+			colorButton_window_background.Visible = false;
 		}
 		
 		void SettingsFormFormClosing(object sender, FormClosingEventArgs e) {
@@ -415,6 +497,47 @@ namespace Greenshot {
 		
 		void SettingsFormShown(object sender, EventArgs e) {
 			HotkeyControl.UnregisterHotkeys();
+		}
+		
+		/// <summary>
+		/// Check the destination settings
+		/// </summary>
+		void CheckDestinationSettings() {
+			bool clipboardDestinationChecked = false;
+			bool pickerSelected = false;
+			foreach(IDestination destination in checkedDestinationsListBox.CheckedItems) {
+				if (destination.Designation.Equals("Clipboard")) {
+					clipboardDestinationChecked = true;
+				}
+				if (destination.Designation.Equals("Picker")) {
+					pickerSelected = true;
+				}
+			}
+			if (pickerSelected) {
+				foreach(int index in checkedDestinationsListBox.CheckedIndices) {
+					IDestination destination = (IDestination)checkedDestinationsListBox.Items[index];
+					if (!destination.Designation.Equals("Picker")) {
+						checkedDestinationsListBox.SetItemCheckState(index, CheckState.Indeterminate);
+					}
+				}
+			} else {
+				foreach(int index in checkedDestinationsListBox.CheckedIndices) {
+					if (checkedDestinationsListBox.GetItemCheckState(index) == CheckState.Indeterminate) {
+						checkedDestinationsListBox.SetItemCheckState(index, CheckState.Checked);
+					}
+				}
+				// Prevent multiple clipboard settings at once, see bug #3435056
+				if (clipboardDestinationChecked) {
+					checkbox_copypathtoclipboard.Checked = false;
+					checkbox_copypathtoclipboard.Enabled = false;
+				} else {
+					checkbox_copypathtoclipboard.Enabled = true;
+				}
+			}
+		}
+
+		void DestinationsCheckStateChanged(object sender, EventArgs e) {
+			CheckDestinationSettings();
 		}
 	}
 }

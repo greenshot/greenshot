@@ -24,12 +24,12 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Greenshot.Helpers {
-	public class FilenameHelper {
+	public static class FilenameHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FilenameHelper));
 		private static readonly Regex VAR_REGEXP = new Regex(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
@@ -37,8 +37,6 @@ namespace Greenshot.Helpers {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const string UNSAFE_REPLACEMENT = "_";
 
-		private FilenameHelper() {
-		}
 		/// <summary>
 		/// Remove invalid characters from the fully qualified filename
 		/// </summary>
@@ -106,9 +104,9 @@ namespace Greenshot.Helpers {
 		/// <param name="userVars">Variables from the user</param>
 		/// <param name="machineVars">Variables from the machine</param>
 		/// <returns>string with the match replacement</returns>
-		private static string MatchVarEvaluator(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars) {
+		private static string MatchVarEvaluator(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars, bool filenameSafeMode) {
 			try {
-				return MatchVarEvaluatorInternal(match, captureDetails, processVars, userVars, machineVars);
+				return MatchVarEvaluatorInternal(match, captureDetails, processVars, userVars, machineVars, filenameSafeMode);
 			} catch (Exception e) {
 				LOG.Error("Error in MatchVarEvaluatorInternal", e);
 			}
@@ -121,7 +119,8 @@ namespace Greenshot.Helpers {
 		/// <param name="match">What are we matching?</param>
 		/// <param name="captureDetails">The detail, can be null</param>
 		/// <returns></returns>
-		private static string MatchVarEvaluatorInternal(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars) {			// some defaults
+		private static string MatchVarEvaluatorInternal(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars, bool filenameSafeMode) {
+			// some defaults
 			int padWidth = 0;
 			int startIndex = 0;
 			int endIndex = 0;
@@ -176,11 +175,23 @@ namespace Greenshot.Helpers {
 				}
 			}
 			if (processVars != null && processVars.Contains(variable)) {
-				replaceValue = MakePathSafe((string)processVars[variable]);
+				if (filenameSafeMode) {
+					replaceValue = MakePathSafe((string)processVars[variable]);
+				} else {
+					replaceValue = (string)processVars[variable];
+				}
 			} else if (userVars != null && userVars.Contains(variable)) {
-				replaceValue =  MakePathSafe((string)userVars[variable]);
+				if (filenameSafeMode) {
+					replaceValue = MakePathSafe((string)userVars[variable]);
+				} else {
+					replaceValue = (string)userVars[variable];
+				}
 			} else if (machineVars != null && machineVars.Contains(variable)) {
-				replaceValue =  MakePathSafe((string)machineVars[variable]);
+				if (filenameSafeMode) {
+					replaceValue = MakePathSafe((string)machineVars[variable]);
+				} else {
+					replaceValue = (string)machineVars[variable];
+				}
 			} else if (captureDetails != null && captureDetails.MetaData != null && captureDetails.MetaData.ContainsKey(variable)) {
 				replaceValue =  MakePathSafe(captureDetails.MetaData[variable]);
 			} else {
@@ -273,6 +284,13 @@ namespace Greenshot.Helpers {
 						break;
 				}
 			}
+			// do padding
+			if (padWidth >0) {
+				replaceValue = replaceValue.PadRight(padWidth, padChar);
+			} else if (padWidth < 0) {
+				replaceValue = replaceValue.PadLeft(-padWidth, padChar);
+			}
+
 			// do substring
 			if (startIndex != 0 || endIndex != 0) {
 				if (startIndex < 0) {
@@ -296,12 +314,6 @@ namespace Greenshot.Helpers {
 				}
 			}
 			
-			// do padding
-			if (padWidth >0) {
-				replaceValue = replaceValue.PadRight(padWidth, padChar);
-			} else if (padWidth < 0) {
-				replaceValue = replaceValue.PadLeft(-padWidth, padChar);
-			}
 			return replaceValue;
 		}
 
@@ -309,8 +321,9 @@ namespace Greenshot.Helpers {
 		/// "Simply" fill the pattern with environment variables
 		/// </summary>
 		/// <param name="pattern">String with pattern ${var}</param>
+		/// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
 		/// <returns>Filled string</returns>
-		public static string FillVariables(string pattern) {
+		public static string FillVariables(string pattern, bool filenameSafeMode) {
 			IDictionary processVars = null;
 			IDictionary userVars = null;
 			IDictionary machineVars = null;
@@ -333,7 +346,7 @@ namespace Greenshot.Helpers {
 			}
 
 			return VAR_REGEXP.Replace(pattern,
-				new MatchEvaluator(delegate(Match m) { return MatchVarEvaluator(m, null, processVars, userVars, machineVars); })
+				new MatchEvaluator(delegate(Match m) { return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode); })
       		);
 		}
 
@@ -361,7 +374,7 @@ namespace Greenshot.Helpers {
 
 			try {
 				return VAR_REGEXP.Replace(pattern,
-					new MatchEvaluator(delegate(Match m) { return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars); })
+					new MatchEvaluator(delegate(Match m) { return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, true); })
 	      		);
 			} catch (Exception e) {
 				// adding additional data for bug tracking

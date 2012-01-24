@@ -20,8 +20,6 @@
  */
 using System;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Collections;
 
 namespace Greenshot.Helpers.IEInterop {
 	// IWebBrowser: EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="0.8.1">
+<language description="Italiano" ietf="it-IT" version="0.8.1" languagegroup="1">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
@@ -93,7 +93,7 @@ Greenshot viene fornito SENZA ALCUNA GARANZIA. Questo è "free software", e pote
 Dettagli sulla General Public License GNU:
 	</resource>
 	<resource name="error_openlink">
-		Impossibile aprire il link.
+		Impossibile aprire il link '{0}'.
 	</resource>
 	<resource name="error_save">
 		Impossibile salvare l'immagine, è necessario trovare una destinazione valida.

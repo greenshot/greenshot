@@ -7,6 +7,9 @@
 	<resource name="label_url">
 		Url
 	</resource>
+  	<resource name="label_timeout">
+		Timeout
+	</resource>
 	<resource name="label_user">
 		User
 	</resource>
@@ -22,11 +25,26 @@
   	<resource name="CANCEL">
 		Cancel
 	</resource>
+  	  <resource name="upload_menu_item">
+		Upload to Confluence
+	</resource>
   	<resource name="upload_success">
 		Successfully uploaded image to Confluence!
 	</resource>
   	<resource name="upload_failure">
 		An error occured while uploading to Confluence:
+	</resource>
+	<resource name="open_page_after_upload">
+		Open page after upload
+	</resource>
+  	<resource name="upload_format">
+		Upload format
+	</resource>
+	<resource name="copy_wikimarkup">
+  		Copy the Wikimarkup for image to the Clipboard
+  	</resource>
+  	<resource name="filename">
+		Filename
 	</resource>
   </resources>
 </language>

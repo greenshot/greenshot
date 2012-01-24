@@ -20,7 +20,6 @@
  */
 using System;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Greenshot.Helpers.IEInterop {
 	// This is the COM IServiceProvider interface, not System.IServiceProvider .Net interface!

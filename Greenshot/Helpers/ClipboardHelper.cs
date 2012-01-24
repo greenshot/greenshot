@@ -29,18 +29,18 @@ using System.Threading;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
-using Greenshot.Drawing;
-using Greenshot.UnmanagedHelpers;
+using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of ClipboardHelper.
 	/// </summary>
-	public class ClipboardHelper {
+	public static class ClipboardHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ClipboardHelper));
 		private static readonly Object clipboardLockObject = new Object();
-		private static string previousTmpFile = null;
+		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 		private static IntPtr nextClipboardViewer = IntPtr.Zero;
 		// Template for the HTML Text on the clipboard, see: http://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
 		private const string HTML_CLIPBOARD_STRING = @"Version:0.9
@@ -61,51 +61,6 @@ EndSelection:<<<<<<<4
 <!--EndFragment -->
 </BODY>
 </HTML>";
-
-		/// <summary>
-		/// Register the window to monitor the clipboard
-		/// </summary>
-		/// <param name="handle">Handle for the window</param>
-		public static void RegisterClipboardViewer(IntPtr handle) {
-			LOG.Debug("RegisterClipboardViewer called");
-			nextClipboardViewer = User32.SetClipboardViewer(handle);
-		}
-		/// <summary>
-		/// Deregister the window to monitor the clipboard
-		/// </summary>
-		/// <param name="handle">Handle for the window</param>
-		public static void DeregisterClipboardViewer(IntPtr handle) {
-			LOG.Debug("DeregisterClipboardViewer called");
-			User32.ChangeClipboardChain(handle, nextClipboardViewer);
-			CleanupTmpFile();
-		}
-		
-		/// <summary>
-		/// Handle WndProc messages for the clipboard
-		/// </summary>
-		/// <param name="m">Messag</param>
-		/// <returns>true if the message is handled</returns>
-		public static bool HandleClipboardMessages(ref Message m) {
-			switch (m.Msg) {
-				case (int)WindowsMessages.WM_DRAWCLIPBOARD:
-					// Check if there is a format "greenshot" on the clipboard, than don't delete
-					List<string> currentFormats = GetFormats();
-					if (currentFormats != null && !currentFormats.Contains("greenshot")) {
-						CleanupTmpFile();
-					}
-					// Make sure the next clipboard viewer gets the message
-					User32.SendMessage(nextClipboardViewer, m.Msg, m.WParam, m.LParam);
-					return true;
-				case (int)WindowsMessages.WM_CHANGECBCHAIN:
-					if (m.WParam == nextClipboardViewer) {
-						nextClipboardViewer = m.LParam;
-					} else {
-						User32.SendMessage(nextClipboardViewer, m.Msg, m.WParam, m.LParam);
-					}
-					return true;
-			}
-			return false;
-		}
 		
 		/**
 		 * Get the current "ClipboardOwner" but only if it isn't us!
@@ -166,9 +121,9 @@ EndSelection:<<<<<<<4
 							ILanguage lang = Language.GetInstance();
 							if (clipboardOwner != null) {
 								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
-						    } else {
+							} else {
 								messageText = lang.GetString(LangKey.clipboard_error);
-						    }
+							}
 							LOG.Error(messageText, ee);
 						} else {
 							Thread.Sleep(100);
@@ -180,11 +135,142 @@ EndSelection:<<<<<<<4
 			}
 		}
 		
+		/// <summary>
+		/// Safe wrapper for Clipboard.ContainsText
+		/// Created for Bug #3432313
+		/// </summary>
+		/// <returns>boolean if there is text on the clipboard</returns>
+		public static bool ContainsText() {
+			lock (clipboardLockObject) {
+				int retryCount = 2;
+				while (retryCount >= 0) {
+					try {
+						return Clipboard.ContainsText();
+					} catch (Exception ee) {
+						if (retryCount == 0) {
+							string messageText = null;
+							string clipboardOwner = GetClipboardOwner();
+							ILanguage lang = Language.GetInstance();
+							if (clipboardOwner != null) {
+								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
+							} else {
+								messageText = lang.GetString(LangKey.clipboard_error);
+							}
+							LOG.Error(messageText, ee);
+						} else {
+							Thread.Sleep(100);
+						}
+					} finally {
+						--retryCount;
+					}
+				}
+			}
+			return false;
+		}
+		
+		/// <summary>
+		/// Safe wrapper for Clipboard.ContainsImage
+		/// Created for Bug #3432313
+		/// </summary>
+		/// <returns>boolean if there is an image on the clipboard</returns>
+		public static bool ContainsImage() {
+			lock (clipboardLockObject) {
+				int retryCount = 2;
+				while (retryCount >= 0) {
+					try {
+						return Clipboard.ContainsImage();
+					} catch (Exception ee) {
+						if (retryCount == 0) {
+							string messageText = null;
+							string clipboardOwner = GetClipboardOwner();
+							ILanguage lang = Language.GetInstance();
+							if (clipboardOwner != null) {
+								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
+							} else {
+								messageText = lang.GetString(LangKey.clipboard_error);
+							}
+							LOG.Error(messageText, ee);
+						} else {
+							Thread.Sleep(100);
+						}
+					} finally {
+						--retryCount;
+					}
+				}
+			}
+			return false;
+		}
+		
+		/// <summary>
+		/// Safe wrapper for Clipboard.GetImage
+		/// Created for Bug #3432313
+		/// </summary>
+		/// <returns>Image if there is an image on the clipboard</returns>
+		public static Image GetImage() {
+			lock (clipboardLockObject) {
+				int retryCount = 2;
+				while (retryCount >= 0) {
+					try {
+						return Clipboard.GetImage();
+					} catch (Exception ee) {
+						if (retryCount == 0) {
+							string messageText = null;
+							string clipboardOwner = GetClipboardOwner();
+							ILanguage lang = Language.GetInstance();
+							if (clipboardOwner != null) {
+								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
+							} else {
+								messageText = lang.GetString(LangKey.clipboard_error);
+							}
+							LOG.Error(messageText, ee);
+						} else {
+							Thread.Sleep(100);
+						}
+					} finally {
+						--retryCount;
+					}
+				}
+			}
+			return null;
+		}
+		
+		/// <summary>
+		/// Safe wrapper for Clipboard.GetText
+		/// Created for Bug #3432313
+		/// </summary>
+		/// <returns>string if there is text on the clipboard</returns>
+		public static string GetText() {
+			lock (clipboardLockObject) {
+				int retryCount = 2;
+				while (retryCount >= 0) {
+					try {
+						return Clipboard.GetText();
+					} catch (Exception ee) {
+						if (retryCount == 0) {
+							string messageText = null;
+							string clipboardOwner = GetClipboardOwner();
+							ILanguage lang = Language.GetInstance();
+							if (clipboardOwner != null) {
+								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
+							} else {
+								messageText = lang.GetString(LangKey.clipboard_error);
+							}
+							LOG.Error(messageText, ee);
+						} else {
+							Thread.Sleep(100);
+						}
+					} finally {
+						--retryCount;
+					}
+				}
+			}
+			return null;
+		}
+		
 		/**
 		 * Set text to the clipboard
 		 */
 		public static void SetClipboardData(string text) {
-			CleanupTmpFile();
 			IDataObject ido = new DataObject();
 			ido.SetData(DataFormats.Text, true, text);
 			SetDataObject(ido);
@@ -203,22 +289,6 @@ EndSelection:<<<<<<<4
 			sb.Replace("<<<<<<<4", (utf8EncodedHTMLString.IndexOf("<!--EndFragment -->")).ToString("D8"));
 			return sb.ToString(); 
 		}
-
-		/// <summary>
-		/// Cleanup previously created tmp file
-		/// </summary>
-		private static void CleanupTmpFile() {
-			if (previousTmpFile != null) {
-				try {
-					LOG.DebugFormat("Deleting previous tmp file: {0}", previousTmpFile);
-					File.Delete(previousTmpFile);
-				} catch (Exception e) {
-					LOG.Warn("Error deleting " + previousTmpFile, e);
-				} finally {
-					previousTmpFile = null;
-				}
-			}
-		}
 		
 		/**
 		 * Set an Image to the clipboard
@@ -233,35 +303,45 @@ EndSelection:<<<<<<<4
 		 */
 		private const int BITMAPFILEHEADER_LENGTH = 14;
 		public static void SetClipboardData(Image image) {
-			CleanupTmpFile();
 			DataObject ido = new DataObject();
 
 			// This will work for Office and most other applications
 			//ido.SetData(DataFormats.Bitmap, true, image);
 			
-			MemoryStream bmpStream = new MemoryStream();
-			MemoryStream imageStream = new MemoryStream();
-			MemoryStream pngStream = new MemoryStream();
+			MemoryStream bmpStream = null;
+			MemoryStream imageStream = null;
+			MemoryStream pngStream = null;
 			try {
-				// PNG works for Powerpoint
-				image.Save(pngStream, ImageFormat.Png);
+				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG)) {
+					pngStream = new MemoryStream();
+					// PNG works for Powerpoint
+					image.Save(pngStream, ImageFormat.Png);
+					// Set the PNG stream
+					ido.SetData("PNG", false, pngStream);
+				}
 
-				// Save image as BMP
-				image.Save(bmpStream, ImageFormat.Bmp);
 
-				// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
-				imageStream.Write(bmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int) bmpStream.Length - BITMAPFILEHEADER_LENGTH);
+				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
+					bmpStream = new MemoryStream();
+					// Save image as BMP
+					image.Save(bmpStream, ImageFormat.Bmp);
 
-				// Mark the clipboard for us as "do not touch"
-				ido.SetData("greenshot", false, "was here!");
-				// Set the PNG stream
-				ido.SetData("PNG", false, pngStream);
-				// Set the DIB to the clipboard DataObject
-				ido.SetData(DataFormats.Dib, true, imageStream);
+					imageStream = new MemoryStream();
+					// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
+					imageStream.Write(bmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int) bmpStream.Length - BITMAPFILEHEADER_LENGTH);
+
+					// Set the DIB to the clipboard DataObject
+					ido.SetData(DataFormats.Dib, true, imageStream);
+				}
+				
 				// Set the HTML
-				previousTmpFile = ImageOutput.SaveToTmpFile(image);
-				string html = getClipboardString(image, previousTmpFile);
-				ido.SetText(html, TextDataFormat.Html);
+				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
+					// Mark the clipboard for us as "do not touch"
+					ido.SetData("greenshot", false, "was here!");
+					string tmpFile = ImageOutput.SaveToTmpFile(image, OutputFormat.png, config.OutputFileJpegQuality);
+					string html = getClipboardString(image, tmpFile);
+					ido.SetText(html, TextDataFormat.Html);
+				}
 			} finally {
 				// we need to use the SetDataOject before the streams are closed otherwise the buffer will be gone!
 				// Place the DataObject to the clipboard
@@ -288,7 +368,6 @@ EndSelection:<<<<<<<4
 		 * Set Object with type Type to the clipboard
 		 */
 		public static void SetClipboardData(Type type, Object obj) {
-			CleanupTmpFile();
 			DataFormats.Format format = DataFormats.GetFormat(type.FullName);
 
 			//now copy to clipboard

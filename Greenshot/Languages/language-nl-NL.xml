@@ -1,9 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Nederlands" ietf="nl-NL" version="0.8.1">
+<language description="Nederlands" ietf="nl-NL" version="0.8.1" languagegroup="1">
 	<resources>
 	<resource name="about_translation">
 		Nederlandse vertaling door Jurjen Ladenius
-    </resource>
+	</resource>
+	<resource name="none">
+	</resource>
 	<resource name="application_title">
 		Greenshot - de revolutionaire screenshot utility
 	</resource>
@@ -92,7 +94,7 @@ Greenshot komt zonder enige garantie! Dit is gratis software, en U kunt het dist
 Deteils over de GNU General Public License:
 	</resource>
 	<resource name="error_openlink">
-		Kan link niet openen.
+		Kan link '{0}' niet openen.
 	</resource>
 	<resource name="error_save">
 		Kan screenshot niet opslaan, kies AUB een nieuwe locatie.
@@ -255,8 +257,14 @@ Alle Greenshot functies werken ook over het context menu.
 	<resource name="settings_destination_clipboard">
 		Kopieer naar klembord
 	</resource>
+	<resource name="settings_destination_picker">
+		Doel kiezen
+	</resource>
 	<resource name="editor_drawline">
 		Lijn tekenen (L)
+	</resource>
+	<resource name="editor_drawfreehand">
+		Losse hand tekenen (F)
 	</resource>
 	<resource name="settings_destination">
 		Screenshot doel
@@ -524,13 +532,22 @@ genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v
 		Objecten in bestand opslaan
 	</resource>
 	<resource name="editor_match_capture_size">
-		Pas groote aan screenshot aan
+		Pas aan screenshot groote aan
+	</resource>
+	<resource name="editor_autocrop">
+		Automatisch snijden
+	</resource>
+	<resource name="editor_undo">
+		Ongedaan maken {0}
+	</resource>
+	<resource name="editor_redo">
+		Opnieuw uitvoeren {0}
 	</resource>
 	<resource name="settings_waittime">
 		Milliseconden wachten voor vastleggen
 	</resource>
 	<resource name="tooltip_firststart">
-		Rechtermuisklik hier of druk op de Print-Screen knop.
+		Klik hier met de rechter muis knop of druk op de {0} knop.
 	</resource>
 	<resource name="contextmenu_donate">
 		Greenshot ondersteunen
@@ -555,6 +572,33 @@ genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v
 	</resource>
 	<resource name="update_found">
 		Er is een nieuwere versie van Greenshot beschikbaar! Wilt U Greenshot {0} downloaden?
+	</resource>
+	<resource name="exported_to">
+		Exportiert naar: {0}
+	</resource>
+	<resource name="WindowCaptureMode.Screen">
+		Zoals zichtbar
+	</resource>
+	<resource name="WindowCaptureMode.GDI">
+		Standaard kleur
+	</resource>
+	<resource name="WindowCaptureMode.Aero">
+		Eigen kleur
+	</resource>
+	<resource name="WindowCaptureMode.AeroTransparent">
+		Met doorzichtigheid
+	</resource>
+	<resource name="WindowCaptureMode.Auto">
+		Automatisch
+	</resource>
+	<resource name="EmailFormat.MAPI">
+		MAPI client
+	</resource>
+	<resource name="EmailFormat.OUTLOOK_TXT">
+		Outlook met text
+	</resource>
+	<resource name="EmailFormat.OUTLOOK_HTML">
+		Outlook met HTML
 	</resource>
   </resources>
 </language>

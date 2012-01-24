@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2010  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2011  Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -38,6 +38,7 @@ using Greenshot.Plugin;
 [assembly: AssemblyCopyright("Copyright 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
 [assembly: PluginAttribute("PluginExample.PluginExample", true)] 
 

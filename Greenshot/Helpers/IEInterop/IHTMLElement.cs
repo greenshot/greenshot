@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Greenshot.Helpers.IEInterop {
 	[ComImport, Guid("3050F1FF-98B5-11CF-BB82-00AA00BDCE0B"),
@@ -109,5 +107,11 @@ namespace Greenshot.Helpers.IEInterop {
 		
 		[DispId(-2147417093)]
 		void scrollIntoView(bool varargStart);
+		
+		IHTMLElementCollection children {
+			[DispId(-2147417075)]
+			[return: MarshalAs(UnmanagedType.IDispatch)]
+			get;
+		}
 	}
 }

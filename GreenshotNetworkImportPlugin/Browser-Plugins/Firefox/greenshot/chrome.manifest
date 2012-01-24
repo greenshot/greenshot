@@ -1,0 +1,3 @@
+content greenshot content/
+skin greenshot greenshotskin skin/
+overlay chrome://browser/content/browser.xul chrome://greenshot/content/overlay.xul

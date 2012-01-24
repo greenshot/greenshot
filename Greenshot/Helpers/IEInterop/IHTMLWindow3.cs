@@ -20,7 +20,6 @@
  */
 using System;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Greenshot.Helpers.IEInterop {
 	[ComVisible(true), ComImport(), Guid("3050f4ae-98b5-11cf-bb82-00aa00bdce0b"),

@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <ProjectGuid>{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -21,8 +22,13 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>Full</DebugType>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Optimize>False</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>x86</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -30,23 +36,19 @@
     <DebugType>None</DebugType>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <Optimize>True</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <BaseAddress>4194304</BaseAddress>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Accessibility" />
     <Reference Include="log4net">
       <HintPath>Lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -63,8 +65,17 @@
     <Compile Include="Controls\ToolStripColorButton.cs" />
     <Compile Include="Controls\FontFamilyComboBox.cs" />
     <Compile Include="Controls\ToolStripNumericUpDown.cs" />
+    <Compile Include="Destinations\ClipboardDestination.cs" />
+    <Compile Include="Destinations\EditorDestination.cs" />
+    <Compile Include="Destinations\EmailDestination.cs" />
+    <Compile Include="Destinations\ExcelDestination.cs" />
+    <Compile Include="Destinations\FileDestination.cs" />
+    <Compile Include="Destinations\FileWithDialogDestination.cs" />
+    <Compile Include="Destinations\PickerDestination.cs" />
+    <Compile Include="Destinations\PowerpointDestination.cs" />
+    <Compile Include="Destinations\PrinterDestination.cs" />
+    <Compile Include="Destinations\WordDestination.cs" />
     <Compile Include="Drawing\ArrowContainer.cs" />
-    <Compile Include="Drawing\BitmapBuffer.cs" />
     <Compile Include="Drawing\BitmapContainer.cs" />
     <Compile Include="Drawing\CropContainer.cs" />
     <Compile Include="Drawing\CursorContainer.cs" />
@@ -83,13 +94,13 @@
     <Compile Include="Drawing\FilterContainer.cs" />
     <Compile Include="Drawing\Filters\AbstractFilter.cs" />
     <Compile Include="Drawing\Filters\BrightnessFilter.cs" />
-    <Compile Include="Drawing\Filters\FastSmoothFilter.cs" />
     <Compile Include="Drawing\Filters\GrayscaleFilter.cs" />
     <Compile Include="Drawing\Filters\HighlightFilter.cs" />
     <Compile Include="Drawing\Filters\IFilter.cs" />
     <Compile Include="Drawing\Filters\MagnifierFilter.cs" />
     <Compile Include="Drawing\Filters\PixelizationFilter.cs" />
     <Compile Include="Drawing\Filters\BlurFilter.cs" />
+    <Compile Include="Drawing\Gripper.cs" />
     <Compile Include="Drawing\HighlightContainer.cs" />
     <Compile Include="Drawing\IconContainer.cs" />
     <Compile Include="Drawing\LineContainer.cs" />
@@ -100,6 +111,7 @@
     <Compile Include="Drawing\Fields\FieldAggregator.cs" />
     <Compile Include="Drawing\MetafileContainer.cs" />
     <Compile Include="Drawing\ObfuscateContainer.cs" />
+    <Compile Include="Drawing\FreehandContainer.cs" />
     <Compile Include="Drawing\RectangleContainer.cs" />
     <Compile Include="Drawing\RoundedRectangle.cs" />
     <Compile Include="Drawing\Surface.cs" />
@@ -112,10 +124,7 @@
     <Compile Include="Forms\CaptureForm.Designer.cs">
       <DependentUpon>CaptureForm.cs</DependentUpon>
     </Compile>
-    <None Include="Forms\DestinationPickerForm.cs" />
-    <None Include="Forms\DestinationPickerForm.Designer.cs">
-      <DependentUpon>DestinationPickerForm.cs</DependentUpon>
-    </None>
+    <Compile Include="Forms\FormWithoutActivation.cs" />
     <Compile Include="Forms\ImageEditorForm.cs" />
     <Compile Include="Forms\ImageEditorForm.Designer.cs">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
@@ -142,14 +151,17 @@
     <Compile Include="Forms\BugReportForm.Designer.cs">
       <DependentUpon>BugReportForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\AviHelper.cs" />
+    <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\ClipboardHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
     <Compile Include="Helpers\CopyData.cs" />
-    <Compile Include="Helpers\DrawingHelper.cs" />
+    <Compile Include="Helpers\GeometryHelper.cs" />
+    <Compile Include="Helpers\DestinationHelper.cs" />
     <Compile Include="Helpers\IECaptureHelper.cs" />
-    <Compile Include="Helpers\AccessibleHelper.cs" />
     <Compile Include="Helpers\IEInterop\IEContainer.cs" />
     <Compile Include="Helpers\IEInterop\IHTMLBodyElement.cs" />
+    <Compile Include="Helpers\IEInterop\IHTMLCurrentStyle.cs" />
     <Compile Include="Helpers\IEInterop\IHTMLElement2.cs" />
     <Compile Include="Helpers\IEInterop\IHTMLFrameBase.cs" />
     <Compile Include="Helpers\IEInterop\IHTMLFramesCollection2.cs" />
@@ -160,7 +172,6 @@
     <Compile Include="Helpers\IEInterop\IHTMLWindow4.cs" />
     <Compile Include="Helpers\IEInterop\IOleWindow.cs" />
     <Compile Include="Helpers\IEInterop\IServiceProvider.cs" />
-    <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\IEInterop\IHTMLDocument.cs" />
     <Compile Include="Helpers\IEInterop\IHTMLDocument2.cs" />
     <Compile Include="Helpers\IEInterop\IHTMLDocument3.cs" />
@@ -173,19 +184,29 @@
     <Compile Include="Helpers\IEInterop\IHTMLWindow2.cs" />
     <Compile Include="Helpers\IEInterop\IHTMLWindow3.cs" />
     <Compile Include="Helpers\IEInterop\IWebBrowser2.cs" />
-    <None Include="Helpers\OfficeInterop\ExcelWrapper.cs" />
+    <Compile Include="Helpers\OfficeInterop\ExcelWrapper.cs" />
+    <Compile Include="Helpers\ProcessorHelper.cs" />
+    <Compile Include="Processors\TitleFixProcessor.cs" />
+    <None Include="Helpers\OfficeInterop\OutlookUtils.cs" />
+    <Compile Include="Helpers\WindowWrapper.cs" />
+    <Compile Include="Memento\AddElementMemento.cs" />
+    <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
+    <Compile Include="Memento\DeleteElementMemento.cs" />
+    <Compile Include="Memento\TextChangeMemento.cs" />
+    <Compile Include="Memento\IMemento.cs" />
+    <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
+    <Compile Include="Memento\SurfaceCropMemento.cs" />
     <Compile Include="Helpers\OfficeInterop\OfficeWrappers.cs" />
     <Compile Include="Helpers\OfficeInterop\OutlookWrapper.cs" />
-    <None Include="Helpers\OfficeInterop\PowerpointWrapper.cs" />
+    <Compile Include="Helpers\OfficeInterop\PowerpointWrapper.cs" />
     <Compile Include="Helpers\OfficeInterop\WordWrapper.cs" />
     <Compile Include="Helpers\QuantizerHelper.cs" />
+    <Compile Include="Helpers\ScreenCaptureHelper.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />
-    <Compile Include="Helpers\WindowsHelper.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />
     <Compile Include="Helpers\GuiRectangle.cs" />
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\MailHelper.cs" />
-    <Compile Include="Helpers\Objects.cs" />
     <Compile Include="Helpers\PluginHelper.cs" />
     <Compile Include="Helpers\PrintHelper.cs" />
     <Compile Include="Helpers\ImageOutput.cs" />
@@ -193,13 +214,7 @@
     <Compile Include="Helpers\SoundHelper.cs" />
     <Compile Include="Helpers\StartupHelper.cs" />
     <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
-    <Compile Include="Helpers\WindowCapture.cs" />
-    <Compile Include="UnmanagedHelpers\DWM.cs" />
-    <Compile Include="UnmanagedHelpers\Enumerations.cs" />
-    <Compile Include="UnmanagedHelpers\GDI32.cs" />
-    <Compile Include="UnmanagedHelpers\Kernel32.cs" />
-    <Compile Include="UnmanagedHelpers\Structs.cs" />
-    <Compile Include="UnmanagedHelpers\User32.cs" />
+    <Compile Include="GreenshotMain.cs" />
     <EmbeddedResource Include="Forms\ImageEditorForm.resx">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -221,6 +236,9 @@
     <None Include="Languages\help-es-ES.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\help-fr-FR.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Languages\help-hu-HU.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -228,6 +246,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\help-nl-NL.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-pl-PL.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\help-ru-RU.html">
@@ -240,6 +261,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\help-zh-CN.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-ar-SY.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\language-cs-CZ.xml">
@@ -287,6 +311,9 @@
     <None Include="Languages\language-pt-BR.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\language-pt-PT.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Languages\language-ru-RU.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -304,6 +331,9 @@
     </None>
     <None Include="Lib\log4net.dll" />
     <None Include="log4net-debug.xml" />
+    <None Include="log4net-portable.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="log4net.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -320,8 +350,6 @@
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ColorDialog.cs" />
-    <Compile Include="UnmanagedHelpers\Win32Errors.cs" />
-    <Compile Include="UnmanagedHelpers\WinMM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Drawing\Fields\Binding" />
@@ -334,11 +362,13 @@
     <Folder Include="Drawing" />
     <Folder Include="Controls" />
     <Folder Include="Helpers\IEInterop" />
+    <Folder Include="Memento" />
     <Folder Include="Helpers\OfficeInterop" />
     <Folder Include="Lib" />
     <Folder Include="Languages" />
-    <Folder Include="UnmanagedHelpers" />
     <Folder Include="Help" />
+    <Folder Include="Destinations" />
+    <Folder Include="Processors" />
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
@@ -346,15 +376,22 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PostBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\releases\innosetup\setup.iss" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
-cd "$(MSBuildProjectDirectory)\bin\Release"
-"$(MSBuildProjectDirectory)\tools\FileVerifier++\fvc.exe" -c -a MD5 -r -o "checksum.MD5" *.dll *.exe
-"$(MSBuildProjectDirectory)\tools\7zip\7za.exe" a -x!.SVN -r "$(MSBuildProjectDirectory)\releases\Greenshot-NO-INSTALLER.zip" "$(MSBuildProjectDirectory)\bin\Release\*" "$(MSBuildProjectDirectory)\releases\additional_files\*"
-cd "$(MSBuildProjectDirectory)\releases\innosetup"
-"$(MSBuildProjectDirectory)\tools\innosetup\ISCC.exe" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
-</PostBuildEvent>
     <PreBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\AssemblyInfo.cs.template" "$(MSBuildProjectDirectory)\AssemblyInfo.cs"
 copy "$(ProjectDir)log4net.xml" "$(SolutionDir)bin\$(Configuration)\log4net.xml"</PreBuildEvent>
+    <PostBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\releases\innosetup\setup.iss" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
+cd "$(MSBuildProjectDirectory)\bin\Release"
+del *.config
+del *.log
+"$(MSBuildProjectDirectory)\tools\FileVerifier++\fvc.exe" -c -a MD5 -r -o "checksum.MD5" *.dll *.exe
+cd "$(MSBuildProjectDirectory)\releases\innosetup"
+"$(MSBuildProjectDirectory)\tools\innosetup\ISCC.exe" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
+cd "$(MSBuildProjectDirectory)\bin\Release"
+echo dummy config, used to make greenshot store the configuration in this directory  &gt; greenshot.ini
+move log4net-portable.xml log4net.xml
+del installer.txt
+del "$(MSBuildProjectDirectory)\releases\Greenshot-NO-INSTALLER.zip"
+"$(MSBuildProjectDirectory)\tools\7zip\7za.exe" a -x!.SVN -r "$(MSBuildProjectDirectory)\releases\Greenshot-NO-INSTALLER.zip" "$(MSBuildProjectDirectory)\bin\Release\*" "$(MSBuildProjectDirectory)\releases\additional_files\*"
+del greenshot.ini</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PreBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\AssemblyInfo.cs.template" "$(MSBuildProjectDirectory)\AssemblyInfo.cs"

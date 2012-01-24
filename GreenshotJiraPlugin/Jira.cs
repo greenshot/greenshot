@@ -19,16 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Text;
 using System.Windows.Forms;
 
 using GreenshotJiraPlugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Jira {
 	#region transport classes
@@ -101,6 +100,7 @@ namespace Jira {
 	public class JiraConnector {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.jira.rpc.exception.RemoteAuthenticationException";
+		private static JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
 		public const string DEFAULT_POSTFIX = "/rpc/soap/jirasoapservice-v2?wsdl";
 		private ILanguage lang = Language.GetInstance();
 		private string credentials;
@@ -109,17 +109,24 @@ namespace Jira {
 		private JiraSoapServiceService jira;
 		private int timeout;
 		private string url;
-		private Dictionary<string, string> userMap = new Dictionary<string, string>();
-		private JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+		private CacheHelper<JiraIssue> jiraCache = new CacheHelper<JiraIssue>("jiraissue", 60*config.Timeout);
+		private CacheHelper<RemoteUser> userCache = new CacheHelper<RemoteUser>("jirauser", 60*config.Timeout);
 
-		public JiraConnector() {
+		public JiraConnector() : this(false) {
+		}
+
+		public JiraConnector(bool suppressBackgroundForm) {
 			this.url = config.Url;
 			this.timeout = config.Timeout;
-			BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.JiraPluginAttributes.Name, lang.GetString(LangKey.communication_wait));
-			try {
+			if (!suppressBackgroundForm) {
+				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, lang.GetString(LangKey.communication_wait));
+				try {
+					jira = new JiraSoapServiceService();
+				} finally {
+					backgroundForm.CloseDialog();
+				}
+			} else {
 				jira = new JiraSoapServiceService();
-			} finally {
-				backgroundForm.CloseDialog();
 			}
 			jira.Url = url;
 		   	jira.Proxy = NetworkHelper.CreateProxy(new Uri(url));
@@ -133,8 +140,11 @@ namespace Jira {
 		/// Internal login which catches the exceptions
 		/// </summary>
 		/// <returns>true if login was done sucessfully</returns>
-		private bool doLogin(string user, string password) {
-			BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.JiraPluginAttributes.Name, lang.GetString(LangKey.communication_wait));
+		private bool doLogin(string user, string password, bool suppressBackgroundForm) {
+			BackgroundForm backgroundForm = null;
+			if (!suppressBackgroundForm) {
+				backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, lang.GetString(LangKey.communication_wait));
+			}
 			try {
 				LOG.DebugFormat("Loggin in");
 				this.credentials = jira.login(user, password);
@@ -153,12 +163,17 @@ namespace Jira {
 				e.Data.Add("url", url);
 				throw;
 			} finally {
-				backgroundForm.CloseDialog();
+				if (backgroundForm != null) {
+					backgroundForm.CloseDialog();
+				}
 			}
 			return true;
 		}
 		
 		public void login() {
+			login(false);
+		}
+		public void login(bool suppressBackgroundForm) {
 			logout();
 			try {
 				// Get the system name, so the user knows where to login to
@@ -166,7 +181,7 @@ namespace Jira {
 		   		CredentialsDialog dialog = new CredentialsDialog(systemName);
 				dialog.Name = null;
 				while (dialog.Show(dialog.Name) == DialogResult.OK) {
-					if (doLogin(dialog.Name, dialog.Password)) {
+					if (doLogin(dialog.Name, dialog.Password, suppressBackgroundForm)) {
 						if (dialog.SaveChecked) {
 							dialog.Confirm(true);
 						}
@@ -209,8 +224,10 @@ namespace Jira {
 			}
 		}
 
-		public bool isLoggedIn() {
-			return loggedIn;
+		public bool isLoggedIn {
+			get {
+				return loggedIn;
+			}
 		}
 
 		public JiraFilter[] getFilters() {
@@ -229,13 +246,19 @@ namespace Jira {
 		}
 
 		public JiraIssue getIssue(string key) {
-			JiraIssue jiraIssue = null; 
-			checkCredentials();
-			try {
-				RemoteIssue issue = jira.getIssue(credentials, key);
-				jiraIssue = new JiraIssue(issue.key, issue.created, getUserFullName(issue.reporter), getUserFullName(issue.assignee), issue.project, issue.summary, issue.description, issue.environment, issue.attachmentNames);
-			} catch (Exception e) {
-				LOG.Error("Problem retrieving Jira: " + key, e);
+			JiraIssue jiraIssue = null;
+			if (jiraCache.Exists(key)) {
+				jiraIssue = jiraCache.Get(key);
+			}
+			if (jiraIssue == null) {
+				checkCredentials();
+				try {
+					RemoteIssue issue = jira.getIssue(credentials, key);
+					jiraIssue = new JiraIssue(issue.key, issue.created, getUserFullName(issue.reporter), getUserFullName(issue.assignee), issue.project, issue.summary, issue.description, issue.environment, issue.attachmentNames);
+					jiraCache.Add(key, jiraIssue);
+				} catch (Exception e) {
+					LOG.Error("Problem retrieving Jira: " + key, e);
+				}
 			}
 			return jiraIssue;
 		}
@@ -265,8 +288,19 @@ namespace Jira {
 
 		public void addAttachment(string issueKey, string filename, byte [] buffer) {
 			checkCredentials();
-			string base64String = Convert.ToBase64String(buffer, Base64FormattingOptions.InsertLineBreaks);
-			jira.addBase64EncodedAttachmentsToIssue(credentials, issueKey, new string[] { filename }, new string[] { base64String });
+			try {
+				string base64String = Convert.ToBase64String(buffer, Base64FormattingOptions.InsertLineBreaks);
+				jira.addBase64EncodedAttachmentsToIssue(credentials, issueKey, new string[] { filename }, new string[] { base64String });
+			} catch (ArgumentException ex1) {
+				LOG.WarnFormat("Failed to upload by using method addBase64EncodedAttachmentsToIssue, error was {0}", ex1.Message);
+				try {
+					LOG.Warn("Trying addAttachmentsToIssue instead");
+					jira.addAttachmentsToIssue(credentials, issueKey, new string[] { filename }, (sbyte[]) (Array)buffer);
+				} catch (Exception ex2) {
+					LOG.WarnFormat("Failed to use alternative method, error was: {0}", ex2.Message);
+					throw ex1;
+				}
+			}
 		}
 
 		public void addAttachment(string issueKey, string filename, string attachmentText) {
@@ -294,13 +328,13 @@ namespace Jira {
 		private string getUserFullName(string user) {
 			string fullname = null;
 			if (user != null) {
-				if (userMap.ContainsKey(user)) {
-					fullname = userMap[user];
+				if (userCache.Exists(user)) {
+					fullname = userCache.Get(user).fullname;
 				} else {
 					checkCredentials();
 					RemoteUser remoteUser = jira.getUser(credentials, user);
+					userCache.Add(user, remoteUser);
 					fullname = remoteUser.fullname;
-					userMap.Add(user, fullname);
 				}
 			} else {
 				fullname = "Not assigned";

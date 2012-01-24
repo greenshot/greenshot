@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -35,16 +32,26 @@ namespace Greenshot.Forms {
 	public partial class LanguageDialog : Form {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(LanguageDialog));
 		private static LanguageDialog uniqueInstance;
-		private ILanguage language = Language.GetInstance();
+		private ILanguage language = Language.GetInstance(false);
+		private bool properOkPressed = false;
+
 		private LanguageDialog() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			this.Load += FormLoad;
-			
+			this.FormClosing += PreventFormClose;
 		}
 		
+		private void PreventFormClose(object sender, FormClosingEventArgs e) {
+			if(!properOkPressed) {
+				e.Cancel = true;
+			} else {
+				language.FreeResources();
+			}
+		}
+
 		public string SelectedLanguage {
 			get { return comboBoxLanguage.SelectedValue.ToString(); }
 		}
@@ -61,10 +68,15 @@ namespace Greenshot.Forms {
 			if (language.CurrentLanguage != null) {
 				LOG.DebugFormat("Selecting {0}", language.CurrentLanguage);
 				this.comboBoxLanguage.SelectedValue = language.CurrentLanguage;
+			} else {
+				this.comboBoxLanguage.SelectedValue = Thread.CurrentThread.CurrentUICulture.Name;
 			}
 		}
 		
 		void BtnOKClick(object sender, EventArgs e) {
+			properOkPressed = true;
+			// Fix for Bug #3431100 
+			language.SetLanguage(SelectedLanguage);
 			this.Close();
 		}
 		

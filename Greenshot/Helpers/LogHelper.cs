@@ -19,10 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.IO;
+using System.Windows.Forms;
 
 namespace Greenshot.Helpers {
 	public class SpecialFolderPatternConverter : log4net.Util.PatternConverter {
 		protected override void Convert(System.IO.TextWriter writer, object state) {
+			// Making Greenshot portable
+			string pafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
+			if (Directory.Exists(pafPath)) {
+				writer.Write(Path.Combine(Application.StartupPath, @"Data"));
+				return;
+			}
 			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), base.Option, true);
 			writer.Write(Environment.GetFolderPath(specialFolder));
 		}

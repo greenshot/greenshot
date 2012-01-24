@@ -53,27 +53,26 @@ namespace GreenshotImgurPlugin {
 			this.combobox_uploadimageformat = new System.Windows.Forms.ComboBox();
 			this.label_upload_format = new System.Windows.Forms.Label();
 			this.historyButton = new System.Windows.Forms.Button();
+			this.checkbox_usepagelink = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// buttonOK
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonOK.Location = new System.Drawing.Point(222, 80);
+			this.buttonOK.Location = new System.Drawing.Point(222, 129);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 2;
-			this.buttonOK.Text = "OK";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
 			// 
 			// buttonCancel
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonCancel.Location = new System.Drawing.Point(303, 80);
+			this.buttonCancel.Location = new System.Drawing.Point(303, 129);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 3;
-			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
@@ -83,7 +82,6 @@ namespace GreenshotImgurPlugin {
 			this.label_url.Name = "label_url";
 			this.label_url.Size = new System.Drawing.Size(84, 20);
 			this.label_url.TabIndex = 7;
-			this.label_url.Text = "Url";
 			// 
 			// textBoxUrl
 			// 
@@ -113,7 +111,7 @@ namespace GreenshotImgurPlugin {
 			// historyButton
 			// 
 			this.historyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.historyButton.Location = new System.Drawing.Point(13, 80);
+			this.historyButton.Location = new System.Drawing.Point(13, 129);
 			this.historyButton.Name = "historyButton";
 			this.historyButton.Size = new System.Drawing.Size(75, 23);
 			this.historyButton.TabIndex = 11;
@@ -121,11 +119,21 @@ namespace GreenshotImgurPlugin {
 			this.historyButton.UseVisualStyleBackColor = true;
 			this.historyButton.Click += new System.EventHandler(this.ButtonHistoryClick);
 			// 
+			// checkbox_usepagelink
+			// 
+			this.checkbox_usepagelink.AutoSize = true;
+			this.checkbox_usepagelink.Location = new System.Drawing.Point(102, 97);
+			this.checkbox_usepagelink.Name = "copyOriginalLinkCheck";
+			this.checkbox_usepagelink.Size = new System.Drawing.Size(188, 17);
+			this.checkbox_usepagelink.TabIndex = 13;
+			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
+			// 
 			// SettingsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(387, 119);
+			this.ClientSize = new System.Drawing.Size(387, 168);
+			this.Controls.Add(this.checkbox_usepagelink);
 			this.Controls.Add(this.historyButton);
 			this.Controls.Add(this.label_upload_format);
 			this.Controls.Add(this.combobox_uploadimageformat);
@@ -141,6 +149,7 @@ namespace GreenshotImgurPlugin {
 			this.Text = "Imgur settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.Button historyButton;
 		private System.Windows.Forms.ComboBox combobox_uploadimageformat;
@@ -149,5 +158,6 @@ namespace GreenshotImgurPlugin {
 		private System.Windows.Forms.Label label_url;
 		private System.Windows.Forms.Button buttonCancel;
 		private System.Windows.Forms.Button buttonOK;
+		private System.Windows.Forms.CheckBox checkbox_usepagelink;
 	}
 }

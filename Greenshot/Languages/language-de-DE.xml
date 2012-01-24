@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Deutsch" ietf="de-DE" version="0.8.1">
+<language description="Deutsch" ietf="de-DE" version="0.8.1" languagegroup="1">
   <resources>
 	<!-- 
 	Note to translator: uncomment entry "about_translation" to have 
@@ -7,7 +7,9 @@
 	-->
 	<resource name="about_translation">
 		<!--Deutsche Übersetzung von IHR_NAME-->
-    </resource>
+	</resource>
+	<resource name="none">
+	</resource>
 	<resource name="application_title">
 		Greenshot - das revolutionäre Screenshot-Tool
 	</resource>
@@ -96,7 +98,7 @@ Für Greenshot besteht KEINERLEI GARANTIE. Greenshot ist freie Software, die Sie
 Detaillierte Informationen zur GNU General Public License:
 	</resource>
 	<resource name="error_openlink">
-		Konnte Link nicht öffnen.
+		Konnte Link '{0}' nicht öffnen.
 	</resource>
 	<resource name="error_save">
 		Screenshot konnte nicht gespeichert werden, bitte wählen Sie einen anderen Speicherort.
@@ -260,8 +262,14 @@ Sie können alle Greenshot-Funktionen aber auch über das Kontextmenü des Green
 	<resource name="settings_destination_clipboard">
 		In Zwischenablage kopieren
 	</resource>
+	<resource name="settings_destination_picker">
+		Ziel auswählen
+	</resource>
 	<resource name="editor_drawline">
 		Linie zeichnen (L)
+	</resource>
+	<resource name="editor_drawfreehand">
+		Freihandlinie zeichnen (F)
 	</resource>
 	<resource name="settings_destination">
 		Screenshot Ziel
@@ -486,7 +494,7 @@ Zeit, z.B. 11_58_32 (plus Dateinamenerweiterung wie in den Einstellungen definie
 		Abfotografieren
 	</resource>
 	<resource name="settings_plugins">
-		Zusatzmodulen
+		Zusatzmodule
 	</resource>
 	<resource name="settings_capture_mousepointer">
 		Mousepointer mit abfotografieren
@@ -531,13 +539,22 @@ Zeit, z.B. 11_58_32 (plus Dateinamenerweiterung wie in den Einstellungen definie
 		Objekte in Datei speichern
 	</resource>
 	<resource name="editor_match_capture_size">
-		Mache dem Editor so groß wie dem screenshot
+		Anpassen an Aufnahmebereich
+	</resource>
+	<resource name="editor_autocrop">
+		Automatisch zuschneiden
+	</resource>
+	<resource name="editor_undo">
+		Rückgängig {0}
+	</resource>
+	<resource name="editor_redo">
+		Wiederherstellen {0}
 	</resource>
 	<resource name="settings_waittime">
 		Millisekunden warten vor abfotografieren
 	</resource>
 	<resource name="tooltip_firststart">
-		Klicken Sie hier mit der rechten Maustaste oder drücken Sie die Druck-Taste.
+		Klicken Sie hier mit der rechten Maustaste oder drücken Sie die {0} Taste.
 	</resource>
 	<resource name="contextmenu_donate">
 		Greenshot unterstützen
@@ -577,6 +594,33 @@ Zeit, z.B. 11_58_32 (plus Dateinamenerweiterung wie in den Einstellungen definie
 	</resource>
 	<resource name="update_found">
 		Eine neuere Greenshot Version steht zur Verfügung! Wollen Sie Greenshot {0} herunterladen?
+	</resource>
+	<resource name="exported_to">
+		Exportiert nach: {0}
+	</resource>
+	<resource name="WindowCaptureMode.Screen">
+		Wie angezeigt
+	</resource>
+	<resource name="WindowCaptureMode.GDI">
+		Standardfarbe verwenden
+	</resource>
+	<resource name="WindowCaptureMode.Aero">
+		Eigene Farbe verwenden
+	</resource>
+	<resource name="WindowCaptureMode.AeroTransparent">
+		Transparenz erhalten
+	</resource>
+	<resource name="WindowCaptureMode.Auto">
+		Automatisch
+	</resource>
+	<resource name="EmailFormat.MAPI">
+		MAPI klient
+	</resource>
+	<resource name="EmailFormat.OUTLOOK_TXT">
+		Outlook mit text
+	</resource>
+	<resource name="EmailFormat.OUTLOOK_HTML">
+		Outlook mit HTML
 	</resource>
   </resources>
 </language>

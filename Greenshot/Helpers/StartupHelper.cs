@@ -19,20 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Security;
-using System.Security.AccessControl;
-using System.Security.Permissions;
-using System.Security.Principal;
-using System.Text;
 using System.Windows.Forms;
-
 using Microsoft.Win32;
 
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// A helper class for the startup registry
 	/// </summary>
-	public class StartupHelper {
+	public static class StartupHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(StartupHelper));
 
 		private const string RUNKEY = @"Software\Microsoft\Windows\CurrentVersion\Run";

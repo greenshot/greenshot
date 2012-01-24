@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Français" ietf="fr-FR" version="0.8.1">
+<language description="Français" ietf="fr-FR" version="0.8.1" languagegroup="1">
   <resources>
 	<resource name="about_translation">
 		Traduction Française par 恵美の女猫 (EminoMeneko).
-    </resource>
+	</resource>
 	<resource name="application_title">
 		Greenshot - l'utilitaire révolutionnaire de capture d'écran
 	</resource>
@@ -32,7 +32,7 @@
 		Motif du nom de fichier
 	</resource>
 	<resource name="settings_tooltip_language">
-		Langue utilisée pour l'interface utilisateur de Greenshot
+		Langue utilisée pour l'interface utilisateur de Greenshot (Redémarrage requis)
 	</resource>
 	<resource name="settings_tooltip_filenamepattern">
 		Motif utilisé pour générer les noms de fichier lors de la sauvegarde des captures d'écran
@@ -84,17 +84,17 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.
 		A propose de Greenshot
 	</resource>
 	<resource name="about_license">
-		Copyright © 2007-2011 Thomas Braun, Jens Klingen, Robin Krom
+		Copyright © 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
 Détails de la GNU General Public License : 
-	</resource>
+</resource>
 	<resource name="error_openlink">
-		Ne peut ouvrir le lien
+		Ne peut ouvrir le lien '{0}'.
 	</resource>
 	<resource name="error_save">
 		Ne peut sauvegarder la capture d'écran. Veuillez trouver un répertoire adéquat !
 	</resource>
-    <resource name="about_icons">
+	<resource name="about_icons">
 		Icônes provenant du lot d'icônes Fugue de Kamiyamane Yuusuke (Creative Commons Attrubution 3.0 license)
 	</resource>
 	<resource name="about_host">
@@ -133,7 +133,7 @@ Détails de la GNU General Public License :
 	<resource name="editor_deleteelement">
 		Supprimer
 	</resource>
-    <resource name="editor_selectall">
+	<resource name="editor_selectall">
 		Sélectionner tout
 	</resource>
 	<resource name="editor_copyimagetoclipboard">
@@ -159,6 +159,9 @@ Détails de la GNU General Public License :
 	</resource>
 	<resource name="settings_preferredfilesettings">
 		Préférences d'enregistrement
+	</resource>
+	<resource name="settings_skipimageeditor">
+		Passer l'éditeur d'image
 	</resource>
 	<resource name="settings_registerhotkeys">
 		Enregistrer les raccourcis clavier
@@ -276,10 +279,10 @@ Veuillez désactiver ce(s) logiciel(s) utilisant le bouton Impr.écran. Vous pou
 	<resource name="editor_arrowheads_none">
 		Aucun
 	</resource>
-    <resource name="editor_obfuscate_mode">
+	<resource name="editor_obfuscate_mode">
 		Brouiller
 	</resource>
-    <resource name="editor_highlight_mode">
+	<resource name="editor_highlight_mode">
 		Mode de surlignage
 	</resource>
 	<resource name="error_multipleinstances">
@@ -291,9 +294,9 @@ Veuillez désactiver ce(s) logiciel(s) utilisant le bouton Impr.écran. Vous pou
 	<resource name="clipboard_inuse">
 		Greenshot n'a pu écrire dans le presse-papier car le processus {0} en a bloqué l'accès.
 	</resource>
-    <resource name="print_error">
-  		Erreur lors produite pendant l'impression. Veuillez réessayer.
-    </resource>
+	<resource name="print_error">
+		Erreur lors produite pendant l'impression. Veuillez réessayer.
+	</resource>
 	<resource name="printoptions_title">
 		Greenshot Options d'impression
 	</resource>
@@ -417,40 +420,40 @@ ${hostname} Nom d'hôte du PC
 	<resource name="editor_highlight_text">
 		Surligner le texte
 	</resource>
-    <resource name="editor_highlight_grayscale">
+	<resource name="editor_highlight_grayscale">
 		Niveaux de gris
-    </resource>
-    <resource name="editor_highlight_magnify">
+	</resource>
+	<resource name="editor_highlight_magnify">
 		Agrandir
 	</resource>
 	<resource name="editor_pixel_size">
 		Taille de pixel
 	</resource>
-    <resource name="editor_obfuscate">
+	<resource name="editor_obfuscate">
 		Brouiller (O)
 	</resource>
-    <resource name="editor_blur_radius">
+	<resource name="editor_blur_radius">
 		Rayon du floutage
-    </resource>
-    <resource name="editor_brightness">
+	</resource>
+	<resource name="editor_brightness">
 		Luminosité
 	</resource>
-    <resource name="editor_preview_quality">
+	<resource name="editor_preview_quality">
 		Qualité des prévisualisations
 	</resource>
-    <resource name="editor_magnification_factor">
+	<resource name="editor_magnification_factor">
 		Facteur de magnitude
-    </resource>
-    <resource name="editor_shadow">
+	</resource>
+	<resource name="editor_shadow">
 		Ombre
 	</resource>
-    <resource name="editor_confirm">
+	<resource name="editor_confirm">
 		Confirmer
 	</resource>
-    <resource name="editor_cancel">
+	<resource name="editor_cancel">
 		Annuler
 	</resource>
-    <resource name="editor_crop">
+	<resource name="editor_crop">
 		Rogner (C)
 	</resource>
 	<resource name="contextmenu_captureclipboard">
@@ -505,7 +508,41 @@ ${hostname} Nom d'hôte du PC
 		Cliquez droit ici ou appuyez sur Impr. écran.
 	</resource>
 	<resource name="contextmenu_donate">
-		Aidez Greenshot
+		Soutenez Greenshot
 	</resource>
+	<!-- v0.8.0.0627 to 0.8.1.1204 -->
+	<resource name="contextmenu_captureie">
+		Capturer Internet Explorer
+	</resource>
+	<resource name="hotkeys">
+		Raccourcis clavier
+	</resource>
+	<resource name="hotkey_fullscreen">
+		Capturer l'écran
+	</resource>
+	<resource name="hotkey_ie">
+		Capturer Internet Explorer
+	</resource>
+	<resource name="hotkey_lastregion">
+		Capturer la dernière région
+	</resource>
+	<resource name="hotkey_region">
+		Capturer une région
+	</resource>
+	<resource name="hotkey_window">
+		Capturer une fenêtre
+	</resource>
+		<resource name="printoptions_inverted">
+		Imprimer en couleurs inversées.
+	</resource>
+	<resource name="settings_capture_window_full">
+		Capturer la fenêtre même si elle est obstruée
+	</resource>
+	<resource name="settings_capture_window_content">
+		Ne capturer le contenu que dans les applications supportées
+	</resource>	
+	<resource name="wait_ie_capture">
+		Veuillez patienter pendant que la page dans Internet Explorer est capturée...
+	</resource>	
   </resources>
 </language>

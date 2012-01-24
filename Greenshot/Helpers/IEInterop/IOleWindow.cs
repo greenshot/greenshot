@@ -20,8 +20,6 @@
  */
 using System;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Collections;
 
 namespace Greenshot.Helpers.IEInterop {
 	// Needed to get the Window handle from the IDocument2

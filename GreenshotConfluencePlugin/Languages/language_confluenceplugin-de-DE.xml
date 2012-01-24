@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Deutsch" ietf="de-DE" version="0.8.0">
+<language description="Deutsch" ietf="de-DE" version="0.8.0" prefix="confluence">
   <resources>
 	<resource name="login_error">
 		Es gab ein Problem während dem Login: {0}
@@ -9,6 +9,9 @@
 	</resource>
 	<resource name="label_url">
 		Url
+	</resource>
+	<resource name="label_timeout">
+		Timeout
 	</resource>
   	<resource name="label_user">
 		Benutzer
@@ -22,11 +25,26 @@
   	<resource name="CANCEL">
 		Cancel
 	</resource>
+  	<resource name="upload_menu_item">
+		In Confluence hochladen
+	</resource>
   	<resource name="upload_success">
 		Ein erfolg beim Hochladen zum Confluence!
 	</resource>
   	<resource name="upload_failure">
 		Es gab einen Fehler beim Hochladen zum Confluence:
+	</resource>
+  	<resource name="open_page_after_upload">
+		Seite nach dem upload öffnen
+	</resource>
+  	<resource name="upload_format">
+		Upload format
+	</resource>
+	<resource name="copy_wikimarkup">
+  		Copy the Wikimarkup for image to the Clipboard
+  	</resource>
+  	<resource name="filename">
+		Filename
 	</resource>
   </resources>
 </language>

@@ -22,12 +22,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Windows.Forms;
 
-using Greenshot.Configuration;
-using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing {
@@ -107,8 +102,8 @@ namespace Greenshot.Drawing {
 		
 		public void Load(string filename) {
 			if (File.Exists(filename)) {
-				using (Metafile fileMetafile = new Metafile(filename)) {
-					Metafile = fileMetafile;
+				using (Stream imageFileStream = File.OpenRead(filename)) {
+					Metafile = (Metafile)Image.FromStream(imageFileStream, true, true);
 					LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 				}
 			}

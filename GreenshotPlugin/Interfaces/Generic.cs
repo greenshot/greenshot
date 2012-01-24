@@ -32,10 +32,37 @@ namespace Greenshot.Plugin {
 	//public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
 	public enum VerticalAlignment {TOP, CENTER, BOTTOM};
 
+	public enum SurfaceMessageTyp {
+		FileSaved,
+		Error,
+		Info
+	}
+
+	public class SurfaceMessageEventArgs : EventArgs {
+		public SurfaceMessageTyp MessageType {
+			get;
+			set;
+		}
+		public string Message {
+			get;
+			set;
+		}
+		public ISurface Surface {
+			get;
+			set;
+		}
+	}
+	
+	public delegate void SurfaceSizeChangeEventHandler(object source);
+	public delegate void SurfaceMessageEventHandler(object source, SurfaceMessageEventArgs eventArgs);
+
 	/// <summary>
 	/// The interface to the Surface object, so Plugins can use it.
 	/// </summary>
-	public interface ISurface {
+	public interface ISurface : IDisposable {
+		event SurfaceSizeChangeEventHandler SurfaceSizeChanged;
+		event SurfaceMessageEventHandler SurfaceMessage;		
+
 		/// <summary>
 		/// Get/Set the image to the Surface
 		/// get will give the image as is currently visible
@@ -98,5 +125,10 @@ namespace Greenshot.Plugin {
 			get;
 			set;
 		}
+		string LastSaveFullPath {
+			get;
+			set;
+		}
+		void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
 	}
 }

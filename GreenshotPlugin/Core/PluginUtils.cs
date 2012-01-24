@@ -19,17 +19,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Drawing;
 using System.Windows.Forms;
+
 using Greenshot.Plugin;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Description of PluginUtils.
 	/// </summary>
-	public class PluginUtils {
-		private PluginUtils() {
-		}
+	public static class PluginUtils {
 		
+		/// <summary>
+		/// Helper method to add a MenuItem to the File MenuItem of an ImageEditor
+		/// </summary>
+		/// <param name="image">Image to display in the menu</param>
+		/// <param name="text">Text to display in the menu</param>
+		/// <param name="tag">The TAG value</param>
+		/// <param name="shortcutKeys">Keys which can be used as shortcut</param>
+		/// <param name="handler">The onclick handler</param>
+		public static void AddToFileMenu(IImageEditor imageEditor, Image image, string text, object tag, Keys? shortcutKeys, System.EventHandler handler) {
+			System.Windows.Forms.ToolStripMenuItem item = new System.Windows.Forms.ToolStripMenuItem();
+			item.Image = image;
+			item.Text = text;
+			item.Tag = tag;
+			if (shortcutKeys.HasValue) {
+				item.ShortcutKeys = shortcutKeys.Value;
+			}
+			item.Click += handler;
+			AddToFileMenu(imageEditor, item);
+		}
+
 		/// <summary>
 		/// Helper method to add a MenuItem to the File MenuItem of an ImageEditor
 		/// </summary>
@@ -67,6 +87,29 @@ namespace GreenshotPlugin.Core {
 			}
 			if (!added) {
 				toolStripMenuItem.DropDownItems.Add(item);
+			}
+		}
+		/// <summary>
+		/// Helper method to add a MenuItem to the Greenshot context menu
+		/// </summary>
+		/// <param name="imageEditor"></param>
+		/// <param name="item"></param>
+		public static void AddToContextMenu(IGreenshotHost host, ToolStripMenuItem item) {
+			// Here we can hang ourselves to the main context menu!
+			ContextMenuStrip contextMenu = host.MainMenu;
+			bool addedItem = false;
+
+			// Try to find a separator, so we insert ourselves after it 
+			for(int i=0; i < contextMenu.Items.Count; i++) {
+				if (contextMenu.Items[i].GetType() == typeof(ToolStripSeparator)) {
+					contextMenu.Items.Insert(i+1, item);
+					addedItem = true;
+					break;
+				}
+			}
+			// If we didn't insert the item, we just add it...
+			if (!addedItem) {
+				contextMenu.Items.Add(item);
 			}
 		}
 	}

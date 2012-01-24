@@ -20,7 +20,6 @@
  */
 using System;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Greenshot.Helpers.IEInterop {
 	// See: http://msdn.microsoft.com/en-us/library/aa768849%28v=vs.85%29.aspx

@@ -123,7 +123,8 @@ namespace Greenshot {
 			this.contextmenu_capturewindow.ShortcutKeyDisplayString = "Alt + Print";
 			this.contextmenu_capturewindow.Size = new System.Drawing.Size(242, 22);
 			this.contextmenu_capturewindow.Text = "Capture window";
-			this.contextmenu_capturewindow.MouseEnter += new System.EventHandler(EnterCaptureWindowMenuItem);
+			this.contextmenu_capturewindow.DropDownOpening += new System.EventHandler(CaptureWindowMenuDropDownOpening);
+			this.contextmenu_capturewindow.DropDownClosed += new System.EventHandler(CaptureWindowMenuDropDownClosed);
 			// 
 			// contextmenu_capturefullscreen
 			// 
@@ -226,7 +227,7 @@ namespace Greenshot {
 			this.contextmenu_captureie.Size = new System.Drawing.Size(231, 22);
 			this.contextmenu_captureie.Text = "Capture IE Tab";
 			this.contextmenu_captureie.ShortcutKeyDisplayString = "Ctrl + Shift + Print";
-			this.contextmenu_captureie.MouseEnter += new System.EventHandler(EnterCaptureIEMenuItem);
+			this.contextmenu_captureie.DropDownOpening += new System.EventHandler(CaptureIEMenuDropDownOpening);
 			// 
 			// backgroundWorkerTimer
 			// 
@@ -277,7 +278,7 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripMenuItem contextmenu_capturefullscreen;
 		private System.Windows.Forms.ToolStripMenuItem contextmenu_capturelastregion;
 		private System.Windows.Forms.ToolStripMenuItem contextmenu_capturearea;
-		private System.Windows.Forms.NotifyIcon notifyIcon;
+		public System.Windows.Forms.NotifyIcon notifyIcon;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripMenuItem contextmenu_exit;
 		private System.Windows.Forms.ContextMenuStrip contextMenu;

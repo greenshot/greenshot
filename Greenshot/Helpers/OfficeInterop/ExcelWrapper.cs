@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Greenshot.Interop;
-using Greenshot.Plugin;
 
 namespace Greenshot.Helpers.OfficeInterop {
 	// See http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.application.aspx
@@ -34,49 +34,96 @@ namespace Greenshot.Helpers.OfficeInterop {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbooks.aspx
-	public interface IWorkbooks : Common {
+	public interface IWorkbooks : Common, Collection {
 		IWorkbook Add(object template);
+		IWorkbook this[object Index] { get; }
 	}
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.document.aspx
+
+	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbook.aspx
 	public interface IWorkbook : Common {
 		IWorksheet ActiveSheet {get;}
+		string Name { get; }
+		void Activate();
+		IWorksheets Worksheets { get; }
 	}
 	
+	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel._worksheet_members.aspx
 	public interface IWorksheet : Common {
 		IPictures Pictures {get;}
+		string Name { get; }
 	}
-	public interface IPictures : Common {
+
+	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.iworksheets_members.aspx
+	public interface IWorksheets : Common, Collection {
+		Object this[object Index] { get; }
+	}
+
+	public interface IPictures : Common, Collection {
 		void Insert(string file);
 	}
 	
 	public class ExcelExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
 
-		private static IExcelApplication ExcelApplication() {
+		private static IExcelApplication GetOrCreateExcelApplication() {
 			return (IExcelApplication)COMWrapper.GetOrCreateInstance(typeof(IExcelApplication));
 		}
 
-		public static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile) {
-			workbook.ActiveSheet.Pictures.Insert(tmpFile);
+		private static IExcelApplication GetExcelApplication() {
+			return (IExcelApplication)COMWrapper.GetInstance(typeof(IExcelApplication));
 		}
 		
-		private static void InsertIntoNewWorkbook(IExcelApplication excelApplication, string tmpFile) {
-			LOG.Debug("No workbook, creating a new workbook");
-			object template = Missing.Value;
-			IWorkbook workbook = excelApplication.Workbooks.Add(template);
-			InsertIntoExistingWorkbook(workbook, tmpFile);
+		public static List<string> GetWorkbooks() {
+			List<string> currentWorkbooks = new List<string>();
+			using( IExcelApplication excelApplication = GetExcelApplication() ) {
+				if (excelApplication != null) {
+					for(int i = 1; i <= excelApplication.Workbooks.Count ; i ++) {
+						IWorkbook workbook = excelApplication.Workbooks[i];
+						if (workbook != null) {
+							currentWorkbooks.Add(workbook.Name);
+						}
+					}
+				}
+			}
+			return currentWorkbooks;
 		}
 
-		public static void ExportToExcel(string tmpFile) {
-			using( IExcelApplication excelApplication = ExcelApplication() ) {
+		/// <summary>
+		/// Insert image from supplied tmp file into the give excel workbook
+		/// </summary>
+		/// <param name="workbookName"></param>
+		/// <param name="tmpFile"></param>
+		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile) {
+			using( IExcelApplication excelApplication = GetExcelApplication() ) {
+				if (excelApplication != null) {
+					for(int i = 1; i <= excelApplication.Workbooks.Count ; i ++) {
+						IWorkbook workbook = excelApplication.Workbooks[i];
+						if (workbook != null && workbook.Name.StartsWith(workbookName)) {
+							InsertIntoExistingWorkbook(workbook, tmpFile);
+						}
+					}
+				}
+			}
+		}
+
+		private static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile) {
+			IWorksheet sheet = workbook.ActiveSheet;
+			if (sheet != null) {
+				if (sheet.Pictures != null) {
+					sheet.Pictures.Insert(tmpFile);
+				}
+			} else {
+				LOG.Error("No pictures found");
+			}
+		}
+		
+		public static void InsertIntoNewWorkbook(string tmpFile) {
+			using( IExcelApplication excelApplication = GetOrCreateExcelApplication() ) {
 				if (excelApplication != null) {
 					excelApplication.Visible = true;
-					if (excelApplication.ActiveWorkbook != null) {
-						InsertIntoExistingWorkbook(excelApplication.ActiveWorkbook, tmpFile);
-					} else {
-						InsertIntoNewWorkbook(excelApplication, tmpFile);
-					}
-					return;
+					object template = Missing.Value;
+					IWorkbook workbook = excelApplication.Workbooks.Add(template);
+					InsertIntoExistingWorkbook(workbook, tmpFile);
 				}
 			}
 		}

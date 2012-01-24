@@ -58,101 +58,14 @@ namespace Greenshot.Plugin {
 		}
 	}
 
-	#region EventArgs
-	[Serializable]
-	public class ImageEditorOpenEventArgs : EventArgs {  
-		private readonly IImageEditor imageEditor;
-		public IImageEditor ImageEditor {     
-			get { return imageEditor;}      
-		}
-		public ImageEditorOpenEventArgs(IImageEditor imageEditor) {
-			this.imageEditor = imageEditor;
-		}
-	}
-
-	[Serializable]
-	public class CaptureTakenEventArgs : EventArgs {
-		private readonly ICapture capture;
-		public ICapture Capture {     
-			get { return capture;}      
-		}
-		public CaptureTakenEventArgs(ICapture capture) {
-			this.capture = capture;
-		}
-	}
-
-	[Serializable]
-	public class SurfaceFromCaptureEventArgs : EventArgs {
-		private readonly ICapture capture;
-		public ICapture Capture {     
-			get { return capture;}      
-		}
-		private readonly ISurface surface;
-		public ISurface Surface {     
-			get { return surface;}      
-		}
-		public SurfaceFromCaptureEventArgs(ICapture capture, ISurface surface) {
-			this.capture = capture;
-			this.surface = surface;
-		}
-	}
-
-	[Serializable]
-	public class ImageOutputEventArgs : EventArgs {
-		private readonly string fullPath;
-		public string FullPath {     
-			get { return fullPath;}      
-		}
-
-		private readonly Image image;
-		public Image Image {     
-			get { return image;}      
-		}
-
-		private readonly ICaptureDetails captureDetails;
-		public ICaptureDetails CaptureDetails {     
-			get { return captureDetails;}      
-		}
-
-		public ImageOutputEventArgs(string fullPath, Image image, ICaptureDetails captureDetails) {
-			this.image = image;
-			this.fullPath = fullPath;
-			this.captureDetails = captureDetails;
-		}
-	}	
-	#endregion
-
 	// Delegates for hooking up events.
-	public delegate void OnImageEditorOpenHandler(object sender, ImageEditorOpenEventArgs e);
-	public delegate void OnCaptureTakenHandler(object sender, CaptureTakenEventArgs e);
-	public delegate void OnSurfaceFromCaptureHandler(object sender, SurfaceFromCaptureEventArgs e);
-	public delegate void OnImageOutputHandler(object sender, ImageOutputEventArgs e);
 	public delegate void HotKeyHandler();
 
 	/// <summary>
 	/// This interface is the GreenshotPluginHost, that which "Hosts" the plugin.
 	/// For Greenshot this is implmented in the PluginHelper
 	/// </summary>
-	public interface IGreenshotPluginHost {
-		/// The Plugin can register to be called after every a newly opened ImageEditor
-		/// and will be passed the IImageEditor interface so it can register itself e.g. in the Menu
-		event OnImageEditorOpenHandler OnImageEditorOpen;
-
-		/// The Plugin can register to be called after every take Capture
-		/// and will be passed the ICapture interface so it can do something with it
-		event OnCaptureTakenHandler OnCaptureTaken;
-
-		/// The Plugin can register to be called after a Surface is created from a Capture
-		/// and will be passed the ICapture and ISurface interfaces so it can do something with it
-		event OnSurfaceFromCaptureHandler OnSurfaceFromCapture;
-
-		/// <summary>
-		/// Return the location of the configuration, if any
-		/// </summary>
-		string ConfigurationPath {
-			get;
-		}
-		
+	public interface IGreenshotHost {
 		ContextMenuStrip MainMenu {
 			get;
 		}
@@ -165,7 +78,24 @@ namespace Greenshot.Plugin {
 		/// <param name="format">The format to save with (png, jpg etc)</param>
 		/// <param name="quality">Jpeg quality</param>
 		void SaveToStream(Image image, Stream stream, OutputFormat format, int quality);
-		
+
+		/// <summary>
+		/// Saves the image to a temp file (random name) using the specified outputformat
+		/// </summary>
+		/// <param name="image">The Image to save</param>
+		/// <param name="format">The format to save with (png, jpg etc)</param>
+		/// <param name="quality">Jpeg quality</param>
+		string SaveToTmpFile(Image image, OutputFormat outputFormat, int quality);
+
+		/// <summary>
+		/// Saves the image to a temp file, but the name is build with the capture details & pattern
+		/// </summary>
+		/// <param name="image">The Image to save</param>
+		/// <param name="captureDetails">captureDetails with the information to build the filename</param>
+		/// <param name="outputformat">The format to save with (png, jpg etc)</param>
+		/// <param name="quality">Jpeg quality</param>
+		string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality);
+
 		/// <summary>
 		/// Return a filename for the current image format (png,jpg etc) with the default file pattern
 		/// that is specified in the configuration
@@ -188,6 +118,34 @@ namespace Greenshot.Plugin {
 		Dictionary<PluginAttribute, IGreenshotPlugin> Plugins {
 			get;
 		}
+		
+		/// <summary>
+		/// Make region capture with specified Handler
+		/// </summary>
+		/// <param name="captureMouseCursor">bool false if the mouse should not be captured, true if the configuration should be checked</param>
+		/// <param name="destination">IDestination destination</param>
+		void CaptureRegion(bool captureMouseCursor, IDestination destination);
+
+		/// <summary>
+		/// Use the supplied capture, and handle it as if it's captured.
+		/// </summary>
+		/// <param name="captureToImport">ICapture to import</param>
+		void ImportCapture(ICapture captureToImport);
+
+		/// <summary>
+		/// Use the supplied image, and ICapture a capture object for it
+		/// </summary>
+		/// <param name="imageToCapture">Image to create capture for</param>
+		/// <returns>ICapture</returns>
+		ICapture GetCapture(Image imageToCapture);
+		
+		/// <summary>
+		/// Get the core language object
+		/// </summary>
+		/// <returns>ILanguage for the Greenshot core</returns>
+		ILanguage CoreLanguage {
+			get;
+		}
 	}
 
 	public interface IGreenshotPlugin {
@@ -196,7 +154,8 @@ namespace Greenshot.Plugin {
 		/// </summary>
 		/// <param name="host">The IPluginHost that will be hosting the plugin</param>
 		/// <param name="pluginAttribute">The PluginAttribute for the actual plugin</param>
-		void Initialize(IGreenshotPluginHost host, ICaptureHost captureHost, PluginAttribute pluginAttribute);
+		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
+		bool Initialize(IGreenshotHost host, PluginAttribute pluginAttribute);
 
 		/// <summary>
 		/// Unload of the plugin
@@ -207,5 +166,15 @@ namespace Greenshot.Plugin {
 		/// Open the Configuration Form, will/should not be called before handshaking is done
 		/// </summary>
 		void Configure();
+		
+		/// <summary>
+		/// Return IDestination's, if the plugin wants to
+		/// </summary>
+		IEnumerable<IDestination> Destinations();
+
+		/// <summary>
+		/// Return IProcessor's, if the plugin wants to
+		/// </summary>
+		IEnumerable<IProcessor> Processors();
 	}
 }

@@ -24,6 +24,7 @@ using System.Windows.Forms;
 
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -31,13 +32,15 @@ namespace GreenshotImgurPlugin {
 	/// </summary>
 	[IniSection("Imgur", Description="Greenshot Imgur Plugin configuration")]
 	public class ImgurConfiguration : IniSection {
-		[IniProperty("ImgurApiUrl", Description="Url to Imgur system.", DefaultValue="http://api.imgur.com/2/")]
+		[IniProperty("ImgurApiUrl", Description="Url to Imgur system.", DefaultValue="http://api.imgur.com/2")]
 		public string ImgurApiUrl;
 		
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
 		public OutputFormat UploadFormat;
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int UploadJpegQuality;
+		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
+		public bool UsePageLink;
 		
 		[IniProperty("ImgurUploadHistory", Description="Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
 		public Dictionary<string, string> ImgurUploadHistory;
@@ -61,7 +64,7 @@ namespace GreenshotImgurPlugin {
 		/// A form for username/password
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
-        public bool ShowConfigDialog() {
+		public bool ShowConfigDialog() {
 			SettingsForm settingsForm;
 			ILanguage lang = Language.GetInstance();
 
@@ -71,18 +74,21 @@ namespace GreenshotImgurPlugin {
 			} finally {
 				backgroundForm.CloseDialog();
 			}
-        	settingsForm.Url = ImgurApiUrl;
-        	settingsForm.UploadFormat = UploadFormat.ToString();
-        	DialogResult result = settingsForm.ShowDialog();
-        	if (result == DialogResult.OK) {
-        		if (!settingsForm.Url.Equals(ImgurApiUrl) || !settingsForm.UploadFormat.Equals(UploadFormat.ToString())) {
-            		ImgurApiUrl = settingsForm.Url;
-            		UploadFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), settingsForm.UploadFormat.ToLower());
-            	}
-           		IniConfig.Save();
-        		return true;
-        	}
-        	return false;
-        }
+			settingsForm.Url = ImgurApiUrl;
+			settingsForm.UsePageLink = UsePageLink;
+			settingsForm.UploadFormat = UploadFormat.ToString();
+			DialogResult result = settingsForm.ShowDialog();
+			if (result == DialogResult.OK) {
+				if (!settingsForm.Url.Equals(ImgurApiUrl) || !settingsForm.UploadFormat.Equals(UploadFormat.ToString())
+					|| !!settingsForm.UsePageLink.Equals(UsePageLink)) {
+					ImgurApiUrl = settingsForm.Url;
+					UploadFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), settingsForm.UploadFormat.ToLower());
+					UsePageLink = settingsForm.UsePageLink;
+				}
+				IniConfig.Save();
+				return true;
+			}
+			return false;
+		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="English" ietf="en-US" version="0.8.1">
+<language description="English" ietf="en-US" version="0.8.1" languagegroup="1">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
@@ -7,6 +7,8 @@
 	-->
 	<resource name="about_translation">
 		<!--English translation by YOUR_NAME-->
+	</resource>
+	<resource name="none">
 	</resource>
 	<resource name="application_title">
 		Greenshot - the revolutionary screenshot utility
@@ -62,6 +64,9 @@
 	<resource name="settings_visualization">
 		Effects
 	</resource>
+	<resource name="settings_shownotify">
+		Show notifications
+	</resource>
 	<resource name="settings_playsound">
 		Play camera sound
 	</resource>
@@ -96,7 +101,7 @@ Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are 
 Details about the GNU General Public License:
 	</resource>
 	<resource name="error_openlink">
-		Could not open link.
+		Could not open link '{0}'.
 	</resource>
 	<resource name="error_save">
 		Could not save screenshot, please find a suitable location.
@@ -259,8 +264,14 @@ All Greenshot features still work directly from the tray icon context menu witho
 	<resource name="settings_destination_clipboard">
 		Copy to clipboard
 	</resource>
+	<resource name="settings_destination_picker">
+		Select destination
+	</resource>
 	<resource name="editor_drawline">
 		Draw line (L)
+	</resource>
+	<resource name="editor_drawfreehand">
+		Draw freehand (F)
 	</resource>
 	<resource name="settings_destination">
 		Screenshot Destination
@@ -533,11 +544,20 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	<resource name="editor_match_capture_size">
 		Match capture size
 	</resource>
+	<resource name="editor_autocrop">
+		Auto crop
+	</resource>
+	<resource name="editor_undo">
+		Undo {0}
+	</resource>
+	<resource name="editor_redo">
+		Redo {0}
+	</resource>
 	<resource name="settings_waittime">
 		Milliseconds to wait before capture
 	</resource>
 	<resource name="tooltip_firststart">
-		Right-click here or press the Print-key.
+		Right-click here or press the {0} key.
 	</resource>
 	<resource name="contextmenu_donate">
 		Support Greenshot
@@ -577,6 +597,33 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	</resource>
 	<resource name="update_found">
 		A newer version of Greenshot is available! Do you want to download Greenshot {0}?
+	</resource>
+	<resource name="exported_to">
+		Exported to: {0}
+	</resource>
+	<resource name="WindowCaptureMode.Screen">
+		As displayed
+	</resource>
+	<resource name="WindowCaptureMode.GDI">
+		Use default color
+	</resource>
+	<resource name="WindowCaptureMode.Aero">
+		Use custom color
+	</resource>
+	<resource name="WindowCaptureMode.AeroTransparent">
+		Preserve transparency
+	</resource>
+	<resource name="WindowCaptureMode.Auto">
+		Automatically
+	</resource>
+	<resource name="EmailFormat.MAPI">
+		MAPI client
+	</resource>
+	<resource name="EmailFormat.OUTLOOK_TXT">
+		Outlook with text
+	</resource>
+	<resource name="EmailFormat.OUTLOOK_HTML">
+		Outlook with HTML
 	</resource>
   </resources>
 </language>

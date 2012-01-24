@@ -20,10 +20,7 @@
  */
 using System;
 using System.Drawing;
-using System.Runtime.Serialization;
-using System.Windows.Forms;
-
-using Greenshot.Configuration;
+using System.Drawing.Drawing2D;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
@@ -40,7 +37,7 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
-			AddField(GetType(), FieldType.SHADOW, false);
+			AddField(GetType(), FieldType.SHADOW, true);
 		}
 		
 		
@@ -73,8 +70,10 @@ namespace Greenshot.Drawing {
 			
 			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
 			
-			using (Brush brush = new SolidBrush(fillColor)) {
-				g.FillRectangle(brush, rect);
+			if (!Color.Transparent.Equals(fillColor)) {
+				using (Brush brush = new SolidBrush(fillColor)) {
+					g.FillRectangle(brush, rect);
+				}
 			}
 			
 			if (lineThickness > 0) {
@@ -85,5 +84,29 @@ namespace Greenshot.Drawing {
 			}
 		}
 		
+		public override bool ClickableAt(int x, int y) {
+			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
+			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
+			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+
+			// If we clicked inside the rectangle and it's visible we are clickable at.
+			if (!Color.Transparent.Equals(fillColor)) {
+				if (rect.Contains(x,y)) {
+					return true;
+				}
+			}
+
+			// check the rest of the lines
+			if (lineThickness > 0) {
+				using (Pen pen = new Pen(Color.White)) {
+					pen.Width = lineThickness;
+					GraphicsPath path = new GraphicsPath();
+					path.AddRectangle(rect);
+					return path.IsOutlineVisible(x, y, pen);
+				}
+			} else {
+				return false;
+			}
+		}
 	}
 }

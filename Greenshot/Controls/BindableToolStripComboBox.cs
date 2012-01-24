@@ -21,7 +21,6 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using System.Windows.Forms.Design;
 
 namespace Greenshot.Controls {
 	/// <summary>

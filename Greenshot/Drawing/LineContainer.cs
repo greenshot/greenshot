@@ -19,13 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
-using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
@@ -40,22 +37,27 @@ namespace Greenshot.Drawing {
 		
 		public LineContainer(Surface parent) : base(parent) {
 			Init();
-			AddField(GetType(), FieldType.LINE_THICKNESS, 1);
+			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.SHADOW, false);
+			AddField(GetType(), FieldType.SHADOW, true);
 		}
 		
-		private void Init() {
-			grippers[1].Enabled = false;
-			grippers[2].Enabled = false;
-			grippers[3].Enabled = false;
-			grippers[5].Enabled = false;
-			grippers[6].Enabled = false;
-			grippers[7].Enabled = false;
+		[OnDeserializedAttribute()]
+		private void OnDeserialized(StreamingContext context) {
+			InitGrippers();
+			DoLayout();
+			Init();
+		}
+
+		protected void Init() {
+			foreach(int index in new int[]{1,2,3,5,6,7}) {
+				grippers[index].Enabled = false;
+			}
 		}
 		
-		public override void Draw(Graphics g, RenderMode rm) {
-			g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+		public override void Draw(Graphics graphics, RenderMode rm) {
+			graphics.SmoothingMode = SmoothingMode.AntiAlias;
+			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 			
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
@@ -71,7 +73,7 @@ namespace Greenshot.Drawing {
 					using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
 						shadowCapPen.Width = lineThickness;
 	
-						g.DrawLine(shadowCapPen,
+						graphics.DrawLine(shadowCapPen,
 							this.Left + currentStep,
 							this.Top + currentStep,
 							this.Left + currentStep + this.Width,
@@ -83,24 +85,32 @@ namespace Greenshot.Drawing {
 				}
 			}
 
-
 			using (Pen pen = new Pen(lineColor)) {
 				pen.Width = lineThickness;
-	
 				if(pen.Width > 0) {
-					g.DrawLine(pen, this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+					graphics.DrawLine(pen, this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
 				}
 			}
 		}
 		
 		public override bool ClickableAt(int x, int y) {
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			double distance = DrawingHelper.CalculateLinePointDistance(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height, x, y);
-			if (distance < 0) {
+			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) +5;
+			if (lineThickness > 0) {
+				using (Pen pen = new Pen(Color.White)) {
+					pen.Width = lineThickness;
+					GraphicsPath path = new GraphicsPath();
+					path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+					return path.IsOutlineVisible(x,y, pen);
+				}
+			} else {
 				return false;
 			}
-			return distance <= Math.Max(lineThickness / 2, MAX_CLICK_DISTANCE_TOLERANCE);
 		}
+		
+		protected override ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {
+			return ScaleHelper.LineAngleRoundBehavior.Instance;
+		}
+		
 		
 	}
 }

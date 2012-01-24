@@ -23,8 +23,6 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 
-using GreenshotPlugin.Core;
-
 namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// Description of PleaseWaitForm.
@@ -38,9 +36,10 @@ namespace GreenshotPlugin.Controls {
 
 		public static BackgroundForm ShowAndWait(string title, string text) {
 			BackgroundForm backgroundForm = new BackgroundForm(title, text);
-			// Show form in background
+			// Show form in background thread
 			Thread backgroundTask = new Thread (new ThreadStart(backgroundForm.BackgroundShowDialog));
 			backgroundTask.IsBackground = true;
+			backgroundTask.SetApartmentState(ApartmentState.STA);
 			backgroundTask.Start();
 			return backgroundForm;
 		}
@@ -50,10 +49,33 @@ namespace GreenshotPlugin.Controls {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			shouldClose = false;
 			this.Text = title;
 			this.label_pleasewait.Text = text;
-			shouldClose = false;
+			this.FormClosing += PreventFormClose;
 			timer_checkforclose.Start();
+		}
+		
+		// Can be used instead of ShowDialog
+		public new void Show() {
+			base.Show();
+			bool positioned = false;
+			foreach(Screen screen in Screen.AllScreens) {
+				if (screen.Bounds.Contains(Cursor.Position)) {
+					positioned = true;
+					this.Location = new Point(screen.Bounds.X + (screen.Bounds.Width / 2) - (this.Width / 2), screen.Bounds.Y + (screen.Bounds.Height / 2) - (this.Height / 2));
+					break;
+				}
+			}
+			if (!positioned) {
+				this.Location = new Point(Cursor.Position.X - this.Width / 2, Cursor.Position.Y - this.Height / 2);
+			}
+		}
+
+		private void PreventFormClose(object sender, FormClosingEventArgs e) {
+			if(!shouldClose) {
+				e.Cancel = true;
+			}
 		}
 
 		private void Timer_checkforcloseTick(object sender, EventArgs e) {
@@ -65,6 +87,7 @@ namespace GreenshotPlugin.Controls {
 		
 		public void CloseDialog() {
 			shouldClose = true;
+			Application.DoEvents();
 		}
 		
 		void BackgroundFormFormClosing(object sender, FormClosingEventArgs e) {

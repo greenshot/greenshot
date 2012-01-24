@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Windows.Forms;
 
 using GreenshotConfluencePlugin;
 using GreenshotPlugin.Core;
+using IniFile;
 
 /// <summary>
 /// For details see the Confluence API site
@@ -37,8 +35,56 @@ namespace Confluence {
 	public class Page {
 		public Page(RemotePage page) {
 			id = page.id;
+			Title = page.title;
+			SpaceKey = page.space;
+			Url = page.url;
+			Content = page.content;
+		}
+		public Page(RemoteSearchResult searchResult, string space) {
+			id = searchResult.id;
+			Title = searchResult.title;
+			SpaceKey = space;
+			Url = searchResult.url;
+			Content = searchResult.excerpt;
+		}
+		
+		public Page(RemotePageSummary pageSummary) {
+			id = pageSummary.id;
+			Title = pageSummary.title;
+			SpaceKey = pageSummary.space;
+			Url =pageSummary.url;
 		}
 		public long id {
+			get;
+			set;
+		}
+		public string Title {
+			get;
+			set;
+		}
+		public string Url {
+			get;
+			set;
+		}
+		public string Content {
+			get;
+			set;
+		}
+		public string SpaceKey {
+			get;
+			set;
+		}
+	}
+	public class Space {
+		public Space(RemoteSpaceSummary space) {
+			Key = space.key;
+			Name = space.name;
+		}
+		public string Key {
+			get;
+			set;
+		}
+		public string Name {
 			get;
 			set;
 		}
@@ -48,14 +94,14 @@ namespace Confluence {
 	public class ConfluenceConnector {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.confluence.rpc.AuthenticationFailedException";
-
+		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private string credentials = null;
 		private DateTime loggedInTime = DateTime.Now;
 		private bool loggedIn = false;
 		private ConfluenceSoapServiceService confluence;
 		private int timeout;
 		private string url;
-		private Dictionary<string, string> userMap = new Dictionary<string, string>();
+		private CacheHelper<RemotePage> pageCache = new CacheHelper<RemotePage>("confluencepage", 60*config.Timeout);
 
 		public ConfluenceConnector(string url, int timeout) {
 			this.url = url;
@@ -68,6 +114,7 @@ namespace Confluence {
 		~ConfluenceConnector() {
 			logout();
 		}
+
 		/// <summary>
 		/// Internal login which catches the exceptions
 		/// </summary>
@@ -143,8 +190,10 @@ namespace Confluence {
 			}
 		}
 
-		public bool isLoggedIn() {
-			return loggedIn;
+		public bool isLoggedIn {
+			get {
+				return loggedIn;
+			}
 		}
 		
 		public void addAttachment(long pageId, string mime, string comment, string filename, byte[] buffer) {
@@ -158,9 +207,84 @@ namespace Confluence {
 		}
 		
 		public Page getPage(string spaceKey, string pageTitle) {
-			checkCredentials();
-			RemotePage page = confluence.getPage(credentials, spaceKey, pageTitle);
+			RemotePage page = null;
+			string cacheKey = spaceKey + pageTitle;
+			if (pageCache.Exists(cacheKey)) {
+				page = pageCache.Get(cacheKey);
+			}
+			if (page == null) {
+				checkCredentials();
+				page = confluence.getPage(credentials, spaceKey, pageTitle);
+				pageCache.Add(cacheKey, page);
+			}
 			return new Page(page);
+		}
+
+		public Page getPage(long pageId) {
+			RemotePage page = null;
+			string cacheKey = "" + pageId;
+			
+			if (pageCache.Exists(cacheKey)) {
+				page = pageCache.Get(cacheKey);
+			}
+			if (page == null) {
+				checkCredentials();
+				page = confluence.getPage(credentials, pageId);
+				pageCache.Add(cacheKey, page);
+			}
+			return new Page(page);
+		}
+
+		public Page getSpaceHomepage(Space spaceSummary) {
+			checkCredentials();
+			RemoteSpace spaceDetail = confluence.getSpace(credentials, spaceSummary.Key);
+			RemotePage page = confluence.getPage(credentials, spaceDetail.homePage);
+			return new Page(page);
+		}
+
+		public List<Space> getSpaceSummaries() {
+			checkCredentials();
+			RemoteSpaceSummary [] spaces = confluence.getSpaces(credentials);
+			List<Space> returnSpaces = new List<Space>();
+			foreach(RemoteSpaceSummary space in spaces) {
+				returnSpaces.Add(new Space(space));
+			}
+			returnSpaces.Sort((x, y) => string.Compare(x.Name, y.Name));
+			return returnSpaces;
+		}
+		
+		public List<Page> getPageChildren(Page parentPage) {
+			checkCredentials();
+			List<Page> returnPages = new List<Page>();
+			RemotePageSummary[] pages = confluence.getChildren(credentials, parentPage.id);
+			foreach(RemotePageSummary page in pages) {
+				returnPages.Add(new Page(page));
+			}
+			returnPages.Sort((x, y) => string.Compare(x.Title, y.Title));
+			return returnPages;
+		}
+
+		public List<Page> getPageSummaries(Space space) {
+			checkCredentials();
+			List<Page> returnPages = new List<Page>();
+			RemotePageSummary[] pages = confluence.getPages(credentials, space.Key);
+			foreach(RemotePageSummary page in pages) {
+				returnPages.Add(new Page(page));
+			}
+			returnPages.Sort((x, y) => string.Compare(x.Title, y.Title));
+			return returnPages;
+		}
+		
+		public List<Page> searchPages(string query, string space) {
+			checkCredentials();
+			List<Page> results = new List<Page>();
+			foreach(RemoteSearchResult searchResult in confluence.search(credentials, query, 20)) {
+				LOG.DebugFormat("Got result of type {0}", searchResult.type);
+				if ("page".Equals(searchResult.type)) {
+					results.Add(new Page(searchResult, space));
+				}
+			}
+			return results;
 		}
 	}
 }

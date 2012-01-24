@@ -22,63 +22,21 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.Xml;
 
 using Greenshot.Configuration;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Greenshot.Experimental {
-	public class SourceforgeFile {
-		private string file;
-		public string File {
-			get {return file;}
-		}
-		private DateTime pubdate;
-		public DateTime Pubdate {
-			get {return pubdate;}
-		}
-		private string link;
-		public string Link {
-			get {return link;}
-		}
-		private string directLink;
-		public string DirectLink {
-			get {return directLink;}
-		}
-		private Version version;
-		public Version Version {
-			get {return version;}
-			set {
-				version = value;
-			}
-		}
-		private string language;
-		public string Language {
-			get {return language;}
-			set {language = value;}
-		}
-		
-		public SourceforgeFile(string file, string pubdate, string link, string directLink) {
-			this.file = file;
-			this.pubdate = DateTime.Parse(pubdate);
-			this.link = link;
-			this.directLink = directLink;
-		}
-	}
-
 	/// <summary>
 	/// Description of RssFeedHelper.
 	/// </summary>
-	public class UpdateHelper {
+	public static class UpdateHelper {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(UpdateHelper));
-		private const String RSSFEED = "https://sourceforge.net/api/file/index/project-id/191585/mtime/desc/rss";
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static Dictionary<string, string> mirrors = new Dictionary<string, string>();
 		private static object lockObject = new object();
@@ -132,10 +90,9 @@ namespace Greenshot.Experimental {
 					UpdateHelper.ProcessRSSInfo(currentVersion);
 					if (latestGreenshot != null) {
 						ILanguage lang = Language.GetInstance();
-						DialogResult result = MessageBox.Show(lang.GetFormattedString(LangKey.update_found, latestGreenshot.Version), "Greenshot", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
-						if (result == DialogResult.OK) {
-							Process.Start(latestGreenshot.Link);
-						}
+						MainForm.instance.notifyIcon.BalloonTipClicked += HandleBalloonTipClick;
+						MainForm.instance.notifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
+						MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", lang.GetFormattedString(LangKey.update_found, latestGreenshot.Version), ToolTipIcon.Info);
 					}
 					conf.LastUpdateCheck = DateTime.Now;
 					IniConfig.Save();
@@ -145,10 +102,28 @@ namespace Greenshot.Experimental {
 			}
 		}
 
+		private static void CleanupBalloonTipClick(object sender, EventArgs e) {
+			MainForm.instance.notifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
+			MainForm.instance.notifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
+		}
+		
+		private static void HandleBalloonTipClick(object sender, EventArgs e) {
+			try {
+				if (latestGreenshot != null) {
+					Process.Start(latestGreenshot.Link);
+				}
+			} catch (Exception) {
+				ILanguage lang = Language.GetInstance();
+				MessageBox.Show(lang.GetFormattedString(LangKey.error_openlink, latestGreenshot.Link),lang.GetString(LangKey.error));
+			} finally {
+				MainForm.instance.notifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
+				MainForm.instance.notifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
+			}
+		}
+
 		private static void ProcessRSSInfo(Version currentVersion) {
 			// Reset latest Greenshot
-			latestGreenshot = null;
-			Dictionary<string, Dictionary<string, SourceforgeFile>> rssFiles = readRSS();
+			Dictionary<string, Dictionary<string, SourceforgeFile>> rssFiles = SourceForgeHelper.readRSS();
 
 			if (rssFiles == null) {
 				return;
@@ -209,107 +184,6 @@ namespace Greenshot.Experimental {
 //					}
 //				}
 //			}
-		}
-
-		/// <summary>
-		/// Read the Greenshot RSS feed, so we can use this information to check for updates
-		/// </summary>
-		/// <returns>Dictionary<string, Dictionary<string, RssFile>> with files and their RssFile "description"</returns>
-		private static Dictionary<string, Dictionary<string, SourceforgeFile>> readRSS() {
-			HttpWebRequest webRequest = (HttpWebRequest)GreenshotPlugin.Core.NetworkHelper.CreatedWebRequest(RSSFEED);
-			XmlTextReader rssReader = new XmlTextReader(webRequest.GetResponse().GetResponseStream());
-			XmlDocument rssDoc = new XmlDocument();
-
-			// Load the XML content into a XmlDocument
-			rssDoc.Load(rssReader);
-			
-			// Loop for the <rss> tag
-			XmlNode nodeRss = null;
-			for (int i = 0; i < rssDoc.ChildNodes.Count; i++) {
-				// If it is the rss tag
-				if (rssDoc.ChildNodes[i].Name == "rss") {
-					// <rss> tag found
-					nodeRss = rssDoc.ChildNodes[i];
-				}
-			}
-
-			if (nodeRss == null) {
-				LOG.Debug("No RSS Feed!");
-				return null;
-			}
-
-			// Loop for the <channel> tag
-			XmlNode nodeChannel = null;
-			for (int i = 0; i < nodeRss.ChildNodes.Count; i++) {
-				// If it is the channel tag
-				if (nodeRss.ChildNodes[i].Name == "channel") {
-					// <channel> tag found
-					nodeChannel = nodeRss.ChildNodes[i];
-				}
-			}
-			
-			if (nodeChannel == null) {
-				LOG.Debug("No channel in RSS feed!");
-				return null;
-			}
-
-			Dictionary<string, Dictionary<string, SourceforgeFile>> rssFiles = new Dictionary<string, Dictionary<string, SourceforgeFile>>();
-
-			// Loop for the <title>, <link>, <description> and all the other tags
-			for (int i = 0; i < nodeChannel.ChildNodes.Count; i++) {
-				// If it is the item tag, then it has children tags which we will add as items to the ListView
-
-				if (nodeChannel.ChildNodes[i].Name == "item") {
-					XmlNode nodeItem = nodeChannel.ChildNodes[i];
-					string sfLink = nodeItem["link"].InnerText;
-					string pubdate = nodeItem["pubDate"].InnerText;
-					try {
-						Match match= Regex.Match(Uri.UnescapeDataString(sfLink), @"^http.*sourceforge.*\/projects\/([^\/]+)\/files\/([^\/]+)\/([^\/]+)\/(.+)\/download$");
-						if (match.Success) {
-							string project = match.Groups[1].Value;
-							string subdir = match.Groups[2].Value;
-							string type = match.Groups[3].Value;
-							string file = match.Groups[4].Value;
-							// !!! Change this to the mirror !!!
-							string mirror = "kent";
-							string directLink = Uri.EscapeUriString("http://"+mirror+".dl.sourceforge.net/project/"+project+"/"+subdir+"/"+type+"/"+file);
-							Dictionary<string, SourceforgeFile> filesForType;
-							if (rssFiles.ContainsKey(type)) {
-								filesForType = rssFiles[type];
-							} else {
-								filesForType = new Dictionary<string, SourceforgeFile>();
-								rssFiles.Add(type, filesForType);
-							}
-							SourceforgeFile rssFile = new SourceforgeFile(file, pubdate, sfLink, directLink);
-							if (file.EndsWith(".exe") ||file.EndsWith(".zip")) {
-								string version = Regex.Replace(file, ".*[a-zA-Z]-", "");
-								version = Regex.Replace(version, ".exe$", "");
-								version = Regex.Replace(version, ".zip$", "");
-								if (version.Trim().Length > 0) {
-									version = version.Replace('-','.');
-									version = version.Replace(',','.');
-									try {
-										rssFile.Version = new Version(version);
-									} catch (Exception) {
-										LOG.DebugFormat("Found invalid version {0} in file {1}", version, file);
-									}
-								}
-						    }
-							if (type.Equals("Translations")) {
-								string culture = Regex.Replace(file, @"[a-zA-Z]+-(..-..)\.(xml|html)", "$1");
-								CultureInfo cultureInfo = new CultureInfo(culture);
-								rssFile.Language = cultureInfo.NativeName;
-							}
-							filesForType.Add(file, rssFile);
-						}
-					} catch (Exception ex) {
-						LOG.WarnFormat("Couldn't read RSS entry for: {0}", nodeChannel["title"].InnerText);
-						LOG.Warn("Reason: ", ex);
-					}
-				}
-			}
-			
-			return rssFiles;
 		}
 	}
 }

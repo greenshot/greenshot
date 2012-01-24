@@ -19,25 +19,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
-using Greenshot.UnmanagedHelpers;
+using GreenshotPlugin.UnmanagedHelpers;
+using GreenshotPlugin.Core;
+using IniFile;
 
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of EnvironmentInfo.
 	/// </summary>
-	public class EnvironmentInfo {
+	public static class EnvironmentInfo {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger("Greenshot");
-
-		private EnvironmentInfo(){}
 		
 		public static string EnvironmentToString(bool newline) {
 			StringBuilder environment = new StringBuilder(); 
 			environment.Append("Software version: " + Application.ProductVersion);
+			if (IniConfig.IsPortable) {
+				environment.Append(" Portable");
+			}
+			environment.Append(" (" + OSInfo.Bits +" bit)");
+
 			if (newline) {
 				environment.AppendLine();
 			} else {
@@ -85,8 +91,11 @@ namespace Greenshot.Helpers {
 			if (ex.Data != null && ex.Data.Count > 0) {
 				report.AppendLine();
 				report.AppendLine("Additional Information:");
-				foreach(string key in ex.Data.Keys) {
-					report.AppendLine(key + " = " + ex.Data[key]);
+				foreach(object key in ex.Data.Keys) {
+					object data = ex.Data[key];
+					if (data != null) {
+						report.AppendLine(key + " = " + data);
+					}
 				}
 			}
 			if (ex is ExternalException) {
@@ -114,6 +123,11 @@ namespace Greenshot.Helpers {
 			StringBuilder exceptionText = new StringBuilder();
 			exceptionText.AppendLine(EnvironmentInfo.EnvironmentToString(true));
 			exceptionText.AppendLine(EnvironmentInfo.ExceptionToString(exception));
+			exceptionText.AppendLine("Configuration dump:");
+			using (TextWriter writer = new StringWriter(exceptionText)) {
+				IniConfig.SaveIniSectionToWriter(writer, IniConfig.GetIniSection<CoreConfiguration>(), true);
+			}
+			
 			return exceptionText.ToString();
 		}
 	}

@@ -19,25 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Windows.Forms;
 
-using Greenshot.Drawing;
-using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
-using Greenshot.UnmanagedHelpers;
-using GreenshotPlugin.Controls;
+using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
+using Greenshot.Plugin;
+using IniFile;
 
 namespace Greenshot.Configuration {
 	public enum ScreenshotDestinations {Editor=1, FileDefault=2, FileWithDialog=4, Clipboard=8, Printer=16, EMail=32}
@@ -183,22 +175,22 @@ namespace Greenshot.Configuration {
 						}
 						coreConfiguration.CaptureDelay = delay;
 						if ((appConfig.Output_Destinations & ScreenshotDestinations.Clipboard) == ScreenshotDestinations.Clipboard) {
-							coreConfiguration.OutputDestinations.Add(Destination.Clipboard);
+							coreConfiguration.OutputDestinations.Add("Clipboard");
 						}
 						if ((appConfig.Output_Destinations & ScreenshotDestinations.Editor) == ScreenshotDestinations.Editor) {
-							coreConfiguration.OutputDestinations.Add(Destination.Editor);
+							coreConfiguration.OutputDestinations.Add("Editor");
 						}
 						if ((appConfig.Output_Destinations & ScreenshotDestinations.EMail) == ScreenshotDestinations.EMail) {
-							coreConfiguration.OutputDestinations.Add(Destination.EMail);
+							coreConfiguration.OutputDestinations.Add("EMail");
 						}
 						if ((appConfig.Output_Destinations & ScreenshotDestinations.Printer) == ScreenshotDestinations.Printer) {
-							coreConfiguration.OutputDestinations.Add(Destination.Printer);
+							coreConfiguration.OutputDestinations.Add("Printer");
 						}
 						if ((appConfig.Output_Destinations & ScreenshotDestinations.FileDefault) == ScreenshotDestinations.FileDefault) {
-							coreConfiguration.OutputDestinations.Add(Destination.FileDefault);
+							coreConfiguration.OutputDestinations.Add("File");
 						}
 						if ((appConfig.Output_Destinations & ScreenshotDestinations.FileWithDialog) == ScreenshotDestinations.FileWithDialog) {
-							coreConfiguration.OutputDestinations.Add(Destination.FileWithDialog);
+							coreConfiguration.OutputDestinations.Add("FileWithDialog");
 						}
 						IniConfig.Save();
 					} catch (Exception e) {

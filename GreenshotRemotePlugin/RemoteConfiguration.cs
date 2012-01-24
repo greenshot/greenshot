@@ -21,10 +21,11 @@
 using System;
 
 using GreenshotPlugin.Core;
+using IniFile;
 
 namespace GreenshotRemotePlugin {
 	/// <summary>
-	/// Description of CoreConfiguration.
+	/// Description of RemoteConfiguration.
 	/// </summary>
 	[IniSection("Remote", Description="Greenshot Remote Plugin configuration")]
 	public class RemoteConfiguration : IniSection {

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2010  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2011  Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -22,27 +22,28 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
+using IniFile;
+
 namespace PluginExample {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : Form {
-		public SettingsForm(bool testAnnotations) {
+		private static PluginExampleConfiguration conf = IniConfig.GetIniSection<PluginExampleConfiguration>();
+
+		public SettingsForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			checkBox1.Checked = testAnnotations;
+			checkBox1.Checked = conf.AnnotationProcessor;
+			checkBox2.Checked = conf.GreyscaleProcessor;
 		}
 		
 		void Button1Click(object sender, EventArgs e) {
+			conf.AnnotationProcessor = checkBox1.Checked;
+			conf.GreyscaleProcessor = checkBox2.Checked;
 			DialogResult = DialogResult.OK;
-		}
-		
-		public bool TestAnnotations {
-			get {
-				return checkBox1.Checked;
-			}
 		}
 		
 		void Button2Click(object sender, EventArgs e) {

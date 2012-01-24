@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Greenshot.Helpers.IEInterop {
 	[ComImport, Guid("3050F25E-98B5-11CF-BB82-00AA00BDCE0B"),
@@ -994,493 +992,197 @@ namespace Greenshot.Helpers.IEInterop {
         }
 
         /// <summary><para><c>paddingRight</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>paddingRight</c> property was the following:  <c>VARIANT paddingRight</c>;</para></remarks>
-        // IDL: VARIANT paddingRight;
-        // VB6: paddingRight As Any
-        object paddingRight
-        {
-            // IDL: HRESULT paddingRight ([out, retval] VARIANT* ReturnValue);
-            // VB6: Function paddingRight As Any
+        object paddingRight {
             [DispId(-2147413099)]
             get;
-            // IDL: HRESULT paddingRight (VARIANT value);
-            // VB6: Sub paddingRight (ByVal value As Any)
-            [DispId(-2147413099)]
-            set;
         }
 
         /// <summary><para><c>paddingTop</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>paddingTop</c> property was the following:  <c>VARIANT paddingTop</c>;</para></remarks>
-        // IDL: VARIANT paddingTop;
-        // VB6: paddingTop As Any
-        object paddingTop
-        {
-            // IDL: HRESULT paddingTop ([out, retval] VARIANT* ReturnValue);
-            // VB6: Function paddingTop As Any
+        object paddingTop {
             [DispId(-2147413100)]
             get;
-            // IDL: HRESULT paddingTop (VARIANT value);
-            // VB6: Sub paddingTop (ByVal value As Any)
-            [DispId(-2147413100)]
-            set;
         }
 
         /// <summary><para><c>pageBreakAfter</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>pageBreakAfter</c> property was the following:  <c>BSTR pageBreakAfter</c>;</para></remarks>
-        // IDL: BSTR pageBreakAfter;
-        // VB6: pageBreakAfter As String
-        string pageBreakAfter
-        {
-            // IDL: HRESULT pageBreakAfter ([out, retval] BSTR* ReturnValue);
-            // VB6: Function pageBreakAfter As String
+        string pageBreakAfter {
             [DispId(-2147413034)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
-            // IDL: HRESULT pageBreakAfter (BSTR value);
-            // VB6: Sub pageBreakAfter (ByVal value As String)
-            [DispId(-2147413034)]
-            set;
         }
 
         /// <summary><para><c>pageBreakBefore</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>pageBreakBefore</c> property was the following:  <c>BSTR pageBreakBefore</c>;</para></remarks>
-        // IDL: BSTR pageBreakBefore;
-        // VB6: pageBreakBefore As String
-        string pageBreakBefore
-        {
-            // IDL: HRESULT pageBreakBefore ([out, retval] BSTR* ReturnValue);
-            // VB6: Function pageBreakBefore As String
+        string pageBreakBefore {
             [DispId(-2147413035)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
-            // IDL: HRESULT pageBreakBefore (BSTR value);
-            // VB6: Sub pageBreakBefore (ByVal value As String)
-            [DispId(-2147413035)]
-            set;
         }
 
         /// <summary><para><c>pixelHeight</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>pixelHeight</c> property was the following:  <c>long pixelHeight</c>;</para></remarks>
-        // IDL: long pixelHeight;
-        // VB6: pixelHeight As Long
-        int pixelHeight
-        {
-            // IDL: HRESULT pixelHeight ([out, retval] long* ReturnValue);
-            // VB6: Function pixelHeight As Long
+        int pixelHeight {
             [DispId(-2147414109)]
             get;
-            // IDL: HRESULT pixelHeight (long value);
-            // VB6: Sub pixelHeight (ByVal value As Long)
-            [DispId(-2147414109)]
-            set;
         }
 
         /// <summary><para><c>pixelLeft</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>pixelLeft</c> property was the following:  <c>long pixelLeft</c>;</para></remarks>
-        // IDL: long pixelLeft;
-        // VB6: pixelLeft As Long
-        int pixelLeft
-        {
-            // IDL: HRESULT pixelLeft ([out, retval] long* ReturnValue);
-            // VB6: Function pixelLeft As Long
+        int pixelLeft {
             [DispId(-2147414111)]
             get;
-            // IDL: HRESULT pixelLeft (long value);
-            // VB6: Sub pixelLeft (ByVal value As Long)
-            [DispId(-2147414111)]
-            set;
         }
 
         /// <summary><para><c>pixelTop</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>pixelTop</c> property was the following:  <c>long pixelTop</c>;</para></remarks>
-        // IDL: long pixelTop;
-        // VB6: pixelTop As Long
-        int pixelTop
-        {
-            // IDL: HRESULT pixelTop ([out, retval] long* ReturnValue);
-            // VB6: Function pixelTop As Long
+        int pixelTop {
             [DispId(-2147414112)]
             get;
-            // IDL: HRESULT pixelTop (long value);
-            // VB6: Sub pixelTop (ByVal value As Long)
-            [DispId(-2147414112)]
-            set;
         }
 
         /// <summary><para><c>pixelWidth</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>pixelWidth</c> property was the following:  <c>long pixelWidth</c>;</para></remarks>
-        // IDL: long pixelWidth;
-        // VB6: pixelWidth As Long
-        int pixelWidth
-        {
-            // IDL: HRESULT pixelWidth ([out, retval] long* ReturnValue);
-            // VB6: Function pixelWidth As Long
+        int pixelWidth {
             [DispId(-2147414110)]
             get;
-            // IDL: HRESULT pixelWidth (long value);
-            // VB6: Sub pixelWidth (ByVal value As Long)
-            [DispId(-2147414110)]
-            set;
         }
 
         /// <summary><para><c>posHeight</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>posHeight</c> property was the following:  <c>float posHeight</c>;</para></remarks>
-        // IDL: float posHeight;
-        // VB6: posHeight As Single
-        float posHeight
-        {
-            // IDL: HRESULT posHeight ([out, retval] float* ReturnValue);
-            // VB6: Function posHeight As Single
+        float posHeight {
             [DispId(-2147414105)]
             get;
-            // IDL: HRESULT posHeight (float value);
-            // VB6: Sub posHeight (ByVal value As Single)
-            [DispId(-2147414105)]
-            set;
         }
 
         /// <summary><para><c>position</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>position</c> property was the following:  <c>BSTR position</c>;</para></remarks>
-        // IDL: BSTR position;
-        // VB6: position As String
-        string position
-        {
-            // IDL: HRESULT position ([out, retval] BSTR* ReturnValue);
-            // VB6: Function position As String
+        string position {
             [DispId(-2147413022)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
         }
 
         /// <summary><para><c>posLeft</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>posLeft</c> property was the following:  <c>float posLeft</c>;</para></remarks>
-        // IDL: float posLeft;
-        // VB6: posLeft As Single
-        float posLeft
-        {
-            // IDL: HRESULT posLeft ([out, retval] float* ReturnValue);
-            // VB6: Function posLeft As Single
+        float posLeft {
             [DispId(-2147414107)]
             get;
-            // IDL: HRESULT posLeft (float value);
-            // VB6: Sub posLeft (ByVal value As Single)
-            [DispId(-2147414107)]
-            set;
         }
 
         /// <summary><para><c>posTop</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>posTop</c> property was the following:  <c>float posTop</c>;</para></remarks>
-        // IDL: float posTop;
-        // VB6: posTop As Single
-        float posTop
-        {
-            // IDL: HRESULT posTop ([out, retval] float* ReturnValue);
-            // VB6: Function posTop As Single
+        float posTop {
             [DispId(-2147414108)]
             get;
-            // IDL: HRESULT posTop (float value);
-            // VB6: Sub posTop (ByVal value As Single)
-            [DispId(-2147414108)]
-            set;
         }
 
         /// <summary><para><c>posWidth</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>posWidth</c> property was the following:  <c>float posWidth</c>;</para></remarks>
-        // IDL: float posWidth;
-        // VB6: posWidth As Single
-        float posWidth
-        {
-            // IDL: HRESULT posWidth ([out, retval] float* ReturnValue);
-            // VB6: Function posWidth As Single
+        float posWidth {
             [DispId(-2147414106)]
             get;
-            // IDL: HRESULT posWidth (float value);
-            // VB6: Sub posWidth (ByVal value As Single)
-            [DispId(-2147414106)]
-            set;
         }
 
         /// <summary><para><c>styleFloat</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>styleFloat</c> property was the following:  <c>BSTR styleFloat</c>;</para></remarks>
-        // IDL: BSTR styleFloat;
-        // VB6: styleFloat As String
-        string styleFloat
-        {
-            // IDL: HRESULT styleFloat ([out, retval] BSTR* ReturnValue);
-            // VB6: Function styleFloat As String
+        string styleFloat {
             [DispId(-2147413042)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
-            // IDL: HRESULT styleFloat (BSTR value);
-            // VB6: Sub styleFloat (ByVal value As String)
-            [DispId(-2147413042)]
-            set;
         }
 
         /// <summary><para><c>textAlign</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>textAlign</c> property was the following:  <c>BSTR textAlign</c>;</para></remarks>
-        // IDL: BSTR textAlign;
-        // VB6: textAlign As String
-        string textAlign
-        {
-            // IDL: HRESULT textAlign ([out, retval] BSTR* ReturnValue);
-            // VB6: Function textAlign As String
+        string textAlign {
             [DispId(-2147418040)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
-            // IDL: HRESULT textAlign (BSTR value);
-            // VB6: Sub textAlign (ByVal value As String)
-            [DispId(-2147418040)]
-            set;
         }
 
         /// <summary><para><c>textDecoration</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>textDecoration</c> property was the following:  <c>BSTR textDecoration</c>;</para></remarks>
-        // IDL: BSTR textDecoration;
-        // VB6: textDecoration As String
-        string textDecoration
-        {
-            // IDL: HRESULT textDecoration ([out, retval] BSTR* ReturnValue);
-            // VB6: Function textDecoration As String
+        string textDecoration {
             [DispId(-2147413077)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
-            // IDL: HRESULT textDecoration (BSTR value);
-            // VB6: Sub textDecoration (ByVal value As String)
-            [DispId(-2147413077)]
-            set;
         }
 
         /// <summary><para><c>textDecorationBlink</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>textDecorationBlink</c> property was the following:  <c>VARIANT_BOOL textDecorationBlink</c>;</para></remarks>
-        // IDL: VARIANT_BOOL textDecorationBlink;
-        // VB6: textDecorationBlink As Boolean
-        bool textDecorationBlink
-        {
-            // IDL: HRESULT textDecorationBlink ([out, retval] VARIANT_BOOL* ReturnValue);
-            // VB6: Function textDecorationBlink As Boolean
+        bool textDecorationBlink {
             [DispId(-2147413090)]
             [return: MarshalAs(UnmanagedType.VariantBool)]
             get;
-            // IDL: HRESULT textDecorationBlink (VARIANT_BOOL value);
-            // VB6: Sub textDecorationBlink (ByVal value As Boolean)
-            [DispId(-2147413090)]
-            set;
         }
 
         /// <summary><para><c>textDecorationLineThrough</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>textDecorationLineThrough</c> property was the following:  <c>VARIANT_BOOL textDecorationLineThrough</c>;</para></remarks>
-        // IDL: VARIANT_BOOL textDecorationLineThrough;
-        // VB6: textDecorationLineThrough As Boolean
-        bool textDecorationLineThrough
-        {
-            // IDL: HRESULT textDecorationLineThrough ([out, retval] VARIANT_BOOL* ReturnValue);
-            // VB6: Function textDecorationLineThrough As Boolean
+        bool textDecorationLineThrough {
             [DispId(-2147413092)]
             [return: MarshalAs(UnmanagedType.VariantBool)]
             get;
-            // IDL: HRESULT textDecorationLineThrough (VARIANT_BOOL value);
-            // VB6: Sub textDecorationLineThrough (ByVal value As Boolean)
-            [DispId(-2147413092)]
-            set;
         }
 
         /// <summary><para><c>textDecorationNone</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>textDecorationNone</c> property was the following:  <c>VARIANT_BOOL textDecorationNone</c>;</para></remarks>
-        // IDL: VARIANT_BOOL textDecorationNone;
-        // VB6: textDecorationNone As Boolean
-        bool textDecorationNone
-        {
-            // IDL: HRESULT textDecorationNone ([out, retval] VARIANT_BOOL* ReturnValue);
-            // VB6: Function textDecorationNone As Boolean
+        bool textDecorationNone {
             [DispId(-2147413089)]
             [return: MarshalAs(UnmanagedType.VariantBool)]
             get;
-            // IDL: HRESULT textDecorationNone (VARIANT_BOOL value);
-            // VB6: Sub textDecorationNone (ByVal value As Boolean)
-            [DispId(-2147413089)]
-            set;
         }
 
         /// <summary><para><c>textDecorationOverline</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>textDecorationOverline</c> property was the following:  <c>VARIANT_BOOL textDecorationOverline</c>;</para></remarks>
-        // IDL: VARIANT_BOOL textDecorationOverline;
-        // VB6: textDecorationOverline As Boolean
-        bool textDecorationOverline
-        {
-            // IDL: HRESULT textDecorationOverline ([out, retval] VARIANT_BOOL* ReturnValue);
-            // VB6: Function textDecorationOverline As Boolean
+        bool textDecorationOverline {
             [DispId(-2147413043)]
             [return: MarshalAs(UnmanagedType.VariantBool)]
             get;
-            // IDL: HRESULT textDecorationOverline (VARIANT_BOOL value);
-            // VB6: Sub textDecorationOverline (ByVal value As Boolean)
-            [DispId(-2147413043)]
-            set;
         }
 
         /// <summary><para><c>textDecorationUnderline</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>textDecorationUnderline</c> property was the following:  <c>VARIANT_BOOL textDecorationUnderline</c>;</para></remarks>
-        // IDL: VARIANT_BOOL textDecorationUnderline;
-        // VB6: textDecorationUnderline As Boolean
-        bool textDecorationUnderline
-        {
-            // IDL: HRESULT textDecorationUnderline ([out, retval] VARIANT_BOOL* ReturnValue);
-            // VB6: Function textDecorationUnderline As Boolean
+        bool textDecorationUnderline {
             [DispId(-2147413091)]
             [return: MarshalAs(UnmanagedType.VariantBool)]
             get;
-            // IDL: HRESULT textDecorationUnderline (VARIANT_BOOL value);
-            // VB6: Sub textDecorationUnderline (ByVal value As Boolean)
-            [DispId(-2147413091)]
-            set;
         }
 
         /// <summary><para><c>textIndent</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>textIndent</c> property was the following:  <c>VARIANT textIndent</c>;</para></remarks>
-        // IDL: VARIANT textIndent;
-        // VB6: textIndent As Any
-        object textIndent
-        {
-            // IDL: HRESULT textIndent ([out, retval] VARIANT* ReturnValue);
-            // VB6: Function textIndent As Any
+        object textIndent {
             [DispId(-2147413105)]
             get;
-            // IDL: HRESULT textIndent (VARIANT value);
-            // VB6: Sub textIndent (ByVal value As Any)
-            [DispId(-2147413105)]
-            set;
         }
 
         /// <summary><para><c>textTransform</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>textTransform</c> property was the following:  <c>BSTR textTransform</c>;</para></remarks>
-        // IDL: BSTR textTransform;
-        // VB6: textTransform As String
-        string textTransform
-        {
-            // IDL: HRESULT textTransform ([out, retval] BSTR* ReturnValue);
-            // VB6: Function textTransform As String
+        string textTransform {
             [DispId(-2147413108)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
-            // IDL: HRESULT textTransform (BSTR value);
-            // VB6: Sub textTransform (ByVal value As String)
-            [DispId(-2147413108)]
-            set;
         }
 
         /// <summary><para><c>top</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>top</c> property was the following:  <c>VARIANT top</c>;</para></remarks>
-        // IDL: VARIANT top;
-        // VB6: top As Any
-        object top
-        {
-            // IDL: HRESULT top ([out, retval] VARIANT* ReturnValue);
-            // VB6: Function top As Any
+        object top {
             [DispId(-2147418108)]
             get;
-            // IDL: HRESULT top (VARIANT value);
-            // VB6: Sub top (ByVal value As Any)
-            [DispId(-2147418108)]
-            set;
         }
 
         /// <summary><para><c>verticalAlign</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>verticalAlign</c> property was the following:  <c>VARIANT verticalAlign</c>;</para></remarks>
-        // IDL: VARIANT verticalAlign;
-        // VB6: verticalAlign As Any
-        object verticalAlign
-        {
-            // IDL: HRESULT verticalAlign ([out, retval] VARIANT* ReturnValue);
-            // VB6: Function verticalAlign As Any
+        object verticalAlign {
             [DispId(-2147413064)]
             get;
-            // IDL: HRESULT verticalAlign (VARIANT value);
-            // VB6: Sub verticalAlign (ByVal value As Any)
-            [DispId(-2147413064)]
-            set;
         }
 
         /// <summary><para><c>visibility</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>visibility</c> property was the following:  <c>BSTR visibility</c>;</para></remarks>
-        // IDL: BSTR visibility;
-        // VB6: visibility As String
-        string visibility
-        {
-            // IDL: HRESULT visibility ([out, retval] BSTR* ReturnValue);
-            // VB6: Function visibility As String
+        string visibility {
             [DispId(-2147413032)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
-            // IDL: HRESULT visibility (BSTR value);
-            // VB6: Sub visibility (ByVal value As String)
-            [DispId(-2147413032)]
-            set;
         }
 
         /// <summary><para><c>whiteSpace</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>whiteSpace</c> property was the following:  <c>BSTR whiteSpace</c>;</para></remarks>
-        // IDL: BSTR whiteSpace;
-        // VB6: whiteSpace As String
-        string whiteSpace
-        {
-            // IDL: HRESULT whiteSpace ([out, retval] BSTR* ReturnValue);
-            // VB6: Function whiteSpace As String
+        string whiteSpace {
             [DispId(-2147413036)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
-            // IDL: HRESULT whiteSpace (BSTR value);
-            // VB6: Sub whiteSpace (ByVal value As String)
-            [DispId(-2147413036)]
-            set;
         }
 
         /// <summary><para><c>width</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>width</c> property was the following:  <c>VARIANT width</c>;</para></remarks>
-        // IDL: VARIANT width;
-        // VB6: width As Any
-        object width
-        {
-            // IDL: HRESULT width ([out, retval] VARIANT* ReturnValue);
-            // VB6: Function width As Any
+        object width {
             [DispId(-2147418107)]
             get;
-            // IDL: HRESULT width (VARIANT value);
-            // VB6: Sub width (ByVal value As Any)
-            [DispId(-2147418107)]
-            set;
         }
 
         /// <summary><para><c>wordSpacing</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>wordSpacing</c> property was the following:  <c>VARIANT wordSpacing</c>;</para></remarks>
-        // IDL: VARIANT wordSpacing;
-        // VB6: wordSpacing As Any
-        object wordSpacing
-        {
-            // IDL: HRESULT wordSpacing ([out, retval] VARIANT* ReturnValue);
-            // VB6: Function wordSpacing As Any
+        object wordSpacing {
             [DispId(-2147413065)]
             get;
-            // IDL: HRESULT wordSpacing (VARIANT value);
-            // VB6: Sub wordSpacing (ByVal value As Any)
-            [DispId(-2147413065)]
-            set;
         }
 
         /// <summary><para><c>zIndex</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        /// <remarks><para>An original IDL definition of <c>zIndex</c> property was the following:  <c>VARIANT zIndex</c>;</para></remarks>
-        // IDL: VARIANT zIndex;
-        // VB6: zIndex As Any
-        object zIndex
-        {
-            // IDL: HRESULT zIndex ([out, retval] VARIANT* ReturnValue);
-            // VB6: Function zIndex As Any
+        object zIndex {
             [DispId(-2147413021)]
             get;
-            // IDL: HRESULT zIndex (VARIANT value);
-            // VB6: Sub zIndex (ByVal value As Any)
-            [DispId(-2147413021)]
-            set;
         }
     }
 }

@@ -64,19 +64,13 @@ namespace Greenshot {
 			this.checkbox_copypathtoclipboard = new System.Windows.Forms.CheckBox();
 			this.groupbox_applicationsettings = new System.Windows.Forms.GroupBox();
 			this.checkbox_autostartshortcut = new System.Windows.Forms.CheckBox();
-			this.checkbox_editor = new System.Windows.Forms.CheckBox();
 			this.groupbox_jpegsettings = new System.Windows.Forms.GroupBox();
 			this.checkbox_alwaysshowjpegqualitydialog = new System.Windows.Forms.CheckBox();
 			this.label_jpegquality = new System.Windows.Forms.Label();
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
-			this.checkbox_clipboard = new System.Windows.Forms.CheckBox();
-			this.checkbox_file = new System.Windows.Forms.CheckBox();
-			this.checkbox_printer = new System.Windows.Forms.CheckBox();
 			this.groupbox_destination = new System.Windows.Forms.GroupBox();
-			this.combobox_emailformat = new System.Windows.Forms.ComboBox();
-			this.checkbox_email = new System.Windows.Forms.CheckBox();
-			this.checkbox_fileas = new System.Windows.Forms.CheckBox();
+			this.checkedDestinationsListBox = new System.Windows.Forms.CheckedListBox();
 			this.tabcontrol = new System.Windows.Forms.TabControl();
 			this.tab_general = new System.Windows.Forms.TabPage();
 			this.groupbox_network = new System.Windows.Forms.GroupBox();
@@ -299,17 +293,6 @@ namespace Greenshot {
 			this.checkbox_autostartshortcut.Text = "Launch Greenshot on startup";
 			this.checkbox_autostartshortcut.UseVisualStyleBackColor = true;
 			// 
-			// checkbox_editor
-			// 
-			this.checkbox_editor.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_editor.Location = new System.Drawing.Point(12, 19);
-			this.checkbox_editor.Name = "checkbox_editor";
-			this.checkbox_editor.Size = new System.Drawing.Size(158, 24);
-			this.checkbox_editor.TabIndex = 14;
-			this.checkbox_editor.Text = "Open in editor";
-			this.checkbox_editor.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_editor.UseVisualStyleBackColor = true;
-			// 
 			// groupbox_jpegsettings
 			// 
 			this.groupbox_jpegsettings.Controls.Add(this.checkbox_alwaysshowjpegqualitydialog);
@@ -360,48 +343,9 @@ namespace Greenshot {
 			this.trackBarJpegQuality.TickFrequency = 10;
 			this.trackBarJpegQuality.Scroll += new System.EventHandler(this.TrackBarJpegQualityScroll);
 			// 
-			// checkbox_clipboard
-			// 
-			this.checkbox_clipboard.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_clipboard.Location = new System.Drawing.Point(12, 41);
-			this.checkbox_clipboard.Name = "checkbox_clipboard";
-			this.checkbox_clipboard.Size = new System.Drawing.Size(158, 24);
-			this.checkbox_clipboard.TabIndex = 15;
-			this.checkbox_clipboard.Text = "Copy to clipboard";
-			this.checkbox_clipboard.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_clipboard.UseVisualStyleBackColor = true;
-			// 
-			// checkbox_file
-			// 
-			this.checkbox_file.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_file.Location = new System.Drawing.Point(176, 42);
-			this.checkbox_file.Name = "checkbox_file";
-			this.checkbox_file.Size = new System.Drawing.Size(230, 23);
-			this.checkbox_file.TabIndex = 16;
-			this.checkbox_file.Text = "Sofort speichern (mit nachstehend angegebenen Einstellungen)";
-			this.checkbox_file.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_file.UseVisualStyleBackColor = true;
-			// 
-			// checkbox_printer
-			// 
-			this.checkbox_printer.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_printer.Location = new System.Drawing.Point(12, 63);
-			this.checkbox_printer.Name = "checkbox_printer";
-			this.checkbox_printer.Size = new System.Drawing.Size(158, 24);
-			this.checkbox_printer.TabIndex = 17;
-			this.checkbox_printer.Text = "Send to printer";
-			this.checkbox_printer.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_printer.UseVisualStyleBackColor = true;
-			// 
 			// groupbox_destination
 			// 
-			this.groupbox_destination.Controls.Add(this.combobox_emailformat);
-			this.groupbox_destination.Controls.Add(this.checkbox_email);
-			this.groupbox_destination.Controls.Add(this.checkbox_fileas);
-			this.groupbox_destination.Controls.Add(this.checkbox_printer);
-			this.groupbox_destination.Controls.Add(this.checkbox_editor);
-			this.groupbox_destination.Controls.Add(this.checkbox_file);
-			this.groupbox_destination.Controls.Add(this.checkbox_clipboard);
+			this.groupbox_destination.Controls.Add(this.checkedDestinationsListBox);
 			this.groupbox_destination.Location = new System.Drawing.Point(2, 6);
 			this.groupbox_destination.Name = "groupbox_destination";
 			this.groupbox_destination.Size = new System.Drawing.Size(412, 94);
@@ -409,36 +353,15 @@ namespace Greenshot {
 			this.groupbox_destination.TabStop = false;
 			this.groupbox_destination.Text = "Screenshot Destination";
 			// 
-			// combobox_emailformat
+			// checkedDestinationsListBox
 			// 
-			this.combobox_emailformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.combobox_emailformat.FormattingEnabled = true;
-			this.combobox_emailformat.Location = new System.Drawing.Point(312, 61);
-			this.combobox_emailformat.Name = "combobox_emailformat";
-			this.combobox_emailformat.Size = new System.Drawing.Size(94, 21);
-			this.combobox_emailformat.TabIndex = 20;
-			// 
-			// checkbox_email
-			// 
-			this.checkbox_email.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_email.Location = new System.Drawing.Point(176, 63);
-			this.checkbox_email.Name = "checkbox_email";
-			this.checkbox_email.Size = new System.Drawing.Size(230, 23);
-			this.checkbox_email.TabIndex = 19;
-			this.checkbox_email.Text = "Email";
-			this.checkbox_email.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_email.UseVisualStyleBackColor = true;
-			// 
-			// checkbox_fileas
-			// 
-			this.checkbox_fileas.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_fileas.Location = new System.Drawing.Point(176, 19);
-			this.checkbox_fileas.Name = "checkbox_fileas";
-			this.checkbox_fileas.Size = new System.Drawing.Size(230, 24);
-			this.checkbox_fileas.TabIndex = 18;
-			this.checkbox_fileas.Text = "Save as (displaying dialog)";
-			this.checkbox_fileas.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_fileas.UseVisualStyleBackColor = true;
+			this.checkedDestinationsListBox.FormattingEnabled = true;
+			this.checkedDestinationsListBox.Location = new System.Drawing.Point(5, 20);
+			this.checkedDestinationsListBox.Name = "checkedDestinationsListBox";
+			this.checkedDestinationsListBox.ScrollAlwaysVisible = true;
+			this.checkedDestinationsListBox.Size = new System.Drawing.Size(401, 64);
+			this.checkedDestinationsListBox.TabIndex = 0;
+			this.checkedDestinationsListBox.SelectedValueChanged += new System.EventHandler(this.DestinationsCheckStateChanged);
 			// 
 			// tabcontrol
 			// 
@@ -639,7 +562,7 @@ namespace Greenshot {
 			// 
 			this.checkbox_editor_match_capture_size.Location = new System.Drawing.Point(6, 19);
 			this.checkbox_editor_match_capture_size.Name = "checkbox_editor_match_capture_size";
-			this.checkbox_editor_match_capture_size.Size = new System.Drawing.Size(213, 24);
+			this.checkbox_editor_match_capture_size.Size = new System.Drawing.Size(397, 24);
 			this.checkbox_editor_match_capture_size.TabIndex = 26;
 			this.checkbox_editor_match_capture_size.Text = "Match capture size";
 			this.checkbox_editor_match_capture_size.UseVisualStyleBackColor = true;
@@ -989,13 +912,13 @@ namespace Greenshot {
 			this.groupbox_plugins.PerformLayout();
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.CheckedListBox checkedDestinationsListBox;
 		private System.Windows.Forms.GroupBox groupbox_editor;
 		private System.Windows.Forms.CheckBox checkbox_editor_match_capture_size;
 		private System.Windows.Forms.NumericUpDown numericUpDown_daysbetweencheck;
 		private System.Windows.Forms.GroupBox groupbox_network;
 		private System.Windows.Forms.CheckBox checkbox_usedefaultproxy;
 		private System.Windows.Forms.Label label_checkperiod;
-		private System.Windows.Forms.ComboBox combobox_emailformat;
 		private GreenshotPlugin.Controls.HotkeyControl fullscreen_hotkeyControl;
 		private GreenshotPlugin.Controls.HotkeyControl window_hotkeyControl;
 		private GreenshotPlugin.Controls.HotkeyControl region_hotkeyControl;
@@ -1018,7 +941,6 @@ namespace Greenshot {
 		private System.Windows.Forms.ComboBox combobox_window_capture_mode;
 		private System.Windows.Forms.NumericUpDown numericUpDownWaitTime;
 		private System.Windows.Forms.Label label_waittime;
-		private System.Windows.Forms.CheckBox checkbox_email;
 		private System.Windows.Forms.CheckBox checkbox_capture_windows_interactive;
 		private System.Windows.Forms.CheckBox checkbox_capture_mousepointer;
 		private System.Windows.Forms.TabPage tab_printer;
@@ -1027,7 +949,6 @@ namespace Greenshot {
 		private System.Windows.Forms.GroupBox groupbox_plugins;
 		private System.Windows.Forms.TabPage tab_plugins;
 		private System.Windows.Forms.CheckBox checkboxTimestamp;
-		private System.Windows.Forms.CheckBox checkbox_fileas;
 		private System.Windows.Forms.Button btnPatternHelp;
 		private System.Windows.Forms.CheckBox checkbox_copypathtoclipboard;
 		private System.Windows.Forms.CheckBox checkboxAllowShrink;
@@ -1041,10 +962,6 @@ namespace Greenshot {
 		private System.Windows.Forms.TabControl tabcontrol;
 		private System.Windows.Forms.CheckBox checkbox_autostartshortcut;
 		private System.Windows.Forms.GroupBox groupbox_destination;
-		private System.Windows.Forms.CheckBox checkbox_editor;
-		private System.Windows.Forms.CheckBox checkbox_clipboard;
-		private System.Windows.Forms.CheckBox checkbox_file;
-		private System.Windows.Forms.CheckBox checkbox_printer;
 		private System.Windows.Forms.CheckBox checkbox_alwaysshowjpegqualitydialog;
 		private System.Windows.Forms.TextBox textBoxJpegQuality;
 		private System.Windows.Forms.Label label_jpegquality;

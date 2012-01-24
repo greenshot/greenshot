@@ -20,12 +20,16 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Windows.Forms;
+using Greenshot.Plugin;
+using IniFile;
 
 namespace GreenshotPlugin.Core {
-	public enum Destination {
-		Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail
+	public enum ClipboardFormat {
+		PNG, DIB, HTML
 	}
 	public enum OutputFormat {
 		bmp, gif, jpg, png, tiff
@@ -34,24 +38,19 @@ namespace GreenshotPlugin.Core {
 		Screen, GDI, Aero, AeroTransparent, Auto
 	}
 	public enum EmailFormat {
-		TXT, HTML
-	}
-	public enum UpdateCheckInterval {
-		Never,
-		Daily,
-		Weekly,
-		Monthly
+		MAPI, OUTLOOK_TXT, OUTLOOK_HTML
 	}
 	public enum EmailExport {
 		AlwaysNew,
 		TryOpenElseNew
 	}
+
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
 	[IniSection("Core", Description="Greenshot core configuration")]
 	public class CoreConfiguration : IniSection {
-		[IniProperty("Language", Description="The language in IETF format (e.g. en-EN)", DefaultValue="en-EN")]
+		[IniProperty("Language", Description="The language in IETF format (e.g. en-EN)")]
 		public string Language;
 
 		[IniProperty("RegionHotkey", Description="Hotkey for starting the region capture", DefaultValue="PrintScreen")]
@@ -68,7 +67,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("IsFirstLaunch", Description="Is this the first time launch?", DefaultValue="true")]
 		public bool IsFirstLaunch;
 		[IniProperty("Destinations", Separator=",", Description="Which destinations? Options are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail", DefaultValue="Editor")]
-		public List<Destination> OutputDestinations = new List<Destination>();
+		public List<string> OutputDestinations = new List<string>();
+		[IniProperty("ClipboardFormats", Separator=",", Description="Specify which formats we copy on the clipboard? Options are: PNG,HTML and DIB", DefaultValue="PNG,HTML,DIB")]
+		public List<ClipboardFormat> ClipboardFormats = new List<ClipboardFormat>();
 
 		[IniProperty("CaptureMousepointer", Description="Should the mouse be captured?", DefaultValue="true")]
 		public bool CaptureMousepointer;
@@ -78,11 +79,16 @@ namespace GreenshotPlugin.Core {
 		public int CaptureDelay;
 		[IniProperty("WindowCaptureMode", Description="The capture mode used to capture a Window.", DefaultValue="Auto")]
 		public WindowCaptureMode WindowCaptureMode;
+		[IniProperty("WindowCaptureAllChildLocations", Description="Enable/disable capture all children, very slow but will make it possible to use this information in the editor.", DefaultValue="False")]
+		public bool WindowCaptureAllChildLocations;
+
 		[IniProperty("DWMBackgroundColor", Description="The background color for a DWM window capture.")]
 		public Color DWMBackgroundColor;
 
-		[IniProperty("PlayCameraSound", Description="Play a camera sound after taking a capture.", DefaultValue="false")]
+		[IniProperty("PlayCameraSound", LanguageKey="settings_playsound",Description="Play a camera sound after taking a capture.", DefaultValue="false")]
 		public bool PlayCameraSound = false;
+		[IniProperty("ShowTrayNotification", LanguageKey="settings_shownotify",Description="Show a notification from the systray when a capture is taken.", DefaultValue="true")]
+		public bool ShowTrayNotification = true;
 		
 		[IniProperty("OutputFilePath", Description="Output file path.")]
 		public string OutputFilePath;
@@ -93,8 +99,8 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("OutputFileReduceColors", Description="If set to true, than the colors of the output file are reduced to 256 (8-bit) colors", DefaultValue="false")]
 		public bool OutputFileReduceColors;
 		
-		[IniProperty("OutputEMailFormat", Description="Default type for emails. (txt, html)", DefaultValue="html")]
-		public EmailFormat OutputEMailFormat = EmailFormat.HTML;
+		[IniProperty("OutputEMailFormat", Description="Default type for emails. (txt, html)")]
+		public EmailFormat OutputEMailFormat;
 		[IniProperty("OutputOutlookMethod", Description="How to export to outlook (AlwaysNew= always open a new one, TryOpenElseNew=look for open email else create a new)", DefaultValue="AlwaysNew")]
 		public EmailExport OutputOutlookMethod;
 
@@ -107,27 +113,32 @@ namespace GreenshotPlugin.Core {
 		public int OutputFileJpegQuality;
 		[IniProperty("OutputFilePromptJpegQuality", Description="Ask for the JPEQ quality before saving?", DefaultValue="false")]
 		public bool OutputFilePromptJpegQuality;
-		[IniProperty("OutputFileIncrementingNumber", Description="The number for the %NUM% in the filename pattern, is increased automatically after each save.", DefaultValue="1")]
+		[IniProperty("OutputFileIncrementingNumber", Description="The number for the ${NUM} in the filename pattern, is increased automatically after each save.", DefaultValue="1")]
 		public uint OutputFileIncrementingNumber;
 		
-		[IniProperty("OutputPrintPromptOptions", Description="Ask for print options when printing?", DefaultValue="true")]
+		[IniProperty("OutputPrintPromptOptions", LanguageKey="settings_alwaysshowprintoptionsdialog", Description="Ask for print options when printing?", DefaultValue="true")]
 		public bool OutputPrintPromptOptions;
-		[IniProperty("OutputPrintAllowRotate", Description="Allow rotating the picture for fitting on paper?", DefaultValue="true")]
+		[IniProperty("OutputPrintAllowRotate", LanguageKey="printoptions_allowrotate", Description="Allow rotating the picture for fitting on paper?", DefaultValue="true")]
 		public bool OutputPrintAllowRotate;
-		[IniProperty("OutputPrintAllowEnlarge", Description="Allow growing the picture for fitting on paper?", DefaultValue="true")]
+		[IniProperty("OutputPrintAllowEnlarge", LanguageKey="printoptions_allowenlarge", Description="Allow growing the picture for fitting on paper?", DefaultValue="true")]
 		public bool OutputPrintAllowEnlarge;
-		[IniProperty("OutputPrintAllowShrink", Description="Allow shrinking the picture for fitting on paper?", DefaultValue="true")]
+		[IniProperty("OutputPrintAllowShrink", LanguageKey="printoptions_allowshrink", Description="Allow shrinking the picture for fitting on paper?", DefaultValue="true")]
 		public bool OutputPrintAllowShrink;
-		[IniProperty("OutputPrintCenter", Description="Center image when printing?", DefaultValue="true")]
+		[IniProperty("OutputPrintCenter", LanguageKey="printoptions_allowcenter", Description="Center image when printing?", DefaultValue="true")]
 		public bool OutputPrintCenter;
-		[IniProperty("OutputPrintInverted", Description="Print image inverted (use e.g. for console captures)", DefaultValue="false")]
+		[IniProperty("OutputPrintInverted", LanguageKey="printoptions_inverted", Description="Print image inverted (use e.g. for console captures)", DefaultValue="false")]
 		public bool OutputPrintInverted;
-		[IniProperty("OutputPrintTimestamp", Description="Print timestamp on print?", DefaultValue="true")]
+		[IniProperty("OutputPrintTimestamp", LanguageKey="printoptions_timestamp", Description="Print timestamp on print?", DefaultValue="true")]
 		public bool OutputPrintTimestamp;
+
 		[IniProperty("UseProxy", Description="Use your global proxy?", DefaultValue="True")]
 		public bool UseProxy;
 		[IniProperty("IECapture", Description="Enable/disable IE capture", DefaultValue="True")]
 		public bool IECapture;
+		[IniProperty("IEFieldCapture", Description="Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor.", DefaultValue="False")]
+		public bool IEFieldCapture;
+		[IniProperty("AutoCropDifference", Description="Sets how to compare the colors for the autocrop detection, the higher the more is 'selected'. Possible values are from 0 to 255, where everything above ~150 doesn't make much sense!", DefaultValue="10")]
+		public int AutoCropDifference;
 
 		[IniProperty("IncludePlugins", Description="Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
 		public List<string> IncludePlugins;
@@ -139,6 +150,78 @@ namespace GreenshotPlugin.Core {
 		
 		[IniProperty("LastUpdateCheck", Description="Last update check")]
 		public DateTime LastUpdateCheck;
+
+		[IniProperty("ThumnailPreview", Description="Enable/disable thumbnail previews", DefaultValue="True")]
+		public bool ThumnailPreview;
+		
+		[IniProperty("NoGDICaptureForProduct", Description="List of products for which GDI capturing doesn't work.", DefaultValue="IntelliJ IDEA")]
+		public List<string> NoGDICaptureForProduct;
+		[IniProperty("NoDWMCaptureForProduct", Description="List of products for which DWM capturing doesn't work.", DefaultValue="Citrix ICA Client")]
+		public List<string> NoDWMCaptureForProduct;
+
+		[IniProperty("OptimizeForRDP", Description="Make some optimizations for remote desktop usage", DefaultValue="False")]
+		public bool OptimizeForRDP;
+
+		[IniProperty("ActiveTitleFixes", Description="The fixes that are active.")]
+		public List<string> ActiveTitleFixes;
+		
+		[IniProperty("TitleFixMatcher", Description="The regular expressions to match the title with.")]
+		public Dictionary<string, string> TitleFixMatcher;
+
+		[IniProperty("TitleFixReplacer", Description="The replacements for the matchers.")]
+		public Dictionary<string, string> TitleFixReplacer;
+
+		[IniProperty("ExperimentalFeatures", Description="A list which allows us to enable certain experimental features", ExcludeIfNull=true)]
+		public List<string> ExperimentalFeatures;
+		
+		/// <summary>
+		/// A helper method which returns true if the supplied experimental feature is enabled
+		/// </summary>
+		/// <param name="experimentalFeature"></param>
+		/// <returns></returns>
+		public bool isExperimentalFeatureEnabled(string experimentalFeature) {
+			return (ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature));
+		}
+
+		/// <summary>
+		/// Helper method to check if it is allowed to capture the process using DWM
+		/// </summary>
+		/// <param name="process">Process owning the window</param>
+		/// <returns>true if it's allowed</returns>
+		public bool isDWMAllowed(Process process) {
+			if (process != null) {
+				if (NoDWMCaptureForProduct != null && NoDWMCaptureForProduct.Count > 0) {
+					try {
+						string productName = process.MainModule.FileVersionInfo.ProductName;
+						if (productName != null && NoDWMCaptureForProduct.Contains(productName.ToLower())) {
+							return false;
+						}
+					} catch {
+					}
+				}
+			}
+			return true;
+		}
+		
+		/// <summary>
+		/// Helper method to check if it is allowed to capture the process using GDI
+		/// </summary>
+		/// <param name="processName">Process owning the window</param>
+		/// <returns>true if it's allowed</returns>
+		public bool isGDIAllowed(Process process) {
+			if (process != null) {
+				if (NoGDICaptureForProduct != null && NoGDICaptureForProduct.Count > 0) {
+					try {
+						string productName = process.MainModule.FileVersionInfo.ProductName;
+						if (productName != null && NoGDICaptureForProduct.Contains(productName.ToLower())) {
+							return false;
+						}
+					} catch {
+					}
+				}
+			}
+			return true;
+		}
 
 		// change to false for releases
 		public bool CheckUnstable = true;
@@ -154,12 +237,51 @@ namespace GreenshotPlugin.Core {
 				case "PluginBacklist":
 					return new List<string>();
 				case "OutputFileAsFullpath":
-					return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"dummy.png");
+					if (IniConfig.IsPortable) {
+						return Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png");
+					} else {
+						return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"dummy.png");
+					}
 				case "OutputFilePath":
+					if (IniConfig.IsPortable) {
+						string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
+						if (!Directory.Exists(pafOutputFilePath)) {
+							try {
+								Directory.CreateDirectory(pafOutputFilePath);
+								return pafOutputFilePath;
+							} catch(Exception) {
+								// Problem creating directory, fallback to Desktop
+							}
+						} else {
+							return pafOutputFilePath;
+						}
+					}
 					return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-
 				case "DWMBackgroundColor":
 					return Color.White;
+				case "OutputEMailFormat":
+					if (EmailConfigHelper.HasOutlook()) {
+						return EmailFormat.OUTLOOK_HTML;
+					}
+					return EmailFormat.MAPI;
+				case "ActiveTitleFixes":
+					List<string> activeDefaults = new List<string>();
+					activeDefaults.Add("Firefox");
+					activeDefaults.Add("IE");
+					activeDefaults.Add("Chrome");
+					return activeDefaults; 
+				case "TitleFixMatcher":
+					Dictionary<string, string> matcherDefaults = new Dictionary<string, string>();
+					matcherDefaults.Add("Firefox", " - Mozilla Firefox.*");
+					matcherDefaults.Add("IE", " - (Microsoft|Windows) Internet Explorer.*");
+					matcherDefaults.Add("Chrome", " - Google Chrome.*");
+					return matcherDefaults; 
+				case "TitleFixReplacer":
+					Dictionary<string, string> replacerDefaults = new Dictionary<string, string>();
+					replacerDefaults.Add("Firefox", "");
+					replacerDefaults.Add("IE", "");
+					replacerDefaults.Add("Chrome", "");
+					return replacerDefaults; 
 			}
 			return null;
 		}
@@ -178,18 +300,51 @@ namespace GreenshotPlugin.Core {
 					return propertyValue.Replace('|',',');
 				}
 			}
+			if("OutputFilePath".Equals(propertyName)) {
+				if (string.IsNullOrEmpty(propertyValue)) {
+					return null;
+				}
+			}
 			return base.PreCheckValue(propertyName, propertyValue);
 		}
 
 		/// <summary>
 		/// This method will be called after reading the configuration, so eventually some corrections can be made
 		/// </summary>
-		public override void PostCheckValues() {
+		public override void AfterLoad() {
 			if (OutputDestinations == null) {
-				OutputDestinations = new List<Destination>();
+				OutputDestinations = new List<string>();
 			}
+			// Make sure there is an output!
 			if (OutputDestinations.Count == 0) {
-				OutputDestinations.Add(Destination.Editor);
+				OutputDestinations.Add("Editor");
+			}
+			// Check for Outlook, if it's not installed force email format to MAPI
+			if (OutputEMailFormat != EmailFormat.MAPI && !EmailConfigHelper.HasOutlook()) {
+				OutputEMailFormat = EmailFormat.MAPI;
+			}
+			// Prevent both settings at once, bug #3435056
+			if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard) {
+				OutputFileCopyPathToClipboard = false;
+			}
+
+			// Make sure the lists are lowercase, to speedup the check
+			if (NoGDICaptureForProduct != null) {
+				for(int i=0; i< NoGDICaptureForProduct.Count; i++) {
+					NoGDICaptureForProduct[i] = NoGDICaptureForProduct[i].ToLower();
+				}
+			}
+			if (NoDWMCaptureForProduct != null) {
+				for(int i=0; i< NoDWMCaptureForProduct.Count; i++) {
+					NoDWMCaptureForProduct[i] = NoDWMCaptureForProduct[i].ToLower();
+				}
+			}
+				
+			if (AutoCropDifference < 0) {
+				AutoCropDifference = 0;
+			}
+			if (AutoCropDifference > 255) {
+				AutoCropDifference = 255;
 			}
 		}
 	}
