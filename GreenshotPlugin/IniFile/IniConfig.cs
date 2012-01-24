@@ -48,6 +48,7 @@ namespace IniFile {
 				return portable;
 			}
 		}
+
 		/// <summary>
 		/// Initialize the ini config
 		/// </summary>
@@ -59,7 +60,25 @@ namespace IniFile {
 			Reload();
 			WatchConfigFile(true);
 		}
-		
+
+		public static void ForceIniInStartupPath() {
+			if (portableCheckMade) {
+				throw new Exception("ForceLocal should be called before any file is read");
+			}
+			portable = false;
+			portableCheckMade = true;
+			string applicationStartupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+			if (applicationName == null || configName == null) {
+				Init();
+			}
+			string forcedIni =  Path.Combine(applicationStartupPath, applicationName + INI_EXTENSION);
+			if (!File.Exists(forcedIni)) {
+				using (File.Create(forcedIni)) {
+					
+				}
+			}
+		}
+
 		/// <summary>
 		/// Default init
 		/// </summary>
@@ -87,7 +106,7 @@ namespace IniFile {
 					// Monitor the ini file
 					watcher = new FileSystemWatcher();
 					watcher.Path = Path.GetDirectoryName(iniLocation);
-					watcher.Filter = "*.ini";
+					watcher.Filter = "greenshot.ini";
 					watcher.NotifyFilter = NotifyFilters.LastWrite;
 					watcher.Changed += new FileSystemEventHandler(ConfigFileChanged);
 				}
@@ -158,7 +177,9 @@ namespace IniFile {
 				if (portable) {
 					string pafConfigPath = Path.Combine(applicationStartupPath, @"Data\Settings");
 					try {
-						Directory.CreateDirectory(pafConfigPath);
+						if (!Directory.Exists(pafConfigPath)) {
+							Directory.CreateDirectory(pafConfigPath);
+						}
 						iniFilePath = Path.Combine(pafConfigPath, configFilename);
 					} catch(Exception e) {
 						LOG.InfoFormat("Portable mode NOT possible, couldn't create directory '{0}'! Reason: {1}", pafConfigPath, e.Message);

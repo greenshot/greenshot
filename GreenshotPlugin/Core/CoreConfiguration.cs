@@ -50,7 +50,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	[IniSection("Core", Description="Greenshot core configuration")]
 	public class CoreConfiguration : IniSection {
-		[IniProperty("Language", Description="The language in IETF format (e.g. en-EN)")]
+		[IniProperty("Language", Description="The language in IETF format (e.g. en-US)")]
 		public string Language;
 
 		[IniProperty("RegionHotkey", Description="Hotkey for starting the region capture", DefaultValue="PrintScreen")]

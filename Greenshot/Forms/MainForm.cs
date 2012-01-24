@@ -145,7 +145,7 @@ namespace Greenshot {
 						helpOutput.AppendLine();
 						helpOutput.AppendLine();
 						helpOutput.AppendLine("\t/language [language code]");
-						helpOutput.AppendLine("\t\tSet the language of Greenshot, e.g. greenshot /language en-EN.");
+						helpOutput.AppendLine("\t\tSet the language of Greenshot, e.g. greenshot /language en-US.");
 						helpOutput.AppendLine();
 						helpOutput.AppendLine();
 						helpOutput.AppendLine("\t[filename]");

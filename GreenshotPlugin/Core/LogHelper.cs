@@ -23,6 +23,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 
+using IniFile;
 using log4net;
 using log4net.Appender;
 using log4net.Config;
@@ -58,6 +59,7 @@ namespace GreenshotPlugin.Core {
 					using (Stream stream = assem.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml")) {
 						XmlConfigurator.Configure(stream);
 						isLog4NetConfigured = true;
+						IniConfig.ForceIniInStartupPath();
 					}
 				} catch {}
 			}
