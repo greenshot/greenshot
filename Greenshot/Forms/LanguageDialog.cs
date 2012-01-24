@@ -71,6 +71,15 @@ namespace Greenshot.Forms {
 			} else {
 				this.comboBoxLanguage.SelectedValue = Thread.CurrentThread.CurrentUICulture.Name;
 			}
+
+			// Close again when there is only one language, this shows the form briefly!
+			// But the use-case is not so interesting, only happens once, to invest a lot of time here.
+			if (language.SupportedLanguages.Count == 1) {
+				this.comboBoxLanguage.SelectedValue = language.SupportedLanguages[0].Ietf;
+				language.SetLanguage(SelectedLanguage);
+				properOkPressed = true;
+				this.Close();
+			}
 		}
 		
 		void BtnOKClick(object sender, EventArgs e) {
