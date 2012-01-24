@@ -25,15 +25,16 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
 using Greenshot.Drawing;
-using Greenshot.Helpers;
 using Greenshot.Forms;
+using Greenshot.Helpers;
 using Greenshot.Plugin;
-using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
 using IniFile;
 
 namespace Greenshot.Helpers {
@@ -133,7 +134,6 @@ namespace Greenshot.Helpers {
 		/// Make Capture with specified destinations
 		/// </summary>
 		private void MakeCapture() {
-
 			// Experimental code
 			if (screenCapture != null) {
 				screenCapture.Stop();
@@ -141,14 +141,16 @@ namespace Greenshot.Helpers {
 				return;
 			}
 
-			LOG.Debug(String.Format("Capturing with mode {0} and using Cursor {1})", captureMode, captureMouseCursor));
+			LOG.Debug(String.Format("Capturing with mode {0} and using Cursor {1}", captureMode, captureMouseCursor));
 			capture.CaptureDetails.CaptureMode = captureMode;
+
+			// Get the windows details in a seperate thread
+			PrepareForCaptureWithFeedback();
 
 			// Add destinations if no-one passed a handler
 			if (capture.CaptureDetails.CaptureDestinations == null || capture.CaptureDetails.CaptureDestinations.Count == 0) {
 				AddConfiguredDestination();
 			}
-			PrepareForCaptureWithFeedback();
 
 			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
 			WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
@@ -302,47 +304,55 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		private void PrepareForCaptureWithFeedback() {
 			windows = new List<WindowDetails>();
-			// Start Enumeration of "active" windows
-			foreach (WindowDetails window in WindowDetails.GetAllWindows()) {
-				// Window should be visible and not ourselves
-				if (!window.Visible) {
-					continue;
+			
+			Thread getWindowDetailsThread= new Thread (delegate() {
+				// Start Enumeration of "active" windows
+				foreach (WindowDetails window in WindowDetails.GetAllWindows()) {
+					// Window should be visible and not ourselves
+					if (!window.Visible) {
+						continue;
+					}
+	
+					// Skip empty 
+					Rectangle windowRectangle = window.WindowRectangle;
+					Size windowSize = windowRectangle.Size;
+					if (windowSize.Width == 0 ||  windowSize.Height == 0) {
+						continue;
+					}
+	
+					// Make sure the details are retrieved once
+					window.FreezeDetails();
+	
+					// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
+					int goLevelDeep = 3;
+					if (conf.WindowCaptureAllChildLocations) {
+						goLevelDeep = 20;
+					}
+					window.GetChildren(goLevelDeep);
+					lock (windows) {
+						windows.Add(window);
+					}
+					
+					// Get window rectangle as capture Element
+					CaptureElement windowCaptureElement = new CaptureElement(windowRectangle);
+					capture.Elements.Add(windowCaptureElement);
+	
+					if (!window.HasParent) {
+						// Get window client rectangle as capture Element, place all the other "children" in there
+						Rectangle clientRectangle = window.ClientRectangle;
+						CaptureElement windowClientCaptureElement = new CaptureElement(clientRectangle);
+						windowCaptureElement.Children.Add(windowClientCaptureElement);
+						AddCaptureElementsForWindow(windowClientCaptureElement, window, goLevelDeep);
+					} else {
+						AddCaptureElementsForWindow(windowCaptureElement, window, goLevelDeep);
+					}
 				}
-
-				// Skip empty
-				Rectangle windowRectangle = window.WindowRectangle;
-				Size windowSize = windowRectangle.Size;
-				if (windowSize.Width == 0 ||  windowSize.Height == 0) {
-					continue;
+				lock (windows) {
+					windows = WindowDetails.SortByZOrder(IntPtr.Zero, windows);
 				}
-
-				// Make sure the details are retrieved once
-				window.FreezeDetails();
-
-				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
-				int goLevelDeep = 3;
-				if (conf.WindowCaptureAllChildLocations) {
-					goLevelDeep = 20;
-				}
-				window.GetChildren(goLevelDeep);
-				windows.Add(window);
-				
-				// Get window rectangle as capture Element
-				CaptureElement windowCaptureElement = new CaptureElement(windowRectangle);
-				capture.Elements.Add(windowCaptureElement);
-
-				if (!window.HasParent) {
-					// Get window client rectangle as capture Element, place all the other "children" in there
-					Rectangle clientRectangle = window.ClientRectangle;
-					CaptureElement windowClientCaptureElement = new CaptureElement(clientRectangle);
-					windowCaptureElement.Children.Add(windowClientCaptureElement);
-					AddCaptureElementsForWindow(windowClientCaptureElement, window, goLevelDeep);
-				} else {
-					AddCaptureElementsForWindow(windowCaptureElement, window, goLevelDeep);
-				}
-
-			}
-			windows = WindowDetails.SortByZOrder(IntPtr.Zero, windows);
+			});
+			getWindowDetailsThread.IsBackground = true;
+			getWindowDetailsThread.Start();
 		}
 		
 		private void AddCaptureElementsForWindow(ICaptureElement parentElement, WindowDetails parentWindow, int level) {

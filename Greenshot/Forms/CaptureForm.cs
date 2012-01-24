@@ -230,15 +230,17 @@ namespace Greenshot.Forms {
 			// Iterate over the found windows and check if the current location is inside a window
 			Point cursorPosition = Cursor.Position;
 			selectedCaptureWindow = null;
-			foreach (WindowDetails window in windows) {
-				if (window.Contains(cursorPosition)) {
-					// Only go over the children if we are in window mode
-					if (CaptureMode.Window == captureMode) {
-						selectedCaptureWindow = window.FindChildUnderPoint(cursorPosition);
-					} else {
-						selectedCaptureWindow = window;
+			lock (windows) {
+				foreach (WindowDetails window in windows) {
+					if (window.Contains(cursorPosition)) {
+						// Only go over the children if we are in window mode
+						if (CaptureMode.Window == captureMode) {
+							selectedCaptureWindow = window.FindChildUnderPoint(cursorPosition);
+						} else {
+							selectedCaptureWindow = window;
+						}
+						break;
 					}
-					break;
 				}
 			}
 			if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
