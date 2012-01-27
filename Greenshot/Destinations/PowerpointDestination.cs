@@ -108,7 +108,7 @@ namespace Greenshot.Destinations {
 		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
 			string tmpFile = captureDetails.Filename;
 			Size imageSize = Size.Empty;
-			if (tmpFile == null) {
+            if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {
 					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, conf.OutputFileFormat, conf.OutputFileJpegQuality);
 					imageSize = image.Size;

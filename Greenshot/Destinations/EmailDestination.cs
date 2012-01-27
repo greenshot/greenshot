@@ -167,7 +167,7 @@ namespace Greenshot.Destinations {
 
 			// Outlook logic
 			string tmpFile = captureDetails.Filename;
-			if (tmpFile == null) {
+			if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {
 					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, conf.OutputFileFormat, conf.OutputFileJpegQuality);
 				}
