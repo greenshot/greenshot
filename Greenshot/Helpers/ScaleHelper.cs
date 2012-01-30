@@ -32,6 +32,10 @@ namespace Greenshot.Helpers {
 		[Flags]
 		public enum ScaleOptions {
 			/// <summary>
+			/// Default scale behavior.
+			/// </summary>
+			Default = 0x00,
+			/// <summary>
 			/// Scale a rectangle in two our four directions, mirrored at it's center coordinates
 			/// </summary>
 			Centered = 0x01,
@@ -123,7 +127,7 @@ namespace Greenshot.Helpers {
 		}
 		
 		public static void Scale(ref RectangleF originalRectangle, int resizeHandlePosition, PointF resizeHandleCoords) {
-			Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords, 0x0);
+			Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords, null);
 		}
 		
 		/// <summary>
@@ -133,7 +137,7 @@ namespace Greenshot.Helpers {
 		/// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
 		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
 		/// <param name="options">ScaleOptions to use when scaling</param>
-		public static void Scale(ref RectangleF originalRectangle, int resizeHandlePosition, PointF resizeHandleCoords, ScaleOptions options) {
+		public static void Scale(ref RectangleF originalRectangle, int resizeHandlePosition, PointF resizeHandleCoords, ScaleOptions? options) {
 			if(options == null) {
 				options = GetScaleOptions();
 			}
@@ -319,9 +323,9 @@ namespace Greenshot.Helpers {
 		public static ScaleHelper.ScaleOptions GetScaleOptions() {
 			bool anchorAtCenter = (Control.ModifierKeys & Keys.Control) != 0;
 			bool maintainAspectRatio = ((Control.ModifierKeys & Keys.Shift) != 0);
-			ScaleHelper.ScaleOptions opts = 0x0;
-			if(anchorAtCenter) opts |= ScaleHelper.ScaleOptions.Centered;
-			if(maintainAspectRatio) opts |= ScaleHelper.ScaleOptions.Rational;
+			ScaleOptions opts = ScaleOptions.Default;
+			if(anchorAtCenter) opts |= ScaleOptions.Centered;
+			if(maintainAspectRatio) opts |= ScaleOptions.Rational;
 			return opts;
 		}
 		
