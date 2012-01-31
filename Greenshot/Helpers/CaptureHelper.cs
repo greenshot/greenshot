@@ -145,7 +145,7 @@ namespace Greenshot.Helpers {
 			capture.CaptureDetails.CaptureMode = captureMode;
 
 			// Get the windows details in a seperate thread
-			PrepareForCaptureWithFeedback();
+			Thread getWindowDetailsThread = PrepareForCaptureWithFeedback();
 
 			// Add destinations if no-one passed a handler
 			if (capture.CaptureDetails.CaptureDestinations == null || capture.CaptureDetails.CaptureDestinations.Count == 0) {
@@ -297,7 +297,7 @@ namespace Greenshot.Helpers {
 					LOG.Warn("Unknown capture mode: " + captureMode);
 					break;
 			}
-
+			getWindowDetailsThread.Join();
 			if (capture != null) {
 				LOG.Debug("Disposing capture");
 				capture.Dispose();
@@ -307,10 +307,10 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Pre-Initialization for CaptureWithFeedback, this will get all the windows before we change anything
 		/// </summary>
-		private void PrepareForCaptureWithFeedback() {
+		private Thread PrepareForCaptureWithFeedback() {
 			windows = new List<WindowDetails>();
 			
-			Thread getWindowDetailsThread= new Thread (delegate() {
+			Thread getWindowDetailsThread = new Thread (delegate() {
 				// Start Enumeration of "active" windows
 				foreach (WindowDetails window in WindowDetails.GetAllWindows()) {
 					// Window should be visible and not ourselves
@@ -340,6 +340,9 @@ namespace Greenshot.Helpers {
 					
 					// Get window rectangle as capture Element
 					CaptureElement windowCaptureElement = new CaptureElement(windowRectangle);
+					if (capture == null) {
+						break;
+					}
 					capture.Elements.Add(windowCaptureElement);
 	
 					if (!window.HasParent) {
@@ -359,6 +362,7 @@ namespace Greenshot.Helpers {
 			getWindowDetailsThread.Name = "Retrieve window details";
 			getWindowDetailsThread.IsBackground = true;
 			getWindowDetailsThread.Start();
+			return getWindowDetailsThread;
 		}
 		
 		private void AddCaptureElementsForWindow(ICaptureElement parentElement, WindowDetails parentWindow, int level) {
