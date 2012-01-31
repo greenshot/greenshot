@@ -38,6 +38,7 @@ namespace GreenshotPlugin.Controls {
 			BackgroundForm backgroundForm = new BackgroundForm(title, text);
 			// Show form in background thread
 			Thread backgroundTask = new Thread (new ThreadStart(backgroundForm.BackgroundShowDialog));
+			backgroundForm.Name = "Background form";
 			backgroundTask.IsBackground = true;
 			backgroundTask.SetApartmentState(ApartmentState.STA);
 			backgroundTask.Start();

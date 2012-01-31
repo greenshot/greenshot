@@ -351,6 +351,7 @@ namespace Greenshot.Helpers {
 					windows = WindowDetails.SortByZOrder(IntPtr.Zero, windows);
 				}
 			});
+			getWindowDetailsThread.Name = "Retrieve window details";
 			getWindowDetailsThread.IsBackground = true;
 			getWindowDetailsThread.Start();
 		}

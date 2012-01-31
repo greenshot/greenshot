@@ -202,7 +202,7 @@ namespace Greenshot.Helpers {
 			// Create the mail message in an STA thread
 			Thread t = new Thread(new ThreadStart(_ShowMail));
 			t.IsBackground = true;
-			t.Name = Application.ProductName;
+			t.Name = "Create MAPI mail";
 			t.SetApartmentState(ApartmentState.STA);
 			t.Start();
 	

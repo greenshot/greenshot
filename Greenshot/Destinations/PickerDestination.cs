@@ -67,11 +67,10 @@ namespace Greenshot.Destinations {
 
 		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
 			ContextMenuStrip menu = new ContextMenuStrip();
-			menu.Closed += delegate(object source, ToolStripDropDownClosedEventArgs eventArgs) {
-				// Dispose surface when no item was clicked, else the dispose should be made there!
-				if (eventArgs.CloseReason != ToolStripDropDownCloseReason.ItemClicked) {
-					LOG.DebugFormat("Disposing as no item was clicked, reason: {0}", eventArgs.CloseReason);
-					surface.Dispose();
+			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
+				LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
+				if (eventArgs.CloseReason != ToolStripDropDownCloseReason.ItemClicked && eventArgs.CloseReason != ToolStripDropDownCloseReason.CloseCalled) {
+					eventArgs.Cancel = true;
 				}
 			};
 
@@ -83,25 +82,27 @@ namespace Greenshot.Destinations {
 					continue;
 				}
 				// Fix foreach loop variable for the delegate
-				ToolStripMenuItem item = destination.GetMenuItem(delegate(object sender, EventArgs e) {
-					ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
-					if (toolStripMenuItem == null) {
-						return;
+				ToolStripMenuItem item = destination.GetMenuItem(
+					delegate(object sender, EventArgs e) {
+						ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
+						if (toolStripMenuItem == null) {
+							return;
+						}
+						IDestination clickedDestination = (IDestination)toolStripMenuItem.Tag;
+						if (clickedDestination == null) {
+							return;
+						}
+						bool result = clickedDestination.ExportCapture(surface, captureDetails);
+						// TODO: Find some better way to detect that we exported to the editor
+						if (!EditorDestination.DESIGNATION.Equals(clickedDestination.Designation) || result == false) {
+							LOG.DebugFormat("Disposing as Destination was {0} and result {1}", clickedDestination.Description, result);
+							// Cleanup surface
+							surface.Dispose();
+						}
+						// Make sure the menu is closed
+						menu.Close();
 					}
-					IDestination clickedDestination = (IDestination)toolStripMenuItem.Tag;
-					if (clickedDestination == null) {
-						return;
-					}
-					bool result = clickedDestination.ExportCapture(surface, captureDetails);
-					// TODO: Find some better way to detect that we exported to the editor
-					if (!EditorDestination.DESIGNATION.Equals(clickedDestination.Designation) || result == false) {
-						LOG.DebugFormat("Disposing as Destination was {0} and result {1}", clickedDestination.Description, result);
-						// Cleanup surface
-						surface.Dispose();
-					}
-					// Make sure the menu is closed
-					menu.Close();
-				});
+				);
 				if (item != null) {
 					menu.Items.Add(item);
 				}
@@ -112,6 +113,7 @@ namespace Greenshot.Destinations {
 			closeItem.Click += delegate {
 				// This menu entry is the close itself, we can dispose the surface
 				menu.Close();
+				// Dispose as the close is clicked
 				surface.Dispose();
 			};
 			menu.Items.Add(closeItem);

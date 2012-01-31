@@ -175,6 +175,7 @@ namespace Greenshot.Helpers {
 				// Start update check in the background
 				backgroundTask = new Thread (new ThreadStart(CaptureFrame));
 				backgroundTask.IsBackground = true;
+				backgroundTask.Name = "Capture video";
 				backgroundTask.Start();
 				return true;
 			} else {

@@ -42,6 +42,7 @@ namespace GreenshotNetworkImportPlugin {
 		}
 		public void StartListening() {
 			Thread serverThread = new Thread(Listen);
+			serverThread.Name = "HTTP Receiver";
 			serverThread.SetApartmentState(ApartmentState.STA);
 			serverThread.Start();
 		}
@@ -92,7 +93,9 @@ namespace GreenshotNetworkImportPlugin {
 			}
 			try {
 				HttpListenerContext context = listener.EndGetContext(result);
-				new Thread(ProcessRequest).Start(context);
+				Thread requestThread = new Thread(ProcessRequest);
+				requestThread.Name = "Process Request";
+				requestThread.Start(context);
 			} catch (HttpListenerException httpE) {
 				LOG.Error(httpE);
 			}

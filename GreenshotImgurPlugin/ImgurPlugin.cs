@@ -97,6 +97,7 @@ namespace GreenshotImgurPlugin {
 
 			// retrieve history in the background
 			Thread backgroundTask = new Thread (new ThreadStart(CheckHistory));
+			backgroundTask.Name = "Imgur History";
 			backgroundTask.IsBackground = true;
 			backgroundTask.SetApartmentState(ApartmentState.STA);
 			backgroundTask.Start();

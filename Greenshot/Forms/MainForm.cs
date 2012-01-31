@@ -1111,6 +1111,7 @@ namespace Greenshot {
 				LOG.Debug("BackgroundWorkerTimerTick checking for update");
 				// Start update check in the background
 				Thread backgroundTask = new Thread (new ThreadStart(UpdateHelper.CheckAndAskForUpdate));
+				backgroundTask.Name = "Update check";
 				backgroundTask.IsBackground = true;
 				backgroundTask.Start();
 			}
