@@ -47,6 +47,7 @@ namespace Greenshot.Forms {
 		private static Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
 		private static Brush RedOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.DarkRed));
 		private static Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
+		private static CaptureForm currentForm = null;
 
 		private int mX;
 		private int mY;
@@ -81,6 +82,20 @@ namespace Greenshot.Forms {
 		}
 
 		public CaptureForm(ICapture capture, List<WindowDetails> windows) {
+			if (currentForm != null) {
+				LOG.Debug("Found currentForm, Closing already opened CaptureForm");
+				currentForm.Close();
+				currentForm = null;
+				Application.DoEvents();
+			}
+			currentForm = this;
+
+			// clean up
+			this.FormClosed += delegate {
+				currentForm = null;
+				LOG.Debug("Remove CaptureForm from currentForm");
+			};
+
 			this.capture = capture;
 			this.windows = windows;
 			captureMode = capture.CaptureDetails.CaptureMode;

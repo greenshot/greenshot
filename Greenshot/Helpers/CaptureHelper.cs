@@ -297,6 +297,11 @@ namespace Greenshot.Helpers {
 					LOG.Warn("Unknown capture mode: " + captureMode);
 					break;
 			}
+
+			if (capture != null) {
+				LOG.Debug("Disposing capture");
+				capture.Dispose();
+			}
 		}
 				
 		/// <summary>
