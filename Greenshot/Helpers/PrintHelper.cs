@@ -37,20 +37,22 @@ namespace Greenshot.Helpers {
 	public class PrintHelper : IDisposable {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PrintHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		
+
 		private Image image;
+		private ICaptureDetails captureDetails;
 		private PrintDocument printDocument = new PrintDocument();
 		private PrintDialog printDialog = new PrintDialog();
 		private PrintOptionsDialog printOptionsDialog = null;
-		
+
 		public PrintHelper(Image image, ICaptureDetails captureDetails) {
 			this.image = image;
+			this.captureDetails = captureDetails;
 			printDialog.UseEXDialog = true;
 			printDocument.DocumentName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, captureDetails);
 			printDocument.PrintPage += DrawImageForPrint;
 			printDialog.Document = printDocument;
 		}
-		
+
 		/**
 		 * Destructor
 		 */
@@ -73,17 +75,25 @@ namespace Greenshot.Helpers {
 		 */
 		protected void Dispose(bool disposing) {
 			if (disposing) {
-				if(image != null) image.Dispose();
-				if(printDocument != null) printDocument.Dispose();
-				if(printDialog != null) printDialog.Dispose();
-				if(printOptionsDialog != null) printOptionsDialog.Dispose();
+				if (image != null) {
+					image.Dispose();
+				}
+				if (printDocument != null) {
+					printDocument.Dispose();
+				}
+				if (printDialog != null) {
+					printDialog.Dispose();
+				}
+				if (printOptionsDialog != null) {
+					printOptionsDialog.Dispose();
+				}
 			}
 			image = null;
 			printDocument = null;
 			printDialog = null;
 			printOptionsDialog = null;
 		}
-		
+
 		/// <summary>
 		/// displays options dialog (if not disabled via settings) and windows
 		/// print dialog.
@@ -96,38 +106,48 @@ namespace Greenshot.Helpers {
 				printOptionsDialog = new PrintOptionsDialog();
 				if (conf.OutputPrintPromptOptions) {
 					DialogResult result = printOptionsDialog.ShowDialog();
-					if(result != DialogResult.OK) {
+					if (result != DialogResult.OK) {
 						cancelled = true;
 					}
-				} 
+				}
 				try {
-					if(!cancelled) {
+					if (!cancelled) {
 						printDocument.Print();
 						ret = printDialog.PrinterSettings;
 					}
-				} catch(Exception e) {
+				} catch (Exception e) {
 					LOG.Error("An error ocurred while trying to print", e);
 					ILanguage lang = Language.GetInstance();
 					MessageBox.Show(lang.GetString(LangKey.print_error), lang.GetString(LangKey.error));
 				}
-				
-			} 
+
+			}
 			image.Dispose();
 			image = null;
 			return ret;
 		}
-		
+
 		void DrawImageForPrint(object sender, PrintPageEventArgs e) {
 			PrintOptionsDialog pod = printOptionsDialog;
-			
 			ContentAlignment alignment = pod.AllowPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
 
+			// prepare timestamp
+			float dateStringWidth = 0;
+			float dateStringHeight = 0;
+			string dateString = DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
+			if (conf.OutputPrintTimestamp) {
+				using (Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular)) {
+					dateStringWidth = e.Graphics.MeasureString(dateString, f).Width;
+					dateStringHeight = e.Graphics.MeasureString(dateString, f).Height;
+				}
+			}
+
+			// Invert Bitmap if wanted
 			if (conf.OutputPrintInverted) {
-				// Invert Bitmap
 				using (BitmapBuffer bb = new BitmapBuffer((Bitmap)image, false)) {
 					bb.Lock();
-					for(int y=0;y<bb.Height; y++) {
-						for(int x=0;x<bb.Width; x++) {
+					for (int y = 0; y < bb.Height; y++) {
+						for (int x = 0; x < bb.Width; x++) {
 							Color color = bb.GetColorAt(x, y);
 							Color invertedColor = Color.FromArgb(color.A, color.R ^ 255, color.G ^ 255, color.B ^ 255);
 							bb.SetColorAt(x, y, invertedColor);
@@ -136,45 +156,44 @@ namespace Greenshot.Helpers {
 				}
 			}
 
+			// Get a rectangle representing the printable Area
 			RectangleF pageRect = e.PageSettings.PrintableArea;
+
+			// Subtract the dateString height from the available area, this way the area stays free
+			pageRect.Height -= dateStringHeight;
+
 			GraphicsUnit gu = GraphicsUnit.Pixel;
 			RectangleF imageRect = image.GetBounds(ref gu);
 			// rotate the image if it fits the page better
-			if(pod.AllowPrintRotate) {
-				if((pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height) ||
-				   (pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)) {
+			if (pod.AllowPrintRotate) {
+				if ((pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height) || (pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)) {
 					image.RotateFlip(RotateFlipType.Rotate90FlipNone);
 					imageRect = image.GetBounds(ref gu);
-					if(alignment.Equals(ContentAlignment.TopLeft)) alignment = ContentAlignment.TopRight;
+					if (alignment.Equals(ContentAlignment.TopLeft)) {
+						alignment = ContentAlignment.TopRight;
+					}
 				}
 			}
-			RectangleF printRect = new RectangleF(0,0,imageRect.Width, imageRect.Height);;
+
+			RectangleF printRect = new RectangleF(0, 0, imageRect.Width, imageRect.Height);
 			// scale the image to fit the page better
-			if(pod.AllowPrintEnlarge || pod.AllowPrintShrink) {
-				SizeF resizedRect = ScaleHelper.GetScaledSize(imageRect.Size,pageRect.Size,false);
-				if((pod.AllowPrintShrink && resizedRect.Width < printRect.Width) ||
-				   pod.AllowPrintEnlarge && resizedRect.Width > printRect.Width) {
+			if (pod.AllowPrintEnlarge || pod.AllowPrintShrink) {
+				SizeF resizedRect = ScaleHelper.GetScaledSize(imageRect.Size, pageRect.Size, false);
+				if ((pod.AllowPrintShrink && resizedRect.Width < printRect.Width) || pod.AllowPrintEnlarge && resizedRect.Width > printRect.Width) {
 					printRect.Size = resizedRect;
 				}
-				
 			}
-			
-			// prepare timestamp
-			float dateStringWidth = 0;
-			float dateStringHeight = 0;
-			if (conf.OutputPrintTimestamp) {
-				Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
-				string dateString = DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
-				dateStringWidth = e.Graphics.MeasureString(dateString, f).Width;
-				dateStringHeight = e.Graphics.MeasureString(dateString, f).Height;
-				e.Graphics.DrawString(dateString, f, Brushes.Black, pageRect.Width / 2 - (dateStringWidth / 2), pageRect.Height - dateStringHeight);
-			}
-			
+
 			// align the image
-			printRect = ScaleHelper.GetAlignedRectangle(printRect, new RectangleF(0, 0, pageRect.Width, pageRect.Height - dateStringHeight * 2), alignment);
-			
-			e.Graphics.DrawImage(image,printRect,imageRect,GraphicsUnit.Pixel);			
-			
+			printRect = ScaleHelper.GetAlignedRectangle(printRect, new RectangleF(0, 0, pageRect.Width, pageRect.Height), alignment);
+			if (conf.OutputPrintTimestamp) {
+				//printRect = new RectangleF(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
+				using (Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular)) {
+					e.Graphics.DrawString(dateString, f, Brushes.Black, pageRect.Width / 2 - (dateStringWidth / 2), pageRect.Height);
+				}
+			}
+
+			e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);
 		}
 	}
 }
