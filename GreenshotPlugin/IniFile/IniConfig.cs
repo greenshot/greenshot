@@ -81,10 +81,10 @@ namespace IniFile {
 		/// Default init
 		/// </summary>
 		public static void Init() {
-			AssemblyProductAttribute[] assemblyProductAttributes = Assembly.GetCallingAssembly().GetCustomAttributes(typeof(AssemblyProductAttribute), false) as AssemblyProductAttribute[];
+			AssemblyProductAttribute[] assemblyProductAttributes = Assembly.GetEntryAssembly().GetCustomAttributes(typeof(AssemblyProductAttribute), false) as AssemblyProductAttribute[];
 			if (assemblyProductAttributes.Length > 0) {
 				string productName = assemblyProductAttributes[0].Product;
-				LOG.DebugFormat("Using ProductName {0}", productName);
+				LOG.InfoFormat("Using ProductName {0}", productName);
 				Init(productName, productName);
 			} else {
 				throw new InvalidOperationException("Assembly ProductName not set.");
@@ -160,7 +160,13 @@ namespace IniFile {
 				throw new InvalidOperationException("IniConfig.Init not called!");
 			}
 			string iniFilePath = null;
-			string applicationStartupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+			string applicationStartupPath = "";
+			try {
+				applicationStartupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+			} catch (Exception exception) {
+				LOG.WarnFormat("Problem retrieving the AssemblyLocation: {0}", exception.Message);
+				applicationStartupPath = @".";
+			}
 			string pafPath = Path.Combine(applicationStartupPath, @"App\" + applicationName);
 			
 			if (portable || !portableCheckMade) {

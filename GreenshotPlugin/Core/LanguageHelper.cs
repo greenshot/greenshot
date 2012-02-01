@@ -259,7 +259,7 @@ namespace GreenshotPlugin.Core {
 			languageDirectories.Add(STARTUP_LANGUAGE_PATH);
 			foreach(string path in languageDirectories) {
 				// Search in executable directory
-				LOG.DebugFormat("Searching language directory '{0}' for language files with pattern '{1}'", path, languageFilePattern);
+				LOG.InfoFormat("Searching language directory '{0}' for language files with pattern '{1}'", path, languageFilePattern);
 				try {
 					foreach(string languageFile in Directory.GetFiles(path, languageFilePattern, SearchOption.AllDirectories)) {
 						LOG.DebugFormat("Found language file: {0}", languageFile);
@@ -284,7 +284,7 @@ namespace GreenshotPlugin.Core {
 				// Try to force internal english
 				try {
 					LOG.Info("No languages found, using embedded en-US.");
-					using (Stream stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Greenshot.Languages.language-en-US.xml")) {
+					using (Stream stream = Assembly.GetEntryAssembly().GetManifestResourceStream("Greenshot.Languages.language-en-US.xml")) {
 						LanguageConfiguration languageConfig = LanguageConfiguration.Load(stream);
 						if (languageConfig != null) {
 							loadedLanguages.Add(languageConfig);

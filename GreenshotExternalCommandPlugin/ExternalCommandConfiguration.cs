@@ -41,12 +41,21 @@ namespace ExternalCommand {
 		public Dictionary<string, string> arguments;
 		
 		private const string MSPAINT = "MS Paint";
-		private static string paintPath = AbstractDestination.GetExePath("pbrush.exe");
-		private static bool hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
+		private static string paintPath;
+		private static bool hasPaint = false;
 
 		private const string PAINTDOTNET = "Paint.NET";
-		private static string paintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
-		private static bool hasPaintDotNet = !string.IsNullOrEmpty(paintDotNetPath) && File.Exists(paintDotNetPath);
+		private static string paintDotNetPath;
+		private static bool hasPaintDotNet = false;
+		static ExternalCommandConfiguration() {
+			try {
+				paintPath = AbstractDestination.GetExePath("pbrush.exe");
+				hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
+				paintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
+				hasPaintDotNet = !string.IsNullOrEmpty(paintDotNetPath) && File.Exists(paintDotNetPath);
+			} catch {
+			}
+		}
 
 		/// <summary>
 		/// Supply values we can't put as defaults
