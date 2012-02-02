@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-0.9.0-Unstable (Build 1625)
+0.9.0 Build 1626
 
 We changed the version to 0.9.0 as the amount of features in 0.8.1 was more than planned.
 Due to the many changes we need to go through a Release Candidate iteration again...
@@ -26,7 +26,7 @@ Features added:
 * Added Ctrl/shift logic to the editor, hard to explain (see help) but hold one of the keys down and draw..
 
 
-0.8.1-Unstable (Build 1483)
+0.8.1 Build 1483
 
 Bugs resolved:
 * Fixed a bug that windows which dissapear when they lose focus couldn't be selected in the "interactive window mode" (Press printscreen and than space). These are e.g. (context) menus and the Windows 7 Clock.
