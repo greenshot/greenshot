@@ -4,7 +4,7 @@
     xmlns:gscp="clr-namespace:GreenshotConfluencePlugin"
     xmlns:l="clr-namespace:TranslationByMarkupExtension"
     xmlns:gsc="clr-namespace:GreenshotPlugin.Core;assembly=GreenshotPlugin"
-	Title="Confluence plugin settings" SizeToContent="WidthAndHeight" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
+	Title="{l:Translate plugin_settings}" SizeToContent="WidthAndHeight" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
 	<Window.Resources>
         <gscp:EnumDisplayer Type="{x:Type gsc:OutputFormat}" x:Key="outputFormats"/>
 	</Window.Resources>
@@ -24,9 +24,9 @@
 			<Label Content="{l:Translate upload_format}" />
 			<ComboBox ItemsSource="{Binding Source={StaticResource outputFormats},Path=DisplayNames}" SelectedValue="{Binding UploadFormat, Converter={StaticResource outputFormats}}" />
 		</StackPanel>
-		<StackPanel Orientation="Horizontal">
-			<Button IsCancel="True" Content="Cancel"/>
-			<Button IsDefault="True" Content="OK" Click="Button_Click"/>
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button IsCancel="True" Content="{l:Translate CANCEL}"/>
+            <Button IsDefault="True" Content="{l:Translate OK}" Click="Button_Click"/>
 		</StackPanel>
 	</StackPanel>
 </Window>

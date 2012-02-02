@@ -16,9 +16,9 @@
 		</Grid.RowDefinitions>
 		<Label Grid.Row="0" Grid.Column="0" Content="Space" />
 		<ComboBox Grid.Row="0" Grid.Column="1" Name="SpaceComboBox" ItemsSource="{Binding Path=Spaces}" DisplayMemberPath="Name" SelectedValuePath="Key"/>
-		<Label Grid.Row="1" Grid.Column="0" Content="Search text" />
+        <Label Grid.Row="1" Grid.Column="0" Content="{l:Translate search_text}" />
 		<TextBox Grid.Row="1" Grid.Column="1" Name="searchText" Text="" KeyDown="SearchText_KeyDown"/>
-		<Button Grid.Row="2" Grid.ColumnSpan="2" Name="Search" Content="Search" Click="Search_Click" />
+        <Button Grid.Row="2" Grid.ColumnSpan="2" Name="Search" Content="{l:Translate search}" Click="Search_Click" />
 		<ListView Grid.Row="3" Grid.ColumnSpan="2" Name="PageListView" SelectionMode="Single" ItemsSource="{Binding Path=Pages}" SelectionChanged="PageListView_SelectionChanged">
 			<ListView.ItemTemplate>
 				<DataTemplate>

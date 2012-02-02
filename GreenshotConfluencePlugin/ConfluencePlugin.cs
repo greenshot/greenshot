@@ -43,7 +43,7 @@ namespace GreenshotConfluencePlugin {
 		private static ILanguage lang = Language.GetInstance();
 		private static IGreenshotHost host;
 		
-		public static ConfluenceConnector ConfluenceConnector {
+		public static ConfluenceConnector ConfluenceConnectorNoLogin {
 			get {
 				if (confluenceConnector == null) {
 					if (config.Url.Contains("soap-axis")) {
@@ -51,6 +51,15 @@ namespace GreenshotConfluencePlugin {
 					} else {
 						confluenceConnector = new ConfluenceConnector(config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX, config.Timeout);
 					}
+				}
+				return confluenceConnector;
+			}
+		}
+
+		public static ConfluenceConnector ConfluenceConnector {
+			get {
+				if (confluenceConnector == null) {
+					confluenceConnector = ConfluenceConnectorNoLogin;
 				}
 				try {
 					if (!confluenceConnector.isLoggedIn) {
@@ -113,34 +122,16 @@ namespace GreenshotConfluencePlugin {
 		public virtual void Configure() {
 			ConfluenceConfiguration clonedConfig = config.Clone();
 			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
+			string url = config.Url;
 			Nullable<bool> dialogResult = configForm.ShowDialog();
 			if (dialogResult.HasValue && dialogResult.Value) {
 				// copy the new object to the old...
 				clonedConfig.CloneTo(config);
 				IniConfig.Save();
-				confluenceConnector.logout();
-				confluenceConnector = null;
-			}
-		}
-		
-		public void upload(IImageEditor imageEditor, Page page, string filename) {
-			using (MemoryStream stream = new MemoryStream()) {
-				imageEditor.SaveToStream(stream, config.UploadFormat, config.UploadJpegQuality);
-				byte [] buffer = stream.GetBuffer();
-				try {
-					confluenceConnector.addAttachment(page.id, "image/" + config.UploadFormat.ToString().ToLower(),  null, filename, buffer);
-					imageEditor.Surface.Modified = false;
-					LOG.Debug("Uploaded to Confluence.");
-					if (config.CopyWikiMarkupForImageToClipboard) {
-						System.Windows.Clipboard.SetText("!" + filename + "!");
+				if (confluenceConnector != null) {
+					if (!url.Equals(config.Url) && confluenceConnector.isLoggedIn) {
+						confluenceConnector.logout();
 					}
-					if (config.OpenPageAfterUpload) {
-						Process.Start(page.Url);
-					} else {
-						System.Windows.MessageBox.Show(lang.GetString(LangKey.upload_success));
-					}
-				} catch(Exception e) {
-					System.Windows.MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
 				}
 			}
 		}

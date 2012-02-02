@@ -1,13 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="English" ietf="en-US" version="0.8.0">
-  <resources>
+ <resources>
+	<resource name="plugin_settings">
+		Confluence settings
+	</resource>
 	<resource name="login_error">
 		There was a problem during the login: {0}
 	</resource>
 	<resource name="label_url">
 		Url
 	</resource>
-  	<resource name="label_timeout">
+	<resource name="label_timeout">
 		Timeout
 	</resource>
 	<resource name="label_user">
@@ -16,35 +19,56 @@
 	<resource name="label_password">
 		Password
 	</resource>
-  	<resource name="login_title">
+	<resource name="login_title">
 		Please enter your Confluence login data
 	</resource>
-  	<resource name="OK">
+	<resource name="OK">
 		OK
 	</resource>
-  	<resource name="CANCEL">
+	<resource name="CANCEL">
 		Cancel
 	</resource>
-  	  <resource name="upload_menu_item">
+	<resource name="upload_menu_item">
 		Upload to Confluence
 	</resource>
-  	<resource name="upload_success">
+	<resource name="upload_success">
 		Successfully uploaded image to Confluence!
 	</resource>
-  	<resource name="upload_failure">
+	<resource name="upload_failure">
 		An error occured while uploading to Confluence:
 	</resource>
 	<resource name="open_page_after_upload">
 		Open page after upload
 	</resource>
-  	<resource name="upload_format">
+	<resource name="upload_format">
 		Upload format
 	</resource>
 	<resource name="copy_wikimarkup">
-  		Copy the Wikimarkup for image to the Clipboard
-  	</resource>
-  	<resource name="filename">
+		Copy Wikimarkup to the Clipboard
+	</resource>
+	<resource name="filename">
 		Filename
 	</resource>
-  </resources>
+  <resource name="upload">
+		Upload
+	</resource>
+  <resource name="open_pages">
+		Open pages
+	</resource>
+  <resource name="search_pages">
+		Search pages
+	</resource>
+  <resource name="browse_pages">
+		Browse pages
+	</resource>
+  <resource name="search_text">
+		Search text
+	</resource>
+  <resource name="search">
+		Search
+	</resource>
+  <resource name="loading">
+		Confluence data is loading, please wait...
+	</resource>
+ </resources>
 </language>

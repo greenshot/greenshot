@@ -35,11 +35,6 @@ namespace GreenshotConfluencePlugin {
 			InitializeComponent();
 		}
 		
-		void Upload_Click(object sender, System.Windows.RoutedEventArgs e) {
-			ConfluenceUpload confluenceUpload = (ConfluenceUpload)Parent;
-			confluenceUpload.DialogResult = true;
-		}
-		
 		void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
 			SelectionChanged();
 		}
@@ -47,6 +42,8 @@ namespace GreenshotConfluencePlugin {
 		void SelectionChanged() {
 			if (PageListView.HasItems && PageListView.SelectedItems.Count > 0) {
 				confluenceUpload.SelectedPage = (Page)PageListView.SelectedItem;
+				// Make sure the uploader knows we selected an already opened page
+				confluenceUpload.isOpenPageSelected = true;
 			} else {
 				confluenceUpload.SelectedPage = null;
 			}

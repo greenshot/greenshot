@@ -71,9 +71,14 @@ namespace GreenshotConfluencePlugin {
 				} else {
 					Upload.IsEnabled = false;
 				}
+				isOpenPageSelected = false;
 			}
 		}
-		
+
+		public bool isOpenPageSelected {
+			get;
+			set;
+		}
 		public string Filename {
 			get;
 			set;

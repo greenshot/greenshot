@@ -91,7 +91,7 @@ namespace GreenshotConfluencePlugin {
 		}
 		
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			if (!ConfluencePlugin.ConfluenceConnector.isLoggedIn) {
+			if (ConfluencePlugin.ConfluenceConnectorNoLogin.isLoggedIn) {
 				yield break;
 			}
 			List<Confluence.Page> currentPages = ConfluenceUtils.GetCurrentPages();
@@ -111,12 +111,16 @@ namespace GreenshotConfluencePlugin {
 			}
 
 			Page selectedPage = page;
+			bool openPage = (page == null) && config.OpenPageAfterUpload;
 			string filename = ConfluencePlugin.Host.GetFilename(config.UploadFormat, captureDetails);
-			if (page == null) {
+			if (selectedPage == null) {
 				ConfluenceUpload confluenceUpload = new ConfluenceUpload(filename);
 				Nullable<bool> dialogResult = confluenceUpload.ShowDialog();
 				if (dialogResult.HasValue && dialogResult.Value) {
 					selectedPage = confluenceUpload.SelectedPage;
+					if (confluenceUpload.isOpenPageSelected) {
+						openPage = false;
+					}
 					filename = confluenceUpload.Filename;
 				} else {
 					return false;
@@ -124,7 +128,7 @@ namespace GreenshotConfluencePlugin {
 			}
 			if (selectedPage != null) {
 				using (Image image = surface.GetImageForExport()) {
-					bool uploaded = upload(image, selectedPage, filename);
+					bool uploaded = upload(image, selectedPage, filename, openPage);
 					if (uploaded) {
 						surface.SendMessageEvent(this, SurfaceMessageTyp.Info, ConfluencePlugin.Host.CoreLanguage.GetFormattedString("exported_to", Description));
 						surface.Modified = false;
@@ -136,7 +140,7 @@ namespace GreenshotConfluencePlugin {
 			return false;
 		}
 		
-		private bool upload(Image image, Page page, string filename) {
+		private bool upload(Image image, Page page, string filename, bool openPage) {
 			using (MemoryStream stream = new MemoryStream()) {
 				ConfluencePlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);
 				byte [] buffer = stream.GetBuffer();
@@ -160,8 +164,10 @@ namespace GreenshotConfluencePlugin {
 							}
 						}
 					}
-					if (config.OpenPageAfterUpload) {
-						Process.Start(page.Url);
+					if (openPage) {
+						try {
+							Process.Start(page.Url);
+						} catch {}
 					} else {
 						System.Windows.MessageBox.Show(lang.GetString(LangKey.upload_success));
 					}

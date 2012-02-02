@@ -2,16 +2,16 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:l="clr-namespace:TranslationByMarkupExtension"
-	Title="Upload to confluence" Height="640" Width="500" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
+	Title="{l:Translate upload_menu_item}" Height="640" Width="500" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
 	<StackPanel>
 		<TabControl >
-			<TabItem Header="Open pages">
+            <TabItem Header="{l:Translate open_pages}">
 				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=PickerPage}" Height="500"/>
 			</TabItem>
-			<TabItem Header="Search pages">
+            <TabItem Header="{l:Translate search_pages}">
 				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=SearchPage}" Height="500"/>
 			</TabItem>
-			<TabItem Header="Browse pages">
+            <TabItem Header="{l:Translate browse_pages}">
 				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=BrowsePage}" Height="500"/>
 			</TabItem>
 		</TabControl>
@@ -26,9 +26,9 @@
 			<Label Grid.Row="0" Grid.Column="0" Content="{l:Translate filename}" />
 			<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=Filename}" />
 		</Grid>
-		<StackPanel Orientation="Horizontal">
-			<Button Name="Upload" Content="Upload" IsDefault="True" IsEnabled="False" Click="Upload_Click" />
-			<Button Name="Cancel" Content="Cancel" IsCancel="True" />
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Name="Upload" Content="{l:Translate upload}" IsDefault="True" IsEnabled="False" Click="Upload_Click" />
+            <Button Name="Cancel" Content="{l:Translate CANCEL}" IsCancel="True" />
 		</StackPanel>
 	</StackPanel>
 </Window>
