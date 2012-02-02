@@ -63,7 +63,7 @@ namespace GreenshotJiraPlugin {
 				if (jira == null) {
 					return lang.GetString(LangKey.upload_menu_item);
 				} else {
-					return lang.GetString(LangKey.upload_menu_item) + " - " + jira.Summary;
+					return lang.GetString(LangKey.upload_menu_item) + " - " + jira.Key + ": " + jira.Summary.Substring(0, Math.Min(20, jira.Summary.Length));
 				}
 			}
 		}
