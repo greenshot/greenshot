@@ -65,6 +65,8 @@
     <Compile Include="Controls\ToolStripColorButton.cs" />
     <Compile Include="Controls\FontFamilyComboBox.cs" />
     <Compile Include="Controls\ToolStripNumericUpDown.cs" />
+    <Compile Include="Controls\ToolStripEx.cs" />
+    <Compile Include="Controls\MenuStripEx.cs" />
     <Compile Include="Destinations\ClipboardDestination.cs" />
     <Compile Include="Destinations\EditorDestination.cs" />
     <Compile Include="Destinations\EmailDestination.cs" />

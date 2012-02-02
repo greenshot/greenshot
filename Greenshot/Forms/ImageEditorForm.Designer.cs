@@ -52,7 +52,7 @@ namespace Greenshot {
 			this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.panel1 = new GreenshotPlugin.Controls.NonJumpingPanel();
-			this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+			this.toolStrip2 = new Greenshot.Controls.ToolStripEx();
 			this.btnCursor = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnRect = new System.Windows.Forms.ToolStripButton();
@@ -68,7 +68,7 @@ namespace Greenshot {
 			this.btnFreehand = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnCrop = new System.Windows.Forms.ToolStripButton();
-			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+			this.menuStrip1 = new Greenshot.Controls.MenuStripEx();
 			this.fileStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -104,7 +104,7 @@ namespace Greenshot {
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+			this.toolStrip1 = new Greenshot.Controls.ToolStripEx();
 			this.btnSave = new System.Windows.Forms.ToolStripButton();
 			this.btnClipboard = new System.Windows.Forms.ToolStripButton();
 			this.btnPrint = new System.Windows.Forms.ToolStripButton();
@@ -120,7 +120,7 @@ namespace Greenshot {
 			this.btnSettings = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnHelp = new System.Windows.Forms.ToolStripButton();
-			this.propertiesToolStrip = new System.Windows.Forms.ToolStrip();
+			this.propertiesToolStrip = new Greenshot.Controls.ToolStripEx();
 			this.obfuscateModeButton = new Greenshot.Controls.BindableToolStripDropDownButton();
 			this.pixelizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.blurToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -161,7 +161,6 @@ namespace Greenshot {
 			this.btnCancel = new Greenshot.Controls.BindableToolStripButton();
 			this.btnLineColor_ = new Greenshot.Controls.ToolStripColorButton();
 			this.btnFillColor_ = new Greenshot.Controls.ToolStripColorButton();
-			this.printDialog1 = new System.Windows.Forms.PrintDialog();
 			this.fileSavedStatusContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.copyPathMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openDirectoryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -282,6 +281,7 @@ namespace Greenshot {
 			this.toolStrip2.Size = new System.Drawing.Size(24, 387);
 			this.toolStrip2.Stretch = true;
 			this.toolStrip2.TabIndex = 0;
+			this.toolStrip2.ClickThrough = true;
 			// 
 			// btnCursor
 			// 
@@ -420,6 +420,7 @@ namespace Greenshot {
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(785, 24);
 			this.menuStrip1.TabIndex = 1;
+			this.menuStrip1.ClickThrough = true;
 			// 
 			// fileStripMenuItem
 			// 
@@ -762,6 +763,7 @@ namespace Greenshot {
 			this.toolStrip1.Size = new System.Drawing.Size(785, 25);
 			this.toolStrip1.Stretch = true;
 			this.toolStrip1.TabIndex = 0;
+			this.toolStrip1.ClickThrough = true;
 			// 
 			// btnSave
 			// 
@@ -935,6 +937,7 @@ namespace Greenshot {
 			this.propertiesToolStrip.Size = new System.Drawing.Size(785, 27);
 			this.propertiesToolStrip.Stretch = true;
 			this.propertiesToolStrip.TabIndex = 2;
+			this.propertiesToolStrip.ClickThrough = true;
 			// 
 			// obfuscateModeButton
 			// 
@@ -1423,10 +1426,6 @@ namespace Greenshot {
 			this.btnFillColor_.SelectedColor = System.Drawing.SystemColors.Control;
 			this.btnFillColor_.Size = new System.Drawing.Size(23, 23);
 			// 
-			// printDialog1
-			// 
-			this.printDialog1.UseEXDialog = true;
-			// 
 			// fileSavedStatusContextMenu
 			// 
 			this.fileSavedStatusContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1549,7 +1548,7 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripLabel blurRadiusLabel;
 		private Greenshot.Controls.ToolStripColorButton btnFillColor_;
 		private Greenshot.Controls.ToolStripColorButton btnLineColor_;
-		private System.Windows.Forms.ToolStrip propertiesToolStrip;
+		private Greenshot.Controls.ToolStripEx propertiesToolStrip;
 		private System.Windows.Forms.ToolStripLabel lineThicknessLabel;
 		private Greenshot.Controls.ToolStripNumericUpDown lineThicknessUpDown;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
@@ -1568,7 +1567,7 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripMenuItem upOneLevelToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem arrangeToolStripMenuItem;
 		private System.Windows.Forms.ToolStripButton btnCursor;
-		private System.Windows.Forms.ToolStrip toolStrip2;
+		private Greenshot.Controls.ToolStripEx toolStrip2;
 		private System.Windows.Forms.ToolStripButton btnArrow;
 		private System.Windows.Forms.ToolStripMenuItem drawArrowToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem drawFreehandToolStripMenuItem;
@@ -1589,7 +1588,6 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
 		private System.Windows.Forms.ToolStripButton btnPrint;
-		private System.Windows.Forms.PrintDialog printDialog1;
 		private System.Windows.Forms.ToolStripMenuItem duplicateToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
 		private System.Windows.Forms.ToolStripMenuItem fileStripMenuItem;
@@ -1604,7 +1602,7 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-		private System.Windows.Forms.MenuStrip menuStrip1;
+		private Greenshot.Controls.MenuStripEx menuStrip1;
 		private System.Windows.Forms.ToolStripStatusLabel statusLabel;
 		private System.Windows.Forms.StatusStrip statusStrip1;
 		private System.Windows.Forms.ToolStripButton btnCut;
@@ -1622,7 +1620,7 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripButton btnSave;
 		private System.Windows.Forms.ToolStripButton btnRect;
 		private System.Windows.Forms.ToolStripContainer toolStripContainer1;
-		private System.Windows.Forms.ToolStrip toolStrip1;
+		private Greenshot.Controls.ToolStripEx toolStrip1;
 		private GreenshotPlugin.Controls.NonJumpingPanel panel1;
 		private Greenshot.Controls.ToolStripColorButton btnFillColor;
 		private Greenshot.Controls.ToolStripColorButton btnLineColor;

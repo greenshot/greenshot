@@ -24,7 +24,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Printing;
 using System.IO;
 using System.Windows.Forms;
 
@@ -38,6 +37,7 @@ using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using IniFile;
+using System.Threading;
 
 namespace Greenshot {
 	/// <summary>
@@ -476,9 +476,12 @@ namespace Greenshot {
 		}
 
 		void BtnPrintClick(object sender, EventArgs e) {
-			DestinationHelper.ExportCapture(Destinations.PrinterDestination.DESIGNATION, surface, surface.CaptureDetails);
+			// The BeginInvoke is a solution for the printdialog not having focus
+			this.BeginInvoke((MethodInvoker) delegate {
+				DestinationHelper.ExportCapture(Destinations.PrinterDestination.DESIGNATION, surface, surface.CaptureDetails);
+			});
 		}
-		
+
 		void CloseToolStripMenuItemClick(object sender, System.EventArgs e) {
 			this.Close();
 		}
