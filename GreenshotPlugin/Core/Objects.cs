@@ -63,7 +63,9 @@ namespace GreenshotPlugin.Core {
 			PropertyInfo[] myObjectProperties = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
 			foreach (PropertyInfo pi in myObjectProperties) {
-				pi.SetValue(destination, pi.GetValue(source, null), null);
+				if (pi.CanWrite) {
+					pi.SetValue(destination, pi.GetValue(source, null), null);
+				}
 			}
 		}
 		
