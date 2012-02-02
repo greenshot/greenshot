@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-0.9.0-Unstable (Build 1535)
+0.9.0-Unstable (Build 1625)
 
 We changed the version to 0.9.0 as the amount of features in 0.8.1 was more than planned.
 Due to the many changes we need to go through a Release Candidate iteration again...
@@ -12,12 +12,18 @@ Bugs resolved:
 * Fixed a problem with the window preview, if the window had a small height, when using the context menu (Windows Vista and later)
 * Fixed a problem with temp-files being removed before they were used, now using a delay of ~10 hours
 * Removed clipboard monitoring, which hopefully solves some problems with Virtual Machines
+* Fixed click on editor button not working if the window didn't have focus
+* Fixed problem with the print dialog not having focus if opened from the editor "print" button
+* Fixed bug #3482709 print with timestamp cropped the image
+* Removed the always active CaptureForm, which resulted in greenshot not "recovering" when a capture caused an exception.
+* Improved the auto-capture mode to honor some settings better
 
 Features added:
-* Greenshot can now run in 64 bit mode, if the OS supports it.
+* Greenshot will now run in 64 bit mode, if the OS supports it.
 * Added a "destinations" concept, making it possible to select all destinations from the main settings or using them inside the editor.
 * Added a "processor" concept, making it possible to modify the capture before it's send to a destination. Currently there is only an internal implementation which replaces the TitleFix plugin.
 * Added Office destinations (Word, Excel, Powerpoint & Outlook) with dynamic resolving of open "instances".
+* Added Ctrl/shift logic to the editor, hard to explain (see help) but hold one of the keys down and draw..
 
 
 0.8.1-Unstable (Build 1483)
@@ -37,7 +43,7 @@ Bugs resolved:
 Features added:
 * The editor now has a freehand tool, this makes it possible to draw some things freehand. Every "stroke" (mouse-down to mouse-up) is one "object" which can be manipulated: move, delete, change Z-order and change the properties like color and thickness.
 * The editor now has undo/redo
-* Now one can use the shift key to fix the mouse coordinates while capturing or drawing. If you press and hold shift only the first direction in which you move can be change, the other stays fixed.
+* Now one can use the shift key to fix the mouse coordinates while capturing. If you press and hold shift only the first direction in which you move can be change, the other stays fixed.
 
 0.8.1-RC7 (Build 1427)
 
