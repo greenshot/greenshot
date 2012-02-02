@@ -92,6 +92,8 @@ namespace Greenshot.Destinations {
 						if (clickedDestination == null) {
 							return;
 						}
+						// Make sure the menu is closed
+						menu.Close();
 						bool result = clickedDestination.ExportCapture(surface, captureDetails);
 						// TODO: Find some better way to detect that we exported to the editor
 						if (!EditorDestination.DESIGNATION.Equals(clickedDestination.Designation) || result == false) {
@@ -99,8 +101,6 @@ namespace Greenshot.Destinations {
 							// Cleanup surface
 							surface.Dispose();
 						}
-						// Make sure the menu is closed
-						menu.Close();
 					}
 				);
 				if (item != null) {

@@ -53,9 +53,8 @@ namespace GreenshotJiraPlugin {
 			} catch (Exception e) {
 				MessageBox.Show(language.GetFormattedString(LangKey.login_error, e.Message));
 			}
-			updateForm();
-
 			uploadButton.Enabled = false;
+			updateForm();
 		}
 
 		private void initializeComponentText() {
@@ -74,7 +73,11 @@ namespace GreenshotJiraPlugin {
 					jiraFilterBox.SelectedIndex = 0;
 				}
 				changeModus(true);
-				jiraKey.Text = config.LastUsedJira;
+				selectedIssue = jiraConnector.getIssue(config.LastUsedJira);
+				if (selectedIssue != null) {
+					jiraKey.Text = config.LastUsedJira;
+					uploadButton.Enabled = true;
+				}
 			}
 		}
 
@@ -199,7 +202,7 @@ namespace GreenshotJiraPlugin {
 			// Perform the sort with these new sort options.
 			this.jiraListView.Sort();
 		}
-        
+
         void JiraKeyTextChanged(object sender, EventArgs e) {
 			string jiranumber = jiraKey.Text;
 			uploadButton.Enabled = false;
