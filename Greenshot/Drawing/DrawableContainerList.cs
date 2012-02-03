@@ -25,6 +25,11 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
+using System.Windows.Forms;
+using GreenshotPlugin.Core;
+using IniFile;
+using Greenshot.Configuration;
+using Greenshot.Helpers;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -32,7 +37,9 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class DrawableContainerList : List<DrawableContainer> {
-		
+		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static System.ComponentModel.ComponentResourceManager editorFormResources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
+
 		public DrawableContainerList() {
 		}
 		
@@ -351,6 +358,134 @@ namespace Greenshot.Drawing {
 				this[index1] = this[index2];
 				this[index2] = dc;
 				Parent.Modified = true;
+			}
+		}
+
+		/// <summary>
+		/// Add items to a context menu for the selected item
+		/// </summary>
+		/// <param name="menu"></param>
+		public virtual void AddContextMenuItems(ContextMenuStrip menu, Surface surface) {
+			ILanguage lang = Language.GetInstance();
+			bool push = surface.Elements.CanPushDown(this);
+			bool pull = surface.Elements.CanPullUp(this);
+
+			ToolStripMenuItem item;
+
+			// Pull "up"
+			if (pull) {
+				item = new ToolStripMenuItem(lang.GetString(LangKey.editor_uptotop));
+				item.Click += delegate {
+					surface.Elements.PullElementsToTop(this);
+					surface.Elements.Invalidate();
+				};
+				menu.Items.Add(item);
+				item = new ToolStripMenuItem(lang.GetString(LangKey.editor_uponelevel));
+				item.Click += delegate {
+					surface.Elements.PullElementsUp(this);
+					surface.Elements.Invalidate();
+				};
+				menu.Items.Add(item);
+			}
+			// Push "down"
+			if (push) {
+				item = new ToolStripMenuItem(lang.GetString(LangKey.editor_downtobottom));
+				item.Click += delegate {
+					surface.Elements.PushElementsToBottom(this);
+					surface.Elements.Invalidate();
+				};
+				menu.Items.Add(item);
+				item = new ToolStripMenuItem(lang.GetString(LangKey.editor_downonelevel));
+				item.Click += delegate {
+					surface.Elements.PushElementsDown(this);
+					surface.Elements.Invalidate();
+				};
+				menu.Items.Add(item);
+			}
+
+			// Duplicate
+			item = new ToolStripMenuItem(lang.GetString(LangKey.editor_duplicate));
+			item.Click += delegate {
+				DrawableContainerList dcs = this.Clone();
+				dcs.Parent = surface;
+				dcs.MoveBy(10, 10);
+				surface.AddElements(dcs);
+				surface.DeselectAllElements();
+				surface.SelectElements(dcs);
+			};
+			menu.Items.Add(item);
+
+			// Copy
+			item = new ToolStripMenuItem(lang.GetString(LangKey.editor_copytoclipboard));
+			item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("copyToolStripMenuItem.Image")));
+			item.Click += delegate {
+				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), this);
+			};
+			menu.Items.Add(item);
+
+			// Cut
+			item = new ToolStripMenuItem(lang.GetString(LangKey.editor_cuttoclipboard));
+			item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("btnCut.Image")));
+			item.Click += delegate {
+				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), this);
+				foreach (DrawableContainer container in this) {
+					surface.RemoveElement(container, true);
+				}
+			};
+			menu.Items.Add(item);
+
+			// Delete
+			item = new ToolStripMenuItem(lang.GetString(LangKey.editor_deleteelement));
+			item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
+			item.Click += delegate {
+				foreach(DrawableContainer container in this) {
+					surface.RemoveElement(container, true);
+				}
+			};
+			menu.Items.Add(item);
+
+			// Reset
+			bool canReset = false;
+			foreach (DrawableContainer container in this) {
+				if (container.hasDefaultSize) {
+					canReset = true;
+				}
+			}
+			if (canReset) {
+				item = new ToolStripMenuItem("Reset size");
+				//item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
+				item.Click += delegate {
+					foreach (DrawableContainer container in this) {
+						if (container.hasDefaultSize) {
+							Size defaultSize = container.DefaultSize;
+							container.Invalidate();
+							container.MakeBoundsChangeUndoable(false);
+							container.Width = defaultSize.Width;
+							container.Height = defaultSize.Height;
+							container.Invalidate();
+						}
+					}
+				};
+				menu.Items.Add(item);
+			}
+		}
+
+		public virtual void ShowContextMenu(MouseEventArgs e, Surface surface) {
+			if (conf.isExperimentalFeatureEnabled("Contextmenu")) {
+				bool hasMenu = false;
+				foreach (DrawableContainer container in this) {
+					if (container.hasContextMenu) {
+						hasMenu = true;
+						break;
+					}
+				}
+				if (hasMenu) {
+					ContextMenuStrip menu = new ContextMenuStrip();
+					AddContextMenuItems(menu, surface);
+					if (menu.Items.Count > 0) {
+						menu.Show(surface, e.Location);
+					}
+				}
 			}
 		}
 	}

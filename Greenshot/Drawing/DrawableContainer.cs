@@ -32,7 +32,6 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin.Drawing;
 using Greenshot.Memento;
-using IniFile;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -44,8 +43,6 @@ namespace Greenshot.Drawing {
 	[Serializable()]
 	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, INotifyPropertyChanged, IDrawableContainer {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DrawableContainer));
-		private static System.ComponentModel.ComponentResourceManager editorFormResources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		private bool isMadeUndoable = false;
 		
@@ -598,95 +595,21 @@ namespace Greenshot.Drawing {
 			return ScaleHelper.ShapeAngleRoundBehavior.Instance;
 		}
 		
-		/// <summary>
-		/// Add items to a context menu for the selected item
-		/// </summary>
-		/// <param name="menu"></param>
-		public virtual void AddContextMenuItems(ContextMenuStrip menu) {
-			DrawableContainerList myselfAsList = new DrawableContainerList();
-			myselfAsList.Add(this);
- 			ILanguage lang = Language.GetInstance();
-			bool push = parent.Elements.CanPushDown(myselfAsList);
-			bool pull = parent.Elements.CanPullUp(myselfAsList);
-
-			ToolStripMenuItem item;
-
-			// Pull "up"
-			if (pull) {
-				item = new ToolStripMenuItem(lang.GetString(LangKey.editor_uptotop));
-				item.Click += delegate {
-					parent.Elements.PullElementsToTop(myselfAsList);
-					parent.Elements.Invalidate();
-				};
-				menu.Items.Add(item);
-				item = new ToolStripMenuItem(lang.GetString(LangKey.editor_uponelevel));
-				item.Click += delegate {
-					parent.Elements.PullElementsUp(myselfAsList);
-					parent.Elements.Invalidate();
-				};
-				menu.Items.Add(item);
+		public virtual bool hasContextMenu {
+			get {
+				return true;
 			}
-			// Push "down"
-			if (push) {
-				item = new ToolStripMenuItem(lang.GetString(LangKey.editor_downtobottom));
-				item.Click += delegate {
-					parent.Elements.PushElementsToBottom(myselfAsList);
-					parent.Elements.Invalidate();
-				};
-				menu.Items.Add(item);
-				item = new ToolStripMenuItem(lang.GetString(LangKey.editor_downonelevel));
-				item.Click += delegate {
-					parent.Elements.PushElementsDown(myselfAsList);
-					parent.Elements.Invalidate();
-				};
-				menu.Items.Add(item);
-			}
-
-			// Duplicate
-			item = new ToolStripMenuItem(lang.GetString(LangKey.editor_duplicate));
-			item.Click += delegate {
-				DrawableContainerList dcs = myselfAsList.Clone();
-				dcs.Parent = parent;
-				dcs.MoveBy(10,10);
-				parent.AddElements(dcs);
-				parent.DeselectAllElements();
-				parent.SelectElements(dcs);
-			};
-			menu.Items.Add(item);
-
-			// Copy
-			item = new ToolStripMenuItem(lang.GetString(LangKey.editor_copytoclipboard));
-			item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("copyToolStripMenuItem.Image")));
-			item.Click += delegate {
-				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), myselfAsList);
-			};
-			menu.Items.Add(item);
-
-			// Cut
-			item = new ToolStripMenuItem(lang.GetString(LangKey.editor_cuttoclipboard));
-			item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("editor_cuttoclipboard.Image")));
-			item.Click += delegate {
-				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), myselfAsList);
-				parent.RemoveElement(this, true);
-			};
-			menu.Items.Add(item);
-
-			// Delete
-			item = new ToolStripMenuItem(lang.GetString(LangKey.editor_deleteelement));
-			item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
-			item.Click += delegate {
-				parent.RemoveElement(this, true);
-			};
-			menu.Items.Add(item);
 		}
 
-		public virtual void ShowContextMenu(MouseEventArgs e) {
-			if (conf.isExperimentalFeatureEnabled("Contextmenu")) {
-				ContextMenuStrip menu = new ContextMenuStrip();
-				AddContextMenuItems(menu);
-				if (menu.Items.Count > 0) {
-					menu.Show(parent, e.Location);
-				}
+		public virtual bool hasDefaultSize {
+			get {
+				return false;
+			}
+		}
+
+		public virtual Size DefaultSize {
+			get {
+				throw new NotSupportedException("Object doesn't have a default size");
 			}
 		}
 	}

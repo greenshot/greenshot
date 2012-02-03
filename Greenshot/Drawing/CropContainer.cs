@@ -57,8 +57,11 @@ namespace Greenshot.Drawing {
 			}
 		}
 		
-		public override void ShowContextMenu(MouseEventArgs e) {
-			// No context menu for the CropContainer
+		public override bool hasContextMenu {
+			get {
+				// No context menu for the CropContainer
+				return false;
+			}
 		}
 	}
 }

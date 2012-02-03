@@ -579,15 +579,19 @@ namespace Greenshot.Drawing {
 		
 			// check contextmenu
 			if (e.Button == MouseButtons.Right) {
+				DrawableContainerList selectedList = null;
 				if (selectedElements != null && selectedElements.Count > 0) {
-					// ContainerList logik hier
+					selectedList = selectedElements;
 				} else {
 					// Single element
 					DrawableContainer rightClickedContainer = elements.ClickableElementAt(mouseStart.X, mouseStart.Y);
 					if (rightClickedContainer != null) {
-						SelectElement(rightClickedContainer);
-						rightClickedContainer.ShowContextMenu(e);
+						selectedList = new DrawableContainerList();
+						selectedList.Add(rightClickedContainer);
 					}
+				}
+				if (selectedList != null && selectedList.Count > 0) {
+					selectedList.ShowContextMenu(e, this);
 				}
 				return;
 			}

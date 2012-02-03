@@ -101,16 +101,16 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public override void AddContextMenuItems(ContextMenuStrip menu) {
-			base.AddContextMenuItems(menu);
-			ToolStripMenuItem resetItem = new ToolStripMenuItem("Reset size");
-			resetItem.Click += delegate {
-				this.Invalidate();
-				Width = icon.Size.Width;
-				Height = icon.Size.Height;
-				this.Invalidate();
-			};
-			menu.Items.Add(resetItem);
+		public override bool hasDefaultSize {
+			get {
+				return true;
+			}
+		}
+
+		public override Size DefaultSize {
+			get {
+				return icon.Size;
+			}
 		}
 	}
 }

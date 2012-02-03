@@ -101,17 +101,11 @@ namespace Greenshot.Drawing {
 				cursor.DrawStretched(graphics, Bounds);
 			}
 		}
-		
-		public override void AddContextMenuItems(ContextMenuStrip menu) {
-			base.AddContextMenuItems(menu);
-			ToolStripMenuItem resetItem = new ToolStripMenuItem("Reset size");
-			resetItem.Click += delegate {
-				this.Invalidate();
-				Width = cursor.Size.Width;
-				Height = cursor.Size.Height;
-				this.Invalidate();
-			};
-			menu.Items.Add(resetItem);
+
+		public override Size DefaultSize {
+			get {
+				return cursor.Size;
+			}
 		}
 	}
 }
