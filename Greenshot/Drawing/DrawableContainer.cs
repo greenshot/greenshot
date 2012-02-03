@@ -164,16 +164,16 @@ namespace Greenshot.Drawing {
 			set {
 				Left = round(value.Left);
 				Top = round(value.Top);
-	        	Width = round(value.Width);
-	        	Height = round(value.Height);
+				Width = round(value.Width);
+				Height = round(value.Height);
 			}
 		}
 		
-		public void ApplyBounds(RectangleF newBounds) {
+		public virtual void ApplyBounds(RectangleF newBounds) {
 			Left = round(newBounds.Left);
 			Top = round(newBounds.Top);
-	        Width = round(newBounds.Width);
-	        Height = round(newBounds.Height);
+			Width = round(newBounds.Width);
+			Height = round(newBounds.Height);
 		}
 		
 		public DrawableContainer(Surface parent) {

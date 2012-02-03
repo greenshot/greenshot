@@ -238,6 +238,11 @@ namespace Greenshot.Drawing {
 			textBox.Height = this.Height;
 		}
 
+		public override void ApplyBounds(RectangleF newBounds) {
+			base.ApplyBounds(newBounds);
+			UpdateTextBoxPosition();
+		}
+
 		private void UpdateTextBoxFormat() {
 			UpdateFont();
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
