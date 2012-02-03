@@ -133,44 +133,7 @@ namespace Greenshot.Helpers.OfficeInterop {
 
 		}
 
-		/// <summary>
-		/// Export to currently opened Email
-		/// </summary>
-		/// <param name="activeInspector"></param>
-		private static bool ExportToOpenEmail(IOutlookApplication outlookApplication, string tmpFile, string subject) {
-			using (Inspector activeInspector = outlookApplication.ActiveInspector()) {
-				if (activeInspector != null) {
-					try {
-						LOG.DebugFormat("Checking active inspector '{0}'", activeInspector.Caption);
-						if (ExportToInspector(activeInspector, tmpFile, subject)) {
-							return true;
-						}
-					} catch (Exception ex) {
-						LOG.DebugFormat("Problem exporting to activeinspector: {0}", ex.Message);
-					}
-				}
-			}
-			Inspectors inspectors = outlookApplication.Inspectors;
-			if (inspectors != null && inspectors.Count > 0) {
-				LOG.DebugFormat("Got {0} inspectors to check", inspectors.Count);
-				for(int i=1; i <= inspectors.Count; i++) {
-					Inspector inspector = outlookApplication.Inspectors[i];
-					LOG.DebugFormat("Checking inspector '{0}'", inspector.Caption);
-					try {
-						bool exported = ExportToInspector(inspector, tmpFile, subject);
-						if (exported) {
-							return true;
-						}
-					} catch (Exception ex) {
-						LOG.DebugFormat("Problem exporting to inspector: {0}", ex.Message);
-					}
-					
-				}
-			}
-
-			return false;
-		}
-		
+	
 		/// <summary>
 		/// Export the image stored in tmpFile to the Inspector with the caption
 		/// </summary>
@@ -187,7 +150,15 @@ namespace Greenshot.Helpers.OfficeInterop {
 						for(int i=1; i <= inspectors.Count; i++) {
 							Inspector inspector = outlookApplication.Inspectors[i];
 							if (inspector.Caption.StartsWith(inspectorCaption)) {
-								return ExportToInspector(inspector, tmpFile, attachmentName);
+								try {
+									Item currentMail = inspector.CurrentItem;
+									if (currentMail != null && OlObjectClass.olMail.Equals(currentMail.Class)) {
+										if (currentMail != null && !currentMail.Sent) {
+											return ExportToInspector(inspector, tmpFile, attachmentName);
+										}
+									}
+								} catch (Exception) {
+								}
 							}
 						}
 					}
