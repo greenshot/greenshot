@@ -380,20 +380,6 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <PreBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\AssemblyInfo.cs.template" "$(MSBuildProjectDirectory)\AssemblyInfo.cs"
 copy "$(ProjectDir)log4net.xml" "$(SolutionDir)bin\$(Configuration)\log4net.xml"</PreBuildEvent>
-    <PostBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\releases\innosetup\setup.iss" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
-cd "$(MSBuildProjectDirectory)\bin\Release"
-del *.config
-del *.log
-"$(MSBuildProjectDirectory)\tools\FileVerifier++\fvc.exe" -c -a MD5 -r -o "checksum.MD5" *.dll *.exe
-cd "$(MSBuildProjectDirectory)\releases\innosetup"
-"$(MSBuildProjectDirectory)\tools\innosetup\ISCC.exe" "$(MSBuildProjectDirectory)\releases\innosetup\setup-SVN.iss"
-cd "$(MSBuildProjectDirectory)\bin\Release"
-echo dummy config, used to make greenshot store the configuration in this directory  &gt; greenshot.ini
-move log4net-portable.xml log4net.xml
-del installer.txt
-del "$(MSBuildProjectDirectory)\releases\Greenshot-NO-INSTALLER.zip"
-"$(MSBuildProjectDirectory)\tools\7zip\7za.exe" a -x!.SVN -r "$(MSBuildProjectDirectory)\releases\Greenshot-NO-INSTALLER.zip" "$(MSBuildProjectDirectory)\bin\Release\*" "$(MSBuildProjectDirectory)\releases\additional_files\*"
-del greenshot.ini</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PreBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\." "$(MSBuildProjectDirectory)\AssemblyInfo.cs.template" "$(MSBuildProjectDirectory)\AssemblyInfo.cs"
