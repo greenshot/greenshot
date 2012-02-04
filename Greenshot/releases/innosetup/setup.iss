@@ -201,7 +201,6 @@ var
 	i: Integer;
 	parametersString: String;
 	currentParameter: String;
-	equalsSignPos: Integer;
 	foundStart: Boolean;
 	foundNoRun: Boolean;
 	foundLanguage: Boolean;
