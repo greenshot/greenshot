@@ -25,7 +25,6 @@ using System.Windows.Forms;
 using GreenshotConfluencePlugin;
 using GreenshotPlugin.Core;
 using IniFile;
-using GreenshotConfluencePlugin.confluence;
 
 /// <summary>
 /// For details see the Confluence API site
