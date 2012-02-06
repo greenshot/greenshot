@@ -52,6 +52,7 @@ namespace Greenshot.Helpers {
 		private ICapture capture = null;
 		private ILanguage lang = Language.GetInstance();
 		private CaptureMode captureMode;
+		private Thread windowDetailsThread = null;
 		
 		public static void CaptureClipboard() {
 			new CaptureHelper(CaptureMode.Clipboard).MakeCapture();
@@ -145,7 +146,7 @@ namespace Greenshot.Helpers {
 			capture.CaptureDetails.CaptureMode = captureMode;
 
 			// Get the windows details in a seperate thread
-			Thread getWindowDetailsThread = PrepareForCaptureWithFeedback();
+			windowDetailsThread = PrepareForCaptureWithFeedback();
 
 			// Add destinations if no-one passed a handler
 			if (capture.CaptureDetails.CaptureDestinations == null || capture.CaptureDetails.CaptureDestinations.Count == 0) {
@@ -276,6 +277,9 @@ namespace Greenshot.Helpers {
 				case CaptureMode.LastRegion:
 					if (!RuntimeConfig.LastCapturedRegion.IsEmpty) {
 						capture = WindowCapture.CaptureScreen(capture);
+						if (windowDetailsThread != null) {
+							windowDetailsThread.Join();
+						}
 						capture.Crop(RuntimeConfig.LastCapturedRegion);
 						capture.CaptureDetails.AddMetaData("source", "screen");
 						HandleCapture();
@@ -297,7 +301,9 @@ namespace Greenshot.Helpers {
 					LOG.Warn("Unknown capture mode: " + captureMode);
 					break;
 			}
-			getWindowDetailsThread.Join();
+			if (windowDetailsThread != null) {
+				windowDetailsThread.Join();
+			}
 			if (capture != null) {
 				LOG.Debug("Disposing capture");
 				capture.Dispose();
@@ -733,6 +739,9 @@ namespace Greenshot.Helpers {
 					}
 		
 					if (captureRect.Height > 0 && captureRect.Width > 0) {
+						if (windowDetailsThread != null) {
+							windowDetailsThread.Join();
+						}
 						// Take the captureRect, this already is specified as bitmap coordinates
 						capture.Crop(captureRect);
 						// save for re-capturing later and show recapture context menu option
