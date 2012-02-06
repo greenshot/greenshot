@@ -82,8 +82,6 @@ namespace Greenshot.Destinations {
 					surface.LastSaveFullPath = savedTo;
 					captureDetails.Filename = savedTo;
 					surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, lang.GetFormattedString(LangKey.editor_imagesaved,surface.LastSaveFullPath));
-				} else {
-					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, "");
 				}
 			}
 			return savedTo != null;

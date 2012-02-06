@@ -417,7 +417,10 @@ namespace Greenshot.Helpers {
 
 			// Register notify events if this is wanted			
 			if (conf.ShowTrayNotification) {
-				surface.SurfaceMessage += delegate(object source, SurfaceMessageEventArgs eventArgs) { 
+				surface.SurfaceMessage += delegate(object source, SurfaceMessageEventArgs eventArgs) {
+					if (string.IsNullOrEmpty(eventArgs.Message)) {
+						return;
+					}
 					switch (eventArgs.MessageType) {
 						case SurfaceMessageTyp.Error:
 							MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
