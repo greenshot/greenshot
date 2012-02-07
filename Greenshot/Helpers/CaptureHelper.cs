@@ -188,6 +188,9 @@ namespace Greenshot.Helpers {
 					break;
 				case CaptureMode.ActiveWindow:
 					if (CaptureActiveWindow()) {
+						if (windowDetailsThread != null) {
+							windowDetailsThread.Join();
+						}
 						// Capture worked, offset mouse according to screen bounds and capture location
 						capture.MoveMouseLocation(capture.ScreenBounds.Location.X-capture.Location.X, capture.ScreenBounds.Location.Y-capture.Location.Y);
 						capture.MoveElements(capture.ScreenBounds.Location.X-capture.Location.X, capture.ScreenBounds.Location.Y-capture.Location.Y);
