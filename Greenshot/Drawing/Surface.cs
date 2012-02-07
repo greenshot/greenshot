@@ -521,7 +521,20 @@ namespace Greenshot.Drawing {
 			}
 			return false;
 		}
-		
+
+		public void ApplyBitmapEffect() {
+			Rectangle cropRectangle = new Rectangle(Point.Empty, Image.Size);
+			Bitmap tmpImage = ((Bitmap)Image).Clone(cropRectangle, Image.PixelFormat);
+			tmpImage.SetResolution(Image.HorizontalResolution, Image.VerticalResolution);
+
+			// Currently only one effect exists, others could follow
+			ImageHelper.ApplyTornEdge(tmpImage);
+
+			// Make undoable
+			MakeUndoable(new SurfaceCropMemento(this, cropRectangle), false);
+			SetImage(tmpImage, false);
+		}
+
 		public bool isCropPossible(ref Rectangle cropRectangle) {
 			cropRectangle = Helpers.GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
 			if (cropRectangle.Left < 0) cropRectangle = new Rectangle(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
@@ -738,7 +751,7 @@ namespace Greenshot.Drawing {
 			selectedElements.OnDoubleClick();
 			selectedElements.Invalidate();
 		}
-		
+
 		private Image GetImage(RenderMode renderMode) {
 			// Generate a copy of the original image with a dpi equal to the default...
 			Bitmap clone = ImageHelper.CloneImageToBitmap(Image);

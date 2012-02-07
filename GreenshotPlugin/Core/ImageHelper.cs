@@ -297,5 +297,92 @@ namespace GreenshotPlugin.Core {
 			}
 			return returnIcon;
 		}
+
+		/// <summary>
+		/// Make the picture look like it's torn
+		/// </summary>
+		/// <param name="bitmap">Bitmap to modify</param>
+		public static void ApplyTornEdge(Bitmap bitmap) {
+			GraphicsPath path = new GraphicsPath();
+			Random random = new Random();
+			int regionWidth = 14;
+			int regionHeight = 14;
+			int HorizontalRegions = (int)(bitmap.Width / regionWidth);
+			int VerticalRegions = (int)(bitmap.Height / regionHeight);
+			int distance = 12;
+
+			// Start
+			Point previousEndingPoint = Point.Empty;
+			Point newEndingPoint = Point.Empty;
+
+			// Top
+			for (int i = 0; i < HorizontalRegions; i++) {
+				int x = (int)previousEndingPoint.X + regionWidth;
+				int y = random.Next(0, distance);
+				newEndingPoint = new Point(x, y);
+				path.AddLine(previousEndingPoint, newEndingPoint);
+				previousEndingPoint = newEndingPoint;
+			}
+			// end top
+			newEndingPoint = new Point(bitmap.Width, 0);
+			path.AddLine(previousEndingPoint, newEndingPoint);
+			previousEndingPoint = newEndingPoint;
+			path.CloseFigure();
+
+			// Right
+			for (int i = 0; i < VerticalRegions; i++) {
+				int x = bitmap.Width - random.Next(0, distance);
+				int y = (int)previousEndingPoint.Y + regionHeight;
+				newEndingPoint = new Point(x, y);
+				path.AddLine(previousEndingPoint, newEndingPoint);
+				previousEndingPoint = newEndingPoint;
+			}
+			// end right
+			newEndingPoint = new Point(bitmap.Width, bitmap.Height);
+			path.AddLine(previousEndingPoint, newEndingPoint);
+			previousEndingPoint = newEndingPoint;
+			path.CloseFigure();
+
+			// Bottom
+			for (int i = 0; i < HorizontalRegions; i++) {
+				int x = (int)previousEndingPoint.X - regionWidth;
+				int y = bitmap.Height - random.Next(0, distance);
+				newEndingPoint = new Point(x, y);
+				path.AddLine(previousEndingPoint, newEndingPoint);
+				previousEndingPoint = newEndingPoint;
+			}
+			// end Bottom
+			newEndingPoint = new Point(0, bitmap.Height);
+			path.AddLine(previousEndingPoint, newEndingPoint);
+			previousEndingPoint = newEndingPoint;
+			path.CloseFigure();
+
+			// Left
+			for (int i = 0; i < VerticalRegions; i++) {
+				int x = random.Next(0, distance);
+				int y = (int)previousEndingPoint.Y - regionHeight;
+				newEndingPoint = new Point(x, y);
+				path.AddLine(previousEndingPoint, newEndingPoint);
+				previousEndingPoint = newEndingPoint;
+			}
+			// end Left
+			newEndingPoint = new Point(0, 0);
+			path.AddLine(previousEndingPoint, newEndingPoint);
+			previousEndingPoint = newEndingPoint;
+			path.CloseFigure();
+
+			// Draw
+			using (Graphics graphics = Graphics.FromImage(bitmap)) {
+				Color fillColor = Color.White;
+				if (bitmap.PixelFormat == PixelFormat.Format32bppArgb) {
+					graphics.SetClip(path);
+					graphics.Clear(Color.Transparent);
+				} else {
+					using (Brush brush = new SolidBrush( Color.White)) {
+						graphics.FillPath(brush, path);
+					}
+				}
+			}
+		}
 	}
 }
