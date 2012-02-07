@@ -45,6 +45,7 @@ namespace Greenshot.Helpers {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ScreenCaptureHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const int MAX_FRAMES = 500;
+		private const int ALIGNMENT = 8;
 		private IntPtr hWndDesktop = IntPtr.Zero;
 		private IntPtr hDCDesktop = IntPtr.Zero;
 		private IntPtr hDCDest = IntPtr.Zero;
@@ -109,13 +110,13 @@ namespace Greenshot.Helpers {
 				LOG.InfoFormat("Starting recording rectangle {0}", recordingRectangle);
 				recordingSize = recordingRectangle.Size;
 			}
-			if (recordingSize.Width % 8 > 0) {
-				LOG.InfoFormat("Correcting width to be factor 8, {0} => {1}", recordingSize.Width, recordingSize.Width + (8-(recordingSize.Width % 8)));
-				recordingSize = new Size(recordingSize.Width + (8-(recordingSize.Width % 8)), recordingSize.Height);
+			if (recordingSize.Width % ALIGNMENT > 0) {
+				LOG.InfoFormat("Correcting width to be factor alignment, {0} => {1}", recordingSize.Width, recordingSize.Width + (ALIGNMENT - (recordingSize.Width % ALIGNMENT)));
+				recordingSize = new Size(recordingSize.Width + (ALIGNMENT - (recordingSize.Width % ALIGNMENT)), recordingSize.Height);
 			}
-			if (recordingSize.Height % 8 > 0) {
-				LOG.InfoFormat("Correcting Height to be factor 8, {0} => {1}", recordingSize.Height, recordingSize.Height + (8-(recordingSize.Height % 8)));
-				recordingSize = new Size(recordingSize.Width, recordingSize.Height + (8-(recordingSize.Height % 8)));
+			if (recordingSize.Height % ALIGNMENT > 0) {
+				LOG.InfoFormat("Correcting Height to be factor alignment, {0} => {1}", recordingSize.Height, recordingSize.Height + (ALIGNMENT - (recordingSize.Height % ALIGNMENT)));
+				recordingSize = new Size(recordingSize.Width, recordingSize.Height + (ALIGNMENT - (recordingSize.Height % ALIGNMENT)));
 			}
 			this.framesPerSecond = framesPerSecond;
 			// "P/Invoke" Solution for capturing the screen
@@ -224,7 +225,11 @@ namespace Greenshot.Helpers {
 					msToNextCapture = MSBETWEENCAPTURES;
 				} else {
 					// Compensating
-					msToNextCapture = Math.Max(0, MSBETWEENCAPTURES - sleeptime);
+					do {
+						aviWriter.AddEmptyFrame();
+						sleeptime += MSBETWEENCAPTURES;
+					} while (sleeptime < 0);
+					msToNextCapture = sleeptime;
 				}
 			}
 			Cleanup();

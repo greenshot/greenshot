@@ -728,7 +728,7 @@ namespace Greenshot.Helpers {
 						}
 						if (screenCapture != null) {
 							screenCapture.RecordMouse = capture.CursorVisible;
-							if (screenCapture.Start(15)) {
+							if (screenCapture.Start(25)) {
 								return;
 							}
 							// User clicked cancel or a problem occured

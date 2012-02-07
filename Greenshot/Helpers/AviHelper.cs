@@ -250,18 +250,18 @@ namespace Greenshot.Helpers {
                 info.rate = rate;
                 info.suggestedBufferSize = stride * height;
  
-                // create stream
-                if (Avi32.AVIFileCreateStream(file, out stream, ref info) != 0) {
-                	throw new ApplicationException("Failed creating stream");
-                }
- 
                 // describe compression options
                 Avi32.AVICOMPRESSOPTIONS options = new Avi32.AVICOMPRESSOPTIONS();
- 
+
+				// create stream
+				if (Avi32.AVIFileCreateStream(file, out stream, ref info) != 0) {
+					throw new ApplicationException("Failed creating stream");
+				}
  
                 // uncomment if video settings dialog is required to show
+				int retCode = 0;
                 if (codec == null) {
-                	int retCode = Avi32.AVISaveOptions( stream, ref options );
+                	retCode = Avi32.AVISaveOptions( stream, ref options );
                 	if (retCode == 0) {
                 		LOG.Debug("Cancel clicked!");
                 		return false;
@@ -270,7 +270,8 @@ namespace Greenshot.Helpers {
 	                options.handler = Avi32.mmioFOURCC(codec);
 	                options.quality = quality;
                 }
- 
+
+
                 // create compressed stream
                 int retval = Avi32.AVIMakeCompressedStream(out streamCompressed, stream, ref options, IntPtr.Zero);
                 if (retval != 0) {
@@ -319,6 +320,12 @@ namespace Greenshot.Helpers {
                 }
             }
         }
+
+		public void AddEmptyFrame() {
+			lock (this) {
+				position++;
+			}
+		}
 
 		/// <summary>
         /// Add new frame to the AVI file.
