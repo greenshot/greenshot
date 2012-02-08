@@ -107,6 +107,34 @@ namespace Greenshot.Destinations {
 					menu.Items.Add(item);
 				}
 			}
+			// Effects
+			if (conf.isExperimentalFeatureEnabled("Effects")) {
+				menu.Items.Add(new ToolStripSeparator());
+				ToolStripMenuItem effectItem = new ToolStripMenuItem("Effects");
+				menu.Items.Add(effectItem);
+				effectItem.DropDownOpening += delegate {
+					effectItem.DropDownItems.Clear();
+					ToolStripMenuItem effectSubItem;
+					if (surface.HasCursor) {
+						effectSubItem = new ToolStripMenuItem("Remove Cursor");
+						effectItem.DropDownItems.Add(effectSubItem);
+						effectSubItem.Click += delegate {
+							surface.RemoveCursor();
+						};
+					}
+					effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_shadow));
+					effectItem.DropDownItems.Add(effectSubItem);
+					effectSubItem.Click += delegate {
+						surface.ApplyBitmapEffect(Effects.Shadow);
+					};
+					effectSubItem = new ToolStripMenuItem("Torn Edge");
+					effectItem.DropDownItems.Add(effectSubItem);
+					effectSubItem.Click += delegate {
+						surface.ApplyBitmapEffect(Effects.TornEdge);
+					};
+				};
+			}
+			// Close
 			menu.Items.Add(new ToolStripSeparator());
 			ToolStripMenuItem closeItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_close));
 			closeItem.Image = ((System.Drawing.Image)(new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm)).GetObject("closeToolStripMenuItem.Image")));

@@ -378,6 +378,11 @@ namespace Greenshot {
 			this.saveElementsToolStripMenuItem.Text = lang.GetString(LangKey.editor_save_objects);
 			this.loadElementsToolStripMenuItem.Text = lang.GetString(LangKey.editor_load_objects);
 			this.autoCropToolStripMenuItem.Text = lang.GetString(LangKey.editor_autocrop);
+			if (coreConf.isExperimentalFeatureEnabled("Effects")) {
+				this.shadowToolStripMenuItem.Text = lang.GetString(LangKey.editor_shadow);
+				this.shadowToolStripMenuItem.Visible = true;
+				this.tornEdgeToolStripMenuItem.Visible = true;
+			}
 		}
 		
 		public ISurface Surface {
@@ -1162,6 +1167,14 @@ namespace Greenshot {
 			if (surface.AutoCrop()) {
 				refreshFieldControls();
 			}
+		}
+
+		void TornEdgeToolStripMenuItemClick(object sender, EventArgs e) {
+			surface.ApplyBitmapEffect(Effects.TornEdge);
+		}
+
+		void ShadowToolStripMenuItemClick(object sender, EventArgs e) {
+			surface.ApplyBitmapEffect(Effects.Shadow);
 		}
 	}
 }
