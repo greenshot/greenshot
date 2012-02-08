@@ -305,8 +305,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceBitmap">Bitmap to make torn edge off</param>
 		/// <returns>Changed bitmap</returns>
 		public static Bitmap CreateTornEdge(Bitmap sourceBitmap) {
-			Rectangle cropRectangle = new Rectangle(Point.Empty, sourceBitmap.Size);
-			Bitmap returnImage = sourceBitmap.Clone(cropRectangle, PixelFormat.Format32bppArgb);
+			Bitmap returnImage = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format32bppArgb);
 			try {
 				returnImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			} catch (Exception ex) {
@@ -321,9 +320,8 @@ namespace GreenshotPlugin.Core {
 			int distance = 12;
 
 			// Start
-			Point previousEndingPoint = Point.Empty;
-			Point newEndingPoint = Point.Empty;
-			path.AddLine(new Point(sourceBitmap.Width, 0), Point.Empty);
+			Point previousEndingPoint = new Point(regionWidth, random.Next(1, distance));
+			Point newEndingPoint;
 			// Top
 			for (int i = 0; i < HorizontalRegions; i++) {
 				int x = (int)previousEndingPoint.X + regionWidth;
@@ -332,11 +330,6 @@ namespace GreenshotPlugin.Core {
 				path.AddLine(previousEndingPoint, newEndingPoint);
 				previousEndingPoint = newEndingPoint;
 			}
-			// end top
-			newEndingPoint = new Point(sourceBitmap.Width, 0);
-			path.AddLine(previousEndingPoint, newEndingPoint);
-			previousEndingPoint = newEndingPoint;
-			path.CloseFigure();
 
 			// Right
 			for (int i = 0; i < VerticalRegions; i++) {
@@ -346,11 +339,6 @@ namespace GreenshotPlugin.Core {
 				path.AddLine(previousEndingPoint, newEndingPoint);
 				previousEndingPoint = newEndingPoint;
 			}
-			// end right
-			newEndingPoint = new Point(sourceBitmap.Width, sourceBitmap.Height);
-			path.AddLine(previousEndingPoint, newEndingPoint);
-			previousEndingPoint = newEndingPoint;
-			path.CloseFigure();
 
 			// Bottom
 			for (int i = 0; i < HorizontalRegions; i++) {
@@ -360,11 +348,6 @@ namespace GreenshotPlugin.Core {
 				path.AddLine(previousEndingPoint, newEndingPoint);
 				previousEndingPoint = newEndingPoint;
 			}
-			// end Bottom
-			newEndingPoint = new Point(0, sourceBitmap.Height);
-			path.AddLine(previousEndingPoint, newEndingPoint);
-			previousEndingPoint = newEndingPoint;
-			path.CloseFigure();
 
 			// Left
 			for (int i = 0; i < VerticalRegions; i++) {
@@ -374,10 +357,6 @@ namespace GreenshotPlugin.Core {
 				path.AddLine(previousEndingPoint, newEndingPoint);
 				previousEndingPoint = newEndingPoint;
 			}
-			// end Left
-			newEndingPoint = new Point(0, 0);
-			path.AddLine(previousEndingPoint, newEndingPoint);
-			previousEndingPoint = newEndingPoint;
 			path.CloseFigure();
 
 			// Draw
@@ -386,15 +365,8 @@ namespace GreenshotPlugin.Core {
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-				if (Image.IsAlphaPixelFormat(returnImage.PixelFormat)) {
-					// When using transparency we can't draw with Color.Transparency so we clear
-					graphics.SetClip(path);
-					graphics.Clear(Color.Transparent);
-				} else {
-					using (Brush brush = new SolidBrush(Color.White)) {
-						graphics.FillPath(brush, path);
-					}
+				using (Brush brush = new TextureBrush(sourceBitmap)) {
+					graphics.FillPath(brush, path);
 				}
 			}
 			return returnImage;
