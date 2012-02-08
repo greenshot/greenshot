@@ -31,6 +31,7 @@ namespace Greenshot.Plugin {
 	/// </summary>
 	//public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
 	public enum VerticalAlignment {TOP, CENTER, BOTTOM};
+	public enum Effects { Shadow, TornEdge };
 
 	public enum SurfaceMessageTyp {
 		FileSaved,
@@ -129,6 +130,12 @@ namespace Greenshot.Plugin {
 			get;
 			set;
 		}
+		void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable);
 		void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
+		void ApplyBitmapEffect(Effects effect);
+		void RemoveCursor();
+		bool HasCursor {
+			get;
+		}
 	}
 }

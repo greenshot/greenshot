@@ -42,7 +42,6 @@ namespace Greenshot.Drawing {
 	public delegate void SurfaceDrawingModeEventHandler(object source, DrawingModes drawingMode);
 	
 	public enum DrawingModes { None, Rect, Ellipse, Text, Line, Arrow, Crop, Highlight, Obfuscate, Bitmap, Path }
-	public enum Effects { Shadow, TornEdge }
 
 	/// <summary>
 	/// Description of Surface.
@@ -77,7 +76,26 @@ namespace Greenshot.Drawing {
 		private DrawableContainer drawingElement = null;
 		private DrawableContainer undrawnElement = null;
 		private DrawableContainer cropContainer = null;
+		private IDrawableContainer cursorContainer = null;
 		private TextureBrush transparencyBackgroundBrush;
+
+		public IDrawableContainer CursorContainer {
+			get {
+				return cursorContainer;
+			}
+		}
+
+		public bool HasCursor {
+			get {
+				return cursorContainer != null;
+			}
+		}
+
+		public void RemoveCursor() {
+			RemoveElement(cursorContainer, true);
+			cursorContainer = null;
+		}
+
 		public TextureBrush TransparencyBackgroundBrush {
 			get {
 				return transparencyBackgroundBrush;
@@ -167,7 +185,8 @@ namespace Greenshot.Drawing {
 			((Capture)capture).NullImage();
 
 			if (capture.Cursor != null && capture.CursorVisible) {
-				SelectElement(AddIconContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y));
+				cursorContainer = AddIconContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
+				SelectElement(cursorContainer);
 			}
 			captureDetails = capture.CaptureDetails;
 		}
@@ -869,7 +888,8 @@ namespace Greenshot.Drawing {
 			modified = true;
 		}
 
-		public void RemoveElement(DrawableContainer element, bool makeUndoable) {
+		public void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable) {
+			DrawableContainer element = elementToRemove as DrawableContainer;
 			DeselectElement(element);
 			elements.Remove(element);
 			element.FieldChanged -= element_FieldChanged;
