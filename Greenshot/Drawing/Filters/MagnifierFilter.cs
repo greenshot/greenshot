@@ -37,7 +37,7 @@ namespace Greenshot.Drawing.Filters {
 		
 		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
 			magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
-			applyRect = IntersectRectangle(applyBitmap.Size, rect);
+			applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 			
 			bbbSrc = new BitmapBuffer(applyBitmap, applyRect);
 			try {

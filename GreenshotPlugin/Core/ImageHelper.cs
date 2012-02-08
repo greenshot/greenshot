@@ -59,12 +59,13 @@ namespace GreenshotPlugin.Core {
 			}
 
 			Bitmap bmp = new Bitmap(thumbWidth, thumbHeight);
-			using (Graphics gr = System.Drawing.Graphics.FromImage(bmp)) {
-				gr.SmoothingMode = SmoothingMode.HighQuality  ; 
-				gr.CompositingQuality = CompositingQuality.HighQuality; 
-				gr.InterpolationMode = InterpolationMode.High; 
-				System.Drawing.Rectangle rectDestination = new System.Drawing.Rectangle(0, 0, thumbWidth, thumbHeight);
-				gr.DrawImage(image, rectDestination, 0, 0, srcWidth, srcHeight, GraphicsUnit.Pixel);  
+			using (Graphics graphics = System.Drawing.Graphics.FromImage(bmp)) {
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				Rectangle rectDestination = new Rectangle(0, 0, thumbWidth, thumbHeight);
+				graphics.DrawImage(image, rectDestination, 0, 0, srcWidth, srcHeight, GraphicsUnit.Pixel);  
 			}
 			return bmp;
 		}
@@ -301,44 +302,52 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Make the picture look like it's torn
 		/// </summary>
-		/// <param name="bitmap">Bitmap to modify</param>
-		public static void ApplyTornEdge(Bitmap bitmap) {
+		/// <param name="sourceBitmap">Bitmap to make torn edge off</param>
+		/// <returns>Changed bitmap</returns>
+		public static Bitmap CreateTornEdge(Bitmap sourceBitmap) {
+			Rectangle cropRectangle = new Rectangle(Point.Empty, sourceBitmap.Size);
+			Bitmap returnImage = sourceBitmap.Clone(cropRectangle, PixelFormat.Format32bppArgb);
+			try {
+				returnImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			} catch (Exception ex) {
+				LOG.Warn("An exception occured while setting the resolution.", ex);
+			}
 			GraphicsPath path = new GraphicsPath();
 			Random random = new Random();
-			int regionWidth = 14;
-			int regionHeight = 14;
-			int HorizontalRegions = (int)(bitmap.Width / regionWidth);
-			int VerticalRegions = (int)(bitmap.Height / regionHeight);
+			int regionWidth = 20;
+			int regionHeight = 20;
+			int HorizontalRegions = (int)(sourceBitmap.Width / regionWidth);
+			int VerticalRegions = (int)(sourceBitmap.Height / regionHeight);
 			int distance = 12;
 
 			// Start
 			Point previousEndingPoint = Point.Empty;
 			Point newEndingPoint = Point.Empty;
-
+			path.AddLine(new Point(sourceBitmap.Width, 0), Point.Empty);
 			// Top
 			for (int i = 0; i < HorizontalRegions; i++) {
 				int x = (int)previousEndingPoint.X + regionWidth;
-				int y = random.Next(0, distance);
+				int y = random.Next(1, distance);
 				newEndingPoint = new Point(x, y);
 				path.AddLine(previousEndingPoint, newEndingPoint);
 				previousEndingPoint = newEndingPoint;
 			}
 			// end top
-			newEndingPoint = new Point(bitmap.Width, 0);
+			newEndingPoint = new Point(sourceBitmap.Width, 0);
 			path.AddLine(previousEndingPoint, newEndingPoint);
 			previousEndingPoint = newEndingPoint;
 			path.CloseFigure();
 
 			// Right
 			for (int i = 0; i < VerticalRegions; i++) {
-				int x = bitmap.Width - random.Next(0, distance);
+				int x = sourceBitmap.Width - random.Next(1, distance);
 				int y = (int)previousEndingPoint.Y + regionHeight;
 				newEndingPoint = new Point(x, y);
 				path.AddLine(previousEndingPoint, newEndingPoint);
 				previousEndingPoint = newEndingPoint;
 			}
 			// end right
-			newEndingPoint = new Point(bitmap.Width, bitmap.Height);
+			newEndingPoint = new Point(sourceBitmap.Width, sourceBitmap.Height);
 			path.AddLine(previousEndingPoint, newEndingPoint);
 			previousEndingPoint = newEndingPoint;
 			path.CloseFigure();
@@ -346,20 +355,20 @@ namespace GreenshotPlugin.Core {
 			// Bottom
 			for (int i = 0; i < HorizontalRegions; i++) {
 				int x = (int)previousEndingPoint.X - regionWidth;
-				int y = bitmap.Height - random.Next(0, distance);
+				int y = sourceBitmap.Height - random.Next(1, distance);
 				newEndingPoint = new Point(x, y);
 				path.AddLine(previousEndingPoint, newEndingPoint);
 				previousEndingPoint = newEndingPoint;
 			}
 			// end Bottom
-			newEndingPoint = new Point(0, bitmap.Height);
+			newEndingPoint = new Point(0, sourceBitmap.Height);
 			path.AddLine(previousEndingPoint, newEndingPoint);
 			previousEndingPoint = newEndingPoint;
 			path.CloseFigure();
 
 			// Left
 			for (int i = 0; i < VerticalRegions; i++) {
-				int x = random.Next(0, distance);
+				int x = random.Next(1, distance);
 				int y = (int)previousEndingPoint.Y - regionHeight;
 				newEndingPoint = new Point(x, y);
 				path.AddLine(previousEndingPoint, newEndingPoint);
@@ -372,17 +381,294 @@ namespace GreenshotPlugin.Core {
 			path.CloseFigure();
 
 			// Draw
-			using (Graphics graphics = Graphics.FromImage(bitmap)) {
-				Color fillColor = Color.White;
-				if (bitmap.PixelFormat == PixelFormat.Format32bppArgb) {
+			using (Graphics graphics = Graphics.FromImage(returnImage)) {
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+				if (Image.IsAlphaPixelFormat(returnImage.PixelFormat)) {
+					// When using transparency we can't draw with Color.Transparency so we clear
 					graphics.SetClip(path);
 					graphics.Clear(Color.Transparent);
 				} else {
-					using (Brush brush = new SolidBrush( Color.White)) {
+					using (Brush brush = new SolidBrush(Color.White)) {
 						graphics.FillPath(brush, path);
 					}
 				}
 			}
+			return returnImage;
+		}
+
+		/// <summary>
+		/// Helper Method for the ApplyBlur
+		/// </summary>
+		/// <param name="amount"></param>
+		/// <returns></returns>
+		private static int[] CreateGaussianBlurRow(int amount) {
+			int size = 1 + (amount * 2);
+			int[] weights = new int[size];
+
+			for (int i = 0; i <= amount; ++i) {
+				// 1 + aa - aa + 2ai - ii
+				weights[i] = 16 * (i + 1);
+				weights[weights.Length - i - 1] = weights[i];
+			}
+
+			return weights;
+		}
+
+		/// <summary>
+		/// Apply sourceBitmap with a blur to the targetGraphics
+		/// </summary>
+		/// <param name="targetGraphics">Target to draw to</param>
+		/// <param name="sourceBitmap">Source to blur</param>
+		/// <param name="rect">Area to blur</param>
+		/// <param name="export">Use full quality</param>
+		/// <param name="blurRadius">Radius of the blur</param>
+		/// <param name="previewQuality">Quality, use 1d for normal anything less skipps calculations</param>
+		/// <param name="invert">true if the blur needs to occur outside of the area</param>
+		/// <param name="parentBounds">Rectangle limiting the area when using invert</param>
+		public static void ApplyBlur(Graphics targetGraphics, Bitmap sourceBitmap, Rectangle rect, bool export, int blurRadius, double previewQuality, bool invert, Rectangle parentBounds) {
+			Rectangle applyRect = CreateIntersectRectangle(sourceBitmap.Size, rect, invert);
+
+			if (applyRect.Height <= 0 || applyRect.Width <= 0) {
+				return;
+			}
+			// do nothing when nothing can be done!
+			if (blurRadius < 1) {
+				return;
+			}
+			Color nullColor = Color.White;
+			if (sourceBitmap.PixelFormat == PixelFormat.Format32bppArgb) {
+				nullColor = Color.Transparent;
+			}
+
+			using (BitmapBuffer bbbDest = new BitmapBuffer(sourceBitmap, applyRect)) {
+				bbbDest.Lock();
+				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, applyRect)) {
+					bbbSrc.Lock();
+					Random rand = new Random();
+
+					int r = blurRadius;
+					int[] w = CreateGaussianBlurRow(r);
+					int wlen = w.Length;
+					long[] waSums = new long[wlen];
+					long[] wcSums = new long[wlen];
+					long[] aSums = new long[wlen];
+					long[] bSums = new long[wlen];
+					long[] gSums = new long[wlen];
+					long[] rSums = new long[wlen];
+					for (int y = 0; y < applyRect.Height; ++y) {
+						long waSum = 0;
+						long wcSum = 0;
+						long aSum = 0;
+						long bSum = 0;
+						long gSum = 0;
+						long rSum = 0;
+
+						for (int wx = 0; wx < wlen; ++wx) {
+							int srcX = wx - r;
+							waSums[wx] = 0;
+							wcSums[wx] = 0;
+							aSums[wx] = 0;
+							bSums[wx] = 0;
+							gSums[wx] = 0;
+							rSums[wx] = 0;
+
+							if (srcX >= 0 && srcX < bbbDest.Width) {
+								for (int wy = 0; wy < wlen; ++wy) {
+									int srcY = y + wy - r;
+
+									if (srcY >= 0 && srcY < bbbDest.Height) {
+										int[] colors = bbbSrc.GetColorArrayAt(srcX, srcY);
+										int wp = w[wy];
+
+										waSums[wx] += wp;
+										wp *= colors[0] + (colors[0] >> 7);
+										wcSums[wx] += wp;
+										wp >>= 8;
+
+										aSums[wx] += wp * colors[0];
+										bSums[wx] += wp * colors[3];
+										gSums[wx] += wp * colors[2];
+										rSums[wx] += wp * colors[1];
+									}
+								}
+
+								int wwx = w[wx];
+								waSum += wwx * waSums[wx];
+								wcSum += wwx * wcSums[wx];
+								aSum += wwx * aSums[wx];
+								bSum += wwx * bSums[wx];
+								gSum += wwx * gSums[wx];
+								rSum += wwx * rSums[wx];
+							}
+						}
+
+						wcSum >>= 8;
+
+						if (waSum == 0 || wcSum == 0) {
+							if (parentBounds.Contains(applyRect.Left, applyRect.Top + y) ^ invert) {
+								bbbDest.SetColorAt(0, y, nullColor);
+							}
+						} else {
+							int alpha = (int)(aSum / waSum);
+							int blue = (int)(bSum / wcSum);
+							int green = (int)(gSum / wcSum);
+							int red = (int)(rSum / wcSum);
+							if (parentBounds.Contains(applyRect.Left, applyRect.Top + y) ^ invert) {
+								bbbDest.SetColorAt(0, y, Color.FromArgb(alpha, red, green, blue));
+							}
+						}
+
+						for (int x = 1; x < applyRect.Width; ++x) {
+							for (int i = 0; i < wlen - 1; ++i) {
+								waSums[i] = waSums[i + 1];
+								wcSums[i] = wcSums[i + 1];
+								aSums[i] = aSums[i + 1];
+								bSums[i] = bSums[i + 1];
+								gSums[i] = gSums[i + 1];
+								rSums[i] = rSums[i + 1];
+							}
+
+							waSum = 0;
+							wcSum = 0;
+							aSum = 0;
+							bSum = 0;
+							gSum = 0;
+							rSum = 0;
+
+							int wx;
+							for (wx = 0; wx < wlen - 1; ++wx) {
+								long wwx = (long)w[wx];
+								waSum += wwx * waSums[wx];
+								wcSum += wwx * wcSums[wx];
+								aSum += wwx * aSums[wx];
+								bSum += wwx * bSums[wx];
+								gSum += wwx * gSums[wx];
+								rSum += wwx * rSums[wx];
+							}
+
+							wx = wlen - 1;
+
+							waSums[wx] = 0;
+							wcSums[wx] = 0;
+							aSums[wx] = 0;
+							bSums[wx] = 0;
+							gSums[wx] = 0;
+							rSums[wx] = 0;
+
+							int srcX = x + wx - r;
+
+							if (srcX >= 0 && srcX < applyRect.Width) {
+								for (int wy = 0; wy < wlen; ++wy) {
+									int srcY = y + wy - r;
+									// only when in EDIT mode, ignore some pixels depending on preview quality
+									if ((export || rand.NextDouble() < previewQuality) && srcY >= 0 && srcY < applyRect.Height) {
+										int[] colors = bbbSrc.GetColorArrayAt(srcX, srcY);
+										int wp = w[wy];
+
+										waSums[wx] += wp;
+										wp *= colors[0] + (colors[0] >> 7);
+										wcSums[wx] += wp;
+										wp >>= 8;
+
+										aSums[wx] += wp * (long)colors[0];
+										bSums[wx] += wp * (long)colors[3];
+										gSums[wx] += wp * (long)colors[2];
+										rSums[wx] += wp * (long)colors[1];
+									}
+								}
+
+								int wr = w[wx];
+								waSum += (long)wr * waSums[wx];
+								wcSum += (long)wr * wcSums[wx];
+								aSum += (long)wr * aSums[wx];
+								bSum += (long)wr * bSums[wx];
+								gSum += (long)wr * gSums[wx];
+								rSum += (long)wr * rSums[wx];
+							}
+
+							wcSum >>= 8;
+
+							if (waSum == 0 || wcSum == 0) {
+								if (parentBounds.Contains(applyRect.Left + x, applyRect.Top + y) ^ invert) {
+									bbbDest.SetColorAt(x, y, nullColor);
+								}
+							} else {
+								int alpha = (int)(aSum / waSum);
+								int blue = (int)(bSum / wcSum);
+								int green = (int)(gSum / wcSum);
+								int red = (int)(rSum / wcSum);
+								if (parentBounds.Contains(applyRect.Left + x, applyRect.Top + y) ^ invert) {
+									bbbDest.SetColorAt(x, y, Color.FromArgb(alpha, red, green, blue));
+								}
+							}
+						}
+					}
+				}
+				bbbDest.DrawTo(targetGraphics, applyRect.Location);
+			}
+		}
+
+		/**
+		 * This method fixes the problem that we can't apply a filter outside the target bitmap,
+		 * therefor the filtered-bitmap will be shifted if we try to draw it outside the target bitmap.
+		 * It will also account for the Invert flag.
+		 */
+		public static Rectangle CreateIntersectRectangle(Size applySize, Rectangle rect, bool invert) {
+			Rectangle myRect;
+			if (invert) {
+				myRect = new Rectangle(0, 0, applySize.Width, applySize.Height);
+			} else {
+				Rectangle applyRect = new Rectangle(0, 0, applySize.Width, applySize.Height);
+				myRect = new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
+				myRect.Intersect(applyRect);
+			}
+			return myRect;
+		}
+
+		/// <summary>
+		/// Create a new bitmap where the sourceBitmap has a shadow
+		/// </summary>
+		/// <param name="sourceBitmap">Bitmap to make a shadow on</param>
+		/// <param name="darkness">How dark is the shadow</param>
+		/// <param name="shadowSize">Size of the shadow</param>
+		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
+		/// <param name="offset">How many pixels is the original image moved?</param>
+		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
+		public static Bitmap CreateShadow(Bitmap sourceBitmap, float darkness, int shadowSize, PixelFormat targetPixelformat, out Point offset) {
+			Bitmap newImage = new Bitmap(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat);
+
+			using (Graphics graphics = Graphics.FromImage(newImage)) {
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+				if (Image.IsAlphaPixelFormat(targetPixelformat)) {
+					graphics.Clear(Color.Transparent);
+				} else {
+					graphics.Clear(Color.White);
+				}
+				ImageAttributes ia = new ImageAttributes();
+				ColorMatrix cm = new ColorMatrix();
+				cm.Matrix00 = 0;
+				cm.Matrix11 = 0;
+				cm.Matrix22 = 0;
+				cm.Matrix33 = darkness;
+				ia.SetColorMatrix(cm);
+				// Draw "shadow" offsetted
+				graphics.DrawImage(sourceBitmap, new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size), 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
+				// blur "shadow", apply to whole new image
+				Rectangle applyRectangle = new Rectangle(Point.Empty, newImage.Size);
+				ApplyBlur(graphics, newImage, applyRectangle, true, shadowSize, 1d, false, applyRectangle);
+				// draw original
+				offset = new Point(shadowSize - 2, shadowSize - 2);
+				graphics.DrawImage(sourceBitmap, offset);
+			}
+			return newImage;
 		}
 	}
 }

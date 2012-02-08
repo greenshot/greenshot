@@ -77,7 +77,7 @@ namespace Greenshot.Drawing.Filters {
 		
 		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
 			int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
-			applyRect = IntersectRectangle(applyBitmap.Size, rect);
+			applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
 			Apply(graphics, applyBitmap, applyRect, pixelSize);
 		}

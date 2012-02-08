@@ -26,6 +26,7 @@ using System.Net;
 using System.Text;
 
 using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 
 namespace GreenshotNetworkImportPlugin {
 	public class HTTPReceiver {
@@ -127,10 +128,11 @@ namespace GreenshotNetworkImportPlugin {
 				using (MemoryStream memoryStream = new MemoryStream(imageBytes, 0, imageBytes.Length)) {
 					// Convert byte[] to Image
 					memoryStream.Write(imageBytes, 0, imageBytes.Length);
-					Image image = Image.FromStream(memoryStream, true);
-					ICapture capture = host.GetCapture(image);
-					capture.CaptureDetails.Title = title;
-					host.ImportCapture(capture);
+					using (Image image = Bitmap.FromStream(memoryStream, true)) {
+						ICapture capture = host.GetCapture(ImageHelper.CloneImageToBitmap(image));
+						capture.CaptureDetails.Title = title;
+						host.ImportCapture(capture);
+					}
 					response.StatusCode = (int)HttpStatusCode.OK;
 					byte[] content = Encoding.UTF8.GetBytes("Greenshot-OK");
 					response.ContentType = "text";

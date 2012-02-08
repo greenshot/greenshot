@@ -34,12 +34,16 @@ using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using Greenshot.Memento;
 using IniFile;
+using Greenshot.Drawing.Filters;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing {
 	public delegate void SurfaceElementEventHandler(object source, DrawableContainerList element);
 	public delegate void SurfaceDrawingModeEventHandler(object source, DrawingModes drawingMode);
 	
 	public enum DrawingModes { None, Rect, Ellipse, Text, Line, Arrow, Crop, Highlight, Obfuscate, Bitmap, Path }
+	public enum Effects { Shadow, TornEdge }
+
 	/// <summary>
 	/// Description of Surface.
 	/// </summary>
@@ -522,17 +526,29 @@ namespace Greenshot.Drawing {
 			return false;
 		}
 
-		public void ApplyBitmapEffect() {
-			Rectangle cropRectangle = new Rectangle(Point.Empty, Image.Size);
-			Bitmap tmpImage = ((Bitmap)Image).Clone(cropRectangle, Image.PixelFormat);
-			tmpImage.SetResolution(Image.HorizontalResolution, Image.VerticalResolution);
+		public void ApplyBitmapEffect(Effects effect) {
+			Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+			Bitmap newImage = null;
 
-			// Currently only one effect exists, others could follow
-			ImageHelper.ApplyTornEdge(tmpImage);
+			Point offset = Point.Empty;
+			switch (effect) {
+				case Effects.Shadow:
+					newImage = ImageHelper.CreateShadow((Bitmap)Image, 0.8f, 8, Image.PixelFormat, out offset);
+					break;
+				case Effects.TornEdge:
+					using (Bitmap tmpImage = ImageHelper.CreateTornEdge((Bitmap)Image)) {
+						newImage = ImageHelper.CreateShadow(tmpImage, 0.8f, 8, Image.PixelFormat, out offset);
+					}
+					break;
+			}
 
-			// Make undoable
-			MakeUndoable(new SurfaceCropMemento(this, cropRectangle), false);
-			SetImage(tmpImage, false);
+			if (newImage != null) {
+				// Make sure the elements move according to the offset the effect made the bitmap move
+				elements.MoveBy(offset.X, offset.Y);
+				// Make undoable
+				MakeUndoable(new SurfaceCropMemento(this, imageRectangle), false);
+				SetImage(newImage, false);
+			}
 		}
 
 		public bool isCropPossible(ref Rectangle cropRectangle) {
@@ -757,6 +773,10 @@ namespace Greenshot.Drawing {
 			Bitmap clone = ImageHelper.CloneImageToBitmap(Image);
 			// otherwise we would have a problem drawing the image to the surface... :(
 			using (Graphics graphics = Graphics.FromImage(clone)) {
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				elements.Draw(graphics, (Bitmap)clone, renderMode, new Rectangle(Point.Empty, clone.Size));
 			}
 			return clone;
@@ -792,6 +812,10 @@ namespace Greenshot.Drawing {
 				}
 				// Elements might need the bitmap, so we copy the part we need
 				using (Graphics graphics = Graphics.FromImage(buffer)) {
+					graphics.SmoothingMode = SmoothingMode.HighQuality;
+					graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+					graphics.CompositingQuality = CompositingQuality.HighQuality;
+					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 					graphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 					graphics.SetClip(targetGraphics);
 					elements.Draw(graphics, buffer, RenderMode.EDIT, clipRectangle);
