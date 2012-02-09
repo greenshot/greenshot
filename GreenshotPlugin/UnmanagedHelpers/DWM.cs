@@ -20,6 +20,8 @@
  */
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
+using System.Drawing;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
 
@@ -107,6 +109,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("dwmapi", SetLastError = true)] 
 		public static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blurBehind);
 
+		// Key to ColorizationColor for DWM
+		private const string COLORIZATION_COLOR_KEY = @"SOFTWARE\Microsoft\Windows\DWM";
+
 		/// <summary>
 		/// Helper method for an easy DWM check
 		/// </summary>
@@ -118,6 +123,20 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				return dwmEnabled;
 			}
 			return false;
+		}
+
+		public static Color ColorizationColor {
+			get {
+				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(COLORIZATION_COLOR_KEY, false)) {
+					if (key != null) {
+						object dwordValue = key.GetValue("ColorizationColor");
+						if (dwordValue != null) {
+							return Color.FromArgb((Int32)dwordValue);
+						}
+					}
+				}
+				return Color.White;
+			}
 		}
 	}
 }

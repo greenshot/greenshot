@@ -715,9 +715,11 @@ namespace GreenshotPlugin.Core  {
 		/// <summary>
 		/// Capture DWM Window
 		/// </summary>
-		/// <param name="capture"></param>
-		/// <returns></returns>
-		public ICapture CaptureDWMWindow(ICapture capture, WindowCaptureMode windowCaptureMode, bool failIfNotFits) {
+		/// <param name="capture">Capture to fill</param>
+		/// <param name="windowCaptureMode">Wanted WindowCaptureMode</param>
+		/// <param name="autoMode">True if auto modus is used</param>
+		/// <returns>ICapture with the capture</returns>
+		public ICapture CaptureDWMWindow(ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode) {
 			IntPtr thumbnailHandle = IntPtr.Zero;
 			Form tempForm = null;
 			bool tempFormShown = false;
@@ -789,7 +791,7 @@ namespace GreenshotPlugin.Core  {
 					// and subtrackting the border from the size (2 times, as we move right/down for the capture without resizing)
 					captureRectangle.Width -= 2 * borderSize.Width;
 					captureRectangle.Height -= 2 * borderSize.Height;
-				} else if (failIfNotFits) {
+				} else if (autoMode) {
 					// check if the capture fits
 					if (!capture.ScreenBounds.Contains(captureRectangle)) {
 						// if GDI is allowed..
@@ -856,7 +858,14 @@ namespace GreenshotPlugin.Core  {
 						// If no capture up till now, create a normal capture.
 						if (capturedBitmap == null) {
 							// Remove transparency, this will break the capturing
-							tempForm.BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
+							if (!autoMode) {
+								tempForm.BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
+							} else {
+								Color colorizationColor = DWM.ColorizationColor;
+								// Modify by losing the transparency and increasing the intensity (as if the background color is white)
+								colorizationColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
+								tempForm.BackColor = colorizationColor; 
+							}
 							// Make sure everything is visible
 							tempForm.Refresh();
 							Application.DoEvents();
@@ -865,6 +874,12 @@ namespace GreenshotPlugin.Core  {
 						}
 						if (capturedBitmap != null && redMask != null) {
 							// Remove corners
+							if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
+								LOG.Debug("Changing pixelformat to Alpha for the RemoveCorners");
+								Bitmap tmpBitmap = capturedBitmap.Clone(new Rectangle(Point.Empty, capturedBitmap.Size), PixelFormat.Format32bppArgb);
+								capturedBitmap.Dispose();
+								capturedBitmap = tmpBitmap;
+							}
 							RemoveCorners(capturedBitmap, redMask, windowCaptureMode, conf.DWMBackgroundColor);
 						}
 					}
@@ -1206,6 +1221,11 @@ namespace GreenshotPlugin.Core  {
 			}
 			if (proc.ProcessName.ToLower().Contains("greenshot")) {
 				LOG.DebugFormat("Not freezing ourselves, process was: {0}", proc.ProcessName);
+				return;
+			}
+			// TODO: Check Outlook, Office etc?
+			if (proc.ProcessName.ToLower().Contains("outlook")) {
+				LOG.DebugFormat("Not freezing outlook due to Destinations, process was: {0}", proc.ProcessName);
 				return;
 			}
 			LOG.DebugFormat("Freezing process: {0}", proc.ProcessName);

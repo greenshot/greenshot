@@ -132,6 +132,16 @@ namespace Greenshot.Destinations {
 					effectSubItem.Click += delegate {
 						surface.ApplyBitmapEffect(Effects.TornEdge);
 					};
+					effectSubItem = new ToolStripMenuItem("Border");
+					effectItem.DropDownItems.Add(effectSubItem);
+					effectSubItem.Click += delegate {
+						surface.ApplyBitmapEffect(Effects.Border);
+					};
+					effectSubItem = new ToolStripMenuItem("Grayscale");
+					effectItem.DropDownItems.Add(effectSubItem);
+					effectSubItem.Click += delegate {
+						surface.ApplyBitmapEffect(Effects.Grayscale);
+					};
 				};
 			}
 			// Close

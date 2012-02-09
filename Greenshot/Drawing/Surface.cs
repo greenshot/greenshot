@@ -552,12 +552,20 @@ namespace Greenshot.Drawing {
 			Point offset = Point.Empty;
 			switch (effect) {
 				case Effects.Shadow:
-					newImage = ImageHelper.CreateShadow((Bitmap)Image, 1f, 10, Image.PixelFormat, out offset);
+					offset = new Point(6, 6);
+					newImage = ImageHelper.CreateShadow((Bitmap)Image, 1f, 7, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
 					break;
 				case Effects.TornEdge:
+					offset = new Point(5, 5);
 					using (Bitmap tmpImage = ImageHelper.CreateTornEdge((Bitmap)Image)) {
-						newImage = ImageHelper.CreateShadow(tmpImage, 1f, 8, Image.PixelFormat, out offset);
+						newImage = ImageHelper.CreateShadow(tmpImage, 1f, 6, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
 					}
+					break;
+				case Effects.Border:
+					newImage = ImageHelper.CreateBorder((Bitmap)Image, 2, Color.Black, Image.PixelFormat, out offset);
+					break;
+				case Effects.Grayscale:
+					newImage = ImageHelper.CreateGrayscale((Bitmap)Image);
 					break;
 			}
 
@@ -565,7 +573,7 @@ namespace Greenshot.Drawing {
 				// Make sure the elements move according to the offset the effect made the bitmap move
 				elements.MoveBy(offset.X, offset.Y);
 				// Make undoable
-				MakeUndoable(new SurfaceCropMemento(this, imageRectangle), false);
+				MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
 				SetImage(newImage, false);
 				Invalidate();
 			}
@@ -600,11 +608,12 @@ namespace Greenshot.Drawing {
 				Bitmap tmpImage = ((Bitmap)Image).Clone(cropRectangle, Image.PixelFormat);
 				tmpImage.SetResolution(Image.HorizontalResolution, Image.VerticalResolution);
 
+				Point offset = new Point(-cropRectangle.Left, -cropRectangle.Top);
 				// Make undoable
-				MakeUndoable(new SurfaceCropMemento(this, cropRectangle), false);
+				MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
 
 				SetImage(tmpImage, false);
-				elements.MoveBy(-cropRectangle.Left, -cropRectangle.Top);
+				elements.MoveBy(offset.X, offset.Y);
 				if (SurfaceSizeChanged != null) {
 					SurfaceSizeChanged(this);
 				}
@@ -613,10 +622,10 @@ namespace Greenshot.Drawing {
 			}
 			return false;
 		}
-		
-		public void UndoCrop(Image previous, Rectangle cropRectangle) {
+
+		public void UndoBackgroundChange(Image previous, Point offset) {
 			SetImage(previous, false);
-			elements.MoveBy(cropRectangle.Left, cropRectangle.Top);
+			elements.MoveBy(offset.X, offset.Y);
 			if (SurfaceSizeChanged != null) {
 				SurfaceSizeChanged(this);
 			}

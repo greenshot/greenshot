@@ -306,11 +306,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Changed bitmap</returns>
 		public static Bitmap CreateTornEdge(Bitmap sourceBitmap) {
 			Bitmap returnImage = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format32bppArgb);
-			try {
-				returnImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
-			} catch (Exception ex) {
-				LOG.Warn("An exception occured while setting the resolution.", ex);
-			}
+			returnImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			using (GraphicsPath path = new GraphicsPath()) {
 				Random random = new Random();
 				int regionWidth = 20;
@@ -612,12 +608,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
 		/// <param name="offset">How many pixels is the original image moved?</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-		public static Bitmap CreateShadow(Bitmap sourceBitmap, float darkness, int shadowSize, PixelFormat targetPixelformat, out Point offset) {
-			// "return" the shifted offset, so the caller can e.g. move elements
-			offset = new Point(shadowSize - 2, shadowSize - 2);
-
+		public static Bitmap CreateShadow(Bitmap sourceBitmap, float darkness, int shadowSize, Point offset, PixelFormat targetPixelformat) {
 			// Create a new "clean" image
 			Bitmap newImage = new Bitmap(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat);
+			newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 
 			using (Graphics graphics = Graphics.FromImage(newImage)) {
 				// Make sure the background color is what we want (transparent or white, depending on the pixel format)
@@ -650,11 +644,92 @@ namespace GreenshotPlugin.Core {
 				// draw original with a TextureBrush so we have nice antialiasing!
 				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {
 					// We need to do a translate-tranform otherwise the image is wrapped
-					graphics.TranslateTransform(shadowSize - 2, shadowSize - 2);
+					graphics.TranslateTransform(offset.X, offset.Y);
 					graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
 				}
 			}
 			return newImage;
+		}
+
+		/// <summary>
+		/// Create a new bitmap where the sourceBitmap has a Simple border around it
+		/// </summary>
+		/// <param name="sourceBitmap">Bitmap to make a border on</param>
+		/// <param name="borderSize">Size of the border</param>
+		/// <param name="borderColor">Color of the border</param>
+		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
+		/// <param name="offset">How many pixels is the original image moved?</param>
+		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
+		public static Bitmap CreateBorder(Bitmap sourceBitmap, int borderSize, Color borderColor, PixelFormat targetPixelformat, out Point offset) {
+			// "return" the shifted offset, so the caller can e.g. move elements
+			offset = new Point(borderSize, borderSize);
+
+			// Create a new "clean" image
+			Bitmap newImage = new Bitmap(sourceBitmap.Width + (borderSize * 2), sourceBitmap.Height + (borderSize * 2), targetPixelformat);
+			newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			using (Graphics graphics = Graphics.FromImage(newImage)) {
+				// Make sure the background color is what we want (transparent or white, depending on the pixel format)
+				if (Image.IsAlphaPixelFormat(targetPixelformat)) {
+					graphics.Clear(Color.Transparent);
+				} else {
+					graphics.Clear(Color.White);
+				}
+				// Make sure we draw with the best quality!
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				using (GraphicsPath path = new GraphicsPath()) {
+					path.AddRectangle(new Rectangle(borderSize >> 1, borderSize >> 1, newImage.Width - (borderSize), newImage.Height - (borderSize)));
+					using (Pen pen = new Pen(borderColor, borderSize)) {
+						pen.LineJoin = LineJoin.Round;
+						pen.StartCap = LineCap.Round;
+						pen.EndCap = LineCap.Round;
+						graphics.DrawPath(pen, path);
+					}
+				}
+				// draw original with a TextureBrush so we have nice antialiasing!
+				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {
+					// We need to do a translate-tranform otherwise the image is wrapped
+					graphics.TranslateTransform(offset.X, offset.Y);
+					graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
+				}
+			}
+			return newImage;
+		}
+
+		/// <summary>
+		/// Create a new bitmap where the sourceBitmap is in grayscale
+		/// </summary>
+		/// <param name="sourceBitmap">Original bitmap</param>
+		/// <returns>Bitmap with grayscale</returns>
+		public static Bitmap CreateGrayscale(Bitmap sourceBitmap) {
+			//create a blank bitmap the same size as original
+			Bitmap newBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height);
+
+			//get a graphics object from the new image
+			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
+				// create the grayscale ColorMatrix
+				ColorMatrix colorMatrix = new ColorMatrix(
+				   new float[][] {
+					   new float[] {.3f, .3f, .3f, 0, 0},
+						new float[] {.59f, .59f, .59f, 0, 0},
+						new float[] {.11f, .11f, .11f, 0, 0},
+						new float[] {0, 0, 0, 1, 0},
+						new float[] {0, 0, 0, 0, 1}
+					});
+
+				//create some image attributes
+				ImageAttributes attributes = new ImageAttributes();
+
+				//set the color matrix attribute
+				attributes.SetColorMatrix(colorMatrix);
+
+				//draw the original image on the new image using the grayscale color matrix
+				graphics.DrawImage(sourceBitmap, new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height), 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, attributes);
+			}
+
+			return newBitmap;
 		}
 	}
 }

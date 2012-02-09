@@ -28,15 +28,15 @@ namespace Greenshot.Memento {
 	/// <summary>
 	/// The SurfaceCropMemento makes it possible to undo-redo an surface crop
 	/// </summary>
-	public class SurfaceCropMemento : IMemento {
+	public class SurfaceBackgroundChangeMemento : IMemento {
 		private Image image;
 		private Surface surface;
-		private Rectangle cropRectangle;
+		private Point offset;
 		
-		public SurfaceCropMemento(Surface surface, Rectangle cropRectangle) {
+		public SurfaceBackgroundChangeMemento(Surface surface, Point offset) {
 			this.surface = surface;
 			this.image = surface.Image;
-			this.cropRectangle = cropRectangle;
+			this.offset = new Point(-offset.X, -offset.Y);
 		}
 		
 		public void Dispose() {
@@ -58,8 +58,8 @@ namespace Greenshot.Memento {
 		}
 
 		public IMemento Restore() {
-			SurfaceCropMemento oldState = new SurfaceCropMemento( surface, cropRectangle);
-			surface.UndoCrop(image, cropRectangle);
+			SurfaceBackgroundChangeMemento oldState = new SurfaceBackgroundChangeMemento(surface, offset);
+			surface.UndoBackgroundChange(image, offset);
 			surface.Invalidate();
 			return oldState;
 		}

@@ -31,7 +31,7 @@ namespace Greenshot.Plugin {
 	/// </summary>
 	//public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
 	public enum VerticalAlignment {TOP, CENTER, BOTTOM};
-	public enum Effects { Shadow, TornEdge };
+	public enum Effects { Shadow, TornEdge, Border, Grayscale };
 
 	public enum SurfaceMessageTyp {
 		FileSaved,

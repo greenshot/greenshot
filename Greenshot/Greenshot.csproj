@@ -197,7 +197,7 @@
     <Compile Include="Memento\TextChangeMemento.cs" />
     <Compile Include="Memento\IMemento.cs" />
     <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
-    <Compile Include="Memento\SurfaceCropMemento.cs" />
+    <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
     <Compile Include="Helpers\OfficeInterop\OfficeWrappers.cs" />
     <Compile Include="Helpers\OfficeInterop\OutlookWrapper.cs" />
     <Compile Include="Helpers\OfficeInterop\PowerpointWrapper.cs" />
