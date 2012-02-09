@@ -12,8 +12,8 @@ var greenshotPrefObserver = {
 		this._branch.addObserver("", this, false);
 	},
 	unregister: function() {
-	if (!this._branch) return;
-	this._branch.removeObserver("", this);
+		if (!this._branch) return;
+		this._branch.removeObserver("", this);
 	},
 	readDestination: function() {
 		return "http://" + this._branch.getCharPref("host") + ":" + this._branch.getIntPref("port");
@@ -54,8 +54,7 @@ function sendImage(dataUrl, title) {
 			data: dataUrl,
 			url: destination + '?title=' + escape(encodeUTF8(title)),
 			success : function (text) {
-				alert("Sent image to: " + destination);
-				//document.getElementById("statusbar-display").label = "Greenshot: " + text;
+				document.getElementById("statusbar-display").label = "Greenshot: " + text;
 			},
 			error : function () {
 				alert("Couldn't send image to '" + destination + "' please check if Greenshot is running!");
