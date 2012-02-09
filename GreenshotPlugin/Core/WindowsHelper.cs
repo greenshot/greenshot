@@ -726,18 +726,6 @@ namespace GreenshotPlugin.Core  {
 				tempForm.ShowInTaskbar = false;
 				tempForm.FormBorderStyle = FormBorderStyle.None;
 				tempForm.TopMost = true;
-				// Transparent would give an error here
-				if (windowCaptureMode == WindowCaptureMode.Aero) {
-					Color formColor = conf.DWMBackgroundColor;
-					// Remove transparency, this will break the capturing
-					formColor = Color.FromArgb(255, formColor.R, formColor.G, formColor.B);
-					tempForm.BackColor = formColor;
-				} else {
-					// Make sure the user sees transparent when going into the color picker
-					conf.DWMBackgroundColor = Color.Transparent;
-					// Use white, later black to capture transparent
-					tempForm.BackColor = Color.White;
-				}
 
 				// Register the Thumbnail
 				DWM.DwmRegisterThumbnail(tempForm.Handle, Handle, out thumbnailHandle);
@@ -824,43 +812,65 @@ namespace GreenshotPlugin.Core  {
 				tempForm.Show();
 				tempFormShown = true;
 
-				// Wait, to make sure everything is visible
-				Thread.Sleep(250);
-
 				// Intersect with screen
 				captureRectangle.Intersect(capture.ScreenBounds);
 				
 				// Destination bitmap for the capture
 				Bitmap capturedBitmap = null;
-				// Check if we make a transparent capture
-				if (windowCaptureMode == WindowCaptureMode.AeroTransparent) {
-					try {
-						this.FreezeWindow();
-						using (Bitmap whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
-							// Apply a white color
-							tempForm.BackColor = Color.Black;
-							// Refresh the form, otherwise the color doesn't show.
+				try {
+					this.FreezeWindow();
+					// Use red to make removal of the corners possible
+					tempForm.BackColor = Color.Red;
+					// Make sure everything is visible
+					tempForm.Refresh();
+					Application.DoEvents();
+					using (Bitmap redMask = WindowCapture.CaptureRectangle(captureRectangle)) {
+						// Check if we make a transparent capture
+						if (windowCaptureMode == WindowCaptureMode.AeroTransparent) {
+							// Use white, later black to capture transparent
+							tempForm.BackColor = Color.White;
+							// Make sure everything is visible
 							tempForm.Refresh();
-							using (Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
-								capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
+							Application.DoEvents();
+
+							try {
+								using (Bitmap whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
+									// Apply a white color
+									tempForm.BackColor = Color.Black;
+									// Make sure everything is visible
+									tempForm.Refresh();
+									Application.DoEvents();
+									using (Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
+										capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
+									}
+								}
+							} catch (Exception e) {
+								LOG.Debug("Exception: ", e);
+								// Some problem occured, cleanup and make a normal capture
+								if (capturedBitmap != null) {
+									capturedBitmap.Dispose();
+									capturedBitmap = null;
+								}
 							}
 						}
-					} catch (Exception e) {
-						LOG.Debug("Exception: ", e);
-						// Some problem occured, cleanup and make a normal capture
-						if (capturedBitmap != null) {
-							capturedBitmap.Dispose();
-							capturedBitmap = null;
+						// If no capture up till now, create a normal capture.
+						if (capturedBitmap == null) {
+							// Remove transparency, this will break the capturing
+							tempForm.BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
+							// Make sure everything is visible
+							tempForm.Refresh();
+							Application.DoEvents();
+							// Capture from the screen
+							capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
 						}
-					} finally {
-						// Make sure to ALWAYS unfreeze!!
-						this.UnfreezeWindow();
+						if (capturedBitmap != null && redMask != null) {
+							// Remove corners
+							RemoveCorners(capturedBitmap, redMask, windowCaptureMode, conf.DWMBackgroundColor);
+						}
 					}
-				}
-				// If no capture up till now, create a normal capture.
-				if (capturedBitmap == null) {
-					// Capture from the screen
-					capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+				} finally {
+					// Make sure to ALWAYS unfreeze!!
+					this.UnfreezeWindow();
 				}
 				
 				capture.Image = capturedBitmap;
@@ -880,6 +890,57 @@ namespace GreenshotPlugin.Core  {
 			}
 
 			return capture;
+		}
+
+		/// <summary>
+		/// Helper method to remove the corners from a DMW capture
+		/// </summary>
+		/// <param name="normalBitmap">The bitmap taken which would normally be returned to the editor etc.</param>
+		/// <param name="redBitmap">The bitmap taken with a red background</param>
+		/// <param name="captureMode">The capturemode so we can take transparency into accound</param>
+		/// <param name="destinationColor">The background color</param>
+		private void RemoveCorners(Bitmap normalBitmap, Bitmap redBitmap, WindowCaptureMode captureMode, Color destinationColor) {
+			if (captureMode == WindowCaptureMode.AeroTransparent) {
+				destinationColor = Color.Transparent;
+			}
+			using (BitmapBuffer redBuffer = new BitmapBuffer(redBitmap, false)) {
+				redBuffer.Lock();
+				using (BitmapBuffer normalBuffer = new BitmapBuffer(normalBitmap, false)) {
+					normalBuffer.Lock();
+					for (int y = 0; y < 8; y++) {
+						for (int x = 0; x < 8; x++) {
+							// top left
+							int cornerX = x;
+							int cornerY = y;
+							Color currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
+							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
+								normalBuffer.SetColorAt(cornerX, cornerY, destinationColor);
+							}
+							// top right
+							cornerX = normalBitmap.Width - x;
+							cornerY = y;
+							currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
+							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
+								normalBuffer.SetColorAt(cornerX, cornerY, destinationColor);
+							}
+							// bottom right
+							cornerX = normalBitmap.Width - x;
+							cornerY = normalBitmap.Height - y;
+							currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
+							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
+								normalBuffer.SetColorAt(cornerX, cornerY, destinationColor);
+							}
+							// bottom left
+							cornerX = x;
+							cornerY = normalBitmap.Height - y;
+							currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
+							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
+								normalBuffer.SetColorAt(cornerX, cornerY, destinationColor);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		/// <summary>
