@@ -1171,10 +1171,12 @@ namespace Greenshot {
 
 		void TornEdgeToolStripMenuItemClick(object sender, EventArgs e) {
 			surface.ApplyBitmapEffect(Effects.TornEdge);
+			updateUndoRedoSurfaceDependencies();
 		}
 
 		void ShadowToolStripMenuItemClick(object sender, EventArgs e) {
 			surface.ApplyBitmapEffect(Effects.Shadow);
+			updateUndoRedoSurfaceDependencies();
 		}
 	}
 }

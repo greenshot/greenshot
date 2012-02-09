@@ -102,11 +102,12 @@ namespace Greenshot.Drawing {
 					using (Pen pen = new Pen(Color.White)) {
 						pen.Width = lineThickness;
 						SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
-						GraphicsPath path = new GraphicsPath();
-						path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
-						Rectangle drawingBounds = Rectangle.Round(path.GetBounds(new Matrix(), pen));
-						drawingBounds.Inflate(2,2);
-						return drawingBounds;
+						using (GraphicsPath path = new GraphicsPath()) {
+							path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+							Rectangle drawingBounds = Rectangle.Round(path.GetBounds(new Matrix(), pen));
+							drawingBounds.Inflate(2, 2);
+							return drawingBounds;
+						}
 					}
 				} else {
 					return Rectangle.Empty;
@@ -120,9 +121,10 @@ namespace Greenshot.Drawing {
 				using (Pen pen = new Pen(Color.White)) {
 					pen.Width = lineThickness;
 					SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
-					GraphicsPath path = new GraphicsPath();
-					path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
-					return path.IsOutlineVisible(x,y, pen);
+					using (GraphicsPath path = new GraphicsPath()) {
+						path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+						return path.IsOutlineVisible(x, y, pen);
+					}
 				}
 			} else {
 				return false;

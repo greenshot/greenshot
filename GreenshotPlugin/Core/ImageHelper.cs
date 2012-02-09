@@ -311,62 +311,64 @@ namespace GreenshotPlugin.Core {
 			} catch (Exception ex) {
 				LOG.Warn("An exception occured while setting the resolution.", ex);
 			}
-			GraphicsPath path = new GraphicsPath();
-			Random random = new Random();
-			int regionWidth = 20;
-			int regionHeight = 20;
-			int HorizontalRegions = (int)(sourceBitmap.Width / regionWidth);
-			int VerticalRegions = (int)(sourceBitmap.Height / regionHeight);
-			int distance = 12;
+			using (GraphicsPath path = new GraphicsPath()) {
+				Random random = new Random();
+				int regionWidth = 20;
+				int regionHeight = 20;
+				int HorizontalRegions = (int)(sourceBitmap.Width / regionWidth);
+				int VerticalRegions = (int)(sourceBitmap.Height / regionHeight);
+				int distance = 12;
 
-			// Start
-			Point previousEndingPoint = new Point(regionWidth, random.Next(1, distance));
-			Point newEndingPoint;
-			// Top
-			for (int i = 0; i < HorizontalRegions; i++) {
-				int x = (int)previousEndingPoint.X + regionWidth;
-				int y = random.Next(1, distance);
-				newEndingPoint = new Point(x, y);
-				path.AddLine(previousEndingPoint, newEndingPoint);
-				previousEndingPoint = newEndingPoint;
-			}
+				// Start
+				Point previousEndingPoint = new Point(regionWidth, random.Next(1, distance));
+				Point newEndingPoint;
+				// Top
+				for (int i = 0; i < HorizontalRegions; i++) {
+					int x = (int)previousEndingPoint.X + regionWidth;
+					int y = random.Next(1, distance);
+					newEndingPoint = new Point(x, y);
+					path.AddLine(previousEndingPoint, newEndingPoint);
+					previousEndingPoint = newEndingPoint;
+				}
 
-			// Right
-			for (int i = 0; i < VerticalRegions; i++) {
-				int x = sourceBitmap.Width - random.Next(1, distance);
-				int y = (int)previousEndingPoint.Y + regionHeight;
-				newEndingPoint = new Point(x, y);
-				path.AddLine(previousEndingPoint, newEndingPoint);
-				previousEndingPoint = newEndingPoint;
-			}
+				// Right
+				for (int i = 0; i < VerticalRegions; i++) {
+					int x = sourceBitmap.Width - random.Next(1, distance);
+					int y = (int)previousEndingPoint.Y + regionHeight;
+					newEndingPoint = new Point(x, y);
+					path.AddLine(previousEndingPoint, newEndingPoint);
+					previousEndingPoint = newEndingPoint;
+				}
 
-			// Bottom
-			for (int i = 0; i < HorizontalRegions; i++) {
-				int x = (int)previousEndingPoint.X - regionWidth;
-				int y = sourceBitmap.Height - random.Next(1, distance);
-				newEndingPoint = new Point(x, y);
-				path.AddLine(previousEndingPoint, newEndingPoint);
-				previousEndingPoint = newEndingPoint;
-			}
+				// Bottom
+				for (int i = 0; i < HorizontalRegions; i++) {
+					int x = (int)previousEndingPoint.X - regionWidth;
+					int y = sourceBitmap.Height - random.Next(1, distance);
+					newEndingPoint = new Point(x, y);
+					path.AddLine(previousEndingPoint, newEndingPoint);
+					previousEndingPoint = newEndingPoint;
+				}
 
-			// Left
-			for (int i = 0; i < VerticalRegions; i++) {
-				int x = random.Next(1, distance);
-				int y = (int)previousEndingPoint.Y - regionHeight;
-				newEndingPoint = new Point(x, y);
-				path.AddLine(previousEndingPoint, newEndingPoint);
-				previousEndingPoint = newEndingPoint;
-			}
-			path.CloseFigure();
+				// Left
+				for (int i = 0; i < VerticalRegions; i++) {
+					int x = random.Next(1, distance);
+					int y = (int)previousEndingPoint.Y - regionHeight;
+					newEndingPoint = new Point(x, y);
+					path.AddLine(previousEndingPoint, newEndingPoint);
+					previousEndingPoint = newEndingPoint;
+				}
+				path.CloseFigure();
 
-			// Draw
-			using (Graphics graphics = Graphics.FromImage(returnImage)) {
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				using (Brush brush = new TextureBrush(sourceBitmap)) {
-					graphics.FillPath(brush, path);
+				// Draw the created figure with the original image by using a TextureBrush so we have anti-aliasing
+				using (Graphics graphics = Graphics.FromImage(returnImage)) {
+					graphics.SmoothingMode = SmoothingMode.HighQuality;
+					graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+					graphics.CompositingQuality = CompositingQuality.HighQuality;
+					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+					using (Brush brush = new TextureBrush(sourceBitmap)) {
+						// Imporant note: If the target wouldn't be at 0,0 we need to translate-transform!!
+						graphics.FillPath(brush, path);
+					}
 				}
 			}
 			return returnImage;
@@ -611,19 +613,26 @@ namespace GreenshotPlugin.Core {
 		/// <param name="offset">How many pixels is the original image moved?</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
 		public static Bitmap CreateShadow(Bitmap sourceBitmap, float darkness, int shadowSize, PixelFormat targetPixelformat, out Point offset) {
+			// "return" the shifted offset, so the caller can e.g. move elements
+			offset = new Point(shadowSize - 2, shadowSize - 2);
+
+			// Create a new "clean" image
 			Bitmap newImage = new Bitmap(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat);
 
 			using (Graphics graphics = Graphics.FromImage(newImage)) {
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
+				// Make sure the background color is what we want (transparent or white, depending on the pixel format)
 				if (Image.IsAlphaPixelFormat(targetPixelformat)) {
 					graphics.Clear(Color.Transparent);
 				} else {
 					graphics.Clear(Color.White);
 				}
+				// Make sure we draw with the best quality!
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+				// Draw "shadow" offsetted
 				ImageAttributes ia = new ImageAttributes();
 				ColorMatrix cm = new ColorMatrix();
 				cm.Matrix00 = 0;
@@ -631,14 +640,19 @@ namespace GreenshotPlugin.Core {
 				cm.Matrix22 = 0;
 				cm.Matrix33 = darkness;
 				ia.SetColorMatrix(cm);
-				// Draw "shadow" offsetted
-				graphics.DrawImage(sourceBitmap, new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size), 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
+				Point shadowLocation = new Point(shadowSize, shadowSize);
+				graphics.DrawImage(sourceBitmap, new Rectangle(shadowLocation, sourceBitmap.Size), 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
+
 				// blur "shadow", apply to whole new image
 				Rectangle applyRectangle = new Rectangle(Point.Empty, newImage.Size);
 				ApplyBlur(graphics, newImage, applyRectangle, true, shadowSize, 1d, false, applyRectangle);
-				// draw original
-				offset = new Point(shadowSize - 2, shadowSize - 2);
-				graphics.DrawImage(sourceBitmap, offset);
+
+				// draw original with a TextureBrush so we have nice antialiasing!
+				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {
+					// We need to do a translate-tranform otherwise the image is wrapped
+					graphics.TranslateTransform(shadowSize - 2, shadowSize - 2);
+					graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
+				}
 			}
 			return newImage;
 		}

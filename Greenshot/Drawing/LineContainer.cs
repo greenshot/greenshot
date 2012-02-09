@@ -98,9 +98,10 @@ namespace Greenshot.Drawing {
 			if (lineThickness > 0) {
 				using (Pen pen = new Pen(Color.White)) {
 					pen.Width = lineThickness;
-					GraphicsPath path = new GraphicsPath();
-					path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
-					return path.IsOutlineVisible(x,y, pen);
+					using (GraphicsPath path = new GraphicsPath()) {
+						path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+						return path.IsOutlineVisible(x, y, pen);
+					}
 				}
 			} else {
 				return false;

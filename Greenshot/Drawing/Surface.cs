@@ -567,6 +567,7 @@ namespace Greenshot.Drawing {
 				// Make undoable
 				MakeUndoable(new SurfaceCropMemento(this, imageRectangle), false);
 				SetImage(newImage, false);
+				Invalidate();
 			}
 		}
 
