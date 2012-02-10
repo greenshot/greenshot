@@ -669,7 +669,7 @@ namespace GreenshotPlugin.Core  {
 			User32.BringWindowToTop(this.hWnd);
 			User32.SetForegroundWindow(this.hWnd);
 			// Make sure windows has time to perform the action
-			Thread.Sleep(100);
+			Application.DoEvents();
 		}
 
 		public WindowStyleFlags WindowStyle {

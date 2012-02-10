@@ -314,21 +314,40 @@ namespace GreenshotPlugin.Core {
 		 * Retrieve the color at location x,y as an array
 		 * Before the first time this is called the Lock() should be called once!
 		 */
-		public int[] GetColorArrayAt(int x, int y) {
+		public byte[] GetColorArrayAt(int x, int y) {
 			if(x>=0 && y>=0 && x<rect.Width && y<rect.Height) {
 				int offset = x*bytesPerPixel+y*stride;
-				int a = (aIndex==-1) ? 255 : (int)pointer[aIndex+offset];
-				return new int[]{a, pointer[rIndex+offset], pointer[gIndex+offset], pointer[bIndex+offset]};
+				byte a = (aIndex==-1) ? (byte)255 : (byte)pointer[aIndex+offset];
+				return new byte[] { a, pointer[rIndex + offset], pointer[gIndex + offset], pointer[bIndex + offset] };
 			} else {
-				return new int[]{0,0,0,0};
+				return new byte[] { 0, 0, 0, 0 };
 			}
 		}
-		
+
+		/**
+		 * Retrieve the color at location x,y to a byte[]
+		 * Before the first time this is called the Lock() should be called once!
+		 */
+		public void GetColorIn(int x, int y, byte[] color) {
+			if (x >= 0 && y >= 0 && x < rect.Width && y < rect.Height) {
+				int offset = x * bytesPerPixel + y * stride;
+				color[0] = (aIndex == -1) ? (byte)255 : (byte)pointer[aIndex + offset];
+				color[1] = pointer[rIndex + offset];
+				color[2] = pointer[gIndex + offset];
+				color[3] = pointer[bIndex + offset];
+			} else {
+				color[0] = 0;
+				color[1] = 0;
+				color[2] = 0;
+				color[3] = 0;
+			}
+		}
+
 		/**
 		 * Set the color at location x,y as an array
 		 * Before the first time this is called the Lock() should be called once!
 		 */
-		public void SetColorArrayAt(int x, int y, int[] colors) {
+		public void SetColorArrayAt(int x, int y, byte[] colors) {
 			if(x>=0 && y>=0 && x<rect.Width && y<rect.Height) {
 				int offset = x*bytesPerPixel+y*stride;
 				if(aIndex!=-1) pointer[aIndex+offset] = (byte)colors[0];
@@ -337,7 +356,17 @@ namespace GreenshotPlugin.Core {
 				pointer[bIndex+offset] = (byte)colors[3];
 			}
 		}
-		
+		/**
+		 * Set the color at location x,y as an array
+		 * Before the first time this is called the Lock() should be called once!
+		 */
+		public void SetUncheckedColorArrayAt(int x, int y, byte[] colors) {
+			int offset = x * bytesPerPixel + y * stride;
+			if (aIndex != -1) pointer[aIndex + offset] = (byte)colors[0];
+			pointer[rIndex + offset] = (byte)colors[1];
+			pointer[gIndex + offset] = (byte)colors[2];
+			pointer[bIndex + offset] = (byte)colors[3];
+		}
 		/**
 		 * Set some internal values for accessing the bitmap according to the PixelFormat
 		 */

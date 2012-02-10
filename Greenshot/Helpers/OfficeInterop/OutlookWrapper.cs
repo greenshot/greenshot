@@ -149,11 +149,13 @@ namespace Greenshot.Helpers.OfficeInterop {
 						LOG.DebugFormat("Got {0} inspectors to check", inspectors.Count);
 						for(int i=1; i <= inspectors.Count; i++) {
 							Inspector inspector = outlookApplication.Inspectors[i];
-							if (inspector.Caption.StartsWith(inspectorCaption)) {
+							string currentCaption = inspector.Caption;
+							if (currentCaption.StartsWith(inspectorCaption)) {
 								try {
 									Item currentMail = inspector.CurrentItem;
 									if (currentMail != null && OlObjectClass.olMail.Equals(currentMail.Class)) {
 										if (currentMail != null && !currentMail.Sent) {
+											LOG.InfoFormat("Export requested to {0} exporting to {1}", inspectorCaption, currentCaption);
 											return ExportToInspector(inspector, tmpFile, attachmentName);
 										}
 									}
@@ -348,11 +350,8 @@ namespace Greenshot.Helpers.OfficeInterop {
 						exported = ExportToMail(outlookApplication, tmpFile, subject, attachmentName);
 					}
 				}
-				if (exported) {
-					// Wait to make sure the system "imported" the file
-					// TODO: this should be handled differently some time
-					Thread.Sleep(600);
-				}
+				// assuming that the file isn't deleted right away...
+				// there used to be a sleep here
 				return exported;
 			} catch(Exception e) {
 				LOG.Error("Error while creating an outlook mail item: ", e);

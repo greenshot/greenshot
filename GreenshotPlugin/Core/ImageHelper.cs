@@ -368,191 +368,192 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Apply sourceBitmap with a blur to the targetGraphics
+		/// Create a new bitmap with the sourceBitmap blurred
 		/// </summary>
-		/// <param name="targetGraphics">Target to draw to</param>
 		/// <param name="sourceBitmap">Source to blur</param>
-		/// <param name="rect">Area to blur</param>
-		/// <param name="export">Use full quality</param>
+		/// <param name="applyRect">Area to blur</param>
+		/// <param name="useExportQuality">Use best quality</param>
 		/// <param name="blurRadius">Radius of the blur</param>
 		/// <param name="previewQuality">Quality, use 1d for normal anything less skipps calculations</param>
 		/// <param name="invert">true if the blur needs to occur outside of the area</param>
 		/// <param name="parentBounds">Rectangle limiting the area when using invert</param>
-		public static void ApplyBlur(Graphics targetGraphics, Bitmap sourceBitmap, Rectangle rect, bool export, int blurRadius, double previewQuality, bool invert, Rectangle parentBounds) {
-			Rectangle applyRect = CreateIntersectRectangle(sourceBitmap.Size, rect, invert);
-
+		public static unsafe Bitmap CreateBlur(Bitmap sourceBitmap, Rectangle applyRect, bool useExportQuality, int blurRadius, double previewQuality, bool invert, Rectangle parentBounds) {
 			if (applyRect.Height <= 0 || applyRect.Width <= 0) {
-				return;
+				return null;
 			}
 			// do nothing when nothing can be done!
 			if (blurRadius < 1) {
-				return;
+				return null;
 			}
-			Color nullColor = Color.White;
+
+			byte[] nullColor = new byte[] { 255, 255, 255, 255 };
 			if (sourceBitmap.PixelFormat == PixelFormat.Format32bppArgb) {
-				nullColor = Color.Transparent;
+				nullColor = new byte[] { 0, 0, 0, 0 };
 			}
+			byte[] settingColor = new byte[4];
+			byte[] readingColor = new byte[4];
 
 			using (BitmapBuffer bbbDest = new BitmapBuffer(sourceBitmap, applyRect, true)) {
 				bbbDest.Lock();
 				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, applyRect, false)) {
 					bbbSrc.Lock();
 					Random rand = new Random();
+					unchecked {
+						int r = blurRadius;
+						int[] w = CreateGaussianBlurRow(r);
+						int wlen = w.Length;
+						long* waSums = stackalloc long[wlen];
+						long* wcSums = stackalloc long[wlen];
+						long* aSums = stackalloc long[wlen];
+						long* rSums = stackalloc long[wlen];
+						long* gSums = stackalloc long[wlen];
+						long* bSums = stackalloc long[wlen];
+						for (int y = 0; y < applyRect.Height; ++y) {
+							long waSum = 0;
+							long wcSum = 0;
+							long aSum = 0;
+							long rSum = 0;
+							long gSum = 0;
+							long bSum = 0;
 
-					int r = blurRadius;
-					int[] w = CreateGaussianBlurRow(r);
-					int wlen = w.Length;
-					long[] waSums = new long[wlen];
-					long[] wcSums = new long[wlen];
-					long[] aSums = new long[wlen];
-					long[] rSums = new long[wlen];
-					long[] gSums = new long[wlen];
-					long[] bSums = new long[wlen];
-					for (int y = 0; y < applyRect.Height; ++y) {
-						long waSum = 0;
-						long wcSum = 0;
-						long aSum = 0;
-						long rSum = 0;
-						long gSum = 0;
-						long bSum = 0;
+							for (int wx = 0; wx < wlen; ++wx) {
+								int srcX = wx - r;
+								waSums[wx] = 0;
+								wcSums[wx] = 0;
+								aSums[wx] = 0;
+								rSums[wx] = 0;
+								gSums[wx] = 0;
+								bSums[wx] = 0;
 
-						for (int wx = 0; wx < wlen; ++wx) {
-							int srcX = wx - r;
-							waSums[wx] = 0;
-							wcSums[wx] = 0;
-							aSums[wx] = 0;
-							rSums[wx] = 0;
-							gSums[wx] = 0;
-							bSums[wx] = 0;
+								if (srcX >= 0 && srcX < bbbDest.Width) {
+									for (int wy = 0; wy < wlen; ++wy) {
+										int srcY = y + wy - r;
 
-							if (srcX >= 0 && srcX < bbbDest.Width) {
-								for (int wy = 0; wy < wlen; ++wy) {
-									int srcY = y + wy - r;
+										if (srcY >= 0 && srcY < bbbDest.Height) {
+											bbbSrc.GetColorIn(srcX, srcY, readingColor);
+											int wp = w[wy];
 
-									if (srcY >= 0 && srcY < bbbDest.Height) {
-										int[] colors = bbbSrc.GetColorArrayAt(srcX, srcY);
-										int wp = w[wy];
+											waSums[wx] += wp;
+											wp *= readingColor[0] + (readingColor[0] >> 7);
+											wcSums[wx] += wp;
+											wp >>= 8;
 
-										waSums[wx] += wp;
-										wp *= colors[0] + (colors[0] >> 7);
-										wcSums[wx] += wp;
-										wp >>= 8;
-
-										aSums[wx] += wp * colors[0];
-										rSums[wx] += wp * colors[1];
-										gSums[wx] += wp * colors[2];
-										bSums[wx] += wp * colors[3];
+											aSums[wx] += wp * readingColor[0];
+											rSums[wx] += wp * readingColor[1];
+											gSums[wx] += wp * readingColor[2];
+											bSums[wx] += wp * readingColor[3];
+										}
 									}
+
+									int wwx = w[wx];
+									waSum += wwx * waSums[wx];
+									wcSum += wwx * wcSums[wx];
+									aSum += wwx * aSums[wx];
+									rSum += wwx * rSums[wx];
+									gSum += wwx * gSums[wx];
+									bSum += wwx * bSums[wx];
 								}
-
-								int wwx = w[wx];
-								waSum += wwx * waSums[wx];
-								wcSum += wwx * wcSums[wx];
-								aSum += wwx * aSums[wx];
-								rSum += wwx * rSums[wx];
-								gSum += wwx * gSums[wx];
-								bSum += wwx * bSums[wx];
-							}
-						}
-
-						wcSum >>= 8;
-
-						if (parentBounds.Contains(applyRect.Left, applyRect.Top + y) ^ invert) {
-							if (waSum == 0 || wcSum == 0) {
-								bbbDest.SetColorAt(0, y, nullColor);
-							} else {
-								int alpha = (int)(aSum / waSum);
-								int red = (int)(rSum / wcSum);
-								int green = (int)(gSum / wcSum);
-								int blue = (int)(bSum / wcSum);
-								bbbDest.SetColorAt(0, y, Color.FromArgb(alpha, red, green, blue));
-							}
-						}
-
-						for (int x = 1; x < applyRect.Width; ++x) {
-							for (int i = 0; i < wlen - 1; ++i) {
-								waSums[i] = waSums[i + 1];
-								wcSums[i] = wcSums[i + 1];
-								aSums[i] = aSums[i + 1];
-								rSums[i] = rSums[i + 1];
-								gSums[i] = gSums[i + 1];
-								bSums[i] = bSums[i + 1];
-							}
-
-							waSum = 0;
-							wcSum = 0;
-							aSum = 0;
-							rSum = 0;
-							gSum = 0;
-							bSum = 0;
-
-							int wx;
-							for (wx = 0; wx < wlen - 1; ++wx) {
-								long wwx = (long)w[wx];
-								waSum += wwx * waSums[wx];
-								wcSum += wwx * wcSums[wx];
-								aSum += wwx * aSums[wx];
-								rSum += wwx * rSums[wx];
-								gSum += wwx * gSums[wx];
-								bSum += wwx * bSums[wx];
-							}
-
-							wx = wlen - 1;
-
-							waSums[wx] = 0;
-							wcSums[wx] = 0;
-							aSums[wx] = 0;
-							rSums[wx] = 0;
-							gSums[wx] = 0;
-							bSums[wx] = 0;
-
-							int srcX = x + wx - r;
-
-							if (srcX >= 0 && srcX < applyRect.Width) {
-								for (int wy = 0; wy < wlen; ++wy) {
-									int srcY = y + wy - r;
-									// only when in EDIT mode, ignore some pixels depending on preview quality
-									if ((export || rand.NextDouble() < previewQuality) && srcY >= 0 && srcY < applyRect.Height) {
-										int[] colors = bbbSrc.GetColorArrayAt(srcX, srcY);
-										int wp = w[wy];
-
-										waSums[wx] += wp;
-										wp *= colors[0] + (colors[0] >> 7);
-										wcSums[wx] += wp;
-										wp >>= 8;
-
-										aSums[wx] += wp * (long)colors[0];
-										rSums[wx] += wp * (long)colors[1];
-										gSums[wx] += wp * (long)colors[2];
-										bSums[wx] += wp * (long)colors[3];
-									}
-								}
-
-								int wr = w[wx];
-								waSum += (long)wr * waSums[wx];
-								wcSum += (long)wr * wcSums[wx];
-								aSum += (long)wr * aSums[wx];
-								rSum += (long)wr * rSums[wx];
-								gSum += (long)wr * gSums[wx];
-								bSum += (long)wr * bSums[wx];
 							}
 
 							wcSum >>= 8;
+
 							if (parentBounds.Contains(applyRect.Left, applyRect.Top + y) ^ invert) {
 								if (waSum == 0 || wcSum == 0) {
-									bbbDest.SetColorAt(x, y, nullColor);
+									bbbDest.SetUncheckedColorArrayAt(0, y, nullColor);
 								} else {
-									int alpha = (int)(aSum / waSum);
-									int red = (int)(rSum / wcSum);
-									int green = (int)(gSum / wcSum);
-									int blue = (int)(bSum / wcSum);
-									bbbDest.SetColorAt(x, y, Color.FromArgb(alpha, red, green, blue));
+									settingColor[0] = (byte)(aSum / waSum);
+									settingColor[1] = (byte)(rSum / wcSum);
+									settingColor[2] = (byte)(gSum / wcSum);
+									settingColor[3] = (byte)(bSum / wcSum);
+									bbbDest.SetUncheckedColorArrayAt(0, y, settingColor);
+								}
+							}
+
+							for (int x = 1; x < applyRect.Width; ++x) {
+								for (int i = 0; i < wlen - 1; ++i) {
+									waSums[i] = waSums[i + 1];
+									wcSums[i] = wcSums[i + 1];
+									aSums[i] = aSums[i + 1];
+									rSums[i] = rSums[i + 1];
+									gSums[i] = gSums[i + 1];
+									bSums[i] = bSums[i + 1];
+								}
+
+								waSum = 0;
+								wcSum = 0;
+								aSum = 0;
+								rSum = 0;
+								gSum = 0;
+								bSum = 0;
+
+								int wx;
+								for (wx = 0; wx < wlen - 1; ++wx) {
+									long wwx = (long)w[wx];
+									waSum += wwx * waSums[wx];
+									wcSum += wwx * wcSums[wx];
+									aSum += wwx * aSums[wx];
+									rSum += wwx * rSums[wx];
+									gSum += wwx * gSums[wx];
+									bSum += wwx * bSums[wx];
+								}
+
+								wx = wlen - 1;
+
+								waSums[wx] = 0;
+								wcSums[wx] = 0;
+								aSums[wx] = 0;
+								rSums[wx] = 0;
+								gSums[wx] = 0;
+								bSums[wx] = 0;
+
+								int srcX = x + wx - r;
+
+								if (srcX >= 0 && srcX < applyRect.Width) {
+									for (int wy = 0; wy < wlen; ++wy) {
+										int srcY = y + wy - r;
+										// only when in EDIT mode, ignore some pixels depending on preview quality
+										if ((useExportQuality || rand.NextDouble() < previewQuality) && srcY >= 0 && srcY < applyRect.Height) {
+											int wp = w[wy];
+											waSums[wx] += wp;
+											bbbSrc.GetColorIn(srcX, srcY, readingColor);
+											wp *= readingColor[0] + (readingColor[0] >> 7);
+											wcSums[wx] += wp;
+											wp >>= 8;
+
+											aSums[wx] += wp * readingColor[0];
+											rSums[wx] += wp * readingColor[1];
+											gSums[wx] += wp * readingColor[2];
+											bSums[wx] += wp * readingColor[3];
+										}
+									}
+
+									int wr = w[wx];
+									waSum += wr * waSums[wx];
+									wcSum += wr * wcSums[wx];
+									aSum += wr * aSums[wx];
+									rSum += wr * rSums[wx];
+									gSum += wr * gSums[wx];
+									bSum += wr * bSums[wx];
+								}
+
+								wcSum >>= 8;
+								if (parentBounds.Contains(applyRect.Left + x, applyRect.Top + y) ^ invert) {
+									if (waSum == 0 || wcSum == 0) {
+										bbbDest.SetUncheckedColorArrayAt(x, y, nullColor);
+									} else {
+										settingColor[0] = (byte)(aSum / waSum);
+										settingColor[1] = (byte)(rSum / wcSum);
+										settingColor[2] = (byte)(gSum / wcSum);
+										settingColor[3] = (byte)(bSum / wcSum);
+										bbbDest.SetUncheckedColorArrayAt(x, y, settingColor);
+									}
 								}
 							}
 						}
 					}
 				}
-				bbbDest.DrawTo(targetGraphics, applyRect.Location);
+				bbbDest.Unlock();
+				return bbbDest.Bitmap;
 			}
 		}
 
@@ -608,12 +609,24 @@ namespace GreenshotPlugin.Core {
 				cm.Matrix22 = 0;
 				cm.Matrix33 = darkness;
 				ia.SetColorMatrix(cm);
-				Point shadowLocation = new Point(shadowSize, shadowSize);
-				graphics.DrawImage(sourceBitmap, new Rectangle(shadowLocation, sourceBitmap.Size), 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
+				Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
+				graphics.DrawImage(sourceBitmap, shadowRectangle, 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
 
+				
+				// Only do the blur on the edges
+				//Rectangle blurRectangle = new Rectangle(shadowSize + 30, shadowSize + 30, sourceBitmap.Width - 60, sourceBitmap.Height - 60);
+				//Rectangle applyRect = ImageHelper.CreateIntersectRectangle(newImage.Size, blurRectangle, true);
+				//LOG.DebugFormat("blurRect = {0} - applyRect = {1}", blurRectangle, applyRect);
+				//using (Bitmap blurImage = ImageHelper.CreateBlur(newImage, applyRect, true, shadowSize, 1d, true, blurRectangle)) {
+				//    if (blurImage != null) {
+				//        graphics.DrawImageUnscaled(blurImage, applyRect.Location);
+				//    }
+				//}
 				// blur "shadow", apply to whole new image
-				Rectangle applyRectangle = new Rectangle(Point.Empty, newImage.Size);
-				ApplyBlur(graphics, newImage, applyRectangle, true, shadowSize, 1d, false, applyRectangle);
+				Rectangle newImageRectangle = new Rectangle(0, 0, newImage.Width, newImage.Height);
+				using (Bitmap blurImage = CreateBlur(newImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle)) {
+					graphics.DrawImageUnscaled(blurImage, newImageRectangle.Location);
+				}
 
 				// draw original with a TextureBrush so we have nice antialiasing!
 				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {

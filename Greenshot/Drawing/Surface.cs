@@ -36,6 +36,7 @@ using Greenshot.Memento;
 using IniFile;
 using Greenshot.Drawing.Filters;
 using System.Drawing.Drawing2D;
+using GreenshotPlugin.Controls;
 
 namespace Greenshot.Drawing {
 	public delegate void SurfaceElementEventHandler(object source, DrawableContainerList element);
@@ -546,39 +547,46 @@ namespace Greenshot.Drawing {
 		}
 
 		public void ApplyBitmapEffect(Effects effect) {
-			Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-			Bitmap newImage = null;
-
-			Point offset = Point.Empty;
-			switch (effect) {
-				case Effects.Shadow:
-					offset = new Point(6, 6);
-					newImage = ImageHelper.CreateShadow((Bitmap)Image, 1f, 7, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
-					break;
-				case Effects.TornEdge:
-					offset = new Point(5, 5);
-					using (Bitmap tmpImage = ImageHelper.CreateTornEdge((Bitmap)Image)) {
-						newImage = ImageHelper.CreateShadow(tmpImage, 1f, 6, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
-					}
-					break;
-				case Effects.Border:
-					newImage = ImageHelper.CreateBorder((Bitmap)Image, 2, Color.Black, Image.PixelFormat, out offset);
-					break;
-				case Effects.Grayscale:
-					newImage = ImageHelper.CreateGrayscale((Bitmap)Image);
-					break;
-			}
-
-			if (newImage != null) {
-				// Make sure the elements move according to the offset the effect made the bitmap move
-				elements.MoveBy(offset.X, offset.Y);
-				// Make undoable
-				MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
-				SetImage(newImage, false);
-				Invalidate();
-				if (SurfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
-					SurfaceSizeChanged(this);
+			BackgroundForm backgroundForm = new BackgroundForm("Effect", "Please wait");
+			backgroundForm.Show();
+			Application.DoEvents();
+			try {
+				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+				Bitmap newImage = null;
+				Point offset = Point.Empty;
+				switch (effect) {
+					case Effects.Shadow:
+						offset = new Point(6, 6);
+						newImage = ImageHelper.CreateShadow((Bitmap)Image, 1f, 7, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
+						break;
+					case Effects.TornEdge:
+						offset = new Point(5, 5);
+						using (Bitmap tmpImage = ImageHelper.CreateTornEdge((Bitmap)Image)) {
+							newImage = ImageHelper.CreateShadow(tmpImage, 1f, 6, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
+						}
+						break;
+					case Effects.Border:
+						newImage = ImageHelper.CreateBorder((Bitmap)Image, 2, Color.Black, Image.PixelFormat, out offset);
+						break;
+					case Effects.Grayscale:
+						newImage = ImageHelper.CreateGrayscale((Bitmap)Image);
+						break;
 				}
+
+				if (newImage != null) {
+					// Make sure the elements move according to the offset the effect made the bitmap move
+					elements.MoveBy(offset.X, offset.Y);
+					// Make undoable
+					MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
+					SetImage(newImage, false);
+					Invalidate();
+					if (SurfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
+						SurfaceSizeChanged(this);
+					}
+				}
+			} finally {
+				// Always close the background form
+				backgroundForm.CloseDialog();
 			}
 		}
 
@@ -595,6 +603,12 @@ namespace Greenshot.Drawing {
 			return false;
 		}
 		
+		/// <summary>
+		/// Use to send any registered SurfaceMessageEventHandler a message, e.g. used for the notification area
+		/// </summary>
+		/// <param name="source">Who send</param>
+		/// <param name="messageType">Type of message</param>
+		/// <param name="message">Message itself</param>
 		public void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message) {
 			if (SurfaceMessage != null) {
 				SurfaceMessageEventArgs eventArgs = new SurfaceMessageEventArgs();
