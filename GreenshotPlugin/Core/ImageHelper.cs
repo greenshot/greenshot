@@ -583,7 +583,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
 		/// <param name="offset">How many pixels is the original image moved?</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-		public static Bitmap CreateShadow(Bitmap sourceBitmap, float darkness, int shadowSize, Point offset, PixelFormat targetPixelformat) {
+		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, Point offset, PixelFormat targetPixelformat) {
 			// Create a new "clean" image
 			Bitmap newImage = new Bitmap(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat);
 			newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);

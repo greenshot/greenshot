@@ -38,6 +38,7 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using IniFile;
 using System.Threading;
+using System.Drawing.Imaging;
 
 namespace Greenshot {
 	/// <summary>
@@ -1151,7 +1152,15 @@ namespace Greenshot {
 					this.Activate();
 					WindowDetails.ToForeground(this.Handle);
 					if (capture!= null && capture.Image != null) {
-						surface.AddBitmapContainer((Bitmap)capture.Image, 100, 100);
+						bool addShadow = false;
+						if (addShadow) {
+							Point offset = new Point(6, 6);
+							using (Bitmap shadowImage = ImageHelper.CreateShadow(capture.Image, 1f, 7, offset, PixelFormat.Format32bppArgb)) {
+								surface.AddBitmapContainer(shadowImage, 100, 100);
+							}
+						} else {
+							surface.AddBitmapContainer((Bitmap)capture.Image, 100, 100);
+						}
 					}
 				}
 
