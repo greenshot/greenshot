@@ -34,6 +34,25 @@ namespace GreenshotPlugin.Core {
 		private bool clone;
 		private Bitmap bitmap;
 
+		/// <summary>
+		/// Get the bitmap, you will always need to dispose the returned bitmap!!
+		/// Only works, and makes sense, if cloned and not locked!
+		/// </summary>
+		public Bitmap Bitmap {
+			get {
+				if (bitsLocked) {
+					throw new NotSupportedException("Can't get a locked bitmap!");
+				}
+				if (!clone) {
+					throw new NotSupportedException("Can't return a not cloned bitmap!");
+				} else {
+					// Make sure the bitmap isn't disposed when this object is closed
+					clone = false;
+					return bitmap;
+				}
+			}
+		}
+
 		[NonSerialized]
 		private BitmapData bmData;
 		[NonSerialized]
@@ -201,7 +220,7 @@ namespace GreenshotPlugin.Core {
 		/**
 		 * Unlock the System Memory
 		 */
-		private void Unlock() {
+		public void Unlock() {
 			if (bitsLocked) {
 				bitmap.UnlockBits(bmData); 
 				bitsLocked = false;
@@ -301,7 +320,7 @@ namespace GreenshotPlugin.Core {
 				int a = (aIndex==-1) ? 255 : (int)pointer[aIndex+offset];
 				return new int[]{a, pointer[rIndex+offset], pointer[gIndex+offset], pointer[bIndex+offset]};
 			} else {
-				return new int[]{255,255,255,255};
+				return new int[]{0,0,0,0};
 			}
 		}
 		
