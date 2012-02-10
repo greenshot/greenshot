@@ -155,7 +155,7 @@ namespace Greenshot.Helpers.OfficeInterop {
 									Item currentMail = inspector.CurrentItem;
 									if (currentMail != null && OlObjectClass.olMail.Equals(currentMail.Class)) {
 										if (currentMail != null && !currentMail.Sent) {
-											LOG.InfoFormat("Export requested to {0} exporting to {1}", inspectorCaption, currentCaption);
+											LOG.InfoFormat("Export requested to \"{0}\" exporting to \"{1}\"", inspectorCaption, currentCaption);
 											return ExportToInspector(inspector, tmpFile, attachmentName);
 										}
 									}
@@ -172,16 +172,16 @@ namespace Greenshot.Helpers.OfficeInterop {
 		private static bool ExportToInspector(Inspector inspector, string tmpFile, string attachmentName) {
 			Item currentMail = inspector.CurrentItem;
 			if (currentMail == null) {
-				LOG.Debug("No current item.");
+				LOG.Warn("No current item.");
 				return false;
 			}
 			if (!OlObjectClass.olMail.Equals(currentMail.Class)) {
-				LOG.Debug("Item is no mail.");
+				LOG.Warn("Item is no mail.");
 				return false;
 			}
 			try {
 				if (currentMail.Sent) {
-					LOG.Debug("Item already sent");
+					LOG.WarnFormat("Item already sent, can't export to {0}", currentMail.Subject);
 					return false;
 				}
 				
@@ -189,17 +189,25 @@ namespace Greenshot.Helpers.OfficeInterop {
 				// This also ensures that the window is visible!
 				inspector.Activate();
 
+				LOG.InfoFormat("Email '{0}' has format: {1}", currentMail.Subject, currentMail.BodyFormat);
+
 				// Check for wordmail, if so use the wordexporter
+				// http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
+				// Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
 				if (inspector.IsWordMail() && inspector.WordEditor != null) {
 					if (WordExporter.InsertIntoExistingDocument(inspector.WordEditor, tmpFile)) {
-						LOG.Debug("Inserted into Wordmail");
+						LOG.Info("Inserted into Wordmail");
+
+						// check the format afterwards, otherwise we lose the selection
+						//if (!OlBodyFormat.olFormatHTML.Equals(currentMail.BodyFormat)) {
+						//	LOG.Info("Changing format to HTML.");
+						//	currentMail.BodyFormat = OlBodyFormat.olFormatHTML;
+						//}
 						return true;
 					}
 				} else {
 					LOG.Debug("Wordmail editor is not supported");
 				}
-				
-				LOG.DebugFormat("Email '{0}' has format: {1}", currentMail.Subject, currentMail.BodyFormat);
 				
 				string contentID;
 				if (outlookVersion.Major >=12 ) {
@@ -208,6 +216,12 @@ namespace Greenshot.Helpers.OfficeInterop {
 					LOG.Info("Older Outlook (<2007) found, using filename as contentid.");
 					contentID = Path.GetFileName(tmpFile);
 				}
+
+				// Use this to change the format, it will probably lose the current selection.
+				//if (!OlBodyFormat.olFormatHTML.Equals(currentMail.BodyFormat)) {
+				//	LOG.Info("Changing format to HTML.");
+				//	currentMail.BodyFormat = OlBodyFormat.olFormatHTML;
+				//}
 
 				bool inlinePossible = false;
 				if (OlBodyFormat.olFormatHTML.Equals(currentMail.BodyFormat)) {
@@ -233,15 +247,15 @@ namespace Greenshot.Helpers.OfficeInterop {
 							LOG.DebugFormat("No HTML editor for '{0}'", inspector.Caption);
 						}
 					} catch (Exception e) {
-						LOG.Warn("Error pasting HTML, most likely due to an ACCESS_DENIED as the user clicked no.", e);
 						// Continue with non inline image
+						LOG.Warn("Error pasting HTML, most likely due to an ACCESS_DENIED as the user clicked no.", e);
 					}
 				}
 				
 				// Create the attachment (if inlined the attachment isn't visible as attachment!)
 				Attachment attachment = currentMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible?0:1, attachmentName);
 				if (outlookVersion.Major >=12) {
-					// Add the content id to the attachment
+					// Add the content id to the attachment, this only works for Outlook >= 2007
 					try {
 						PropertyAccessor propertyAccessor = attachment.PropertyAccessor;
 						propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentID);
@@ -249,7 +263,7 @@ namespace Greenshot.Helpers.OfficeInterop {
 					}
 				}
 			} catch (Exception ex) {
-				LOG.DebugFormat("Problem while trying to add attachment to  MailItem '{0}' : {1}", inspector.Caption, ex);
+				LOG.WarnFormat("Problem while trying to add attachment to MailItem '{0}' : {1}", inspector.Caption, ex);
 				return false;
 			}
 			LOG.Debug("Finished!");
@@ -411,6 +425,10 @@ namespace Greenshot.Helpers.OfficeInterop {
 			return null;
 		}
 
+		/// <summary>
+		/// Call this to get the running outlook application, returns null if there isn't any.
+		/// </summary>
+		/// <returns>IOutlookApplication or null</returns>
 		private static IOutlookApplication GetOutlookApplication() {
 			IOutlookApplication outlookApplication = (IOutlookApplication)COMWrapper.GetInstance(typeof(IOutlookApplication));
 			try {
@@ -422,6 +440,10 @@ namespace Greenshot.Helpers.OfficeInterop {
 			return outlookApplication;
 		}
 
+		/// <summary>
+		/// Call this to get the running outlook application, or create a new instance
+		/// </summary>
+		/// <returns>IOutlookApplication</returns>
 		private static IOutlookApplication GetOrCreateOutlookApplication() {
 			IOutlookApplication outlookApplication = (IOutlookApplication)COMWrapper.GetOrCreateInstance(typeof(IOutlookApplication));
 			try {
