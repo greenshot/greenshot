@@ -28,6 +28,7 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -54,7 +55,7 @@ namespace Greenshot.Drawing {
 				if (bitmap != null) {
 					bitmap.Dispose();
 				}
-				bitmap = (Bitmap)value.Clone();
+				bitmap = ImageHelper.Clone(value);
 				Width = value.Width;
 				Height = value.Height;
 			}
@@ -103,6 +104,11 @@ namespace Greenshot.Drawing {
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			if (bitmap != null) {
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
 				if (shadow) {
 					ImageAttributes ia = new ImageAttributes();
 					ColorMatrix cm = new ColorMatrix();
@@ -111,7 +117,7 @@ namespace Greenshot.Drawing {
 					cm.Matrix22 = 0;
 					cm.Matrix33 = 0.25f;
 					ia.SetColorMatrix(cm);
-					graphics.DrawImage(bitmap, new Rectangle(Bounds.Left+2, Bounds.Top+2, Bounds.Width, Bounds.Height), 0, 0, bitmap.Width, bitmap.Height, GraphicsUnit.Pixel, ia); 
+					graphics.DrawImage(bitmap, new Rectangle(Bounds.Left + 2, Bounds.Top + 2, Bounds.Width, Bounds.Height), 0, 0, bitmap.Width, bitmap.Height, GraphicsUnit.Pixel, ia); 
 				}
 				graphics.DrawImage(bitmap, Bounds); 
 			}

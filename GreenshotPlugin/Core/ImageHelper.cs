@@ -80,7 +80,7 @@ namespace GreenshotPlugin.Core {
 			if (image != null && image is Bitmap && ((image.Width * image.Height) > 0))  {
 				cropRectangle.Intersect(new Rectangle(0,0, image.Width, image.Height));
 				if (cropRectangle.Width != 0 || cropRectangle.Height != 0) {
-					returnImage = (image as Bitmap).Clone(cropRectangle, image.PixelFormat);
+					returnImage = CloneArea(image, cropRectangle, PixelFormat.DontCare);
 					image.Dispose();
 					image = returnImage;
 					return true;
@@ -90,6 +90,12 @@ namespace GreenshotPlugin.Core {
 			return false;
 		}
 		
+		/// <summary>
+		/// Helper method for the FindAutoCropRectangle
+		/// </summary>
+		/// <param name="buffer"></param>
+		/// <param name="colorPoint"></param>
+		/// <returns></returns>
 		private static Rectangle FindAutoCropRectangle(BitmapBuffer buffer, Point colorPoint) {
 			Rectangle cropRectangle = Rectangle.Empty;
 			Color referenceColor = buffer.GetColorAtWithoutAlpha(colorPoint.X,colorPoint.Y);
@@ -163,6 +169,11 @@ namespace GreenshotPlugin.Core {
 			return cropRectangle;
 		}
 		
+		/// <summary>
+		/// Load an image from file
+		/// </summary>
+		/// <param name="filename"></param>
+		/// <returns></returns>
 		public static Bitmap LoadBitmap(string filename) {
 			if (string.IsNullOrEmpty(filename)) {
 				return null;
@@ -179,7 +190,7 @@ namespace GreenshotPlugin.Core {
 					try {
 						using (Image tmpImage = ExtractVistaIcon(imageFileStream)) {
 							if (tmpImage != null) {
-								fileBitmap = CloneImageToBitmap(tmpImage);
+								fileBitmap = Clone(tmpImage);
 							}
 						}
 					} catch (Exception vistaIconException) {
@@ -192,7 +203,7 @@ namespace GreenshotPlugin.Core {
 							// We create a copy of the bitmap, so everything else can be disposed
 							using (Icon tmpIcon = new Icon(imageFileStream, new Size(1024,1024))) {
 								using (Image tmpImage = tmpIcon.ToBitmap()) {
-									fileBitmap = ImageHelper.CloneImageToBitmap(tmpImage);
+									fileBitmap = Clone(tmpImage);
 								}
 							}
 						} catch (Exception iconException) {
@@ -204,45 +215,13 @@ namespace GreenshotPlugin.Core {
 					// We create a copy of the bitmap, so everything else can be disposed
 					imageFileStream.Position = 0;
 					using (Image tmpImage = Image.FromStream(imageFileStream, true, true)) {
-						fileBitmap = ImageHelper.CloneImageToBitmap(tmpImage);
+						fileBitmap = Clone(tmpImage);
 					}
 				}
 			}
 			return fileBitmap;
 		}
 		
-		/// <summary>
-		/// Clone the image to a bitmap
-		/// </summary>
-		/// <param name="srcImage">Image to clone</param>
-		/// <returns>Bitmap</returns>
-		public static Bitmap CloneImageToBitmap(Image srcImage) {
-			Bitmap returnImage;
-			int width = srcImage.Width;
-			int height = srcImage.Height;
-			float horizontalResolution = srcImage.HorizontalResolution;
-			float verticalResolution = srcImage.VerticalResolution;
-			PixelFormat pixelFormat = srcImage.PixelFormat;
-			if (srcImage is Metafile) {
-				pixelFormat = PixelFormat.Format32bppArgb;
-			}
-			// Make sure Greenshot supports the pixelformat, if not convert to one we support
-			if (!isSupported(pixelFormat)) {
-				pixelFormat = PixelFormat.Format24bppRgb;
-			}
-			returnImage = new Bitmap(width, height, pixelFormat);
-			returnImage.SetResolution(horizontalResolution, verticalResolution);
-			using (Graphics graphics = Graphics.FromImage(returnImage)) {
-				if (Image.IsAlphaPixelFormat(pixelFormat)) {
-					graphics.Clear(Color.Transparent);
-				} else {
-					graphics.Clear(Color.White);
-				}
-				graphics.DrawImageUnscaled(srcImage, 0, 0);
-			}
-			return returnImage;
-		}
-
 		/**
 		 * Checks if we support the supplied PixelFormat
 		 */
@@ -414,9 +393,9 @@ namespace GreenshotPlugin.Core {
 				nullColor = Color.Transparent;
 			}
 
-			using (BitmapBuffer bbbDest = new BitmapBuffer(sourceBitmap, applyRect)) {
+			using (BitmapBuffer bbbDest = new BitmapBuffer(sourceBitmap, applyRect, true)) {
 				bbbDest.Lock();
-				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, applyRect)) {
+				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, applyRect, false)) {
 					bbbSrc.Lock();
 					Random rand = new Random();
 
@@ -426,25 +405,25 @@ namespace GreenshotPlugin.Core {
 					long[] waSums = new long[wlen];
 					long[] wcSums = new long[wlen];
 					long[] aSums = new long[wlen];
-					long[] bSums = new long[wlen];
-					long[] gSums = new long[wlen];
 					long[] rSums = new long[wlen];
+					long[] gSums = new long[wlen];
+					long[] bSums = new long[wlen];
 					for (int y = 0; y < applyRect.Height; ++y) {
 						long waSum = 0;
 						long wcSum = 0;
 						long aSum = 0;
-						long bSum = 0;
-						long gSum = 0;
 						long rSum = 0;
+						long gSum = 0;
+						long bSum = 0;
 
 						for (int wx = 0; wx < wlen; ++wx) {
 							int srcX = wx - r;
 							waSums[wx] = 0;
 							wcSums[wx] = 0;
 							aSums[wx] = 0;
-							bSums[wx] = 0;
-							gSums[wx] = 0;
 							rSums[wx] = 0;
+							gSums[wx] = 0;
+							bSums[wx] = 0;
 
 							if (srcX >= 0 && srcX < bbbDest.Width) {
 								for (int wy = 0; wy < wlen; ++wy) {
@@ -460,9 +439,9 @@ namespace GreenshotPlugin.Core {
 										wp >>= 8;
 
 										aSums[wx] += wp * colors[0];
-										bSums[wx] += wp * colors[3];
-										gSums[wx] += wp * colors[2];
 										rSums[wx] += wp * colors[1];
+										gSums[wx] += wp * colors[2];
+										bSums[wx] += wp * colors[3];
 									}
 								}
 
@@ -470,24 +449,22 @@ namespace GreenshotPlugin.Core {
 								waSum += wwx * waSums[wx];
 								wcSum += wwx * wcSums[wx];
 								aSum += wwx * aSums[wx];
-								bSum += wwx * bSums[wx];
-								gSum += wwx * gSums[wx];
 								rSum += wwx * rSums[wx];
+								gSum += wwx * gSums[wx];
+								bSum += wwx * bSums[wx];
 							}
 						}
 
 						wcSum >>= 8;
 
-						if (waSum == 0 || wcSum == 0) {
-							if (parentBounds.Contains(applyRect.Left, applyRect.Top + y) ^ invert) {
+						if (parentBounds.Contains(applyRect.Left, applyRect.Top + y) ^ invert) {
+							if (waSum == 0 || wcSum == 0) {
 								bbbDest.SetColorAt(0, y, nullColor);
-							}
-						} else {
-							int alpha = (int)(aSum / waSum);
-							int blue = (int)(bSum / wcSum);
-							int green = (int)(gSum / wcSum);
-							int red = (int)(rSum / wcSum);
-							if (parentBounds.Contains(applyRect.Left, applyRect.Top + y) ^ invert) {
+							} else {
+								int alpha = (int)(aSum / waSum);
+								int red = (int)(rSum / wcSum);
+								int green = (int)(gSum / wcSum);
+								int blue = (int)(bSum / wcSum);
 								bbbDest.SetColorAt(0, y, Color.FromArgb(alpha, red, green, blue));
 							}
 						}
@@ -497,17 +474,17 @@ namespace GreenshotPlugin.Core {
 								waSums[i] = waSums[i + 1];
 								wcSums[i] = wcSums[i + 1];
 								aSums[i] = aSums[i + 1];
-								bSums[i] = bSums[i + 1];
-								gSums[i] = gSums[i + 1];
 								rSums[i] = rSums[i + 1];
+								gSums[i] = gSums[i + 1];
+								bSums[i] = bSums[i + 1];
 							}
 
 							waSum = 0;
 							wcSum = 0;
 							aSum = 0;
-							bSum = 0;
-							gSum = 0;
 							rSum = 0;
+							gSum = 0;
+							bSum = 0;
 
 							int wx;
 							for (wx = 0; wx < wlen - 1; ++wx) {
@@ -515,9 +492,9 @@ namespace GreenshotPlugin.Core {
 								waSum += wwx * waSums[wx];
 								wcSum += wwx * wcSums[wx];
 								aSum += wwx * aSums[wx];
-								bSum += wwx * bSums[wx];
-								gSum += wwx * gSums[wx];
 								rSum += wwx * rSums[wx];
+								gSum += wwx * gSums[wx];
+								bSum += wwx * bSums[wx];
 							}
 
 							wx = wlen - 1;
@@ -525,9 +502,9 @@ namespace GreenshotPlugin.Core {
 							waSums[wx] = 0;
 							wcSums[wx] = 0;
 							aSums[wx] = 0;
-							bSums[wx] = 0;
-							gSums[wx] = 0;
 							rSums[wx] = 0;
+							gSums[wx] = 0;
+							bSums[wx] = 0;
 
 							int srcX = x + wx - r;
 
@@ -545,9 +522,9 @@ namespace GreenshotPlugin.Core {
 										wp >>= 8;
 
 										aSums[wx] += wp * (long)colors[0];
-										bSums[wx] += wp * (long)colors[3];
-										gSums[wx] += wp * (long)colors[2];
 										rSums[wx] += wp * (long)colors[1];
+										gSums[wx] += wp * (long)colors[2];
+										bSums[wx] += wp * (long)colors[3];
 									}
 								}
 
@@ -555,23 +532,20 @@ namespace GreenshotPlugin.Core {
 								waSum += (long)wr * waSums[wx];
 								wcSum += (long)wr * wcSums[wx];
 								aSum += (long)wr * aSums[wx];
-								bSum += (long)wr * bSums[wx];
-								gSum += (long)wr * gSums[wx];
 								rSum += (long)wr * rSums[wx];
+								gSum += (long)wr * gSums[wx];
+								bSum += (long)wr * bSums[wx];
 							}
 
 							wcSum >>= 8;
-
-							if (waSum == 0 || wcSum == 0) {
-								if (parentBounds.Contains(applyRect.Left + x, applyRect.Top + y) ^ invert) {
+							if (parentBounds.Contains(applyRect.Left, applyRect.Top + y) ^ invert) {
+								if (waSum == 0 || wcSum == 0) {
 									bbbDest.SetColorAt(x, y, nullColor);
-								}
-							} else {
-								int alpha = (int)(aSum / waSum);
-								int blue = (int)(bSum / wcSum);
-								int green = (int)(gSum / wcSum);
-								int red = (int)(rSum / wcSum);
-								if (parentBounds.Contains(applyRect.Left + x, applyRect.Top + y) ^ invert) {
+								} else {
+									int alpha = (int)(aSum / waSum);
+									int red = (int)(rSum / wcSum);
+									int green = (int)(gSum / wcSum);
+									int blue = (int)(bSum / wcSum);
 									bbbDest.SetColorAt(x, y, Color.FromArgb(alpha, red, green, blue));
 								}
 							}
@@ -730,6 +704,104 @@ namespace GreenshotPlugin.Core {
 			}
 
 			return newBitmap;
+		}
+
+		/// <summary>
+		/// Checks if the supplied Bitmap has a PixelFormat we support
+		/// </summary>
+		/// <param name="bitmap">bitmap to check</param>
+		/// <returns>bool if we support it</returns>
+		public static bool SupportsPixelFormat(Bitmap bitmap) {
+			return SupportsPixelFormat(bitmap.PixelFormat);
+		}
+
+		/// <summary>
+		/// Checks if we support the pixel format
+		/// </summary>
+		/// <param name="pixelformat">PixelFormat to check</param>
+		/// <returns>bool if we support it</returns>
+		public static bool SupportsPixelFormat(PixelFormat pixelformat) {
+			return (pixelformat.Equals(PixelFormat.Format32bppArgb) ||
+					pixelformat.Equals(PixelFormat.Format32bppRgb) ||
+					pixelformat.Equals(PixelFormat.Format24bppRgb));
+		}
+
+		/// <summary>
+		/// Wrapper for just cloning which calls the CloneArea
+		/// </summary>
+		/// <param name="sourceBitmap">Image to clone</param>
+		/// <returns>Bitmap with clone image data</returns>
+		public static Bitmap Clone(Image sourceBitmap) {
+			return CloneArea(sourceBitmap, Rectangle.Empty, PixelFormat.DontCare);
+		}
+
+		/// <summary>
+		/// Clone an image, taking some rules into account:
+		/// 1) When sourceRect is the whole bitmap there is a GDI+ bug in Clone
+		///		Clone will than return the same PixelFormat as the source
+		///		a quick workaround is using new Bitmap which uses a default of Format32bppArgb
+		///	2) When going from a transparent to a non transparent bitmap, we draw the background white!
+		/// </summary>
+		/// <param name="sourceBitmap">Source bitmap to clone</param>
+		/// <param name="sourceRect">Rectangle to copy from the source, use Rectangle.Empty for all</param>
+		/// <param name="targetFormat">Target Format, use PixelFormat.DontCare if you want the original (or a default if the source PixelFormat is not supported)</param>
+		/// <returns></returns>
+		public static Bitmap CloneArea(Image sourceBitmap, Rectangle sourceRect, PixelFormat targetFormat) {
+			Bitmap newImage = null;
+			Rectangle bitmapRect = new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height);
+
+			// Make sure the source is not Rectangle.Empty
+			if (Rectangle.Empty.Equals(sourceRect)) {
+				sourceRect = new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height);
+			}
+
+			// If no pixelformat is supplied 
+			if (PixelFormat.DontCare == targetFormat || PixelFormat.Undefined == targetFormat) {
+				if (SupportsPixelFormat(sourceBitmap.PixelFormat)) {
+					targetFormat = sourceBitmap.PixelFormat;
+				} else if (Image.IsAlphaPixelFormat(sourceBitmap.PixelFormat)) {
+					targetFormat = PixelFormat.Format32bppArgb;
+				} else {
+					targetFormat = PixelFormat.Format24bppRgb;
+				}
+			}
+
+			// check the target format
+			if (!SupportsPixelFormat(targetFormat)) {
+				if (Image.IsAlphaPixelFormat(targetFormat)) {
+					targetFormat = PixelFormat.Format32bppArgb;
+				} else {
+					targetFormat = PixelFormat.Format24bppRgb;
+				}
+			}
+
+			bool destinationIsTransparent = Image.IsAlphaPixelFormat(targetFormat);
+			bool sourceIsTransparent = Image.IsAlphaPixelFormat(sourceBitmap.PixelFormat);
+			bool fromTransparentToNon = !destinationIsTransparent && sourceIsTransparent;
+			bool isBitmap = sourceBitmap is Bitmap;
+			bool isAreaEqual = sourceRect.Equals(bitmapRect);
+			if (isAreaEqual || fromTransparentToNon || !isBitmap) {
+				// Rule 1: if the areas are equal, always copy ourselves
+				newImage = new Bitmap(bitmapRect.Width, bitmapRect.Height, targetFormat);
+				using (Graphics graphics = Graphics.FromImage(newImage)) {
+					if (fromTransparentToNon) {
+						// Rule 2: Make sure the background color is white
+						graphics.Clear(Color.White);
+					}
+					// decide fastest copy method
+					if (isAreaEqual) {
+						graphics.DrawImageUnscaled(sourceBitmap, 0, 0);
+					} else {
+						graphics.DrawImage(sourceBitmap, 0, 0, sourceRect, GraphicsUnit.Pixel);
+					}
+				}
+			} else {
+				// Let GDI+ decide how to convert, need to test what is quicker...
+				newImage = (sourceBitmap as Bitmap).Clone(sourceRect, targetFormat);
+			}
+			// Make sure both images have the same resolution
+			newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			return newImage;
 		}
 	}
 }

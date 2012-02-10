@@ -33,9 +33,7 @@ namespace GreenshotPlugin.Core {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapBuffer));
 		private bool clone;
 		private Bitmap bitmap;
-		public Bitmap Bitmap {
-			get {return bitmap;}
-		}
+
 		[NonSerialized]
 		private BitmapData bmData;
 		[NonSerialized]
@@ -113,31 +111,18 @@ namespace GreenshotPlugin.Core {
 			if (sourceRect.Height <= 0 || sourceRect.Width <= 0) {
 				return;
 			}
-			
-			if (SupportsPixelFormat(sourceBmp)) {
-				if (clone) {
-					// Create copy with supported format
-					this.bitmap = sourceBmp.Clone(sourceRect, sourceBmp.PixelFormat);
-				} else {
-					this.bitmap = sourceBmp;
-				}
+
+			if (clone) {
+				this.bitmap = ImageHelper.CloneArea(sourceBmp, sourceRect, PixelFormat.DontCare);
+				// Set "this" rect to location 0,0
+				// as the Cloned Bitmap is only the part we want to work with
+				this.rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+			} else if (!ImageHelper.SupportsPixelFormat(sourceBmp)) {
+				throw new ArgumentException("Unsupported pixel format: " + sourceBmp.PixelFormat + " set clone to true!");
 			} else {
-				// We can only clone, as we don't support the pixel format!
-				if (!clone) {
-					throw new ArgumentException("Not supported pixel format: " + sourceBmp.PixelFormat);
-				}
-				// When sourceRect is the whole bitmap there is a GDI+ bug in Clone
-				// Clone will than return the same PixelFormat as the source
-				// a quick workaround is using new Bitmap which uses a default of Format32bppArgb
-				if (sourceRect.Equals(bitmapRect)) {
-					this.bitmap = new Bitmap(sourceBmp);
-				} else {
-					this.bitmap = sourceBmp.Clone(sourceRect, PixelFormat.Format32bppArgb);
-				}
+				this.bitmap = sourceBmp;
+				this.rect = sourceRect;
 			}
-			// Set "this" rect to location 0,0
-			// as the Cloned Bitmap is only the part we want to work with
-			this.rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
 		}
 
 		/**
@@ -187,23 +172,29 @@ namespace GreenshotPlugin.Core {
 		 * This is called when serializing the object
 		 */
 		public void GetObjectData(SerializationInfo info, StreamingContext ctxt) {
-			Unlock();
+			bool isLocked = bitsLocked;
+			if (isLocked) {
+				Unlock();
+			}
 			info.AddValue("bitmap", this.bitmap);
+			if (isLocked) {
+				Lock();
+			}
 		}
 
 		/**
 		 * Lock the bitmap so we have direct access to the memory
 		 */
 		public void Lock() {
-			if(rect.Width > 0 && rect.Height > 0) {
+			if(rect.Width > 0 && rect.Height > 0 && !bitsLocked) {
 				bmData = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat); 
 				bitsLocked = true;
 	
-			    System.IntPtr Scan0 = bmData.Scan0; 
-		    	pointer = (byte*)(void*)Scan0; 
+				IntPtr Scan0 = bmData.Scan0; 
+				pointer = (byte*)(void*)Scan0; 
 
-		    	PrepareForPixelFormat();
-			    stride = bmData.Stride;
+				PrepareForPixelFormat();
+				stride = bmData.Stride;
 			} 
 		}
 
@@ -211,7 +202,7 @@ namespace GreenshotPlugin.Core {
 		 * Unlock the System Memory
 		 */
 		private void Unlock() {
-			if(bitsLocked) {
+			if (bitsLocked) {
 				bitmap.UnlockBits(bmData); 
 				bitsLocked = false;
 			}
@@ -242,14 +233,20 @@ namespace GreenshotPlugin.Core {
 					return;
 				}
 			}
-			// Make sure this.bitmap is unlocked
-			Unlock();
-
+			// Make sure this.bitmap is unlocked, if it was locked
+			bool isLocked = bitsLocked;
+			if (isLocked) {
+				Unlock();
+			}
 
 			if (destinationRect.HasValue) {
 				graphics.DrawImage(this.bitmap, destinationRect.Value);
 			} else if (destination.HasValue) {
-				graphics.DrawImage(this.bitmap, destination.Value);
+				graphics.DrawImageUnscaled(this.bitmap, destination.Value);
+			}
+			// If it was locked, lock it again
+			if (isLocked) {
+				Lock();
 			}
 		}
 		
@@ -304,7 +301,7 @@ namespace GreenshotPlugin.Core {
 				int a = (aIndex==-1) ? 255 : (int)pointer[aIndex+offset];
 				return new int[]{a, pointer[rIndex+offset], pointer[gIndex+offset], pointer[bIndex+offset]};
 			} else {
-				return new int[]{0,0,0,0};
+				return new int[]{255,255,255,255};
 			}
 		}
 		
@@ -320,15 +317,6 @@ namespace GreenshotPlugin.Core {
 				pointer[gIndex+offset] = (byte)colors[2];
 				pointer[bIndex+offset] = (byte)colors[3];
 			}
-		}
-		
-		/**
-		 * Checks if the supplied Bitmap has a PixelFormat we support
-		 */
-		private bool SupportsPixelFormat(Bitmap bitmap) {
-			return (bitmap.PixelFormat.Equals(PixelFormat.Format32bppArgb) || 
-			        bitmap.PixelFormat.Equals(PixelFormat.Format32bppRgb) || 
-			        bitmap.PixelFormat.Equals(PixelFormat.Format24bppRgb));
 		}
 		
 		/**

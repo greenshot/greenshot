@@ -40,7 +40,10 @@ namespace Greenshot.Drawing {
 		}
 		
 		public override void Draw(Graphics graphics, RenderMode renderMode) {
-			graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			graphics.CompositingQuality = CompositingQuality.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 			
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);

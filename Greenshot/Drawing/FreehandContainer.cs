@@ -174,7 +174,9 @@ namespace Greenshot.Drawing {
 		/// <param name="graphics"></param>
 		/// <param name="renderMode"></param>
 		public override void Draw(Graphics graphics, RenderMode renderMode) {
-			graphics.SmoothingMode = SmoothingMode.AntiAlias;
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 			
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);

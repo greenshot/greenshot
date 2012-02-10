@@ -129,7 +129,7 @@ namespace GreenshotNetworkImportPlugin {
 					// Convert byte[] to Image
 					memoryStream.Write(imageBytes, 0, imageBytes.Length);
 					using (Image image = Bitmap.FromStream(memoryStream, true)) {
-						ICapture capture = host.GetCapture(ImageHelper.CloneImageToBitmap(image));
+						ICapture capture = host.GetCapture(ImageHelper.Clone(image));
 						capture.CaptureDetails.Title = title;
 						host.ImportCapture(capture);
 					}

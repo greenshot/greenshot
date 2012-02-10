@@ -576,6 +576,9 @@ namespace Greenshot.Drawing {
 				MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
 				SetImage(newImage, false);
 				Invalidate();
+				if (SurfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
+					SurfaceSizeChanged(this);
+				}
 			}
 		}
 
@@ -604,8 +607,9 @@ namespace Greenshot.Drawing {
 
 		public bool ApplyCrop(Rectangle cropRectangle) {
 			if (isCropPossible(ref cropRectangle)) {
+				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
 				// we should not forget to Dispose the images!!
-				Bitmap tmpImage = ((Bitmap)Image).Clone(cropRectangle, Image.PixelFormat);
+				Bitmap tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
 				tmpImage.SetResolution(Image.HorizontalResolution, Image.VerticalResolution);
 
 				Point offset = new Point(-cropRectangle.Left, -cropRectangle.Top);
@@ -614,7 +618,7 @@ namespace Greenshot.Drawing {
 
 				SetImage(tmpImage, false);
 				elements.MoveBy(offset.X, offset.Y);
-				if (SurfaceSizeChanged != null) {
+				if (SurfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size))) {
 					SurfaceSizeChanged(this);
 				}
 				Invalidate();
@@ -799,14 +803,15 @@ namespace Greenshot.Drawing {
 
 		private Image GetImage(RenderMode renderMode) {
 			// Generate a copy of the original image with a dpi equal to the default...
-			Bitmap clone = ImageHelper.CloneImageToBitmap(Image);
+			Bitmap clone = ImageHelper.Clone(Image);
 			// otherwise we would have a problem drawing the image to the surface... :(
 			using (Graphics graphics = Graphics.FromImage(clone)) {
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				elements.Draw(graphics, (Bitmap)clone, renderMode, new Rectangle(Point.Empty, clone.Size));
+				// Do not set the following, the containers need to decide themselves
+				//graphics.SmoothingMode = SmoothingMode.HighQuality;
+				//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				//graphics.CompositingQuality = CompositingQuality.HighQuality;
+				//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				elements.Draw(graphics, clone, renderMode, new Rectangle(Point.Empty, clone.Size));
 			}
 			return clone;
 		}
@@ -841,10 +846,11 @@ namespace Greenshot.Drawing {
 				}
 				// Elements might need the bitmap, so we copy the part we need
 				using (Graphics graphics = Graphics.FromImage(buffer)) {
-					graphics.SmoothingMode = SmoothingMode.HighQuality;
-					graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-					graphics.CompositingQuality = CompositingQuality.HighQuality;
-					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+					// do not set the following, the containers need to decide this themselves!
+					//graphics.SmoothingMode = SmoothingMode.HighQuality;
+					//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+					//graphics.CompositingQuality = CompositingQuality.HighQuality;
+					//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 					graphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 					graphics.SetClip(targetGraphics);
 					elements.Draw(graphics, buffer, RenderMode.EDIT, clipRectangle);
@@ -852,7 +858,7 @@ namespace Greenshot.Drawing {
 				targetGraphics.DrawImage(buffer, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 			} else {
 				// Only "simple" elements need to be redrawn, as the image is already drawn before getting the event we don't need the next line:
-				//targetGraphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
+				// targetGraphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 				elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
 			}
 		}

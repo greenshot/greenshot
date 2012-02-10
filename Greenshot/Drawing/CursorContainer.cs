@@ -24,6 +24,7 @@ using System.IO;
 using System.Windows.Forms;
 
 using Greenshot.Plugin.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -98,6 +99,10 @@ namespace Greenshot.Drawing {
 
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			if (cursor != null) {
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+				graphics.CompositingQuality = CompositingQuality.Default;
+				graphics.PixelOffsetMode = PixelOffsetMode.None;
 				cursor.DrawStretched(graphics, Bounds);
 			}
 		}

@@ -209,7 +209,12 @@ namespace Greenshot.Interop {
 		private void Dispose(bool disposing) {
 			if (null != this._COMObject) {
 				if(Marshal.IsComObject(this._COMObject)) {
-					while( Marshal.ReleaseComObject(this._COMObject) > 0 );
+					try {
+						while (Marshal.ReleaseComObject(this._COMObject) > 0) ;
+					} catch (Exception ex) {
+						LOG.WarnFormat("Problem releasing {0}", _COMType);
+						LOG.Warn("Error: ", ex);
+					}
 				}
 				
 				this._COMObject = null;

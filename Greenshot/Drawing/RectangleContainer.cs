@@ -41,7 +41,12 @@ namespace Greenshot.Drawing {
 		}
 		
 		
-		public override void Draw(Graphics g, RenderMode rm) {
+		public override void Draw(Graphics graphics, RenderMode rm) {
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			graphics.CompositingQuality = CompositingQuality.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
@@ -61,7 +66,7 @@ namespace Greenshot.Drawing {
 							this.Top + currentStep,
 							this.Width,
 							this.Height);
-						g.DrawRectangle(shadowPen, shadowRect);
+						graphics.DrawRectangle(shadowPen, shadowRect);
 						currentStep++;
 						alpha = alpha - (basealpha / steps);
 					}
@@ -72,14 +77,14 @@ namespace Greenshot.Drawing {
 			
 			if (!Color.Transparent.Equals(fillColor)) {
 				using (Brush brush = new SolidBrush(fillColor)) {
-					g.FillRectangle(brush, rect);
+					graphics.FillRectangle(brush, rect);
 				}
 			}
 			
 			if (lineThickness > 0) {
 				using (Pen pen = new Pen(lineColor)) {
 					pen.Width = lineThickness;
-					g.DrawRectangle(pen, rect);
+					graphics.DrawRectangle(pen, rect);
 				}
 			}
 		}

@@ -408,7 +408,7 @@ namespace Greenshot.Drawing {
 		
 		public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, Rectangle clipRectangle) {
 			if (Children.Count > 0) {
-				if(Status != EditStatus.IDLE) {
+				if (Status != EditStatus.IDLE) {
 					DrawSelectionBorder(graphics, Bounds);
 				} else {
 					if (clipRectangle.Width != 0 && clipRectangle.Height != 0) {

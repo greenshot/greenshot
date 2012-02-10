@@ -28,6 +28,8 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 using Greenshot.Memento;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -264,13 +266,18 @@ namespace Greenshot.Drawing {
 			HideTextBox();
 		}
 	
-		public override void Draw(Graphics g, RenderMode rm) {
-			base.Draw(g, rm);
+		public override void Draw(Graphics graphics, RenderMode rm) {
+			base.Draw(graphics, rm);
 			UpdateFont();
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			graphics.CompositingQuality = CompositingQuality.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+			graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
 
 			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
 			if (Selected && rm == RenderMode.EDIT) {
-				DrawSelectionBorder(g, rect);
+				DrawSelectionBorder(graphics, rect);
 			}
 			
 			if (text == null || text.Length == 0 ) {
@@ -295,7 +302,7 @@ namespace Greenshot.Drawing {
 						shadowRect.Inflate(-textOffset, -textOffset);
 					}
 					using (Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100))) {
-						g.DrawString(text, font, fontBrush, shadowRect);
+						graphics.DrawString(text, font, fontBrush, shadowRect);
 						currentStep++;
 						alpha = alpha - basealpha / steps;
 					}
@@ -308,7 +315,7 @@ namespace Greenshot.Drawing {
 				fontRect.Inflate(-textOffset,-textOffset);
 			}
 			using (Brush fontBrush = new SolidBrush(lineColor)) {
-				g.DrawString(text, font, fontBrush, fontRect);
+				graphics.DrawString(text, font, fontBrush, fontRect);
 			}
 		}
 		

@@ -44,12 +44,15 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.ARROWHEADS, Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.END_POINT);
 		}
 
-		public override void Draw(Graphics g, RenderMode rm) {
+		public override void Draw(Graphics graphics, RenderMode rm) {
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 
 			if (lineThickness > 0 ) {
-				g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 				ArrowHeadCombination heads = (ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS);
 				if (shadow) {
@@ -63,7 +66,7 @@ namespace Greenshot.Drawing {
 							shadowCapPen.Width = lineThickness;
 							SetArrowHeads(heads, shadowCapPen);
 
-							g.DrawLine(shadowCapPen,
+							graphics.DrawLine(shadowCapPen,
 								this.Left + currentStep,
 								this.Top + currentStep,
 								this.Left + currentStep + this.Width,
@@ -80,7 +83,7 @@ namespace Greenshot.Drawing {
 		
 					if ( pen.Width > 0 ) {
 						SetArrowHeads(heads, pen);
-						g.DrawLine(pen, this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+						graphics.DrawLine(pen, this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
 					}
 				}
 			}
