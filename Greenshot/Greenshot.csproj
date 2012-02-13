@@ -67,6 +67,7 @@
     <Compile Include="Controls\ToolStripNumericUpDown.cs" />
     <Compile Include="Controls\ToolStripEx.cs" />
     <Compile Include="Controls\MenuStripEx.cs" />
+    <Compile Include="Controls\Dropper.cs" />
     <Compile Include="Destinations\ClipboardDestination.cs" />
     <Compile Include="Destinations\EditorDestination.cs" />
     <Compile Include="Destinations\EmailDestination.cs" />
@@ -153,6 +154,10 @@
     <Compile Include="Forms\BugReportForm.Designer.cs">
       <DependentUpon>BugReportForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Zoomer.cs" />
+    <Compile Include="Forms\Zoomer.Designer.cs">
+      <DependentUpon>Zoomer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\AviHelper.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\ClipboardHelper.cs" />
@@ -217,6 +222,9 @@
     <Compile Include="Helpers\StartupHelper.cs" />
     <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
     <Compile Include="GreenshotMain.cs" />
+    <EmbeddedResource Include="Forms\ColorDialog.resx">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ImageEditorForm.resx">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
     </EmbeddedResource>

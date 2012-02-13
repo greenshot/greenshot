@@ -46,6 +46,7 @@ namespace Greenshot {
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ColorDialog));
 			this.btnTransparent = new System.Windows.Forms.Button();
 			this.colorPanel = new System.Windows.Forms.Panel();
 			this.labelHtmlColor = new System.Windows.Forms.Label();
@@ -60,6 +61,7 @@ namespace Greenshot {
 			this.textBoxAlpha = new System.Windows.Forms.TextBox();
 			this.labelAlpha = new System.Windows.Forms.Label();
 			this.btnApply = new System.Windows.Forms.Button();
+			this.dropper = new Greenshot.Controls.Dropper();
 			this.SuspendLayout();
 			// 
 			// btnTransparent
@@ -77,9 +79,9 @@ namespace Greenshot {
 			// colorPanel
 			// 
 			this.colorPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.colorPanel.Location = new System.Drawing.Point(210, 31);
+			this.colorPanel.Location = new System.Drawing.Point(213, 30);
 			this.colorPanel.Name = "colorPanel";
-			this.colorPanel.Size = new System.Drawing.Size(78, 23);
+			this.colorPanel.Size = new System.Drawing.Size(33, 23);
 			this.colorPanel.TabIndex = 1;
 			// 
 			// labelHtmlColor
@@ -206,11 +208,23 @@ namespace Greenshot {
 			this.btnApply.UseVisualStyleBackColor = false;
 			this.btnApply.Click += new System.EventHandler(this.BtnApplyClick);
 			// 
+			// dropper
+			// 
+			this.dropper.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.dropper.Cursor = System.Windows.Forms.Cursors.Arrow;
+			this.dropper.Image = ((System.Drawing.Image)(resources.GetObject("dropper.Image")));
+			this.dropper.Location = new System.Drawing.Point(255, 30);
+			this.dropper.Name = "dropper";
+			this.dropper.Size = new System.Drawing.Size(33, 23);
+			this.dropper.TabIndex = 13;
+			this.dropper.DropperUsed += new System.EventHandler<Greenshot.Controls.DropperUsedArgs>(this.dropperUsed);
+			// 
 			// ColorDialog
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(292, 218);
+			this.Controls.Add(this.dropper);
 			this.Controls.Add(this.btnApply);
 			this.Controls.Add(this.textBoxAlpha);
 			this.Controls.Add(this.labelAlpha);
@@ -235,6 +249,7 @@ namespace Greenshot {
 			this.Text = "TestProject";
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.Label labelRed;
 		private System.Windows.Forms.Label labelGreen;
@@ -250,6 +265,7 @@ namespace Greenshot {
 		private System.Windows.Forms.TextBox textBoxBlue;
 		private System.Windows.Forms.Panel colorPanel;
 		private System.Windows.Forms.Button btnTransparent;
+		private Greenshot.Controls.Dropper dropper;
 		
 		
 

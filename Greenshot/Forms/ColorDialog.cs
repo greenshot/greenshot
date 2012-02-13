@@ -234,5 +234,9 @@ namespace Greenshot {
 		}
 		
 		#endregion	
+
+		private void dropperUsed(object sender, Greenshot.Controls.DropperUsedArgs e) {
+			this.Color = e.color;
+		}
 	}
 }

@@ -453,6 +453,21 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool DrawIcon(IntPtr hDC, int X, int Y, IntPtr hIcon);
+
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr SetCapture(IntPtr hWnd);
+
+		[DllImport("user32", SetLastError = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool ReleaseCapture();
+
+		[DllImport("user32", SetLastError = true)]
+		public static extern int GetSystemMetrics(SystemMetric index);
+
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr CreateIconIndirect(ref IconInfo icon);
+
+
 		#endregion
 	}
 }

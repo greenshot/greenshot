@@ -43,6 +43,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect);
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern int GetClipBox(IntPtr hdc, out RECT lprc);
+		[DllImport("gdi32", SetLastError = true)]
+		public static extern uint GetPixel(IntPtr hdc, int nXPos, int nYPos);
 	}
 	
 	[StructLayout(LayoutKind.Sequential)] 
