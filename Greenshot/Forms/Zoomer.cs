@@ -29,50 +29,57 @@ namespace Greenshot.Forms {
 	/// Needed some modifications to be stable.
 	/// </summary>
 	public partial class Zoomer : Form {
-        public Color color {
-            get {
-                return preview.BackColor;
-            }
-        }
+		public Color color {
+			get {
+				return preview.BackColor;
+			}
+		}
 
-        public Zoomer() {
-            InitializeComponent();
-        }
+		public Zoomer() {
+			InitializeComponent();
+		}
 
-        public void setHotSpot(int x, int y) {
+		public void setHotSpot(int x, int y) {
 			Color c = GetPixelColor(x, y);
-            preview.BackColor = c;
-            html.Text = "#" + c.Name.Substring(2).ToUpper();
-            red.Text = "" + c.R;
-            blue.Text = "" + c.B;
-            green.Text = "" + c.G;
-            alpha.Text = "" + c.A;
+			preview.BackColor = c;
+			 html.Text = "#" + c.Name.Substring(2).ToUpper();
+			red.Text = "" + c.R;
+			blue.Text = "" + c.B;
+			green.Text = "" + c.G;
+			alpha.Text = "" + c.A;
 
-            Size cs = Cursor.Current.Size;
-            Point hs = Cursor.Current.HotSpot;
+			Size cs = Cursor.Current.Size;
+			Point hs = Cursor.Current.HotSpot;
 
-            Point zp = new Point(x, y);
-            zp.X += cs.Width + 2 - hs.X;
-            zp.Y -= hs.Y;
+			Point zp = new Point(x, y);
+			zp.X += cs.Width + 5 - hs.X;
+			zp.Y += cs.Height + 5 - hs.Y;
 
-			if (zp.X < 0) {
-				zp.X = 0;
-			} else if (zp.X + Width > Screen.PrimaryScreen.Bounds.Width) {
-				zp.X = x - Width - 2 - hs.X;
+			foreach (Screen screen in Screen.AllScreens) {
+				Rectangle screenRectangle = screen.Bounds;
+				if (screen.Bounds.Contains(x, y)) {
+					if (zp.X < screenRectangle.X) {
+						zp.X = screenRectangle.X;
+					} else if (zp.X + Width > screenRectangle.X + screenRectangle.Width) {
+						zp.X = x - Width - 5 - hs.X;
+					}
+
+					if (zp.Y < screenRectangle.Y) {
+						zp.Y = screenRectangle.Y;
+					} else if (zp.Y + Height > screenRectangle.Y + screenRectangle.Height) {
+						zp.Y = y - Height - 5 - hs.Y;
+					}
+					break;
+				}
 			}
-            
-            if (zp.Y < 0) {
-                zp.Y = 0;
-			} else if (zp.Y + Height > Screen.PrimaryScreen.Bounds.Height) {
-				zp.Y = Screen.PrimaryScreen.Bounds.Height - Height;
-			}
 
-            Location = zp;
-        }
+			Location = zp;
+			Invalidate();
+		}
 
-        public void setHotSpot(Point screenCoordinates) {
-            setHotSpot(screenCoordinates.X, screenCoordinates.Y);
-        }
+		public void setHotSpot(Point screenCoordinates) {
+			setHotSpot(screenCoordinates.X, screenCoordinates.Y);
+		}
 
 		static private Color GetPixelColor(int x, int y) {
 			IntPtr hdc = User32.GetDC(IntPtr.Zero);
@@ -88,6 +95,5 @@ namespace Greenshot.Forms {
 				}
 			}
 		}
-
-    }
+	}
 }
