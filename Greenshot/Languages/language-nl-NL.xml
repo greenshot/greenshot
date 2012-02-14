@@ -435,42 +435,54 @@ genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v
 	<resource name="editor_highlight_text">
 		Text markeren
 	</resource>
-    <resource name="editor_highlight_grayscale">
+	<resource name="editor_highlight_grayscale">
 		Grijstinten
-    </resource>
-    <resource name="editor_highlight_magnify">
+	</resource>
+	<resource name="editor_highlight_magnify">
 		Vergroten
 	</resource>
 	<resource name="editor_pixel_size">
 		Pixelgrootte
 	</resource>
-    <resource name="editor_obfuscate">
+	<resource name="editor_obfuscate">
 		Onherkenbaar maken (O)
-    </resource>
-    <resource name="editor_blur_radius">
+	</resource>
+	<resource name="editor_blur_radius">
 		Onduidelijk maken radius
-    </resource>
-    <resource name="editor_brightness">
+	</resource>
+	<resource name="editor_brightness">
 		Helderheid
 	</resource>
     <resource name="editor_preview_quality">
 		Voorbeeld kwaliteit
 	</resource>
-    <resource name="editor_magnification_factor">
+	<resource name="editor_magnification_factor">
 		Vergrotingsfactor
-    </resource>
-    <resource name="editor_shadow">
+	</resource>
+	<resource name="editor_shadow">
 		Schaduw
 	</resource>
-    <resource name="editor_confirm">
+	<resource name="editor_torn_edge">
+		Gescheurde randen
+	</resource>
+	<resource name="editor_border">
+		Rand
+	</resource>
+	<resource name="editor_grayscale">
+		Grijstinten
+	</resource>
+	<resource name="editor_effects">
+		Effecten
+	</resource>
+	<resource name="editor_confirm">
 		Bevestigen
 	</resource>
-    <resource name="editor_cancel">
+	<resource name="editor_cancel">
 		Afbreken
-    </resource>
-    <resource name="editor_crop">
+	</resource>
+	<resource name="editor_crop">
 		Bijsnijden (C)
-    </resource>
+	</resource>
 	<resource name="contextmenu_captureclipboard">
 		Laad beeld van het klembord
 	</resource>

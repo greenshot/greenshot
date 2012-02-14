@@ -168,8 +168,6 @@ namespace Greenshot {
 			this.insert_window_toolstripmenuitem = new System.Windows.Forms.ToolStripMenuItem();
 			this.dimensionsLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.autoCropToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.tornEdgeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.shadowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripContainer1.BottomToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.LeftToolStripPanel.SuspendLayout();
@@ -451,22 +449,6 @@ namespace Greenshot {
 			this.autoCropToolStripMenuItem.Text = "Auto Crop";
 			this.autoCropToolStripMenuItem.Click += new System.EventHandler(this.AutoCropToolStripMenuItemClick);
 			// 
-			// tornEdgeToolStripMenuItem
-			// 
-			this.tornEdgeToolStripMenuItem.Name = "tornEdgeToolStripMenuItem";
-			this.tornEdgeToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-			this.tornEdgeToolStripMenuItem.Text = "Torn Edge";
-			this.tornEdgeToolStripMenuItem.Visible = false;
-			this.tornEdgeToolStripMenuItem.Click += new System.EventHandler(this.TornEdgeToolStripMenuItemClick);
-			// 
-			// shadowToolStripMenuItem
-			// 
-			this.shadowToolStripMenuItem.Name = "shadowToolStripMenuItem";
-			this.shadowToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-			this.shadowToolStripMenuItem.Text = "Shadow";
-			this.shadowToolStripMenuItem.Visible = false;
-			this.shadowToolStripMenuItem.Click += new System.EventHandler(this.ShadowToolStripMenuItemClick);
-			// 
 			// editToolStripMenuItem
 			// 
 			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -482,8 +464,6 @@ namespace Greenshot {
 									this.preferencesToolStripMenuItem,
 									this.toolStripSeparator5,
 									this.autoCropToolStripMenuItem,
-									this.tornEdgeToolStripMenuItem,
-									this.shadowToolStripMenuItem,
 									this.insert_window_toolstripmenuitem});
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -1645,7 +1625,5 @@ namespace Greenshot {
 		private Greenshot.Controls.ToolStripColorButton btnFillColor;
 		private Greenshot.Controls.ToolStripColorButton btnLineColor;
 		private System.Windows.Forms.ToolStripMenuItem autoCropToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem tornEdgeToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem shadowToolStripMenuItem;
 	}
 }

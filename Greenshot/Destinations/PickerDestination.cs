@@ -110,7 +110,7 @@ namespace Greenshot.Destinations {
 			// Effects
 			if (conf.isExperimentalFeatureEnabled("Effects")) {
 				menu.Items.Add(new ToolStripSeparator());
-				ToolStripMenuItem effectItem = new ToolStripMenuItem("Effects");
+				ToolStripMenuItem effectItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_effects));
 				menu.Items.Add(effectItem);
 				effectItem.DropDownOpening += delegate {
 					effectItem.DropDownItems.Clear();
@@ -127,17 +127,17 @@ namespace Greenshot.Destinations {
 					effectSubItem.Click += delegate {
 						surface.ApplyBitmapEffect(Effects.Shadow);
 					};
-					effectSubItem = new ToolStripMenuItem("Torn Edge");
+					effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_torn_edge));
 					effectItem.DropDownItems.Add(effectSubItem);
 					effectSubItem.Click += delegate {
 						surface.ApplyBitmapEffect(Effects.TornEdge);
 					};
-					effectSubItem = new ToolStripMenuItem("Border");
+					effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_border));
 					effectItem.DropDownItems.Add(effectSubItem);
 					effectSubItem.Click += delegate {
 						surface.ApplyBitmapEffect(Effects.Border);
 					};
-					effectSubItem = new ToolStripMenuItem("Grayscale");
+					effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_grayscale));
 					effectItem.DropDownItems.Add(effectSubItem);
 					effectSubItem.Click += delegate {
 						surface.ApplyBitmapEffect(Effects.Grayscale);

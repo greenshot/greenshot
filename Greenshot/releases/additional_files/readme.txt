@@ -3,10 +3,9 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-0.9.0 Build 1626
+0.9.0 Build 1660
 
 We changed the version to 0.9.0 as the amount of features in 0.8.1 was more than planned.
-Due to the many changes we need to go through a Release Candidate iteration again...
 
 Bugs resolved:
 * Fixed a problem with the window preview, if the window had a small height, when using the context menu (Windows Vista and later)
@@ -24,6 +23,8 @@ Features added:
 * Added a "processor" concept, making it possible to modify the capture before it's send to a destination. Currently there is only an internal implementation which replaces the TitleFix plugin.
 * Added Office destinations (Word, Excel, Powerpoint & Outlook) with dynamic resolving of open "instances".
 * Added Ctrl/shift logic to the editor, hard to explain (see help) but hold one of the keys down and draw..
+* Added a color picker in the color dialog.
+* Added shadow & torn edges
 
 
 0.8.1 Build 1483

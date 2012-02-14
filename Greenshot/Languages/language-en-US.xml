@@ -472,6 +472,18 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	<resource name="editor_shadow">
 		Shadow
 	</resource>
+	<resource name="editor_torn_edge">
+		Torn edge
+	</resource>
+	<resource name="editor_effects">
+		Effects
+	</resource>
+	<resource name="editor_border">
+		Border
+	</resource>
+	<resource name="editor_grayscale">
+		Grayscale
+	</resource>
 	<resource name="editor_confirm">
 		Confirm
 	</resource>

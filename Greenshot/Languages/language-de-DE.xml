@@ -463,19 +463,31 @@ Zeit, z.B. 11_58_32 (plus Dateinamenerweiterung wie in den Einstellungen definie
     <resource name="editor_preview_quality">
 		Vorschauqualität
 	</resource>
-    <resource name="editor_magnification_factor">
+	<resource name="editor_magnification_factor">
 		Vergrößerungsfaktor
-    </resource>
-    <resource name="editor_shadow">
+	</resource>
+	<resource name="editor_shadow">
 		Schatten
 	</resource>
-    <resource name="editor_confirm">
+	<resource name="editor_torn_edge">
+		Gerissene Kanten
+	</resource>
+	<resource name="editor_border">
+		Rand
+	</resource>
+	<resource name="editor_grayscale">
+		Graustufe
+	</resource>
+	<resource name="editor_effects">
+		Effekte
+	</resource>
+	<resource name="editor_confirm">
 		Bestätigen
 	</resource>
-    <resource name="editor_cancel">
+	<resource name="editor_cancel">
 		Abbrechen
 	</resource>
-    <resource name="editor_crop">
+	<resource name="editor_crop">
 		Zuschneiden (C)
     </resource>
 	<resource name="contextmenu_captureclipboard">

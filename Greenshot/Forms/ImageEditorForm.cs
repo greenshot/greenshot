@@ -368,7 +368,6 @@ namespace Greenshot {
 			this.arrowHeadNoneMenuItem.Text = lang.GetString(LangKey.editor_arrowheads_none);
 			this.shadowButton.Text = lang.GetString(LangKey.editor_shadow);
 
-
 			this.fontSizeLabel.Text = lang.GetString(LangKey.editor_fontsize);
 			this.fontBoldButton.Text = lang.GetString(LangKey.editor_bold);
 			this.fontItalicButton.Text = lang.GetString(LangKey.editor_italic);
@@ -380,10 +379,41 @@ namespace Greenshot {
 			this.loadElementsToolStripMenuItem.Text = lang.GetString(LangKey.editor_load_objects);
 			this.autoCropToolStripMenuItem.Text = lang.GetString(LangKey.editor_autocrop);
 			if (coreConf.isExperimentalFeatureEnabled("Effects")) {
-				this.shadowToolStripMenuItem.Text = lang.GetString(LangKey.editor_shadow);
-				this.shadowToolStripMenuItem.Visible = true;
-				this.tornEdgeToolStripMenuItem.Visible = true;
+				this.editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+				ToolStripMenuItem effectItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_effects));
+				this.editToolStripMenuItem.DropDownItems.Add(effectItem);
+
+				ToolStripMenuItem effectSubItem;
+				effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_shadow));
+				effectSubItem.Click += delegate {
+					surface.ApplyBitmapEffect(Effects.Shadow);
+					updateUndoRedoSurfaceDependencies();
+				};
+				effectItem.DropDownItems.Add(effectSubItem);
+
+				effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_torn_edge));
+				effectSubItem.Click += delegate {
+					surface.ApplyBitmapEffect(Effects.TornEdge);
+					updateUndoRedoSurfaceDependencies();
+				};
+				effectItem.DropDownItems.Add(effectSubItem);
+
+				effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_border));
+				effectSubItem.Click += delegate {
+					surface.ApplyBitmapEffect(Effects.Border);
+					updateUndoRedoSurfaceDependencies();
+				};
+				effectItem.DropDownItems.Add(effectSubItem);
+
+				effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_grayscale));
+				effectSubItem.Click += delegate {
+					surface.ApplyBitmapEffect(Effects.Grayscale);
+					updateUndoRedoSurfaceDependencies();
+				};
+				effectItem.DropDownItems.Add(effectSubItem);
 			}
+			this.editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+			this.editToolStripMenuItem.DropDownItems.Add(insert_window_toolstripmenuitem);
 		}
 		
 		public ISurface Surface {
@@ -1176,16 +1206,6 @@ namespace Greenshot {
 			if (surface.AutoCrop()) {
 				refreshFieldControls();
 			}
-		}
-
-		void TornEdgeToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(Effects.TornEdge);
-			updateUndoRedoSurfaceDependencies();
-		}
-
-		void ShadowToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(Effects.Shadow);
-			updateUndoRedoSurfaceDependencies();
 		}
 	}
 }
