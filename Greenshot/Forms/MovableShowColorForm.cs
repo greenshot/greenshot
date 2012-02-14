@@ -28,19 +28,23 @@ namespace Greenshot.Forms {
 	/// This code was supplied by Hi-Coder as a patch for Greenshot
 	/// Needed some modifications to be stable.
 	/// </summary>
-	public partial class Zoomer : Form {
+	public partial class MovableShowColorForm : Form {
 		public Color color {
 			get {
 				return preview.BackColor;
 			}
 		}
 
-		public Zoomer() {
+		public MovableShowColorForm() {
 			InitializeComponent();
 		}
 
-		public void setHotSpot(int x, int y) {
-			Color c = GetPixelColor(x, y);
+		/// <summary>
+		/// Move the MovableShowColorForm to the specified location and display the color under the (current mouse) coordinates
+		/// </summary>
+		/// <param name="screenCoordinates">Coordinates</param>
+		public void MoveTo(Point screenCoordinates) {
+			Color c = GetPixelColor(screenCoordinates);
 			preview.BackColor = c;
 			html.Text = "#" + c.Name.Substring(2).ToUpper();
 			red.Text = "" + c.R;
@@ -51,23 +55,23 @@ namespace Greenshot.Forms {
 			Size cursorSize = Cursor.Current.Size;
 			Point hotspot = Cursor.Current.HotSpot;
 
-			Point zoomerLocation = new Point(x, y);
+			Point zoomerLocation = new Point(screenCoordinates.X, screenCoordinates.Y);
 			zoomerLocation.X += cursorSize.Width + 5 - hotspot.X;
 			zoomerLocation.Y += cursorSize.Height + 5 - hotspot.Y;
 
 			foreach (Screen screen in Screen.AllScreens) {
 				Rectangle screenRectangle = screen.Bounds;
-				if (screen.Bounds.Contains(x, y)) {
+				if (screen.Bounds.Contains(screenCoordinates)) {
 					if (zoomerLocation.X < screenRectangle.X) {
 						zoomerLocation.X = screenRectangle.X;
 					} else if (zoomerLocation.X + Width > screenRectangle.X + screenRectangle.Width) {
-						zoomerLocation.X = x - Width - 5 - hotspot.X;
+						zoomerLocation.X = screenCoordinates.X - Width - 5 - hotspot.X;
 					}
 
 					if (zoomerLocation.Y < screenRectangle.Y) {
 						zoomerLocation.Y = screenRectangle.Y;
 					} else if (zoomerLocation.Y + Height > screenRectangle.Y + screenRectangle.Height) {
-						zoomerLocation.Y = y - Height - 5 - hotspot.Y;
+						zoomerLocation.Y = screenCoordinates.Y - Height - 5 - hotspot.Y;
 					}
 					break;
 				}
@@ -76,14 +80,15 @@ namespace Greenshot.Forms {
 			Update();
 		}
 
-		public void setHotSpot(Point screenCoordinates) {
-			setHotSpot(screenCoordinates.X, screenCoordinates.Y);
-		}
-
-		static private Color GetPixelColor(int x, int y) {
+		/// <summary>
+		/// Get the color from the pixel on the screen at "x,y"
+		/// </summary>
+		/// <param name="screenCoordinates">Point with the coordinates</param>
+		/// <returns>Color at the specified screenCoordinates</returns>
+		static private Color GetPixelColor(Point screenCoordinates) {
 			IntPtr hdc = User32.GetDC(IntPtr.Zero);
 			try {
-				uint pixel = GDI32.GetPixel(hdc, x, y);
+				uint pixel = GDI32.GetPixel(hdc, screenCoordinates.X, screenCoordinates.Y);
 				Color color = Color.FromArgb(255, (int)(pixel & 0xFF), (int)(pixel & 0xFF00) >> 8, (int)(pixel & 0xFF0000) >> 16);
 				return color;
 			} catch (Exception) {

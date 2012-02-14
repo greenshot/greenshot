@@ -154,9 +154,9 @@
     <Compile Include="Forms\BugReportForm.Designer.cs">
       <DependentUpon>BugReportForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Zoomer.cs" />
-    <Compile Include="Forms\Zoomer.Designer.cs">
-      <DependentUpon>Zoomer.cs</DependentUpon>
+    <Compile Include="Forms\MovableShowColorForm.cs" />
+    <Compile Include="Forms\MovableShowColorForm.Designer.cs">
+      <DependentUpon>MovableShowColorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AviHelper.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />

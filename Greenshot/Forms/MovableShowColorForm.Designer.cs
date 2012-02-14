@@ -1,6 +1,6 @@
 namespace Greenshot.Forms
 {
-    partial class Zoomer
+    partial class MovableShowColorForm
     {
         /// <summary>
         /// Required designer variable.
