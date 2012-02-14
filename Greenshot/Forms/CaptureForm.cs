@@ -438,27 +438,25 @@ namespace Greenshot.Forms {
 					}
 				}
 			} else {
-				if (cursorPos.X >= 0 || cursorPos.Y >= 0) {
-					if (!conf.OptimizeForRDP) {
-						using (Pen pen = new Pen(Color.LightSeaGreen)) {
-							pen.DashStyle = DashStyle.Dot;
-							Rectangle screenBounds = capture.ScreenBounds;
-							graphics.DrawLine(pen, cursorPos.X, screenBounds.Y, cursorPos.X, screenBounds.Height);
-							graphics.DrawLine(pen, screenBounds.X, cursorPos.Y, screenBounds.Width, cursorPos.Y);
-						}
+				if (!conf.OptimizeForRDP) {
+					using (Pen pen = new Pen(Color.LightSeaGreen)) {
+						pen.DashStyle = DashStyle.Dot;
+						Rectangle screenBounds = capture.ScreenBounds;
+						graphics.DrawLine(pen, cursorPos.X, screenBounds.Y, cursorPos.X, screenBounds.Height);
+						graphics.DrawLine(pen, screenBounds.X, cursorPos.Y, screenBounds.Width, cursorPos.Y);
+					}
 
-						string xy = cursorPos.X + " x " + cursorPos.Y;
-						using (Font f = new Font(FontFamily.GenericSansSerif, 8)) {
-							Size xySize = TextRenderer.MeasureText(xy, f);
-							using (GraphicsPath gp = Drawing.RoundedRectangle.Create2(cursorPos.X + 5, cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3)) {
-								using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227))) {
-									graphics.FillPath(bgBrush, gp);
-								}
-								using (Pen pen = new Pen(Color.SeaGreen)) {
-									graphics.DrawPath(pen, gp);
-									Point coordinatePosition = new Point(cursorPos.X + 5, cursorPos.Y + 5);
-									graphics.DrawString(xy, f, pen.Brush, coordinatePosition);
-								}
+					string xy = cursorPos.X + " x " + cursorPos.Y;
+					using (Font f = new Font(FontFamily.GenericSansSerif, 8)) {
+						Size xySize = TextRenderer.MeasureText(xy, f);
+						using (GraphicsPath gp = Drawing.RoundedRectangle.Create2(cursorPos.X + 5, cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3)) {
+							using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227))) {
+								graphics.FillPath(bgBrush, gp);
+							}
+							using (Pen pen = new Pen(Color.SeaGreen)) {
+								graphics.DrawPath(pen, gp);
+								Point coordinatePosition = new Point(cursorPos.X + 5, cursorPos.Y + 5);
+								graphics.DrawString(xy, f, pen.Brush, coordinatePosition);
 							}
 						}
 					}
