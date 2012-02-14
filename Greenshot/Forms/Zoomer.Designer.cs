@@ -43,27 +43,6 @@ namespace Greenshot.Forms
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.SystemColors.Info;
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.alpha);
-            this.panel1.Controls.Add(this.label5);
-            this.panel1.Controls.Add(this.blue);
-            this.panel1.Controls.Add(this.label6);
-            this.panel1.Controls.Add(this.green);
-            this.panel1.Controls.Add(this.label4);
-            this.panel1.Controls.Add(this.red);
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.html);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.preview);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(100, 100);
-            this.panel1.TabIndex = 0;
-            // 
             // html
             // 
             this.html.Location = new System.Drawing.Point(40, 18);
@@ -151,9 +130,32 @@ namespace Greenshot.Forms
             this.label5.Size = new System.Drawing.Size(40, 13);
             this.label5.TabIndex = 9;
             this.label5.Text = "Alpha: ";
-            // 
+			// 
+			// panel1
+			// 
+			this.panel1.BackColor = System.Drawing.SystemColors.Info;
+			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.panel1.Controls.Add(this.alpha);
+			this.panel1.Controls.Add(this.label5);
+			this.panel1.Controls.Add(this.blue);
+			this.panel1.Controls.Add(this.label6);
+			this.panel1.Controls.Add(this.green);
+			this.panel1.Controls.Add(this.label4);
+			this.panel1.Controls.Add(this.red);
+			this.panel1.Controls.Add(this.label2);
+			this.panel1.Controls.Add(this.html);
+			this.panel1.Controls.Add(this.label1);
+			this.panel1.Controls.Add(this.preview);
+			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel1.Location = new System.Drawing.Point(0, 0);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(100, 100);
+			this.panel1.TabIndex = 0;
+			// 
             // Zoomer
-            // 
+            //
+			this.Visible = false;
+			this.Location = new System.Drawing.Point(-10000,-10000);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(100, 100);
@@ -164,10 +166,8 @@ namespace Greenshot.Forms
             this.ShowInTaskbar = false;
             this.Text = "Zoomer";
             this.TopMost = true;
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            this.ResumeLayout(false);
-
+            this.panel1.ResumeLayout(true);
+            this.ResumeLayout(true);
         }
 
         #endregion

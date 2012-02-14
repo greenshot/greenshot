@@ -42,39 +42,38 @@ namespace Greenshot.Forms {
 		public void setHotSpot(int x, int y) {
 			Color c = GetPixelColor(x, y);
 			preview.BackColor = c;
-			 html.Text = "#" + c.Name.Substring(2).ToUpper();
+			html.Text = "#" + c.Name.Substring(2).ToUpper();
 			red.Text = "" + c.R;
 			blue.Text = "" + c.B;
 			green.Text = "" + c.G;
 			alpha.Text = "" + c.A;
 
-			Size cs = Cursor.Current.Size;
-			Point hs = Cursor.Current.HotSpot;
+			Size cursorSize = Cursor.Current.Size;
+			Point hotspot = Cursor.Current.HotSpot;
 
-			Point zp = new Point(x, y);
-			zp.X += cs.Width + 5 - hs.X;
-			zp.Y += cs.Height + 5 - hs.Y;
+			Point zoomerLocation = new Point(x, y);
+			zoomerLocation.X += cursorSize.Width + 5 - hotspot.X;
+			zoomerLocation.Y += cursorSize.Height + 5 - hotspot.Y;
 
 			foreach (Screen screen in Screen.AllScreens) {
 				Rectangle screenRectangle = screen.Bounds;
 				if (screen.Bounds.Contains(x, y)) {
-					if (zp.X < screenRectangle.X) {
-						zp.X = screenRectangle.X;
-					} else if (zp.X + Width > screenRectangle.X + screenRectangle.Width) {
-						zp.X = x - Width - 5 - hs.X;
+					if (zoomerLocation.X < screenRectangle.X) {
+						zoomerLocation.X = screenRectangle.X;
+					} else if (zoomerLocation.X + Width > screenRectangle.X + screenRectangle.Width) {
+						zoomerLocation.X = x - Width - 5 - hotspot.X;
 					}
 
-					if (zp.Y < screenRectangle.Y) {
-						zp.Y = screenRectangle.Y;
-					} else if (zp.Y + Height > screenRectangle.Y + screenRectangle.Height) {
-						zp.Y = y - Height - 5 - hs.Y;
+					if (zoomerLocation.Y < screenRectangle.Y) {
+						zoomerLocation.Y = screenRectangle.Y;
+					} else if (zoomerLocation.Y + Height > screenRectangle.Y + screenRectangle.Height) {
+						zoomerLocation.Y = y - Height - 5 - hotspot.Y;
 					}
 					break;
 				}
 			}
-
-			Location = zp;
-			Invalidate();
+			Location = zoomerLocation;
+			Update();
 		}
 
 		public void setHotSpot(Point screenCoordinates) {

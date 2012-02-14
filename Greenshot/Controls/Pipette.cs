@@ -32,29 +32,29 @@ namespace Greenshot.Controls {
 	/// This code was supplied by Hi-Coder as a patch for Greenshot
 	/// Needed some modifications to be stable.
 	/// </summary>
-    public class Dropper : Label, IMessageFilter, IDisposable {
+    public class Pipette : Label, IMessageFilter, IDisposable {
         private Zoomer zoomer;
         private bool dragging;
         private Cursor _cursor;
 		private Bitmap _image;
         private const int VK_ESC = 27;
 
-        public event EventHandler<DropperUsedArgs> DropperUsed;
+        public event EventHandler<PipetteUsedArgs> PipetteUsed;
 
-        public Dropper() {
+        public Pipette() {
             BorderStyle = BorderStyle.FixedSingle;
             dragging = false;
-			_image = (Bitmap)new System.ComponentModel.ComponentResourceManager(typeof(ColorDialog)).GetObject("dropper.Image");
+			_image = (Bitmap)new System.ComponentModel.ComponentResourceManager(typeof(ColorDialog)).GetObject("pipette.Image");
+			Image = _image;
 			_cursor = CreateCursor((Bitmap)_image, 0, 15);
             zoomer = new Zoomer();
-            zoomer.Visible = false;
             Application.AddMessageFilter(this);
         }
 
 		/**
 		 * Destructor
 		 */
-		~Dropper() {
+		~Pipette() {
 			Dispose(false);
 		}
 
@@ -90,7 +90,7 @@ namespace Greenshot.Controls {
             if (e.Button == MouseButtons.Left) {
                 //Release Capture should consume MouseUp when canceled with the escape key 
                 User32.ReleaseCapture();
-                DropperUsed(this, new DropperUsedArgs(zoomer.color));
+                PipetteUsed(this, new PipetteUsedArgs(zoomer.color));
             }
             base.OnMouseUp(e);
         }
@@ -128,11 +128,11 @@ namespace Greenshot.Controls {
                 zoomer.Visible = true;
             } else {
                 dragging = false;
-
                 Image = _image;
                 Cursor = Cursors.Arrow;
                 zoomer.Visible = false;
             }
+			Update();
             base.OnMouseCaptureChanged(e);
         }
 
@@ -152,10 +152,10 @@ namespace Greenshot.Controls {
         #endregion
     }
 
-    public class DropperUsedArgs : EventArgs {
+    public class PipetteUsedArgs : EventArgs {
         public Color color;
 
-        public DropperUsedArgs(Color c) {
+        public PipetteUsedArgs(Color c) {
             color = c;
         }
     }

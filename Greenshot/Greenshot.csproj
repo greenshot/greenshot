@@ -67,7 +67,7 @@
     <Compile Include="Controls\ToolStripNumericUpDown.cs" />
     <Compile Include="Controls\ToolStripEx.cs" />
     <Compile Include="Controls\MenuStripEx.cs" />
-    <Compile Include="Controls\Dropper.cs" />
+    <Compile Include="Controls\Pipette.cs" />
     <Compile Include="Destinations\ClipboardDestination.cs" />
     <Compile Include="Destinations\EditorDestination.cs" />
     <Compile Include="Destinations\EmailDestination.cs" />
