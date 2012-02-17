@@ -196,11 +196,12 @@ namespace Greenshot {
 					if (subDestinations.Count > 0) {
 						subDestinations.Sort();
 						foreach(IDestination subDestination in subDestinations) {
-							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(subDestination.Description);
-							destinationMenuItem.Tag = subDestination;
-							destinationMenuItem.Image = subDestination.DisplayIcon;
+							IDestination closureFixedDestination = subDestination;
+							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description);
+							destinationMenuItem.Tag = closureFixedDestination;
+							destinationMenuItem.Image = closureFixedDestination.DisplayIcon;
 							destinationMenuItem.Click += delegate {
-								subDestination.ExportCapture(surface, surface.CaptureDetails);
+								closureFixedDestination.ExportCapture(surface, surface.CaptureDetails);
 							};
 							destinationButton.DropDownItems.Add(destinationMenuItem);
 						}
