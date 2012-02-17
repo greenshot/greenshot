@@ -98,7 +98,7 @@ namespace Greenshot.Destinations {
 				GC.WaitForPendingFinalizers();
 				
 				try {
-					ImageEditorForm editorForm = new ImageEditorForm(surface, false); // Output made??
+					ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
 	
 					if (!string.IsNullOrEmpty(captureDetails.Filename)) {
 						editorForm.SetImagePath(captureDetails.Filename);

@@ -406,12 +406,11 @@ namespace Greenshot.Helpers {
 			bool outputMade = false;
 
 			// Make sure the user sees that the capture is made
-			if (capture.CaptureDetails.CaptureMode != CaptureMode.File && capture.CaptureDetails.CaptureMode != CaptureMode.Clipboard) {
-				DoCaptureFeedback();
-			} else {
-				// If File || Clipboard
+			if (capture.CaptureDetails.CaptureMode == CaptureMode.File || capture.CaptureDetails.CaptureMode == CaptureMode.Clipboard) {
 				// Maybe not "made" but the original is still there... somehow
 				outputMade = true;
+			} else {
+				DoCaptureFeedback();
 			}
 
 			LOG.Debug("A capture of: " + capture.CaptureDetails.Title);
@@ -423,6 +422,7 @@ namespace Greenshot.Helpers {
 
 			// Create Surface with capture, this way elements can be added automatically (like the mouse cursor)
 			Surface surface = new Surface(capture);
+			surface.Modified = !outputMade;
 
 			// Register notify events if this is wanted			
 			if (conf.ShowTrayNotification) {
@@ -508,7 +508,6 @@ namespace Greenshot.Helpers {
 					if (Destinations.EditorDestination.DESIGNATION.Equals(destination.Designation) && destinationOk) {
 						canDisposeSurface = false;
 					}
-					outputMade = outputMade || destinationOk;
 				}
 			}
 			if (canDisposeSurface) {
