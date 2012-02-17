@@ -220,6 +220,9 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 			}
+			if (fileBitmap != null) {
+				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileBitmap.Width, fileBitmap.Height, fileBitmap.PixelFormat, fileBitmap.HorizontalResolution, fileBitmap.VerticalResolution);
+			}
 			return fileBitmap;
 		}
 		
@@ -648,6 +651,7 @@ namespace GreenshotPlugin.Core {
 
 			// copy back to image
 			Bitmap newImage = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, sourceBitmap.PixelFormat);
+			newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			var bits2 = newImage.LockBits(rct, ImageLockMode.ReadWrite, newImage.PixelFormat);
 			Marshal.Copy(dest, 0, bits2.Scan0, dest.Length);
 			newImage.UnlockBits(bits);
@@ -795,6 +799,8 @@ namespace GreenshotPlugin.Core {
 		public static Bitmap CreateGrayscale(Bitmap sourceBitmap) {
 			//create a blank bitmap the same size as original
 			Bitmap newBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height);
+			// Make sure both images have the same resolution
+			newBitmap.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 
 			//get a graphics object from the new image
 			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
@@ -898,6 +904,9 @@ namespace GreenshotPlugin.Core {
 			if (isAreaEqual || fromTransparentToNon || !isBitmap) {
 				// Rule 1: if the areas are equal, always copy ourselves
 				newImage = new Bitmap(bitmapRect.Width, bitmapRect.Height, targetFormat);
+				// Make sure both images have the same resolution
+				newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+
 				using (Graphics graphics = Graphics.FromImage(newImage)) {
 					if (fromTransparentToNon) {
 						// Rule 2: Make sure the background color is white
@@ -913,9 +922,9 @@ namespace GreenshotPlugin.Core {
 			} else {
 				// Let GDI+ decide how to convert, need to test what is quicker...
 				newImage = (sourceBitmap as Bitmap).Clone(sourceRect, targetFormat);
+				// Make sure both images have the same resolution
+				newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			}
-			// Make sure both images have the same resolution
-			newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			return newImage;
 		}
 	}
