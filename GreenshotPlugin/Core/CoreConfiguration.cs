@@ -29,7 +29,7 @@ using IniFile;
 
 namespace GreenshotPlugin.Core {
 	public enum ClipboardFormat {
-		PNG, DIB, HTML
+		PNG, DIB, HTML, HTMLDATAURL
 	}
 	public enum OutputFormat {
 		bmp, gif, jpg, png, tiff

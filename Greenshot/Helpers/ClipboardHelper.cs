@@ -42,7 +42,9 @@ namespace Greenshot.Helpers {
 		private static readonly Object clipboardLockObject = new Object();
 		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 		private static IntPtr nextClipboardViewer = IntPtr.Zero;
-		// Template for the HTML Text on the clipboard, see: http://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
+		// Template for the HTML Text on the clipboard
+		// see: http://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
+		// or:  http://msdn.microsoft.com/en-us/library/Aa767917.aspx
 		private const string HTML_CLIPBOARD_STRING = @"Version:0.9
 StartHTML:<<<<<<<1
 EndHTML:<<<<<<<2
@@ -58,6 +60,24 @@ EndSelection:<<<<<<<4
 <BODY>
 <!--StartFragment -->
 <img border='0' src='file:///${file}' width='${width}' height='${height}'>
+<!--EndFragment -->
+</BODY>
+</HTML>";
+		private const string HTML_CLIPBOARD_BASE64_STRING = @"Version:0.9
+StartHTML:<<<<<<<1
+EndHTML:<<<<<<<2
+StartFragment:<<<<<<<3
+EndFragment:<<<<<<<4
+StartSelection:<<<<<<<3
+EndSelection:<<<<<<<4
+<!DOCTYPE>
+<HTML>
+<HEAD>
+<TITLE>Greenshot capture</TITLE>
+</HEAD>
+<BODY>
+<!--StartFragment -->
+<img border='0' src='data:image/${format};base64,${data}' width='${width}' height='${height}'>
 <!--EndFragment -->
 </BODY>
 </HTML>";
@@ -276,7 +296,7 @@ EndSelection:<<<<<<<4
 			SetDataObject(ido);
 		}
 		
-		private static string getClipboardString(Image image, string filename) {
+		private static string getHTMLString(Image image, string filename) {
 			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_STRING));
 			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${width}", image.Width.ToString());
 			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${height}", image.Height.ToString());
@@ -289,7 +309,22 @@ EndSelection:<<<<<<<4
 			sb.Replace("<<<<<<<4", (utf8EncodedHTMLString.IndexOf("<!--EndFragment -->")).ToString("D8"));
 			return sb.ToString(); 
 		}
-		
+
+		private static string getHTMLDataURLString(Image image, MemoryStream pngStream) {
+			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_BASE64_STRING));
+			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${width}", image.Width.ToString());
+			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${height}", image.Height.ToString());
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${format}", "png");
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer()));
+			StringBuilder sb=new StringBuilder();
+			sb.Append(utf8EncodedHTMLString);
+			sb.Replace("<<<<<<<1", (utf8EncodedHTMLString.IndexOf("<HTML>") + "<HTML>".Length).ToString("D8"));
+			sb.Replace("<<<<<<<2", (utf8EncodedHTMLString.IndexOf("</HTML>")).ToString("D8"));
+			sb.Replace("<<<<<<<3", (utf8EncodedHTMLString.IndexOf("<!--StartFragment -->")+"<!--StartFragment -->".Length).ToString("D8"));
+			sb.Replace("<<<<<<<4", (utf8EncodedHTMLString.IndexOf("<!--EndFragment -->")).ToString("D8"));
+			return sb.ToString(); 
+		}
+
 		/**
 		 * Set an Image to the clipboard
 		 * 
@@ -312,14 +347,18 @@ EndSelection:<<<<<<<4
 			MemoryStream imageStream = null;
 			MemoryStream pngStream = null;
 			try {
-				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG)) {
+				// Create PNG stream
+				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG) || config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
 					pngStream = new MemoryStream();
 					// PNG works for Powerpoint
 					image.Save(pngStream, ImageFormat.Png);
+					pngStream.Seek(0, SeekOrigin.Begin);
+				}
+
+				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG)) {
 					// Set the PNG stream
 					ido.SetData("PNG", false, pngStream);
 				}
-
 
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
 					bmpStream = new MemoryStream();
@@ -336,10 +375,11 @@ EndSelection:<<<<<<<4
 				
 				// Set the HTML
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
-					// Mark the clipboard for us as "do not touch"
-					ido.SetData("greenshot", false, "was here!");
 					string tmpFile = ImageOutput.SaveToTmpFile(image, OutputFormat.png, config.OutputFileJpegQuality);
-					string html = getClipboardString(image, tmpFile);
+					string html = getHTMLString(image, tmpFile);
+					ido.SetText(html, TextDataFormat.Html);
+				} else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
+					string html = getHTMLDataURLString(image, pngStream);
 					ido.SetText(html, TextDataFormat.Html);
 				}
 			} finally {
