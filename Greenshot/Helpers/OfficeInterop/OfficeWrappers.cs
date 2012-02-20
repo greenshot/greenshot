@@ -70,8 +70,12 @@ namespace Greenshot.Helpers.OfficeInterop {
 		DateTime SentOn { get; }
 		OlBodyFormat BodyFormat { get; set; }
 		PropertyAccessor PropertyAccessor { get; }
+		// MailItem
 		bool Sent { get; }
 		object MAPIOBJECT { get; }
+		// AppointmentItem
+		string Organizer { get; set; }
+		string SendUsingAccount { get; }
 	}
 
 	public interface Attachments : Collection {
