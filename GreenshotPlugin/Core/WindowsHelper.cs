@@ -876,11 +876,15 @@ namespace GreenshotPlugin.Core  {
 							// Remove corners
 							if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
 								LOG.Debug("Changing pixelformat to Alpha for the RemoveCorners");
-								Bitmap tmpBitmap = capturedBitmap.Clone(new Rectangle(Point.Empty, capturedBitmap.Size), PixelFormat.Format32bppArgb);
+								Bitmap tmpBitmap = ImageHelper.Clone(capturedBitmap, PixelFormat.Format32bppArgb);
 								capturedBitmap.Dispose();
 								capturedBitmap = tmpBitmap;
 							}
-							RemoveCorners(capturedBitmap, redMask, windowCaptureMode, conf.DWMBackgroundColor);
+							Color cornerColor = Color.Transparent;
+							if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
+								cornerColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
+							}
+							RemoveCorners(capturedBitmap, redMask, cornerColor);
 						}
 					}
 				} finally {
@@ -912,12 +916,8 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		/// <param name="normalBitmap">The bitmap taken which would normally be returned to the editor etc.</param>
 		/// <param name="redBitmap">The bitmap taken with a red background</param>
-		/// <param name="captureMode">The capturemode so we can take transparency into accound</param>
-		/// <param name="destinationColor">The background color</param>
-		private void RemoveCorners(Bitmap normalBitmap, Bitmap redBitmap, WindowCaptureMode captureMode, Color destinationColor) {
-			if (captureMode == WindowCaptureMode.AeroTransparent) {
-				destinationColor = Color.Transparent;
-			}
+		/// <param name="cornerColor">The background color</param>
+		private void RemoveCorners(Bitmap normalBitmap, Bitmap redBitmap, Color cornerColor) {
 			using (BitmapBuffer redBuffer = new BitmapBuffer(redBitmap, false)) {
 				redBuffer.Lock();
 				using (BitmapBuffer normalBuffer = new BitmapBuffer(normalBitmap, false)) {
@@ -929,28 +929,28 @@ namespace GreenshotPlugin.Core  {
 							int cornerY = y;
 							Color currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
 							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
-								normalBuffer.SetColorAt(cornerX, cornerY, destinationColor);
+								normalBuffer.SetColorAt(cornerX, cornerY, cornerColor);
 							}
 							// top right
 							cornerX = normalBitmap.Width - x;
 							cornerY = y;
 							currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
 							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
-								normalBuffer.SetColorAt(cornerX, cornerY, destinationColor);
+								normalBuffer.SetColorAt(cornerX, cornerY, cornerColor);
 							}
 							// bottom right
 							cornerX = normalBitmap.Width - x;
 							cornerY = normalBitmap.Height - y;
 							currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
 							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
-								normalBuffer.SetColorAt(cornerX, cornerY, destinationColor);
+								normalBuffer.SetColorAt(cornerX, cornerY, cornerColor);
 							}
 							// bottom left
 							cornerX = x;
 							cornerY = normalBitmap.Height - y;
 							currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
 							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
-								normalBuffer.SetColorAt(cornerX, cornerY, destinationColor);
+								normalBuffer.SetColorAt(cornerX, cornerY, cornerColor);
 							}
 						}
 					}

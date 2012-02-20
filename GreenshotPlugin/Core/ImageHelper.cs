@@ -890,6 +890,15 @@ namespace GreenshotPlugin.Core {
 		public static Bitmap Clone(Image sourceBitmap) {
 			return CloneArea(sourceBitmap, Rectangle.Empty, PixelFormat.DontCare);
 		}
+		/// <summary>
+		/// Wrapper for just cloning & TargetFormat which calls the CloneArea
+		/// </summary>
+		/// <param name="sourceBitmap">Image to clone</param>
+		/// <param name="targetFormat">Target Format, use PixelFormat.DontCare if you want the original (or a default if the source PixelFormat is not supported)</param>
+		/// <returns>Bitmap with clone image data</returns>
+		public static Bitmap Clone(Image sourceBitmap, PixelFormat targetFormat) {
+			return CloneArea(sourceBitmap, Rectangle.Empty, targetFormat);
+		}
 
 		/// <summary>
 		/// Clone an image, taking some rules into account:

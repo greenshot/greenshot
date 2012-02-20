@@ -74,7 +74,7 @@ namespace ExternalCommand {
 						Image icon = null;
 						if (File.Exists(config.commandlines[presetCommand])) {
 							try {
-								icon = GetExeIcon(config.commandlines[presetCommand]);
+								icon = GetExeIcon(config.commandlines[presetCommand], 0);
 							} catch{};
 						}
 						iconCache.Add(presetCommand, icon);
