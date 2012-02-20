@@ -254,7 +254,7 @@ namespace GreenshotPlugin.Core {
 					}
 					return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 				case "DWMBackgroundColor":
-					return Color.White;
+					return Color.Transparent;
 				case "ActiveTitleFixes":
 					List<string> activeDefaults = new List<string>();
 					activeDefaults.Add("Firefox");
