@@ -40,14 +40,16 @@ namespace Greenshot.Destinations {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static string exePath = null;
-		private static Image icon = null;
+		private static Image applicationIcon = null;
+		private static Image documentIcon = null;
 		private ILanguage lang = Language.GetInstance();
-		private string wordCaption = null;
+		private string documentCaption = null;
 
 		static WordDestination() {
 			exePath = GetExePath("WINWORD.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				icon = GetExeIcon(exePath);
+				applicationIcon = GetExeIcon(exePath, 0);
+				documentIcon = GetExeIcon(exePath, 1);
 			} else {
 				exePath = null;
 			}
@@ -58,7 +60,7 @@ namespace Greenshot.Destinations {
 		}
 
 		public WordDestination(string wordCaption) {
-			this.wordCaption = wordCaption;
+			this.documentCaption = wordCaption;
 		}
 
 		public override string Designation {
@@ -69,10 +71,10 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				if (wordCaption == null) {
+				if (documentCaption == null) {
 					return "Microsoft Word";
 				} else {
-					return "Microsoft Word - " + wordCaption;
+					return documentCaption;
 				}
 			}
 		}
@@ -97,7 +99,10 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				return icon;
+				if (!string.IsNullOrEmpty(documentCaption)) {
+					return documentIcon;
+				}
+				return applicationIcon;
 			}
 		}
 
@@ -114,8 +119,8 @@ namespace Greenshot.Destinations {
 					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, conf.OutputFileFormat, conf.OutputFileJpegQuality);
 				}
 			}
-			if (wordCaption != null) {
-				WordExporter.InsertIntoExistingDocument(wordCaption, tmpFile);
+			if (documentCaption != null) {
+				WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
 			} else {
 				WordExporter.InsertIntoNewDocument(tmpFile);
 			}

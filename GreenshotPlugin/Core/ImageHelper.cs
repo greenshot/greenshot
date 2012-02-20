@@ -268,18 +268,53 @@ namespace GreenshotPlugin.Core {
 			return bmpPngExtracted;
 		}
 
-		public static Icon ExtractAssociatedIcon(this Icon icon, string location) {
+		/// <summary>
+		/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx
+		/// </summary>
+		/// <param name="icon">The icon to </param>
+		/// <param name="location">The file (EXE or DLL) to get the icon from</param>
+		/// <param name="index">Index of the icon</param>
+		/// <param name="takeLarge">true if the large icon is wanted</param>
+		/// <returns>Icon</returns>
+		public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge) {
 			IntPtr large;
 			IntPtr small;
-			Shell32.ExtractIconEx(location, 0, out large, out small, 1);
-			Icon returnIcon = Icon.FromHandle(small);
-			if (!IntPtr.Zero.Equals(small)){
-				User32.DestroyIcon(small);
-			}
-			if (!IntPtr.Zero.Equals(large)){
-				User32.DestroyIcon(large);
+			Shell32.ExtractIconEx(location, index, out large, out small, 1);
+			Icon returnIcon = null;
+			bool isLarge = false;
+			bool isSmall = false;
+			try {
+				if (takeLarge && !IntPtr.Zero.Equals(large)) {
+					returnIcon = Icon.FromHandle(large);
+					isLarge = true;
+				} else if (!IntPtr.Zero.Equals(small)) {
+					returnIcon = Icon.FromHandle(small);
+					isSmall = true;
+				} else if (!IntPtr.Zero.Equals(large)) {
+					returnIcon = Icon.FromHandle(large);
+					isLarge = true;
+				}
+			} finally {
+				if (isLarge && !IntPtr.Zero.Equals(small)) {
+					User32.DestroyIcon(small);
+				}
+				if (isSmall && !IntPtr.Zero.Equals(large)) {
+					User32.DestroyIcon(large);
+				}
 			}
 			return returnIcon;
+		}
+
+		/// <summary>
+		/// Get the number of icon in the file
+		/// </summary>
+		/// <param name="icon"></param>
+		/// <param name="location">Location of the EXE or DLL</param>
+		/// <returns></returns>
+		public static int CountAssociatedIcons(string location) {
+			IntPtr large = IntPtr.Zero;
+			IntPtr small = IntPtr.Zero;
+			return Shell32.ExtractIconEx(location, -1, out large, out small, 0);
 		}
 
 		/// <summary>

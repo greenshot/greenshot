@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-0.9.0 Build 1660
+0.9.0 Build 1667
 
 We changed the version to 0.9.0 as the amount of features in 0.8.1 was more than planned.
 

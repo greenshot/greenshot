@@ -39,14 +39,16 @@ namespace Greenshot.Destinations {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static string exePath = null;
-		private static Image icon = null;
+		private static Image applicationIcon = null;
+		private static Image workbookIcon = null;
 		private ILanguage lang = Language.GetInstance();
 		private string workbookName = null;
 
 		static ExcelDestination() {
 			exePath = GetExePath("EXCEL.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				icon = GetExeIcon(exePath);
+				applicationIcon = GetExeIcon(exePath, 0);
+				workbookIcon = GetExeIcon(exePath, 1);
 			} else {
 				exePath = null;
 			}
@@ -70,7 +72,7 @@ namespace Greenshot.Destinations {
 				if (workbookName == null) {
 					return "Microsoft Excel";
 				} else {
-					return "Microsoft Excel - " + workbookName;
+					return workbookName;
 				}
 			}
 		}
@@ -95,7 +97,10 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				return icon;
+				if (!string.IsNullOrEmpty(workbookName)) {
+					return workbookIcon;
+				}
+				return applicationIcon;
 			}
 		}
 

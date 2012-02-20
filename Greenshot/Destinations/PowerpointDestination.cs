@@ -39,14 +39,16 @@ namespace Greenshot.Destinations {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static string exePath = null;
-		private static Image icon = null;
+		private static Image applicationIcon = null;
+		private static Image presentationIcon = null;
 		private ILanguage lang = Language.GetInstance();
 		private string presentationName = null;
 		
 		static PowerpointDestination() {
 			exePath = GetExePath("POWERPNT.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				icon = GetExeIcon(exePath);
+				applicationIcon = GetExeIcon(exePath, 0);
+				presentationIcon = GetExeIcon(exePath, 1);
 			} else {
 				exePath = null;
 			}
@@ -70,7 +72,7 @@ namespace Greenshot.Destinations {
 				if (presentationName == null) {
 					return "Microsoft Powerpoint";
 				} else {
-					return "Microsoft Powerpoint - " + presentationName;
+					return presentationName;
 				}
 			}
 		}
@@ -95,7 +97,11 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				return icon;
+				if (!string.IsNullOrEmpty(presentationName)) {
+					return presentationIcon;
+				}
+
+				return applicationIcon;
 			}
 		}
 

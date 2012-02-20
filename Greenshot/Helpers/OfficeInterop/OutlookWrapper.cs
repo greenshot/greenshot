@@ -111,8 +111,8 @@ namespace Greenshot.Helpers.OfficeInterop {
 		/// </summary>
 		/// <param name="outlookApplication">IOutlookApplication</param>
 		/// <returns>List<string> with inspector captions (window title)</returns>
-		public static List<string> RetrievePossibleTargets() {
-			List<string> inspectorCaptions = new List<string>();
+		public static Dictionary<string, OlObjectClass> RetrievePossibleTargets() {
+			Dictionary<string, OlObjectClass> inspectorCaptions = new Dictionary<string, OlObjectClass>();
 			try {
 				using ( IOutlookApplication outlookApplication = GetOutlookApplication()) {
 					if (outlookApplication == null) {
@@ -124,7 +124,9 @@ namespace Greenshot.Helpers.OfficeInterop {
 						for(int i=1; i <= inspectors.Count; i++) {
 							Inspector inspector = outlookApplication.Inspectors[i];
 							if (canExportToInspector(inspector)) {
-								inspectorCaptions.Add(inspector.Caption);
+								Item currentItem = inspector.CurrentItem;
+								OlObjectClass currentItemClass = currentItem.Class;
+								inspectorCaptions.Add(inspector.Caption, currentItemClass);
 							}
 						}
 					}
@@ -150,7 +152,7 @@ namespace Greenshot.Helpers.OfficeInterop {
 							return true;
 						}
 					} else if (outlookVersion.Major >=12 && OlObjectClass.olAppointment.Equals(currentItemClass)) {
-						if (currentUser != null && currentUser.Equals(currentItem.Organizer)) {
+						if (string.IsNullOrEmpty(currentItem.Organizer) || (currentUser == null && currentUser.Equals(currentItem.Organizer))) {
 							return true;
 						} else {
 							LOG.DebugFormat("Not exporting to {0}, as organizer is {1} and currentuser {2}", inspector.Caption, currentItem.Organizer, currentUser);

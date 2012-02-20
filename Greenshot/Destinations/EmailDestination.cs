@@ -40,12 +40,15 @@ namespace Greenshot.Destinations {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EmailDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static string exePath = null;
-		private static Image icon = null;
+		private static Image applicationIcon = null;
+		private static Image mailIcon = null;
+		private static Image meetingIcon = null;
 		private static bool isActiveFlag = false;
 		private static bool isOutlookUsed = false;
 		private static string mapiClient = null;
 		public const string DESIGNATION = "EMail";
-		private string outlookInspectorCaption = null;
+		private string outlookInspectorCaption;
+		private OlObjectClass outlookInspectorType;
 		private ILanguage lang = Language.GetInstance();
 
 		static EmailDestination() {
@@ -63,11 +66,15 @@ namespace Greenshot.Destinations {
 				isActiveFlag = true;
 				isOutlookUsed = true;
 			}
-			
+			// Use default email icon
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
+			mailIcon = ((System.Drawing.Image)(resources.GetObject("btnEmail.Image")));
+
 			if (isOutlookUsed) {
 				exePath = GetExePath("OUTLOOK.EXE");
 				if (exePath != null && File.Exists(exePath)) {
-					icon = GetExeIcon(exePath);
+					applicationIcon = GetExeIcon(exePath, 0);
+					meetingIcon = GetExeIcon(exePath, 2);
 				} else {
 					exePath = null;
 				}
@@ -80,16 +87,16 @@ namespace Greenshot.Destinations {
 			}
 			if (isActiveFlag && !isOutlookUsed) {
 				// Use default email icon
-				System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
-				icon = ((System.Drawing.Image)(resources.GetObject("btnEmail.Image")));
+				applicationIcon = mailIcon;
 			}
 		}
 
 		public EmailDestination() {
 			
 		}
-		public EmailDestination(string outlookInspectorCaption) {
+		public EmailDestination(string outlookInspectorCaption, OlObjectClass outlookInspectorType) {
 			this.outlookInspectorCaption = outlookInspectorCaption;
+			this.outlookInspectorType = outlookInspectorType;
 		}
 
 		public override string Designation {
@@ -108,7 +115,7 @@ namespace Greenshot.Destinations {
 				if (outlookInspectorCaption == null) {
 					return mapiClient;
 				} else {
-					return mapiClient + " - " + outlookInspectorCaption;
+					return outlookInspectorCaption;
 				}
 			}
 		}
@@ -139,7 +146,15 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				return icon;
+				if (isOutlookUsed && outlookInspectorCaption != null) {
+					if (OlObjectClass.olAppointment.Equals(outlookInspectorType)) {
+						return meetingIcon;
+					} else {
+						return mailIcon;
+					}
+				} else {
+					return applicationIcon;
+				}
 			}
 		}
 		
@@ -147,10 +162,10 @@ namespace Greenshot.Destinations {
 			if (!isOutlookUsed) {
 				yield break;
 			}
-			List<string> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
+			Dictionary<string, OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 			if (inspectorCaptions != null) {
-				foreach (string inspectorCaption in inspectorCaptions) {
-					yield return new EmailDestination(inspectorCaption);
+				foreach (string inspectorCaption in inspectorCaptions.Keys) {
+					yield return new EmailDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
 				}
 			}
 		}
