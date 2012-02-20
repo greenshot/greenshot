@@ -136,7 +136,7 @@ Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: startup; Description: {cm:startup}
 [CustomMessages]
 en.startup=Start {#ExeName} with Windows start
-de.startup={#ExeName} starten wenn Windows hochfahrt
+de.startup={#ExeName} starten wenn Windows hochfährt
 nl.startup=Start {#ExeName} wanneer Windows opstart
 en.startgreenshot=Start {#ExeName}
 de.startgreenshot={#ExeName} starten
