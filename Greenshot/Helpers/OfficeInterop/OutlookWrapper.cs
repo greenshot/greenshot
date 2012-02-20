@@ -151,7 +151,7 @@ namespace Greenshot.Helpers.OfficeInterop {
 						if (!currentItem.Sent) {
 							return true;
 						}
-					} else if (outlookVersion.Major >=12 && OlObjectClass.olAppointment.Equals(currentItemClass)) {
+					} else if (outlookVersion.Major >= 12 && conf.OutlookAllowExportInMeetings && OlObjectClass.olAppointment.Equals(currentItemClass)) {
 						if (string.IsNullOrEmpty(currentItem.Organizer) || (currentUser == null && currentUser.Equals(currentItem.Organizer))) {
 							return true;
 						} else {
@@ -331,8 +331,8 @@ namespace Greenshot.Helpers.OfficeInterop {
 			} catch (Exception e) {
 				LOG.Error("Problem reading signature!", e);
 			}
-			switch(conf.OutputEMailFormat) {
-				case EmailFormat.OUTLOOK_TXT:
+			switch(conf.OutlookEmailFormat) {
+				case EmailFormat.Text:
 					newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 1, attachmentName);
 					newMail.BodyFormat = OlBodyFormat.olFormatPlain;
 					if (bodyString == null) {
@@ -340,7 +340,7 @@ namespace Greenshot.Helpers.OfficeInterop {
 					}
 					newMail.Body = bodyString;
 					break;
-				case EmailFormat.OUTLOOK_HTML:
+				case EmailFormat.HTML:
 				default:
 					// Create the attachment
 					Attachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName);
@@ -446,11 +446,11 @@ namespace Greenshot.Helpers.OfficeInterop {
 							}
 							LOG.DebugFormat("Found email signature: {0}", signatureName);
 							string extension;
-							switch(conf.OutputEMailFormat) {
-								case EmailFormat.OUTLOOK_TXT:
+							switch(conf.OutlookEmailFormat) {
+								case EmailFormat.Text:
 									extension = ".txt";
 									break;
-								case EmailFormat.OUTLOOK_HTML:
+								case EmailFormat.HTML:
 								default:
 									extension = ".htm";
 									break;

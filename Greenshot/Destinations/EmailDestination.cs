@@ -74,7 +74,9 @@ namespace Greenshot.Destinations {
 				exePath = GetExePath("OUTLOOK.EXE");
 				if (exePath != null && File.Exists(exePath)) {
 					applicationIcon = GetExeIcon(exePath, 0);
-					meetingIcon = GetExeIcon(exePath, 2);
+					if (conf.OutlookAllowExportInMeetings) {
+						meetingIcon = GetExeIcon(exePath, 2);
+					}
 				} else {
 					exePath = null;
 				}
@@ -148,6 +150,10 @@ namespace Greenshot.Destinations {
 			get {
 				if (isOutlookUsed && outlookInspectorCaption != null) {
 					if (OlObjectClass.olAppointment.Equals(outlookInspectorType)) {
+						// Make sure we loaded the icon, maybe the configuration has been changed!
+						if (meetingIcon == null) {
+							meetingIcon = GetExeIcon(exePath, 2);
+						}
 						return meetingIcon;
 					} else {
 						return mailIcon;

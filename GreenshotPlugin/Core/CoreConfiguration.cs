@@ -38,11 +38,7 @@ namespace GreenshotPlugin.Core {
 		Screen, GDI, Aero, AeroTransparent, Auto
 	}
 	public enum EmailFormat {
-		MAPI, OUTLOOK_TXT, OUTLOOK_HTML
-	}
-	public enum EmailExport {
-		AlwaysNew,
-		TryOpenElseNew
+		Text, HTML
 	}
 
 	/// <summary>
@@ -98,11 +94,11 @@ namespace GreenshotPlugin.Core {
 		public OutputFormat OutputFileFormat = OutputFormat.png;
 		[IniProperty("OutputFileReduceColors", Description="If set to true, than the colors of the output file are reduced to 256 (8-bit) colors", DefaultValue="false")]
 		public bool OutputFileReduceColors;
-		
-		[IniProperty("OutputEMailFormat", Description="Default type for emails. (txt, html)")]
-		public EmailFormat OutputEMailFormat;
-		[IniProperty("OutputOutlookMethod", Description="How to export to outlook (AlwaysNew= always open a new one, TryOpenElseNew=look for open email else create a new)", DefaultValue="AlwaysNew")]
-		public EmailExport OutputOutlookMethod;
+
+		[IniProperty("OutlookEmailFormat", Description = "Default type for emails. (Text, HTML)", DefaultValue="HTML")]
+		public EmailFormat OutlookEmailFormat;
+		[IniProperty("OutlookAllowExportInMeetings", Description = "Allow export in meeting items", DefaultValue="False")]
+		public bool OutlookAllowExportInMeetings;
 
 		[IniProperty("OutputFileCopyPathToClipboard", Description="When saving a screenshot, copy the path to the clipboard?", DefaultValue="true")]
 		public bool OutputFileCopyPathToClipboard;
@@ -259,11 +255,6 @@ namespace GreenshotPlugin.Core {
 					return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 				case "DWMBackgroundColor":
 					return Color.White;
-				case "OutputEMailFormat":
-					if (EmailConfigHelper.HasOutlook()) {
-						return EmailFormat.OUTLOOK_HTML;
-					}
-					return EmailFormat.MAPI;
 				case "ActiveTitleFixes":
 					List<string> activeDefaults = new List<string>();
 					activeDefaults.Add("Firefox");
@@ -318,10 +309,6 @@ namespace GreenshotPlugin.Core {
 			// Make sure there is an output!
 			if (OutputDestinations.Count == 0) {
 				OutputDestinations.Add("Editor");
-			}
-			// Check for Outlook, if it's not installed force email format to MAPI
-			if (OutputEMailFormat != EmailFormat.MAPI && !EmailConfigHelper.HasOutlook()) {
-				OutputEMailFormat = EmailFormat.MAPI;
 			}
 			// Prevent both settings at once, bug #3435056
 			if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard) {

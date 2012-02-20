@@ -111,28 +111,6 @@ namespace Greenshot {
 			return returnValue;
 		}
 		
-		private void SetEmailFormat(EmailFormat selectedEmailFormat) {
-			// TODO: Fix!!
-			// Setup the email settings
-			EmailFormat [] availableValues;
-			if (EmailConfigHelper.HasMAPI()) {
-				//checkbox_email.Enabled = true;
-				//combobox_emailformat.Visible = true;
-				if (EmailConfigHelper.HasOutlook()) {
-					availableValues = new EmailFormat[]{EmailFormat.MAPI, EmailFormat.OUTLOOK_TXT, EmailFormat.OUTLOOK_HTML};
-				} else {
-					// Force MAPI in configuration if no Outlook
-					coreConfiguration.OutputEMailFormat = EmailFormat.MAPI;
-					availableValues = new EmailFormat[]{EmailFormat.MAPI};
-				}
-				//PopulateComboBox<EmailFormat>(combobox_emailformat, availableValues, selectedEmailFormat);
-			} else {
-				//checkbox_email.Enabled = false;
-				//checkbox_email.Checked = false;
-				//combobox_emailformat.Visible = false;
-			}
-		}
-		
 		private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode) {
 			WindowCaptureMode[] availableModes;
 			if (!DWM.isDWMEnabled()) {
@@ -286,7 +264,6 @@ namespace Greenshot {
 			textbox_screenshotname.Text = coreConfiguration.OutputFileFilenamePattern;
 			combobox_primaryimageformat.SelectedItem = coreConfiguration.OutputFileFormat;
 			
-			SetEmailFormat(coreConfiguration.OutputEMailFormat);
 			SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
 
 			checkbox_copypathtoclipboard.Checked = coreConfiguration.OutputFileCopyPathToClipboard;
@@ -350,10 +327,6 @@ namespace Greenshot {
 			} else {
 				coreConfiguration.OutputFileFormat = OutputFormat.png;
 			}
-
-			// TODO: Fix
-			//coreConfiguration.OutputEMailFormat = GetSelected<EmailFormat>(combobox_emailformat);
-			coreConfiguration.OutputEMailFormat = EmailFormat.OUTLOOK_HTML;
 
 			coreConfiguration.OutputFileCopyPathToClipboard = checkbox_copypathtoclipboard.Checked;
 			coreConfiguration.OutputFileJpegQuality = trackBarJpegQuality.Value;
