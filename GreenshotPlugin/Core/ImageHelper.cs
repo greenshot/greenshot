@@ -216,6 +216,7 @@ namespace GreenshotPlugin.Core {
 					// We create a copy of the bitmap, so everything else can be disposed
 					imageFileStream.Position = 0;
 					using (Image tmpImage = Image.FromStream(imageFileStream, true, true)) {
+						LOG.DebugFormat("Loaded {0} with Size {1}x{2} and PixelFormat {3}", filename, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 						fileBitmap = Clone(tmpImage);
 					}
 				}
@@ -777,6 +778,26 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 			return newImage;
+		}
+
+		/// <summary>
+		/// Return negative of Bitmap
+		/// </summary>
+		/// <param name="sourceBitmap">Bitmap to create a negative off</param>
+		/// <returns>Negative bitmap</returns>
+		public static Bitmap CreateNegative(Bitmap sourceBitmap) {
+			using (BitmapBuffer bb = new BitmapBuffer(sourceBitmap, true)) {
+				bb.Lock();
+				for (int y = 0; y < bb.Height; y++) {
+					for (int x = 0; x < bb.Width; x++) {
+						Color color = bb.GetColorAt(x, y);
+						Color invertedColor = Color.FromArgb(color.A, color.R ^ 255, color.G ^ 255, color.B ^ 255);
+						bb.SetColorAt(x, y, invertedColor);
+					}
+				}
+				bb.Unlock();
+				return bb.Bitmap;
+			}
 		}
 
 		/// <summary>

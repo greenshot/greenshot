@@ -76,41 +76,41 @@ namespace Greenshot.Helpers {
 		/// Saves image to stream with specified quality
 		/// </summary>
 		public static void SaveToStream(Image imageToSave, Stream stream, OutputFormat extension, int quality) {
-			ImageFormat imfo = null;
-			bool disposeImage = false;
+			ImageFormat imageFormat = null;
+			//bool disposeImage = false;
 
 			switch (extension) {
 				case OutputFormat.bmp:
-					imfo = ImageFormat.Bmp;
+					imageFormat = ImageFormat.Bmp;
 					break;
 				case OutputFormat.gif:
-					imfo = ImageFormat.Gif;
+					imageFormat = ImageFormat.Gif;
 					break;
 				case OutputFormat.jpg:
-					imfo = ImageFormat.Jpeg;
+					imageFormat = ImageFormat.Jpeg;
 					break;
 				case OutputFormat.png:
-					imfo = ImageFormat.Png;
+					imageFormat = ImageFormat.Png;
 					break;
 				case OutputFormat.tiff:
-					imfo = ImageFormat.Tiff;
+					imageFormat = ImageFormat.Tiff;
 					break;
 				default:
-					imfo = ImageFormat.Png;
+					imageFormat = ImageFormat.Png;
 					break;
 			}
-			// If Quantizing is enable, overwrite the image to save with a 256 - color version
-			if (conf.OutputFileReduceColors) {
-				try {
-					LOG.Debug("Reducing colors on bitmap.");
-					Quantizer quantizer = new OctreeQuantizer(255,8);
-					imageToSave = quantizer.Quantize(imageToSave);
-					// Make sure the "new" image is disposed
-					disposeImage = true;
-				} catch(Exception e) {
-					LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
-				}
-			}
+			//// If Quantizing is enable, overwrite the image to save with a 256 - color version
+			//if (conf.OutputFileReduceColors) {
+			//	try {
+			//		LOG.Debug("Reducing colors on bitmap.");
+			//		Quantizer quantizer = new OctreeQuantizer(255,8);
+			//		imageToSave = quantizer.Quantize(imageToSave);
+			//		// Make sure the "new" image is disposed
+			//		disposeImage = true;
+			//	} catch(Exception e) {
+			//		LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+			//	}
+			//}
 
 			try {
 				// Create meta-data
@@ -119,23 +119,28 @@ namespace Greenshot.Helpers {
 					try {
 						imageToSave.SetPropertyItem(softwareUsedPropertyItem);
 					} catch (ArgumentException) {
-						LOG.WarnFormat("Image of type {0} do not support property {1}", imfo, softwareUsedPropertyItem.Id);
+						LOG.WarnFormat("Image of type {0} do not support property {1}", imageFormat, softwareUsedPropertyItem.Id);
 					}
 				}
 				LOG.DebugFormat("Saving image to stream with PixelFormat {0}", imageToSave.PixelFormat);
-				if (imfo == ImageFormat.Jpeg) {
+				if (imageFormat == ImageFormat.Jpeg) {
 					EncoderParameters parameters = new EncoderParameters(1);
 					parameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(Encoder.Quality, quality);
 					ImageCodecInfo[] ies = ImageCodecInfo.GetImageEncoders();
 					imageToSave.Save(stream, ies[1], parameters);
+				} else if (imageFormat != ImageFormat.Png && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
+					// No transparency in target format
+					using (Bitmap tmpBitmap = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb)) {
+						tmpBitmap.Save(stream, imageFormat);
+					}
 				} else {
-					imageToSave.Save(stream, imfo);
+					imageToSave.Save(stream, imageFormat);
 				}
 			} finally {
-				// cleanup if needed
-				if (disposeImage && imageToSave != null) {
-					imageToSave.Dispose();
-				}
+			//	// cleanup if needed
+			//	if (disposeImage && imageToSave != null) {
+			//		imageToSave.Dispose();
+			//	}
 			}
 		}
 		

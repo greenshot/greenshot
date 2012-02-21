@@ -3,7 +3,6 @@ echo Starting Greenshot BUILD
 cd ..
 echo Getting current Version
 tools\TortoiseSVN\SubWCRev.exe . releases\innosetup\setup.iss releases\innosetup\setup-SVN.iss
-del bin\Release\*.config
 del bin\Release\*.log
 cd bin\Release
 echo Making MD5

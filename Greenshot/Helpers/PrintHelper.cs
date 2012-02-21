@@ -142,20 +142,6 @@ namespace Greenshot.Helpers {
 				}
 			}
 
-			// Invert Bitmap if wanted
-			if (conf.OutputPrintInverted) {
-				using (BitmapBuffer bb = new BitmapBuffer((Bitmap)image, false)) {
-					bb.Lock();
-					for (int y = 0; y < bb.Height; y++) {
-						for (int x = 0; x < bb.Width; x++) {
-							Color color = bb.GetColorAt(x, y);
-							Color invertedColor = Color.FromArgb(color.A, color.R ^ 255, color.G ^ 255, color.B ^ 255);
-							bb.SetColorAt(x, y, invertedColor);
-						}
-					}
-				}
-			}
-
 			// Get a rectangle representing the printable Area
 			RectangleF pageRect = e.PageSettings.PrintableArea;
 
@@ -192,8 +178,13 @@ namespace Greenshot.Helpers {
 					e.Graphics.DrawString(dateString, f, Brushes.Black, pageRect.Width / 2 - (dateStringWidth / 2), pageRect.Height);
 				}
 			}
-
-			e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);
+			if (conf.OutputPrintInverted) {
+				using (Bitmap negativeBitmap = ImageHelper.CreateNegative((Bitmap)image)) {
+					e.Graphics.DrawImage(negativeBitmap, printRect, imageRect, GraphicsUnit.Pixel);
+				}
+			} else {
+				e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);
+			}
 		}
 	}
 }

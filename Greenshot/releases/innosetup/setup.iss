@@ -23,6 +23,7 @@ Source: ..\..\bin\Release\checksum.MD5; DestDir: {app}; Flags: overwritereadonly
 Source: ..\additional_files\installer.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 Source: ..\additional_files\license.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 Source: ..\additional_files\readme.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
+Source: ..\additional_files\donate.bmp; Flags: dontcopy
 ; Core language files
 Source: ..\..\bin\Release\Languages\*nl-NL*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*en-US*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -89,9 +90,12 @@ AppUpdatesURL=http://getgreenshot.org
 AppVerName={#ExeName} {#Version}
 AppVersion={#Version}
 ArchitecturesInstallIn64BitMode=x64
+Compression=lzma2/ultra64
+SolidCompression=yes
 DefaultDirName={pf}\{#ExeName}
 DefaultGroupName={#ExeName}
 InfoBeforeFile=..\additional_files\readme.txt
+LicenseFile=..\additional_files\license.txt
 LanguageDetectionMethod=uilanguage
 MinVersion=,5.01.2600
 OutputBaseFilename={#ExeName}-INSTALLER-UNSTABLE-{#Version}
@@ -163,6 +167,15 @@ nl.language=Extra talen
 en.optimize=Optimizing performance, this may take a while.
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 nl.optimize=Prestaties verbeteren, kan even duren.
+en.supportus_caption=Support Greenshot
+de.supportus_caption=Unterstutz Greenshot
+nl.supportus_caption=Ondersteun Greenshot
+en.supportus_description=Things you can do to support Greenshot
+de.supportus_description=Was Sie tun können um Greenshot zu unterstutzen
+nl.supportus_description=Wat U doen kunt om Greenshot te ondersteuen
+en.supportus_text=We re-donate 10% of every donation to the WWF. The more you donate, the more you help us and the environment. This is what makes Greenshot green. 
+de.supportus_text=We re-donate 10% of every donation to the WWF. The more you donate, the more you help us and the environment. This is what makes Greenshot green. 
+nl.supportus_text=We re-donate 10% of every donation to the WWF. The more you donate, the more you help us and the environment. This is what makes Greenshot green. 
 [Components]
 Name: "plugins"; Description: "Plugins"; Types: Full
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full;
@@ -196,6 +209,7 @@ Name: "languages\trTR"; Description: "Turkish"; Types: Full; Check: hasLanguageG
 Name: "languages\zhCN"; Description: "简体中文"; Types: Full; Check: hasLanguageGroup('a')
 Name: "languages\zhTW"; Description: "繁體中文"; Types: Full; Check: hasLanguageGroup('9')
 [Code]
+
 // Build a list of greenshot parameters from the supplied installer parameters
 function GetParamsForGS(argument: String): String;
 var
@@ -245,8 +259,8 @@ end;
 // Check if language group is installed
 function hasLanguageGroup(argument: String): Boolean;
 var
-  keyValue: String;
-  returnValue: Boolean;
+	keyValue: String;
+	returnValue: Boolean;
 begin
 	returnValue := true;
 	if (RegQueryStringValue( HKLM, 'SYSTEM\CurrentControlSet\Control\Nls\Language Groups', argument, keyValue)) then begin
@@ -257,6 +271,86 @@ begin
 	Result := returnValue;
 end;
 
+// Called if the Donate Image is clicked
+procedure ImageClick(Sender: TObject);
+var
+	ErrCode: integer;
+begin
+	ShellExec('open', 'http://getgreenshot.org/support/', '', '', SW_SHOW, ewNoWait, ErrCode);
+end;
+
+// Called if the Donate Button is clicked
+procedure DonateClick(Sender: TObject);
+var
+	ErrCode: integer;
+	ClickedButton: TButton;
+begin
+	ClickedButton := TButton(Sender);
+	ShellExec('open', 'http://sourceforge.net/donate/index.php?group_id=191585&type=0&amt=' + ClickedButton.Caption, '', '', SW_SHOW, ewNoWait, ErrCode);
+end;
+
+// Create custom page
+function CreateSupportUsPage(PreviousPageId: Integer) : Integer;
+var
+	SupportUsPage: TWizardPage;
+	DonateImage  : TBitmapImage;
+	BitmapLocation: string;
+	RichTextViewer : TRichEditViewer;
+	Button1, Button5, Button10: TButton;
+begin
+	SupportUsPage := CreateCustomPage(PreviousPageId, ExpandConstant('{cm:supportus_caption}'), ExpandConstant('{cm:supportus_description}'));
+	ExtractTemporaryFile('donate.bmp');
+	BitmapLocation := ExpandConstant('{tmp}')+'\donate.bmp';
+
+	// Image
+	DonateImage := TBitmapImage.Create(SupportUsPage);
+	DonateImage.Left := 10;
+	DonateImage.Top := 100;
+	DonateImage.AutoSize := True;
+	DonateImage.Bitmap.LoadFromFile(BitmapLocation);
+	DonateImage.Parent := SupportUsPage.Surface;
+	DonateImage.OnClick := @ImageClick;
+	
+	// Donate Buttons
+	Button1 := TButton.Create(SupportUsPage);
+	Button1.Width := 50;
+	Button1.Height := 20;
+	Button1.Left := 20;
+	Button1.Top := 45;
+	Button1.Caption := '1$';
+	Button1.OnClick := @DonateClick;
+	Button1.Parent := SupportUsPage.Surface;
+
+	Button5 := TButton.Create(SupportUsPage);
+	Button5.Width := 50;
+	Button5.Height := 20;
+	Button5.Left := 20;
+	Button5.Top := 70;
+	Button5.Caption := '5$';
+	Button5.OnClick := @DonateClick;
+	Button5.Parent := SupportUsPage.Surface;
+
+	// Text
+	RichTextViewer := TRichEditViewer.Create(SupportUsPage);
+	RichTextViewer.Parent := SupportUsPage.Surface;
+	RichTextViewer.Left := 10;
+	RichTextViewer.Top := 10;
+	RichTextViewer.Width := SupportUsPage.SurfaceWidth;
+	RichTextViewer.Height := 30;
+	RichTextViewer.ReadOnly := True;
+	RichTextViewer.BorderStyle := bsNone;
+	RichTextViewer.Color := clBtnFace;
+	RichTextViewer.RTFText := '{\rtf1\ansi\ansicpg1252\deff0\deflang13322{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}\viewkind4\uc1\pard\f0\fs16 This is a normal text, \b and this is a bold text\b0\par}';
+	Result:= SupportUsPage.Id;
+end;
+
+// Create the donate image
+procedure InitializeWizard();
+begin
+	CreateSupportUsPage(wpLicense);
+end;
+
+// Initialize the setup
 function InitializeSetup(): Boolean;
 begin
 	// Enhance installer otherwise .NET installations won't work
