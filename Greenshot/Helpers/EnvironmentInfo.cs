@@ -49,7 +49,7 @@ namespace Greenshot.Helpers {
 			} else {
 				environment.Append(", ");
 			}
-			environment.Append(".NET runtime version: " + Assembly.GetEntryAssembly().ImageRuntimeVersion);
+			environment.Append(".NET runtime version: " + Environment.Version);
 			if (newline) {
 				environment.AppendLine();
 			} else {

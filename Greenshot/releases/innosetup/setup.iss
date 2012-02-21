@@ -15,6 +15,7 @@
 [Files]
 Source: ..\..\bin\Release\Greenshot.exe; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\GreenshotPlugin.dll; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
+Source: ..\..\bin\Release\Greenshot.exe.config; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\log4net.dll; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\log4net.xml; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\checksum.MD5; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion

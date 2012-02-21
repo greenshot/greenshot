@@ -194,6 +194,9 @@
     <Compile Include="Helpers\OfficeInterop\ExcelWrapper.cs" />
     <Compile Include="Helpers\ProcessorHelper.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
+    <None Include="Greenshot.exe.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Helpers\OfficeInterop\OutlookUtils.cs" />
     <Compile Include="Helpers\WindowWrapper.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
