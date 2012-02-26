@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 
 using GreenshotConfluencePlugin;
+using GreenshotConfluencePlugin.confluence;
 using GreenshotPlugin.Core;
 using IniFile;
 
