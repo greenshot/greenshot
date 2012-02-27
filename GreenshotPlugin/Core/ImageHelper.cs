@@ -992,5 +992,11 @@ namespace GreenshotPlugin.Core {
 			}
 			return newImage;
 		}
+		
+		public static Bitmap RotateFlip(Bitmap sourceBitmap, RotateFlipType rotateFlipType) {
+			Bitmap returnBitmap = Clone(sourceBitmap);
+			returnBitmap.RotateFlip(rotateFlipType);
+			return returnBitmap;
+		}
 	}
 }
