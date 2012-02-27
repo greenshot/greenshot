@@ -571,6 +571,36 @@ namespace Greenshot.Drawing {
 					case Effects.Grayscale:
 						newImage = ImageHelper.CreateGrayscale((Bitmap)Image);
 						break;
+					case Effects.Rotate270:
+						MakeUndoable(new DrawableContainerBoundsChangeMemento(elements.AsIDrawableContainerList()), false);
+						foreach(DrawableContainer drawableContainer in elements) {
+							int x1 = drawableContainer.Bounds.X - (Width >> 1);
+							int y1 = (-drawableContainer.Bounds.Y) + (Height >> 1);
+							int rotatedX1 = y1;
+							int rotatedY1 = -x1;
+							int newX1 = y1 + (Height >> 1);
+							int newY1 = -x1 - (Width >> 1);
+
+							int x2 = (drawableContainer.Bounds.X+drawableContainer.Bounds.Width) - (Width >> 1);
+							int y2 = (-(drawableContainer.Bounds.Y+drawableContainer.Bounds.Height)) + (Height >> 1);
+							int rotatedX2 = y2;
+							int rotatedY2 = -x2;
+							int newX2 = y2 + (Height >> 1);
+							int newY2 = -x2 - (Width >> 1);
+							int newWidth = newX2 - newX1;
+							int newHeight = newY2 - newY1;
+							
+							RectangleF newRectangle = new RectangleF(
+								newX1,
+								newY1,
+								newWidth,
+								newHeight
+							);
+							LOG.DebugFormat("Bounds before {0}, bounds after {1}", drawableContainer.Bounds, newRectangle);
+							drawableContainer.ApplyBounds(newRectangle);
+						}
+						newImage = ImageHelper.RotateFlip((Bitmap)Image, RotateFlipType.Rotate270FlipNone);
+						break;
 				}
 
 				if (newImage != null) {

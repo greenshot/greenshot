@@ -52,6 +52,14 @@ namespace Greenshot.Drawing {
 			}
 		}
 		
+		public List<IDrawableContainer> AsIDrawableContainerList() {
+			List<IDrawableContainer> interfaceList = new List<IDrawableContainer>();
+			foreach(IDrawableContainer container in this) {
+				interfaceList.Add(container);
+			}
+			return interfaceList;
+		}
+		
 		/// <summary>
 		/// Gets or sets the selection status of the elements.
 		/// If several elements are in the list, true is only returned when all elements are selected.
