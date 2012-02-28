@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ADD4E400-56E1-4E31-A5C2-070BEB238A0F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GreenshotInterop</RootNamespace>
+    <AssemblyName>GreenshotInterop</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IEInterop\IHTMLBodyElement.cs" />
+    <Compile Include="IEInterop\IHTMLCurrentStyle.cs" />
+    <Compile Include="IEInterop\IHTMLDocument.cs" />
+    <Compile Include="IEInterop\IHTMLDocument2.cs" />
+    <Compile Include="IEInterop\IHTMLDocument3.cs" />
+    <Compile Include="IEInterop\IHTMLDocument4.cs" />
+    <Compile Include="IEInterop\IHTMLDocument5.cs" />
+    <Compile Include="IEInterop\IHTMLElement.cs" />
+    <Compile Include="IEInterop\IHTMLElement2.cs" />
+    <Compile Include="IEInterop\IHTMLElementCollection.cs" />
+    <Compile Include="IEInterop\IHTMLFrameBase.cs" />
+    <Compile Include="IEInterop\IHTMLFramesCollection2.cs" />
+    <Compile Include="IEInterop\IHTMLRect.cs" />
+    <Compile Include="IEInterop\IHTMLScreen.cs" />
+    <Compile Include="IEInterop\IHTMLScreen2.cs" />
+    <Compile Include="IEInterop\IHTMLSelectionObject.cs" />
+    <Compile Include="IEInterop\IHTMLStyle.cs" />
+    <Compile Include="IEInterop\IHTMLTxtRange.cs" />
+    <Compile Include="IEInterop\IHTMLWindow2.cs" />
+    <Compile Include="IEInterop\IHTMLWindow3.cs" />
+    <Compile Include="IEInterop\IHTMLWindow4.cs" />
+    <Compile Include="Interop\IOleWindow.cs" />
+    <Compile Include="Interop\IServiceProvider.cs" />
+    <Compile Include="IEInterop\IWebBrowser2.cs" />
+    <Compile Include="Interop\ComProgIdAttribute.cs" />
+    <Compile Include="Interop\COMWrapper.cs" />
+    <Compile Include="OfficeExport\ExcelExporter.cs" />
+    <Compile Include="OfficeExport\OneNoteExporter.cs" />
+    <Compile Include="OfficeExport\WordExporter.cs" />
+    <Compile Include="OfficeInterop\ExcelInterop.cs" />
+    <Compile Include="OfficeInterop\OfficeInterop.cs" />
+    <Compile Include="OfficeExport\OutlookEmailExporter.cs" />
+    <Compile Include="OfficeInterop\OneNoteInterop.cs" />
+    <Compile Include="OfficeInterop\OutlookUtils.cs" />
+    <Compile Include="OfficeInterop\OutlookInterop.cs" />
+    <Compile Include="OfficeExport\PowerpointExporter.cs" />
+    <Compile Include="OfficeInterop\PowerpointInterop.cs" />
+    <Compile Include="OfficeInterop\WordInterop.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
