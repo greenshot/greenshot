@@ -22,6 +22,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>3</LangVersion>
+    <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,8 +32,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <LangVersion>3</LangVersion>
+    <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CustomMarshalers" />
     <Reference Include="log4net">
       <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
     </Reference>
@@ -40,6 +46,8 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RemedyInterop\RemedyExporter.cs" />
+    <Compile Include="RemedyInterop\RemedyInterop.cs" />
     <Compile Include="IEInterop\IHTMLBodyElement.cs" />
     <Compile Include="IEInterop\IHTMLCurrentStyle.cs" />
     <Compile Include="IEInterop\IHTMLDocument.cs" />
@@ -61,6 +69,8 @@
     <Compile Include="IEInterop\IHTMLWindow2.cs" />
     <Compile Include="IEInterop\IHTMLWindow3.cs" />
     <Compile Include="IEInterop\IHTMLWindow4.cs" />
+    <Compile Include="Interop\Base.cs" />
+    <Compile Include="Interop\IDispatch.cs" />
     <Compile Include="Interop\IOleWindow.cs" />
     <Compile Include="Interop\IServiceProvider.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />

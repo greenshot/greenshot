@@ -23,11 +23,8 @@ using System.Collections;
 
 namespace Greenshot.Interop.Office {
 	/// <summary>
-	/// Common properties that has appreared in almost all objects
+	/// If the "type" this[object index] { get; } is implemented, use index + 1!!! (starts at 1)
 	/// </summary>
-	public interface Common : IDisposable {
-	}
-
 	public interface Collection : Common, IEnumerable {
 		int Count { get; }
 		void Remove(int index);
@@ -81,6 +78,7 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/ff861252.aspx
+	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.mailitem.aspx
 	public interface MailItem : Item, Common {
 		bool Sent { get; }
 		object MAPIOBJECT { get; }
@@ -93,6 +91,7 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/ff869026.aspx
+	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.appointmentitem.aspx
 	public interface AppointmentItem : Item, Common {
 		string Organizer { get; set; }
 		string SendUsingAccount { get; }
@@ -102,8 +101,28 @@ namespace Greenshot.Interop.Office {
 		OlReoccurenceState RecurrenceState { get; }
 	}
 
+	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.contactitem.aspx
+	public interface ContactItem : Item, Common {
+		bool HasPicture {
+			get;
+		}
+		void SaveBusinessCardImage(string path);
+		void AddPicture(string path);
+		void RemovePicture();
+		string FirstName {
+			get;
+			set;
+		}
+		string LastName {
+			get;
+			set;
+		}
+	}
+
 	public interface Attachments : Collection {
 		Attachment Add(object source, object type, object position, object displayName);
+		// Use index+1!!!!
+		Attachment this[object index] { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.attachment_members.aspx
@@ -113,6 +132,7 @@ namespace Greenshot.Interop.Office {
 		OlAttachmentType Type { get; }
 		PropertyAccessor PropertyAccessor { get; }
 		object MAPIOBJECT { get; }
+		void SaveAsFile(string path);
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.propertyaccessor_members.aspx

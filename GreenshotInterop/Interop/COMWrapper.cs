@@ -29,7 +29,7 @@ namespace Greenshot.Interop {
 	/// <summary>
 	/// Wraps a late-bound COM server.
 	/// </summary>
-	public sealed class COMWrapper : RealProxy, IDisposable {
+	public sealed class COMWrapper : RealProxy, IDisposable, IRemotingTypeInfo {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(COMWrapper));
 		private const int MK_E_UNAVAILABLE = -2147221021;
 		#region Private Data
@@ -95,8 +95,8 @@ namespace Greenshot.Interop {
 		}
 
 		/// <summary>
-		/// Gets or creates a COM object and returns the transparent proxy 
-		/// which intercepts all calls to the object
+		/// Gets or creates a COM object and returns the transparent proxy which intercepts all calls to the object
+		/// The ComProgId can be a normal ComProgId or a GUID prefixed with "clsid:"
 		/// </summary>
 		/// <param name="type">Interface which defines the method and properties to intercept</param>
 		/// <returns>Transparent proxy to the real proxy for the object</returns>
@@ -116,7 +116,13 @@ namespace Greenshot.Interop {
 			}
 
 			object comObject = null;
-			Type comType = Type.GetTypeFromProgID(progID.Value, true);
+			Type comType = null;
+			if (progID.Value.StartsWith("clsid:")) {
+				Guid guid = new Guid(progID.Value.Substring(6));
+				comType = Type.GetTypeFromCLSID(guid, true);
+			} else {
+				comType = Type.GetTypeFromProgID(progID.Value, true);
+			}
 			try {
 				comObject = Marshal.GetActiveObject(progID.Value);
 			} catch (COMException comE) {
@@ -294,14 +300,84 @@ namespace Greenshot.Interop {
 
 		#endregion
 
+		/// <summary>
+		/// Use this static method to cast a wrapped proxy to a new wrapper proxy of the supplied type.
+		/// In English, use this to cast you base "COM" interface to a specialized interface.
+		/// E.G. Outlook Item -> MailItem
+		/// </summary>
+		/// <typeparam name="T">the type you want to cast to</typeparam>
+		/// <param name="wrapperProxy">The wrapper interface, e.g. something you got back from calling GetItem</param>
+		/// <returns>A new wrapper proxy for the specified type</returns>
 		public static T Cast<T>(object wrapperProxy) {
 			if (wrapperProxy == null) {
 				return default(T);
 			}
+
 			Type newType = typeof(T);
 			COMWrapper oldWrapper = RemotingServices.GetRealProxy(wrapperProxy) as COMWrapper;
-			COMWrapper newWrapper = new COMWrapper(oldWrapper._COMObject, newType);
-			return (T)newWrapper.GetTransparentProxy();
+			if (oldWrapper == null) {
+				throw new ArgumentException("wrapper proxy was no COMWrapper");
+			}
+			if (oldWrapper._InterceptType.IsAssignableFrom(newType)) {
+				COMWrapper newWrapper = new COMWrapper(oldWrapper._COMObject, newType);
+				return (T)newWrapper.GetTransparentProxy();
+			}
+			throw new InvalidCastException(string.Format("{0} is not assignable from {1}", oldWrapper._InterceptType, newType));
+		}
+
+		/// <summary>
+		/// Returns the "com" type of the wrapperproxy, making it possible to perform reflection on it.
+		/// </summary>
+		/// <param name="wrapperProxy">wrapperProxy to get the type from</param>
+		/// <returns>Type</returns>
+		public static Type GetUnderlyingType(object wrapperProxy) {
+			Type returnType = null;
+			COMWrapper wrapper = RemotingServices.GetRealProxy(wrapperProxy) as COMWrapper;
+			if (wrapper != null) {
+				IDispatch dispatch = wrapper._COMObject as IDispatch;
+				if (dispatch != null) {
+					int result = dispatch.GetTypeInfo(0, 0, out returnType);
+					if (result != 0) {
+						LOG.DebugFormat("GetTypeInfo : 0x{0} ({1})", result.ToString("X"), result);
+					}
+				}
+			}
+			return returnType;
+		}
+
+		/// <summary>
+		/// Dump the Type-Information for the COM type to the log, this uses reflection
+		/// </summary>
+		/// <param name="wrapperProxy">wrapperProxy to inspect</param>
+		public static void DumpTypeInfo(object wrapperProxy) {
+			Type comType = COMWrapper.GetUnderlyingType(wrapperProxy);
+			if (comType == null) {
+				LOG.InfoFormat("Can't get Typeinformation");
+				return;
+			}
+			LOG.InfoFormat("Type information for COM object with name: {0}", comType.Name);
+			try {
+				foreach (MemberInfo memberInfo in comType.GetMembers()) {
+					LOG.InfoFormat("Member: {0};", memberInfo.ToString());
+				}
+			} catch (Exception memberException) {
+				LOG.Error(memberException);
+			}
+			try {
+				foreach (PropertyInfo propertyInfo in comType.GetProperties()) {
+					LOG.InfoFormat("Property: {0};", propertyInfo.ToString());
+				}
+			} catch (Exception propertyException) {
+				LOG.Error(propertyException);
+			}
+			try {
+				foreach (FieldInfo fieldInfo in comType.GetFields()) {
+					LOG.InfoFormat("Field: {0};", fieldInfo.ToString());
+				}
+			} catch (Exception fieldException) {
+				LOG.Error(fieldException);
+			}
+			LOG.InfoFormat("Type information end.");
 		}
 
 		/// <summary>
@@ -496,6 +572,30 @@ namespace Greenshot.Interop {
 			}
 
 			return new ReturnMessage(returnValue, outArgs, outArgsCount, callMessage.LogicalCallContext, callMessage);
+		}
+
+		/// <summary>
+		/// Implementation for the interface IRemotingTypeInfo
+		/// This makes it possible to cast the COMWrapper
+		/// </summary>
+		/// <param name="toType">Type to cast to</param>
+		/// <param name="o">object to cast</param>
+		/// <returns></returns>
+		public bool CanCastTo(Type toType, object o) {
+			bool returnValue = _InterceptType.IsAssignableFrom(toType);
+			return returnValue;
+		}
+
+		/// <summary>
+		/// Implementation for the interface IRemotingTypeInfo
+		/// </summary>
+		public string TypeName {
+			get {
+				throw new NotImplementedException();
+			}
+			set {
+				throw new NotImplementedException();
+			}
 		}
 	}
 }

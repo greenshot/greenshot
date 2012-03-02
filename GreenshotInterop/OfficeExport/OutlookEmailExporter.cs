@@ -89,12 +89,15 @@ namespace Greenshot.Interop.Office {
 				if (currentItem != null) {
 					OlObjectClass currentItemClass = currentItem.Class;
 					if (OlObjectClass.olMail.Equals(currentItemClass)) {
-						MailItem mailItem = COMWrapper.Cast<MailItem>(currentItem);
+						MailItem mailItem = (MailItem)currentItem;
+						//MailItem mailItem = COMWrapper.Cast<MailItem>(currentItem);
+						LOG.DebugFormat("Mail sent: {0}", mailItem.Sent);
 						if (!mailItem.Sent) {
 							return true;
 						}
 					} else if (outlookVersion.Major >= 12 && allowMeetingAsTarget && OlObjectClass.olAppointment.Equals(currentItemClass)) {
-						AppointmentItem appointmentItem = COMWrapper.Cast<AppointmentItem>(currentItem);
+						//AppointmentItem appointmentItem = COMWrapper.Cast<AppointmentItem>(currentItem);
+						AppointmentItem appointmentItem = (AppointmentItem)currentItem;
 						if (string.IsNullOrEmpty(appointmentItem.Organizer) || (currentUser == null && currentUser.Equals(appointmentItem.Organizer))) {
 							return true;
 						} else {
@@ -166,7 +169,8 @@ namespace Greenshot.Interop.Office {
 			MailItem mailItem = null;
 			try {
 				if (isMail) {
-					mailItem = COMWrapper.Cast<MailItem>(currentItem);
+					//mailItem = COMWrapper.Cast<MailItem>(currentItem);
+					mailItem = (MailItem)currentItem;
 					if (mailItem.Sent) {
 						LOG.WarnFormat("Item already sent, can't export to {0}", currentItem.Subject);
 						return false;
@@ -271,7 +275,8 @@ namespace Greenshot.Interop.Office {
 			if (newItem == null) {
 				return;
 			}
-			MailItem newMail = COMWrapper.Cast<MailItem>(newItem);
+			//MailItem newMail = COMWrapper.Cast<MailItem>(newItem);
+			MailItem newMail = (MailItem)newItem;
 			newMail.Subject = subject;
 			newMail.BodyFormat = OlBodyFormat.olFormatHTML;
 			string bodyString = null;

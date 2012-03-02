@@ -86,6 +86,7 @@ namespace Greenshot.Interop.Office {
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook._application.inspectors.aspx
 	public interface Inspectors : Common, Collection, IEnumerable {
+		// Use index + 1!!
 		Inspector this[Object Index] { get; }
 	}
 

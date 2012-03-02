@@ -36,6 +36,7 @@ namespace Greenshot.Interop.Office {
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbooks.aspx
 	public interface IWorkbooks : Common, Collection {
 		IWorkbook Add(object template);
+		// Use index + 1!!
 		IWorkbook this[object Index] { get; }
 	}
 
@@ -55,10 +56,13 @@ namespace Greenshot.Interop.Office {
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.iworksheets_members.aspx
 	public interface IWorksheets : Common, Collection {
-		Object this[object Index] { get; }
+		// Use index + 1!!
+		IWorksheet this[object Index] { get; }
 	}
 
 	public interface IPictures : Common, Collection {
+		// Use index + 1!!
+		//IPicture this[object Index] { get; }
 		void Insert(string file);
 	}
 }
