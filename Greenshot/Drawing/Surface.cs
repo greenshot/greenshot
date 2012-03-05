@@ -571,35 +571,45 @@ namespace Greenshot.Drawing {
 					case Effects.Grayscale:
 						newImage = ImageHelper.CreateGrayscale((Bitmap)Image);
 						break;
-					case Effects.Rotate270:
+					case Effects.Rotate90:
 						MakeUndoable(new DrawableContainerBoundsChangeMemento(elements.AsIDrawableContainerList()), false);
 						foreach(DrawableContainer drawableContainer in elements) {
-							int x1 = drawableContainer.Bounds.X - (Width >> 1);
-							int y1 = (-drawableContainer.Bounds.Y) + (Height >> 1);
-							int rotatedX1 = y1;
-							int rotatedY1 = -x1;
-							int newX1 = y1 + (Height >> 1);
-							int newY1 = -x1 - (Width >> 1);
+							int angle = 270;
+							int ox = 0;
+							int oy = 0;
+							int centerX = Width>>1;
+							int centerY = Height>>1;
+							int px = drawableContainer.Bounds.X - centerX;
+							int py = centerY - drawableContainer.Bounds.Y;
+							double theta = Math.PI * angle / 180.0;
+							double x1 = Math.Cos(theta) * (px-ox) - Math.Sin(theta) * (py-oy) + ox;
+							double y1 = Math.Sin(theta) * (px-ox) + Math.Cos(theta) * (py-oy) + oy;
 
-							int x2 = (drawableContainer.Bounds.X+drawableContainer.Bounds.Width) - (Width >> 1);
-							int y2 = (-(drawableContainer.Bounds.Y+drawableContainer.Bounds.Height)) + (Height >> 1);
-							int rotatedX2 = y2;
-							int rotatedY2 = -x2;
-							int newX2 = y2 + (Height >> 1);
-							int newY2 = -x2 - (Width >> 1);
-							int newWidth = newX2 - newX1;
-							int newHeight = newY2 - newY1;
+							// Transform to Cartesian coordinates
+							px = (drawableContainer.Bounds.X+drawableContainer.Bounds.Width) - centerX;
+							py = centerY - (drawableContainer.Bounds.Y+drawableContainer.Bounds.Height);
+
+							double x2 = Math.Cos(theta) * (px-ox) - Math.Sin(theta) * (py-oy) + ox;
+							double y2 = Math.Sin(theta) * (px-ox) + Math.Cos(theta) * (py-oy) + oy;
+							x1 += centerY;
+							x2 += centerY;
+							y1 = centerX - y1;
+							y2 = centerX - y2;
+
+							// Calculate to rectangle
+							double newWidth = x2 - x1;
+							double newHeight = y2 - y1;
 							
 							RectangleF newRectangle = new RectangleF(
-								newX1,
-								newY1,
-								newWidth,
-								newHeight
+								(float)x1,
+								(float)y1,
+								(float)newWidth,
+								(float)newHeight
 							);
 							LOG.DebugFormat("Bounds before {0}, bounds after {1}", drawableContainer.Bounds, newRectangle);
 							drawableContainer.ApplyBounds(newRectangle);
 						}
-						newImage = ImageHelper.RotateFlip((Bitmap)Image, RotateFlipType.Rotate270FlipNone);
+						newImage = ImageHelper.RotateFlip((Bitmap)Image, RotateFlipType.Rotate90FlipNone);
 						break;
 				}
 
