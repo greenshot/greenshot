@@ -590,7 +590,50 @@ namespace Greenshot.Drawing {
 			}
 			Invalidate();
 		}
-		
+
+		public virtual void Rotate(RotateFlipType rotateFlipType) {
+			// somehow the rotation is the wrong way?
+			int angle = 90;
+			if (RotateFlipType.Rotate90FlipNone == rotateFlipType) {
+				angle = 270;
+			}
+			int ox = 0;
+			int oy = 0;
+			int centerX = parent.Width >> 1;
+			int centerY = parent.Height >> 1;
+			// Transform from screen to normal coordinates
+			int px = Left - centerX;
+			int py = centerY - Top;
+			double theta = Math.PI * angle / 180.0;
+			double x1 = Math.Cos(theta) * (px - ox) - Math.Sin(theta) * (py - oy) + ox;
+			double y1 = Math.Sin(theta) * (px - ox) + Math.Cos(theta) * (py - oy) + oy;
+
+			// Transform from screen to normal coordinates
+			px = (Left + Width) - centerX;
+			py = centerY - (Top + Height);
+
+			double x2 = Math.Cos(theta) * (px - ox) - Math.Sin(theta) * (py - oy) + ox;
+			double y2 = Math.Sin(theta) * (px - ox) + Math.Cos(theta) * (py - oy) + oy;
+
+			// Transform back to screen coordinates, as we rotate the bitmap we need to switch the center X&Y
+			x1 += centerY;
+			y1 = centerX - y1;
+			x2 += centerY;
+			y2 = centerX - y2;
+
+			// Calculate to rectangle
+			double newWidth = x2 - x1;
+			double newHeight = y2 - y1;
+
+			RectangleF newRectangle = new RectangleF(
+				(float)x1,
+				(float)y1,
+				(float)newWidth,
+				(float)newHeight
+			);
+			ApplyBounds(newRectangle);
+		}
+
 		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {
 			return ScaleHelper.ShapeAngleRoundBehavior.Instance;
 		}

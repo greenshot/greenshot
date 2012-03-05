@@ -572,44 +572,16 @@ namespace Greenshot.Drawing {
 						newImage = ImageHelper.CreateGrayscale((Bitmap)Image);
 						break;
 					case Effects.Rotate90:
+					case Effects.Rotate270:
 						MakeUndoable(new DrawableContainerBoundsChangeMemento(elements.AsIDrawableContainerList()), false);
-						foreach(DrawableContainer drawableContainer in elements) {
-							int angle = 270;
-							int ox = 0;
-							int oy = 0;
-							int centerX = Width>>1;
-							int centerY = Height>>1;
-							int px = drawableContainer.Bounds.X - centerX;
-							int py = centerY - drawableContainer.Bounds.Y;
-							double theta = Math.PI * angle / 180.0;
-							double x1 = Math.Cos(theta) * (px-ox) - Math.Sin(theta) * (py-oy) + ox;
-							double y1 = Math.Sin(theta) * (px-ox) + Math.Cos(theta) * (py-oy) + oy;
-
-							// Transform to Cartesian coordinates
-							px = (drawableContainer.Bounds.X+drawableContainer.Bounds.Width) - centerX;
-							py = centerY - (drawableContainer.Bounds.Y+drawableContainer.Bounds.Height);
-
-							double x2 = Math.Cos(theta) * (px-ox) - Math.Sin(theta) * (py-oy) + ox;
-							double y2 = Math.Sin(theta) * (px-ox) + Math.Cos(theta) * (py-oy) + oy;
-							x1 += centerY;
-							x2 += centerY;
-							y1 = centerX - y1;
-							y2 = centerX - y2;
-
-							// Calculate to rectangle
-							double newWidth = x2 - x1;
-							double newHeight = y2 - y1;
-							
-							RectangleF newRectangle = new RectangleF(
-								(float)x1,
-								(float)y1,
-								(float)newWidth,
-								(float)newHeight
-							);
-							LOG.DebugFormat("Bounds before {0}, bounds after {1}", drawableContainer.Bounds, newRectangle);
-							drawableContainer.ApplyBounds(newRectangle);
+						RotateFlipType rotateFlipType = RotateFlipType.Rotate270FlipNone;
+						if (effect == Effects.Rotate90) {
+							rotateFlipType = RotateFlipType.Rotate90FlipNone;
 						}
-						newImage = ImageHelper.RotateFlip((Bitmap)Image, RotateFlipType.Rotate90FlipNone);
+						foreach (DrawableContainer drawableContainer in elements) {
+							drawableContainer.Rotate(rotateFlipType);
+						}
+						newImage = ImageHelper.RotateFlip((Bitmap)Image, rotateFlipType);
 						break;
 				}
 

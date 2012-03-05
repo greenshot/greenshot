@@ -100,7 +100,16 @@ namespace Greenshot.Drawing {
 				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 			}
 		}
-		
+
+		public override void Rotate(RotateFlipType rotateFlipType) {
+			Bitmap newBitmap = ImageHelper.RotateFlip((Bitmap)bitmap, rotateFlipType);
+			if (bitmap != null) {
+				bitmap.Dispose();
+			}
+			bitmap = newBitmap;
+			base.Rotate(rotateFlipType);
+		}
+
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			if (bitmap != null) {
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
