@@ -28,10 +28,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
-using Greenshot.Helpers.OfficeInterop;
+using Greenshot.Interop.Office;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 /// <summary>
 /// Author: Andrew Baker

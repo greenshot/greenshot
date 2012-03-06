@@ -26,11 +26,13 @@ using System.Drawing.Imaging;
 using Greenshot.Configuration;
 using Greenshot.Drawing.Filters;
 using Greenshot.Helpers.IEInterop;
+using Greenshot.Interop;
+using Greenshot.Interop.IE;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Helpers {
 	/// <summary>

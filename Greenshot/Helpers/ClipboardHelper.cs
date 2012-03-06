@@ -31,7 +31,7 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Helpers {
 	/// <summary>

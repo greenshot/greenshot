@@ -26,7 +26,9 @@ using System.Runtime.InteropServices;
 
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
-using IniFile;
+using Greenshot.Interop;
+using Greenshot.Interop.IE;
+using Greenshot.IniFile;
 
 namespace Greenshot.Helpers.IEInterop {
 	public class ElementContainer {
@@ -302,7 +304,7 @@ namespace Greenshot.Helpers.IEInterop {
 			// IE tries to prevent a cross frame scripting security issue.
 			try {
 				// Convert IHTMLWindow2 to IWebBrowser2 using IServiceProvider.
-				IServiceProvider sp = (IServiceProvider)htmlWindow;
+				Interop.IServiceProvider sp = (Interop.IServiceProvider)htmlWindow;
 				
 				// Use IServiceProvider.QueryService to get IWebBrowser2 object.
 				Object brws = null;

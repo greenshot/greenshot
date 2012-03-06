@@ -35,7 +35,7 @@ using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Helpers {
 	/// <summary>

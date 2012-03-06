@@ -321,9 +321,9 @@ namespace Greenshot.Helpers {
             }
         }
 
-		public void AddEmptyFrame() {
+		public void AddEmptyFrames(int frames) {
 			lock (this) {
-				position++;
+				position += frames;
 			}
 		}
 

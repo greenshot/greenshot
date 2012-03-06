@@ -35,7 +35,7 @@ using Greenshot.Configuration;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -62,6 +62,7 @@ namespace Greenshot.Helpers {
 		private IntPtr bits0 = IntPtr.Zero; //pointer to the raw bits that make up the bitmap.
 		private Bitmap GDIBitmap;
 		private string filename = null;
+		private Stopwatch stopwatch = new Stopwatch();
 
 		public ScreenCaptureHelper(Rectangle recordingRectangle) {
 			this.recordingRectangle = recordingRectangle;
@@ -190,8 +191,9 @@ namespace Greenshot.Helpers {
 		private void CaptureFrame() {
 			int MSBETWEENCAPTURES = 1000/framesPerSecond;
 			int msToNextCapture = MSBETWEENCAPTURES;
+			stopwatch.Reset();
 			while (!stop)  {
-				DateTime nextCapture = DateTime.Now.AddMilliseconds(msToNextCapture);
+				stopwatch.Start();
 				Point captureLocation;
 				if (recordingWindow != null) {
 					recordingWindow.Reset();
@@ -219,18 +221,35 @@ namespace Greenshot.Helpers {
 					LOG.Error("Error adding frame to avi, stopping capturing.");
 					break;
 				}
-				int sleeptime = (int)(nextCapture.Subtract(DateTime.Now).Ticks / TimeSpan.TicksPerMillisecond);
-				if (sleeptime > 0) {
-					Thread.Sleep(sleeptime);
-					msToNextCapture = MSBETWEENCAPTURES;
-				} else {
-					// Compensating
-					do {
-						aviWriter.AddEmptyFrame();
-						sleeptime += MSBETWEENCAPTURES;
-					} while (sleeptime < 0);
-					msToNextCapture = sleeptime;
+
+				int restTime = (int)(msToNextCapture - stopwatch.ElapsedMilliseconds);
+
+				// Set time to next capture, we correct it if needed later.
+				msToNextCapture = MSBETWEENCAPTURES;
+				if (restTime > 0) {
+					// We were fast enough, we wait for next capture
+					Thread.Sleep(restTime);
+				} else if (restTime < 0) {
+					// Compensating, as we took to long
+					int framesToSkip = ((-restTime) / MSBETWEENCAPTURES);
+					int leftoverMillis = (-restTime) % MSBETWEENCAPTURES;
+					//LOG.InfoFormat("Adding {0} empty frames to avi, leftover millis is {1}, sleeping {2} (of {3} total)", framesToSkip, leftover, sleepMillis, MSBETWEENCAPTURES);
+					aviWriter.AddEmptyFrames(framesToSkip);
+
+					// check how bad it is, if we only missed our target by a few millis we hope the next capture corrects this
+					if (leftoverMillis > 0 && leftoverMillis <= 2) {
+						// subtract the leftover from the millis to next capture, do nothing else
+						msToNextCapture -= leftoverMillis;
+					} else if (leftoverMillis > 0) {
+						// it's more, we add an empty frame
+						aviWriter.AddEmptyFrames(1);
+						// we sleep to the next time and
+						int sleepMillis = MSBETWEENCAPTURES - leftoverMillis;
+						// Sleep to next capture
+						Thread.Sleep(sleepMillis);
+					}
 				}
+				stopwatch.Reset();
 			}
 			Cleanup();
 		}
