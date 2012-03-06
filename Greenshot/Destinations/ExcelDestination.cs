@@ -28,8 +28,8 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
-using Greenshot.Helpers.OfficeInterop;
-using IniFile;
+using Greenshot.Interop.Office;
+using Greenshot.IniFile;
 
 namespace Greenshot.Destinations {
 	/// <summary>

@@ -33,7 +33,7 @@ using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Forms {
 	/// <summary>

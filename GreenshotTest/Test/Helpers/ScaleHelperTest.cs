@@ -26,7 +26,7 @@ using Greenshot.Drawing;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 using NUnit.Framework;
 
 namespace Greenshot.Test

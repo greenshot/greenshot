@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Greenshot.Plugin;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace ExternalCommand {
 	/// <summary>

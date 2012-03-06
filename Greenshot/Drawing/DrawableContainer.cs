@@ -32,6 +32,7 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin.Drawing;
 using Greenshot.Memento;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -597,6 +598,17 @@ namespace Greenshot.Drawing {
 			if (RotateFlipType.Rotate90FlipNone == rotateFlipType) {
 				angle = 270;
 			}
+
+			Rectangle beforeBounds = new Rectangle(Left, Top, Width, Height);
+			LOG.DebugFormat("Bounds before: {0}", beforeBounds);
+			GraphicsPath translatePath = new GraphicsPath();
+			translatePath.AddRectangle(beforeBounds);
+			Matrix rotateMatrix = new Matrix();
+			rotateMatrix.RotateAt(angle, new PointF(parent.Width >> 1, parent.Height >> 1));
+			translatePath.Transform(rotateMatrix);
+			RectangleF newBounds = translatePath.GetBounds();
+			LOG.DebugFormat("New bounds by using graphics path: {0}", newBounds);
+
 			int ox = 0;
 			int oy = 0;
 			int centerX = parent.Width >> 1;
@@ -632,6 +644,7 @@ namespace Greenshot.Drawing {
 				(float)newHeight
 			);
 			ApplyBounds(newRectangle);
+			LOG.DebugFormat("New bounds by using old method: {0}", newRectangle);
 		}
 
 		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {

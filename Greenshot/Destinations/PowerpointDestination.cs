@@ -28,8 +28,8 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
-using Greenshot.Helpers.OfficeInterop;
-using IniFile;
+using Greenshot.Interop.Office;
+using Greenshot.IniFile;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -121,9 +121,9 @@ namespace Greenshot.Destinations {
 				}
 			}
 			if (presentationName != null) {
-				PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails);
+				PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
 			} else {
-				PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails);
+				PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
 			}
 			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;

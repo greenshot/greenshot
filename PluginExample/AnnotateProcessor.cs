@@ -24,7 +24,7 @@ using System.Windows.Forms;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace PluginExample {
 	/// <summary>

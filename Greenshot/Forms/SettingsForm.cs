@@ -30,7 +30,7 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot {
 	/// <summary>

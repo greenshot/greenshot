@@ -24,7 +24,7 @@ using System.Drawing;
 
 using Greenshot.Drawing.Fields;
 using GreenshotPlugin.UnmanagedHelpers;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Configuration {
 	/// <summary>

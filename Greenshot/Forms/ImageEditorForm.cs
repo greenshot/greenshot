@@ -36,7 +36,7 @@ using Greenshot.Help;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 using System.Threading;
 using System.Drawing.Imaging;
 
@@ -409,6 +409,19 @@ namespace Greenshot {
 				effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_grayscale));
 				effectSubItem.Click += delegate {
 					surface.ApplyBitmapEffect(Effects.Grayscale);
+					updateUndoRedoSurfaceDependencies();
+				};
+				effectItem.DropDownItems.Add(effectSubItem);
+
+				effectSubItem = new ToolStripMenuItem("Rotate 90");
+				effectSubItem.Click += delegate {
+					surface.ApplyBitmapEffect(Effects.Rotate90);
+					updateUndoRedoSurfaceDependencies();
+				};
+				effectItem.DropDownItems.Add(effectSubItem);
+				effectSubItem = new ToolStripMenuItem("Rotate 270");
+				effectSubItem.Click += delegate {
+					surface.ApplyBitmapEffect(Effects.Rotate270);
 					updateUndoRedoSurfaceDependencies();
 				};
 				effectItem.DropDownItems.Add(effectSubItem);

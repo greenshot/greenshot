@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 using Greenshot.Configuration;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>

@@ -25,7 +25,7 @@ using System.Windows;
 
 using Confluence;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace GreenshotConfluencePlugin {
 	public partial class ConfluenceSearch : System.Windows.Controls.Page {

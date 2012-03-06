@@ -74,6 +74,7 @@
     <Compile Include="Destinations\ExcelDestination.cs" />
     <Compile Include="Destinations\FileDestination.cs" />
     <Compile Include="Destinations\FileWithDialogDestination.cs" />
+    <Compile Include="Destinations\OneNoteDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\PrinterDestination.cs" />
@@ -167,37 +168,11 @@
     <Compile Include="Helpers\DestinationHelper.cs" />
     <Compile Include="Helpers\IECaptureHelper.cs" />
     <Compile Include="Helpers\IEInterop\IEContainer.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLBodyElement.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLCurrentStyle.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLElement2.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLFrameBase.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLFramesCollection2.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLRect.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLSelectionObject.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLStyle.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLTxtRange.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLWindow4.cs" />
-    <Compile Include="Helpers\IEInterop\IOleWindow.cs" />
-    <Compile Include="Helpers\IEInterop\IServiceProvider.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLDocument.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLDocument2.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLDocument3.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLDocument4.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLDocument5.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLElement.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLElementCollection.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLScreen.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLScreen2.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLWindow2.cs" />
-    <Compile Include="Helpers\IEInterop\IHTMLWindow3.cs" />
-    <Compile Include="Helpers\IEInterop\IWebBrowser2.cs" />
-    <Compile Include="Helpers\OfficeInterop\ExcelWrapper.cs" />
     <Compile Include="Helpers\ProcessorHelper.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
     <None Include="Greenshot.exe.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Helpers\OfficeInterop\OutlookUtils.cs" />
     <Compile Include="Helpers\WindowWrapper.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
@@ -206,10 +181,6 @@
     <Compile Include="Memento\IMemento.cs" />
     <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
     <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
-    <Compile Include="Helpers\OfficeInterop\OfficeWrappers.cs" />
-    <Compile Include="Helpers\OfficeInterop\OutlookWrapper.cs" />
-    <Compile Include="Helpers\OfficeInterop\PowerpointWrapper.cs" />
-    <Compile Include="Helpers\OfficeInterop\WordWrapper.cs" />
     <Compile Include="Helpers\QuantizerHelper.cs" />
     <Compile Include="Helpers\ScreenCaptureHelper.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />
@@ -382,6 +353,10 @@
     <Folder Include="Help" />
     <Folder Include="Destinations" />
     <Folder Include="Processors" />
+    <ProjectReference Include="..\GreenshotInterop\GreenshotInterop.csproj">
+      <Project>{ADD4E400-56E1-4E31-A5C2-070BEB238A0F}</Project>
+      <Name>GreenshotInterop</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>

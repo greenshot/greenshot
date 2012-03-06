@@ -34,6 +34,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class FreehandContainer : DrawableContainer {
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FreehandContainer));
 		private static readonly float [] POINT_OFFSET = new float[]{0.5f, 0.25f, 0.75f};
 
 		[NonSerialized]
@@ -166,6 +167,27 @@ namespace Greenshot.Drawing {
 
 			// Recalculate the bounds
 			myBounds = Rectangle.Round(freehandPath.GetBounds());
+		}
+
+		public override void Rotate(RotateFlipType rotateFlipType) {
+			int angle = 270;
+			if (rotateFlipType == RotateFlipType.Rotate90FlipNone) {
+				angle = 90;
+			}
+
+			LOG.DebugFormat("Bounds before: {0} - {1}", Bounds, freehandPath.GetBounds());
+			Matrix rotateMatrix = new Matrix();
+			rotateMatrix.Translate(-(parent.Width >> 1), -(parent.Height >> 1));
+			freehandPath.Transform(rotateMatrix);
+			rotateMatrix = new Matrix();
+			rotateMatrix.Rotate(360 - angle);
+			freehandPath.Transform(rotateMatrix);
+			rotateMatrix = new Matrix();
+			rotateMatrix.Translate(parent.Height >> 1, parent.Width >> 1);
+			freehandPath.Transform(rotateMatrix);
+
+			LOG.DebugFormat("Bounds after: {0} - {1}", Bounds, freehandPath.GetBounds());
+			//base.Rotate(rotateFlipType);
 		}
 
 		/// <summary>

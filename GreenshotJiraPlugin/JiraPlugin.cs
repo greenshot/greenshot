@@ -28,7 +28,7 @@ using System.Windows.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 using Jira;
 
 namespace GreenshotJiraPlugin {

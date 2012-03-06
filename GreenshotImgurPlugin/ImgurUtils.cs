@@ -28,7 +28,7 @@ using System.Text;
 using System.Web;
 
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>

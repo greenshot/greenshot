@@ -29,7 +29,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Configuration {
 	public enum ScreenshotDestinations {Editor=1, FileDefault=2, FileWithDialog=4, Clipboard=8, Printer=16, EMail=32}

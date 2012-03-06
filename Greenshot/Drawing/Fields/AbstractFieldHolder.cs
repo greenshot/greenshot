@@ -24,7 +24,7 @@ using System.Drawing;
 using System.Runtime.Serialization;
 
 using Greenshot.Configuration;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>

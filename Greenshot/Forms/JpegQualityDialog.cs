@@ -22,7 +22,7 @@ using System;
 using System.Windows.Forms;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot {
 	/// <summary>

@@ -28,7 +28,7 @@ using System.Windows;
 using Confluence;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 using TranslationByMarkupExtension;
 
 namespace GreenshotConfluencePlugin {

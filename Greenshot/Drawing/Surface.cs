@@ -33,7 +33,7 @@ using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using Greenshot.Memento;
-using IniFile;
+using Greenshot.IniFile;
 using Greenshot.Drawing.Filters;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Controls;

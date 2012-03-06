@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace GreenshotNetworkImportPlugin {
 	/// <summary>

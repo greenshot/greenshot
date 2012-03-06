@@ -27,10 +27,10 @@ using System.Windows.Forms;
 
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using Greenshot.Helpers.OfficeInterop;
+using Greenshot.Interop.Office;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -168,7 +168,7 @@ namespace Greenshot.Destinations {
 			if (!isOutlookUsed) {
 				yield break;
 			}
-			Dictionary<string, OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
+			Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets(conf.OutlookAllowExportInMeetings);
 			if (inspectorCaptions != null) {
 				foreach (string inspectorCaption in inspectorCaptions.Keys) {
 					yield return new EmailDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
@@ -206,9 +206,9 @@ namespace Greenshot.Destinations {
 			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
 
 			if (outlookInspectorCaption != null) {
-				OutlookExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
+				OutlookEmailExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
 			} else {
-				OutlookExporter.ExportToOutlook(tmpFile, captureDetails.Title, attachmentName);
+				OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, captureDetails.Title, attachmentName);
 			}
 			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;

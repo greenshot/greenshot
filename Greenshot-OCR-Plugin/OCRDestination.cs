@@ -23,11 +23,10 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-using Greenshot.Interop;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace GreenshotOCR {
 	/// <summary>

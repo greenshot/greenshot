@@ -29,7 +29,7 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
 using Greenshot.Forms;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace Greenshot.Destinations {
 	/// <summary>

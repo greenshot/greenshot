@@ -27,7 +27,7 @@ using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 

@@ -21,7 +21,7 @@
 using System;
 
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace GreenshotNetworkImportPlugin {
 	/// <summary>

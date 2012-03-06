@@ -27,7 +27,7 @@ using System.Threading;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 
 namespace ExternalCommand {
 	/// <summary>
