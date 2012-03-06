@@ -33,7 +33,7 @@ using System.Windows.Forms;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
-using IniFile;
+using Greenshot.IniFile;
 
 /// <summary>
 /// Code for handling with "windows"

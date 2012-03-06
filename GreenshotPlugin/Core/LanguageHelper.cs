@@ -27,7 +27,7 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 
-using IniFile;
+using Greenshot.IniFile;
 using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core {

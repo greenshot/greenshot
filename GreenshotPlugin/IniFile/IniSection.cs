@@ -21,7 +21,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IniFile {
+namespace Greenshot.IniFile {
 	/// <summary>
 	/// Base class for all IniSections
 	/// </summary>

@@ -25,7 +25,8 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Plugin;
-using IniFile;
+using Greenshot.Interop.Office;
+using Greenshot.IniFile;
 
 namespace GreenshotPlugin.Core {
 	public enum ClipboardFormat {
@@ -36,9 +37,6 @@ namespace GreenshotPlugin.Core {
 	}
 	public enum WindowCaptureMode {
 		Screen, GDI, Aero, AeroTransparent, Auto
-	}
-	public enum EmailFormat {
-		Text, HTML
 	}
 
 	/// <summary>

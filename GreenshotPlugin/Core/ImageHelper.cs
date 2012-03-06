@@ -27,7 +27,7 @@ using System.Drawing.Drawing2D;
 
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
-using IniFile;
+using Greenshot.IniFile;
 using System.Runtime.InteropServices;
 
 namespace GreenshotPlugin.Core {

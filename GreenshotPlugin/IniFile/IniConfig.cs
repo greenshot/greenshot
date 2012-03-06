@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 
-namespace IniFile {
+namespace Greenshot.IniFile {
 	public class IniConfig {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IniConfig));
 		private const string INI_EXTENSION = ".ini";

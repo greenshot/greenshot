@@ -23,7 +23,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 
-using IniFile;
+using Greenshot.IniFile;
 using log4net;
 using log4net.Appender;
 using log4net.Config;

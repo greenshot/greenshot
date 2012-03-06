@@ -24,7 +24,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-using IniFile;
+using Greenshot.IniFile;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>

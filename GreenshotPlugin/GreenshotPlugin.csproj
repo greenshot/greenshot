@@ -124,6 +124,12 @@
     <Folder Include="Interop" />
     <Folder Include="UnmanagedHelpers" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GreenshotInterop\GreenshotInterop.csproj">
+      <Project>{ADD4E400-56E1-4E31-A5C2-070BEB238A0F}</Project>
+      <Name>GreenshotInterop</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>rmdir /S /Q "$(SolutionDir)bin\$(Configuration)\Plugins"
 "$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"</PreBuildEvent>

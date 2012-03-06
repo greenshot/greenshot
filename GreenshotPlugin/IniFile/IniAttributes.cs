@@ -20,7 +20,7 @@
  */
 using System;
 
-namespace IniFile {
+namespace Greenshot.IniFile {
 	/// <summary>
 	/// Attribute for telling that this class is linked to a section in the ini-configuration
 	/// </summary>

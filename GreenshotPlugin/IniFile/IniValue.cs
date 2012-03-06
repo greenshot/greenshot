@@ -21,7 +21,7 @@
 using System;
 using System.Reflection;
 
-namespace IniFile {
+namespace Greenshot.IniFile {
 	/// <summary>
 	/// A container to be able to pass the value from a IniSection around.
 	/// </summary>

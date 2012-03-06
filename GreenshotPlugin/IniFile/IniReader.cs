@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace IniFile {
+namespace Greenshot.IniFile {
 	public static class IniReader {
 		private const string SECTION_START = "[";
 		private const string SECTION_END = "]";
