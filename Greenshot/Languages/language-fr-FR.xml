@@ -2,7 +2,7 @@
 <language description="Français" ietf="fr-FR" version="0.8.1" languagegroup="1">
   <resources>
 	<resource name="about_translation">
-		Traduction Française par 恵美の女猫 (EminoMeneko).
+		Traduction Française par 恵美の女猫 (EminoMeneko). Complèté à V.0.8.1.1339 par MVH
 	</resource>
 	<resource name="application_title">
 		Greenshot - l'utilitaire révolutionnaire de capture d'écran
@@ -52,6 +52,9 @@
 	<resource name="contextmenu_exit">
 		Quitter
 	</resource>
+	<resource name="contextmenu_openrecentcapture">
+		Ouvrir dernier emplacement de sauvegarde
+	</resource>
 	<resource name="settings_visualization">
 		Effets
 	</resource>
@@ -81,15 +84,15 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.
 		Coller
 	</resource>
 	<resource name="about_title">
-		A propose de Greenshot
+		A propos de Greenshot
 	</resource>
 	<resource name="about_license">
-		Copyright © 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
+		Copyright © 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
 Détails de la GNU General Public License : 
 </resource>
 	<resource name="error_openlink">
-		Ne peut ouvrir le lien '{0}'.
+		Ne peut ouvrir le lien
 	</resource>
 	<resource name="error_save">
 		Ne peut sauvegarder la capture d'écran. Veuillez trouver un répertoire adéquat !
@@ -377,7 +380,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		Copier le chemin vers le presse-papier
 	</resource>
 	<resource name="settings_message_filenamepattern">
-		Les variables suivantes seront automatiquement remplacées dans votre morif :
+		Les variables suivantes seront automatiquement remplacées dans votre motif :
 ${YYYY} Année sur 4 chiffres
 ${MM} mois sur 2 chiffres
 ${DD} jour sur 2 chiffres
@@ -477,6 +480,18 @@ ${hostname} Nom d'hôte du PC
 	<resource name="contextmenu_openfile">
 		Ouvrir à partir du fichier
 	</resource>
+	<resource name="settings_window_capture_mode">
+		Mode capture Fenêtre
+	</resource>
+	<resource name="settings_windowscapture">
+		Capturer Fenêtre
+	</resource>
+	<resource name="settings_iecapture">
+		Capturer Internet Explorer
+	</resource>
+	<resource name="settings_editor">
+		Editeur
+	</resource>
 	<resource name="error_openfile">
 		Le fichier "{0}" n'a pu être ouvert.
 	</resource>
@@ -500,6 +515,9 @@ ${hostname} Nom d'hôte du PC
 	</resource>
 	<resource name="editor_save_objects">
 		Sauvegarder les objets dans un fichier
+	</resource>
+	<resource name="editor_match_capture_size">
+		Adapter le format de capture
 	</resource>
 	<resource name="settings_waittime">
 		Millisecondes d'attente avant la capture
@@ -543,6 +561,19 @@ ${hostname} Nom d'hôte du PC
 	</resource>	
 	<resource name="wait_ie_capture">
 		Veuillez patienter pendant que la page dans Internet Explorer est capturée...
+	</resource>
+	<!-- v0.8.1.1204 to 0.8.1.1339-->
+	<resource name="settings_network">
+		Mises à jour réseau
+	</resource>
+	<resource name="settings_checkperiod">
+		Intervalle de recherche de m.a.j en jours (0=pas de recherche)
+	</resource>
+	<resource name="settings_usedefaultproxy">
+		Utiliser le système proxy par défaut
+	</resource>
+	<resource name="update_found">
+		Une nouvelle version de Greenshot est disponible! Voulez-vous télécharger Greenshot {0}?
 	</resource>	
   </resources>
 </language>
