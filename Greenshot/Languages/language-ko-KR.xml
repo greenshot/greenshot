@@ -1,0 +1,531 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Korean" ietf="ko-KR" version="0.8.0" languagegroup="8">
+  <resources>
+	<!--    
+	Note to translator: uncomment entry "about_translation" to have 
+	your efforts honored in the "About Greenshot" dialog 
+	-->
+	<resource name="about_translation">
+		Translated by cwdaddy@gmail.com (유인식)
+	</resource>
+	<resource name="application_title">
+		Greenshot - the revolutionary screenshot utility
+	</resource>
+	<resource name="editor_drawrectangle">
+		사각형 (R)
+	</resource>
+	<resource name="editor_save">
+		저장
+	</resource>
+	<resource name="contextmenu_settings">
+		환경설정...
+	</resource>
+	<resource name="settings_storagelocation">
+		저장위치
+	</resource>
+	<resource name="settings_title">
+		세팅
+	</resource>
+	<resource name="settings_tooltip_storagelocation">
+		기본 저장 위치(빈칸이면 바탕화면으로 저장)
+	</resource>
+	<resource name="settings_language">
+		언어
+	</resource>
+	<resource name="settings_filenamepattern">
+		파일명 저장방식
+	</resource>
+	<resource name="settings_tooltip_language">
+		사용자 언어환경 (변경시 재부팅 필요)
+	</resource>
+	<resource name="settings_tooltip_filenamepattern">
+		스크린샷 저장시 파일명을 저장하는 방식
+	</resource>
+	<resource name="settings_primaryimageformat">
+		이미지 포맷
+	</resource>
+	<resource name="settings_tooltip_primaryimageformat">
+		기본 저장 이미지 포맷
+	</resource>
+	<resource name="contextmenu_capturearea">
+		캡쳐 영역 지정
+	</resource>
+	<resource name="contextmenu_capturelastregion">
+		이전 캡쳐 영역
+	</resource>
+	<resource name="contextmenu_exit">
+		끝내기
+	</resource>
+	<resource name="settings_visualization">
+		효과
+	</resource>
+	<resource name="settings_playsound">
+		카메라 촬영음
+	</resource>
+	<resource name="settings_showflashlight">
+		카메라 플래시
+	</resource>
+	<resource name="error">
+		에러
+	</resource>
+	<resource name="error_nowriteaccess">
+		{0} 이름으로 저장할 수 없습니다.
+		선택된 저장 장소의 저장 가능여부를 확인해주세요.
+	</resource>
+	<resource name="contextmenu_capturefullscreen">
+		전체화면
+	</resource>
+	<resource name="editor_cuttoclipboard">
+		자르기
+	</resource>
+	<resource name="editor_copytoclipboard">
+		복사
+	</resource>
+	<resource name="editor_pastefromclipboard">
+		붙여넣기
+	</resource>
+	<resource name="about_title">
+		Greenshot(Greenshot)에 관해...
+	</resource>
+	<resource name="about_license">
+		Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
+Details about the GNU General Public License:
+	</resource>
+	<resource name="error_openlink">
+		링크를 열수 없습니다.
+	</resource>
+	<resource name="error_save">
+		스크린샷을 저장할 수 없습니다. 적절한 저장 위치를 선택해주세요.
+	</resource>
+	<resource name="about_icons">
+		아이콘들은 Yusuke Kamiyamane's Fugue icon set으로부터 제공 받은 것입니다. (Creative Commons Attribution 3.0 license)
+	</resource>
+	<resource name="about_host">
+		Greenshot은 sourceforge.net 관리하에 아래 링크에서 호스팅되고 있음
+	</resource>
+	<resource name="about_bugs">
+		버그는 아래 URL로 전달바랍니다.
+	</resource>
+	<resource name="about_donations">
+		Greenshot이 마음에 드신다면 아래 URL로 방문하셔서 지원할 수 있습니다.
+	</resource>
+	<resource name="editor_imagesaved">
+		{0} 위치에 이미지 저장
+	</resource>
+	<resource name="editor_storedtoclipboard">
+		클립보드에 이미지 저장
+	</resource>
+	<resource name="editor_saveas">
+		다른이름으로 저장
+	</resource>
+	<resource name="editor_file">
+		파일
+	</resource>
+	<resource name="editor_edit">
+		편집
+	</resource>
+	<resource name="editor_object">
+		오브젝트
+	</resource>
+	<resource name="editor_drawellipse">
+		타원형 (E)
+	</resource>
+	<resource name="editor_drawtextbox">
+		텍스트 추가 (T)
+	</resource>
+	<resource name="editor_deleteelement">
+		삭제
+	</resource>
+	<resource name="editor_selectall">
+		전체선택
+	</resource>
+	<resource name="editor_copyimagetoclipboard">
+		클립보드로 이미지 복사
+	</resource>
+	<resource name="contextmenu_capturewindow">
+		윈도우 캡쳐
+	</resource>
+	<resource name="editor_duplicate">
+		선택된 요소 추가하기
+	</resource>
+	<resource name="contextmenu_help">
+		도움말
+	</resource>
+	<resource name="contextmenu_about">
+		Greenshot에 관해
+	</resource>
+	<resource name="editor_title">
+		Greenshot 이미지 편집기
+	</resource>
+	<resource name="settings_applicationsettings">
+		프로그램 세팅
+	</resource>
+	<resource name="settings_preferredfilesettings">
+		생성파일 환경 세팅
+	</resource>
+	<resource name="settings_skipimageeditor">
+		이미지 편집기 건너뛰기
+	</resource>
+	<resource name="settings_registerhotkeys">
+		단축기 등록하기
+	</resource>
+	<resource name="settings_tooltip_registerhotkeys">
+		프로그램 시작시 윈도우의 Ctrl + Print, Alt + Prnt 키를 단축키로 활용할 것인지 결정
+	</resource>
+	<resource name="editor_senttoprinter">
+		프린터 작업이 '{0}' 으로 전달되었습니다.
+	</resource>
+	<resource name="editor_print">
+		프린트
+	</resource>
+	<resource name="help_title">
+		Greenshot 도움말
+	</resource>
+	<resource name="settings_jpegsettings">
+		JPEG 세팅
+	</resource>
+	<resource name="settings_jpegquality">
+		JPEG 품질
+	</resource>
+	<resource name="settings_alwaysshowjpegqualitydialog">
+		JPEG 이미지가 저장될때마다 JPEG 품질 다이얼로그 박스 보여짐
+	</resource>
+	<resource name="jpegqualitydialog_title">
+		Greenshot JPEG 품질
+	</resource>
+	<resource name="jpegqualitydialog_choosejpegquality">
+		JPEG 이미지 품질을 선택하세요.
+	</resource>
+	<resource name="jpegqualitydialog_dontaskagain">
+		기본 JPEG 이미지 품질을 저장하고 다시 묻지 않음.
+	</resource>
+	<resource name="editor_forecolor">
+		선 색
+	</resource>
+	<resource name="editor_backcolor">
+		채우기 색
+	</resource>
+	<resource name="editor_thickness">
+		선 굵기
+	</resource>
+	<resource name="colorpicker_title">
+		색 고르기
+	</resource>
+	<resource name="colorpicker_apply">
+		적용
+	</resource>
+	<resource name="colorpicker_transparent">
+		투명
+	</resource>
+	<resource name="colorpicker_htmlcolor">
+		HTML 색
+	</resource>
+	<resource name="colorpicker_red">
+		빨강
+	</resource>
+	<resource name="colorpicker_green">
+		초록
+	</resource>
+	<resource name="colorpicker_blue">
+		파랑
+	</resource>
+	<resource name="colorpicker_alpha">
+		알파값
+	</resource>
+	<resource name="colorpicker_recentcolors">
+		최근 선택 색
+	</resource>
+	<resource name="editor_close">
+		닫기
+	</resource>
+	<resource name="warning">
+		주의
+	</resource>
+	<resource name="warning_hotkeys">
+		One or several hotkeys could not be registered. Therefore, it might not be possible to use the Greenshot hotkeys.
+This problem is probably caused by another tool claiming usage of the same hotkeys.
+Please deactivate software making use of the Print button. You can also simply use all Greenshot features from the tray icon context menu.
+	</resource>
+	<resource name="settings_destination_editor">
+		이미지 편집기에서 열기
+	</resource>
+	<resource name="settings_destination_printer">
+		프린터로 보내기
+	</resource>
+	<resource name="settings_destination_file">
+		바로 저장하기(아래 세팅 활용)
+	</resource>
+	<resource name="settings_destination_clipboard">
+		클립보드로 복사
+	</resource>
+	<resource name="editor_drawline">
+		선 그리기
+	</resource>
+	<resource name="settings_destination">
+		화면캡쳐 방법
+	</resource>
+	<resource name="editor_drawarrow">
+		화살표 그리기 (A)
+	</resource>
+	<resource name="editor_arrowheads">
+		화살표 모양
+	</resource>
+	<resource name="editor_arrowheads_start">
+		시작
+	</resource>
+	<resource name="editor_arrowheads_end">
+		끝
+	</resource>
+	<resource name="editor_arrowheads_both">
+		양쪽
+	</resource>
+	<resource name="editor_arrowheads_none">
+		없음
+	</resource>
+    	<resource name="editor_obfuscate_mode">
+		모자이크 처리
+	</resource>
+    	<resource name="editor_highlight_mode">
+		돋보이기
+	</resource>
+	<resource name="error_multipleinstances">
+		Greenshot이 이미 실행중입니다.
+	</resource>
+	<resource name="settings_autostartshortcut">
+		윈도우 시작시 Greenshot 시작하기
+	</resource>
+	<resource name="clipboard_inuse">
+		{0} 프로세스로 인해 클립보드에 저장할 수 없습니다.
+	</resource>
+    	<resource name="print_error">
+		프린터로 보내는 도중 에러가 발생했습니다.
+	</resource>
+	<resource name="printoptions_title">
+		Greenshot 프린터 옵션
+	</resource>
+	<resource name="printoptions_allowcenter">
+		페이지 중간 출력
+	</resource>
+	<resource name="printoptions_allowenlarge">
+		페이지 사이즈에 맞게 출력
+	</resource>
+	<resource name="printoptions_allowrotate">
+		페이지 방향(가로세로)에 따라 프린트 회전
+	</resource>
+	<resource name="printoptions_allowshrink">
+		페이지 크기에 맞게 프린트 축소
+	</resource>
+	<resource name="printoptions_dontaskagain">
+		기본 옵션으로 저장하고 다시 묻지 않기	
+	</resource>
+	<resource name="settings_alwaysshowprintoptionsdialog">
+		이미지가 출력될때마다 프린트 옵션화면 보이기
+	</resource>
+	<resource name="settings_printoptions">
+		프린트 옵션
+	</resource>
+	<resource name="settings_output">
+		저장
+	</resource>
+	<resource name="settings_general">
+		일반
+	</resource>
+	<resource name="editor_clipboardfailed">
+		클립보드 접근시 에러 발생, 다시 시도하세요.
+	</resource>
+	<resource name="editor_bold">
+		진하게
+	</resource>
+	<resource name="editor_italic">
+		이탤릭
+	</resource>
+	<resource name="editor_arrange">
+		정렬
+	</resource>
+	<resource name="editor_fontsize">
+		크기
+	</resource>
+	<resource name="editor_uptotop">
+		맨 앞으로
+	</resource>
+	<resource name="editor_uponelevel">
+		한칸 앞으로
+	</resource>
+	<resource name="editor_downonelevel">
+		Down one level
+		한칸 뒤로
+	</resource>
+	<resource name="editor_downtobottom">
+		맨 뒤로
+	</resource>
+	<resource name="contextmenu_quicksettings">
+		빠른 옵션
+	</resource>
+	<resource name="bugreport_title">
+		에러
+	</resource>
+	<resource name="bugreport_info">
+		Sorry, an unexpected error occured.
+
+The good news is: you can help us getting rid of it by filing a bug report.
+Please visit the URL below, create a new bug report and paste the contents from the text area into the description.
+
+Please add a meaningful summary and enclose any information you consider to be helpful for reproducing the issue.
+Also, we would highly appreciate if you checked whether a tracker item already exists for this bug. (You can use the search to find those quickly.) Thank you :)
+	</resource>
+	<resource name="bugreport_cancel">
+		닫기
+	</resource>
+	<resource name="settings_copypathtoclipboard">
+		이미지 저장시 파일 저장 위치 클립보드로 복사하기
+	</resource>
+	<resource name="editor_copypathtoclipboard">
+		파일 저장 위치 클립보드로 복사하기
+	</resource>
+	<resource name="settings_message_filenamepattern">
+		파일이름은 아래 표기된 방식으로 자동으로 변경됩니다:
+%YYYY% 년, 4 digits
+%MM% 월, 2 digits
+%DD% 일, 2 digits
+%hh% 시, 2 digits
+%mm% 분, 2 digits
+%ss% 초, 2 digits
+%NUM% 숫자, 6 digits
+%title% 윈도우 타이틀
+%user% 윈도우 사용자
+%domain% 윈도우 도메인
+%hostname% PC 이름
+
+역슬래시(\) 표시를 사용할 경우 파일 저장시 디렉토리를 만들수 있습니다.
+
+예제: 이런 방식(%YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%)의 포맷을 사용할 경우 현재 디렉토리 위치에서 현재 날짜의 폴더에 현재시간의 파일명으로 파일을 생성할 수 있습니다. 
+	</resource>
+	<resource name="editor_cursortool">
+		선택도구 (ESC)
+	</resource>
+	<resource name="settings_destination_fileas">
+		다른 이름으로 저장하기(다이얼로그박스 보여주기)
+	</resource>
+	<resource name="quicksettings_destination_file">
+		바로 저장하기 (파일 세팅 활용)
+	</resource>
+	<resource name="editor_opendirinexplorer">
+		윈도우 익스플로어에서 디렉토리 열기
+	</resource>
+	<resource name="printoptions_timestamp">
+		페이지의 아래에 날짜/시간 인쇄하기
+	</resource>
+	<resource name="editor_drawhighlighter">
+		돋보이기 (H)
+	</resource>
+	<resource name="editor_obfuscate_blur">
+		흐림
+	</resource>
+	<resource name="editor_obfuscate_pixelize">
+		픽셀화
+	</resource>
+	<resource name="editor_highlight_area">
+		하일라이트 구간
+	</resource>
+	<resource name="editor_highlight_text">
+		하일라이트 텍스트
+	</resource>
+	<resource name="editor_highlight_grayscale">
+		그레이스케일
+	</resource>
+	<resource name="editor_highlight_magnify">
+		확대
+	</resource>
+	<resource name="editor_pixel_size">
+		픽셀 크기
+	</resource>
+	<resource name="editor_obfuscate">
+		모자이크 (O)
+	</resource>
+	<resource name="editor_blur_radius">
+		원형 흐리기
+	</resource>
+	<resource name="editor_brightness">
+		밝기
+	</resource>
+	<resource name="editor_preview_quality">
+		품질 미리보기
+	</resource>
+	<resource name="editor_magnification_factor">
+		확대 factor
+	</resource>
+	<resource name="editor_shadow">
+		그림자
+	</resource>
+	<resource name="editor_confirm">
+		확인
+	</resource>
+	<resource name="editor_cancel">
+		취소
+	</resource>
+	<resource name="editor_crop">
+		자르기 (C)
+	</resource>
+	<resource name="contextmenu_captureclipboard">
+		클립보드에서 이미지 열기
+	</resource>
+	<resource name="clipboard_error">
+		클립보드에 쓰는 동안 예상하지 못한 에러가 발생
+	</resource>
+	<resource name="config_unauthorizedaccess_write">
+		환경파일을 저장할 수 없습니다. '{0}'에 대한 접근권한을 확인해보세요.
+	</resource>
+	<resource name="settings_printer">
+		프린터
+	</resource>
+	<resource name="settings_capture">
+		화면캡쳐
+	</resource>
+	<resource name="settings_capture_mousepointer">
+		화면캡쳐 마우스포인트
+	</resource>
+	<resource name="contextmenu_openfile">
+		파일에서 이미지 열기
+	</resource>
+	<resource name="error_openfile">
+		"{0}" 파일이 열리지 않습니다.
+	</resource>
+	<resource name="editor_close_on_save">
+		스크린샷을 저장하시겠습니까?
+	</resource>
+	<resource name="editor_close_on_save_title">
+		이미지 저장?
+	</resource>
+	<resource name="settings_capture_windows_interactive">
+		대화형 윈도우 캡쳐 모드를 사용
+	</resource>
+	<resource name="settings_capture_window_full">
+		윈도우 풀화면일때도 캡쳐하기
+	</resource>
+	<resource name="settings_capture_window_content">
+		지원되는 프로그램에서만 캡쳐하기
+	</resource>
+	<resource name="settings_destination_email">
+		이메일
+	</resource>
+	<resource name="editor_email">
+		이메일
+	</resource>
+	<resource name="editor_load_objects">
+		파일로 부터 객체 불러오기
+	</resource>
+	<resource name="editor_save_objects">
+		파일로 객체 저장하기
+	</resource>
+	<resource name="settings_waittime">
+		밀리 초 캡쳐하기전 대기
+	</resource>
+	<resource name="tooltip_firststart">
+		여기 오른쪽 마우스 버튼을 클릭하거나 프린터키를 누르세요.
+	</resource>
+	<resource name="contextmenu_donate">
+		Greenshot 응원하기
+	</resource>
+  </resources>
+</language>
