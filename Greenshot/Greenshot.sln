@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-# SharpDevelop 4.1.0.8000
+# SharpDevelop 4.2.0.8528-beta
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotPlugin", "..\GreenshotPlugin\GreenshotPlugin.csproj", "{5B924697-4DCD-4F98-85F1-105CB84B7341}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot-OCR-Plugin", "..\Greenshot-OCR-Plugin\Greenshot-OCR-Plugin.csproj", "{C6988EE8-2FEE-4349-9F09-F9628A0D8965}"
@@ -26,6 +26,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotExternalCommandPlugin", "..\GreenshotExternalCommandPlugin\GreenshotExternalCommandPlugin.csproj", "{47F23C86-604E-4CC3-8767-B3D4088F30BB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginExample", "..\PluginExample\PluginExample.csproj", "{6BD38118-B27F-43A1-951C-FB6464D39260}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotNetworkImportPlugin", "..\GreenshotNetworkImportPlugin\GreenshotNetworkImportPlugin.csproj", "{0D0B7F80-5B8E-4829-8523-E1AC0551E836}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,5 +105,13 @@ Global
 		{6BD38118-B27F-43A1-951C-FB6464D39260}.Release|Any CPU.ActiveCfg = Release|x86
 		{6BD38118-B27F-43A1-951C-FB6464D39260}.Release|x86.Build.0 = Release|x86
 		{6BD38118-B27F-43A1-951C-FB6464D39260}.Release|x86.ActiveCfg = Release|x86
+		{0D0B7F80-5B8E-4829-8523-E1AC0551E836}.Debug|Any CPU.Build.0 = Debug|x86
+		{0D0B7F80-5B8E-4829-8523-E1AC0551E836}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{0D0B7F80-5B8E-4829-8523-E1AC0551E836}.Debug|x86.Build.0 = Debug|x86
+		{0D0B7F80-5B8E-4829-8523-E1AC0551E836}.Debug|x86.ActiveCfg = Debug|x86
+		{0D0B7F80-5B8E-4829-8523-E1AC0551E836}.Release|Any CPU.Build.0 = Release|x86
+		{0D0B7F80-5B8E-4829-8523-E1AC0551E836}.Release|Any CPU.ActiveCfg = Release|x86
+		{0D0B7F80-5B8E-4829-8523-E1AC0551E836}.Release|x86.Build.0 = Release|x86
+		{0D0B7F80-5B8E-4829-8523-E1AC0551E836}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 EndGlobal

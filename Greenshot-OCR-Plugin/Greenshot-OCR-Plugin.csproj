@@ -78,10 +78,6 @@
     <None Include="Properties\AssemblyInfo.cs.template" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GreenshotInterop\GreenshotInterop.csproj">
-      <Project>{ADD4E400-56E1-4E31-A5C2-070BEB238A0F}</Project>
-      <Name>GreenshotInterop</Name>
-    </ProjectReference>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>

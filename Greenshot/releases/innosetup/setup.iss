@@ -33,19 +33,23 @@ Source: ..\..\bin\Release\Languages\*ar-SY*; DestDir: {app}\Languages; Component
 Source: ..\..\bin\Release\Languages\*cs-CZ*; DestDir: {app}\Languages; Components: languages\csCZ; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*el-GR*; DestDir: {app}\Languages; Components: languages\elGR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*es-ES*; DestDir: {app}\Languages; Components: languages\esES; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*fa-IR*; DestDir: {app}\Languages; Components: languages\faIR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*fi-FI*; DestDir: {app}\Languages; Components: languages\fiFI; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*fr-FR*; DestDir: {app}\Languages; Components: languages\frFR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*he-IL*; DestDir: {app}\Languages; Components: languages\heIL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*hu-HU*; DestDir: {app}\Languages; Components: languages\huHU; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*it-IT*; DestDir: {app}\Languages; Components: languages\itIT; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*ja-JP*; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly ignoreversion replacesameversion;
+;Source: ..\..\bin\Release\Languages\*ko-KR*; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*lt-LT*; DestDir: {app}\Languages; Components: languages\ltLT; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*pl-PL*; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*pt-BR*; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*pt-PT*; DestDir: {app}\Languages; Components: languages\ptPT; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*uk-UA*; DestDir: {app}\Languages; Components: languages\ukUA; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*ru-RU*; DestDir: {app}\Languages; Components: languages\ruRU; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*sv-SE*; DestDir: {app}\Languages; Components: languages\svSE; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*tr-TR*; DestDir: {app}\Languages; Components: languages\trTR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*vi-VN*; DestDir: {app}\Languages; Components: languages\viVN; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*zh-CN*; DestDir: {app}\Languages; Components: languages\zhCN; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*zh-TW*; DestDir: {app}\Languages; Components: languages\zhTW; Flags: overwritereadonly ignoreversion replacesameversion;
 
@@ -193,21 +197,26 @@ Name: "languages\arSY"; Description: "العربية"; Types: Full; Check: hasLa
 Name: "languages\csCZ"; Description: "Ceština"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\elGR"; Description: "ελληνικά"; Types: Full; Check: hasLanguageGroup('4')
 Name: "languages\esES"; Description: "Español"; Types: Full; Check: hasLanguageGroup('1')
+Name: "languages\faIR"; Description: "پارسی"; Types: Full; Check: hasLanguageGroup('d')
 Name: "languages\fiFI"; Description: "Suomi"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\frFR"; Description: "Français"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\heIL"; Description: "עִבְרִית"; Types: Full; Check: hasLanguageGroup('c')
 Name: "languages\huHU"; Description: "Magyar"; Types: Full; Check: hasLanguageGroup('2')
 Name: "languages\itIT"; Description: "Italiano"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\jaJP"; Description: "日本語"; Types: Full; Check: hasLanguageGroup('7')
+;Name: "languages\koKR"; Description: "Korean"; Types: Full; Check: hasLanguageGroup('8')
 Name: "languages\ltLT"; Description: "Lietuvių"; Types: Full; Check: hasLanguageGroup('3')
 Name: "languages\plPL"; Description: "Polski"; Types: Full; Check: hasLanguageGroup('2')
 Name: "languages\ptBR"; Description: "Português do Brasil"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\ptPT"; Description: "Português de Portugal"; Types: Full; Check: hasLanguageGroup('1')
+Name: "languages\ukUA"; Description: "Українська"; Types: Full; Check: hasLanguageGroup('5')
 Name: "languages\ruRU"; Description: "Pусский"; Types: Full; Check: hasLanguageGroup('5')
 Name: "languages\svSE"; Description: "Svenska"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\trTR"; Description: "Turkish"; Types: Full; Check: hasLanguageGroup('6')
+Name: "languages\viVN"; Description: "Việt"; Types: Full; Check: hasLanguageGroup('e')
 Name: "languages\zhCN"; Description: "简体中文"; Types: Full; Check: hasLanguageGroup('a')
 Name: "languages\zhTW"; Description: "繁體中文"; Types: Full; Check: hasLanguageGroup('9')
+
 [Code]
 
 // Build a list of greenshot parameters from the supplied installer parameters
