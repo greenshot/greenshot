@@ -45,10 +45,10 @@ Source: ..\..\bin\Release\Languages\*lt-LT*; DestDir: {app}\Languages; Component
 Source: ..\..\bin\Release\Languages\*pl-PL*; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*pt-BR*; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*pt-PT*; DestDir: {app}\Languages; Components: languages\ptPT; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*uk-UA*; DestDir: {app}\Languages; Components: languages\ukUA; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*ru-RU*; DestDir: {app}\Languages; Components: languages\ruRU; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*sv-SE*; DestDir: {app}\Languages; Components: languages\svSE; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*tr-TR*; DestDir: {app}\Languages; Components: languages\trTR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*uk-UA*; DestDir: {app}\Languages; Components: languages\ukUA; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*vi-VN*; DestDir: {app}\Languages; Components: languages\viVN; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*zh-CN*; DestDir: {app}\Languages; Components: languages\zhCN; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*zh-TW*; DestDir: {app}\Languages; Components: languages\zhTW; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -151,35 +151,35 @@ en.startgreenshot=Start {#ExeName}
 de.startgreenshot={#ExeName} starten
 nl.startgreenshot=Start {#ExeName}
 en.jira=Jira plug-in
-de.jira=Jira plug-in
+de.jira=Jira Plug-in
 nl.jira=Jira plug-in
 en.confluence=Confluence plug-in
-de.confluence=Confluence plug-in
+de.confluence=Confluence Plug-in
 nl.confluence=Confluence plug-in
 en.externalcommand=Open with external command plug-in
-de.externalcommand=Öffne mit ein externes Kommando plug-in
+de.externalcommand=Öffne mit ein externem Kommando Plug-in
 nl.externalcommand=Open met externes commando plug-in
-en.ocr=OCR Plugin (needs Microsoft Office Document Imaging (MODI))
-de.ocr=OCR Plugin (braucht Microsoft Office Document Imaging (MODI))
-nl.ocr=OCR Plugin (heeft Microsoft Office Document Imaging (MODI) nodig)
-en.imgur=Imgur Plugin (See: http://imgur.com)
-de.imgur=Imgur Plugin (Sehe: http://imgur.com)
-nl.imgur=Imgur Plugin (Zie: http://imgur.com)
+en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
+de.ocr=OCR Plug-in (benötigt Microsoft Office Document Imaging (MODI))
+nl.ocr=OCR plug-in (heeft Microsoft Office Document Imaging (MODI) nodig)
+en.imgur=Imgur plug-in (See: http://imgur.com)
+de.imgur=Imgur Plug-in (Siehe: http://imgur.com)
+nl.imgur=Imgur plug-in (Zie: http://imgur.com)
 en.language=Additional languages
-de.language=Zusatz Sprachen
+de.language=Zusätzliche Sprachen
 nl.language=Extra talen
 en.optimize=Optimizing performance, this may take a while.
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 nl.optimize=Prestaties verbeteren, kan even duren.
 en.supportus_caption=Support Greenshot
-de.supportus_caption=Unterstutz Greenshot
+de.supportus_caption=Unterstütze Greenshot
 nl.supportus_caption=Ondersteun Greenshot
 en.supportus_description=Things you can do to support Greenshot
-de.supportus_description=Was Sie tun können um Greenshot zu unterstutzen
+de.supportus_description=Was Sie tun können um Greenshot zu unterstützen
 nl.supportus_description=Wat U doen kunt om Greenshot te ondersteuen
-en.supportus_text=We re-donate 10% of every donation to the WWF. The more you donate, the more you help us and the environment. This is what makes Greenshot green. 
-de.supportus_text=We re-donate 10% of every donation to the WWF. The more you donate, the more you help us and the environment. This is what makes Greenshot green. 
-nl.supportus_text=We re-donate 10% of every donation to the WWF. The more you donate, the more you help us and the environment. This is what makes Greenshot green. 
+en.supportus_text=
+de.supportus_text=
+nl.supportus_text=
 [Components]
 Name: "plugins"; Description: "Plugins"; Types: Full
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full;
@@ -204,19 +204,18 @@ Name: "languages\heIL"; Description: "עִבְרִית"; Types: Full; Check: has
 Name: "languages\huHU"; Description: "Magyar"; Types: Full; Check: hasLanguageGroup('2')
 Name: "languages\itIT"; Description: "Italiano"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\jaJP"; Description: "日本語"; Types: Full; Check: hasLanguageGroup('7')
-;Name: "languages\koKR"; Description: "Korean"; Types: Full; Check: hasLanguageGroup('8')
+;Name: "languages\koKR"; Description: "한국의"; Types: Full; Check: hasLanguageGroup('8')
 Name: "languages\ltLT"; Description: "Lietuvių"; Types: Full; Check: hasLanguageGroup('3')
 Name: "languages\plPL"; Description: "Polski"; Types: Full; Check: hasLanguageGroup('2')
 Name: "languages\ptBR"; Description: "Português do Brasil"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\ptPT"; Description: "Português de Portugal"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\ukUA"; Description: "Українська"; Types: Full; Check: hasLanguageGroup('5')
 Name: "languages\ruRU"; Description: "Pусский"; Types: Full; Check: hasLanguageGroup('5')
 Name: "languages\svSE"; Description: "Svenska"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\trTR"; Description: "Turkish"; Types: Full; Check: hasLanguageGroup('6')
-Name: "languages\viVN"; Description: "Việt"; Types: Full; Check: hasLanguageGroup('e')
+Name: "languages\trTR"; Description: "Türk"; Types: Full; Check: hasLanguageGroup('6')
+Name: "languages\ukUA"; Description: "Українська"; Types: Full; Check: hasLanguageGroup('5')
+Name: "languages\trTR"; Description: "Việt"; Types: Full; Check: hasLanguageGroup('e')
 Name: "languages\zhCN"; Description: "简体中文"; Types: Full; Check: hasLanguageGroup('a')
 Name: "languages\zhTW"; Description: "繁體中文"; Types: Full; Check: hasLanguageGroup('9')
-
 [Code]
 
 // Build a list of greenshot parameters from the supplied installer parameters
