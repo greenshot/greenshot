@@ -23,12 +23,12 @@
     <DebugType>Full</DebugType>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <Optimize>False</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <RegisterForComInterop>False</RegisterForComInterop>
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <BaseAddress>4194304</BaseAddress>
     <PlatformTarget>x86</PlatformTarget>
     <FileAlignment>4096</FileAlignment>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -37,7 +37,7 @@
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <Optimize>True</Optimize>
     <RegisterForComInterop>False</RegisterForComInterop>
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <BaseAddress>4194304</BaseAddress>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <FileAlignment>4096</FileAlignment>
@@ -74,7 +74,6 @@
     <Compile Include="Destinations\ExcelDestination.cs" />
     <Compile Include="Destinations\FileDestination.cs" />
     <Compile Include="Destinations\FileWithDialogDestination.cs" />
-    <Compile Include="Destinations\OneNoteDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\PrinterDestination.cs" />

@@ -23,7 +23,7 @@ Source: ..\..\bin\Release\checksum.MD5; DestDir: {app}; Flags: overwritereadonly
 Source: ..\additional_files\installer.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 Source: ..\additional_files\license.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 Source: ..\additional_files\readme.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
-Source: ..\additional_files\donate.bmp; Flags: dontcopy
+;Source: ..\additional_files\donate.bmp; Flags: dontcopy
 ; Core language files
 Source: ..\..\bin\Release\Languages\*nl-NL*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*en-US*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -213,7 +213,7 @@ Name: "languages\ruRU"; Description: "Pусский"; Types: Full; Check: hasLan
 Name: "languages\svSE"; Description: "Svenska"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\trTR"; Description: "Türk"; Types: Full; Check: hasLanguageGroup('6')
 Name: "languages\ukUA"; Description: "Українська"; Types: Full; Check: hasLanguageGroup('5')
-Name: "languages\trTR"; Description: "Việt"; Types: Full; Check: hasLanguageGroup('e')
+Name: "languages\viVN"; Description: "Việt"; Types: Full; Check: hasLanguageGroup('e')
 Name: "languages\zhCN"; Description: "简体中文"; Types: Full; Check: hasLanguageGroup('a')
 Name: "languages\zhTW"; Description: "繁體中文"; Types: Full; Check: hasLanguageGroup('9')
 [Code]
@@ -301,42 +301,42 @@ end;
 function CreateSupportUsPage(PreviousPageId: Integer) : Integer;
 var
 	SupportUsPage: TWizardPage;
-	DonateImage  : TBitmapImage;
-	BitmapLocation: string;
+	//DonateImage  : TBitmapImage;
+	//BitmapLocation: string;
 	RichTextViewer : TRichEditViewer;
-	Button1, Button5, Button10: TButton;
+	Button5, Button10: TButton;
 begin
 	SupportUsPage := CreateCustomPage(PreviousPageId, ExpandConstant('{cm:supportus_caption}'), ExpandConstant('{cm:supportus_description}'));
-	ExtractTemporaryFile('donate.bmp');
-	BitmapLocation := ExpandConstant('{tmp}')+'\donate.bmp';
+	//ExtractTemporaryFile('donate.bmp');
+	//BitmapLocation := ExpandConstant('{tmp}')+'\donate.bmp';
 
 	// Image
-	DonateImage := TBitmapImage.Create(SupportUsPage);
-	DonateImage.Left := 10;
-	DonateImage.Top := 100;
-	DonateImage.AutoSize := True;
-	DonateImage.Bitmap.LoadFromFile(BitmapLocation);
-	DonateImage.Parent := SupportUsPage.Surface;
-	DonateImage.OnClick := @ImageClick;
+	//DonateImage := TBitmapImage.Create(SupportUsPage);
+	//DonateImage.Left := 10;
+	//DonateImage.Top := 100;
+	//DonateImage.AutoSize := True;
+	//DonateImage.Bitmap.LoadFromFile(BitmapLocation);
+	//DonateImage.Parent := SupportUsPage.Surface;
+	//DonateImage.OnClick := @ImageClick;
 	
 	// Donate Buttons
-	Button1 := TButton.Create(SupportUsPage);
-	Button1.Width := 50;
-	Button1.Height := 20;
-	Button1.Left := 20;
-	Button1.Top := 45;
-	Button1.Caption := '1$';
-	Button1.OnClick := @DonateClick;
-	Button1.Parent := SupportUsPage.Surface;
-
 	Button5 := TButton.Create(SupportUsPage);
 	Button5.Width := 50;
 	Button5.Height := 20;
 	Button5.Left := 20;
-	Button5.Top := 70;
+	Button5.Top := 45;
 	Button5.Caption := '5$';
 	Button5.OnClick := @DonateClick;
 	Button5.Parent := SupportUsPage.Surface;
+
+	Button10 := TButton.Create(SupportUsPage);
+	Button10.Width := 50;
+	Button10.Height := 20;
+	Button10.Left := 20;
+	Button10.Top := 70;
+	Button10.Caption := '10$';
+	Button10.OnClick := @DonateClick;
+	Button10.Parent := SupportUsPage.Surface;
 
 	// Text
 	RichTextViewer := TRichEditViewer.Create(SupportUsPage);
