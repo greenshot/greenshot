@@ -40,7 +40,7 @@ Source: ..\..\bin\Release\Languages\*he-IL*; DestDir: {app}\Languages; Component
 Source: ..\..\bin\Release\Languages\*hu-HU*; DestDir: {app}\Languages; Components: languages\huHU; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*it-IT*; DestDir: {app}\Languages; Components: languages\itIT; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*ja-JP*; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly ignoreversion replacesameversion;
-;Source: ..\..\bin\Release\Languages\*ko-KR*; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*ko-KR*; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*lt-LT*; DestDir: {app}\Languages; Components: languages\ltLT; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*pl-PL*; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*pt-BR*; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -177,9 +177,9 @@ nl.supportus_caption=Ondersteun Greenshot
 en.supportus_description=Things you can do to support Greenshot
 de.supportus_description=Was Sie tun können um Greenshot zu unterstützen
 nl.supportus_description=Wat U doen kunt om Greenshot te ondersteuen
-en.supportus_text=
-de.supportus_text=
-nl.supportus_text=
+en.supportus_text=Support Greenshot with a donation
+de.supportus_text=Unterstütze Greenshot mit einen Spende
+nl.supportus_text=Ondersteun Greenshot met een donatie
 [Components]
 Name: "plugins"; Description: "Plugins"; Types: Full
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full;
@@ -204,7 +204,7 @@ Name: "languages\heIL"; Description: "עִבְרִית"; Types: Full; Check: has
 Name: "languages\huHU"; Description: "Magyar"; Types: Full; Check: hasLanguageGroup('2')
 Name: "languages\itIT"; Description: "Italiano"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\jaJP"; Description: "日本語"; Types: Full; Check: hasLanguageGroup('7')
-;Name: "languages\koKR"; Description: "한국의"; Types: Full; Check: hasLanguageGroup('8')
+Name: "languages\koKR"; Description: "한국의"; Types: Full; Check: hasLanguageGroup('8')
 Name: "languages\ltLT"; Description: "Lietuvių"; Types: Full; Check: hasLanguageGroup('3')
 Name: "languages\plPL"; Description: "Polski"; Types: Full; Check: hasLanguageGroup('2')
 Name: "languages\ptBR"; Description: "Português do Brasil"; Types: Full; Check: hasLanguageGroup('1')
@@ -348,14 +348,15 @@ begin
 	RichTextViewer.ReadOnly := True;
 	RichTextViewer.BorderStyle := bsNone;
 	RichTextViewer.Color := clBtnFace;
-	RichTextViewer.RTFText := '{\rtf1\ansi\ansicpg1252\deff0\deflang13322{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}\viewkind4\uc1\pard\f0\fs16 This is a normal text, \b and this is a bold text\b0\par}';
+	RichTextViewer.RTFText := '{\rtf1\ansi\ansicpg1252\deff0\deflang13322{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}\viewkind4\uc1\pard\f0\fs16 We hope you get an idea of all the things we have to pay for creating free screenshot software for you. Additionally, if only our hardware costs were covered, \bwe still work for nothing\b0.\par}';
 	Result:= SupportUsPage.Id;
 end;
 
 // Create the donate image
 procedure InitializeWizard();
 begin
-	CreateSupportUsPage(wpLicense);
+	//CreateSupportUsPage(wpLicense);
+	CreateSupportUsPage(wpInfoAfter);
 end;
 
 // Initialize the setup
