@@ -85,11 +85,11 @@ namespace GreenshotImgurPlugin {
 		/// </summary>
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>ImgurResponse</returns>
-		public static ImgurInfo UploadToImgur(byte[] imageData, string title, string filename) {
+		public static ImgurInfo UploadToImgur(byte[] imageData, int dataLength, string title, string filename) {
 			StringBuilder uploadRequest = new StringBuilder();
 			// Add image
 			uploadRequest.Append("image=");
-			uploadRequest.Append(HttpUtility.UrlEncode(System.Convert.ToBase64String(imageData)));
+			uploadRequest.Append(HttpUtility.UrlEncode(System.Convert.ToBase64String(imageData, 0, dataLength)));
 			// add key
 			uploadRequest.Append("&");
 			uploadRequest.Append("key=");

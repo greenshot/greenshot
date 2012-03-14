@@ -141,11 +141,9 @@ namespace GreenshotImgurPlugin {
 				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, lang.GetString(LangKey.communication_wait));
 
 				host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);
-				byte[] buffer = stream.GetBuffer();
-
 				try {
 					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, captureDetails));
-					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(buffer, captureDetails.DateTime.ToString(), filename);
+					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, captureDetails.DateTime.ToString(), filename);
 					LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
 					config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
 					config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
@@ -181,10 +179,9 @@ namespace GreenshotImgurPlugin {
 				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, lang.GetString(LangKey.communication_wait));
 
 				imageEditor.SaveToStream(stream, config.UploadFormat, config.UploadJpegQuality);
-				byte [] buffer = stream.GetBuffer();
 				try {
 					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
-					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(buffer, imageEditor.CaptureDetails.Title, filename);
+					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, imageEditor.CaptureDetails.Title, filename);
 					imageEditor.Surface.Modified = false;
 					LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
 					config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);

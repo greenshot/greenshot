@@ -101,25 +101,27 @@ namespace GreenshotJiraPlugin {
 		
 		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
 			string filename = Path.GetFileName(jiraPlugin.Host.GetFilename(config.UploadFormat, captureDetails));
+			byte[] buffer;
 			if (jira != null) {
 				using (MemoryStream stream = new MemoryStream()) {
-					BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Description, lang.GetString(LangKey.communication_wait));
-					try {
-						using (Image image = surface.GetImageForExport()) {
-							jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);							
-						}
-						byte [] buffer = stream.GetBuffer();
-						jiraPlugin.JiraConnector.addAttachment(jira.Key, filename, buffer);
-						LOG.Debug("Uploaded to Jira.");
-						backgroundForm.CloseDialog();
-						MessageBox.Show(lang.GetString(LangKey.upload_success));
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Info, jiraPlugin.Host.CoreLanguage.GetFormattedString("exported_to", Description));
-						surface.Modified = false;
-						return true;
-					} catch(Exception e) {
-						backgroundForm.CloseDialog();
-						MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
+					using (Image image = surface.GetImageForExport()) {
+						jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);							
 					}
+					// COPY stream to buffer
+					buffer = stream.ToArray();
+				}
+				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Description, lang.GetString(LangKey.communication_wait));
+				try {
+					jiraPlugin.JiraConnector.addAttachment(jira.Key, filename, buffer);
+					LOG.Debug("Uploaded to Jira.");
+					backgroundForm.CloseDialog();
+					MessageBox.Show(lang.GetString(LangKey.upload_success));
+					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, jiraPlugin.Host.CoreLanguage.GetFormattedString("exported_to", Description));
+					surface.Modified = false;
+					return true;
+				} catch (Exception e) {
+					backgroundForm.CloseDialog();
+					MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
 				}
 			} else {
 				JiraForm jiraForm = new JiraForm(jiraPlugin.JiraConnector);
@@ -129,24 +131,24 @@ namespace GreenshotJiraPlugin {
 					DialogResult result = jiraForm.ShowDialog();
 					if (result == DialogResult.OK) {
 						using (MemoryStream stream = new MemoryStream()) {
-							BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Description, lang.GetString(LangKey.communication_wait));
-							try {
-								using (Image image = surface.GetImageForExport()) {
-									jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);									
-								}
-
-								byte [] buffer = stream.GetBuffer();
-								jiraForm.upload(buffer);
-								LOG.Debug("Uploaded to Jira.");
-								backgroundForm.CloseDialog();
-								MessageBox.Show(lang.GetString(LangKey.upload_success));
-								surface.SendMessageEvent(this, SurfaceMessageTyp.Info, "Exported to Jira " + jiraForm.getJiraIssue().Key);
-								surface.Modified = false;
-								return true;
-							} catch(Exception e) {
-								backgroundForm.CloseDialog();
-								MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
+							using (Image image = surface.GetImageForExport()) {
+								jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);									
 							}
+							// COPY stream to buffer
+							buffer = stream.ToArray();
+						}
+						BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Description, lang.GetString(LangKey.communication_wait));
+						try {
+							jiraForm.upload(buffer);
+							LOG.Debug("Uploaded to Jira.");
+							backgroundForm.CloseDialog();
+							MessageBox.Show(lang.GetString(LangKey.upload_success));
+							surface.SendMessageEvent(this, SurfaceMessageTyp.Info, "Exported to Jira " + jiraForm.getJiraIssue().Key);
+							surface.Modified = false;
+							return true;
+						} catch(Exception e) {
+							backgroundForm.CloseDialog();
+							MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
 						}
 					}
 				}

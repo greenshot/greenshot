@@ -315,7 +315,7 @@ EndSelection:<<<<<<<4
 			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${width}", image.Width.ToString());
 			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${height}", image.Height.ToString());
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${format}", "png");
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer()));
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(),0, (int)pngStream.Length));
 			StringBuilder sb=new StringBuilder();
 			sb.Append(utf8EncodedHTMLString);
 			sb.Replace("<<<<<<<1", (utf8EncodedHTMLString.IndexOf("<HTML>") + "<HTML>".Length).ToString("D8"));

@@ -141,40 +141,42 @@ namespace GreenshotConfluencePlugin {
 		}
 		
 		private bool upload(Image image, Page page, string filename, bool openPage) {
+			byte[] buffer;
 			using (MemoryStream stream = new MemoryStream()) {
 				ConfluencePlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);
-				byte [] buffer = stream.GetBuffer();
-				try {
-					ConfluencePlugin.ConfluenceConnector.addAttachment(page.id, "image/" + config.UploadFormat.ToString().ToLower(),  null, filename, buffer);
-					LOG.Debug("Uploaded to Confluence.");
-					if (config.CopyWikiMarkupForImageToClipboard) {
-						int retryCount = 2;
-						while (retryCount >= 0) {
-							try {
-								Clipboard.SetText("!" + filename + "!");
-								break;
-							} catch (Exception ee) {
-								if (retryCount == 0) {
-									LOG.Error(ee);
-								} else {
-									Thread.Sleep(100);
-								}
-							} finally {
-								--retryCount;
+				// COPY buffer to array
+				buffer = stream.ToArray();
+			}
+			try {
+				ConfluencePlugin.ConfluenceConnector.addAttachment(page.id, "image/" + config.UploadFormat.ToString().ToLower(),  null, filename, buffer);
+				LOG.Debug("Uploaded to Confluence.");
+				if (config.CopyWikiMarkupForImageToClipboard) {
+					int retryCount = 2;
+					while (retryCount >= 0) {
+						try {
+							Clipboard.SetText("!" + filename + "!");
+							break;
+						} catch (Exception ee) {
+							if (retryCount == 0) {
+								LOG.Error(ee);
+							} else {
+								Thread.Sleep(100);
 							}
+						} finally {
+							--retryCount;
 						}
 					}
-					if (openPage) {
-						try {
-							Process.Start(page.Url);
-						} catch {}
-					} else {
-						System.Windows.MessageBox.Show(lang.GetString(LangKey.upload_success));
-					}
-					return true;
-				} catch(Exception e) {
-					System.Windows.MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
 				}
+				if (openPage) {
+					try {
+						Process.Start(page.Url);
+					} catch {}
+				} else {
+					System.Windows.MessageBox.Show(lang.GetString(LangKey.upload_success));
+				}
+				return true;
+			} catch(Exception e) {
+				System.Windows.MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
 			}
 			return false;
 		}
