@@ -31,6 +31,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
+using System.Text.RegularExpressions;
 
 namespace Greenshot {
 	/// <summary>
@@ -423,7 +424,10 @@ namespace Greenshot {
 
 		
 		void BtnPatternHelpClick(object sender, EventArgs e) {
-			MessageBox.Show(lang.GetString(LangKey.settings_message_filenamepattern),lang.GetString(LangKey.settings_filenamepattern));
+			string filenamepatternText = lang.GetString(LangKey.settings_message_filenamepattern);
+			// Convert %NUM% to ${NUM} for old language files!
+			filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
+			MessageBox.Show(filenamepatternText, lang.GetString(LangKey.settings_filenamepattern));
 		}
 		
 		void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
