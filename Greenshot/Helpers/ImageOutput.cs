@@ -77,7 +77,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public static void SaveToStream(Image imageToSave, Stream stream, OutputFormat extension, int quality) {
 			ImageFormat imageFormat = null;
-			//bool disposeImage = false;
+			bool disposeImage = false;
 
 			switch (extension) {
 				case OutputFormat.bmp:
@@ -99,18 +99,19 @@ namespace Greenshot.Helpers {
 					imageFormat = ImageFormat.Png;
 					break;
 			}
-			//// If Quantizing is enable, overwrite the image to save with a 256 - color version
-			//if (conf.OutputFileReduceColors) {
-			//	try {
-			//		LOG.Debug("Reducing colors on bitmap.");
-			//		Quantizer quantizer = new OctreeQuantizer(255,8);
-			//		imageToSave = quantizer.Quantize(imageToSave);
-			//		// Make sure the "new" image is disposed
-			//		disposeImage = true;
-			//	} catch(Exception e) {
-			//		LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
-			//	}
-			//}
+
+			// If Quantizing is enable, overwrite the image to save with a 256 - color version
+			if (conf.OutputFileReduceColors) {
+				try {
+					LOG.Debug("Reducing colors on bitmap.");
+					Quantizer quantizer = new OctreeQuantizer(255,8);
+					imageToSave = quantizer.Quantize(imageToSave);
+					// Make sure the "new" image is disposed
+					disposeImage = true;
+				} catch(Exception e) {
+					LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+				}
+			}
 
 			try {
 				// Create meta-data
@@ -137,10 +138,10 @@ namespace Greenshot.Helpers {
 					imageToSave.Save(stream, imageFormat);
 				}
 			} finally {
-			//	// cleanup if needed
-			//	if (disposeImage && imageToSave != null) {
-			//		imageToSave.Dispose();
-			//	}
+				// cleanup if needed
+				if (disposeImage && imageToSave != null) {
+					imageToSave.Dispose();
+				}
 			}
 		}
 		

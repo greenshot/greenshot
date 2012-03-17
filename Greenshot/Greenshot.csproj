@@ -358,7 +358,6 @@
     <Folder Include="Controls" />
     <Folder Include="Helpers\IEInterop" />
     <Folder Include="Memento" />
-    <Folder Include="Helpers\OfficeInterop" />
     <Folder Include="Lib" />
     <Folder Include="Languages" />
     <Folder Include="Help" />
