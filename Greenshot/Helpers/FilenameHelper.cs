@@ -84,7 +84,7 @@ namespace Greenshot.Helpers {
 		}
 
 		public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails) {
-			return FillPattern(pattern, captureDetails);
+			return FillPattern(pattern, captureDetails, true);
 		}
 
 		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat) {
@@ -92,7 +92,7 @@ namespace Greenshot.Helpers {
 		}
 
 		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails) {
-			return FillPattern(pattern, captureDetails) + "." + imageFormat.ToString().ToLower();
+			return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
 		}
 		
 		/// <summary>
@@ -175,25 +175,25 @@ namespace Greenshot.Helpers {
 				}
 			}
 			if (processVars != null && processVars.Contains(variable)) {
+				replaceValue = (string)processVars[variable];
 				if (filenameSafeMode) {
-					replaceValue = MakePathSafe((string)processVars[variable]);
-				} else {
-					replaceValue = (string)processVars[variable];
+					replaceValue = MakePathSafe(replaceValue);
 				}
 			} else if (userVars != null && userVars.Contains(variable)) {
+				replaceValue = (string)userVars[variable];
 				if (filenameSafeMode) {
-					replaceValue = MakePathSafe((string)userVars[variable]);
-				} else {
-					replaceValue = (string)userVars[variable];
+					replaceValue = MakePathSafe(replaceValue);
 				}
 			} else if (machineVars != null && machineVars.Contains(variable)) {
+				replaceValue = (string)machineVars[variable];
 				if (filenameSafeMode) {
-					replaceValue = MakePathSafe((string)machineVars[variable]);
-				} else {
-					replaceValue = (string)machineVars[variable];
+					replaceValue = MakePathSafe(replaceValue);
 				}
 			} else if (captureDetails != null && captureDetails.MetaData != null && captureDetails.MetaData.ContainsKey(variable)) {
-				replaceValue =  MakePathSafe(captureDetails.MetaData[variable]);
+				replaceValue = captureDetails.MetaData[variable];
+				if (filenameSafeMode) {
+					replaceValue = MakePathSafe(replaceValue);
+				}
 			} else {
 				// Handle other variables
 				// Default use "now" for the capture take´n
@@ -264,10 +264,16 @@ namespace Greenshot.Helpers {
 						replaceValue = capturetime.Second.ToString();
 						break;
 					case "now":
-						replaceValue = MakeFilenameSafe(DateTime.Now.ToString(dateFormat));
+						replaceValue = DateTime.Now.ToString(dateFormat);
+						if (filenameSafeMode) {
+							replaceValue = MakeFilenameSafe(replaceValue);
+						}
 						break;
 					case "capturetime":
-						replaceValue = MakeFilenameSafe(capturetime.ToString(dateFormat));
+						replaceValue = capturetime.ToString(dateFormat);
+						if (filenameSafeMode) {
+							replaceValue = MakeFilenameSafe(replaceValue);
+						}
 						break;
 					case "NUM":
 						conf.OutputFileIncrementingNumber++;
@@ -280,7 +286,10 @@ namespace Greenshot.Helpers {
 						
 						break;
 					case "title":
-						replaceValue = MakeFilenameSafe(title);
+						replaceValue = title;
+						if (filenameSafeMode) {
+							replaceValue = MakeFilenameSafe(replaceValue);
+						}
 						break;
 				}
 			}
@@ -350,7 +359,14 @@ namespace Greenshot.Helpers {
       		);
 		}
 
-		private static string FillPattern(string pattern, ICaptureDetails captureDetails) {
+		/// <summary>
+		/// Fill the pattern wit the supplied details
+		/// </summary>
+		/// <param name="pattern">Pattern</param>
+		/// <param name="captureDetails">CaptureDetails</param>
+		/// <param name="filenameSafeMode">Should the result be made "filename" safe?</param>
+		/// <returns>Filled pattern</returns>
+		public static string FillPattern(string pattern, ICaptureDetails captureDetails, bool filenameSafeMode) {
 			IDictionary processVars = null;
 			IDictionary userVars = null;
 			IDictionary machineVars = null;
@@ -374,7 +390,7 @@ namespace Greenshot.Helpers {
 
 			try {
 				return VAR_REGEXP.Replace(pattern,
-					new MatchEvaluator(delegate(Match m) { return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, true); })
+					new MatchEvaluator(delegate(Match m) { return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode); })
 	      		);
 			} catch (Exception e) {
 				// adding additional data for bug tracking

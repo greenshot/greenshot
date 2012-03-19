@@ -168,7 +168,7 @@ namespace Greenshot.Configuration {
 						coreConfiguration.OutputPrintAllowShrink = (bool)appConfig.Output_Print_AllowShrink;
 						coreConfiguration.OutputPrintCenter = (bool)appConfig.Output_Print_Center;
 						coreConfiguration.OutputPrintPromptOptions = (bool)appConfig.Output_Print_PromptOptions;
-						coreConfiguration.OutputPrintTimestamp = (bool)appConfig.Output_Print_Timestamp;
+						coreConfiguration.OutputPrintFooter = (bool)appConfig.Output_Print_Timestamp;
 						int delay = appConfig.Capture_Wait_Time-1;
 						if (delay < 0) {
 							delay = 0;

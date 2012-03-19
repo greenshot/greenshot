@@ -920,7 +920,9 @@ namespace Greenshot {
 			foreach(string propertyName in conf.Values.Keys) {
 				if (propertyName.StartsWith("OutputPrint")) {
 					iniValue = conf.Values[propertyName];
-					selectList.AddItem(lang.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+					if (iniValue.Attributes.LanguageKey != null) {
+						selectList.AddItem(lang.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+					}
 				}
 			}
 			selectList.CheckedChanged += new EventHandler(this.QuickSettingBoolItemChanged);

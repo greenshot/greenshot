@@ -52,7 +52,7 @@ namespace Greenshot.Forms {
 			this.AllowPrintRotate = this.checkboxAllowRotate.Checked = conf.OutputPrintAllowRotate;
 			this.AllowPrintShrink = this.checkboxAllowShrink.Checked = conf.OutputPrintAllowShrink;
 			this.PrintInverted = this.checkboxPrintInverted.Checked = conf.OutputPrintInverted;
-			this.PrintDateTime = this.checkboxDateTime.Checked = conf.OutputPrintTimestamp;
+			this.PrintDateTime = this.checkboxDateTime.Checked = conf.OutputPrintFooter;
 			this.checkbox_dontaskagain.Checked = false;
 			UpdateUI();
 		}
@@ -82,7 +82,7 @@ namespace Greenshot.Forms {
 			conf.OutputPrintAllowEnlarge = this.AllowPrintEnlarge;
 			conf.OutputPrintAllowRotate = this.AllowPrintRotate;
 			conf.OutputPrintAllowShrink = this.AllowPrintShrink;
-			conf.OutputPrintTimestamp = this.PrintDateTime;
+			conf.OutputPrintFooter = this.PrintDateTime;
 			conf.OutputPrintInverted = this.PrintInverted;
 			conf.OutputPrintPromptOptions = !this.checkbox_dontaskagain.Checked;
 			IniConfig.Save();

@@ -86,7 +86,7 @@ namespace GreenshotPlugin.Core {
 		
 		[IniProperty("OutputFilePath", Description="Output file path.")]
 		public string OutputFilePath;
-		[IniProperty("OutputFileFilenamePattern", Description="Filename pattern for screenshot.", DefaultValue="${capturetime}_${title}")]
+		[IniProperty("OutputFileFilenamePattern", Description="Filename pattern for screenshot.", DefaultValue="${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
 		public string OutputFileFilenamePattern;
 		[IniProperty("OutputFileFormat", Description="Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)", DefaultValue="png")]
 		public OutputFormat OutputFileFormat = OutputFormat.png;
@@ -122,8 +122,10 @@ namespace GreenshotPlugin.Core {
 		public bool OutputPrintCenter;
 		[IniProperty("OutputPrintInverted", LanguageKey="printoptions_inverted", Description="Print image inverted (use e.g. for console captures)", DefaultValue="false")]
 		public bool OutputPrintInverted;
-		[IniProperty("OutputPrintTimestamp", LanguageKey="printoptions_timestamp", Description="Print timestamp on print?", DefaultValue="true")]
-		public bool OutputPrintTimestamp;
+		[IniProperty("OutputPrintFooter", LanguageKey = "printoptions_timestamp", Description = "Print footer on print?", DefaultValue = "true")]
+		public bool OutputPrintFooter;
+		[IniProperty("OutputPrintFooterPattern", Description = "Footer pattern", DefaultValue = "${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
+		public string OutputPrintFooterPattern;
 
 		[IniProperty("UseProxy", Description="Use your global proxy?", DefaultValue="True")]
 		public bool UseProxy;
@@ -153,7 +155,7 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("NoDWMCaptureForProduct", Description="List of products for which DWM capturing doesn't work.", DefaultValue="Citrix ICA Client")]
 		public List<string> NoDWMCaptureForProduct;
 
-		[IniProperty("OptimizeForRDP", Description="Make some optimizations for remote desktop usage", DefaultValue="False")]
+		[IniProperty("OptimizeForRDP", Description="Make some optimizations for usage with remote desktop", DefaultValue="False")]
 		public bool OptimizeForRDP;
 
 		[IniProperty("ActiveTitleFixes", Description="The fixes that are active.")]
@@ -227,6 +229,9 @@ namespace GreenshotPlugin.Core {
 		/// <returns>object with the default value for the supplied property</returns>
 		public override object GetDefault(string property) {
 			switch(property) {
+				case "OutputPrintFooterPattern":
+
+					break;
 				case "PluginWhitelist":
 				case "PluginBacklist":
 					return new List<string>();

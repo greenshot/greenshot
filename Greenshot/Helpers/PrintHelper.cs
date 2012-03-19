@@ -132,13 +132,14 @@ namespace Greenshot.Helpers {
 			ContentAlignment alignment = pod.AllowPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
 
 			// prepare timestamp
-			float dateStringWidth = 0;
-			float dateStringHeight = 0;
-			string dateString = DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
-			if (conf.OutputPrintTimestamp) {
+			float footerStringWidth = 0;
+			float footerStringHeight = 0;
+			string footerString = null; //DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
+			if (conf.OutputPrintFooter) {
+				footerString = FilenameHelper.FillPattern(conf.OutputPrintFooterPattern, captureDetails, false);
 				using (Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular)) {
-					dateStringWidth = e.Graphics.MeasureString(dateString, f).Width;
-					dateStringHeight = e.Graphics.MeasureString(dateString, f).Height;
+					footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
+					footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;
 				}
 			}
 
@@ -146,7 +147,7 @@ namespace Greenshot.Helpers {
 			RectangleF pageRect = e.PageSettings.PrintableArea;
 
 			// Subtract the dateString height from the available area, this way the area stays free
-			pageRect.Height -= dateStringHeight;
+			pageRect.Height -= footerStringHeight;
 
 			GraphicsUnit gu = GraphicsUnit.Pixel;
 			RectangleF imageRect = image.GetBounds(ref gu);
@@ -172,10 +173,10 @@ namespace Greenshot.Helpers {
 
 			// align the image
 			printRect = ScaleHelper.GetAlignedRectangle(printRect, new RectangleF(0, 0, pageRect.Width, pageRect.Height), alignment);
-			if (conf.OutputPrintTimestamp) {
+			if (conf.OutputPrintFooter) {
 				//printRect = new RectangleF(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
 				using (Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular)) {
-					e.Graphics.DrawString(dateString, f, Brushes.Black, pageRect.Width / 2 - (dateStringWidth / 2), pageRect.Height);
+					e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - (footerStringWidth / 2), pageRect.Height);
 				}
 			}
 			if (conf.OutputPrintInverted) {

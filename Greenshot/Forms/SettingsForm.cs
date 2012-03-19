@@ -289,7 +289,7 @@ namespace Greenshot {
 			checkboxAllowEnlarge.Checked = coreConfiguration.OutputPrintAllowEnlarge;
 			checkboxAllowRotate.Checked = coreConfiguration.OutputPrintAllowRotate;
 			checkboxAllowShrink.Checked = coreConfiguration.OutputPrintAllowShrink;
-			checkboxTimestamp.Checked = coreConfiguration.OutputPrintTimestamp;
+			checkboxTimestamp.Checked = coreConfiguration.OutputPrintFooter;
 			checkbox_alwaysshowprintoptionsdialog.Checked = coreConfiguration.OutputPrintPromptOptions;
 			checkbox_capture_mousepointer.Checked = coreConfiguration.CaptureMousepointer;
 			checkbox_capture_windows_interactive.Checked = coreConfiguration.CaptureWindowsInteractive;
@@ -348,7 +348,7 @@ namespace Greenshot {
 			coreConfiguration.OutputPrintAllowEnlarge = checkboxAllowEnlarge.Checked;
 			coreConfiguration.OutputPrintAllowRotate = checkboxAllowRotate.Checked;
 			coreConfiguration.OutputPrintAllowShrink = checkboxAllowShrink.Checked;
-			coreConfiguration.OutputPrintTimestamp = checkboxTimestamp.Checked;
+			coreConfiguration.OutputPrintFooter = checkboxTimestamp.Checked;
 			coreConfiguration.OutputPrintPromptOptions = checkbox_alwaysshowprintoptionsdialog.Checked;
 			coreConfiguration.CaptureMousepointer = checkbox_capture_mousepointer.Checked;
 			coreConfiguration.CaptureWindowsInteractive = checkbox_capture_windows_interactive.Checked;
