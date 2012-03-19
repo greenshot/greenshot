@@ -337,10 +337,10 @@
       <DependentUpon>HelpBrowserForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\FilenameHelper.cs" />
-    <Compile Include="Forms\JpegQualityDialog.Designer.cs">
-      <DependentUpon>JpegQualityDialog.cs</DependentUpon>
+    <Compile Include="Forms\QualityDialog.Designer.cs">
+      <DependentUpon>QualityDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\JpegQualityDialog.cs" />
+    <Compile Include="Forms\QualityDialog.cs" />
     <Compile Include="Forms\ColorDialog.Designer.cs">
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </Compile>
