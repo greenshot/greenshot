@@ -146,6 +146,7 @@ namespace Greenshot.Configuration {
 		jpegqualitydialog_choosejpegquality,
 		jpegqualitydialog_dontaskagain,
 		jpegqualitydialog_title,
+		reduce_colors,
 		print_error,
 		printoptions_allowcenter,
 		printoptions_allowenlarge,

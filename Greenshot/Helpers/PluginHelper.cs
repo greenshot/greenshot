@@ -100,16 +100,16 @@ namespace Greenshot.Helpers {
 			}
 		}
 
-		public void SaveToStream(Image img, Stream stream, OutputFormat extension, int quality) {
-			ImageOutput.SaveToStream(img, stream, extension, quality);
+		public void SaveToStream(Image img, Stream stream, OutputFormat extension, int quality, bool reduceColors) {
+			ImageOutput.SaveToStream(img, stream, extension, quality, reduceColors);
 		}
 
-		public string SaveToTmpFile(Image img, OutputFormat outputFormat, int quality) {
-			return ImageOutput.SaveToTmpFile(img, outputFormat, quality);
+		public string SaveToTmpFile(Image img, OutputFormat outputFormat, int quality, bool reduceColors) {
+			return ImageOutput.SaveToTmpFile(img, outputFormat, quality, reduceColors);
 		}
-		
-		public string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality) {
-			return ImageOutput.SaveNamedTmpFile(image, captureDetails, outputFormat, quality);
+
+		public string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality, bool reduceColors) {
+			return ImageOutput.SaveNamedTmpFile(image, captureDetails, outputFormat, quality, reduceColors);
 		}
 		
 		public string GetFilename(OutputFormat format, ICaptureDetails captureDetails) {

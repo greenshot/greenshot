@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 namespace Greenshot {
-	partial class JpegQualityDialog : System.Windows.Forms.Form {
+	partial class QualityDialog : System.Windows.Forms.Form {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
@@ -46,25 +46,27 @@ namespace Greenshot {
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(QualityDialog));
 			this.label_choosejpegquality = new System.Windows.Forms.Label();
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
 			this.checkbox_dontaskagain = new System.Windows.Forms.CheckBox();
 			this.button_ok = new System.Windows.Forms.Button();
+			this.checkBox_reduceColors = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// label_choosejpegquality
 			// 
-			this.label_choosejpegquality.Location = new System.Drawing.Point(12, 9);
+			this.label_choosejpegquality.Location = new System.Drawing.Point(12, 31);
 			this.label_choosejpegquality.Name = "label_choosejpegquality";
-			this.label_choosejpegquality.Size = new System.Drawing.Size(268, 32);
+			this.label_choosejpegquality.Size = new System.Drawing.Size(268, 35);
 			this.label_choosejpegquality.TabIndex = 15;
 			this.label_choosejpegquality.Text = "Choose JPEG Quality";
 			// 
 			// textBoxJpegQuality
 			// 
-			this.textBoxJpegQuality.Location = new System.Drawing.Point(245, 44);
+			this.textBoxJpegQuality.Location = new System.Drawing.Point(245, 69);
 			this.textBoxJpegQuality.Name = "textBoxJpegQuality";
 			this.textBoxJpegQuality.ReadOnly = true;
 			this.textBoxJpegQuality.Size = new System.Drawing.Size(35, 20);
@@ -74,7 +76,7 @@ namespace Greenshot {
 			// trackBarJpegQuality
 			// 
 			this.trackBarJpegQuality.LargeChange = 10;
-			this.trackBarJpegQuality.Location = new System.Drawing.Point(12, 44);
+			this.trackBarJpegQuality.Location = new System.Drawing.Point(12, 69);
 			this.trackBarJpegQuality.Maximum = 100;
 			this.trackBarJpegQuality.Name = "trackBarJpegQuality";
 			this.trackBarJpegQuality.Size = new System.Drawing.Size(233, 45);
@@ -86,9 +88,9 @@ namespace Greenshot {
 			// 
 			this.checkbox_dontaskagain.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 81);
+			this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 106);
 			this.checkbox_dontaskagain.Name = "checkbox_dontaskagain";
-			this.checkbox_dontaskagain.Size = new System.Drawing.Size(268, 39);
+			this.checkbox_dontaskagain.Size = new System.Drawing.Size(268, 37);
 			this.checkbox_dontaskagain.TabIndex = 17;
 			this.checkbox_dontaskagain.Text = "Save as default quality and do not ask again.";
 			this.checkbox_dontaskagain.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -97,7 +99,7 @@ namespace Greenshot {
 			// button_ok
 			// 
 			this.button_ok.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.button_ok.Location = new System.Drawing.Point(205, 126);
+			this.button_ok.Location = new System.Drawing.Point(205, 149);
 			this.button_ok.Name = "button_ok";
 			this.button_ok.Size = new System.Drawing.Size(75, 23);
 			this.button_ok.TabIndex = 18;
@@ -105,17 +107,28 @@ namespace Greenshot {
 			this.button_ok.UseVisualStyleBackColor = true;
 			this.button_ok.Click += new System.EventHandler(this.Button_okClick);
 			// 
+			// checkBox_reduceColors
+			// 
+			this.checkBox_reduceColors.AutoSize = true;
+			this.checkBox_reduceColors.Location = new System.Drawing.Point(12, 11);
+			this.checkBox_reduceColors.Name = "checkBox_reduceColors";
+			this.checkBox_reduceColors.Size = new System.Drawing.Size(95, 17);
+			this.checkBox_reduceColors.TabIndex = 19;
+			this.checkBox_reduceColors.Text = "Reduce colors";
+			this.checkBox_reduceColors.UseVisualStyleBackColor = true;
+			// 
 			// JpegQualityDialog
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(299, 161);
+			this.ClientSize = new System.Drawing.Size(299, 184);
+			this.Controls.Add(this.checkBox_reduceColors);
 			this.Controls.Add(this.button_ok);
 			this.Controls.Add(this.checkbox_dontaskagain);
 			this.Controls.Add(this.label_choosejpegquality);
 			this.Controls.Add(this.textBoxJpegQuality);
 			this.Controls.Add(this.trackBarJpegQuality);
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "JpegQualityDialog";
@@ -124,11 +137,13 @@ namespace Greenshot {
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.Button button_ok;
 		private System.Windows.Forms.CheckBox checkbox_dontaskagain;
 		private System.Windows.Forms.TrackBar trackBarJpegQuality;
 		private System.Windows.Forms.TextBox textBoxJpegQuality;
 		private System.Windows.Forms.Label label_choosejpegquality;
+		private System.Windows.Forms.CheckBox checkBox_reduceColors;
 	}
 }

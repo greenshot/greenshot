@@ -190,7 +190,7 @@ namespace Greenshot.Destinations {
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {
-					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, conf.OutputFileFormat, conf.OutputFileJpegQuality);
+					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, conf.OutputFileFormat, conf.OutputFileJpegQuality, conf.OutputFileReduceColors);
 				}
 			}
 			// Create a attachment name for the image

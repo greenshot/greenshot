@@ -105,8 +105,8 @@ namespace GreenshotPlugin.Core {
 		
 		[IniProperty("OutputFileJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int OutputFileJpegQuality;
-		[IniProperty("OutputFilePromptJpegQuality", Description="Ask for the JPEQ quality before saving?", DefaultValue="false")]
-		public bool OutputFilePromptJpegQuality;
+		[IniProperty("OutputFilePromptQuality", Description="Ask for the quality before saving?", DefaultValue="false")]
+		public bool OutputFilePromptQuality;
 		[IniProperty("OutputFileIncrementingNumber", Description="The number for the ${NUM} in the filename pattern, is increased automatically after each save.", DefaultValue="1")]
 		public uint OutputFileIncrementingNumber;
 		

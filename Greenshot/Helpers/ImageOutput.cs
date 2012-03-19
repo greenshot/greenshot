@@ -75,7 +75,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Saves image to stream with specified quality
 		/// </summary>
-		public static void SaveToStream(Image imageToSave, Stream stream, OutputFormat extension, int quality) {
+		public static void SaveToStream(Image imageToSave, Stream stream, OutputFormat extension, int quality, bool reduceColors) {
 			ImageFormat imageFormat = null;
 			bool disposeImage = false;
 
@@ -101,7 +101,7 @@ namespace Greenshot.Helpers {
 			}
 
 			// If Quantizing is enable, overwrite the image to save with a 256 - color version
-			if (conf.OutputFileReduceColors) {
+			if (reduceColors) {
 				try {
 					LOG.Debug("Reducing colors on bitmap.");
 					Quantizer quantizer = new OctreeQuantizer(255,8);
@@ -148,7 +148,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Saves image to specific path with specified quality
 		/// </summary>
-		public static void Save(Image image, string fullPath, bool allowOverwrite, int quality, bool copyPathToClipboard) {
+		public static void Save(Image image, string fullPath, bool allowOverwrite, int quality, bool reduceColors, bool copyPathToClipboard) {
 			fullPath = FilenameHelper.MakeFQFilenameSafe(fullPath);
 			string path = Path.GetDirectoryName(fullPath);
 
@@ -177,7 +177,7 @@ namespace Greenshot.Helpers {
 			LOG.DebugFormat("Saving image to {0}", fullPath);
 			// Create the stream and call SaveToStream
 			using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) {
-				SaveToStream(image, stream, format, quality);
+				SaveToStream(image, stream, format, quality, reduceColors);
 			}
 
 			if (copyPathToClipboard) {
@@ -192,7 +192,8 @@ namespace Greenshot.Helpers {
 		/// <param name="fullPath">the absolute destination path including file name</param>
 		/// <param name="allowOverwrite">true if overwrite is allowed, false if not</param>
 		public static void Save(Image img, string fullPath, bool allowOverwrite) {
-			int q;
+			int quality;
+			bool reduceColors = false;
 			
 			// Fix for bug 2912959
 			string extension = fullPath.Substring(fullPath.LastIndexOf(".") + 1);
@@ -201,14 +202,16 @@ namespace Greenshot.Helpers {
 				isJPG = "JPG".Equals(extension.ToUpper()) || "JPEG".Equals(extension.ToUpper());
 			}
 			
-			if(isJPG && conf.OutputFilePromptJpegQuality) {
-				JpegQualityDialog jqd = new JpegQualityDialog();
-				jqd.ShowDialog();
-				q = jqd.Quality;
+			if(isJPG && conf.OutputFilePromptQuality) {
+				QualityDialog qualityDialog = new QualityDialog(isJPG);
+				qualityDialog.ShowDialog();
+				quality = qualityDialog.Quality;
+				reduceColors = qualityDialog.ReduceColors;
 			} else {
-				q = conf.OutputFileJpegQuality;
+				quality = conf.OutputFileJpegQuality;
+				reduceColors = conf.OutputFileReduceColors;
 			}
-			Save(img, fullPath, allowOverwrite, q, conf.OutputFileCopyPathToClipboard);
+			Save(img, fullPath, allowOverwrite, quality, reduceColors, conf.OutputFileCopyPathToClipboard);
 		}
 		#endregion
 		
@@ -237,7 +240,7 @@ namespace Greenshot.Helpers {
 		}
 		#endregion
 
-		public static string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality) {
+		public static string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality, bool reduceColors) {
 			string pattern = conf.OutputFileFilenamePattern;
 			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
 				pattern = "greenshot ${capturetime}";
@@ -254,7 +257,7 @@ namespace Greenshot.Helpers {
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
 			try {
-				ImageOutput.Save(image, tmpFile, true, quality, false);
+				ImageOutput.Save(image, tmpFile, true, quality, reduceColors, false);
 				tmpFileCache.Add(tmpFile, tmpFile);
 			} catch (Exception e) {
 				// Show the problem
@@ -270,7 +273,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
-		public static string SaveToTmpFile(Image image, OutputFormat outputFormat, int quality) {
+		public static string SaveToTmpFile(Image image, OutputFormat outputFormat, int quality, bool reduceColors) {
 			string tmpFile = Path.GetRandomFileName() + "." + outputFormat.ToString();
 			// Prevent problems with "other characters", which could cause problems
 			tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", "");
@@ -278,7 +281,7 @@ namespace Greenshot.Helpers {
 			LOG.Debug("Creating TMP File : " + tmpPath);
 			
 			try {
-				ImageOutput.Save(image, tmpPath, true, quality, false);
+				ImageOutput.Save(image, tmpPath, true, quality, reduceColors, false);
 				tmpFileCache.Add(tmpPath, tmpPath);
 			} catch (Exception) {
 				return null;

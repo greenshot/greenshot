@@ -188,6 +188,7 @@ namespace Greenshot {
 			this.checkbox_autostartshortcut.Text = lang.GetString(LangKey.settings_autostartshortcut);
 			
 			this.groupbox_destination.Text = lang.GetString(LangKey.settings_destination);
+			this.tab_destinations.Text = lang.GetString(LangKey.settings_destination);
 		
 			this.groupbox_preferredfilesettings.Text = lang.GetString(LangKey.settings_preferredfilesettings);
 			
@@ -270,7 +271,7 @@ namespace Greenshot {
 			checkbox_copypathtoclipboard.Checked = coreConfiguration.OutputFileCopyPathToClipboard;
 			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
 			textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality+"%";
-			checkbox_alwaysshowjpegqualitydialog.Checked = coreConfiguration.OutputFilePromptJpegQuality;
+			checkbox_alwaysshowjpegqualitydialog.Checked = coreConfiguration.OutputFilePromptQuality;
 			checkbox_playsound.Checked = coreConfiguration.PlayCameraSound;
 			
 			checkedDestinationsListBox.Items.Clear();
@@ -315,7 +316,10 @@ namespace Greenshot {
 
 		private void SaveSettings() {
 			if (combobox_language.SelectedItem != null) {
-				coreConfiguration.Language = combobox_language.SelectedValue.ToString();
+				string newLang = combobox_language.SelectedValue.ToString();
+				if (!string.IsNullOrEmpty(newLang)) {
+					coreConfiguration.Language = combobox_language.SelectedValue.ToString();
+				}
 			}
 
 			coreConfiguration.WindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
@@ -331,7 +335,7 @@ namespace Greenshot {
 
 			coreConfiguration.OutputFileCopyPathToClipboard = checkbox_copypathtoclipboard.Checked;
 			coreConfiguration.OutputFileJpegQuality = trackBarJpegQuality.Value;
-			coreConfiguration.OutputFilePromptJpegQuality = checkbox_alwaysshowjpegqualitydialog.Checked;
+			coreConfiguration.OutputFilePromptQuality = checkbox_alwaysshowjpegqualitydialog.Checked;
 			coreConfiguration.PlayCameraSound = checkbox_playsound.Checked;
 
 			List<string> destinations = new List<string>();

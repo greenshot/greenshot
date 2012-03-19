@@ -131,7 +131,7 @@ namespace Greenshot.IniFile {
 		private static void ConfigFileChanged(object source, FileSystemEventArgs e) {
 			string iniLocation = CreateIniLocation(configName + INI_EXTENSION);
 			if (iniLocation.Equals(e.FullPath)) {
-				//LOG.InfoFormat("Config file {0} was changed, reloading", e.FullPath);
+				LOG.InfoFormat("Config file {0} was changed, reloading", e.FullPath);
 
 				// Try to reread the configuration
 				int retries = 10;

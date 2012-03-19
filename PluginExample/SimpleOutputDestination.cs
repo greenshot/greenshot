@@ -67,7 +67,7 @@ namespace PluginExample {
 			string filePath = Path.Combine(config.OutputFilePath, file);
 			using (FileStream stream = new FileStream(filePath, FileMode.Create)) {
 				using (Image image = surface.GetImageForExport()) {
-					host.SaveToStream(image, stream, OutputFormat.png, 100);					
+					host.SaveToStream(image, stream, OutputFormat.png, config.OutputFileJpegQuality, config.OutputFileReduceColors);
 				}
 			}
 			MessageBox.Show("Saved test file to: " + filePath);

@@ -117,6 +117,7 @@ namespace Greenshot {
 			this.groupbox_plugins = new System.Windows.Forms.GroupBox();
 			this.listview_plugins = new System.Windows.Forms.ListView();
 			this.button_pluginconfigure = new System.Windows.Forms.Button();
+			this.tab_destinations = new System.Windows.Forms.TabPage();
 			this.groupbox_preferredfilesettings.SuspendLayout();
 			this.groupbox_applicationsettings.SuspendLayout();
 			this.groupbox_jpegsettings.SuspendLayout();
@@ -246,7 +247,7 @@ namespace Greenshot {
 			this.groupbox_preferredfilesettings.Controls.Add(this.textbox_storagelocation);
 			this.groupbox_preferredfilesettings.Controls.Add(this.textbox_screenshotname);
 			this.groupbox_preferredfilesettings.Controls.Add(this.label_screenshotname);
-			this.groupbox_preferredfilesettings.Location = new System.Drawing.Point(2, 106);
+			this.groupbox_preferredfilesettings.Location = new System.Drawing.Point(2, 6);
 			this.groupbox_preferredfilesettings.Name = "groupbox_preferredfilesettings";
 			this.groupbox_preferredfilesettings.Size = new System.Drawing.Size(412, 122);
 			this.groupbox_preferredfilesettings.TabIndex = 13;
@@ -299,7 +300,7 @@ namespace Greenshot {
 			this.groupbox_jpegsettings.Controls.Add(this.label_jpegquality);
 			this.groupbox_jpegsettings.Controls.Add(this.textBoxJpegQuality);
 			this.groupbox_jpegsettings.Controls.Add(this.trackBarJpegQuality);
-			this.groupbox_jpegsettings.Location = new System.Drawing.Point(2, 234);
+			this.groupbox_jpegsettings.Location = new System.Drawing.Point(2, 156);
 			this.groupbox_jpegsettings.Name = "groupbox_jpegsettings";
 			this.groupbox_jpegsettings.Size = new System.Drawing.Size(412, 83);
 			this.groupbox_jpegsettings.TabIndex = 14;
@@ -338,7 +339,7 @@ namespace Greenshot {
 			this.trackBarJpegQuality.Location = new System.Drawing.Point(138, 21);
 			this.trackBarJpegQuality.Maximum = 100;
 			this.trackBarJpegQuality.Name = "trackBarJpegQuality";
-			this.trackBarJpegQuality.Size = new System.Drawing.Size(233, 42);
+			this.trackBarJpegQuality.Size = new System.Drawing.Size(233, 45);
 			this.trackBarJpegQuality.TabIndex = 0;
 			this.trackBarJpegQuality.TickFrequency = 10;
 			this.trackBarJpegQuality.Scroll += new System.EventHandler(this.TrackBarJpegQualityScroll);
@@ -348,7 +349,7 @@ namespace Greenshot {
 			this.groupbox_destination.Controls.Add(this.checkedDestinationsListBox);
 			this.groupbox_destination.Location = new System.Drawing.Point(2, 6);
 			this.groupbox_destination.Name = "groupbox_destination";
-			this.groupbox_destination.Size = new System.Drawing.Size(412, 94);
+			this.groupbox_destination.Size = new System.Drawing.Size(412, 294);
 			this.groupbox_destination.TabIndex = 16;
 			this.groupbox_destination.TabStop = false;
 			this.groupbox_destination.Text = "Screenshot Destination";
@@ -359,7 +360,7 @@ namespace Greenshot {
 			this.checkedDestinationsListBox.Location = new System.Drawing.Point(5, 20);
 			this.checkedDestinationsListBox.Name = "checkedDestinationsListBox";
 			this.checkedDestinationsListBox.ScrollAlwaysVisible = true;
-			this.checkedDestinationsListBox.Size = new System.Drawing.Size(401, 64);
+			this.checkedDestinationsListBox.Size = new System.Drawing.Size(401, 284);
 			this.checkedDestinationsListBox.TabIndex = 0;
 			this.checkedDestinationsListBox.SelectedValueChanged += new System.EventHandler(this.DestinationsCheckStateChanged);
 			// 
@@ -368,6 +369,7 @@ namespace Greenshot {
 			this.tabcontrol.Controls.Add(this.tab_general);
 			this.tabcontrol.Controls.Add(this.tab_capture);
 			this.tabcontrol.Controls.Add(this.tab_output);
+			this.tabcontrol.Controls.Add(this.tab_destinations);
 			this.tabcontrol.Controls.Add(this.tab_printer);
 			this.tabcontrol.Location = new System.Drawing.Point(12, 13);
 			this.tabcontrol.Name = "tabcontrol";
@@ -672,16 +674,16 @@ namespace Greenshot {
 			// numericUpDownWaitTime
 			// 
 			this.numericUpDownWaitTime.Increment = new decimal(new int[] {
-									100,
-									0,
-									0,
-									0});
+            100,
+            0,
+            0,
+            0});
 			this.numericUpDownWaitTime.Location = new System.Drawing.Point(11, 69);
 			this.numericUpDownWaitTime.Maximum = new decimal(new int[] {
-									10000,
-									0,
-									0,
-									0});
+            10000,
+            0,
+            0,
+            0});
 			this.numericUpDownWaitTime.Name = "numericUpDownWaitTime";
 			this.numericUpDownWaitTime.Size = new System.Drawing.Size(57, 20);
 			this.numericUpDownWaitTime.TabIndex = 24;
@@ -698,9 +700,8 @@ namespace Greenshot {
 			// tab_output
 			// 
 			this.tab_output.BackColor = System.Drawing.Color.Transparent;
-			this.tab_output.Controls.Add(this.groupbox_destination);
-			this.tab_output.Controls.Add(this.groupbox_jpegsettings);
 			this.tab_output.Controls.Add(this.groupbox_preferredfilesettings);
+			this.tab_output.Controls.Add(this.groupbox_jpegsettings);
 			this.tab_output.Location = new System.Drawing.Point(4, 22);
 			this.tab_output.Name = "tab_output";
 			this.tab_output.Padding = new System.Windows.Forms.Padding(3);
@@ -719,6 +720,16 @@ namespace Greenshot {
 			this.tab_printer.TabIndex = 2;
 			this.tab_printer.Text = "Printer";
 			this.tab_printer.UseVisualStyleBackColor = true;
+			// 
+			// tab_destinations
+			// 
+			this.tab_destinations.Location = new System.Drawing.Point(4, 22);
+			this.tab_destinations.Controls.Add(this.groupbox_destination);
+			this.tab_destinations.Name = "tab_destinations";
+			this.tab_destinations.Size = new System.Drawing.Size(423, 320);
+			this.tab_destinations.TabIndex = 4;
+			this.tab_destinations.Text = "Destinations";
+			this.tab_destinations.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_printoptions
 			// 
@@ -829,9 +840,9 @@ namespace Greenshot {
 			// 
 			// groupbox_plugins
 			// 
-			this.groupbox_plugins.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+			this.groupbox_plugins.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this.groupbox_plugins.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
 			this.groupbox_plugins.Controls.Add(this.listview_plugins);
 			this.groupbox_plugins.Controls.Add(this.button_pluginconfigure);
@@ -882,8 +893,8 @@ namespace Greenshot {
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
 			this.Text = "SettingsForm";
-			this.Shown += new System.EventHandler(this.SettingsFormShown);
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsFormFormClosing);
+			this.Shown += new System.EventHandler(this.SettingsFormShown);
 			this.groupbox_preferredfilesettings.ResumeLayout(false);
 			this.groupbox_preferredfilesettings.PerformLayout();
 			this.groupbox_applicationsettings.ResumeLayout(false);
@@ -911,6 +922,7 @@ namespace Greenshot {
 			this.groupbox_plugins.ResumeLayout(false);
 			this.groupbox_plugins.PerformLayout();
 			this.ResumeLayout(false);
+
 		}
 		private System.Windows.Forms.CheckedListBox checkedDestinationsListBox;
 		private System.Windows.Forms.GroupBox groupbox_editor;
@@ -982,5 +994,6 @@ namespace Greenshot {
 		private System.Windows.Forms.Button settings_okay;
 		private System.Windows.Forms.TextBox textbox_storagelocation;
 		private System.Windows.Forms.Label label_storagelocation;
+		private System.Windows.Forms.TabPage tab_destinations;
 	}
 }

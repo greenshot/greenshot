@@ -28,28 +28,34 @@ namespace Greenshot {
 	/// <summary>
 	/// Description of JpegQualityDialog.
 	/// </summary>
-	public partial class JpegQualityDialog : Form {
+	public partial class QualityDialog : Form {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		ILanguage lang;
 		public int Quality = 0;
-		public JpegQualityDialog() {
+		public bool ReduceColors = false;
+		public QualityDialog(bool isJPG) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			
 			lang = Language.GetInstance();
+			this.checkBox_reduceColors.Checked = conf.OutputFileReduceColors;
+			this.trackBarJpegQuality.Enabled = isJPG;
 			this.trackBarJpegQuality.Value = conf.OutputFileJpegQuality;
+			this.textBoxJpegQuality.Enabled = isJPG;
 			this.textBoxJpegQuality.Text = conf.OutputFileJpegQuality.ToString();
 			UpdateUI();
+			WindowDetails.ToForeground(Handle);
 		}
-		
 		
 		void Button_okClick(object sender, System.EventArgs e) {
 			Quality = this.trackBarJpegQuality.Value;
+			ReduceColors = checkBox_reduceColors.Checked;
 			if(this.checkbox_dontaskagain.Checked) {
 				conf.OutputFileJpegQuality = Quality;
-				conf.OutputFilePromptJpegQuality = false;
+				conf.OutputFilePromptQuality = false;
+				conf.OutputFileReduceColors = ReduceColors;
 				IniConfig.Save();
 			}
 		}
@@ -58,6 +64,7 @@ namespace Greenshot {
 			this.Text = lang.GetString(LangKey.jpegqualitydialog_title);
 			this.label_choosejpegquality.Text = lang.GetString(LangKey.jpegqualitydialog_choosejpegquality);
 			this.checkbox_dontaskagain.Text = lang.GetString(LangKey.jpegqualitydialog_dontaskagain);
+			this.checkBox_reduceColors.Text = lang.GetString(LangKey.reduce_colors);
 		}
 		
 		void TrackBarJpegQualityScroll(object sender, System.EventArgs e) {

@@ -77,7 +77,8 @@ namespace Greenshot.Plugin {
 		/// <param name="stream">The Stream to save to</param>
 		/// <param name="format">The format to save with (png, jpg etc)</param>
 		/// <param name="quality">Jpeg quality</param>
-		void SaveToStream(Image image, Stream stream, OutputFormat format, int quality);
+		/// <param name="reduceColors">reduce the amount of colors to 256</param>
+		void SaveToStream(Image image, Stream stream, OutputFormat format, int quality, bool reduceColors);
 
 		/// <summary>
 		/// Saves the image to a temp file (random name) using the specified outputformat
@@ -85,7 +86,8 @@ namespace Greenshot.Plugin {
 		/// <param name="image">The Image to save</param>
 		/// <param name="format">The format to save with (png, jpg etc)</param>
 		/// <param name="quality">Jpeg quality</param>
-		string SaveToTmpFile(Image image, OutputFormat outputFormat, int quality);
+		/// <param name="reduceColors">reduce the amount of colors to 256</param>
+		string SaveToTmpFile(Image image, OutputFormat outputFormat, int quality, bool reduceColors);
 
 		/// <summary>
 		/// Saves the image to a temp file, but the name is build with the capture details & pattern
@@ -94,7 +96,8 @@ namespace Greenshot.Plugin {
 		/// <param name="captureDetails">captureDetails with the information to build the filename</param>
 		/// <param name="outputformat">The format to save with (png, jpg etc)</param>
 		/// <param name="quality">Jpeg quality</param>
-		string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality);
+		/// <param name="reduceColors">reduce the amount of colors to 256</param>
+		string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality, bool reduceColors);
 
 		/// <summary>
 		/// Return a filename for the current image format (png,jpg etc) with the default file pattern

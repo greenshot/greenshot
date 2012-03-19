@@ -158,7 +158,7 @@ namespace Greenshot.Configuration {
 						coreConfiguration.OutputFileIncrementingNumber = unchecked((uint)appConfig.Output_File_IncrementingNumber);
 						coreConfiguration.OutputFileJpegQuality = appConfig.Output_File_JpegQuality;
 						coreConfiguration.OutputFilePath = appConfig.Output_File_Path;
-						coreConfiguration.OutputFilePromptJpegQuality = (bool)appConfig.Output_File_PromptJpegQuality;
+						coreConfiguration.OutputFilePromptQuality = (bool)appConfig.Output_File_PromptJpegQuality;
 						coreConfiguration.Language = appConfig.Ui_Language;
 						coreConfiguration.PlayCameraSound = (bool)appConfig.Ui_Effects_CameraSound;
 						coreConfiguration.CaptureMousepointer = (bool)appConfig.Capture_Mousepointer;

@@ -197,15 +197,18 @@ Details about the GNU General Public License:
 		Show JPEG quality dialog every time a JPEG image is saved
 	</resource>
 	<resource name="jpegqualitydialog_title">
-		Greenshot JPEG quality
+		Greenshot quality
 	</resource>
 	<resource name="jpegqualitydialog_choosejpegquality">
 		Please choose the quality for your JPEG image.
 	</resource>
 	<resource name="jpegqualitydialog_dontaskagain">
-		Save as default JPEG quality and do not ask again
+		Save as default quality and do not ask again
 	</resource>
-	<resource name="editor_forecolor">
+  <resource name="reduce_colors">
+    Reduce the amount of colors to 256 (can have impact on quality!)
+  </resource>
+  <resource name="editor_forecolor">
 		Line color
 	</resource>
 	<resource name="editor_backcolor">

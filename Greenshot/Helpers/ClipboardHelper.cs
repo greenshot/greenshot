@@ -375,7 +375,7 @@ EndSelection:<<<<<<<4
 				
 				// Set the HTML
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
-					string tmpFile = ImageOutput.SaveToTmpFile(image, OutputFormat.png, config.OutputFileJpegQuality);
+					string tmpFile = ImageOutput.SaveToTmpFile(image, OutputFormat.png, config.OutputFileJpegQuality, config.OutputFileReduceColors);
 					string html = getHTMLString(image, tmpFile);
 					ido.SetText(html, TextDataFormat.Html);
 				} else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {

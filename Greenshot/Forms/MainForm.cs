@@ -371,6 +371,7 @@ namespace Greenshot {
 				LOG.Debug("Data received, Command = " + command.Key + ", Data: " + command.Value);
 				switch(command.Key) {
 					case CommandEnum.Exit:
+						LOG.Info("Exit requested");
 						Exit();
 						break;
 					case CommandEnum.FirstLaunch:
@@ -395,12 +396,14 @@ namespace Greenshot {
 						} catch {}
 						break;
 					case CommandEnum.ReloadConfig:
+						LOG.Info("Reload requested");
 						try {
 							IniConfig.Reload();
 							ReloadConfiguration(null, null);
 						} catch {}
 						break;
 					case CommandEnum.OpenFile:
+						LOG.InfoFormat("Open file requested: {0}", filename);
 						string filename = command.Value;
 						if (File.Exists(filename)) {
 							BeginInvoke((MethodInvoker)delegate {
