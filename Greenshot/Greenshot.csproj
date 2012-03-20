@@ -180,7 +180,6 @@
     <Compile Include="Memento\IMemento.cs" />
     <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
     <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
-    <Compile Include="Helpers\QuantizerHelper.cs" />
     <Compile Include="Helpers\ScreenCaptureHelper.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />

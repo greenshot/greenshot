@@ -101,11 +101,13 @@ namespace Greenshot.Helpers {
 			}
 
 			// If Quantizing is enable, overwrite the image to save with a 256 - color version
-			if (reduceColors) {
+			IColorQuantizer quantizer = ImageHelper.PrepareQuantize((Bitmap)imageToSave);
+			int colorCount = quantizer.GetColorCount();
+			LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
+			if (reduceColors || colorCount < 256) {
 				try {
 					LOG.Debug("Reducing colors on bitmap.");
-					Quantizer quantizer = new OctreeQuantizer(255,8);
-					imageToSave = quantizer.Quantize(imageToSave);
+					imageToSave = ImageHelper.Quantize((Bitmap)imageToSave, quantizer);
 					// Make sure the "new" image is disposed
 					disposeImage = true;
 				} catch(Exception e) {
@@ -202,7 +204,7 @@ namespace Greenshot.Helpers {
 				isJPG = "JPG".Equals(extension.ToUpper()) || "JPEG".Equals(extension.ToUpper());
 			}
 			
-			if(isJPG && conf.OutputFilePromptQuality) {
+			if(conf.OutputFilePromptQuality) {
 				QualityDialog qualityDialog = new QualityDialog(isJPG);
 				qualityDialog.ShowDialog();
 				quality = qualityDialog.Quality;

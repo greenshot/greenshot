@@ -136,7 +136,7 @@ namespace GreenshotPlugin.Core {
 				// Set "this" rect to location 0,0
 				// as the Cloned Bitmap is only the part we want to work with
 				this.rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-			} else if (!ImageHelper.SupportsPixelFormat(sourceBmp)) {
+			} else if (!ImageHelper.SupportsPixelFormat(sourceBmp) && PixelFormat.Format8bppIndexed != sourceBmp.PixelFormat) {
 				throw new ArgumentException("Unsupported pixel format: " + sourceBmp.PixelFormat + " set clone to true!");
 			} else {
 				this.bitmap = sourceBmp;
@@ -268,11 +268,36 @@ namespace GreenshotPlugin.Core {
 				Lock();
 			}
 		}
-		
-		/**
-		 * Retrieve the color at location x,y
-		 * Before the first time this is called the Lock() should be called once!
-		 */
+
+		/// <summary>
+		/// Retrieve the color index, for 8BPP, at location x,y
+		/// </summary>
+		/// <param name="x">X coordinate</param>
+		/// <param name="y">Y Coordinate</param>
+		/// <returns>index</returns>
+		public byte GetColorIndexAt(int x, int y) {
+			int offset = x*bytesPerPixel+y*stride;
+			return pointer[offset];
+		}
+
+		/// <summary>
+		/// Set the color index, for 8BPP, at location x,y
+		/// </summary>
+		/// <param name="x">X coordinate</param>
+		/// <param name="y">Y Coordinate</param>
+		/// <param name="color">Color index to set</param>
+		public void SetColorIndexAt(int x, int y, byte color) {
+			int offset = x * bytesPerPixel + y * stride;
+			pointer[offset] = color;
+		}
+
+		/// <summary>
+		/// Retrieve the color at location x,y
+		/// Before the first time this is called the Lock() should be called once!
+		/// </summary>
+		/// <param name="x">X coordinate</param>
+		/// <param name="y">Y Coordinate</param>
+		/// <returns>Color</returns>
 		public Color GetColorAt(int x, int y) {
 			if(x>=0 && y>=0 && x<rect.Width && y<rect.Height) {
 				int offset = x*bytesPerPixel+y*stride;
@@ -282,11 +307,14 @@ namespace GreenshotPlugin.Core {
 				return Color.Empty;
 			}
 		}
-		
-		/**
-		 * Retrieve the color at location x,y
-		 * Before the first time this is called the Lock() should be called once!
-		 */
+
+		/// <summary>
+		/// Retrieve the color, without alpha, at location x,y
+		/// Before the first time this is called the Lock() should be called once!
+		/// </summary>
+		/// <param name="x">X coordinate</param>
+		/// <param name="y">Y Coordinate</param>
+		/// <returns>Color</returns>
 		public Color GetColorAtWithoutAlpha(int x, int y) {
 			if(x>=0 && y>=0 && x<rect.Width && y<rect.Height) {
 				int offset = x*bytesPerPixel+y*stride;
@@ -392,6 +420,9 @@ namespace GreenshotPlugin.Core {
 					gIndex = 1;
 					rIndex = 2;
 					bytesPerPixel = 3;
+					break;
+				case PixelFormat.Format8bppIndexed:
+					bytesPerPixel = 1;
 					break;
 				default: 
 					throw new FormatException("Bitmap.Pixelformat."+bitmap.PixelFormat+" is currently not supported. Supported: Format32bpp(A)Rgb, Format24bppRgb");

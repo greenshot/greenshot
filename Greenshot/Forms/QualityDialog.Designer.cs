@@ -46,7 +46,6 @@ namespace Greenshot {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(QualityDialog));
 			this.label_choosejpegquality = new System.Windows.Forms.Label();
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
@@ -128,7 +127,7 @@ namespace Greenshot {
 			this.Controls.Add(this.label_choosejpegquality);
 			this.Controls.Add(this.textBoxJpegQuality);
 			this.Controls.Add(this.trackBarJpegQuality);
-			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "JpegQualityDialog";

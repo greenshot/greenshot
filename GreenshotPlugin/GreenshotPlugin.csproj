@@ -199,6 +199,7 @@
     <Compile Include="Core\NetworkHelper.cs" />
     <Compile Include="Core\Objects.cs" />
     <Compile Include="Core\PluginUtils.cs" />
+    <Compile Include="Core\QuantizerHelper.cs" />
     <Compile Include="Core\SourceForgeHelper.cs" />
     <Compile Include="Core\WindowCapture.cs" />
     <Compile Include="Core\WindowsHelper.cs" />
