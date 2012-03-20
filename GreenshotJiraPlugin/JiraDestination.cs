@@ -105,7 +105,7 @@ namespace GreenshotJiraPlugin {
 			if (jira != null) {
 				using (MemoryStream stream = new MemoryStream()) {
 					using (Image image = surface.GetImageForExport()) {
-						jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);							
+						jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);							
 					}
 					// COPY stream to buffer
 					buffer = stream.ToArray();
@@ -132,7 +132,7 @@ namespace GreenshotJiraPlugin {
 					if (result == DialogResult.OK) {
 						using (MemoryStream stream = new MemoryStream()) {
 							using (Image image = surface.GetImageForExport()) {
-								jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);									
+								jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);									
 							}
 							// COPY stream to buffer
 							buffer = stream.ToArray();

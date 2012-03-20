@@ -54,6 +54,11 @@ namespace GreenshotConfluencePlugin {
 			get;
 			set;
 		}
+		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
+		public bool UploadReduceColors {
+			get;
+			set;
+		}
 		[IniProperty("OpenPageAfterUpload", Description="Open the page where the picture is uploaded after upload", DefaultValue="True")]
 		public bool OpenPageAfterUpload {
 			get;

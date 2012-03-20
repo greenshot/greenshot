@@ -39,6 +39,8 @@ namespace GreenshotImgurPlugin {
 		public OutputFormat UploadFormat;
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int UploadJpegQuality;
+		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
+		public bool UploadReduceColors;
 		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
 		public bool UsePageLink;
 		

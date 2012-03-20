@@ -90,7 +90,7 @@ namespace ExternalCommand {
 			string fullPath = captureDetails.Filename;
 			if (fullPath == null) {
 				using (Image image = surface.GetImageForExport()) {
-					fullPath = host.SaveNamedTmpFile(image, captureDetails, OutputFormat.png, 100);
+					fullPath = host.SaveNamedTmpFile(image, captureDetails, OutputFormat.png, 100, false);
 				}
 			}
 			if (presetCommand != null) {

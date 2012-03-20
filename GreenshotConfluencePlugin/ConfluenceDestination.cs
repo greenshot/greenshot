@@ -143,7 +143,7 @@ namespace GreenshotConfluencePlugin {
 		private bool upload(Image image, Page page, string filename, bool openPage) {
 			byte[] buffer;
 			using (MemoryStream stream = new MemoryStream()) {
-				ConfluencePlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);
+				ConfluencePlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 				// COPY buffer to array
 				buffer = stream.ToArray();
 			}

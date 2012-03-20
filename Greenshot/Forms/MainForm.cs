@@ -403,8 +403,8 @@ namespace Greenshot {
 						} catch {}
 						break;
 					case CommandEnum.OpenFile:
-						LOG.InfoFormat("Open file requested: {0}", filename);
 						string filename = command.Value;
+						LOG.InfoFormat("Open file requested: {0}", filename);
 						if (File.Exists(filename)) {
 							BeginInvoke((MethodInvoker)delegate {
 								CaptureHelper.CaptureFile(filename);

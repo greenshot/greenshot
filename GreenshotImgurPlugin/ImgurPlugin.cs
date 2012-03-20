@@ -140,7 +140,7 @@ namespace GreenshotImgurPlugin {
 			using (MemoryStream stream = new MemoryStream()) {
 				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, lang.GetString(LangKey.communication_wait));
 
-				host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality);
+				host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 				try {
 					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, captureDetails));
 					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, captureDetails.DateTime.ToString(), filename);
@@ -178,7 +178,7 @@ namespace GreenshotImgurPlugin {
 			using (MemoryStream stream = new MemoryStream()) {
 				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, lang.GetString(LangKey.communication_wait));
 
-				imageEditor.SaveToStream(stream, config.UploadFormat, config.UploadJpegQuality);
+				imageEditor.SaveToStream(stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 				try {
 					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
 					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, imageEditor.CaptureDetails.Title, filename);
