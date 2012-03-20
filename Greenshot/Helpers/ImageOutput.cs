@@ -106,8 +106,8 @@ namespace Greenshot.Helpers {
 			LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
 			if (reduceColors || colorCount < 256) {
 				try {
-					LOG.Debug("Reducing colors on bitmap.");
-					imageToSave = ImageHelper.Quantize((Bitmap)imageToSave, quantizer);
+					LOG.Info("Reducing colors on bitmap to 255.");
+					imageToSave = ImageHelper.Quantize((Bitmap)imageToSave, quantizer, 255);
 					// Make sure the "new" image is disposed
 					disposeImage = true;
 				} catch(Exception e) {

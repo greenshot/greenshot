@@ -29,6 +29,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using System.Runtime.InteropServices;
+using System.Collections;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -1024,9 +1025,15 @@ namespace GreenshotPlugin.Core {
 			return quantizer;
 		}
 
-		public static Bitmap Quantize(Bitmap sourceBitmap, IColorQuantizer quantizer) {
+		/// <summary>
+		/// Quantize the sourceBitmap with the Quantizer returned by PrepareQuantize
+		/// </summary>
+		/// <param name="sourceBitmap"></param>
+		/// <param name="quantizer"></param>
+		/// <returns>Quantized bitmap</returns>
+		public static Bitmap Quantize(Bitmap sourceBitmap, IColorQuantizer quantizer, int paletteSize) {
 			Bitmap result = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format8bppIndexed);
-			List<Color> palette = quantizer.GetPalette(255);
+			List<Color> palette = quantizer.GetPalette(paletteSize);
 			ColorPalette imagePalette = result.Palette;
 			// copies all color entries
 			for (Int32 index = 0; index < palette.Count; index++) {
