@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-0.9.0 Build 1667
+0.9.0 Build 1714
 
 We changed the version to 0.9.0 as the amount of features in 0.8.1 was more than planned.
 
@@ -25,7 +25,7 @@ Features added:
 * Added Ctrl/shift logic to the editor, hard to explain (see help) but hold one of the keys down and draw..
 * Added a color picker in the color dialog.
 * Added shadow & torn edges
-
+* Added color reduction as an option and auto detection for image with less than 256 color. When using reduction this results in smaller files.
 
 0.8.1 Build 1483
 

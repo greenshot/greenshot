@@ -92,6 +92,8 @@ namespace GreenshotPlugin.Core {
 		public OutputFormat OutputFileFormat = OutputFormat.png;
 		[IniProperty("OutputFileReduceColors", Description="If set to true, than the colors of the output file are reduced to 256 (8-bit) colors", DefaultValue="false")]
 		public bool OutputFileReduceColors;
+		[IniProperty("OutputFileAutoReduceColors", Description = "If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used.", DefaultValue = "true")]
+		public bool OutputFileAutoReduceColors;
 
 		[IniProperty("OutlookEmailFormat", Description = "Default type for emails. (Text, HTML)", DefaultValue="HTML")]
 		public EmailFormat OutlookEmailFormat;

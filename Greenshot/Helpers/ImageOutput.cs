@@ -100,19 +100,23 @@ namespace Greenshot.Helpers {
 					break;
 			}
 
-			// If Quantizing is enable, overwrite the image to save with a 256 - color version
-			IColorQuantizer quantizer = ImageHelper.PrepareQuantize((Bitmap)imageToSave);
-			int colorCount = quantizer.GetColorCount();
-			LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
-			if (reduceColors || colorCount < 256) {
-				try {
-					LOG.Info("Reducing colors on bitmap to 255.");
-					imageToSave = ImageHelper.Quantize((Bitmap)imageToSave, quantizer, 255);
-					// Make sure the "new" image is disposed
-					disposeImage = true;
-				} catch(Exception e) {
-					LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+			// check for color reduction, forced or automatically
+			if (conf.OutputFileAutoReduceColors || reduceColors) {
+				IColorQuantizer quantizer = ImageHelper.PrepareQuantize((Bitmap)imageToSave);
+				int colorCount = quantizer.GetColorCount();
+				LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
+				if (reduceColors || colorCount < 256) {
+					try {
+						LOG.Info("Reducing colors on bitmap to 255.");
+						imageToSave = ImageHelper.Quantize((Bitmap)imageToSave, quantizer, 255);
+						// Make sure the "new" image is disposed
+						disposeImage = true;
+					} catch (Exception e) {
+						LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+					}
 				}
+			} else {
+				LOG.Info("Skipping color reduction test, OutputFileAutoReduceColors is set to false.");
 			}
 
 			try {
