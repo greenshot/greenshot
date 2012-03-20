@@ -45,25 +45,27 @@ namespace GreenshotJiraPlugin {
 		public OutputFormat UploadFormat;
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int UploadJpegQuality;
+		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
+		public bool UploadReduceColors;
 
 		/// <summary>
 		/// A form for username/password
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
-        public bool ShowConfigDialog() {
+		public bool ShowConfigDialog() {
 			SettingsForm settingsForm = new SettingsForm(this);
-        	settingsForm.Url = Url;
-        	settingsForm.UploadFormat = UploadFormat.ToString();
-        	DialogResult result = settingsForm.ShowDialog();
-        	if (result == DialogResult.OK) {
-        		if (!settingsForm.Url.Equals(Url) || !settingsForm.UploadFormat.Equals(UploadFormat.ToString())) {
-            		Url = settingsForm.Url;
-            		UploadFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), settingsForm.UploadFormat.ToLower());
-            	}
-           		IniConfig.Save();
-        		return true;
-        	}
-        	return false;
-        }
+			settingsForm.Url = Url;
+			settingsForm.UploadFormat = UploadFormat.ToString();
+			DialogResult result = settingsForm.ShowDialog();
+			if (result == DialogResult.OK) {
+				if (!settingsForm.Url.Equals(Url) || !settingsForm.UploadFormat.Equals(UploadFormat.ToString())) {
+					Url = settingsForm.Url;
+					UploadFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), settingsForm.UploadFormat.ToLower());
+				}
+				IniConfig.Save();
+				return true;
+			}
+			return false;
+		}
 	}
 }

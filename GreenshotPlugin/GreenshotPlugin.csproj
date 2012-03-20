@@ -240,7 +240,6 @@
     <Folder Include="Core" />
     <Folder Include="Interfaces\Plugin" />
     <Folder Include="Controls" />
-    <Folder Include="Interop" />
     <Folder Include="UnmanagedHelpers" />
   </ItemGroup>
   <PropertyGroup>
