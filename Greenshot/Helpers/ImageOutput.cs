@@ -100,6 +100,11 @@ namespace Greenshot.Helpers {
 					break;
 			}
 
+			// Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
+			if (ImageFormat.Gif.Equals(imageFormat)) {
+				reduceColors = true;
+			}
+
 			// check for color reduction, forced or automatically
 			if (conf.OutputFileAutoReduceColors || reduceColors) {
 				IColorQuantizer quantizer = ImageHelper.PrepareQuantize((Bitmap)imageToSave);
