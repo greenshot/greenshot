@@ -295,13 +295,37 @@ namespace Greenshot.Helpers {
 				capture.Image = returnBitmap;
 				// Store the location of the window
 				capture.Location = documentContainer.ContentWindow.Location;
-				// Store the title of the Page
+
+				// Store the title of the page
 				if (documentContainer.Name != null) {
 					capture.CaptureDetails.Title = documentContainer.Name;
 				} else {
 					capture.CaptureDetails.Title = activeWindow.Text;
 				}
-	
+
+				// Store the URL of the page
+				if (documentContainer.Url != null) {
+					Uri uri = new Uri(documentContainer.Url);
+					capture.CaptureDetails.AddMetaData("URL", uri.OriginalString);
+					// As the URL can hardly be used in a filename, the following can be used
+					if (!string.IsNullOrEmpty(uri.Scheme)) {
+						capture.CaptureDetails.AddMetaData("URL_SCHEME", uri.Scheme);
+					}
+					if (!string.IsNullOrEmpty(uri.DnsSafeHost)) {
+						capture.CaptureDetails.AddMetaData("URL_HOSTNAME", uri.DnsSafeHost);
+					}
+					if (!string.IsNullOrEmpty(uri.AbsolutePath)) {
+						capture.CaptureDetails.AddMetaData("URL_PATH", uri.AbsolutePath);
+					}
+					if (!string.IsNullOrEmpty(uri.Query)) {
+						capture.CaptureDetails.AddMetaData("URL_QUERY", uri.Query);
+					}
+					if (!string.IsNullOrEmpty(uri.UserInfo)) {
+						capture.CaptureDetails.AddMetaData("URL_USER", uri.UserInfo);
+					}
+					capture.CaptureDetails.AddMetaData("URL_PORT", uri.Port.ToString());
+				}
+
 				// Only move the mouse to correct for the capture offset
 				capture.MoveMouseLocation(-documentContainer.ViewportRectangle.X, -documentContainer.ViewportRectangle.Y);
 				// Used to be: capture.MoveMouseLocation(-(capture.Location.X + documentContainer.CaptureOffset.X), -(capture.Location.Y + documentContainer.CaptureOffset.Y));
