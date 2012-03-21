@@ -71,8 +71,6 @@ namespace GreenshotPlugin.Core {
 
 	public class WuQuantizer {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WuQuantizer));
-		private static readonly Color BackgroundColor;
-		private static readonly Double[] Factors;
 
 		private const Int32 MAXCOLOR = 512;
 		private const Int32 RED = 2;
@@ -101,14 +99,6 @@ namespace GreenshotPlugin.Core {
 		private WuColorCube[] cubes;
 		private Bitmap sourceBitmap;
 		private Bitmap resultBitmap;
-
-		static WuQuantizer() {
-			BackgroundColor = Color.White;
-			Factors = new Double[256];
-			for (Int32 value = 0; value < 256; value++) {
-				Factors[value] = value / 255.0;
-			}
-		}
 
 		/// <summary>
 		/// See <see cref="IColorQuantizer.Prepare"/> for more details.
@@ -157,8 +147,7 @@ namespace GreenshotPlugin.Core {
 					bbbDest.Lock();
 					for (int y = 0; y < bbbSrc.Height; y++) {
 						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color = bbbSrc.GetColorAt(x, y);
-							color = ConvertAlpha(color);
+							Color color = bbbSrc.GetColorAtWithoutAlpha(x, y);
 							// To count the colors
 							int index = color.ToArgb() & 0x00ffffff;
 							// Check if we already have this color
@@ -270,8 +259,7 @@ namespace GreenshotPlugin.Core {
 					byte bestMatch;
 					for (int y = 0; y < bbbSrc.Height; y++) {
 						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color = bbbSrc.GetColorAt(x, y);
-
+							Color color = bbbSrc.GetColorAtWithoutAlpha(x, y);
 							// Check if we already matched the color
 							if (!lookup.ContainsKey(color)) {
 								// If not we need to find the best match
@@ -327,28 +315,6 @@ namespace GreenshotPlugin.Core {
 			}
 			resultBitmap.Palette = imagePalette;
 			return resultBitmap;
-		}
-
-		/// <summary>
-		/// Converts the alpha blended color to a non-alpha blended color.
-		/// </summary>
-		/// <param name="color">The alpha blended color (ARGB).</param>
-		/// <returns>The non-alpha blended color (RGB).</returns>
-		private static Color ConvertAlpha(Color color) {
-			Color result = color;
-
-			if (color.A < 255) {
-				// performs a alpha blending (second color is BackgroundColor, by default a Control color)
-				Double colorFactor = Factors[color.A];
-				Double backgroundFactor = Factors[255 - color.A];
-				Int32 red = (Int32)(color.R * colorFactor + BackgroundColor.R * backgroundFactor);
-				Int32 green = (Int32)(color.G * colorFactor + BackgroundColor.G * backgroundFactor);
-				Int32 blue = (Int32)(color.B * colorFactor + BackgroundColor.B * backgroundFactor);
-				Int32 argb = 255 << 24 | red << 16 | green << 8 | blue;
-				result = Color.FromArgb(argb);
-			}
-
-			return result;
 		}
 
 		/// <summary>

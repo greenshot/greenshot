@@ -33,6 +33,22 @@ namespace GreenshotPlugin.Core {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapBuffer));
 		private bool clone;
 		private Bitmap bitmap;
+		private static int[] factors = new int[256];
+		private static int[] remainings = new int[256];
+
+		static BitmapBuffer() {
+			// Pre calculate for alpha blending
+			for (int i = 0; i < 256; i++) {
+				int factor = 0x10000 * i / 255;
+				factors[i] = factor;
+				remainings[i] = (0x10000 * 255) - factor;
+			}
+		}
+
+		public static Color BackgroundBlendColor {
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// Get the bitmap, you will always need to dispose the returned bitmap!!
@@ -309,16 +325,28 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Retrieve the color, without alpha, at location x,y
+		/// Retrieve the color, without alpha (is blended), at location x,y
 		/// Before the first time this is called the Lock() should be called once!
 		/// </summary>
 		/// <param name="x">X coordinate</param>
 		/// <param name="y">Y Coordinate</param>
 		/// <returns>Color</returns>
 		public Color GetColorAtWithoutAlpha(int x, int y) {
-			if(x>=0 && y>=0 && x<rect.Width && y<rect.Height) {
-				int offset = x*bytesPerPixel+y*stride;
-				return Color.FromArgb(255, pointer[rIndex+offset], pointer[gIndex+offset], pointer[bIndex+offset]);
+			if (x >= 0 && y >= 0 && x < rect.Width && y < rect.Height) {
+				int offset = x * bytesPerPixel + y * stride;
+				int a = (aIndex == -1) ? (byte)255 : pointer[aIndex + offset];
+				int red = pointer[rIndex + offset];
+				int green = pointer[gIndex + offset];
+				int blue = pointer[bIndex + offset];
+
+				if (a < 255) {
+					int aMult = factors[a];
+					int rem = remainings[a];
+					red = (red * rem + BackgroundBlendColor.R * aMult) >> 16;
+					green = (green * rem + BackgroundBlendColor.G * aMult) >> 16;
+					blue = (blue * rem + BackgroundBlendColor.B * aMult) >> 16;
+				}
+				return Color.FromArgb(255, red, green, blue);
 			} else {
 				return Color.Empty;
 			}
