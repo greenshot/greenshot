@@ -1005,56 +1005,5 @@ namespace GreenshotPlugin.Core {
 			returnBitmap.RotateFlip(rotateFlipType);
 			return returnBitmap;
 		}
-
-		/// <summary>
-		/// Get a quantizer, so we can check if it pays off to quantize
-		/// </summary>
-		/// <param name="sourceBitmap"></param>
-		/// <returns>IColorQuantizer</returns>
-		public static IColorQuantizer PrepareQuantize(Bitmap sourceBitmap) {
-			IColorQuantizer quantizer = new WuColorQuantizer();
-			quantizer.Prepare(sourceBitmap);
-			using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
-				bbbSrc.Lock();
-				for (int y = 0; y < bbbSrc.Height; y++) {
-					for (int x = 0; x < bbbSrc.Width; x++) {
-						quantizer.AddColor(bbbSrc.GetColorAt(x, y));
-					}
-				}
-			}
-			return quantizer;
-		}
-
-		/// <summary>
-		/// Quantize the sourceBitmap with the Quantizer returned by PrepareQuantize
-		/// </summary>
-		/// <param name="sourceBitmap"></param>
-		/// <param name="quantizer"></param>
-		/// <returns>Quantized bitmap</returns>
-		public static Bitmap Quantize(Bitmap sourceBitmap, IColorQuantizer quantizer, int paletteSize) {
-			Bitmap result = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format8bppIndexed);
-			List<Color> palette = quantizer.GetPalette(paletteSize);
-			ColorPalette imagePalette = result.Palette;
-			// copies all color entries
-			for (Int32 index = 0; index < palette.Count; index++) {
-				imagePalette.Entries[index] = palette[index];
-			}
-			result.Palette = imagePalette;
-
-			using (BitmapBuffer bbbDest = new BitmapBuffer(result, false)) {
-				bbbDest.Lock();
-				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
-					bbbSrc.Lock();
-					for (int y = 0; y < bbbSrc.Height; y++) {
-						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color originalColor = bbbSrc.GetColorAt(x, y);
-							Int32 paletteIndex = quantizer.GetPaletteIndex(originalColor);
-							bbbDest.SetColorIndexAt(x,y, (byte)paletteIndex);
-						}
-					}
-				}
-			}
-			return result;
-		}
 	}
 }

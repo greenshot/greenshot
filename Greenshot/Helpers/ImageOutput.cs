@@ -107,13 +107,13 @@ namespace Greenshot.Helpers {
 
 			// check for color reduction, forced or automatically
 			if (conf.OutputFileAutoReduceColors || reduceColors) {
-				IColorQuantizer quantizer = ImageHelper.PrepareQuantize((Bitmap)imageToSave);
+				WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave);
 				int colorCount = quantizer.GetColorCount();
 				LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
 				if (reduceColors || colorCount < 256) {
 					try {
 						LOG.Info("Reducing colors on bitmap to 255.");
-						imageToSave = ImageHelper.Quantize((Bitmap)imageToSave, quantizer, 255);
+						imageToSave = quantizer.GetQuantizedImage(255);
 						// Make sure the "new" image is disposed
 						disposeImage = true;
 					} catch (Exception e) {
