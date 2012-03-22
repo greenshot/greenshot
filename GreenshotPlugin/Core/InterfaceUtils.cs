@@ -48,7 +48,8 @@ namespace GreenshotPlugin.Core {
 							}
 						}
 					}
-				} catch {
+				} catch (Exception ex) {
+					LOG.Warn(ex);
 				}
 			}
 			return list;

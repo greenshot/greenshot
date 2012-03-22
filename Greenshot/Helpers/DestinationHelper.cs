@@ -75,7 +75,10 @@ namespace Greenshot.Helpers {
 			List<IDestination> destinations = new List<IDestination>();
 			destinations.AddRange(RegisteredDestinations.Values);
 			foreach(IGreenshotPlugin plugin in PluginHelper.instance.Plugins.Values) {
-				destinations.AddRange(plugin.Destinations());
+				var dests = plugin.Destinations();
+				if (dests != null) {
+					destinations.AddRange(dests);
+				}
 			}
 			destinations.Sort();
 			return destinations;

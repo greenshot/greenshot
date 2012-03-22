@@ -192,7 +192,10 @@ namespace Greenshot.Destinations {
 				using (Image image = surface.GetImageForExport()) {
 					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, conf.OutputFileFormat, conf.OutputFileJpegQuality, conf.OutputFileReduceColors);
 				}
+			} else {
+				LOG.InfoFormat("Using already available file: {0}", tmpFile);
 			}
+
 			// Create a attachment name for the image
 			string attachmentName = captureDetails.Title;
 			if (!string.IsNullOrEmpty(attachmentName)) {

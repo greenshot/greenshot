@@ -450,7 +450,45 @@ namespace Greenshot {
 			}
 			base.WndProc(ref m);
 		}
-		
+
+		/// <summary>
+		/// Helper method to cleanly register a hotkey
+		/// </summary>
+		/// <param name="failedKeys"></param>
+		/// <param name="functionName"></param>
+		/// <param name="hotkeyString"></param>
+		/// <param name="handler"></param>
+		/// <returns></returns>
+		private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, HotKeyHandler handler) {
+			Keys modifierKeyCode = HotkeyControl.HotkeyModifiersFromString(hotkeyString);
+			Keys virtualKeyCode = HotkeyControl.HotkeyFromString(hotkeyString);
+			if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0) {
+				LOG.DebugFormat("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
+				if (failedKeys.Length > 0) {
+					failedKeys.Append(", ");
+				}
+				failedKeys.Append(hotkeyString);
+				return false;
+			} else {
+				LOG.DebugFormat("Registered {0} to hotkey: {1}", functionName, hotkeyString);
+			}
+			return true;
+		}
+
+		private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, HotKeyHandler handler) {
+			IniValue hotkeyValue = conf.Values[configurationKey];
+			try {
+				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+			} catch (Exception ex) {
+				LOG.Warn(ex);
+				LOG.WarnFormat("Repairing the hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyValue.Value, hotkeyValue.Attributes.DefaultValue);
+				// when getting an exception the key wasn't found: reset the hotkey value
+				hotkeyValue.UseValueOrDefault(null);
+				hotkeyValue.ContainingIniSection.IsDirty = true;
+				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+			}
+		}
+
 		public static void RegisterHotkeys() {
 			if (instance == null) {
 				return;
@@ -458,64 +496,20 @@ namespace Greenshot {
 			bool success = true;
 			StringBuilder failedKeys = new StringBuilder();
 
-			// Capture region
-			if (HotkeyControl.RegisterHotKey(conf.RegionHotkey, new HotKeyHandler(instance.CaptureRegion)) < 0) {
-				LOG.DebugFormat("Failed to register CaptureRegion to hotkey: {0}", conf.RegionHotkey);
+			if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", new HotKeyHandler(instance.CaptureRegion))) {
 				success = false;
-				if(failedKeys.Length > 0) {
-					failedKeys.Append(", ");
-				}
-				failedKeys.Append(conf.RegionHotkey);
-			} else {
-				LOG.DebugFormat("Registered CaptureRegion to hotkey: {0}", conf.RegionHotkey);
 			}
-
-			// Capture window
-			if (HotkeyControl.RegisterHotKey(conf.WindowHotkey, new HotKeyHandler(instance.CaptureWindow)) < 0) {
-				LOG.DebugFormat("Failed to register CaptureWindow to hotkey: {0}", conf.WindowHotkey);
+			if (!RegisterWrapper(failedKeys, "CaptureWindow", "WindowHotkey", new HotKeyHandler(instance.CaptureWindow))) {
 				success = false;
-				if(failedKeys.Length > 0) {
-					failedKeys.Append(", ");
-				}
-				failedKeys.Append(conf.WindowHotkey);
-			} else {
-				LOG.DebugFormat("Registered CaptureWindow to hotkey: {0}", conf.WindowHotkey);
 			}
-
-			// Capture fullScreen
-			if (HotkeyControl.RegisterHotKey(conf.FullscreenHotkey, new HotKeyHandler(instance.CaptureFullScreen)) < 0) {
-				LOG.DebugFormat("Failed to register CaptureFullScreen to hotkey: {0}", conf.FullscreenHotkey);
+			if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", new HotKeyHandler(instance.CaptureFullScreen))) {
 				success = false;
-				if(failedKeys.Length > 0) {
-					failedKeys.Append(", ");
-				}
-				failedKeys.Append(conf.FullscreenHotkey);
-			} else {
-				LOG.DebugFormat("Registered CaptureFullScreen to hotkey: {0}", conf.FullscreenHotkey);
 			}
-
-			// Capture last region
-			if (HotkeyControl.RegisterHotKey(conf.LastregionHotkey, new HotKeyHandler(instance.CaptureLastRegion)) < 0) {
-				LOG.DebugFormat("Failed to register CaptureLastRegion to hotkey: {0}", conf.LastregionHotkey);
+			if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", new HotKeyHandler(instance.CaptureLastRegion))) {
 				success = false;
-				if(failedKeys.Length > 0) {
-					failedKeys.Append(", ");
-				}
-				failedKeys.Append(conf.LastregionHotkey);
-			} else {
-				LOG.DebugFormat("Registered CaptureLastRegion to hotkey: {0}", conf.LastregionHotkey);
 			}
-
-			// Capture IE
-			if (HotkeyControl.RegisterHotKey(conf.IEHotkey, new HotKeyHandler(instance.CaptureIE)) < 0) {
-				LOG.DebugFormat("Failed to register CaptureIE to hotkey: {0}", conf.IEHotkey);
+			if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", new HotKeyHandler(instance.CaptureIE))) {
 				success = false;
-				if(failedKeys.Length > 0) {
-					failedKeys.Append(", ");
-				}
-				failedKeys.Append(conf.IEHotkey);
-			} else {
-				LOG.DebugFormat("Registered CaptureIE to hotkey: {0}", conf.IEHotkey);
 			}
 
 			if (!success) {

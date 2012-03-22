@@ -125,7 +125,7 @@ namespace Greenshot.Helpers {
 			exceptionText.AppendLine(EnvironmentInfo.ExceptionToString(exception));
 			exceptionText.AppendLine("Configuration dump:");
 			using (TextWriter writer = new StringWriter(exceptionText)) {
-				IniConfig.SaveIniSectionToWriter(writer, IniConfig.GetIniSection<CoreConfiguration>(), true);
+				IniConfig.GetIniSection<CoreConfiguration>().Write(writer, true);
 			}
 			
 			return exceptionText.ToString();

@@ -194,7 +194,8 @@ namespace GreenshotPlugin.Core {
 						if (productName != null && NoDWMCaptureForProduct.Contains(productName.ToLower())) {
 							return false;
 						}
-					} catch {
+					} catch (Exception ex) {
+						LOG.Warn(ex);
 					}
 				}
 			}
@@ -214,7 +215,8 @@ namespace GreenshotPlugin.Core {
 						if (productName != null && NoGDICaptureForProduct.Contains(productName.ToLower())) {
 							return false;
 						}
-					} catch {
+					} catch (Exception ex) {
+						LOG.Warn(ex);
 					}
 				}
 			}
@@ -250,7 +252,8 @@ namespace GreenshotPlugin.Core {
 							try {
 								Directory.CreateDirectory(pafOutputFilePath);
 								return pafOutputFilePath;
-							} catch(Exception) {
+							} catch (Exception ex) {
+								LOG.Warn(ex);
 								// Problem creating directory, fallback to Desktop
 							}
 						} else {

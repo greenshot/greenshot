@@ -244,7 +244,7 @@ namespace GreenshotPlugin.Core  {
 					return iconCache[filename];
 				} catch (Exception ex) {
 					LOG.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
-				};
+				}
 				return null;
 			}
 		}		
@@ -567,7 +567,9 @@ namespace GreenshotPlugin.Core  {
 					if (process != null) {
 						return process;
 					}
-				} catch {}
+				} catch (Exception ex) {
+					LOG.Warn(ex);
+				}
 				return null;
 			}
 		}
@@ -1358,7 +1360,9 @@ namespace GreenshotPlugin.Core  {
 			get {
 				try {
 					return "Greenshot".Equals(Process.MainModule.FileVersionInfo.ProductName);
-				} catch {}
+				} catch (Exception ex) {
+					LOG.Warn(ex);
+				}
 				return false;
 			}
 		}
