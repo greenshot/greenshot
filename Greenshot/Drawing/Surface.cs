@@ -1105,7 +1105,8 @@ namespace Greenshot.Drawing {
 
 		public void ProcessCmdKey(Keys k) {
 			if (selectedElements.Count > 0) {
-				int px = (k == Keys.Shift) ? 10 : 1;
+				bool shiftModifier = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
+				int px = shiftModifier ? 10 : 1;
 				Point moveBy = Point.Empty;
 				
 				switch (k) {
