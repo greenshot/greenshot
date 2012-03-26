@@ -38,22 +38,11 @@ namespace Greenshot.Experimental {
 	public static class UpdateHelper {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(UpdateHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static Dictionary<string, string> mirrors = new Dictionary<string, string>();
 		private static object lockObject = new object();
 		private static SourceforgeFile latestGreenshot;
 		private static SourceforgeFile currentGreenshot;
-		//private static List<RssFile> languageFiles;
+		private const string DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
 
-		static UpdateHelper() {
-			// See: http://sourceforge.net/apps/trac/sourceforge/wiki/Mirrors
-			mirrors.Add("aarnet", "Brisbane, Australia");
-			mirrors.Add("cdnetworks-kr-1", "Seoul, Korea, Republic of");
-			mirrors.Add("cdnetworks-kr-2", "Seoul, Korea, Republic of");
-			mirrors.Add("cdnetworks-us-1", "San Jose, CA");
-			mirrors.Add("cdnetworks-us-2", "San Jose, CA");
-			mirrors.Add("citylan", "Moscow, Russian Federation");
-		}
-		
 		/// <summary>
 		/// Is an update check needed?
 		/// </summary>
@@ -110,7 +99,10 @@ namespace Greenshot.Experimental {
 		private static void HandleBalloonTipClick(object sender, EventArgs e) {
 			try {
 				if (latestGreenshot != null) {
-					Process.Start(latestGreenshot.Link);
+					// "Direct" download link
+					// Process.Start(latestGreenshot.Link);
+					// Go to getgreenshot.org
+					Process.Start(DOWNLOAD_LINK);
 				}
 			} catch (Exception) {
 				ILanguage lang = Language.GetInstance();
