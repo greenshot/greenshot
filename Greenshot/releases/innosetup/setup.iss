@@ -150,6 +150,9 @@ nl.startup=Start {#ExeName} wanneer Windows opstart
 en.startgreenshot=Start {#ExeName}
 de.startgreenshot={#ExeName} starten
 nl.startgreenshot=Start {#ExeName}
+en.gswebsite=Open {#ExeName}'s homepage
+de.gswebsite={#ExeName} Homepage öffnen
+nl.gswebsite=De {#ExeName} homepage openen
 en.jira=Jira plug-in
 de.jira=Jira Plug-in
 nl.jira=Jira plug-in
@@ -279,86 +282,6 @@ begin
 	Result := returnValue;
 end;
 
-// Called if the Donate Image is clicked
-procedure ImageClick(Sender: TObject);
-var
-	ErrCode: integer;
-begin
-	ShellExec('open', 'http://getgreenshot.org/support/', '', '', SW_SHOW, ewNoWait, ErrCode);
-end;
-
-// Called if the Donate Button is clicked
-procedure DonateClick(Sender: TObject);
-var
-	ErrCode: integer;
-	ClickedButton: TButton;
-begin
-	ClickedButton := TButton(Sender);
-	ShellExec('open', 'http://sourceforge.net/donate/index.php?group_id=191585&type=0&amt=' + ClickedButton.Caption, '', '', SW_SHOW, ewNoWait, ErrCode);
-end;
-
-// Create custom page
-function CreateSupportUsPage(PreviousPageId: Integer) : Integer;
-var
-	SupportUsPage: TWizardPage;
-	//DonateImage  : TBitmapImage;
-	//BitmapLocation: string;
-	RichTextViewer : TRichEditViewer;
-	Button5, Button10: TButton;
-begin
-	SupportUsPage := CreateCustomPage(PreviousPageId, ExpandConstant('{cm:supportus_caption}'), ExpandConstant('{cm:supportus_description}'));
-	//ExtractTemporaryFile('donate.bmp');
-	//BitmapLocation := ExpandConstant('{tmp}')+'\donate.bmp';
-
-	// Image
-	//DonateImage := TBitmapImage.Create(SupportUsPage);
-	//DonateImage.Left := 10;
-	//DonateImage.Top := 100;
-	//DonateImage.AutoSize := True;
-	//DonateImage.Bitmap.LoadFromFile(BitmapLocation);
-	//DonateImage.Parent := SupportUsPage.Surface;
-	//DonateImage.OnClick := @ImageClick;
-	
-	// Donate Buttons
-	Button5 := TButton.Create(SupportUsPage);
-	Button5.Width := 50;
-	Button5.Height := 20;
-	Button5.Left := 20;
-	Button5.Top := 45;
-	Button5.Caption := '5$';
-	Button5.OnClick := @DonateClick;
-	Button5.Parent := SupportUsPage.Surface;
-
-	Button10 := TButton.Create(SupportUsPage);
-	Button10.Width := 50;
-	Button10.Height := 20;
-	Button10.Left := 20;
-	Button10.Top := 70;
-	Button10.Caption := '10$';
-	Button10.OnClick := @DonateClick;
-	Button10.Parent := SupportUsPage.Surface;
-
-	// Text
-	RichTextViewer := TRichEditViewer.Create(SupportUsPage);
-	RichTextViewer.Parent := SupportUsPage.Surface;
-	RichTextViewer.Left := 10;
-	RichTextViewer.Top := 10;
-	RichTextViewer.Width := SupportUsPage.SurfaceWidth;
-	RichTextViewer.Height := 30;
-	RichTextViewer.ReadOnly := True;
-	RichTextViewer.BorderStyle := bsNone;
-	RichTextViewer.Color := clBtnFace;
-	RichTextViewer.RTFText := '{\rtf1\ansi\ansicpg1252\deff0\deflang13322{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}\viewkind4\uc1\pard\f0\fs16 We hope you get an idea of all the things we have to pay for creating free screenshot software for you. Additionally, if only our hardware costs were covered, \bwe still work for nothing\b0.\par}';
-	Result:= SupportUsPage.Id;
-end;
-
-// Create the donate image
-procedure InitializeWizard();
-begin
-	//CreateSupportUsPage(wpLicense);
-	CreateSupportUsPage(wpInfoAfter);
-end;
-
 // Initialize the setup
 function InitializeSetup(): Boolean;
 begin
@@ -383,6 +306,7 @@ end;
 Filename: "{dotnet20}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden;
 Filename: "{dotnet20}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden;
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
+Filename: "http://getgreenshot.org/support/"; Description: "{cm:gswebsite}"; Flags: shellexec runascurrentuser
 
 [InstallDelete]
 Name: {app}; Type: filesandordirs;
