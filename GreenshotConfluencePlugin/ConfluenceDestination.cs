@@ -45,7 +45,9 @@ namespace GreenshotConfluencePlugin {
 		static ConfluenceDestination() {
 			Uri confluenceIconUri = new Uri("/GreenshotConfluencePlugin;component/Images/Confluence.ico", UriKind.Relative);
 			using (Stream iconStream = Application.GetResourceStream(confluenceIconUri).Stream) {
-				confluenceIcon = Image.FromStream(iconStream);
+				using (Image tmpImage = Image.FromStream(iconStream)) {
+					confluenceIcon = ImageHelper.Clone(tmpImage);
+				}
 			}
 		}
 		
