@@ -150,9 +150,6 @@ nl.startup=Start {#ExeName} wanneer Windows opstart
 en.startgreenshot=Start {#ExeName}
 de.startgreenshot={#ExeName} starten
 nl.startgreenshot=Start {#ExeName}
-en.gswebsite=Open {#ExeName}'s homepage
-de.gswebsite={#ExeName} Homepage öffnen
-nl.gswebsite=De {#ExeName} homepage openen
 en.jira=Jira plug-in
 de.jira=Jira Plug-in
 nl.jira=Jira plug-in
@@ -174,15 +171,7 @@ nl.language=Extra talen
 en.optimize=Optimizing performance, this may take a while.
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 nl.optimize=Prestaties verbeteren, kan even duren.
-en.supportus_caption=Support Greenshot
-de.supportus_caption=Unterstütze Greenshot
-nl.supportus_caption=Ondersteun Greenshot
-en.supportus_description=Things you can do to support Greenshot
-de.supportus_description=Was Sie tun können um Greenshot zu unterstützen
-nl.supportus_description=Wat U doen kunt om Greenshot te ondersteuen
-en.supportus_text=Support Greenshot with a donation
-de.supportus_text=Unterstütze Greenshot mit einen Spende
-nl.supportus_text=Ondersteun Greenshot met een donatie
+
 [Components]
 Name: "plugins"; Description: "Plugins"; Types: Full
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full;
@@ -306,7 +295,7 @@ end;
 Filename: "{dotnet20}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden;
 Filename: "{dotnet20}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden;
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
-Filename: "http://getgreenshot.org/support/"; Description: "{cm:gswebsite}"; Flags: shellexec runascurrentuser
+Filename: "http://getgreenshot.org/support?language={language}&version={#Version}"; Flags: shellexec runascurrentuser
 
 [InstallDelete]
 Name: {app}; Type: filesandordirs;
