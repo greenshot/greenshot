@@ -93,6 +93,8 @@ namespace Greenshot {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
 			Image backgroundForTransparency = (Image)resources.GetObject("checkerboard.Image");
 			surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);

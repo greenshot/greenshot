@@ -47,6 +47,9 @@ namespace Greenshot {
 		
 		public SettingsForm() {
 			InitializeComponent();
+
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+
 			// Fix for Vista/XP differences
 			if(Environment.OSVersion.Version.Major >= 6) {
 				this.trackBarJpegQuality.BackColor = System.Drawing.SystemColors.Window;
@@ -275,9 +278,15 @@ namespace Greenshot {
 			checkbox_alwaysshowjpegqualitydialog.Checked = coreConfiguration.OutputFilePromptQuality;
 			checkbox_playsound.Checked = coreConfiguration.PlayCameraSound;
 			
+			checkbox_picker.Checked = false;
 			checkedDestinationsListBox.Items.Clear();
 			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
-				checkedDestinationsListBox.Items.Add(destination, coreConfiguration.OutputDestinations.Contains(destination.Designation));
+				if (PickerDestination.DESIGNATION.Equals(destination.Designation)) {
+					checkbox_picker.Checked = true;
+					checkbox_picker.Text = destination.Description;
+				} else {
+					checkedDestinationsListBox.Items.Add(destination, coreConfiguration.OutputDestinations.Contains(destination.Designation));					
+				}
 			}
 //			checkbox_clipboard.Checked = coreConfiguration.OutputDestinations.Contains("Clipboard");
 //			checkbox_file.Checked = coreConfiguration.OutputDestinations.Contains("File");
@@ -340,6 +349,9 @@ namespace Greenshot {
 			coreConfiguration.PlayCameraSound = checkbox_playsound.Checked;
 
 			List<string> destinations = new List<string>();
+			if (checkbox_picker.Checked) {
+				destinations.Add(PickerDestination.DESIGNATION);
+			}
 			foreach(int index in checkedDestinationsListBox.CheckedIndices) {
 				IDestination destination = (IDestination)checkedDestinationsListBox.Items[index];
 				if (checkedDestinationsListBox.GetItemCheckState(index) == CheckState.Checked) {
@@ -486,21 +498,19 @@ namespace Greenshot {
 		/// </summary>
 		void CheckDestinationSettings() {
 			bool clipboardDestinationChecked = false;
-			bool pickerSelected = false;
+			bool pickerSelected = checkbox_picker.Checked;
+			
 			foreach(IDestination destination in checkedDestinationsListBox.CheckedItems) {
 				if (destination.Designation.Equals(ClipboardDestination.DESIGNATION)) {
 					clipboardDestinationChecked = true;
-				}
-				if (destination.Designation.Equals(PickerDestination.DESIGNATION)) {
-					pickerSelected = true;
+					break;
 				}
 			}
+
 			if (pickerSelected) {
 				foreach(int index in checkedDestinationsListBox.CheckedIndices) {
 					IDestination destination = (IDestination)checkedDestinationsListBox.Items[index];
-					if (!destination.Designation.Equals(PickerDestination.DESIGNATION)) {
-						checkedDestinationsListBox.SetItemCheckState(index, CheckState.Indeterminate);
-					}
+					checkedDestinationsListBox.SetItemCheckState(index, CheckState.Indeterminate);
 				}
 			} else {
 				foreach(int index in checkedDestinationsListBox.CheckedIndices) {

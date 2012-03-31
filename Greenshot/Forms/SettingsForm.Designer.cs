@@ -104,6 +104,7 @@ namespace Greenshot {
 			this.numericUpDownWaitTime = new System.Windows.Forms.NumericUpDown();
 			this.label_waittime = new System.Windows.Forms.Label();
 			this.tab_output = new System.Windows.Forms.TabPage();
+			this.tab_destinations = new System.Windows.Forms.TabPage();
 			this.tab_printer = new System.Windows.Forms.TabPage();
 			this.groupbox_printoptions = new System.Windows.Forms.GroupBox();
 			this.checkboxPrintInverted = new System.Windows.Forms.CheckBox();
@@ -117,7 +118,7 @@ namespace Greenshot {
 			this.groupbox_plugins = new System.Windows.Forms.GroupBox();
 			this.listview_plugins = new System.Windows.Forms.ListView();
 			this.button_pluginconfigure = new System.Windows.Forms.Button();
-			this.tab_destinations = new System.Windows.Forms.TabPage();
+			this.checkbox_picker = new System.Windows.Forms.CheckBox();
 			this.groupbox_preferredfilesettings.SuspendLayout();
 			this.groupbox_applicationsettings.SuspendLayout();
 			this.groupbox_jpegsettings.SuspendLayout();
@@ -135,6 +136,7 @@ namespace Greenshot {
 			this.groupbox_capture.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownWaitTime)).BeginInit();
 			this.tab_output.SuspendLayout();
+			this.tab_destinations.SuspendLayout();
 			this.tab_printer.SuspendLayout();
 			this.groupbox_printoptions.SuspendLayout();
 			this.tab_plugins.SuspendLayout();
@@ -346,6 +348,7 @@ namespace Greenshot {
 			// 
 			// groupbox_destination
 			// 
+			this.groupbox_destination.Controls.Add(this.checkbox_picker);
 			this.groupbox_destination.Controls.Add(this.checkedDestinationsListBox);
 			this.groupbox_destination.Location = new System.Drawing.Point(2, 6);
 			this.groupbox_destination.Name = "groupbox_destination";
@@ -357,10 +360,10 @@ namespace Greenshot {
 			// checkedDestinationsListBox
 			// 
 			this.checkedDestinationsListBox.FormattingEnabled = true;
-			this.checkedDestinationsListBox.Location = new System.Drawing.Point(5, 20);
+			this.checkedDestinationsListBox.Location = new System.Drawing.Point(5, 50);
 			this.checkedDestinationsListBox.Name = "checkedDestinationsListBox";
 			this.checkedDestinationsListBox.ScrollAlwaysVisible = true;
-			this.checkedDestinationsListBox.Size = new System.Drawing.Size(401, 284);
+			this.checkedDestinationsListBox.Size = new System.Drawing.Size(401, 244);
 			this.checkedDestinationsListBox.TabIndex = 0;
 			this.checkedDestinationsListBox.SelectedValueChanged += new System.EventHandler(this.DestinationsCheckStateChanged);
 			// 
@@ -674,16 +677,16 @@ namespace Greenshot {
 			// numericUpDownWaitTime
 			// 
 			this.numericUpDownWaitTime.Increment = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
+									100,
+									0,
+									0,
+									0});
 			this.numericUpDownWaitTime.Location = new System.Drawing.Point(11, 69);
 			this.numericUpDownWaitTime.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
+									10000,
+									0,
+									0,
+									0});
 			this.numericUpDownWaitTime.Name = "numericUpDownWaitTime";
 			this.numericUpDownWaitTime.Size = new System.Drawing.Size(57, 20);
 			this.numericUpDownWaitTime.TabIndex = 24;
@@ -710,6 +713,16 @@ namespace Greenshot {
 			this.tab_output.Text = "Output";
 			this.tab_output.UseVisualStyleBackColor = true;
 			// 
+			// tab_destinations
+			// 
+			this.tab_destinations.Controls.Add(this.groupbox_destination);
+			this.tab_destinations.Location = new System.Drawing.Point(4, 22);
+			this.tab_destinations.Name = "tab_destinations";
+			this.tab_destinations.Size = new System.Drawing.Size(423, 320);
+			this.tab_destinations.TabIndex = 4;
+			this.tab_destinations.Text = "Destinations";
+			this.tab_destinations.UseVisualStyleBackColor = true;
+			// 
 			// tab_printer
 			// 
 			this.tab_printer.Controls.Add(this.groupbox_printoptions);
@@ -720,16 +733,6 @@ namespace Greenshot {
 			this.tab_printer.TabIndex = 2;
 			this.tab_printer.Text = "Printer";
 			this.tab_printer.UseVisualStyleBackColor = true;
-			// 
-			// tab_destinations
-			// 
-			this.tab_destinations.Location = new System.Drawing.Point(4, 22);
-			this.tab_destinations.Controls.Add(this.groupbox_destination);
-			this.tab_destinations.Name = "tab_destinations";
-			this.tab_destinations.Size = new System.Drawing.Size(423, 320);
-			this.tab_destinations.TabIndex = 4;
-			this.tab_destinations.Text = "Destinations";
-			this.tab_destinations.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_printoptions
 			// 
@@ -840,9 +843,9 @@ namespace Greenshot {
 			// 
 			// groupbox_plugins
 			// 
-			this.groupbox_plugins.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			this.groupbox_plugins.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+									| System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
 			this.groupbox_plugins.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
 			this.groupbox_plugins.Controls.Add(this.listview_plugins);
 			this.groupbox_plugins.Controls.Add(this.button_pluginconfigure);
@@ -879,6 +882,16 @@ namespace Greenshot {
 			this.button_pluginconfigure.UseVisualStyleBackColor = true;
 			this.button_pluginconfigure.Click += new System.EventHandler(this.Button_pluginconfigureClick);
 			// 
+			// checkbox_picker
+			// 
+			this.checkbox_picker.Location = new System.Drawing.Point(6, 19);
+			this.checkbox_picker.Name = "checkbox_picker";
+			this.checkbox_picker.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_picker.TabIndex = 19;
+			this.checkbox_picker.Text = "Destination picker";
+			this.checkbox_picker.UseVisualStyleBackColor = true;
+			this.checkbox_picker.CheckStateChanged += new System.EventHandler(this.DestinationsCheckStateChanged);
+			// 
 			// SettingsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -888,11 +901,9 @@ namespace Greenshot {
 			this.Controls.Add(this.settings_okay);
 			this.Controls.Add(this.settings_cancel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
-			this.Text = "SettingsForm";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsFormFormClosing);
 			this.Shown += new System.EventHandler(this.SettingsFormShown);
 			this.groupbox_preferredfilesettings.ResumeLayout(false);
@@ -916,14 +927,15 @@ namespace Greenshot {
 			this.groupbox_capture.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownWaitTime)).EndInit();
 			this.tab_output.ResumeLayout(false);
+			this.tab_destinations.ResumeLayout(false);
 			this.tab_printer.ResumeLayout(false);
 			this.groupbox_printoptions.ResumeLayout(false);
 			this.tab_plugins.ResumeLayout(false);
 			this.groupbox_plugins.ResumeLayout(false);
 			this.groupbox_plugins.PerformLayout();
 			this.ResumeLayout(false);
-
 		}
+		private System.Windows.Forms.CheckBox checkbox_picker;
 		private System.Windows.Forms.CheckedListBox checkedDestinationsListBox;
 		private System.Windows.Forms.GroupBox groupbox_editor;
 		private System.Windows.Forms.CheckBox checkbox_editor_match_capture_size;

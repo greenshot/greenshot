@@ -1475,7 +1475,6 @@ namespace Greenshot {
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(785, 485);
 			this.Controls.Add(this.toolStripContainer1);
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.KeyPreview = true;
 			this.Name = "ImageEditorForm";
 			this.Activated += new System.EventHandler(this.ImageEditorFormActivated);
