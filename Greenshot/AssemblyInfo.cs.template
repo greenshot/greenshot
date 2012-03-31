@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Greenshot")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("Greenshot")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]

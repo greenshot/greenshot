@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("GreenshotPlugin")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("GreenshotPlugin")]
 [assembly: AssemblyCopyright("Copyright (C) 2007-2012")]
 [assembly: AssemblyTrademark("")]

@@ -33,7 +33,7 @@ using Greenshot.Plugin;
 [assembly: AssemblyTitle("GreenshotOCR")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("GreenshotOCR")]
 [assembly: AssemblyCopyright("Copyright (C) 2007-2012")]
 [assembly: AssemblyTrademark("")]
