@@ -40,6 +40,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Destinations;
 
 namespace Greenshot {
 	/// <summary>
@@ -957,12 +958,12 @@ namespace Greenshot {
 		void QuickSettingDestinationChanged(object sender, EventArgs e) {
 			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
 			IDestination selectedDestination = (IDestination)item.Data;
-			if (item.Checked && selectedDestination.Designation.Equals("Picker")) {
+			if (item.Checked && selectedDestination.Designation.Equals(PickerDestination.DESIGNATION)) {
 				foreach(ToolStripMenuSelectList ddi in contextmenu_quicksettings.DropDownItems) {
 					if (ddi.Identifier.Equals("destinations")) {
 						foreach(ToolStripMenuSelectListItem dropDownItem in ddi.DropDownItems) {
 							IDestination destination = dropDownItem.Data as IDestination;
-							if (!destination.Designation.Equals("Picker")) {
+							if (!destination.Designation.Equals(PickerDestination.DESIGNATION)) {
 								if (dropDownItem.CheckState == CheckState.Checked) {
 									dropDownItem.CheckState = CheckState.Unchecked;
 								}

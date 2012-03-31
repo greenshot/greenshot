@@ -29,8 +29,12 @@ using GreenshotPlugin.Core;
 namespace Greenshot.Plugin {
 	[Serializable]
 	[AttributeUsageAttribute(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
-	sealed public class PluginAttribute : Attribute {
+	sealed public class PluginAttribute : Attribute, IComparable {
 		public string Name {
+			get;
+			set;
+		}
+		public string CreatedBy {
 			get;
 			set;
 		}
@@ -55,6 +59,14 @@ namespace Greenshot.Plugin {
 		public PluginAttribute(string entryType, bool configurable) {
 			this.EntryType = entryType;
 			this.Configurable = configurable;
+		}
+		
+		public int CompareTo(object obj) {
+			PluginAttribute other = obj as PluginAttribute;
+			if (other != null) {
+				return Name.CompareTo(other.Name);
+			}
+			throw new ArgumentException("object is not a PluginAttribute");
 		}
 	}
 
@@ -118,7 +130,7 @@ namespace Greenshot.Plugin {
 		/// List of available plugins with their PluginAttributes
 		/// This can be usefull for a plugin manager plugin...
 		/// </summary>
-		Dictionary<PluginAttribute, IGreenshotPlugin> Plugins {
+		IDictionary<PluginAttribute, IGreenshotPlugin> Plugins {
 			get;
 		}
 		

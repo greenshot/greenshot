@@ -28,6 +28,7 @@ using System.IO;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
+using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Fields.Binding;
@@ -49,7 +50,7 @@ namespace Greenshot {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageEditorForm));
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		private static CoreConfiguration coreConf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static List<string> ignoreDestinations = new List<string>() {"Picker", "Editor"};
+		private static List<string> ignoreDestinations = new List<string>() {PickerDestination.DESIGNATION, EditorDestination.DESIGNATION};
 		private static List<IImageEditor> editorList = new List<IImageEditor>();
 
 		private ILanguage lang;

@@ -25,6 +25,7 @@ using System.IO;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
+using Greenshot.Destinations;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -133,7 +134,7 @@ namespace Greenshot {
 				listview_plugins.BeginUpdate();
 				listview_plugins.Items.Clear();
 				listview_plugins.Columns.Clear();
-				string[] columns = { "Name", "Version", "DLL Path"};
+				string[] columns = { "Name", "Version", "Created by", "DLL path"};
 				foreach (string column in columns) {
 					listview_plugins.Columns.Add(column);
 				}
@@ -487,17 +488,17 @@ namespace Greenshot {
 			bool clipboardDestinationChecked = false;
 			bool pickerSelected = false;
 			foreach(IDestination destination in checkedDestinationsListBox.CheckedItems) {
-				if (destination.Designation.Equals("Clipboard")) {
+				if (destination.Designation.Equals(ClipboardDestination.DESIGNATION)) {
 					clipboardDestinationChecked = true;
 				}
-				if (destination.Designation.Equals("Picker")) {
+				if (destination.Designation.Equals(PickerDestination.DESIGNATION)) {
 					pickerSelected = true;
 				}
 			}
 			if (pickerSelected) {
 				foreach(int index in checkedDestinationsListBox.CheckedIndices) {
 					IDestination destination = (IDestination)checkedDestinationsListBox.Items[index];
-					if (!destination.Designation.Equals("Picker")) {
+					if (!destination.Designation.Equals(PickerDestination.DESIGNATION)) {
 						checkedDestinationsListBox.SetItemCheckState(index, CheckState.Indeterminate);
 					}
 				}

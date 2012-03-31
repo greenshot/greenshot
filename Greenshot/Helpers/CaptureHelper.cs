@@ -29,6 +29,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
+using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Forms;
 using Greenshot.Helpers;
@@ -266,13 +267,13 @@ namespace Greenshot.Helpers {
 							capture = new Capture(fileBitmap);
 						}
 						// Force Editor, keep picker, this is currently the only usefull destination
-						if (capture.CaptureDetails.HasDestination("Picker")) {
+						if (capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION)) {
 							capture.CaptureDetails.ClearDestinations();
-							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(Destinations.EditorDestination.DESIGNATION));
-							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(Destinations.PickerDestination.DESIGNATION));
+							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
 						} else {
 							capture.CaptureDetails.ClearDestinations();
-							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(Destinations.EditorDestination.DESIGNATION));
+							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 						}
 						HandleCapture();
 					}
@@ -499,7 +500,7 @@ namespace Greenshot.Helpers {
 				// Flag to detect if we need to create a temp file for the email
 				// or use the file that was written
 				foreach(IDestination destination in captureDetails.CaptureDestinations) {
-					if ("Picker".Equals(destination.Designation)) {
+					if (PickerDestination.DESIGNATION.Equals(destination.Designation)) {
 						continue;
 					}
 					LOG.InfoFormat("Calling destination {0}", destination.Description);

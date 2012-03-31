@@ -61,7 +61,7 @@ namespace Greenshot.Destinations {
 		
 		public override bool isActive {
 			get {
-				return conf.isExperimentalFeatureEnabled("Picker");
+				return true;
 			}
 		}
 

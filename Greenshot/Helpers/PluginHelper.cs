@@ -44,7 +44,7 @@ namespace Greenshot.Helpers {
 		public static string pafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
 		public static readonly PluginHelper instance = new PluginHelper();
 
-		private static Dictionary<PluginAttribute, IGreenshotPlugin> plugins = new Dictionary<PluginAttribute, IGreenshotPlugin>();
+		private static IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new SortedDictionary<PluginAttribute, IGreenshotPlugin>();
 
 		private PluginHelper() {
 		}
@@ -65,6 +65,7 @@ namespace Greenshot.Helpers {
 			foreach(PluginAttribute pluginAttribute in plugins.Keys) {
 				ListViewItem item = new ListViewItem(pluginAttribute.Name);
 				item.SubItems.Add(pluginAttribute.Version);
+				item.SubItems.Add(pluginAttribute.CreatedBy);
 				item.SubItems.Add(pluginAttribute.DllFile);
 				item.Tag = pluginAttribute;
 				listview.Items.Add(item);
@@ -141,7 +142,7 @@ namespace Greenshot.Helpers {
 			get { return mainMenu;}
 		}
 		
-		public Dictionary<PluginAttribute, IGreenshotPlugin> Plugins {
+		public IDictionary<PluginAttribute, IGreenshotPlugin> Plugins {
 			get {return plugins;}
 		}
 
@@ -238,12 +239,22 @@ namespace Greenshot.Helpers {
 					PluginAttribute[] pluginAttributes = assembly.GetCustomAttributes(typeof(PluginAttribute), false) as PluginAttribute[];
 					if (pluginAttributes.Length > 0) {
 						PluginAttribute pluginAttribute = pluginAttributes[0];
-						
-						AssemblyProductAttribute[] assemblyProductAttributes = assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false) as AssemblyProductAttribute[];
-						if (assemblyProductAttributes.Length > 0) {
-							pluginAttribute.Name = assemblyProductAttributes[0].Product;
-						} else {
-							continue;
+
+						if (string.IsNullOrEmpty(pluginAttribute.Name)) {
+							AssemblyProductAttribute[] assemblyProductAttributes = assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false) as AssemblyProductAttribute[];
+							if (assemblyProductAttributes.Length > 0) {
+								pluginAttribute.Name = assemblyProductAttributes[0].Product;
+							} else {
+								continue;
+							}
+						}
+						if (string.IsNullOrEmpty(pluginAttribute.CreatedBy)) {
+							AssemblyCompanyAttribute[] assemblyCompanyAttributes = assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false) as AssemblyCompanyAttribute[];
+							if (assemblyCompanyAttributes.Length > 0) {
+								pluginAttribute.CreatedBy = assemblyCompanyAttributes[0].Company;
+							} else {
+								continue;
+							}
 						}
 						pluginAttribute.Version = assembly.GetName().Version.ToString();
 						pluginAttribute.DllFile = pluginFile;
