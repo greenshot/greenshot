@@ -74,6 +74,7 @@
     <Compile Include="Destinations\ExcelDestination.cs" />
     <Compile Include="Destinations\FileDestination.cs" />
     <Compile Include="Destinations\FileWithDialogDestination.cs" />
+    <Compile Include="Destinations\OneNoteDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\PrinterDestination.cs" />
