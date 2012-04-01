@@ -216,7 +216,6 @@ namespace Greenshot {
 			// notifyIcon
 			// 
 			this.notifyIcon.ContextMenuStrip = this.contextMenu;
-			this.notifyIcon.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.notifyIcon.Text = "Greenshot";
 			this.notifyIcon.Visible = false;
 			this.notifyIcon.Click += new System.EventHandler(this.NotifyIconClick);

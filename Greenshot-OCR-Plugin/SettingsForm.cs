@@ -36,6 +36,7 @@ namespace GreenshotOCR {
 			//
 			this.config = config;
 			InitializeComponent();
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			language.SynchronizeLanguageToCulture();
 			initializeComponentText();
 			

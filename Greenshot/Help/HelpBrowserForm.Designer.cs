@@ -67,7 +67,6 @@ namespace Greenshot.Help
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(412, 560);
 			this.Controls.Add(this.webBrowser1);
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Name = "HelpBrowserForm";
 			this.Text = "Greenshot Help";
 			this.ResumeLayout(false);

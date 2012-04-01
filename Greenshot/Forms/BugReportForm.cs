@@ -32,6 +32,7 @@ namespace Greenshot.Forms {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			lang = Language.GetInstance();
 			UpdateUI();
 			WindowDetails.ToForeground(this.Handle);

@@ -127,12 +127,11 @@ namespace Greenshot {
 			this.Controls.Add(this.label_choosejpegquality);
 			this.Controls.Add(this.textBoxJpegQuality);
 			this.Controls.Add(this.trackBarJpegQuality);
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
-			this.Name = "JpegQualityDialog";
+			this.Name = "QualityDialog";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.Text = "JpegQualityDialog";
+			this.Text = "QualityDialog";
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();

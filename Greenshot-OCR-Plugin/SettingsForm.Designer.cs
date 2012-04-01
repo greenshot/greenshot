@@ -146,7 +146,6 @@ namespace GreenshotOCR
 			this.Controls.Add(this.checkBox_straightenImage);
 			this.Controls.Add(this.checkBox_orientImage);
 			this.Controls.Add(this.comboBox_languages);
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Name = "SettingsForm";
 			this.Text = "SettingsForm";
 			this.ResumeLayout(false);

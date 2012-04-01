@@ -103,7 +103,6 @@ namespace Greenshot.Forms {
 			this.Controls.Add(this.btnClose);
 			this.Controls.Add(this.textBoxDescription);
 			this.Controls.Add(this.labelBugReportInfo);
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Name = "BugReportForm";
 			this.Text = "Error";
 			this.ResumeLayout(false);

@@ -35,6 +35,7 @@ namespace GreenshotImgurPlugin {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			InitializeTexts();
 			
 			combobox_uploadimageformat.Items.Clear();

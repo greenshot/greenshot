@@ -566,7 +566,7 @@ namespace GreenshotPlugin.Controls {
 				}
 				return visibleName;
 			} else {
-				return givenKey.ToString();;
+				return givenKey.ToString();
 			}
 		}
 	}

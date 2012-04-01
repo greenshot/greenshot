@@ -65,7 +65,7 @@ namespace GreenshotPlugin.Core {
 				tmpWD = tmpWD.GetChild("TabBandClass");
 			}
 			if (tmpWD != null) {
-				tmpWD = tmpWD.GetChild("DirectUIHWND");;
+				tmpWD = tmpWD.GetChild("DirectUIHWND");
 			}
 			return tmpWD;
 		}

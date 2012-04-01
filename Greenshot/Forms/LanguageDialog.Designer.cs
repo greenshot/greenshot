@@ -82,7 +82,6 @@ namespace Greenshot.Forms {
 			this.Controls.Add(this.comboBoxLanguage);
 			this.Controls.Add(this.lblSelectLanguage);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "LanguageDialog";

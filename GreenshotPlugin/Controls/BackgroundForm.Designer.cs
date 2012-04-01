@@ -80,7 +80,6 @@ namespace GreenshotPlugin.Controls
 			this.ControlBox = true;
 			this.Controls.Add(this.label_pleasewait);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "BackgroundForm";

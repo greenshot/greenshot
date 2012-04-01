@@ -34,7 +34,7 @@ namespace Greenshot.Help {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-						
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			lang = Language.GetInstance();
 			
 			webBrowser1.Url = new Uri(Path.Combine("path://", lang.GetHelpFilePath()));

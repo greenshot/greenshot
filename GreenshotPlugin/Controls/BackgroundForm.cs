@@ -50,6 +50,7 @@ namespace GreenshotPlugin.Controls {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			shouldClose = false;
 			this.Text = title;
 			this.label_pleasewait.Text = text;

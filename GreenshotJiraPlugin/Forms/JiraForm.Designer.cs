@@ -201,7 +201,6 @@ namespace GreenshotJiraPlugin {
         	this.Controls.Add(this.label_jira);
         	this.Controls.Add(this.label_jirafilter);
         	this.Controls.Add(this.jiraFilterBox);
-        	this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
         	this.Name = "JiraForm";
         	this.Text = "JIRA Upload";
         	this.TopMost = true;

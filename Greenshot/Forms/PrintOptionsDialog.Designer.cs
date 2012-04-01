@@ -185,7 +185,6 @@ namespace Greenshot.Forms
 			this.Controls.Add(this.checkboxAllowRotate);
 			this.Controls.Add(this.checkboxAllowEnlarge);
 			this.Controls.Add(this.checkboxAllowShrink);
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "PrintOptionsDialog";

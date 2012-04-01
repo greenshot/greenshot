@@ -40,6 +40,7 @@ namespace Greenshot {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]

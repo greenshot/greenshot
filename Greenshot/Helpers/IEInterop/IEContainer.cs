@@ -586,7 +586,7 @@ namespace Greenshot.Helpers.IEInterop {
 				return sourceLocation;
 			}
 			set {
-				sourceLocation = value;;
+				sourceLocation = value;
 			}
 		}
 
@@ -631,7 +631,7 @@ namespace Greenshot.Helpers.IEInterop {
 				return destinationLocation;
 			}
 			set {
-				destinationLocation = value;;
+				destinationLocation = value;
 			}
 
 		}

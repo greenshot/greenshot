@@ -156,7 +156,6 @@ namespace GreenshotImgurPlugin.Forms
 			this.Controls.Add(this.listview_imgur_uploads);
 			this.Name = "ImgurHistory";
 			this.Text = "ImgurHistory";
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImgurHistoryFormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.ResumeLayout(false);

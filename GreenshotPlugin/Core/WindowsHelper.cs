@@ -298,7 +298,7 @@ namespace GreenshotPlugin.Core  {
 					foundWindows.Add(window);
 				}
 			}
-			return foundWindows;;
+			return foundWindows;
 		}
 		
 		/// <summary>

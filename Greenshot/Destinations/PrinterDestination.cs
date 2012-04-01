@@ -68,8 +68,7 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
-				return ((System.Drawing.Image)(resources.GetObject("printToolStripMenuItem.Image")));
+				return GreenshotPlugin.Core.GreenshotResources.getImage("Printer.Image");
 			}
 		}
 		

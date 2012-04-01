@@ -268,7 +268,7 @@ namespace Greenshot {
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel1.Location = new System.Drawing.Point(3, 3);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(755, 406);
+			this.panel1.Size = new System.Drawing.Size(755, 379);
 			this.panel1.TabIndex = 2;
 			// 
 			// toolStrip2
@@ -357,9 +357,10 @@ namespace Greenshot {
 			// btnFreehand
 			// 
 			this.btnFreehand.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnFreehand.Image = ((System.Drawing.Image)(resources.GetObject("btnFreehand.Image")));
 			this.btnFreehand.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnFreehand.Name = "btnFreehand";
-			this.btnFreehand.Size = new System.Drawing.Size(22, 4);
+			this.btnFreehand.Size = new System.Drawing.Size(22, 20);
 			this.btnFreehand.Click += new System.EventHandler(this.BtnFreehandClick);
 			// 
 			// btnText
@@ -455,6 +456,7 @@ namespace Greenshot {
 			// undoToolStripMenuItem
 			// 
 			this.undoToolStripMenuItem.Enabled = false;
+			this.undoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("undoToolStripMenuItem.Image")));
 			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
 			this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
 			this.undoToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
@@ -464,6 +466,7 @@ namespace Greenshot {
 			// redoToolStripMenuItem
 			// 
 			this.redoToolStripMenuItem.Enabled = false;
+			this.redoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("redoToolStripMenuItem.Image")));
 			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
 			this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
 			this.redoToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
@@ -605,6 +608,7 @@ namespace Greenshot {
 			// 
 			// drawFreehandToolStripMenuItem
 			// 
+			this.drawFreehandToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawFreehandToolStripMenuItem.Image")));
 			this.drawFreehandToolStripMenuItem.Name = "drawFreehandToolStripMenuItem";
 			this.drawFreehandToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.drawFreehandToolStripMenuItem.Text = "Draw freehand";
@@ -1091,7 +1095,7 @@ namespace Greenshot {
 			this.fontFamilyComboBox.MaxDropDownItems = 20;
 			this.fontFamilyComboBox.Name = "fontFamilyComboBox";
 			this.fontFamilyComboBox.Size = new System.Drawing.Size(200, 21);
-			this.fontFamilyComboBox.Text = "Aharoni";
+			this.fontFamilyComboBox.Text = "Agency FB";
 			this.fontFamilyComboBox.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.fontFamilyComboBox.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 

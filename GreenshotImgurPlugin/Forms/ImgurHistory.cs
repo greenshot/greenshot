@@ -53,6 +53,7 @@ namespace GreenshotImgurPlugin.Forms {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
 			// Init sorting
 			columnSorter = new ListViewColumnSorter();

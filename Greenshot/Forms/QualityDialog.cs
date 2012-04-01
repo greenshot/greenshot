@@ -38,7 +38,8 @@ namespace Greenshot {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+
 			lang = Language.GetInstance();
 			this.checkBox_reduceColors.Checked = conf.OutputFileReduceColors;
 			this.trackBarJpegQuality.Enabled = isJPG;

@@ -67,8 +67,7 @@ namespace Greenshot.Destinations {
 				isOutlookUsed = true;
 			}
 			// Use default email icon
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
-			mailIcon = ((System.Drawing.Image)(resources.GetObject("btnEmail.Image")));
+			mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
 
 			if (isOutlookUsed) {
 				exePath = GetExePath("OUTLOOK.EXE");
