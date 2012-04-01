@@ -295,7 +295,7 @@ end;
 Filename: "{dotnet20}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden;
 Filename: "{dotnet20}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden;
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
-Filename: "http://getgreenshot.org/support?language={language}&version={#Version}"; Flags: shellexec runascurrentuser
+Filename: "http://getgreenshot.org/support/thank-you/?language={language}&version={#Version}"; Flags: shellexec runascurrentuser
 
 [InstallDelete]
 Name: {app}; Type: filesandordirs;
