@@ -279,13 +279,37 @@ namespace Greenshot {
 			checkbox_playsound.Checked = coreConfiguration.PlayCameraSound;
 			
 			checkbox_picker.Checked = false;
-			checkedDestinationsListBox.Items.Clear();
+
+			destinationsListView.Items.Clear();
+			destinationsListView.ListViewItemSorter = new ListviewWithDestinationComparer();
+			ImageList imageList = new ImageList();
+			destinationsListView.SmallImageList = imageList;
+			int imageNr = -1;
 			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
+				Image destinationImage = destination.DisplayIcon;
+				if (destinationImage != null) {
+					imageList.Images.Add(destination.DisplayIcon);
+					imageNr++;
+				}
 				if (PickerDestination.DESIGNATION.Equals(destination.Designation)) {
 					checkbox_picker.Checked = true;
 					checkbox_picker.Text = destination.Description;
 				} else {
-					checkedDestinationsListBox.Items.Add(destination, coreConfiguration.OutputDestinations.Contains(destination.Designation));					
+					ListViewItem item;
+					if (destinationImage != null) {
+						item = destinationsListView.Items.Add(destination.Description, imageNr);
+					} else {
+						item = destinationsListView.Items.Add(destination.Description);
+					}
+					item.Tag = destination;
+					item.Checked = coreConfiguration.OutputDestinations.Contains(destination.Designation);
+				}
+			}
+			if (checkbox_picker.Checked) {
+				destinationsListView.Enabled = false;
+				foreach(int index in destinationsListView.CheckedIndices) {
+					ListViewItem item = destinationsListView.Items[index];
+					item.Checked = false;
 				}
 			}
 //			checkbox_clipboard.Checked = coreConfiguration.OutputDestinations.Contains("Clipboard");
@@ -352,9 +376,11 @@ namespace Greenshot {
 			if (checkbox_picker.Checked) {
 				destinations.Add(PickerDestination.DESIGNATION);
 			}
-			foreach(int index in checkedDestinationsListBox.CheckedIndices) {
-				IDestination destination = (IDestination)checkedDestinationsListBox.Items[index];
-				if (checkedDestinationsListBox.GetItemCheckState(index) == CheckState.Checked) {
+			foreach(int index in destinationsListView.CheckedIndices) {
+				ListViewItem item = destinationsListView.Items[index];
+				
+				IDestination destination = item.Tag as IDestination;
+				if (item.Checked) {
 					destinations.Add(destination.Designation);
 				}
 			}
@@ -499,8 +525,11 @@ namespace Greenshot {
 		void CheckDestinationSettings() {
 			bool clipboardDestinationChecked = false;
 			bool pickerSelected = checkbox_picker.Checked;
+			destinationsListView.Enabled = true;
 			
-			foreach(IDestination destination in checkedDestinationsListBox.CheckedItems) {
+			foreach(int index in destinationsListView.CheckedIndices) {
+				ListViewItem item = destinationsListView.Items[index];
+				IDestination destination = item.Tag as IDestination;
 				if (destination.Designation.Equals(ClipboardDestination.DESIGNATION)) {
 					clipboardDestinationChecked = true;
 					break;
@@ -508,16 +537,12 @@ namespace Greenshot {
 			}
 
 			if (pickerSelected) {
-				foreach(int index in checkedDestinationsListBox.CheckedIndices) {
-					IDestination destination = (IDestination)checkedDestinationsListBox.Items[index];
-					checkedDestinationsListBox.SetItemCheckState(index, CheckState.Indeterminate);
+				destinationsListView.Enabled = false;
+				foreach(int index in destinationsListView.CheckedIndices) {
+					ListViewItem item = destinationsListView.Items[index];
+					item.Checked = false;
 				}
 			} else {
-				foreach(int index in checkedDestinationsListBox.CheckedIndices) {
-					if (checkedDestinationsListBox.GetItemCheckState(index) == CheckState.Indeterminate) {
-						checkedDestinationsListBox.SetItemCheckState(index, CheckState.Checked);
-					}
-				}
 				// Prevent multiple clipboard settings at once, see bug #3435056
 				if (clipboardDestinationChecked) {
 					checkbox_copypathtoclipboard.Checked = false;
@@ -530,6 +555,31 @@ namespace Greenshot {
 
 		void DestinationsCheckStateChanged(object sender, EventArgs e) {
 			CheckDestinationSettings();
+		}
+	}
+	
+	public class ListviewWithDestinationComparer : System.Collections.IComparer {
+		public int Compare(object x, object y) {
+			if (!(x is ListViewItem)) {
+				return (0);
+			}
+			if (!(y is ListViewItem)) {
+				return (0);
+			}
+	
+			ListViewItem l1 = (ListViewItem)x;
+			ListViewItem l2 = (ListViewItem)y;
+
+			IDestination firstDestination = l1.Tag as IDestination;
+			IDestination secondDestination = l2.Tag as IDestination;
+
+			if (secondDestination == null) {
+				return 1;
+			}
+			if (firstDestination.Priority == secondDestination.Priority) {
+				return firstDestination.Description.CompareTo(secondDestination.Description);
+			}
+			return firstDestination.Priority - secondDestination.Priority;
 		}
 	}
 }
