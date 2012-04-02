@@ -261,10 +261,8 @@ namespace Greenshot.Helpers {
 						
 						// check if this plugin is already available
 						PluginAttribute checkPluginAttribute = null;
-						try {
+						if (tmpAttributes.ContainsKey(pluginAttribute.Name)) {
 							checkPluginAttribute = tmpAttributes[pluginAttribute.Name];
-						} catch {
-							
 						}
 
 						if (checkPluginAttribute != null) {
