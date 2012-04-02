@@ -592,6 +592,12 @@ namespace Greenshot.Drawing {
 			Invalidate();
 		}
 
+		public virtual bool CanRotate {
+			get {
+				return true;
+			}
+		}
+
 		public virtual void Rotate(RotateFlipType rotateFlipType) {
 			// somehow the rotation is the wrong way?
 			int angle = 90;

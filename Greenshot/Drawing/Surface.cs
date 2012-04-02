@@ -582,7 +582,9 @@ namespace Greenshot.Drawing {
 							rotateFlipType = RotateFlipType.Rotate90FlipNone;
 						}
 						foreach (DrawableContainer drawableContainer in elements) {
-							drawableContainer.Rotate(rotateFlipType);
+							if (drawableContainer.CanRotate) {
+								drawableContainer.Rotate(rotateFlipType);
+							}
 						}
 						newImage = ImageHelper.RotateFlip((Bitmap)Image, rotateFlipType);
 						break;

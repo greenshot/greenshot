@@ -169,25 +169,13 @@ namespace Greenshot.Drawing {
 			myBounds = Rectangle.Round(freehandPath.GetBounds());
 		}
 
-		public override void Rotate(RotateFlipType rotateFlipType) {
-			int angle = 270;
-			if (rotateFlipType == RotateFlipType.Rotate90FlipNone) {
-				angle = 90;
+		/// <summary>
+		/// Currently we can't rotate the freehand
+		/// </summary>
+		public override bool CanRotate {
+			get {
+				return false;
 			}
-
-			LOG.DebugFormat("Bounds before: {0} - {1}", Bounds, freehandPath.GetBounds());
-			Matrix rotateMatrix = new Matrix();
-			rotateMatrix.Translate(-(parent.Width >> 1), -(parent.Height >> 1));
-			freehandPath.Transform(rotateMatrix);
-			rotateMatrix = new Matrix();
-			rotateMatrix.Rotate(360 - angle);
-			freehandPath.Transform(rotateMatrix);
-			rotateMatrix = new Matrix();
-			rotateMatrix.Translate(parent.Height >> 1, parent.Width >> 1);
-			freehandPath.Transform(rotateMatrix);
-
-			LOG.DebugFormat("Bounds after: {0} - {1}", Bounds, freehandPath.GetBounds());
-			//base.Rotate(rotateFlipType);
 		}
 
 		/// <summary>
