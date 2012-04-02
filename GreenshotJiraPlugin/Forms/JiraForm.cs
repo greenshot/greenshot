@@ -38,7 +38,6 @@ namespace GreenshotJiraPlugin {
 		public JiraForm(JiraConnector jiraConnector) {
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			language.SynchronizeLanguageToCulture();
 			initializeComponentText();
 
 			this.columnSorter = new ListViewColumnSorter();

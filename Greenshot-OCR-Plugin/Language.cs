@@ -31,13 +31,10 @@ namespace GreenshotOCR {
 		private const string LANGUAGE_FILENAME_PATTERN = @"language_ocrplugin-*.xml";
 		
 		public static ILanguage GetInstance() {
-			if(uniqueInstance == null) {
-				uniqueInstance = new LanguageContainer();
-				uniqueInstance.LanguageFilePattern = LANGUAGE_FILENAME_PATTERN;
-				uniqueInstance.Load();
-				uniqueInstance.SetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
+			if (uniqueInstance == null) {
+				uniqueInstance = new LanguageContainer(LANGUAGE_FILENAME_PATTERN);
 			}
 			return uniqueInstance;
 		}
-    }
+	}
 }

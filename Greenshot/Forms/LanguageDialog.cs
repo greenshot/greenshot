@@ -77,7 +77,7 @@ namespace Greenshot.Forms {
 			// But the use-case is not so interesting, only happens once, to invest a lot of time here.
 			if (language.SupportedLanguages.Count == 1) {
 				this.comboBoxLanguage.SelectedValue = language.SupportedLanguages[0].Ietf;
-				language.SetLanguage(SelectedLanguage);
+				LanguageContainer.SetGlobalLanguage(SelectedLanguage);
 				properOkPressed = true;
 				this.Close();
 			}
@@ -86,7 +86,7 @@ namespace Greenshot.Forms {
 		void BtnOKClick(object sender, EventArgs e) {
 			properOkPressed = true;
 			// Fix for Bug #3431100 
-			language.SetLanguage(SelectedLanguage);
+			LanguageContainer.SetGlobalLanguage(SelectedLanguage);
 			this.Close();
 		}
 		

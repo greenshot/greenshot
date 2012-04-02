@@ -263,7 +263,7 @@ Sie können alle Greenshot-Funktionen aber auch über das Kontextmenü des Green
 		In Zwischenablage kopieren
 	</resource>
 	<resource name="settings_destination_picker">
-		Ziel auswählen
+		Ziel dynamisch auswählen
 	</resource>
 	<resource name="editor_drawline">
 		Linie zeichnen (L)

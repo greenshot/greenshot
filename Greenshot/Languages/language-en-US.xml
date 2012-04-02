@@ -268,7 +268,7 @@ All Greenshot features still work directly from the tray icon context menu witho
 		Copy to clipboard
 	</resource>
 	<resource name="settings_destination_picker">
-		Select destination
+		Select destination dynamically
 	</resource>
 	<resource name="editor_drawline">
 		Draw line (L)

@@ -32,12 +32,9 @@ namespace GreenshotJiraPlugin {
 		
 		public static ILanguage GetInstance() {
 			if(uniqueInstance == null) {
-				uniqueInstance = new LanguageContainer();
-				uniqueInstance.LanguageFilePattern = LANGUAGE_FILENAME_PATTERN;
-				uniqueInstance.Load();
-				uniqueInstance.SetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
+				uniqueInstance = new LanguageContainer(LANGUAGE_FILENAME_PATTERN);
 			}
 			return uniqueInstance;
 		}
-    }
+	}
 }

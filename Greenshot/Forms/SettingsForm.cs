@@ -228,6 +228,9 @@ namespace Greenshot {
 			this.label_region_hotkey.Text = lang.GetString(LangKey.contextmenu_capturearea);
 			this.label_window_hotkey.Text = lang.GetString(LangKey.contextmenu_capturewindow);
 
+			// Removing, otherwise we keep getting the event multiple times!
+			this.combobox_language.SelectedIndexChanged -= new System.EventHandler(this.Combobox_languageSelectedIndexChanged);
+
 			// Initialize the Language ComboBox
 			this.combobox_language.DisplayMember = "Description";
 			this.combobox_language.ValueMember = "Ietf";
@@ -237,9 +240,10 @@ namespace Greenshot {
 			// Set datasource last to prevent problems
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
 			this.combobox_language.DataSource = lang.SupportedLanguages;
-			
+
 			// Delaying the SelectedIndexChanged events untill all is initiated
 			this.combobox_language.SelectedIndexChanged += new System.EventHandler(this.Combobox_languageSelectedIndexChanged);
+			UpdateDestinations();
 		}
 		
 		// Check the settings and somehow visibly mark when something is incorrect
@@ -252,6 +256,50 @@ namespace Greenshot {
 				textbox_storagelocation.BackColor = Control.DefaultBackColor;
 			}
 			return settingsOk;
+		}
+
+		private void UpdateDestinations() {
+			foreach (ListViewItem item in destinationsListView.Items) {
+				IDestination destination = item.Tag as IDestination;
+				item.Text = destination.Description;
+			}
+		}
+
+		private void DisplayDestinations() {
+			checkbox_picker.Checked = false;
+
+			destinationsListView.Items.Clear();
+			destinationsListView.ListViewItemSorter = new ListviewWithDestinationComparer();
+			ImageList imageList = new ImageList();
+			destinationsListView.SmallImageList = imageList;
+			int imageNr = -1;
+			foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
+				Image destinationImage = destination.DisplayIcon;
+				if (destinationImage != null) {
+					imageList.Images.Add(destination.DisplayIcon);
+					imageNr++;
+				}
+				if (PickerDestination.DESIGNATION.Equals(destination.Designation)) {
+					checkbox_picker.Checked = true;
+					checkbox_picker.Text = destination.Description;
+				} else {
+					ListViewItem item;
+					if (destinationImage != null) {
+						item = destinationsListView.Items.Add(destination.Description, imageNr);
+					} else {
+						item = destinationsListView.Items.Add(destination.Description);
+					}
+					item.Tag = destination;
+					item.Checked = coreConfiguration.OutputDestinations.Contains(destination.Designation);
+				}
+			}
+			if (checkbox_picker.Checked) {
+				destinationsListView.Enabled = false;
+				foreach (int index in destinationsListView.CheckedIndices) {
+					ListViewItem item = destinationsListView.Items[index];
+					item.Checked = false;
+				}
+			}
 		}
 
 		private void DisplaySettings() {
@@ -277,41 +325,9 @@ namespace Greenshot {
 			textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality+"%";
 			checkbox_alwaysshowjpegqualitydialog.Checked = coreConfiguration.OutputFilePromptQuality;
 			checkbox_playsound.Checked = coreConfiguration.PlayCameraSound;
-			
-			checkbox_picker.Checked = false;
 
-			destinationsListView.Items.Clear();
-			destinationsListView.ListViewItemSorter = new ListviewWithDestinationComparer();
-			ImageList imageList = new ImageList();
-			destinationsListView.SmallImageList = imageList;
-			int imageNr = -1;
-			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
-				Image destinationImage = destination.DisplayIcon;
-				if (destinationImage != null) {
-					imageList.Images.Add(destination.DisplayIcon);
-					imageNr++;
-				}
-				if (PickerDestination.DESIGNATION.Equals(destination.Designation)) {
-					checkbox_picker.Checked = true;
-					checkbox_picker.Text = destination.Description;
-				} else {
-					ListViewItem item;
-					if (destinationImage != null) {
-						item = destinationsListView.Items.Add(destination.Description, imageNr);
-					} else {
-						item = destinationsListView.Items.Add(destination.Description);
-					}
-					item.Tag = destination;
-					item.Checked = coreConfiguration.OutputDestinations.Contains(destination.Designation);
-				}
-			}
-			if (checkbox_picker.Checked) {
-				destinationsListView.Enabled = false;
-				foreach(int index in destinationsListView.CheckedIndices) {
-					ListViewItem item = destinationsListView.Items[index];
-					item.Checked = false;
-				}
-			}
+			DisplayDestinations();
+
 //			checkbox_clipboard.Checked = coreConfiguration.OutputDestinations.Contains("Clipboard");
 //			checkbox_file.Checked = coreConfiguration.OutputDestinations.Contains("File");
 //			checkbox_fileas.Checked = coreConfiguration.OutputDestinations.Contains("FileWithDialog");
@@ -480,14 +496,14 @@ namespace Greenshot {
 		void Button_pluginconfigureClick(object sender, EventArgs e) {
 			PluginHelper.instance.ConfigureSelectedItem(listview_plugins);
 		}
-		
+
 		void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {
 			// Get the combobox values BEFORE changing the language
 			//EmailFormat selectedEmailFormat = GetSelected<EmailFormat>(combobox_emailformat);
 			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (combobox_language.SelectedItem != null) {
 				LOG.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
-				lang.SetLanguage((string)combobox_language.SelectedValue);
+				LanguageContainer.SetGlobalLanguage((string)combobox_language.SelectedValue);
 			}
 			// Reflect language changes to the settings form
 			UpdateUI();

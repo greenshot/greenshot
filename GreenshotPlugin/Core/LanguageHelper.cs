@@ -42,13 +42,6 @@ namespace GreenshotPlugin.Core {
 		string GetFormattedString(string id, object param);
 		string GetHelpFilePath();
 
-		/// <summary>
-		/// Set language
-		/// </summary>
-		/// <param name="wantedIETF">wanted IETF</param>
-		/// <returns>Actuall IETF </returns>
-		string SetLanguage(string cultureInfo);
-		void SynchronizeLanguageToCulture();
 		void FreeResources();
 		
 		string CurrentLanguage {
@@ -81,12 +74,14 @@ namespace GreenshotPlugin.Core {
 		private static string PAF_LANGUAGE_PATH = Path.Combine(APPLICATION_PATH, @"App\Greenshot\Languages");
 		private const string HELP_FILENAME_PATTERN = @"help-*.html";
 		private const string LANGUAGE_GROUPS_KEY = @"SYSTEM\CurrentControlSet\Control\Nls\Language Groups";
+		private static string globalLanguage = null;
 
 		private Dictionary<string, string> strings = new Dictionary<string, string>();
 		private List<LanguageConfiguration> languages = new List<LanguageConfiguration>();
 		private string currentIETF = null;
 		private string languageFilePattern;
 		private static List<string> supportedLanguageGroups = new List<string>();
+		private static List<LanguageContainer> instances = new List<LanguageContainer>();
 
 		static LanguageContainer() {
 			try {
@@ -108,6 +103,13 @@ namespace GreenshotPlugin.Core {
 		}
 
 		public LanguageContainer() {
+			instances.Add(this);
+		}
+
+		public LanguageContainer(string filePattern) : this() {
+			LanguageFilePattern = filePattern;
+			Load();
+			SetInstanceLanguage(globalLanguage);
 		}
 
 		public String LanguageFilePattern {
@@ -146,9 +148,16 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 		
-		public void SynchronizeLanguageToCulture() {
-			if (CurrentLanguage == null || !CurrentLanguage.Equals(Thread.CurrentThread.CurrentUICulture.Name)) {
-				SetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
+		public static void SynchronizeLanguageToCulture() {
+			if (globalLanguage == null || !globalLanguage.Equals(Thread.CurrentThread.CurrentUICulture.Name)) {
+				SetGlobalLanguage(Thread.CurrentThread.CurrentUICulture.Name);
+			}
+		}
+
+		public static void SetGlobalLanguage(string wantedIETF) {
+			globalLanguage = wantedIETF;
+			foreach (LanguageContainer langInstance in instances) {
+				langInstance.SetInstanceLanguage(wantedIETF);
 			}
 		}
 
@@ -157,7 +166,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="wantedIETF">wanted IETF</param>
 		/// <returns>Actuall IETF </returns>
-		public string SetLanguage(string wantedIETF) {
+		public string SetInstanceLanguage(string wantedIETF) {
 			LOG.Debug("SetLanguage called for : " + wantedIETF);
 			Dictionary<string, LanguageConfiguration> identifiedLanguages = new Dictionary<string, LanguageConfiguration>();
 
@@ -176,9 +185,9 @@ namespace GreenshotPlugin.Core {
 			}
 			
 			LanguageConfiguration selectedLanguage = null;
-			try {
+			if (identifiedLanguages.ContainsKey(wantedIETF)) {
 				selectedLanguage = identifiedLanguages[wantedIETF];
-			} catch (KeyNotFoundException) {
+			} else {
 				LOG.Warn("Selecteded language " + wantedIETF + " not found.");
 			}
 
@@ -186,12 +195,12 @@ namespace GreenshotPlugin.Core {
 			if (selectedLanguage == null) {
 				foreach(string ietf in identifiedLanguages.Keys) {
 					if (ietf.StartsWith(wantedIETF)) {
-						try {
+						if (identifiedLanguages.ContainsKey(ietf)) {
 							selectedLanguage = identifiedLanguages[ietf];
 							LOG.Info("Selecteded language " + ietf + " by near match for: " + wantedIETF);
 							wantedIETF = ietf;
 							break;
-						} catch (KeyNotFoundException) {
+						} else {
 							LOG.Warn("Selecteded language " + wantedIETF + " not found.");
 						}
 					}
@@ -199,9 +208,9 @@ namespace GreenshotPlugin.Core {
 			}
 
 			if (selectedLanguage == null && !DEFAULT_LANGUAGE.Equals(wantedIETF)) {
-				try {
+				if (identifiedLanguages.ContainsKey(DEFAULT_LANGUAGE)) {
 					selectedLanguage = identifiedLanguages[DEFAULT_LANGUAGE];
-				} catch (KeyNotFoundException) {
+				} else {
 					LOG.Warn("No english language file found!!");
 				}
 			}

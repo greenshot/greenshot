@@ -3,9 +3,9 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-0.9.0 Build 1714
+1.0.0 build 1740
 
-We changed the version to 0.9.0 as the amount of features in 0.8.1 was more than planned.
+We changed the version to 1.0.0, after 5 year the version should no longer have a "beta" feeling!
 
 Bugs resolved:
 * Fixed a problem with the window preview, if the window had a small height, when using the context menu (Windows Vista and later)
@@ -16,16 +16,19 @@ Bugs resolved:
 * Fixed bug #3482709 print with timestamp cropped the image
 * Removed the always active CaptureForm, which resulted in greenshot not "recovering" when a capture caused an exception.
 * Improved the auto-capture mode to honor some settings better
+* Synchronized the selected language to the plugins
 
 Features added:
 * Greenshot will now run in 64 bit mode, if the OS supports it.
 * Added a "destinations" concept, making it possible to select all destinations from the main settings or using them inside the editor.
 * Added a "processor" concept, making it possible to modify the capture before it's send to a destination. Currently there is only an internal implementation which replaces the TitleFix plugin.
-* Added Office destinations (Word, Excel, Powerpoint & Outlook) with dynamic resolving of open "instances".
+* Added Office destinations (Word, Excel, Powerpoint, OneNote & Outlook) with dynamic resolving of open "instances".
 * Added Ctrl/shift logic to the editor, hard to explain (see help) but hold one of the keys down and draw..
 * Added a color picker in the color dialog.
-* Added shadow & torn edges
+* Added effects: shadow, torn edges, invert, border and grayscale
+* Added rotate clockwise & counter clockwise
 * Added color reduction as an option and auto detection for image with less than 256 color. When using reduction this results in smaller files.
+
 
 0.8.1 Build 1483
 

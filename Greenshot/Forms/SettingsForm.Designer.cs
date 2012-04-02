@@ -72,7 +72,7 @@ namespace Greenshot {
 			this.groupbox_destination = new System.Windows.Forms.GroupBox();
 			this.checkbox_picker = new System.Windows.Forms.CheckBox();
 			this.destinationsListView = new System.Windows.Forms.ListView();
-			this.destination = new System.Windows.Forms.ColumnHeader();
+			this.destination = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.tabcontrol = new System.Windows.Forms.TabControl();
 			this.tab_general = new System.Windows.Forms.TabPage();
 			this.groupbox_network = new System.Windows.Forms.GroupBox();
@@ -374,7 +374,7 @@ namespace Greenshot {
 			this.destinationsListView.AutoArrange = false;
 			this.destinationsListView.CheckBoxes = true;
 			this.destinationsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-									this.destination});
+            this.destination});
 			this.destinationsListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.destinationsListView.LabelWrap = false;
 			this.destinationsListView.Location = new System.Drawing.Point(6, 38);
@@ -701,16 +701,16 @@ namespace Greenshot {
 			// numericUpDownWaitTime
 			// 
 			this.numericUpDownWaitTime.Increment = new decimal(new int[] {
-									100,
-									0,
-									0,
-									0});
+            100,
+            0,
+            0,
+            0});
 			this.numericUpDownWaitTime.Location = new System.Drawing.Point(11, 69);
 			this.numericUpDownWaitTime.Maximum = new decimal(new int[] {
-									10000,
-									0,
-									0,
-									0});
+            10000,
+            0,
+            0,
+            0});
 			this.numericUpDownWaitTime.Name = "numericUpDownWaitTime";
 			this.numericUpDownWaitTime.Size = new System.Drawing.Size(57, 20);
 			this.numericUpDownWaitTime.TabIndex = 24;
@@ -867,9 +867,9 @@ namespace Greenshot {
 			// 
 			// groupbox_plugins
 			// 
-			this.groupbox_plugins.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+			this.groupbox_plugins.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this.groupbox_plugins.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
 			this.groupbox_plugins.Controls.Add(this.listview_plugins);
 			this.groupbox_plugins.Controls.Add(this.button_pluginconfigure);

@@ -41,9 +41,9 @@ namespace Greenshot.Configuration {
 				uniqueInstance.Load();
 				CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 				if (string.IsNullOrEmpty(conf.Language)) {
-					uniqueInstance.SynchronizeLanguageToCulture();
+					LanguageContainer.SynchronizeLanguageToCulture();
 				} else {
-					uniqueInstance.SetLanguage(conf.Language);
+					LanguageContainer.SetGlobalLanguage(conf.Language);
 				}
 				if (freeResources) {
 					uniqueInstance.FreeResources();

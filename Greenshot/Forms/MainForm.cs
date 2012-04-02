@@ -431,7 +431,7 @@ namespace Greenshot {
 		/// <param name="e"></param>
 		private void ReloadConfiguration(object source, FileSystemEventArgs e) {
 			lang.Load();
-			lang.SetLanguage(conf.Language);
+			LanguageContainer.SetGlobalLanguage(conf.Language);
 			lang.FreeResources();
 			this.Invoke((MethodInvoker) delegate {
 				// Even update language when needed

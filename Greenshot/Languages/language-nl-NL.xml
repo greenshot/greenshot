@@ -258,7 +258,7 @@ Alle Greenshot functies werken ook over het context menu.
 		Kopieer naar klembord
 	</resource>
 	<resource name="settings_destination_picker">
-		Doel kiezen
+		Dynamisch het doel kiezen
 	</resource>
 	<resource name="editor_drawline">
 		Lijn tekenen (L)
