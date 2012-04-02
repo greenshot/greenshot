@@ -269,8 +269,8 @@ namespace Greenshot {
 				Size imageSize = this.Surface.Image.Size;
 				Size currentFormSize = this.Size;
 				Size currentImageClientSize = this.panel1.ClientSize;
-				int minimumFormWidth = 480;
-				int minimumFormHeight = 390;
+				int minimumFormWidth = 650;
+				int minimumFormHeight = 530;
 				int newWidth = Math.Max(minimumFormWidth, (currentFormSize.Width - currentImageClientSize.Width) + imageSize.Width);
 				int newHeight = Math.Max(minimumFormHeight, (currentFormSize.Height - currentImageClientSize.Height) + imageSize.Height);
 				this.Size = new Size(newWidth, newHeight);
@@ -382,53 +382,6 @@ namespace Greenshot {
 			this.saveElementsToolStripMenuItem.Text = lang.GetString(LangKey.editor_save_objects);
 			this.loadElementsToolStripMenuItem.Text = lang.GetString(LangKey.editor_load_objects);
 			this.autoCropToolStripMenuItem.Text = lang.GetString(LangKey.editor_autocrop);
-			if (coreConf.isExperimentalFeatureEnabled("Effects")) {
-				this.editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
-				ToolStripMenuItem effectItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_effects));
-				this.editToolStripMenuItem.DropDownItems.Add(effectItem);
-
-				ToolStripMenuItem effectSubItem;
-				effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_shadow));
-				effectSubItem.Click += delegate {
-					surface.ApplyBitmapEffect(Effects.Shadow);
-					updateUndoRedoSurfaceDependencies();
-				};
-				effectItem.DropDownItems.Add(effectSubItem);
-
-				effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_torn_edge));
-				effectSubItem.Click += delegate {
-					surface.ApplyBitmapEffect(Effects.TornEdge);
-					updateUndoRedoSurfaceDependencies();
-				};
-				effectItem.DropDownItems.Add(effectSubItem);
-
-				effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_border));
-				effectSubItem.Click += delegate {
-					surface.ApplyBitmapEffect(Effects.Border);
-					updateUndoRedoSurfaceDependencies();
-				};
-				effectItem.DropDownItems.Add(effectSubItem);
-
-				effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_grayscale));
-				effectSubItem.Click += delegate {
-					surface.ApplyBitmapEffect(Effects.Grayscale);
-					updateUndoRedoSurfaceDependencies();
-				};
-				effectItem.DropDownItems.Add(effectSubItem);
-
-				effectSubItem = new ToolStripMenuItem("Rotate 90");
-				effectSubItem.Click += delegate {
-					surface.ApplyBitmapEffect(Effects.Rotate90);
-					updateUndoRedoSurfaceDependencies();
-				};
-				effectItem.DropDownItems.Add(effectSubItem);
-				effectSubItem = new ToolStripMenuItem("Rotate 270");
-				effectSubItem.Click += delegate {
-					surface.ApplyBitmapEffect(Effects.Rotate270);
-					updateUndoRedoSurfaceDependencies();
-				};
-				effectItem.DropDownItems.Add(effectSubItem);
-			}
 			this.editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
 			this.editToolStripMenuItem.DropDownItems.Add(insert_window_toolstripmenuitem);
 		}
@@ -1223,6 +1176,49 @@ namespace Greenshot {
 			if (surface.AutoCrop()) {
 				refreshFieldControls();
 			}
+		}
+
+		
+		void AddBorderToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			surface.ApplyBitmapEffect(Effects.Border);
+			updateUndoRedoSurfaceDependencies();
+		}
+		
+		void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			surface.ApplyBitmapEffect(Effects.Shadow);
+			updateUndoRedoSurfaceDependencies();
+		}
+		
+		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			surface.ApplyBitmapEffect(Effects.TornEdge);
+			updateUndoRedoSurfaceDependencies();
+		}
+		
+		void GrayscaleToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			surface.ApplyBitmapEffect(Effects.Grayscale);
+			updateUndoRedoSurfaceDependencies();
+		}
+		
+		void RotateCwToolstripButtonClick(object sender, EventArgs e)
+		{
+			surface.ApplyBitmapEffect(Effects.RotateClockwise);
+			updateUndoRedoSurfaceDependencies();
+		}
+		
+		void RotateCcwToolstripButtonClick(object sender, EventArgs e)
+		{
+			surface.ApplyBitmapEffect(Effects.RotateCounterClockwise);
+			updateUndoRedoSurfaceDependencies();
+		}
+		
+		void InvertToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			surface.ApplyBitmapEffect(Effects.Invert);
+			updateUndoRedoSurfaceDependencies();
 		}
 	}
 }
