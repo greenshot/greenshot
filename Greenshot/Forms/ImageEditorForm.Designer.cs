@@ -65,8 +65,16 @@ namespace Greenshot {
 			this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnHighlight = new System.Windows.Forms.ToolStripButton();
 			this.btnObfuscate = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripDropDownButton();
+			this.addBorderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.addDropshadowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.tornEdgesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.grayscaleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.invertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnCrop = new System.Windows.Forms.ToolStripButton();
+			this.rotateCwToolstripButton = new System.Windows.Forms.ToolStripButton();
+			this.rotateCcwToolstripButton = new System.Windows.Forms.ToolStripButton();
 			this.menuStrip1 = new Greenshot.Controls.MenuStripEx();
 			this.fileStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -288,8 +296,11 @@ namespace Greenshot {
 									this.toolStripSeparator14,
 									this.btnHighlight,
 									this.btnObfuscate,
+									this.toolStripSplitButton1,
 									this.toolStripSeparator13,
-									this.btnCrop});
+									this.btnCrop,
+									this.rotateCwToolstripButton,
+									this.rotateCcwToolstripButton});
 			this.toolStrip2.Location = new System.Drawing.Point(0, 0);
 			this.toolStrip2.Name = "toolStrip2";
 			this.toolStrip2.Size = new System.Drawing.Size(24, 385);
@@ -396,6 +407,58 @@ namespace Greenshot {
 			this.btnObfuscate.Size = new System.Drawing.Size(22, 20);
 			this.btnObfuscate.Click += new System.EventHandler(this.BtnObfuscateClick);
 			// 
+			// toolStripSplitButton1
+			// 
+			this.toolStripSplitButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripSplitButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.addBorderToolStripMenuItem,
+									this.addDropshadowToolStripMenuItem,
+									this.tornEdgesToolStripMenuItem,
+									this.grayscaleToolStripMenuItem,
+									this.invertToolStripMenuItem});
+			this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
+			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripSplitButton1.Name = "toolStripSplitButton1";
+			this.toolStripSplitButton1.ShowDropDownArrow = false;
+			this.toolStripSplitButton1.Size = new System.Drawing.Size(22, 20);
+			this.toolStripSplitButton1.Text = "toolStripSplitButton1";
+			this.toolStripSplitButton1.ToolTipText = "Effects";
+			// 
+			// addBorderToolStripMenuItem
+			// 
+			this.addBorderToolStripMenuItem.Name = "addBorderToolStripMenuItem";
+			this.addBorderToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+			this.addBorderToolStripMenuItem.Text = "Add Border";
+			this.addBorderToolStripMenuItem.Click += new System.EventHandler(this.AddBorderToolStripMenuItemClick);
+			// 
+			// addDropshadowToolStripMenuItem
+			// 
+			this.addDropshadowToolStripMenuItem.Name = "addDropshadowToolStripMenuItem";
+			this.addDropshadowToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+			this.addDropshadowToolStripMenuItem.Text = "Add Dropshadow";
+			this.addDropshadowToolStripMenuItem.Click += new System.EventHandler(this.AddDropshadowToolStripMenuItemClick);
+			// 
+			// tornEdgesToolStripMenuItem
+			// 
+			this.tornEdgesToolStripMenuItem.Name = "tornEdgesToolStripMenuItem";
+			this.tornEdgesToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+			this.tornEdgesToolStripMenuItem.Text = "Torn Edges";
+			this.tornEdgesToolStripMenuItem.Click += new System.EventHandler(this.TornEdgesToolStripMenuItemClick);
+			// 
+			// grayscaleToolStripMenuItem
+			// 
+			this.grayscaleToolStripMenuItem.Name = "grayscaleToolStripMenuItem";
+			this.grayscaleToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+			this.grayscaleToolStripMenuItem.Text = "Convert to Grayscale";
+			this.grayscaleToolStripMenuItem.Click += new System.EventHandler(this.GrayscaleToolStripMenuItemClick);
+			// 
+			// invertToolStripMenuItem
+			// 
+			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
+			this.invertToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+			this.invertToolStripMenuItem.Text = "Invert";
+			this.invertToolStripMenuItem.Click += new System.EventHandler(this.InvertToolStripMenuItemClick);
+			// 
 			// toolStripSeparator13
 			// 
 			this.toolStripSeparator13.Name = "toolStripSeparator13";
@@ -409,6 +472,26 @@ namespace Greenshot {
 			this.btnCrop.Name = "btnCrop";
 			this.btnCrop.Size = new System.Drawing.Size(22, 20);
 			this.btnCrop.Click += new System.EventHandler(this.BtnCropClick);
+			// 
+			// rotateCwToolstripButton
+			// 
+			this.rotateCwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.rotateCwToolstripButton.Image = ((System.Drawing.Image)(resources.GetObject("rotateCwToolstripButton.Image")));
+			this.rotateCwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.rotateCwToolstripButton.Name = "rotateCwToolstripButton";
+			this.rotateCwToolstripButton.Size = new System.Drawing.Size(22, 20);
+			this.rotateCwToolstripButton.Text = "Rotate Clockwise";
+			this.rotateCwToolstripButton.Click += new System.EventHandler(this.RotateCwToolstripButtonClick);
+			// 
+			// rotateCcwToolstripButton
+			// 
+			this.rotateCcwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.rotateCcwToolstripButton.Image = ((System.Drawing.Image)(resources.GetObject("rotateCcwToolstripButton.Image")));
+			this.rotateCcwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.rotateCcwToolstripButton.Name = "rotateCcwToolstripButton";
+			this.rotateCcwToolstripButton.Size = new System.Drawing.Size(22, 20);
+			this.rotateCcwToolstripButton.Text = "toolStripButton2";
+			this.rotateCcwToolstripButton.Click += new System.EventHandler(this.RotateCcwToolstripButtonClick);
 			// 
 			// menuStrip1
 			// 
@@ -1509,6 +1592,14 @@ namespace Greenshot {
 			this.fileSavedStatusContextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.ToolStripMenuItem invertToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem grayscaleToolStripMenuItem;
+		private System.Windows.Forms.ToolStripButton rotateCcwToolstripButton;
+		private System.Windows.Forms.ToolStripButton rotateCwToolstripButton;
+		private System.Windows.Forms.ToolStripMenuItem addBorderToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem tornEdgesToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem addDropshadowToolStripMenuItem;
+		private System.Windows.Forms.ToolStripDropDownButton toolStripSplitButton1;
 		private System.Windows.Forms.ToolStripStatusLabel dimensionsLabel;
 		private System.Windows.Forms.ToolStripMenuItem insert_window_toolstripmenuitem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;

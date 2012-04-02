@@ -107,43 +107,7 @@ namespace Greenshot.Destinations {
 					menu.Items.Add(item);
 				}
 			}
-			// Effects
-			if (conf.isExperimentalFeatureEnabled("Effects")) {
-				menu.Items.Add(new ToolStripSeparator());
-				ToolStripMenuItem effectItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_effects));
-				menu.Items.Add(effectItem);
-				effectItem.DropDownOpening += delegate {
-					effectItem.DropDownItems.Clear();
-					ToolStripMenuItem effectSubItem;
-					if (surface.HasCursor) {
-						effectSubItem = new ToolStripMenuItem("Remove Cursor");
-						effectItem.DropDownItems.Add(effectSubItem);
-						effectSubItem.Click += delegate {
-							surface.RemoveCursor();
-						};
-					}
-					effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_shadow));
-					effectItem.DropDownItems.Add(effectSubItem);
-					effectSubItem.Click += delegate {
-						surface.ApplyBitmapEffect(Effects.Shadow);
-					};
-					effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_torn_edge));
-					effectItem.DropDownItems.Add(effectSubItem);
-					effectSubItem.Click += delegate {
-						surface.ApplyBitmapEffect(Effects.TornEdge);
-					};
-					effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_border));
-					effectItem.DropDownItems.Add(effectSubItem);
-					effectSubItem.Click += delegate {
-						surface.ApplyBitmapEffect(Effects.Border);
-					};
-					effectSubItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_grayscale));
-					effectItem.DropDownItems.Add(effectSubItem);
-					effectSubItem.Click += delegate {
-						surface.ApplyBitmapEffect(Effects.Grayscale);
-					};
-				};
-			}
+
 			// Close
 			menu.Items.Add(new ToolStripSeparator());
 			ToolStripMenuItem closeItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_close));

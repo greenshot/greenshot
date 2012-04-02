@@ -571,11 +571,14 @@ namespace Greenshot.Drawing {
 					case Effects.Grayscale:
 						newImage = ImageHelper.CreateGrayscale((Bitmap)Image);
 						break;
-					case Effects.Rotate90:
-					case Effects.Rotate270:
+					case Effects.Invert:
+						newImage = ImageHelper.CreateNegative((Bitmap)Image);
+						break;
+					case Effects.RotateClockwise:
+					case Effects.RotateCounterClockwise:
 						MakeUndoable(new DrawableContainerBoundsChangeMemento(elements.AsIDrawableContainerList()), false);
 						RotateFlipType rotateFlipType = RotateFlipType.Rotate270FlipNone;
-						if (effect == Effects.Rotate90) {
+						if (effect == Effects.RotateClockwise) {
 							rotateFlipType = RotateFlipType.Rotate90FlipNone;
 						}
 						foreach (DrawableContainer drawableContainer in elements) {
