@@ -258,6 +258,10 @@ namespace GreenshotPlugin.Core {
 			}
 			languageDirectories.Add(STARTUP_LANGUAGE_PATH);
 			foreach(string path in languageDirectories) {
+				if (!Directory.Exists(path)) {
+					LOG.InfoFormat("Skipping non existing language path {0}", path);
+					continue;
+				}
 				// Search in executable directory
 				LOG.InfoFormat("Searching language directory '{0}' for language files with pattern '{1}'", path, languageFilePattern);
 				try {
