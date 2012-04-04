@@ -111,9 +111,13 @@ namespace Greenshot.Interop.Office {
 				if (isLayoutPictureWithCaption) {
 					try {
 						// Using try/catch to make sure problems with the text range don't give an exception.
-						shape.TextFrame.TextRange.Text = title;
+						ITextFrame textFrame = shape.TextFrame;
+						if (textFrame.HasText == MsoTriState.msoTrue) {
+							textFrame.TextRange.Text = title;
+						}
+						shape.AlternativeText = title;
 					} catch (Exception ex) {
-						LOG.WarnFormat("Problem setting the title to a text-range: {0}", ex.Message);
+						LOG.Warn("Problem setting the title to a text-range", ex);
 					}
 				}
 				presentation.Application.ActiveWindow.View.GotoSlide(slide.SlideNumber);

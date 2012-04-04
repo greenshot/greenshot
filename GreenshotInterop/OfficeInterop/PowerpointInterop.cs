@@ -88,10 +88,12 @@ namespace Greenshot.Interop.Office {
 		ITextFrame TextFrame { get; }
 		void ScaleWidth(float Factor, MsoTriState RelativeToOriginalSize, MsoScaleFrom fScale);
 		void ScaleHeight(float Factor, MsoTriState RelativeToOriginalSize, MsoScaleFrom fScale);
+		string AlternativeText { get; set; }
 	}
 
 	public interface ITextFrame : Common {
 		ITextRange TextRange { get; }
+		MsoTriState HasText { get; }
 	}
 	public interface ITextRange : Common {
 		string Text { get; set; }

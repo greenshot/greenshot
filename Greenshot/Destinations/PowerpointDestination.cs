@@ -110,16 +110,6 @@ namespace Greenshot.Destinations {
 				yield return new PowerpointDestination(presentationName);
 			}
 		}
-		/// <summary>
-		/// Helper method for adding the normal "empty" PowerpointDestination
-		/// </summary>
-		/// <returns></returns>
-		private IEnumerable<IDestination> AllDynamicDestinations() {
-			yield return new PowerpointDestination();
-			foreach (string presentationName in PowerpointExporter.GetPowerpointPresentations()) {
-				yield return new PowerpointDestination(presentationName);
-			}
-		}
 
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			string tmpFile = captureDetails.Filename;
@@ -133,13 +123,20 @@ namespace Greenshot.Destinations {
 			if (presentationName != null) {
 				PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
 			} else {
-				if (manuallyInitiated) {
-					PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
-				} else {
-					ContextMenuStrip menu = PickerDestination.CreatePickerMenu(false, surface, captureDetails, AllDynamicDestinations());
-					PickerDestination.ShowMenuAtCursor(menu);
-					return false;
+				if (!manuallyInitiated) {
+					List<string> presentations = PowerpointExporter.GetPowerpointPresentations();
+					if (presentations.Count > 0) {
+						List<IDestination> destinations = new List<IDestination>();
+						destinations.Add(new PowerpointDestination());
+						foreach (string presentation in presentations) {
+							destinations.Add(new PowerpointDestination(presentation));
+						}
+						ContextMenuStrip menu = PickerDestination.CreatePickerMenu(false, surface, captureDetails, destinations);
+						PickerDestination.ShowMenuAtCursor(menu);
+						return false;
+					}
 				}
+				PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
 			}
 			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;
