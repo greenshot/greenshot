@@ -125,7 +125,7 @@ namespace Greenshot.Destinations {
 			} else {
 				if (!manuallyInitiated) {
 					List<string> presentations = PowerpointExporter.GetPowerpointPresentations();
-					if (presentations.Count > 0) {
+					if (presentations != null && presentations.Count > 0) {
 						List<IDestination> destinations = new List<IDestination>();
 						destinations.Add(new PowerpointDestination());
 						foreach (string presentation in presentations) {

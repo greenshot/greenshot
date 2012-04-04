@@ -210,6 +210,19 @@ namespace Greenshot.Destinations {
 			if (outlookInspectorCaption != null) {
 				OutlookEmailExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
 			} else {
+				if (!manuallyInitiated) {
+					Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets(conf.OutlookAllowExportInMeetings);
+					if (inspectorCaptions != null && inspectorCaptions.Count > 0) {
+						List<IDestination> destinations = new List<IDestination>();
+						destinations.Add(new EmailDestination());
+						foreach (string inspectorCaption in inspectorCaptions.Keys) {
+							destinations.Add(new EmailDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
+						}
+						ContextMenuStrip menu = PickerDestination.CreatePickerMenu(false, surface, captureDetails, destinations);
+						PickerDestination.ShowMenuAtCursor(menu);
+						return false;
+					}
+				}
 				OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, captureDetails.Title, attachmentName);
 			}
 			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));

@@ -124,7 +124,7 @@ namespace Greenshot.Destinations {
 			} else {
 				if (!manuallyInitiated) {
 					List<string> documents = WordExporter.GetWordDocuments();
-					if (documents.Count > 0) {
+					if (documents != null && documents.Count > 0) {
 						List<IDestination> destinations = new List<IDestination>();
 						destinations.Add(new WordDestination());
 						foreach (string document in documents) {
