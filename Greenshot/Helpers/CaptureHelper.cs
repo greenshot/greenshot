@@ -576,15 +576,21 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Check if Process uses PresentationFramework.dll -> meaning it uses WPF
 		/// </summary>
-		/// <param name="process"></param>
+		/// <param name="process">Proces to check for the presentation framework</param>
 		/// <returns>true if the process uses WPF</returns>
 		private static bool isWPF(Process process) {
 			if (process != null) {
-				foreach(ProcessModule module in process.Modules) {
-					if (module.ModuleName.StartsWith("PresentationFramework")) {
-						LOG.InfoFormat("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
-						return true;
+				try {
+					foreach (ProcessModule module in process.Modules) {
+						if (module.ModuleName.StartsWith("PresentationFramework")) {
+							LOG.InfoFormat("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
+							return true;
+						}
 					}
+				} catch (Exception) {
+					// Access denied on the modules
+					LOG.WarnFormat("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
+					return true;
 				}
 			}
 			return false;
