@@ -23,8 +23,9 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotExternalCommandPlugin;
+using GreenshotPlugin.Core;
 
 namespace ExternalCommand {
 	/// <summary>
@@ -43,13 +44,6 @@ namespace ExternalCommand {
 		}
 		
 		void ButtonOkClick(object sender, EventArgs e) {
-			// Update the details with those in the textboxes, if one is selected
-			foreach(string command in config.commands) {
-				if (command.Equals(textBox_name.Text)) {
-					config.commandlines[command] = textBox_commandline.Text;
-					config.arguments[command] = textBox_arguments.Text;
-				}
-			}
 			IniConfig.Save();
 			DialogResult = DialogResult.OK;
 		}
@@ -58,36 +52,19 @@ namespace ExternalCommand {
 			DialogResult = DialogResult.Cancel;
 		}
 
-		void ShowSelectedItem() {
-			foreach ( ListViewItem item in listView1.SelectedItems ) {
-				string commando = item.Tag as string;
-				textBox_name.Text = commando;
-				textBox_commandline.Text = config.commandlines[commando];
-				textBox_arguments.Text = config.arguments[commando];
-			}
-		}
-		
 		void ButtonAddClick(object sender, EventArgs e) {
-			string commandName = textBox_name.Text;
-			string commandLine = textBox_commandline.Text;
-			string arguments = textBox_arguments.Text;
-			if (config.commands.Contains(commandName)) {
-				config.commandlines[commandName] = commandLine;
-				config.arguments[commandName] = arguments;
-			} else {
-				config.commands.Add(commandName);
-				config.commandlines.Add(commandName, commandLine);
-				config.arguments.Add(commandName, arguments);
-			}
+			SettingsFormDetail form = new SettingsFormDetail(null);
+			form.ShowDialog();
+			
 			UpdateView();
 		}
 
 		void ButtonDeleteClick(object sender, EventArgs e) {
 			foreach ( ListViewItem item in listView1.SelectedItems ) {
 				string commando = item.Tag as string;
-				config.commands.Remove(textBox_name.Text);
-				config.commandlines.Remove(textBox_name.Text);
-				config.arguments.Remove(textBox_name.Text);
+				config.commands.Remove(commando);
+				config.commandlines.Remove(commando);
+				config.arguments.Remove(commando);
 			}
 			UpdateView();
 		}
@@ -104,29 +81,22 @@ namespace ExternalCommand {
 		}
 
 		void ListView1ItemSelectionChanged(object sender, EventArgs e) {
-			ShowSelectedItem();
+			button4.Enabled = listView1.SelectedItems.Count > 0;
 		}
 		
-		void Button3Click(object sender, EventArgs e) {
-			OpenFileDialog openFileDialog = new OpenFileDialog();
-			openFileDialog.Filter = "Executables (*.exe, *.bat, *.com)|*.exe; *.bat; *.com|All files (*)|*";
-			openFileDialog.FilterIndex = 1;
-			openFileDialog.CheckFileExists = true;
-			openFileDialog.Multiselect = false;
-			string initialPath = null;
-			try {
-				initialPath = Path.GetDirectoryName(textBox_commandline.Text);
-			} catch {}
-			if (initialPath != null && Directory.Exists(initialPath)) {
-				openFileDialog.InitialDirectory = initialPath;				
-			} else {
-				initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-				openFileDialog.InitialDirectory = initialPath;
-			}
-			LOG.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
-			if (openFileDialog.ShowDialog() == DialogResult.OK) {
-				textBox_commandline.Text = openFileDialog.FileName;
-			}
+		void Button4Click(object sender, EventArgs e)
+		{
+			ListView1DoubleClick(sender, e);
+		}
+		
+		void ListView1DoubleClick(object sender, EventArgs e)
+		{
+			string commando = listView1.SelectedItems[0].Tag as string;
+			
+			SettingsFormDetail form = new SettingsFormDetail(commando);
+			form.ShowDialog();
+			
+			UpdateView();
 		}
 	}
 }
