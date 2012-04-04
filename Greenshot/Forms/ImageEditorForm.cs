@@ -242,7 +242,7 @@ namespace Greenshot {
 					continue;
 				}
 				
-				ToolStripMenuItem item = destination.GetMenuItem(new EventHandler(DestinationToolStripMenuItemClick));
+				ToolStripMenuItem item = destination.GetMenuItem(true, new EventHandler(DestinationToolStripMenuItemClick));
 				item.ShortcutKeys = destination.EditorShortcutKeys;
 				if (item != null) {
 					fileStripMenuItem.DropDownItems.Add(item);

@@ -43,12 +43,12 @@ namespace Greenshot.Interop.Office {
 	public interface IWordDocument : Common {
 		void Activate();
 		IWordApplication Application { get; }
-		WordWindow ActiveWindow { get; }
+		IWordWindow ActiveWindow { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.window_members.aspx
-	public interface WordWindow : Common {
-		Pane ActivePane { get; }
+	public interface IWordWindow : Common {
+		IPane ActivePane { get; }
 		void Activate();
 		string Caption {
 			get;
@@ -56,17 +56,17 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.pane_members.aspx
-	public interface Pane : Common {
-		View View { get; }
+	public interface IPane : Common {
+		IWordView View { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.view_members.aspx
-	public interface View : Common {
-		Zoom Zoom { get; }
+	public interface IWordView : Common {
+		IZoom Zoom { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.zoom_members.aspx
-	public interface Zoom : Common {
+	public interface IZoom : Common {
 		int Percentage { get; set; }
 	}
 

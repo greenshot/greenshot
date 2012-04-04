@@ -110,6 +110,16 @@ namespace Greenshot.Destinations {
 				yield return new PowerpointDestination(presentationName);
 			}
 		}
+		/// <summary>
+		/// Helper method for adding the normal "empty" PowerpointDestination
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerable<IDestination> AllDynamicDestinations() {
+			yield return new PowerpointDestination();
+			foreach (string presentationName in PowerpointExporter.GetPowerpointPresentations()) {
+				yield return new PowerpointDestination(presentationName);
+			}
+		}
 
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			string tmpFile = captureDetails.Filename;
@@ -123,7 +133,13 @@ namespace Greenshot.Destinations {
 			if (presentationName != null) {
 				PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
 			} else {
-				PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
+				if (manuallyInitiated) {
+					PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
+				} else {
+					ContextMenuStrip menu = PickerDestination.CreatePickerMenu(false, surface, captureDetails, AllDynamicDestinations());
+					PickerDestination.ShowMenuAtCursor(menu);
+					return false;
+				}
 			}
 			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;

@@ -116,6 +116,8 @@ namespace Greenshot.Interop.Office {
 						LOG.WarnFormat("Problem setting the title to a text-range: {0}", ex.Message);
 					}
 				}
+				presentation.Application.ActiveWindow.View.GotoSlide(slide.SlideNumber);
+				presentation.Application.Activate();
 			}
 		}
 
@@ -125,6 +127,7 @@ namespace Greenshot.Interop.Office {
 					powerpointApplication.Visible = true;
 					IPresentation presentation = powerpointApplication.Presentations.Add(MsoTriState.msoTrue);
 					AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+					presentation.Application.Activate();
 				}
 			}
 		}

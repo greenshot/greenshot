@@ -66,9 +66,10 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Return a menu item
 		/// </summary>
-		/// <param name="destinationClickHandler"></param>
+		/// <param name="addDynamics">Resolve the dynamic destinations too?</param>
+		/// <param name="destinationClickHandler">Handler which is called when clicked</param>
 		/// <returns>ToolStripMenuItem</returns>
-		ToolStripMenuItem GetMenuItem(EventHandler destinationClickHandler);
+		ToolStripMenuItem GetMenuItem(bool addDynamics, EventHandler destinationClickHandler);
 
 		/// <summary>
 		/// Gets the ShortcutKeys for the Editor

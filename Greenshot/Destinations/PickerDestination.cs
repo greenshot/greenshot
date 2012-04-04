@@ -39,7 +39,7 @@ namespace Greenshot.Destinations {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PickerDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Picker";
-		private ILanguage lang = Language.GetInstance();
+		private static ILanguage lang = Language.GetInstance();
 
 		public override string Designation {
 			get {
@@ -65,7 +65,7 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public static ContextMenuStrip CreatePickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations) {
 			ContextMenuStrip menu = new ContextMenuStrip();
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
 				LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
@@ -73,16 +73,9 @@ namespace Greenshot.Destinations {
 					eventArgs.Cancel = true;
 				}
 			};
-
-			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
-				if ("Picker".Equals(destination.Designation)) {
-					continue;
-				}
-				if (!destination.isActive) {
-					continue;
-				}
+			foreach (IDestination destination in destinations) {
 				// Fix foreach loop variable for the delegate
-				ToolStripMenuItem item = destination.GetMenuItem(
+				ToolStripMenuItem item = destination.GetMenuItem(addDynamics,
 					delegate(object sender, EventArgs e) {
 						ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
 						if (toolStripMenuItem == null) {
@@ -107,7 +100,6 @@ namespace Greenshot.Destinations {
 					menu.Items.Add(item);
 				}
 			}
-
 			// Close
 			menu.Items.Add(new ToolStripSeparator());
 			ToolStripMenuItem closeItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_close));
@@ -119,10 +111,15 @@ namespace Greenshot.Destinations {
 				surface.Dispose();
 			};
 			menu.Items.Add(closeItem);
-			
+
+			return menu;
+		}
+
+		public static void ShowMenuAtCursor(ContextMenuStrip menu) {
 			// find a suitable location
 			Point location = Cursor.Position;
 			Rectangle menuRectangle = new Rectangle(location, menu.Size);
+
 			menuRectangle.Intersect(WindowCapture.GetScreenBounds());
 			if (menuRectangle.Height < menu.Height) {
 				location.Offset(-40, -(menuRectangle.Height - menu.Height));
@@ -131,6 +128,22 @@ namespace Greenshot.Destinations {
 			}
 			menu.Show(location);
 			menu.Focus();
+		}
+
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			List<IDestination> destinations = new List<IDestination>();
+			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
+				if ("Picker".Equals(destination.Designation)) {
+					continue;
+				}
+				if (!destination.isActive) {
+					continue;
+				}
+				destinations.Add(destination);
+			}
+
+			ContextMenuStrip menu = CreatePickerMenu(true, surface, captureDetails, destinations);
+			ShowMenuAtCursor(menu);
 			return true;
 		}
 	}

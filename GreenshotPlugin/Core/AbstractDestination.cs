@@ -112,13 +112,13 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="destinationClickHandler"></param>
 		/// <returns>ToolStripMenuItem</returns>
-		public virtual ToolStripMenuItem GetMenuItem(EventHandler destinationClickHandler) {
+		public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, EventHandler destinationClickHandler) {
 			ToolStripMenuItem basisMenuItem;
 			basisMenuItem = new ToolStripMenuItem(Description);
 			basisMenuItem.Image = DisplayIcon;
 			basisMenuItem.Tag = this;
 			basisMenuItem.Text = Description;
-			if (isDynamic) {
+			if (isDynamic && addDynamics) {
 				basisMenuItem.DropDownOpening += delegate (object source, EventArgs eventArgs) {
 					if (basisMenuItem.DropDownItems.Count == 0) {
 						List<IDestination> subDestinations = new List<IDestination>();

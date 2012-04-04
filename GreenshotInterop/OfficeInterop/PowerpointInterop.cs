@@ -31,6 +31,8 @@ namespace Greenshot.Interop.Office {
 		IPresentation ActivePresentation { get; }
 		IPresentations Presentations { get; }
 		bool Visible { get; set; }
+		void Activate();
+		IPowerpointWindow ActiveWindow { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.slides_members.aspx
@@ -39,10 +41,22 @@ namespace Greenshot.Interop.Office {
 		ISlide Add(int Index, int layout);
 	}
 
+	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.documentwindow.view.aspx
+	public interface IPowerpointWindow : Common {
+		void Activate();
+		IPowerpointView View { get; }
+	}
+	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.view_members.aspx
+	public interface IPowerpointView : Common {
+		IZoom Zoom { get; }
+		void GotoSlide(int index);
+	}
+
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.presentation_members.aspx
 	public interface IPresentation : Common {
 		string Name { get; }
 		ISlides Slides { get; }
+		IPowerpointApplication Application { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.presentations_members.aspx

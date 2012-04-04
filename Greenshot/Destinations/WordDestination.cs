@@ -112,6 +112,17 @@ namespace Greenshot.Destinations {
 			}
 		}
 
+		/// <summary>
+		/// Helper method for adding the normal "empty" WordDestination
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerable<IDestination> AllDynamicDestinations() {
+			yield return new WordDestination();
+			foreach (string wordCaption in WordExporter.GetWordDocuments()) {
+				yield return new WordDestination(wordCaption);
+			}
+		}
+
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified) {
@@ -122,19 +133,13 @@ namespace Greenshot.Destinations {
 			if (documentCaption != null) {
 				WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
 			} else {
-				bool exported = false;
-				if (!manuallyInitiated) {
-					// Insert into current document, if only one is open!
-					List<string> currentDocuments = WordExporter.GetWordDocuments();
-					if (currentDocuments.Count == 1) {
-						WordExporter.InsertIntoExistingDocument(currentDocuments[0], tmpFile);
-						exported = true;
-					}
-				}
-				if (!exported) {
+				if (manuallyInitiated) {
 					WordExporter.InsertIntoNewDocument(tmpFile);
+				} else {
+					ContextMenuStrip menu = PickerDestination.CreatePickerMenu(false, surface, captureDetails, AllDynamicDestinations());
+					PickerDestination.ShowMenuAtCursor(menu);
+					return false;
 				}
-
 			}
 			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;
