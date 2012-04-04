@@ -3,20 +3,9 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.0.0 build 1740
+1.0.0 build 1748
 
 We changed the version to 1.0.0, after 5 year the version should no longer have a "beta" feeling!
-
-Bugs resolved:
-* Fixed a problem with the window preview, if the window had a small height, when using the context menu (Windows Vista and later)
-* Fixed a problem with temp-files being removed before they were used, now using a delay of ~10 hours
-* Removed clipboard monitoring, which hopefully solves some problems with Virtual Machines
-* Fixed click on editor button not working if the window didn't have focus
-* Fixed problem with the print dialog not having focus if opened from the editor "print" button
-* Fixed bug #3482709 print with timestamp cropped the image
-* Removed the always active CaptureForm, which resulted in greenshot not "recovering" when a capture caused an exception.
-* Improved the auto-capture mode to honor some settings better
-* Synchronized the selected language to the plugins
 
 Features added:
 * Greenshot will now run in 64 bit mode, if the OS supports it.
@@ -27,7 +16,18 @@ Features added:
 * Added a color picker in the color dialog.
 * Added effects: shadow, torn edges, invert, border and grayscale
 * Added rotate clockwise & counter clockwise
+* Added a preview when using the window capture from the context menu (Windows Vista and later)
 * Added color reduction as an option and auto detection for image with less than 256 color. When using reduction this results in smaller files.
+
+Bugs resolved:
+* Fixed a problem with temp-files being removed before they were used, now using a delay of ~10 hours
+* Removed clipboard monitoring, which hopefully solves some problems with Virtual Machines
+* Fixed click on editor button not working if the window didn't have focus
+* Fixed problem with the print dialog not having focus if opened from the editor "print" button
+* Fixed bug #3482709 print with timestamp cropped the image
+* Removed the always active CaptureForm, which resulted in greenshot not "recovering" when a capture caused an exception.
+* Improved the auto-capture mode to honor some settings better
+* Synchronized the selected language to the plugins
 
 
 0.8.1 Build 1483
