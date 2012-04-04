@@ -280,7 +280,7 @@ namespace Greenshot {
 					imageNr++;
 				}
 				if (PickerDestination.DESIGNATION.Equals(destination.Designation)) {
-					checkbox_picker.Checked = true;
+					checkbox_picker.Checked = coreConfiguration.OutputDestinations.Contains(destination.Designation);
 					checkbox_picker.Text = destination.Description;
 				} else {
 					ListViewItem item;
