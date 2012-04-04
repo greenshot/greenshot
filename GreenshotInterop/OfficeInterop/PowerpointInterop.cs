@@ -60,6 +60,7 @@ namespace Greenshot.Interop.Office {
 		IPowerpointApplication Application { get; }
 		MsoTriState ReadOnly { get; }
 		bool Final { get; set; }
+		IPageSetup PageSetup { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.presentations_members.aspx
@@ -68,11 +69,18 @@ namespace Greenshot.Interop.Office {
 		IPresentation item(int index);
 	}
 
+	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.pagesetup_members.aspx
+	public interface IPageSetup : Common, Collection {
+		float SlideWidth { get; set; }
+		float SlideHeight { get; set; }
+	}
+
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.slide_members.aspx
 	public interface ISlide : Common {
 		IShapes Shapes { get; }
 		void Select();
 		int SlideNumber { get; }
+
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.shapes_members.aspx
@@ -92,6 +100,7 @@ namespace Greenshot.Interop.Office {
 		void ScaleWidth(float Factor, MsoTriState RelativeToOriginalSize, MsoScaleFrom fScale);
 		void ScaleHeight(float Factor, MsoTriState RelativeToOriginalSize, MsoScaleFrom fScale);
 		string AlternativeText { get; set; }
+		MsoTriState LockAspectRatio { get; set; }
 	}
 
 	public interface ITextFrame : Common {

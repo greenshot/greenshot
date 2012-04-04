@@ -101,36 +101,60 @@ namespace Greenshot.Interop.Office {
 			if (presentation != null) {
 				//ISlide slide = presentation.Slides.AddSlide( presentation.Slides.Count + 1, PPSlideLayout.ppLayoutPictureWithCaption);
 				ISlide slide;
-				float left = 0;
-				float top = 0;
+				float left = (presentation.PageSetup.SlideWidth / 2) - (imageSize.Width / 2) ;
+				float top = (presentation.PageSetup.SlideHeight / 2) - (imageSize.Height / 2);
+				float width = imageSize.Width;
+				float height = imageSize.Height;
 				bool isLayoutPictureWithCaption = false;
+				IShape shapeForCaption = null;
+				bool isWidthResized = false;
+				bool isHeightResized = false;
 				try {
 					slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int)PPSlideLayout.ppLayoutPictureWithCaption);
 					isLayoutPictureWithCaption = true;
 					// Shapes[2] is the image shape on this layout.
+					shapeForCaption = slide.Shapes.item(1);
 					IShape shapeForLocation = slide.Shapes.item(2);
-					shapeForLocation.Width = imageSize.Width;
-					shapeForLocation.Height = imageSize.Height;
-					left = shapeForLocation.Left;
-					top = shapeForLocation.Top;
-					LOG.DebugFormat("Shape {0},{1},{2},{3}", shapeForLocation.Left, shapeForLocation.Top, imageSize.Width, imageSize.Height);
+					if (width > shapeForLocation.Width) {
+						width = shapeForLocation.Width;
+						isWidthResized = true;
+						left = shapeForLocation.Left;
+					} else {
+						//left = (shapeForLocation.Left + (shapeForLocation.Width / 2)) - (imageSize.Width / 2);
+						shapeForLocation.Width = width;
+						shapeForLocation.Left = left;
+					}
+					if (height > shapeForLocation.Height) {
+						height = shapeForLocation.Height;
+						isHeightResized = true;
+						top = shapeForLocation.Top;
+					} else {
+						top = (shapeForLocation.Top + (shapeForLocation.Height / 2)) - (imageSize.Height / 2);
+						shapeForLocation.Height = height;
+						//shapeForLocation.Top = top;
+					}
+					//shapeForLocation.Top = top;
+					//LOG.DebugFormat("Shape {0},{1},{2},{3}", shapeForLocation.Left, shapeForLocation.Top, imageSize.Width, imageSize.Height);
 				} catch (Exception e) {
 					LOG.Error(e);
 					slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int)PPSlideLayout.ppLayoutBlank);
 				}
-				IShape shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, left, top, imageSize.Width, imageSize.Height);
-				shape.Width = imageSize.Width;
-				shape.Height = imageSize.Height;
-				shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
-				shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
-				if (isLayoutPictureWithCaption) {
+				IShape shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height);
+				shape.LockAspectRatio = MsoTriState.msoTrue;
+				shape.Left = left;
+				shape.Top = top;
+				if (!isHeightResized) {
+					shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
+				}
+				if (!isWidthResized) {
+					shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
+				}
+				shape.AlternativeText = title;
+				if (isLayoutPictureWithCaption && shapeForCaption != null) {
 					try {
 						// Using try/catch to make sure problems with the text range don't give an exception.
-						ITextFrame textFrame = shape.TextFrame;
-						if (textFrame.HasText == MsoTriState.msoTrue) {
-							textFrame.TextRange.Text = title;
-						}
-						shape.AlternativeText = title;
+						ITextFrame textFrame = shapeForCaption.TextFrame;
+						textFrame.TextRange.Text = title;
 					} catch (Exception ex) {
 						LOG.Warn("Problem setting the title to a text-range", ex);
 					}
