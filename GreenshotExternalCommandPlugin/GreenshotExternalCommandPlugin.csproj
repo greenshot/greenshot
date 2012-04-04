@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="ExternalCommandDestination.cs" />
     <Compile Include="ExternalCommandPlugin.cs" />
+    <Compile Include="IconCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExternalCommandConfiguration.cs" />
     <Compile Include="SettingsForm.cs" />

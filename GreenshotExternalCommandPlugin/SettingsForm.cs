@@ -72,8 +72,19 @@ namespace ExternalCommand {
 		void UpdateView() {
 			listView1.Items.Clear();
 			if (config.commands != null) {
-				foreach(string commando in config.commands) {
-					ListViewItem item = new ListViewItem(commando);
+				listView1.ListViewItemSorter = new ListviewComparer();
+				ImageList imageList = new ImageList();
+				listView1.SmallImageList = imageList;
+				int imageNr = 0;
+				foreach (string commando in config.commands) {
+					ListViewItem item = null;
+					Image iconForExe = IconCache.IconForExe(commando);
+					if (iconForExe != null) {
+						imageList.Images.Add(iconForExe);
+						item = new ListViewItem(commando, imageNr++);
+					} else {
+						item = new ListViewItem(commando);
+					}
 					item.Tag = commando;
 					listView1.Items.Add(item);
 				}
@@ -97,6 +108,23 @@ namespace ExternalCommand {
 			form.ShowDialog();
 			
 			UpdateView();
+		}
+	}
+	public class ListviewComparer : System.Collections.IComparer {
+		public int Compare(object x, object y) {
+			if (!(x is ListViewItem)) {
+				return (0);
+			}
+			if (!(y is ListViewItem)) {
+				return (0);
+			}
+
+			ListViewItem l1 = (ListViewItem)x;
+			ListViewItem l2 = (ListViewItem)y;
+			if (l2 == null) {
+				return 1;
+			}
+			return l1.Text.CompareTo(l2.Text);
 		}
 	}
 }

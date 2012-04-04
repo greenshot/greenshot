@@ -52,6 +52,7 @@ namespace GreenshotExternalCommandPlugin
 			// 
 			// buttonOk
 			// 
+			this.buttonOk.Enabled = false;
 			this.buttonOk.Location = new System.Drawing.Point(273, 140);
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.Size = new System.Drawing.Size(75, 23);
@@ -120,6 +121,7 @@ namespace GreenshotExternalCommandPlugin
 			this.textBox_name.Name = "textBox_name";
 			this.textBox_name.Size = new System.Drawing.Size(225, 20);
 			this.textBox_name.TabIndex = 12;
+			this.textBox_name.TextChanged += new System.EventHandler(this.textBox_name_TextChanged);
 			// 
 			// label2
 			// 
@@ -150,6 +152,7 @@ namespace GreenshotExternalCommandPlugin
 			this.textBox_commandline.Name = "textBox_commandline";
 			this.textBox_commandline.Size = new System.Drawing.Size(225, 20);
 			this.textBox_commandline.TabIndex = 13;
+			this.textBox_commandline.TextChanged += new System.EventHandler(this.textBox_commandline_TextChanged);
 			// 
 			// SettingsFormDetail
 			// 
@@ -168,6 +171,7 @@ namespace GreenshotExternalCommandPlugin
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);
+
 		}
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.GroupBox groupBox1;

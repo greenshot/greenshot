@@ -36,7 +36,6 @@ namespace ExternalCommand {
 	public class ExternalCommandDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
 		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		private static Dictionary<string, Image> iconCache = new Dictionary<string, Image>();
 		private IGreenshotHost host;
 		private string presetCommand;
 		
@@ -69,20 +68,7 @@ namespace ExternalCommand {
 
 		public override Image DisplayIcon {
 			get {
-				if (presetCommand != null) {
-					if (!iconCache.ContainsKey(presetCommand)) {
-						Image icon = null;
-						if (File.Exists(config.commandlines[presetCommand])) {
-							try {
-								icon = GetExeIcon(config.commandlines[presetCommand], 0);
-							} catch{};
-						}
-						iconCache.Add(presetCommand, icon);
-					}
-					return iconCache[presetCommand];
-				} else {
-					return null;
-				}
+				return IconCache.IconForExe(presetCommand);
 			}
 		}
 

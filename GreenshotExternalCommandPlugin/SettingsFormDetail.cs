@@ -41,6 +41,7 @@ namespace GreenshotExternalCommandPlugin
 			} else {
 				textBox_arguments.Text = "\"{0}\"";
 			}
+			OKButtonState();
 		}
 		
 		void ButtonOkClick(object sender, EventArgs e)
@@ -89,6 +90,39 @@ namespace GreenshotExternalCommandPlugin
 			if (openFileDialog.ShowDialog() == DialogResult.OK) {
 				textBox_commandline.Text = openFileDialog.FileName;
 			}
+		}
+
+		private void OKButtonState() {
+			// Assume OK
+			buttonOk.Enabled = true;
+			textBox_name.BackColor = Color.White;
+			textBox_commandline.BackColor = Color.White;
+			// Is there a text in the name field
+			if (string.IsNullOrEmpty(textBox_name.Text)) {
+				buttonOk.Enabled = false;
+			}
+			// Check if commandname is unique
+			if (commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.commands.Contains(textBox_name.Text)) {
+				buttonOk.Enabled = false;
+				textBox_name.BackColor = Color.Red;
+			}
+			// Is there a text in the commandline field
+			if (string.IsNullOrEmpty(textBox_commandline.Text)) {
+				buttonOk.Enabled = false;
+			}
+			// Is the command available?
+			if (!string.IsNullOrEmpty(textBox_commandline.Text) && !File.Exists(textBox_commandline.Text)) {
+				buttonOk.Enabled = false;
+				textBox_commandline.BackColor = Color.Red;
+			}
+		}
+
+		private void textBox_name_TextChanged(object sender, EventArgs e) {
+			OKButtonState();
+		}
+
+		private void textBox_commandline_TextChanged(object sender, EventArgs e) {
+			OKButtonState();
 		}
 
 	}
