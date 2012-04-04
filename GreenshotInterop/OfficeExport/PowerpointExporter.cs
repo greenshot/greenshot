@@ -28,7 +28,14 @@ using Greenshot.Interop;
 namespace Greenshot.Interop.Office {
 	public class PowerpointExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointExporter));
+		private static string version = null;
 
+		public static bool isAfter2003() {
+			if (version != null) {
+				return !version.StartsWith("11");
+			}
+			return false;
+		}
 		/// <summary>
 		/// Get the captions of all the open powerpoint presentations
 		/// </summary>
@@ -38,10 +45,18 @@ namespace Greenshot.Interop.Office {
 			try {
 				using (IPowerpointApplication powerpointApplication = COMWrapper.GetInstance<IPowerpointApplication>()) {
 					if (powerpointApplication != null) {
+						if (version == null) {
+							version = powerpointApplication.Version;
+						}
 						LOG.DebugFormat("Open Presentations: {0}", powerpointApplication.Presentations.Count);
 						for (int i = 1; i <= powerpointApplication.Presentations.Count; i++) {
 							IPresentation presentation = powerpointApplication.Presentations.item(i);
-							if (presentation != null) {
+							if (presentation != null && presentation.ReadOnly != MsoTriState.msoTrue) {
+								if (isAfter2003()) {
+									if (presentation.Final) {
+										continue;
+									}
+								}
 								presentations.Add(presentation.Name);
 							}
 						}

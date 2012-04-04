@@ -33,6 +33,7 @@ namespace Greenshot.Interop.Office {
 		bool Visible { get; set; }
 		void Activate();
 		IPowerpointWindow ActiveWindow { get; }
+		string Version { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.slides_members.aspx
@@ -57,6 +58,8 @@ namespace Greenshot.Interop.Office {
 		string Name { get; }
 		ISlides Slides { get; }
 		IPowerpointApplication Application { get; }
+		MsoTriState ReadOnly { get; }
+		bool Final { get; set; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.presentations_members.aspx

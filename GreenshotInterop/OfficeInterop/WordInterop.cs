@@ -31,6 +31,7 @@ namespace Greenshot.Interop.Office {
 		IDocuments Documents { get; }
 		bool Visible { get; set; }
 		void Activate();
+		string Version { get; }
 	}
 
 	// See: http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.documents_members(v=office.11).aspx
@@ -44,6 +45,10 @@ namespace Greenshot.Interop.Office {
 		void Activate();
 		IWordApplication Application { get; }
 		IWordWindow ActiveWindow { get; }
+		bool ReadOnly { get; }
+
+		// Only 2007 and later!
+		bool Final { get; set; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.window_members.aspx

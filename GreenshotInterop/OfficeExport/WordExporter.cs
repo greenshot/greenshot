@@ -27,7 +27,14 @@ using Greenshot.Interop;
 namespace Greenshot.Interop.Office {
 	public class WordExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
+		private static string version = null;
 
+		public static bool isAfter2003() {
+			if (version != null) {
+				return !version.StartsWith("11");
+			}
+			return false;
+		}
 		/// <summary>
 		/// Insert the bitmap stored under the tempfile path into the word document with the supplied caption
 		/// </summary>
@@ -101,9 +108,19 @@ namespace Greenshot.Interop.Office {
 			try {
 				using (IWordApplication wordApplication = COMWrapper.GetInstance<IWordApplication>()) {
 					if (wordApplication != null) {
-						//documents.Add(wordApplication.ActiveDocument);
+						if (version == null) {
+							version = wordApplication.Version;
+						}
 						for (int i = 1; i <= wordApplication.Documents.Count; i++) {
 							IWordDocument document = wordApplication.Documents.item(i);
+							if (document.ReadOnly) {
+								continue;
+							}
+							if (isAfter2003()) {
+								if (document.Final) {
+									continue;
+								}
+							}
 							documents.Add(document.ActiveWindow.Caption);
 						}
 					}
