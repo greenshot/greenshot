@@ -65,7 +65,7 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ContextMenuStrip menu = new ContextMenuStrip();
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
 				LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
@@ -94,7 +94,7 @@ namespace Greenshot.Destinations {
 						}
 						// Make sure the menu is closed
 						menu.Close();
-						bool result = clickedDestination.ExportCapture(surface, captureDetails);
+						bool result = clickedDestination.ExportCapture(true, surface, captureDetails);
 						// TODO: Find some better way to detect that we exported to the editor
 						if (!EditorDestination.DESIGNATION.Equals(clickedDestination.Designation) || result == false) {
 							LOG.DebugFormat("Disposing as Destination was {0} and result {1}", clickedDestination.Description, result);

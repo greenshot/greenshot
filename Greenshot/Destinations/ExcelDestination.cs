@@ -109,8 +109,8 @@ namespace Greenshot.Destinations {
 				yield return new ExcelDestination(workbookName);
 			}
 		}
-		
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			string tmpFile = captureDetails.Filename;
             if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {

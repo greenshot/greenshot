@@ -110,8 +110,8 @@ namespace Greenshot.Destinations {
 				yield return new PowerpointDestination(presentationName);
 			}
 		}
-		
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			string tmpFile = captureDetails.Filename;
 			Size imageSize = Size.Empty;
             if (tmpFile == null || surface.Modified) {

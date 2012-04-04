@@ -92,9 +92,10 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// If a capture is made, and the destination is enabled, this method is called.
 		/// </summary>
+		/// <param name="manuallyInitiated">true if the user selected this destination from a GUI, false if it was called as part of a process</param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>true if the destination has "exported" the capture</returns>
-		bool ExportCapture(ISurface surface, ICaptureDetails captureDetails);
+		bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 	}
 }

@@ -112,11 +112,11 @@ namespace Greenshot.Helpers {
 		/// <param name="designation"></param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
-		public static void ExportCapture(string designation, ISurface surface, ICaptureDetails captureDetails) {
+		public static void ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
 			if (RegisteredDestinations.ContainsKey(designation)) {
 				IDestination destination = RegisteredDestinations[designation];
 				if (destination.isActive) {
-					if (destination.ExportCapture(surface, captureDetails)) {
+					if (destination.ExportCapture(manuallyInitiated, surface, captureDetails)) {
 						// Export worked, set the modified flag
 						surface.Modified = false;
 					}

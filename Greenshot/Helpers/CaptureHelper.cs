@@ -484,7 +484,7 @@ namespace Greenshot.Helpers {
 			bool canDisposeSurface = true;
 
 			if (captureDetails.HasDestination(Destinations.PickerDestination.DESIGNATION)) {
-				DestinationHelper.ExportCapture(Destinations.PickerDestination.DESIGNATION, surface, captureDetails);
+				DestinationHelper.ExportCapture(false, Destinations.PickerDestination.DESIGNATION, surface, captureDetails);
 				captureDetails.CaptureDestinations.Clear();
 				canDisposeSurface = false;
 			}
@@ -505,7 +505,7 @@ namespace Greenshot.Helpers {
 					}
 					LOG.InfoFormat("Calling destination {0}", destination.Description);
 
-					bool destinationOk = destination.ExportCapture(surface, captureDetails);
+					bool destinationOk = destination.ExportCapture(false, surface, captureDetails);
 					if (Destinations.EditorDestination.DESIGNATION.Equals(destination.Designation) && destinationOk) {
 						canDisposeSurface = false;
 					}

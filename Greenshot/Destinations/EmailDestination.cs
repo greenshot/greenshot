@@ -175,7 +175,7 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			if (!isOutlookUsed) {
 				using (Image image = surface.GetImageForExport()) {
 					MapiMailMessage.SendImage(image, captureDetails);

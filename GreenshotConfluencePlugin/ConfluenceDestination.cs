@@ -106,7 +106,7 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			// force password check to take place before the pages load
 			if (!ConfluencePlugin.ConfluenceConnector.isLoggedIn) {
 				return false;

@@ -90,8 +90,8 @@ namespace Greenshot.Destinations {
 				yield return new EditorDestination(editor);
 			}
 		}
-		
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			if (editor == null) {
 				// Make sure we collect the garbage before opening the screenshot
 				GC.Collect();

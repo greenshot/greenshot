@@ -30,23 +30,26 @@ namespace Greenshot.Interop.Office {
 		ISelection Selection { get; }
 		IDocuments Documents { get; }
 		bool Visible { get; set; }
+		void Activate();
 	}
 
 	// See: http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.documents_members(v=office.11).aspx
 	public interface IDocuments : Common, Collection {
-		void Add(ref object Template, ref object NewTemplate, ref object DocumentType, ref object Visible);
+		IWordDocument Add(ref object Template, ref object NewTemplate, ref object DocumentType, ref object Visible);
 		IWordDocument item(int index);
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.document.aspx
 	public interface IWordDocument : Common {
+		void Activate();
 		IWordApplication Application { get; }
-		Window ActiveWindow { get; }
+		WordWindow ActiveWindow { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.window_members.aspx
-	public interface Window : Common {
+	public interface WordWindow : Common {
 		Pane ActivePane { get; }
+		void Activate();
 		string Caption {
 			get;
 		}

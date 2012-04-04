@@ -71,8 +71,8 @@ namespace Greenshot.Destinations {
 				return GreenshotPlugin.Core.GreenshotResources.getImage("Printer.Image");
 			}
 		}
-		
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			PrinterSettings printerSettings = null;
 			using (Image image = surface.GetImageForExport()) {
 				printerSettings = new PrintHelper(image, captureDetails).PrintWithDialog();

@@ -70,8 +70,8 @@ namespace Greenshot.Destinations {
 				return GreenshotPlugin.Core.GreenshotResources.getImage("Save.Image");
 			}
 		}
-		
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			string savedTo = null;
 			using (Image image = surface.GetImageForExport()) {
 				// Bug #2918756 don't overwrite path if SaveWithDialog returns null!

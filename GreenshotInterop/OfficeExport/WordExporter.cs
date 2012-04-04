@@ -60,6 +60,9 @@ namespace Greenshot.Interop.Office {
 						LOG.WarnFormat("Couldn't set zoom to 100, error: {0}", e.Message);
 					}
 				}
+				wordDocument.Application.Activate();
+				wordDocument.Activate();
+				wordDocument.ActiveWindow.Activate();
 				return true;
 			}
 			return false;
@@ -67,22 +70,24 @@ namespace Greenshot.Interop.Office {
 
 		private static void AddPictureToSelection(ISelection selection, string tmpFile) {
 			selection.InlineShapes.AddPicture(tmpFile, Type.Missing, Type.Missing, Type.Missing);
-			//selection.InsertAfter("blablub\r\n");
+			selection.InsertAfter("\r\n");
 		}
 
 		public static void InsertIntoNewDocument(string tmpFile) {
 			using (IWordApplication wordApplication = COMWrapper.GetOrCreateInstance<IWordApplication>()) {
 				if (wordApplication != null) {
 					wordApplication.Visible = true;
-
+					wordApplication.Activate();
 					// Create new Document
 					object template = string.Empty;
 					object newTemplate = false;
 					object documentType = 0;
 					object documentVisible = true;
-					wordApplication.Documents.Add(ref template, ref newTemplate, ref documentType, ref documentVisible);
+					IWordDocument wordDocument = wordApplication.Documents.Add(ref template, ref newTemplate, ref documentType, ref documentVisible);
 					// Add Picture
 					AddPictureToSelection(wordApplication.Selection, tmpFile);
+					wordDocument.Activate();
+					wordDocument.ActiveWindow.Activate();
 				}
 			}
 		}

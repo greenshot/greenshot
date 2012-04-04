@@ -172,7 +172,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public abstract bool ExportCapture(ISurface surface, ICaptureDetails captureDetails);
+		public abstract bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 		
 		public override string ToString() {
 			return Description;

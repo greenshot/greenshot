@@ -65,7 +65,7 @@ namespace GreenshotImgurPlugin  {
 			}
 		}
 
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			using (Image image = surface.GetImageForExport()) {
 				bool uploaded = plugin.Upload(captureDetails, image);
 				if (uploaded) {

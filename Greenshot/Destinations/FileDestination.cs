@@ -70,7 +70,7 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			bool outputMade = false;
 			string pattern = conf.OutputFileFilenamePattern;
 			if (string.IsNullOrEmpty(pattern)) {

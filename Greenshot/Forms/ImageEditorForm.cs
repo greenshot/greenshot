@@ -181,12 +181,12 @@ namespace Greenshot {
 				defaultItem.Tag = toolstripDestination;
 				defaultItem.Image = toolstripDestination.DisplayIcon;
 				defaultItem.Click += delegate {
-					toolstripDestination.ExportCapture(surface, surface.CaptureDetails);
+					toolstripDestination.ExportCapture(true, surface, surface.CaptureDetails);
 				};
 				
 				// The ButtonClick, this is for the icon, gets the current default item
 				destinationButton.ButtonClick += delegate(object sender, EventArgs e) {
-					toolstripDestination.ExportCapture(surface, surface.CaptureDetails);
+					toolstripDestination.ExportCapture(true, surface, surface.CaptureDetails);
 				};
 				
 				// Generate the entries for the drop down
@@ -204,7 +204,7 @@ namespace Greenshot {
 							destinationMenuItem.Tag = closureFixedDestination;
 							destinationMenuItem.Image = closureFixedDestination.DisplayIcon;
 							destinationMenuItem.Click += delegate {
-								closureFixedDestination.ExportCapture(surface, surface.CaptureDetails);
+								closureFixedDestination.ExportCapture(true, surface, surface.CaptureDetails);
 							};
 							destinationButton.DropDownItems.Add(destinationMenuItem);
 						}
@@ -221,7 +221,7 @@ namespace Greenshot {
 				destinationButton.Text = toolstripDestination.Description;
 				destinationButton.Image = toolstripDestination.DisplayIcon;
 				destinationButton.Click += delegate(object sender, EventArgs e) {
-					toolstripDestination.ExportCapture(surface, surface.CaptureDetails);
+					toolstripDestination.ExportCapture(true, surface, surface.CaptureDetails);
 				};
 			}
 		}
@@ -474,17 +474,17 @@ namespace Greenshot {
 			if (surface.LastSaveFullPath == null) {
 				destinationDesignation = Destinations.FileWithDialogDestination.DESIGNATION;
 			}
-			DestinationHelper.ExportCapture(destinationDesignation, surface, surface.CaptureDetails);
+			DestinationHelper.ExportCapture(true, destinationDesignation, surface, surface.CaptureDetails);
 		}
 		
 		void BtnClipboardClick(object sender, EventArgs e) {
-			DestinationHelper.ExportCapture(Destinations.ClipboardDestination.DESIGNATION, surface, surface.CaptureDetails);
+			DestinationHelper.ExportCapture(true, Destinations.ClipboardDestination.DESIGNATION, surface, surface.CaptureDetails);
 		}
 
 		void BtnPrintClick(object sender, EventArgs e) {
 			// The BeginInvoke is a solution for the printdialog not having focus
 			this.BeginInvoke((MethodInvoker) delegate {
-				DestinationHelper.ExportCapture(Destinations.PrinterDestination.DESIGNATION, surface, surface.CaptureDetails);
+				DestinationHelper.ExportCapture(true, Destinations.PrinterDestination.DESIGNATION, surface, surface.CaptureDetails);
 			});
 		}
 
@@ -1105,7 +1105,7 @@ namespace Greenshot {
 				clickedDestination = (IDestination)clickedMenuItem.Tag;
 			}
 			if (clickedDestination != null) {
-				if (clickedDestination.ExportCapture(surface, surface.CaptureDetails)) {
+				if (clickedDestination.ExportCapture(true, surface, surface.CaptureDetails)) {
 					surface.Modified = false;
 				}
 			}

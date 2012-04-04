@@ -111,8 +111,8 @@ namespace Greenshot.Destinations {
 				yield return new WordDestination(wordCaption);
 			}
 		}
-		
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {
@@ -122,7 +122,19 @@ namespace Greenshot.Destinations {
 			if (documentCaption != null) {
 				WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
 			} else {
-				WordExporter.InsertIntoNewDocument(tmpFile);
+				bool exported = false;
+				if (!manuallyInitiated) {
+					// Insert into current document, if only one is open!
+					List<string> currentDocuments = WordExporter.GetWordDocuments();
+					if (currentDocuments.Count == 1) {
+						WordExporter.InsertIntoExistingDocument(currentDocuments[0], tmpFile);
+						exported = true;
+					}
+				}
+				if (!exported) {
+					WordExporter.InsertIntoNewDocument(tmpFile);
+				}
+
 			}
 			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;

@@ -61,7 +61,7 @@ namespace PluginExample {
 			}
 		}
 		
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 			string file = host.GetFilename(OutputFormat.png, null);
 			string filePath = Path.Combine(config.OutputFilePath, file);

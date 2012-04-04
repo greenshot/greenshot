@@ -98,8 +98,8 @@ namespace GreenshotJiraPlugin {
 				}
 			}
 		}
-		
-		public override bool ExportCapture(ISurface surface, ICaptureDetails captureDetails) {
+
+		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			string filename = Path.GetFileName(jiraPlugin.Host.GetFilename(config.UploadFormat, captureDetails));
 			byte[] buffer;
 			if (jira != null) {
