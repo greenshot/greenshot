@@ -241,12 +241,16 @@ namespace Greenshot.Drawing {
 					int safetymargin = 10;
 					return new Rectangle((myBounds.Left + Left) - (safetymargin+lineThickness), (myBounds.Top + Top) - (safetymargin+lineThickness), myBounds.Width + (2*(lineThickness+safetymargin)), myBounds.Height + (2*(lineThickness+safetymargin)));
 				} else {
-					return parent.Bounds;
+					return new Rectangle(0, 0, parent.Width, parent.Height);
 				}
 			}
 		}
 
-		// FreehandContainer are regarded equal if they are of the same type and their paths are equal.
+		/// <summary>
+		/// FreehandContainer are regarded equal if they are of the same type and their paths are equal.
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
 		public override bool Equals(object obj) {
 			bool ret = false;
 			if(obj != null && GetType().Equals(obj.GetType())) {
