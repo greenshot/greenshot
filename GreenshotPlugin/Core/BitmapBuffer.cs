@@ -33,21 +33,14 @@ namespace GreenshotPlugin.Core {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapBuffer));
 		private bool clone;
 		private Bitmap bitmap;
-		private static int[] factors = new int[256];
-		private static int[] remainings = new int[256];
-
-		static BitmapBuffer() {
-			// Pre calculate for alpha blending
-			for (int i = 0; i < 256; i++) {
-				int factor = 0x10000 * i / 255;
-				factors[i] = factor;
-				remainings[i] = (0x10000 * 255) - factor;
-			}
-		}
 
 		public static Color BackgroundBlendColor {
 			get;
 			set;
+		}
+
+		static BitmapBuffer() {
+			BackgroundBlendColor = Color.White;
 		}
 
 		/// <summary>
@@ -340,11 +333,10 @@ namespace GreenshotPlugin.Core {
 				int blue = pointer[bIndex + offset];
 
 				if (a < 255) {
-					int aMult = factors[a];
-					int rem = remainings[a];
-					red = (red * rem + BackgroundBlendColor.R * aMult) >> 16;
-					green = (green * rem + BackgroundBlendColor.G * aMult) >> 16;
-					blue = (blue * rem + BackgroundBlendColor.B * aMult) >> 16;
+					int rem = 255 - a;
+					red = (red * a + BackgroundBlendColor.R * rem) / 255;
+					green = (green * a + BackgroundBlendColor.G * rem) / 255;
+					blue = (blue * a + BackgroundBlendColor.B * rem) / 255;
 				}
 				return Color.FromArgb(255, red, green, blue);
 			} else {
