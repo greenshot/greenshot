@@ -105,6 +105,12 @@ namespace Greenshot.Helpers {
 				reduceColors = true;
 			}
 
+			// Removing transparency if it's not supported
+			if (imageFormat != ImageFormat.Png) {
+				imageToSave = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
+				disposeImage = true;
+			}
+
 			// check for color reduction, forced or automatically
 			if (conf.OutputFileAutoReduceColors || reduceColors) {
 				WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave);
@@ -113,7 +119,11 @@ namespace Greenshot.Helpers {
 				if (reduceColors || colorCount < 256) {
 					try {
 						LOG.Info("Reducing colors on bitmap to 255.");
-						imageToSave = quantizer.GetQuantizedImage(255);
+						Image tmpImage = quantizer.GetQuantizedImage(255);
+						if (disposeImage) {
+							imageToSave.Dispose();
+						}
+						imageToSave = tmpImage;
 						// Make sure the "new" image is disposed
 						disposeImage = true;
 					} catch (Exception e) {
@@ -134,7 +144,7 @@ namespace Greenshot.Helpers {
 						LOG.WarnFormat("Image of type {0} do not support property {1}", imageFormat, softwareUsedPropertyItem.Id);
 					}
 				}
-				LOG.DebugFormat("Saving image to stream with PixelFormat {0}", imageToSave.PixelFormat);
+				LOG.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
 				if (imageFormat == ImageFormat.Jpeg) {
 					EncoderParameters parameters = new EncoderParameters(1);
 					parameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(Encoder.Quality, quality);
