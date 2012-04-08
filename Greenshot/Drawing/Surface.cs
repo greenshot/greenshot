@@ -545,7 +545,30 @@ namespace Greenshot.Drawing {
 			}
 			return false;
 		}
+		
+		/// <summary>
+		/// "Grow" the canvas with the specified pixels on the left, right, top and bottom. Using the backgroundColor.
+		/// </summary>
+		/// <param name="backgroundColor"></param>
+		/// <param name="left"></param>
+		/// <param name="right"></param>
+		/// <param name="top"></param>
+		/// <param name="bottom"></param>
+		public void GrowCanvas(Color backgroundColor, int left, int right, int top, int bottom) {
+			Bitmap newImage = ImageHelper.GrowCanvas((Bitmap)Image, backgroundColor, left, right, top, bottom);
+			// Make sure the elements move according to the offset the effect made the bitmap move
+			elements.MoveBy(left, top);
+			// Make undoable
+			MakeUndoable(new SurfaceBackgroundChangeMemento(this, new Point(left, top)), false);
+			SetImage(newImage, false);
+			Invalidate();
+			SurfaceSizeChanged(this);
+		}
 
+		/// <summary>
+		/// Apply a bitmap effect to the surface
+		/// </summary>
+		/// <param name="effect"></param>
 		public void ApplyBitmapEffect(Effects effect) {
 			BackgroundForm backgroundForm = new BackgroundForm("Effect", "Please wait");
 			backgroundForm.Show();
