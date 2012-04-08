@@ -1070,36 +1070,54 @@ namespace GreenshotPlugin.Core {
 		/// Scale the bitmap, keeping aspect ratio, but the canvas will always have the specified size.
 		/// </summary>
 		/// <param name="sourceBitmap">Bitmap to scale</param>
+		/// <param name="lockAspectRatio">true to lock aspect ratio</param>
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
 		/// <param name="newWidth">new width</param>
 		/// <param name="newHeight">new height</param>
 		/// <returns>a new bitmap with the specified size, the source-bitmap scaled to fit with aspect ratio locked</returns>
-		public static Bitmap AspectratioLockedBitmapResize(Bitmap sourceBitmap, Color backgroundColor, int newWidth, int newHeight) {
+		public static Bitmap ResizeBitmap(Bitmap sourceBitmap, bool lockAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, out Point offset) {
 			int destX = 0;
 			int destY = 0;
 			
-			float nPercent = 0;
 			float nPercentW = 0;
 			float nPercentH = 0;
 			
 			nPercentW = ((float)newWidth / (float)sourceBitmap.Width);
 			nPercentH = ((float)newHeight / (float)sourceBitmap.Height);
-			if (nPercentH < nPercentW) {
-				nPercent = nPercentH;
-				destX = System.Convert.ToInt16((newWidth - (sourceBitmap.Width * nPercent)) / 2);
-			} else {
-				nPercent = nPercentW;
-				destY = System.Convert.ToInt16((newHeight - (sourceBitmap.Height * nPercent)) / 2);
+			if (lockAspectRatio) {
+				if (nPercentH != 0 && nPercentH < nPercentW) {
+					nPercentW = nPercentH;
+					if (canvasUseNewSize) {
+						destX =  Math.Max(0, System.Convert.ToInt32((newWidth - (sourceBitmap.Width * nPercentW)) / 2));
+					}
+				} else {
+					nPercentH = nPercentW;
+					if (canvasUseNewSize) {
+						destY = Math.Max(0, System.Convert.ToInt32((newHeight - (sourceBitmap.Height * nPercentH)) / 2));
+					}
+				}
 			}
 			
-			int destWidth = (int)(sourceBitmap.Width * nPercent);
-			int destHeight = (int)(sourceBitmap.Height * nPercent);
+			offset = new Point(destX, destY);
+			
+			int destWidth = (int)(sourceBitmap.Width * nPercentW);
+			int destHeight = (int)(sourceBitmap.Height * nPercentH);
+			if (newWidth == 0) {
+				newWidth = destWidth;
+			}
+			if (newHeight == 0) {
+				newHeight = destHeight;
+			}
+			Bitmap newBitmap = null;
+			if (lockAspectRatio && canvasUseNewSize) {
+				newBitmap = CreateEmpty(newWidth, newHeight, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			} else {
+				newBitmap = CreateEmpty(destWidth, destHeight, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			}
 
-			Bitmap newBitmap = CreateEmpty(newWidth, newHeight, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.DrawImage(sourceBitmap, new Rectangle(destX, destY, destWidth, destHeight), new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height), GraphicsUnit.Pixel);
-			
 			}
 			return newBitmap;
 		}

@@ -564,6 +564,26 @@ namespace Greenshot.Drawing {
 			Invalidate();
 			SurfaceSizeChanged(this);
 		}
+		
+		/// <summary>
+		/// Resize bitmap
+		/// </summary>
+		/// <param name="backgroundColor"></param>
+		/// <param name="left"></param>
+		/// <param name="right"></param>
+		/// <param name="top"></param>
+		/// <param name="bottom"></param>
+		public void ResizeBitmap(bool lockAspectRatio, bool canvasUsedNewSize, Color backgroundColor, int newWidth, int newHeight) {
+			Point offset;
+			Bitmap newImage = ImageHelper.ResizeBitmap((Bitmap)Image, lockAspectRatio, canvasUsedNewSize, backgroundColor, newWidth, newHeight, out offset);
+			// Make sure the elements move according to the offset the effect made the bitmap move
+			elements.MoveBy(offset.X, offset.Y);
+			// Make undoable
+			MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
+			SetImage(newImage, false);
+			Invalidate();
+			SurfaceSizeChanged(this);
+		}
 
 		/// <summary>
 		/// Apply a bitmap effect to the surface
