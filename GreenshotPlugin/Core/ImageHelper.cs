@@ -325,8 +325,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceBitmap">Bitmap to make torn edge off</param>
 		/// <returns>Changed bitmap</returns>
 		public static Bitmap CreateTornEdge(Bitmap sourceBitmap) {
-			Bitmap returnImage = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format32bppArgb);
-			returnImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			Bitmap returnImage = CreateEmptyLike(sourceBitmap);
 			using (GraphicsPath path = new GraphicsPath()) {
 				Random random = new Random();
 				int regionWidth = 20;
@@ -687,8 +686,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			// copy back to image
-			Bitmap newImage = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, sourceBitmap.PixelFormat);
-			newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			Bitmap newImage = CreateEmptyLike(sourceBitmap);
 			var bits2 = newImage.LockBits(rct, ImageLockMode.ReadWrite, newImage.PixelFormat);
 			Marshal.Copy(dest, 0, bits2.Scan0, dest.Length);
 			newImage.UnlockBits(bits);
@@ -727,16 +725,9 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
 		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, Point offset, PixelFormat targetPixelformat) {
 			// Create a new "clean" image
-			Bitmap newImage = new Bitmap(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat);
-			newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			Bitmap newImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 
 			using (Graphics graphics = Graphics.FromImage(newImage)) {
-				// Make sure the background color is what we want (transparent or white, depending on the pixel format)
-				if (Image.IsAlphaPixelFormat(targetPixelformat)) {
-					graphics.Clear(Color.Transparent);
-				} else {
-					graphics.Clear(Color.White);
-				}
 				// Make sure we draw with the best quality!
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
@@ -815,15 +806,8 @@ namespace GreenshotPlugin.Core {
 			offset = new Point(borderSize, borderSize);
 
 			// Create a new "clean" image
-			Bitmap newImage = new Bitmap(sourceBitmap.Width + (borderSize * 2), sourceBitmap.Height + (borderSize * 2), targetPixelformat);
-			newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			Bitmap newImage = CreateEmpty(sourceBitmap.Width + (borderSize * 2), sourceBitmap.Height + (borderSize * 2), targetPixelformat, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			using (Graphics graphics = Graphics.FromImage(newImage)) {
-				// Make sure the background color is what we want (transparent or white, depending on the pixel format)
-				if (Image.IsAlphaPixelFormat(targetPixelformat)) {
-					graphics.Clear(Color.Transparent);
-				} else {
-					graphics.Clear(Color.White);
-				}
 				// Make sure we draw with the best quality!
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
@@ -855,9 +839,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Bitmap with grayscale</returns>
 		public static Bitmap CreateGrayscale(Bitmap sourceBitmap) {
 			//create a blank bitmap the same size as original
-			Bitmap newBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height);
-			// Make sure both images have the same resolution
-			newBitmap.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			Bitmap newBitmap = CreateEmptyLike(sourceBitmap);
 
 			//get a graphics object from the new image
 			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
@@ -1004,6 +986,116 @@ namespace GreenshotPlugin.Core {
 			Bitmap returnBitmap = Clone(sourceBitmap);
 			returnBitmap.RotateFlip(rotateFlipType);
 			return returnBitmap;
+		}
+		
+		/// <summary>
+		/// A generic way to create an empty image
+		/// </summary>
+		/// <param name="sourceBitmap">the source bitmap as the specifications for the new bitmap</param>
+		/// <returns></returns>
+		public static Bitmap CreateEmptyLike(Bitmap sourceBitmap) {
+			return CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, sourceBitmap.PixelFormat, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+		}
+
+		/// <summary>
+		/// A generic way to create an empty image
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <param name="format"></param>
+		/// <param name="horizontalResolution"></param>
+		/// <param name="verticalResolution"></param>
+		/// <returns></returns>
+		public static Bitmap CreateEmpty(int width, int height, PixelFormat format, float horizontalResolution, float verticalResolution) {
+			// Create a new "clean" image
+			Bitmap newImage = new Bitmap(width, height, format);
+			newImage.SetResolution(horizontalResolution, verticalResolution);
+
+			using (Graphics graphics = Graphics.FromImage(newImage)) {
+				// Make sure the background color is what we want (transparent or white, depending on the pixel format)
+				if (Image.IsAlphaPixelFormat(format)) {
+					graphics.Clear(Color.Transparent);
+				} else {
+					graphics.Clear(Color.White);
+				}
+			}
+			return newImage;
+		}
+		
+		/// <summary>
+		/// Get a scaled version of the sourceBitmap
+		/// </summary>
+		/// <param name="sourceBitmap"></param>
+		/// <param name="percent">1-99 to make smaller, use 101 and more to make the picture bigger</param>
+		/// <returns></returns>
+		public static Bitmap ScaleByPercent(Bitmap sourceBitmap, int percent) {
+			float nPercent = ((float)percent/100);
+			
+			int sourceWidth = sourceBitmap.Width;
+			int sourceHeight = sourceBitmap.Height;
+			int destWidth  = (int)(sourceWidth * nPercent);
+			int destHeight = (int)(sourceHeight * nPercent);
+			
+			Bitmap scaledBitmap = CreateEmpty(destWidth, destHeight, sourceBitmap.PixelFormat, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			using (Graphics graphics = Graphics.FromImage(scaledBitmap)) {
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.DrawImage(sourceBitmap, new Rectangle(0, 0, destWidth, destHeight), new Rectangle(0, 0, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
+			}
+			return scaledBitmap;
+		}
+
+		/// <summary>
+		/// Grow canvas with pixel to the left, right, top and bottom
+		/// </summary>
+		/// <param name="sourceBitmap"></param>
+		/// <param name="left"></param>
+		/// <param name="right"></param>
+		/// <param name="top"></param>
+		/// <param name="bottom"></param>
+		/// <returns>a new bitmap with the source copied on it</returns>
+		public static Bitmap GrowCanvas(Bitmap sourceBitmap, int left, int right, int top, int bottom) {
+			Bitmap newBitmap = CreateEmpty(sourceBitmap.Width + left + right, sourceBitmap.Height + top + bottom, sourceBitmap.PixelFormat, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
+				graphics.DrawImageUnscaled(sourceBitmap, left, top);
+			}
+			return newBitmap;
+		}
+
+		/// <summary>
+		/// Scale the bitmap, keeping aspect ratio, but the canvas will always have the specified size.
+		/// </summary>
+		/// <param name="sourceBitmap">Bitmap to scale</param>
+		/// <param name="newWidth">new width</param>
+		/// <param name="newHeight">new height</param>
+		/// <returns>a new bitmap with the specified size, the source-bitmap scaled to fit with aspect ratio locked</returns>
+		public static Bitmap AspectratioLockedBitmapResize(Bitmap sourceBitmap, int newWidth, int newHeight) {
+			int destX = 0;
+			int destY = 0;
+			
+			float nPercent = 0;
+			float nPercentW = 0;
+			float nPercentH = 0;
+			
+			nPercentW = ((float)newWidth / (float)sourceBitmap.Width);
+			nPercentH = ((float)newHeight / (float)sourceBitmap.Height);
+			if (nPercentH < nPercentW) {
+				nPercent = nPercentH;
+				destX = System.Convert.ToInt16((newWidth - (sourceBitmap.Width * nPercent)) / 2);
+			} else {
+				nPercent = nPercentW;
+				destY = System.Convert.ToInt16((newHeight - (sourceBitmap.Height * nPercent)) / 2);
+			}
+			
+			int destWidth = (int)(sourceBitmap.Width * nPercent);
+			int destHeight = (int)(sourceBitmap.Height * nPercent);
+
+			Bitmap newBitmap = CreateEmpty(newWidth, newHeight, sourceBitmap.PixelFormat, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.DrawImage(sourceBitmap, new Rectangle(destX, destY, destWidth, destHeight), new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height), GraphicsUnit.Pixel);
+			
+			}
+			return newBitmap;
 		}
 	}
 }
