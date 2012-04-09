@@ -169,6 +169,7 @@
     <Compile Include="Helpers\IECaptureHelper.cs" />
     <Compile Include="Helpers\IEInterop\IEContainer.cs" />
     <Compile Include="Helpers\ProcessorHelper.cs" />
+    <Compile Include="Help\HelpFileLoader.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
     <None Include="Greenshot.exe.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

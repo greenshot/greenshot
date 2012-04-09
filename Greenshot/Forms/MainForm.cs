@@ -874,17 +874,7 @@ namespace Greenshot {
 		}
 		
 		void Contextmenu_helpClick(object sender, EventArgs e) {
-			if (helpBrowserForm != null) {
-				WindowDetails.ToForeground(helpBrowserForm.Handle);
-			} else {
-				try {
-					using (helpBrowserForm = new HelpBrowserForm(conf.Language)) {
-						helpBrowserForm.ShowDialog();
-					}
-				} finally {
-					helpBrowserForm = null;
-				}
-			}
+			HelpFileLoader.LoadHelp();
 		}
 		
 		void Contextmenu_exitClick(object sender, EventArgs e) {

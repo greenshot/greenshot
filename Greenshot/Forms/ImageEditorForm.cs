@@ -673,7 +673,7 @@ namespace Greenshot {
 		
 		#region help
 		void HelpToolStripMenuItem1Click(object sender, System.EventArgs e) {
-			new HelpBrowserForm(coreConf.Language).Show();
+			HelpFileLoader.LoadHelp();
 		}
 
 		void AboutToolStripMenuItemClick(object sender, System.EventArgs e) {
