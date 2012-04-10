@@ -287,9 +287,7 @@ namespace Greenshot {
 		private SettingsForm settingsForm = null;
 		// Make sure we have only one about form
 		private AboutForm aboutForm = null;
-		// Make sure we have only one help browser
-		private HelpBrowserForm helpBrowserForm = null;
-				
+
 		public MainForm(CopyDataTransport dataTransport) {
 			instance = this;
 			

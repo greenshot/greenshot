@@ -261,6 +261,18 @@ namespace Greenshot.IniFile {
 		}
 
 		/// <summary>
+		/// Method used for internal tricks...
+		/// </summary>
+		/// <param name="sectionName"></param>
+		/// <returns></returns>
+		public static IniSection GetIniSection(string sectionName) {
+			if (sectionMap.ContainsKey(sectionName)) {
+				return sectionMap[sectionName];
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// A generic method which returns an instance of the supplied type, filled with it's configuration
 		/// </summary>
 		/// <returns>Filled instance of IniSection type which was supplied</returns>
