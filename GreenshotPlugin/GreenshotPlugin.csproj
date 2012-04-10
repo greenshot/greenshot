@@ -175,11 +175,20 @@
     <Compile Include="..\GreenshotInterop\OfficeInterop\WordInterop.cs">
       <Link>Interop\WordInterop.cs</Link>
     </Compile>
+    <Compile Include="Controls\GreenshotButton.cs" />
+    <Compile Include="Controls\GreenshotCheckBox.cs" />
+    <Compile Include="Controls\GreenshotForm.cs" />
+    <Compile Include="Controls\GreenshotGroupBox.cs" />
+    <Compile Include="Controls\GreenshotLabel.cs" />
+    <Compile Include="Controls\GreenshotTabPage.cs" />
+    <Compile Include="Controls\GreenshotTextBox.cs" />
     <Compile Include="Controls\HotkeyControl.cs" />
     <Compile Include="Controls\BackgroundForm.cs" />
     <Compile Include="Controls\BackgroundForm.Designer.cs">
       <DependentUpon>BackgroundForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\IGreenshotConfigBindable.cs" />
+    <Compile Include="Controls\IGreenshotLanguageBindable.cs" />
     <Compile Include="Core\AbstractDestination.cs" />
     <Compile Include="Core\AbstractProcessor.cs" />
     <Compile Include="Core\AccessibleHelper.cs" />

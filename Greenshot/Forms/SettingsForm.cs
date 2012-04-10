@@ -33,36 +33,40 @@ using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
 using System.Text.RegularExpressions;
+using Greenshot.Controls;
 
 namespace Greenshot {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
-	public partial class SettingsForm : Form {
+	public partial class SettingsForm : GreenshotForm {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
 		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-		private ILanguage lang;
-		private ToolTip toolTip;
+		private ToolTip toolTip = new ToolTip();
 		
-		public SettingsForm() {
+		public SettingsForm() : base() {
+			// language is in the base class
+			language = Language.GetInstance();
+			// Force re-loading of languages
+			language.Load();
 			InitializeComponent();
+		}
+
+		protected override void OnLoad(EventArgs e) {
+			base.OnLoad(e);
 
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
 			// Fix for Vista/XP differences
-			if(Environment.OSVersion.Version.Major >= 6) {
+			if (Environment.OSVersion.Version.Major >= 6) {
 				this.trackBarJpegQuality.BackColor = System.Drawing.SystemColors.Window;
 			} else {
 				this.trackBarJpegQuality.BackColor = System.Drawing.SystemColors.Control;
 			}
-			lang = Language.GetInstance();
-			// Force re-loading of languages
-			lang.Load();
 
-			toolTip = new ToolTip();
-			AddPluginTab();
-			this.combobox_primaryimageformat.Items.AddRange(new object[]{OutputFormat.bmp, OutputFormat.gif, OutputFormat.jpg, OutputFormat.png, OutputFormat.tiff});
+			DisplayPluginTab();
+			this.combobox_primaryimageformat.Items.AddRange(new object[] { OutputFormat.bmp, OutputFormat.gif, OutputFormat.jpg, OutputFormat.png, OutputFormat.tiff });
 			UpdateUI();
 			DisplaySettings();
 			CheckSettings();
@@ -89,10 +93,10 @@ namespace Greenshot {
 			comboBox.Items.Clear();
 			string enumTypeName = typeof(ET).Name;
 			foreach(ET enumValue in availableValues) {
-				string translation = lang.GetString(enumTypeName + "." + enumValue.ToString());
+				string translation = language.GetString(enumTypeName + "." + enumValue.ToString());
 				comboBox.Items.Add(translation);
 			}
-			comboBox.SelectedItem = lang.GetString(enumTypeName + "." + selectedValue.ToString());
+			comboBox.SelectedItem = language.GetString(enumTypeName + "." + selectedValue.ToString());
 		}
 		
 		
@@ -107,7 +111,7 @@ namespace Greenshot {
 			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
 			ET returnValue = availableValues[0];
 			foreach(ET enumValue in availableValues) {
-				string translation = lang.GetString(enumTypeName + "." + enumValue.ToString());
+				string translation = language.GetString(enumTypeName + "." + enumValue.ToString());
 				if (translation.Equals(selectedValue)) {
 					returnValue = enumValue;
 					break;
@@ -130,9 +134,10 @@ namespace Greenshot {
 			PopulateComboBox<WindowCaptureMode>(combobox_window_capture_mode, availableModes, selectedWindowCaptureMode);
 		}
 		
-		private void AddPluginTab() {
-			if (PluginHelper.instance.HasPlugins()) {
-				this.tabcontrol.TabPages.Add(tab_plugins);
+		private void DisplayPluginTab() {
+			if (!PluginHelper.instance.HasPlugins()) {
+				this.tabcontrol.TabPages.Remove(tab_plugins);
+			} else {
 				// Draw the Plugin listview
 				listview_plugins.BeginUpdate();
 				listview_plugins.Items.Clear();
@@ -158,75 +163,15 @@ namespace Greenshot {
 				button_pluginconfigure.Enabled = false;
 			}
 		}
+
+		/// <summary>
+		/// Update the UI to reflect the language and other text settings
+		/// </summary>
 		private void UpdateUI() {
-			this.Text = lang.GetString(LangKey.settings_title);
-			
-			this.tab_general.Text = lang.GetString(LangKey.settings_general);
-			this.tab_output.Text = lang.GetString(LangKey.settings_output);
-			this.tab_printer.Text = lang.GetString(LangKey.settings_printer);
-			this.tab_capture.Text = lang.GetString(LangKey.settings_capture);
-			this.tab_plugins.Text = lang.GetString(LangKey.settings_plugins);
-
-			this.groupbox_network.Text = lang.GetString(LangKey.settings_network);
-			this.label_checkperiod.Text = lang.GetString(LangKey.settings_checkperiod);
-			this.checkbox_usedefaultproxy.Text = lang.GetString(LangKey.settings_usedefaultproxy);
-
-			this.groupbox_iecapture.Text = lang.GetString(LangKey.settings_iecapture);
-			this.checkbox_ie_capture.Text = lang.GetString(LangKey.settings_iecapture);
-
-			this.groupbox_editor.Text = lang.GetString(LangKey.settings_editor);
-			this.checkbox_editor_match_capture_size.Text = lang.GetString(LangKey.editor_match_capture_size);
-
-			this.groupbox_windowscapture.Text  = lang.GetString(LangKey.settings_windowscapture);
-			this.label_window_capture_mode.Text = lang.GetString(LangKey.settings_window_capture_mode);
-
-			this.groupbox_capture.Text = lang.GetString(LangKey.settings_capture);
-			this.checkbox_capture_mousepointer.Text = lang.GetString(LangKey.settings_capture_mousepointer);
-			this.checkbox_capture_windows_interactive.Text = lang.GetString(LangKey.settings_capture_windows_interactive);
-			this.label_waittime.Text = lang.GetString(LangKey.settings_waittime);
-			
-			this.groupbox_applicationsettings.Text = lang.GetString(LangKey.settings_applicationsettings);
-			this.label_language.Text = lang.GetString(LangKey.settings_language);
-			toolTip.SetToolTip(label_language, lang.GetString(LangKey.settings_tooltip_language));
-			
-			this.checkbox_autostartshortcut.Text = lang.GetString(LangKey.settings_autostartshortcut);
-			
-			this.groupbox_destination.Text = lang.GetString(LangKey.settings_destination);
-			this.tab_destinations.Text = lang.GetString(LangKey.settings_destination);
-		
-			this.groupbox_preferredfilesettings.Text = lang.GetString(LangKey.settings_preferredfilesettings);
-			
-			this.label_storagelocation.Text = lang.GetString(LangKey.settings_storagelocation);
-			toolTip.SetToolTip(label_storagelocation, lang.GetString(LangKey.settings_tooltip_storagelocation));
-			
-			this.label_screenshotname.Text = lang.GetString(LangKey.settings_filenamepattern);
-			toolTip.SetToolTip(label_screenshotname, lang.GetString(LangKey.settings_tooltip_filenamepattern));
-			
-			this.label_primaryimageformat.Text = lang.GetString(LangKey.settings_primaryimageformat);
-			this.checkbox_copypathtoclipboard.Text = lang.GetString(LangKey.settings_copypathtoclipboard);
-			toolTip.SetToolTip(label_primaryimageformat, lang.GetString(LangKey.settings_tooltip_primaryimageformat));
-			
-			this.groupbox_jpegsettings.Text = lang.GetString(LangKey.settings_jpegsettings);
-			this.label_jpegquality.Text = lang.GetString(LangKey.settings_jpegquality);
-			this.checkbox_alwaysshowjpegqualitydialog.Text = lang.GetString(LangKey.settings_alwaysshowjpegqualitydialog);
-
-			this.checkbox_playsound.Text = lang.GetString(LangKey.settings_playsound);
-			
-			this.groupbox_printoptions.Text = lang.GetString(LangKey.settings_printoptions);
-			this.checkboxAllowCenter.Text = lang.GetString(LangKey.printoptions_allowcenter);
-			this.checkboxAllowEnlarge.Text = lang.GetString(LangKey.printoptions_allowenlarge);
-			this.checkboxAllowRotate.Text = lang.GetString(LangKey.printoptions_allowrotate);
-			this.checkboxAllowShrink.Text = lang.GetString(LangKey.printoptions_allowshrink);
-			this.checkboxTimestamp.Text = lang.GetString(LangKey.printoptions_timestamp);
-			this.checkboxPrintInverted.Text = lang.GetString(LangKey.printoptions_inverted);
-			this.checkbox_alwaysshowprintoptionsdialog.Text = lang.GetString(LangKey.settings_alwaysshowprintoptionsdialog);
-
-			this.groupbox_hotkeys.Text = lang.GetString(LangKey.hotkeys);
-			this.label_fullscreen_hotkey.Text = lang.GetString(LangKey.contextmenu_capturefullscreen);
-			this.label_ie_hotkey.Text = lang.GetString(LangKey.contextmenu_captureie);
-			this.label_lastregion_hotkey.Text = lang.GetString(LangKey.contextmenu_capturelastregion);
-			this.label_region_hotkey.Text = lang.GetString(LangKey.contextmenu_capturearea);
-			this.label_window_hotkey.Text = lang.GetString(LangKey.contextmenu_capturewindow);
+			toolTip.SetToolTip(label_language, language.GetString(LangKey.settings_tooltip_language));
+			toolTip.SetToolTip(label_storagelocation, language.GetString(LangKey.settings_tooltip_storagelocation));
+			toolTip.SetToolTip(label_screenshotname, language.GetString(LangKey.settings_tooltip_filenamepattern));
+			toolTip.SetToolTip(label_primaryimageformat, language.GetString(LangKey.settings_tooltip_primaryimageformat));
 
 			// Removing, otherwise we keep getting the event multiple times!
 			this.combobox_language.SelectedIndexChanged -= new System.EventHandler(this.Combobox_languageSelectedIndexChanged);
@@ -234,16 +179,16 @@ namespace Greenshot {
 			// Initialize the Language ComboBox
 			this.combobox_language.DisplayMember = "Description";
 			this.combobox_language.ValueMember = "Ietf";
-			if (lang.CurrentLanguage != null) {
-				this.combobox_language.SelectedValue = lang.CurrentLanguage;
+			if (language.CurrentLanguage != null) {
+				this.combobox_language.SelectedValue = language.CurrentLanguage;
 			}
 			// Set datasource last to prevent problems
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-			this.combobox_language.DataSource = lang.SupportedLanguages;
+			this.combobox_language.DataSource = language.SupportedLanguages;
 
 			// Delaying the SelectedIndexChanged events untill all is initiated
 			this.combobox_language.SelectedIndexChanged += new System.EventHandler(this.Combobox_languageSelectedIndexChanged);
-			UpdateDestinations();
+			UpdateDestinationDescriptions();
 		}
 		
 		// Check the settings and somehow visibly mark when something is incorrect
@@ -258,13 +203,19 @@ namespace Greenshot {
 			return settingsOk;
 		}
 
-		private void UpdateDestinations() {
+		/// <summary>
+		/// Show all destination descriptions in the current language
+		/// </summary>
+		private void UpdateDestinationDescriptions() {
 			foreach (ListViewItem item in destinationsListView.Items) {
 				IDestination destination = item.Tag as IDestination;
 				item.Text = destination.Description;
 			}
 		}
 
+		/// <summary>
+		/// Build the view with all the destinations
+		/// </summary>
 		private void DisplayDestinations() {
 			checkbox_picker.Checked = false;
 
@@ -303,49 +254,20 @@ namespace Greenshot {
 		}
 
 		private void DisplaySettings() {
-			region_hotkeyControl.SetHotkey(coreConfiguration.RegionHotkey);
-			fullscreen_hotkeyControl.SetHotkey(coreConfiguration.FullscreenHotkey);
-			window_hotkeyControl.SetHotkey(coreConfiguration.WindowHotkey);
-			lastregion_hotkeyControl.SetHotkey(coreConfiguration.LastregionHotkey);
-			ie_hotkeyControl.SetHotkey(coreConfiguration.IEHotkey);
 			colorButton_window_background.SelectedColor = coreConfiguration.DWMBackgroundColor;
 			
-			checkbox_ie_capture.Checked = coreConfiguration.IECapture;
-			if (lang.CurrentLanguage != null) {
-				combobox_language.SelectedValue = lang.CurrentLanguage;
+			if (language.CurrentLanguage != null) {
+				combobox_language.SelectedValue = language.CurrentLanguage;
 			}
 			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
-			textbox_screenshotname.Text = coreConfiguration.OutputFileFilenamePattern;
 			combobox_primaryimageformat.SelectedItem = coreConfiguration.OutputFileFormat;
 			
 			SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
 
-			checkbox_copypathtoclipboard.Checked = coreConfiguration.OutputFileCopyPathToClipboard;
 			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
 			textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality+"%";
-			checkbox_alwaysshowjpegqualitydialog.Checked = coreConfiguration.OutputFilePromptQuality;
-			checkbox_playsound.Checked = coreConfiguration.PlayCameraSound;
 
 			DisplayDestinations();
-
-//			checkbox_clipboard.Checked = coreConfiguration.OutputDestinations.Contains("Clipboard");
-//			checkbox_file.Checked = coreConfiguration.OutputDestinations.Contains("File");
-//			checkbox_fileas.Checked = coreConfiguration.OutputDestinations.Contains("FileWithDialog");
-//			checkbox_printer.Checked = coreConfiguration.OutputDestinations.Contains("Printer");
-//			checkbox_editor.Checked = coreConfiguration.OutputDestinations.Contains("Editor");
-//			checkbox_email.Checked = coreConfiguration.OutputDestinations.Contains("EMail");
-
-			checkboxPrintInverted.Checked = coreConfiguration.OutputPrintInverted;
-			checkboxAllowCenter.Checked = coreConfiguration.OutputPrintCenter;
-			checkboxAllowEnlarge.Checked = coreConfiguration.OutputPrintAllowEnlarge;
-			checkboxAllowRotate.Checked = coreConfiguration.OutputPrintAllowRotate;
-			checkboxAllowShrink.Checked = coreConfiguration.OutputPrintAllowShrink;
-			checkboxTimestamp.Checked = coreConfiguration.OutputPrintFooter;
-			checkbox_alwaysshowprintoptionsdialog.Checked = coreConfiguration.OutputPrintPromptOptions;
-			checkbox_capture_mousepointer.Checked = coreConfiguration.CaptureMousepointer;
-			checkbox_capture_windows_interactive.Checked = coreConfiguration.CaptureWindowsInteractive;
-			
-			checkbox_editor_match_capture_size.Checked = editorConfiguration.MatchSizeToCapture;
 
 			numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >=0?coreConfiguration.CaptureDelay:0;
 
@@ -359,7 +281,6 @@ namespace Greenshot {
 				checkbox_autostartshortcut.Checked = StartupHelper.checkRunUser();
 			}
 			
-			checkbox_usedefaultproxy.Checked = coreConfiguration.UseProxy;
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			CheckDestinationSettings();
 		}
@@ -373,7 +294,6 @@ namespace Greenshot {
 			}
 
 			coreConfiguration.WindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
-			coreConfiguration.OutputFileFilenamePattern = textbox_screenshotname.Text;
 			if (!FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false).Equals(textbox_storagelocation.Text)) {
 				coreConfiguration.OutputFilePath = textbox_storagelocation.Text;
 			}
@@ -383,10 +303,7 @@ namespace Greenshot {
 				coreConfiguration.OutputFileFormat = OutputFormat.png;
 			}
 
-			coreConfiguration.OutputFileCopyPathToClipboard = checkbox_copypathtoclipboard.Checked;
 			coreConfiguration.OutputFileJpegQuality = trackBarJpegQuality.Value;
-			coreConfiguration.OutputFilePromptQuality = checkbox_alwaysshowjpegqualitydialog.Checked;
-			coreConfiguration.PlayCameraSound = checkbox_playsound.Checked;
 
 			List<string> destinations = new List<string>();
 			if (checkbox_picker.Checked) {
@@ -401,31 +318,9 @@ namespace Greenshot {
 				}
 			}
 			coreConfiguration.OutputDestinations = destinations;
-			
-			coreConfiguration.OutputPrintInverted = checkboxPrintInverted.Checked;
-			coreConfiguration.OutputPrintCenter = checkboxAllowCenter.Checked;
-			coreConfiguration.OutputPrintAllowEnlarge = checkboxAllowEnlarge.Checked;
-			coreConfiguration.OutputPrintAllowRotate = checkboxAllowRotate.Checked;
-			coreConfiguration.OutputPrintAllowShrink = checkboxAllowShrink.Checked;
-			coreConfiguration.OutputPrintFooter = checkboxTimestamp.Checked;
-			coreConfiguration.OutputPrintPromptOptions = checkbox_alwaysshowprintoptionsdialog.Checked;
-			coreConfiguration.CaptureMousepointer = checkbox_capture_mousepointer.Checked;
-			coreConfiguration.CaptureWindowsInteractive = checkbox_capture_windows_interactive.Checked;
 			coreConfiguration.CaptureDelay = (int)numericUpDownWaitTime.Value;
 			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
-
-			coreConfiguration.RegionHotkey = region_hotkeyControl.ToString();
-			coreConfiguration.FullscreenHotkey = fullscreen_hotkeyControl.ToString();
-			coreConfiguration.WindowHotkey = window_hotkeyControl.ToString();
-			coreConfiguration.LastregionHotkey = lastregion_hotkeyControl.ToString();
-			coreConfiguration.IEHotkey = ie_hotkeyControl.ToString();
-
-			coreConfiguration.IECapture = checkbox_ie_capture.Checked;
-
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
-			coreConfiguration.UseProxy = checkbox_usedefaultproxy.Checked;
-
-			editorConfiguration.MatchSizeToCapture = checkbox_editor_match_capture_size.Checked;
 
 			IniConfig.Save();
 
@@ -452,7 +347,7 @@ namespace Greenshot {
 		
 		void Settings_cancelClick(object sender, System.EventArgs e) {
 			DialogResult = DialogResult.Cancel;
-			lang.FreeResources();
+			language.FreeResources();
 		}
 		
 		void Settings_okayClick(object sender, System.EventArgs e) {
@@ -462,7 +357,7 @@ namespace Greenshot {
 			} else {
 				this.tabcontrol.SelectTab(this.tab_output);
 			}
-			lang.FreeResources();
+			language.FreeResources();
 		}
 		
 		void BrowseClick(object sender, System.EventArgs e) {
@@ -483,10 +378,10 @@ namespace Greenshot {
 
 		
 		void BtnPatternHelpClick(object sender, EventArgs e) {
-			string filenamepatternText = lang.GetString(LangKey.settings_message_filenamepattern);
+			string filenamepatternText = language.GetString(LangKey.settings_message_filenamepattern);
 			// Convert %NUM% to ${NUM} for old language files!
 			filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
-			MessageBox.Show(filenamepatternText, lang.GetString(LangKey.settings_filenamepattern));
+			MessageBox.Show(filenamepatternText, language.GetString(LangKey.settings_filenamepattern));
 		}
 		
 		void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
@@ -507,7 +402,10 @@ namespace Greenshot {
 			}
 			// Reflect language changes to the settings form
 			UpdateUI();
-			
+
+			// Reflect Language changes form
+			ApplyLanguage();
+
 			// Update the email & windows capture mode
 			//SetEmailFormat(selectedEmailFormat);
 			SetWindowCaptureMode(selectedWindowCaptureMode);

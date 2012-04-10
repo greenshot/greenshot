@@ -33,7 +33,7 @@ namespace GreenshotPlugin.Controls {
 	/// See: http://www.codeproject.com/KB/buttons/hotkeycontrol.aspx
 	/// But is modified to fit in Greenshot, and have localized support
 	/// </summary>
-	public class HotkeyControl : TextBox {
+	public class HotkeyControl : GreenshotTextBox {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(HotkeyControl));
 
 		// Holds the list of hotkeys
