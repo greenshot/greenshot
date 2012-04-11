@@ -57,7 +57,7 @@ namespace Greenshot {
 			this.textbox_screenshotname = new GreenshotPlugin.Controls.GreenshotTextBox();
 			this.label_language = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.combobox_language = new System.Windows.Forms.ComboBox();
-			this.combobox_primaryimageformat = new System.Windows.Forms.ComboBox();
+			this.combobox_primaryimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
 			this.label_primaryimageformat = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.groupbox_preferredfilesettings = new GreenshotPlugin.Controls.GreenshotGroupBox();
 			this.btnPatternHelp = new System.Windows.Forms.Button();
@@ -243,6 +243,7 @@ namespace Greenshot {
 			this.combobox_primaryimageformat.FormattingEnabled = true;
 			this.combobox_primaryimageformat.Location = new System.Drawing.Point(138, 64);
 			this.combobox_primaryimageformat.Name = "combobox_primaryimageformat";
+			this.combobox_primaryimageformat.PropertyName = "OutputFileFormat";
 			this.combobox_primaryimageformat.Size = new System.Drawing.Size(268, 21);
 			this.combobox_primaryimageformat.TabIndex = 4;
 			// 
@@ -313,7 +314,6 @@ namespace Greenshot {
 			this.checkbox_autostartshortcut.LanguageKey = "settings_autostartshortcut";
 			this.checkbox_autostartshortcut.Location = new System.Drawing.Point(8, 39);
 			this.checkbox_autostartshortcut.Name = "checkbox_autostartshortcut";
-			this.checkbox_autostartshortcut.PropertyName = null;
 			this.checkbox_autostartshortcut.Size = new System.Drawing.Size(397, 25);
 			this.checkbox_autostartshortcut.TabIndex = 15;
 			this.checkbox_autostartshortcut.Text = "Launch Greenshot on startup";
@@ -955,7 +955,6 @@ namespace Greenshot {
 			this.groupbox_plugins.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
 			this.groupbox_plugins.Controls.Add(this.listview_plugins);
 			this.groupbox_plugins.Controls.Add(this.button_pluginconfigure);
-			this.groupbox_plugins.LanguageKey = null;
 			this.groupbox_plugins.Location = new System.Drawing.Point(0, 0);
 			this.groupbox_plugins.Name = "groupbox_plugins";
 			this.groupbox_plugins.Size = new System.Drawing.Size(423, 314);
@@ -992,7 +991,6 @@ namespace Greenshot {
 			// tab_expert
 			// 
 			this.tab_expert.Controls.Add(this.groupbox_expert);
-			this.tab_expert.LanguageKey = null;
 			this.tab_expert.Location = new System.Drawing.Point(4, 22);
 			this.tab_expert.Name = "tab_expert";
 			this.tab_expert.Size = new System.Drawing.Size(423, 320);
@@ -1006,7 +1004,6 @@ namespace Greenshot {
 			this.groupbox_expert.Controls.Add(this.label_clipboardformats);
 			this.groupbox_expert.Controls.Add(this.checkbox_enableexpert);
 			this.groupbox_expert.Controls.Add(this.listView1);
-			this.groupbox_expert.LanguageKey = null;
 			this.groupbox_expert.Location = new System.Drawing.Point(5, 5);
 			this.groupbox_expert.Name = "groupbox_expert";
 			this.groupbox_expert.Size = new System.Drawing.Size(412, 311);
@@ -1028,7 +1025,6 @@ namespace Greenshot {
 			// label_clipboardformats
 			// 
 			this.label_clipboardformats.AutoSize = true;
-			this.label_clipboardformats.LanguageKey = null;
 			this.label_clipboardformats.Location = new System.Drawing.Point(7, 45);
 			this.label_clipboardformats.Name = "label_clipboardformats";
 			this.label_clipboardformats.Size = new System.Drawing.Size(88, 13);
@@ -1037,10 +1033,8 @@ namespace Greenshot {
 			// 
 			// checkbox_enableexpert
 			// 
-			this.checkbox_enableexpert.LanguageKey = null;
 			this.checkbox_enableexpert.Location = new System.Drawing.Point(6, 14);
 			this.checkbox_enableexpert.Name = "checkbox_enableexpert";
-			this.checkbox_enableexpert.PropertyName = null;
 			this.checkbox_enableexpert.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_enableexpert.TabIndex = 19;
 			this.checkbox_enableexpert.Text = "I know what I am doing!";
@@ -1178,7 +1172,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_preferredfilesettings;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_playsound;
 		private GreenshotPlugin.Controls.GreenshotLabel label_primaryimageformat;
-		private System.Windows.Forms.ComboBox combobox_primaryimageformat;
+		private GreenshotPlugin.Controls.GreenshotComboBox combobox_primaryimageformat;
 		private System.Windows.Forms.ComboBox combobox_language;
 		private GreenshotPlugin.Controls.GreenshotLabel label_language;
 		private GreenshotPlugin.Controls.GreenshotTextBox textbox_screenshotname;

@@ -177,6 +177,7 @@
     </Compile>
     <Compile Include="Controls\GreenshotButton.cs" />
     <Compile Include="Controls\GreenshotCheckBox.cs" />
+    <Compile Include="Controls\GreenshotComboBox.cs" />
     <Compile Include="Controls\GreenshotForm.cs" />
     <Compile Include="Controls\GreenshotGroupBox.cs" />
     <Compile Include="Controls\GreenshotLabel.cs" />

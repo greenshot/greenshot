@@ -66,7 +66,6 @@ namespace Greenshot {
 			}
 
 			DisplayPluginTab();
-			this.combobox_primaryimageformat.Items.AddRange(new object[] { OutputFormat.bmp, OutputFormat.gif, OutputFormat.jpg, OutputFormat.png, OutputFormat.tiff });
 			UpdateUI();
 			DisplaySettings();
 			CheckSettings();
@@ -260,7 +259,6 @@ namespace Greenshot {
 				combobox_language.SelectedValue = language.CurrentLanguage;
 			}
 			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
-			combobox_primaryimageformat.SelectedItem = coreConfiguration.OutputFileFormat;
 			
 			SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
 
@@ -297,12 +295,6 @@ namespace Greenshot {
 			if (!FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false).Equals(textbox_storagelocation.Text)) {
 				coreConfiguration.OutputFilePath = textbox_storagelocation.Text;
 			}
-			if (combobox_primaryimageformat.SelectedItem != null) {
-				coreConfiguration.OutputFileFormat = (OutputFormat)combobox_primaryimageformat.SelectedItem;
-			} else {
-				coreConfiguration.OutputFileFormat = OutputFormat.png;
-			}
-
 			coreConfiguration.OutputFileJpegQuality = trackBarJpegQuality.Value;
 
 			List<string> destinations = new List<string>();

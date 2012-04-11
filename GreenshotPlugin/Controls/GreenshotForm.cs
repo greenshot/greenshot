@@ -52,7 +52,7 @@ namespace GreenshotPlugin.Controls {
 			if (!string.IsNullOrEmpty(LanguageKey)) {
 				this.Text = language.GetString(LanguageKey);
 			}
-
+			// Reset the text values for all GreenshotControls
 			foreach (FieldInfo field in this.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
 				if (!field.FieldType.IsSubclassOf(typeof(Control))) {
 					continue;
@@ -69,6 +69,21 @@ namespace GreenshotPlugin.Controls {
 						control.Text = language.GetString(languageBindable.LanguageKey);
 					} else {
 						LOG.WarnFormat("Greenshot control without language key: {0}", field.Name);
+					}
+				}
+				// Repopulate the combox boxes
+				if (typeof(IGreenshotConfigBindable).IsAssignableFrom(field.FieldType)) {
+					if (typeof(GreenshotComboBox).IsAssignableFrom(field.FieldType)) {
+						IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
+						if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
+							IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
+							if (section != null) {
+								GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
+								// Only update the language, so get the actual value and than repopulate
+								object currentValue = comboxBox.GetSelectedEnum(language, section.Values[configBindable.PropertyName].ValueType);
+								comboxBox.Populate(language, section.Values[configBindable.PropertyName].ValueType, currentValue);
+							}
+						}
 					}
 				}
 			}
@@ -99,6 +114,9 @@ namespace GreenshotPlugin.Controls {
 							} else if (typeof(TextBox).IsAssignableFrom(field.FieldType)) {
 								TextBox textBox = controlObject as TextBox;
 								textBox.Text = (string)section.Values[configBindable.PropertyName].Value;
+							} else if (typeof(GreenshotComboBox).IsAssignableFrom(field.FieldType)) {
+								GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
+								comboxBox.Populate(language, section.Values[configBindable.PropertyName].ValueType, (Enum)section.Values[configBindable.PropertyName].Value);
 							}
 						}
 					}
@@ -136,6 +154,9 @@ namespace GreenshotPlugin.Controls {
 							TextBox textBox = controlObject as TextBox;
 							section.Values[configBindable.PropertyName].Value = textBox.Text;
 							iniDirty = true;
+						} else if (typeof(GreenshotComboBox).IsAssignableFrom(field.FieldType)) {
+							GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
+							section.Values[configBindable.PropertyName].Value = comboxBox.GetSelectedEnum(language, section.Values[configBindable.PropertyName].ValueType);
 						}
 					}
 				}
