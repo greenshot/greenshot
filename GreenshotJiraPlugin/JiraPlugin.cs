@@ -120,12 +120,13 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		public virtual void Configure() {
 			string url = config.Url;
-			config.ShowConfigDialog();
-			// check for re-login
-			if (jiraConnector.isLoggedIn && !string.IsNullOrEmpty(url)) {
-				if (!url.Equals(config.Url)) {
-					jiraConnector.logout();
-					jiraConnector.login();
+			if (config.ShowConfigDialog()) {
+				// check for re-login
+				if (jiraConnector != null && jiraConnector.isLoggedIn && !string.IsNullOrEmpty(url)) {
+					if (!url.Equals(config.Url)) {
+						jiraConnector.logout();
+						jiraConnector.login();
+					}
 				}
 			}
 		}

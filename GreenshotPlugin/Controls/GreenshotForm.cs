@@ -46,7 +46,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected void ApplyLanguage() {
 			if (language == null) {
-				throw new ArgumentNullException("Language not set!!");
+				throw new ArgumentNullException("Language not set!! Please use 'language = Language.GetInstance()' in your form constructor!");
 			}
 			// Set title of the form
 			if (!string.IsNullOrEmpty(LanguageKey)) {

@@ -27,9 +27,8 @@ namespace GreenshotJiraPlugin {
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : GreenshotPlugin.Controls.GreenshotForm {
-		private ILanguage lang = Language.GetInstance();
-
 		public SettingsForm(JiraConfiguration config) {
+			language = Language.GetInstance();
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
