@@ -119,7 +119,15 @@ namespace GreenshotJiraPlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
+			string url = config.Url;
 			config.ShowConfigDialog();
+			// check for re-login
+			if (jiraConnector.isLoggedIn && !string.IsNullOrEmpty(url)) {
+				if (!url.Equals(config.Url)) {
+					jiraConnector.logout();
+					jiraConnector.login();
+				}
+			}
 		}
 
 		/// <summary>

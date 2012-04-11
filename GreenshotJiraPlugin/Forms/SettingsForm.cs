@@ -26,7 +26,7 @@ namespace GreenshotJiraPlugin {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : Form {
+	public partial class SettingsForm : GreenshotPlugin.Controls.GreenshotForm {
 		private ILanguage lang = Language.GetInstance();
 
 		public SettingsForm(JiraConfiguration config) {
@@ -35,32 +35,8 @@ namespace GreenshotJiraPlugin {
 			//
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			InitializeTexts();
-			
-			combobox_uploadimageformat.Items.Clear();
-			foreach(OutputFormat format in Enum.GetValues(typeof(OutputFormat))) {
-				combobox_uploadimageformat.Items.Add(format.ToString());
-			}
 		}
 				
-		private void InitializeTexts() {
-			this.label_url.Text = lang.GetString(LangKey.label_url);
-			this.buttonOK.Text = lang.GetString(LangKey.OK);
-			this.buttonCancel.Text = lang.GetString(LangKey.CANCEL);
-			this.Text = lang.GetString(LangKey.settings_title);
-			this.label_upload_format.Text = lang.GetString(LangKey.label_upload_format);
-		}
-
-		public string Url {
-			get {return textBoxUrl.Text;}
-			set {textBoxUrl.Text = value;}
-		}
-
-		public string UploadFormat {
-			get {return combobox_uploadimageformat.Text;}
-			set {combobox_uploadimageformat.Text = value;}
-		}
-
 		void ButtonOKClick(object sender, EventArgs e) {
 			this.DialogResult = DialogResult.OK;
 		}

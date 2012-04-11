@@ -46,17 +46,18 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOK = new System.Windows.Forms.Button();
-			this.buttonCancel = new System.Windows.Forms.Button();
-			this.label_url = new System.Windows.Forms.Label();
-			this.textBoxUrl = new System.Windows.Forms.TextBox();
-			this.combobox_uploadimageformat = new System.Windows.Forms.ComboBox();
-			this.label_upload_format = new System.Windows.Forms.Label();
+			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
+			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
+			this.label_url = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.textBoxUrl = new GreenshotPlugin.Controls.GreenshotTextBox();
+			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
+			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.SuspendLayout();
 			// 
 			// buttonOK
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(222, 84);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
@@ -68,6 +69,7 @@ namespace GreenshotJiraPlugin {
 			// buttonCancel
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(303, 84);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -89,6 +91,8 @@ namespace GreenshotJiraPlugin {
 			this.textBoxUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.textBoxUrl.Location = new System.Drawing.Point(102, 21);
 			this.textBoxUrl.Name = "textBoxUrl";
+			this.textBoxUrl.PropertyName = "Url";
+			this.textBoxUrl.SectionName = "Jira";
 			this.textBoxUrl.Size = new System.Drawing.Size(276, 20);
 			this.textBoxUrl.TabIndex = 6;
 			// 
@@ -98,6 +102,8 @@ namespace GreenshotJiraPlugin {
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 47);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
+			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
+			this.combobox_uploadimageformat.SectionName = "Jira";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(276, 21);
 			this.combobox_uploadimageformat.TabIndex = 8;
 			// 
@@ -120,18 +126,20 @@ namespace GreenshotJiraPlugin {
 			this.Controls.Add(this.textBoxUrl);
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
+			this.LanguageKey = "settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
 			this.Text = "Please enter your Jira data";
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
-		private System.Windows.Forms.ComboBox combobox_uploadimageformat;
-		private System.Windows.Forms.Label label_upload_format;
-		private System.Windows.Forms.TextBox textBoxUrl;
-		private System.Windows.Forms.Label label_url;
-		private System.Windows.Forms.Button buttonCancel;
-		private System.Windows.Forms.Button buttonOK;
+		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
+		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
+		private GreenshotPlugin.Controls.GreenshotTextBox textBoxUrl;
+		private GreenshotPlugin.Controls.GreenshotLabel label_url;
+		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
+		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
 	}
 }
