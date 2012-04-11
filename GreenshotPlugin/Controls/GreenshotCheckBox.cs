@@ -27,7 +27,7 @@ namespace GreenshotPlugin.Controls {
 	/// Description of GreenshotCheckbox.
 	/// </summary>
 	public class GreenshotCheckBox : CheckBox, IGreenshotLanguageBindable, IGreenshotConfigBindable {
-		[Category("Greenshot"), Description("Specifies key of the language file to use when displaying the text.")]
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
 			get;
 			set;
@@ -44,7 +44,7 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 
-		[Category("Greenshot"), Description("Specifies the property name to map the configuration.")]
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
 		public string PropertyName {
 			get;
 			set;

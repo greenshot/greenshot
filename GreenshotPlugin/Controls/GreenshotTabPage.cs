@@ -24,7 +24,7 @@ using System.ComponentModel;
 
 namespace GreenshotPlugin.Controls {
 	public class GreenshotTabPage : TabPage, IGreenshotLanguageBindable {
-		[Category("Greenshot"), Description("Specifies key of the language file to use when displaying the text.")]
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
 			get;
 			set;

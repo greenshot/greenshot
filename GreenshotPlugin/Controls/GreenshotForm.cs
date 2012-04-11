@@ -12,7 +12,7 @@ namespace GreenshotPlugin.Controls {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(GreenshotForm));
 		protected ILanguage language;
 
-		[Category("Greenshot"), Description("Specifies key of the language file to use when displaying the text.")]
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
 			get;
 			set;

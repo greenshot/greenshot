@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 
-		[Category("Greenshot"), Description("Specifies the property name to map the configuration.")]
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
 		public string PropertyName {
 			get;
 			set;
