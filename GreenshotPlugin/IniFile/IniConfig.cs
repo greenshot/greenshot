@@ -338,7 +338,7 @@ namespace Greenshot.IniFile {
 		private static void SaveInternally(string iniLocation) {
 			WatchConfigFile(false);
 
-			//LOG.Info("Saving configuration to: " + iniLocation);
+			LOG.Info("Saving configuration to: " + iniLocation);
 			if (!Directory.Exists(Path.GetDirectoryName(iniLocation))) {
 				Directory.CreateDirectory(Path.GetDirectoryName(iniLocation));
 			}

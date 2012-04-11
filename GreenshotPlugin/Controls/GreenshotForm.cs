@@ -128,6 +128,7 @@ namespace GreenshotPlugin.Controls {
 		/// Store all GreenshotControl values to the configuration
 		/// </summary>
 		protected void StoreFields() {
+			bool iniDirty = false;
 			foreach (FieldInfo field in this.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
 				if (!field.FieldType.IsSubclassOf(typeof(Control))) {
 					continue;
@@ -137,7 +138,6 @@ namespace GreenshotPlugin.Controls {
 				}
 				Object controlObject = field.GetValue(this);
 				IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
-				bool iniDirty = false;
 
 				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
 					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
@@ -160,9 +160,9 @@ namespace GreenshotPlugin.Controls {
 						}
 					}
 				}
-				if (iniDirty) {
-					IniConfig.Save();
-				}
+			}
+			if (iniDirty) {
+				IniConfig.Save();
 			}
 		}
 	}

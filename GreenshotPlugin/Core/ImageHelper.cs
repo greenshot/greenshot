@@ -1067,15 +1067,28 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Wrapper for the more complex Resize, this resize could be used for e.g. Thumbnails
+		/// </summary>
+		/// <param name="sourceBitmap"></param>
+		/// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
+		/// <param name="newWidth"></param>
+		/// <param name="newHeight"></param>
+		/// <returns></returns>
+		public static Bitmap ResizeBitmap(Bitmap sourceBitmap, bool maintainAspectRatio, int newWidth, int newHeight) {
+			Point throwAway;
+			return ResizeBitmap(sourceBitmap, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, out throwAway);
+		}
+
+		/// <summary>
 		/// Scale the bitmap, keeping aspect ratio, but the canvas will always have the specified size.
 		/// </summary>
 		/// <param name="sourceBitmap">Bitmap to scale</param>
-		/// <param name="lockAspectRatio">true to lock aspect ratio</param>
+		/// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
 		/// <param name="newWidth">new width</param>
 		/// <param name="newHeight">new height</param>
 		/// <returns>a new bitmap with the specified size, the source-bitmap scaled to fit with aspect ratio locked</returns>
-		public static Bitmap ResizeBitmap(Bitmap sourceBitmap, bool lockAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, out Point offset) {
+		public static Bitmap ResizeBitmap(Bitmap sourceBitmap, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, out Point offset) {
 			int destX = 0;
 			int destY = 0;
 			
@@ -1084,7 +1097,7 @@ namespace GreenshotPlugin.Core {
 			
 			nPercentW = ((float)newWidth / (float)sourceBitmap.Width);
 			nPercentH = ((float)newHeight / (float)sourceBitmap.Height);
-			if (lockAspectRatio) {
+			if (maintainAspectRatio) {
 				if (nPercentH != 0 && nPercentH < nPercentW) {
 					nPercentW = nPercentH;
 					if (canvasUseNewSize) {
@@ -1109,7 +1122,7 @@ namespace GreenshotPlugin.Core {
 				newHeight = destHeight;
 			}
 			Bitmap newBitmap = null;
-			if (lockAspectRatio && canvasUseNewSize) {
+			if (maintainAspectRatio && canvasUseNewSize) {
 				newBitmap = CreateEmpty(newWidth, newHeight, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			} else {
 				newBitmap = CreateEmpty(destWidth, destHeight, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
