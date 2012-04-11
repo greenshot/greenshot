@@ -197,6 +197,7 @@
     <Compile Include="Core\CacheHelper.cs" />
     <Compile Include="Core\CoreConfiguration.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
+    <Compile Include="Core\EncryptionHelper.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />
     <Compile Include="Core\DisplayKeyAttribute.cs" />
     <Compile Include="Core\EmailConfigHelper.cs" />
