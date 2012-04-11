@@ -379,18 +379,30 @@ namespace GreenshotPlugin.Core {
 		}
 		
 		public bool hasKey(Enum key) {
+			if (key == null) {
+				return false;
+			}
 			return hasKey(key.ToString());
 		}
 
 		public bool hasKey(string key) {
+			if (key == null) {
+				return false;
+			}
 			return strings.ContainsKey(key);
 		}
 
 		public string GetString(Enum key) {
+			if (key == null) {
+				return null;
+			}
 			return GetString(key.ToString());
 		}
 
 		public string GetString(string key) {
+			if (key == null) {
+				return null;
+			}
 			try {
 				return strings[key];
 			} catch (KeyNotFoundException) {

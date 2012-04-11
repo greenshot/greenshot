@@ -61,6 +61,10 @@ namespace GreenshotPlugin.Controls {
 				if (typeof(IGreenshotLanguageBindable).IsAssignableFrom(field.FieldType)) {
 					IGreenshotLanguageBindable languageBindable = controlObject as IGreenshotLanguageBindable;
 					if (!string.IsNullOrEmpty(languageBindable.LanguageKey)) {
+						if (!language.hasKey(languageBindable.LanguageKey)) {
+							LOG.WarnFormat("Wrong language key '{0}' configured for field '{1}'", languageBindable.LanguageKey, field.Name);
+							continue;
+						}
 						Control control = controlObject as Control;
 						control.Text = language.GetString(languageBindable.LanguageKey);
 					} else {
@@ -85,6 +89,10 @@ namespace GreenshotPlugin.Controls {
 					if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
 						IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
 						if (section != null) {
+							if (!section.Values.ContainsKey(configBindable.PropertyName)) {
+								LOG.WarnFormat("Wrong property '{0}' configured for field '{1}'",configBindable.PropertyName,field.Name);
+								continue;
+							}
 							if (typeof(CheckBox).IsAssignableFrom(field.FieldType)) {
 								CheckBox checkBox = controlObject as CheckBox;
 								checkBox.Checked = (bool)section.Values[configBindable.PropertyName].Value;
