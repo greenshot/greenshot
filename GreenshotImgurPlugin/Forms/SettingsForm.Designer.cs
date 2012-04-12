@@ -46,19 +46,20 @@ namespace GreenshotImgurPlugin {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOK = new System.Windows.Forms.Button();
-			this.buttonCancel = new System.Windows.Forms.Button();
-			this.label_url = new System.Windows.Forms.Label();
-			this.textBoxUrl = new System.Windows.Forms.TextBox();
-			this.combobox_uploadimageformat = new System.Windows.Forms.ComboBox();
-			this.label_upload_format = new System.Windows.Forms.Label();
-			this.historyButton = new System.Windows.Forms.Button();
-			this.checkbox_usepagelink = new System.Windows.Forms.CheckBox();
+			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
+			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
+			this.label_url = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.textBoxUrl = new GreenshotPlugin.Controls.GreenshotTextBox();
+			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
+			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.historyButton = new GreenshotPlugin.Controls.GreenshotButton();
+			this.checkbox_usepagelink = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
 			// buttonOK
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(222, 129);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
@@ -69,6 +70,7 @@ namespace GreenshotImgurPlugin {
 			// buttonCancel
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(303, 129);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -78,6 +80,7 @@ namespace GreenshotImgurPlugin {
 			// 
 			// label_url
 			// 
+			this.label_url.LanguageKey = "label_url";
 			this.label_url.Location = new System.Drawing.Point(12, 21);
 			this.label_url.Name = "label_url";
 			this.label_url.Size = new System.Drawing.Size(84, 20);
@@ -88,6 +91,8 @@ namespace GreenshotImgurPlugin {
 			this.textBoxUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.textBoxUrl.Location = new System.Drawing.Point(102, 21);
 			this.textBoxUrl.Name = "textBoxUrl";
+			this.textBoxUrl.PropertyName = "ImgurApiUrl";
+			this.textBoxUrl.SectionName = "Imgur";
 			this.textBoxUrl.Size = new System.Drawing.Size(276, 20);
 			this.textBoxUrl.TabIndex = 6;
 			// 
@@ -97,20 +102,24 @@ namespace GreenshotImgurPlugin {
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 47);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
+			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
+			this.combobox_uploadimageformat.SectionName = "Imgur";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(276, 21);
 			this.combobox_uploadimageformat.TabIndex = 8;
 			// 
 			// label_upload_format
 			// 
+			this.label_upload_format.LanguageKey = "label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(12, 50);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(84, 20);
 			this.label_upload_format.TabIndex = 9;
-			this.label_upload_format.Text = "Upload format";
+			this.label_upload_format.Text = "Image format";
 			// 
 			// historyButton
 			// 
 			this.historyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.historyButton.LanguageKey = "imgur_history";
 			this.historyButton.Location = new System.Drawing.Point(13, 129);
 			this.historyButton.Name = "historyButton";
 			this.historyButton.Size = new System.Drawing.Size(75, 23);
@@ -122,9 +131,12 @@ namespace GreenshotImgurPlugin {
 			// checkbox_usepagelink
 			// 
 			this.checkbox_usepagelink.AutoSize = true;
-			this.checkbox_usepagelink.Location = new System.Drawing.Point(102, 97);
-			this.checkbox_usepagelink.Name = "copyOriginalLinkCheck";
-			this.checkbox_usepagelink.Size = new System.Drawing.Size(188, 17);
+			this.checkbox_usepagelink.LanguageKey = "use_page_link";
+			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 97);
+			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
+			this.checkbox_usepagelink.PropertyName = "UsePageLink";
+			this.checkbox_usepagelink.SectionName = "Imgur";
+			this.checkbox_usepagelink.Size = new System.Drawing.Size(251, 17);
 			this.checkbox_usepagelink.TabIndex = 13;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 
@@ -150,13 +162,13 @@ namespace GreenshotImgurPlugin {
 			this.PerformLayout();
 
 		}
-		private System.Windows.Forms.Button historyButton;
-		private System.Windows.Forms.ComboBox combobox_uploadimageformat;
-		private System.Windows.Forms.Label label_upload_format;
-		private System.Windows.Forms.TextBox textBoxUrl;
-		private System.Windows.Forms.Label label_url;
-		private System.Windows.Forms.Button buttonCancel;
-		private System.Windows.Forms.Button buttonOK;
-		private System.Windows.Forms.CheckBox checkbox_usepagelink;
+		private GreenshotPlugin.Controls.GreenshotButton historyButton;
+		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
+		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
+		private GreenshotPlugin.Controls.GreenshotTextBox textBoxUrl;
+		private GreenshotPlugin.Controls.GreenshotLabel label_url;
+		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
+		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_usepagelink;
 	}
 }

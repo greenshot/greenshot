@@ -76,18 +76,8 @@ namespace GreenshotImgurPlugin {
 			} finally {
 				backgroundForm.CloseDialog();
 			}
-			settingsForm.Url = ImgurApiUrl;
-			settingsForm.UsePageLink = UsePageLink;
-			settingsForm.UploadFormat = UploadFormat.ToString();
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
-				if (!settingsForm.Url.Equals(ImgurApiUrl) || !settingsForm.UploadFormat.Equals(UploadFormat.ToString())
-					|| !!settingsForm.UsePageLink.Equals(UsePageLink)) {
-					ImgurApiUrl = settingsForm.Url;
-					UploadFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), settingsForm.UploadFormat.ToLower());
-					UsePageLink = settingsForm.UsePageLink;
-				}
-				IniConfig.Save();
 				return true;
 			}
 			return false;

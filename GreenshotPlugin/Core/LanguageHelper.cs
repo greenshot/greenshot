@@ -74,7 +74,8 @@ namespace GreenshotPlugin.Core {
 		private static string PAF_LANGUAGE_PATH = Path.Combine(APPLICATION_PATH, @"App\Greenshot\Languages");
 		private const string HELP_FILENAME_PATTERN = @"help-*.html";
 		private const string LANGUAGE_GROUPS_KEY = @"SYSTEM\CurrentControlSet\Control\Nls\Language Groups";
-		private static string globalLanguage = null;
+		private static string globalLanguage = DEFAULT_LANGUAGE;
+		private string additionalPath = null;	// Set if the designer is used
 
 		private Dictionary<string, string> strings = new Dictionary<string, string>();
 		private List<LanguageConfiguration> languages = new List<LanguageConfiguration>();
@@ -106,7 +107,11 @@ namespace GreenshotPlugin.Core {
 			instances.Add(this);
 		}
 
-		public LanguageContainer(string filePattern) : this() {
+		public LanguageContainer(string filePattern) : this(filePattern, null) {
+		}
+
+		public LanguageContainer(string filePattern, string additionalPath) {
+			this.additionalPath = additionalPath;
 			LanguageFilePattern = filePattern;
 			Load();
 			SetInstanceLanguage(globalLanguage);
@@ -171,7 +176,7 @@ namespace GreenshotPlugin.Core {
 			Dictionary<string, LanguageConfiguration> identifiedLanguages = new Dictionary<string, LanguageConfiguration>();
 
 			if (languages == null || languages.Count == 0) {
-				throw new FileNotFoundException("No language files found!");
+				throw new FileNotFoundException(string.Format("No language files for {0} found!", wantedIETF));
 			}
 
 			// Find selected languages in available languages
@@ -264,6 +269,9 @@ namespace GreenshotPlugin.Core {
 				languageDirectories.Add(PAF_LANGUAGE_PATH);
 			} else {
 				languageDirectories.Add(APPLICATIONDATA_LANGUAGE_PATH);
+			}
+			if (additionalPath != null) {
+				languageDirectories.Add(additionalPath);
 			}
 			languageDirectories.Add(STARTUP_LANGUAGE_PATH);
 			foreach(string path in languageDirectories) {

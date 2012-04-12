@@ -53,7 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Forms\ImgurHistory.cs" />
+    <Compile Include="Forms\ImgurForm.cs" />
     <Compile Include="Forms\ImgurHistory.Designer.cs">
       <DependentUpon>ImgurHistory.cs</DependentUpon>
     </Compile>

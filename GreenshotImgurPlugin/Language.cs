@@ -28,8 +28,8 @@ namespace GreenshotImgurPlugin {
 	/// </summary>
 	public class Language : LanguageContainer, ILanguage  {
 		private static ILanguage uniqueInstance;
-		private const string LANGUAGE_FILENAME_PATTERN = @"language_imgurplugin-*.xml";
-		
+		public const string LANGUAGE_FILENAME_PATTERN = @"language_imgurplugin-*.xml";
+
 		public static ILanguage GetInstance() {
 			if(uniqueInstance == null) {
 				uniqueInstance = new LanguageContainer(LANGUAGE_FILENAME_PATTERN);

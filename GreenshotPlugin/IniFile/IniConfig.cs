@@ -61,6 +61,12 @@ namespace Greenshot.IniFile {
 			WatchConfigFile(true);
 		}
 
+		public static bool IsInited {
+			get {
+				return applicationName != null && configName != null;
+			}
+		}
+
 		public static void ForceIniInStartupPath() {
 			if (portableCheckMade) {
 				throw new Exception("ForceLocal should be called before any file is read");

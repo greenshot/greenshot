@@ -6,11 +6,14 @@ using System.Reflection;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.IO;
 
 namespace GreenshotPlugin.Controls {
-	public class GreenshotForm : Form , IGreenshotLanguageBindable {
+	public abstract class GreenshotForm : Form, IGreenshotLanguageBindable {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(GreenshotForm));
 		protected ILanguage language;
+		private IComponentChangeService m_changeService;
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
@@ -18,13 +21,32 @@ namespace GreenshotPlugin.Controls {
 			set;
 		}
 
-		public GreenshotForm() : base() {
+		protected abstract string LanguagePattern { get; }
+
+		protected void InitializeForDesigner() {
+			if (language == null && this.DesignMode) {
+				try {
+					if (!IniConfig.IsInited) {
+						IniConfig.Init("greenshot", "greenshot");
+					}
+
+					ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
+					Assembly currentAssembly = this.GetType().Assembly;
+					string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
+					string designTimeLanguagePath = Path.Combine(Path.GetDirectoryName(assemblyPath), "../../Languages/");
+					language = new LanguageContainer(LanguagePattern, designTimeLanguagePath);
+				} catch (Exception ex) {
+					MessageBox.Show(ex.ToString());
+				}
+			}
 		}
 
 		protected override void OnLoad(EventArgs e) {
 			if (!this.DesignMode) {
 				ApplyLanguage();
 				FillFields();
+			} else {
+				InitializeForDesigner();
 			}
 			base.OnLoad(e);
 		}
@@ -34,11 +56,69 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="e"></param>
 		protected override void OnClosed(EventArgs e) {
-			if (DialogResult == DialogResult.OK) {
-				LOG.Info("Form was closed with OK: storing field values.");
-				StoreFields();
+			if (!this.DesignMode) {
+				if (DialogResult == DialogResult.OK) {
+					LOG.Info("Form was closed with OK: storing field values.");
+					StoreFields();
+				}
 			}
 			base.OnClosed(e);
+		}
+
+		// This override allows the control to register event handlers for IComponentChangeService events
+		// at the time the control is sited, which happens only in design mode.
+		public override ISite Site {
+			get {
+				return base.Site;
+			}
+			set {
+				// Clear any component change event handlers.
+				ClearChangeNotifications();
+
+				// Set the new Site value.
+				base.Site = value;
+
+				m_changeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
+
+				// Register event handlers for component change events.
+				RegisterChangeNotifications();
+			}
+		}
+
+		private void ClearChangeNotifications() {
+			// The m_changeService value is null when not in design mode, 
+			// as the IComponentChangeService is only available at design time.	
+			m_changeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
+
+			// Clear our the component change events to prepare for re-siting.				
+			if (m_changeService != null) {
+				m_changeService.ComponentChanged -= new ComponentChangedEventHandler(OnComponentChanged);
+			}
+		}
+
+		private void RegisterChangeNotifications() {
+			// Register the event handlers for the IComponentChangeService events
+			if (m_changeService != null) {
+				m_changeService.ComponentChanged += new ComponentChangedEventHandler(OnComponentChanged);
+			}
+		}
+
+		/* This method handles the OnComponentChanged event to display a notification. */
+		private void OnComponentChanged(object sender, ComponentChangedEventArgs ce) {
+			if (ce.Component != null && ((IComponent)ce.Component).Site != null && ce.Member != null) {
+				//OnUserChange("The " + ce.Member.Name + " member of the " + ((IComponent)ce.Component).Site.Name + " component has been changed.");
+				if ("LanguageKey".Equals(ce.Member.Name)) {
+					ApplyLanguage(ce.Component as Control, (string)ce.NewValue);
+				}
+			}
+		}
+
+		// Clean up any resources being used.
+		protected override void Dispose(bool disposing) {
+			if (disposing) {
+				ClearChangeNotifications();
+			}
+			base.Dispose(disposing);
 		}
 
 		/// <summary>
@@ -46,7 +126,8 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected void ApplyLanguage() {
 			if (language == null) {
-				throw new ArgumentNullException("Language not set!! Please use 'language = Language.GetInstance()' in your form constructor!");
+				MessageBox.Show("Language not set!! Please use 'language = Language.GetInstance()' in your form constructor!");
+				return;
 			}
 			// Set title of the form
 			if (!string.IsNullOrEmpty(LanguageKey)) {
@@ -58,19 +139,21 @@ namespace GreenshotPlugin.Controls {
 					continue;
 				}
 				Object controlObject = field.GetValue(this);
-				if (typeof(IGreenshotLanguageBindable).IsAssignableFrom(field.FieldType)) {
-					IGreenshotLanguageBindable languageBindable = controlObject as IGreenshotLanguageBindable;
-					if (!string.IsNullOrEmpty(languageBindable.LanguageKey)) {
-						if (!language.hasKey(languageBindable.LanguageKey)) {
-							LOG.WarnFormat("Wrong language key '{0}' configured for field '{1}'", languageBindable.LanguageKey, field.Name);
-							continue;
-						}
-						Control control = controlObject as Control;
-						control.Text = language.GetString(languageBindable.LanguageKey);
-					} else {
-						LOG.WarnFormat("Greenshot control without language key: {0}", field.Name);
-					}
+				if (controlObject == null) {
+					continue;
 				}
+				Control applyTo = controlObject as Control;
+				if (applyTo == null) {
+					// not a control
+					continue;
+				}
+				IGreenshotLanguageBindable languageBindable = applyTo as IGreenshotLanguageBindable;
+				if (languageBindable == null) {
+					continue;
+				}
+				string languageKey = languageBindable.LanguageKey;
+				// Apply language text to the control
+				ApplyLanguage(applyTo, languageKey);
 				// Repopulate the combox boxes
 				if (typeof(IGreenshotConfigBindable).IsAssignableFrom(field.FieldType)) {
 					if (typeof(GreenshotComboBox).IsAssignableFrom(field.FieldType)) {
@@ -87,7 +170,21 @@ namespace GreenshotPlugin.Controls {
 					}
 				}
 			}
+		}
 
+		/// <summary>
+		/// Apply the language text to supplied control
+		/// </summary>
+		protected void ApplyLanguage(Control applyTo, string languageKey) {
+			if (!string.IsNullOrEmpty(languageKey)) {
+				if (!language.hasKey(languageKey)) {
+					MessageBox.Show(string.Format("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name));
+					return;
+				}
+				applyTo.Text = language.GetString(languageKey);
+			} else {
+				MessageBox.Show(string.Format("Greenshot control without language key: {0}", applyTo.Name));
+			}
 		}
 
 		/// <summary>

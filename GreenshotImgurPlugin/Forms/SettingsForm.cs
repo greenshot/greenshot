@@ -22,26 +22,21 @@ using System;
 using System.Windows.Forms;
 using GreenshotImgurPlugin.Forms;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Controls;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : Form {
-		private ILanguage lang = Language.GetInstance();
-
+	public partial class SettingsForm : ImgurForm {
 		public SettingsForm(ImgurConfiguration config) {
+			language = Language.GetInstance();
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			InitializeTexts();
 			
-			combobox_uploadimageformat.Items.Clear();
-			foreach(OutputFormat format in Enum.GetValues(typeof(OutputFormat))) {
-				combobox_uploadimageformat.Items.Add(format.ToString());
-			}
 			ImgurUtils.LoadHistory();
 
 			if (config.runtimeImgurHistory.Count > 0) {
@@ -51,31 +46,6 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 				
-		private void InitializeTexts() {
-			this.label_url.Text = lang.GetString(LangKey.label_url);
-			this.buttonOK.Text = lang.GetString(LangKey.OK);
-			this.buttonCancel.Text = lang.GetString(LangKey.CANCEL);
-			this.Text = lang.GetString(LangKey.settings_title);
-			this.label_upload_format.Text = lang.GetString(LangKey.label_upload_format);
-			this.checkbox_usepagelink.Text = lang.GetString(LangKey.use_page_link);
-			this.historyButton.Text = lang.GetString(LangKey.imgur_history);
-		}
-
-		public string Url {
-			get {return textBoxUrl.Text;}
-			set {textBoxUrl.Text = value;}
-		}
-
-		public string UploadFormat {
-			get {return combobox_uploadimageformat.Text;}
-			set {combobox_uploadimageformat.Text = value;}
-		}
-
-		public bool UsePageLink {
-			get { return checkbox_usepagelink.Checked; }
-			set { checkbox_usepagelink.Checked = value; }
-		}
-
 		void ButtonOKClick(object sender, EventArgs e) {
 			this.DialogResult = DialogResult.OK;
 		}
