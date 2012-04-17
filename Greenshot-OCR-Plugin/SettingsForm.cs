@@ -27,16 +27,15 @@ namespace GreenshotOCR {
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : Form {
-		private ILanguage language = Language.GetInstance();
 		private OCRConfiguration config;
-		        
+
 		public SettingsForm(string [] languages, OCRConfiguration config) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			this.config = config;
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			this.Icon = GreenshotResources.getGreenshotIcon();
 			initializeComponentText();
 			
 			comboBox_languages.Items.Clear();
@@ -61,8 +60,8 @@ namespace GreenshotOCR {
 		}
 
 		private void initializeComponentText() {
-			this.label_language.Text = language.GetString(LangKey.language);
-			this.checkBox_orientImage.Text = language.GetString(LangKey.orient_image);
+			this.label_language.Text = Language.GetString("ocr", LangKey.language);
+			this.checkBox_orientImage.Text = Language.GetString("ocr", LangKey.orient_image);
 		}
 		
 		void ButtonCancelClick(object sender, EventArgs e) {
