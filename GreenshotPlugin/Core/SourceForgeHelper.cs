@@ -78,7 +78,7 @@ namespace GreenshotPlugin.Core {
 			HttpWebRequest webRequest;
 			XmlDocument rssDoc = new XmlDocument();
 			try {
-				webRequest = (HttpWebRequest)GreenshotPlugin.Core.NetworkHelper.CreatedWebRequest(RSSFEED);
+				webRequest = (HttpWebRequest)GreenshotPlugin.Core.NetworkHelper.CreateWebRequest(RSSFEED);
 				XmlTextReader rssReader = new XmlTextReader(webRequest.GetResponse().GetResponseStream());
 	
 				// Load the XML content into a XmlDocument

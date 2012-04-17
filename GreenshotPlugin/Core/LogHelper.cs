@@ -35,13 +35,20 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class LogHelper {
 		private const string LOG4NET_FILE = "log4net.xml";
+		private static bool isLog4NetConfigured = false;
+
+		public static bool isInitialized {
+			get {
+				return isLog4NetConfigured;
+			}
+		}
+
 		// Initialize Log4J
 		public static string InitializeLog4NET() {
 			// Setup log4j, currently the file is called log4net.xml
 			string pafLog4NetFilename =  Path.Combine(Application.StartupPath, @"App\Greenshot\" + LOG4NET_FILE);
 			string log4netFilename = Path.Combine(Application.StartupPath, LOG4NET_FILE);
 			
-			bool isLog4NetConfigured = false;
 			if (File.Exists(log4netFilename)) {
 				try {
 					XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
@@ -51,19 +58,20 @@ namespace GreenshotPlugin.Core {
 				try {
 					XmlConfigurator.Configure(new FileInfo(pafLog4NetFilename)); 
 					isLog4NetConfigured = true;
-				} catch {}
+				} catch { }
 			}
+
 			if (!isLog4NetConfigured) {
 				try {
-					Assembly assem = typeof(LogHelper).Assembly;
-					using (Stream stream = assem.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml")) {
+					Assembly assembly = typeof(LogHelper).Assembly;
+					using (Stream stream = assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml")) {
 						XmlConfigurator.Configure(stream);
 						isLog4NetConfigured = true;
 						IniConfig.ForceIniInStartupPath();
 					}
 				} catch {}
 			}
-			
+
 			if (isLog4NetConfigured) {
 				// Get the logfile name
 				try {

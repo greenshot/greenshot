@@ -153,14 +153,6 @@ namespace Greenshot.Plugin {
 		/// <param name="imageToCapture">Image to create capture for</param>
 		/// <returns>ICapture</returns>
 		ICapture GetCapture(Image imageToCapture);
-		
-		/// <summary>
-		/// Get the core language object
-		/// </summary>
-		/// <returns>ILanguage for the Greenshot core</returns>
-		ILanguage CoreLanguage {
-			get;
-		}
 	}
 
 	public interface IGreenshotPlugin {

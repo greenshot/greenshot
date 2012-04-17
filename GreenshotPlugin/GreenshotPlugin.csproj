@@ -206,6 +206,7 @@
     <Compile Include="Core\GreenshotResources.cs" />
     <Compile Include="Core\IEHelper.cs" />
     <Compile Include="Core\ImageHelper.cs" />
+    <Compile Include="Core\Language.cs" />
     <Compile Include="Core\LogHelper.cs" />
     <Compile Include="Core\NetworkHelper.cs" />
     <Compile Include="Core\Objects.cs" />
@@ -220,7 +221,6 @@
     <Compile Include="IniFile\IniSection.cs" />
     <Compile Include="IniFile\IniValue.cs" />
     <Compile Include="Interfaces\Capture.cs" />
-    <Compile Include="Core\LanguageHelper.cs" />
     <Compile Include="Interfaces\Drawing\Container.cs" />
     <Compile Include="Interfaces\Forms\ImageEditor.cs" />
     <Compile Include="Interfaces\Generic.cs" />

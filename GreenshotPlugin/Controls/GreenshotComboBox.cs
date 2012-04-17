@@ -25,6 +25,8 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Controls {
 	public class GreenshotComboBox : ComboBox, IGreenshotConfigBindable {
+		private Type enumType = null;
+		private Enum selectedEnum = null;
 		private string sectionName = "Core";
 		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
 		public string SectionName {
@@ -42,41 +44,51 @@ namespace GreenshotPlugin.Controls {
 			set;
 		}
 
-		/// <summary>
-		/// This is a method to popululate the ComboBox
-		/// with the items from the enumeration
-		/// </summary>
-		/// <param name="enumType">TEnum to populate with</param>
-		public void Populate(ILanguage language, Type enumType, object currentValue) {
-			var availableValues = Enum.GetValues(enumType);
-			this.Items.Clear();
-			string enumTypeName = enumType.Name;
-			foreach (var enumValue in availableValues) {
-				string enumKey = enumTypeName + "." + enumValue.ToString();
-				if (language.hasKey(enumKey)) {
-					string translation = language.GetString(enumKey);
-					this.Items.Add(translation);
-				} else {
-					this.Items.Add(enumValue.ToString());
-				}
-			}
+		public GreenshotComboBox() {
+			this.SelectedIndexChanged += delegate {
+				StoreSelectedEnum();
+			};
+		}
+
+		public void SetValue(Enum currentValue) {
 			if (currentValue != null) {
-				string selectedEnumKey = enumTypeName + "." + currentValue.ToString();
-				if (language.hasKey(selectedEnumKey)) {
-					this.SelectedItem = language.GetString(selectedEnumKey);
+				selectedEnum = currentValue;
+				string selectedEnumKey = enumType.Name + "." + currentValue.ToString();
+				if (Language.hasKey(selectedEnumKey)) {
+					this.SelectedItem = Language.GetString(selectedEnumKey);
 				} else {
 					this.SelectedItem = currentValue.ToString();
 				}
 			}
 		}
 
+		/// <summary>
+		/// This is a method to popululate the ComboBox
+		/// with the items from the enumeration
+		/// </summary>
+		/// <param name="enumType">TEnum to populate with</param>
+		public void Populate(Type enumType) {
+			// Store the enum-type, so we can work with it
+			this.enumType = enumType;
+
+			var availableValues = Enum.GetValues(enumType);
+			this.Items.Clear();
+			string enumTypeName = enumType.Name;
+			foreach (var enumValue in availableValues) {
+				string enumKey = enumTypeName + "." + enumValue.ToString();
+				if (Language.hasKey(enumKey)) {
+					string translation = Language.GetString(enumKey);
+					this.Items.Add(translation);
+				} else {
+					this.Items.Add(enumValue.ToString());
+				}
+			}
+		}
 
 		/// <summary>
-		/// Get the selected enum value from the combobox, uses generics
+		/// Store the selected value internally
 		/// </summary>
-		/// <param name="comboBox">Combobox to get the value from</param>
-		/// <returns>The generics value of the combobox</returns>
-		public object GetSelectedEnum(ILanguage language, Type enumType) {
+		private void StoreSelectedEnum() {
 			string enumTypeName = enumType.Name;
 			string selectedValue = this.SelectedItem as string;
 			var availableValues = Enum.GetValues(enumType);
@@ -84,20 +96,27 @@ namespace GreenshotPlugin.Controls {
 
 			try {
 				returnValue = Enum.Parse(enumType, selectedValue);
-				return returnValue;
 			} catch (Exception) {
 			}
 
 			foreach (Enum enumValue in availableValues) {
 				string enumKey = enumTypeName + "." + enumValue.ToString();
-				if (language.hasKey(enumKey)) {
-					string translation = language.GetString(enumTypeName + "." + enumValue.ToString());
+				if (Language.hasKey(enumKey)) {
+					string translation = Language.GetString(enumTypeName + "." + enumValue.ToString());
 					if (translation.Equals(selectedValue)) {
-						return enumValue;
+						returnValue = enumValue;
 					}
 				}
 			}
-			return returnValue;
+			selectedEnum = (Enum)returnValue;
+		}
+
+		/// <summary>
+		/// Get the selected enum value from the combobox, uses generics
+		/// </summary>
+		/// <returns>The enum value of the combobox</returns>
+		public Enum GetSelectedEnum() {
+			return selectedEnum;
 		}
 	}
 }

@@ -42,7 +42,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>string with the file content</returns>
 		public static string DownloadFileAsString(Uri url, Encoding encoding) {
 			try {
-				HttpWebRequest request = (HttpWebRequest)CreatedWebRequest(url);
+				HttpWebRequest request = (HttpWebRequest)CreateWebRequest(url);
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 				if (request.HaveResponse) {
 					StreamReader reader = new StreamReader(response.GetResponseStream(), encoding);
@@ -63,7 +63,7 @@ namespace GreenshotPlugin.Core {
 		public static Bitmap DownloadFavIcon(Uri baseUri) {
 			Uri url = new Uri(baseUri, new Uri("favicon.ico"));
 			try {
-				HttpWebRequest request = (HttpWebRequest)NetworkHelper.CreatedWebRequest(url);
+				HttpWebRequest request = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 				if (request.HaveResponse) {
 					using (Image image = Image.FromStream(response.GetResponseStream())) {
@@ -82,8 +82,8 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="uri">string with uri to connect to</param>
 		/// <returns>WebRequest</returns>
-		public static WebRequest CreatedWebRequest(string uri) {
-			return CreatedWebRequest(new Uri(uri));
+		public static WebRequest CreateWebRequest(string uri) {
+			return CreateWebRequest(new Uri(uri));
 		}
 		
 		/// <summary>
@@ -91,11 +91,11 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="uri">Uri with uri to connect to</param>
 		/// <returns>WebRequest</returns>
-		public static WebRequest CreatedWebRequest(Uri uri) {
+		public static WebRequest CreateWebRequest(Uri uri) {
 			WebRequest webRequest = WebRequest.Create(uri);
 			if (config.UseProxy) {
-	            webRequest.Proxy = GreenshotPlugin.Core.NetworkHelper.CreateProxy(uri);
-	            //webRequest.Proxy.Credentials = CredentialCache.DefaultCredentials;
+				webRequest.Proxy = GreenshotPlugin.Core.NetworkHelper.CreateProxy(uri);
+				//webRequest.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			}
 			return webRequest;
 		}

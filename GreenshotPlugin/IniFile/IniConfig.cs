@@ -170,7 +170,7 @@ namespace Greenshot.IniFile {
 			try {
 				applicationStartupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 			} catch (Exception exception) {
-				LOG.WarnFormat("Problem retrieving the AssemblyLocation: {0}", exception.Message);
+				LOG.WarnFormat("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
 				applicationStartupPath = @".";
 			}
 			string pafPath = Path.Combine(applicationStartupPath, @"App\" + applicationName);
