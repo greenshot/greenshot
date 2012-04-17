@@ -53,12 +53,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Forms\ImgurForm.cs" />
+    <Compile Include="Forms\ImgurForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ImgurHistory.cs" >
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\ImgurHistory.Designer.cs">
       <DependentUpon>ImgurHistory.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ListViewColumnSorter.cs" />
-    <Compile Include="Forms\SettingsForm.cs" />
+    <Compile Include="Forms\SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
@@ -92,8 +99,6 @@
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
     </ProjectReference>
-    <Folder Include="Forms" />
-    <Folder Include="Languages" />
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"</PreBuildEvent>
