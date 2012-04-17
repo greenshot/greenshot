@@ -102,7 +102,6 @@ namespace Jira {
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.jira.rpc.exception.RemoteAuthenticationException";
 		private static JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
 		public const string DEFAULT_POSTFIX = "/rpc/soap/jirasoapservice-v2?wsdl";
-		private ILanguage lang = Language.GetInstance();
 		private string credentials;
 		private DateTime loggedInTime = DateTime.Now;
 		private bool loggedIn;
@@ -119,7 +118,7 @@ namespace Jira {
 			this.url = config.Url;
 			this.timeout = config.Timeout;
 			if (!suppressBackgroundForm) {
-				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, lang.GetString(LangKey.communication_wait));
+				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait));
 				try {
 					jira = new JiraSoapServiceService();
 				} finally {
@@ -143,7 +142,7 @@ namespace Jira {
 		private bool doLogin(string user, string password, bool suppressBackgroundForm) {
 			BackgroundForm backgroundForm = null;
 			if (!suppressBackgroundForm) {
-				backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, lang.GetString(LangKey.communication_wait));
+				backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait));
 			}
 			try {
 				LOG.DebugFormat("Loggin in");

@@ -38,7 +38,6 @@ namespace GreenshotJiraPlugin {
 	public class JiraPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
 		private PluginAttribute jiraPluginAttributes;
-		private ILanguage lang = Language.GetInstance();
 		private IGreenshotHost host;
 		private JiraConnector jiraConnector = null;
 		private JiraConfiguration config = null;

@@ -28,7 +28,6 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	public partial class SettingsForm : GreenshotPlugin.Controls.GreenshotForm {
 		public SettingsForm(JiraConfiguration config) {
-			language = Language.GetInstance();
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

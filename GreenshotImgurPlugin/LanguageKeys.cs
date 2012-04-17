@@ -36,7 +36,7 @@ namespace GreenshotImgurPlugin {
 		clear_question,
 		delete_title,
 		use_page_link,
-		imgur_history,
-		imgur_configure
+		history,
+		configure
 	}
 }

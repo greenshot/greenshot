@@ -32,7 +32,6 @@ namespace GreenshotJiraPlugin {
 		private JiraConnector jiraConnector;
 		private JiraIssue selectedIssue;
 		private ListViewColumnSorter columnSorter;
-		private ILanguage language = Language.GetInstance();
 		private JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
 
 		public JiraForm(JiraConnector jiraConnector) {
@@ -51,16 +50,16 @@ namespace GreenshotJiraPlugin {
 					jiraConnector.login();
 				}
 			} catch (Exception e) {
-				MessageBox.Show(language.GetFormattedString(LangKey.login_error, e.Message));
+				MessageBox.Show(Language.GetFormattedString("jira", LangKey.login_error, e.Message));
 			}
 			uploadButton.Enabled = false;
 			updateForm();
 		}
 
 		private void initializeComponentText() {
-			this.label_jirafilter.Text = language.GetString(LangKey.label_jirafilter);
-			this.label_comment.Text = language.GetString(LangKey.label_comment);
-			this.label_filename.Text = language.GetString(LangKey.label_filename);
+			this.label_jirafilter.Text = Language.GetString("jira", LangKey.label_jirafilter);
+			this.label_comment.Text = Language.GetString("jira", LangKey.label_comment);
+			this.label_filename.Text = Language.GetString("jira", LangKey.label_filename);
 		}
 
 		private void updateForm() {
@@ -127,7 +126,7 @@ namespace GreenshotJiraPlugin {
 
 		private void jiraFilterBox_SelectedIndexChanged(object sender, EventArgs e) {
 			if (jiraConnector.isLoggedIn) {
-				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, language.GetString(LangKey.communication_wait));
+				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait));
 				try {
 					uploadButton.Enabled = false;
 					JiraFilter filter = (JiraFilter)jiraFilterBox.SelectedItem;
@@ -141,7 +140,7 @@ namespace GreenshotJiraPlugin {
 						jiraListView.Columns.Clear();
 						LangKey[] columns = { LangKey.column_id, LangKey.column_created, LangKey.column_assignee, LangKey.column_reporter, LangKey.column_summary };
 						foreach (LangKey column in columns) {
-							jiraListView.Columns.Add(language.GetString(column));
+							jiraListView.Columns.Add(Language.GetString("jira", column));
 						}
 						foreach (JiraIssue issue in issues) {
 							ListViewItem item = new ListViewItem(issue.Key);
@@ -161,8 +160,6 @@ namespace GreenshotJiraPlugin {
 				} finally {
 					backgroundForm.CloseDialog();
 				}
-				
-				
 			}
 		}
 

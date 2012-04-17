@@ -39,7 +39,6 @@ namespace GreenshotJiraPlugin {
 	public class JiraDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
 		private static JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
-		private ILanguage lang = Language.GetInstance();
 		private JiraPlugin jiraPlugin = null;
 		private JiraIssue jira = null;
 		
@@ -61,9 +60,9 @@ namespace GreenshotJiraPlugin {
 		public override string Description {
 			get {
 				if (jira == null) {
-					return lang.GetString(LangKey.upload_menu_item);
+					return Language.GetString("jira", LangKey.upload_menu_item);
 				} else {
-					return lang.GetString(LangKey.upload_menu_item) + " - " + jira.Key + ": " + jira.Summary.Substring(0, Math.Min(20, jira.Summary.Length));
+					return Language.GetString("jira", LangKey.upload_menu_item) + " - " + jira.Key + ": " + jira.Summary.Substring(0, Math.Min(20, jira.Summary.Length));
 				}
 			}
 		}
@@ -110,18 +109,18 @@ namespace GreenshotJiraPlugin {
 					// COPY stream to buffer
 					buffer = stream.ToArray();
 				}
-				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Description, lang.GetString(LangKey.communication_wait));
+				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait));
 				try {
 					jiraPlugin.JiraConnector.addAttachment(jira.Key, filename, buffer);
 					LOG.Debug("Uploaded to Jira.");
 					backgroundForm.CloseDialog();
-					MessageBox.Show(lang.GetString(LangKey.upload_success));
-					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, jiraPlugin.Host.CoreLanguage.GetFormattedString("exported_to", Description));
+					MessageBox.Show(Language.GetString("jira", LangKey.upload_success));
+					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", Description));
 					surface.Modified = false;
 					return true;
 				} catch (Exception e) {
 					backgroundForm.CloseDialog();
-					MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
+					MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
 				}
 			} else {
 				JiraForm jiraForm = new JiraForm(jiraPlugin.JiraConnector);
@@ -137,22 +136,21 @@ namespace GreenshotJiraPlugin {
 							// COPY stream to buffer
 							buffer = stream.ToArray();
 						}
-						BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Description, lang.GetString(LangKey.communication_wait));
+						BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait));
 						try {
 							jiraForm.upload(buffer);
 							LOG.Debug("Uploaded to Jira.");
 							backgroundForm.CloseDialog();
-							MessageBox.Show(lang.GetString(LangKey.upload_success));
+							MessageBox.Show(Language.GetString("jira", LangKey.upload_success));
 							surface.SendMessageEvent(this, SurfaceMessageTyp.Info, "Exported to Jira " + jiraForm.getJiraIssue().Key);
 							surface.Modified = false;
 							return true;
 						} catch(Exception e) {
 							backgroundForm.CloseDialog();
-							MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
+							MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
 						}
 					}
 				}
-				
 			}
 			return false;
 		}

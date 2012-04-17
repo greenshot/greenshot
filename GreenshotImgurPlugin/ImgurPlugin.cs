@@ -72,14 +72,14 @@ namespace GreenshotImgurPlugin {
 			ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Imgur");
 			itemPlugInRoot.Image = (Image)resources.GetObject("Imgur");
 
-			historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.imgur_history));
+			historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.history));
 			historyMenuItem.Tag = host;
 			historyMenuItem.Click += delegate {
 				ImgurHistory.ShowHistory();
 			};
 			itemPlugInRoot.DropDownItems.Add(historyMenuItem);
 
-			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.imgur_configure));
+			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
 			itemPlugInConfig.Tag = host;
 			itemPlugInConfig.Click += delegate {
 				config.ShowConfigDialog();
