@@ -19,31 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Drawing;
-using System.Windows.Forms;
-
-using Greenshot.IniFile;
+using System.Collections.Generic;
+using System.Text;
+using GreenshotPlugin.Controls;
 
 namespace PluginExample {
-	/// <summary>
-	/// Description of SettingsForm.
-	/// </summary>
-	public partial class SettingsForm : ExampleForm {
-		private static PluginExampleConfiguration conf = IniConfig.GetIniSection<PluginExampleConfiguration>();
-
-		public SettingsForm() {
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
-		}
-		
-		void Button1Click(object sender, EventArgs e) {
-			DialogResult = DialogResult.OK;
-		}
-		
-		void Button2Click(object sender, EventArgs e) {
-			DialogResult = DialogResult.Cancel;
-		}
+	public class ExampleForm : GreenshotForm{
 	}
 }

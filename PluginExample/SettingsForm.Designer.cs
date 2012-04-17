@@ -48,16 +48,18 @@ namespace PluginExample
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.checkBox1 = new System.Windows.Forms.CheckBox();
+			this.checkBox1 = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.button1 = new System.Windows.Forms.Button();
 			this.button2 = new System.Windows.Forms.Button();
-			this.checkBox2 = new System.Windows.Forms.CheckBox();
+			this.checkBox2 = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
 			// checkBox1
 			// 
 			this.checkBox1.Location = new System.Drawing.Point(12, 12);
 			this.checkBox1.Name = "checkBox1";
+			this.checkBox1.PropertyName = "AnnotationProcessor";
+			this.checkBox1.SectionName = "PluginExample";
 			this.checkBox1.Size = new System.Drawing.Size(152, 24);
 			this.checkBox1.TabIndex = 0;
 			this.checkBox1.Text = "Annotation processor";
@@ -87,6 +89,8 @@ namespace PluginExample
 			// 
 			this.checkBox2.Location = new System.Drawing.Point(12, 42);
 			this.checkBox2.Name = "checkBox2";
+			this.checkBox2.PropertyName = "GreyScaleProcessor";
+			this.checkBox2.SectionName = "PluginExample";
 			this.checkBox2.Size = new System.Drawing.Size(152, 24);
 			this.checkBox2.TabIndex = 3;
 			this.checkBox2.Text = "Greyscale processor";
@@ -104,10 +108,11 @@ namespace PluginExample
 			this.Name = "SettingsForm";
 			this.Text = "Plugin example settings";
 			this.ResumeLayout(false);
+
 		}
-		private System.Windows.Forms.CheckBox checkBox2;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkBox2;
 		private System.Windows.Forms.Button button2;
 		private System.Windows.Forms.Button button1;
-		private System.Windows.Forms.CheckBox checkBox1;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkBox1;
 	}
 }
