@@ -31,11 +31,12 @@ namespace GreenshotPlugin.Controls {
 					ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
 					Assembly currentAssembly = this.GetType().Assembly;
 					string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
-					string designTimeLanguagePath = Path.Combine(Path.GetDirectoryName(assemblyPath), "../../../Greenshot/Languages/");
-					string designTimePluginLanguagePath = Path.Combine(Path.GetDirectoryName(assemblyPath), "../../Languages/");
-					//MessageBox.Show(designTimeLanguagePath);
-					Language.AddLanguageFilePath(designTimeLanguagePath);
-					Language.AddLanguageFilePath(designTimePluginLanguagePath);
+					if (!Language.AddLanguageFilePath(Path.Combine(Path.GetDirectoryName(assemblyPath), @"..\..\Greenshot\Languages\"))) {
+						Language.AddLanguageFilePath(Path.Combine(Path.GetDirectoryName(assemblyPath), @"..\..\..\Greenshot\Languages\"));
+					}
+					if (!Language.AddLanguageFilePath(Path.Combine(Path.GetDirectoryName(assemblyPath), @"..\..\Languages\"))) {
+						Language.AddLanguageFilePath(Path.Combine(Path.GetDirectoryName(assemblyPath), @"..\..\..\Languages\"));
+					}
 				} catch (Exception ex) {
 					MessageBox.Show(ex.ToString());
 				}
@@ -48,7 +49,6 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="e"></param>
 		protected override void OnPaint(PaintEventArgs e) {
 			if (this.DesignMode) {
-				LOG.InfoFormat("OnPaint called from designer. Key={0}", LanguageKey);
 				if (!isLanguageSet) {
 					isLanguageSet = true;
 					try {

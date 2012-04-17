@@ -148,24 +148,30 @@ namespace GreenshotPlugin.Core {
 			Reload();
 		}
 
-		private static void AddPath(string path) {
+		private static bool AddPath(string path) {
 			if (!languagePaths.Contains(path)) {
 				if (Directory.Exists(path)) {
 					LOG.DebugFormat("Adding language path {0}", path);
 					languagePaths.Add(path);
 				} else {
 					LOG.InfoFormat("Not adding non existing language path {0}", path);
+					return false;
 				}
 			}
+			return true;
 		}
 
-		public static void AddLanguageFilePath(string path) {
+		public static bool AddLanguageFilePath(string path) {
 			if (!languagePaths.Contains(path)) {
 				LOG.DebugFormat("New language path {0}", path);
-				AddPath(path);
-				ScanFiles();
-				Reload();
+				if (AddPath(path)) {
+					ScanFiles();
+					Reload();
+				} else {
+					return false;
+				}
 			}
+			return true;
 		}
 
 		private static void LoadFiles(string ietf) {
@@ -278,7 +284,7 @@ namespace GreenshotPlugin.Core {
 						languageFile.Version = new Version(node.Attributes["version"].Value);
 					}
 					if (node.Attributes["prefix"] != null) {
-						languageFile.Prefix = node.Attributes["prefix"].Value;
+						languageFile.Prefix = node.Attributes["prefix"].Value.ToLower();
 					}
 					if (node.Attributes["languagegroup"] != null) {
 						string languageGroup = node.Attributes["languagegroup"].Value;
@@ -317,7 +323,7 @@ namespace GreenshotPlugin.Core {
 								if (PREFIX_REGEXP.IsMatch(languageFilename)) {
 									languageFile.Prefix = PREFIX_REGEXP.Replace(languageFilename, "$1");
 									if (!string.IsNullOrEmpty(languageFile.Prefix)) {
-										languageFile.Prefix = languageFile.Prefix.Replace("plugin", "");
+										languageFile.Prefix = languageFile.Prefix.Replace("plugin", "").ToLower();
 									}
 								}
 							}
