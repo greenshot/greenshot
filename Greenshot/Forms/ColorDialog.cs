@@ -32,13 +32,13 @@ namespace Greenshot {
 	/// <summary>
 	/// Description of ColorDialog.
 	/// </summary>
-	public partial class ColorDialog {
+	public partial class ColorDialog : BaseForm {
 		private static ColorDialog uniqueInstance;
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+
 		private ColorDialog() {
 			this.SuspendLayout();
 			InitializeComponent();
-			updateUI();
 			this.SuspendLayout();
 			this.createColorPalette(5,5,15,15);
 			this.createLastUsedColorButtonRow(5,190,15,15);
@@ -61,18 +61,6 @@ namespace Greenshot {
 		public Color Color {
 			get {return colorPanel.BackColor;}
 			set {previewColor(value,this);}
-		}
-		
-		private void updateUI() {
-			this.Text = Language.GetString(LangKey.colorpicker_title);
-			this.btnApply.Text = Language.GetString(LangKey.colorpicker_apply);
-			this.btnTransparent.Text = Language.GetString(LangKey.colorpicker_transparent);
-			this.labelHtmlColor.Text = Language.GetString(LangKey.colorpicker_htmlcolor);
-			this.labelRed.Text = Language.GetString(LangKey.colorpicker_red);
-			this.labelGreen.Text = Language.GetString(LangKey.colorpicker_green);
-			this.labelBlue.Text = Language.GetString(LangKey.colorpicker_blue);
-			this.labelAlpha.Text = Language.GetString(LangKey.colorpicker_alpha);
-			this.labelRecentColors.Text = Language.GetString(LangKey.colorpicker_recentcolors);
 		}
 		
 		#region user interface generation

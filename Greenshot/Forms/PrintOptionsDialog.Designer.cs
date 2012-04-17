@@ -48,15 +48,15 @@ namespace Greenshot.Forms
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.checkbox_dontaskagain = new System.Windows.Forms.CheckBox();
-			this.checkboxAllowShrink = new System.Windows.Forms.CheckBox();
-			this.checkboxAllowEnlarge = new System.Windows.Forms.CheckBox();
-			this.checkboxAllowCenter = new System.Windows.Forms.CheckBox();
-			this.checkboxAllowRotate = new System.Windows.Forms.CheckBox();
-			this.button_ok = new System.Windows.Forms.Button();
-			this.checkboxDateTime = new System.Windows.Forms.CheckBox();
-			this.button_cancel = new System.Windows.Forms.Button();
-			this.checkboxPrintInverted = new System.Windows.Forms.CheckBox();
+			this.checkbox_dontaskagain = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.checkboxAllowShrink = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.checkboxAllowEnlarge = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.checkboxAllowCenter = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.checkboxAllowRotate = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.button_ok = new GreenshotPlugin.Controls.GreenshotButton();
+			this.checkboxDateTime = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.button_cancel = new GreenshotPlugin.Controls.GreenshotButton();
+			this.checkboxPrintInverted = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
 			// checkbox_dontaskagain
@@ -64,11 +64,12 @@ namespace Greenshot.Forms
 			this.checkbox_dontaskagain.AutoSize = true;
 			this.checkbox_dontaskagain.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkbox_dontaskagain.LanguageKey = "printoptions_dontaskagain";
 			this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 152);
 			this.checkbox_dontaskagain.Name = "checkbox_dontaskagain";
-			this.checkbox_dontaskagain.Size = new System.Drawing.Size(206, 17);
+			this.checkbox_dontaskagain.Size = new System.Drawing.Size(240, 17);
 			this.checkbox_dontaskagain.TabIndex = 19;
-			this.checkbox_dontaskagain.Text = "Save as default and do not ask again.";
+			this.checkbox_dontaskagain.Text = "Save options as default and do not ask again";
 			this.checkbox_dontaskagain.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.UseVisualStyleBackColor = true;
 			// 
@@ -77,11 +78,13 @@ namespace Greenshot.Forms
 			this.checkboxAllowShrink.AutoSize = true;
 			this.checkboxAllowShrink.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowShrink.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
 			this.checkboxAllowShrink.Location = new System.Drawing.Point(12, 20);
 			this.checkboxAllowShrink.Name = "checkboxAllowShrink";
-			this.checkboxAllowShrink.Size = new System.Drawing.Size(191, 17);
+			this.checkboxAllowShrink.PropertyName = "OutputPrintAllowShrink";
+			this.checkboxAllowShrink.Size = new System.Drawing.Size(168, 17);
 			this.checkboxAllowShrink.TabIndex = 21;
-			this.checkboxAllowShrink.Text = "Shrink large printouts to paper size.";
+			this.checkboxAllowShrink.Text = "Shrink printout to fit paper size";
 			this.checkboxAllowShrink.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowShrink.UseVisualStyleBackColor = true;
 			// 
@@ -90,11 +93,13 @@ namespace Greenshot.Forms
 			this.checkboxAllowEnlarge.AutoSize = true;
 			this.checkboxAllowEnlarge.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowEnlarge.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
 			this.checkboxAllowEnlarge.Location = new System.Drawing.Point(12, 43);
 			this.checkboxAllowEnlarge.Name = "checkboxAllowEnlarge";
-			this.checkboxAllowEnlarge.Size = new System.Drawing.Size(197, 17);
+			this.checkboxAllowEnlarge.PropertyName = "OutputPrintAllowEnlarge";
+			this.checkboxAllowEnlarge.Size = new System.Drawing.Size(174, 17);
 			this.checkboxAllowEnlarge.TabIndex = 22;
-			this.checkboxAllowEnlarge.Text = "Enlarge small printouts to paper size.";
+			this.checkboxAllowEnlarge.Text = "Enlarge printout to fit paper size";
 			this.checkboxAllowEnlarge.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowEnlarge.UseVisualStyleBackColor = true;
 			// 
@@ -103,11 +108,13 @@ namespace Greenshot.Forms
 			this.checkboxAllowCenter.AutoSize = true;
 			this.checkboxAllowCenter.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowCenter.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
 			this.checkboxAllowCenter.Location = new System.Drawing.Point(12, 89);
 			this.checkboxAllowCenter.Name = "checkboxAllowCenter";
-			this.checkboxAllowCenter.Size = new System.Drawing.Size(200, 17);
+			this.checkboxAllowCenter.PropertyName = "OutputPrintCenter";
+			this.checkboxAllowCenter.Size = new System.Drawing.Size(137, 17);
 			this.checkboxAllowCenter.TabIndex = 24;
-			this.checkboxAllowCenter.Text = "Align printouts centered on the page.";
+			this.checkboxAllowCenter.Text = "Center printout on page";
 			this.checkboxAllowCenter.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowCenter.UseVisualStyleBackColor = true;
 			// 
@@ -116,11 +123,13 @@ namespace Greenshot.Forms
 			this.checkboxAllowRotate.AutoSize = true;
 			this.checkboxAllowRotate.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowRotate.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
 			this.checkboxAllowRotate.Location = new System.Drawing.Point(12, 66);
 			this.checkboxAllowRotate.Name = "checkboxAllowRotate";
-			this.checkboxAllowRotate.Size = new System.Drawing.Size(195, 17);
+			this.checkboxAllowRotate.PropertyName = "OutputPrintAllowRotate";
+			this.checkboxAllowRotate.Size = new System.Drawing.Size(187, 17);
 			this.checkboxAllowRotate.TabIndex = 23;
-			this.checkboxAllowRotate.Text = "Rotate printouts to page orientation.";
+			this.checkboxAllowRotate.Text = "Rotate printout to page orientation";
 			this.checkboxAllowRotate.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowRotate.UseVisualStyleBackColor = true;
 			// 
@@ -140,8 +149,10 @@ namespace Greenshot.Forms
 			this.checkboxDateTime.AutoSize = true;
 			this.checkboxDateTime.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxDateTime.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkboxDateTime.LanguageKey = "printoptions_timestamp";
 			this.checkboxDateTime.Location = new System.Drawing.Point(12, 112);
 			this.checkboxDateTime.Name = "checkboxDateTime";
+			this.checkboxDateTime.PropertyName = "OutputPrintFooter";
 			this.checkboxDateTime.Size = new System.Drawing.Size(187, 17);
 			this.checkboxDateTime.TabIndex = 26;
 			this.checkboxDateTime.Text = "Print date / time at bottom of page";
@@ -158,16 +169,18 @@ namespace Greenshot.Forms
 			this.button_cancel.Text = "Cancel";
 			this.button_cancel.UseVisualStyleBackColor = true;
 			// 
-			// checkBox1
+			// checkboxPrintInverted
 			// 
 			this.checkboxPrintInverted.AutoSize = true;
 			this.checkboxPrintInverted.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkboxPrintInverted.LanguageKey = "printoptions_inverted";
 			this.checkboxPrintInverted.Location = new System.Drawing.Point(12, 132);
-			this.checkboxPrintInverted.Name = "checkBox1";
-			this.checkboxPrintInverted.Size = new System.Drawing.Size(88, 17);
+			this.checkboxPrintInverted.Name = "checkboxPrintInverted";
+			this.checkboxPrintInverted.PropertyName = "OutputPrintInverted";
+			this.checkboxPrintInverted.Size = new System.Drawing.Size(141, 17);
 			this.checkboxPrintInverted.TabIndex = 28;
-			this.checkboxPrintInverted.Text = "Print inverted";
+			this.checkboxPrintInverted.Text = "Print with inverted colors";
 			this.checkboxPrintInverted.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.UseVisualStyleBackColor = true;
 			// 
@@ -185,22 +198,24 @@ namespace Greenshot.Forms
 			this.Controls.Add(this.checkboxAllowRotate);
 			this.Controls.Add(this.checkboxAllowEnlarge);
 			this.Controls.Add(this.checkboxAllowShrink);
+			this.LanguageKey = "printoptions_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "PrintOptionsDialog";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.Text = "PrintOptionsDialog";
+			this.Text = "Greenshot print options";
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
-		private System.Windows.Forms.CheckBox checkboxPrintInverted;
-		private System.Windows.Forms.Button button_cancel;
-		private System.Windows.Forms.CheckBox checkboxDateTime;
-		private System.Windows.Forms.Button button_ok;
-		private System.Windows.Forms.CheckBox checkboxAllowRotate;
-		private System.Windows.Forms.CheckBox checkboxAllowCenter;
-		private System.Windows.Forms.CheckBox checkboxAllowEnlarge;
-		private System.Windows.Forms.CheckBox checkboxAllowShrink;
-		private System.Windows.Forms.CheckBox checkbox_dontaskagain;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxPrintInverted;
+		private GreenshotPlugin.Controls.GreenshotButton button_cancel;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxDateTime;
+		private GreenshotPlugin.Controls.GreenshotButton button_ok;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowRotate;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowCenter;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowEnlarge;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowShrink;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_dontaskagain;
 	}
 }

@@ -28,7 +28,7 @@ namespace Greenshot.Forms {
 	/// <summary>
 	/// Description of PrintOptionsDialog.
 	/// </summary>
-	public partial class PrintOptionsDialog : Form {
+	public partial class PrintOptionsDialog : BaseForm {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public bool AllowPrintCenter;
@@ -44,46 +44,15 @@ namespace Greenshot.Forms {
 			//
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-		
-			this.AllowPrintCenter = this.checkboxAllowCenter.Checked = conf.OutputPrintCenter;
-			this.AllowPrintEnlarge = this.checkboxAllowEnlarge.Checked = conf.OutputPrintAllowEnlarge;
-			this.AllowPrintRotate = this.checkboxAllowRotate.Checked = conf.OutputPrintAllowRotate;
-			this.AllowPrintShrink = this.checkboxAllowShrink.Checked = conf.OutputPrintAllowShrink;
-			this.PrintInverted = this.checkboxPrintInverted.Checked = conf.OutputPrintInverted;
-			this.PrintDateTime = this.checkboxDateTime.Checked = conf.OutputPrintFooter;
 			this.checkbox_dontaskagain.Checked = false;
-			UpdateUI();
-		}
-		
-		void UpdateUI() {
-			this.Text = Language.GetString(LangKey.printoptions_title);
-			this.checkboxAllowCenter.Text = Language.GetString(LangKey.printoptions_allowcenter);
-			this.checkboxAllowEnlarge.Text = Language.GetString(LangKey.printoptions_allowenlarge);
-			this.checkboxAllowRotate.Text = Language.GetString(LangKey.printoptions_allowrotate);
-			this.checkboxAllowShrink.Text = Language.GetString(LangKey.printoptions_allowshrink);
-			this.checkbox_dontaskagain.Text = Language.GetString(LangKey.printoptions_dontaskagain);
-			this.checkboxDateTime.Text = Language.GetString(LangKey.printoptions_timestamp);
-			this.checkboxPrintInverted.Text = Language.GetString(LangKey.printoptions_inverted);
 		}
 		
 		
 		void Button_okClick(object sender, EventArgs e) {
-			this.AllowPrintCenter = this.checkboxAllowCenter.Checked;
-			this.AllowPrintEnlarge = this.checkboxAllowEnlarge.Checked;
-			this.AllowPrintRotate = this.checkboxAllowRotate.Checked;
-			this.AllowPrintShrink = this.checkboxAllowShrink.Checked;
-			this.PrintDateTime = this.checkboxDateTime.Checked;
-			this.PrintInverted = this.checkboxPrintInverted.Checked;
-
 			// update config
-			conf.OutputPrintCenter = this.AllowPrintCenter;
-			conf.OutputPrintAllowEnlarge = this.AllowPrintEnlarge;
-			conf.OutputPrintAllowRotate = this.AllowPrintRotate;
-			conf.OutputPrintAllowShrink = this.AllowPrintShrink;
-			conf.OutputPrintFooter = this.PrintDateTime;
-			conf.OutputPrintInverted = this.PrintInverted;
 			conf.OutputPrintPromptOptions = !this.checkbox_dontaskagain.Checked;
 			IniConfig.Save();
+			DialogResult = DialogResult.OK;
 		}
 	}
 }

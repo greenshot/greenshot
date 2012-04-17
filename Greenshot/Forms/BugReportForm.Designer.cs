@@ -46,25 +46,27 @@ namespace Greenshot.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.labelBugReportInfo = new System.Windows.Forms.Label();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BugReportForm));
+			this.labelBugReportInfo = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBoxDescription = new System.Windows.Forms.TextBox();
-			this.btnClose = new System.Windows.Forms.Button();
+			this.btnClose = new GreenshotPlugin.Controls.GreenshotButton();
 			this.linkLblBugs = new System.Windows.Forms.LinkLabel();
 			this.SuspendLayout();
 			// 
 			// labelBugReportInfo
 			// 
+			this.labelBugReportInfo.LanguageKey = "bugreport_info";
 			this.labelBugReportInfo.Location = new System.Drawing.Point(12, 9);
 			this.labelBugReportInfo.Name = "labelBugReportInfo";
 			this.labelBugReportInfo.Size = new System.Drawing.Size(481, 141);
 			this.labelBugReportInfo.TabIndex = 0;
-			this.labelBugReportInfo.Text = "Sorry, an unexpected error occured.";
+			this.labelBugReportInfo.Text = resources.GetString("labelBugReportInfo.Text");
 			// 
 			// textBoxDescription
 			// 
-			this.textBoxDescription.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxDescription.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this.textBoxDescription.Location = new System.Drawing.Point(12, 179);
 			this.textBoxDescription.Multiline = true;
 			this.textBoxDescription.Name = "textBoxDescription";
@@ -76,6 +78,7 @@ namespace Greenshot.Forms {
 			// 
 			this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.btnClose.LanguageKey = "bugreport_cancel";
 			this.btnClose.Location = new System.Drawing.Point(377, 417);
 			this.btnClose.Name = "btnClose";
 			this.btnClose.Size = new System.Drawing.Size(139, 23);
@@ -103,14 +106,16 @@ namespace Greenshot.Forms {
 			this.Controls.Add(this.btnClose);
 			this.Controls.Add(this.textBoxDescription);
 			this.Controls.Add(this.labelBugReportInfo);
+			this.LanguageKey = "bugreport_title";
 			this.Name = "BugReportForm";
 			this.Text = "Error";
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.LinkLabel linkLblBugs;
-		private System.Windows.Forms.Button btnClose;
+		private GreenshotPlugin.Controls.GreenshotButton btnClose;
 		private System.Windows.Forms.TextBox textBoxDescription;
-		private System.Windows.Forms.Label labelBugReportInfo;
+		private GreenshotPlugin.Controls.GreenshotLabel labelBugReportInfo;
 	}
 }

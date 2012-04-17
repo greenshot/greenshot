@@ -32,7 +32,7 @@ namespace Greenshot {
 	/// <summary>
 	/// Description of AboutForm.
 	/// </summary>
-	public partial class AboutForm : Form {
+	public partial class AboutForm : BaseForm {
 		public AboutForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -43,17 +43,6 @@ namespace Greenshot {
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
 			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable?" Portable":"") + (" (" + OSInfo.Bits +" bit)");
-			updateUI();
-		}
-		
-		void updateUI() {
-			this.Text = Language.GetString(LangKey.about_title);
-			this.lblLicense.Text = Language.GetString(LangKey.about_license);
-			this.lblHost.Text = Language.GetString(LangKey.about_host);
-			this.lblBugs.Text = Language.GetString(LangKey.about_bugs);
-			this.lblDonations.Text = Language.GetString(LangKey.about_donations);
-			this.lblIcons.Text = Language.GetString(LangKey.about_icons);
-			this.lblTranslation.Text = Language.GetString(LangKey.about_translation);
 		}
 
 		void LinkLabelClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {

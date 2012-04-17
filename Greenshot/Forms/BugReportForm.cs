@@ -25,26 +25,18 @@ using Greenshot.Helpers;
 using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
-	public partial class BugReportForm : Form {
+	public partial class BugReportForm : BaseForm {
 		private BugReportForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			UpdateUI();
 			WindowDetails.ToForeground(this.Handle);
 		}
-		
-		
+
 		public BugReportForm(string bugText) : this() {
 			this.textBoxDescription.Text = bugText;
-		}
-		
-		void UpdateUI() {
-			this.Text = Language.GetString(LangKey.bugreport_title);
-			this.labelBugReportInfo.Text = Language.GetString(LangKey.bugreport_info);
-			this.btnClose.Text = Language.GetString(LangKey.bugreport_cancel);
 		}
 		
 		void LinkLblBugsLinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {

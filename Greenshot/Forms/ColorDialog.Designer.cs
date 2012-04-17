@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 namespace Greenshot {
-	partial class ColorDialog : System.Windows.Forms.Form {
+	public partial class ColorDialog {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
@@ -47,26 +47,27 @@ namespace Greenshot {
 		private void InitializeComponent()
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ColorDialog));
-			this.SuspendLayout();
-			this.btnTransparent = new System.Windows.Forms.Button();
+			this.btnTransparent = new GreenshotPlugin.Controls.GreenshotButton();
 			this.colorPanel = new System.Windows.Forms.Panel();
-			this.labelHtmlColor = new System.Windows.Forms.Label();
+			this.labelHtmlColor = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBoxHtmlColor = new System.Windows.Forms.TextBox();
-			this.labelRed = new System.Windows.Forms.Label();
-			this.labelGreen = new System.Windows.Forms.Label();
-			this.labelBlue = new System.Windows.Forms.Label();
+			this.labelRed = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.labelGreen = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.labelBlue = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBoxRed = new System.Windows.Forms.TextBox();
 			this.textBoxGreen = new System.Windows.Forms.TextBox();
 			this.textBoxBlue = new System.Windows.Forms.TextBox();
-			this.labelRecentColors = new System.Windows.Forms.Label();
+			this.labelRecentColors = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBoxAlpha = new System.Windows.Forms.TextBox();
-			this.labelAlpha = new System.Windows.Forms.Label();
-			this.btnApply = new System.Windows.Forms.Button();
+			this.labelAlpha = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.btnApply = new GreenshotPlugin.Controls.GreenshotButton();
 			this.pipette = new Greenshot.Controls.Pipette();
+			this.SuspendLayout();
 			// 
 			// btnTransparent
 			// 
 			this.btnTransparent.BackColor = System.Drawing.Color.Transparent;
+			this.btnTransparent.LanguageKey = "colorpicker_transparent";
 			this.btnTransparent.Location = new System.Drawing.Point(210, 4);
 			this.btnTransparent.Name = "btnTransparent";
 			this.btnTransparent.Size = new System.Drawing.Size(78, 23);
@@ -87,6 +88,7 @@ namespace Greenshot {
 			// labelHtmlColor
 			// 
 			this.labelHtmlColor.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelHtmlColor.LanguageKey = "colorpicker_htmlcolor";
 			this.labelHtmlColor.Location = new System.Drawing.Point(210, 57);
 			this.labelHtmlColor.Name = "labelHtmlColor";
 			this.labelHtmlColor.Size = new System.Drawing.Size(78, 17);
@@ -100,13 +102,14 @@ namespace Greenshot {
 			this.textBoxHtmlColor.Size = new System.Drawing.Size(78, 20);
 			this.textBoxHtmlColor.TabIndex = 1;
 			this.textBoxHtmlColor.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxHtmlColor.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxHtmlColor.TextChanged += new System.EventHandler(this.TextBoxHexadecimalTextChanged);
+			this.textBoxHtmlColor.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxHtmlColor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// labelRed
 			// 
 			this.labelRed.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelRed.LanguageKey = "colorpicker_red";
 			this.labelRed.Location = new System.Drawing.Point(210, 98);
 			this.labelRed.Name = "labelRed";
 			this.labelRed.Size = new System.Drawing.Size(78, 18);
@@ -116,6 +119,7 @@ namespace Greenshot {
 			// labelGreen
 			// 
 			this.labelGreen.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelGreen.LanguageKey = "colorpicker_green";
 			this.labelGreen.Location = new System.Drawing.Point(210, 122);
 			this.labelGreen.Name = "labelGreen";
 			this.labelGreen.Size = new System.Drawing.Size(78, 18);
@@ -125,6 +129,7 @@ namespace Greenshot {
 			// labelBlue
 			// 
 			this.labelBlue.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelBlue.LanguageKey = "colorpicker_blue";
 			this.labelBlue.Location = new System.Drawing.Point(210, 146);
 			this.labelBlue.Name = "labelBlue";
 			this.labelBlue.Size = new System.Drawing.Size(78, 18);
@@ -139,8 +144,8 @@ namespace Greenshot {
 			this.textBoxRed.TabIndex = 2;
 			this.textBoxRed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.textBoxRed.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxRed.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxRed.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
+			this.textBoxRed.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxRed.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// textBoxGreen
@@ -151,8 +156,8 @@ namespace Greenshot {
 			this.textBoxGreen.TabIndex = 3;
 			this.textBoxGreen.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.textBoxGreen.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxGreen.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxGreen.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
+			this.textBoxGreen.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxGreen.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// textBoxBlue
@@ -163,12 +168,13 @@ namespace Greenshot {
 			this.textBoxBlue.TabIndex = 4;
 			this.textBoxBlue.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.textBoxBlue.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxBlue.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxBlue.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
+			this.textBoxBlue.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxBlue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// labelRecentColors
 			// 
+			this.labelRecentColors.LanguageKey = "colorpicker_recentcolors";
 			this.labelRecentColors.Location = new System.Drawing.Point(3, 175);
 			this.labelRecentColors.Name = "labelRecentColors";
 			this.labelRecentColors.Size = new System.Drawing.Size(148, 13);
@@ -183,13 +189,14 @@ namespace Greenshot {
 			this.textBoxAlpha.TabIndex = 5;
 			this.textBoxAlpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.textBoxAlpha.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxAlpha.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxAlpha.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
+			this.textBoxAlpha.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxAlpha.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
 			// labelAlpha
 			// 
 			this.labelAlpha.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelAlpha.LanguageKey = "colorpicker_alpha";
 			this.labelAlpha.Location = new System.Drawing.Point(210, 170);
 			this.labelAlpha.Name = "labelAlpha";
 			this.labelAlpha.Size = new System.Drawing.Size(78, 18);
@@ -199,6 +206,7 @@ namespace Greenshot {
 			// btnApply
 			// 
 			this.btnApply.BackColor = System.Drawing.Color.Transparent;
+			this.btnApply.LanguageKey = "colorpicker_apply";
 			this.btnApply.Location = new System.Drawing.Point(210, 191);
 			this.btnApply.Name = "btnApply";
 			this.btnApply.Size = new System.Drawing.Size(78, 23);
@@ -212,6 +220,7 @@ namespace Greenshot {
 			// 
 			this.pipette.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.pipette.Cursor = System.Windows.Forms.Cursors.Arrow;
+			this.pipette.Image = ((System.Drawing.Image)(resources.GetObject("pipette.Image")));
 			this.pipette.Location = new System.Drawing.Point(255, 30);
 			this.pipette.Name = "pipette";
 			this.pipette.Size = new System.Drawing.Size(33, 23);
@@ -239,31 +248,32 @@ namespace Greenshot {
 			this.Controls.Add(this.colorPanel);
 			this.Controls.Add(this.btnTransparent);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			this.LanguageKey = "colorpicker_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "ColorDialog";
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.Text = "TestProject";
+			this.Text = "Color picker";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
 		}
-		private System.Windows.Forms.Label labelRed;
-		private System.Windows.Forms.Label labelGreen;
-		private System.Windows.Forms.Label labelBlue;
+		private GreenshotPlugin.Controls.GreenshotLabel labelRed;
+		private GreenshotPlugin.Controls.GreenshotLabel labelGreen;
+		private GreenshotPlugin.Controls.GreenshotLabel labelBlue;
 		private System.Windows.Forms.TextBox textBoxHtmlColor;
-		private System.Windows.Forms.Label labelRecentColors;
-		private System.Windows.Forms.Label labelAlpha;
-		private System.Windows.Forms.Label labelHtmlColor;
-		private System.Windows.Forms.Button btnApply;
+		private GreenshotPlugin.Controls.GreenshotLabel labelRecentColors;
+		private GreenshotPlugin.Controls.GreenshotLabel labelAlpha;
+		private GreenshotPlugin.Controls.GreenshotLabel labelHtmlColor;
+		private GreenshotPlugin.Controls.GreenshotButton btnApply;
 		private System.Windows.Forms.TextBox textBoxAlpha;
 		private System.Windows.Forms.TextBox textBoxRed;
 		private System.Windows.Forms.TextBox textBoxGreen;
 		private System.Windows.Forms.TextBox textBoxBlue;
 		private System.Windows.Forms.Panel colorPanel;
-		private System.Windows.Forms.Button btnTransparent;
+		private GreenshotPlugin.Controls.GreenshotButton btnTransparent;
 		private Greenshot.Controls.Pipette pipette;
 		
 		
