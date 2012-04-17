@@ -11,16 +11,13 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-using ExternalCommand;
 using Greenshot.IniFile;
 
-namespace GreenshotExternalCommandPlugin
-{
+namespace ExternalCommand {
 	/// <summary>
 	/// Description of SettingsFormDetail.
 	/// </summary>
-	public partial class SettingsFormDetail : Form
-	{
+	public partial class SettingsFormDetail : ExternalCommandForm {
 		private string commando;
 		private int commandIndex;
 		

@@ -24,14 +24,13 @@ using System.IO;
 using System.Windows.Forms;
 
 using Greenshot.IniFile;
-using GreenshotExternalCommandPlugin;
 using GreenshotPlugin.Core;
 
 namespace ExternalCommand {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
-	public partial class SettingsForm : Form {
+	public partial class SettingsForm : ExternalCommandForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
 		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		
@@ -40,6 +39,7 @@ namespace ExternalCommand {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			UpdateView();
 		}
 		

@@ -86,7 +86,7 @@ namespace ExternalCommand {
 				commandThread.Name = "Running " + presetCommand;
 				commandThread.IsBackground = true;
 				commandThread.Start();
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, host.CoreLanguage.GetFormattedString("exported_to", Description));
+				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", Description));
 				surface.Modified = false;
 			}
 			return true;

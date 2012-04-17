@@ -47,13 +47,13 @@ namespace ExternalCommand {
 		private void InitializeComponent()
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
-			this.buttonCancel = new System.Windows.Forms.Button();
-			this.buttonOk = new System.Windows.Forms.Button();
+			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
+			this.buttonOk = new GreenshotPlugin.Controls.GreenshotButton();
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.button1 = new System.Windows.Forms.Button();
-			this.button2 = new System.Windows.Forms.Button();
-			this.button4 = new System.Windows.Forms.Button();
+			this.button1 = new GreenshotPlugin.Controls.GreenshotButton();
+			this.button2 = new GreenshotPlugin.Controls.GreenshotButton();
+			this.button4 = new GreenshotPlugin.Controls.GreenshotButton();
 			this.SuspendLayout();
 			// 
 			// buttonCancel
@@ -142,18 +142,16 @@ namespace ExternalCommand {
 			this.Controls.Add(this.listView1);
 			this.Controls.Add(this.buttonOk);
 			this.Controls.Add(this.buttonCancel);
-			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "SettingsForm";
-			this.Text = "Command Editor";
 			this.ResumeLayout(false);
 		}
-		private System.Windows.Forms.Button button4;
-		private System.Windows.Forms.Button button2;
-		private System.Windows.Forms.Button button1;
+		private GreenshotPlugin.Controls.GreenshotButton button4;
+		private GreenshotPlugin.Controls.GreenshotButton button2;
+		private GreenshotPlugin.Controls.GreenshotButton button1;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ListView listView1;
-		private System.Windows.Forms.Button buttonOk;
-		private System.Windows.Forms.Button buttonCancel;
+		private GreenshotPlugin.Controls.GreenshotButton buttonOk;
+		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
 		
 	}
 }
