@@ -37,13 +37,10 @@ namespace GreenshotImgurPlugin  {
 	public class ImgurDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
-		private ILanguage lang = Language.GetInstance();
 		private ImgurPlugin plugin = null;
-		private ILanguage coreLanguage;
 
 		public ImgurDestination(ImgurPlugin plugin) {
 			this.plugin = plugin;
-			this.coreLanguage = plugin.CoreLanguage;
 		}
 		
 		public override string Designation {
@@ -54,7 +51,7 @@ namespace GreenshotImgurPlugin  {
 
 		public override string Description {
 			get {
-				return lang.GetString(LangKey.upload_menu_item);
+				return Language.GetString("imgur", LangKey.upload_menu_item);
 			}
 		}
 
@@ -69,7 +66,7 @@ namespace GreenshotImgurPlugin  {
 			using (Image image = surface.GetImageForExport()) {
 				bool uploaded = plugin.Upload(captureDetails, image);
 				if (uploaded) {
-					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, coreLanguage.GetFormattedString("exported_to", Description));
+					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("imgur", "exported_to", Description));
 					surface.Modified = false;
 				}
 				return uploaded;

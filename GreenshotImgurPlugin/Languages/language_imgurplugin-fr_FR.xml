@@ -13,23 +13,29 @@
 	<resource name="label_use_proxy">
 		Utiliser proxy
 	</resource>
-  	<resource name="OK">
+	<resource name="OK">
 		OK
 	</resource>
-  	<resource name="CANCEL">
+	<resource name="CANCEL">
 		Annuler
 	</resource>
-  	<resource name="upload_success">
+	<resource name="upload_success">
 		L'image a été téléversée vers Imgur avec succès !
 	</resource>
-  	<resource name="upload_failure">
+	<resource name="upload_failure">
 		Une erreur est survenue lors du téléversement vers Imgur:
 	</resource>
-  	<resource name="label_upload_format">
-  		Format d'image
+	<resource name="label_upload_format">
+		Format d'image
 	</resource>
-  	<resource name="upload_wait">
-  		Téléversement vers ImgUr, veuillez patienter...
+	<resource name="upload_wait">
+		Téléversement vers ImgUr, veuillez patienter...
+	</resource>
+	<resource name="history">
+		Histoire
+	</resource>
+	<resource name="configure">
+		Configurer
 	</resource>
   </resources>
 </language>

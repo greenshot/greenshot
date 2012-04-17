@@ -27,7 +27,6 @@ using System.Windows.Forms;
 using System.Threading;
 
 using Greenshot.Plugin;
-using GreenshotImgurPlugin.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
@@ -40,7 +39,6 @@ namespace GreenshotImgurPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
 		private static ImgurConfiguration config;
 		public static PluginAttribute Attributes;
-		private ILanguage lang = Language.GetInstance();
 		private IGreenshotHost host;
 		private ComponentResourceManager resources;
 		private ToolStripMenuItem historyMenuItem = null;
@@ -48,11 +46,6 @@ namespace GreenshotImgurPlugin {
 		public ImgurPlugin() {
 		}
 
-		public ILanguage CoreLanguage {
-			get {
-				return host.CoreLanguage;
-			}
-		}
 		public IEnumerable<IDestination> Destinations() {
 			yield return new ImgurDestination(this);
 		}
@@ -79,14 +72,14 @@ namespace GreenshotImgurPlugin {
 			ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Imgur");
 			itemPlugInRoot.Image = (Image)resources.GetObject("Imgur");
 
-			historyMenuItem = new ToolStripMenuItem(lang.GetString(LangKey.imgur_history));
+			historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.imgur_history));
 			historyMenuItem.Tag = host;
 			historyMenuItem.Click += delegate {
 				ImgurHistory.ShowHistory();
 			};
 			itemPlugInRoot.DropDownItems.Add(historyMenuItem);
 
-			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem(lang.GetString(LangKey.imgur_configure));
+			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.imgur_configure));
 			itemPlugInConfig.Tag = host;
 			itemPlugInConfig.Click += delegate {
 				config.ShowConfigDialog();
@@ -138,7 +131,7 @@ namespace GreenshotImgurPlugin {
 		
 		public bool Upload(ICaptureDetails captureDetails, Image image) {
 			using (MemoryStream stream = new MemoryStream()) {
-				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, lang.GetString(LangKey.communication_wait));
+				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait));
 
 				host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 				try {
@@ -161,7 +154,7 @@ namespace GreenshotImgurPlugin {
 					}
 					return true;
 				} catch (Exception e) {
-					MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
+					MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
 				} finally {
 					backgroundForm.CloseDialog();
 				}
@@ -176,7 +169,7 @@ namespace GreenshotImgurPlugin {
 			ToolStripMenuItem item = (ToolStripMenuItem)sender;
 			IImageEditor imageEditor = (IImageEditor)item.Tag;
 			using (MemoryStream stream = new MemoryStream()) {
-				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, lang.GetString(LangKey.communication_wait));
+				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait));
 
 				imageEditor.SaveToStream(stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 				try {
@@ -199,7 +192,7 @@ namespace GreenshotImgurPlugin {
 						Clipboard.SetText(imgurInfo.Original);
 					}
 				} catch(Exception e) {
-					MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
+					MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
 				} finally {
 					backgroundForm.CloseDialog();
 				}

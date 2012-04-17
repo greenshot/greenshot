@@ -107,7 +107,7 @@ namespace GreenshotImgurPlugin {
 				uploadRequest.Append(HttpUtility.UrlEncode(filename, Encoding.UTF8));
 			}
 			string url = config.ImgurApiUrl + "/upload";
-			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreatedWebRequest(url);
+			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 
 			webRequest.Method = "POST";
 			webRequest.ContentType = "application/x-www-form-urlencoded";
@@ -125,11 +125,11 @@ namespace GreenshotImgurPlugin {
 			LOG.Info(responseString);
 			ImgurInfo imgurInfo = ImgurInfo.ParseResponse(responseString);
 			return imgurInfo;
-        }
+		}
 
 		public static void RetrieveImgurThumbnail(ImgurInfo imgurInfo) {
 			LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo);
-			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreatedWebRequest(imgurInfo.SmallSquare);
+			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(imgurInfo.SmallSquare);
 			webRequest.Method = "GET";
 			webRequest.ServicePoint.Expect100Continue = false;
 
@@ -143,7 +143,7 @@ namespace GreenshotImgurPlugin {
 		public static ImgurInfo RetrieveImgurInfo(string hash, string deleteHash) {
 			string url = config.ImgurApiUrl + "/image/" + hash;
 			LOG.InfoFormat("Retrieving Imgur info for {0} with url {1}", hash, url);
-			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreatedWebRequest(url);
+			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 			webRequest.Method = "GET";
 			webRequest.ServicePoint.Expect100Continue = false;
 			string responseString;
@@ -172,7 +172,7 @@ namespace GreenshotImgurPlugin {
 			
 			try {
 				string url = config.ImgurApiUrl + "/delete/" + imgurInfo.DeleteHash;
-				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreatedWebRequest(url);
+				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 	
 				//webRequest.Method = "DELETE";
 				webRequest.Method = "GET";

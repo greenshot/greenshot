@@ -37,10 +37,13 @@
 	<resource name="delete_title">
 		Imgur {0} verwijderen
 	</resource>
-	<resource name="imgur_history">
-		Geschiedenis
+	<resource name="use_page_link">
+		Kopieer de pagina link in plaats van de beeld link in het klembord
 	</resource>
-	<resource name="imgur_configure">
+	<resource name="history">
+		Verloop
+	</resource>
+	<resource name="configure">
 		Instellingen
 	</resource>
   </resources>

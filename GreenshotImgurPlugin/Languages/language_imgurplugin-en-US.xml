@@ -40,10 +40,10 @@
 	<resource name="use_page_link">
 		Use page link instead of image link on clipboard
 	</resource>
-	<resource name="imgur_history">
+	<resource name="history">
 		History
 	</resource>
-	<resource name="imgur_configure">
+	<resource name="configure">
 		Configure
 	</resource>
   </resources>

@@ -59,7 +59,7 @@ namespace GreenshotImgurPlugin {
 			// buttonOK
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonOK.LanguageKey = "OK";
+			this.buttonOK.LanguageKey = "imgur.OK";
 			this.buttonOK.Location = new System.Drawing.Point(222, 129);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
@@ -70,7 +70,7 @@ namespace GreenshotImgurPlugin {
 			// buttonCancel
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonCancel.LanguageKey = "CANCEL";
+			this.buttonCancel.LanguageKey = "imgur.CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(303, 129);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -80,7 +80,7 @@ namespace GreenshotImgurPlugin {
 			// 
 			// label_url
 			// 
-			this.label_url.LanguageKey = "label_url";
+			this.label_url.LanguageKey = "imgur.label_url";
 			this.label_url.Location = new System.Drawing.Point(12, 21);
 			this.label_url.Name = "label_url";
 			this.label_url.Size = new System.Drawing.Size(84, 20);
@@ -109,34 +109,32 @@ namespace GreenshotImgurPlugin {
 			// 
 			// label_upload_format
 			// 
-			this.label_upload_format.LanguageKey = "label_upload_format";
+			this.label_upload_format.LanguageKey = "imgur.label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(12, 50);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(84, 20);
 			this.label_upload_format.TabIndex = 9;
-			this.label_upload_format.Text = "Image format";
 			// 
 			// historyButton
 			// 
 			this.historyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.historyButton.LanguageKey = "imgur_history";
+			this.historyButton.LanguageKey = "imgur.history";
 			this.historyButton.Location = new System.Drawing.Point(13, 129);
 			this.historyButton.Name = "historyButton";
 			this.historyButton.Size = new System.Drawing.Size(75, 23);
 			this.historyButton.TabIndex = 11;
-			this.historyButton.Text = "History";
 			this.historyButton.UseVisualStyleBackColor = true;
 			this.historyButton.Click += new System.EventHandler(this.ButtonHistoryClick);
 			// 
 			// checkbox_usepagelink
 			// 
 			this.checkbox_usepagelink.AutoSize = true;
-			this.checkbox_usepagelink.LanguageKey = "use_page_link";
+			this.checkbox_usepagelink.LanguageKey = "imgur.use_page_link";
 			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 97);
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
 			this.checkbox_usepagelink.PropertyName = "UsePageLink";
 			this.checkbox_usepagelink.SectionName = "Imgur";
-			this.checkbox_usepagelink.Size = new System.Drawing.Size(251, 17);
+			this.checkbox_usepagelink.Size = new System.Drawing.Size(297, 17);
 			this.checkbox_usepagelink.TabIndex = 13;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 
@@ -154,10 +152,10 @@ namespace GreenshotImgurPlugin {
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			this.LanguageKey = "imgur.settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
-			this.Text = "Imgur settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

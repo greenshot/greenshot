@@ -37,10 +37,13 @@
 	<resource name="delete_title">
 		Imgur {0} löschen
 	</resource>
-	<resource name="imgur_history">
+	<resource name="use_page_link">
+		Benutze der Seite-URL statt Bild-URL im Zwischenablage
+	</resource>
+	<resource name="history">
 		Verlauf
 	</resource>
-	<resource name="imgur_configure">
+	<resource name="configure">
 		Einstellungen
 	</resource>
   </resources>

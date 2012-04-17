@@ -20,7 +20,6 @@
  */
 using System;
 using System.Windows.Forms;
-using GreenshotImgurPlugin.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Controls;
 
@@ -29,8 +28,7 @@ namespace GreenshotImgurPlugin {
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : ImgurForm {
-		public SettingsForm(ImgurConfiguration config) {
-			language = Language.GetInstance();
+		public SettingsForm(ImgurConfiguration config) : base() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

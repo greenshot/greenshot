@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 
-namespace GreenshotImgurPlugin.Forms {
+namespace GreenshotImgurPlugin {
 	/// <summary>
 	/// Description of ImgurHistory.
 	/// </summary>
@@ -35,7 +35,6 @@ namespace GreenshotImgurPlugin.Forms {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
 		private ListViewColumnSorter columnSorter;
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
-		private ILanguage lang = Language.GetInstance();
 		private static ImgurHistory instance;
 		
 		public static void ShowHistory() {
@@ -119,9 +118,9 @@ namespace GreenshotImgurPlugin.Forms {
 				pictureBox1.Image = pictureBox1.ErrorImage;
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
 					ImgurInfo imgurInfo = (ImgurInfo)listview_imgur_uploads.SelectedItems[i].Tag;
-					DialogResult result = MessageBox.Show(lang.GetFormattedString(LangKey.delete_question, imgurInfo.Title), lang.GetFormattedString(LangKey.delete_title, imgurInfo.Hash), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+					DialogResult result = MessageBox.Show(Language.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title), Language.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Hash), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 					if (result == DialogResult.Yes) {
-						BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(ImgurPlugin.Attributes.Name, lang.GetString(LangKey.communication_wait));
+						BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait));
 						try {
 							ImgurUtils.DeleteImgurImage(imgurInfo);
 						} catch (Exception ex) {
@@ -161,7 +160,7 @@ namespace GreenshotImgurPlugin.Forms {
 		}
 
 		private void ClearHistoryButtonClick(object sender, EventArgs e) {
-			DialogResult result = MessageBox.Show(lang.GetString(LangKey.clear_question), "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+			DialogResult result = MessageBox.Show(Language.GetString("imgur", LangKey.clear_question), "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 			if (result == DialogResult.Yes) {
 				config.runtimeImgurHistory.Clear();
 				config.ImgurUploadHistory.Clear();
