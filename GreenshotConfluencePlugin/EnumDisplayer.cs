@@ -31,7 +31,6 @@ using GreenshotPlugin.Core;
 namespace GreenshotConfluencePlugin {
 	public class EnumDisplayer : IValueConverter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EnumDisplayer));
-		private ILanguage lang = Language.GetInstance();
 
 		private Type type;
 		private IDictionary displayValues;
@@ -68,8 +67,8 @@ namespace GreenshotConfluencePlugin {
 					object enumValue = field.GetValue(null);
 					
 					string displayString = null;
-					if (displayKey != null && lang.hasKey(displayKey)) {
-						displayString = lang.GetString(displayKey);
+					if (displayKey != null && Language.hasKey(displayKey)) {
+						displayString = Language.GetString(displayKey);
 					} if (displayKey != null) {
 						displayString = displayKey;
 					} else {

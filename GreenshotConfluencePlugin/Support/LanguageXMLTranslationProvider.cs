@@ -12,8 +12,6 @@ namespace TranslationByMarkupExtension {
     public class LanguageXMLTranslationProvider : ITranslationProvider {
         #region Private Members
 
-        private readonly ILanguage language = Language.GetInstance();
-
         #endregion
 
         #region Construction
@@ -34,8 +32,8 @@ namespace TranslationByMarkupExtension {
         /// See <see cref="ITranslationProvider.Translate" />
         /// </summary>
         public object Translate(string key) {
-        	if (language.hasKey(key)) {
-        		return language.GetString(key);
+        	if (Language.hasKey(key)) {
+				return Language.GetString(key);
         	}
             return key;
         }
@@ -49,7 +47,7 @@ namespace TranslationByMarkupExtension {
         /// </summary>
         public IEnumerable<CultureInfo> Languages {
             get {
-            	foreach (LanguageConfiguration supportedLanguage in language.SupportedLanguages) {
+				foreach (LanguageFile supportedLanguage in Language.SupportedLanguages) {
             		yield return new CultureInfo(supportedLanguage.Ietf);
             	}
             }

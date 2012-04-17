@@ -39,7 +39,6 @@ namespace Greenshot.Destinations {
 		private static string exePath = null;
 		private static Image applicationIcon = null;
 		private static Image notebookIcon = null;
-		private ILanguage lang = Language.GetInstance();
 		private OneNotePage page = null;
 
 		static OneNoteDestination() {

@@ -117,8 +117,7 @@ namespace Greenshot.Helpers {
 					}
 				} catch (Exception e) {
 					LOG.Error("An error ocurred while trying to print", e);
-					ILanguage lang = Language.GetInstance();
-					MessageBox.Show(lang.GetString(LangKey.print_error), lang.GetString(LangKey.error));
+					MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
 				}
 
 			}

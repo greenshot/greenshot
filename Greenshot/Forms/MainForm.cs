@@ -212,11 +212,10 @@ namespace Greenshot {
 
 				if (isAlreadyRunning) {
 					// We didn't initialize the language yet, do it here just for the message box
-					ILanguage lang = Language.GetInstance();
 					if (filesToOpen.Count > 0) {
 						SendData(transport);
 					} else {
-						MessageBox.Show(lang.GetString(LangKey.error_multipleinstances), lang.GetString(LangKey.error));
+						MessageBox.Show(Language.GetString(LangKey.error_multipleinstances), Language.GetString(LangKey.error));
 					}
 					FreeMutex();
 					Application.Exit();
@@ -275,7 +274,6 @@ namespace Greenshot {
 
 		public static MainForm instance = null;
 
-		private ILanguage lang;
 		private ToolTip tooltip;
 		private CopyData copyData = null;
 		
@@ -300,7 +298,6 @@ namespace Greenshot {
 			this.notifyIcon.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
-			lang = Language.GetInstance();
 			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
 			
 			// Make sure all hotkeys pass this window!
@@ -394,7 +391,7 @@ namespace Greenshot {
 							};
 							notifyIcon.BalloonTipClicked += balloonTipClickedHandler;
 							notifyIcon.BalloonTipClosed += balloonTipClosedHandler;
-							notifyIcon.ShowBalloonTip(2000, "Greenshot", lang.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(conf.RegionHotkey)), ToolTipIcon.Info);
+							notifyIcon.ShowBalloonTip(2000, "Greenshot", Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(conf.RegionHotkey)), ToolTipIcon.Info);
 						} catch {}
 						break;
 					case CommandEnum.ReloadConfig:
@@ -428,9 +425,7 @@ namespace Greenshot {
 		/// <param name="source"></param>
 		/// <param name="e"></param>
 		private void ReloadConfiguration(object source, FileSystemEventArgs e) {
-			lang.Load();
-			LanguageContainer.SetGlobalLanguage(conf.Language);
-			lang.FreeResources();
+			Language.CurrentLanguage = null;	// Reload
 			this.Invoke((MethodInvoker) delegate {
 				// Even update language when needed
 				UpdateUI();
@@ -515,28 +510,27 @@ namespace Greenshot {
 			}
 
 			if (!success) {
-				ILanguage lang = Language.GetInstance();
-				MessageBox.Show(lang.GetFormattedString(LangKey.warning_hotkeys, failedKeys.ToString()),lang.GetString(LangKey.warning));
+				MessageBox.Show(Language.GetFormattedString(LangKey.warning_hotkeys, failedKeys.ToString()),Language.GetString(LangKey.warning));
 			}
 		}
 		#endregion
 		
 		public void UpdateUI() {
-			this.Text = lang.GetString(LangKey.application_title);
-			this.contextmenu_settings.Text = lang.GetString(LangKey.contextmenu_settings);
-			this.contextmenu_capturearea.Text = lang.GetString(LangKey.contextmenu_capturearea);
-			this.contextmenu_capturelastregion.Text = lang.GetString(LangKey.contextmenu_capturelastregion);
-			this.contextmenu_capturewindow.Text = lang.GetString(LangKey.contextmenu_capturewindow);
-			this.contextmenu_capturefullscreen.Text = lang.GetString(LangKey.contextmenu_capturefullscreen);
-			this.contextmenu_captureclipboard.Text = lang.GetString(LangKey.contextmenu_captureclipboard);
-			this.contextmenu_openfile.Text = lang.GetString(LangKey.contextmenu_openfile);
-			this.contextmenu_quicksettings.Text = lang.GetString(LangKey.contextmenu_quicksettings);
-			this.contextmenu_help.Text = lang.GetString(LangKey.contextmenu_help);
-			this.contextmenu_about.Text = lang.GetString(LangKey.contextmenu_about);
-			this.contextmenu_donate.Text = lang.GetString(LangKey.contextmenu_donate);
-			this.contextmenu_exit.Text = lang.GetString(LangKey.contextmenu_exit);
-			this.contextmenu_captureie.Text = lang.GetString(LangKey.contextmenu_captureie);
-			this.contextmenu_openrecentcapture.Text = lang.GetString(LangKey.contextmenu_openrecentcapture);
+			this.Text = Language.GetString(LangKey.application_title);
+			this.contextmenu_settings.Text = Language.GetString(LangKey.contextmenu_settings);
+			this.contextmenu_capturearea.Text = Language.GetString(LangKey.contextmenu_capturearea);
+			this.contextmenu_capturelastregion.Text = Language.GetString(LangKey.contextmenu_capturelastregion);
+			this.contextmenu_capturewindow.Text = Language.GetString(LangKey.contextmenu_capturewindow);
+			this.contextmenu_capturefullscreen.Text = Language.GetString(LangKey.contextmenu_capturefullscreen);
+			this.contextmenu_captureclipboard.Text = Language.GetString(LangKey.contextmenu_captureclipboard);
+			this.contextmenu_openfile.Text = Language.GetString(LangKey.contextmenu_openfile);
+			this.contextmenu_quicksettings.Text = Language.GetString(LangKey.contextmenu_quicksettings);
+			this.contextmenu_help.Text = Language.GetString(LangKey.contextmenu_help);
+			this.contextmenu_about.Text = Language.GetString(LangKey.contextmenu_about);
+			this.contextmenu_donate.Text = Language.GetString(LangKey.contextmenu_donate);
+			this.contextmenu_exit.Text = Language.GetString(LangKey.contextmenu_exit);
+			this.contextmenu_captureie.Text = Language.GetString(LangKey.contextmenu_captureie);
+			this.contextmenu_openrecentcapture.Text = Language.GetString(LangKey.contextmenu_openrecentcapture);
 			
 			// Show hotkeys in Contextmenu
 			this.contextmenu_capturearea.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(conf.RegionHotkey);
@@ -746,7 +740,6 @@ namespace Greenshot {
 		}
 
 		public void AddCaptureWindowMenuItems(ToolStripMenuItem menuItem, EventHandler eventHandler) {
-			ILanguage lang = Language.GetInstance();
 			menuItem.DropDownItems.Clear();
 			// check if thumbnailPreview is enabled and DWM is enabled
 			bool thumbnailPreview = conf.ThumnailPreview && DWM.isDWMEnabled();
@@ -883,7 +876,7 @@ namespace Greenshot {
 			this.contextmenu_quicksettings.DropDownItems.Clear();
 			// screenshot destination
 			ToolStripMenuSelectList selectList = new ToolStripMenuSelectList("destinations",true);
-			selectList.Text = lang.GetString(LangKey.settings_destination);
+			selectList.Text = Language.GetString(LangKey.settings_destination);
 			// Working with IDestination:
 			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
 				selectList.AddItem(destination.Description, destination, conf.OutputDestinations.Contains(destination.Designation));
@@ -893,24 +886,24 @@ namespace Greenshot {
 
 			// Capture Modes
 			selectList = new ToolStripMenuSelectList("capturemodes", false);
-			selectList.Text = lang.GetString(LangKey.settings_window_capture_mode);
+			selectList.Text = Language.GetString(LangKey.settings_window_capture_mode);
 			string enumTypeName = typeof(WindowCaptureMode).Name;
 			foreach(WindowCaptureMode captureMode in Enum.GetValues(typeof(WindowCaptureMode))) {
-				selectList.AddItem(lang.GetString(enumTypeName + "." + captureMode.ToString()), captureMode, conf.WindowCaptureMode == captureMode);
+				selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode.ToString()), captureMode, conf.WindowCaptureMode == captureMode);
 			}
 			selectList.CheckedChanged += new EventHandler(this.QuickSettingCaptureModeChanged);
 			this.contextmenu_quicksettings.DropDownItems.Add(selectList);
 
 			// print options
 			selectList = new ToolStripMenuSelectList("printoptions",true);
-			selectList.Text = lang.GetString(LangKey.settings_printoptions);
+			selectList.Text = Language.GetString(LangKey.settings_printoptions);
 			
 			IniValue iniValue;
 			foreach(string propertyName in conf.Values.Keys) {
 				if (propertyName.StartsWith("OutputPrint")) {
 					iniValue = conf.Values[propertyName];
 					if (iniValue.Attributes.LanguageKey != null) {
-						selectList.AddItem(lang.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+						selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
 					}
 				}
 			}
@@ -919,12 +912,12 @@ namespace Greenshot {
 
 			// effects
 			selectList = new ToolStripMenuSelectList("effects",true);
-			selectList.Text = lang.GetString(LangKey.settings_visualization);
+			selectList.Text = Language.GetString(LangKey.settings_visualization);
 
 			iniValue = conf.Values["PlayCameraSound"];
-			selectList.AddItem(lang.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+			selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
 			iniValue = conf.Values["ShowTrayNotification"];
-			selectList.AddItem(lang.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+			selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
 			selectList.CheckedChanged += new EventHandler(this.QuickSettingBoolItemChanged);
 			this.contextmenu_quicksettings.DropDownItems.Add(selectList);
 		}

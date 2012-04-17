@@ -25,14 +25,13 @@ namespace Greenshot.Help
 		
 		private const string EXT_HELP_URL = @"http://getgreenshot.org/help/";
 		
-		private HelpFileLoader()
-		{
+		private HelpFileLoader() {
 		}
 		
 		public static void LoadHelp() {
-			string uri = findOnlineHelpUrl(Language.GetInstance().CurrentLanguage);
+			string uri = findOnlineHelpUrl(Language.CurrentLanguage);
 			if(uri == null) {
-				uri = Language.GetInstance().GetHelpFilePath();
+				uri = Language.HelpFilePath;
 			}
 			Process.Start(uri);			
 		}
@@ -43,22 +42,22 @@ namespace Greenshot.Help
 			
 			string extHelpUrlForCurrrentIETF = EXT_HELP_URL;
 			
-			if(!currentIETF.Equals("en_US")) {
+			if(!currentIETF.Equals("en-US")) {
 				extHelpUrlForCurrrentIETF += currentIETF.ToLower() + "/";
 			}
 			
-			HttpStatusCode? s = getHttpStatus(extHelpUrlForCurrrentIETF);
-			if(s == HttpStatusCode.OK) {
+			HttpStatusCode? httpStatusCode = getHttpStatus(extHelpUrlForCurrrentIETF);
+			if(httpStatusCode == HttpStatusCode.OK) {
 				ret = extHelpUrlForCurrrentIETF;
-			} else if(s != null && !extHelpUrlForCurrrentIETF.Equals(EXT_HELP_URL)) {
-				LOG.Debug(String.Format("Localized online help not found at %s, will try %s as fallback", extHelpUrlForCurrrentIETF, EXT_HELP_URL));
-				s = getHttpStatus(EXT_HELP_URL);
-				if(s == HttpStatusCode.OK) {
+			} else if(httpStatusCode != null && !extHelpUrlForCurrrentIETF.Equals(EXT_HELP_URL)) {
+				LOG.DebugFormat("Localized online help not found at {0}, will try {1} as fallback", extHelpUrlForCurrrentIETF, EXT_HELP_URL);
+				httpStatusCode = getHttpStatus(EXT_HELP_URL);
+				if(httpStatusCode == HttpStatusCode.OK) {
 					ret = EXT_HELP_URL;
 				} else {
-					LOG.Warn(String.Format("%s returned status %s", EXT_HELP_URL, s));
+					LOG.WarnFormat("{0} returned status {1}", EXT_HELP_URL, httpStatusCode);
 				}
-			} else if(s == null){
+			} else if(httpStatusCode == null){
 				LOG.Info("Internet connection does not seem to be available, will load help from file system.");
 			}
 			
@@ -72,7 +71,7 @@ namespace Greenshot.Help
 		/// <returns>An HTTP status code, or null if there is none (probably indicating that there is no internet connection available</returns>
 		private static HttpStatusCode? getHttpStatus(string url) {
 			try {
-				HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+				HttpWebRequest req = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 				HttpWebResponse res = (HttpWebResponse)req.GetResponse();
 				return res.StatusCode;
 			} catch(WebException e) {

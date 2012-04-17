@@ -53,8 +53,6 @@ namespace Greenshot {
 		private static List<string> ignoreDestinations = new List<string>() {PickerDestination.DESIGNATION, EditorDestination.DESIGNATION};
 		private static List<IImageEditor> editorList = new List<IImageEditor>();
 
-		private ILanguage lang;
-		
 		private Surface surface;
 		private System.Windows.Forms.ToolStripButton[] toolbarButtons;
 		
@@ -123,8 +121,6 @@ namespace Greenshot {
 			highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 			
 			panel1.Controls.Add(surface);
-			
-			lang = Language.GetInstance();
 
 			// Make sure the editor is placed on the same location as the last editor was on close
 			WindowDetails thisForm = new WindowDetails(this.Handle);
@@ -286,102 +282,102 @@ namespace Greenshot {
 		}
 
 		private void updateUI() {
-			string editorTitle = lang.GetString(LangKey.editor_title);
+			string editorTitle = Language.GetString(LangKey.editor_title);
 			if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
 				editorTitle = surface.CaptureDetails.Title + " - " + editorTitle;
 			}
 			this.Text = editorTitle;
-			
-			this.fileStripMenuItem.Text = lang.GetString(LangKey.editor_file);
-			this.btnSave.Text = lang.GetString(LangKey.editor_save);
-			this.btnClipboard.Text = lang.GetString(LangKey.editor_copyimagetoclipboard);
 
-			this.btnPrint.Text = lang.GetString(LangKey.editor_print);
-			this.closeToolStripMenuItem.Text = lang.GetString(LangKey.editor_close);
-			
-			this.editToolStripMenuItem.Text = lang.GetString(LangKey.editor_edit);
-			this.btnCursor.Text = lang.GetString(LangKey.editor_cursortool);
-			this.btnRect.Text = lang.GetString(LangKey.editor_drawrectangle);
-			this.addRectangleToolStripMenuItem.Text = lang.GetString(LangKey.editor_drawrectangle);
-			this.btnEllipse.Text = lang.GetString(LangKey.editor_drawellipse);
-			this.addEllipseToolStripMenuItem.Text = lang.GetString(LangKey.editor_drawellipse);
-			this.btnText.Text = lang.GetString(LangKey.editor_drawtextbox);
-			this.addTextBoxToolStripMenuItem.Text = lang.GetString(LangKey.editor_drawtextbox);
-			this.btnLine.Text = lang.GetString(LangKey.editor_drawline);
-			this.drawLineToolStripMenuItem.Text = lang.GetString(LangKey.editor_drawline);
-			this.drawFreehandToolStripMenuItem.Text = lang.GetString(LangKey.editor_drawfreehand);
-			this.btnArrow.Text = lang.GetString(LangKey.editor_drawarrow);
-			this.drawArrowToolStripMenuItem.Text = lang.GetString(LangKey.editor_drawarrow);
-			this.btnHighlight.Text = lang.GetString(LangKey.editor_drawhighlighter);
+			this.fileStripMenuItem.Text = Language.GetString(LangKey.editor_file);
+			this.btnSave.Text = Language.GetString(LangKey.editor_save);
+			this.btnClipboard.Text = Language.GetString(LangKey.editor_copyimagetoclipboard);
 
-			this.btnObfuscate.Text = lang.GetString(LangKey.editor_obfuscate);
-			this.btnFreehand.Text = lang.GetString(LangKey.editor_drawfreehand);
-			this.btnCrop.Text = lang.GetString(LangKey.editor_crop);
-			this.btnDelete.Text = lang.GetString(LangKey.editor_deleteelement);
-			this.btnSettings.Text = lang.GetString(LangKey.contextmenu_settings);
-			this.btnCut.Text = lang.GetString(LangKey.editor_cuttoclipboard);
-			this.btnCopy.Text = lang.GetString(LangKey.editor_copytoclipboard);
-			this.btnPaste.Text = lang.GetString(LangKey.editor_pastefromclipboard);
-			
-			this.selectAllToolStripMenuItem.Text = lang.GetString(LangKey.editor_selectall);
-			this.preferencesToolStripMenuItem.Text = lang.GetString(LangKey.contextmenu_settings);
-			this.removeObjectToolStripMenuItem.Text = lang.GetString(LangKey.editor_deleteelement);
-			this.copyToolStripMenuItem.Text = lang.GetString(LangKey.editor_copytoclipboard);
-			this.pasteToolStripMenuItem.Text = lang.GetString(LangKey.editor_pastefromclipboard);
-			this.cutToolStripMenuItem.Text = lang.GetString(LangKey.editor_cuttoclipboard);
-			this.duplicateToolStripMenuItem.Text = lang.GetString(LangKey.editor_duplicate);
-			this.objectToolStripMenuItem.Text = lang.GetString(LangKey.editor_object);
-			
-			this.arrangeToolStripMenuItem.Text = lang.GetString(LangKey.editor_arrange);
-			this.upToTopToolStripMenuItem.Text = lang.GetString(LangKey.editor_uptotop);
-			this.upOneLevelToolStripMenuItem.Text = lang.GetString(LangKey.editor_uponelevel);
-			this.downOneLevelToolStripMenuItem.Text = lang.GetString(LangKey.editor_downonelevel);
-			this.downToBottomToolStripMenuItem.Text = lang.GetString(LangKey.editor_downtobottom);
-			this.btnLineColor.Text = lang.GetString(LangKey.editor_forecolor);
-			this.btnFillColor.Text = lang.GetString(LangKey.editor_backcolor);
-			this.lineThicknessLabel.Text = lang.GetString(LangKey.editor_thickness);
-			this.arrowHeadsDropDownButton.Text = lang.GetString(LangKey.editor_arrowheads);
-			
-			this.helpToolStripMenuItem.Text = lang.GetString(LangKey.contextmenu_help);
-			this.helpToolStripMenuItem1.Text = lang.GetString(LangKey.contextmenu_help);
-			this.btnHelp.Text = lang.GetString(LangKey.contextmenu_help);
-			
-			this.aboutToolStripMenuItem.Text = lang.GetString(LangKey.contextmenu_about);
-			
-			this.copyPathMenuItem.Text = lang.GetString(LangKey.editor_copypathtoclipboard);
-			this.openDirectoryMenuItem.Text = lang.GetString(LangKey.editor_opendirinexplorer);
-			
-			this.obfuscateModeButton.Text = lang.GetString(LangKey.editor_obfuscate_mode);
-			this.highlightModeButton.Text = lang.GetString(LangKey.editor_highlight_mode);
-			this.pixelizeToolStripMenuItem.Text = lang.GetString(LangKey.editor_obfuscate_pixelize);
-			this.blurToolStripMenuItem.Text = lang.GetString(LangKey.editor_obfuscate_blur);
-			this.textHighlightMenuItem.Text = lang.GetString(LangKey.editor_highlight_text);
-			this.areaHighlightMenuItem.Text = lang.GetString(LangKey.editor_highlight_area);
-			this.grayscaleHighlightMenuItem.Text = lang.GetString(LangKey.editor_highlight_grayscale);
-			this.magnifyMenuItem.Text = lang.GetString(LangKey.editor_highlight_magnify);
+			this.btnPrint.Text = Language.GetString(LangKey.editor_print);
+			this.closeToolStripMenuItem.Text = Language.GetString(LangKey.editor_close);
 
-			this.blurRadiusLabel.Text = lang.GetString(LangKey.editor_blur_radius);
-			this.brightnessLabel.Text = lang.GetString(LangKey.editor_brightness);
-			this.previewQualityLabel.Text = lang.GetString(LangKey.editor_preview_quality);
-			this.magnificationFactorLabel.Text = lang.GetString(LangKey.editor_magnification_factor);
-			this.pixelSizeLabel.Text = lang.GetString(LangKey.editor_pixel_size);
-			this.arrowHeadsLabel.Text = lang.GetString(LangKey.editor_arrowheads);
-			this.arrowHeadStartMenuItem.Text = lang.GetString(LangKey.editor_arrowheads_start);
-			this.arrowHeadEndMenuItem.Text = lang.GetString(LangKey.editor_arrowheads_end);
-			this.arrowHeadBothMenuItem.Text = lang.GetString(LangKey.editor_arrowheads_both);
-			this.arrowHeadNoneMenuItem.Text = lang.GetString(LangKey.editor_arrowheads_none);
-			this.shadowButton.Text = lang.GetString(LangKey.editor_shadow);
+			this.editToolStripMenuItem.Text = Language.GetString(LangKey.editor_edit);
+			this.btnCursor.Text = Language.GetString(LangKey.editor_cursortool);
+			this.btnRect.Text = Language.GetString(LangKey.editor_drawrectangle);
+			this.addRectangleToolStripMenuItem.Text = Language.GetString(LangKey.editor_drawrectangle);
+			this.btnEllipse.Text = Language.GetString(LangKey.editor_drawellipse);
+			this.addEllipseToolStripMenuItem.Text = Language.GetString(LangKey.editor_drawellipse);
+			this.btnText.Text = Language.GetString(LangKey.editor_drawtextbox);
+			this.addTextBoxToolStripMenuItem.Text = Language.GetString(LangKey.editor_drawtextbox);
+			this.btnLine.Text = Language.GetString(LangKey.editor_drawline);
+			this.drawLineToolStripMenuItem.Text = Language.GetString(LangKey.editor_drawline);
+			this.drawFreehandToolStripMenuItem.Text = Language.GetString(LangKey.editor_drawfreehand);
+			this.btnArrow.Text = Language.GetString(LangKey.editor_drawarrow);
+			this.drawArrowToolStripMenuItem.Text = Language.GetString(LangKey.editor_drawarrow);
+			this.btnHighlight.Text = Language.GetString(LangKey.editor_drawhighlighter);
 
-			this.fontSizeLabel.Text = lang.GetString(LangKey.editor_fontsize);
-			this.fontBoldButton.Text = lang.GetString(LangKey.editor_bold);
-			this.fontItalicButton.Text = lang.GetString(LangKey.editor_italic);
+			this.btnObfuscate.Text = Language.GetString(LangKey.editor_obfuscate);
+			this.btnFreehand.Text = Language.GetString(LangKey.editor_drawfreehand);
+			this.btnCrop.Text = Language.GetString(LangKey.editor_crop);
+			this.btnDelete.Text = Language.GetString(LangKey.editor_deleteelement);
+			this.btnSettings.Text = Language.GetString(LangKey.contextmenu_settings);
+			this.btnCut.Text = Language.GetString(LangKey.editor_cuttoclipboard);
+			this.btnCopy.Text = Language.GetString(LangKey.editor_copytoclipboard);
+			this.btnPaste.Text = Language.GetString(LangKey.editor_pastefromclipboard);
 
-			this.btnConfirm.Text = lang.GetString(LangKey.editor_confirm);
-			this.btnCancel.Text = lang.GetString(LangKey.editor_cancel);
-			
-			this.saveElementsToolStripMenuItem.Text = lang.GetString(LangKey.editor_save_objects);
-			this.loadElementsToolStripMenuItem.Text = lang.GetString(LangKey.editor_load_objects);
-			this.autoCropToolStripMenuItem.Text = lang.GetString(LangKey.editor_autocrop);
+			this.selectAllToolStripMenuItem.Text = Language.GetString(LangKey.editor_selectall);
+			this.preferencesToolStripMenuItem.Text = Language.GetString(LangKey.contextmenu_settings);
+			this.removeObjectToolStripMenuItem.Text = Language.GetString(LangKey.editor_deleteelement);
+			this.copyToolStripMenuItem.Text = Language.GetString(LangKey.editor_copytoclipboard);
+			this.pasteToolStripMenuItem.Text = Language.GetString(LangKey.editor_pastefromclipboard);
+			this.cutToolStripMenuItem.Text = Language.GetString(LangKey.editor_cuttoclipboard);
+			this.duplicateToolStripMenuItem.Text = Language.GetString(LangKey.editor_duplicate);
+			this.objectToolStripMenuItem.Text = Language.GetString(LangKey.editor_object);
+
+			this.arrangeToolStripMenuItem.Text = Language.GetString(LangKey.editor_arrange);
+			this.upToTopToolStripMenuItem.Text = Language.GetString(LangKey.editor_uptotop);
+			this.upOneLevelToolStripMenuItem.Text = Language.GetString(LangKey.editor_uponelevel);
+			this.downOneLevelToolStripMenuItem.Text = Language.GetString(LangKey.editor_downonelevel);
+			this.downToBottomToolStripMenuItem.Text = Language.GetString(LangKey.editor_downtobottom);
+			this.btnLineColor.Text = Language.GetString(LangKey.editor_forecolor);
+			this.btnFillColor.Text = Language.GetString(LangKey.editor_backcolor);
+			this.lineThicknessLabel.Text = Language.GetString(LangKey.editor_thickness);
+			this.arrowHeadsDropDownButton.Text = Language.GetString(LangKey.editor_arrowheads);
+
+			this.helpToolStripMenuItem.Text = Language.GetString(LangKey.contextmenu_help);
+			this.helpToolStripMenuItem1.Text = Language.GetString(LangKey.contextmenu_help);
+			this.btnHelp.Text = Language.GetString(LangKey.contextmenu_help);
+
+			this.aboutToolStripMenuItem.Text = Language.GetString(LangKey.contextmenu_about);
+
+			this.copyPathMenuItem.Text = Language.GetString(LangKey.editor_copypathtoclipboard);
+			this.openDirectoryMenuItem.Text = Language.GetString(LangKey.editor_opendirinexplorer);
+
+			this.obfuscateModeButton.Text = Language.GetString(LangKey.editor_obfuscate_mode);
+			this.highlightModeButton.Text = Language.GetString(LangKey.editor_highlight_mode);
+			this.pixelizeToolStripMenuItem.Text = Language.GetString(LangKey.editor_obfuscate_pixelize);
+			this.blurToolStripMenuItem.Text = Language.GetString(LangKey.editor_obfuscate_blur);
+			this.textHighlightMenuItem.Text = Language.GetString(LangKey.editor_highlight_text);
+			this.areaHighlightMenuItem.Text = Language.GetString(LangKey.editor_highlight_area);
+			this.grayscaleHighlightMenuItem.Text = Language.GetString(LangKey.editor_highlight_grayscale);
+			this.magnifyMenuItem.Text = Language.GetString(LangKey.editor_highlight_magnify);
+
+			this.blurRadiusLabel.Text = Language.GetString(LangKey.editor_blur_radius);
+			this.brightnessLabel.Text = Language.GetString(LangKey.editor_brightness);
+			this.previewQualityLabel.Text = Language.GetString(LangKey.editor_preview_quality);
+			this.magnificationFactorLabel.Text = Language.GetString(LangKey.editor_magnification_factor);
+			this.pixelSizeLabel.Text = Language.GetString(LangKey.editor_pixel_size);
+			this.arrowHeadsLabel.Text = Language.GetString(LangKey.editor_arrowheads);
+			this.arrowHeadStartMenuItem.Text = Language.GetString(LangKey.editor_arrowheads_start);
+			this.arrowHeadEndMenuItem.Text = Language.GetString(LangKey.editor_arrowheads_end);
+			this.arrowHeadBothMenuItem.Text = Language.GetString(LangKey.editor_arrowheads_both);
+			this.arrowHeadNoneMenuItem.Text = Language.GetString(LangKey.editor_arrowheads_none);
+			this.shadowButton.Text = Language.GetString(LangKey.editor_shadow);
+
+			this.fontSizeLabel.Text = Language.GetString(LangKey.editor_fontsize);
+			this.fontBoldButton.Text = Language.GetString(LangKey.editor_bold);
+			this.fontItalicButton.Text = Language.GetString(LangKey.editor_italic);
+
+			this.btnConfirm.Text = Language.GetString(LangKey.editor_confirm);
+			this.btnCancel.Text = Language.GetString(LangKey.editor_cancel);
+
+			this.saveElementsToolStripMenuItem.Text = Language.GetString(LangKey.editor_save_objects);
+			this.loadElementsToolStripMenuItem.Text = Language.GetString(LangKey.editor_load_objects);
+			this.autoCropToolStripMenuItem.Text = Language.GetString(LangKey.editor_autocrop);
 			this.editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
 			this.editToolStripMenuItem.DropDownItems.Add(insert_window_toolstripmenuitem);
 		}
@@ -400,8 +396,8 @@ namespace Greenshot {
 			if (fullpath == null) {
 				return;
 			}
-			updateStatusLabel(lang.GetFormattedString(LangKey.editor_imagesaved,fullpath),fileSavedStatusContextMenu);
-			this.Text = lang.GetString(LangKey.editor_title) + " - " + Path.GetFileName(fullpath);
+			updateStatusLabel(Language.GetFormattedString(LangKey.editor_imagesaved, fullpath), fileSavedStatusContextMenu);
+			this.Text = Language.GetString(LangKey.editor_title) + " - " + Path.GetFileName(fullpath);
 		}
 		
 		void surface_DrawingModeChanged(object source, DrawingModes drawingMode) {
@@ -710,7 +706,7 @@ namespace Greenshot {
 				if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing) {
 					buttons = MessageBoxButtons.YesNo;
 				}
-				DialogResult result = MessageBox.Show(lang.GetString(LangKey.editor_close_on_save), lang.GetString(LangKey.editor_close_on_save_title), buttons, MessageBoxIcon.Question);
+				DialogResult result = MessageBox.Show(Language.GetString(LangKey.editor_close_on_save), Language.GetString(LangKey.editor_close_on_save_title), buttons, MessageBoxIcon.Question);
 				if (result.Equals(DialogResult.Cancel)) {
 					e.Cancel = true;
 					return;
@@ -827,9 +823,9 @@ namespace Greenshot {
 			this.undoToolStripMenuItem.Enabled = canUndo;
 			string undoAction = "";
 			if (canUndo) {
-				undoAction = lang.GetString(surface.UndoActionKey);
+				undoAction = Language.GetString(surface.UndoActionKey);
 			}
-			string undoText = lang.GetFormattedString(LangKey.editor_undo, undoAction);
+			string undoText = Language.GetFormattedString(LangKey.editor_undo, undoAction);
 			this.btnUndo.Text = undoText;
 			this.undoToolStripMenuItem.Text = undoText;
 
@@ -838,9 +834,9 @@ namespace Greenshot {
 			this.redoToolStripMenuItem.Enabled = canRedo;
 			string redoAction = "";
 			if (canRedo) {
-				redoAction = lang.GetString(surface.RedoActionKey);
+				redoAction = Language.GetString(surface.RedoActionKey);
 			}
-			string redoText = lang.GetFormattedString(LangKey.editor_redo, redoAction);
+			string redoText = Language.GetFormattedString(LangKey.editor_redo, redoAction);
 			this.btnRedo.Text = redoText;
 			this.redoToolStripMenuItem.Text = redoText;
 

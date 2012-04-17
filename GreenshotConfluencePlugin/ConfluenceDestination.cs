@@ -39,7 +39,6 @@ namespace GreenshotConfluencePlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
 		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private static Image confluenceIcon = null;
-		private ILanguage lang = Language.GetInstance();
 		private Confluence.Page page;
 		
 		static ConfluenceDestination() {
@@ -67,9 +66,9 @@ namespace GreenshotConfluencePlugin {
 		public override string Description {
 			get {
 				if (page == null) {
-					return lang.GetString(LangKey.upload_menu_item);
+					return Language.GetString(LangKey.upload_menu_item);
 				} else {
-					return lang.GetString(LangKey.upload_menu_item) + ": \"" + page.Title + "\"";
+					return Language.GetString(LangKey.upload_menu_item) + ": \"" + page.Title + "\"";
 				}
 			}
 		}
@@ -132,7 +131,7 @@ namespace GreenshotConfluencePlugin {
 				using (Image image = surface.GetImageForExport()) {
 					bool uploaded = upload(image, selectedPage, filename, openPage);
 					if (uploaded) {
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Info, ConfluencePlugin.Host.CoreLanguage.GetFormattedString("exported_to", Description));
+						surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", Description));
 						surface.Modified = false;
 						return true;
 					}
@@ -174,11 +173,11 @@ namespace GreenshotConfluencePlugin {
 						Process.Start(page.Url);
 					} catch {}
 				} else {
-					System.Windows.MessageBox.Show(lang.GetString(LangKey.upload_success));
+					System.Windows.MessageBox.Show(Language.GetString(LangKey.upload_success));
 				}
 				return true;
 			} catch(Exception e) {
-				System.Windows.MessageBox.Show(lang.GetString(LangKey.upload_failure) + " " + e.Message);
+				System.Windows.MessageBox.Show(Language.GetString(LangKey.upload_failure) + " " + e.Message);
 			}
 			return false;
 		}

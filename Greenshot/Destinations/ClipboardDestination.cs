@@ -39,8 +39,6 @@ namespace Greenshot.Destinations {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Clipboard";
 
-		private ILanguage lang = Language.GetInstance();
-
 		public override string Designation {
 			get {
 				return DESIGNATION;
@@ -49,7 +47,7 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return lang.GetString(LangKey.settings_destination_clipboard);
+				return Language.GetString(LangKey.settings_destination_clipboard);
 			}
 		}
 		public override int Priority {
@@ -76,10 +74,10 @@ namespace Greenshot.Destinations {
 					ClipboardHelper.SetClipboardData(image);
 					surface.Modified = false;
 				}
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetString(LangKey.editor_storedtoclipboard));
+				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetString(LangKey.editor_storedtoclipboard));
 				return true;
 			} catch (Exception) {
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, lang.GetString(LangKey.editor_clipboardfailed));
+				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
 			}
 
 			return false;

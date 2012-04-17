@@ -39,8 +39,6 @@ namespace Greenshot.Destinations {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "FileDialog";
 
-		private ILanguage lang = Language.GetInstance();
-
 		public override string Designation {
 			get {
 				return DESIGNATION;
@@ -49,7 +47,7 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return lang.GetString(LangKey.settings_destination_fileas);
+				return Language.GetString(LangKey.settings_destination_fileas);
 			}
 		}
 
@@ -80,7 +78,7 @@ namespace Greenshot.Destinations {
 					surface.Modified = false;
 					surface.LastSaveFullPath = savedTo;
 					captureDetails.Filename = savedTo;
-					surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, lang.GetFormattedString(LangKey.editor_imagesaved,surface.LastSaveFullPath));
+					surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, Language.GetFormattedString(LangKey.editor_imagesaved, surface.LastSaveFullPath));
 				}
 			}
 			return savedTo != null;

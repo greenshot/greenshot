@@ -95,12 +95,6 @@ namespace Greenshot.Helpers {
 		#region Implementation of IGreenshotPluginHost
 		private ContextMenuStrip mainMenu = null;
 
-		public ILanguage CoreLanguage {
-			get {
-				return Language.GetInstance();
-			}
-		}
-
 		public void SaveToStream(Image img, Stream stream, OutputFormat extension, int quality, bool reduceColors) {
 			ImageOutput.SaveToStream(img, stream, extension, quality, reduceColors);
 		}

@@ -41,7 +41,6 @@ namespace Greenshot.Destinations {
 		private static string exePath = null;
 		private static Image applicationIcon = null;
 		private static Image workbookIcon = null;
-		private ILanguage lang = Language.GetInstance();
 		private string workbookName = null;
 
 		static ExcelDestination() {
@@ -122,7 +121,7 @@ namespace Greenshot.Destinations {
 			} else {
 				ExcelExporter.InsertIntoNewWorkbook(tmpFile);
 			}
-			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
+			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;
 			return true;
 		}

@@ -27,7 +27,7 @@ namespace ExternalCommand {
 		public SettingsFormDetail(string commando)
 		{
 			InitializeComponent();
-			
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.commando = commando;
 			
 			if (commando != null) {

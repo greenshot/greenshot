@@ -35,7 +35,6 @@ namespace GreenshotConfluencePlugin {
 	/// </summary>
 	public partial class ConfluenceTreePicker : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceTreePicker));
-		private ILanguage language = GreenshotConfluencePlugin.Language.GetInstance();
 		private ConfluenceConnector confluenceConnector;
 		private ConfluenceUpload confluenceUpload;
 		private bool isInitDone = false;

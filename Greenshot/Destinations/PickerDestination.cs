@@ -39,7 +39,6 @@ namespace Greenshot.Destinations {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PickerDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Picker";
-		private static ILanguage lang = Language.GetInstance();
 
 		public override string Designation {
 			get {
@@ -49,7 +48,7 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return lang.GetString(LangKey.settings_destination_picker);
+				return Language.GetString(LangKey.settings_destination_picker);
 			}
 		}
 
@@ -102,7 +101,7 @@ namespace Greenshot.Destinations {
 			}
 			// Close
 			menu.Items.Add(new ToolStripSeparator());
-			ToolStripMenuItem closeItem = new ToolStripMenuItem(lang.GetString(LangKey.editor_close));
+			ToolStripMenuItem closeItem = new ToolStripMenuItem(Language.GetString(LangKey.editor_close));
 			closeItem.Image = ((System.Drawing.Image)(new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm)).GetObject("closeToolStripMenuItem.Image")));
 			closeItem.Click += delegate {
 				// This menu entry is the close itself, we can dispose the surface

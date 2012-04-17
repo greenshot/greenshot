@@ -78,10 +78,9 @@ namespace Greenshot.Experimental {
 				try {
 					UpdateHelper.ProcessRSSInfo(currentVersion);
 					if (latestGreenshot != null) {
-						ILanguage lang = Language.GetInstance();
 						MainForm.instance.notifyIcon.BalloonTipClicked += HandleBalloonTipClick;
 						MainForm.instance.notifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-						MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", lang.GetFormattedString(LangKey.update_found, latestGreenshot.Version), ToolTipIcon.Info);
+						MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, latestGreenshot.Version), ToolTipIcon.Info);
 					}
 					conf.LastUpdateCheck = DateTime.Now;
 					IniConfig.Save();
@@ -105,8 +104,7 @@ namespace Greenshot.Experimental {
 					Process.Start(DOWNLOAD_LINK);
 				}
 			} catch (Exception) {
-				ILanguage lang = Language.GetInstance();
-				MessageBox.Show(lang.GetFormattedString(LangKey.error_openlink, latestGreenshot.Link),lang.GetString(LangKey.error));
+				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, latestGreenshot.Link), Language.GetString(LangKey.error));
 			} finally {
 				MainForm.instance.notifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
 				MainForm.instance.notifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;

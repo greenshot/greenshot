@@ -26,14 +26,12 @@ using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	public partial class BugReportForm : Form {
-		private ILanguage lang;
 		private BugReportForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			lang = Language.GetInstance();
 			UpdateUI();
 			WindowDetails.ToForeground(this.Handle);
 		}
@@ -44,9 +42,9 @@ namespace Greenshot.Forms {
 		}
 		
 		void UpdateUI() {
-			this.Text = lang.GetString(LangKey.bugreport_title);
-			this.labelBugReportInfo.Text = lang.GetString(LangKey.bugreport_info);
-			this.btnClose.Text = lang.GetString(LangKey.bugreport_cancel);
+			this.Text = Language.GetString(LangKey.bugreport_title);
+			this.labelBugReportInfo.Text = Language.GetString(LangKey.bugreport_info);
+			this.btnClose.Text = Language.GetString(LangKey.bugreport_cancel);
 		}
 		
 		void LinkLblBugsLinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {
@@ -58,7 +56,7 @@ namespace Greenshot.Forms {
 				link.LinkVisited = true;
 				System.Diagnostics.Process.Start(link.Text);
 			} catch (Exception) {
-				MessageBox.Show(lang.GetFormattedString(LangKey.error_openlink, link.Text),lang.GetString(LangKey.error));
+				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link.Text), Language.GetString(LangKey.error));
 			}
 		}
 	}

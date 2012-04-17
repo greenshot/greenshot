@@ -31,7 +31,6 @@ namespace GreenshotConfluencePlugin {
 	public partial class ConfluenceSearch : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceSearch));
 		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-		private ILanguage language = GreenshotConfluencePlugin.Language.GetInstance();
 		private ConfluenceConnector confluenceConnector;
 		private ConfluenceUpload confluenceUpload;
 		

@@ -40,7 +40,6 @@ namespace GreenshotConfluencePlugin {
 		private static ConfluenceConnector confluenceConnector = null;
 		private static PluginAttribute ConfluencePluginAttributes;
 		private static ConfluenceConfiguration config = null;
-		private static ILanguage lang = Language.GetInstance();
 		private static IGreenshotHost host;
 		
 		public static ConfluenceConnector ConfluenceConnectorNoLogin {
@@ -66,7 +65,7 @@ namespace GreenshotConfluencePlugin {
 						confluenceConnector.login();
 					}
 				} catch (Exception e) {
-					MessageBox.Show(lang.GetFormattedString(LangKey.login_error, e.Message));
+					MessageBox.Show(Language.GetFormattedString(LangKey.login_error, e.Message));
 				}
 				return confluenceConnector;
 			}

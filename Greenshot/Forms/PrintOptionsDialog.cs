@@ -30,7 +30,6 @@ namespace Greenshot.Forms {
 	/// </summary>
 	public partial class PrintOptionsDialog : Form {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		ILanguage lang;
 		
 		public bool AllowPrintCenter;
 		public bool AllowPrintEnlarge;
@@ -45,8 +44,7 @@ namespace Greenshot.Forms {
 			//
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			lang = Language.GetInstance();
-			
+		
 			this.AllowPrintCenter = this.checkboxAllowCenter.Checked = conf.OutputPrintCenter;
 			this.AllowPrintEnlarge = this.checkboxAllowEnlarge.Checked = conf.OutputPrintAllowEnlarge;
 			this.AllowPrintRotate = this.checkboxAllowRotate.Checked = conf.OutputPrintAllowRotate;
@@ -58,14 +56,14 @@ namespace Greenshot.Forms {
 		}
 		
 		void UpdateUI() {
-			this.Text = lang.GetString(LangKey.printoptions_title);
-			this.checkboxAllowCenter.Text = lang.GetString(LangKey.printoptions_allowcenter);
-			this.checkboxAllowEnlarge.Text = lang.GetString(LangKey.printoptions_allowenlarge);
-			this.checkboxAllowRotate.Text = lang.GetString(LangKey.printoptions_allowrotate);
-			this.checkboxAllowShrink.Text = lang.GetString(LangKey.printoptions_allowshrink);
-			this.checkbox_dontaskagain.Text = lang.GetString(LangKey.printoptions_dontaskagain);
-			this.checkboxDateTime.Text = lang.GetString(LangKey.printoptions_timestamp);
-			this.checkboxPrintInverted.Text = lang.GetString(LangKey.printoptions_inverted);
+			this.Text = Language.GetString(LangKey.printoptions_title);
+			this.checkboxAllowCenter.Text = Language.GetString(LangKey.printoptions_allowcenter);
+			this.checkboxAllowEnlarge.Text = Language.GetString(LangKey.printoptions_allowenlarge);
+			this.checkboxAllowRotate.Text = Language.GetString(LangKey.printoptions_allowrotate);
+			this.checkboxAllowShrink.Text = Language.GetString(LangKey.printoptions_allowshrink);
+			this.checkbox_dontaskagain.Text = Language.GetString(LangKey.printoptions_dontaskagain);
+			this.checkboxDateTime.Text = Language.GetString(LangKey.printoptions_timestamp);
+			this.checkboxPrintInverted.Text = Language.GetString(LangKey.printoptions_inverted);
 		}
 		
 		

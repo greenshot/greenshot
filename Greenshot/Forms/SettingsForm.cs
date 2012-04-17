@@ -46,10 +46,6 @@ namespace Greenshot {
 		private ToolTip toolTip = new ToolTip();
 		
 		public SettingsForm() : base() {
-			// language is in the base class
-			language = Language.GetInstance();
-			// Force re-loading of languages
-			language.Load();
 			InitializeComponent();
 		}
 
@@ -92,10 +88,10 @@ namespace Greenshot {
 			comboBox.Items.Clear();
 			string enumTypeName = typeof(ET).Name;
 			foreach(ET enumValue in availableValues) {
-				string translation = language.GetString(enumTypeName + "." + enumValue.ToString());
+				string translation = Language.GetString(enumTypeName + "." + enumValue.ToString());
 				comboBox.Items.Add(translation);
 			}
-			comboBox.SelectedItem = language.GetString(enumTypeName + "." + selectedValue.ToString());
+			comboBox.SelectedItem = Language.GetString(enumTypeName + "." + selectedValue.ToString());
 		}
 		
 		
@@ -110,7 +106,7 @@ namespace Greenshot {
 			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
 			ET returnValue = availableValues[0];
 			foreach(ET enumValue in availableValues) {
-				string translation = language.GetString(enumTypeName + "." + enumValue.ToString());
+				string translation = Language.GetString(enumTypeName + "." + enumValue.ToString());
 				if (translation.Equals(selectedValue)) {
 					returnValue = enumValue;
 					break;
@@ -167,10 +163,10 @@ namespace Greenshot {
 		/// Update the UI to reflect the language and other text settings
 		/// </summary>
 		private void UpdateUI() {
-			toolTip.SetToolTip(label_language, language.GetString(LangKey.settings_tooltip_language));
-			toolTip.SetToolTip(label_storagelocation, language.GetString(LangKey.settings_tooltip_storagelocation));
-			toolTip.SetToolTip(label_screenshotname, language.GetString(LangKey.settings_tooltip_filenamepattern));
-			toolTip.SetToolTip(label_primaryimageformat, language.GetString(LangKey.settings_tooltip_primaryimageformat));
+			toolTip.SetToolTip(label_language, Language.GetString(LangKey.settings_tooltip_language));
+			toolTip.SetToolTip(label_storagelocation, Language.GetString(LangKey.settings_tooltip_storagelocation));
+			toolTip.SetToolTip(label_screenshotname, Language.GetString(LangKey.settings_tooltip_filenamepattern));
+			toolTip.SetToolTip(label_primaryimageformat, Language.GetString(LangKey.settings_tooltip_primaryimageformat));
 
 			// Removing, otherwise we keep getting the event multiple times!
 			this.combobox_language.SelectedIndexChanged -= new System.EventHandler(this.Combobox_languageSelectedIndexChanged);
@@ -178,12 +174,12 @@ namespace Greenshot {
 			// Initialize the Language ComboBox
 			this.combobox_language.DisplayMember = "Description";
 			this.combobox_language.ValueMember = "Ietf";
-			if (language.CurrentLanguage != null) {
-				this.combobox_language.SelectedValue = language.CurrentLanguage;
-			}
 			// Set datasource last to prevent problems
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-			this.combobox_language.DataSource = language.SupportedLanguages;
+			this.combobox_language.DataSource = Language.SupportedLanguages;
+			if (Language.CurrentLanguage != null) {
+				this.combobox_language.SelectedValue = Language.CurrentLanguage;
+			}
 
 			// Delaying the SelectedIndexChanged events untill all is initiated
 			this.combobox_language.SelectedIndexChanged += new System.EventHandler(this.Combobox_languageSelectedIndexChanged);
@@ -254,9 +250,9 @@ namespace Greenshot {
 
 		private void DisplaySettings() {
 			colorButton_window_background.SelectedColor = coreConfiguration.DWMBackgroundColor;
-			
-			if (language.CurrentLanguage != null) {
-				combobox_language.SelectedValue = language.CurrentLanguage;
+
+			if (Language.CurrentLanguage != null) {
+				combobox_language.SelectedValue = Language.CurrentLanguage;
 			}
 			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
 			
@@ -339,7 +335,6 @@ namespace Greenshot {
 		
 		void Settings_cancelClick(object sender, System.EventArgs e) {
 			DialogResult = DialogResult.Cancel;
-			language.FreeResources();
 		}
 		
 		void Settings_okayClick(object sender, System.EventArgs e) {
@@ -349,7 +344,6 @@ namespace Greenshot {
 			} else {
 				this.tabcontrol.SelectTab(this.tab_output);
 			}
-			language.FreeResources();
 		}
 		
 		void BrowseClick(object sender, System.EventArgs e) {
@@ -370,10 +364,10 @@ namespace Greenshot {
 
 		
 		void BtnPatternHelpClick(object sender, EventArgs e) {
-			string filenamepatternText = language.GetString(LangKey.settings_message_filenamepattern);
+			string filenamepatternText = Language.GetString(LangKey.settings_message_filenamepattern);
 			// Convert %NUM% to ${NUM} for old language files!
 			filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
-			MessageBox.Show(filenamepatternText, language.GetString(LangKey.settings_filenamepattern));
+			MessageBox.Show(filenamepatternText, Language.GetString(LangKey.settings_filenamepattern));
 		}
 		
 		void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
@@ -390,7 +384,7 @@ namespace Greenshot {
 			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (combobox_language.SelectedItem != null) {
 				LOG.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
-				LanguageContainer.SetGlobalLanguage((string)combobox_language.SelectedValue);
+				Language.CurrentLanguage = (string)combobox_language.SelectedValue;
 			}
 			// Reflect language changes to the settings form
 			UpdateUI();

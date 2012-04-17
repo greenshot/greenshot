@@ -38,7 +38,6 @@ namespace Greenshot.Destinations {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FileDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "FileNoDialog";
-		private ILanguage lang = Language.GetInstance();
 
 		public override string Designation {
 			get {
@@ -48,7 +47,7 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return lang.GetString(LangKey.quicksettings_destination_file);
+				return Language.GetString(LangKey.quicksettings_destination_file);
 			}
 		}
 
@@ -90,7 +89,7 @@ namespace Greenshot.Destinations {
 				} catch (Exception e) {
 					LOG.Error("Error saving screenshot!", e);
 					// Show the problem
-					MessageBox.Show(lang.GetString(LangKey.error_save), lang.GetString(LangKey.error));
+					MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
 					// when save failed we present a SaveWithDialog
 					fullPath = ImageOutput.SaveWithDialog(image, captureDetails);
 					outputMade = (fullPath != null);
@@ -101,7 +100,7 @@ namespace Greenshot.Destinations {
 				surface.LastSaveFullPath = fullPath;
 				surface.Modified = false;
 				captureDetails.Filename = fullPath;
-				surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, lang.GetFormattedString(LangKey.editor_imagesaved,surface.LastSaveFullPath));
+				surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, Language.GetFormattedString(LangKey.editor_imagesaved, surface.LastSaveFullPath));
 			} else {
 				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, "");
 			}

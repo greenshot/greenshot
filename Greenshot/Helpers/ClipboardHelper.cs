@@ -138,11 +138,10 @@ EndSelection:<<<<<<<4
 						if (retryCount == 0) {
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
-							ILanguage lang = Language.GetInstance();
 							if (clipboardOwner != null) {
-								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
+								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
 							} else {
-								messageText = lang.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString(LangKey.clipboard_error);
 							}
 							LOG.Error(messageText, ee);
 						} else {
@@ -170,11 +169,10 @@ EndSelection:<<<<<<<4
 						if (retryCount == 0) {
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
-							ILanguage lang = Language.GetInstance();
 							if (clipboardOwner != null) {
-								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
+								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
 							} else {
-								messageText = lang.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString(LangKey.clipboard_error);
 							}
 							LOG.Error(messageText, ee);
 						} else {
@@ -203,11 +201,10 @@ EndSelection:<<<<<<<4
 						if (retryCount == 0) {
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
-							ILanguage lang = Language.GetInstance();
 							if (clipboardOwner != null) {
-								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
+								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
 							} else {
-								messageText = lang.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString(LangKey.clipboard_error);
 							}
 							LOG.Error(messageText, ee);
 						} else {
@@ -236,11 +233,10 @@ EndSelection:<<<<<<<4
 						if (retryCount == 0) {
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
-							ILanguage lang = Language.GetInstance();
 							if (clipboardOwner != null) {
-								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
+								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
 							} else {
-								messageText = lang.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString(LangKey.clipboard_error);
 							}
 							LOG.Error(messageText, ee);
 						} else {
@@ -269,11 +265,10 @@ EndSelection:<<<<<<<4
 						if (retryCount == 0) {
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
-							ILanguage lang = Language.GetInstance();
 							if (clipboardOwner != null) {
-								messageText = String.Format(lang.GetString(LangKey.clipboard_inuse), clipboardOwner);
+								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
 							} else {
-								messageText = lang.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString(LangKey.clipboard_error);
 							}
 							LOG.Error(messageText, ee);
 						} else {

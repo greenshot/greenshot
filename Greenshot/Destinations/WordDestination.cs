@@ -42,7 +42,6 @@ namespace Greenshot.Destinations {
 		private static string exePath = null;
 		private static Image applicationIcon = null;
 		private static Image documentIcon = null;
-		private ILanguage lang = Language.GetInstance();
 		private string documentCaption = null;
 
 		static WordDestination() {
@@ -137,7 +136,7 @@ namespace Greenshot.Destinations {
 				}
 				WordExporter.InsertIntoNewDocument(tmpFile);
 			}
-			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
+			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;
 
 			return true;

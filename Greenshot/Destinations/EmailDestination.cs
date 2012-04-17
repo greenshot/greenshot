@@ -49,7 +49,6 @@ namespace Greenshot.Destinations {
 		public const string DESIGNATION = "EMail";
 		private string outlookInspectorCaption;
 		private OlObjectClass outlookInspectorType;
-		private ILanguage lang = Language.GetInstance();
 
 		static EmailDestination() {
 			// Logic to decide what email implementation we use
@@ -110,7 +109,7 @@ namespace Greenshot.Destinations {
 			get {
 				// Make sure there is some kind of "mail" name
 				if (mapiClient == null) {
-					mapiClient = lang.GetString(LangKey.editor_email);
+					mapiClient = Language.GetString(LangKey.editor_email);
 				}
 
 				if (outlookInspectorCaption == null) {
@@ -225,7 +224,7 @@ namespace Greenshot.Destinations {
 				}
 				OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, captureDetails.Title, attachmentName);
 			}
-			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
+			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;
 
 			// Don't know how to handle a cancel in the email

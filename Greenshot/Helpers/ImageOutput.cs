@@ -254,7 +254,7 @@ namespace Greenshot.Helpers {
 					conf.OutputFileAsFullpath = fileNameWithExtension;
 					IniConfig.Save();
 				} catch(System.Runtime.InteropServices.ExternalException) {
-					MessageBox.Show(Language.GetInstance().GetFormattedString(LangKey.error_nowriteaccess,saveImageFileDialog.FileName).Replace(@"\\",@"\"), Language.GetInstance().GetString(LangKey.error));
+					MessageBox.Show(Language.GetFormattedString(LangKey.error_nowriteaccess,saveImageFileDialog.FileName).Replace(@"\\",@"\"), Language.GetString(LangKey.error));
 				}
 			}
 			return returnValue;

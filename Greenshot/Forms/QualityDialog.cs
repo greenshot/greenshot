@@ -30,7 +30,6 @@ namespace Greenshot {
 	/// </summary>
 	public partial class QualityDialog : Form {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		ILanguage lang;
 		public int Quality = 0;
 		public bool ReduceColors = false;
 		public QualityDialog(bool isJPG) {
@@ -40,7 +39,6 @@ namespace Greenshot {
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
-			lang = Language.GetInstance();
 			this.checkBox_reduceColors.Checked = conf.OutputFileReduceColors;
 			this.trackBarJpegQuality.Enabled = isJPG;
 			this.trackBarJpegQuality.Value = conf.OutputFileJpegQuality;
@@ -62,10 +60,10 @@ namespace Greenshot {
 		}
 		
 		void UpdateUI() {
-			this.Text = lang.GetString(LangKey.jpegqualitydialog_title);
-			this.label_choosejpegquality.Text = lang.GetString(LangKey.jpegqualitydialog_choosejpegquality);
-			this.checkbox_dontaskagain.Text = lang.GetString(LangKey.jpegqualitydialog_dontaskagain);
-			this.checkBox_reduceColors.Text = lang.GetString(LangKey.reduce_colors);
+			this.Text = Language.GetString(LangKey.jpegqualitydialog_title);
+			this.label_choosejpegquality.Text = Language.GetString(LangKey.jpegqualitydialog_choosejpegquality);
+			this.checkbox_dontaskagain.Text = Language.GetString(LangKey.jpegqualitydialog_dontaskagain);
+			this.checkBox_reduceColors.Text = Language.GetString(LangKey.reduce_colors);
 		}
 		
 		void TrackBarJpegQualityScroll(object sender, System.EventArgs e) {

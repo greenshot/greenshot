@@ -40,8 +40,6 @@ namespace Greenshot.Destinations {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Printer";
 
-		private ILanguage lang = Language.GetInstance();
-
 		public override string Designation {
 			get {
 				return DESIGNATION;
@@ -50,7 +48,7 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return lang.GetString(LangKey.settings_destination_printer);
+				return Language.GetString(LangKey.settings_destination_printer);
 			}
 		}
 
@@ -78,7 +76,7 @@ namespace Greenshot.Destinations {
 				printerSettings = new PrintHelper(image, captureDetails).PrintWithDialog();
 				if (printerSettings != null) {
 					surface.Modified = false;
-					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.editor_senttoprinter, printerSettings.PrinterName));
+					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.editor_senttoprinter, printerSettings.PrinterName));
 				}
 			}
 

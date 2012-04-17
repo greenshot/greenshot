@@ -44,7 +44,6 @@ namespace Greenshot.Helpers {
 	public static class IECaptureHelper {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IECaptureHelper));
 		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
-		private static ILanguage language = Language.GetInstance();
 
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex) {
@@ -238,7 +237,7 @@ namespace Greenshot.Helpers {
 			WindowDetails activeWindow = WindowDetails.GetActiveWindow();
 			
 			// Show backgroundform after retrieving the active window..
-			BackgroundForm backgroundForm = new BackgroundForm(language.GetString(LangKey.contextmenu_captureie), language.GetString(LangKey.wait_ie_capture));
+			BackgroundForm backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
 			backgroundForm.Show();
 			//BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(LangKey.contextmenu_captureie), language.GetString(LangKey.wait_ie_capture));
 			try {

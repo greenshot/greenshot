@@ -20,7 +20,7 @@
  */
 using System;
 using System.Windows.Forms;
-using Greenshot.Configuration;
+
 
 namespace Greenshot {
 	partial class AboutForm {
@@ -236,18 +236,5 @@ namespace Greenshot {
 		private System.Windows.Forms.Label lblLicense;
 		private System.Windows.Forms.Label lblTitle;
 		private System.Windows.Forms.PictureBox pictureBox1;
-
-		void LinkLabelClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {
-			openLink((LinkLabel)sender);
-		}
-
-		private void openLink(LinkLabel link) {
-			try {
-				link.LinkVisited = true;
-   				System.Diagnostics.Process.Start(link.Text);
-			} catch (Exception) {
-				MessageBox.Show(lang.GetFormattedString(LangKey.error_openlink, link.Text),lang.GetString(LangKey.error));
-			}
-		}
 	}
 }

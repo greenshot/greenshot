@@ -58,7 +58,6 @@ namespace Greenshot.Forms {
 		private bool mouseDown = false;
 		private Rectangle captureRect = Rectangle.Empty;
 		private ICapture capture = null;
-		private ILanguage lang = Language.GetInstance();
 
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;

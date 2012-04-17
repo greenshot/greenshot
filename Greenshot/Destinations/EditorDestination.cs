@@ -40,7 +40,6 @@ namespace Greenshot.Destinations {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EditorDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Editor";
-		private ILanguage lang = Language.GetInstance();
 		private IImageEditor editor = null;
 		private static Image greenshotIcon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon().ToBitmap();
 
@@ -60,9 +59,9 @@ namespace Greenshot.Destinations {
 		public override string Description {
 			get {
 				if (editor == null) {
-					return lang.GetString(LangKey.settings_destination_editor);
+					return Language.GetString(LangKey.settings_destination_editor);
 				} else {
-					return lang.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title;
+					return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title;
 				}
 			}
 		}
@@ -114,7 +113,7 @@ namespace Greenshot.Destinations {
 				using (Bitmap image = (Bitmap)surface.GetImageForExport()) {
 					editor.Surface.AddBitmapContainer(image, 10, 10);
 				}
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, lang.GetFormattedString(LangKey.exported_to, Description));
+				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
 			}
 			return false;
 		}

@@ -38,7 +38,6 @@ namespace Greenshot {
 		private ColorDialog() {
 			this.SuspendLayout();
 			InitializeComponent();
-			lang = Language.GetInstance();
 			updateUI();
 			this.SuspendLayout();
 			this.createColorPalette(5,5,15,15);
@@ -54,7 +53,6 @@ namespace Greenshot {
 			return uniqueInstance;
 		}
 		
-		private ILanguage lang;
 		private List<Button> colorButtons = new List<Button>();
 		private List<Button> recentColorButtons = new List<Button>();
 		private ToolTip toolTip = new ToolTip();
@@ -66,15 +64,15 @@ namespace Greenshot {
 		}
 		
 		private void updateUI() {
-			this.Text = lang.GetString(LangKey.colorpicker_title);
-			this.btnApply.Text = lang.GetString(LangKey.colorpicker_apply);
-			this.btnTransparent.Text = lang.GetString(LangKey.colorpicker_transparent);
-			this.labelHtmlColor.Text = lang.GetString(LangKey.colorpicker_htmlcolor);
-			this.labelRed.Text = lang.GetString(LangKey.colorpicker_red);
-			this.labelGreen.Text = lang.GetString(LangKey.colorpicker_green);
-			this.labelBlue.Text = lang.GetString(LangKey.colorpicker_blue);
-			this.labelAlpha.Text = lang.GetString(LangKey.colorpicker_alpha);
-			this.labelRecentColors.Text = lang.GetString(LangKey.colorpicker_recentcolors);
+			this.Text = Language.GetString(LangKey.colorpicker_title);
+			this.btnApply.Text = Language.GetString(LangKey.colorpicker_apply);
+			this.btnTransparent.Text = Language.GetString(LangKey.colorpicker_transparent);
+			this.labelHtmlColor.Text = Language.GetString(LangKey.colorpicker_htmlcolor);
+			this.labelRed.Text = Language.GetString(LangKey.colorpicker_red);
+			this.labelGreen.Text = Language.GetString(LangKey.colorpicker_green);
+			this.labelBlue.Text = Language.GetString(LangKey.colorpicker_blue);
+			this.labelAlpha.Text = Language.GetString(LangKey.colorpicker_alpha);
+			this.labelRecentColors.Text = Language.GetString(LangKey.colorpicker_recentcolors);
 		}
 		
 		#region user interface generation

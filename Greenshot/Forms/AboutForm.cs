@@ -33,8 +33,6 @@ namespace Greenshot {
 	/// Description of AboutForm.
 	/// </summary>
 	public partial class AboutForm : Form {
-		private ILanguage lang;
-
 		public AboutForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -45,18 +43,30 @@ namespace Greenshot {
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
 			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable?" Portable":"") + (" (" + OSInfo.Bits +" bit)");
-			lang = Language.GetInstance();
 			updateUI();
 		}
 		
 		void updateUI() {
-			this.Text = lang.GetString(LangKey.about_title);
-			this.lblLicense.Text = lang.GetString(LangKey.about_license);
-			this.lblHost.Text = lang.GetString(LangKey.about_host);
-			this.lblBugs.Text = lang.GetString(LangKey.about_bugs);
-			this.lblDonations.Text = lang.GetString(LangKey.about_donations);
-			this.lblIcons.Text = lang.GetString(LangKey.about_icons);
-			this.lblTranslation.Text = lang.GetString(LangKey.about_translation);
+			this.Text = Language.GetString(LangKey.about_title);
+			this.lblLicense.Text = Language.GetString(LangKey.about_license);
+			this.lblHost.Text = Language.GetString(LangKey.about_host);
+			this.lblBugs.Text = Language.GetString(LangKey.about_bugs);
+			this.lblDonations.Text = Language.GetString(LangKey.about_donations);
+			this.lblIcons.Text = Language.GetString(LangKey.about_icons);
+			this.lblTranslation.Text = Language.GetString(LangKey.about_translation);
+		}
+
+		void LinkLabelClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {
+			openLink((LinkLabel)sender);
+		}
+
+		private void openLink(LinkLabel link) {
+			try {
+				link.LinkVisited = true;
+				System.Diagnostics.Process.Start(link.Text);
+			} catch (Exception) {
+				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link.Text), Language.GetString(LangKey.error));
+			}
 		}
 
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {

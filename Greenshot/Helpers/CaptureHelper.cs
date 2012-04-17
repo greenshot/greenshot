@@ -51,7 +51,6 @@ namespace Greenshot.Helpers {
 		private Rectangle captureRect = Rectangle.Empty;
 		private bool captureMouseCursor = false;
 		private ICapture capture = null;
-		private ILanguage lang = Language.GetInstance();
 		private CaptureMode captureMode;
 		private Thread windowDetailsThread = null;
 		
@@ -254,7 +253,7 @@ namespace Greenshot.Helpers {
 							fileBitmap = ImageHelper.LoadBitmap(filename);
 						} catch (Exception e) {
 							LOG.Error(e.Message, e);
-							MessageBox.Show(lang.GetFormattedString(LangKey.error_openfile, filename));
+							MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
 						}
 					}
 					if (fileBitmap != null) {
