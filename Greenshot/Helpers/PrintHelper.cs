@@ -99,8 +99,38 @@ namespace Greenshot.Helpers {
 		/// print dialog.
 		/// </summary>
 		/// <returns>printer settings if actually printed, or null if print was cancelled or has failed</returns>
+		public PrinterSettings PrintTo(string printerName) {
+			PrinterSettings returnPrinterSettings = null;
+			bool cancelled = false;
+			printOptionsDialog = new PrintOptionsDialog();
+			if (conf.OutputPrintPromptOptions) {
+				DialogResult result = printOptionsDialog.ShowDialog();
+				if (result != DialogResult.OK) {
+					cancelled = true;
+				}
+			}
+			try {
+				if (!cancelled) {
+					printDocument.PrinterSettings.PrinterName = printerName;
+					printDocument.Print();
+					returnPrinterSettings = printDocument.PrinterSettings;
+				}
+			} catch (Exception e) {
+				LOG.Error("An error ocurred while trying to print", e);
+				MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
+			}
+			image.Dispose();
+			image = null;
+			return returnPrinterSettings;
+		}
+
+		/// <summary>
+		/// displays options dialog (if not disabled via settings) and windows
+		/// print dialog.
+		/// </summary>
+		/// <returns>printer settings if actually printed, or null if print was cancelled or has failed</returns>
 		public PrinterSettings PrintWithDialog() {
-			PrinterSettings ret = null;
+			PrinterSettings returnPrinterSettings = null;
 			if (printDialog.ShowDialog() == DialogResult.OK) {
 				bool cancelled = false;
 				printOptionsDialog = new PrintOptionsDialog();
@@ -113,7 +143,7 @@ namespace Greenshot.Helpers {
 				try {
 					if (!cancelled) {
 						printDocument.Print();
-						ret = printDialog.PrinterSettings;
+						returnPrinterSettings = printDialog.PrinterSettings;
 					}
 				} catch (Exception e) {
 					LOG.Error("An error ocurred while trying to print", e);
@@ -123,7 +153,7 @@ namespace Greenshot.Helpers {
 			}
 			image.Dispose();
 			image = null;
-			return ret;
+			return returnPrinterSettings;
 		}
 
 		void DrawImageForPrint(object sender, PrintPageEventArgs e) {

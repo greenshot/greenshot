@@ -39,7 +39,14 @@ namespace Greenshot.Destinations {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PrinterDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Printer";
+		public string printerName = null;
 
+		public PrinterDestination() {
+		}
+
+		public PrinterDestination(string printerName) {
+			this.printerName = printerName;
+		}
 		public override string Designation {
 			get {
 				return DESIGNATION;
@@ -48,7 +55,11 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return Language.GetString(LangKey.settings_destination_printer);
+				if (printerName != null) {
+					return Language.GetString(LangKey.settings_destination_printer) + " - " + printerName;
+				} else {
+					return Language.GetString(LangKey.settings_destination_printer);
+				}
 			}
 		}
 
@@ -70,10 +81,26 @@ namespace Greenshot.Destinations {
 			}
 		}
 
+		public override bool isDynamic {
+			get {
+				return true;
+			}
+		}
+
+		public override IEnumerable<IDestination> DynamicDestinations() {
+			foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters) {
+				yield return new PrinterDestination(printer);
+			}
+		}
+
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			PrinterSettings printerSettings = null;
 			using (Image image = surface.GetImageForExport()) {
-				printerSettings = new PrintHelper(image, captureDetails).PrintWithDialog();
+				if (!string.IsNullOrEmpty(printerName)) {
+					printerSettings = new PrintHelper(image, captureDetails).PrintTo(printerName);
+				} else {
+					printerSettings = new PrintHelper(image, captureDetails).PrintWithDialog();
+				}
 				if (printerSettings != null) {
 					surface.Modified = false;
 					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.editor_senttoprinter, printerSettings.PrinterName));

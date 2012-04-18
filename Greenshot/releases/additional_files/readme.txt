@@ -18,6 +18,7 @@ Features added:
 * Added rotate clockwise & counter clockwise
 * Added a preview when using the window capture from the context menu (Windows Vista and later)
 * Added color reduction as an option and auto detection for image with less than 256 color. When using reduction this results in smaller files.
+* Added direct printing to a selected printer
 
 Bugs resolved:
 * Fixed a problem with temp-files being removed before they were used, now using a delay of ~10 hours
