@@ -98,9 +98,7 @@ namespace GreenshotPlugin.Core {
 			} else {
 				CurrentLanguage = DEFAULT_LANGUAGE;
 			}
-			if (string.IsNullOrEmpty(CurrentLanguage)) {
-				throw new ApplicationException("Couldn't set language, installation problem?");
-			}
+			LOG.Error("Couldn't set language, installation problem?");
 		}
 
 		/// <summary>
