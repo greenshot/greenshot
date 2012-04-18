@@ -92,7 +92,7 @@ namespace GreenshotConfluencePlugin {
 		}
 		
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			if (!ConfluencePlugin.ConfluenceConnectorNoLogin.isLoggedIn) {
+			if (ConfluencePlugin.ConfluenceConnectorNoLogin == null || !ConfluencePlugin.ConfluenceConnectorNoLogin.isLoggedIn) {
 				yield break;
 			}
 			List<Confluence.Page> currentPages = ConfluenceUtils.GetCurrentPages();

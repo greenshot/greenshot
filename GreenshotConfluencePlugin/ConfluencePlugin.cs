@@ -41,16 +41,19 @@ namespace GreenshotConfluencePlugin {
 		private static PluginAttribute ConfluencePluginAttributes;
 		private static ConfluenceConfiguration config = null;
 		private static IGreenshotHost host;
-		
+
+		private static void CreateConfluenceConntector() {
+			if (confluenceConnector == null) {
+				if (config.Url.Contains("soap-axis")) {
+					confluenceConnector = new ConfluenceConnector(config.Url, config.Timeout);
+				} else {
+					confluenceConnector = new ConfluenceConnector(config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX, config.Timeout);
+				}
+			}
+		}
+
 		public static ConfluenceConnector ConfluenceConnectorNoLogin {
 			get {
-				if (confluenceConnector == null) {
-					if (config.Url.Contains("soap-axis")) {
-						confluenceConnector = new ConfluenceConnector(config.Url, config.Timeout);
-					} else {
-						confluenceConnector = new ConfluenceConnector(config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX, config.Timeout);
-					}
-				}
 				return confluenceConnector;
 			}
 		}
@@ -58,7 +61,7 @@ namespace GreenshotConfluencePlugin {
 		public static ConfluenceConnector ConfluenceConnector {
 			get {
 				if (confluenceConnector == null) {
-					confluenceConnector = ConfluenceConnectorNoLogin;
+					CreateConfluenceConntector();
 				}
 				try {
 					if (!confluenceConnector.isLoggedIn) {

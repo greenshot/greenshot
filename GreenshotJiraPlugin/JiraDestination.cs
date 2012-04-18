@@ -86,8 +86,7 @@ namespace GreenshotJiraPlugin {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			// Fail fast would be like this: if (JiraPlugin.Instance.CurrentJiraConnector == null || !JiraPlugin.Instance.JiraConnector.isLoggedIn) {
-			if (!JiraPlugin.Instance.JiraConnector.isLoggedIn) {
+			if (JiraPlugin.Instance.CurrentJiraConnector == null || !JiraPlugin.Instance.CurrentJiraConnector.isLoggedIn) {
 				yield break;
 			}
 			List<JiraIssue> issues = JiraUtils.GetCurrentJiras();

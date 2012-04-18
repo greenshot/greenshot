@@ -75,11 +75,11 @@ namespace GreenshotJiraPlugin {
 		}
 
 		//Needed for a fail-fast
-		//public JiraConnector CurrentJiraConnector {
-		//	get {
-		//		return jiraConnector;
-		//	}
-		//}
+		public JiraConnector CurrentJiraConnector {
+			get {
+				return jiraConnector;
+			}
+		}
 		
 		public JiraConnector JiraConnector {
 			get {
