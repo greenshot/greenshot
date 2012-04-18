@@ -129,7 +129,7 @@ namespace GreenshotImgurPlugin {
 			Shutdown();
 		}
 		
-		public bool Upload(ICaptureDetails captureDetails, Image image) {
+		public bool Upload(ICaptureDetails captureDetails, Image image, out string uploadURL) {
 			using (MemoryStream stream = new MemoryStream()) {
 				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait));
 
@@ -143,6 +143,7 @@ namespace GreenshotImgurPlugin {
 					CheckHistory();
 					imgurInfo.Image = ImageHelper.CreateThumbnail(image, 90, 90);
 					IniConfig.Save();
+					uploadURL = imgurInfo.Page;
 					try {
 						if (config.UsePageLink) {
 							Clipboard.SetText(imgurInfo.Page);
@@ -159,6 +160,7 @@ namespace GreenshotImgurPlugin {
 					backgroundForm.CloseDialog();
 				}
 			}
+			uploadURL = null;
 			return false;
 		}
 
