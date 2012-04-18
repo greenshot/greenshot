@@ -88,7 +88,7 @@ namespace Greenshot.Destinations {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters) {
+			foreach (string printer in PrinterSettings.InstalledPrinters) {
 				yield return new PrinterDestination(printer);
 			}
 		}
@@ -98,6 +98,9 @@ namespace Greenshot.Destinations {
 			using (Image image = surface.GetImageForExport()) {
 				if (!string.IsNullOrEmpty(printerName)) {
 					printerSettings = new PrintHelper(image, captureDetails).PrintTo(printerName);
+				} else if (!manuallyInitiated) {
+					PrinterSettings settings = new PrinterSettings();
+					printerSettings = new PrintHelper(image, captureDetails).PrintTo(settings.PrinterName);
 				} else {
 					printerSettings = new PrintHelper(image, captureDetails).PrintWithDialog();
 				}
