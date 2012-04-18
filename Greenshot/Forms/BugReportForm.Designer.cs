@@ -46,7 +46,6 @@ namespace Greenshot.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BugReportForm));
 			this.labelBugReportInfo = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBoxDescription = new System.Windows.Forms.TextBox();
 			this.btnClose = new GreenshotPlugin.Controls.GreenshotButton();
@@ -60,7 +59,6 @@ namespace Greenshot.Forms {
 			this.labelBugReportInfo.Name = "labelBugReportInfo";
 			this.labelBugReportInfo.Size = new System.Drawing.Size(481, 141);
 			this.labelBugReportInfo.TabIndex = 0;
-			this.labelBugReportInfo.Text = resources.GetString("labelBugReportInfo.Text");
 			// 
 			// textBoxDescription
 			// 

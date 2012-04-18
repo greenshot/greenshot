@@ -39,7 +39,7 @@ namespace Greenshot {
 			//
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			
+			this.pictureBox1.Image = GreenshotPlugin.Core.GreenshotResources.getGreenshotImage();
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
 			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable?" Portable":"") + (" (" + OSInfo.Bits +" bit)");

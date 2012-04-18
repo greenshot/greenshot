@@ -459,15 +459,19 @@ namespace Greenshot {
 		private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, HotKeyHandler handler) {
 			Keys modifierKeyCode = HotkeyControl.HotkeyModifiersFromString(hotkeyString);
 			Keys virtualKeyCode = HotkeyControl.HotkeyFromString(hotkeyString);
-			if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0) {
-				LOG.DebugFormat("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
-				if (failedKeys.Length > 0) {
-					failedKeys.Append(", ");
+			if (!Keys.None.Equals(virtualKeyCode)) {
+				if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0) {
+					LOG.DebugFormat("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
+					if (failedKeys.Length > 0) {
+						failedKeys.Append(", ");
+					}
+					failedKeys.Append(hotkeyString);
+					return false;
+				} else {
+					LOG.DebugFormat("Registered {0} to hotkey: {1}", functionName, hotkeyString);
 				}
-				failedKeys.Append(hotkeyString);
-				return false;
 			} else {
-				LOG.DebugFormat("Registered {0} to hotkey: {1}", functionName, hotkeyString);
+				LOG.InfoFormat("Skipping hotkey registration for {0}, no hotkey set!", functionName);
 			}
 			return true;
 		}

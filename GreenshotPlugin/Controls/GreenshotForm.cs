@@ -147,7 +147,6 @@ namespace GreenshotPlugin.Controls {
 			if (ce.Component != null && ((IComponent)ce.Component).Site != null) {
 				Control control = ce.Component as Control;
 				if (control != null) {
-					LOG.DebugFormat("Control {0} added.", control.Name);
 					if (!designTimeControls.ContainsKey(control.Name)) {
 						designTimeControls.Add(control.Name, control);
 					} else {
@@ -168,12 +167,10 @@ namespace GreenshotPlugin.Controls {
 		protected void ApplyLanguage(Control applyTo) {
 			IGreenshotLanguageBindable languageBindable = applyTo as IGreenshotLanguageBindable;
 			if (languageBindable == null) {
-				LOG.DebugFormat("Not bindable: {0}", applyTo.Name);
 				return;
 			}
 
 			string languageKey = languageBindable.LanguageKey;
-			LOG.DebugFormat("Found language key '{0}' configured on control '{1}'", languageKey, applyTo.Name);
 			// Apply language text to the control
 			ApplyLanguage(applyTo, languageKey);
 			// Repopulate the combox boxes
@@ -197,14 +194,12 @@ namespace GreenshotPlugin.Controls {
 		/// Apply all the language settings to the "Greenshot" Controls on this form
 		/// </summary>
 		protected void ApplyLanguage() {
-			LOG.DebugFormat("Applying language, using key {0}", LanguageKey);
 			// Set title of the form
 			if (!string.IsNullOrEmpty(LanguageKey)) {
 				this.Text = Language.GetString(LanguageKey);
 			}
 			// Reset the text values for all GreenshotControls
-			foreach (FieldInfo field in this.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)) {
-				LOG.DebugFormat("Checking field {0}", field.Name);
+			foreach (FieldInfo field in this.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
 				if (!field.FieldType.IsSubclassOf(typeof(Control))) {
 					LOG.DebugFormat("No control: {0}", field.Name);
 					continue;

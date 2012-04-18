@@ -93,11 +93,13 @@ namespace GreenshotPlugin.Core {
 			coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 			ScanFiles();
 			if (!string.IsNullOrEmpty(coreConfig.Language)) {
-				currentLanguage = coreConfig.Language;
+				CurrentLanguage = coreConfig.Language;
 			} else {
-				currentLanguage = DEFAULT_LANGUAGE;
+				CurrentLanguage = DEFAULT_LANGUAGE;
 			}
-			Reload();
+			if (string.IsNullOrEmpty(CurrentLanguage)) {
+				throw new ApplicationException("Couldn't set language, installation problem?");
+			}
 		}
 
 		/// <summary>
@@ -171,8 +173,8 @@ namespace GreenshotPlugin.Core {
 				return currentLanguage;
 			}
 			set {
-				LOG.DebugFormat("CurrentLangue = {0}, new value {1}", currentLanguage, value);
 				string ietf = ClearIETF(value);
+				LOG.DebugFormat("CurrentLangue = {0}, new value {1} ({2})", currentLanguage, value, ietf);
 				if (!string.IsNullOrEmpty(ietf)) {
 					if (!languageFiles.ContainsKey(ietf)) {
 						LOG.WarnFormat("Unknown language {0}, trying best match!", ietf);
@@ -187,7 +189,7 @@ namespace GreenshotPlugin.Core {
 					if (!languageFiles.ContainsKey(ietf)) {
 						LOG.WarnFormat("No match for language {0} found!", ietf);
 					} else {
-						if (currentLanguage == null && !currentLanguage.Equals(ietf)) {
+						if (currentLanguage == null || !currentLanguage.Equals(ietf)) {
 							currentLanguage = ietf;
 							Reload();
 							return;
