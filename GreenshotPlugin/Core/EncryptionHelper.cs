@@ -15,8 +15,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="ClearText">the string to call upon</param>
 		/// <returns>an encryped string in base64 form</returns>
 		public static string Encrypt(this string ClearText) {
-			byte[] clearTextBytes = Encoding.UTF8.GetBytes(ClearText);
-
+			byte[] clearTextBytes = Encoding.ASCII.GetBytes(ClearText);
+			string returnValue = null;
 			SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
 
 			using (MemoryStream ms = new MemoryStream()) {
@@ -25,8 +25,11 @@ namespace GreenshotPlugin.Core {
 				CryptoStream cs = new CryptoStream(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write);
 
 				cs.Write(clearTextBytes, 0, clearTextBytes.Length);
-				return Convert.ToBase64String(ms.ToArray());
+
+				cs.Close();
+				returnValue = Convert.ToBase64String(ms.ToArray());
 			}
+			return returnValue;
 		}
 
 		/// <summary>
@@ -36,7 +39,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Decrypeted text</returns>
 		public static string Decrypt(this string EncryptedText) {
 			byte[] encryptedTextBytes = Convert.FromBase64String(EncryptedText);
-
+			string returnValue = null;
 			using (MemoryStream ms = new MemoryStream()) {
 				SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
 
@@ -49,8 +52,11 @@ namespace GreenshotPlugin.Core {
 
 				cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
 
-				return Encoding.UTF8.GetString(ms.ToArray());
+				cs.Close();
+				returnValue = Encoding.ASCII.GetString(ms.ToArray());
 			}
+
+			return returnValue;
 		}
 	}
 }
