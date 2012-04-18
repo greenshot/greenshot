@@ -441,7 +441,7 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="outlookApplication"></param>
 		private static void InitializeVariables(IOutlookApplication outlookApplication) {
-			if (outlookApplication == null) {
+			if (outlookApplication == null || outlookVersion != null) {
 				return;
 			}
 			try {
@@ -450,12 +450,15 @@ namespace Greenshot.Interop.Office {
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
 			}
-			try {
-				INameSpace mapiNamespace = outlookApplication.GetNameSpace("MAPI");
-				currentUser = mapiNamespace.CurrentUser.Name;
-				LOG.InfoFormat("Current user: {0}", currentUser);
-			} catch (Exception exNS) {
-				LOG.Error(exNS);
+			// Preventing retrieval of currentUser if Outlook is older than 2007
+			if (outlookVersion.Major >= 12) {
+				try {
+					INameSpace mapiNamespace = outlookApplication.GetNameSpace("MAPI");
+					currentUser = mapiNamespace.CurrentUser.Name;
+					LOG.InfoFormat("Current user: {0}", currentUser);
+				} catch (Exception exNS) {
+					LOG.Error(exNS);
+				}
 			}
 		}
 
