@@ -36,7 +36,8 @@ namespace Greenshot.Plugin {
 	public enum SurfaceMessageTyp {
 		FileSaved,
 		Error,
-		Info
+		Info,
+		UploadedUrl
 	}
 
 	public class SurfaceMessageEventArgs : EventArgs {
@@ -127,6 +128,10 @@ namespace Greenshot.Plugin {
 			set;
 		}
 		string LastSaveFullPath {
+			get;
+			set;
+		}
+		string UploadURL {
 			get;
 			set;
 		}

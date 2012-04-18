@@ -49,7 +49,8 @@ namespace GreenshotJiraPlugin {
 				}
 				MatchCollection jiraKeyMatch = JIRA_KEY_REGEX.Matches(url);
 				if (jiraKeyMatch != null && jiraKeyMatch.Count > 0) {
-					jirakeys.Add(jiraKeyMatch[0].Groups[1].Value);
+					string jiraKey = jiraKeyMatch[0].Groups[1].Value;
+					jirakeys.Add(jiraKey);
 				}
 			}
 			if (!string.IsNullOrEmpty(config.LastUsedJira) && !jirakeys.Contains(config.LastUsedJira)) {
@@ -60,7 +61,9 @@ namespace GreenshotJiraPlugin {
 				foreach(string jiraKey in jirakeys) {
 					try {
 						JiraIssue issue = JiraPlugin.Instance.JiraConnector.getIssue(jiraKey);
-						jiraIssues.Add(issue);
+						if (issue != null) {
+							jiraIssues.Add(issue);
+						}
 					} catch {}
 				}
 				if (jiraIssues.Count > 0) {

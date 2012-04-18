@@ -438,6 +438,7 @@ namespace Greenshot.Helpers {
 							MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
 							break;
 						case SurfaceMessageTyp.FileSaved:
+						case SurfaceMessageTyp.UploadedUrl:
 							EventHandler balloonTipClickedHandler = null;
 							EventHandler balloonTipClosedHandler = null;
 							balloonTipClosedHandler = delegate(object sender, EventArgs e) {
@@ -447,13 +448,19 @@ namespace Greenshot.Helpers {
 							};
 
 							balloonTipClickedHandler = delegate(object sender, EventArgs e) {
-								if (surface.LastSaveFullPath != null) {
-									ProcessStartInfo psi = new ProcessStartInfo("explorer");
-									psi.Arguments = Path.GetDirectoryName(eventArgs.Surface.LastSaveFullPath);
-									psi.UseShellExecute = false;
-									Process p = new Process();
-									p.StartInfo = psi;
-									p.Start();
+								if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved) {
+									if (!string.IsNullOrEmpty(surface.LastSaveFullPath)) {
+										ProcessStartInfo psi = new ProcessStartInfo("explorer");
+										psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
+										psi.UseShellExecute = false;
+										Process p = new Process();
+										p.StartInfo = psi;
+										p.Start();
+									}
+								} else {
+									if (!string.IsNullOrEmpty(surface.UploadURL)) {
+										System.Diagnostics.Process.Start(surface.UploadURL);
+									}
 								}
 								LOG.DebugFormat("Deregistering the BalloonTipClicked");
 								MainForm.instance.notifyIcon.BalloonTipClicked -= balloonTipClickedHandler;

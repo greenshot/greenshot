@@ -285,6 +285,10 @@ namespace Jira {
 			return issuesToReturn.ToArray(); ;
 		}
 
+		public string getURL(string issueKey) {
+			return url.Replace(DEFAULT_POSTFIX,"") + "/browse/" + issueKey;
+		}
+
 		public void addAttachment(string issueKey, string filename, byte [] buffer) {
 			checkCredentials();
 			try {

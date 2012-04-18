@@ -252,7 +252,9 @@ namespace Greenshot {
 
 		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs) {
 			string dateTime = DateTime.Now.ToLongTimeString();
-			if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved) {
+			// TODO: Fix that we only open files, like in the tooltip
+			//if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved || eventArgs.MessageType == SurfaceMessageTyp.UploadedUrl) {
+			if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved || eventArgs.MessageType == SurfaceMessageTyp.UploadedUrl) {
 				updateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
 			} else {
 				updateStatusLabel(dateTime + " - " + eventArgs.Message);

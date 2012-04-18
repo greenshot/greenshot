@@ -138,6 +138,11 @@ namespace Greenshot.Drawing {
 			}
 		}
 
+		public string UploadURL {
+			get;
+			set;
+		}
+
 		public ICaptureDetails CaptureDetails {
 			get {return captureDetails;}
 			set {captureDetails = value;}

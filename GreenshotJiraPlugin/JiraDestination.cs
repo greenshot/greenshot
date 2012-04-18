@@ -57,12 +57,16 @@ namespace GreenshotJiraPlugin {
 			}
 		}
 
+		private string FormatUpload(JiraIssue jira) {
+			return Designation + " - " + jira.Key + ": " + jira.Summary.Substring(0, Math.Min(20, jira.Summary.Length));
+		}
+
 		public override string Description {
 			get {
 				if (jira == null) {
 					return Language.GetString("jira", LangKey.upload_menu_item);
 				} else {
-					return Language.GetString("jira", LangKey.upload_menu_item) + " - " + jira.Key + ": " + jira.Summary.Substring(0, Math.Min(20, jira.Summary.Length));
+					return FormatUpload(jira);
 				}
 			}
 		}
@@ -113,8 +117,8 @@ namespace GreenshotJiraPlugin {
 					jiraPlugin.JiraConnector.addAttachment(jira.Key, filename, buffer);
 					LOG.Debug("Uploaded to Jira.");
 					backgroundForm.CloseDialog();
-					MessageBox.Show(Language.GetString("jira", LangKey.upload_success));
-					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", Description));
+					surface.UploadURL = jiraPlugin.JiraConnector.getURL(jira.Key);
+					surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUrl, Language.GetFormattedString("exported_to", FormatUpload(jira)));
 					surface.Modified = false;
 					return true;
 				} catch (Exception e) {
@@ -140,8 +144,8 @@ namespace GreenshotJiraPlugin {
 							jiraForm.upload(buffer);
 							LOG.Debug("Uploaded to Jira.");
 							backgroundForm.CloseDialog();
-							MessageBox.Show(Language.GetString("jira", LangKey.upload_success));
-							surface.SendMessageEvent(this, SurfaceMessageTyp.Info, "Exported to Jira " + jiraForm.getJiraIssue().Key);
+							surface.UploadURL = jiraPlugin.JiraConnector.getURL(jiraForm.getJiraIssue().Key);
+							surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUrl,  Language.GetFormattedString("exported_to", FormatUpload(jiraForm.getJiraIssue())));
 							surface.Modified = false;
 							return true;
 						} catch(Exception e) {

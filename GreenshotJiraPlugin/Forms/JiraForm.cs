@@ -31,7 +31,7 @@ namespace GreenshotJiraPlugin {
 	public partial class JiraForm : Form {
 		private JiraConnector jiraConnector;
 		private JiraIssue selectedIssue;
-		private ListViewColumnSorter columnSorter;
+		private GreenshotColumnSorter columnSorter;
 		private JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
 
 		public JiraForm(JiraConnector jiraConnector) {
@@ -39,7 +39,7 @@ namespace GreenshotJiraPlugin {
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			initializeComponentText();
 
-			this.columnSorter = new ListViewColumnSorter();
+			this.columnSorter = new GreenshotColumnSorter();
 			this.jiraListView.ListViewItemSorter = columnSorter;
 
 			this.jiraConnector = jiraConnector;
