@@ -266,6 +266,12 @@ namespace GreenshotPlugin.Controls {
 							if (typeof(CheckBox).IsAssignableFrom(field.FieldType)) {
 								CheckBox checkBox = controlObject as CheckBox;
 								checkBox.Checked = (bool)section.Values[configBindable.PropertyName].Value;
+							} else if (typeof(HotkeyControl).IsAssignableFrom(field.FieldType)) {
+								HotkeyControl hotkeyControl = controlObject as HotkeyControl;
+								string hotkeyValue = (string)section.Values[configBindable.PropertyName].Value;
+								if (!string.IsNullOrEmpty(hotkeyValue)) {
+									hotkeyControl.SetHotkey(hotkeyValue);
+								}
 							} else if (typeof(TextBox).IsAssignableFrom(field.FieldType)) {
 								TextBox textBox = controlObject as TextBox;
 								textBox.Text = (string)section.Values[configBindable.PropertyName].Value;
