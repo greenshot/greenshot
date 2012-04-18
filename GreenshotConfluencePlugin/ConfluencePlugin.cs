@@ -65,7 +65,7 @@ namespace GreenshotConfluencePlugin {
 						confluenceConnector.login();
 					}
 				} catch (Exception e) {
-					MessageBox.Show(Language.GetFormattedString(LangKey.login_error, e.Message));
+					MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
 				}
 				return confluenceConnector;
 			}

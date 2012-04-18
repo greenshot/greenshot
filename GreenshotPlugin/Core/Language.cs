@@ -42,7 +42,8 @@ namespace GreenshotPlugin.Core {
 		private const string HELP_FILENAME_PATTERN = @"help-*.html";
 		private const string LANGUAGE_FILENAME_PATTERN = @"language*.xml";
 		private static Regex PREFIX_REGEXP = new Regex(@"language_([a-zA-Z0-9]+).*");
-		private static Regex IETF_REGEXP = new Regex(@"[^a-zA-Z]+");
+		private static Regex IETF_CLEAN_REGEXP = new Regex(@"[^a-zA-Z]+");
+		private static Regex IETF_REGEXP = new Regex(@"^.*([a-zA-Z]{2}-[a-zA-Z]{2})\.xml$");
 		private const string LANGUAGE_GROUPS_KEY = @"SYSTEM\CurrentControlSet\Control\Nls\Language Groups";
 		private static List<string> unsupportedLanguageGroups = new List<string>();
 		private static IDictionary<string, string> resources = new Dictionary<string, string>();
@@ -143,7 +144,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="ietf"></param>
 		private static void LoadFiles(string ietf) {
-			ietf = ClearIETF(ietf);
+			ietf = ReformatIETF(ietf);
 			if (!languageFiles.ContainsKey(ietf)) {
 				LOG.ErrorFormat("No language {0} available.", ietf);
 				return;
@@ -173,27 +174,14 @@ namespace GreenshotPlugin.Core {
 				return currentLanguage;
 			}
 			set {
-				string ietf = ClearIETF(value);
-				LOG.DebugFormat("CurrentLangue = {0}, new value {1} ({2})", currentLanguage, value, ietf);
-				if (!string.IsNullOrEmpty(ietf)) {
-					if (!languageFiles.ContainsKey(ietf)) {
-						LOG.WarnFormat("Unknown language {0}, trying best match!", ietf);
-						foreach (string availableIETF in languageFiles.Keys) {
-							if (availableIETF.StartsWith(ietf)) {
-								LOG.InfoFormat("Found language {0}, best match for!", availableIETF, ietf);
-								ietf = availableIETF;
-								break;
-							}
-						}
-					}
-					if (!languageFiles.ContainsKey(ietf)) {
-						LOG.WarnFormat("No match for language {0} found!", ietf);
-					} else {
-						if (currentLanguage == null || !currentLanguage.Equals(ietf)) {
-							currentLanguage = ietf;
-							Reload();
-							return;
-						}
+				string ietf = FindBestIETFMatch(value);
+				if (!languageFiles.ContainsKey(ietf)) {
+					LOG.WarnFormat("No match for language {0} found!", ietf);
+				} else {
+					if (currentLanguage == null || !currentLanguage.Equals(ietf)) {
+						currentLanguage = ietf;
+						Reload();
+						return;
 					}
 				}
 				LOG.Debug("CurrentLanguage not changed!");
@@ -201,16 +189,46 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// This helper method clears all non alpha characters from the IETF, and does a tolower.
-		/// So only "dede" or "enus" is left, this prevents problems with multiple formats or typos.
+		/// Try to find the best match for the supplied IETF
+		/// </summary>
+		/// <param name="inputIETF"></param>
+		/// <returns>IETF</returns>
+		private static string FindBestIETFMatch(string inputIETF) {
+			string returnIETF = inputIETF;
+			if (string.IsNullOrEmpty(returnIETF)) {
+				returnIETF = DEFAULT_LANGUAGE;
+			}
+			returnIETF = ReformatIETF(returnIETF);
+			if (!languageFiles.ContainsKey(returnIETF)) {
+				LOG.WarnFormat("Unknown language {0}, trying best match!", returnIETF);
+				if (returnIETF.Length == 5) {
+					returnIETF = returnIETF.Substring(0, 2);
+				}
+				foreach (string availableIETF in languageFiles.Keys) {
+					if (availableIETF.StartsWith(returnIETF)) {
+						LOG.InfoFormat("Found language {0}, best match for!", availableIETF, returnIETF);
+						returnIETF = availableIETF;
+						break;
+					}
+				}
+			}
+			return returnIETF;
+		}
+
+		/// <summary>
+		/// This helper method clears all non alpha characters from the IETF, and does a reformatting.
+		/// This prevents problems with multiple formats or typos.
 		/// </summary>
 		/// <param name="inputIETF"></param>
 		/// <returns></returns>
-		private static string ClearIETF(string inputIETF) {
+		private static string ReformatIETF(string inputIETF) {
 			string returnIETF = null;
 			if (!string.IsNullOrEmpty(inputIETF)) {
 				returnIETF = inputIETF.ToLower();
-				returnIETF = IETF_REGEXP.Replace(returnIETF, "");
+				returnIETF = IETF_CLEAN_REGEXP.Replace(returnIETF, "");
+				if (returnIETF.Length == 4) {
+					returnIETF = returnIETF.Substring(0, 2) + "-" + returnIETF.Substring(2, 2).ToUpper();
+				}
 			}
 			return returnIETF;
 		}
@@ -293,7 +311,9 @@ namespace GreenshotPlugin.Core {
 					languageFile.Filepath = languageFilePath;
 					XmlNode node = nodes.Item(0);
 					languageFile.Description = node.Attributes["description"].Value;
-					languageFile.Ietf = ClearIETF(node.Attributes["ietf"].Value);
+					if (node.Attributes["ietf"] != null) {
+						languageFile.Ietf = ReformatIETF(node.Attributes["ietf"].Value);
+					}
 					if (node.Attributes["version"] != null) {
 						languageFile.Version = new Version(node.Attributes["version"].Value);
 					}
@@ -332,6 +352,18 @@ namespace GreenshotPlugin.Core {
 						LanguageFile languageFile = LoadFileInfo(languageFilepath);
 						if (languageFile == null) {
 							continue;
+						}
+						if (string.IsNullOrEmpty(languageFile.Ietf)) {
+							LOG.WarnFormat("Fixing missing ietf in language-file {0}", languageFilepath);
+							string languageFilename = Path.GetFileName(languageFilepath);
+							if (IETF_REGEXP.IsMatch(languageFilename)) {
+								string replacementIETF = IETF_REGEXP.Replace(languageFilename, "$1");
+								languageFile.Ietf = ReformatIETF(replacementIETF);
+								LOG.InfoFormat("Fixed IETF to {0}", languageFile.Ietf);
+							} else {
+								LOG.ErrorFormat("Missing ietf , no recover possible... skipping language-file {0}!", languageFilepath);
+								continue;
+							}
 						}
 
 						// Check if we can display the file
@@ -393,7 +425,7 @@ namespace GreenshotPlugin.Core {
 					foreach (string helpFilepath in Directory.GetFiles(languagePath, HELP_FILENAME_PATTERN, SearchOption.AllDirectories)) {
 						LOG.DebugFormat("Found help file: {0}", helpFilepath);
 						string helpFilename = Path.GetFileName(helpFilepath);
-						string ietf = ClearIETF(helpFilename.Replace(".html", "").Replace("help-", ""));
+						string ietf = ReformatIETF(helpFilename.Replace(".html", "").Replace("help-", ""));
 						if (!helpFiles.ContainsKey(ietf)) {
 							helpFiles.Add(ietf, helpFilepath);
 						} else {

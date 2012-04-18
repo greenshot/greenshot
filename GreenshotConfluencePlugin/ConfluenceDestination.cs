@@ -66,9 +66,9 @@ namespace GreenshotConfluencePlugin {
 		public override string Description {
 			get {
 				if (page == null) {
-					return Language.GetString(LangKey.upload_menu_item);
+					return Language.GetString("confluence", LangKey.upload_menu_item);
 				} else {
-					return Language.GetString(LangKey.upload_menu_item) + ": \"" + page.Title + "\"";
+					return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + page.Title + "\"";
 				}
 			}
 		}
@@ -173,11 +173,11 @@ namespace GreenshotConfluencePlugin {
 						Process.Start(page.Url);
 					} catch {}
 				} else {
-					System.Windows.MessageBox.Show(Language.GetString(LangKey.upload_success));
+					System.Windows.MessageBox.Show(Language.GetString("confluence", LangKey.upload_success));
 				}
 				return true;
 			} catch(Exception e) {
-				System.Windows.MessageBox.Show(Language.GetString(LangKey.upload_failure) + " " + e.Message);
+				System.Windows.MessageBox.Show(Language.GetString("confluence", LangKey.upload_failure) + " " + e.Message);
 			}
 			return false;
 		}
