@@ -42,7 +42,6 @@ namespace Greenshot.Helpers {
 		private ICaptureDetails captureDetails;
 		private PrintDocument printDocument = new PrintDocument();
 		private PrintDialog printDialog = new PrintDialog();
-		private PrintOptionsDialog printOptionsDialog = null;
 
 		public PrintHelper(Image image, ICaptureDetails captureDetails) {
 			this.image = image;
@@ -84,14 +83,10 @@ namespace Greenshot.Helpers {
 				if (printDialog != null) {
 					printDialog.Dispose();
 				}
-				if (printOptionsDialog != null) {
-					printOptionsDialog.Dispose();
-				}
 			}
 			image = null;
 			printDocument = null;
 			printDialog = null;
-			printOptionsDialog = null;
 		}
 
 		/// <summary>
@@ -102,11 +97,12 @@ namespace Greenshot.Helpers {
 		public PrinterSettings PrintTo(string printerName) {
 			PrinterSettings returnPrinterSettings = null;
 			bool cancelled = false;
-			printOptionsDialog = new PrintOptionsDialog();
 			if (conf.OutputPrintPromptOptions) {
-				DialogResult result = printOptionsDialog.ShowDialog();
-				if (result != DialogResult.OK) {
-					cancelled = true;
+				using (PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog()) {
+					DialogResult result = printOptionsDialog.ShowDialog();
+					if (result != DialogResult.OK) {
+						cancelled = true;
+					}
 				}
 			}
 			try {
@@ -133,11 +129,12 @@ namespace Greenshot.Helpers {
 			PrinterSettings returnPrinterSettings = null;
 			if (printDialog.ShowDialog() == DialogResult.OK) {
 				bool cancelled = false;
-				printOptionsDialog = new PrintOptionsDialog();
 				if (conf.OutputPrintPromptOptions) {
-					DialogResult result = printOptionsDialog.ShowDialog();
-					if (result != DialogResult.OK) {
-						cancelled = true;
+					using (PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog()) {
+						DialogResult result = printOptionsDialog.ShowDialog();
+						if (result != DialogResult.OK) {
+							cancelled = true;
+						}
 					}
 				}
 				try {
@@ -157,8 +154,7 @@ namespace Greenshot.Helpers {
 		}
 
 		void DrawImageForPrint(object sender, PrintPageEventArgs e) {
-			PrintOptionsDialog pod = printOptionsDialog;
-			ContentAlignment alignment = pod.AllowPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
+			ContentAlignment alignment = conf.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
 
 			// prepare timestamp
 			float footerStringWidth = 0;
@@ -181,7 +177,7 @@ namespace Greenshot.Helpers {
 			GraphicsUnit gu = GraphicsUnit.Pixel;
 			RectangleF imageRect = image.GetBounds(ref gu);
 			// rotate the image if it fits the page better
-			if (pod.AllowPrintRotate) {
+			if (conf.OutputPrintAllowRotate) {
 				if ((pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height) || (pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)) {
 					image.RotateFlip(RotateFlipType.Rotate90FlipNone);
 					imageRect = image.GetBounds(ref gu);
@@ -193,9 +189,9 @@ namespace Greenshot.Helpers {
 
 			RectangleF printRect = new RectangleF(0, 0, imageRect.Width, imageRect.Height);
 			// scale the image to fit the page better
-			if (pod.AllowPrintEnlarge || pod.AllowPrintShrink) {
+			if (conf.OutputPrintAllowEnlarge || conf.OutputPrintAllowShrink) {
 				SizeF resizedRect = ScaleHelper.GetScaledSize(imageRect.Size, pageRect.Size, false);
-				if ((pod.AllowPrintShrink && resizedRect.Width < printRect.Width) || pod.AllowPrintEnlarge && resizedRect.Width > printRect.Width) {
+				if ((conf.OutputPrintAllowShrink && resizedRect.Width < printRect.Width) || conf.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width) {
 					printRect.Size = resizedRect;
 				}
 			}

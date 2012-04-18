@@ -31,13 +31,6 @@ namespace Greenshot.Forms {
 	public partial class PrintOptionsDialog : BaseForm {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		
-		public bool AllowPrintCenter;
-		public bool AllowPrintEnlarge;
-		public bool AllowPrintRotate;
-		public bool AllowPrintShrink;
-		public bool PrintDateTime;
-		public bool PrintInverted;
-		
 		public PrintOptionsDialog() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
