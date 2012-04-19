@@ -15,6 +15,7 @@ namespace GreenshotPlugin.Controls {
 		private IComponentChangeService m_changeService;
 		private bool isLanguageSet = false;
 		private IDictionary<string, Control> designTimeControls;
+		private IDictionary<string, ToolStripItem> designTimeToolStripItems;
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
 			get;
@@ -27,6 +28,7 @@ namespace GreenshotPlugin.Controls {
 		protected void InitializeForDesigner() {
 			if (this.DesignMode) {
 				designTimeControls = new Dictionary<string, Control>();
+				designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
 				try {
 					ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
 					Assembly currentAssembly = this.GetType().Assembly;
@@ -138,7 +140,19 @@ namespace GreenshotPlugin.Controls {
 		private void OnComponentChanged(object sender, ComponentChangedEventArgs ce) {
 			if (ce.Component != null && ((IComponent)ce.Component).Site != null && ce.Member != null) {
 				if ("LanguageKey".Equals(ce.Member.Name)) {
-					ApplyLanguage(ce.Component as Control, (string)ce.NewValue);
+					Control control = ce.Component as Control;
+					if (control != null) {
+						LOG.InfoFormat("Changing LanguageKey for {0} to {1}", control.Name, ce.NewValue);
+						ApplyLanguage(control, (string)ce.NewValue);
+					} else {
+						ToolStripItem item = ce.Component as ToolStripItem;
+						if (item != null) {
+							LOG.InfoFormat("Changing LanguageKey for {0} to {1}", item.Name, ce.NewValue);
+							ApplyLanguage(item, (string)ce.NewValue);
+						} else {
+							LOG.InfoFormat("Not possible to changing LanguageKey for {0} to {1}", ce.Component.GetType(), ce.NewValue);
+						}
+					}
 				}
 			}
 		}
@@ -152,6 +166,13 @@ namespace GreenshotPlugin.Controls {
 					} else {
 						designTimeControls[control.Name] = control;
 					}
+				} else if (ce.Component is ToolStripItem) {
+					ToolStripItem item = ce.Component as ToolStripItem;
+					if (!designTimeControls.ContainsKey(item.Name)) {
+						designTimeToolStripItems.Add(item.Name, item);
+					} else {
+						designTimeToolStripItems[item.Name] = item;
+					}
 				}
 			}
 		}
@@ -164,9 +185,47 @@ namespace GreenshotPlugin.Controls {
 			base.Dispose(disposing);
 		}
 
+		protected void ApplyLanguage(ToolStripItem applyTo, string languageKey) {
+			if (!string.IsNullOrEmpty(languageKey)) {
+				if (!Language.hasKey(languageKey)) {
+					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
+					if (DesignMode) {
+						MessageBox.Show(string.Format("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name));
+					}
+					return;
+				}
+				applyTo.Text = Language.GetString(languageKey);
+			} else {
+				// Fallback to control name!
+				if (Language.hasKey(applyTo.Name)) {
+					applyTo.Text = Language.GetString(applyTo.Name);
+					return;
+				}
+				if (this.DesignMode) {
+					MessageBox.Show(string.Format("Greenshot control without language key: {0}", applyTo.Name));
+				} else {
+					LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
+				}
+			}
+		}
+
+		protected void ApplyLanguage(ToolStripItem applyTo) {
+			IGreenshotLanguageBindable languageBindable = applyTo as IGreenshotLanguageBindable;
+			if (languageBindable != null) {
+				ApplyLanguage(applyTo, languageBindable.LanguageKey);
+			}
+		}
+
 		protected void ApplyLanguage(Control applyTo) {
 			IGreenshotLanguageBindable languageBindable = applyTo as IGreenshotLanguageBindable;
 			if (languageBindable == null) {
+				// check if it's a menu!
+				if (applyTo is ToolStrip) {
+					ToolStrip toolStrip = applyTo as ToolStrip;
+					foreach (ToolStripItem item in toolStrip.Items) {
+						ApplyLanguage(item);
+					}
+				}
 				return;
 			}
 
@@ -222,6 +281,9 @@ namespace GreenshotPlugin.Controls {
 				foreach (Control designControl in designTimeControls.Values) {
 					ApplyLanguage(designControl);
 				}
+				foreach (ToolStripItem designToolStripItem in designTimeToolStripItems.Values) {
+					ApplyLanguage(designToolStripItem);
+				}
 			}
 		}
 
@@ -237,6 +299,11 @@ namespace GreenshotPlugin.Controls {
 				}
 				applyTo.Text = Language.GetString(languageKey);
 			} else {
+				// Fallback to control name!
+				if (Language.hasKey(applyTo.Name)) {
+					applyTo.Text = Language.GetString(applyTo.Name);
+					return;
+				}
 				if (this.DesignMode) {
 					MessageBox.Show(string.Format("Greenshot control without language key: {0}", applyTo.Name));
 				} else {

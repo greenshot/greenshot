@@ -46,7 +46,7 @@ namespace Greenshot {
 	/// <summary>
 	/// Description of MainForm.
 	/// </summary>
-	public partial class MainForm : Form {
+	public partial class MainForm : BaseForm {
 		private static log4net.ILog LOG = null;
 		private static Mutex applicationMutex = null;
 		private static CoreConfiguration conf;
@@ -520,22 +520,9 @@ namespace Greenshot {
 		#endregion
 		
 		public void UpdateUI() {
-			this.Text = Language.GetString(LangKey.application_title);
-			this.contextmenu_settings.Text = Language.GetString(LangKey.contextmenu_settings);
-			this.contextmenu_capturearea.Text = Language.GetString(LangKey.contextmenu_capturearea);
-			this.contextmenu_capturelastregion.Text = Language.GetString(LangKey.contextmenu_capturelastregion);
-			this.contextmenu_capturewindow.Text = Language.GetString(LangKey.contextmenu_capturewindow);
-			this.contextmenu_capturefullscreen.Text = Language.GetString(LangKey.contextmenu_capturefullscreen);
-			this.contextmenu_captureclipboard.Text = Language.GetString(LangKey.contextmenu_captureclipboard);
-			this.contextmenu_openfile.Text = Language.GetString(LangKey.contextmenu_openfile);
-			this.contextmenu_quicksettings.Text = Language.GetString(LangKey.contextmenu_quicksettings);
-			this.contextmenu_help.Text = Language.GetString(LangKey.contextmenu_help);
-			this.contextmenu_about.Text = Language.GetString(LangKey.contextmenu_about);
-			this.contextmenu_donate.Text = Language.GetString(LangKey.contextmenu_donate);
-			this.contextmenu_exit.Text = Language.GetString(LangKey.contextmenu_exit);
-			this.contextmenu_captureie.Text = Language.GetString(LangKey.contextmenu_captureie);
-			this.contextmenu_openrecentcapture.Text = Language.GetString(LangKey.contextmenu_openrecentcapture);
-			
+			// As the form is never loaded, call ApplyLanguage ourselves
+			ApplyLanguage();
+
 			// Show hotkeys in Contextmenu
 			this.contextmenu_capturearea.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(conf.RegionHotkey);
 			this.contextmenu_capturelastregion.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(conf.LastregionHotkey);

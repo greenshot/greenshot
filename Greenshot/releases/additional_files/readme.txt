@@ -19,6 +19,7 @@ Features added:
 * Added a preview when using the window capture from the context menu (Windows Vista and later)
 * Added color reduction as an option and auto detection for image with less than 256 color. When using reduction this results in smaller files.
 * Added direct printing to a selected printer
+* Changed multi-screen capture behaviour, assuming that capturing all screens is not a normal use-case. Now default behaviour is to capture the one with the mouse-cursor. Also the user can select which screen to capture from the context-menu.
 
 Bugs resolved:
 * Fixed a problem with temp-files being removed before they were used, now using a delay of ~10 hours
