@@ -366,11 +366,10 @@ EndSelection:<<<<<<<4
 					ido.SetData("PNG", false, pngStream);
 				}
 
-				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
+				if (config.ClipboardFormats.Contains(ClipboardFormat.DIB)) {
 					bmpStream = new MemoryStream();
 					// Save image as BMP
 					image.Save(bmpStream, ImageFormat.Bmp);
-
 					imageStream = new MemoryStream();
 					// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
 					imageStream.Write(bmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int) bmpStream.Length - BITMAPFILEHEADER_LENGTH);
