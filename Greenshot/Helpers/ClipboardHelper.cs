@@ -82,9 +82,10 @@ EndSelection:<<<<<<<4
 </BODY>
 </HTML>";
 		
-		/**
-		 * Get the current "ClipboardOwner" but only if it isn't us!
-		 */
+		/// <summary>
+		/// Get the current "ClipboardOwner" but only if it isn't us!
+		/// </summary>
+		/// <returns>current clipboard owner</returns>
 		private static string GetClipboardOwner() {
 			string owner = null;
 			try {
@@ -111,22 +112,22 @@ EndSelection:<<<<<<<4
 			return owner;
 		}
 
-		/**
-		 * Wrapper for the SetDataObject with a bool "copy"
-		 * 
-		 * Default is true, the information on the clipboard will stay even if our application quits
-		 * For our own Types the other SetDataObject should be called with false.
-		 */
+		/// <summary>
+		/// Wrapper for the SetDataObject with a bool "copy"
+		/// Default is true, the information on the clipboard will stay even if our application quits
+		/// For our own Types the other SetDataObject should be called with false.
+		/// </summary>
+		/// <param name="ido"></param>
 		private static void SetDataObject(IDataObject ido) {
 			SetDataObject(ido, true);
 		}
 
-		/**
-		 * The SetDataObject that will lock/try/catch clipboard operations
-		 * making it save and not show exceptions.
-		 * 
-		 * The bool "copy" is used to decided if the information stays on the clipboard after exit.
-		 */
+		/// <summary>
+		/// The SetDataObject that will lock/try/catch clipboard operations making it save and not show exceptions.
+		/// The bool "copy" is used to decided if the information stays on the clipboard after exit.
+		/// </summary>
+		/// <param name="ido"></param>
+		/// <param name="copy"></param>
 		private static void SetDataObject(IDataObject ido, bool copy) {
 			lock (clipboardLockObject) {
 				int retryCount = 2;
@@ -228,6 +229,17 @@ EndSelection:<<<<<<<4
 				int retryCount = 2;
 				while (retryCount >= 0) {
 					try {
+						// Try to get the best format, currently we support PNG and "others"
+						IList<string> formats = GetFormats();
+						if (formats.Contains("PNG")) {
+							Object pngObject = GetClipboardData("PNG");
+							if (pngObject is MemoryStream) {
+								MemoryStream png_stream = pngObject as MemoryStream;
+								using (Image tmpImage = Image.FromStream(png_stream)) {
+									return ImageHelper.Clone(tmpImage);
+								}
+							}
+						}
 						return Clipboard.GetImage();
 					} catch (Exception ee) {
 						if (retryCount == 0) {
@@ -282,9 +294,10 @@ EndSelection:<<<<<<<4
 			return null;
 		}
 		
-		/**
-		 * Set text to the clipboard
-		 */
+		/// <summary>
+		/// Set text to the clipboard
+		/// </summary>
+		/// <param name="text"></param>
 		public static void SetClipboardData(string text) {
 			IDataObject ido = new DataObject();
 			ido.SetData(DataFormats.Text, true, text);
@@ -320,17 +333,15 @@ EndSelection:<<<<<<<4
 			return sb.ToString(); 
 		}
 
-		/**
-		 * Set an Image to the clipboard
-		 * 
-		 * This method will place 2 images to the clipboard, one of type Bitmap which
-		 * works with pretty much everything and one of type Dib for e.g. OpenOffice
-		 * because OpenOffice has a bug http://qa.openoffice.org/issues/show_bug.cgi?id=85661
-		 * 
-		 * The Dib (Device Indenpendend Bitmap) in 32bpp actually won't work with Powerpoint 2003!
-		 * When pasting a Dib in PP 2003 the Bitmap is somehow shifted left!
-		 * For this problem the user should not use the direct paste (=Dib), but select Bitmap
-		 */
+		/// <summary>
+		/// Set an Image to the clipboard
+		/// This method will place 2 images to the clipboard, one of type Bitmap which
+		/// works with pretty much everything and one of type Dib for e.g. OpenOffice
+		/// because OpenOffice has a bug http://qa.openoffice.org/issues/show_bug.cgi?id=85661
+		/// The Dib (Device Indenpendend Bitmap) in 32bpp actually won't work with Powerpoint 2003!
+		/// When pasting a Dib in PP 2003 the Bitmap is somehow shifted left!
+		/// For this problem the user should not use the direct paste (=Dib), but select Bitmap
+		/// </summary>
 		private const int BITMAPFILEHEADER_LENGTH = 14;
 		public static void SetClipboardData(Image image) {
 			DataObject ido = new DataObject();
@@ -399,9 +410,11 @@ EndSelection:<<<<<<<4
 			}
 		}
 
-		/**
-		 * Set Object with type Type to the clipboard
-		 */
+		/// <summary>
+		/// Set Object with type Type to the clipboard
+		/// </summary>
+		/// <param name="type">Type</param>
+		/// <param name="obj">object</param>
 		public static void SetClipboardData(Type type, Object obj) {
 			DataFormats.Format format = DataFormats.GetFormat(type.FullName);
 
@@ -412,9 +425,10 @@ EndSelection:<<<<<<<4
 			SetDataObject(dataObj, true);
 		}
 		
-		/**
-		 * Retrieve a list of all formats currently on the clipboard
-		 */
+		/// <summary>
+		/// Retrieve a list of all formats currently on the clipboard
+		/// </summary>
+		/// <returns>List<string> with the current formats</returns>
 		public static List<string> GetFormats() {
 			string[] formats = null;
 
@@ -434,9 +448,11 @@ EndSelection:<<<<<<<4
 			return new List<string>();
 		}
 		
-		/**
-		 * Check if there is currently something on the clipboard which has one of the supplied formats
-		 */
+		/// <summary>
+		/// Check if there is currently something on the clipboard which has one of the supplied formats
+		/// </summary>
+		/// <param name="formats">string[] with formats</param>
+		/// <returns>true if one of the formats was found</returns>
 		public static bool ContainsFormat(string[] formats) {
 			bool formatFound = false;
 			List<string> currentFormats = GetFormats();
@@ -452,11 +468,22 @@ EndSelection:<<<<<<<4
 			return formatFound;
 		}
 
-		/**
-		 * Get Object of type Type from the clipboard
-		 */
+		/// <summary>
+		/// Get Object of type Type from the clipboard
+		/// </summary>
+		/// <param name="type">Type to get</param>
+		/// <returns>object from clipboard</returns>
 		public static Object GetClipboardData(Type type) {
 			string format = type.FullName;
+			return GetClipboardData(format);
+		}
+
+		/// <summary>
+		/// Get Object for format from the clipboard
+		/// </summary>
+		/// <param name="format">format to get</param>
+		/// <returns>object from clipboard</returns>
+		public static Object GetClipboardData(string format) {
 			Object obj = null;
 
 			lock (clipboardLockObject) {
