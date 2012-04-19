@@ -325,7 +325,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceBitmap">Bitmap to make torn edge off</param>
 		/// <returns>Changed bitmap</returns>
 		public static Bitmap CreateTornEdge(Bitmap sourceBitmap) {
-			Bitmap returnImage = CreateEmptyLike(sourceBitmap, Color.Empty);
+			Bitmap returnImage = CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			using (GraphicsPath path = new GraphicsPath()) {
 				Random random = new Random();
 				int regionWidth = 20;
