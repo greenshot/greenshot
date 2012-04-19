@@ -323,6 +323,14 @@ namespace GreenshotPlugin.Core {
 				OutputFileCopyPathToClipboard = false;
 			}
 
+			// Make sure we have clipboard formats, otherwise a paste doesn't make sense!
+			if (ClipboardFormats == null || ClipboardFormats.Count == 0) {
+				ClipboardFormats = new List<ClipboardFormat>();
+				ClipboardFormats.Add(ClipboardFormat.PNG);
+				ClipboardFormats.Add(ClipboardFormat.HTML);
+				ClipboardFormats.Add(ClipboardFormat.DIB);
+			}
+
 			// Make sure the lists are lowercase, to speedup the check
 			if (NoGDICaptureForProduct != null) {
 				for(int i=0; i< NoGDICaptureForProduct.Count; i++) {
