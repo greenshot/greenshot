@@ -27,6 +27,7 @@ namespace Greenshot.Plugin {
 	/// The capture mode for Greenshot
 	/// </summary>
 	public enum CaptureMode { None, Region, FullScreen, ActiveWindow, Window, LastRegion, Clipboard, File, IE, Video, Import };
+	public enum ScreenCaptureMode { Auto, FullScreen, Fixed};
 
 	/// <summary>
 	/// Details for the capture, like the window title and date/time etc.

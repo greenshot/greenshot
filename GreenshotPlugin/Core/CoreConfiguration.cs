@@ -71,7 +71,11 @@ namespace GreenshotPlugin.Core {
 		public bool CaptureWindowsInteractive;
 		[IniProperty("CaptureDelay", Description="Capture delay in millseconds.", DefaultValue="100")]
 		public int CaptureDelay;
-		[IniProperty("WindowCaptureMode", Description="The capture mode used to capture a Window.", DefaultValue="Auto")]
+		[IniProperty("ScreenCaptureMode", Description = "The capture mode used to capture a screen. (Auto, FullScreen, Fixed)", DefaultValue = "Auto")]
+		public ScreenCaptureMode ScreenCaptureMode;
+		[IniProperty("ScreenToCapture", Description = "The screen number to capture when using ScreenCaptureMode Fixed.", DefaultValue = "1")]
+		public int ScreenToCapture;
+		[IniProperty("WindowCaptureMode", Description = "The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto).", DefaultValue = "Auto")]
 		public WindowCaptureMode WindowCaptureMode;
 		[IniProperty("WindowCaptureAllChildLocations", Description="Enable/disable capture all children, very slow but will make it possible to use this information in the editor.", DefaultValue="False")]
 		public bool WindowCaptureAllChildLocations;

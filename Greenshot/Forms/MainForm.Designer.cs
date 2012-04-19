@@ -132,7 +132,6 @@ namespace Greenshot {
 			this.contextmenu_capturefullscreen.ShortcutKeyDisplayString = "Ctrl + Print";
 			this.contextmenu_capturefullscreen.Size = new System.Drawing.Size(242, 22);
 			this.contextmenu_capturefullscreen.Text = "Capture full screen";
-			this.contextmenu_capturefullscreen.Click += new System.EventHandler(this.CaptureFullScreenToolStripMenuItemClick);
 			// 
 			// toolStripSeparator4
 			// 

@@ -98,20 +98,20 @@ namespace GreenshotPlugin.Core {
 		/// <param name="buffer"></param>
 		/// <param name="colorPoint"></param>
 		/// <returns></returns>
-		private static Rectangle FindAutoCropRectangle(BitmapBuffer buffer, Point colorPoint) {
+		private static Rectangle FindAutoCropRectangle(BitmapBuffer buffer, Point colorPoint, int cropDifference) {
 			Rectangle cropRectangle = Rectangle.Empty;
 			Color referenceColor = buffer.GetColorAtWithoutAlpha(colorPoint.X,colorPoint.Y);
 			Point min = new Point(int.MaxValue, int.MaxValue);
 			Point max = new Point(int.MinValue, int.MinValue);
-			
-			if (conf.AutoCropDifference > 0) {
+
+			if (cropDifference > 0) {
 				for(int y = 0; y < buffer.Height; y++) {
 					for(int x = 0; x < buffer.Width; x++) {
 						Color currentColor = buffer.GetColorAt(x, y);
 						int diffR = Math.Abs(currentColor.R - referenceColor.R);
 						int diffG = Math.Abs(currentColor.G - referenceColor.G);
 						int diffB = Math.Abs(currentColor.B - referenceColor.B);
-						if (((diffR+diffG+diffB)/3) > conf.AutoCropDifference) {
+						if (((diffR + diffG + diffB) / 3) > cropDifference) {
 							if (x < min.X) min.X = x;
 							if (y < min.Y) min.Y = y;
 							if (x > max.X) max.X = x;
@@ -140,12 +140,13 @@ namespace GreenshotPlugin.Core {
 			}
 			return cropRectangle;
 		}
+
 		/// <summary>
 		/// Get a rectangle for the image which crops the image of all colors equal to that on 0,0
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns>Rectangle</returns>
-		public static Rectangle FindAutoCropRectangle(Image image) {
+		public static Rectangle FindAutoCropRectangle(Image image, int cropDifference) {
 			Rectangle cropRectangle = Rectangle.Empty;
 			using (BitmapBuffer buffer = new BitmapBuffer((Bitmap)image, false)) {
 				buffer.Lock();
@@ -162,7 +163,7 @@ namespace GreenshotPlugin.Core {
 
 				// find biggest area
 				foreach(Point checkPoint in checkPoints) {
-					currentRectangle = FindAutoCropRectangle(buffer, checkPoint);
+					currentRectangle = FindAutoCropRectangle(buffer, checkPoint, cropDifference);
 					if (currentRectangle.Width * currentRectangle.Height > cropRectangle.Width * cropRectangle.Height) {
 						cropRectangle = currentRectangle;
 					}

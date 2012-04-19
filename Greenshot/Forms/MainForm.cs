@@ -562,6 +562,7 @@ namespace Greenshot {
 		void CaptureRegion() {
 			CaptureHelper.CaptureRegion(true);
 		}
+
 		void CaptureClipboard() {
 			CaptureHelper.CaptureClipboard();
 		}
@@ -575,15 +576,19 @@ namespace Greenshot {
 				}
 			}
 		}
+
 		void CaptureFullScreen() {
-			CaptureHelper.CaptureFullscreen(true);
+			CaptureHelper.CaptureFullscreen(true, conf.ScreenCaptureMode);
 		}
+
 		void CaptureLastRegion() {
 			CaptureHelper.CaptureLastRegion(true);
 		}
+
 		void CaptureIE() {
 			CaptureHelper.CaptureIE(true);
 		}
+
 		void CaptureWindow() {
 			if (conf.CaptureWindowsInteractive) {
 				CaptureHelper.CaptureWindowInteractive(true);
@@ -608,6 +613,17 @@ namespace Greenshot {
 				}
 			} catch (Exception ex) {
 				LOG.WarnFormat("Problem accessing IE information: {0}", ex.Message);
+			}
+
+			// Multi-Screen captures
+			this.contextmenu_capturefullscreen.Click -= new System.EventHandler(this.CaptureFullScreenToolStripMenuItemClick);
+			this.contextmenu_capturefullscreen.DropDownOpening -= new System.EventHandler(MultiScreenDropDownOpening);
+			this.contextmenu_capturefullscreen.DropDownClosed -= new System.EventHandler(MultiScreenDropDownClosing);
+			if (Screen.AllScreens.Length > 1) {
+				this.contextmenu_capturefullscreen.DropDownOpening += new System.EventHandler(MultiScreenDropDownOpening);
+				this.contextmenu_capturefullscreen.DropDownClosed += new System.EventHandler(MultiScreenDropDownClosing);
+			} else {
+				this.contextmenu_capturefullscreen.Click += new System.EventHandler(this.CaptureFullScreenToolStripMenuItemClick);
 			}
 		}
 		
@@ -653,6 +669,56 @@ namespace Greenshot {
 			}
 		}
 
+		/// <summary>
+		/// MultiScreenDropDownOpening is called when mouse hovers over the Capture-Screen context menu 
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void MultiScreenDropDownOpening(object sender, EventArgs e) {
+			ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem)sender;
+			captureScreenMenuItem.DropDownItems.Clear();
+			if (Screen.AllScreens.Length > 1) {
+				ToolStripMenuItem captureScreenItem;
+				string allDeviceName = "";
+				foreach (Screen screen in Screen.AllScreens) {
+					string deviceName = screen.DeviceName;
+					if (allDeviceName.Length > 0) {
+						allDeviceName += " + ";
+					}
+					allDeviceName += deviceName.Substring(deviceName.Length - 1);
+				}
+				captureScreenItem = new ToolStripMenuItem(allDeviceName);
+				captureScreenItem.Click += delegate {
+					BeginInvoke((MethodInvoker)delegate {
+						CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
+					});
+				};
+				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
+				foreach (Screen screen in Screen.AllScreens) {
+					Screen screenToCapture = screen;
+					string deviceName = screenToCapture.DeviceName;
+					deviceName = deviceName.Substring(deviceName.Length - 1);
+					captureScreenItem = new ToolStripMenuItem(deviceName);
+					captureScreenItem.Click += delegate {
+						BeginInvoke((MethodInvoker)delegate {
+							CaptureHelper.CaptureRegion(false, screenToCapture.Bounds);
+						});
+					};
+					captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
+				}
+			}
+		}
+
+		/// <summary>
+		/// MultiScreenDropDownOpening is called when mouse leaves the context menu 
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void MultiScreenDropDownClosing(object sender, EventArgs e) {
+			ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem)sender;
+			captureScreenMenuItem.DropDownItems.Clear();
+		}
+		
 		/// <summary>
 		/// Build a selectable list of windows when we enter the menu item
 		/// </summary>
@@ -783,7 +849,7 @@ namespace Greenshot {
 
 		void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
-				CaptureHelper.CaptureFullscreen(false);
+				CaptureHelper.CaptureFullscreen(false, conf.ScreenCaptureMode);
 			});
 		}
 		

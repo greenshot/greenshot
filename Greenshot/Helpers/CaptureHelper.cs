@@ -52,6 +52,7 @@ namespace Greenshot.Helpers {
 		private bool captureMouseCursor = false;
 		private ICapture capture = null;
 		private CaptureMode captureMode;
+		private ScreenCaptureMode screenCaptureMode = ScreenCaptureMode.Auto;
 		private Thread windowDetailsThread = null;
 		
 		public static void CaptureClipboard() {
@@ -64,7 +65,10 @@ namespace Greenshot.Helpers {
 			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination);
 			captureHelper.MakeCapture();
 		}
-		public static void CaptureFullscreen(bool captureMouse) {
+		public static void CaptureRegion(bool captureMouse, Rectangle region) {
+			new CaptureHelper(CaptureMode.Region, captureMouse).MakeCapture(region);
+		}
+		public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode) {
 			new CaptureHelper(CaptureMode.FullScreen, captureMouse).MakeCapture();
 		}
 		public static void CaptureLastRegion(bool captureMouse) {
@@ -103,6 +107,11 @@ namespace Greenshot.Helpers {
 			this.captureMouseCursor = captureMouseCursor;
 		}
 
+		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, ScreenCaptureMode screenCaptureMode) : this(captureMode) {
+			this.captureMouseCursor = captureMouseCursor;
+			this.screenCaptureMode = screenCaptureMode;
+		}
+
 		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor) {
 			capture.CaptureDetails.AddDestination(destination);
 		}
@@ -130,6 +139,16 @@ namespace Greenshot.Helpers {
 			capture.CaptureDetails.Filename = filename;
 			MakeCapture();
 		}
+
+		/// <summary>
+		/// Make Capture for region
+		/// </summary>
+		/// <param name="filename">filename</param>
+		private void MakeCapture(Rectangle region) {
+			captureRect = region;
+			MakeCapture();
+		}
+
 
 		/// <summary>
 		/// Make Capture with specified destinations
@@ -210,7 +229,32 @@ namespace Greenshot.Helpers {
 					}
 					break;
 				case CaptureMode.FullScreen:
-					capture = WindowCapture.CaptureScreen(capture);
+					// Check how we need to capture the screen
+					bool captureTaken = false;
+					switch (screenCaptureMode) {
+						case ScreenCaptureMode.Auto:
+							Point mouseLocation = WindowCapture.GetCursorLocation();
+							foreach (Screen screen in Screen.AllScreens) {
+								if (screen.Bounds.Contains(mouseLocation)) {
+									capture = WindowCapture.CaptureRectangle(capture, screen.Bounds);
+									captureTaken = true;
+									break;
+								}
+							}
+							break;
+						case ScreenCaptureMode.Fixed:
+							if (conf.ScreenToCapture > 0 && conf.ScreenToCapture <= Screen.AllScreens.Length) {
+								capture = WindowCapture.CaptureRectangle(capture, Screen.AllScreens[conf.ScreenToCapture].Bounds);
+								captureTaken = true;
+							}
+							break;
+						case ScreenCaptureMode.FullScreen:
+							// Do nothing, we take the fullscreen capture automatically
+							break;
+					}
+					if (!captureTaken) {
+						capture = WindowCapture.CaptureScreen(capture);
+					}
 					HandleCapture();
 					break;
 				case CaptureMode.Clipboard:
@@ -279,19 +323,25 @@ namespace Greenshot.Helpers {
 					break;
 				case CaptureMode.LastRegion:
 					if (!RuntimeConfig.LastCapturedRegion.IsEmpty) {
-						capture = WindowCapture.CaptureScreen(capture);
+						capture = WindowCapture.CaptureRectangle(capture, RuntimeConfig.LastCapturedRegion);
 						if (windowDetailsThread != null) {
 							windowDetailsThread.Join();
 						}
-						capture.Crop(RuntimeConfig.LastCapturedRegion);
 						capture.CaptureDetails.AddMetaData("source", "screen");
 						HandleCapture();
 					}
 					break;
 				case CaptureMode.Region:
-					capture = WindowCapture.CaptureScreen(capture);
-					capture.CaptureDetails.AddMetaData("source", "screen");
-					CaptureWithFeedback();
+					// Check if a region is pre-supplied!
+					if (Rectangle.Empty.Equals(captureRect)) {
+						capture = WindowCapture.CaptureScreen(capture);
+						capture.CaptureDetails.AddMetaData("source", "screen");
+						CaptureWithFeedback();
+					} else {
+						capture = WindowCapture.CaptureRectangle(capture, captureRect);
+						capture.CaptureDetails.AddMetaData("source", "screen");
+						HandleCapture();
+					}
 					break;
 				case CaptureMode.Video:
 					capture = WindowCapture.CaptureScreen(capture);

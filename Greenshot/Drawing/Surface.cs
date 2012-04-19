@@ -535,7 +535,7 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <returns>true if cropped</returns>
 		public bool AutoCrop() {
-			Rectangle cropRectangle = ImageHelper.FindAutoCropRectangle(Image);
+			Rectangle cropRectangle = ImageHelper.FindAutoCropRectangle(Image, conf.AutoCropDifference);
 			if (isCropPossible(ref cropRectangle)) {
 				DrawingMode = DrawingModes.Crop;
 				cropContainer = new CropContainer(this);
@@ -637,6 +637,18 @@ namespace Greenshot.Drawing {
 						newImage = ImageHelper.RotateFlip((Bitmap)Image, rotateFlipType);
 						break;
 				}
+				// The following was added to correct any unneeded pixels, had the bad effect that sometimes everything was cropped... :(
+				//Rectangle autoCropRectangle = ImageHelper.FindAutoCropRectangle(newImage, 0);
+				//if (!Size.Empty.Equals(autoCropRectangle.Size) && !autoCropRectangle.Size.Equals(newImage.Size)) {
+				//    LOG.InfoFormat("Crop to {0}", autoCropRectangle);
+				//    using (Bitmap tmpImage = newImage) {
+				//        newImage = ImageHelper.CloneArea(newImage, autoCropRectangle, PixelFormat.DontCare);
+				//    }
+				//    // Fix offset
+				//    offset = new Point(offset.X - autoCropRectangle.X, offset.Y - autoCropRectangle.Y);
+				//} else {
+				//    LOG.DebugFormat("No cropping needed!");
+				//}
 
 				if (newImage != null) {
 					// Make sure the elements move according to the offset the effect made the bitmap move
@@ -655,6 +667,11 @@ namespace Greenshot.Drawing {
 			}
 		}
 
+		/// <summary>
+		/// check if a crop is possible
+		/// </summary>
+		/// <param name="cropRectangle"></param>
+		/// <returns>true if this is possible</returns>
 		public bool isCropPossible(ref Rectangle cropRectangle) {
 			cropRectangle = Helpers.GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
 			if (cropRectangle.Left < 0) cropRectangle = new Rectangle(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
@@ -684,12 +701,16 @@ namespace Greenshot.Drawing {
 			}
 		}
 
+		/// <summary>
+		/// Crop the surface
+		/// </summary>
+		/// <param name="cropRectangle"></param>
+		/// <returns></returns>
 		public bool ApplyCrop(Rectangle cropRectangle) {
 			if (isCropPossible(ref cropRectangle)) {
 				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
 				// we should not forget to Dispose the images!!
 				Bitmap tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
-				tmpImage.SetResolution(Image.HorizontalResolution, Image.VerticalResolution);
 
 				Point offset = new Point(-cropRectangle.Left, -cropRectangle.Top);
 				// Make undoable
