@@ -46,7 +46,7 @@
 	<resource name="settings_primaryimageformat">
 		Image format
 	</resource>
-	<resource name="settings_tooltip_primaryimageformat">
+  <resource name="settings_tooltip_primaryimageformat">
 		Image format used by default
 	</resource>
 	<resource name="contextmenu_capturearea">
@@ -336,7 +336,10 @@ All Greenshot features still work directly from the tray icon context menu witho
 	<resource name="settings_alwaysshowprintoptionsdialog">
 		Show print options dialog every time an image is printed
 	</resource>
-	<resource name="settings_printoptions">
+  <resource name="printoption_printgrayscale">
+    Force grayscale printing
+  </resource>
+  <resource name="settings_printoptions">
 		Print options
 	</resource>
 	<resource name="settings_output">
@@ -616,7 +619,19 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	<resource name="exported_to">
 		Exported to: {0}
 	</resource>
-	<resource name="WindowCaptureMode.Screen">
+  <resource name="expertsettings_autoreducecolors">
+    Write a 256-color image if the colors are less than 256
+  </resource>
+  <resource name="expertsettings_optimizeforrdp">
+    Make some optimizations for usage with remote desktop
+  </resource>
+  <resource name="expertsettings_thumbnailpreview">
+    Show window thumbnails in context menu (for Vista and windows 7)
+  </resource>
+  <resource name="expertsettings_footerpattern">
+      Printer footer pattern
+  </resource>
+  <resource name="WindowCaptureMode.Screen">
 		As displayed
 	</resource>
 	<resource name="WindowCaptureMode.GDI">

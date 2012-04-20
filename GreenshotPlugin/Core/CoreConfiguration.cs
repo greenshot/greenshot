@@ -128,6 +128,8 @@ namespace GreenshotPlugin.Core {
 		public bool OutputPrintCenter;
 		[IniProperty("OutputPrintInverted", LanguageKey="printoptions_inverted", Description="Print image inverted (use e.g. for console captures)", DefaultValue="false")]
 		public bool OutputPrintInverted;
+		[IniProperty("OutputPrintGrayscale", LanguageKey = "printoptions_printgrayscale", Description = "Force grayscale printing", DefaultValue = "false")]
+		public bool OutputPrintGrayscale;
 		[IniProperty("OutputPrintFooter", LanguageKey = "printoptions_timestamp", Description = "Print footer on print?", DefaultValue = "true")]
 		public bool OutputPrintFooter;
 		[IniProperty("OutputPrintFooterPattern", Description = "Footer pattern", DefaultValue = "${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]

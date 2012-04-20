@@ -931,6 +931,18 @@ namespace Greenshot {
 		
 		private void InitializeQuickSettingsMenu() {
 			this.contextmenu_quicksettings.DropDownItems.Clear();
+
+			// For the capture mousecursor option
+			ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem();
+			captureMouseItem.Text = Language.GetString("settings_capture_mousepointer");
+			captureMouseItem.Checked = conf.CaptureMousepointer;
+			captureMouseItem.CheckOnClick = true;
+			captureMouseItem.CheckStateChanged += delegate {
+				conf.CaptureMousepointer = captureMouseItem.Checked;
+			};
+
+			this.contextmenu_quicksettings.DropDownItems.Add(captureMouseItem);
+
 			// screenshot destination
 			ToolStripMenuSelectList selectList = new ToolStripMenuSelectList("destinations",true);
 			selectList.Text = Language.GetString(LangKey.settings_destination);

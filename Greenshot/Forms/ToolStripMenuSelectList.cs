@@ -24,13 +24,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Forms
-{
+namespace Greenshot.Forms {
 	/// <summary>
 	/// Description of ToolStripMenuSelectList.
 	/// </summary>
-	public class ToolStripMenuSelectList : ToolStripMenuItem
-	{
+	public class ToolStripMenuSelectList : ToolStripMenuItem {
 		private bool multiCheckAllowed = false;
 		private bool updateInProgress = false;
 		/// <summary>
@@ -40,8 +38,7 @@ namespace Greenshot.Forms
 		public Object Identifier;
 		
 		
-		public ToolStripMenuSelectList(Object identifier, bool allowMultiCheck)
-		{
+		public ToolStripMenuSelectList(Object identifier, bool allowMultiCheck) {
 			Identifier = identifier;
 			CheckOnClick = false;
 			multiCheckAllowed = allowMultiCheck;
@@ -56,18 +53,23 @@ namespace Greenshot.Forms
 			
 			get {
 				IEnumerator items = DropDownItems.GetEnumerator();
-				while(items.MoveNext()) {
+				while (items.MoveNext()) {
 					ToolStripMenuItem tsmi = (ToolStripMenuItem)items.Current;
-					if(tsmi.Checked) return tsmi;
+					if (tsmi.Checked) {
+						return tsmi;
+					}
 				}
 				return null;
 			}
 			set {
 				IEnumerator items = DropDownItems.GetEnumerator();
-				while(items.MoveNext()) {
+				while (items.MoveNext()) {
 					ToolStripMenuItem tsmi = (ToolStripMenuItem)items.Current;
-					if(!multiCheckAllowed && !tsmi.Equals(value)) tsmi.Checked = false;
-					else if (tsmi.Equals(value)) tsmi.Checked = true;
+					if (!multiCheckAllowed && !tsmi.Equals(value)) {
+						tsmi.Checked = false;
+					} else if (tsmi.Equals(value)) {
+						tsmi.Checked = true;
+					}
 				}
 			}
 		}
@@ -81,37 +83,50 @@ namespace Greenshot.Forms
 				IEnumerator items = DropDownItems.GetEnumerator();
 				while(items.MoveNext()) {
 					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
-					if(tsmi.Checked) sel.Add(tsmi);
+					if (tsmi.Checked) {
+						sel.Add(tsmi);
+					}
 				}
 				return sel.ToArray();
 			}
 			set {
-				if(!multiCheckAllowed) throw new ArgumentException("Writing to checkedItems is only allowed in multi-check mode. Either set allowMultiCheck to true or use set SelectedItem instead of SelectedItems.");
+				if (!multiCheckAllowed) {
+					throw new ArgumentException("Writing to checkedItems is only allowed in multi-check mode. Either set allowMultiCheck to true or use set SelectedItem instead of SelectedItems.");
+				}
 				IEnumerator items = DropDownItems.GetEnumerator();
 				IEnumerator sel = value.GetEnumerator();
-				while(items.MoveNext()) {
+				while (items.MoveNext()) {
 					ToolStripMenuItem tsmi = (ToolStripMenuItem)items.Current;
 					while (sel.MoveNext()) {
-						if(tsmi.Equals(sel.Current)) tsmi.Checked = true;
-						else tsmi.Checked = false;
-						if(!multiCheckAllowed && !tsmi.Equals(sel.Current)) tsmi.Checked = false;
-						else if (tsmi.Equals(value)) tsmi.Checked = true;
+						if (tsmi.Equals(sel.Current)) {
+							tsmi.Checked = true;
+						} else {
+							tsmi.Checked = false;
+						}
+						if (!multiCheckAllowed && !tsmi.Equals(sel.Current)) {
+							tsmi.Checked = false;
+						} else if (tsmi.Equals(value)) {
+							tsmi.Checked = true;
+						}
 					}
 				}
 			}
 		}
 		
 		private void ItemCheckStateChanged(object sender, System.EventArgs e) {
-			if(updateInProgress) return;
+			if (updateInProgress) {
+				return;
+			}
 			ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)sender;
 			updateInProgress = true;
-			if(tsmi.Checked && !multiCheckAllowed) {
+			if (tsmi.Checked && !multiCheckAllowed) {
 				UncheckAll();
 				tsmi.Checked = true;
 			}
 			updateInProgress = false;
-			if(CheckedChanged != null) CheckedChanged(this, new ItemCheckedChangedEventArgs(tsmi));
-			
+			if (CheckedChanged != null) {
+				CheckedChanged(this, new ItemCheckedChangedEventArgs(tsmi));
+			}
 		}
 		
 		/// <summary>
@@ -128,8 +143,8 @@ namespace Greenshot.Forms
 			newItem.CheckOnClick = true;
 			newItem.CheckStateChanged += new System.EventHandler(this.ItemCheckStateChanged);
 			newItem.Data = data;
-			if(isChecked) {
-				if(!multiCheckAllowed) {
+			if (isChecked) {
+				if (!multiCheckAllowed) {
 					updateInProgress = true;
 					UncheckAll();
 					updateInProgress = false;
@@ -201,7 +216,9 @@ namespace Greenshot.Forms
 		/// </summary>
 		public void UncheckAll() {
 			IEnumerator items = DropDownItems.GetEnumerator();
-			while(items.MoveNext()) ((ToolStripMenuItem)items.Current).Checked = false;
+			while (items.MoveNext()) {
+				((ToolStripMenuItem)items.Current).Checked = false;
+			}
 		}
 	}
 	

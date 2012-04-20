@@ -108,6 +108,9 @@ namespace Greenshot.Helpers {
 			try {
 				if (!cancelled) {
 					printDocument.PrinterSettings.PrinterName = printerName;
+					if (conf.OutputPrintGrayscale) {
+						printDocument.DefaultPageSettings.Color = false;
+					}
 					printDocument.Print();
 					returnPrinterSettings = printDocument.PrinterSettings;
 				}
@@ -139,6 +142,9 @@ namespace Greenshot.Helpers {
 				}
 				try {
 					if (!cancelled) {
+						if (conf.OutputPrintGrayscale) {
+							printDocument.DefaultPageSettings.Color = false;
+						}
 						printDocument.Print();
 						returnPrinterSettings = printDialog.PrinterSettings;
 					}
