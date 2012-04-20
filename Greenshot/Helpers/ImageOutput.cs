@@ -40,7 +40,7 @@ namespace Greenshot.Helpers {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageOutput));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
-		private static CacheHelper<string> tmpFileCache = new CacheHelper<string>("tmpfile", 60*60*10, new CacheObjectExpired(RemoveExpiredTmpFile));
+		private static Cache<string, string> tmpFileCache = new Cache<string, string>(10*60*60, new Cache<string, string>.CacheObjectExpired(RemoveExpiredTmpFile));
 		
 		/// <summary>
 		/// Creates a PropertyItem (Metadata) to store with the image.
@@ -314,11 +314,12 @@ namespace Greenshot.Helpers {
 		/// Cleanup all created tmpfiles
 		/// </summary>	
 		public static void RemoveTmpFiles() {
-			foreach(string tmpFile in tmpFileCache.GetElements()) {
+			foreach(string tmpFile in tmpFileCache.Elements) {
 				if (File.Exists(tmpFile)) {
 					LOG.DebugFormat("Removing old temp file {0}", tmpFile);
 					File.Delete(tmpFile);
 				}
+				tmpFileCache.Remove(tmpFile);
 			}
 		}
 		

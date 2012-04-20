@@ -50,7 +50,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -218,7 +217,7 @@
     <Compile Include="Core\AbstractProcessor.cs" />
     <Compile Include="Core\AccessibleHelper.cs" />
     <Compile Include="Core\BitmapBuffer.cs" />
-    <Compile Include="Core\CacheHelper.cs" />
+    <Compile Include="Core\Cache.cs" />
     <Compile Include="Core\CoreConfiguration.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
     <Compile Include="Core\EncryptionHelper.cs" />

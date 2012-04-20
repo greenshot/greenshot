@@ -108,8 +108,8 @@ namespace Jira {
 		private JiraSoapServiceService jira;
 		private int timeout;
 		private string url;
-		private CacheHelper<JiraIssue> jiraCache = new CacheHelper<JiraIssue>("jiraissue", 60*config.Timeout);
-		private CacheHelper<RemoteUser> userCache = new CacheHelper<RemoteUser>("jirauser", 60*config.Timeout);
+		private Cache<string, JiraIssue> jiraCache = new Cache<string, JiraIssue>(60 * config.Timeout);
+		private Cache<string, RemoteUser> userCache = new Cache<string, RemoteUser>(60 * config.Timeout);
 
 		public JiraConnector() : this(false) {
 		}
@@ -246,8 +246,8 @@ namespace Jira {
 
 		public JiraIssue getIssue(string key) {
 			JiraIssue jiraIssue = null;
-			if (jiraCache.Exists(key)) {
-				jiraIssue = jiraCache.Get(key);
+			if (jiraCache.Contains(key)) {
+				jiraIssue = jiraCache[key];
 			}
 			if (jiraIssue == null) {
 				checkCredentials();
@@ -331,8 +331,8 @@ namespace Jira {
 		private string getUserFullName(string user) {
 			string fullname = null;
 			if (user != null) {
-				if (userCache.Exists(user)) {
-					fullname = userCache.Get(user).fullname;
+				if (userCache.Contains(user)) {
+					fullname = userCache[user].fullname;
 				} else {
 					checkCredentials();
 					RemoteUser remoteUser = jira.getUser(credentials, user);

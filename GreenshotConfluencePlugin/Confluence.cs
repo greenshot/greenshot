@@ -102,7 +102,7 @@ namespace Confluence {
 		private ConfluenceSoapServiceService confluence;
 		private int timeout;
 		private string url;
-		private CacheHelper<RemotePage> pageCache = new CacheHelper<RemotePage>("confluencepage", 60*config.Timeout);
+		private Cache<string, RemotePage> pageCache = new Cache<string, RemotePage>(60 * config.Timeout);
 
 		public ConfluenceConnector(string url, int timeout) {
 			this.url = url;
@@ -210,8 +210,8 @@ namespace Confluence {
 		public Page getPage(string spaceKey, string pageTitle) {
 			RemotePage page = null;
 			string cacheKey = spaceKey + pageTitle;
-			if (pageCache.Exists(cacheKey)) {
-				page = pageCache.Get(cacheKey);
+			if (pageCache.Contains(cacheKey)) {
+				page = pageCache[cacheKey];
 			}
 			if (page == null) {
 				checkCredentials();
@@ -225,8 +225,8 @@ namespace Confluence {
 			RemotePage page = null;
 			string cacheKey = "" + pageId;
 			
-			if (pageCache.Exists(cacheKey)) {
-				page = pageCache.Get(cacheKey);
+			if (pageCache.Contains(cacheKey)) {
+				page = pageCache[cacheKey];
 			}
 			if (page == null) {
 				checkCredentials();
