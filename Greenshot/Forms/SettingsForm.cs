@@ -63,6 +63,7 @@ namespace Greenshot {
 
 			DisplayPluginTab();
 			UpdateUI();
+			ExpertSettingsEnableState(false);
 			DisplaySettings();
 			CheckSettings();
 		}
@@ -73,7 +74,7 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="comboBox">ComboBox to populate</param>
 		/// <param name="enumeration">Enum to populate with</param>
-		private void PopulateComboBox<ET>(ComboBox comboBox) {
+		private void PopulateComboBox<ET>(ComboBox comboBox) where ET : struct {
 			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
 			PopulateComboBox<ET>(comboBox, availableValues, availableValues[0]);
 		}
@@ -84,14 +85,13 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="comboBox">ComboBox to populate</param>
 		/// <param name="enumeration">Enum to populate with</param>
-		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) {
+		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) where ET : struct {
 			comboBox.Items.Clear();
 			string enumTypeName = typeof(ET).Name;
 			foreach(ET enumValue in availableValues) {
-				string translation = Language.GetString(enumTypeName + "." + enumValue.ToString());
-				comboBox.Items.Add(translation);
+				comboBox.Items.Add(Language.Translate(enumValue));
 			}
-			comboBox.SelectedItem = Language.GetString(enumTypeName + "." + selectedValue.ToString());
+			comboBox.SelectedItem = Language.Translate(selectedValue);
 		}
 		
 		
@@ -202,7 +202,7 @@ namespace Greenshot {
 		/// Show all destination descriptions in the current language
 		/// </summary>
 		private void UpdateDestinationDescriptions() {
-			foreach (ListViewItem item in destinationsListView.Items) {
+			foreach (ListViewItem item in listview_destinations.Items) {
 				IDestination destination = item.Tag as IDestination;
 				item.Text = destination.Description;
 			}
@@ -214,10 +214,10 @@ namespace Greenshot {
 		private void DisplayDestinations() {
 			checkbox_picker.Checked = false;
 
-			destinationsListView.Items.Clear();
-			destinationsListView.ListViewItemSorter = new ListviewWithDestinationComparer();
+			listview_destinations.Items.Clear();
+			listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
 			ImageList imageList = new ImageList();
-			destinationsListView.SmallImageList = imageList;
+			listview_destinations.SmallImageList = imageList;
 			int imageNr = -1;
 			foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
 				Image destinationImage = destination.DisplayIcon;
@@ -231,18 +231,18 @@ namespace Greenshot {
 				} else {
 					ListViewItem item;
 					if (destinationImage != null) {
-						item = destinationsListView.Items.Add(destination.Description, imageNr);
+						item = listview_destinations.Items.Add(destination.Description, imageNr);
 					} else {
-						item = destinationsListView.Items.Add(destination.Description);
+						item = listview_destinations.Items.Add(destination.Description);
 					}
 					item.Tag = destination;
 					item.Checked = coreConfiguration.OutputDestinations.Contains(destination.Designation);
 				}
 			}
 			if (checkbox_picker.Checked) {
-				destinationsListView.Enabled = false;
-				foreach (int index in destinationsListView.CheckedIndices) {
-					ListViewItem item = destinationsListView.Items[index];
+				listview_destinations.Enabled = false;
+				foreach (int index in listview_destinations.CheckedIndices) {
+					ListViewItem item = listview_destinations.Items[index];
 					item.Checked = false;
 				}
 			}
@@ -250,6 +250,13 @@ namespace Greenshot {
 
 		private void DisplaySettings() {
 			colorButton_window_background.SelectedColor = coreConfiguration.DWMBackgroundColor;
+
+			// Expert mode, the clipboard formats
+			foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof(ClipboardFormat))) {
+				ListViewItem item = listview_clipboardformats.Items.Add(Language.Translate(clipboardFormat));
+				item.Tag = clipboardFormat;
+				item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
+			}
 
 			if (Language.CurrentLanguage != null) {
 				combobox_language.SelectedValue = Language.CurrentLanguage;
@@ -287,6 +294,17 @@ namespace Greenshot {
 				}
 			}
 
+			// retrieve the set clipboard formats
+			List<ClipboardFormat> clipboardFormats = new List<ClipboardFormat>();
+			foreach (int index in listview_clipboardformats.CheckedIndices) {
+				ListViewItem item = listview_clipboardformats.Items[index];
+				if (item.Checked) {
+					clipboardFormats.Add((ClipboardFormat)item.Tag);
+				}
+			}
+			coreConfiguration.ClipboardFormats = clipboardFormats;
+
+
 			coreConfiguration.WindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (!FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false).Equals(textbox_storagelocation.Text)) {
 				coreConfiguration.OutputFilePath = textbox_storagelocation.Text;
@@ -297,8 +315,8 @@ namespace Greenshot {
 			if (checkbox_picker.Checked) {
 				destinations.Add(PickerDestination.DESIGNATION);
 			}
-			foreach(int index in destinationsListView.CheckedIndices) {
-				ListViewItem item = destinationsListView.Items[index];
+			foreach(int index in listview_destinations.CheckedIndices) {
+				ListViewItem item = listview_destinations.Items[index];
 				
 				IDestination destination = item.Tag as IDestination;
 				if (item.Checked) {
@@ -425,10 +443,10 @@ namespace Greenshot {
 		void CheckDestinationSettings() {
 			bool clipboardDestinationChecked = false;
 			bool pickerSelected = checkbox_picker.Checked;
-			destinationsListView.Enabled = true;
+			listview_destinations.Enabled = true;
 			
-			foreach(int index in destinationsListView.CheckedIndices) {
-				ListViewItem item = destinationsListView.Items[index];
+			foreach(int index in listview_destinations.CheckedIndices) {
+				ListViewItem item = listview_destinations.Items[index];
 				IDestination destination = item.Tag as IDestination;
 				if (destination.Designation.Equals(ClipboardDestination.DESIGNATION)) {
 					clipboardDestinationChecked = true;
@@ -437,9 +455,9 @@ namespace Greenshot {
 			}
 
 			if (pickerSelected) {
-				destinationsListView.Enabled = false;
-				foreach(int index in destinationsListView.CheckedIndices) {
-					ListViewItem item = destinationsListView.Items[index];
+				listview_destinations.Enabled = false;
+				foreach(int index in listview_destinations.CheckedIndices) {
+					ListViewItem item = listview_destinations.Items[index];
 					item.Checked = false;
 				}
 			} else {
@@ -455,6 +473,29 @@ namespace Greenshot {
 
 		void DestinationsCheckStateChanged(object sender, EventArgs e) {
 			CheckDestinationSettings();
+		}
+
+		/// <summary>
+		/// Set the enable state of the expert settings
+		/// </summary>
+		/// <param name="state"></param>
+		private void ExpertSettingsEnableState(bool state) {
+			listview_clipboardformats.Enabled = state;
+			checkbox_autoreducecolors.Enabled = state;
+			checkbox_optimizeforrdp.Enabled = state;
+			checkbox_thumbnailpreview.Enabled = state;
+			textbox_footerpattern.Enabled = state;
+			textbox_counter.Enabled = state;
+		}
+
+		/// <summary>
+		/// Called if the "I know what I am doing" on the settings form is changed
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void checkbox_enableexpert_CheckedChanged(object sender, EventArgs e) {
+			CheckBox checkBox = sender as CheckBox;
+			ExpertSettingsEnableState(checkBox.Checked);
 		}
 	}
 	

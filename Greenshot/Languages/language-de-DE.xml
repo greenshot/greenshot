@@ -272,7 +272,7 @@ Sie können alle Greenshot-Funktionen aber auch über das Kontextmenü des Green
 		Freihandlinie zeichnen (F)
 	</resource>
 	<resource name="settings_destination">
-		Screenshot Ziel
+		Ziel
 	</resource>
 	<resource name="editor_drawarrow">
 		Pfeil zeichnen (A)

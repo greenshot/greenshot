@@ -341,7 +341,7 @@ namespace GreenshotPlugin.Controls {
 								}
 							} else if (typeof(TextBox).IsAssignableFrom(field.FieldType)) {
 								TextBox textBox = controlObject as TextBox;
-								textBox.Text = (string)section.Values[configBindable.PropertyName].Value;
+								textBox.Text = section.Values[configBindable.PropertyName].ToString();
 							} else if (typeof(GreenshotComboBox).IsAssignableFrom(field.FieldType)) {
 								GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
 								comboxBox.Populate(section.Values[configBindable.PropertyName].ValueType);
@@ -381,7 +381,7 @@ namespace GreenshotPlugin.Controls {
 							iniDirty = true;
 						} else if (typeof(TextBox).IsAssignableFrom(field.FieldType)) {
 							TextBox textBox = controlObject as TextBox;
-							section.Values[configBindable.PropertyName].Value = textBox.Text;
+							section.Values[configBindable.PropertyName].UseValueOrDefault(textBox.Text);
 							iniDirty = true;
 						} else if (typeof(GreenshotComboBox).IsAssignableFrom(field.FieldType)) {
 							GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;

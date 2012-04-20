@@ -485,6 +485,15 @@ namespace GreenshotPlugin.Core {
 			return resources.ContainsKey(key);
 		}
 
+		public static string Translate(object key) {
+			string typename = key.GetType().Name;
+			string enumKey = typename + "." + key.ToString();
+			if (Language.hasKey(enumKey)) {
+				return Language.GetString(enumKey);
+			}
+			return key.ToString();
+		}
+
 		/// <summary>
 		/// Get the resource for key
 		/// </summary>

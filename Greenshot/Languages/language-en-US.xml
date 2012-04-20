@@ -277,7 +277,7 @@ All Greenshot features still work directly from the tray icon context menu witho
 		Draw freehand (F)
 	</resource>
 	<resource name="settings_destination">
-		Screenshot Destination
+		Destination
 	</resource>
 	<resource name="editor_drawarrow">
 		Draw arrow (A)
@@ -619,6 +619,24 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	<resource name="exported_to">
 		Exported to: {0}
 	</resource>
+  <resource name="OK">
+    OK
+  </resource>
+  <resource name="CANCEL">
+    Cancel
+  </resource>
+  <resource name="settings_configureplugin">
+    Configure
+  </resource>
+  <resource name="expertsettings">
+    Expert
+  </resource>
+  <resource name="expertsettings_enableexpert">
+    I know what I am doing!
+  </resource>
+  <resource name="expertsettings_clipboardformats">
+    Clipboard formats
+  </resource>
   <resource name="expertsettings_autoreducecolors">
     Write a 256-color image if the colors are less than 256
   </resource>
@@ -630,6 +648,9 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
   </resource>
   <resource name="expertsettings_footerpattern">
       Printer footer pattern
+  </resource>
+  <resource name="expertsettings_counter">
+    The number for the ${NUM} in the filename pattern
   </resource>
   <resource name="WindowCaptureMode.Screen">
 		As displayed
@@ -654,6 +675,18 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	</resource>
 	<resource name="EmailFormat.OUTLOOK_HTML">
 		Outlook with HTML
+	</resource>
+	<resource name="ClipboardFormat.PNG">
+		PNG
+	</resource>
+	<resource name="ClipboardFormat.DIB">
+		Device Independend Bitmap (DIB)
+	</resource>
+	<resource name="ClipboardFormat.HTML">
+		HTML
+	</resource>
+	<resource name="ClipboardFormat.HTMLDATAURL">
+		HTML with inline images
 	</resource>
   </resources>
 </language>

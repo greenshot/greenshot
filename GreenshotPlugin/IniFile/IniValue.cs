@@ -386,6 +386,10 @@ namespace Greenshot.IniFile {
 			return null;
 		}
 
+		public override string ToString() {
+			return ConvertValueToString(ValueType, Value);
+		}
+
 		private static string ConvertValueToString(Type valueType, object valueObject) {
 			if (valueObject == null) {
 				// If there is nothing, deliver nothing!

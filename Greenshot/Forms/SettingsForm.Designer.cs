@@ -50,7 +50,7 @@ namespace Greenshot {
 			this.textbox_storagelocation = new System.Windows.Forms.TextBox();
 			this.label_storagelocation = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.settings_cancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.settings_okay = new GreenshotPlugin.Controls.GreenshotButton();
+			this.settings_confirm = new GreenshotPlugin.Controls.GreenshotButton();
 			this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
 			this.browse = new System.Windows.Forms.Button();
 			this.label_screenshotname = new GreenshotPlugin.Controls.GreenshotLabel();
@@ -71,7 +71,7 @@ namespace Greenshot {
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
 			this.groupbox_destination = new GreenshotPlugin.Controls.GreenshotGroupBox();
 			this.checkbox_picker = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.destinationsListView = new System.Windows.Forms.ListView();
+			this.listview_destinations = new System.Windows.Forms.ListView();
 			this.destination = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.tabcontrol = new System.Windows.Forms.TabControl();
 			this.tab_general = new GreenshotPlugin.Controls.GreenshotTabPage();
@@ -120,9 +120,11 @@ namespace Greenshot {
 			this.tab_plugins = new GreenshotPlugin.Controls.GreenshotTabPage();
 			this.groupbox_plugins = new GreenshotPlugin.Controls.GreenshotGroupBox();
 			this.listview_plugins = new System.Windows.Forms.ListView();
-			this.button_pluginconfigure = new System.Windows.Forms.Button();
+			this.button_pluginconfigure = new GreenshotPlugin.Controls.GreenshotButton();
 			this.tab_expert = new GreenshotPlugin.Controls.GreenshotTabPage();
 			this.groupbox_expert = new GreenshotPlugin.Controls.GreenshotGroupBox();
+			this.label_counter = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.textbox_counter = new GreenshotPlugin.Controls.GreenshotTextBox();
 			this.label_footerpattern = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textbox_footerpattern = new GreenshotPlugin.Controls.GreenshotTextBox();
 			this.checkbox_thumbnailpreview = new GreenshotPlugin.Controls.GreenshotCheckBox();
@@ -130,7 +132,7 @@ namespace Greenshot {
 			this.checkbox_autoreducecolors = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.label_clipboardformats = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.checkbox_enableexpert = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.listView1 = new System.Windows.Forms.ListView();
+			this.listview_clipboardformats = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.groupbox_preferredfilesettings.SuspendLayout();
 			this.groupbox_applicationsettings.SuspendLayout();
@@ -176,7 +178,7 @@ namespace Greenshot {
 			// 
 			// settings_cancel
 			// 
-			this.settings_cancel.LanguageKey = "editor_cancel";
+			this.settings_cancel.LanguageKey = "CANCEL";
 			this.settings_cancel.Location = new System.Drawing.Point(367, 366);
 			this.settings_cancel.Name = "settings_cancel";
 			this.settings_cancel.Size = new System.Drawing.Size(75, 23);
@@ -185,16 +187,16 @@ namespace Greenshot {
 			this.settings_cancel.UseVisualStyleBackColor = true;
 			this.settings_cancel.Click += new System.EventHandler(this.Settings_cancelClick);
 			// 
-			// settings_okay
+			// settings_confirm
 			// 
-			this.settings_okay.LanguageKey = "editor_confirm";
-			this.settings_okay.Location = new System.Drawing.Point(286, 366);
-			this.settings_okay.Name = "settings_okay";
-			this.settings_okay.Size = new System.Drawing.Size(75, 23);
-			this.settings_okay.TabIndex = 6;
-			this.settings_okay.Text = "Confirm";
-			this.settings_okay.UseVisualStyleBackColor = true;
-			this.settings_okay.Click += new System.EventHandler(this.Settings_okayClick);
+			this.settings_confirm.LanguageKey = "OK";
+			this.settings_confirm.Location = new System.Drawing.Point(286, 366);
+			this.settings_confirm.Name = "settings_confirm";
+			this.settings_confirm.Size = new System.Drawing.Size(75, 23);
+			this.settings_confirm.TabIndex = 6;
+			this.settings_confirm.Text = "OK";
+			this.settings_confirm.UseVisualStyleBackColor = true;
+			this.settings_confirm.Click += new System.EventHandler(this.Settings_okayClick);
 			// 
 			// browse
 			// 
@@ -381,42 +383,43 @@ namespace Greenshot {
 			// groupbox_destination
 			// 
 			this.groupbox_destination.Controls.Add(this.checkbox_picker);
-			this.groupbox_destination.Controls.Add(this.destinationsListView);
+			this.groupbox_destination.Controls.Add(this.listview_destinations);
 			this.groupbox_destination.LanguageKey = "settings_destination";
 			this.groupbox_destination.Location = new System.Drawing.Point(2, 6);
 			this.groupbox_destination.Name = "groupbox_destination";
 			this.groupbox_destination.Size = new System.Drawing.Size(412, 311);
 			this.groupbox_destination.TabIndex = 16;
 			this.groupbox_destination.TabStop = false;
-			this.groupbox_destination.Text = "Screenshot Destination";
+			this.groupbox_destination.Text = "Destination";
 			// 
 			// checkbox_picker
 			// 
+			this.checkbox_picker.LanguageKey = "settings_destination_picker";
 			this.checkbox_picker.Location = new System.Drawing.Point(6, 14);
 			this.checkbox_picker.Name = "checkbox_picker";
 			this.checkbox_picker.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_picker.TabIndex = 19;
-			this.checkbox_picker.Text = "Destination picker";
+			this.checkbox_picker.Text = "Select destination dynamically";
 			this.checkbox_picker.UseVisualStyleBackColor = true;
 			this.checkbox_picker.CheckStateChanged += new System.EventHandler(this.DestinationsCheckStateChanged);
 			// 
-			// destinationsListView
+			// listview_destinations
 			// 
-			this.destinationsListView.Alignment = System.Windows.Forms.ListViewAlignment.Left;
-			this.destinationsListView.AutoArrange = false;
-			this.destinationsListView.CheckBoxes = true;
-			this.destinationsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+			this.listview_destinations.Alignment = System.Windows.Forms.ListViewAlignment.Left;
+			this.listview_destinations.AutoArrange = false;
+			this.listview_destinations.CheckBoxes = true;
+			this.listview_destinations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.destination});
-			this.destinationsListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-			this.destinationsListView.LabelWrap = false;
-			this.destinationsListView.Location = new System.Drawing.Point(6, 38);
-			this.destinationsListView.Name = "destinationsListView";
-			this.destinationsListView.ShowGroups = false;
-			this.destinationsListView.Size = new System.Drawing.Size(401, 267);
-			this.destinationsListView.Sorting = System.Windows.Forms.SortOrder.Ascending;
-			this.destinationsListView.TabIndex = 0;
-			this.destinationsListView.UseCompatibleStateImageBehavior = false;
-			this.destinationsListView.View = System.Windows.Forms.View.Details;
+			this.listview_destinations.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+			this.listview_destinations.LabelWrap = false;
+			this.listview_destinations.Location = new System.Drawing.Point(6, 38);
+			this.listview_destinations.Name = "listview_destinations";
+			this.listview_destinations.ShowGroups = false;
+			this.listview_destinations.Size = new System.Drawing.Size(401, 267);
+			this.listview_destinations.Sorting = System.Windows.Forms.SortOrder.Ascending;
+			this.listview_destinations.TabIndex = 0;
+			this.listview_destinations.UseCompatibleStateImageBehavior = false;
+			this.listview_destinations.View = System.Windows.Forms.View.Details;
 			// 
 			// destination
 			// 
@@ -814,7 +817,7 @@ namespace Greenshot {
 			this.tab_destinations.Name = "tab_destinations";
 			this.tab_destinations.Size = new System.Drawing.Size(423, 320);
 			this.tab_destinations.TabIndex = 4;
-			this.tab_destinations.Text = "Screenshot Destination";
+			this.tab_destinations.Text = "Destination";
 			this.tab_destinations.UseVisualStyleBackColor = true;
 			// 
 			// tab_printer
@@ -972,12 +975,13 @@ namespace Greenshot {
 			this.groupbox_plugins.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
 			this.groupbox_plugins.Controls.Add(this.listview_plugins);
 			this.groupbox_plugins.Controls.Add(this.button_pluginconfigure);
+			this.groupbox_plugins.LanguageKey = "settings_plugins";
 			this.groupbox_plugins.Location = new System.Drawing.Point(0, 0);
 			this.groupbox_plugins.Name = "groupbox_plugins";
 			this.groupbox_plugins.Size = new System.Drawing.Size(423, 314);
 			this.groupbox_plugins.TabIndex = 0;
 			this.groupbox_plugins.TabStop = false;
-			this.groupbox_plugins.Text = "Plugin settings";
+			this.groupbox_plugins.Text = "Plugins";
 			// 
 			// listview_plugins
 			// 
@@ -997,6 +1001,7 @@ namespace Greenshot {
 			this.button_pluginconfigure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.button_pluginconfigure.AutoSize = true;
 			this.button_pluginconfigure.Enabled = false;
+			this.button_pluginconfigure.LanguageKey = "settings_configureplugin";
 			this.button_pluginconfigure.Location = new System.Drawing.Point(6, 285);
 			this.button_pluginconfigure.Name = "button_pluginconfigure";
 			this.button_pluginconfigure.Size = new System.Drawing.Size(75, 23);
@@ -1008,6 +1013,7 @@ namespace Greenshot {
 			// tab_expert
 			// 
 			this.tab_expert.Controls.Add(this.groupbox_expert);
+			this.tab_expert.LanguageKey = "expertsettings";
 			this.tab_expert.Location = new System.Drawing.Point(4, 22);
 			this.tab_expert.Name = "tab_expert";
 			this.tab_expert.Size = new System.Drawing.Size(423, 320);
@@ -1017,6 +1023,8 @@ namespace Greenshot {
 			// 
 			// groupbox_expert
 			// 
+			this.groupbox_expert.Controls.Add(this.label_counter);
+			this.groupbox_expert.Controls.Add(this.textbox_counter);
 			this.groupbox_expert.Controls.Add(this.label_footerpattern);
 			this.groupbox_expert.Controls.Add(this.textbox_footerpattern);
 			this.groupbox_expert.Controls.Add(this.checkbox_thumbnailpreview);
@@ -1024,19 +1032,38 @@ namespace Greenshot {
 			this.groupbox_expert.Controls.Add(this.checkbox_autoreducecolors);
 			this.groupbox_expert.Controls.Add(this.label_clipboardformats);
 			this.groupbox_expert.Controls.Add(this.checkbox_enableexpert);
-			this.groupbox_expert.Controls.Add(this.listView1);
+			this.groupbox_expert.Controls.Add(this.listview_clipboardformats);
+			this.groupbox_expert.LanguageKey = "expertsettings";
 			this.groupbox_expert.Location = new System.Drawing.Point(5, 5);
 			this.groupbox_expert.Name = "groupbox_expert";
 			this.groupbox_expert.Size = new System.Drawing.Size(412, 311);
 			this.groupbox_expert.TabIndex = 17;
 			this.groupbox_expert.TabStop = false;
-			this.groupbox_expert.Text = "Expert settings";
+			this.groupbox_expert.Text = "Expert";
+			// 
+			// label_counter
+			// 
+			this.label_counter.AutoSize = true;
+			this.label_counter.LanguageKey = "expertsettings_counter";
+			this.label_counter.Location = new System.Drawing.Point(7, 266);
+			this.label_counter.Name = "label_counter";
+			this.label_counter.Size = new System.Drawing.Size(246, 13);
+			this.label_counter.TabIndex = 27;
+			this.label_counter.Text = "The number for the ${NUM} in the filename pattern";
+			// 
+			// textbox_counter
+			// 
+			this.textbox_counter.Location = new System.Drawing.Point(259, 263);
+			this.textbox_counter.Name = "textbox_counter";
+			this.textbox_counter.PropertyName = "OutputFileIncrementingNumber";
+			this.textbox_counter.Size = new System.Drawing.Size(141, 20);
+			this.textbox_counter.TabIndex = 26;
 			// 
 			// label_footerpattern
 			// 
 			this.label_footerpattern.AutoSize = true;
 			this.label_footerpattern.LanguageKey = "expertsettings_footerpattern";
-			this.label_footerpattern.Location = new System.Drawing.Point(7, 225);
+			this.label_footerpattern.Location = new System.Drawing.Point(7, 240);
 			this.label_footerpattern.Name = "label_footerpattern";
 			this.label_footerpattern.Size = new System.Drawing.Size(103, 13);
 			this.label_footerpattern.TabIndex = 25;
@@ -1044,7 +1071,7 @@ namespace Greenshot {
 			// 
 			// textbox_footerpattern
 			// 
-			this.textbox_footerpattern.Location = new System.Drawing.Point(138, 222);
+			this.textbox_footerpattern.Location = new System.Drawing.Point(138, 237);
 			this.textbox_footerpattern.Name = "textbox_footerpattern";
 			this.textbox_footerpattern.PropertyName = "OutputPrintFooterPattern";
 			this.textbox_footerpattern.Size = new System.Drawing.Size(262, 20);
@@ -1053,7 +1080,7 @@ namespace Greenshot {
 			// checkbox_thumbnailpreview
 			// 
 			this.checkbox_thumbnailpreview.LanguageKey = "expertsettings_thumbnailpreview";
-			this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 192);
+			this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 207);
 			this.checkbox_thumbnailpreview.Name = "checkbox_thumbnailpreview";
 			this.checkbox_thumbnailpreview.PropertyName = "ThumnailPreview";
 			this.checkbox_thumbnailpreview.Size = new System.Drawing.Size(394, 24);
@@ -1064,7 +1091,7 @@ namespace Greenshot {
 			// checkbox_optimizeforrdp
 			// 
 			this.checkbox_optimizeforrdp.LanguageKey = "expertsettings_optimizeforrdp";
-			this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 162);
+			this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 177);
 			this.checkbox_optimizeforrdp.Name = "checkbox_optimizeforrdp";
 			this.checkbox_optimizeforrdp.PropertyName = "OptimizeForRDP";
 			this.checkbox_optimizeforrdp.Size = new System.Drawing.Size(394, 24);
@@ -1075,7 +1102,7 @@ namespace Greenshot {
 			// checkbox_autoreducecolors
 			// 
 			this.checkbox_autoreducecolors.LanguageKey = "expertsettings_autoreducecolors";
-			this.checkbox_autoreducecolors.Location = new System.Drawing.Point(10, 132);
+			this.checkbox_autoreducecolors.Location = new System.Drawing.Point(10, 147);
 			this.checkbox_autoreducecolors.Name = "checkbox_autoreducecolors";
 			this.checkbox_autoreducecolors.PropertyName = "OutputFileAutoReduceColors";
 			this.checkbox_autoreducecolors.Size = new System.Drawing.Size(394, 24);
@@ -1086,6 +1113,7 @@ namespace Greenshot {
 			// label_clipboardformats
 			// 
 			this.label_clipboardformats.AutoSize = true;
+			this.label_clipboardformats.LanguageKey = "expertsettings_clipboardformats";
 			this.label_clipboardformats.Location = new System.Drawing.Point(7, 45);
 			this.label_clipboardformats.Name = "label_clipboardformats";
 			this.label_clipboardformats.Size = new System.Drawing.Size(88, 13);
@@ -1094,35 +1122,37 @@ namespace Greenshot {
 			// 
 			// checkbox_enableexpert
 			// 
+			this.checkbox_enableexpert.LanguageKey = "expertsettings_enableexpert";
 			this.checkbox_enableexpert.Location = new System.Drawing.Point(6, 14);
 			this.checkbox_enableexpert.Name = "checkbox_enableexpert";
 			this.checkbox_enableexpert.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_enableexpert.TabIndex = 19;
 			this.checkbox_enableexpert.Text = "I know what I am doing!";
 			this.checkbox_enableexpert.UseVisualStyleBackColor = true;
+			this.checkbox_enableexpert.CheckedChanged += new System.EventHandler(this.checkbox_enableexpert_CheckedChanged);
 			// 
-			// listView1
+			// listview_clipboardformats
 			// 
-			this.listView1.Alignment = System.Windows.Forms.ListViewAlignment.Left;
-			this.listView1.AutoArrange = false;
-			this.listView1.CheckBoxes = true;
-			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+			this.listview_clipboardformats.Alignment = System.Windows.Forms.ListViewAlignment.Left;
+			this.listview_clipboardformats.AutoArrange = false;
+			this.listview_clipboardformats.CheckBoxes = true;
+			this.listview_clipboardformats.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1});
-			this.listView1.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-			this.listView1.LabelWrap = false;
-			this.listView1.Location = new System.Drawing.Point(109, 44);
-			this.listView1.Name = "listView1";
-			this.listView1.ShowGroups = false;
-			this.listView1.Size = new System.Drawing.Size(291, 82);
-			this.listView1.Sorting = System.Windows.Forms.SortOrder.Ascending;
-			this.listView1.TabIndex = 0;
-			this.listView1.UseCompatibleStateImageBehavior = false;
-			this.listView1.View = System.Windows.Forms.View.Details;
+			this.listview_clipboardformats.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+			this.listview_clipboardformats.LabelWrap = false;
+			this.listview_clipboardformats.Location = new System.Drawing.Point(109, 44);
+			this.listview_clipboardformats.Name = "listview_clipboardformats";
+			this.listview_clipboardformats.ShowGroups = false;
+			this.listview_clipboardformats.Size = new System.Drawing.Size(291, 97);
+			this.listview_clipboardformats.Sorting = System.Windows.Forms.SortOrder.Ascending;
+			this.listview_clipboardformats.TabIndex = 0;
+			this.listview_clipboardformats.UseCompatibleStateImageBehavior = false;
+			this.listview_clipboardformats.View = System.Windows.Forms.View.Details;
 			// 
 			// columnHeader1
 			// 
 			this.columnHeader1.Text = "Destination";
-			this.columnHeader1.Width = 290;
+			this.columnHeader1.Width = 280;
 			// 
 			// SettingsForm
 			// 
@@ -1130,7 +1160,7 @@ namespace Greenshot {
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(451, 396);
 			this.Controls.Add(this.tabcontrol);
-			this.Controls.Add(this.settings_okay);
+			this.Controls.Add(this.settings_confirm);
 			this.Controls.Add(this.settings_cancel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.LanguageKey = "settings_title";
@@ -1175,7 +1205,7 @@ namespace Greenshot {
 		}
 		private System.Windows.Forms.ColumnHeader destination;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_picker;
-		private System.Windows.Forms.ListView destinationsListView;
+		private System.Windows.Forms.ListView listview_destinations;
 		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_editor;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_editor_match_capture_size;
 		private System.Windows.Forms.NumericUpDown numericUpDown_daysbetweencheck;
@@ -1208,7 +1238,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_capture_mousepointer;
 		private GreenshotPlugin.Controls.GreenshotTabPage tab_printer;
 		private System.Windows.Forms.ListView listview_plugins;
-		private System.Windows.Forms.Button button_pluginconfigure;
+		private GreenshotPlugin.Controls.GreenshotButton button_pluginconfigure;
 		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_plugins;
 		private GreenshotPlugin.Controls.GreenshotTabPage tab_plugins;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxTimestamp;
@@ -1242,7 +1272,7 @@ namespace Greenshot {
 		private System.Windows.Forms.Button browse;
 		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
 		private GreenshotPlugin.Controls.GreenshotButton settings_cancel;
-		private GreenshotPlugin.Controls.GreenshotButton settings_okay;
+		private GreenshotPlugin.Controls.GreenshotButton settings_confirm;
 		private System.Windows.Forms.TextBox textbox_storagelocation;
 		private GreenshotPlugin.Controls.GreenshotLabel label_storagelocation;
 		private GreenshotPlugin.Controls.GreenshotTabPage tab_destinations;
@@ -1250,7 +1280,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_expert;
 		private GreenshotPlugin.Controls.GreenshotLabel label_clipboardformats;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_enableexpert;
-		private System.Windows.Forms.ListView listView1;
+		private System.Windows.Forms.ListView listview_clipboardformats;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_printgrayscale;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_autoreducecolors;
@@ -1258,5 +1288,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_thumbnailpreview;
 		private GreenshotPlugin.Controls.GreenshotLabel label_footerpattern;
 		private GreenshotPlugin.Controls.GreenshotTextBox textbox_footerpattern;
+		private GreenshotPlugin.Controls.GreenshotLabel label_counter;
+		private GreenshotPlugin.Controls.GreenshotTextBox textbox_counter;
 	}
 }
