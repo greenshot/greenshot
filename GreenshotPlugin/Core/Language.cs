@@ -54,25 +54,30 @@ namespace GreenshotPlugin.Core {
 		/// Static initializer for the language code
 		/// </summary>
 		static Language() {
-			if (!LogHelper.isInitialized) {
-				LOG.Warn("Log4net hasn't been initialized yet! (Design mode?)");
-				LogHelper.InitializeLog4NET();
-			}
 			if (!IniConfig.IsInited) {
 				LOG.Warn("IniConfig hasn't been initialized yet! (Design mode?)");
 				IniConfig.Init("greenshot", "greenshot");
 			}
-			string applicationDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			string applicationFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-			// PAF Path
-			AddPath(Path.Combine(applicationFolder, @"App\Greenshot\Languages"));
-
-			// Application data path
-			AddPath(Path.Combine(applicationDataFolder, @"Greenshot\Languages\"));
-
-			// Startup path
-			AddPath(Path.Combine(applicationFolder, @"Languages"));
+			if (!LogHelper.isInitialized) {
+				LOG.Warn("Log4net hasn't been initialized yet! (Design mode?)");
+				LogHelper.InitializeLog4NET();
+			}
+			
+			try {
+				string applicationDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+				string applicationFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+	
+				// PAF Path
+				AddPath(Path.Combine(applicationFolder, @"App\Greenshot\Languages"));
+	
+				// Application data path
+				AddPath(Path.Combine(applicationDataFolder, @"Greenshot\Languages\"));
+	
+				// Startup path
+				AddPath(Path.Combine(applicationFolder, @"Languages"));
+			} catch (Exception pathException) {
+				LOG.Error(pathException);
+			}
 
 			try {
 				using (RegistryKey languageGroupsKey = Registry.LocalMachine.OpenSubKey(LANGUAGE_GROUPS_KEY, false)) {

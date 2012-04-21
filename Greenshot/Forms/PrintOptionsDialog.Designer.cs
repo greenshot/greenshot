@@ -57,6 +57,7 @@ namespace Greenshot.Forms
 			this.checkboxDateTime = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.button_cancel = new GreenshotPlugin.Controls.GreenshotButton();
 			this.checkboxPrintInverted = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.checkbox_grayscale = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
 			// checkbox_dontaskagain
@@ -65,7 +66,7 @@ namespace Greenshot.Forms
 			this.checkbox_dontaskagain.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.LanguageKey = "printoptions_dontaskagain";
-			this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 152);
+			this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 158);
 			this.checkbox_dontaskagain.Name = "checkbox_dontaskagain";
 			this.checkbox_dontaskagain.Size = new System.Drawing.Size(240, 17);
 			this.checkbox_dontaskagain.TabIndex = 19;
@@ -135,8 +136,9 @@ namespace Greenshot.Forms
 			// 
 			// button_ok
 			// 
+			this.button_ok.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.button_ok.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.button_ok.Location = new System.Drawing.Point(187, 179);
+			this.button_ok.Location = new System.Drawing.Point(187, 207);
 			this.button_ok.Name = "button_ok";
 			this.button_ok.Size = new System.Drawing.Size(75, 23);
 			this.button_ok.TabIndex = 25;
@@ -162,7 +164,7 @@ namespace Greenshot.Forms
 			// button_cancel
 			// 
 			this.button_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.button_cancel.Location = new System.Drawing.Point(268, 179);
+			this.button_cancel.Location = new System.Drawing.Point(268, 207);
 			this.button_cancel.Name = "button_cancel";
 			this.button_cancel.Size = new System.Drawing.Size(75, 23);
 			this.button_cancel.TabIndex = 27;
@@ -175,20 +177,34 @@ namespace Greenshot.Forms
 			this.checkboxPrintInverted.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.LanguageKey = "printoptions_inverted";
-			this.checkboxPrintInverted.Location = new System.Drawing.Point(12, 132);
+			this.checkboxPrintInverted.Location = new System.Drawing.Point(12, 135);
 			this.checkboxPrintInverted.Name = "checkboxPrintInverted";
 			this.checkboxPrintInverted.PropertyName = "OutputPrintInverted";
 			this.checkboxPrintInverted.Size = new System.Drawing.Size(141, 17);
 			this.checkboxPrintInverted.TabIndex = 28;
-			this.checkboxPrintInverted.Text = "Print with inverted colors";
 			this.checkboxPrintInverted.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.UseVisualStyleBackColor = true;
+			// 
+			// checkbox_grayscale
+			// 
+			this.checkbox_grayscale.AutoSize = true;
+			this.checkbox_grayscale.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkbox_grayscale.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkbox_grayscale.LanguageKey = "printoption_printgrayscale";
+			this.checkbox_grayscale.Location = new System.Drawing.Point(12, 181);
+			this.checkbox_grayscale.Name = "checkbox_grayscale";
+			this.checkbox_grayscale.PropertyName = "OutputPrintGrayscale";
+			this.checkbox_grayscale.Size = new System.Drawing.Size(56, 17);
+			this.checkbox_grayscale.TabIndex = 29;
+			this.checkbox_grayscale.TextAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.checkbox_grayscale.UseVisualStyleBackColor = true;
 			// 
 			// PrintOptionsDialog
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(355, 212);
+			this.ClientSize = new System.Drawing.Size(355, 242);
+			this.Controls.Add(this.checkbox_grayscale);
 			this.Controls.Add(this.checkboxPrintInverted);
 			this.Controls.Add(this.button_cancel);
 			this.Controls.Add(this.checkboxDateTime);
@@ -203,11 +219,11 @@ namespace Greenshot.Forms
 			this.MinimizeBox = false;
 			this.Name = "PrintOptionsDialog";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.Text = "Greenshot print options";
+			this.Text = "string ###printoptions_title### not found";
 			this.ResumeLayout(false);
 			this.PerformLayout();
-
 		}
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_grayscale;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxPrintInverted;
 		private GreenshotPlugin.Controls.GreenshotButton button_cancel;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxDateTime;

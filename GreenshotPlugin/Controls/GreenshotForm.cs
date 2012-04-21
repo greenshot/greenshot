@@ -33,14 +33,15 @@ namespace GreenshotPlugin.Controls {
 					ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
 					Assembly currentAssembly = this.GetType().Assembly;
 					string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
-					if (!Language.AddLanguageFilePath(Path.Combine(Path.GetDirectoryName(assemblyPath), @"..\..\Greenshot\Languages\"))) {
-						Language.AddLanguageFilePath(Path.Combine(Path.GetDirectoryName(assemblyPath), @"..\..\..\Greenshot\Languages\"));
+					string assemblyDirectory = Path.GetDirectoryName(assemblyPath);
+					if (!Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Greenshot\Languages\"))) {
+						Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Greenshot\Languages\"));
 					}
-					if (!Language.AddLanguageFilePath(Path.Combine(Path.GetDirectoryName(assemblyPath), @"..\..\Languages\"))) {
-						Language.AddLanguageFilePath(Path.Combine(Path.GetDirectoryName(assemblyPath), @"..\..\..\Languages\"));
+					if (!Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\"))) {
+						Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
 					}
 				} catch (Exception ex) {
-					MessageBox.Show(ex.ToString());
+					MessageBox.Show(ex.ToString(), "Greenshot designer exception!");
 				}
 			}
 		}
