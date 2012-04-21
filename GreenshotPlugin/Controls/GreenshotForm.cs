@@ -31,6 +31,11 @@ namespace GreenshotPlugin.Controls {
 				designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
 				try {
 					ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
+					
+					// Add a hard-path if you are using SharpDevelop
+					// Language.AddLanguageFilePath(@"C:\Greenshot\Greenshot\Languages");
+					
+					// this "type"
 					Assembly currentAssembly = this.GetType().Assembly;
 					string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
 					string assemblyDirectory = Path.GetDirectoryName(assemblyPath);

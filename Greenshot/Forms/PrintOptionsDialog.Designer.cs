@@ -138,6 +138,7 @@ namespace Greenshot.Forms
 			// 
 			this.button_ok.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.button_ok.DialogResult = System.Windows.Forms.DialogResult.OK;
+			this.button_ok.LanguageKey = "OK";
 			this.button_ok.Location = new System.Drawing.Point(187, 207);
 			this.button_ok.Name = "button_ok";
 			this.button_ok.Size = new System.Drawing.Size(75, 23);
@@ -164,6 +165,7 @@ namespace Greenshot.Forms
 			// button_cancel
 			// 
 			this.button_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.button_cancel.LanguageKey = "CANCEL";
 			this.button_cancel.Location = new System.Drawing.Point(268, 207);
 			this.button_cancel.Name = "button_cancel";
 			this.button_cancel.Size = new System.Drawing.Size(75, 23);
@@ -182,6 +184,7 @@ namespace Greenshot.Forms
 			this.checkboxPrintInverted.PropertyName = "OutputPrintInverted";
 			this.checkboxPrintInverted.Size = new System.Drawing.Size(141, 17);
 			this.checkboxPrintInverted.TabIndex = 28;
+			this.checkboxPrintInverted.Text = "Print with inverted colors";
 			this.checkboxPrintInverted.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.UseVisualStyleBackColor = true;
 			// 
@@ -194,8 +197,9 @@ namespace Greenshot.Forms
 			this.checkbox_grayscale.Location = new System.Drawing.Point(12, 181);
 			this.checkbox_grayscale.Name = "checkbox_grayscale";
 			this.checkbox_grayscale.PropertyName = "OutputPrintGrayscale";
-			this.checkbox_grayscale.Size = new System.Drawing.Size(56, 17);
+			this.checkbox_grayscale.Size = new System.Drawing.Size(138, 17);
 			this.checkbox_grayscale.TabIndex = 29;
+			this.checkbox_grayscale.Text = "Force grayscale printing";
 			this.checkbox_grayscale.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_grayscale.UseVisualStyleBackColor = true;
 			// 
@@ -219,7 +223,7 @@ namespace Greenshot.Forms
 			this.MinimizeBox = false;
 			this.Name = "PrintOptionsDialog";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.Text = "string ###printoptions_title### not found";
+			this.Text = "Greenshot print options";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
