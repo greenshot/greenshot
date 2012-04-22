@@ -47,7 +47,7 @@ namespace Greenshot {
 		private void InitializeComponent()
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
-			this.textbox_storagelocation = new System.Windows.Forms.TextBox();
+			this.textbox_storagelocation = new GreenshotPlugin.Controls.GreenshotTextBox();
 			this.label_storagelocation = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.settings_cancel = new GreenshotPlugin.Controls.GreenshotButton();
 			this.settings_confirm = new GreenshotPlugin.Controls.GreenshotButton();
@@ -166,6 +166,7 @@ namespace Greenshot {
 			this.textbox_storagelocation.Name = "textbox_storagelocation";
 			this.textbox_storagelocation.Size = new System.Drawing.Size(233, 20);
 			this.textbox_storagelocation.TabIndex = 12;
+			this.textbox_storagelocation.PropertyName = "OutputFilePath";
 			// 
 			// label_storagelocation
 			// 
@@ -1273,7 +1274,7 @@ namespace Greenshot {
 		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
 		private GreenshotPlugin.Controls.GreenshotButton settings_cancel;
 		private GreenshotPlugin.Controls.GreenshotButton settings_confirm;
-		private System.Windows.Forms.TextBox textbox_storagelocation;
+		private GreenshotPlugin.Controls.GreenshotTextBox textbox_storagelocation;
 		private GreenshotPlugin.Controls.GreenshotLabel label_storagelocation;
 		private GreenshotPlugin.Controls.GreenshotTabPage tab_destinations;
 		private GreenshotPlugin.Controls.GreenshotTabPage tab_expert;
