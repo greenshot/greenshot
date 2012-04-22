@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>GreenshotNetworkImportPlugin</RootNamespace>
     <AssemblyName>GreenshotNetworkImportPlugin</AssemblyName>
-    <TargetFrameworkVersion>v3.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
