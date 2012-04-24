@@ -23,11 +23,12 @@ Source: ..\..\bin\Release\checksum.MD5; DestDir: {app}; Flags: overwritereadonly
 Source: ..\additional_files\installer.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 Source: ..\additional_files\license.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 Source: ..\additional_files\readme.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
-;Source: ..\additional_files\donate.bmp; Flags: dontcopy
+
 ; Core language files
 Source: ..\..\bin\Release\Languages\*nl-NL*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*en-US*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*de-DE*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
+
 ; Additional language files
 Source: ..\..\bin\Release\Languages\*ar-SY*; DestDir: {app}\Languages; Components: languages\arSY; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*cs-CZ*; DestDir: {app}\Languages; Components: languages\csCZ; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -66,17 +67,17 @@ Source: ..\..\bin\Release\Languages\Plugins\GreenshotImgurPlugin\*; DestDir: {ap
 ;Source: ..\..\bin\Release\Plugins\GreenshotBoxPlugin\*; DestDir: {app}\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;Source: ..\..\bin\Release\Languages\Plugins\GreenshotBoxPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly ignoreversion replacesameversion;
 ;DropBox Plugin
-;Source: ..\..\bin\Release\Plugins\GreenshotDropBoxPlugin\*; DestDir: {app}\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-;Source: ..\..\bin\Release\Languages\Plugins\GreenshotDropBoxPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Plugins\GreenshotDropBoxPlugin\*; DestDir: {app}\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\Plugins\GreenshotDropBoxPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Flickr Plugin
 ;Source: ..\..\bin\Release\Plugins\GreenshotFlickrPlugin\*; DestDir: {app}\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;Source: ..\..\bin\Release\Languages\Plugins\GreenshotFlickrPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Picasa Plugin
-;Source: ..\..\bin\Release\Plugins\GreenshotPicasaPlugin\*; DestDir: {app}\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-;Source: ..\..\bin\Release\Languages\Plugins\GreenshotPicasaPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Plugins\GreenshotPicasaPlugin\*; DestDir: {app}\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\Plugins\GreenshotPicasaPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Confluence Plugin
-;Source: ..\..\bin\Release\Plugins\GreenshotConfluencePlugin\*; DestDir: {app}\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-;Source: ..\..\bin\Release\Languages\Plugins\GreenshotConfluencePlugin\*; DestDir: {app}\Languages\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Plugins\GreenshotConfluencePlugin\*; DestDir: {app}\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\Plugins\GreenshotConfluencePlugin\*; DestDir: {app}\Languages\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly ignoreversion replacesameversion;
 ;ExternalCommand Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotExternalCommandPlugin\*; DestDir: {app}\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;Network Import Plugin
@@ -177,13 +178,13 @@ Name: "plugins"; Description: "Plugins"; Types: Full
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full;
 Name: "plugins\jira"; Description: {cm:jira}; Types: Full
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: Full;
-;Name: "plugins\confluence"; Description: {cm:confluence}; Types: Full
+Name: "plugins\confluence"; Description: {cm:confluence}; Types: Full; Check: hasNET35()
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: Full
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: Full
 ;Name: "plugins\box"; Description: "Box Plugin"; Types: Full
-;Name: "plugins\dropbox"; Description: "DropBox Plugin"; Types: Full
+Name: "plugins\dropbox"; Description: "DropBox Plugin"; Types: Full; Check: hasNET35()
 ;Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
-;Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: Full
+Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: Full
 Name: "languages"; Description: {cm:language}; Types: Full
 Name: "languages\arSY"; Description: "العربية"; Types: Full; Check: hasLanguageGroup('d')
 Name: "languages\csCZ"; Description: "Ceština"; Types: Full; Check: hasLanguageGroup('1')
@@ -254,6 +255,18 @@ begin
 	//MsgBox(parametersString, mbInformation, MB_OK);
 
 	Result := parametersString;
+end;
+
+// Check if .NET 3.5 is installed
+function hasNET35(): Boolean;
+var
+  netFrameWorkInstalled : Boolean;
+  isInstalled: Cardinal;
+begin
+	isInstalled := 0;
+  netFrameworkInstalled := RegQueryDWordValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5', 'Install', isInstalled);
+  if ((netFrameworkInstalled) and (isInstalled <> 1)) then netFrameworkInstalled := false;
+	Result := netFrameWorkInstalled;
 end;
 
 // Check if language group is installed
