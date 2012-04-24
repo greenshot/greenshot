@@ -63,7 +63,6 @@
     <Compile Include="Forms\ImgurHistory.Designer.cs">
       <DependentUpon>ImgurHistory.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ListViewColumnSorter.cs" />
     <Compile Include="Forms\SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>

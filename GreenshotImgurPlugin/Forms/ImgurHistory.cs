@@ -33,7 +33,7 @@ namespace GreenshotImgurPlugin {
 	/// </summary>
 	public partial class ImgurHistory : Form {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
-		private ListViewColumnSorter columnSorter;
+		private GreenshotColumnSorter columnSorter;
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
 		private static ImgurHistory instance;
 		
@@ -55,7 +55,7 @@ namespace GreenshotImgurPlugin {
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
 			// Init sorting
-			columnSorter = new ListViewColumnSorter();
+			columnSorter = new GreenshotColumnSorter();
 			this.listview_imgur_uploads.ListViewItemSorter = columnSorter;
 			columnSorter.SortColumn = 3;
 			columnSorter.Order = SortOrder.Descending;
