@@ -130,10 +130,11 @@ namespace GreenshotImgurPlugin {
 		}
 		
 		public bool Upload(ICaptureDetails captureDetails, Image image, out string uploadURL) {
+			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			using (MemoryStream stream = new MemoryStream()) {
 				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait));
 
-				host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+				host.SaveToStream(image, stream, outputSettings);
 				try {
 					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, captureDetails));
 					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, captureDetails.DateTime.ToString(), filename);
@@ -170,10 +171,11 @@ namespace GreenshotImgurPlugin {
 		public void EditMenuClick(object sender, EventArgs eventArgs) {
 			ToolStripMenuItem item = (ToolStripMenuItem)sender;
 			IImageEditor imageEditor = (IImageEditor)item.Tag;
+			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			using (MemoryStream stream = new MemoryStream()) {
 				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait));
 
-				imageEditor.SaveToStream(stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+				imageEditor.SaveToStream(stream, outputSettings);
 				try {
 					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
 					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, imageEditor.CaptureDetails.Title, filename);

@@ -188,25 +188,25 @@ Details about the GNU General Public License:
 		Greenshot Help
 	</resource>
 	<resource name="settings_jpegsettings">
-		JPEG settings
+		Quality settings
 	</resource>
 	<resource name="settings_jpegquality">
 		JPEG quality
 	</resource>
 	<resource name="settings_alwaysshowjpegqualitydialog">
-		Show JPEG quality dialog every time a JPEG image is saved
+		Show quality dialog every time an image is saved
 	</resource>
 	<resource name="jpegqualitydialog_title">
 		Greenshot quality
 	</resource>
 	<resource name="jpegqualitydialog_choosejpegquality">
-		Please choose the quality for your JPEG image.
+		Please choose the quality for your image.
 	</resource>
 	<resource name="jpegqualitydialog_dontaskagain">
 		Save as default quality and do not ask again
 	</resource>
-  <resource name="reduce_colors">
-    Reduce the amount of colors to 256 (can have impact on quality!)
+  <resource name="settings_reducecolors">
+    Reduce the amount of colors to a maximum of 256
   </resource>
   <resource name="editor_forecolor">
 		Line color

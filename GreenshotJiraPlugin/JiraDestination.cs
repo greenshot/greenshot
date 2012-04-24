@@ -104,10 +104,11 @@ namespace GreenshotJiraPlugin {
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			string filename = Path.GetFileName(jiraPlugin.Host.GetFilename(config.UploadFormat, captureDetails));
 			byte[] buffer;
+			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			if (jira != null) {
 				using (MemoryStream stream = new MemoryStream()) {
 					using (Image image = surface.GetImageForExport()) {
-						jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);							
+						jiraPlugin.Host.SaveToStream(image, stream, outputSettings);							
 					}
 					// COPY stream to buffer
 					buffer = stream.ToArray();
@@ -134,7 +135,7 @@ namespace GreenshotJiraPlugin {
 					if (result == DialogResult.OK) {
 						using (MemoryStream stream = new MemoryStream()) {
 							using (Image image = surface.GetImageForExport()) {
-								jiraPlugin.Host.SaveToStream(image, stream, config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);									
+								jiraPlugin.Host.SaveToStream(image, stream, outputSettings);
 							}
 							// COPY stream to buffer
 							buffer = stream.ToArray();

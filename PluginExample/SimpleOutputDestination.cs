@@ -63,11 +63,13 @@ namespace PluginExample {
 		
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
+			OutputSettings outputSettings = new OutputSettings();
+
 			string file = host.GetFilename(OutputFormat.png, null);
 			string filePath = Path.Combine(config.OutputFilePath, file);
 			using (FileStream stream = new FileStream(filePath, FileMode.Create)) {
 				using (Image image = surface.GetImageForExport()) {
-					host.SaveToStream(image, stream, OutputFormat.png, config.OutputFileJpegQuality, config.OutputFileReduceColors);
+					host.SaveToStream(image, stream, outputSettings);
 				}
 			}
 			MessageBox.Show("Saved test file to: " + filePath);

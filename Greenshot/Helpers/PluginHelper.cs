@@ -95,16 +95,16 @@ namespace Greenshot.Helpers {
 		#region Implementation of IGreenshotPluginHost
 		private ContextMenuStrip mainMenu = null;
 
-		public void SaveToStream(Image img, Stream stream, OutputFormat extension, int quality, bool reduceColors) {
-			ImageOutput.SaveToStream(img, stream, extension, quality, reduceColors);
+		public void SaveToStream(Image img, Stream stream, OutputSettings outputSettings) {
+			ImageOutput.SaveToStream(img, stream, outputSettings);
 		}
 
-		public string SaveToTmpFile(Image img, OutputFormat outputFormat, int quality, bool reduceColors) {
-			return ImageOutput.SaveToTmpFile(img, outputFormat, quality, reduceColors);
+		public string SaveToTmpFile(Image img, OutputSettings outputSettings) {
+			return ImageOutput.SaveToTmpFile(img, outputSettings);
 		}
 
-		public string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality, bool reduceColors) {
-			return ImageOutput.SaveNamedTmpFile(image, captureDetails, outputFormat, quality, reduceColors);
+		public string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputSettings outputSettings) {
+			return ImageOutput.SaveNamedTmpFile(image, captureDetails, outputSettings);
 		}
 		
 		public string GetFilename(OutputFormat format, ICaptureDetails captureDetails) {

@@ -152,7 +152,8 @@ namespace GreenshotOCR {
 		private const int MIN_HEIGHT = 130;
 		public static void DoOCR(ISurface surface) {
 			string filePath = null;
-		
+			OutputSettings outputSettings = new OutputSettings(OutputFormat.bmp);
+
 			using (Image capturedImage = surface.GetImageForExport()) {
 				if (capturedImage.Width < MIN_WIDTH || capturedImage.Height < MIN_HEIGHT) {
 					LOG.Debug("Captured image is not big enough for OCR, growing image...");
@@ -163,10 +164,10 @@ namespace GreenshotOCR {
 							graphics.Clear(Color.White);
 							graphics.DrawImage(capturedImage, Point.Empty);
 						}
-						filePath = host.SaveToTmpFile(tmpImage, OutputFormat.bmp, 100, false);
+						filePath = host.SaveToTmpFile(tmpImage, outputSettings);
 					}
 				} else {
-					filePath = host.SaveToTmpFile(capturedImage, OutputFormat.bmp, 100, false);
+					filePath = host.SaveToTmpFile(capturedImage, outputSettings);
 				}
 			}
 		

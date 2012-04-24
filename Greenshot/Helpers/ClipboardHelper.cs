@@ -32,6 +32,7 @@ using Greenshot.Configuration;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Plugin;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -380,7 +381,7 @@ EndSelection:<<<<<<<4
 				
 				// Set the HTML
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
-					string tmpFile = ImageOutput.SaveToTmpFile(image, OutputFormat.png, config.OutputFileJpegQuality, config.OutputFileReduceColors);
+					string tmpFile = ImageOutput.SaveToTmpFile(image, new OutputSettings(OutputFormat.png));
 					string html = getHTMLString(image, tmpFile);
 					ido.SetText(html, TextDataFormat.Html);
 				} else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {

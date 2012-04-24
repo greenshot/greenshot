@@ -64,8 +64,8 @@ namespace Greenshot {
 			this.checkbox_copypathtoclipboard = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.groupbox_applicationsettings = new GreenshotPlugin.Controls.GreenshotGroupBox();
 			this.checkbox_autostartshortcut = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.groupbox_jpegsettings = new GreenshotPlugin.Controls.GreenshotGroupBox();
-			this.checkbox_alwaysshowjpegqualitydialog = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.groupbox_qualitysettings = new GreenshotPlugin.Controls.GreenshotGroupBox();
+			this.checkbox_alwaysshowqualitydialog = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.label_jpegquality = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
@@ -134,9 +134,10 @@ namespace Greenshot {
 			this.checkbox_enableexpert = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.listview_clipboardformats = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.checkbox_reducecolors = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.groupbox_preferredfilesettings.SuspendLayout();
 			this.groupbox_applicationsettings.SuspendLayout();
-			this.groupbox_jpegsettings.SuspendLayout();
+			this.groupbox_qualitysettings.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).BeginInit();
 			this.groupbox_destination.SuspendLayout();
 			this.tabcontrol.SuspendLayout();
@@ -164,9 +165,9 @@ namespace Greenshot {
 			// 
 			this.textbox_storagelocation.Location = new System.Drawing.Point(138, 18);
 			this.textbox_storagelocation.Name = "textbox_storagelocation";
+			this.textbox_storagelocation.PropertyName = "OutputFilePath";
 			this.textbox_storagelocation.Size = new System.Drawing.Size(233, 20);
 			this.textbox_storagelocation.TabIndex = 12;
-			this.textbox_storagelocation.PropertyName = "OutputFilePath";
 			// 
 			// label_storagelocation
 			// 
@@ -327,30 +328,31 @@ namespace Greenshot {
 			this.checkbox_autostartshortcut.Text = "Launch Greenshot on startup";
 			this.checkbox_autostartshortcut.UseVisualStyleBackColor = true;
 			// 
-			// groupbox_jpegsettings
+			// groupbox_qualitysettings
 			// 
-			this.groupbox_jpegsettings.Controls.Add(this.checkbox_alwaysshowjpegqualitydialog);
-			this.groupbox_jpegsettings.Controls.Add(this.label_jpegquality);
-			this.groupbox_jpegsettings.Controls.Add(this.textBoxJpegQuality);
-			this.groupbox_jpegsettings.Controls.Add(this.trackBarJpegQuality);
-			this.groupbox_jpegsettings.LanguageKey = "settings_jpegsettings";
-			this.groupbox_jpegsettings.Location = new System.Drawing.Point(2, 156);
-			this.groupbox_jpegsettings.Name = "groupbox_jpegsettings";
-			this.groupbox_jpegsettings.Size = new System.Drawing.Size(412, 83);
-			this.groupbox_jpegsettings.TabIndex = 14;
-			this.groupbox_jpegsettings.TabStop = false;
-			this.groupbox_jpegsettings.Text = "JPEG settings";
+			this.groupbox_qualitysettings.Controls.Add(this.checkbox_reducecolors);
+			this.groupbox_qualitysettings.Controls.Add(this.checkbox_alwaysshowqualitydialog);
+			this.groupbox_qualitysettings.Controls.Add(this.label_jpegquality);
+			this.groupbox_qualitysettings.Controls.Add(this.textBoxJpegQuality);
+			this.groupbox_qualitysettings.Controls.Add(this.trackBarJpegQuality);
+			this.groupbox_qualitysettings.LanguageKey = "settings_jpegsettings";
+			this.groupbox_qualitysettings.Location = new System.Drawing.Point(2, 156);
+			this.groupbox_qualitysettings.Name = "groupbox_qualitysettings";
+			this.groupbox_qualitysettings.Size = new System.Drawing.Size(412, 106);
+			this.groupbox_qualitysettings.TabIndex = 14;
+			this.groupbox_qualitysettings.TabStop = false;
+			this.groupbox_qualitysettings.Text = "JPEG settings";
 			// 
-			// checkbox_alwaysshowjpegqualitydialog
+			// checkbox_alwaysshowqualitydialog
 			// 
-			this.checkbox_alwaysshowjpegqualitydialog.LanguageKey = "settings_alwaysshowjpegqualitydialog";
-			this.checkbox_alwaysshowjpegqualitydialog.Location = new System.Drawing.Point(12, 50);
-			this.checkbox_alwaysshowjpegqualitydialog.Name = "checkbox_alwaysshowjpegqualitydialog";
-			this.checkbox_alwaysshowjpegqualitydialog.PropertyName = "OutputFilePromptQuality";
-			this.checkbox_alwaysshowjpegqualitydialog.Size = new System.Drawing.Size(394, 25);
-			this.checkbox_alwaysshowjpegqualitydialog.TabIndex = 16;
-			this.checkbox_alwaysshowjpegqualitydialog.Text = "Show JPEG quality dialog every time a JPEG image is saved";
-			this.checkbox_alwaysshowjpegqualitydialog.UseVisualStyleBackColor = true;
+			this.checkbox_alwaysshowqualitydialog.LanguageKey = "settings_alwaysshowjpegqualitydialog";
+			this.checkbox_alwaysshowqualitydialog.Location = new System.Drawing.Point(12, 50);
+			this.checkbox_alwaysshowqualitydialog.Name = "checkbox_alwaysshowqualitydialog";
+			this.checkbox_alwaysshowqualitydialog.PropertyName = "OutputFilePromptQuality";
+			this.checkbox_alwaysshowqualitydialog.Size = new System.Drawing.Size(394, 25);
+			this.checkbox_alwaysshowqualitydialog.TabIndex = 16;
+			this.checkbox_alwaysshowqualitydialog.Text = "Show quality dialog every time a JPEG image is saved";
+			this.checkbox_alwaysshowqualitydialog.UseVisualStyleBackColor = true;
 			// 
 			// label_jpegquality
 			// 
@@ -800,7 +802,7 @@ namespace Greenshot {
 			// 
 			this.tab_output.BackColor = System.Drawing.Color.Transparent;
 			this.tab_output.Controls.Add(this.groupbox_preferredfilesettings);
-			this.tab_output.Controls.Add(this.groupbox_jpegsettings);
+			this.tab_output.Controls.Add(this.groupbox_qualitysettings);
 			this.tab_output.LanguageKey = "settings_output";
 			this.tab_output.Location = new System.Drawing.Point(4, 22);
 			this.tab_output.Name = "tab_output";
@@ -1155,6 +1157,17 @@ namespace Greenshot {
 			this.columnHeader1.Text = "Destination";
 			this.columnHeader1.Width = 280;
 			// 
+			// checkbox_reducecolors
+			// 
+			this.checkbox_reducecolors.LanguageKey = "settings_reducecolors";
+			this.checkbox_reducecolors.Location = new System.Drawing.Point(12, 72);
+			this.checkbox_reducecolors.Name = "checkbox_reducecolors";
+			this.checkbox_reducecolors.PropertyName = "OutputFileReduceColors";
+			this.checkbox_reducecolors.Size = new System.Drawing.Size(394, 25);
+			this.checkbox_reducecolors.TabIndex = 17;
+			this.checkbox_reducecolors.Text = "Show quality dialog every time a JPEG image is saved";
+			this.checkbox_reducecolors.UseVisualStyleBackColor = true;
+			// 
 			// SettingsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1174,8 +1187,8 @@ namespace Greenshot {
 			this.groupbox_preferredfilesettings.ResumeLayout(false);
 			this.groupbox_preferredfilesettings.PerformLayout();
 			this.groupbox_applicationsettings.ResumeLayout(false);
-			this.groupbox_jpegsettings.ResumeLayout(false);
-			this.groupbox_jpegsettings.PerformLayout();
+			this.groupbox_qualitysettings.ResumeLayout(false);
+			this.groupbox_qualitysettings.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).EndInit();
 			this.groupbox_destination.ResumeLayout(false);
 			this.tabcontrol.ResumeLayout(false);
@@ -1256,11 +1269,11 @@ namespace Greenshot {
 		private System.Windows.Forms.TabControl tabcontrol;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_autostartshortcut;
 		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_destination;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_alwaysshowjpegqualitydialog;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_alwaysshowqualitydialog;
 		private System.Windows.Forms.TextBox textBoxJpegQuality;
 		private GreenshotPlugin.Controls.GreenshotLabel label_jpegquality;
 		private System.Windows.Forms.TrackBar trackBarJpegQuality;
-		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_jpegsettings;
+		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_qualitysettings;
 		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_applicationsettings;
 		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_preferredfilesettings;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_playsound;
@@ -1291,5 +1304,6 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotTextBox textbox_footerpattern;
 		private GreenshotPlugin.Controls.GreenshotLabel label_counter;
 		private GreenshotPlugin.Controls.GreenshotTextBox textbox_counter;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_reducecolors;
 	}
 }

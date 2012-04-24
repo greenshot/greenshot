@@ -75,11 +75,11 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Saves image to stream with specified quality
 		/// </summary>
-		public static void SaveToStream(Image imageToSave, Stream stream, OutputFormat extension, int quality, bool reduceColors) {
+		public static void SaveToStream(Image imageToSave, Stream stream, OutputSettings outputSettings) {
 			ImageFormat imageFormat = null;
 			bool disposeImage = false;
 
-			switch (extension) {
+			switch (outputSettings.Format) {
 				case OutputFormat.bmp:
 					imageFormat = ImageFormat.Bmp;
 					break;
@@ -100,11 +100,6 @@ namespace Greenshot.Helpers {
 					break;
 			}
 
-			// Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
-			if (ImageFormat.Gif.Equals(imageFormat)) {
-				reduceColors = true;
-			}
-
 			// Removing transparency if it's not supported
 			if (imageFormat != ImageFormat.Png) {
 				imageToSave = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
@@ -112,11 +107,11 @@ namespace Greenshot.Helpers {
 			}
 
 			// check for color reduction, forced or automatically
-			if (conf.OutputFileAutoReduceColors || reduceColors) {
+			if (conf.OutputFileAutoReduceColors || outputSettings.ReduceColors) {
 				WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave);
 				int colorCount = quantizer.GetColorCount();
 				LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
-				if (reduceColors || colorCount < 256) {
+				if (outputSettings.ReduceColors || colorCount < 256) {
 					try {
 						LOG.Info("Reducing colors on bitmap to 255.");
 						Image tmpImage = quantizer.GetQuantizedImage(255);
@@ -147,7 +142,7 @@ namespace Greenshot.Helpers {
 				LOG.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
 				if (imageFormat == ImageFormat.Jpeg) {
 					EncoderParameters parameters = new EncoderParameters(1);
-					parameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(Encoder.Quality, quality);
+					parameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(Encoder.Quality, outputSettings.JPGQuality);
 					ImageCodecInfo[] ies = ImageCodecInfo.GetImageEncoders();
 					imageToSave.Save(stream, ies[1], parameters);
 				} else if (imageFormat != ImageFormat.Png && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
@@ -169,7 +164,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Saves image to specific path with specified quality
 		/// </summary>
-		public static void Save(Image image, string fullPath, bool allowOverwrite, int quality, bool reduceColors, bool copyPathToClipboard) {
+		public static void Save(Image image, string fullPath, bool allowOverwrite, OutputSettings outputSettings, bool copyPathToClipboard) {
 			fullPath = FilenameHelper.MakeFQFilenameSafe(fullPath);
 			string path = Path.GetDirectoryName(fullPath);
 
@@ -198,7 +193,7 @@ namespace Greenshot.Helpers {
 			LOG.DebugFormat("Saving image to {0}", fullPath);
 			// Create the stream and call SaveToStream
 			using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) {
-				SaveToStream(image, stream, format, quality, reduceColors);
+				SaveToStream(image, stream, outputSettings);
 			}
 
 			if (copyPathToClipboard) {
@@ -213,26 +208,23 @@ namespace Greenshot.Helpers {
 		/// <param name="fullPath">the absolute destination path including file name</param>
 		/// <param name="allowOverwrite">true if overwrite is allowed, false if not</param>
 		public static void Save(Image img, string fullPath, bool allowOverwrite) {
-			int quality;
-			bool reduceColors = false;
-			
 			// Fix for bug 2912959
 			string extension = fullPath.Substring(fullPath.LastIndexOf(".") + 1);
-			bool isJPG = false;
-			if (extension != null) {
-				isJPG = "JPG".Equals(extension.ToUpper()) || "JPEG".Equals(extension.ToUpper());
+			OutputFormat format = OutputFormat.png;
+			try {
+				if (extension != null) {
+					format = (OutputFormat)Enum.Parse(typeof(OutputFormat), extension.ToLower());
+				}
+			} catch (ArgumentException ae) {
+				LOG.Warn("Couldn't parse extension: " + extension, ae);
 			}
-			
-			if(conf.OutputFilePromptQuality) {
-				QualityDialog qualityDialog = new QualityDialog(isJPG);
+			// Get output settings from the configuration
+			OutputSettings outputSettings = new OutputSettings(format);
+			if (conf.OutputFilePromptQuality) {
+				QualityDialog qualityDialog = new QualityDialog(outputSettings);
 				qualityDialog.ShowDialog();
-				quality = qualityDialog.Quality;
-				reduceColors = qualityDialog.ReduceColors;
-			} else {
-				quality = conf.OutputFileJpegQuality;
-				reduceColors = conf.OutputFileReduceColors;
 			}
-			Save(img, fullPath, allowOverwrite, quality, reduceColors, conf.OutputFileCopyPathToClipboard);
+			Save(img, fullPath, allowOverwrite, outputSettings, conf.OutputFileCopyPathToClipboard);
 		}
 		#endregion
 		
@@ -261,12 +253,12 @@ namespace Greenshot.Helpers {
 		}
 		#endregion
 
-		public static string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputFormat outputFormat, int quality, bool reduceColors) {
+		public static string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputSettings outputSettings) {
 			string pattern = conf.OutputFileFilenamePattern;
 			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
 				pattern = "greenshot ${capturetime}";
 			}
-			string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputFormat, captureDetails);
+			string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputSettings.Format, captureDetails);
 			// Prevent problems with "other characters", which causes a problem in e.g. Outlook 2007 or break our HTML
 			filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
 			// Remove multiple "_"
@@ -278,7 +270,7 @@ namespace Greenshot.Helpers {
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
 			try {
-				ImageOutput.Save(image, tmpFile, true, quality, reduceColors, false);
+				ImageOutput.Save(image, tmpFile, true, outputSettings, false);
 				tmpFileCache.Add(tmpFile, tmpFile);
 			} catch (Exception e) {
 				// Show the problem
@@ -294,15 +286,15 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
-		public static string SaveToTmpFile(Image image, OutputFormat outputFormat, int quality, bool reduceColors) {
-			string tmpFile = Path.GetRandomFileName() + "." + outputFormat.ToString();
+		public static string SaveToTmpFile(Image image, OutputSettings outputSettings) {
+			string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format.ToString();
 			// Prevent problems with "other characters", which could cause problems
 			tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", "");
 			string tmpPath = Path.Combine(Path.GetTempPath(), tmpFile);
 			LOG.Debug("Creating TMP File : " + tmpPath);
 			
 			try {
-				ImageOutput.Save(image, tmpPath, true, quality, reduceColors, false);
+				ImageOutput.Save(image, tmpPath, true, outputSettings, false);
 				tmpFileCache.Add(tmpPath, tmpPath);
 			} catch (Exception) {
 				return null;

@@ -73,10 +73,12 @@ namespace ExternalCommand {
 		}
 
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			OutputSettings outputSettings = new OutputSettings();
+
 			string fullPath = captureDetails.Filename;
 			if (fullPath == null) {
 				using (Image image = surface.GetImageForExport()) {
-					fullPath = host.SaveNamedTmpFile(image, captureDetails, OutputFormat.png, 100, false);
+					fullPath = host.SaveNamedTmpFile(image, captureDetails, outputSettings);
 				}
 			}
 			if (presetCommand != null) {
