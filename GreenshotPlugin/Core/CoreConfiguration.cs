@@ -60,7 +60,7 @@ namespace GreenshotPlugin.Core {
 
 		[IniProperty("IsFirstLaunch", Description="Is this the first time launch?", DefaultValue="true")]
 		public bool IsFirstLaunch;
-		[IniProperty("Destinations", Separator=",", Description="Which destinations? Options are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail", DefaultValue="Editor")]
+		[IniProperty("Destinations", Separator=",", Description="Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker", DefaultValue="Picker")]
 		public List<string> OutputDestinations = new List<string>();
 		[IniProperty("ClipboardFormats", Separator=",", Description="Specify which formats we copy on the clipboard? Options are: PNG,HTML and DIB", DefaultValue="PNG,HTML,DIB")]
 		public List<ClipboardFormat> ClipboardFormats = new List<ClipboardFormat>();
