@@ -65,6 +65,7 @@ namespace Greenshot {
 			this.groupbox_applicationsettings = new GreenshotPlugin.Controls.GreenshotGroupBox();
 			this.checkbox_autostartshortcut = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.groupbox_qualitysettings = new GreenshotPlugin.Controls.GreenshotGroupBox();
+			this.checkbox_reducecolors = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.checkbox_alwaysshowqualitydialog = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.label_jpegquality = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
@@ -134,7 +135,7 @@ namespace Greenshot {
 			this.checkbox_enableexpert = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.listview_clipboardformats = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.checkbox_reducecolors = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.checkbox_suppresssavedialogatclose = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.groupbox_preferredfilesettings.SuspendLayout();
 			this.groupbox_applicationsettings.SuspendLayout();
 			this.groupbox_qualitysettings.SuspendLayout();
@@ -341,7 +342,18 @@ namespace Greenshot {
 			this.groupbox_qualitysettings.Size = new System.Drawing.Size(412, 106);
 			this.groupbox_qualitysettings.TabIndex = 14;
 			this.groupbox_qualitysettings.TabStop = false;
-			this.groupbox_qualitysettings.Text = "JPEG settings";
+			this.groupbox_qualitysettings.Text = "Quality settings";
+			// 
+			// checkbox_reducecolors
+			// 
+			this.checkbox_reducecolors.LanguageKey = "settings_reducecolors";
+			this.checkbox_reducecolors.Location = new System.Drawing.Point(12, 72);
+			this.checkbox_reducecolors.Name = "checkbox_reducecolors";
+			this.checkbox_reducecolors.PropertyName = "OutputFileReduceColors";
+			this.checkbox_reducecolors.Size = new System.Drawing.Size(394, 25);
+			this.checkbox_reducecolors.TabIndex = 17;
+			this.checkbox_reducecolors.Text = "Reduce the amount of colors to a maximum of 256";
+			this.checkbox_reducecolors.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_alwaysshowqualitydialog
 			// 
@@ -351,7 +363,7 @@ namespace Greenshot {
 			this.checkbox_alwaysshowqualitydialog.PropertyName = "OutputFilePromptQuality";
 			this.checkbox_alwaysshowqualitydialog.Size = new System.Drawing.Size(394, 25);
 			this.checkbox_alwaysshowqualitydialog.TabIndex = 16;
-			this.checkbox_alwaysshowqualitydialog.Text = "Show quality dialog every time a JPEG image is saved";
+			this.checkbox_alwaysshowqualitydialog.Text = "Show quality dialog every time an image is saved";
 			this.checkbox_alwaysshowqualitydialog.UseVisualStyleBackColor = true;
 			// 
 			// label_jpegquality
@@ -1026,6 +1038,7 @@ namespace Greenshot {
 			// 
 			// groupbox_expert
 			// 
+			this.groupbox_expert.Controls.Add(this.checkbox_suppresssavedialogatclose);
 			this.groupbox_expert.Controls.Add(this.label_counter);
 			this.groupbox_expert.Controls.Add(this.textbox_counter);
 			this.groupbox_expert.Controls.Add(this.label_footerpattern);
@@ -1083,7 +1096,7 @@ namespace Greenshot {
 			// checkbox_thumbnailpreview
 			// 
 			this.checkbox_thumbnailpreview.LanguageKey = "expertsettings_thumbnailpreview";
-			this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 207);
+			this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 185);
 			this.checkbox_thumbnailpreview.Name = "checkbox_thumbnailpreview";
 			this.checkbox_thumbnailpreview.PropertyName = "ThumnailPreview";
 			this.checkbox_thumbnailpreview.Size = new System.Drawing.Size(394, 24);
@@ -1094,7 +1107,7 @@ namespace Greenshot {
 			// checkbox_optimizeforrdp
 			// 
 			this.checkbox_optimizeforrdp.LanguageKey = "expertsettings_optimizeforrdp";
-			this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 177);
+			this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 166);
 			this.checkbox_optimizeforrdp.Name = "checkbox_optimizeforrdp";
 			this.checkbox_optimizeforrdp.PropertyName = "OptimizeForRDP";
 			this.checkbox_optimizeforrdp.Size = new System.Drawing.Size(394, 24);
@@ -1157,16 +1170,17 @@ namespace Greenshot {
 			this.columnHeader1.Text = "Destination";
 			this.columnHeader1.Width = 280;
 			// 
-			// checkbox_reducecolors
+			// checkbox_suppresssavedialogatclose
 			// 
-			this.checkbox_reducecolors.LanguageKey = "settings_reducecolors";
-			this.checkbox_reducecolors.Location = new System.Drawing.Point(12, 72);
-			this.checkbox_reducecolors.Name = "checkbox_reducecolors";
-			this.checkbox_reducecolors.PropertyName = "OutputFileReduceColors";
-			this.checkbox_reducecolors.Size = new System.Drawing.Size(394, 25);
-			this.checkbox_reducecolors.TabIndex = 17;
-			this.checkbox_reducecolors.Text = "Show quality dialog every time a JPEG image is saved";
-			this.checkbox_reducecolors.UseVisualStyleBackColor = true;
+			this.checkbox_suppresssavedialogatclose.LanguageKey = "expertsettings_suppresssavedialogatclose";
+			this.checkbox_suppresssavedialogatclose.Location = new System.Drawing.Point(10, 204);
+			this.checkbox_suppresssavedialogatclose.Name = "checkbox_suppresssavedialogatclose";
+			this.checkbox_suppresssavedialogatclose.PropertyName = "SuppressSaveDialogAtClose";
+			this.checkbox_suppresssavedialogatclose.SectionName = "Editor";
+			this.checkbox_suppresssavedialogatclose.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_suppresssavedialogatclose.TabIndex = 28;
+			this.checkbox_suppresssavedialogatclose.Text = "Suppress save dialog when closing the editor";
+			this.checkbox_suppresssavedialogatclose.UseVisualStyleBackColor = true;
 			// 
 			// SettingsForm
 			// 
@@ -1305,5 +1319,6 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotLabel label_counter;
 		private GreenshotPlugin.Controls.GreenshotTextBox textbox_counter;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_reducecolors;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_suppresssavedialogatclose;
 	}
 }
