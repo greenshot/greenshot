@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+# SharpDevelop 4.2.0.8649-Beta 2
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotLanguageEditor", "GreenshotLanguageEditor.csproj", "{3938F7B8-BAA1-48A3-B910-5FA6A5AA2506}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPUF
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3938F7B8-BAA1-48A3-B910-5FA6A5AA2506}.Debug|x86.Build.0 = Debug|x86
+		{3938F7B8-BAA1-48A3-B910-5FA6A5AA2506}.Debug|x86.ActiveCfg = Debug|x86
+		{3938F7B8-BAA1-48A3-B910-5FA6A5AA2506}.Release|x86.Build.0 = Release|x86
+		{3938F7B8-BAA1-48A3-B910-5FA6A5AA2506}.Release|x86.ActiveCfg = Release|x86
+		{3938F7B8-BAA1-48A3-B910-5FA6A5AA2506}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3938F7B8-BAA1-48A3-B910-5FA6A5AA2506}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3938F7B8-BAA1-48A3-B910-5FA6A5AA2506}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3938F7B8-BAA1-48A3-B910-5FA6A5AA2506}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+EndGlobal
