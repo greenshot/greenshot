@@ -129,11 +129,20 @@ namespace GreenshotConfluencePlugin {
 			}
 			if (selectedPage != null) {
 				using (Image image = surface.GetImageForExport()) {
-					bool uploaded = upload(image, selectedPage, filename, openPage);
+					string errorMessage;
+					bool uploaded = upload(image, selectedPage, filename, out errorMessage);
 					if (uploaded) {
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", Description));
+						if (openPage) {
+							try {
+								Process.Start(page.Url);
+							} catch { }
+						}
+						surface.UploadURL = page.Url;
+						surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUrl, Language.GetFormattedString("exported_to", Description));
 						surface.Modified = false;
 						return true;
+					} else {
+						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString("confluence", LangKey.upload_failure) + " " + errorMessage);
 					}
 				}
 			}
@@ -141,7 +150,7 @@ namespace GreenshotConfluencePlugin {
 			return false;
 		}
 		
-		private bool upload(Image image, Page page, string filename, bool openPage) {
+		private bool upload(Image image, Page page, string filename, out string errorMessage) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			byte[] buffer;
 			using (MemoryStream stream = new MemoryStream()) {
@@ -149,6 +158,7 @@ namespace GreenshotConfluencePlugin {
 				// COPY buffer to array
 				buffer = stream.ToArray();
 			}
+			errorMessage = null;
 			try {
 				ConfluencePlugin.ConfluenceConnector.addAttachment(page.id, "image/" + config.UploadFormat.ToString().ToLower(),  null, filename, buffer);
 				LOG.Debug("Uploaded to Confluence.");
@@ -169,16 +179,9 @@ namespace GreenshotConfluencePlugin {
 						}
 					}
 				}
-				if (openPage) {
-					try {
-						Process.Start(page.Url);
-					} catch {}
-				} else {
-					System.Windows.MessageBox.Show(Language.GetString("confluence", LangKey.upload_success));
-				}
 				return true;
 			} catch(Exception e) {
-				System.Windows.MessageBox.Show(Language.GetString("confluence", LangKey.upload_failure) + " " + e.Message);
+				errorMessage = e.Message;
 			}
 			return false;
 		}
