@@ -151,9 +151,13 @@ namespace GreenshotPlugin.Core {
 
 		[IniProperty("UpdateCheckInterval", Description="How many days between every update check? (0=no checks)", DefaultValue="1")]
 		public int UpdateCheckInterval;
-		
 		[IniProperty("LastUpdateCheck", Description="Last update check")]
 		public DateTime LastUpdateCheck;
+
+		[IniProperty("DisableSettings", Description = "Enable/disable the access to the settings, can only be changed manually in this .ini", DefaultValue = "False")]
+		public bool DisableSettings;
+		[IniProperty("DisableTrayicon", Description = "Disable the trayicon, can only be changed manually in this .ini", DefaultValue = "False")]
+		public bool HideTrayicon;
 
 		[IniProperty("ThumnailPreview", Description="Enable/disable thumbnail previews", DefaultValue="True")]
 		public bool ThumnailPreview;

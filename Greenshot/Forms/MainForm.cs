@@ -298,6 +298,9 @@ namespace Greenshot {
 			this.notifyIcon.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
+			// Disable access to the settings, for feature #3521446
+			contextmenu_settings.Visible = !conf.DisableSettings;
+
 			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
 			
 			// Make sure all hotkeys pass this window!
@@ -335,9 +338,9 @@ namespace Greenshot {
 
 			SoundHelper.Initialize();
 
-
-			// Enable the Greenshot icon to be visible, this prevents Problems with the context menu
-			notifyIcon.Visible = true;
+			// Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
+			// Setting it to true this late prevents Problems with the context menu
+			notifyIcon.Visible = !conf.HideTrayicon;
 
 			// Create a new instance of the class: copyData = new CopyData();
 			copyData = new CopyData();

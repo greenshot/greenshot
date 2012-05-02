@@ -93,6 +93,12 @@ namespace Greenshot {
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
+			// Disable access to the settings, for feature #3521446
+			preferencesToolStripMenuItem.Visible = !coreConf.DisableSettings;
+			toolStripSeparator12.Visible = !coreConf.DisableSettings;
+			toolStripSeparator11.Visible = !coreConf.DisableSettings;
+			btnSettings.Visible = !coreConf.DisableSettings;
+
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
 			Image backgroundForTransparency = GreenshotPlugin.Core.GreenshotResources.getImage("Checkerboard.Image");
 			surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
@@ -380,8 +386,7 @@ namespace Greenshot {
 			this.saveElementsToolStripMenuItem.Text = Language.GetString(LangKey.editor_save_objects);
 			this.loadElementsToolStripMenuItem.Text = Language.GetString(LangKey.editor_load_objects);
 			this.autoCropToolStripMenuItem.Text = Language.GetString(LangKey.editor_autocrop);
-			this.editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
-			this.editToolStripMenuItem.DropDownItems.Add(insert_window_toolstripmenuitem);
+			this.insert_window_toolstripmenuitem.Text = Language.GetString(LangKey.editor_insertwindow);
 		}
 		
 		public ISurface Surface {

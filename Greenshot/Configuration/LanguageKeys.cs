@@ -136,6 +136,7 @@ namespace Greenshot.Configuration {
 		editor_autocrop,
 		editor_undo,
 		editor_redo,
+		editor_insertwindow,
 		error,
 		error_multipleinstances,
 		error_nowriteaccess,
