@@ -605,12 +605,12 @@ namespace Greenshot.Drawing {
 				switch (effect) {
 					case Effects.Shadow:
 						offset = new Point(6, 6);
-						newImage = ImageHelper.CreateShadow((Bitmap)Image, 1f, 7, offset, PixelFormat.Format32bppRgb); //Image.PixelFormat);
+						newImage = ImageHelper.CreateShadow((Bitmap)Image, 1f, 7, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
 						break;
 					case Effects.TornEdge:
 						offset = new Point(5, 5);
 						using (Bitmap tmpImage = ImageHelper.CreateTornEdge((Bitmap)Image)) {
-							newImage = ImageHelper.CreateShadow(tmpImage, 1f, 6, offset, PixelFormat.Format32bppRgb); //Image.PixelFormat);
+							newImage = ImageHelper.CreateShadow(tmpImage, 1f, 6, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
 						}
 						break;
 					case Effects.Border:
