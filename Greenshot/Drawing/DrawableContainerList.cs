@@ -459,7 +459,7 @@ namespace Greenshot.Drawing {
 				}
 			}
 			if (canReset) {
-				item = new ToolStripMenuItem("Reset size");
+				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resetsize));
 				//item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
 				item.Click += delegate {
 					foreach (DrawableContainer container in this) {
@@ -478,20 +478,18 @@ namespace Greenshot.Drawing {
 		}
 
 		public virtual void ShowContextMenu(MouseEventArgs e, Surface surface) {
-			if (conf.isExperimentalFeatureEnabled("Contextmenu")) {
-				bool hasMenu = false;
-				foreach (DrawableContainer container in this) {
-					if (container.hasContextMenu) {
-						hasMenu = true;
-						break;
-					}
+			bool hasMenu = false;
+			foreach (DrawableContainer container in this) {
+				if (container.hasContextMenu) {
+					hasMenu = true;
+					break;
 				}
-				if (hasMenu) {
-					ContextMenuStrip menu = new ContextMenuStrip();
-					AddContextMenuItems(menu, surface);
-					if (menu.Items.Count > 0) {
-						menu.Show(surface, e.Location);
-					}
+			}
+			if (hasMenu) {
+				ContextMenuStrip menu = new ContextMenuStrip();
+				AddContextMenuItems(menu, surface);
+				if (menu.Items.Count > 0) {
+					menu.Show(surface, e.Location);
 				}
 			}
 		}

@@ -179,7 +179,7 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("TitleFixReplacer", Description="The replacements for the matchers.")]
 		public Dictionary<string, string> TitleFixReplacer;
 
-		[IniProperty("ExperimentalFeatures", Description="A list which allows us to enable certain experimental features", ExcludeIfNull=true)]
+		[IniProperty("ExperimentalFeatures", Description="A list of experimental features, this allows us to test certain features before releasing them.", ExcludeIfNull=true)]
 		public List<string> ExperimentalFeatures;
 		
 		/// <summary>
