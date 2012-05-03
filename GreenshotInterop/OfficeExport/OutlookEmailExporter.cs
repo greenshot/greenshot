@@ -180,26 +180,28 @@ namespace Greenshot.Interop.Office {
 				// Make sure the inspector is activated, only this way the word editor is active!
 				// This also ensures that the window is visible!
 				inspector.Activate();
+				bool isTextFormat = OlBodyFormat.olFormatPlain.Equals(mailItem.BodyFormat);
+				if (isAppointment || !isTextFormat) {
+					// Check for wordmail, if so use the wordexporter
+					// http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
+					// Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
+					if (inspector.IsWordMail() && inspector.WordEditor != null) {
+						if (WordExporter.InsertIntoExistingDocument(inspector.WordEditor, tmpFile)) {
+							LOG.Info("Inserted into Wordmail");
 
-				// Check for wordmail, if so use the wordexporter
-				// http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
-				// Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
-				if (inspector.IsWordMail() && inspector.WordEditor != null) {
-					if (WordExporter.InsertIntoExistingDocument(inspector.WordEditor, tmpFile)) {
-						LOG.Info("Inserted into Wordmail");
-
-						// check the format afterwards, otherwise we lose the selection
-						//if (!OlBodyFormat.olFormatHTML.Equals(currentMail.BodyFormat)) {
-						//	LOG.Info("Changing format to HTML.");
-						//	currentMail.BodyFormat = OlBodyFormat.olFormatHTML;
-						//}
-						return true;
+							// check the format afterwards, otherwise we lose the selection
+							//if (!OlBodyFormat.olFormatHTML.Equals(currentMail.BodyFormat)) {
+							//	LOG.Info("Changing format to HTML.");
+							//	currentMail.BodyFormat = OlBodyFormat.olFormatHTML;
+							//}
+							return true;
+						}
+					} else if (isAppointment) {
+						LOG.Info("Can't export to an appointment if no word editor is used");
+						return false;
+					} else {
+						LOG.Info("Trying export for outlook < 2007.");
 					}
-				} else if (isAppointment) {
-					LOG.Info("Can't export to an appointment if no word editor is used");
-					return false;
-				} else {
-					LOG.Info("Trying export for word < 2007.");
 				}
 				// Only use mailitem as it should be filled!!
 				LOG.InfoFormat("Item '{0}' has format: {1}", mailItem.Subject, mailItem.BodyFormat);
