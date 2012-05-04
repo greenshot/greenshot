@@ -23,6 +23,7 @@ using System.Collections.Generic;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using Greenshot.Destinations;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -117,8 +118,10 @@ namespace Greenshot.Helpers {
 				IDestination destination = RegisteredDestinations[designation];
 				if (destination.isActive) {
 					if (destination.ExportCapture(manuallyInitiated, surface, captureDetails)) {
-						// Export worked, set the modified flag
-						surface.Modified = false;
+						// Export worked, set the modified flag to false if the export wasn't to the editor or picker
+						if (!EditorDestination.DESIGNATION.Equals(designation) && !PickerDestination.DESIGNATION.Equals(designation)) {
+							surface.Modified = false;
+						}
 					}
 				}
 			}
