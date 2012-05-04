@@ -166,7 +166,14 @@ namespace GreenshotPlugin.Core  {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static List<IntPtr> ignoreHandles = new List<IntPtr>();
 		private static Dictionary<string, Image> iconCache = new Dictionary<string, Image>();
-		
+		private static List<string> excludeProcessesFromFreeze = new List<string>();
+
+		public static void AddProcessToExcludeFromFreeze(string processname) {
+			if (!excludeProcessesFromFreeze.Contains(processname)) {
+				excludeProcessesFromFreeze.Add(processname);
+			}
+		}
+
 		internal static bool isIgnoreHandle(IntPtr handle) {
 			return ignoreHandles.Contains(handle);
 		}
@@ -223,13 +230,67 @@ namespace GreenshotPlugin.Core  {
 			frozen = false;
 		}
 
+		public string ProcessPath {
+			get {
+				if (Handle == IntPtr.Zero) {
+					// not a valid window handle
+					return string.Empty;
+				}
+				StringBuilder _PathBuffer = new StringBuilder(512);
+				// Get the process id
+				uint processid;
+				User32.GetWindowThreadProcessId(Handle, out processid);
+
+				// Try the GetModuleFileName method first since it's the fastest. 
+				// May return ACCESS_DENIED (due to VM_READ flag) if the process is not owned by the current user.
+				// Will fail if we are compiled as x86 and we're trying to open a 64 bit process...not allowed.
+				IntPtr hprocess = Kernel32.OpenProcess(ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMRead, false, processid);
+				if (hprocess != IntPtr.Zero) {
+					try {
+						if (Kernel32.GetModuleFileNameEx(hprocess, IntPtr.Zero, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+							return _PathBuffer.ToString();
+						}
+					} finally {
+						Kernel32.CloseHandle(hprocess);
+					}
+				}
+
+				hprocess = Kernel32.OpenProcess(ProcessAccessFlags.QueryInformation, false, processid);
+				if (hprocess != IntPtr.Zero) {
+					try {
+						// Try this method for Vista or higher operating systems
+						uint size = (uint)_PathBuffer.Capacity;
+						if ((Environment.OSVersion.Version.Major >= 6) && (Kernel32.QueryFullProcessImageName(hprocess, 0, _PathBuffer, ref size) && (size > 0))) {
+							return _PathBuffer.ToString();
+						}
+
+						// Try the GetProcessImageFileName method
+						if (Kernel32.GetProcessImageFileName(hprocess, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+							string dospath = _PathBuffer.ToString();
+							foreach (string drive in Environment.GetLogicalDrives()) {
+								if (Kernel32.QueryDosDevice(drive.TrimEnd('\\'), _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+									if (dospath.StartsWith(_PathBuffer.ToString())) {
+										return drive + dospath.Remove(0, _PathBuffer.Length);
+									}
+								}
+							}
+						}
+					} finally {
+						Kernel32.CloseHandle(hprocess);
+					}
+				}
+
+				return string.Empty;
+			}
+		}
+
 		/// <summary>
 		/// Get the icon belonging to the process
 		/// </summary>
 		public Image DisplayIcon {
 			get {
 				try {
-					string filename = Process.MainModule.FileName;
+					string filename = ProcessPath;
 					if (!iconCache.ContainsKey(filename)) {
 						Image icon = null;
 						if (File.Exists(filename)) {
@@ -244,6 +305,7 @@ namespace GreenshotPlugin.Core  {
 					return iconCache[filename];
 				} catch (Exception ex) {
 					LOG.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
+					LOG.Warn(ex);
 				}
 				return null;
 			}
@@ -1211,26 +1273,38 @@ namespace GreenshotPlugin.Core  {
 			User32.SendMessage(Handle, (int)WindowsMessages.WM_VSCROLL, ptrWparam, ptrLparam);
 		}
 
+		private bool CanFreezeOrUnfreeze(string titleOrProcessname) {
+			if (string.IsNullOrEmpty(titleOrProcessname)) {
+				return false;
+			}
+			if (titleOrProcessname.ToLower().Contains("greenshot")) {
+				return false;
+			}
+
+			foreach (string excludeProcess in excludeProcessesFromFreeze) {
+				if (titleOrProcessname.ToLower().Contains(excludeProcess)) {
+					return false;
+				}
+			}
+			return true;
+		}
+
 		/// <summary>
 		/// Freezes the process belonging to the window
 		/// Warning: Use only if no other way!!
 		/// </summary>
 		private void FreezeWindow() {
 			Process proc = Process.GetProcessById(this.ProcessId.ToInt32());
-		
-			if (proc.ProcessName == string.Empty){
+			string processName = proc.ProcessName;
+			if (!CanFreezeOrUnfreeze(processName)) {
+				LOG.DebugFormat("Not freezing {0}", processName);
 				return;
 			}
-			if (proc.ProcessName.ToLower().Contains("greenshot")) {
-				LOG.DebugFormat("Not freezing ourselves, process was: {0}", proc.ProcessName);
+			if (!CanFreezeOrUnfreeze(Text)) {
+				LOG.DebugFormat("Not freezing {0}", processName);
 				return;
 			}
-			// TODO: Check Outlook, Office etc?
-			if (proc.ProcessName.ToLower().Contains("outlook")) {
-				LOG.DebugFormat("Not freezing outlook due to Destinations, process was: {0}", proc.ProcessName);
-				return;
-			}
-			LOG.DebugFormat("Freezing process: {0}", proc.ProcessName);
+			LOG.DebugFormat("Freezing process: {0}", processName);
 		
 			foreach (ProcessThread pT in proc.Threads) {
 				IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
@@ -1248,15 +1322,17 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		public void UnfreezeWindow() {
 			Process proc = Process.GetProcessById(this.ProcessId.ToInt32());
-		
-			if (proc.ProcessName == string.Empty) {
+
+			string processName = proc.ProcessName;
+			if (!CanFreezeOrUnfreeze(processName)) {
+				LOG.DebugFormat("Not unfreezing {0}", processName);
 				return;
 			}
-			if (proc.ProcessName.ToLower().Contains("greenshot")) {
-				LOG.DebugFormat("Not unfreezing ourselves, process was: {0}", proc.ProcessName);
+			if (!CanFreezeOrUnfreeze(Text)) {
+				LOG.DebugFormat("Not unfreezing {0}", processName);
 				return;
 			}
-			LOG.DebugFormat("Unfreezing process: {0}", proc.ProcessName);
+			LOG.DebugFormat("Unfreezing process: {0}", processName);
 			
 			foreach (ProcessThread pT in proc.Threads) {
 				IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);

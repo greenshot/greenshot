@@ -72,6 +72,7 @@ namespace Greenshot.Destinations {
 				exePath = GetExePath("OUTLOOK.EXE");
 				if (exePath != null && File.Exists(exePath)) {
 					applicationIcon = GetExeIcon(exePath, 0);
+					WindowDetails.AddProcessToExcludeFromFreeze("outlook");
 					if (conf.OutlookAllowExportInMeetings) {
 						meetingIcon = GetExeIcon(exePath, 2);
 					}

@@ -48,6 +48,7 @@ namespace Greenshot.Destinations {
 			if (exePath != null && File.Exists(exePath)) {
 				applicationIcon = GetExeIcon(exePath, 0);
 				presentationIcon = GetExeIcon(exePath, 1);
+				WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
 			} else {
 				exePath = null;
 			}

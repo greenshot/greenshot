@@ -47,6 +47,7 @@ namespace Greenshot.Destinations {
 			if (exePath != null && File.Exists(exePath)) {
 				applicationIcon = GetExeIcon(exePath, 0);
 				notebookIcon = GetExeIcon(exePath, 0);
+				WindowDetails.AddProcessToExcludeFromFreeze("onenote");
 			} else {
 				exePath = null;
 			}

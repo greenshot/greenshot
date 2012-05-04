@@ -107,7 +107,10 @@ namespace Greenshot.Forms {
 
 			// Make sure we never capture the captureform
 			WindowDetails.RegisterIgnoreHandle(this.Handle);
-			// TODO: Need to call unregister at close
+			// Unregister at close
+			this.FormClosing += delegate {
+				WindowDetails.UnregisterIgnoreHandle(this.Handle);
+			};
 
 			// set cursor location
 			cursorPos = WindowCapture.GetCursorLocation();
