@@ -50,12 +50,6 @@ namespace GreenshotOCR {
 			}
 		}
 		
-		public override bool isActive {
-			get {
-				return true;
-			}
-		}
-		
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			OcrPlugin.DoOCR(surface);
 			return true;

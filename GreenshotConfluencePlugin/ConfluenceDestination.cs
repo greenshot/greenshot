@@ -81,7 +81,7 @@ namespace GreenshotConfluencePlugin {
 		
 		public override bool isActive {
 			get {
-				return !string.IsNullOrEmpty(config.Url);
+				return base.isActive && !string.IsNullOrEmpty(config.Url);
 			}
 		}
 

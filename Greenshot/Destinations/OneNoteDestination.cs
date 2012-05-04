@@ -35,6 +35,7 @@ using Greenshot.IniFile;
 namespace Greenshot.Destinations {
 	public class OneNoteDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+		public const string DESIGNATION = "OneNote";
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static string exePath = null;
 		private static Image applicationIcon = null;
@@ -61,7 +62,7 @@ namespace Greenshot.Destinations {
 
 		public override string Designation {
 			get {
-				return "OneNote";
+				return DESIGNATION;
 			}
 		}
 
@@ -89,7 +90,7 @@ namespace Greenshot.Destinations {
 
 		public override bool isActive {
 			get {
-				return exePath != null;
+				return base.isActive && exePath != null;
 			}
 		}
 

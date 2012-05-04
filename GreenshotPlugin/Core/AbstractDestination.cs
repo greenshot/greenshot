@@ -29,6 +29,7 @@ using System.Reflection;
 using Microsoft.Win32;
 
 using Greenshot.Plugin;
+using Greenshot.IniFile;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -37,6 +38,7 @@ namespace GreenshotPlugin.Core {
 	public abstract class AbstractDestination : IDestination	{
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AbstractDestination));
+		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 
 		public static string GetExePath(string exeName) {
 			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(PATH_KEY + exeName, false)) {
@@ -168,6 +170,9 @@ namespace GreenshotPlugin.Core {
 
 		public virtual bool isActive {
 			get {
+				if (configuration.ExcludeDestinations != null && configuration.ExcludeDestinations.Contains(Designation)) {
+					return false;
+				}
 				return true;
 			}
 		}

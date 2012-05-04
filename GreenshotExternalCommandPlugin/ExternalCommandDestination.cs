@@ -55,12 +55,6 @@ namespace ExternalCommand {
 				return presetCommand;
 			}
 		}
-		
-		public override bool isActive {
-			get {
-				return true;
-			}
-		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
 			yield break;

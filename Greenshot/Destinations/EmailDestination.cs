@@ -128,7 +128,7 @@ namespace Greenshot.Destinations {
 
 		public override bool isActive {
 			get {
-				return isActiveFlag;
+				return base.isActive && isActiveFlag;
 			}
 		}
 

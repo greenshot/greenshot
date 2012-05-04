@@ -58,12 +58,6 @@ namespace Greenshot.Destinations {
 			}
 		}
 		
-		public override bool isActive {
-			get {
-				return true;
-			}
-		}
-
 		public static ContextMenuStrip CreatePickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations) {
 			ContextMenuStrip menu = new ContextMenuStrip();
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {

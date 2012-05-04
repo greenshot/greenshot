@@ -92,7 +92,7 @@ namespace Greenshot.Destinations {
 
 		public override bool isActive {
 			get {
-				return exePath != null;
+				return base.isActive && exePath != null;
 			}
 		}
 

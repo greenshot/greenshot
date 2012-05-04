@@ -55,12 +55,6 @@ namespace PluginExample {
 			}
 		}
 		
-		public override bool isActive {
-			get {
-				return true;
-			}
-		}
-		
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 			OutputSettings outputSettings = new OutputSettings();

@@ -148,6 +148,8 @@ namespace GreenshotPlugin.Core {
 		public List<string> IncludePlugins;
 		[IniProperty("ExcludePlugins", Description="Comma separated list of Plugins which are NOT allowed.")]
 		public List<string> ExcludePlugins;
+		[IniProperty("ExcludeDestinations", Description = "Comma separated list of destinations which should be disabled.", DefaultValue = "OneNote")]
+		public List<string> ExcludeDestinations;
 
 		[IniProperty("UpdateCheckInterval", Description="How many days between every update check? (0=no checks)", DefaultValue="1")]
 		public int UpdateCheckInterval;
