@@ -23,14 +23,21 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using GreenshotPlugin.Controls;
 
 namespace Greenshot.Controls {
 	/// <summary>
 	/// Description of ColorButton.
 	/// </summary>
-	public class ColorButton : Button {
+	public class ColorButton : Button, IGreenshotLanguageBindable {
 		public event PropertyChangedEventHandler PropertyChanged;
 		private Color selectedColor = Color.White;
+
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+		public string LanguageKey {
+			get;
+			set;
+		}
 
 		public ColorButton() {
 			Click += new EventHandler(ColorButtonClick);

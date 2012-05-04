@@ -21,14 +21,21 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using GreenshotPlugin.Controls;
 
 namespace Greenshot.Controls {
 	/// <summary>
 	/// A simple ToolStripComboBox implementing INotifyPropertyChanged for data binding
 	/// </summary>
-	public class BindableToolStripComboBox : ToolStripComboBox, INotifyPropertyChanged {
+	public class BindableToolStripComboBox : ToolStripComboBox, INotifyPropertyChanged, IGreenshotLanguageBindable {
 		public event PropertyChangedEventHandler PropertyChanged;
-		
+
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+		public string LanguageKey {
+			get;
+			set;
+		}
+
 		public BindableToolStripComboBox() :base() {
 			this.SelectedIndexChanged += new EventHandler(BindableToolStripComboBox_SelectedIndexChanged);
 		}

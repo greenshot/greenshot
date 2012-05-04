@@ -21,6 +21,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using GreenshotPlugin.Controls;
 
 namespace Greenshot.Controls {
 	/// <summary>
@@ -28,10 +29,16 @@ namespace Greenshot.Controls {
 	/// Also, when a DropDownItem is selected, the DropDownButton adops its Tag and Image.
 	/// The selected tag can be accessed via SelectedTag property.
 	/// </summary>
-	public class BindableToolStripDropDownButton : ToolStripDropDownButton, INotifyPropertyChanged {
+	public class BindableToolStripDropDownButton : ToolStripDropDownButton, INotifyPropertyChanged, IGreenshotLanguageBindable {
 		
 		public event PropertyChangedEventHandler PropertyChanged;
-		
+
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+		public string LanguageKey {
+			get;
+			set;
+		}
+
 		public BindableToolStripDropDownButton() {
 		}
 		

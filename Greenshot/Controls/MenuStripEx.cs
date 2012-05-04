@@ -22,6 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
+using GreenshotPlugin.Controls;
+using System.ComponentModel;
 
 namespace Greenshot.Controls {
 	/// <summary>
@@ -45,7 +47,6 @@ namespace Greenshot.Controls {
 		/// <remarks>
 		/// Default value is false, which is the same behavior provided by the base ToolStrip class.
 		/// </remarks>
-
 		public bool ClickThrough {
 			get {
 				return this.clickThrough;

@@ -476,7 +476,7 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 		Magnification factor
 	</resource>
 	<resource name="editor_shadow">
-		Shadow
+		Drop shadow
 	</resource>
 	<resource name="editor_torn_edge">
 		Torn edge
@@ -489,6 +489,9 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	</resource>
 	<resource name="editor_grayscale">
 		Grayscale
+	</resource>
+	<resource name="editor_invert">
+		Invert
 	</resource>
 	<resource name="editor_confirm">
 		Confirm

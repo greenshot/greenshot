@@ -21,14 +21,21 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using GreenshotPlugin.Controls;
 
 namespace Greenshot.Controls {
 	/// <summary>
 	/// Description of BindableToolStripButton.
 	/// </summary>
-	public class BindableToolStripButton : ToolStripButton, INotifyPropertyChanged {
+	public class BindableToolStripButton : ToolStripButton, INotifyPropertyChanged, IGreenshotLanguageBindable {
 		public event PropertyChangedEventHandler PropertyChanged;
-		
+
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+		public string LanguageKey {
+			get;
+			set;
+		}
+
 		public BindableToolStripButton() :base() {
 			this.CheckedChanged += new EventHandler(BindableToolStripButton_CheckedChanged);
 		}

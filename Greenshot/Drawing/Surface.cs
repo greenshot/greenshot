@@ -108,7 +108,7 @@ namespace Greenshot.Drawing {
 
 		public bool KeysLocked = false;
 		
-		private bool modified = false;
+		private bool modified = true;	// Initial state is modified, as it's not saved
 		public bool Modified {
 			get {
 				return modified;
