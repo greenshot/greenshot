@@ -214,6 +214,15 @@
     </Compile>
     <Compile Include="Controls\IGreenshotConfigBindable.cs" />
     <Compile Include="Controls\IGreenshotLanguageBindable.cs" />
+    <Compile Include="Controls\GreenshotToolStripButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\GreenshotToolStripLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\GreenshotToolDropDownButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Core\AbstractDestination.cs" />
     <Compile Include="Core\AbstractProcessor.cs" />
     <Compile Include="Core\AccessibleHelper.cs" />

@@ -13,13 +13,23 @@ namespace GreenshotPlugin.Controls {
 	public abstract class GreenshotForm : Form, IGreenshotLanguageBindable {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(GreenshotForm));
 		private IComponentChangeService m_changeService;
-		private bool isLanguageSet = false;
+		private bool isDesignModeLanguageSet = false;
+		private bool applyLanguageManually = false;
 		private IDictionary<string, Control> designTimeControls;
 		private IDictionary<string, ToolStripItem> designTimeToolStripItems;
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
 			get;
 			set;
+		}
+
+		protected bool ManualLanguageApply {
+			get {
+				return applyLanguageManually;
+			}
+			set {
+				applyLanguageManually = value;
+			}
 		}
 
 		/// <summary>
@@ -57,8 +67,8 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="e"></param>
 		protected override void OnPaint(PaintEventArgs e) {
 			if (this.DesignMode) {
-				if (!isLanguageSet) {
-					isLanguageSet = true;
+				if (!isDesignModeLanguageSet) {
+					isDesignModeLanguageSet = true;
 					try {
 						ApplyLanguage();
 					} catch (Exception ex) {
@@ -71,7 +81,9 @@ namespace GreenshotPlugin.Controls {
 
 		protected override void OnLoad(EventArgs e) {
 			if (!this.DesignMode) {
-				ApplyLanguage();
+				if (!applyLanguageManually) {
+					ApplyLanguage();
+				}
 				FillFields();
 				base.OnLoad(e);
 			} else {
@@ -265,8 +277,8 @@ namespace GreenshotPlugin.Controls {
 			}
 			// Reset the text values for all GreenshotControls
 			foreach (FieldInfo field in this.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
-				if (!field.FieldType.IsSubclassOf(typeof(Control))) {
-					LOG.DebugFormat("No control: {0}", field.Name);
+				if (!field.FieldType.IsSubclassOf(typeof(Control)) && !field.FieldType.IsSubclassOf(typeof(ToolStripItem))) {
+					LOG.DebugFormat("No Control or ToolStripItem: {0}", field.Name);
 					continue;
 				}
 				Object controlObject = field.GetValue(this);
@@ -274,13 +286,17 @@ namespace GreenshotPlugin.Controls {
 					LOG.DebugFormat("No value: {0}", field.Name);
 					continue;
 				}
-				Control applyTo = controlObject as Control;
-				if (applyTo == null) {
-					// not a control
-					LOG.DebugFormat("No control: {0}", field.Name);
-					continue;
+				Control applyToControl = controlObject as Control;
+				if (applyToControl == null) {
+					ToolStripItem applyToItem = controlObject as ToolStripItem;
+					if (applyToItem == null) {
+						LOG.DebugFormat("No Control or ToolStripItem: {0}", field.Name);
+						continue;
+					}
+					ApplyLanguage(applyToItem);
+				} else {
+					ApplyLanguage(applyToControl);
 				}
-				ApplyLanguage(applyTo);
 			}
 
 			if (DesignMode) {
