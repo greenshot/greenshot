@@ -70,8 +70,8 @@ Source: ..\..\bin\Release\Languages\Plugins\GreenshotImgurPlugin\*; DestDir: {ap
 Source: ..\..\bin\Release\Plugins\GreenshotDropBoxPlugin\*; DestDir: {app}\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotDropBoxPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Flickr Plugin
-;Source: ..\..\bin\Release\Plugins\GreenshotFlickrPlugin\*; DestDir: {app}\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-;Source: ..\..\bin\Release\Languages\Plugins\GreenshotFlickrPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Plugins\GreenshotFlickrPlugin\*; DestDir: {app}\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\Plugins\GreenshotFlickrPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Picasa Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotPicasaPlugin\*; DestDir: {app}\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotPicasaPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -183,7 +183,7 @@ Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: Full
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: Full
 ;Name: "plugins\box"; Description: "Box Plugin"; Types: Full
 Name: "plugins\dropbox"; Description: "DropBox Plugin"; Types: Full; Check: hasNET35()
-;Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
+Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: Full
 Name: "languages"; Description: {cm:language}; Types: Full
 Name: "languages\arSY"; Description: "العربية"; Types: Full; Check: hasLanguageGroup('d')
