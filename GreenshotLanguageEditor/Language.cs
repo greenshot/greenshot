@@ -30,6 +30,9 @@ namespace GreenshotLanguageEditor {
 	        get;
 	        set;
 	    }
+		public string FileName {
+			get {return Path.GetFileName(FilePath);}
+	    }
 	    public string IETF {
 	        get;
 	        set;

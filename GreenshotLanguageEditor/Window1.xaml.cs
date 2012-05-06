@@ -20,6 +20,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,66 +36,142 @@ namespace GreenshotLanguageEditor {
 	/// Interaction logic for Window1.xaml
 	/// </summary>
 	public partial class Window1 : Window {
+		
+		IDictionary<string, LanguageEntry> languageResources = new SortedDictionary<string, LanguageEntry>();
+		IList<LanguageFile> languageFiles = new List<LanguageFile>();
+		
 		public ICollectionView View {
 			get;
 			set;
 		}
+		
+		// TODO user should be able to create a new translation file using this app
+		// TODO possibility to edit language file meta data, such as version, languagegroup, description, etc.
 
 		public Window1() {
-			var dialog = new System.Windows.Forms.FolderBrowserDialog();
+			
+			// TODO remember last selected location
+			
+			/*var dialog = new System.Windows.Forms.FolderBrowserDialog();
 			dialog.ShowNewFolderButton = false;
 			System.Windows.Forms.DialogResult result = dialog.ShowDialog();
 			string languagePath;
+			
+			
 			if (result == System.Windows.Forms.DialogResult.OK) {
 				languagePath = dialog.SelectedPath;
 			} else {
 				this.Close();
 				return;
-			}
+			}*/
+			
+			
+			string languagePath = @"C:\Users\jens\Documents\Sharpdevelop Projects\Greenshot\trunk\Greenshot\Languages\";
 
 			InitializeComponent();
-			View = CollectionViewSource.GetDefaultView(LoadResources(languagePath));
 			DataContext = this;
 			this.Activate();
+			
+			this.language1ComboBox.ItemsSource = languageFiles;
+			this.language1ComboBox.DisplayMemberPath = "FileName";
+			this.language2ComboBox.ItemsSource = languageFiles;
+			this.language2ComboBox.DisplayMemberPath = "FileName";
+			
+			View = CollectionViewSource.GetDefaultView(LoadResources(languagePath));
 		}
 		
 		private IList<LanguageEntry> LoadResources(string languagePath) {
-			IDictionary<string, LanguageEntry> languageResources = new SortedDictionary<string, LanguageEntry>();
-
+			
 			foreach (LanguageFile languageFile in GreenshotLanguage.GetLanguageFiles(languagePath, "language*.xml")) {
+				languageFiles.Add(languageFile);
+				
 				if ("en-US".Equals(languageFile.IETF)) {
-					IDictionary<string, string> enResources = GreenshotLanguage.ReadLanguageFile(languageFile);
-					foreach(string key in enResources.Keys) {
-						LanguageEntry entry;
-						if (languageResources.ContainsKey(key)) {
-							entry = languageResources[key];
-						} else {
-							entry = new LanguageEntry();
-							entry.Key = key;
-							languageResources.Add(key, entry);
-						}
-						entry.Entry1 = enResources[key];
-					}
+					// we should always start with en-US, so the grid is initialized with the probably most-complete language file as benchmark for translations
+					this.language1ComboBox.SelectedItem = languageFile;
+				} else if(this.language2ComboBox.SelectedItem == null) {
+					this.language2ComboBox.SelectedItem = languageFile;
 				}
-				if ("de-DE".Equals(languageFile.IETF)) {
-					IDictionary<string, string> deResources = GreenshotLanguage.ReadLanguageFile(languageFile);
-					foreach(string key in deResources.Keys) {
-						LanguageEntry entry;
-						if (languageResources.ContainsKey(key)) {
-							entry = languageResources[key];
-						} else {
-							entry = new LanguageEntry();
-							entry.Key = key;
-							languageResources.Add(key, entry);
-						}
-						entry.Entry2 = deResources[key];
-					}
-				}
+			}
+			if(this.language1ComboBox.SelectedItem == null) {
+				MessageBox.Show("language-en-US.xml does not exist in the location selected. It is needed as reference for the translation.");
+				this.Close();
 			}
 			return new List<LanguageEntry>(languageResources.Values);
 		}
 		
-		public void CreateXML(string savePath) {
+		private void PopulateColumn(LanguageFile languageFile, int columnIndex) {
+			ClearColumn(columnIndex);
+			IDictionary<string, string> resources = GreenshotLanguage.ReadLanguageFile(languageFile);
+			foreach(string key in resources.Keys) {
+				LanguageEntry entry = GetOrCreateLanguageEntry(key);
+				if(columnIndex == 1) entry.Entry1 = resources[key];
+				else if (columnIndex == 2) entry.Entry2 = resources[key];
+				else throw new ArgumentOutOfRangeException("Argument columnIndex must be either 1 or 2");
+			}
+		}
+		
+		private void ClearColumn(int columnIndex) {
+			// we do not throw out LanguageEntries that do not exist in selected language, 
+			// so that en-US (loaded at startup) is always the benchmark, even when other languages are displayed
+			foreach(LanguageEntry e in languageResources.Values) {
+				if (columnIndex == 1) e.Entry1 = "";
+				else if (columnIndex == 2) e.Entry2 = "";
+				else throw new ArgumentOutOfRangeException("Argument columnIndex must be either 1 or 2");
+			}
+		}
+		
+		private LanguageEntry GetOrCreateLanguageEntry(string key) {
+			LanguageEntry entry;
+			if (languageResources.ContainsKey(key)) {
+				entry = languageResources[key];
+			} else {
+				entry = new LanguageEntry();
+				entry.Key = key;
+				languageResources.Add(key, entry);
+			}
+			return entry;
+		}
+		
+		private void saveButtonClicked(object sender, RoutedEventArgs e) {
+			int targetColumn = GetTargetColumn((Control)sender);
+			LanguageFile editedFile = (LanguageFile) (targetColumn == 1 ? language1ComboBox.SelectedItem : language2ComboBox.SelectedItem);
+			
+			var dialog = new System.Windows.Forms.SaveFileDialog();
+			dialog.AutoUpgradeEnabled = true;
+			dialog.DefaultExt = ".xml";
+			dialog.InitialDirectory = Path.GetDirectoryName(editedFile.FilePath);
+			dialog.FileName = editedFile.FileName;
+			dialog.CheckFileExists = true;
+			System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+			if (result == System.Windows.Forms.DialogResult.OK) {
+				CreateXML(dialog.FileName, targetColumn);
+			} 
+		}
+		
+		private void languageComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e) {
+			// TODO let user confirm if there are unsaved changes
+			int targetColumn = GetTargetColumn((Control)sender);
+			LanguageFile file = (LanguageFile)((ComboBox)sender).SelectedItem;
+			PopulateColumn(file, targetColumn);
+		}
+		
+		private void cancelButtonClicked(object sender, RoutedEventArgs e) {
+			// TODO let user confirm if there are unsaved changes
+			int targetColumn = GetTargetColumn((Control)sender);
+			LanguageFile file = (LanguageFile)(targetColumn == 1 ? language1ComboBox.SelectedItem : language2ComboBox.SelectedItem);
+			PopulateColumn(file, targetColumn);
+		}
+		
+		private int GetTargetColumn(Control control) {
+			object tag = control.Tag;
+			if(tag == null && !tag.Equals("1") && !tag.Equals("2")) {
+				throw new ApplicationException("Please use the control's Tag property to indicate the column to interact with (1 or 2).");
+			} else {
+				return tag.Equals("1") ? 1 : 2;
+			}
+		}
+		
+		public void CreateXML(string savePath, int targetColumn) {
 
 			ICollectionView view = (ICollectionView)LanguageGrid.ItemsSource;
 			IList<LanguageEntry> entries = (IList<LanguageEntry>)view.SourceCollection;
@@ -113,7 +190,9 @@ namespace GreenshotLanguageEditor {
                 foreach(LanguageEntry entry in entries) {
                     xmlWriter.WriteStartElement("resource");
                     xmlWriter.WriteAttributeString("name", entry.Key);
-                    xmlWriter.WriteString(entry.Entry1);
+                    if(targetColumn == 1) xmlWriter.WriteString(entry.Entry1);
+                    else if(targetColumn == 2 ) xmlWriter.WriteString(entry.Entry2);
+                    else throw new ArgumentOutOfRangeException("Argument columnIndex must be either 1 or 2");
                     xmlWriter.WriteEndElement();
                 }
                 xmlWriter.WriteEndElement();
@@ -122,19 +201,6 @@ namespace GreenshotLanguageEditor {
 			}
 		}
 		
-		private void Button_Click(object sender, RoutedEventArgs e) {
-			var dialog = new System.Windows.Forms.SaveFileDialog();
-			dialog.AutoUpgradeEnabled = true;
-			dialog.DefaultExt = ".xml";
-			System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-			if (result == System.Windows.Forms.DialogResult.OK) {
-				CreateXML(dialog.FileName);
-			} else {
-				this.Close();
-				return;
-			}
-			
-		}
 	}
 	
 	public class LanguageEntry : IEditableObject, INotifyPropertyChanged {
@@ -151,13 +217,13 @@ namespace GreenshotLanguageEditor {
 
 		public Brush Background {
 			get {
-				if (Entry1 == null) {
+				if (String.IsNullOrEmpty(Entry1)) {
 					return Brushes.Red;
 				}
-				if (Entry2 == null) {
+				if (String.IsNullOrEmpty(Entry2)) {
 					return Brushes.Red;
 				}
-				return Brushes.Green;
+				return Brushes.White;
 			}
 		}
 		public string Key {
