@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Window
 	x:Class="GreenshotLanguageEditor.Window1" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	Width="800"
@@ -36,7 +36,10 @@
 				Name="language1ComboBox"
 				SelectionChanged="languageComboBoxSelectionChanged"
 				Tag="1"
-				Width="150"></ComboBox>
+				Width="150"
+				ItemsSource="{Binding LanguageFiles}"
+				DisplayMemberPath="FileName"
+				SelectedItem="{Binding LanguageFile1, Mode=OneWay}"></ComboBox>
 			<Button
 				Content="Save"
 				Click="saveButtonClicked"
@@ -60,7 +63,10 @@
 				Name="language2ComboBox"
 				SelectionChanged="languageComboBoxSelectionChanged"
 				Tag="2"
-				Width="150"></ComboBox>
+				Width="150"
+				ItemsSource="{Binding LanguageFiles}"
+				DisplayMemberPath="FileName"
+				SelectedItem="{Binding LanguageFile2, Mode=OneWay}"></ComboBox>
 			<Button
 				Content="Save"
 				Click="saveButtonClicked"
@@ -78,7 +84,8 @@
 			ItemsSource="{Binding View}"
 			AutoGenerateColumns="False"
 			IsReadOnly="False"
-			IsSynchronizedWithCurrentItem="True">
+			IsSynchronizedWithCurrentItem="True" 
+			CellEditEnding="cellEdited">
 			<DataGrid.RowStyle>
 				<Style
 					TargetType="DataGridRow">

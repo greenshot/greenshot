@@ -38,7 +38,21 @@ namespace GreenshotLanguageEditor {
 	public partial class Window1 : Window {
 		
 		IDictionary<string, LanguageEntry> languageResources = new SortedDictionary<string, LanguageEntry>();
-		IList<LanguageFile> languageFiles = new List<LanguageFile>();
+		public IList<LanguageFile> LanguageFiles {
+			get;
+			set;
+		}
+		// maybe refactor this encapsulating column related info 
+		bool unsavedChangesInLanguage1 = false;
+		bool unsavedChangesInLanguage2 = false;
+		public LanguageFile LanguageFile1 {
+			get;
+			set;
+		}
+		public LanguageFile LanguageFile2 {
+			get;
+			set;
+		}
 		
 		public ICollectionView View {
 			get;
@@ -71,28 +85,24 @@ namespace GreenshotLanguageEditor {
 			InitializeComponent();
 			DataContext = this;
 			this.Activate();
-			
-			this.language1ComboBox.ItemsSource = languageFiles;
-			this.language1ComboBox.DisplayMemberPath = "FileName";
-			this.language2ComboBox.ItemsSource = languageFiles;
-			this.language2ComboBox.DisplayMemberPath = "FileName";
-			
 			View = CollectionViewSource.GetDefaultView(LoadResources(languagePath));
 		}
 		
 		private IList<LanguageEntry> LoadResources(string languagePath) {
-			
+			LanguageFiles = new List<LanguageFile>();
 			foreach (LanguageFile languageFile in GreenshotLanguage.GetLanguageFiles(languagePath, "language*.xml")) {
-				languageFiles.Add(languageFile);
+				LanguageFiles.Add(languageFile);
 				
 				if ("en-US".Equals(languageFile.IETF)) {
 					// we should always start with en-US, so the grid is initialized with the probably most-complete language file as benchmark for translations
-					this.language1ComboBox.SelectedItem = languageFile;
-				} else if(this.language2ComboBox.SelectedItem == null) {
-					this.language2ComboBox.SelectedItem = languageFile;
+					LanguageFile1 = languageFile;
+					PopulateColumn(languageFile, 1);
+				} else if(LanguageFile2 == null) {
+					LanguageFile2 = languageFile;
+					PopulateColumn(languageFile, 2);
 				}
 			}
-			if(this.language1ComboBox.SelectedItem == null) {
+			if(LanguageFile1 == null) {
 				MessageBox.Show("language-en-US.xml does not exist in the location selected. It is needed as reference for the translation.");
 				this.Close();
 			}
@@ -108,14 +118,16 @@ namespace GreenshotLanguageEditor {
 				else if (columnIndex == 2) entry.Entry2 = resources[key];
 				else throw new ArgumentOutOfRangeException("Argument columnIndex must be either 1 or 2");
 			}
+			if(columnIndex == 1) unsavedChangesInLanguage1 = false;
+			if(columnIndex == 2) unsavedChangesInLanguage2 = false;
 		}
 		
 		private void ClearColumn(int columnIndex) {
 			// we do not throw out LanguageEntries that do not exist in selected language, 
 			// so that en-US (loaded at startup) is always the benchmark, even when other languages are displayed
 			foreach(LanguageEntry e in languageResources.Values) {
-				if (columnIndex == 1) e.Entry1 = "";
-				else if (columnIndex == 2) e.Entry2 = "";
+				if (columnIndex == 1) e.Entry1 = null;
+				else if (columnIndex == 2) e.Entry2 = null;
 				else throw new ArgumentOutOfRangeException("Argument columnIndex must be either 1 or 2");
 			}
 		}
@@ -149,17 +161,34 @@ namespace GreenshotLanguageEditor {
 		}
 		
 		private void languageComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e) {
-			// TODO let user confirm if there are unsaved changes
 			int targetColumn = GetTargetColumn((Control)sender);
 			LanguageFile file = (LanguageFile)((ComboBox)sender).SelectedItem;
+			if((targetColumn == 1 && file.Equals(LanguageFile1)) || (targetColumn == 2 && file.Equals(LanguageFile2))) {
+				// nothing changed
+				return;
+			}
+			if((targetColumn == 1 && unsavedChangesInLanguage1) || (targetColumn == 2 && unsavedChangesInLanguage2)) {
+				MessageBoxResult res = MessageBox.Show("Do you really want to switch language? Unsaved changes will be lost.", "Confirm language switch", MessageBoxButton.OKCancel, MessageBoxImage.Warning,MessageBoxResult.Cancel,MessageBoxOptions.None);
+				if(res != MessageBoxResult.OK) {
+					// cancelled by user
+					((ComboBox)sender).SelectedItem = (targetColumn == 1) ? LanguageFile1 : LanguageFile2;
+					return;
+				}
+			}
+			if(targetColumn == 1) LanguageFile1 = file;
+			else if(targetColumn == 2) LanguageFile2 = file;
 			PopulateColumn(file, targetColumn);
 		}
 		
 		private void cancelButtonClicked(object sender, RoutedEventArgs e) {
-			// TODO let user confirm if there are unsaved changes
 			int targetColumn = GetTargetColumn((Control)sender);
-			LanguageFile file = (LanguageFile)(targetColumn == 1 ? language1ComboBox.SelectedItem : language2ComboBox.SelectedItem);
-			PopulateColumn(file, targetColumn);
+			if((targetColumn == 1 && unsavedChangesInLanguage1) || (targetColumn == 2 && unsavedChangesInLanguage2)) {
+				MessageBoxResult res = MessageBox.Show("Do you really want to reset this column? Unsaved changes will be lost.", "Confirm language reset", MessageBoxButton.OKCancel, MessageBoxImage.Warning,MessageBoxResult.Cancel,MessageBoxOptions.None);
+				if(res == MessageBoxResult.OK) {
+					LanguageFile file = (LanguageFile)(targetColumn == 1 ? language1ComboBox.SelectedItem : language2ComboBox.SelectedItem);
+					PopulateColumn(file, targetColumn);
+				}
+			}
 		}
 		
 		private int GetTargetColumn(Control control) {
@@ -169,6 +198,11 @@ namespace GreenshotLanguageEditor {
 			} else {
 				return tag.Equals("1") ? 1 : 2;
 			}
+		}
+		
+		private void cellEdited(object sender, DataGridCellEditEndingEventArgs e) {
+			if(e.Column.DisplayIndex == 1) unsavedChangesInLanguage1 = true;
+			else if(e.Column.DisplayIndex == 2) unsavedChangesInLanguage2 = true;
 		}
 		
 		public void CreateXML(string savePath, int targetColumn) {
