@@ -166,7 +166,6 @@ namespace Greenshot {
 			// 
 			this.textbox_storagelocation.Location = new System.Drawing.Point(138, 18);
 			this.textbox_storagelocation.Name = "textbox_storagelocation";
-			this.textbox_storagelocation.PropertyName = "OutputFilePath";
 			this.textbox_storagelocation.Size = new System.Drawing.Size(233, 20);
 			this.textbox_storagelocation.TabIndex = 12;
 			// 
