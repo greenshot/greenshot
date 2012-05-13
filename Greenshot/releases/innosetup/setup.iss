@@ -64,8 +64,8 @@ Source: ..\..\bin\Release\Languages\Plugins\GreenshotJiraPlugin\*; DestDir: {app
 Source: ..\..\bin\Release\Plugins\GreenshotImgurPlugin\*; DestDir: {app}\Plugins\GreenshotImgurPlugin; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotImgurPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotImgurPlugin; Components: plugins\imgur; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Box Plugin
-;Source: ..\..\bin\Release\Plugins\GreenshotBoxPlugin\*; DestDir: {app}\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-;Source: ..\..\bin\Release\Languages\Plugins\GreenshotBoxPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Plugins\GreenshotBoxPlugin\*; DestDir: {app}\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\Plugins\GreenshotBoxPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly ignoreversion replacesameversion;
 ;DropBox Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotDropBoxPlugin\*; DestDir: {app}\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotDropBoxPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -181,7 +181,7 @@ Name: "plugins\imgur"; Description: {cm:imgur}; Types: Full;
 Name: "plugins\confluence"; Description: {cm:confluence}; Types: Full; Check: hasNET35()
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: Full
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: Full
-;Name: "plugins\box"; Description: "Box Plugin"; Types: Full
+Name: "plugins\box"; Description: "Box Plugin"; Types: Full; Check: hasNET35()
 Name: "plugins\dropbox"; Description: "DropBox Plugin"; Types: Full; Check: hasNET35()
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: Full
