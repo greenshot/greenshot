@@ -215,7 +215,23 @@ namespace Greenshot {
 					if (filesToOpen.Count > 0) {
 						SendData(transport);
 					} else {
-						MessageBox.Show(Language.GetString(LangKey.error_multipleinstances), Language.GetString(LangKey.error));
+						StringBuilder instanceInfo = new StringBuilder();
+						bool matchedThisProcess = false;
+						int index = 1;
+						foreach (Process greenshotProcess in Process.GetProcessesByName("greenshot")) {
+							try {
+								instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(new IntPtr(greenshotProcess.Id)));
+								if (Process.GetCurrentProcess().Id == greenshotProcess.Id) {
+									matchedThisProcess = true;
+								}
+							} catch (Exception ex) {
+								LOG.Debug(ex);
+							}
+						}
+						if (!matchedThisProcess) {
+							instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(new IntPtr(Process.GetCurrentProcess().Id)));
+						}
+						MessageBox.Show(Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo.ToString(), Language.GetString(LangKey.error));
 					}
 					FreeMutex();
 					Application.Exit();

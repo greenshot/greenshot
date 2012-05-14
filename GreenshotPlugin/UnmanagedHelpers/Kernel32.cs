@@ -56,7 +56,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern int ResumeThread(IntPtr hThread);
 		[DllImport("kernel32", SetLastError = true)]
-		public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, uint dwProcessId);
+		public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, IntPtr dwProcessId);
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern bool QueryFullProcessImageName(IntPtr hProcess, uint dwFlags, StringBuilder lpExeName, ref uint lpdwSize);
 		[DllImport("kernel32", SetLastError = true)]
@@ -71,6 +71,54 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, StringBuilder lpFilename, uint nSize);
 		[DllImport("psapi", SetLastError = true)]
 		public static extern uint GetProcessImageFileName(IntPtr hProcess, StringBuilder lpImageFileName, uint nSize);
-		
+
+		/// <summary>
+		/// Method to get the process path
+		/// </summary>
+		/// <param name="processid"></param>
+		/// <returns></returns>
+		public static string GetProcessPath(IntPtr processid) {
+			StringBuilder _PathBuffer = new StringBuilder(512);
+			// Try the GetModuleFileName method first since it's the fastest. 
+			// May return ACCESS_DENIED (due to VM_READ flag) if the process is not owned by the current user.
+			// Will fail if we are compiled as x86 and we're trying to open a 64 bit process...not allowed.
+			IntPtr hprocess = Kernel32.OpenProcess(ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMRead, false, processid);
+			if (hprocess != IntPtr.Zero) {
+				try {
+					if (Kernel32.GetModuleFileNameEx(hprocess, IntPtr.Zero, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+						return _PathBuffer.ToString();
+					}
+				} finally {
+					Kernel32.CloseHandle(hprocess);
+				}
+			}
+
+			hprocess = Kernel32.OpenProcess(ProcessAccessFlags.QueryInformation, false, processid);
+			if (hprocess != IntPtr.Zero) {
+				try {
+					// Try this method for Vista or higher operating systems
+					uint size = (uint)_PathBuffer.Capacity;
+					if ((Environment.OSVersion.Version.Major >= 6) && (Kernel32.QueryFullProcessImageName(hprocess, 0, _PathBuffer, ref size) && (size > 0))) {
+						return _PathBuffer.ToString();
+					}
+
+					// Try the GetProcessImageFileName method
+					if (Kernel32.GetProcessImageFileName(hprocess, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+						string dospath = _PathBuffer.ToString();
+						foreach (string drive in Environment.GetLogicalDrives()) {
+							if (Kernel32.QueryDosDevice(drive.TrimEnd('\\'), _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+								if (dospath.StartsWith(_PathBuffer.ToString())) {
+									return drive + dospath.Remove(0, _PathBuffer.Length);
+								}
+							}
+						}
+					}
+				} finally {
+					Kernel32.CloseHandle(hprocess);
+				}
+			}
+
+			return string.Empty;
+		}
 	}
 }

@@ -92,10 +92,10 @@ EndSelection:<<<<<<<4
 			try {
 				IntPtr hWnd = User32.GetClipboardOwner();
 				if (hWnd != IntPtr.Zero) {
-					uint pid = 0;
-					uint tid = User32.GetWindowThreadProcessId( hWnd, out pid );
+					IntPtr pid = IntPtr.Zero;
+					IntPtr tid = User32.GetWindowThreadProcessId( hWnd, out pid);
 					Process me = Process.GetCurrentProcess();
-					Process ownerProcess = Process.GetProcessById( (int)pid );
+					Process ownerProcess = Process.GetProcessById( pid.ToInt32() );
 					// Exclude myself
 					if (ownerProcess != null && me.Id != ownerProcess.Id) {
 						// Get Process Name

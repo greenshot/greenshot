@@ -395,9 +395,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
 		public static extern bool ChangeClipboardChain(IntPtr hWndRemove, IntPtr hWndNewNext);
-
-		[DllImport("user32", SetLastError = true)]
-		public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 		
 		/// uiFlags: 0 - Count of GDI objects
 		/// uiFlags: 1 - Count of USER objects
