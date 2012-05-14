@@ -209,7 +209,7 @@ namespace GreenshotPlugin.Core {
 				}
 				foreach (string availableIETF in languageFiles.Keys) {
 					if (availableIETF.StartsWith(returnIETF)) {
-						LOG.InfoFormat("Found language {0}, best match for!", availableIETF, returnIETF);
+						LOG.InfoFormat("Found language {0}, best match for {1}!", availableIETF, returnIETF);
 						returnIETF = availableIETF;
 						break;
 					}
