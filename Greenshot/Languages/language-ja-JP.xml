@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="0.8.1" languagegroup="7">
+<language description="日本語" ietf="ja-JP" version="1.0.0" languagegroup="7">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 

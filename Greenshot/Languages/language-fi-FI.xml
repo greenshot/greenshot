@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<language description="Suomi" ietf="fi-FI" version="0.8.1" languagegroup="1">
+<language description="Suomi" ietf="fi-FI" version="1.0.0" languagegroup="1">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 

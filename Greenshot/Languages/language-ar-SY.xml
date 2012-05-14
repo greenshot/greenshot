@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="العربية" ietf="ar-SY" version="0.8.1" languagegroup="d">
+<language description="العربية" ietf="ar-SY" version="1.0.0" languagegroup="d">
   <resources>
 	<resource name="about_translation">
 		Translated by Ramzy Samman and Jamal Mashal تُرجم بواسطة رمزي السمان وجمال مشعل

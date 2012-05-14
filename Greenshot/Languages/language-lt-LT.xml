@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Lietuvių" ietf="lt-LT" version="0.8.1" languagegroup="3">
+<language description="Lietuvių" ietf="lt-LT" version="1.0.0" languagegroup="3">
   <resources>
 	<!-- 
 	Note to translator: uncomment entry "about_translation" to have 

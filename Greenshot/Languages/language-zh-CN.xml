@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<language description="简体中文" ietf="zh-CN" version="0.8.1" languagegroup="a">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="1.0.0" languagegroup="a">
   <resources>
 	<resource name="about_translation">
 		简体中文翻译: uralhan

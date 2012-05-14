@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<language description="ελληνικά" ietf="el-GR" version="0.8.1" languagegroup="4">
+<language description="ελληνικά" ietf="el-GR" version="1.0.0" languagegroup="4">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 

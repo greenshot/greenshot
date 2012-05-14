@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="0.8.1" languagegroup="5">
+<language description="Українська" ietf="uk-UA" version="1.0.0" languagegroup="5">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 

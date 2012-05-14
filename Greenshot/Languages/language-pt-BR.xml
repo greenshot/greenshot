@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Português do Brasil" ietf="pt-BR" version="0.8.1" languagegroup="1">
+<language description="Português do Brasil" ietf="pt-BR" version="1.0.0" languagegroup="1">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 

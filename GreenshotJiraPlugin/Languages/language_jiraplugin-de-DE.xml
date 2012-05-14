@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Deutsch" ietf="de-DE" version="0.8.1">
+<language description="Deutsch" ietf="de-DE" version="1.0.0">
   <resources>
 	<resource name="upload_menu_item">
 		In Jira hochladen

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="繁體中文" ietf="zh-tw" version="0.8.1" languagegroup="9">
+<language description="繁體中文" ietf="zh-tw" version="1.0.0" languagegroup="9">
   <resources>
 	<resource name="about_translation">
 		繁體中文翻譯: Timothy Lin

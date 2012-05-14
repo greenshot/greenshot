@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Français" ietf="fr-FR" version="0.8.1" languagegroup="1">
+<language description="Français" ietf="fr-FR" version="1.0.0" languagegroup="1">
   <resources>
 	<resource name="about_translation">
 		Traduction Française par 恵美の女猫 (EminoMeneko). Complèté à V.0.8.1.1339 par MVH
