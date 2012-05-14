@@ -314,10 +314,7 @@ namespace Greenshot.IniFile {
 					Value = defaultValueFromConfig;
 					return;
 				}
-			} if (defaultValueFromConfig != null) {
-				Value = defaultValueFromConfig;
-				return;
-			} else {
+			} else if (propertyValue != null) {
 				if (valueType.IsGenericType && valueType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
 					// We are dealing with a generic type that is nullable
 					valueType = Nullable.GetUnderlyingType(valueType);
@@ -340,6 +337,12 @@ namespace Greenshot.IniFile {
 				Value = newValue;
 				return;
 			}
+
+			// If nothing is set, we can use the default value from the config (if we habe one)
+			if (defaultValueFromConfig != null) {
+				Value = defaultValueFromConfig;
+				return;
+			} 
 		}
 
 		/// <summary>
