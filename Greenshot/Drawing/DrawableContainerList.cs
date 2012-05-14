@@ -435,7 +435,11 @@ namespace Greenshot.Drawing {
 			item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("btnCut.Image")));
 			item.Click += delegate {
 				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), this);
+				List<DrawableContainer> containersToDelete = new List<DrawableContainer>();
 				foreach (DrawableContainer container in this) {
+					containersToDelete.Add(container);
+				}
+				foreach (DrawableContainer container in containersToDelete) {
 					surface.RemoveElement(container, true);
 				}
 			};
@@ -445,7 +449,11 @@ namespace Greenshot.Drawing {
 			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement));
 			item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
 			item.Click += delegate {
+				List<DrawableContainer> containersToDelete = new List<DrawableContainer>();
 				foreach(DrawableContainer container in this) {
+					containersToDelete.Add(container);
+				}
+				foreach (DrawableContainer container in containersToDelete) {
 					surface.RemoveElement(container, true);
 				}
 			};
