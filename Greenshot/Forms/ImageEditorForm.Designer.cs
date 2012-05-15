@@ -73,8 +73,8 @@ namespace Greenshot {
 			this.invertToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnCrop = new GreenshotPlugin.Controls.GreenshotToolStripButton();
-			this.rotateCwToolstripButton = new System.Windows.Forms.ToolStripButton();
-			this.rotateCcwToolstripButton = new System.Windows.Forms.ToolStripButton();
+			this.rotateCwToolstripButton = new GreenshotPlugin.Controls.GreenshotToolStripButton();
+			this.rotateCcwToolstripButton = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.menuStrip1 = new Greenshot.Controls.MenuStripEx();
 			this.fileStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.editToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
@@ -488,7 +488,7 @@ namespace Greenshot {
 			this.rotateCwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCwToolstripButton.Name = "rotateCwToolstripButton";
 			this.rotateCwToolstripButton.Size = new System.Drawing.Size(22, 20);
-			this.rotateCwToolstripButton.Text = "Rotate Clockwise";
+			this.rotateCwToolstripButton.LanguageKey = "editor_rotatecw";
 			this.rotateCwToolstripButton.Click += new System.EventHandler(this.RotateCwToolstripButtonClick);
 			// 
 			// rotateCcwToolstripButton
@@ -498,7 +498,7 @@ namespace Greenshot {
 			this.rotateCcwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCcwToolstripButton.Name = "rotateCcwToolstripButton";
 			this.rotateCcwToolstripButton.Size = new System.Drawing.Size(22, 20);
-			this.rotateCcwToolstripButton.Text = "toolStripButton2";
+			this.rotateCcwToolstripButton.LanguageKey = "editor_rotateccw";
 			this.rotateCcwToolstripButton.Click += new System.EventHandler(this.RotateCcwToolstripButtonClick);
 			// 
 			// menuStrip1
@@ -1612,8 +1612,8 @@ namespace Greenshot {
 		}
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem invertToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem grayscaleToolStripMenuItem;
-		private System.Windows.Forms.ToolStripButton rotateCcwToolstripButton;
-		private System.Windows.Forms.ToolStripButton rotateCwToolstripButton;
+		private GreenshotPlugin.Controls.GreenshotToolStripButton rotateCcwToolstripButton;
+		private GreenshotPlugin.Controls.GreenshotToolStripButton rotateCwToolstripButton;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addBorderToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem tornEdgesToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addDropshadowToolStripMenuItem;

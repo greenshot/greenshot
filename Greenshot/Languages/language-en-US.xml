@@ -580,6 +580,12 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
 	<resource name="editor_resetsize">
 		Reset size
 	</resource>
+	<resource name="editor_rotateccw">
+		Rotate counter clockwise
+	</resource>
+	<resource name="editor_rotatecw">
+		Rotate clockwise
+	</resource>
 	<resource name="settings_waittime">
 		Milliseconds to wait before capture
 	</resource>
