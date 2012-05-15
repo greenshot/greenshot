@@ -72,10 +72,12 @@ namespace GreenshotJiraPlugin {
 					jiraFilterBox.SelectedIndex = 0;
 				}
 				changeModus(true);
-				selectedIssue = jiraConnector.getIssue(config.LastUsedJira);
-				if (selectedIssue != null) {
-					jiraKey.Text = config.LastUsedJira;
-					uploadButton.Enabled = true;
+				if (config.LastUsedJira != null) {
+					selectedIssue = jiraConnector.getIssue(config.LastUsedJira);
+					if (selectedIssue != null) {
+						jiraKey.Text = config.LastUsedJira;
+						uploadButton.Enabled = true;
+					}
 				}
 			}
 		}
