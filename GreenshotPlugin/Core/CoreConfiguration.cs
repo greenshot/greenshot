@@ -172,6 +172,11 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("OptimizeForRDP", Description="Make some optimizations for usage with remote desktop", DefaultValue="False")]
 		public bool OptimizeForRDP;
 
+
+		// change to false for releases
+		[IniProperty("CheckUnstable", Description = "Also check for unstable version updates", DefaultValue = "False")]
+		public bool CheckUnstable;
+
 		[IniProperty("ActiveTitleFixes", Description="The fixes that are active.")]
 		public List<string> ActiveTitleFixes;
 		
@@ -235,8 +240,6 @@ namespace GreenshotPlugin.Core {
 			return true;
 		}
 
-		// change to false for releases
-		public bool CheckUnstable = true;
 
 		/// <summary>
 		/// Supply values we can't put as defaults

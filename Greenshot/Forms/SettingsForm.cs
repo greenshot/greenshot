@@ -487,6 +487,7 @@ namespace Greenshot {
 			textbox_footerpattern.Enabled = state;
 			textbox_counter.Enabled = state;
 			checkbox_suppresssavedialogatclose.Enabled = state;
+			checkbox_checkunstableupdates.Enabled = state;
 		}
 
 		/// <summary>

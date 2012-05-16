@@ -124,6 +124,7 @@ namespace Greenshot {
 			this.button_pluginconfigure = new GreenshotPlugin.Controls.GreenshotButton();
 			this.tab_expert = new GreenshotPlugin.Controls.GreenshotTabPage();
 			this.groupbox_expert = new GreenshotPlugin.Controls.GreenshotGroupBox();
+			this.checkbox_suppresssavedialogatclose = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.label_counter = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textbox_counter = new GreenshotPlugin.Controls.GreenshotTextBox();
 			this.label_footerpattern = new GreenshotPlugin.Controls.GreenshotLabel();
@@ -135,7 +136,7 @@ namespace Greenshot {
 			this.checkbox_enableexpert = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.listview_clipboardformats = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.checkbox_suppresssavedialogatclose = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.checkbox_checkunstableupdates = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.groupbox_preferredfilesettings.SuspendLayout();
 			this.groupbox_applicationsettings.SuspendLayout();
 			this.groupbox_qualitysettings.SuspendLayout();
@@ -1037,6 +1038,7 @@ namespace Greenshot {
 			// 
 			// groupbox_expert
 			// 
+			this.groupbox_expert.Controls.Add(this.checkbox_checkunstableupdates);
 			this.groupbox_expert.Controls.Add(this.checkbox_suppresssavedialogatclose);
 			this.groupbox_expert.Controls.Add(this.label_counter);
 			this.groupbox_expert.Controls.Add(this.textbox_counter);
@@ -1055,6 +1057,17 @@ namespace Greenshot {
 			this.groupbox_expert.TabIndex = 17;
 			this.groupbox_expert.TabStop = false;
 			this.groupbox_expert.Text = "Expert";
+			// 
+			// checkbox_suppresssavedialogatclose
+			// 
+			this.checkbox_suppresssavedialogatclose.LanguageKey = "expertsettings_suppresssavedialogatclose";
+			this.checkbox_suppresssavedialogatclose.Location = new System.Drawing.Point(10, 182);
+			this.checkbox_suppresssavedialogatclose.Name = "checkbox_suppresssavedialogatclose";
+			this.checkbox_suppresssavedialogatclose.PropertyName = "SuppressSaveDialogAtClose";
+			this.checkbox_suppresssavedialogatclose.SectionName = "Editor";
+			this.checkbox_suppresssavedialogatclose.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_suppresssavedialogatclose.TabIndex = 28;
+			this.checkbox_suppresssavedialogatclose.UseVisualStyleBackColor = true;
 			// 
 			// label_counter
 			// 
@@ -1095,7 +1108,7 @@ namespace Greenshot {
 			// checkbox_thumbnailpreview
 			// 
 			this.checkbox_thumbnailpreview.LanguageKey = "expertsettings_thumbnailpreview";
-			this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 185);
+			this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 163);
 			this.checkbox_thumbnailpreview.Name = "checkbox_thumbnailpreview";
 			this.checkbox_thumbnailpreview.PropertyName = "ThumnailPreview";
 			this.checkbox_thumbnailpreview.Size = new System.Drawing.Size(394, 24);
@@ -1106,7 +1119,7 @@ namespace Greenshot {
 			// checkbox_optimizeforrdp
 			// 
 			this.checkbox_optimizeforrdp.LanguageKey = "expertsettings_optimizeforrdp";
-			this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 166);
+			this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 144);
 			this.checkbox_optimizeforrdp.Name = "checkbox_optimizeforrdp";
 			this.checkbox_optimizeforrdp.PropertyName = "OptimizeForRDP";
 			this.checkbox_optimizeforrdp.Size = new System.Drawing.Size(394, 24);
@@ -1117,7 +1130,7 @@ namespace Greenshot {
 			// checkbox_autoreducecolors
 			// 
 			this.checkbox_autoreducecolors.LanguageKey = "expertsettings_autoreducecolors";
-			this.checkbox_autoreducecolors.Location = new System.Drawing.Point(10, 147);
+			this.checkbox_autoreducecolors.Location = new System.Drawing.Point(10, 125);
 			this.checkbox_autoreducecolors.Name = "checkbox_autoreducecolors";
 			this.checkbox_autoreducecolors.PropertyName = "OutputFileAutoReduceColors";
 			this.checkbox_autoreducecolors.Size = new System.Drawing.Size(394, 24);
@@ -1158,7 +1171,7 @@ namespace Greenshot {
 			this.listview_clipboardformats.Location = new System.Drawing.Point(109, 44);
 			this.listview_clipboardformats.Name = "listview_clipboardformats";
 			this.listview_clipboardformats.ShowGroups = false;
-			this.listview_clipboardformats.Size = new System.Drawing.Size(291, 97);
+			this.listview_clipboardformats.Size = new System.Drawing.Size(291, 80);
 			this.listview_clipboardformats.Sorting = System.Windows.Forms.SortOrder.Ascending;
 			this.listview_clipboardformats.TabIndex = 0;
 			this.listview_clipboardformats.UseCompatibleStateImageBehavior = false;
@@ -1169,17 +1182,15 @@ namespace Greenshot {
 			this.columnHeader1.Text = "Destination";
 			this.columnHeader1.Width = 280;
 			// 
-			// checkbox_suppresssavedialogatclose
+			// checkbox_checkunstableupdates
 			// 
-			this.checkbox_suppresssavedialogatclose.LanguageKey = "expertsettings_suppresssavedialogatclose";
-			this.checkbox_suppresssavedialogatclose.Location = new System.Drawing.Point(10, 204);
-			this.checkbox_suppresssavedialogatclose.Name = "checkbox_suppresssavedialogatclose";
-			this.checkbox_suppresssavedialogatclose.PropertyName = "SuppressSaveDialogAtClose";
-			this.checkbox_suppresssavedialogatclose.SectionName = "Editor";
-			this.checkbox_suppresssavedialogatclose.Size = new System.Drawing.Size(394, 24);
-			this.checkbox_suppresssavedialogatclose.TabIndex = 28;
-			this.checkbox_suppresssavedialogatclose.Text = "Suppress save dialog when closing the editor";
-			this.checkbox_suppresssavedialogatclose.UseVisualStyleBackColor = true;
+			this.checkbox_checkunstableupdates.LanguageKey = "expertsettings_checkunstableupdates";
+			this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 201);
+			this.checkbox_checkunstableupdates.Name = "checkbox_checkunstableupdates";
+			this.checkbox_checkunstableupdates.PropertyName = "CheckUnstable";
+			this.checkbox_checkunstableupdates.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_checkunstableupdates.TabIndex = 29;
+			this.checkbox_checkunstableupdates.UseVisualStyleBackColor = true;
 			// 
 			// SettingsForm
 			// 
@@ -1319,5 +1330,6 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotTextBox textbox_counter;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_reducecolors;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_suppresssavedialogatclose;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_checkunstableupdates;
 	}
 }
