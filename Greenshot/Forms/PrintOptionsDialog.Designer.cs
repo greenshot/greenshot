@@ -193,7 +193,7 @@ namespace Greenshot.Forms
 			this.checkbox_grayscale.AutoSize = true;
 			this.checkbox_grayscale.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_grayscale.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.checkbox_grayscale.LanguageKey = "printoption_printgrayscale";
+			this.checkbox_grayscale.LanguageKey = "printoptions_printgrayscale";
 			this.checkbox_grayscale.Location = new System.Drawing.Point(12, 181);
 			this.checkbox_grayscale.Name = "checkbox_grayscale";
 			this.checkbox_grayscale.PropertyName = "OutputPrintGrayscale";

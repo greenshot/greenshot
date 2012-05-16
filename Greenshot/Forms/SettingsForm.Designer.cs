@@ -866,7 +866,7 @@ namespace Greenshot {
 			// 
 			// checkbox_printgrayscale
 			// 
-			this.checkbox_printgrayscale.LanguageKey = "printoption_printgrayscale";
+			this.checkbox_printgrayscale.LanguageKey = "printoptions_printgrayscale";
 			this.checkbox_printgrayscale.Location = new System.Drawing.Point(12, 192);
 			this.checkbox_printgrayscale.Name = "checkbox_printgrayscale";
 			this.checkbox_printgrayscale.PropertyName = "OutputPrintGrayscale";
