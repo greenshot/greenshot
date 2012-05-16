@@ -336,10 +336,10 @@ All Greenshot features still work directly from the tray icon context menu witho
 	<resource name="settings_alwaysshowprintoptionsdialog">
 		Show print options dialog every time an image is printed
 	</resource>
-  <resource name="printoption_printgrayscale">
-    Force grayscale printing
-  </resource>
-  <resource name="settings_printoptions">
+	<resource name="printoptions_printgrayscale">
+		Force grayscale printing
+	</resource>
+	<resource name="settings_printoptions">
 		Print options
 	</resource>
 	<resource name="settings_output">
