@@ -135,7 +135,7 @@ Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: st
 ;Root: HKCR; Subkey: "GreenshotFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}
-Name: {group}\Uninstall {#ExeName}; Filename: {app}\unins000.exe; WorkingDir: {app}
+Name: {group}\Uninstall {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app}; AppUserModelID: "{#ExeName}.{#ExeName}"
 Name: {group}\Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
 Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
 [Languages]
@@ -258,6 +258,8 @@ begin
 			Result := 3
 		else
 			Result := 2;
+		// Wait a few seconds to prevent installation issues, otherwise files are removed in one process while the other tries to link to them
+		Sleep(2000);
 	end else
 		Result := 1;
 end;
