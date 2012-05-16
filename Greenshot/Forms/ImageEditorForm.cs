@@ -168,6 +168,10 @@ namespace Greenshot {
 					LOG.Warn("Exception: ", addingException);
 				}
 			}
+			
+			// Create the file menu, normally this is done when opening but if we don't do it now the short-cut keys are missing.
+			// See Bugs #3526974 & #3527020
+			FileMenuDropDownOpening(null, null);
 		}
 		
 		void AddDestinationButton(IDestination toolstripDestination) {
