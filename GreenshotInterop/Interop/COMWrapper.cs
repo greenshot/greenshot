@@ -249,6 +249,7 @@ namespace Greenshot.Interop {
 		/// </param>
 		private void Dispose(bool disposing) {
 			if (null != this._COMObject) {
+				LOG.DebugFormat("Disposing {0}", this._InterceptType.ToString());
 				if (Marshal.IsComObject(this._COMObject)) {
 					try {
 						while (Marshal.ReleaseComObject(this._COMObject) > 0) ;

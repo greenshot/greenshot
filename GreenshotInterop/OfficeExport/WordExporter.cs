@@ -45,9 +45,10 @@ namespace Greenshot.Interop.Office {
 			using (IWordApplication wordApplication = COMWrapper.GetInstance<IWordApplication>()) {
 				if (wordApplication != null) {
 					for (int i = 1; i <= wordApplication.Documents.Count; i++) {
-						IWordDocument wordDocument = wordApplication.Documents.item(i);
-						if (wordDocument.ActiveWindow.Caption.StartsWith(wordCaption)) {
-							return InsertIntoExistingDocument(wordDocument, tmpFile);
+						using (IWordDocument wordDocument = wordApplication.Documents.item(i)) {
+							if (wordDocument.ActiveWindow.Caption.StartsWith(wordCaption)) {
+								return InsertIntoExistingDocument(wordDocument, tmpFile);
+							}
 						}
 					}
 				}
@@ -67,9 +68,15 @@ namespace Greenshot.Interop.Office {
 						LOG.WarnFormat("Couldn't set zoom to 100, error: {0}", e.Message);
 					}
 				}
-				wordDocument.Application.Activate();
-				wordDocument.Activate();
-				wordDocument.ActiveWindow.Activate();
+				try {
+					wordDocument.Application.Activate();
+				} catch {}
+				try {
+					wordDocument.Activate();
+				} catch {}
+				try {
+					wordDocument.ActiveWindow.Activate();
+				} catch {}
 				return true;
 			}
 			return false;

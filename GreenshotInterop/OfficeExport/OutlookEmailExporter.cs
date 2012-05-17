@@ -59,14 +59,18 @@ namespace Greenshot.Interop.Office {
 						return null;
 					}
 
-					Inspectors inspectors = outlookApplication.Inspectors;
-					if (inspectors != null && inspectors.Count > 0) {
-						for (int i = 1; i <= inspectors.Count; i++) {
-							Inspector inspector = outlookApplication.Inspectors[i];
-							if (canExportToInspector(inspector, allowMeetingAsTarget)) {
-								Item currentItem = inspector.CurrentItem;
-								OlObjectClass currentItemClass = currentItem.Class;
-								inspectorCaptions.Add(inspector.Caption, currentItemClass);
+					using (Inspectors inspectors = outlookApplication.Inspectors) {
+						if (inspectors != null && inspectors.Count > 0) {
+							for (int i = 1; i <= inspectors.Count; i++) {
+								using (Inspector inspector = outlookApplication.Inspectors[i]) {
+									string inspectorCaption = inspector.Caption;
+									using (Item currentItem = inspector.CurrentItem) {
+										if (canExportToInspector(currentItem, allowMeetingAsTarget)) {
+											OlObjectClass currentItemClass = currentItem.Class;
+											inspectorCaptions.Add(inspector.Caption, currentItemClass);
+										}
+									}
+								}
 							}
 						}
 					}
@@ -80,12 +84,11 @@ namespace Greenshot.Interop.Office {
 		/// <summary>
 		/// Return true if we can export to the supplied inspector
 		/// </summary>
-		/// <param name="inspector">the Inspector to check</param>
+		/// <param name="currentItem">the Item to check</param>
 		/// <param name="allowMeetingAsTarget">bool true if also exporting to meetings</param>
 		/// <returns></returns>
-		private static bool canExportToInspector(Inspector inspector, bool allowMeetingAsTarget) {
+		private static bool canExportToInspector(Item currentItem, bool allowMeetingAsTarget) {
 			try {
-				Item currentItem = inspector.CurrentItem;
 				if (currentItem != null) {
 					OlObjectClass currentItemClass = currentItem.Class;
 					if (OlObjectClass.olMail.Equals(currentItemClass)) {
@@ -101,7 +104,7 @@ namespace Greenshot.Interop.Office {
 						if (string.IsNullOrEmpty(appointmentItem.Organizer) || (currentUser == null && currentUser.Equals(appointmentItem.Organizer))) {
 							return true;
 						} else {
-							LOG.DebugFormat("Not exporting to {0}, as organizer is {1} and currentuser {2}", inspector.Caption, appointmentItem.Organizer, currentUser);
+							LOG.DebugFormat("Not exporting, as organizer is {1} and currentuser {2}", appointmentItem.Organizer, currentUser);
 						}
 					}
 				}
@@ -128,14 +131,17 @@ namespace Greenshot.Interop.Office {
 					if (inspectors != null && inspectors.Count > 0) {
 						LOG.DebugFormat("Got {0} inspectors to check", inspectors.Count);
 						for (int i = 1; i <= inspectors.Count; i++) {
-							Inspector inspector = outlookApplication.Inspectors[i];
-							string currentCaption = inspector.Caption;
-							if (currentCaption.StartsWith(inspectorCaption)) {
-								if (canExportToInspector(inspector, allowMeetingAsTarget)) {
-									try {
-										return ExportToInspector(inspector, tmpFile, attachmentName);
-									} catch (Exception exExport) {
-										LOG.Error("Export to " + currentCaption + " failed.", exExport);
+							using (Inspector inspector = outlookApplication.Inspectors[i]) {
+								string currentCaption = inspector.Caption;
+								if (currentCaption.StartsWith(inspectorCaption)) {
+									using (Item currentItem = inspector.CurrentItem) {
+										if (canExportToInspector(currentItem, allowMeetingAsTarget)) {
+											try {
+												return ExportToInspector(inspector, currentItem, tmpFile, attachmentName);
+											} catch (Exception exExport) {
+												LOG.Error("Export to " + currentCaption + " failed.", exExport);
+											}
+										}
 									}
 								}
 							}
@@ -149,12 +155,12 @@ namespace Greenshot.Interop.Office {
 		/// <summary>
 		/// Export the file to the supplied inspector
 		/// </summary>
-		/// <param name="inspector"></param>
+		/// <param name="inspector">Inspector</param>
+		/// <param name="currentItem">Item</param>
 		/// <param name="tmpFile"></param>
 		/// <param name="attachmentName"></param>
 		/// <returns></returns>
-		private static bool ExportToInspector(Inspector inspector, string tmpFile, string attachmentName) {
-			Item currentItem = inspector.CurrentItem;
+		private static bool ExportToInspector(Inspector inspector, Item currentItem, string tmpFile, string attachmentName) {
 			if (currentItem == null) {
 				LOG.Warn("No current item.");
 				return false;
@@ -250,13 +256,14 @@ namespace Greenshot.Interop.Office {
 				}
 
 				// Create the attachment (if inlined the attachment isn't visible as attachment!)
-				Attachment attachment = mailItem.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName);
-				if (outlookVersion.Major >= 12) {
-					// Add the content id to the attachment, this only works for Outlook >= 2007
-					try {
-						PropertyAccessor propertyAccessor = attachment.PropertyAccessor;
-						propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentID);
-					} catch {
+				using (Attachment attachment = mailItem.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName)) {
+					if (outlookVersion.Major >= 12) {
+						// Add the content id to the attachment, this only works for Outlook >= 2007
+						try {
+							PropertyAccessor propertyAccessor = attachment.PropertyAccessor;
+							propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentID);
+						} catch {
+						}
 					}
 				}
 			} catch (Exception ex) {
@@ -299,19 +306,19 @@ namespace Greenshot.Interop.Office {
 					break;
 				case EmailFormat.HTML:
 				default:
-					// Create the attachment
-					Attachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName);
-					// add content ID to the attachment
 					string contentID = Path.GetFileName(tmpFile);
-					if (outlookVersion.Major >= 12) {
-						// Add the content id to the attachment
-						try {
-							contentID = Guid.NewGuid().ToString();
-							PropertyAccessor propertyAccessor = attachment.PropertyAccessor;
-							propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentID);
-						} catch {
-							LOG.Info("Error working with the PropertyAccessor, using filename as contentid");
-							contentID = Path.GetFileName(tmpFile);
+					// Create the attachment
+					using (Attachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName)) {
+						// add content ID to the attachment
+						if (outlookVersion.Major >= 12) {
+							try {
+								contentID = Guid.NewGuid().ToString();
+								PropertyAccessor propertyAccessor = attachment.PropertyAccessor;
+								propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentID);
+							} catch {
+								LOG.Info("Error working with the PropertyAccessor, using filename as contentid");
+								contentID = Path.GetFileName(tmpFile);
+							}
 						}
 					}
 
@@ -362,6 +369,9 @@ namespace Greenshot.Interop.Office {
 				retryDisplayEmail.Name = "Retry to display email";
 				retryDisplayEmail.IsBackground = true;
 				retryDisplayEmail.Start();
+			}
+			if (newItem != null) {
+				newItem.Dispose();
 			}
 		}
 
