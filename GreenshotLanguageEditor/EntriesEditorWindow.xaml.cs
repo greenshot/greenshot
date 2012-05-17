@@ -76,6 +76,9 @@ namespace GreenshotLanguageEditor {
 		public EntriesEditorWindow() {
 			
 			var dialog = new System.Windows.Forms.FolderBrowserDialog();
+			dialog.Description = "Select the directory containing the translation files for Greenshot. " +
+				"Please get the latest files first: " +
+				"https://greenshot.svn.sourceforge.net/svnroot/greenshot/trunk/Greenshot/Languages/";
 			dialog.ShowNewFolderButton = false;
 			System.Windows.Forms.DialogResult result = dialog.ShowDialog();
 			string languagePath;
