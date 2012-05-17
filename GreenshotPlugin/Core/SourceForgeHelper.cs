@@ -68,7 +68,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class SourceForgeHelper {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SourceForgeHelper));
-		private const String RSSFEED = "http://sourceforge.net/api/file/index/project-id/191585/mtime/desc/rss";
+		private const String RSSFEED = "http://getgreenshot.org/project-feed/";
 
 		/// <summary>
 		/// Read the Greenshot RSS feed, so we can use this information to check for updates
