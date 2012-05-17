@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+	x:Class="GreenshotLanguageEditor.EntriesEditorWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Width="850"
+	Height="600"
+	Title="Greenshot Language Editor"
+	Icon="icons\icon.ico">
+	<Grid
+		VerticalAlignment="Stretch"
+		Height="Auto">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition
+				Width="250" />
+			<ColumnDefinition
+				Width="50*" />
+			<ColumnDefinition
+				Width="50*" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition
+				Height="Auto" />
+			<RowDefinition
+				Height="*" />
+		</Grid.RowDefinitions>
+		<StackPanel
+			Grid.Row="0"
+			Grid.Column="1"
+			Orientation="Horizontal">
+			<ComboBox
+				Grid.Column="0"
+				Grid.Row="0"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top"
+				Name="language1ComboBox"
+				SelectionChanged="languageComboBoxSelectionChanged"
+				Tag="1"
+				Width="150"
+				ItemsSource="{Binding LanguageFiles, Mode=OneWay}"
+				DisplayMemberPath="FileName"
+				SelectedItem="{Binding LanguageFile1, Mode=OneWay}"
+				Margin="5,5,5,5"
+				Height="26"></ComboBox>
+			<Button
+				Click="metaButtonClicked"
+				Tag="1"
+				ToolTip="Edit language properties"
+				Width="26"
+				Height="26"
+				Margin="0,5,5,5">
+				<Image
+					Source="icons\property.png"
+					Width="16"
+					Height="16" />
+			</Button>
+			<Button
+				Click="saveButtonClicked"
+				Tag="1"
+				ToolTip="Save to file"
+				Width="26"
+				Height="26"
+				Margin="0,5,5,5">
+				<Image
+					Width="16"
+					Height="16"
+					Source="icons\disk-black.png" />
+			</Button>
+			<Button
+				Click="cancelButtonClicked"
+				Tag="1"
+				ToolTip="Reset (reload from file)"
+				Width="26"
+				Height="26"
+				Margin="0,5,5,5">
+				<Image
+					Source="icons\cross.png"
+					Width="16"
+					Height="16" />
+			</Button>
+			<Button
+				Click="newButtonClicked"
+				Tag="1"
+				ToolTip="Create new file"
+				Width="26"
+				Height="26"
+				Margin="0,5,5,5">
+				<Image
+					Source="icons\new.png"
+					Width="16"
+					Height="16" />
+			</Button>
+		</StackPanel>
+		<StackPanel
+			Grid.Row="0"
+			Grid.Column="2"
+			Orientation="Horizontal">
+			<ComboBox
+				Grid.Column="0"
+				Grid.Row="0"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top"
+				Name="language2ComboBox"
+				SelectionChanged="languageComboBoxSelectionChanged"
+				Tag="2"
+				Width="150"
+				ItemsSource="{Binding LanguageFiles, Mode=OneWay}"
+				DisplayMemberPath="FileName"
+				SelectedItem="{Binding LanguageFile2, Mode=OneWay}"
+				Margin="5,5,5,5"
+				Height="26"></ComboBox>
+			<Button
+				Click="metaButtonClicked"
+				Tag="2"
+				ToolTip="Edit language properties"
+				Width="26"
+				Height="26"
+				Margin="0,5,5,5">
+				<Image
+					Source="icons\property.png"
+					Width="16"
+					Height="16" />
+			</Button>
+			<Button
+				Click="saveButtonClicked"
+				Tag="2"
+				Width="26"
+				Height="26"
+				Margin="0,5,5,5">
+				<Image
+					Source="icons\disk-black.png"
+					Width="16"
+					Height="16" />
+			</Button>
+			<Button
+				Click="cancelButtonClicked"
+				Tag="2"
+				Width="26"
+				Height="26"
+				Margin="0,5,5,5">
+				<Image
+					Source="icons\cross.png"
+					Width="16"
+					Height="16" />
+			</Button>
+			<Button
+				Click="newButtonClicked"
+				Tag="2"
+				ToolTip="Create new file"
+				Width="26"
+				Height="26"
+				Margin="0,5,5,5">
+				<Image
+					Source="icons\new.png"
+					Width="16"
+					Height="16" />
+			</Button>
+		</StackPanel>
+		<DataGrid
+			Grid.Row="1"
+			Grid.Column="0"
+			Grid.ColumnSpan="3"
+			Name="LanguageGrid"
+			ItemsSource="{Binding View}"
+			AutoGenerateColumns="False"
+			IsReadOnly="False"
+			IsSynchronizedWithCurrentItem="True"
+			CellEditEnding="cellEdited">
+			<DataGrid.RowStyle>
+				<Style
+					TargetType="DataGridRow">
+					<Style.Setters>
+						<Setter
+							Property="Background"
+							Value="{Binding Path=Background}"></Setter>
+					</Style.Setters>
+				</Style>
+			</DataGrid.RowStyle>
+			<DataGrid.Columns>
+				<DataGridTextColumn
+					Header="Key"
+					Binding="{Binding Key}"
+					Width="250" />
+				<DataGridTextColumn
+					Header="Language1"
+					Binding="{Binding Entry1}"
+					Width="*">
+					<DataGridTextColumn.EditingElementStyle>
+						<Style
+							TargetType="TextBox">
+							<Setter
+								Property="ScrollViewer.HorizontalScrollBarVisibility"
+								Value="Auto" />
+							<Setter
+								Property="ScrollViewer.VerticalScrollBarVisibility"
+								Value="Auto" />
+							<Setter
+								Property="MaxHeight"
+								Value="300" />
+							<Setter
+								Property="AcceptsReturn"
+								Value="true" />
+						</Style>
+					</DataGridTextColumn.EditingElementStyle>
+				</DataGridTextColumn>
+				<DataGridTextColumn
+					Header="Language2"
+					Binding="{Binding Entry2}"
+					Width="*">
+					<DataGridTextColumn.EditingElementStyle>
+						<Style
+							TargetType="TextBox">
+							<Setter
+								Property="ScrollViewer.HorizontalScrollBarVisibility"
+								Value="Auto" />
+							<Setter
+								Property="ScrollViewer.VerticalScrollBarVisibility"
+								Value="Auto" />
+							<Setter
+								Property="MaxHeight"
+								Value="300" />
+							<Setter
+								Property="AcceptsReturn"
+								Value="true" />
+						</Style>
+					</DataGridTextColumn.EditingElementStyle>
+				</DataGridTextColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+	</Grid>
+</Window>

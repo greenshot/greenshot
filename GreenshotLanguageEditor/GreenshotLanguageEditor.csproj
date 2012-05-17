@@ -78,22 +78,35 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Language.cs" />
+    <Compile Include="MetaEditorWindow.xaml.cs">
+      <DependentUpon>MetaEditorWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\WPFAssemblyInfo.cs" />
-    <Compile Include="Window1.xaml.cs">
+    <Compile Include="EntriesEditorWindow.xaml.cs">
       <SubType>Code</SubType>
-      <DependentUpon>Window1.xaml</DependentUpon>
+      <DependentUpon>EntriesEditorWindow.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Window1.xaml" />
+    <Page Include="MetaEditorWindow.xaml" />
+    <Page Include="EntriesEditorWindow.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="icons\cross.png" />
+    <Resource Include="icons\cross.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="icons\disk-black.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <LogicalName>icon-save</LogicalName>
+    </Resource>
+    <Resource Include="icons\new.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icons\property.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
   <ItemGroup>

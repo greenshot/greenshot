@@ -27,11 +27,19 @@ using System.Xml.Linq;
 namespace GreenshotLanguageEditor {
 	public class LanguageFile {
 	    public string FilePath {
-	        get;
-	        set;
+			get {return Path.Combine(FileDir,FileName);}
+			set {
+				FileDir = Path.GetDirectoryName(value);
+				FileName = Path.GetFileName(value);
+			}
 	    }
+		public string FileDir {
+			get;
+			set;
+		}
 		public string FileName {
-			get {return Path.GetFileName(FilePath);}
+			get;
+			set;
 	    }
 	    public string IETF {
 	        get;

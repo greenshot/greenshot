@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window
+	x:Class="GreenshotLanguageEditor.MetaEditorWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Title="GreenshotLanguageEditor"
+	Width="320"
+	Height="243"
+	Icon="icons\icon.ico">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition
+				Height="Auto"></RowDefinition>
+			<RowDefinition
+				Height="Auto"></RowDefinition>
+			<RowDefinition
+				Height="Auto"></RowDefinition>
+			<RowDefinition
+				Height="Auto"></RowDefinition>
+			<RowDefinition
+				Height="Auto"></RowDefinition>
+			<RowDefinition
+				Height="Auto"></RowDefinition>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition
+				Width="*"></ColumnDefinition>
+			<ColumnDefinition
+				Width="Auto"></ColumnDefinition>
+		</Grid.ColumnDefinitions>
+		<Label
+			Grid.Row="0"
+			Grid.Column="0"
+			Height="22"
+			Padding="2"
+			Margin="5">Filename</Label>
+		<TextBox
+			Grid.Row="0"
+			Grid.Column="1"
+			Height="22"
+			Margin="5"
+			Width="150"
+			Text="{Binding Path=LangFile.FileName, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"></TextBox>
+		<Label
+			Grid.Row="1"
+			Grid.Column="0"
+			Height="22"
+			Padding="2"
+			Margin="5">Description</Label>
+		<TextBox
+			Grid.Row="1"
+			Grid.Column="1"
+			Height="22"
+			Margin="5"
+			Width="150"
+			Text="{Binding Path=LangFile.Description, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"></TextBox>
+		<Label
+			Grid.Row="2"
+			Grid.Column="0"
+			Height="22"
+			Padding="2"
+			Margin="5">IETF</Label>
+		<TextBox
+			Grid.Row="2"
+			Grid.Column="1"
+			Height="22"
+			Margin="5"
+			Width="150"
+			Text="{Binding Path=LangFile.IETF, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"></TextBox>
+		<Label
+			Grid.Row="3"
+			Grid.Column="0"
+			Height="22"
+			Padding="2"
+			Margin="5">Language group</Label>
+		<TextBox
+			Grid.Row="3"
+			Grid.Column="1"
+			Height="22"
+			Margin="5"
+			Width="150"
+			Text="{Binding Path=LangFile.Languagegroup, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"></TextBox>
+		<Label
+			Grid.Row="4"
+			Grid.Column="0"
+			Height="22"
+			Padding="2"
+			Margin="5">Version</Label>
+		<TextBox
+			Grid.Row="4"
+			Grid.Column="1"
+			Height="22"
+			Margin="5"
+			Width="150"
+			Text="{Binding Path=LangFile.Version, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Mode=TwoWay}"></TextBox>
+		<Button
+			Grid.Row="5"
+			Grid.Column="1"
+			Content="Close"
+			Margin="5,10,5,5"
+			Name="button1"
+			Click="button1_Click"></Button>
+	</Grid>
+</Window>
