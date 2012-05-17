@@ -184,7 +184,7 @@ Name: "plugins\confluence"; Description: {cm:confluence}; Types: Full; Check: ha
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: Full
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: Full
 Name: "plugins\box"; Description: "Box Plugin"; Types: Full; Check: hasNET35()
-Name: "plugins\dropbox"; Description: "DropBox Plugin"; Types: Full; Check: hasNET35()
+Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: Full; Check: hasNET35()
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: Full
 Name: "languages"; Description: {cm:language}; Types: Full
@@ -226,9 +226,11 @@ var
 begin
 	sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#emit SetupSetting("AppId")}_is1');
 	sUnInstallString := '';
-	// Retrieve uninstall string from HKLM or HKCU
-	if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
-		RegQueryStringValue(HKCU, sUnInstPath, 'UninstallString', sUnInstallString);
+	// Retrieve uninstall string from HKLM(32/64) or HKCU(32/64)
+	if not RegQueryStringValue(HKLM64, sUnInstPath, 'UninstallString', sUnInstallString) then
+		if not RegQueryStringValue(HKCU64, sUnInstPath, 'UninstallString', sUnInstallString) then
+			if not RegQueryStringValue(HKLM32, sUnInstPath, 'UninstallString', sUnInstallString) then
+				RegQueryStringValue(HKCU32, sUnInstPath, 'UninstallString', sUnInstallString);
 	Result := sUnInstallString;
 end;
 
@@ -243,6 +245,7 @@ end;
 function UnInstallOldVersion(): Integer;
 var
 	sUnInstallString: String;
+	iTries: Integer;
 	iResultCode: Integer;
 begin
 // Return Values:
@@ -252,20 +255,27 @@ begin
 
 	// default return value
 	Result := 0;
+	iTries := 5;
 
-	// get the uninstall string of the old app
-	sUnInstallString := GetUninstallString();
-	if sUnInstallString <> '' then
-	begin
-		sUnInstallString := RemoveQuotes(sUnInstallString);
-		if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
-			Result := 3
-		else
-			Result := 2;
-		// Wait a few seconds to prevent installation issues, otherwise files are removed in one process while the other tries to link to them
-		Sleep(2000);
-	end else
-		Result := 1;
+	// Uninstall while we find a uninstall string
+	while (Result <> 1) or (iTries = 0) do begin
+		iTries := iTries - 1;
+		// get the uninstall string of the old app
+		sUnInstallString := GetUninstallString();
+		if sUnInstallString <> '' then
+		begin
+			sUnInstallString := RemoveQuotes(sUnInstallString);
+			if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+				Result := 3
+			else
+				Result := 2;
+			// Wait a few seconds to prevent installation issues, otherwise files are removed in one process while the other tries to link to them
+			Sleep(2000);
+		end else
+		begin
+			Result := 1;
+		end;
+	end;
 end;
 
 /////////////////////////////////////////////////////////////////////
