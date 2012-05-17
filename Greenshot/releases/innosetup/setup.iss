@@ -227,10 +227,11 @@ begin
 	sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#emit SetupSetting("AppId")}_is1');
 	sUnInstallString := '';
 	// Retrieve uninstall string from HKLM(32/64) or HKCU(32/64)
-	if not RegQueryStringValue(HKLM64, sUnInstPath, 'UninstallString', sUnInstallString) then
-		if not RegQueryStringValue(HKCU64, sUnInstPath, 'UninstallString', sUnInstallString) then
-			if not RegQueryStringValue(HKLM32, sUnInstPath, 'UninstallString', sUnInstallString) then
-				RegQueryStringValue(HKCU32, sUnInstPath, 'UninstallString', sUnInstallString);
+	if not RegQueryStringValue(HKLM32, sUnInstPath, 'UninstallString', sUnInstallString) then
+		if not RegQueryStringValue(HKCU32, sUnInstPath, 'UninstallString', sUnInstallString) then
+			if IsWin64 then
+				if not RegQueryStringValue(HKLM64, sUnInstPath, 'UninstallString', sUnInstallString) then
+					RegQueryStringValue(HKCU64, sUnInstPath, 'UninstallString', sUnInstallString);
 	Result := sUnInstallString;
 end;
 
