@@ -75,7 +75,7 @@ namespace GreenshotLanguageEditor {
 		
 		public EntriesEditorWindow() {
 			
-			/*var dialog = new System.Windows.Forms.FolderBrowserDialog();
+			var dialog = new System.Windows.Forms.FolderBrowserDialog();
 			dialog.ShowNewFolderButton = false;
 			System.Windows.Forms.DialogResult result = dialog.ShowDialog();
 			string languagePath;
@@ -86,9 +86,9 @@ namespace GreenshotLanguageEditor {
 			} else {
 				this.Close();
 				return;
-			}*/
+			}
 			
-			languagePath = @"C:\Users\jens\Documents\Sharpdevelop Projects\Greenshot\trunk\Greenshot\Languages\";
+			//languagePath = @"C:\Users\jens\Documents\Sharpdevelop Projects\Greenshot\trunk\Greenshot\Languages\";
 
 			InitializeComponent();
 			DataContext = this;
