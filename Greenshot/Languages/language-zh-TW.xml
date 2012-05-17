@@ -1,385 +1,155 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="繁體中文" ietf="zh-tw" version="1.0.0" languagegroup="9">
-  <resources>
-	<resource name="about_translation">
-		繁體中文翻譯: Timothy Lin
-    </resource>
-	<resource name="application_title">
-		Greenshot - the revolutionary screenshot utility
-	</resource>
-	<resource name="editor_drawrectangle">
-		繪製矩形 (R)
-	</resource>
-	<resource name="editor_save">
-		儲存
-	</resource>
-	<resource name="contextmenu_settings">
-		設定
-	</resource>
-	<resource name="settings_storagelocation">
-		儲存路徑
-	</resource>
-	<resource name="settings_title">
-		設定
-	</resource>
-	<resource name="settings_tooltip_storagelocation">
-		預設儲存路徑(不輸入則直接存到桌面)
-	</resource>
-	<resource name="settings_language">
-		介面語言
-	</resource>
-	<resource name="settings_filenamepattern">
-		檔名格式
-	</resource>
-	<resource name="settings_tooltip_language">
-		設定介面語言
-	</resource>
-	<resource name="settings_tooltip_filenamepattern">
-		設定儲存圖片檔名的格式
-	</resource>
-	<resource name="settings_primaryimageformat">
-		圖片格式
-	</resource>
-	<resource name="settings_tooltip_primaryimageformat">
-		設定預設圖片格式
-	</resource>
-	<resource name="contextmenu_capturearea">
-		抓取螢幕的一部分
-	</resource>
-	<resource name="contextmenu_capturelastregion">
-		抓取上次選擇的區域
-	</resource>
-	<resource name="contextmenu_exit">
-		離開
-	</resource>
-	<resource name="settings_visualization">
-		效果
-	</resource>
-	<resource name="settings_playsound">
-		快門聲
-	</resource>
-	<resource name="settings_showflashlight">
-		閃光燈
-	</resource>
-	<resource name="error">
-		錯誤
-	</resource>
-	<resource name="error_nowriteaccess">
-		無法儲存檔案到 {0},
-請確認這個路徑可以儲存檔案.
-	</resource>
-	<resource name="contextmenu_capturefullscreen">
-		抓取全螢幕
-	</resource>
-	<resource name="editor_cuttoclipboard">
-		剪下
-	</resource>
-	<resource name="editor_copytoclipboard">
-		複製
-	</resource>
-	<resource name="editor_pastefromclipboard">
-		貼上
-	</resource>
-	<resource name="about_title">
-		關於 Greenshot
-	</resource>
-	<resource name="about_license">
-		Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+	<resources>
+		<resource name="about_bugs">如果發現任何錯誤, 請回報到以下網址</resource>
+		<resource name="about_donations">如果您喜歡這個軟體, 希望您可以支援我們:</resource>
+		<resource name="about_host">Greenshot 的網址是</resource>
+		<resource name="about_icons">圖片來源: Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
+		<resource name="about_license">Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
 作者不對這個程式做任何擔保.
 這個程式是自由軟體, 您可以在 GNU 通用公共許可證下任意散佈本軟體.
-關於 GNU 通用公共許可證:
-	</resource>
-	<resource name="error_openlink">
-		無法開啟此捷徑.
-	</resource>
-	<resource name="error_save">
-		無法儲存此圖片, 請選擇另一個路徑來儲存.
-	</resource>
-  	<resource name="about_icons">
-		圖片來源: Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)
-	</resource>
-	<resource name="about_host">
-		Greenshot 的網址是
-	</resource>
-	<resource name="about_bugs">
-		如果發現任何錯誤, 請回報到以下網址
-	</resource>
-	<resource name="about_donations">
-		如果您喜歡這個軟體, 希望您可以支援我們:
-	</resource>
-	<resource name="editor_imagesaved">
-		圖片已儲存到 {0}.
-	</resource>
-	<resource name="editor_storedtoclipboard">
-		圖片已儲存到剪貼簿.
-	</resource>
-	<resource name="editor_saveas">
-		另存新檔...
-	</resource>
-	<resource name="editor_file">
-		檔案
-	</resource>
-	<resource name="editor_edit">
-		編輯
-	</resource>
-	<resource name="editor_object">
-		物件
-	</resource>
-	<resource name="editor_drawellipse">
-		繪製橢圓 (E)
-	</resource>
-	<resource name="editor_drawtextbox">
-		加入文字 (T)
-	</resource>
-	<resource name="editor_deleteelement">
-		刪除物件
-	</resource>
-    <resource name="editor_selectall">
-		全選
-	</resource>
-	<resource name="editor_copyimagetoclipboard">
-		複製圖片到剪貼簿
-	</resource>
-	<resource name="contextmenu_capturewindow">
-		抓取視窗
-	</resource>
-	<resource name="editor_duplicate">
-		複製選取的物件
-	</resource>
-	<resource name="contextmenu_help">
-		說明
-	</resource>
-	<resource name="contextmenu_about">
-		關於 Greenshot
-	</resource>
-	<resource name="editor_title">
-		Greenshot 圖片編輯器
-	</resource>
-	<resource name="settings_applicationsettings">
-		程式設定
-	</resource>
-	<resource name="settings_preferredfilesettings">
-		輸出格式設定
-	</resource>
-	<resource name="settings_registerhotkeys">
-		使用快速鍵來操作
-	</resource>
-	<resource name="settings_tooltip_registerhotkeys">
-		如果選擇這個選項, 則您可以使用以下三個快速鍵來進行抓圖.
-Print	指定抓取螢幕畫面的一部分
-Ctrl+Print	抓取全螢幕
-Alt+Print	抓取視窗(如果沒有選取互動式抓圖的話, 程式會抓取目前作用中的視窗)
-	
-	</resource>
-	<resource name="editor_senttoprinter">
-		已使用 '{0}' 來進行列印工作.
-	</resource>
-	<resource name="editor_print">
-		列印
-	</resource>
-	<resource name="help_title">
-		Greenshot 說明
-	</resource>
-	<resource name="settings_jpegsettings">
-		JPEG 設定
-	</resource>
-	<resource name="settings_jpegquality">
-		JPEG 圖片品質
-	</resource>
-	<resource name="settings_alwaysshowjpegqualitydialog">
-		每次儲存時都跳出設定JPEG圖片品質的視窗
-	</resource>
-	<resource name="jpegqualitydialog_title">
-		Greenshot JPEG 圖片品質
-	</resource>
-	<resource name="jpegqualitydialog_choosejpegquality">
-		請選擇您想要的圖片品質.
-	</resource>
-	<resource name="jpegqualitydialog_dontaskagain">
-		不再詢問圖片品質
-	</resource>
-	<resource name="editor_forecolor">
-		線條顏色
-	</resource>
-	<resource name="editor_backcolor">
-		填滿顏色
-	</resource>
-	<resource name="editor_thickness">
-		線條粗細
-	</resource>
-	<resource name="colorpicker_title">
-		選擇顏色
-	</resource>
-	<resource name="colorpicker_apply">
-		確定
-	</resource>
-	<resource name="colorpicker_transparent">
-		透明
-	</resource>
-	<resource name="colorpicker_htmlcolor">
-		HTML顏色標示
-	</resource>
-	<resource name="colorpicker_red">
-		紅
-	</resource>
-	<resource name="colorpicker_green">
-		綠
-	</resource>
-	<resource name="colorpicker_blue">
-		藍
-	</resource>
-	<resource name="colorpicker_alpha">
-		不透明度
-	</resource>
-	<resource name="colorpicker_recentcolors">
-		最近使用的顏色
-	</resource>
-	<resource name="editor_close">
-		關閉
-	</resource>
-	<resource name="warning">
-		警告
-	</resource>
-	<resource name="warning_hotkeys">
-		有的快速鍵無法使用, 可能是被其他的程式佔住了.
-如果您想要使用 Greenshot 提供的快速鍵, 請嘗試結束佔用快速鍵的程式
-您也可以只用 Greenshot 的功能表來抓圖
-	</resource>
-	<resource name="settings_destination_editor">
-		用圖片編輯器開啟
-	</resource>
-	<resource name="settings_destination_printer">
-		列印圖片
-	</resource>
-	<resource name="settings_destination_file">
-		不詢問就直接儲存 (使用以下儲存設定)
-	</resource>
-	<resource name="settings_destination_clipboard">
-		複製圖片到剪貼簿
-	</resource>
-	<resource name="editor_drawline">
-		繪製直線 (L)
-	</resource>
-	<resource name="settings_destination">
-		抓圖後進行以下動作
-	</resource>
-	<resource name="editor_drawarrow">
-		繪製箭頭 (A)
-	</resource>
-	<resource name="editor_arrowheads">
-		箭頭方向
-	</resource>
-	<resource name="editor_arrowheads_start">
-		朝向起點
-	</resource>
-	<resource name="editor_arrowheads_end">
-		朝向終點
-	</resource>
-	<resource name="editor_arrowheads_both">
-		兩端都有
-	</resource>
-	<resource name="editor_arrowheads_none">
-		不顯示
-	</resource>
-    <resource name="editor_obfuscate_mode">
-		模糊模式
-	</resource>
-    <resource name="editor_highlight_mode">
-		標示模式
-	</resource>
-	<resource name="error_multipleinstances">
-		Greenshot 已經在執行了.
-	</resource>
-	<resource name="settings_autostartshortcut">
-		開機自動執行 Greenshot
-	</resource>
-	<resource name="clipboard_inuse">
-		無法將資料寫入剪貼簿, 因為 {0} 已將剪貼簿鎖定.
-	</resource>
-    <resource name="print_error">
-  		列印時發生錯誤.
-    </resource>
-	<resource name="printoptions_title">
-		列印設定
-	</resource>
-	<resource name="printoptions_allowcenter">
-		列印在紙張的正中央
-	</resource>
-	<resource name="printoptions_allowenlarge">
-		放大圖片以符合紙張大小
-	</resource>
-	<resource name="printoptions_allowrotate">
-		旋轉圖片
-	</resource>
-	<resource name="printoptions_allowshrink">
-		縮小圖片以符合紙張大小
-	</resource>
-	<resource name="printoptions_dontaskagain">
-		儲存列印設定並不再詢問
-	</resource>
-	<resource name="settings_alwaysshowprintoptionsdialog">
-		每次列印前都顯示列印設定視窗
-	</resource>
-	<resource name="settings_printoptions">
-		列印設定
-	</resource>
-	<resource name="settings_output">
-		輸出
-	</resource>
-	<resource name="settings_general">
-		一般
-	</resource>
-	<resource name="editor_clipboardfailed">
-		存取剪貼簿時發生錯誤, 請再試一次.
-	</resource>
-	<resource name="editor_bold">
-		粗體
-	</resource>
-	<resource name="editor_italic">
-		斜體
-	</resource>
-	<resource name="editor_arrange">
-		調整物件
-	</resource>
-	<resource name="editor_fontsize">
-		字體大小
-	</resource>
-	<resource name="editor_uptotop">
-		移到最上層
-	</resource>
-	<resource name="editor_uponelevel">
-		上移一層
-	</resource>
-	<resource name="editor_downonelevel">
-		下移一層
-	</resource>
-	<resource name="editor_downtobottom">
-		移到最下層
-	</resource>
-	<resource name="contextmenu_quicksettings">
-		快速設定
-	</resource>
-	<resource name="bugreport_title">
-		錯誤
-	</resource>
-	<resource name="bugreport_info">
-		很抱歉, 剛剛程式出現錯誤.
+關於 GNU 通用公共許可證:</resource>
+		<resource name="about_title">關於 Greenshot</resource>
+		<resource name="application_title">Greenshot - the revolutionary screenshot utility</resource>
+		<resource name="bugreport_cancel">Close</resource>
+		<resource name="bugreport_info">很抱歉, 剛剛程式出現錯誤.
 您可以藉由填寫錯誤報表來幫助我們修正錯誤.
 請點擊以下的連結, 新增一個錯誤報告並將下面文字方塊中的資訊貼到報告的內容中, 並請稍微敘述錯誤發生時的情況.
 另外, 我們強烈建議您在站內搜尋一下是否已經有人回報此錯誤.
-感謝您 :)
-	</resource>
-	<resource name="bugreport_cancel">
-		Close
-	</resource>
-	<resource name="settings_copypathtoclipboard">
-		每次儲存圖片時都將圖片路徑複製到剪貼簿
-	</resource>
-	<resource name="editor_copypathtoclipboard">
-		複製路徑到剪貼簿
-	</resource>
-	<resource name="settings_message_filenamepattern">
-		您可以使用以下的格式來指定檔名, 兩個%括起來的地方會被取代為日期、時間等:
+感謝您 :)</resource>
+		<resource name="bugreport_title">錯誤</resource>
+		<resource name="clipboard_error">複製資料到剪貼簿時發生錯誤.</resource>
+		<resource name="clipboard_inuse">無法將資料寫入剪貼簿, 因為 {0} 已將剪貼簿鎖定.</resource>
+		<resource name="colorpicker_alpha">不透明度</resource>
+		<resource name="colorpicker_apply">確定</resource>
+		<resource name="colorpicker_blue">藍</resource>
+		<resource name="colorpicker_green">綠</resource>
+		<resource name="colorpicker_htmlcolor">HTML顏色標示</resource>
+		<resource name="colorpicker_recentcolors">最近使用的顏色</resource>
+		<resource name="colorpicker_red">紅</resource>
+		<resource name="colorpicker_title">選擇顏色</resource>
+		<resource name="colorpicker_transparent">透明</resource>
+		<resource name="config_unauthorizedaccess_write">無法存取設定檔, 請確認 '{0}' 的存取權限.</resource>
+		<resource name="contextmenu_about">關於 Greenshot</resource>
+		<resource name="contextmenu_capturearea">抓取螢幕的一部分</resource>
+		<resource name="contextmenu_captureclipboard">從剪貼簿載入圖片</resource>
+		<resource name="contextmenu_capturefullscreen">抓取全螢幕</resource>
+		<resource name="contextmenu_capturelastregion">抓取上次選擇的區域</resource>
+		<resource name="contextmenu_capturewindow">抓取視窗</resource>
+		<resource name="contextmenu_donate">支援 Greenshot</resource>
+		<resource name="contextmenu_exit">離開</resource>
+		<resource name="contextmenu_help">說明</resource>
+		<resource name="contextmenu_openfile">從檔案載入圖片</resource>
+		<resource name="contextmenu_quicksettings">快速設定</resource>
+		<resource name="contextmenu_settings">設定</resource>
+		<resource name="editor_arrange">調整物件</resource>
+		<resource name="editor_arrowheads">箭頭方向</resource>
+		<resource name="editor_arrowheads_both">兩端都有</resource>
+		<resource name="editor_arrowheads_end">朝向終點</resource>
+		<resource name="editor_arrowheads_none">不顯示</resource>
+		<resource name="editor_arrowheads_start">朝向起點</resource>
+		<resource name="editor_backcolor">填滿顏色</resource>
+		<resource name="editor_blur_radius">模糊半徑</resource>
+		<resource name="editor_bold">粗體</resource>
+		<resource name="editor_brightness">亮度</resource>
+		<resource name="editor_cancel">取消</resource>
+		<resource name="editor_clipboardfailed">存取剪貼簿時發生錯誤, 請再試一次.</resource>
+		<resource name="editor_close">關閉</resource>
+		<resource name="editor_close_on_save">檔案尚未儲存, 您要儲存此圖片嗎?</resource>
+		<resource name="editor_close_on_save_title">儲存圖片</resource>
+		<resource name="editor_confirm">確定</resource>
+		<resource name="editor_copyimagetoclipboard">複製圖片到剪貼簿</resource>
+		<resource name="editor_copypathtoclipboard">複製路徑到剪貼簿</resource>
+		<resource name="editor_copytoclipboard">複製</resource>
+		<resource name="editor_crop">裁切 (C)</resource>
+		<resource name="editor_cursortool">指標工具 (ESC)</resource>
+		<resource name="editor_cuttoclipboard">剪下</resource>
+		<resource name="editor_deleteelement">刪除物件</resource>
+		<resource name="editor_downonelevel">下移一層</resource>
+		<resource name="editor_downtobottom">移到最下層</resource>
+		<resource name="editor_drawarrow">繪製箭頭 (A)</resource>
+		<resource name="editor_drawellipse">繪製橢圓 (E)</resource>
+		<resource name="editor_drawhighlighter">醒目標示 (H)</resource>
+		<resource name="editor_drawline">繪製直線 (L)</resource>
+		<resource name="editor_drawrectangle">繪製矩形 (R)</resource>
+		<resource name="editor_drawtextbox">加入文字 (T)</resource>
+		<resource name="editor_duplicate">複製選取的物件</resource>
+		<resource name="editor_edit">編輯</resource>
+		<resource name="editor_email">用 E-Mail 傳送</resource>
+		<resource name="editor_file">檔案</resource>
+		<resource name="editor_fontsize">字體大小</resource>
+		<resource name="editor_forecolor">線條顏色</resource>
+		<resource name="editor_highlight_area">標示區域</resource>
+		<resource name="editor_highlight_grayscale">灰階</resource>
+		<resource name="editor_highlight_magnify">放大</resource>
+		<resource name="editor_highlight_mode">標示模式</resource>
+		<resource name="editor_highlight_text">標示文字</resource>
+		<resource name="editor_imagesaved">圖片已儲存到 {0}.</resource>
+		<resource name="editor_italic">斜體</resource>
+		<resource name="editor_load_objects">從檔案載入物件</resource>
+		<resource name="editor_magnification_factor">放大倍率</resource>
+		<resource name="editor_obfuscate">模糊 (O)</resource>
+		<resource name="editor_obfuscate_blur">模糊化</resource>
+		<resource name="editor_obfuscate_mode">模糊模式</resource>
+		<resource name="editor_obfuscate_pixelize">像素化</resource>
+		<resource name="editor_object">物件</resource>
+		<resource name="editor_opendirinexplorer">開啟路徑</resource>
+		<resource name="editor_pastefromclipboard">貼上</resource>
+		<resource name="editor_pixel_size">像素大小</resource>
+		<resource name="editor_preview_quality">預覽品質</resource>
+		<resource name="editor_print">列印</resource>
+		<resource name="editor_save">儲存</resource>
+		<resource name="editor_save_objects">儲存物件到檔案</resource>
+		<resource name="editor_saveas">另存新檔...</resource>
+		<resource name="editor_selectall">全選</resource>
+		<resource name="editor_senttoprinter">已使用 '{0}' 來進行列印工作.</resource>
+		<resource name="editor_shadow">陰影</resource>
+		<resource name="editor_storedtoclipboard">圖片已儲存到剪貼簿.</resource>
+		<resource name="editor_thickness">線條粗細</resource>
+		<resource name="editor_title">Greenshot 圖片編輯器</resource>
+		<resource name="editor_uponelevel">上移一層</resource>
+		<resource name="editor_uptotop">移到最上層</resource>
+		<resource name="error">錯誤</resource>
+		<resource name="error_multipleinstances">Greenshot 已經在執行了.</resource>
+		<resource name="error_nowriteaccess">無法儲存檔案到 {0},
+請確認這個路徑可以儲存檔案.</resource>
+		<resource name="error_openfile">無法開啟 "{0}"</resource>
+		<resource name="error_openlink">無法開啟此捷徑.</resource>
+		<resource name="error_save">無法儲存此圖片, 請選擇另一個路徑來儲存.</resource>
+		<resource name="help_title">Greenshot 說明</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">請選擇您想要的圖片品質.</resource>
+		<resource name="jpegqualitydialog_dontaskagain">不再詢問圖片品質</resource>
+		<resource name="jpegqualitydialog_title">Greenshot JPEG 圖片品質</resource>
+		<resource name="print_error">列印時發生錯誤.</resource>
+		<resource name="printoptions_allowcenter">列印在紙張的正中央</resource>
+		<resource name="printoptions_allowenlarge">放大圖片以符合紙張大小</resource>
+		<resource name="printoptions_allowrotate">旋轉圖片</resource>
+		<resource name="printoptions_allowshrink">縮小圖片以符合紙張大小</resource>
+		<resource name="printoptions_dontaskagain">儲存列印設定並不再詢問</resource>
+		<resource name="printoptions_timestamp">在頁尾列印日期時間</resource>
+		<resource name="printoptions_title">列印設定</resource>
+		<resource name="quicksettings_destination_file">直接儲存</resource>
+		<resource name="settings_alwaysshowjpegqualitydialog">每次儲存時都跳出設定JPEG圖片品質的視窗</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">每次列印前都顯示列印設定視窗</resource>
+		<resource name="settings_applicationsettings">程式設定</resource>
+		<resource name="settings_autostartshortcut">開機自動執行 Greenshot</resource>
+		<resource name="settings_capture">抓圖</resource>
+		<resource name="settings_capture_mousepointer">抓取滑鼠指標</resource>
+		<resource name="settings_capture_windows_interactive">使用互動式抓圖</resource>
+		<resource name="settings_copypathtoclipboard">每次儲存圖片時都將圖片路徑複製到剪貼簿</resource>
+		<resource name="settings_destination">抓圖後進行以下動作</resource>
+		<resource name="settings_destination_clipboard">複製圖片到剪貼簿</resource>
+		<resource name="settings_destination_editor">用圖片編輯器開啟</resource>
+		<resource name="settings_destination_email">用E-Mail傳送</resource>
+		<resource name="settings_destination_file">不詢問就直接儲存 (使用以下儲存設定)</resource>
+		<resource name="settings_destination_fileas">問我要存到哪裡</resource>
+		<resource name="settings_destination_printer">列印圖片</resource>
+		<resource name="settings_filenamepattern">檔名格式</resource>
+		<resource name="settings_general">一般</resource>
+		<resource name="settings_jpegquality">JPEG 圖片品質</resource>
+		<resource name="settings_jpegsettings">JPEG 設定</resource>
+		<resource name="settings_language">介面語言</resource>
+		<resource name="settings_message_filenamepattern">您可以使用以下的格式來指定檔名, 兩個%括起來的地方會被取代為日期、時間等:
 ${YYYY}  年,  4個數字
 ${MM}  月,  2個數字
 ${DD}  日,  2個數字
@@ -393,128 +163,31 @@ ${domain}   Windows   網域名稱
 ${hostname}   電腦名稱
 您也可以讓 Greenshot 自動產生資料夾, 只要用把右斜線( \ )放在資料夾名稱和檔名的中間就可以了
 例: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-這樣寫的話, Greenshot 會在預設儲存路徑下建立一個以今天日期為名稱的資料夾(如 2008-06-29), 然後在這個資料夾下儲存圖片檔, 檔名為目前的時間(如 11-58-32)再加上圖片的副檔名 
-	</resource>
-	<resource name="editor_cursortool">
-		指標工具 (ESC)
-	</resource>
-	<resource name="settings_destination_fileas">
-		問我要存到哪裡
-	</resource>
-	<resource name="quicksettings_destination_file">
-		直接儲存
-	</resource>
-	<resource name="editor_opendirinexplorer">
-		開啟路徑
-	</resource>
-	<resource name="printoptions_timestamp">
-		在頁尾列印日期時間
-	</resource>
-	<resource name="editor_drawhighlighter">
-		醒目標示 (H)
-	</resource>
-	<resource name="editor_obfuscate_blur">
-		模糊化
-	</resource>
-	<resource name="editor_obfuscate_pixelize">
-		像素化
-	</resource>
-	<resource name="editor_highlight_area">
-		標示區域
-	</resource>
-	<resource name="editor_highlight_text">
-		標示文字
-    </resource>
-    <resource name="editor_highlight_grayscale">
-		灰階
-    </resource>
-    <resource name="editor_highlight_magnify">
-		放大
-	</resource>
-	<resource name="editor_pixel_size">
-		像素大小
-	</resource>
-    <resource name="editor_obfuscate">
-		模糊 (O)
-    </resource>
-    <resource name="editor_blur_radius">
-		模糊半徑
-    </resource>
-    <resource name="editor_brightness">
-		亮度
-	</resource>
-    <resource name="editor_preview_quality">
-		預覽品質
-	</resource>
-    <resource name="editor_magnification_factor">
-		放大倍率
-    </resource>
-    <resource name="editor_shadow">
-		陰影
-	</resource>
-    <resource name="editor_confirm">
-		確定
-    </resource>
-    <resource name="editor_cancel">
-		取消
-    </resource>
-    <resource name="editor_crop">
-		裁切 (C)
-    </resource>
-	<resource name="contextmenu_captureclipboard">
-		從剪貼簿載入圖片
-	</resource>
-	<resource name="clipboard_error">
-		複製資料到剪貼簿時發生錯誤.
-	</resource>
-	<resource name="config_unauthorizedaccess_write">
-		無法存取設定檔, 請確認 '{0}' 的存取權限.
-	</resource>
-	<resource name="settings_printer">
-		印表機
-	</resource>
-	<resource name="settings_capture">
-		抓圖
-	</resource>
-	<resource name="settings_capture_mousepointer">
-		抓取滑鼠指標
-	</resource>
-	<resource name="contextmenu_openfile">
-		從檔案載入圖片
-	</resource>
-	<resource name="error_openfile">
-		無法開啟 "{0}"
-	</resource>
-	<resource name="editor_close_on_save">
-		檔案尚未儲存, 您要儲存此圖片嗎?
-	</resource>
-	<resource name="editor_close_on_save_title">
-		儲存圖片
-	</resource>
-	<resource name="settings_capture_windows_interactive">
-		使用互動式抓圖
-	</resource>
-	<resource name="settings_destination_email">
-		用E-Mail傳送
-	</resource>
-	<resource name="editor_email">
-		用 E-Mail 傳送
-	</resource>
-	<resource name="editor_load_objects">
-		從檔案載入物件
-	</resource>
-	<resource name="editor_save_objects">
-		儲存物件到檔案
-	</resource>
-	<resource name="settings_waittime">
-		在抓圖之前等待的時間(毫秒)
-	</resource>
-	<resource name="tooltip_firststart">
-		按這裡或是按下鍵盤上的 Print.
-	</resource>
-	<resource name="contextmenu_donate">
-		支援 Greenshot
-	</resource>
-  </resources>
+這樣寫的話, Greenshot 會在預設儲存路徑下建立一個以今天日期為名稱的資料夾(如 2008-06-29), 然後在這個資料夾下儲存圖片檔, 檔名為目前的時間(如 11-58-32)再加上圖片的副檔名</resource>
+		<resource name="settings_output">輸出</resource>
+		<resource name="settings_playsound">快門聲</resource>
+		<resource name="settings_preferredfilesettings">輸出格式設定</resource>
+		<resource name="settings_primaryimageformat">圖片格式</resource>
+		<resource name="settings_printer">印表機</resource>
+		<resource name="settings_printoptions">列印設定</resource>
+		<resource name="settings_registerhotkeys">使用快速鍵來操作</resource>
+		<resource name="settings_showflashlight">閃光燈</resource>
+		<resource name="settings_storagelocation">儲存路徑</resource>
+		<resource name="settings_title">設定</resource>
+		<resource name="settings_tooltip_filenamepattern">設定儲存圖片檔名的格式</resource>
+		<resource name="settings_tooltip_language">設定介面語言</resource>
+		<resource name="settings_tooltip_primaryimageformat">設定預設圖片格式</resource>
+		<resource name="settings_tooltip_registerhotkeys">如果選擇這個選項, 則您可以使用以下三個快速鍵來進行抓圖.
+Print	指定抓取螢幕畫面的一部分
+Ctrl+Print	抓取全螢幕
+Alt+Print	抓取視窗(如果沒有選取互動式抓圖的話, 程式會抓取目前作用中的視窗)</resource>
+		<resource name="settings_tooltip_storagelocation">預設儲存路徑(不輸入則直接存到桌面)</resource>
+		<resource name="settings_visualization">效果</resource>
+		<resource name="settings_waittime">在抓圖之前等待的時間(毫秒)</resource>
+		<resource name="tooltip_firststart">按這裡或是按下鍵盤上的 Print.</resource>
+		<resource name="warning">警告</resource>
+		<resource name="warning_hotkeys">有的快速鍵無法使用, 可能是被其他的程式佔住了.
+如果您想要使用 Greenshot 提供的快速鍵, 請嘗試結束佔用快速鍵的程式
+您也可以只用 Greenshot 的功能表來抓圖</resource>
+	</resources>
 </language>
- 	  	 

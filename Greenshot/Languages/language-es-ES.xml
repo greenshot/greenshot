@@ -1,386 +1,156 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Español" ietf="es-ES" version="1.0.0" languagegroup="1">
-  <resources>
-	<!--    
-	Note to translator: uncomment entry "about_translation" to have 
-	your efforts honored in the "About Greenshot" dialog 
-	-->
-	<resource name="about_translation">
-		<!--English translation by YOUR_NAME-->
-	</resource>
-	<resource name="application_title">
-		Greenshot - La revoluconaria Utilidad de Captura de Pantalla
-	</resource>
-	<resource name="editor_drawrectangle">
-		Dibujar Rectángulo (R)
-	</resource>
-	<resource name="editor_save">
-		Guardar
-	</resource>
-	<resource name="contextmenu_settings">
-		Preferencias...
-	</resource>
-	<resource name="settings_storagelocation">
-		Lugar de Almacenamiento
-	</resource>
-	<resource name="settings_title">
-		Configuración
-	</resource>
-	<resource name="settings_tooltip_storagelocation">
-		Lugar donde las capturas de pantalla serán guardadas por defecto(dejar en blanco para guardar en el escritorio)
-	</resource>
-	<resource name="settings_language">
-		Lenguaje
-	</resource>
-	<resource name="settings_filenamepattern">
-		Formato para nombre del archivo
-	</resource>
-	<resource name="settings_tooltip_language">
-		Lenguaje de la interface de usuario de Greenshot(requiere reiniciar)
-	</resource>
-	<resource name="settings_tooltip_filenamepattern">
-		Formato usado para generar el nombre de los archivos cuando se guarda carpturas de pantalla
-	</resource>
-	<resource name="settings_primaryimageformat">
-		Formato de Imagen
-	</resource>
-	<resource name="settings_tooltip_primaryimageformat">
-		Formato de imagen usado por defecto
-	</resource>
-	<resource name="contextmenu_capturearea">
-		Capturar región
-	</resource>
-	<resource name="contextmenu_capturelastregion">
-		Capturar la última región
-	</resource>
-	<resource name="contextmenu_exit">
-		Salir
-	</resource>
-	<resource name="settings_visualization">
-		Efectos
-	</resource>
-	<resource name="settings_playsound">
-		Reproducir sonido de cámara
-	</resource>
-	<resource name="settings_showflashlight">
-		Mostrar Flash
-	</resource>
-	<resource name="error">
-		Error
-	</resource>
-	<resource name="error_nowriteaccess">
-		No se puede guardar el archivo a {0}.
-Por favor verifique la ruta de almacenamiento seleccionada.
-	</resource>
-	<resource name="contextmenu_capturefullscreen">
-		Capturar pantalla completa
-	</resource>
-	<resource name="editor_cuttoclipboard">
-		Cortar
-	</resource>
-	<resource name="editor_copytoclipboard">
-		Copiar
-	</resource>
-	<resource name="editor_pastefromclipboard">
-		Pegar
-	</resource>
-	<resource name="about_title">
-		Acerca de Greenshot
-	</resource>
-	<resource name="about_license">
-		Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+	<resources>
+		<resource name="about_bugs">Por favor reporte errores a</resource>
+		<resource name="about_donations">Si te gusta Greenshot, eres bienvenido a apoyarnos:</resource>
+		<resource name="about_host">Greenshot está alojado en sourceforge.net en</resource>
+		<resource name="about_icons">Iconos del conjunto de iconos Fugue de Yusuke Kamiyamane(Creative Commons Attribution 3.0 license)</resource>
+		<resource name="about_license">Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot viene ABSOLUTAMENTE SIN GARANTIA. Este es software gratuito, y eres bienvenido a redistribuirlo bajo ciertas condiciones.
-Detalles acerca de la Licencia General Publica GNU:
-	</resource>
-	<resource name="error_openlink">
-		No se puede abrir la dirección '{0}'.
-	</resource>
-	<resource name="error_save">
-		No se puede guardar la captura, por favor busque una ubicación adecuada.
-	</resource>
-	<resource name="about_icons">
-		Iconos del conjunto de iconos Fugue de Yusuke Kamiyamane(Creative Commons Attribution 3.0 license)
-	</resource>
-	<resource name="about_host">
-		Greenshot está alojado en sourceforge.net en
-	</resource>
-	<resource name="about_bugs">
-		Por favor reporte errores a
-	</resource>
-	<resource name="about_donations">
-		Si te gusta Greenshot, eres bienvenido a apoyarnos:
-	</resource>
-	<resource name="editor_imagesaved">
-		Imagen guardada a{0}.
-	</resource>
-	<resource name="editor_storedtoclipboard">
-		Imagen alojada en el portapapeles.
-	</resource>
-	<resource name="editor_saveas">
-		Guardar como...
-	</resource>
-	<resource name="editor_file">
-		Archivo
-	</resource>
-	<resource name="editor_edit">
-		Editar
-	</resource>
-	<resource name="editor_object">
-		Objeto
-	</resource>
-	<resource name="editor_drawellipse">
-		Dibujar Elipse (E)
-	</resource>
-	<resource name="editor_drawtextbox">
-		Agregar cuadro de texto (T)
-	</resource>
-	<resource name="editor_deleteelement">
-		Eliminar
-	</resource>
-	<resource name="editor_selectall">
-		Seleccionar todo
-	</resource>
-	<resource name="editor_copyimagetoclipboard">
-		Copiar imagen al portapapeles
-	</resource>
-	<resource name="contextmenu_capturewindow">
-		Capturar ventana
-	</resource>
-	<resource name="editor_duplicate">
-		Duplicar elemento seleccionado
-	</resource>
-	<resource name="contextmenu_help">
-		Ayuda
-	</resource>
-	<resource name="contextmenu_about">
-		Acerca de Greenshot
-	</resource>
-	<resource name="editor_title">
-		Editor de Imagenes Greenshot
-	</resource>
-	<resource name="settings_applicationsettings">
-		Configuración de la aplicación
-	</resource>
-	<resource name="settings_preferredfilesettings">
-		Configuración preferida de archivos de salida
-	</resource>
-	<resource name="settings_registerhotkeys">
-		Registrar accesos de teclado
-	</resource>
-	<resource name="settings_tooltip_registerhotkeys">
-		define si los accesos directos Prnt, Ctrl + Print, Alt + Prnt estan reservados para uso global por Greenshot al inicio, hasta cerrar el programa.
-	</resource>
-	<resource name="editor_senttoprinter">
-		Imprimir trabajo enviado a '{0}'.
-	</resource>
-	<resource name="editor_print">
-		Imprimir
-	</resource>
-	<resource name="help_title">
-		Ayuda de Greenshot
-	</resource>
-	<resource name="settings_jpegsettings">
-		Configuración para JPEG
-	</resource>
-	<resource name="settings_jpegquality">
-		Calidad del JPEG
-	</resource>
-	<resource name="settings_alwaysshowjpegqualitydialog">
-		Mostrar el dialogo de calidad del JPEG cada vez que una imagen JPEG es guardada
-	</resource>
-	<resource name="jpegqualitydialog_title">
-		Calidad de JPEG Greenshot
-	</resource>
-	<resource name="jpegqualitydialog_choosejpegquality">
-		Por favor seleccione la calidad para su imagen JPEG.
-	</resource>
-	<resource name="jpegqualitydialog_dontaskagain">
-		Guardar calidad JPEG por defecto y no preguntar de nuevo
-	</resource>
-	<resource name="editor_forecolor">
-		Color de linea
-	</resource>
-	<resource name="editor_backcolor">
-		llenar color
-	</resource>
-	<resource name="editor_thickness">
-		Ancho de linea
-	</resource>
-	<resource name="colorpicker_title">
-		Selector de Color
-	</resource>
-	<resource name="colorpicker_apply">
-		Aplicar
-	</resource>
-	<resource name="colorpicker_transparent">
-		Transparencia
-	</resource>
-	<resource name="colorpicker_htmlcolor">
-		Color HTML
-	</resource>
-	<resource name="colorpicker_red">
-		Rojo
-	</resource>
-	<resource name="colorpicker_green">
-		Verde
-	</resource>
-	<resource name="colorpicker_blue">
-		Azul
-	</resource>
-	<resource name="colorpicker_alpha">
-		Alpha
-	</resource>
-	<resource name="colorpicker_recentcolors">
-		Colores usados recientemente
-	</resource>
-	<resource name="editor_close">
-		Cerrar
-	</resource>
-	<resource name="warning">
-		Atención
-	</resource>
-	<resource name="warning_hotkeys">
-		Uno o varios accesos de teclado podrian no estar registrados. Por lo tanto, no pude ser posible usar los accesos de teclado de Greenshot.
-Este problema es causado probablemente otra herramienta reclama el uso de los mismos accesos de teclado.
-Porfavor desactive el programa haciendo uso del boton imprimir. Tu puedes también simplemente usar todos las caracteristicas de Greenshot desde el menú contextual en la tray icon.
-	</resource>
-	<resource name="settings_destination_editor">
-		Abrir imagen en el editor
-	</resource>
-	<resource name="settings_destination_printer">
-		Enviar a imprimir
-	</resource>
-	<resource name="settings_destination_file">
-		Guardar directamente (Usando los valores debajo)
-	</resource>
-	<resource name="settings_destination_clipboard">
-		Copiar al portapapeles
-	</resource>
-	<resource name="editor_drawline">
-		Dibujar linea (L)
-	</resource>
-	<resource name="settings_destination">
-		Destino de la captura de pantalla
-	</resource>
-	<resource name="editor_drawarrow">
-		Dibujar flecha (A)
-	</resource>
-	<resource name="editor_arrowheads">
-		Puntas de flecha
-	</resource>
-	<resource name="editor_arrowheads_start">
-		Punto de inicio
-	</resource>
-	<resource name="editor_arrowheads_end">
-		Punto final
-	</resource>
-	<resource name="editor_arrowheads_both">
-		Ambos
-	</resource>
-	<resource name="editor_arrowheads_none">
-		Ninguno
-	</resource>
-    <resource name="editor_obfuscate_mode">
-		Modo Obfuscación
-	</resource>
-    <resource name="editor_highlight_mode">
-		Modo de resaltado
-	</resource>
-	<resource name="error_multipleinstances">
-		Una instancia de Greenshot ya se está ejecutando.
-	</resource>
-	<resource name="settings_autostartshortcut">
-		Cargar Greenshot al inicio
-	</resource>
-	<resource name="clipboard_inuse">
-		Greenshot no esta habilitado para escribir al portapapeles como proceso {0} acceso denegado.
-	</resource>
-    <resource name="print_error">
-  		Un error ocurrío mientras se trataba de imprimir.
-	</resource>
-	<resource name="printoptions_title">
-		Opciones de impresion Greenshot
-	</resource>
-	<resource name="printoptions_allowcenter">
-		Centrar impresión en la página
-	</resource>
-	<resource name="printoptions_allowenlarge">
-		Agrandar la impresion para llenar el papel
-	</resource>
-	<resource name="printoptions_allowrotate">
-		Rotar imresion a orientacion de la página.
-	</resource>
-	<resource name="printoptions_allowshrink">
-		Ajustar impresión al tamaño del papel
-	</resource>
-	<resource name="printoptions_dontaskagain">
-		Guardar opciones por defecto y no preguntar de nuevo
-	</resource>
-	<resource name="settings_alwaysshowprintoptionsdialog">
-		Mostrar el cuadro de opciones de impresión cada vez que una imagen es impresa
-	</resource>
-	<resource name="settings_printoptions">
-		Opciones de Impresión
-	</resource>
-	<resource name="settings_output">
-		Salida
-	</resource>
-	<resource name="settings_general">
-		General
-	</resource>
-	<resource name="editor_clipboardfailed">
-		Error accesando al portapapeles. Por favor trate de nuevo.
-	</resource>
-	<resource name="editor_bold">
-		Negrita
-	</resource>
-	<resource name="editor_italic">
-		Cursiva
-	</resource>
-	<resource name="editor_arrange">
-		Organizar
-	</resource>
-	<resource name="editor_fontsize">
-		Tamaño
-	</resource>
-	<resource name="editor_uptotop">
-		Ir arriba
-	</resource>
-	<resource name="editor_uponelevel">
-		Subir un nivel
-	</resource>
-	<resource name="editor_downonelevel">
-		Bajar un nivel
-	</resource>
-	<resource name="editor_downtobottom">
-		Bajar a la parte inferior
-	</resource>
-	<resource name="contextmenu_quicksettings">
-		Preferencias rápidas
-	</resource>
-	<resource name="bugreport_title">
-		Error
-	</resource>
-	<resource name="bugreport_info">
-		Lo sentimos, ha ocurrido un error inesperado.
+Detalles acerca de la Licencia General Publica GNU:</resource>
+		<resource name="about_title">Acerca de Greenshot</resource>
+		<resource name="application_title">Greenshot - La revoluconaria Utilidad de Captura de Pantalla</resource>
+		<resource name="bugreport_cancel">Cerrar</resource>
+		<resource name="bugreport_info">Lo sentimos, ha ocurrido un error inesperado.
 
 La buena noticia es: tu puedes ayudar enviandónos información a travéz de un reporte de errores.
 Por favor visite la URL de abajo, cree un nuevo reporte de errores y pegue el contenido desde el área de texto a la descripción.
 
 Por favor agregue un significativo resumen y encierre alguna información que consideres útil para reproducir el problema.
-También, no sotros apreciaremos mucho si tu marcas si uno de los existentes artu}iculos ya existe para este problema. (Puedes usar la busqueda para buscarlo rápidamente.) Gracias :)
-	</resource>
-	<resource name="bugreport_cancel">
-		Cerrar
-	</resource>
-	<resource name="settings_copypathtoclipboard">
-		Copiar ubicación al portapapeles cada vez que una imagen es guardada
-	</resource>
-	<resource name="editor_copypathtoclipboard">
-		Copiar ubicación al portapapeles
-	</resource>
-	<resource name="settings_message_filenamepattern">
-		Los siguientes marcadores de posición serán reemplazados automáticamente por el formato definido:
+También, no sotros apreciaremos mucho si tu marcas si uno de los existentes artu}iculos ya existe para este problema. (Puedes usar la busqueda para buscarlo rápidamente.) Gracias :)</resource>
+		<resource name="bugreport_title">Error</resource>
+		<resource name="clipboard_error">Un error inesperado ocurrio mientras se escribia al portapapeles.</resource>
+		<resource name="clipboard_inuse">Greenshot no esta habilitado para escribir al portapapeles como proceso {0} acceso denegado.</resource>
+		<resource name="colorpicker_alpha">Alpha</resource>
+		<resource name="colorpicker_apply">Aplicar</resource>
+		<resource name="colorpicker_blue">Azul</resource>
+		<resource name="colorpicker_green">Verde</resource>
+		<resource name="colorpicker_htmlcolor">Color HTML</resource>
+		<resource name="colorpicker_recentcolors">Colores usados recientemente</resource>
+		<resource name="colorpicker_red">Rojo</resource>
+		<resource name="colorpicker_title">Selector de Color</resource>
+		<resource name="colorpicker_transparent">Transparencia</resource>
+		<resource name="config_unauthorizedaccess_write">No se puede guardar el archivo de configuracion de Greenshot. Por favor verifique los permisos de acceso a '{0}'.</resource>
+		<resource name="contextmenu_about">Acerca de Greenshot</resource>
+		<resource name="contextmenu_capturearea">Capturar región</resource>
+		<resource name="contextmenu_captureclipboard">Abrir imagen desde el portapapeles</resource>
+		<resource name="contextmenu_capturefullscreen">Capturar pantalla completa</resource>
+		<resource name="contextmenu_capturelastregion">Capturar la última región</resource>
+		<resource name="contextmenu_capturewindow">Capturar ventana</resource>
+		<resource name="contextmenu_donate">Soporte de Greenshot</resource>
+		<resource name="contextmenu_exit">Salir</resource>
+		<resource name="contextmenu_help">Ayuda</resource>
+		<resource name="contextmenu_openfile">Abrir imagen desde archivo</resource>
+		<resource name="contextmenu_quicksettings">Preferencias rápidas</resource>
+		<resource name="contextmenu_settings">Preferencias...</resource>
+		<resource name="editor_arrange">Organizar</resource>
+		<resource name="editor_arrowheads">Puntas de flecha</resource>
+		<resource name="editor_arrowheads_both">Ambos</resource>
+		<resource name="editor_arrowheads_end">Punto final</resource>
+		<resource name="editor_arrowheads_none">Ninguno</resource>
+		<resource name="editor_arrowheads_start">Punto de inicio</resource>
+		<resource name="editor_backcolor">llenar color</resource>
+		<resource name="editor_blur_radius">Radio de desenfoque</resource>
+		<resource name="editor_bold">Negrita</resource>
+		<resource name="editor_brightness">Brillo</resource>
+		<resource name="editor_cancel">Cancelar</resource>
+		<resource name="editor_clipboardfailed">Error accesando al portapapeles. Por favor trate de nuevo.</resource>
+		<resource name="editor_close">Cerrar</resource>
+		<resource name="editor_close_on_save">¿Quieres guardar la misma captura de pantalla?</resource>
+		<resource name="editor_close_on_save_title">¿Guardar imagen?</resource>
+		<resource name="editor_confirm">Confirmar</resource>
+		<resource name="editor_copyimagetoclipboard">Copiar imagen al portapapeles</resource>
+		<resource name="editor_copypathtoclipboard">Copiar ubicación al portapapeles</resource>
+		<resource name="editor_copytoclipboard">Copiar</resource>
+		<resource name="editor_crop">Cortar (C)</resource>
+		<resource name="editor_cursortool">Herramienta de Selección (ESC)</resource>
+		<resource name="editor_cuttoclipboard">Cortar</resource>
+		<resource name="editor_deleteelement">Eliminar</resource>
+		<resource name="editor_downonelevel">Bajar un nivel</resource>
+		<resource name="editor_downtobottom">Bajar a la parte inferior</resource>
+		<resource name="editor_drawarrow">Dibujar flecha (A)</resource>
+		<resource name="editor_drawellipse">Dibujar Elipse (E)</resource>
+		<resource name="editor_drawhighlighter">Enfocar (H)</resource>
+		<resource name="editor_drawline">Dibujar linea (L)</resource>
+		<resource name="editor_drawrectangle">Dibujar Rectángulo (R)</resource>
+		<resource name="editor_drawtextbox">Agregar cuadro de texto (T)</resource>
+		<resource name="editor_duplicate">Duplicar elemento seleccionado</resource>
+		<resource name="editor_edit">Editar</resource>
+		<resource name="editor_email">Correo esectrónico</resource>
+		<resource name="editor_file">Archivo</resource>
+		<resource name="editor_fontsize">Tamaño</resource>
+		<resource name="editor_forecolor">Color de linea</resource>
+		<resource name="editor_highlight_area">Área de enfoque</resource>
+		<resource name="editor_highlight_grayscale">Escala de grises</resource>
+		<resource name="editor_highlight_magnify">Aumentar</resource>
+		<resource name="editor_highlight_mode">Modo de resaltado</resource>
+		<resource name="editor_highlight_text">Enfocar texto</resource>
+		<resource name="editor_imagesaved">Imagen guardada a{0}.</resource>
+		<resource name="editor_italic">Cursiva</resource>
+		<resource name="editor_load_objects">Cargar archivos desde archivo</resource>
+		<resource name="editor_magnification_factor">Aumentar factor</resource>
+		<resource name="editor_obfuscate">Obfuscar (O)</resource>
+		<resource name="editor_obfuscate_blur">Blur (desenfocar)</resource>
+		<resource name="editor_obfuscate_mode">Modo Obfuscación</resource>
+		<resource name="editor_obfuscate_pixelize">Pixelizar</resource>
+		<resource name="editor_object">Objeto</resource>
+		<resource name="editor_opendirinexplorer">Abrir ubicación en explorador de windows</resource>
+		<resource name="editor_pastefromclipboard">Pegar</resource>
+		<resource name="editor_pixel_size">tamano de Pixel</resource>
+		<resource name="editor_preview_quality">Calidad previa</resource>
+		<resource name="editor_print">Imprimir</resource>
+		<resource name="editor_save">Guardar</resource>
+		<resource name="editor_save_objects">Guardar objetos a archivo</resource>
+		<resource name="editor_saveas">Guardar como...</resource>
+		<resource name="editor_selectall">Seleccionar todo</resource>
+		<resource name="editor_senttoprinter">Imprimir trabajo enviado a '{0}'.</resource>
+		<resource name="editor_shadow">Sombra</resource>
+		<resource name="editor_storedtoclipboard">Imagen alojada en el portapapeles.</resource>
+		<resource name="editor_thickness">Ancho de linea</resource>
+		<resource name="editor_title">Editor de Imagenes Greenshot</resource>
+		<resource name="editor_uponelevel">Subir un nivel</resource>
+		<resource name="editor_uptotop">Ir arriba</resource>
+		<resource name="error">Error</resource>
+		<resource name="error_multipleinstances">Una instancia de Greenshot ya se está ejecutando.</resource>
+		<resource name="error_nowriteaccess">No se puede guardar el archivo a {0}.
+Por favor verifique la ruta de almacenamiento seleccionada.</resource>
+		<resource name="error_openfile">El archivo "{0}" no se pudo abrir.</resource>
+		<resource name="error_openlink">No se puede abrir la dirección '{0}'.</resource>
+		<resource name="error_save">No se puede guardar la captura, por favor busque una ubicación adecuada.</resource>
+		<resource name="help_title">Ayuda de Greenshot</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Por favor seleccione la calidad para su imagen JPEG.</resource>
+		<resource name="jpegqualitydialog_dontaskagain">Guardar calidad JPEG por defecto y no preguntar de nuevo</resource>
+		<resource name="jpegqualitydialog_title">Calidad de JPEG Greenshot</resource>
+		<resource name="print_error">Un error ocurrío mientras se trataba de imprimir.</resource>
+		<resource name="printoptions_allowcenter">Centrar impresión en la página</resource>
+		<resource name="printoptions_allowenlarge">Agrandar la impresion para llenar el papel</resource>
+		<resource name="printoptions_allowrotate">Rotar imresion a orientacion de la página.</resource>
+		<resource name="printoptions_allowshrink">Ajustar impresión al tamaño del papel</resource>
+		<resource name="printoptions_dontaskagain">Guardar opciones por defecto y no preguntar de nuevo</resource>
+		<resource name="printoptions_timestamp">Imprimir fecha / tiempo en la parte inferior de la página</resource>
+		<resource name="printoptions_title">Opciones de impresion Greenshot</resource>
+		<resource name="quicksettings_destination_file">Guardar directamente (Usando configuracion preferida para archivos de salida)</resource>
+		<resource name="settings_alwaysshowjpegqualitydialog">Mostrar el dialogo de calidad del JPEG cada vez que una imagen JPEG es guardada</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Mostrar el cuadro de opciones de impresión cada vez que una imagen es impresa</resource>
+		<resource name="settings_applicationsettings">Configuración de la aplicación</resource>
+		<resource name="settings_autostartshortcut">Cargar Greenshot al inicio</resource>
+		<resource name="settings_capture">Capturar</resource>
+		<resource name="settings_capture_mousepointer">Capturar cursor del ratón</resource>
+		<resource name="settings_capture_windows_interactive">Usar modo interactivo de caputara de ventana</resource>
+		<resource name="settings_copypathtoclipboard">Copiar ubicación al portapapeles cada vez que una imagen es guardada</resource>
+		<resource name="settings_destination">Destino de la captura de pantalla</resource>
+		<resource name="settings_destination_clipboard">Copiar al portapapeles</resource>
+		<resource name="settings_destination_editor">Abrir imagen en el editor</resource>
+		<resource name="settings_destination_email">Correo esectrónico</resource>
+		<resource name="settings_destination_file">Guardar directamente (Usando los valores debajo)</resource>
+		<resource name="settings_destination_fileas">Guardar como (mostrando cuadro)</resource>
+		<resource name="settings_destination_printer">Enviar a imprimir</resource>
+		<resource name="settings_filenamepattern">Formato para nombre del archivo</resource>
+		<resource name="settings_general">General</resource>
+		<resource name="settings_jpegquality">Calidad del JPEG</resource>
+		<resource name="settings_jpegsettings">Configuración para JPEG</resource>
+		<resource name="settings_language">Lenguaje</resource>
+		<resource name="settings_message_filenamepattern">Los siguientes marcadores de posición serán reemplazados automáticamente por el formato definido:
 ${YYYY} año, 4 digitos
 ${MM} mes, 2 digitos
 ${DD} día, 2 digitos
@@ -396,128 +166,28 @@ ${hostname} Nombre del Equipo
 También puedes crear Greenshot ubicaciones dinámicamente, simplemente usa el simbolo de diagonal (\) para separar carpetas y nombres de archivo.
 Ejemplo: el formato ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 generará una carpeta para el dia presente dentro de tu folder de almacenamiento por defento, ejemplo: 2008-06-29, los nombre de las imagenes contenidas serán basados en el momento
-presente, ejemplo: 11_58_32 (más la extension definida en la configuración)
-	</resource>
-	<resource name="editor_cursortool">
-		Herramienta de Selección (ESC)
-	</resource>
-	<resource name="settings_destination_fileas">
-		Guardar como (mostrando cuadro)
-	</resource>
-	<resource name="quicksettings_destination_file">
-		Guardar directamente (Usando configuracion preferida para archivos de salida)
-	</resource>
-	<resource name="editor_opendirinexplorer">
-		Abrir ubicación en explorador de windows
-	</resource>
-	<resource name="printoptions_timestamp">
-		Imprimir fecha / tiempo en la parte inferior de la página
-	</resource>
-	<resource name="editor_drawhighlighter">
-		Enfocar (H)
-	</resource>
-	<resource name="editor_obfuscate_blur">
-		Blur (desenfocar)
-	</resource>
-	<resource name="editor_obfuscate_pixelize">
-		Pixelizar
-	</resource>
-	<resource name="editor_highlight_area">
-		Área de enfoque
-	</resource>
-	<resource name="editor_highlight_text">
-		Enfocar texto
-	</resource>
-	<resource name="editor_highlight_grayscale">
-		Escala de grises
-	</resource>
-	<resource name="editor_highlight_magnify">
-		Aumentar
-	</resource>
-	<resource name="editor_pixel_size">
-		tamano de Pixel
-	</resource>
-	<resource name="editor_obfuscate">
-		Obfuscar (O)
-	</resource>
-	<resource name="editor_blur_radius">
-		Radio de desenfoque
-	</resource>
-	<resource name="editor_brightness">
-		Brillo
-	</resource>
-	<resource name="editor_preview_quality">
-		Calidad previa
-	</resource>
-	<resource name="editor_magnification_factor">
-		Aumentar factor
-	</resource>
-	<resource name="editor_shadow">
-		Sombra
-	</resource>
-	<resource name="editor_confirm">
-		Confirmar
-	</resource>
-	<resource name="editor_cancel">
-		Cancelar
-	</resource>
-	<resource name="editor_crop">
-		Cortar (C)
-	</resource>
-	<resource name="contextmenu_captureclipboard">
-		Abrir imagen desde el portapapeles
-	</resource>
-	<resource name="clipboard_error">
-		Un error inesperado ocurrio mientras se escribia al portapapeles.
-	</resource>
-	<resource name="config_unauthorizedaccess_write">
-		No se puede guardar el archivo de configuracion de Greenshot. Por favor verifique los permisos de acceso a '{0}'.
-	</resource>
-	<resource name="settings_printer">
-		Impresora
-	</resource>
-	<resource name="settings_capture">
-		Capturar
-	</resource>
-	<resource name="settings_capture_mousepointer">
-		Capturar cursor del ratón
-	</resource>
-	<resource name="contextmenu_openfile">
-		Abrir imagen desde archivo
-	</resource>
-	<resource name="error_openfile">
-		El archivo "{0}" no se pudo abrir.
-	</resource>
-	<resource name="editor_close_on_save">
-		¿Quieres guardar la misma captura de pantalla?
-	</resource>
-	<resource name="editor_close_on_save_title">
-		¿Guardar imagen?
-	</resource>
-	<resource name="settings_capture_windows_interactive">
-		Usar modo interactivo de caputara de ventana
-	</resource>
-	<resource name="settings_destination_email">
-		Correo esectrónico
-	</resource>
-	<resource name="editor_email">
-		Correo esectrónico
-	</resource>
-	<resource name="editor_load_objects">
-		Cargar archivos desde archivo
-	</resource>
-	<resource name="editor_save_objects">
-		Guardar objetos a archivo
-	</resource>
-	<resource name="settings_waittime">
-		Milisegundos a esperar antes de capturar
-	</resource>
-	<resource name="tooltip_firststart">
-		Clic derecho aquí o presionar la tecla imprimir.
-	</resource>
-	<resource name="contextmenu_donate">
-		Soporte de Greenshot
-	</resource>
-  </resources>
+presente, ejemplo: 11_58_32 (más la extension definida en la configuración)</resource>
+		<resource name="settings_output">Salida</resource>
+		<resource name="settings_playsound">Reproducir sonido de cámara</resource>
+		<resource name="settings_preferredfilesettings">Configuración preferida de archivos de salida</resource>
+		<resource name="settings_primaryimageformat">Formato de Imagen</resource>
+		<resource name="settings_printer">Impresora</resource>
+		<resource name="settings_printoptions">Opciones de Impresión</resource>
+		<resource name="settings_registerhotkeys">Registrar accesos de teclado</resource>
+		<resource name="settings_showflashlight">Mostrar Flash</resource>
+		<resource name="settings_storagelocation">Lugar de Almacenamiento</resource>
+		<resource name="settings_title">Configuración</resource>
+		<resource name="settings_tooltip_filenamepattern">Formato usado para generar el nombre de los archivos cuando se guarda carpturas de pantalla</resource>
+		<resource name="settings_tooltip_language">Lenguaje de la interface de usuario de Greenshot(requiere reiniciar)</resource>
+		<resource name="settings_tooltip_primaryimageformat">Formato de imagen usado por defecto</resource>
+		<resource name="settings_tooltip_registerhotkeys">define si los accesos directos Prnt, Ctrl + Print, Alt + Prnt estan reservados para uso global por Greenshot al inicio, hasta cerrar el programa.</resource>
+		<resource name="settings_tooltip_storagelocation">Lugar donde las capturas de pantalla serán guardadas por defecto(dejar en blanco para guardar en el escritorio)</resource>
+		<resource name="settings_visualization">Efectos</resource>
+		<resource name="settings_waittime">Milisegundos a esperar antes de capturar</resource>
+		<resource name="tooltip_firststart">Clic derecho aquí o presionar la tecla imprimir.</resource>
+		<resource name="warning">Atención</resource>
+		<resource name="warning_hotkeys">Uno o varios accesos de teclado podrian no estar registrados. Por lo tanto, no pude ser posible usar los accesos de teclado de Greenshot.
+Este problema es causado probablemente otra herramienta reclama el uso de los mismos accesos de teclado.
+Porfavor desactive el programa haciendo uso del boton imprimir. Tu puedes también simplemente usar todos las caracteristicas de Greenshot desde el menú contextual en la tray icon.</resource>
+	</resources>
 </language>
- 	  	 
