@@ -261,12 +261,13 @@ namespace GreenshotLanguageEditor {
 				xmlWriter.WriteAttributeString("languagegroup", langfile.Languagegroup);
 				xmlWriter.WriteStartElement("resources");
 				foreach(LanguageEntry entry in entries) {
-					xmlWriter.WriteStartElement("resource");
-					xmlWriter.WriteAttributeString("name", entry.Key);
-					if(targetColumn == 1) xmlWriter.WriteString(entry.Entry1);
-					else if(targetColumn == 2 ) xmlWriter.WriteString(entry.Entry2);
-					else throw new ArgumentOutOfRangeException("Argument columnIndex must be either 1 or 2");
-					xmlWriter.WriteEndElement();
+					string entryValue = (targetColumn == 1) ? entry.Entry1 : entry.Entry2;
+					if(!String.IsNullOrWhiteSpace(entryValue) && !String.IsNullOrWhiteSpace(entry.Key)) {
+						xmlWriter.WriteStartElement("resource");
+						xmlWriter.WriteAttributeString("name", entry.Key);
+						xmlWriter.WriteString(entryValue);
+						xmlWriter.WriteEndElement();
+					}
 				}
 				xmlWriter.WriteEndElement();
 				xmlWriter.WriteEndElement();
