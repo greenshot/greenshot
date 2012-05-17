@@ -47,6 +47,8 @@ Source: ..\..\bin\Release\Languages\*pl-PL*; DestDir: {app}\Languages; Component
 Source: ..\..\bin\Release\Languages\*pt-BR*; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*pt-PT*; DestDir: {app}\Languages; Components: languages\ptPT; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*ru-RU*; DestDir: {app}\Languages; Components: languages\ruRU; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*sk-SK*; DestDir: {app}\Languages; Components: languages\srSR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*sr-SR*; DestDir: {app}\Languages; Components: languages\skSK; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*sv-SE*; DestDir: {app}\Languages; Components: languages\svSE; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*tr-TR*; DestDir: {app}\Languages; Components: languages\trTR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\*uk-UA*; DestDir: {app}\Languages; Components: languages\ukUA; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -203,6 +205,8 @@ Name: "languages\plPL"; Description: "Polski"; Types: Full; Check: hasLanguageGr
 Name: "languages\ptBR"; Description: "Português do Brasil"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\ptPT"; Description: "Português de Portugal"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\ruRU"; Description: "Pусский"; Types: Full; Check: hasLanguageGroup('5')
+Name: "languages\skSK"; Description: "Slovenčina"; Types: Full; Check: hasLanguageGroup('2')
+Name: "languages\srSR"; Description: "Српски"; Types: Full; Check: hasLanguageGroup('5')
 Name: "languages\svSE"; Description: "Svenska"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\trTR"; Description: "Türk"; Types: Full; Check: hasLanguageGroup('6')
 Name: "languages\ukUA"; Description: "Українська"; Types: Full; Check: hasLanguageGroup('5')

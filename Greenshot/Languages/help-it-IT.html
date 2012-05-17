@@ -17,6 +17,7 @@
 		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
 		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
 		
+		em {padding-right:0.2em;}
 		</style>
 	</head>
 	<body>
@@ -34,6 +35,7 @@
 			<li><a href="#capture-last-region">Cattura ultima regione</a></li>
 			<li><a href="#capture-window">Cattura finestra</a></li>
 			<li><a href="#capture-fullscreen">Cattura schermo intero</a></li>
+			<li><a href="#capture-ie">Cattura Internet Explorer</a></li>
 		</ol>
 	
 		<li><a href="#editor">Uso della Gestione Immagini</a></li>
@@ -43,12 +45,14 @@
 			<li><a href="#editor-highlight">Evidenziare qualcosa</a></li>
 			<li><a href="#editor-obfuscate">Offuscare qualcosa</a></li>
 			<li><a href="#editor-crop">Ritagliare l'immagine</a></li>
+			<li><a href="#editor-adding-graphics">Aggiungere elementi grafici all'immagine</a></li>
 			<li><a href="#editor-reuse-elements">Riutilizzare gli elementi disegnati</a></li>
 			<li><a href="#editor-export">Esportare l'immagine</a></li>
 		</ol>
 		<li><a href="#settings">La pagina delle Impostazioni</a></li>
 		<ol>
 			<li><a href="#settings-general">Impostazioni Generali</a></li>
+			<li><a href="#settings-capture">Impostazioni di Cattura</a></li>
 			<li><a href="#settings-output">Impostazioni di Emissione</a></li>
 			<li><a href="#settings-printer">Impostazioni Stampante</a></li>
 		</ol>
@@ -71,11 +75,11 @@
 	<a name="capture-region"></a>
 	<h3>Cattura regione <kbd>Stamp</kbd></h3>
 	<p>
-		Il metodo cattura regione consente di selezionare una parte dello schermo da fotografare.<br>
+		Il metodo cattura regione consente di selezionare una parte dello schermo da "fotografare".<br>
 		Dopo aver avviato il metodo regione, apparirà un mirino sulla posizione del mouse sullo 
 		schermo. Cliccare e tenere premuto dove si vuole impostare un angolo della regione da
 		fotografare. Tenendo premuto il pulsante del mouse, muovere il mouse fino a definire il 
-		rettangolo da fatturare. Rilasciare quindi il pulsante quando il rettangolo verde avrà 
+		rettangolo da fotografare. Rilasciare quindi il pulsante quando il rettangolo verde avrà 
 		coperto l'area da catturare nell'immagine.
 	</p>
 	<p class="hint">
@@ -101,9 +105,9 @@
 		Crea un'immagine della finestra che è attiva in quel momento.
 	</p>
 	<p class="hint">
-		La <a href="#settings">pagina delle impostazioni</a> offre la possibilità di non catturare
-		direttamente la finestra attiva, ma consente di sceglierne una interattivamente.
-		Se si selezione questa opzione, la finestra può essere scelta cliccandovi (come nel metodo 
+		La <a href="#settings">pagina delle impostazioni</a> offre una possibilità per non catturare
+		direttamente la finestra attiva, consentendo quindi di sceglierne una interattivamente.
+		Se si seleziona questa opzione, la finestra può essere scelta cliccandovi (come nel metodo 
 		<a href="#capture-region">regione</a>, Greenshot evidenzierà l'area che verrà catturata).
 		<br>Se si vuol catturare una finestra figlia (es: una browser
 		viewport (senza barra strumenti, ecc...) o un singolo frame di una pagina web che usa i framesets) 
@@ -115,6 +119,12 @@
 	<h3>Cattura schermo intero <kbd>Ctrl</kbd> + <kbd>Stamp</kbd></h3>
 	<p>
 		Crea un'immagine dell'intero schermo.
+	<a name="capture-ie"></a>
+	<h3>Cattura Internet Explorer <kbd>Ctrl</kbd> + <kbd>Maiusc</kbd> + <kbd>Stamp</kbd></h3>
+	<p>
+		Crea facilmente un'immagine della pagina web attiva in quel momento su Internet Explorer. 
+		Si può usare il menu sensibile al contesto di Greenshot per selezionare la tab di Internet Explorer da catturare, oppure premere 
+		<kbd>Crtl</kbd> + <kbd>Maiusc</kbd> + <kbd>Stamp</kbd> per catturare la tab attiva.
 	</p>
 	
 	<a name="editor"></a>
@@ -218,16 +228,31 @@
 		oppure premere il tasto <kbd>Invio</kbd>. Si può annullare l'azione di ritaglio, cliccando il pulsante di cancellazione o premendo  
 		<kbd>ESC</kbd>.
 	</p>
+	<p class="hint">
+		<em>Ritaglia Automaticamente</em>: Se si ha la necessità di ritagliare un pezzo dell'immagine lungo i bordi di uno sfondo con colore compatto,
+		è sufficiente scegliere <em>Ritaglia Automaticamente</em> dal menù <em>Modifica</em> e Greenshot automaticamente 
+		selezionerà l'area di ritaglio.
+	</p>
+
+	<a name="editor-adding-graphics"></a>
+	<h3>Aggiunta elementi grafici all'immagine</h3>
+	<p>
+		Si possono facilmente aggiungere degli elementi grafici o delle altre immagini alla immagine in lavorazione, è sufficiente trascinare un file di immagine
+		all'interno della finestra di gestione immagini. Inoltre, selezionando <em>Inserisci finestra</em> dal menù <em>Modifica</em>, si possono inserire 
+		immagini prese da altre finestre. In questo caso, appare una lista con tutte le finestre aperte, consentendo quindi di scegliere quella che si 
+		vuole inserire.
+	</p>
+	
 	
 	<a name="editor-reuse-elements"></a>
 	<h3>Ri-utilizzare elementi disegnati</h3>
 	<p>
 		Se ci si ritrova a utilizzare lo stesso o simile elemento nella maggior parte delle immagini,
 		(es: campo di testo contenente tipo browser e versione, oppure offuscamento dello stesso elemento 
-		su più immagini), è possibile gli elementi in modo semplice.<br>
+		su più immagini), è possibile riutilizzare gli elementi in modo semplice.<br>
 		Selezionare <em>Salva oggetti su file</em> dal menù <em>Oggetti</em> per salvare di elementi correnti 
-		per poterli riutilizzare poi. <em>Carica oggetti da file</em> applica invece gli stessi
-		elementi su un'altra immagine.
+		per poterli riutilizzare poi. <em>Carica oggetti da file</em> viene invece usato per applicare su un'altra immagine 
+		gli elementi salvati in precedenza.
 	</p>
 	
 	<a name="editor-export"></a>
@@ -245,34 +270,58 @@
 		<li><em>E-Mail</em> <kbd>Ctrl</kbd> + <kbd>E</kbd>: apre un nuovo messaggio sul programma di e-mail di default, aggiungendo l'immagine come allegato</li>
 	</ul>
 	<p class="hint">
-		Dopo aver slavato un'immagine dalla gestione, cliccando con il tasto destro del mouse sulla barra di stato in basso sulla finestra 
+		Dopo aver salvato un'immagine dalla gestione, cliccando con il tasto destro del mouse sulla barra di stato in basso sulla finestra 
 		della gestione immagini, è possibile copiare il percorso sugli appunti, oppure aprire la cartella di destinazione con la gestione risorse.
 	</p>
 	
 	
 	<a name="settings"></a>
-	<h2>Le impostazioni</h2>
+	<h2>Le Preferenze</h2>
 	
 	<a name="settings-general"></a>
 	<h3>Impostazioni Generali</h3>
 	<ul>
 		<li><em>Lingua</em>: La lingua che si preferisce usare.<br>
 			Si possono scaricare i file per le lingue aggiuntive di Greenshot <a href="#">qui</a>. </li>
-		<li><em>Registra scorciatoie di tastiera</em>: Se scelto, Greenshot può essere attivato con il tasto <kbd>Stamp</kbd>.</li>
 		<li><em>Lancia Greenshot all'avvio</em>: Avvia il programma in automatico all'accensione del sistema.</li>
-		<li><em>Mostra torcia elettrica</em>: Fornisce un riscontro visivo durante l'azione cattura</li>
-		<li><em>Emetti suono fotocamera</em>: Fornisce un riscontro audio durante l'azione cattura</li>
-		<li><em>Cattura puntatore mouse</em>: Se scelto, l'immagine del puntatore del mouse verrà catturata. Il puntatore viene trattato come elemento separato dalla gestione immagini, in modo da consentirne spostamenti o la rimozione.</li>
-		<li><em>Usa la modalità di cattura via finestra interattiva</em>: Invece di catturare direttamente la finestra attiva, la modalità interattiva 
-			consente di selezionare la finestra da catturare. E' inoltre possibile catturare finestre figlie, vedi <a href="#capture-window">Cattura finestra</a>.</li>
+		<li><em>Scorciatoie di tastiera</em>: Personalizza le scorciatoie (hotkeys) da usare per catturare le immagini.</li>
+		<li><em>Usa il proxy di default del sistema</em>: Se selezionato, Greenshot usa il proxy di default del sistema per controllare se ci sono aggiornamenti.</li>
+		<li><em>Intervallo di controllo aggiornamento, in giorni</em>: Greenshot può controllare automaticamente se ci sono aggiornamenti. Questo parametro può essere 
+			utilizzato per specificare l'intervallo (in giorni); per disabilitare il controllo aggiornamento si può usare il valore 0.</li>		
 	</ul>
 	
+	<a name="settings-capture"></a>
+	<h3>Impostazioni di Cattura</h3>
+	<ul>
+		<li><em>Cattura puntatore mouse</em>: Se selezionato, il puntatore del mouse verrà catturato. Il puntatore viene gestito come un elemento separato, in modo che possa essere spostato o rimosso in seguito.</li>
+		<li><em>Emetti suono fotocamera</em>: Attiva il riscontro udibile dell'azione di cattura (suono dello scatto fotografico).</li>
+		<li><em>Millisecondi di attesa prima di catturare</em>: Utile per aggiungere un tempo di ritardo prima dell'effettiva cattura dello schermo.</li>
+		<li><em>Usa la modalità di cattura via finestra interattiva</em>: Invece di catturare direttamente la finestra attiva, la modalità interattiva 
+			consente di selezionare la finestra da catturare. E' inoltre possibile catturare le finestre figlie, vedi <a href="#capture-window">Cattura finestra</a>.</li>
+		<li>
+			<em>Cattura in stile Aero (so Windows Vista / 7)</em>: Se si sta usando Greenshot su Windows Vista or Windows 7 con lo stile di visualizzazione Aero abilitato, è possibile 
+			scegliere come devono essere gestiti i bordi della finestra trasparente quando vengono create le immagini in modalità finestra. Questa impostazione è da usare per evitare 
+			la cattura di elementi dello sfondo che appaiono attraverso i bordi trasparenti.
+			<ul>
+				<li><em>Automaticamente</em>: Greenshot deciderà come gestire la trasparenza.</li>
+				<li><em>Come visualizzata</em>: I bordi trasparenti verranno catturati come visualizzati sullo schermo.</li>
+				<li><em>Usa i colori di default</em>: Al posto della trasparenza verrà applicato un colore compatto di default.</li>
+				<li><em>Usa colori personalizzati</em>: Si può scegliere il colore che sarà applicato al posto della trasparenza.</li>
+				<li><em>Conserva la trasparenza</em>: I bordi verranno catturati conservando la trasparenza, senza però catturare gli elementi che potrebbero essere sullo sfondo. (Nota: le aree 
+					trasparenti verrano visualizzate usando un modello selezionato nella gestione immagini. Il modello non verrà esportato se si salverà l'immagine su file. Ricordarsi di salvare 
+					il file come PNG se si vuole conservance il pieno supporto della trasparenza.)</li>
+			</ul>
+		</li>
+		<li><em>Cattura Internet Explorer</em>: Abilita la comoda cattura delle pagine web utilizzando Internet Explorer.</li>
+		<li><em>Adatta finestra Gestione a dimensioni di cattura</em>: Se selezionata, la finestra della Gestione immagini verrà automaticamente ridimensionata in base alla dimensione dell'immagine catturata.</li>
+
+	</ul>
 	<a name="settings-output"></a>
 	<h3>Impostazioni di Emissione</h3>
 	<ul>
 		<li><em>Destinazione dell'immagine</em>: Consente di scegliere la destinazione/i automatiche delle immagini subito dopo l'azione di cattura.</li>
 		<li><em>Impostazioni Preferite per l'Emissione File</em>: Cartella e nome file da usare quando si salva automaticamente, o da suggerire quando si salva (usando la finestra "Salva come"). Cliccare il pulsante <em>?</em> per sapere di più sulle variabili che possono essere usate nel modello del nome file.</li>
-		<li><em>Impostazioni JPEG</em>: Qualità da usare quando si salvano file JPEG</li>
+		<li><em>Impostazioni JPEG</em>: Qualità da usare quando si salvano file JPEG.</li>
 	</ul>
 	
 	<a name="settings-printer"></a>
@@ -283,9 +332,18 @@
 		<li><em>Ruota a seconda dell'orientamento pagina</em>: Ruoterà l'immagine in formato orizzontale di 90° per la stampa.</li>
 		<li><em>Centra nella pagina</em>: L'immagine verrà stampata al centro della pagina.</li>
 		<li><em>Stampa data / ora sul piede della pagina</em>: La data e l'ora di stampa verranno stampati sul piede della pagina.</li>
+		<li><em>Stampa con colori inverititi (negativo)</em>: Trasformerà l'immagine in negativo prima di stamparla, utile per esempio quando si stampa un'immagine con testo bianco su sfondo nero (per risparmiare toner o inchiostro).</li>
 		<li><em>Visualizza scelta opzioni di stampa ogni volta che si stampa un'immagine</em>: Permette di scegliere se visualizzare o meno la finestra di scelta opzioni per le stampe successive alla prima.</li>
 	</ul>
+	</ul>
 	
+	<a name="settings-plugins"></a>
+	<h3>Impostazioni Componenti Aggiuntivi</h3>
+	<p>
+		Visualizza la lista dei componenti aggiuntivi di Greenshot che sono attualmente installati. La configurazione del singolo componente aggiuntivo è disponibile selezionando 
+		il componente dalla lista e quindi cliccando su <em>Configura</em>.
+	</p>
+
 	
 	<a name="help"></a>
 	<h2>Desideri aiutarci?</h2>

@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Pусский" ietf="ru-RU" version="1.0.0" languagegroup="5">
+<language description="Pусский" ietf="ru-RU" version="0.8.1" languagegroup="5">
   <resources>
 	<!-- 
 	Note to translator: uncomment entry "about_translation" to have 
 	your efforts honored in the "About Greenshot" dialog 
 	-->
 	<resource name="about_translation">
-		Русский перевод Андрея Кравцова, http://sapfir.mylivepage.ru
+		Русский перевод Андрея Кравцова, http://sapfir.ucoz.ru
 	</resource>
 	<resource name="application_title">
 		Greenshot — передовая утилита для получения скриншотов

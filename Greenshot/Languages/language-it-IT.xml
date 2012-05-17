@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="1.0.0" languagegroup="1">
+<language description="Italiano" ietf="it-IT" version="0.8.1" languagegroup="1">
   <resources>
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
@@ -55,6 +55,9 @@
 	</resource>
 	<resource name="contextmenu_exit">
 		Esci
+	</resource>
+	<resource name="contextmenu_openrecentcapture">
+		Apri ultima ubicazione di cattura
 	</resource>
 	<resource name="settings_visualization">
 		Effetti
@@ -413,6 +416,9 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)
 	<resource name="printoptions_timestamp">
 		Stampa data / ora sul piede della pagina
 	</resource>
+	<resource name="printoptions_inverted">
+		Stampa con colori invertiti (negativo)
+	</resource>
 	<resource name="editor_drawhighlighter">
 		Evidenzia (H)
 	</resource>
@@ -479,11 +485,26 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)
 	<resource name="settings_capture">
 		Cattura
 	</resource>
+	<resource name="settings_plugins">
+		Componenti Aggiuntivi
+	</resource>
 	<resource name="settings_capture_mousepointer">
 		Cattura puntatore mouse
 	</resource>
 	<resource name="contextmenu_openfile">
 		Apri immagine da file
+	</resource>
+	<resource name="settings_window_capture_mode">
+		Modalità cattura finestra
+	</resource>
+	<resource name="settings_windowscapture">
+		Cattura finestra
+	</resource>
+	<resource name="settings_iecapture">
+		Cattura Internet Explorer
+	</resource>
+	<resource name="settings_editor">
+		Gestione Immagini
 	</resource>
 	<resource name="error_openfile">
 		Il file "{0}" non può essere aperto.
@@ -509,6 +530,18 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)
 	<resource name="editor_save_objects">
 		Salva oggetti su file
 	</resource>
+	<resource name="editor_match_capture_size">
+		Adatta a dimensioni di cattura
+	</resource>
+	<resource name="editor_autocrop">
+		Ritaglia Automaticamente
+	</resource>
+	<resource name="editor_undo">
+		Annulla azione {0}
+	</resource>
+	<resource name="editor_redo">
+		Ripeti azione {0}
+	</resource>
 	<resource name="settings_waittime">
 		Millisecondi di attesa prima di catturare
 	</resource>
@@ -517,6 +550,66 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)
 	</resource>
 	<resource name="contextmenu_donate">
 		Supporta Greenshot
+	</resource>
+	<resource name="contextmenu_captureie">
+		Cattura Internet Explorer
+	</resource>
+  	<resource name="hotkeys">
+		Scorciatoie di tastiera
+	</resource>
+	<resource name="hotkey_fullscreen">
+		Cattura schermo
+	</resource>
+	<resource name="hotkey_ie">
+		Cattura Internet Explorer
+	</resource>
+	<resource name="hotkey_lastregion">
+		Cattura ultima regione
+	</resource>
+	<resource name="hotkey_region">
+		Cattura regione
+	</resource>
+	<resource name="hotkey_window">
+		Cattura finestra
+	</resource>
+	<resource name="wait_ie_capture">
+		Attendere prego, finchè la pagina di Internet Explorer viene catturata...
+	</resource>
+	<resource name="settings_network">
+		Rete e aggiornamenti
+	</resource>
+	<resource name="settings_checkperiod">
+		Intervallo di controllo aggiornamento, in giorni (0=nessun controllo)
+	</resource>
+	<resource name="settings_usedefaultproxy">
+		Usa il proxy di default del sistema
+	</resource>
+	<resource name="update_found">
+		Una nuova versione di Greenshot è ora disponibile! Vuoi scaricare Greenshot {0}?
+	</resource>
+	<resource name="WindowCaptureMode.Screen">
+		Come visualizzata
+	</resource>
+	<resource name="WindowCaptureMode.GDI">
+		Usa i colori di default
+	</resource>
+	<resource name="WindowCaptureMode.Aero">
+		Usa colori personalizzati
+	</resource>
+	<resource name="WindowCaptureMode.AeroTransparent">
+		Conserva la trasparenza
+	</resource>
+	<resource name="WindowCaptureMode.Auto">
+		Automaticamente
+	</resource>
+	<resource name="EmailFormat.MAPI">
+		Client MAPI
+	</resource>
+	<resource name="EmailFormat.OUTLOOK_TXT">
+		Outlook con testo
+	</resource>
+	<resource name="EmailFormat.OUTLOOK_HTML">
+		Outlook con HTML
 	</resource>
   </resources>
 </language>
