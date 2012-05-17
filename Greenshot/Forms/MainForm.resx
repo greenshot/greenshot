@@ -112,15 +112,15 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="contextMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <metadata name="contextMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>293, 17</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="contextmenu_settings.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
@@ -156,17 +156,18 @@
   <data name="contextmenu_donate.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAipJREFUOE+llF1I
-        k2EYhp+FedxRgVEEQoQGIYpBHVhKBbZBsDKWaLBGOmypC9GtmKuFyqIDMVZiuB8t2V+Z88BWyzn82Vqr
-        XCnUWGJTyH6gokgCuduz4mMDT8wXLr4Pnvu6v5cX3o8A0Hqg1hP5kiQ1/4mELknzlCs/PuL398U1wQ67
-        pDm2q275awKO7o41wQ671CTZqfr5eQ7PHjkQn/YLBL32VOHIgAmx576MGWfZYZcay3Mbvi3FEBoZwKdE
-        VKCjpQZ3bhgQeGCBqa0pY8ZZdtgl1eEdF74szGJiuA8zYS9snZdTT6NGiXGPLQW/p884yw67pCzb1rw0
-        H4X/fi/evw0JXNep4LXfwu1rWujOV2XMOMsOu6QoydEuxiPwuXoQGRsUCD9xw9MpxZitEpNOFabcakzZ
-        FYg4KvDQdBLssEun92/Rzb8JoceowV3DIYxaZHhslWPIVAmXoRgrH/rxK96NOX8DFkarsfxKDoe+COyw
-        S9KCTW2J2FO8m51AwFKVIby+J8NLTz1CLiU8XWJ4b4oRcZ5C2FUPdtilwq0bG0tzs7uYcwezAqFBLSbd
-        LfD2nsX0UPOqO2ivyHrBeXYpubKTbE6SU1cicqZvOWCWIb3QZz6DoL0WF8UbWv857P5dRduJFHtJadEf
-        mem7Wh7s1x8YVpeJrKudgbpUZDteIBJcoUBeTHSlOo/aFXvIqMhPKzyaKrRqC33mlt1R/lDtPiJmXVeZ
-        fwN/AOaMjSQNpEbMAAAAAElFTkSuQmCC
+        YQUAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAACcUlEQVQ4T6WOW0iTcRjGn22f
+        GlSSWsu55jzioXPTLNIWlEJn6yKQSGd0QDChGzsMLYKS6CJI6qLwIoi6CKS6qInLkHKsTG1jC1wQlltU
+        IoTMzTX07X1HEyHrpj/8+P7f8z6/9/tARPgf4EGxoPZiZQPznHEwz5jjnGsEuf/OZCadBnHEhQtFcKPY
+        4jNsfzd17e4kPbBRqK0j+CGr0s35aUHuoSsdQbpvI+lIVxxxMYhC1RAK7ZMXbwV/Wm9S+HALhY+00pT1
+        RsSlrHIK4TPXI5LJTDqT1vagOOLiLQoSB5Ti/sjlOzS+p4nGdzXGmKhvJX/VsYC/8mhgoq5lNpdO2NpO
+        A5qifnHhRL7yWpXvnGhqmxmtqKPR8toYfnM9fdt3avrr3sZpv9kym0tnrKZ5Rhxx0YdcvETuk++1Z4Mf
+        Sw5RnOG1B2gor4oc+grqXVZGPaklMXq1m8hTcjAojrh4gSzB+t60fySw8yT51lTToMFMfVx+lWL6gzeG
+        reRcXjoijriwIxPdyMy1K9mOz7tPhNwZW2iQxfkYWrqRXNnbQt1qoyPmsIsuGGI8xQpLz6IC1ydTddTH
+        xWFeMhcf/5FPXx61J+S4pBv38Bi6OKpH0DXbF+Z5v+TviAbSSinAS2KwPKoti3YnZnmlw44q7s1dgE6k
+        qx9Ce86WZPSM6zZHf7AojKWaojbF4JGZdOZ8FKjB4lkuIRX3kKa+jWRrZ4LWG0rZMC10KlqvZDKTzmok
+        4a+nEAoakaS5ioR2+wLdiCB3yWT2r6PmYTKTzmTkAKYLQK8gd8kYHbOE0cy3SNbrmXWMCCYLcF6Iv/Nz
+        PWNkEuMLfgGh0pYaSq3I7gAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="contextmenu_exit.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -181,10 +182,10 @@
         IOYFBf/9IzP/jT+zZw/Woa9yPwAAAABJRU5ErkJggg==
 </value>
   </data>
-  <metadata name="notifyIcon.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <metadata name="notifyIcon.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>193, 17</value>
   </metadata>
-  <metadata name="backgroundWorkerTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <metadata name="backgroundWorkerTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
 </root>
