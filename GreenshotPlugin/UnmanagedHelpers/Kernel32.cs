@@ -66,12 +66,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern bool CloseHandle(IntPtr hObject);
 
-		// TODO: Move to PSAPI.cs ??
-		[DllImport("psapi", SetLastError = true)]
-		public static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, StringBuilder lpFilename, uint nSize);
-		[DllImport("psapi", SetLastError = true)]
-		public static extern uint GetProcessImageFileName(IntPtr hProcess, StringBuilder lpImageFileName, uint nSize);
-
 		/// <summary>
 		/// Method to get the process path
 		/// </summary>
@@ -85,7 +79,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			IntPtr hprocess = Kernel32.OpenProcess(ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMRead, false, processid);
 			if (hprocess != IntPtr.Zero) {
 				try {
-					if (Kernel32.GetModuleFileNameEx(hprocess, IntPtr.Zero, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+					if (PsAPI.GetModuleFileNameEx(hprocess, IntPtr.Zero, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
 						return _PathBuffer.ToString();
 					}
 				} finally {
@@ -103,7 +97,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 					}
 
 					// Try the GetProcessImageFileName method
-					if (Kernel32.GetProcessImageFileName(hprocess, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+					if (PsAPI.GetProcessImageFileName(hprocess, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
 						string dospath = _PathBuffer.ToString();
 						foreach (string drive in Environment.GetLogicalDrives()) {
 							if (Kernel32.QueryDosDevice(drive.TrimEnd('\\'), _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {

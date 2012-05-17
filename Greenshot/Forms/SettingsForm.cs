@@ -488,6 +488,7 @@ namespace Greenshot {
 			textbox_counter.Enabled = state;
 			checkbox_suppresssavedialogatclose.Enabled = state;
 			checkbox_checkunstableupdates.Enabled = state;
+			checkbox_minimizememoryfootprint.Enabled = state;
 		}
 
 		/// <summary>

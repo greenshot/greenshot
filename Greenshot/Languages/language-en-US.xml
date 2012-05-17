@@ -673,6 +673,9 @@ time, e.g. 11_58_32 (plus extension defined in the settings)
   <resource name="expertsettings_suppresssavedialogatclose">
     Suppress the save dialog when closing the editor
   </resource>
+  <resource name="expertsettings_minimizememoryfootprint">
+    Minimize memory footprint, but with a performance penalty (not adviced).
+  </resource>
   <resource name="WindowCaptureMode.Screen">
 		As displayed
 	</resource>

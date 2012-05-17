@@ -1179,6 +1179,10 @@ namespace Greenshot {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void BackgroundWorkerTimerTick(object sender, EventArgs e) {
+			if (conf.MinimizeWorkingSetSize) {
+				LOG.Info("Calling EmptyWorkingSet");
+				PsAPI.EmptyWorkingSet(Process.GetCurrentProcess().Handle);
+			}
 			if (UpdateHelper.IsUpdateCheckNeeded()) {
 				LOG.Debug("BackgroundWorkerTimerTick checking for update");
 				// Start update check in the background
