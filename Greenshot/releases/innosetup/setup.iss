@@ -30,31 +30,31 @@ Source: ..\..\bin\Release\Languages\*en-US*; DestDir: {app}\Languages; Flags: ov
 Source: ..\..\bin\Release\Languages\*de-DE*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
 
 ; Additional language files
-Source: ..\..\bin\Release\Languages\*ar-SY*; DestDir: {app}\Languages; Components: languages\arSY; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*cs-CZ*; DestDir: {app}\Languages; Components: languages\csCZ; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*el-GR*; DestDir: {app}\Languages; Components: languages\elGR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*es-ES*; DestDir: {app}\Languages; Components: languages\esES; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*fa-IR*; DestDir: {app}\Languages; Components: languages\faIR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*fi-FI*; DestDir: {app}\Languages; Components: languages\fiFI; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*fr-FR*; DestDir: {app}\Languages; Components: languages\frFR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*he-IL*; DestDir: {app}\Languages; Components: languages\heIL; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*hu-HU*; DestDir: {app}\Languages; Components: languages\huHU; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*it-IT*; DestDir: {app}\Languages; Components: languages\itIT; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*ja-JP*; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*ko-KR*; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*lt-LT*; DestDir: {app}\Languages; Components: languages\ltLT; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*pl-PL*; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*pt-BR*; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*pt-PT*; DestDir: {app}\Languages; Components: languages\ptPT; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*ru-RU*; DestDir: {app}\Languages; Components: languages\ruRU; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*sk-SK*; DestDir: {app}\Languages; Components: languages\srSR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*sr-SR*; DestDir: {app}\Languages; Components: languages\skSK; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*sv-SE*; DestDir: {app}\Languages; Components: languages\svSE; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*tr-TR*; DestDir: {app}\Languages; Components: languages\trTR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*uk-UA*; DestDir: {app}\Languages; Components: languages\ukUA; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*vi-VN*; DestDir: {app}\Languages; Components: languages\viVN; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*zh-CN*; DestDir: {app}\Languages; Components: languages\zhCN; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*zh-TW*; DestDir: {app}\Languages; Components: languages\zhTW; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*ar-SY*; DestDir: {app}\Languages; Components: languages\arSY; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*cs-CZ*; DestDir: {app}\Languages; Components: languages\csCZ; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*el-GR*; DestDir: {app}\Languages; Components: languages\elGR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*es-ES*; DestDir: {app}\Languages; Components: languages\esES; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*fa-IR*; DestDir: {app}\Languages; Components: languages\faIR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*fi-FI*; DestDir: {app}\Languages; Components: languages\fiFI; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*fr-FR*; DestDir: {app}\Languages; Components: languages\frFR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*he-IL*; DestDir: {app}\Languages; Components: languages\heIL; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*hu-HU*; DestDir: {app}\Languages; Components: languages\huHU; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*it-IT*; DestDir: {app}\Languages; Components: languages\itIT; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*ja-JP*; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*ko-KR*; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*lt-LT*; DestDir: {app}\Languages; Components: languages\ltLT; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*pl-PL*; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*pt-BR*; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*pt-PT*; DestDir: {app}\Languages; Components: languages\ptPT; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*ru-RU*; DestDir: {app}\Languages; Components: languages\ruRU; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*sk-SK*; DestDir: {app}\Languages; Components: languages\srSR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*sr-SR*; DestDir: {app}\Languages; Components: languages\skSK; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*sv-SE*; DestDir: {app}\Languages; Components: languages\svSE; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*tr-TR*; DestDir: {app}\Languages; Components: languages\trTR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*uk-UA*; DestDir: {app}\Languages; Components: languages\ukUA; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*vi-VN*; DestDir: {app}\Languages; Components: languages\viVN; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*zh-CN*; DestDir: {app}\Languages; Components: languages\zhCN; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*zh-TW*; DestDir: {app}\Languages; Components: languages\zhTW; Flags: overwritereadonly ignoreversion replacesameversion;
 
 ;OCR Plugin
 Source: ..\..\bin\Release\Plugins\Greenshot-OCR-Plugin\*; DestDir: {app}\Plugins\Greenshot-OCR-Plugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
