@@ -121,10 +121,10 @@ WizardImageFile=installer-large.bmp
 WizardSmallImageFile=installer-small.bmp
 [Registry]
 ; Delete all startup entries, so we don't have leftover values
-; HKEY_LOCAL_USER - for current user only
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue;
-; HKEY_LOCAL_MACHINE - for all users
-Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue; Check: IsAdminLoggedOn
+Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue;
+Root: HKCU32; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue; Check: IsWin64()
+Root: HKLM32; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue; Check: IsWin64()
 ; Create the startup entries if requested to do so
 ; HKEY_LOCAL_USER - for current user only
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue; Tasks: startup; Check: not IsAdminLoggedOn
