@@ -377,6 +377,9 @@ namespace GreenshotPlugin.Controls {
 			if ((modifierKeyCode & Keys.Shift) > 0) {
 				hotkeyString.Append("Shift").Append(" + ");
 			}
+			if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin) {
+				hotkeyString.Append("Win").Append(" + ");
+			}
 			return hotkeyString.ToString();
 		}
 
@@ -396,6 +399,9 @@ namespace GreenshotPlugin.Controls {
 			if ((modifierKeyCode & Keys.Shift) > 0) {
 				hotkeyString.Append(GetKeyName(Keys.Shift)).Append(" + ");
 			}
+			if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin) {
+				hotkeyString.Append("Win").Append(" + ");
+			}
 			return hotkeyString.ToString();
 		}
 
@@ -411,6 +417,9 @@ namespace GreenshotPlugin.Controls {
 				}
 				if (modifiersString.ToLower().Contains("shift")) {
 					modifiers |= Keys.Shift;
+				}
+				if (modifiersString.ToLower().Contains("win")) {
+					modifiers |= Keys.LWin;
 				}
 			}
 			return modifiers;
@@ -458,6 +467,9 @@ namespace GreenshotPlugin.Controls {
 			}
 			if ((modifierKeyCode & Keys.Shift) > 0) {
 				modifiers |= (uint)Modifiers.SHIFT;
+			}
+			if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin) {
+				modifiers |= (uint)Modifiers.WIN;
 			}
 
 			if (RegisterHotKey(hotkeyHWND, hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
