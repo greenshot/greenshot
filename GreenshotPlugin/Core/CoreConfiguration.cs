@@ -62,7 +62,7 @@ namespace GreenshotPlugin.Core {
 		public bool IsFirstLaunch;
 		[IniProperty("Destinations", Separator=",", Description="Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker", DefaultValue="Picker")]
 		public List<string> OutputDestinations = new List<string>();
-		[IniProperty("ClipboardFormats", Separator=",", Description="Specify which formats we copy on the clipboard? Options are: PNG,HTML and DIB", DefaultValue="PNG,HTML,DIB")]
+		[IniProperty("ClipboardFormats", Separator=",", Description="Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB", DefaultValue="PNG,DIB")]
 		public List<ClipboardFormat> ClipboardFormats = new List<ClipboardFormat>();
 
 		[IniProperty("CaptureMousepointer", Description="Should the mouse be captured?", DefaultValue="true")]
@@ -289,10 +289,12 @@ namespace GreenshotPlugin.Core {
 			if (OutputDestinations == null) {
 				OutputDestinations = new List<string>();
 			}
+
 			// Make sure there is an output!
 			if (OutputDestinations.Count == 0) {
 				OutputDestinations.Add("Editor");
 			}
+
 			// Prevent both settings at once, bug #3435056
 			if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard) {
 				OutputFileCopyPathToClipboard = false;
