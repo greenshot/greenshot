@@ -345,7 +345,8 @@ namespace Greenshot.Forms {
 			if (mouseDown || captureMode == CaptureMode.Window) {
 				captureRect.Intersect(new Rectangle(Point.Empty, capture.ScreenBounds.Size)); // crop what is outside the screen
 				Rectangle fixedRect = new Rectangle( captureRect.X, captureRect.Y, captureRect.Width, captureRect.Height );
-				graphics.DrawRectangle( OverlayPen, fixedRect );
+				graphics.FillRectangle(GreenOverlayBrush, fixedRect);
+				graphics.DrawRectangle(OverlayPen, fixedRect);
 				
 				// rulers
 				int dist = 8;
