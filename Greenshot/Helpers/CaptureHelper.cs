@@ -45,7 +45,7 @@ namespace Greenshot.Helpers {
 	public class CaptureHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CaptureHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static ScreenCaptureHelper screenCapture = null;
+		//private static ScreenCaptureHelper screenCapture = null;
 		private List<WindowDetails> windows = new List<WindowDetails>();
 		private WindowDetails selectedCaptureWindow = null;
 		private Rectangle captureRect = Rectangle.Empty;
@@ -154,13 +154,6 @@ namespace Greenshot.Helpers {
 		/// Make Capture with specified destinations
 		/// </summary>
 		private void MakeCapture() {
-			// Experimental code
-			if (screenCapture != null) {
-				screenCapture.Stop();
-				screenCapture = null;
-				return;
-			}
-
 			LOG.Debug(String.Format("Capturing with mode {0} and using Cursor {1}", captureMode, captureMouseCursor));
 			capture.CaptureDetails.CaptureMode = captureMode;
 
@@ -342,13 +335,6 @@ namespace Greenshot.Helpers {
 						capture.CaptureDetails.AddMetaData("source", "screen");
 						HandleCapture();
 					}
-					break;
-				case CaptureMode.Video:
-					capture = WindowCapture.CaptureScreen(capture);
-					// Set the capturemode to be window
-					captureMode = CaptureMode.Window;
-					capture.CaptureDetails.AddMetaData("source", "Video");
-					CaptureWithFeedback();
 					break;
 				default:
 					LOG.Warn("Unknown capture mode: " + captureMode);
@@ -784,25 +770,6 @@ namespace Greenshot.Helpers {
 						capture.CaptureDetails.Title = selectedCaptureWindow.Text;
 					}
 					
-					// Experimental code
-					if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
-						if (captureForm.UsedCaptureMode == CaptureMode.Window) {
-							screenCapture = new ScreenCaptureHelper(selectedCaptureWindow);
-						} else if (captureForm.UsedCaptureMode == CaptureMode.Region) {
-							screenCapture = new ScreenCaptureHelper(captureRect);
-						}
-						if (screenCapture != null) {
-							screenCapture.RecordMouse = capture.CursorVisible;
-							if (screenCapture.Start(25)) {
-								return;
-							}
-							// User clicked cancel or a problem occured
-							screenCapture.Stop();
-							screenCapture = null;
-							return;
-						}
-					}
-		
 					if (captureRect.Height > 0 && captureRect.Width > 0) {
 						if (windowDetailsThread != null) {
 							windowDetailsThread.Join();

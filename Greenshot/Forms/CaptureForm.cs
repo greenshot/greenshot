@@ -124,6 +124,7 @@ namespace Greenshot.Forms {
 			
 			// Fix missing focus
 			WindowDetails.ToForeground(this.Handle);
+			this.TopMost = true;
 		}
 
 		#region key handling		
@@ -146,9 +147,6 @@ namespace Greenshot.Forms {
 			} else if (e.KeyCode == Keys.M) {
 				// Toggle mouse cursor
 				capture.CursorVisible = !capture.CursorVisible;
-				pictureBox.Invalidate();
-			} else if (e.KeyCode == Keys.V && conf.isExperimentalFeatureEnabled("Video")) {
-				capture.CaptureDetails.CaptureMode = CaptureMode.Video;
 				pictureBox.Invalidate();
 			} else if (e.KeyCode == Keys.Space) {
 				switch (captureMode) {
@@ -347,11 +345,6 @@ namespace Greenshot.Forms {
 			if (mouseDown || captureMode == CaptureMode.Window) {
 				captureRect.Intersect(new Rectangle(Point.Empty, capture.ScreenBounds.Size)); // crop what is outside the screen
 				Rectangle fixedRect = new Rectangle( captureRect.X, captureRect.Y, captureRect.Width, captureRect.Height );
-				if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
-					graphics.FillRectangle( RedOverlayBrush, fixedRect );
-				} else {
-					graphics.FillRectangle( GreenOverlayBrush, fixedRect );
-				}
 				graphics.DrawRectangle( OverlayPen, fixedRect );
 				
 				// rulers
