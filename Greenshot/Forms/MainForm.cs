@@ -1030,31 +1030,32 @@ namespace Greenshot {
 		void QuickSettingDestinationChanged(object sender, EventArgs e) {
 			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
 			IDestination selectedDestination = (IDestination)item.Data;
-			if (item.Checked && selectedDestination.Designation.Equals(PickerDestination.DESIGNATION)) {
-				foreach(ToolStripMenuSelectList ddi in contextmenu_quicksettings.DropDownItems) {
-					if (ddi.Identifier.Equals("destinations")) {
-						foreach(ToolStripMenuSelectListItem dropDownItem in ddi.DropDownItems) {
-							IDestination destination = dropDownItem.Data as IDestination;
-							if (!destination.Designation.Equals(PickerDestination.DESIGNATION)) {
-								if (dropDownItem.CheckState == CheckState.Checked) {
-									dropDownItem.CheckState = CheckState.Unchecked;
-								}
-							}
-						}
-						
-					}
+			if (item.Checked) {
+				if (selectedDestination.Designation.Equals(PickerDestination.DESIGNATION)) {
+					// If the item is the destination picker, remove all others
+					conf.OutputDestinations.Clear();
+				} else {
+					// If the item is not the destination picker, remove the picker
+					conf.OutputDestinations.Remove(PickerDestination.DESIGNATION);
 				}
-				conf.OutputDestinations.Clear();
-				conf.OutputDestinations.Add(selectedDestination.Designation);
-			} else {
-				if (item.Checked && !conf.OutputDestinations.Contains(selectedDestination.Designation)) {
+				// Checked an item, add if the destination is not yet selected
+				if (!conf.OutputDestinations.Contains(selectedDestination.Designation)) {
 					conf.OutputDestinations.Add(selectedDestination.Designation);
 				}
-				if (!item.Checked && conf.OutputDestinations.Contains(selectedDestination.Designation)) {
+			} else {
+				// deselected a destination, only remove if it was selected
+				if (conf.OutputDestinations.Contains(selectedDestination.Designation)) {
 					conf.OutputDestinations.Remove(selectedDestination.Designation);
 				}
 			}
+			// Check if something was selected, if not make the picker the default
+			if (conf.OutputDestinations == null || conf.OutputDestinations.Count == 0) {
+				conf.OutputDestinations.Add(PickerDestination.DESIGNATION);
+			}
 			IniConfig.Save();
+
+			// Rebuild the quick settings menu with the new settings.
+			InitializeQuickSettingsMenu();
 		}
 		#endregion
 		
