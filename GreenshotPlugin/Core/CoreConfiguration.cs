@@ -174,8 +174,6 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("MinimizeWorkingSetSize", Description="Optimize memory footprint, but with a performance penalty!", DefaultValue="False")]
 		public bool MinimizeWorkingSetSize;
 
-
-		// change to false for releases
 		[IniProperty("CheckUnstable", Description = "Also check for unstable version updates", DefaultValue = "False")]
 		public bool CheckUnstable;
 
@@ -285,6 +283,9 @@ namespace GreenshotPlugin.Core {
 		/// This method will be called after reading the configuration, so eventually some corrections can be made
 		/// </summary>
 		public override void AfterLoad() {
+			// Comment with releases
+			CheckUnstable = true;
+			
 			if (OutputDestinations == null) {
 				OutputDestinations = new List<string>();
 			}

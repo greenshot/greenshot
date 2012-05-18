@@ -393,6 +393,9 @@ namespace GreenshotPlugin.Controls {
 				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
 					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
 					if (section != null) {
+						if (!section.Values.ContainsKey(configBindable.PropertyName)) {
+							continue;
+						}
 						if (typeof(CheckBox).IsAssignableFrom(field.FieldType)) {
 							CheckBox checkBox = controlObject as CheckBox;
 							section.Values[configBindable.PropertyName].Value = checkBox.Checked;
