@@ -153,7 +153,7 @@ namespace Greenshot.Helpers {
 					}
 					LOG.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.ClassName);
 					UIntPtr response;
-					User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 1000, out response);
+					User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 5000, out response);
 					if (response != UIntPtr.Zero) {
 						document2 = (IHTMLDocument2)Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
 						if (document2 == null) {

@@ -818,7 +818,7 @@ namespace GreenshotPlugin.Core  {
 					// check if the capture fits
 					if (!capture.ScreenBounds.Contains(captureRectangle)) {
 						// if GDI is allowed..
-						if (conf.isGDIAllowed(Process)) {
+						if (WindowCapture.isGDIAllowed(Process)) {
 							// we return null which causes the capturing code to try another method.
 							return null;
 						}

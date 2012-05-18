@@ -694,7 +694,7 @@ namespace Greenshot.Helpers {
 				windowCaptureMode = WindowCaptureMode.Screen;
 				
 				// Change to GDI, if allowed
-				if (conf.isGDIAllowed(process)) {
+				if (WindowCapture.isGDIAllowed(process)) {
 					if (!dwmEnabled && isWPF(process)) {
 						// do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
 						LOG.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
@@ -705,20 +705,20 @@ namespace Greenshot.Helpers {
 
 				// Change to DWM, if enabled and allowed
 				if (dwmEnabled) {
-					if (conf.isDWMAllowed(process)) {
+					if (WindowCapture.isDWMAllowed(process)) {
 						windowCaptureMode = WindowCaptureMode.Aero;
 					}
 				}
 			} else if (windowCaptureMode == WindowCaptureMode.Aero || windowCaptureMode == WindowCaptureMode.AeroTransparent) {
-				if (!dwmEnabled || !conf.isDWMAllowed(process)) {
+				if (!dwmEnabled || !WindowCapture.isDWMAllowed(process)) {
 					// Take default screen
 					windowCaptureMode = WindowCaptureMode.Screen;
 					// Change to GDI, if allowed
-					if (conf.isGDIAllowed(process)) {
+					if (WindowCapture.isGDIAllowed(process)) {
 						windowCaptureMode = WindowCaptureMode.GDI;
 					}
 				}
-			} else if (windowCaptureMode == WindowCaptureMode.GDI && !conf.isGDIAllowed(process)) {
+			} else if (windowCaptureMode == WindowCaptureMode.GDI && !WindowCapture.isGDIAllowed(process)) {
 				// GDI not allowed, take screen
 				windowCaptureMode = WindowCaptureMode.Screen;
 			}
@@ -729,7 +729,7 @@ namespace Greenshot.Helpers {
 			while (!captureTaken) {
 				if (windowCaptureMode == WindowCaptureMode.GDI) {
 					ICapture tmpCapture = null;
-					if (conf.isGDIAllowed(process)) {
+					if (WindowCapture.isGDIAllowed(process)) {
 						tmpCapture = windowToCapture.CaptureWindow(captureForWindow);
 					}
 					if (tmpCapture != null) {
@@ -741,7 +741,7 @@ namespace Greenshot.Helpers {
 					}
 				} else if (windowCaptureMode == WindowCaptureMode.Aero || windowCaptureMode == WindowCaptureMode.AeroTransparent) {
 					ICapture tmpCapture = null;
-					if (conf.isDWMAllowed(process)) {
+					if (WindowCapture.isDWMAllowed(process)) {
 						tmpCapture = windowToCapture.CaptureDWMWindow(captureForWindow, windowCaptureMode, isAutoMode);
 					}
 					if (tmpCapture != null) {

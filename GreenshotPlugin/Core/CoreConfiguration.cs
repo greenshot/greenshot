@@ -201,49 +201,6 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Helper method to check if it is allowed to capture the process using DWM
-		/// </summary>
-		/// <param name="process">Process owning the window</param>
-		/// <returns>true if it's allowed</returns>
-		public bool isDWMAllowed(Process process) {
-			if (process != null) {
-				if (NoDWMCaptureForProduct != null && NoDWMCaptureForProduct.Count > 0) {
-					try {
-						string productName = process.MainModule.FileVersionInfo.ProductName;
-						if (productName != null && NoDWMCaptureForProduct.Contains(productName.ToLower())) {
-							return false;
-						}
-					} catch (Exception ex) {
-						LOG.Warn(ex);
-					}
-				}
-			}
-			return true;
-		}
-		
-		/// <summary>
-		/// Helper method to check if it is allowed to capture the process using GDI
-		/// </summary>
-		/// <param name="processName">Process owning the window</param>
-		/// <returns>true if it's allowed</returns>
-		public bool isGDIAllowed(Process process) {
-			if (process != null) {
-				if (NoGDICaptureForProduct != null && NoGDICaptureForProduct.Count > 0) {
-					try {
-						string productName = process.MainModule.FileVersionInfo.ProductName;
-						if (productName != null && NoGDICaptureForProduct.Contains(productName.ToLower())) {
-							return false;
-						}
-					} catch (Exception ex) {
-						LOG.Warn(ex);
-					}
-				}
-			}
-			return true;
-		}
-
-
-		/// <summary>
 		/// Supply values we can't put as defaults
 		/// </summary>
 		/// <param name="property">The property to return a default for</param>

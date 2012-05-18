@@ -27,6 +27,8 @@ using System.Windows.Forms;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
+using System.Diagnostics;
+using Greenshot.IniFile;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -444,6 +446,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class WindowCapture {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WindowCapture));
+		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		private WindowCapture() {
 		}
@@ -548,6 +551,48 @@ namespace GreenshotPlugin.Core {
 				exceptionToThrow.Data.Add("Width", captureBounds.Width);
 			}
 			return exceptionToThrow;
+		}
+
+		/// <summary>
+		/// Helper method to check if it is allowed to capture the process using DWM
+		/// </summary>
+		/// <param name="process">Process owning the window</param>
+		/// <returns>true if it's allowed</returns>
+		public static bool isDWMAllowed(Process process) {
+			if (process != null) {
+				if (conf.NoDWMCaptureForProduct != null && conf.NoDWMCaptureForProduct.Count > 0) {
+					try {
+						string productName = process.MainModule.FileVersionInfo.ProductName;
+						if (productName != null && conf.NoDWMCaptureForProduct.Contains(productName.ToLower())) {
+							return false;
+						}
+					} catch (Exception ex) {
+						LOG.Warn(ex.Message);
+					}
+				}
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Helper method to check if it is allowed to capture the process using GDI
+		/// </summary>
+		/// <param name="processName">Process owning the window</param>
+		/// <returns>true if it's allowed</returns>
+		public static bool isGDIAllowed(Process process) {
+			if (process != null) {
+				if (conf.NoGDICaptureForProduct != null && conf.NoGDICaptureForProduct.Count > 0) {
+					try {
+						string productName = process.MainModule.FileVersionInfo.ProductName;
+						if (productName != null && conf.NoGDICaptureForProduct.Contains(productName.ToLower())) {
+							return false;
+						}
+					} catch (Exception ex) {
+						LOG.Warn(ex.Message);
+					}
+				}
+			}
+			return true;
 		}
 
 		/// <summary>
