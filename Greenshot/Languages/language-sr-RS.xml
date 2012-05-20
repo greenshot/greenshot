@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Српски" ietf="sr-Cyrl-CS" version="0.8.1" languagegroup="5">
+<language description="Српски" ietf="sr-Cyrl-RS" version="1.0.0" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Извештајте проблеме на</resource>
 		<resource name="about_donations">Ако волите Greenshot, можете да нас подржите:</resource>
 		<resource name="about_host">Greenshot се налази на sourceforge.net на</resource>
 		<resource name="about_icons">Иконе од Yusuke Kamiyamane's Fugue (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2011 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">О Greenshot...</resource>
+		<resource name="about_translation">Превео ОЗЗИИ ozzii.translate@gmail.com</resource>
 		<resource name="application_title">Greenshot - the revolutionary screenshot utility</resource>
 		<resource name="bugreport_cancel">Затвори</resource>
 		<resource name="bugreport_info">Неочекивана грешка се појавила.
@@ -19,8 +20,13 @@ Details about the GNU General Public License:</resource>
 Додајте исто значајан резиме и било шта што може да нам помогне да поновимо ту грешку.
 Исто би били врло задовољни ако прво проверите да тај проблем није већ постављен. (Можете да употребите претрагу да би то брзо нашли.) Хвала :)</resource>
 		<resource name="bugreport_title">Грешка</resource>
+		<resource name="CANCEL">Откажи</resource>
 		<resource name="clipboard_error">Десила се неочекивана грешка при писању у остави.</resource>
 		<resource name="clipboard_inuse">Greenshot није успео да пише у остави пошто процес {0} блокира приступ.</resource>
+		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML са убачене слике</resource>
+		<resource name="ClipboardFormat.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Алфа</resource>
 		<resource name="colorpicker_apply">Примени</resource>
 		<resource name="colorpicker_blue">Плаво</resource>
@@ -51,9 +57,11 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_arrowheads_end">Крајна тачка</resource>
 		<resource name="editor_arrowheads_none">Без</resource>
 		<resource name="editor_arrowheads_start">Почетна тачка</resource>
+		<resource name="editor_autocrop">Ауто кроп</resource>
 		<resource name="editor_backcolor">Бија попуњавања</resource>
 		<resource name="editor_blur_radius">Радијус блура</resource>
 		<resource name="editor_bold">Дебело</resource>
+		<resource name="editor_border">Ивица</resource>
 		<resource name="editor_brightness">Осветљеност</resource>
 		<resource name="editor_cancel">Откажи</resource>
 		<resource name="editor_clipboardfailed">Грешки при приступа оставе. Покушати опет.</resource>
@@ -72,22 +80,27 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_downtobottom">Скроз на дно</resource>
 		<resource name="editor_drawarrow">Нацртај стрелицу (A)</resource>
 		<resource name="editor_drawellipse">Нацртај елипсу (E)</resource>
+		<resource name="editor_drawfreehand">Слободно цртање (F)</resource>
 		<resource name="editor_drawhighlighter">Истаћи (H)</resource>
 		<resource name="editor_drawline">Нацртај линију (L)</resource>
 		<resource name="editor_drawrectangle">Нацртај правоугаоник (R)</resource>
 		<resource name="editor_drawtextbox">Додај текст (T)</resource>
 		<resource name="editor_duplicate">Копирај одабран елеменат</resource>
 		<resource name="editor_edit">Уреди</resource>
+		<resource name="editor_effects">Ефекти</resource>
 		<resource name="editor_email">Е-пошта</resource>
 		<resource name="editor_file">Датотека</resource>
 		<resource name="editor_fontsize">Величина</resource>
 		<resource name="editor_forecolor">Боја линије</resource>
+		<resource name="editor_grayscale">Сиво</resource>
 		<resource name="editor_highlight_area">Истакни зону</resource>
 		<resource name="editor_highlight_grayscale">Сива скала</resource>
 		<resource name="editor_highlight_magnify">Увећај</resource>
 		<resource name="editor_highlight_mode">Подвлачење</resource>
 		<resource name="editor_highlight_text">Истакни теркст</resource>
 		<resource name="editor_imagesaved">Слика сачувана на {0}.</resource>
+		<resource name="editor_insertwindow">Обрни прозор</resource>
+		<resource name="editor_invert">Обрни</resource>
 		<resource name="editor_italic">Накосо</resource>
 		<resource name="editor_load_objects">Учитај објекте из датотеке</resource>
 		<resource name="editor_magnification_factor">Фактор увеличања</resource>
@@ -102,6 +115,10 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_pixel_size">Величина пиксела</resource>
 		<resource name="editor_preview_quality">Преглед квалитета</resource>
 		<resource name="editor_print">Штампај</resource>
+		<resource name="editor_redo">Понови {0}</resource>
+		<resource name="editor_resetsize">Рисет величине</resource>
+		<resource name="editor_rotateccw">Ротирај бројач смеру казаљке</resource>
+		<resource name="editor_rotatecw">Ротирај смеру казаљке</resource>
 		<resource name="editor_save">Сачувај</resource>
 		<resource name="editor_save_objects">Сачувај објекте у датотеци</resource>
 		<resource name="editor_saveas">Сачувај као...</resource>
@@ -111,8 +128,13 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_storedtoclipboard">Слика сачлувана у остави.</resource>
 		<resource name="editor_thickness">Дебљина линије</resource>
 		<resource name="editor_title">Greenshot едитор слика</resource>
+		<resource name="editor_torn_edge">Поцепај ивицу</resource>
+		<resource name="editor_undo">Врати {0}</resource>
 		<resource name="editor_uponelevel">Један ниво горе</resource>
 		<resource name="editor_uptotop">Скроз испред</resource>
+		<resource name="EmailFormat.MAPI">MAPI цлијент</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook са HTML</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook са текстом</resource>
 		<resource name="error">Грешка</resource>
 		<resource name="error_multipleinstances">Greenshot већ ради.</resource>
 		<resource name="error_nowriteaccess">Не могу да сачувам у {0}.
@@ -120,6 +142,18 @@ Details about the GNU General Public License:</resource>
 		<resource name="error_openfile">Датотека "{0}" не може да се отвори.</resource>
 		<resource name="error_openlink">Не могу да отворим везу.</resource>
 		<resource name="error_save">Не могу да сачувам хватање, нађите другу локацију.</resource>
+		<resource name="expertsettings">Експерт</resource>
+		<resource name="expertsettings_autoreducecolors">Креирај 8-бит слику ако има мање од 256 боја док имам &gt; 8 битну слику</resource>
+		<resource name="expertsettings_checkunstableupdates">Провери нестабилна ажурирања</resource>
+		<resource name="expertsettings_clipboardformats">Формати оставе</resource>
+		<resource name="expertsettings_counter">Број ${NUM} у шаблону име датотеке</resource>
+		<resource name="expertsettings_enableexpert">Знам шта радим!</resource>
+		<resource name="expertsettings_footerpattern">Шаблом стампања подножја</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Минимизује меморију, али спорије (није препоручено).</resource>
+		<resource name="expertsettings_optimizeforrdp">Уради неме оптимизације за употребу преко удаљеног дектопа</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Угаси дијалог сачувавања на затварање едитора</resource>
+		<resource name="expertsettings_thumbnailpreview">Прикажи сличице прозора у контектуелном менију (за Vista и windows 7)</resource>
+		<resource name="exported_to">Извоз у: {0}</resource>
 		<resource name="help_title">Помоћ Greenshot-а</resource>
 		<resource name="hotkey_fullscreen">Хватање екрана</resource>
 		<resource name="hotkey_ie">Хватање Internet Explorer-а</resource>
@@ -130,6 +164,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Одабрати квалитет за JPEG слику.</resource>
 		<resource name="jpegqualitydialog_dontaskagain">Сачувај као стандардни JPEG квалитет и не питај више</resource>
 		<resource name="jpegqualitydialog_title">Greenshot квалитет JPEG-а</resource>
+		<resource name="OK">У реду</resource>
 		<resource name="print_error">Грешка при штампању.</resource>
 		<resource name="printoptions_allowcenter">Центрирај штампање у страницу</resource>
 		<resource name="printoptions_allowenlarge">Повечај штампање да попуни страницу</resource>
@@ -137,6 +172,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="printoptions_allowshrink">Умањи штампање да попуни страницу</resource>
 		<resource name="printoptions_dontaskagain">Сачувај опције као стандардно и не питај више</resource>
 		<resource name="printoptions_inverted">Штампај са обрнуте боје</resource>
+		<resource name="printoptions_printgrayscale">Натерај црно-бело штампање</resource>
 		<resource name="printoptions_timestamp">Штампај датум/време на дно странице</resource>
 		<resource name="printoptions_title">Опције штампања</resource>
 		<resource name="quicksettings_destination_file">Директно сачувај (са подешавањима излаза)</resource>
@@ -148,6 +184,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="settings_capture_mousepointer">Ухвати миш</resource>
 		<resource name="settings_capture_windows_interactive">Употреби интерактивно хватање прозора</resource>
 		<resource name="settings_checkperiod">Интервал провере ажурирања (0=без провере)</resource>
+		<resource name="settings_configureplugin">Подеси</resource>
 		<resource name="settings_copypathtoclipboard">Копирај путању слике у оставу сваки пут када се сачува слика</resource>
 		<resource name="settings_destination">Циљ хватања</resource>
 		<resource name="settings_destination_clipboard">Копирај у остави</resource>
@@ -155,6 +192,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="settings_destination_email">Е-пошта</resource>
 		<resource name="settings_destination_file">Директно сачувај (ова подешавања)</resource>
 		<resource name="settings_destination_fileas">Сачувај као (прикажи дијалог)</resource>
+		<resource name="settings_destination_picker">ДИнамично одабери дестинацију</resource>
 		<resource name="settings_destination_printer">Пошаљи на штампач</resource>
 		<resource name="settings_editor">Уређивач</resource>
 		<resource name="settings_filenamepattern">Образац имена</resource>
@@ -178,7 +216,8 @@ ${hostname} име рaчунара
 
 Greenshot може исто да динамично креира фасцикле, једноставно употребите симбол (\) за одвајање фасцикле и имена датотеке.
 Пример: модел ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-генерише фасцикле са актуелним датумом у подразумевано стовариште, нпр. 2008-06-29, а има датотеке ће бити базирано на времеtime, нпр. 11_58_32 (и екстензија из подешавања)</resource>
+генерише фасцикле са актуелним датумом у подразумевано стовариште, нпр. 2008-06-29, а име датотеке ће бити базирано на тренутно,
+нпр. 11_58_32 (и екстензија из подешавања)</resource>
 		<resource name="settings_network">Мрежа и ажурирања</resource>
 		<resource name="settings_output">Излаз</resource>
 		<resource name="settings_playsound">Пусти звук</resource>
@@ -187,8 +226,10 @@ Greenshot може исто да динамично креира фасцикл�
 		<resource name="settings_primaryimageformat">Формат слике</resource>
 		<resource name="settings_printer">Штампач</resource>
 		<resource name="settings_printoptions">Опције штампања</resource>
+		<resource name="settings_reducecolors">Умањи број боја на маркс од 256</resource>
 		<resource name="settings_registerhotkeys">Региструј пречице</resource>
 		<resource name="settings_showflashlight">Покажи светлост</resource>
+		<resource name="settings_shownotify">Прикажи норификације</resource>
 		<resource name="settings_storagelocation">Смештај стоваришта</resource>
 		<resource name="settings_title">Подешавања</resource>
 		<resource name="settings_tooltip_filenamepattern">Образак за сачувавање хватања</resource>
@@ -208,5 +249,10 @@ Greenshot може исто да динамично креира фасцикл�
 		<resource name="warning_hotkeys">Пречица "{0}" не може да се региструје. Вероватно други програм тражи употребу те пречице! Можете или да промените подешавања пречице или да угасите/промените програм који користи пречицу.
 
 Све способности Greenshot-а раде са контекстуалном менију иконе.</resource>
+		<resource name="WindowCaptureMode.Aero">Користи сопствену боју</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Задржи провидност</resource>
+		<resource name="WindowCaptureMode.Auto">Аутоматско</resource>
+		<resource name="WindowCaptureMode.GDI">Употреби стандардну боју</resource>
+		<resource name="WindowCaptureMode.Screen">Као приказано</resource>
 	</resources>
 </language>
