@@ -78,6 +78,16 @@ namespace GreenshotImgurPlugin {
 				IniConfig.Save();
 			}
 		}
+		
+		private static string EscapeText(string Text) {
+			string[] UriRfc3986CharsToEscape = new[] { "!", "*", "'", "(", ")" };
+			StringBuilder escaped = new StringBuilder(Uri.EscapeDataString(Text.ToString()));
+			
+			for (int i = 0; i < UriRfc3986CharsToEscape.Length; i++) {
+			   escaped.Replace(UriRfc3986CharsToEscape[i], Uri.HexEscape(UriRfc3986CharsToEscape[i][0]));
+			}
+			return escaped.ToString();
+		}
 
 		/// <summary>
 		/// Do the actual upload to Imgur
@@ -89,7 +99,7 @@ namespace GreenshotImgurPlugin {
 			StringBuilder uploadRequest = new StringBuilder();
 			// Add image
 			uploadRequest.Append("image=");
-			uploadRequest.Append(HttpUtility.UrlEncode(System.Convert.ToBase64String(imageData, 0, dataLength)));
+			uploadRequest.Append(EscapeText(System.Convert.ToBase64String(imageData, 0, dataLength)));
 			// add key
 			uploadRequest.Append("&");
 			uploadRequest.Append("key=");
@@ -98,13 +108,13 @@ namespace GreenshotImgurPlugin {
 			if (title != null) {
 				uploadRequest.Append("&");
 				uploadRequest.Append("title=");
-				uploadRequest.Append(HttpUtility.UrlEncode(title, Encoding.UTF8));
+				uploadRequest.Append(EscapeText(title));
 			}
 			// add filename
 			if (filename != null) {
 				uploadRequest.Append("&");
 				uploadRequest.Append("name=");
-				uploadRequest.Append(HttpUtility.UrlEncode(filename, Encoding.UTF8));
+				uploadRequest.Append(EscapeText(filename));
 			}
 			string url = config.ImgurApiUrl + "/upload";
 			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
@@ -112,7 +122,7 @@ namespace GreenshotImgurPlugin {
 			webRequest.Method = "POST";
 			webRequest.ContentType = "application/x-www-form-urlencoded";
 			webRequest.ServicePoint.Expect100Continue = false;
-			
+
 			using(StreamWriter streamWriter = new StreamWriter(webRequest.GetRequestStream())) {
 				streamWriter.Write(uploadRequest.ToString());
 			}

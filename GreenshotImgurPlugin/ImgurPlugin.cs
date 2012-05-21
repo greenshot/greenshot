@@ -137,7 +137,7 @@ namespace GreenshotImgurPlugin {
 				host.SaveToStream(image, stream, outputSettings);
 				try {
 					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, captureDetails));
-					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, captureDetails.DateTime.ToString(), filename);
+					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, captureDetails.Title, filename);
 					LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
 					config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
 					config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
@@ -163,44 +163,6 @@ namespace GreenshotImgurPlugin {
 			}
 			uploadURL = null;
 			return false;
-		}
-
-		/// <summary>
-		/// This will be called when the menu item in the Editor is clicked
-		/// </summary>
-		public void EditMenuClick(object sender, EventArgs eventArgs) {
-			ToolStripMenuItem item = (ToolStripMenuItem)sender;
-			IImageEditor imageEditor = (IImageEditor)item.Tag;
-			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			using (MemoryStream stream = new MemoryStream()) {
-				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait));
-
-				imageEditor.SaveToStream(stream, outputSettings);
-				try {
-					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, imageEditor.CaptureDetails));
-					ImgurInfo imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, imageEditor.CaptureDetails.Title, filename);
-					imageEditor.Surface.Modified = false;
-					LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
-					config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
-					config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
-					CheckHistory();
-					using (Image exportedImage = imageEditor.GetImageForExport()) {
-						imgurInfo.Image = ImageHelper.CreateThumbnail(exportedImage, 90, 90);
-					}
-					// Make sure the configuration is save, so we don't lose the deleteHash
-					IniConfig.Save();
-					
-					if (config.UsePageLink) {
-						Clipboard.SetText(imgurInfo.Page);
-					} else {
-						Clipboard.SetText(imgurInfo.Original);
-					}
-				} catch(Exception e) {
-					MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
-				} finally {
-					backgroundForm.CloseDialog();
-				}
-			}
 		}
 	}
 }
