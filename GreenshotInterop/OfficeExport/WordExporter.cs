@@ -83,7 +83,7 @@ namespace Greenshot.Interop.Office {
 		}
 
 		private static void AddPictureToSelection(ISelection selection, string tmpFile) {
-			selection.InlineShapes.AddPicture(tmpFile, Type.Missing, Type.Missing, Type.Missing);
+			selection.InlineShapes.AddPicture(tmpFile, false, true, Type.Missing);
 			selection.InsertAfter("\r\n");
 		}
 
