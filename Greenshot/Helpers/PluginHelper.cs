@@ -229,7 +229,7 @@ namespace Greenshot.Helpers {
 			foreach (string pluginFile in pluginFiles) {
 				LOG.DebugFormat("Checking the following file for plugins: {0}", pluginFile);
 				try {
-					Assembly assembly = Assembly.LoadFile(pluginFile, Assembly.GetExecutingAssembly().Evidence);
+					Assembly assembly = Assembly.LoadFrom(pluginFile, Assembly.GetExecutingAssembly().Evidence);
 					PluginAttribute[] pluginAttributes = assembly.GetCustomAttributes(typeof(PluginAttribute), false) as PluginAttribute[];
 					if (pluginAttributes.Length > 0) {
 						PluginAttribute pluginAttribute = pluginAttributes[0];

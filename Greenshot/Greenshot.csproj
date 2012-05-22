@@ -361,7 +361,7 @@
     <None Include="Languages\language-sk-SK.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\language-sr-SR.xml">
+    <None Include="Languages\language-sr-RS.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\language-sv-SE.xml">
