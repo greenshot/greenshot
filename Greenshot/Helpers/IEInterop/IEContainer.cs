@@ -209,8 +209,8 @@ namespace Greenshot.Helpers.IEInterop {
 			}
 			IHTMLFramesCollection2 frameCollection = (IHTMLFramesCollection2)document2.frames;
 			for(int frame = 0; frame < frameCollection.length; frame++) {
-				IHTMLWindow2 frameWindow = frameCollection.item(frame);
 				try {
+					IHTMLWindow2 frameWindow = frameCollection.item(frame);
 					DocumentContainer frameData = new DocumentContainer(frameWindow, contentWindow, this);
 					// check if frame is hidden
 					if (!frameData.isHidden) {
