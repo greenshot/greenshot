@@ -218,65 +218,75 @@ Name: "languages\zhTW"; Description: "繁體中文"; Types: Full; Check: hasLang
 /////////////////////////////////////////////////////////////////////
 // The following uninstall code was found at:
 // http://stackoverflow.com/questions/2000296/innosetup-how-to-automatically-uninstall-previous-installed-version
+// and than modified to work in a 32/64 bit environment
 /////////////////////////////////////////////////////////////////////
-function GetUninstallString(): String;
+function GetUninstallStrings(): array of String;
 var
 	sUnInstPath: String;
 	sUnInstallString: String;
+	asUninstallStrings : array of String;
+	index : Integer;
 begin
 	sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#emit SetupSetting("AppId")}_is1');
 	sUnInstallString := '';
-	// Retrieve uninstall string from HKLM(32/64) or HKCU(32/64)
-	if not RegQueryStringValue(HKLM32, sUnInstPath, 'UninstallString', sUnInstallString) then
-		if not RegQueryStringValue(HKCU32, sUnInstPath, 'UninstallString', sUnInstallString) then
-			if IsWin64 then
-				if not RegQueryStringValue(HKLM64, sUnInstPath, 'UninstallString', sUnInstallString) then
-					RegQueryStringValue(HKCU64, sUnInstPath, 'UninstallString', sUnInstallString);
-	Result := sUnInstallString;
-end;
+	index := 0;
+	
+	// Retrieve uninstall string from HKLM32 or HKCU32
+	if RegQueryStringValue(HKLM32, sUnInstPath, 'UninstallString', sUnInstallString) then
+	begin
+		SetArrayLength(asUninstallStrings, index + 1);
+		asUninstallStrings[index] := sUnInstallString;
+		index := index +1;
+	end;
 
-
-/////////////////////////////////////////////////////////////////////
-function IsUpgrade(): Boolean;
-begin
-	Result := (GetUninstallString() <> '');
-end;
-
-/////////////////////////////////////////////////////////////////////
-function UnInstallOldVersion(): Integer;
-var
-	sUnInstallString: String;
-	iTries: Integer;
-	iResultCode: Integer;
-begin
-// Return Values:
-// 1 - uninstall string is empty
-// 2 - error executing the UnInstallString
-// 3 - successfully executed the UnInstallString
-
-	// default return value
-	Result := 0;
-	iTries := 5;
-
-	// Uninstall while we find a uninstall string
-	while (Result <> 1) or (iTries = 0) do begin
-		iTries := iTries - 1;
-		// get the uninstall string of the old app
-		sUnInstallString := GetUninstallString();
-		if sUnInstallString <> '' then
+	if RegQueryStringValue(HKCU32, sUnInstPath, 'UninstallString', sUnInstallString) then
+	begin
+		SetArrayLength(asUninstallStrings, index + 1);
+		asUninstallStrings[index] := sUnInstallString;
+		index := index +1;
+	end;
+	
+	// Only for Windows with 64 bit support: Retrieve uninstall string from HKLM64 or HKCU64
+	if IsWin64 then
+	begin
+		if RegQueryStringValue(HKLM64, sUnInstPath, 'UninstallString', sUnInstallString) then
 		begin
-			sUnInstallString := RemoveQuotes(sUnInstallString);
-			if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
-				Result := 3
-			else
-				Result := 2;
-			// Wait a few seconds to prevent installation issues, otherwise files are removed in one process while the other tries to link to them
-			Sleep(2000);
-		end else
+			SetArrayLength(asUninstallStrings, index + 1);
+			asUninstallStrings[index] := sUnInstallString;
+			index := index +1;
+		end;
+
+		if RegQueryStringValue(HKCU64, sUnInstPath, 'UninstallString', sUnInstallString) then
 		begin
-			Result := 1;
+			SetArrayLength(asUninstallStrings, index + 1);
+			asUninstallStrings[index] := sUnInstallString;
+			index := index +1;
 		end;
 	end;
+	Result := asUninstallStrings;
+end;
+
+/////////////////////////////////////////////////////////////////////
+procedure UnInstallOldVersions();
+var
+	sUnInstallString: String;
+	index: Integer;
+	isUninstallMade: Boolean;
+	iResultCode : Integer;
+	asUninstallStrings : array of String;
+begin
+	isUninstallMade := false;
+	asUninstallStrings := GetUninstallStrings();
+	for index := 0 to (GetArrayLength(asUninstallStrings) -1) do
+	begin
+		sUnInstallString := RemoveQuotes(asUninstallStrings[index]);
+		if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+			isUninstallMade := true;
+	end;
+
+	// Wait a few seconds to prevent installation issues, otherwise files are removed in one process while the other tries to link to them
+	if (isUninstallMade) then
+		Sleep(2000);
 end;
 
 /////////////////////////////////////////////////////////////////////
@@ -284,10 +294,7 @@ procedure CurStepChanged(CurStep: TSetupStep);
 begin
 	if (CurStep=ssInstall) then
 	begin
-		if (IsUpgrade()) then
-		begin
-			UnInstallOldVersion();
-		end;
+		UnInstallOldVersions();
 	end;
 end;
 /////////////////////////////////////////////////////////////////////
