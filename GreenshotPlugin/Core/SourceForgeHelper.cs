@@ -167,7 +167,7 @@ namespace GreenshotPlugin.Core {
 								try {
 									CultureInfo cultureInfo = new CultureInfo(culture);
 									rssFile.Language = cultureInfo.NativeName;
-								} catch (Exception ex) {
+								} catch (Exception) {
 									LOG.WarnFormat("Can't read the native name of the culture {0}", culture);
 								}
 							}

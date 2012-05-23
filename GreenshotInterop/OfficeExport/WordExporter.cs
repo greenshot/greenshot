@@ -47,7 +47,7 @@ namespace Greenshot.Interop.Office {
 					for (int i = 1; i <= wordApplication.Documents.Count; i++) {
 						using (IWordDocument wordDocument = wordApplication.Documents.item(i)) {
 							if (wordDocument.ActiveWindow.Caption.StartsWith(wordCaption)) {
-								return InsertIntoExistingDocument(wordDocument, tmpFile);
+								return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile);
 							}
 						}
 					}
@@ -56,9 +56,16 @@ namespace Greenshot.Interop.Office {
 			return false;
 		}
 
-		internal static bool InsertIntoExistingDocument(IWordDocument wordDocument, string tmpFile) {
-			if (wordDocument.Application.Selection != null) {
-				AddPictureToSelection(wordDocument.Application.Selection, tmpFile);
+		/// <summary>
+		/// Internal method for the insert
+		/// </summary>
+		/// <param name="wordApplication"></param>
+		/// <param name="wordDocument"></param>
+		/// <param name="tmpFile"></param>
+		/// <returns></returns>
+		internal static bool InsertIntoExistingDocument(IWordApplication wordApplication, IWordDocument wordDocument, string tmpFile) {
+			if (wordApplication.Selection != null) {
+				AddPictureToSelection(wordApplication.Selection, tmpFile);
 				try {
 					wordDocument.ActiveWindow.ActivePane.View.Zoom.Percentage = 100;
 				} catch (Exception e) {
@@ -69,7 +76,7 @@ namespace Greenshot.Interop.Office {
 					}
 				}
 				try {
-					wordDocument.Application.Activate();
+					wordApplication.Activate();
 				} catch {}
 				try {
 					wordDocument.Activate();

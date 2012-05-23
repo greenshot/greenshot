@@ -192,15 +192,19 @@ namespace Greenshot.Interop.Office {
 					// http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
 					// Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
 					if (inspector.IsWordMail() && inspector.WordEditor != null) {
-						if (WordExporter.InsertIntoExistingDocument(inspector.WordEditor, tmpFile)) {
-							LOG.Info("Inserted into Wordmail");
+						try {
+							if (WordExporter.InsertIntoExistingDocument(inspector.WordEditor.Application, inspector.WordEditor, tmpFile)) {
+								LOG.Info("Inserted into Wordmail");
 
-							// check the format afterwards, otherwise we lose the selection
-							//if (!OlBodyFormat.olFormatHTML.Equals(currentMail.BodyFormat)) {
-							//	LOG.Info("Changing format to HTML.");
-							//	currentMail.BodyFormat = OlBodyFormat.olFormatHTML;
-							//}
-							return true;
+								// check the format afterwards, otherwise we lose the selection
+								//if (!OlBodyFormat.olFormatHTML.Equals(currentMail.BodyFormat)) {
+								//	LOG.Info("Changing format to HTML.");
+								//	currentMail.BodyFormat = OlBodyFormat.olFormatHTML;
+								//}
+								return true;
+							}
+						} catch (Exception exportException) {
+							LOG.Error("Error exporting to the word editor, trying to do it via another method", exportException);
 						}
 					} else if (isAppointment) {
 						LOG.Info("Can't export to an appointment if no word editor is used");
