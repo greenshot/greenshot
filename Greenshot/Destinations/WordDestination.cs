@@ -119,7 +119,17 @@ namespace Greenshot.Destinations {
 				}
 			}
 			if (documentCaption != null) {
-				WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+				try {
+					WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+				} catch (Exception) {
+					try {
+						WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+					} catch (Exception ex) {
+						LOG.Error(ex);
+						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
+						return false;
+					}
+				}
 			} else {
 				if (!manuallyInitiated) {
 					List<string> documents = WordExporter.GetWordDocuments();
@@ -134,7 +144,17 @@ namespace Greenshot.Destinations {
 						return false;
 					}
 				}
-				WordExporter.InsertIntoNewDocument(tmpFile);
+				try {
+					WordExporter.InsertIntoNewDocument(tmpFile);
+				} catch(Exception) {
+					try {
+						WordExporter.InsertIntoNewDocument(tmpFile);
+					} catch (Exception ex) {
+						LOG.Error(ex);
+						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
+						return false;
+					}
+				}
 			}
 			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;
