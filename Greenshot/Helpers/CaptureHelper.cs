@@ -69,7 +69,9 @@ namespace Greenshot.Helpers {
 			new CaptureHelper(CaptureMode.Region, captureMouse).MakeCapture(region);
 		}
 		public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode) {
-			new CaptureHelper(CaptureMode.FullScreen, captureMouse).MakeCapture();
+			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse);
+			captureHelper.screenCaptureMode = screenCaptureMode;
+			captureHelper.MakeCapture();
 		}
 		public static void CaptureLastRegion(bool captureMouse) {
 			new CaptureHelper(CaptureMode.LastRegion, captureMouse).MakeCapture();
