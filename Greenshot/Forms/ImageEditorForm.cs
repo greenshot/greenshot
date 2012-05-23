@@ -741,7 +741,9 @@ namespace Greenshot {
 			this.undoToolStripMenuItem.Enabled = canUndo;
 			string undoAction = "";
 			if (canUndo) {
-				undoAction = Language.GetString(surface.UndoActionKey);
+				if (surface.UndoActionKey != LangKey.none) {
+					undoAction = Language.GetString(surface.UndoActionKey);
+				}
 			}
 			string undoText = Language.GetFormattedString(LangKey.editor_undo, undoAction);
 			this.btnUndo.Text = undoText;
