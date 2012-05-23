@@ -161,11 +161,15 @@ namespace GreenshotPlugin.Core {
 										LOG.DebugFormat("Found invalid version {0} in file {1}", version, file);
 									}
 								}
-						    }
+							}
 							if (type.Equals("Translations")) {
 								string culture = Regex.Replace(file, @"[a-zA-Z]+-(..-..)\.(xml|html)", "$1");
-								CultureInfo cultureInfo = new CultureInfo(culture);
-								rssFile.Language = cultureInfo.NativeName;
+								try {
+									CultureInfo cultureInfo = new CultureInfo(culture);
+									rssFile.Language = cultureInfo.NativeName;
+								} catch (Exception ex) {
+									LOG.WarnFormat("Can't read the native name of the culture {0}", culture);
+								}
 							}
 							filesForType.Add(file, rssFile);
 						}
