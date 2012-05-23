@@ -84,7 +84,11 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			yield return new ConfluenceDestination();
+			if (ConfluenceDestination.IsInitialized) {
+				yield return new ConfluenceDestination();
+			} else {
+				yield break;
+			}
 		}
 
 		public IEnumerable<IProcessor> Processors() {
@@ -106,8 +110,13 @@ namespace GreenshotConfluencePlugin {
 			if(config.IsDirty) {
 				IniConfig.Save();
 			}
-			TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
-			//resources = new ComponentResourceManager(typeof(JiraPlugin));
+			try {
+				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
+				//resources = new ComponentResourceManager(typeof(JiraPlugin));
+			} catch (Exception ex) {
+				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
+				return false;
+			}
 			return true;
 		}
 

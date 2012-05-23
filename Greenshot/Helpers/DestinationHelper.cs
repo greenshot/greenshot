@@ -69,18 +69,35 @@ namespace Greenshot.Helpers {
 		}
 
 		/// <summary>
+		/// Method to get all the destinations from the plugins
+		/// </summary>
+		/// <returns>List<IDestination></returns>
+		private static List<IDestination> GetPluginDestinations() {
+			List<IDestination> destinations = new List<IDestination>();
+			foreach (PluginAttribute pluginAttribute in PluginHelper.instance.Plugins.Keys) {
+				IGreenshotPlugin plugin = PluginHelper.instance.Plugins[pluginAttribute];
+				try {
+					var dests = plugin.Destinations();
+					if (dests != null) {
+						destinations.AddRange(dests);
+					}
+				} catch (Exception ex) {
+					LOG.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginAttribute.Name);
+					LOG.Error(ex);
+				}
+			}
+			destinations.Sort();
+			return destinations;
+		}
+
+		/// <summary>
 		/// Get a list of all destinations, registered or supplied by a plugin
 		/// </summary>
 		/// <returns></returns>
 		public static List<IDestination> GetAllDestinations() {
 			List<IDestination> destinations = new List<IDestination>();
 			destinations.AddRange(RegisteredDestinations.Values);
-			foreach(IGreenshotPlugin plugin in PluginHelper.instance.Plugins.Values) {
-				var dests = plugin.Destinations();
-				if (dests != null) {
-					destinations.AddRange(dests);
-				}
-			}
+			destinations.AddRange(GetPluginDestinations());
 			destinations.Sort();
 			return destinations;
 		}
@@ -97,11 +114,9 @@ namespace Greenshot.Helpers {
 			if (RegisteredDestinations.ContainsKey(designation)) {
 				return RegisteredDestinations[designation];
 			}
-			foreach(IGreenshotPlugin plugin in PluginHelper.instance.Plugins.Values) {
-				foreach(IDestination destination in plugin.Destinations()) {
-					if (designation.Equals(destination.Designation)) {
-						return destination;
-					}
+			foreach (IDestination destination in GetPluginDestinations()) {
+				if (designation.Equals(destination.Designation)) {
+					return destination;
 				}
 			}
 			return null;

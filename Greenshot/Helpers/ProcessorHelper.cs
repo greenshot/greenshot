@@ -39,21 +39,25 @@ namespace Greenshot.Helpers {
 				if (!"Greenshot.Processors".Equals(ProcessorType.Namespace)) {
 					continue;
 				}
-				if (!ProcessorType.IsAbstract) {
-					IProcessor Processor;
-					try {
-						Processor = (IProcessor)Activator.CreateInstance(ProcessorType);
-					} catch (Exception e) {
-						LOG.ErrorFormat("Can't create instance of {0}", ProcessorType);
-						LOG.Error(e);
-						continue;
+				try {
+					if (!ProcessorType.IsAbstract) {
+						IProcessor Processor;
+						try {
+							Processor = (IProcessor)Activator.CreateInstance(ProcessorType);
+						} catch (Exception e) {
+							LOG.ErrorFormat("Can't create instance of {0}", ProcessorType);
+							LOG.Error(e);
+							continue;
+						}
+						if (Processor.isActive) {
+							LOG.DebugFormat("Found Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
+							RegisterProcessor(Processor);
+						} else {
+							LOG.DebugFormat("Ignoring Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
+						}
 					}
-					if (Processor.isActive) {
-						LOG.DebugFormat("Found Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
-						RegisterProcessor(Processor);
-					} else {
-						LOG.DebugFormat("Ignoring Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
-					}
+				} catch (Exception ex) {
+					LOG.ErrorFormat("Error loading processor {0}, message: ", ProcessorType.FullName, ex.Message);
 				}
 			}
 		}
@@ -67,18 +71,34 @@ namespace Greenshot.Helpers {
 			RegisteredProcessors.Add(Processor.Designation, Processor);
 		}
 
+		private static List<IProcessor> GetPluginsProcessors() {
+			List<IProcessor> processors = new List<IProcessor>();
+			foreach (PluginAttribute pluginAttribute in PluginHelper.instance.Plugins.Keys) {
+				IGreenshotPlugin plugin = PluginHelper.instance.Plugins[pluginAttribute];
+				try {
+					var procs = plugin.Processors();
+					if (procs != null) {
+						processors.AddRange(procs);
+					}
+				} catch (Exception ex) {
+					LOG.ErrorFormat("Couldn't get processors from the plugin {0}", pluginAttribute.Name);
+					LOG.Error(ex);
+				}
+			}
+			processors.Sort();
+			return processors;
+		}
+
 		/// <summary>
 		/// Get a list of all Processors, registered or supplied by a plugin
 		/// </summary>
 		/// <returns></returns>
 		public static List<IProcessor> GetAllProcessors() {
-			List<IProcessor> Processors = new List<IProcessor>();
-			Processors.AddRange(RegisteredProcessors.Values);
-			foreach(IGreenshotPlugin plugin in PluginHelper.instance.Plugins.Values) {
-				Processors.AddRange(plugin.Processors());
-			}
-			Processors.Sort();
-			return Processors;
+			List<IProcessor> processors = new List<IProcessor>();
+			processors.AddRange(RegisteredProcessors.Values);
+			processors.AddRange(GetPluginsProcessors());
+			processors.Sort();
+			return processors;
 		}
 
 		/// <summary>
@@ -93,11 +113,9 @@ namespace Greenshot.Helpers {
 			if (RegisteredProcessors.ContainsKey(designation)) {
 				return RegisteredProcessors[designation];
 			}
-			foreach(IGreenshotPlugin plugin in PluginHelper.instance.Plugins.Values) {
-				foreach(IProcessor Processor in plugin.Processors()) {
-					if (designation.Equals(Processor.Designation)) {
-						return Processor;
-					}
+			foreach (IProcessor processor in GetPluginsProcessors()) {
+				if (designation.Equals(processor.Designation)) {
+					return processor;
 				}
 			}
 			return null;

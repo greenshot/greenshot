@@ -40,19 +40,28 @@ namespace GreenshotConfluencePlugin {
 		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private static Image confluenceIcon = null;
 		private Confluence.Page page;
-		
+		public static bool IsInitialized {
+			get;
+			private set;
+		}
 		static ConfluenceDestination() {
-			Uri confluenceIconUri = new Uri("/GreenshotConfluencePlugin;component/Images/Confluence.ico", UriKind.Relative);
-			using (Stream iconStream = Application.GetResourceStream(confluenceIconUri).Stream) {
-				using (Image tmpImage = Image.FromStream(iconStream)) {
-					confluenceIcon = ImageHelper.Clone(tmpImage);
+			IsInitialized = false;
+			try {
+				Uri confluenceIconUri = new Uri("/GreenshotConfluencePlugin;component/Images/Confluence.ico", UriKind.Relative);
+				using (Stream iconStream = Application.GetResourceStream(confluenceIconUri).Stream) {
+					using (Image tmpImage = Image.FromStream(iconStream)) {
+						confluenceIcon = ImageHelper.Clone(tmpImage);
+					}
 				}
+				IsInitialized = true;
+			} catch (Exception ex) {
+				LOG.ErrorFormat("Problem in the confluence static initializer: {0}", ex.Message);
 			}
 		}
 		
 		public ConfluenceDestination() {
-			
 		}
+
 		public ConfluenceDestination(Confluence.Page page) {
 			this.page = page;
 		}

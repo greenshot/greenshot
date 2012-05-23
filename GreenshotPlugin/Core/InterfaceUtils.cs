@@ -49,7 +49,7 @@ namespace GreenshotPlugin.Core {
 						}
 					}
 				} catch (Exception ex) {
-					LOG.Warn(ex);
+					LOG.WarnFormat("Problem getting subclasses of type: {0}, message: {1}", type.FullName, ex.Message);
 				}
 			}
 			return list;
