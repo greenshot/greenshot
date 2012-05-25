@@ -41,7 +41,7 @@ namespace GreenshotLanguageEditor {
 	public partial class EntriesEditorWindow : Window, INotifyPropertyChanged {
 		
 		private string languagePath;
-		IDictionary<string, LanguageEntry> languageResources = new SortedDictionary<string, LanguageEntry>();
+		ObservableDictionary<string, LanguageEntry> languageResources = new ObservableDictionary<string, LanguageEntry>();
 		
 		IList<LanguageFile> languageFiles;
 		public IList<LanguageFile> LanguageFiles {
@@ -68,12 +68,14 @@ namespace GreenshotLanguageEditor {
 			set;
 		}
 		
+		private ICollectionView view;
 		public ICollectionView View {
-			get;
-			set;
+			get {return view;}
+			set {view=value; NotifyPropertyChanged("View");}
 		}
 		
 		public EntriesEditorWindow() {
+			
 			
 			var dialog = new System.Windows.Forms.FolderBrowserDialog();
 			dialog.Description = "Select the directory containing the translation files for Greenshot. " +
@@ -91,13 +93,18 @@ namespace GreenshotLanguageEditor {
 				return;
 			}
 			
-			//languagePath = @"C:\Users\jens\Documents\Sharpdevelop Projects\Greenshot\trunk\Greenshot\Languages\";
+			languagePath = @"C:\Users\jens\Documents\Sharpdevelop Projects\Greenshot\trunk\Greenshot\Languages\";
 
 			InitializeComponent();
 			DataContext = this;
 			this.Activate();
 
 			View = CollectionViewSource.GetDefaultView(LoadResources(languagePath));
+			languageResources.CollectionChanged += delegate {
+				
+				View = CollectionViewSource.GetDefaultView(languageResources.Values);  
+				View.Refresh();
+			};
 		}
 		
 		private IList<LanguageEntry> LoadResources(string languagePath) {
@@ -105,19 +112,16 @@ namespace GreenshotLanguageEditor {
 			foreach (LanguageFile languageFile in GreenshotLanguage.GetLanguageFiles(languagePath, "language*.xml")) {
 				LanguageFiles.Add(languageFile);
 				
-				if ("en-US".Equals(languageFile.IETF)) {
-					// we should always start with en-US, so the grid is initialized with the probably most-complete language file as benchmark for translations
-					LanguageFile1 = languageFile;
-					PopulateColumn(languageFile, 1);
-				} else if(LanguageFile2 == null) {
+				// default: first non-english file is for right column, english file for left column
+				if(LanguageFile2 == null && !"en-US".Equals(languageFile.IETF)) {
 					LanguageFile2 = languageFile;
-					PopulateColumn(languageFile, 2);
+				}else if (LanguageFile1 == null || "en-US".Equals(languageFile.IETF)) {
+					LanguageFile1 = languageFile;
 				}
 			}
-			if(LanguageFile1 == null) {
-				MessageBox.Show("language-en-US.xml does not exist in the location selected. It is needed as reference for the translation.");
-				this.Close();
-			}
+			if(LanguageFile1 != null) PopulateColumn(LanguageFile1, 1);
+			if(LanguageFile2 != null) PopulateColumn(LanguageFile2, 2);
+
 			return new List<LanguageEntry>(languageResources.Values);
 		}
 		
@@ -132,15 +136,23 @@ namespace GreenshotLanguageEditor {
 			}
 			if(columnIndex == 1) unsavedChangesInLanguage1 = false;
 			if(columnIndex == 2) unsavedChangesInLanguage2 = false;
+			
 		}
 		
 		private void ClearColumn(int columnIndex) {
-			// we do not throw out LanguageEntries that do not exist in selected language,
-			// so that en-US (loaded at startup) is always the benchmark, even when other languages are displayed
+			IList<string> resKeys = new List<string>(languageResources.Keys);
+			//foreach(string key in  resKeys) {
 			foreach(LanguageEntry e in languageResources.Values) {
-				if (columnIndex == 1) e.Entry1 = null;
+				if (columnIndex == 1)  e.Entry1 = null;
 				else if (columnIndex == 2) e.Entry2 = null;
 				else throw new ArgumentOutOfRangeException("Argument columnIndex must be either 1 or 2");
+			}
+			// remove entries with two null values
+			foreach(string key in  resKeys) {
+				LanguageEntry e = languageResources[key];
+				if(string.IsNullOrWhiteSpace(e.Entry1) && string.IsNullOrWhiteSpace(e.Entry2)) {
+					languageResources.Remove(e.Key);
+				}
 			}
 		}
 		
@@ -181,6 +193,7 @@ namespace GreenshotLanguageEditor {
 			if(targetColumn == 1) LanguageFile1 = file;
 			else if(targetColumn == 2) LanguageFile2 = file;
 			PopulateColumn(file, targetColumn);
+			// TODO Language resources does not implement notifycollectionwhatever interface. does not work when keys are removed
 		}
 		
 		private void cancelButtonClicked(object sender, RoutedEventArgs e) {
