@@ -210,6 +210,7 @@
     <Compile Include="Forms\MovableShowColorForm.Designer.cs">
       <DependentUpon>MovableShowColorForm.cs</DependentUpon>
     </Compile>
+    <None Include="App.config" />
     <None Include="Helpers\AviHelper.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\ClipboardHelper.cs" />
@@ -385,7 +386,7 @@
     <None Include="Lib\log4net.dll" />
     <None Include="log4net-debug.xml" />
     <None Include="log4net-portable.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="log4net.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
