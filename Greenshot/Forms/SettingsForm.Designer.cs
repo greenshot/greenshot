@@ -1180,10 +1180,10 @@ namespace Greenshot {
 									this.columnHeader1});
 			this.listview_clipboardformats.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.listview_clipboardformats.LabelWrap = false;
-			this.listview_clipboardformats.Location = new System.Drawing.Point(109, 38);
+			this.listview_clipboardformats.Location = new System.Drawing.Point(170, 38);
 			this.listview_clipboardformats.Name = "listview_clipboardformats";
 			this.listview_clipboardformats.ShowGroups = false;
-			this.listview_clipboardformats.Size = new System.Drawing.Size(291, 72);
+			this.listview_clipboardformats.Size = new System.Drawing.Size(230, 72);
 			this.listview_clipboardformats.Sorting = System.Windows.Forms.SortOrder.Ascending;
 			this.listview_clipboardformats.TabIndex = 0;
 			this.listview_clipboardformats.UseCompatibleStateImageBehavior = false;
@@ -1192,7 +1192,7 @@ namespace Greenshot {
 			// columnHeader1
 			// 
 			this.columnHeader1.Text = "Destination";
-			this.columnHeader1.Width = 280;
+			this.columnHeader1.Width = 225;
 			// 
 			// checkbox_minimizememoryfootprint
 			// 

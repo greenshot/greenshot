@@ -160,6 +160,8 @@ namespace GreenshotPlugin.Core {
 		public bool DisableSettings;
 		[IniProperty("DisableTrayicon", Description = "Disable the trayicon, can only be changed manually in this .ini", DefaultValue = "False")]
 		public bool HideTrayicon;
+        [IniProperty("HideExpertSettings", Description = "Hide expert tab in the settings, can only be changed manually in this .ini", DefaultValue = "False")]
+        public bool HideExpertSettings;
 
 		[IniProperty("ThumnailPreview", Description="Enable/disable thumbnail previews", DefaultValue="True")]
 		public bool ThumnailPreview;
