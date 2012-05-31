@@ -272,7 +272,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected void ApplyLanguage() {
 			// Set title of the form
-			if (!string.IsNullOrEmpty(LanguageKey)) {
+			if (!string.IsNullOrEmpty(LanguageKey) && Language.hasKey(LanguageKey)) {
 				this.Text = Language.GetString(LanguageKey);
 			}
 			// Reset the text values for all GreenshotControls

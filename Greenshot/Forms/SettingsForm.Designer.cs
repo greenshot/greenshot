@@ -102,6 +102,7 @@ namespace Greenshot {
 			this.checkbox_capture_windows_interactive = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.combobox_window_capture_mode = new System.Windows.Forms.ComboBox();
 			this.groupbox_capture = new GreenshotPlugin.Controls.GreenshotGroupBox();
+			this.checkbox_notifications = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.checkbox_playsound = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.checkbox_capture_mousepointer = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.numericUpDownWaitTime = new System.Windows.Forms.NumericUpDown();
@@ -124,6 +125,7 @@ namespace Greenshot {
 			this.button_pluginconfigure = new GreenshotPlugin.Controls.GreenshotButton();
 			this.tab_expert = new GreenshotPlugin.Controls.GreenshotTabPage();
 			this.groupbox_expert = new GreenshotPlugin.Controls.GreenshotGroupBox();
+			this.checkbox_minimizememoryfootprint = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.checkbox_checkunstableupdates = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.checkbox_suppresssavedialogatclose = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.label_counter = new GreenshotPlugin.Controls.GreenshotLabel();
@@ -137,7 +139,6 @@ namespace Greenshot {
 			this.checkbox_enableexpert = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.listview_clipboardformats = new System.Windows.Forms.ListView();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.checkbox_minimizememoryfootprint = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.groupbox_preferredfilesettings.SuspendLayout();
 			this.groupbox_applicationsettings.SuspendLayout();
 			this.groupbox_qualitysettings.SuspendLayout();
@@ -651,7 +652,7 @@ namespace Greenshot {
 			// 
 			this.groupbox_editor.Controls.Add(this.checkbox_editor_match_capture_size);
 			this.groupbox_editor.LanguageKey = "settings_editor";
-			this.groupbox_editor.Location = new System.Drawing.Point(4, 260);
+			this.groupbox_editor.Location = new System.Drawing.Point(4, 267);
 			this.groupbox_editor.Name = "groupbox_editor";
 			this.groupbox_editor.Size = new System.Drawing.Size(416, 50);
 			this.groupbox_editor.TabIndex = 27;
@@ -674,7 +675,7 @@ namespace Greenshot {
 			// 
 			this.groupbox_iecapture.Controls.Add(this.checkbox_ie_capture);
 			this.groupbox_iecapture.LanguageKey = "settings_iecapture";
-			this.groupbox_iecapture.Location = new System.Drawing.Point(4, 204);
+			this.groupbox_iecapture.Location = new System.Drawing.Point(4, 211);
 			this.groupbox_iecapture.Name = "groupbox_iecapture";
 			this.groupbox_iecapture.Size = new System.Drawing.Size(416, 50);
 			this.groupbox_iecapture.TabIndex = 2;
@@ -699,7 +700,7 @@ namespace Greenshot {
 			this.groupbox_windowscapture.Controls.Add(this.checkbox_capture_windows_interactive);
 			this.groupbox_windowscapture.Controls.Add(this.combobox_window_capture_mode);
 			this.groupbox_windowscapture.LanguageKey = "settings_windowscapture";
-			this.groupbox_windowscapture.Location = new System.Drawing.Point(4, 117);
+			this.groupbox_windowscapture.Location = new System.Drawing.Point(4, 125);
 			this.groupbox_windowscapture.Name = "groupbox_windowscapture";
 			this.groupbox_windowscapture.Size = new System.Drawing.Size(416, 80);
 			this.groupbox_windowscapture.TabIndex = 1;
@@ -750,6 +751,7 @@ namespace Greenshot {
 			// 
 			// groupbox_capture
 			// 
+			this.groupbox_capture.Controls.Add(this.checkbox_notifications);
 			this.groupbox_capture.Controls.Add(this.checkbox_playsound);
 			this.groupbox_capture.Controls.Add(this.checkbox_capture_mousepointer);
 			this.groupbox_capture.Controls.Add(this.numericUpDownWaitTime);
@@ -757,10 +759,20 @@ namespace Greenshot {
 			this.groupbox_capture.LanguageKey = "settings_capture";
 			this.groupbox_capture.Location = new System.Drawing.Point(4, 4);
 			this.groupbox_capture.Name = "groupbox_capture";
-			this.groupbox_capture.Size = new System.Drawing.Size(416, 106);
+			this.groupbox_capture.Size = new System.Drawing.Size(416, 115);
 			this.groupbox_capture.TabIndex = 0;
 			this.groupbox_capture.TabStop = false;
 			this.groupbox_capture.Text = "Capture";
+			// 
+			// checkbox_notifications
+			// 
+			this.checkbox_notifications.LanguageKey = "settings_shownotify";
+			this.checkbox_notifications.Location = new System.Drawing.Point(11, 59);
+			this.checkbox_notifications.Name = "checkbox_notifications";
+			this.checkbox_notifications.PropertyName = "ShowTrayNotification";
+			this.checkbox_notifications.Size = new System.Drawing.Size(399, 24);
+			this.checkbox_notifications.TabIndex = 26;
+			this.checkbox_notifications.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_playsound
 			// 
@@ -791,7 +803,7 @@ namespace Greenshot {
 									0,
 									0,
 									0});
-			this.numericUpDownWaitTime.Location = new System.Drawing.Point(11, 69);
+			this.numericUpDownWaitTime.Location = new System.Drawing.Point(9, 84);
 			this.numericUpDownWaitTime.Maximum = new decimal(new int[] {
 									10000,
 									0,
@@ -805,7 +817,7 @@ namespace Greenshot {
 			// label_waittime
 			// 
 			this.label_waittime.LanguageKey = "settings_waittime";
-			this.label_waittime.Location = new System.Drawing.Point(74, 71);
+			this.label_waittime.Location = new System.Drawing.Point(72, 86);
 			this.label_waittime.Name = "label_waittime";
 			this.label_waittime.Size = new System.Drawing.Size(331, 16);
 			this.label_waittime.TabIndex = 25;
@@ -1060,6 +1072,16 @@ namespace Greenshot {
 			this.groupbox_expert.TabStop = false;
 			this.groupbox_expert.Text = "Expert";
 			// 
+			// checkbox_minimizememoryfootprint
+			// 
+			this.checkbox_minimizememoryfootprint.LanguageKey = "expertsettings_minimizememoryfootprint";
+			this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 211);
+			this.checkbox_minimizememoryfootprint.Name = "checkbox_minimizememoryfootprint";
+			this.checkbox_minimizememoryfootprint.PropertyName = "MinimizeWorkingSetSize";
+			this.checkbox_minimizememoryfootprint.Size = new System.Drawing.Size(394, 19);
+			this.checkbox_minimizememoryfootprint.TabIndex = 30;
+			this.checkbox_minimizememoryfootprint.UseVisualStyleBackColor = true;
+			// 
 			// checkbox_checkunstableupdates
 			// 
 			this.checkbox_checkunstableupdates.LanguageKey = "expertsettings_checkunstableupdates";
@@ -1194,16 +1216,6 @@ namespace Greenshot {
 			this.columnHeader1.Text = "Destination";
 			this.columnHeader1.Width = 225;
 			// 
-			// checkbox_minimizememoryfootprint
-			// 
-			this.checkbox_minimizememoryfootprint.LanguageKey = "expertsettings_minimizememoryfootprint";
-			this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 211);
-			this.checkbox_minimizememoryfootprint.Name = "checkbox_minimizememoryfootprint";
-			this.checkbox_minimizememoryfootprint.PropertyName = "MinimizeWorkingSetSize";
-			this.checkbox_minimizememoryfootprint.Size = new System.Drawing.Size(394, 19);
-			this.checkbox_minimizememoryfootprint.TabIndex = 30;
-			this.checkbox_minimizememoryfootprint.UseVisualStyleBackColor = true;
-			// 
 			// SettingsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1251,6 +1263,7 @@ namespace Greenshot {
 			this.groupbox_expert.PerformLayout();
 			this.ResumeLayout(false);
 		}
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_notifications;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_minimizememoryfootprint;
 		private System.Windows.Forms.ColumnHeader destination;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_picker;
