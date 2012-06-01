@@ -114,12 +114,12 @@ namespace GreenshotImgurPlugin {
 
 		private void DeleteButtonClick(object sender, EventArgs e) {
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
-				// Should fix Bug #3378699 
-				pictureBox1.Image = pictureBox1.ErrorImage;
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
 					ImgurInfo imgurInfo = (ImgurInfo)listview_imgur_uploads.SelectedItems[i].Tag;
 					DialogResult result = MessageBox.Show(Language.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title), Language.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Hash), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 					if (result == DialogResult.Yes) {
+						// Should fix Bug #3378699 
+						pictureBox1.Image = pictureBox1.ErrorImage;
 						BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait));
 						try {
 							ImgurUtils.DeleteImgurImage(imgurInfo);

@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.0.0 build 1905 (Unstable, meaning we are in testing fase and haven't released yet)
+1.0.0 build 1908 (Unstable, meaning we are in testing fase and haven't released yet)
 
 We changed the version to 1.0.0, after 5 year the version should no longer have a "beta" feeling!
 

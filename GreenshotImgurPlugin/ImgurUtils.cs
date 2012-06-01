@@ -79,9 +79,27 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 		
-		private static string EscapeText(string Text) {
+		/// <summary>
+		/// A wrapper around the EscapeDataString, as the limit is 32766 characters
+		/// See: http://msdn.microsoft.com/en-us/library/system.uri.escapedatastring%28v=vs.110%29.aspx
+		/// </summary>
+		/// <param name="dataString"></param>
+		/// <returns>escaped data string</returns>
+		private static StringBuilder EscapeDataStringToStringBuilder(string dataString) {
+			StringBuilder result = new StringBuilder();
+			int currentLocation = 0;
+			while (currentLocation < dataString.Length) {
+				string process = dataString.Substring(currentLocation,Math.Min(16384, dataString.Length-currentLocation));
+				result.Append(Uri.EscapeDataString(process));
+				currentLocation = currentLocation + 16384;
+			}
+			return result;
+		}
+
+		private static string EscapeText(string text) {
 			string[] UriRfc3986CharsToEscape = new[] { "!", "*", "'", "(", ")" };
-			StringBuilder escaped = new StringBuilder(Uri.EscapeDataString(Text.ToString()));
+			LOG.DebugFormat("Text size {0}", text.Length);
+			StringBuilder escaped = EscapeDataStringToStringBuilder(text);
 			
 			for (int i = 0; i < UriRfc3986CharsToEscape.Length; i++) {
 			   escaped.Replace(UriRfc3986CharsToEscape[i], Uri.HexEscape(UriRfc3986CharsToEscape[i][0]));
