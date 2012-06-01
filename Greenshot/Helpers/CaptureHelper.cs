@@ -156,6 +156,12 @@ namespace Greenshot.Helpers {
 		/// Make Capture with specified destinations
 		/// </summary>
 		private void MakeCapture() {
+			// This fixes a problem when a balloon is still visible and a capture needs to be taken
+			// forcefully removes the balloon!
+			if (!conf.HideTrayicon) {
+				MainForm.instance.notifyIcon.Visible = false;
+				MainForm.instance.notifyIcon.Visible = true;
+			}
 			LOG.Debug(String.Format("Capturing with mode {0} and using Cursor {1}", captureMode, captureMouseCursor));
 			capture.CaptureDetails.CaptureMode = captureMode;
 
@@ -463,7 +469,7 @@ namespace Greenshot.Helpers {
 			surface.Modified = !outputMade;
 
 			// Register notify events if this is wanted			
-			if (conf.ShowTrayNotification) {
+			if (conf.ShowTrayNotification && !conf.HideTrayicon) {
 				surface.SurfaceMessage += delegate(object source, SurfaceMessageEventArgs eventArgs) {
 					if (string.IsNullOrEmpty(eventArgs.Message)) {
 						return;
