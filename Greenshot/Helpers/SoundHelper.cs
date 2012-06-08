@@ -24,6 +24,9 @@ using System.Resources;
 using System.Runtime.InteropServices;
 
 using GreenshotPlugin.UnmanagedHelpers;
+using GreenshotPlugin.Core;
+using Greenshot.IniFile;
+using System.IO;
 
 /// <summary>
 /// Create to fix the sometimes wrongly played sample, especially after first start from IDE
@@ -35,33 +38,45 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public static class SoundHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SoundHelper));
-
+        private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static GCHandle? gcHandle = null;
 	    private static byte[] soundBuffer = null;
 		
 		public static void Initialize() {
 	    	try {
-				ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
-				soundBuffer = (byte[])resources.GetObject("camera");
-				// Pin sound so it can't be moved by the Garbage Collector, this was the cause for the bad sound
-				gcHandle = GCHandle.Alloc(soundBuffer, GCHandleType.Pinned);
+                ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
+                soundBuffer = (byte[])resources.GetObject("camera");
+
+                if (conf.NotificationSound != null && conf.NotificationSound.EndsWith(".wav")) {
+                    try {
+                        if (File.Exists(conf.NotificationSound)) {
+                            soundBuffer = File.ReadAllBytes(conf.NotificationSound);
+                        }
+                    } catch (Exception ex) {
+                        LOG.WarnFormat("couldn't load {0}: {1}", conf.NotificationSound, ex.Message);
+                    }
+                }
+                // Pin sound so it can't be moved by the Garbage Collector, this was the cause for the bad sound
+                gcHandle = GCHandle.Alloc(soundBuffer, GCHandleType.Pinned);
 	    	} catch (Exception e) {
 	    		LOG.Error("Error initializing.", e);
 	    	}
 		}
 		
 		public static void Play() {
-			SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY;
-			
-			try {
-				if (soundBuffer != null) {
-					WinMM.PlaySound(gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags);
-				} else {
-					WinMM.PlaySound((byte[])null, (UIntPtr)0, (uint)flags);
-				}
-			} catch (Exception e) {
-	    		LOG.Error("Error in play.", e);
-	    	}
+            if (soundBuffer != null) {
+                //Thread playSoundThread = new Thread(delegate() {
+                SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
+                try {
+                    WinMM.PlaySound(gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags);
+                } catch (Exception e) {
+                    LOG.Error("Error in play.", e);
+                }
+                //});
+                //playSoundThread.Name = "Play camera sound";
+                //playSoundThread.IsBackground = true;
+                //playSoundThread.Start();
+            }
 	    }
 
 	    public static void Deinitialize() {
@@ -75,19 +90,5 @@ namespace Greenshot.Helpers {
 	    		LOG.Error("Error in deinitialize.", e);
 	    	}
 	    }
-
-		[Flags]
-		public enum SoundFlags : int {
-			SND_SYNC = 0x0000,			// play synchronously (default)
-			SND_ASYNC = 0x0001,			// play asynchronously
-			SND_NODEFAULT = 0x0002,		// silence (!default) if sound not found
-			SND_MEMORY = 0x0004,		// pszSound points to a memory file
-			SND_LOOP = 0x0008,			// loop the sound until next sndPlaySound
-			SND_NOSTOP = 0x0010,		// don't stop any currently playing sound
-			SND_NOWAIT = 0x00002000,	// don't wait if the driver is busy
-			SND_ALIAS = 0x00010000,		// name is a registry alias
-			SND_ALIAS_ID = 0x00110000,	// alias is a predefined id
-			SND_FILENAME = 0x00020000,	// name is file name
-		}
 	}
 }

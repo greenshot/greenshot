@@ -134,7 +134,8 @@ namespace GreenshotPlugin.Core {
 		public bool OutputPrintFooter;
 		[IniProperty("OutputPrintFooterPattern", Description = "Footer pattern", DefaultValue = "${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
 		public string OutputPrintFooterPattern;
-
+        [IniProperty("NotificationSound", Description = "The wav-file to play when a capture is taken, loaded only once at the Greenshot startup", DefaultValue="default")]
+        public string NotificationSound;
 		[IniProperty("UseProxy", Description="Use your global proxy?", DefaultValue="True")]
 		public bool UseProxy;
 		[IniProperty("IECapture", Description="Enable/disable IE capture", DefaultValue="True")]
