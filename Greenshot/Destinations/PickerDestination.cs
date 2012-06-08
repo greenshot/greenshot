@@ -62,9 +62,15 @@ namespace Greenshot.Destinations {
 			ContextMenuStrip menu = new ContextMenuStrip();
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
 				LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
-				if (eventArgs.CloseReason != ToolStripDropDownCloseReason.ItemClicked && eventArgs.CloseReason != ToolStripDropDownCloseReason.CloseCalled) {
-					eventArgs.Cancel = true;
-				}
+                switch (eventArgs.CloseReason) {
+                    case ToolStripDropDownCloseReason.ItemClicked:
+                    case ToolStripDropDownCloseReason.CloseCalled:
+                    case ToolStripDropDownCloseReason.Keyboard:
+                        break;
+                    default:
+                        eventArgs.Cancel = true;
+                        break;
+                }
 			};
 			foreach (IDestination destination in destinations) {
 				// Fix foreach loop variable for the delegate
