@@ -175,6 +175,9 @@
     <Compile Include="..\GreenshotInterop\OfficeInterop\WordInterop.cs">
       <Link>Interop\WordInterop.cs</Link>
     </Compile>
+    <Compile Include="Controls\FormWithoutActivation.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Controls\GreenshotButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -222,6 +225,9 @@
     </Compile>
     <Compile Include="Controls\GreenshotToolDropDownButton.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ThumbnailForm.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Core\AbstractDestination.cs" />
     <Compile Include="Core\AbstractProcessor.cs" />

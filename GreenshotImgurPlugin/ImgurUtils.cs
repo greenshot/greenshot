@@ -156,8 +156,12 @@ namespace GreenshotImgurPlugin {
 		}
 
 		public static void RetrieveImgurThumbnail(ImgurInfo imgurInfo) {
-			LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo);
-			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(imgurInfo.SmallSquare);
+            if (imgurInfo.SmallSquare == null) {
+                LOG.Warn("Imgur URL was null, not retrieving thumbnail.");
+                return;
+            }
+            LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo);
+            HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(imgurInfo.SmallSquare);
 			webRequest.Method = "GET";
 			webRequest.ServicePoint.Expect100Continue = false;
 

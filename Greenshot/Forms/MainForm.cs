@@ -294,7 +294,7 @@ namespace Greenshot {
 		private CopyData copyData = null;
 		
 		// Thumbnail preview
-		private FormWithoutActivation thumbnailForm = null;
+        private ThumbnailForm thumbnailForm = null;
 		private IntPtr thumbnailHandle = IntPtr.Zero;
 		private Rectangle parentMenuBounds = Rectangle.Empty;
 		// Make sure we have only one settings form
@@ -743,72 +743,17 @@ namespace Greenshot {
 		private void ShowThumbnailOnEnter(object sender, EventArgs e) {
 			ToolStripMenuItem captureWindowItem = sender as ToolStripMenuItem;
 			WindowDetails window = captureWindowItem.Tag as WindowDetails;
-			parentMenuBounds = captureWindowItem.GetCurrentParent().TopLevelControl.Bounds;
 			if (thumbnailForm == null) {
-				thumbnailForm = new FormWithoutActivation();
-				thumbnailForm.ShowInTaskbar = false;
-				thumbnailForm.FormBorderStyle = FormBorderStyle.None;
-				thumbnailForm.TopMost = false;
-				thumbnailForm.Enabled = false;
-				if (conf.WindowCaptureMode == WindowCaptureMode.Auto || conf.WindowCaptureMode == WindowCaptureMode.Aero) {
-					thumbnailForm.BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
-				} else {
-					thumbnailForm.BackColor = Color.White;
-				}
+                thumbnailForm = new ThumbnailForm();
 			}
-			if (thumbnailHandle != IntPtr.Zero) {
-				DWM.DwmUnregisterThumbnail(thumbnailHandle);
-				thumbnailHandle = IntPtr.Zero;
-			}
-			DWM.DwmRegisterThumbnail(thumbnailForm.Handle, window.Handle, out thumbnailHandle);
-			if (thumbnailHandle != IntPtr.Zero) {
-				Rectangle windowRectangle = window.WindowRectangle;
-				int thumbnailHeight = 200;
-				int thumbnailWidth = (int)(thumbnailHeight * ((float)windowRectangle.Width / (float)windowRectangle.Height));
-				if (thumbnailWidth > parentMenuBounds.Width) {
-					thumbnailWidth = parentMenuBounds.Width;
-					thumbnailHeight = (int)(thumbnailWidth * ((float)windowRectangle.Height / (float)windowRectangle.Width));
-				}
-				thumbnailForm.Width = thumbnailWidth;
-				thumbnailForm.Height = thumbnailHeight;
-				// Prepare the displaying of the Thumbnail
-				DWM_THUMBNAIL_PROPERTIES props = new DWM_THUMBNAIL_PROPERTIES();
-				props.Opacity = (byte)255;
-				props.Visible = true;
-				props.SourceClientAreaOnly = false;
-				props.Destination = new RECT(0, 0,  thumbnailWidth,  thumbnailHeight);
-				DWM.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
-				if (!thumbnailForm.Visible) {
-					thumbnailForm.Show();
-				}
-				// Make sure it's on "top"!
-				User32.SetWindowPos(thumbnailForm.Handle,captureWindowItem.GetCurrentParent().TopLevelControl.Handle, 0,0,0,0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
-
-				// Align to menu
-				Rectangle screenBounds = WindowCapture.GetScreenBounds();
-				if (screenBounds.Contains(parentMenuBounds.Left, parentMenuBounds.Top - thumbnailHeight)) {
-					thumbnailForm.Location = new Point(parentMenuBounds.Left + (parentMenuBounds.Width/2) - (thumbnailWidth/2), parentMenuBounds.Top - thumbnailHeight);
-				} else {
-					thumbnailForm.Location = new Point(parentMenuBounds.Left + (parentMenuBounds.Width/2) - (thumbnailWidth/2), parentMenuBounds.Bottom);
-				}
-			}
+            thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
 		}
 
 		private void HideThumbnailOnLeave(object sender, EventArgs e) {
-			hideThumbnail();
-		}
-		
-		private void hideThumbnail() {
-			if (thumbnailHandle != IntPtr.Zero) {
-				DWM.DwmUnregisterThumbnail(thumbnailHandle);
-				thumbnailHandle = IntPtr.Zero;
-				thumbnailForm.Hide();
-			}
+            thumbnailForm.Hide();
 		}
 		
 		private void cleanupThumbnail() {
-			hideThumbnail();
-						
 			if (thumbnailForm != null) {
 				thumbnailForm.Close();
 				thumbnailForm = null;
