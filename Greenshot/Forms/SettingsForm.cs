@@ -44,7 +44,8 @@ namespace Greenshot {
 		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		private ToolTip toolTip = new ToolTip();
-		
+        private bool inHotkey = false;
+
 		public SettingsForm() : base() {
 			InitializeComponent();
 		}
@@ -61,14 +62,50 @@ namespace Greenshot {
 				this.trackBarJpegQuality.BackColor = System.Drawing.SystemColors.Control;
 			}
 
-			DisplayPluginTab();
+            // This makes it possible to still capture the settings screen
+            this.fullscreen_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+            this.fullscreen_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+            this.window_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+            this.window_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+            this.region_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+            this.region_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+            this.ie_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+            this.ie_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+            this.lastregion_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+            this.lastregion_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+
+            DisplayPluginTab();
 			UpdateUI();
 			ExpertSettingsEnableState(false);
 			DisplaySettings();
 			CheckSettings();
 		}
-		
-		/// <summary>
+
+        private void EnterHotkeyControl() {
+            GreenshotPlugin.Controls.HotkeyControl.UnregisterHotkeys();
+            inHotkey = true;
+        }
+        private void LeaveHotkeyControl() {
+            MainForm.RegisterHotkeys();
+            inHotkey = false;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
+            switch (keyData) {
+                case Keys.Escape:
+                    if (!inHotkey) {
+                        DialogResult = DialogResult.Cancel;
+                    } else {
+                        return base.ProcessCmdKey(ref msg, keyData);
+                    }
+                    break;
+                default:
+                    return base.ProcessCmdKey(ref msg, keyData);
+            }
+            return true;
+        }
+
+        /// <summary>
 		/// This is a method to popululate the ComboBox
 		/// with the items from the enumeration
 		/// </summary>
@@ -428,14 +465,6 @@ namespace Greenshot {
 				}
 			}
 			colorButton_window_background.Visible = false;
-		}
-		
-		void SettingsFormFormClosing(object sender, FormClosingEventArgs e) {
-			MainForm.RegisterHotkeys();
-		}
-		
-		void SettingsFormShown(object sender, EventArgs e) {
-			HotkeyControl.UnregisterHotkeys();
 		}
 		
 		/// <summary>

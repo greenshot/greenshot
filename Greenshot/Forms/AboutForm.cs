@@ -62,7 +62,7 @@ namespace Greenshot {
 			try {
 				switch (keyData) {
 					case Keys.Escape:
-						DialogResult = DialogResult.OK;
+                        DialogResult = DialogResult.Cancel;
 						break;
 					case Keys.E:
 						MessageBox.Show(EnvironmentInfo.EnvironmentToString(true));

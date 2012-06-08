@@ -90,7 +90,9 @@ namespace GreenshotPlugin.Core {
 		
 		[IniProperty("OutputFilePath", Description="Output file path.")]
 		public string OutputFilePath;
-		[IniProperty("OutputFileFilenamePattern", Description="Filename pattern for screenshot.", DefaultValue="${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
+        [IniProperty("OutputFileAllowOverwrite", Description = "If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.", DefaultValue = "true")]
+        public bool OutputFileAllowOverwrite;
+        [IniProperty("OutputFileFilenamePattern", Description = "Filename pattern for screenshot.", DefaultValue = "${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
 		public string OutputFileFilenamePattern;
 		[IniProperty("OutputFileFormat", Description="Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)", DefaultValue="png")]
 		public OutputFormat OutputFileFormat = OutputFormat.png;

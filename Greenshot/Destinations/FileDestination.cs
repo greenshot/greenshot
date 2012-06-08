@@ -70,24 +70,41 @@ namespace Greenshot.Destinations {
 		}
 
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			bool outputMade = false;
-			string pattern = conf.OutputFileFilenamePattern;
-			if (string.IsNullOrEmpty(pattern)) {
-				pattern = "greenshot ${capturetime}";
-			}
-			string filename = FilenameHelper.GetFilenameFromPattern(pattern, conf.OutputFileFormat, captureDetails);
-			string filepath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
-			string fullPath = Path.Combine(filepath,filename);
-			
+			bool outputMade;
+            bool overwrite;
+            string fullPath;
+
+            if (captureDetails.Filename != null) {
+                // As we save a pre-selected file, allow to overwrite.
+                overwrite = true;
+                LOG.InfoFormat("Using previous filename");
+                fullPath = captureDetails.Filename;
+            } else {
+                LOG.InfoFormat("Creating new filename");
+                string pattern = conf.OutputFileFilenamePattern;
+                if (string.IsNullOrEmpty(pattern)) {
+                    pattern = "greenshot ${capturetime}";
+                }
+                string filename = FilenameHelper.GetFilenameFromPattern(pattern, conf.OutputFileFormat, captureDetails);
+                string filepath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
+                fullPath = Path.Combine(filepath, filename);
+                // As we generate a file, the configuration tells us if we allow to overwrite
+                overwrite = conf.OutputFileAllowOverwrite;
+            }
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
 			using (Image image = surface.GetImageForExport()) {
 				try {
-					// TODO: For now we overwrite, but this should be fixed some time
-					ImageOutput.Save(image, fullPath, true);
+                    ImageOutput.Save(image, fullPath, overwrite);
 					outputMade = true;
-				} catch (Exception e) {
-					LOG.Error("Error saving screenshot!", e);
+                } catch (ArgumentException ex1) {
+                    // Our generated filename exists, display 'save-as'
+                    LOG.InfoFormat("Not overwriting: {0}", ex1.Message);
+                    // when we don't allow to overwrite present a new SaveWithDialog
+                    fullPath = ImageOutput.SaveWithDialog(image, captureDetails);
+                    outputMade = (fullPath != null);
+				} catch (Exception ex2) {
+                    LOG.Error("Error saving screenshot!", ex2);
 					// Show the problem
 					MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
 					// when save failed we present a SaveWithDialog

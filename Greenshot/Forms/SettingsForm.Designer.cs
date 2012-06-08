@@ -1229,8 +1229,6 @@ namespace Greenshot {
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsFormFormClosing);
-			this.Shown += new System.EventHandler(this.SettingsFormShown);
 			this.groupbox_preferredfilesettings.ResumeLayout(false);
 			this.groupbox_preferredfilesettings.PerformLayout();
 			this.groupbox_applicationsettings.ResumeLayout(false);
