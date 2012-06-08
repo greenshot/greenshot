@@ -78,15 +78,26 @@ namespace Greenshot.Destinations {
 						if (clickedDestination == null) {
 							return;
 						}
-						// Make sure the menu is closed
-						menu.Close();
+                        bool isEditor = EditorDestination.DESIGNATION.Equals(clickedDestination.Designation);
+                        // Make sure the menu is invisible, don't close it
+                        menu.Hide();
+
+                        // Export
 						bool result = clickedDestination.ExportCapture(true, surface, captureDetails);
-						// TODO: Find some better way to detect that we exported to the editor
-						if (!EditorDestination.DESIGNATION.Equals(clickedDestination.Designation) || result == false) {
-							LOG.DebugFormat("Disposing as Destination was {0} and result {1}", clickedDestination.Description, result);
-							// Cleanup surface
-							surface.Dispose();
-						}
+                        LOG.InfoFormat("Destination was {0} and result {1}", clickedDestination.Designation, result);
+                        if (result == true) {
+                            LOG.Info("Export success, closing menu");
+                            // close menu if the destination wasn't the editor
+                            menu.Close();
+
+                            // Cleanup surface, only if the destination wasn't the editor
+                            if (!isEditor) {
+                                surface.Dispose();
+                            }
+                        } else {
+                            LOG.Info("Export failed, showing menu again");
+                            menu.Show();
+                        }
 					}
 				);
 				if (item != null) {

@@ -110,10 +110,15 @@ namespace Greenshot.Destinations {
 					LOG.Error(e);
 				}
 			} else {
-				using (Bitmap image = (Bitmap)surface.GetImageForExport()) {
-					editor.Surface.AddBitmapContainer(image, 10, 10);
-				}
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
+                try {
+                    using (Bitmap image = (Bitmap)surface.GetImageForExport()) {
+                        editor.Surface.AddBitmapContainer(image, 10, 10);
+                    }
+                    surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
+                    return true;
+                } catch (Exception e) {
+                    LOG.Error(e);
+                }
 			}
 			return false;
 		}
