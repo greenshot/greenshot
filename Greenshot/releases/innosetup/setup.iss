@@ -180,11 +180,11 @@ Name: "plugins"; Description: "Plugins"; Types: Full
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full;
 Name: "plugins\jira"; Description: {cm:jira}; Types: Full
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: Full;
-Name: "plugins\confluence"; Description: {cm:confluence}; Types: Full; Check: hasNET35()
+Name: "plugins\confluence"; Description: {cm:confluence}; Types: Full; Check: hasDotNet35FullOrHigher()
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: Full
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: Full
-Name: "plugins\box"; Description: "Box Plugin"; Types: Full; Check: hasNET35()
-Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: Full; Check: hasNET35()
+Name: "plugins\box"; Description: "Box Plugin"; Types: Full; Check: hasDotNet35FullOrHigher()
+Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: Full; Check: hasDotNet35FullOrHigher()
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: Full
 Name: "languages"; Description: {cm:language}; Types: Full
@@ -347,18 +347,6 @@ begin
 	Result := parametersString;
 end;
 
-// Check if .NET 3.5 is installed
-function hasNET35(): Boolean;
-var
-  netFrameWorkInstalled : Boolean;
-  isInstalled: Cardinal;
-begin
-	isInstalled := 0;
-  netFrameworkInstalled := RegQueryDWordValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5', 'Install', isInstalled);
-  if ((netFrameworkInstalled) and (isInstalled <> 1)) then netFrameworkInstalled := false;
-	Result := netFrameWorkInstalled;
-end;
-
 // Check if language group is installed
 function hasLanguageGroup(argument: String): Boolean;
 var
@@ -374,29 +362,106 @@ begin
 	Result := returnValue;
 end;
 
+function hasDotNet(version: string; service: cardinal): Boolean;
+// Indicates whether the specified version and service pack of the .NET Framework is installed.
+//
+// version -- Specify one of these strings for the required .NET Framework version:
+//    'v1.1.4322'     .NET Framework 1.1
+//    'v2.0.50727'    .NET Framework 2.0
+//    'v3.0'          .NET Framework 3.0
+//    'v3.5'          .NET Framework 3.5
+//    'v4\Client'     .NET Framework 4.0 Client Profile
+//    'v4\Full'       .NET Framework 4.0 Full Installation
+//
+// service -- Specify any non-negative integer for the required service pack level:
+//    0               No service packs required
+//    1, 2, etc.      Service pack 1, 2, etc. required
+var
+    key: string;
+    install, serviceCount: cardinal;
+    success: boolean;
+begin
+    key := 'SOFTWARE\Microsoft\NET Framework Setup\NDP\' + version;
+    // .NET 3.0 uses value InstallSuccess in subkey Setup
+    if Pos('v3.0', version) = 1 then begin
+        success := RegQueryDWordValue(HKLM, key + '\Setup', 'InstallSuccess', install);
+    end else begin
+        success := RegQueryDWordValue(HKLM, key, 'Install', install);
+    end;
+    // .NET 4.0 uses value Servicing instead of SP
+    if Pos('v4', version) = 1 then begin
+        success := success and RegQueryDWordValue(HKLM, key, 'Servicing', serviceCount);
+    end else begin
+        success := success and RegQueryDWordValue(HKLM, key, 'SP', serviceCount);
+    end;
+    result := success and (install = 1) and (serviceCount >= service);
+end;
+
+function hasDotNet20() : boolean;
+begin
+	Result := hasDotNet('v2.0.50727',0);
+end;
+
+function hasDotNet40() : boolean;
+begin
+	Result := hasDotNet('v4\Client',0) or hasDotNet('v4\Full',0);
+end;
+
+function hasDotNet35FullOrHigher() : boolean;
+begin
+	Result := hasDotNet('v3.5',0) or hasDotNet('v4\Full',0) or hasDotNet('4.5\Full',0);
+end;
+
+function hasDotNet35OrHigher() : boolean;
+begin
+	Result := hasDotNet('v3.5',0) or hasDotNet('v4\Client',0) or hasDotNet('v4\Full',0) or hasDotNet('4.5\Client',0) or hasDotNet('4.5\Full',0);
+end;
+
+function getNGENPath(argument: String) : String;
+var
+	installPath: string;
+begin
+	if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4.5\Client', 'InstallPath', installPath) then begin
+		if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4.5\Full', 'InstallPath', installPath) then begin
+			if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client', 'InstallPath', installPath) then begin
+				if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'InstallPath', installPath) then begin
+					if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5', 'InstallPath', installPath) then begin
+						RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v2.0.50727', 'InstallPath', installPath);
+					end;
+				end;
+			end;
+		end;
+	end;
+	Result := installPath;
+end;
+
 // Initialize the setup
 function InitializeSetup(): Boolean;
 begin
-	// Enhance installer otherwise .NET installations won't work
-	msi20('2.0');
-	msi31('3.0');
-	
-	//install .netfx 2.0 sp2 if possible; if not sp1 if possible; if not .netfx 2.0
-	if minwinversion(5, 1) then begin
-		dotnetfx20sp2();
-	end else begin
-		if minwinversion(5, 0) and minwinspversion(5, 0, 4) then begin
-			// kb835732();
-			dotnetfx20sp1();
+	// Only check for 2.0 and install if we don't have .net 3.5 or higher
+	if not hasDotNet35OrHigher() then
+	begin
+		// Enhance installer otherwise .NET installations won't work
+		msi20('2.0');
+		msi31('3.0');
+		
+		//install .netfx 2.0 sp2 if possible; if not sp1 if possible; if not .netfx 2.0
+		if minwinversion(5, 1) then begin
+			dotnetfx20sp2();
 		end else begin
-			dotnetfx20();
+			if minwinversion(5, 0) and minwinspversion(5, 0, 4) then begin
+				// kb835732();
+				dotnetfx20sp1();
+			end else begin
+				dotnetfx20();
+			end;
 		end;
 	end;
 	Result := true;
 end;
 [Run]
-Filename: "{dotnet20}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden;
-Filename: "{dotnet20}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden;
+Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden
+Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
 Filename: "http://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runascurrentuser
 
@@ -404,5 +469,5 @@ Filename: "http://getgreenshot.org/thank-you/?language={language}&version={#Vers
 Name: {app}; Type: filesandordirs;
 
 [UninstallRun]
-Filename: "{dotnet20}\ngen.exe"; Parameters: "uninstall ""{app}\{#ExeName}.exe"""; StatusMsg: "Cleanup"; Flags: runhidden;
-Filename: "{dotnet20}\ngen.exe"; Parameters: "uninstall ""{app}\GreenshotPlugin.dll"""; StatusMsg: "Cleanup"; Flags: runhidden;
+Filename: "{code:GetNGENPath}\ngen.exe"; Parameters: "uninstall ""{app}\{#ExeName}.exe"""; StatusMsg: "Cleanup"; Flags: runhidden
+Filename: "{code:GetNGENPath}\ngen.exe"; Parameters: "uninstall ""{app}\GreenshotPlugin.dll"""; StatusMsg: "Cleanup"; Flags: runhidden
