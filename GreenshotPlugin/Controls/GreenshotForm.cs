@@ -12,11 +12,13 @@ using System.IO;
 namespace GreenshotPlugin.Controls {
 	public abstract class GreenshotForm : Form, IGreenshotLanguageBindable {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(GreenshotForm));
+		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
 		private bool isDesignModeLanguageSet = false;
 		private bool applyLanguageManually = false;
 		private IDictionary<string, Control> designTimeControls;
 		private IDictionary<string, ToolStripItem> designTimeToolStripItems;
+
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
 			get;
@@ -274,41 +276,43 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected void ApplyLanguage() {
 			string langString = null;
-			// Set title of the form
-			if (!string.IsNullOrEmpty(LanguageKey) && Language.TryGetString(LanguageKey, out langString)) {
-				this.Text = langString;
-			}
-			// Reset the text values for all GreenshotControls
-			foreach (FieldInfo field in this.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
-				if (!field.FieldType.IsSubclassOf(typeof(Control)) && !field.FieldType.IsSubclassOf(typeof(ToolStripItem))) {
-					LOG.DebugFormat("No Control or ToolStripItem: {0}", field.Name);
-					continue;
+			this.SuspendLayout();
+			try {
+				// Set title of the form
+				if (!string.IsNullOrEmpty(LanguageKey) && Language.TryGetString(LanguageKey, out langString)) {
+					this.Text = langString;
 				}
-				Object controlObject = field.GetValue(this);
-				if (controlObject == null) {
-					LOG.DebugFormat("No value: {0}", field.Name);
-					continue;
-				}
-				Control applyToControl = controlObject as Control;
-				if (applyToControl == null) {
-					ToolStripItem applyToItem = controlObject as ToolStripItem;
-					if (applyToItem == null) {
-						LOG.DebugFormat("No Control or ToolStripItem: {0}", field.Name);
+
+				// Reset the text values for all GreenshotControls
+				foreach (FieldInfo field in GetCachedFields(this.GetType())) {
+					Object controlObject = field.GetValue(this);
+					if (controlObject == null) {
+						LOG.DebugFormat("No value: {0}", field.Name);
 						continue;
 					}
-					ApplyLanguage(applyToItem);
-				} else {
-					ApplyLanguage(applyToControl);
+					Control applyToControl = controlObject as Control;
+					if (applyToControl == null) {
+						ToolStripItem applyToItem = controlObject as ToolStripItem;
+						if (applyToItem == null) {
+							LOG.DebugFormat("No Control or ToolStripItem: {0}", field.Name);
+							continue;
+						}
+						ApplyLanguage(applyToItem);
+					} else {
+						ApplyLanguage(applyToControl);
+					}
 				}
-			}
-
-			if (DesignMode) {
-				foreach (Control designControl in designTimeControls.Values) {
-					ApplyLanguage(designControl);
+	
+				if (DesignMode) {
+					foreach (Control designControl in designTimeControls.Values) {
+						ApplyLanguage(designControl);
+					}
+					foreach (ToolStripItem designToolStripItem in designTimeToolStripItems.Values) {
+						ApplyLanguage(designToolStripItem);
+					}
 				}
-				foreach (ToolStripItem designToolStripItem in designTimeToolStripItems.Values) {
-					ApplyLanguage(designToolStripItem);
-				}
+			} finally {
+				this.ResumeLayout();
 			}
 		}
 
@@ -337,12 +341,21 @@ namespace GreenshotPlugin.Controls {
 				}
 			}
 		}
+		
+		private static FieldInfo[] GetCachedFields(Type typeToGetFieldsFor) {
+			FieldInfo[] fields = null;
+			if (!reflectionCache.TryGetValue(typeToGetFieldsFor, out fields)) {
+				fields = typeToGetFieldsFor.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+				reflectionCache.Add(typeToGetFieldsFor, fields);
+			}
+			return fields;
+		}
 
 		/// <summary>
 		/// Fill all GreenshotControls with the values from the configuration
 		/// </summary>
 		protected void FillFields() {
-			foreach (FieldInfo field in this.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
+			foreach (FieldInfo field in GetCachedFields(this.GetType())) {
 				if (!field.FieldType.IsSubclassOf(typeof(Control))) {
 					continue;
 				}
@@ -384,7 +397,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected void StoreFields() {
 			bool iniDirty = false;
-			foreach (FieldInfo field in this.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
+			foreach (FieldInfo field in GetCachedFields(this.GetType())) {
 				if (!field.FieldType.IsSubclassOf(typeof(Control))) {
 					continue;
 				}

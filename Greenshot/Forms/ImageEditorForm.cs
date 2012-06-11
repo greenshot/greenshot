@@ -87,6 +87,8 @@ namespace Greenshot {
 			// init surface
 			this.surface = iSurface as Surface;
 			editorList.Add(this);
+			
+			this.SuspendLayout();
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -172,6 +174,7 @@ namespace Greenshot {
 			// Create the file menu, normally this is done when opening but if we don't do it now the short-cut keys are missing.
 			// See Bugs #3526974 & #3527020
 			FileMenuDropDownOpening(null, null);
+			this.ResumeLayout();
 		}
 		
 		void AddDestinationButton(IDestination toolstripDestination) {
