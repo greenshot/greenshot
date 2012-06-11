@@ -204,19 +204,20 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		protected void ApplyLanguage(ToolStripItem applyTo, string languageKey) {
+			string langString = null;
 			if (!string.IsNullOrEmpty(languageKey)) {
-				if (!Language.hasKey(languageKey)) {
+				if (!Language.TryGetString(languageKey, out langString)) {
 					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
 					if (DesignMode) {
 						MessageBox.Show(string.Format("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name));
 					}
 					return;
 				}
-				applyTo.Text = Language.GetString(languageKey);
+				applyTo.Text = langString;
 			} else {
 				// Fallback to control name!
-				if (Language.hasKey(applyTo.Name)) {
-					applyTo.Text = Language.GetString(applyTo.Name);
+				if (Language.TryGetString(applyTo.Name, out langString)) {
+					applyTo.Text = langString;
 					return;
 				}
 				if (this.DesignMode) {
@@ -267,13 +268,15 @@ namespace GreenshotPlugin.Controls {
 				}
 			}
 		}
+
 		/// <summary>
 		/// Apply all the language settings to the "Greenshot" Controls on this form
 		/// </summary>
 		protected void ApplyLanguage() {
+			string langString = null;
 			// Set title of the form
-			if (!string.IsNullOrEmpty(LanguageKey) && Language.hasKey(LanguageKey)) {
-				this.Text = Language.GetString(LanguageKey);
+			if (!string.IsNullOrEmpty(LanguageKey) && Language.TryGetString(LanguageKey, out langString)) {
+				this.Text = langString;
 			}
 			// Reset the text values for all GreenshotControls
 			foreach (FieldInfo field in this.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
@@ -313,17 +316,18 @@ namespace GreenshotPlugin.Controls {
 		/// Apply the language text to supplied control
 		/// </summary>
 		protected void ApplyLanguage(Control applyTo, string languageKey) {
+			string langString = null;
 			if (!string.IsNullOrEmpty(languageKey)) {
-				if (!Language.hasKey(languageKey)) {
+				if (!Language.TryGetString(languageKey, out langString)) {
 					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
 					MessageBox.Show(string.Format("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name));
 					return;
 				}
-				applyTo.Text = Language.GetString(languageKey);
+				applyTo.Text = langString;
 			} else {
 				// Fallback to control name!
-				if (Language.hasKey(applyTo.Name)) {
-					applyTo.Text = Language.GetString(applyTo.Name);
+				if (Language.TryGetString(applyTo.Name, out langString)) {
+					applyTo.Text = langString;
 					return;
 				}
 				if (this.DesignMode) {

@@ -489,6 +489,27 @@ namespace GreenshotPlugin.Core {
 			}
 			return resources.ContainsKey(key);
 		}
+		
+		/// <summary>
+		/// TryGet method which combines hasKey & GetString
+		/// </summary>
+		/// <param name="key"></param>
+		/// <param name="languageString">out string</param>
+		/// <returns></returns>
+		public static bool TryGetString(string key, out string languageString) {
+			return resources.TryGetValue(key, out languageString);
+		}
+
+		/// <summary>
+		/// TryGet method which combines hasKey & GetString
+		/// </summary>
+		/// <param name="prefix">string with prefix</param>
+		/// <param name="key">string with key</param>
+		/// <param name="languageString">out string</param>
+		/// <returns></returns>
+		public static bool TryGetString(string prefix, string key, out string languageString) {
+			return resources.TryGetValue(prefix + "." + key, out languageString);
+		}
 
 		public static string Translate(object key) {
 			string typename = key.GetType().Name;
