@@ -102,6 +102,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern int DwmQueryThumbnailSourceSize(IntPtr thumb, out SIZE size);
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmUpdateThumbnailProperties(IntPtr hThumb, ref DWM_THUMBNAIL_PROPERTIES props);
+
+        // Deprecated as of Windows 8 Release Preview
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmIsCompositionEnabled(out bool enabled);
 		[DllImport("dwmapi", SetLastError = true)]
@@ -109,7 +111,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("dwmapi", SetLastError = true)] 
 		public static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blurBehind);
 
-		// Key to ColorizationColor for DWM
+        // Windows 8, e.g.:
+        //[DllImport("dwmapi", SetLastError = true)]
+        //public static extern DWMAPI DwmShowContact(DWORD dwPointerID, DWM_SHOWCONTACT eShowContact);
+
+        // Key to ColorizationColor for DWM
 		private const string COLORIZATION_COLOR_KEY = @"SOFTWARE\Microsoft\Windows\DWM";
 
 		/// <summary>
@@ -117,6 +123,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <returns>bool true if DWM is available AND active</returns>
 		public static bool isDWMEnabled() {
+            // According to: http://technet.microsoft.com/en-us/subscriptions/aa969538%28v=vs.85%29.aspx
+            // And: http://msdn.microsoft.com/en-us/library/windows/desktop/aa969510%28v=vs.85%29.aspx
+            // DMW is always enabled on Windows 8! So return true and save a check! ;-)
+            if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor == 2) {
+                return true;
+            }
 			if (Environment.OSVersion.Version.Major >= 6) {
 				bool dwmEnabled;
 				DWM.DwmIsCompositionEnabled(out dwmEnabled);
