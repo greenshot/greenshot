@@ -272,10 +272,9 @@ namespace Greenshot.IniFile {
 		/// <param name="sectionName"></param>
 		/// <returns></returns>
 		public static IniSection GetIniSection(string sectionName) {
-			if (sectionMap.ContainsKey(sectionName)) {
-				return sectionMap[sectionName];
-			}
-			return null;
+			IniSection returnValue = null;
+			sectionMap.TryGetValue(sectionName, out returnValue);
+			return returnValue;
 		}
 
 		/// <summary>
@@ -286,7 +285,7 @@ namespace Greenshot.IniFile {
 			T section;
 
 			Type iniSectionType = typeof(T);
-			string sectionName = getSectionName(iniSectionType);
+			string sectionName = IniSection.GetIniSectionAttribute(iniSectionType).Name;
 			if (sectionMap.ContainsKey(sectionName)) {
 				//LOG.Debug("Returning pre-mapped section " + sectionName);
 				section = (T)sectionMap[sectionName];
@@ -307,7 +306,7 @@ namespace Greenshot.IniFile {
 
 		public static Dictionary<string, string> PropertiesForSection(IniSection section) {
 			Type iniSectionType = section.GetType();
-			string sectionName = getSectionName(iniSectionType);
+			string sectionName = section.IniSectionAttribute.Name;
 			// Get the properties for the section
 			Dictionary<string, string> properties = null;
 			if (sections.ContainsKey(sectionName)) {
@@ -317,17 +316,6 @@ namespace Greenshot.IniFile {
 				properties = sections[sectionName];
 			}
 			return properties;
-		}
-
-		private static string getSectionName(Type iniSectionType) {
-			Attribute[] classAttributes = Attribute.GetCustomAttributes(iniSectionType);
-			foreach (Attribute attribute in classAttributes) {
-				if (attribute is IniSectionAttribute) {
-					IniSectionAttribute iniSectionAttribute = (IniSectionAttribute)attribute;
-					return iniSectionAttribute.Name;
-				}
-			}
-			return null;
 		}
 
 		public static void Save() {
@@ -340,7 +328,6 @@ namespace Greenshot.IniFile {
 			}
 		}
 		
-
 		private static void SaveInternally(string iniLocation) {
 			WatchConfigFile(false);
 

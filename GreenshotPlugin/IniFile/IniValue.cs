@@ -426,7 +426,5 @@ namespace Greenshot.IniFile {
 			// All other types
 			return valueObject.ToString();
 		}
-
-
 	}
 }

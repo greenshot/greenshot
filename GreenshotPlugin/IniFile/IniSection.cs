@@ -33,6 +33,16 @@ namespace Greenshot.IniFile {
 
 		[NonSerialized]
 		private IDictionary<string, IniValue> values = new Dictionary<string, IniValue>();
+		[NonSerialized]
+		private IniSectionAttribute iniSectionAttribute = null;
+		public IniSectionAttribute IniSectionAttribute {
+			get {
+				if (iniSectionAttribute == null) {
+					iniSectionAttribute = GetIniSectionAttribute(this.GetType());
+				}
+				return iniSectionAttribute;
+			}
+		}
 
 		/// <summary>
 		/// Get the dictionary with all the IniValues
@@ -87,6 +97,21 @@ namespace Greenshot.IniFile {
 		}
 
 		/// <summary>
+		/// Helper method to get the IniSectionAttribute of a type
+		/// </summary>
+		/// <param name="iniSectionType"></param>
+		/// <returns></returns>
+		public static IniSectionAttribute GetIniSectionAttribute(Type iniSectionType) {
+			Attribute[] classAttributes = Attribute.GetCustomAttributes(iniSectionType);
+			foreach (Attribute attribute in classAttributes) {
+				if (attribute is IniSectionAttribute) {
+					return (IniSectionAttribute)attribute;
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// Fill the section with the supplied properties
 		/// </summary>
 		/// <param name="properties"></param>
@@ -129,24 +154,16 @@ namespace Greenshot.IniFile {
 		/// <param name="writer"></param>
 		/// <param name="onlyProperties"></param>
 		public void Write(TextWriter writer, bool onlyProperties) {
+			if (IniSectionAttribute == null) {
+				throw new ArgumentException("Section didn't implement the IniSectionAttribute");
+			}
 			BeforeSave();
 			try {
-				Attribute[] classAttributes = Attribute.GetCustomAttributes(this.GetType());
-				IniSectionAttribute iniSectionAttribute = null;
-				foreach (Attribute attribute in classAttributes) {
-					if (attribute is IniSectionAttribute) {
-						iniSectionAttribute = (IniSectionAttribute)attribute;
-						break;
-					}
-				}
-				if (iniSectionAttribute == null) {
-					throw new ArgumentException("Section didn't implement the IniSectionAttribute");
-				}
 
 				if (!onlyProperties) {
-					writer.WriteLine("; {0}", iniSectionAttribute.Description);
+					writer.WriteLine("; {0}", IniSectionAttribute.Description);
 				}
-				writer.WriteLine("[{0}]", iniSectionAttribute.Name);
+				writer.WriteLine("[{0}]", IniSectionAttribute.Name);
 
 				foreach (IniValue value in Values.Values) {
 					value.Write(writer, onlyProperties);

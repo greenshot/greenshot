@@ -1608,7 +1608,6 @@ namespace Greenshot {
 			this.propertiesToolStrip.PerformLayout();
 			this.fileSavedStatusContextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
-
 		}
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem invertToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem grayscaleToolStripMenuItem;

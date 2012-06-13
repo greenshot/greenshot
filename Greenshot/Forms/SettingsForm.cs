@@ -342,7 +342,6 @@ namespace Greenshot {
 			}
 			coreConfiguration.ClipboardFormats = clipboardFormats;
 
-
 			coreConfiguration.WindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (!FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false).Equals(textbox_storagelocation.Text)) {
 				coreConfiguration.OutputFilePath = textbox_storagelocation.Text;
@@ -365,8 +364,6 @@ namespace Greenshot {
 			coreConfiguration.CaptureDelay = (int)numericUpDownWaitTime.Value;
 			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
-
-			IniConfig.Save();
 
 			// Make sure the current language & settings are reflected in the Main-context menu
 			MainForm.instance.UpdateUI();

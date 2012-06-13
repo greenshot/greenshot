@@ -88,11 +88,39 @@ namespace Greenshot {
 			this.surface = iSurface as Surface;
 			editorList.Add(this);
 			
-			this.SuspendLayout();
+			// Intial "saved" flag for asking if the image needs to be save
+			surface.Modified = !outputMade;
+			
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			updateUI();
+			
+			this.Load += delegate {
+				new Thread(delegate() {AddDestinations();}).Start();
+			};
+			
+			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
+
+			// Make sure the editor is placed on the same location as the last editor was on close
+			WindowDetails thisForm = new WindowDetails(this.Handle);
+			thisForm.SetWindowPlacement(editorConfiguration.GetEditorPlacement());
+
+			SurfaceSizeChanged(this.Surface);
+						
+			bindFieldControls();
+			refreshEditorControls();
+			// Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
+			hideToolstripItems();
+		}
+		
+
+		private void updateUI() {
+			if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
+				this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+			}
+
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
 			// Disable access to the settings, for feature #3521446
@@ -106,9 +134,6 @@ namespace Greenshot {
 			surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 			// Make sure Double-buffer is enabled
 			SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-
-			// Intial "saved" flag for asking if the image needs to be save
-			surface.Modified = !outputMade;
 
 			// resizing the panel is futile, since it is docked. however, it seems
 			// to fix the bug (?) with the vscrollbar not being able to shrink to
@@ -130,20 +155,6 @@ namespace Greenshot {
 			
 			panel1.Controls.Add(surface);
 
-			// Make sure the editor is placed on the same location as the last editor was on close
-			WindowDetails thisForm = new WindowDetails(this.Handle);
-			thisForm.SetWindowPlacement(editorConfiguration.GetEditorPlacement());
-
-			SurfaceSizeChanged(this.Surface);
-
-			updateUI();
-			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
-						
-			bindFieldControls();
-			refreshEditorControls();
-			// Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
-			hideToolstripItems();
-
 			toolbarButtons = new GreenshotPlugin.Controls.GreenshotToolStripButton[] { btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop };
 			//toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -151,32 +162,39 @@ namespace Greenshot {
 			
 			// Workaround: for the MouseWheel event which doesn't get to the panel
 			this.MouseWheel += new MouseEventHandler( PanelMouseWheel);
-			
-			// Create export buttons 
-			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
-				if (destination.Priority <= 2) {
-					continue;
-				}
-				if (!destination.isActive) {
-					continue;
-				}
-				if (destination.DisplayIcon == null) {
-					continue;
-				}
-				try {
-					AddDestinationButton(destination);
-				} catch (Exception addingException) {
-					LOG.WarnFormat("Problem adding destination {0}", destination.Designation);
-					LOG.Warn("Exception: ", addingException);
-				}
-			}
-			
-			// Create the file menu, normally this is done when opening but if we don't do it now the short-cut keys are missing.
-			// See Bugs #3526974 & #3527020
-			FileMenuDropDownOpening(null, null);
-			this.ResumeLayout();
+
+			ApplyLanguage();
 		}
 		
+		/// <summary>
+		/// Get all the destinations and display them in the file menu and the buttons
+		/// </summary>
+		void AddDestinations() {
+			this.Invoke((MethodInvoker)delegate {
+				// Create export buttons 
+				foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
+					if (destination.Priority <= 2) {
+						continue;
+					}
+					if (!destination.isActive) {
+						continue;
+					}
+					if (destination.DisplayIcon == null) {
+						continue;
+					}
+					try {
+						AddDestinationButton(destination);
+					} catch (Exception addingException) {
+						LOG.WarnFormat("Problem adding destination {0}", destination.Designation);
+						LOG.Warn("Exception: ", addingException);
+					}
+				}
+				// Create the file menu, normally this is done when opening but if we don't do it now the short-cut keys are missing.
+				// See Bugs #3526974 & #3527020
+				FileMenuDropDownOpening(null, null);
+			});
+		}
+
 		void AddDestinationButton(IDestination toolstripDestination) {
 			if (toolstripDestination.isDynamic) {
 				ToolStripSplitButton destinationButton = new ToolStripSplitButton();
@@ -292,15 +310,8 @@ namespace Greenshot {
 		private void ReloadConfiguration(object source, FileSystemEventArgs e) {
 			this.Invoke((MethodInvoker) delegate {
 				// Even update language when needed
-				updateUI();
+				ApplyLanguage();
 			});
-		}
-
-		private void updateUI() {
-			ApplyLanguage();
-			if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
-				this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
-			}
 		}
 		
 		public ISurface Surface {

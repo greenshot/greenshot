@@ -241,8 +241,8 @@ namespace GreenshotPlugin.Controls {
 			IGreenshotLanguageBindable languageBindable = applyTo as IGreenshotLanguageBindable;
 			if (languageBindable == null) {
 				// check if it's a menu!
-				if (applyTo is ToolStrip) {
-					ToolStrip toolStrip = applyTo as ToolStrip;
+				ToolStrip toolStrip = applyTo as ToolStrip;
+				if (toolStrip != null) {
 					foreach (ToolStripItem item in toolStrip.Items) {
 						ApplyLanguage(item);
 					}
@@ -250,25 +250,37 @@ namespace GreenshotPlugin.Controls {
 				return;
 			}
 
-			string languageKey = languageBindable.LanguageKey;
 			// Apply language text to the control
-			ApplyLanguage(applyTo, languageKey);
+			ApplyLanguage(applyTo, languageBindable.LanguageKey);
+
 			// Repopulate the combox boxes
-			if (typeof(IGreenshotConfigBindable).IsAssignableFrom(applyTo.GetType())) {
-				if (typeof(GreenshotComboBox).IsAssignableFrom(applyTo.GetType())) {
-					IGreenshotConfigBindable configBindable = applyTo as IGreenshotConfigBindable;
-					if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
-						IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
-						if (section != null) {
-							GreenshotComboBox comboxBox = applyTo as GreenshotComboBox;
-							// Only update the language, so get the actual value and than repopulate
-							Enum currentValue = (Enum)comboxBox.GetSelectedEnum();
-							comboxBox.Populate(section.Values[configBindable.PropertyName].ValueType);
-							comboxBox.SetValue(currentValue);
-						}
+			IGreenshotConfigBindable configBindable = applyTo as IGreenshotConfigBindable;
+			GreenshotComboBox comboxBox = applyTo as GreenshotComboBox;
+			if (configBindable != null && comboxBox != null) {
+				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
+					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
+					if (section != null) {
+						// Only update the language, so get the actual value and than repopulate
+						Enum currentValue = (Enum)comboxBox.GetSelectedEnum();
+						comboxBox.Populate(section.Values[configBindable.PropertyName].ValueType);
+						comboxBox.SetValue(currentValue);
 					}
 				}
 			}
+		}
+		
+		/// <summary>
+		/// Helper method to cache the fieldinfo values, so we don't need to reflect all the time!
+		/// </summary>
+		/// <param name="typeToGetFieldsFor"></param>
+		/// <returns></returns>
+		private static FieldInfo[] GetCachedFields(Type typeToGetFieldsFor) {
+			FieldInfo[] fields = null;
+			if (!reflectionCache.TryGetValue(typeToGetFieldsFor, out fields)) {
+				fields = typeToGetFieldsFor.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+				reflectionCache.Add(typeToGetFieldsFor, fields);
+			}
+			return fields;
 		}
 
 		/// <summary>
@@ -341,51 +353,55 @@ namespace GreenshotPlugin.Controls {
 				}
 			}
 		}
-		
-		private static FieldInfo[] GetCachedFields(Type typeToGetFieldsFor) {
-			FieldInfo[] fields = null;
-			if (!reflectionCache.TryGetValue(typeToGetFieldsFor, out fields)) {
-				fields = typeToGetFieldsFor.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-				reflectionCache.Add(typeToGetFieldsFor, fields);
-			}
-			return fields;
-		}
 
 		/// <summary>
 		/// Fill all GreenshotControls with the values from the configuration
 		/// </summary>
 		protected void FillFields() {
 			foreach (FieldInfo field in GetCachedFields(this.GetType())) {
-				if (!field.FieldType.IsSubclassOf(typeof(Control))) {
+				Object controlObject = field.GetValue(this);
+				if (controlObject == null) {
 					continue;
 				}
-				Object controlObject = field.GetValue(this);
-				if (typeof(IGreenshotConfigBindable).IsAssignableFrom(field.FieldType)) {
-					IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
-					if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
-						IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
-						if (section != null) {
-							if (!section.Values.ContainsKey(configBindable.PropertyName)) {
-								LOG.WarnFormat("Wrong property '{0}' configured for field '{1}'",configBindable.PropertyName,field.Name);
-								continue;
+				IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
+				if (configBindable == null) {
+					continue;
+				}
+				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
+					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
+					if (section != null) {
+						IniValue iniValue = null;
+						if (!section.Values.TryGetValue(configBindable.PropertyName, out iniValue)) {
+							LOG.WarnFormat("Wrong property '{0}' configured for field '{1}'",configBindable.PropertyName,field.Name);
+							continue;
+						}
+
+						CheckBox checkBox = controlObject as CheckBox;
+						if (checkBox != null) {
+							checkBox.Checked = (bool)iniValue.Value;
+							continue;
+						}
+
+						TextBox textBox = controlObject as TextBox;
+						if (textBox != null) {
+							textBox.Text = iniValue.ToString();
+							continue;
+						} 
+
+						GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
+						if (comboxBox != null) {
+							comboxBox.Populate(iniValue.ValueType);
+							comboxBox.SetValue((Enum)iniValue.Value);
+							continue;
+						}
+
+						HotkeyControl hotkeyControl = controlObject as HotkeyControl;
+						if (hotkeyControl != null) {
+							string hotkeyValue = (string)iniValue.Value;
+							if (!string.IsNullOrEmpty(hotkeyValue)) {
+								hotkeyControl.SetHotkey(hotkeyValue);
 							}
-							if (typeof(CheckBox).IsAssignableFrom(field.FieldType)) {
-								CheckBox checkBox = controlObject as CheckBox;
-								checkBox.Checked = (bool)section.Values[configBindable.PropertyName].Value;
-							} else if (typeof(HotkeyControl).IsAssignableFrom(field.FieldType)) {
-								HotkeyControl hotkeyControl = controlObject as HotkeyControl;
-								string hotkeyValue = (string)section.Values[configBindable.PropertyName].Value;
-								if (!string.IsNullOrEmpty(hotkeyValue)) {
-									hotkeyControl.SetHotkey(hotkeyValue);
-								}
-							} else if (typeof(TextBox).IsAssignableFrom(field.FieldType)) {
-								TextBox textBox = controlObject as TextBox;
-								textBox.Text = section.Values[configBindable.PropertyName].ToString();
-							} else if (typeof(GreenshotComboBox).IsAssignableFrom(field.FieldType)) {
-								GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
-								comboxBox.Populate(section.Values[configBindable.PropertyName].ValueType);
-								comboxBox.SetValue((Enum)section.Values[configBindable.PropertyName].Value);
-							}
+							continue;
 						}
 					}
 				}
@@ -398,36 +414,45 @@ namespace GreenshotPlugin.Controls {
 		protected void StoreFields() {
 			bool iniDirty = false;
 			foreach (FieldInfo field in GetCachedFields(this.GetType())) {
-				if (!field.FieldType.IsSubclassOf(typeof(Control))) {
-					continue;
-				}
-				if (!typeof(IGreenshotConfigBindable).IsAssignableFrom(field.FieldType)) {
-					continue;
-				}
 				Object controlObject = field.GetValue(this);
+				if (controlObject == null) {
+					continue;
+				}
 				IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
+				if (configBindable == null) {
+					continue;
+				}
 
 				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
 					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
 					if (section != null) {
-						if (!section.Values.ContainsKey(configBindable.PropertyName)) {
+						IniValue iniValue = null;
+						if (!section.Values.TryGetValue(configBindable.PropertyName, out iniValue)) {
 							continue;
 						}
-						if (typeof(CheckBox).IsAssignableFrom(field.FieldType)) {
-							CheckBox checkBox = controlObject as CheckBox;
-							section.Values[configBindable.PropertyName].Value = checkBox.Checked;
+						CheckBox checkBox = controlObject as CheckBox;
+						if (checkBox != null) {
+							iniValue.Value = checkBox.Checked;
 							iniDirty = true;
-						} else if (typeof(HotkeyControl).IsAssignableFrom(field.FieldType)) {
-							HotkeyControl hotkeyControl = controlObject as HotkeyControl;
-							section.Values[configBindable.PropertyName].Value = hotkeyControl.ToString();
+							continue;
+						}
+						TextBox textBox = controlObject as TextBox;
+						if (textBox != null) {
+							iniValue.UseValueOrDefault(textBox.Text);
 							iniDirty = true;
-						} else if (typeof(TextBox).IsAssignableFrom(field.FieldType)) {
-							TextBox textBox = controlObject as TextBox;
-							section.Values[configBindable.PropertyName].UseValueOrDefault(textBox.Text);
+							continue;
+						}
+						GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
+						if (comboxBox != null) {
+							iniValue.Value = comboxBox.GetSelectedEnum();
 							iniDirty = true;
-						} else if (typeof(GreenshotComboBox).IsAssignableFrom(field.FieldType)) {
-							GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
-							section.Values[configBindable.PropertyName].Value = comboxBox.GetSelectedEnum();
+							continue;
+						}
+						HotkeyControl hotkeyControl = controlObject as HotkeyControl;
+						if (hotkeyControl != null) {
+							iniValue.Value = hotkeyControl.ToString();
+							iniDirty = true;
+							continue;
 						}
 					}
 				}
