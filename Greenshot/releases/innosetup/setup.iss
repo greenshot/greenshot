@@ -425,9 +425,8 @@ begin
 		if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4.5\Full', 'InstallPath', installPath) then begin
 			if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client', 'InstallPath', installPath) then begin
 				if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'InstallPath', installPath) then begin
-					if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5', 'InstallPath', installPath) then begin
-						RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v2.0.50727', 'InstallPath', installPath);
-					end;
+					// 3.5 doesn't have NGEN and is using the .net 2.0 installation
+					installPath := ExpandConstant('{dotnet20}');
 				end;
 			end;
 		end;
