@@ -52,8 +52,14 @@ namespace Greenshot.Forms {
 		private void init() {
 			saveFileDialog = new SaveFileDialog();
 			applyFilterOptions();
-			string initialDirectory = Path.GetDirectoryName(conf.OutputFileAsFullpath);
-			if (conf.OutputFileAsFullpath != null && conf.OutputFileAsFullpath.Length > 0 && Directory.Exists(initialDirectory)) {
+			string initialDirectory = null;
+			try {
+				initialDirectory = Path.GetDirectoryName(conf.OutputFileAsFullpath);
+			} catch {
+				LOG.WarnFormat("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", conf.OutputFileAsFullpath);
+			}
+			
+			if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory)) {
 				saveFileDialog.InitialDirectory = initialDirectory;
 			} else if (Directory.Exists(conf.OutputFilePath)) {
 				saveFileDialog.InitialDirectory = conf.OutputFilePath;
