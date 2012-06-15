@@ -784,8 +784,12 @@ namespace Greenshot.Helpers {
 						}
 						// Take the captureRect, this already is specified as bitmap coordinates
 						capture.Crop(captureRect);
-						// save for re-capturing later and show recapture context menu option
-						RuntimeConfig.LastCapturedRegion = captureRect;
+						
+                        // save for re-capturing later and show recapture context menu option
+                        // Important here is that the location needs to be offsetted back to screen coordinates!
+                        Rectangle tmpRectangle = captureRect.Clone();
+                        tmpRectangle.Offset(capture.ScreenBounds.Location.X, capture.ScreenBounds.Location.Y);
+                        RuntimeConfig.LastCapturedRegion = tmpRectangle;
 						HandleCapture();
 					}
 				}

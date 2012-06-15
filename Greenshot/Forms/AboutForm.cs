@@ -72,7 +72,7 @@ namespace Greenshot {
 							if (File.Exists( MainForm.LogFileLocation)) {
 								System.Diagnostics.Process.Start("\"" + MainForm.LogFileLocation + "\"");
 							} else {
-								MessageBox.Show("Greenshot can't write to logfile, otherwise it would be here: " + MainForm.LogFileLocation);
+								MessageBox.Show("Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
 							}
 						} catch (Exception) {
 							MessageBox.Show("Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, "Error opening greeenshot.log", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
