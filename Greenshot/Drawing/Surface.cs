@@ -624,16 +624,17 @@ namespace Greenshot.Drawing {
 						break;
 					case Effects.RotateClockwise:
 					case Effects.RotateCounterClockwise:
-						MakeUndoable(new DrawableContainerBoundsChangeMemento(elements.AsIDrawableContainerList()), false);
 						RotateFlipType rotateFlipType = RotateFlipType.Rotate270FlipNone;
 						if (effect == Effects.RotateClockwise) {
 							rotateFlipType = RotateFlipType.Rotate90FlipNone;
 						}
-						foreach (DrawableContainer drawableContainer in elements) {
-							if (drawableContainer.CanRotate) {
-								drawableContainer.Rotate(rotateFlipType);
-							}
-						}
+						// Do not rotate the drawable containers until this works!
+						//MakeUndoable(new DrawableContainerBoundsChangeMemento(elements.AsIDrawableContainerList()), false);
+						//foreach (DrawableContainer drawableContainer in elements) {
+						//	if (drawableContainer.CanRotate) {
+						//		drawableContainer.Rotate(rotateFlipType);
+						//	}
+						//}
 						newImage = ImageHelper.RotateFlip((Bitmap)Image, rotateFlipType);
 						break;
 				}
