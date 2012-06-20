@@ -44,10 +44,13 @@ namespace Greenshot {
 		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		private ToolTip toolTip = new ToolTip();
-        private bool inHotkey = false;
+		private bool inHotkey = false;
 
 		public SettingsForm() : base() {
 			InitializeComponent();
+			
+			// Make sure the store isn't called to early, that's why we do it manually
+			ManualStoreFields = true;
 		}
 
 		protected override void OnLoad(EventArgs e) {
@@ -392,7 +395,10 @@ namespace Greenshot {
 		
 		void Settings_okayClick(object sender, System.EventArgs e) {
 			if (CheckSettings()) {
+				GreenshotPlugin.Controls.HotkeyControl.UnregisterHotkeys();
 				SaveSettings();
+				StoreFields();
+				MainForm.RegisterHotkeys();
 				DialogResult = DialogResult.OK;
 			} else {
 				this.tabcontrol.SelectTab(this.tab_output);

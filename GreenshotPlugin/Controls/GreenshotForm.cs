@@ -16,6 +16,7 @@ namespace GreenshotPlugin.Controls {
 		private IComponentChangeService m_changeService;
 		private bool isDesignModeLanguageSet = false;
 		private bool applyLanguageManually = false;
+		private bool storeFieldsManually = false;
 		private IDictionary<string, Control> designTimeControls;
 		private IDictionary<string, ToolStripItem> designTimeToolStripItems;
 
@@ -31,6 +32,15 @@ namespace GreenshotPlugin.Controls {
 			}
 			set {
 				applyLanguageManually = value;
+			}
+		}
+
+		protected bool ManualStoreFields {
+			get {
+				return storeFieldsManually;
+			}
+			set {
+				storeFieldsManually = value;
 			}
 		}
 
@@ -101,7 +111,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="e"></param>
 		protected override void OnClosed(EventArgs e) {
-			if (!this.DesignMode) {
+			if (!this.DesignMode && !storeFieldsManually) {
 				if (DialogResult == DialogResult.OK) {
 					LOG.Info("Form was closed with OK: storing field values.");
 					StoreFields();
@@ -438,6 +448,13 @@ namespace GreenshotPlugin.Controls {
 						}
 						TextBox textBox = controlObject as TextBox;
 						if (textBox != null) {
+							HotkeyControl hotkeyControl = textBox as HotkeyControl;
+							if (hotkeyControl != null) {
+								string hotkeyString = hotkeyControl.ToString();
+								iniValue.Value = hotkeyString;
+								iniDirty = true;
+								continue;
+							}
 							iniValue.UseValueOrDefault(textBox.Text);
 							iniDirty = true;
 							continue;
@@ -445,12 +462,6 @@ namespace GreenshotPlugin.Controls {
 						GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
 						if (comboxBox != null) {
 							iniValue.Value = comboxBox.GetSelectedEnum();
-							iniDirty = true;
-							continue;
-						}
-						HotkeyControl hotkeyControl = controlObject as HotkeyControl;
-						if (hotkeyControl != null) {
-							iniValue.Value = hotkeyControl.ToString();
 							iniDirty = true;
 							continue;
 						}
