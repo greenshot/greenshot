@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.0.0 build 1925 (Unstable, meaning we are in testing fase and haven't released yet)
+1.0.0 build 1929 (Unstable, meaning we are in testing fase and haven't released yet)
 
 We changed the version to 1.0.0, after 5 year the version should no longer have a "beta" feeling!
 
@@ -20,7 +20,7 @@ Features added:
 * Added color reduction as an option and auto detection for image with less than 256 color. When using reduction this results in smaller files.
 * Added direct printing to a selected printer
 * Changed multi-screen capture behaviour, assuming that capturing all screens is not a normal use-case. Now default behaviour is to capture the one with the mouse-cursor. Also the user can select which screen to capture from the context-menu.
-* Many languages added, see our website for the while listing!
+* Many languages added and updated, see our website for the whole listing!
 
 Bugs resolved:
 * Fixed a problem with temp-files being removed before they were used, now using a delay of ~10 hours
