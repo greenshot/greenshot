@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="0.8.1">
+<language description="Українська" ietf="uk-UA" version="1.0.0">
   <resources>
 	<resource name="upload_menu_item">Вивантажити на Jira</resource>
 	<resource name="column_assignee">Представник</resource>
