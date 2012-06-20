@@ -394,7 +394,15 @@ namespace GreenshotPlugin.Controls {
 
 						TextBox textBox = controlObject as TextBox;
 						if (textBox != null) {
-							textBox.Text = iniValue.ToString();
+                            HotkeyControl hotkeyControl = controlObject as HotkeyControl;
+                            if (hotkeyControl != null) {
+                                string hotkeyValue = (string)iniValue.Value;
+                                if (!string.IsNullOrEmpty(hotkeyValue)) {
+                                    hotkeyControl.SetHotkey(hotkeyValue);
+                                }
+                                continue;
+                            }
+                            textBox.Text = iniValue.ToString();
 							continue;
 						} 
 
@@ -405,14 +413,6 @@ namespace GreenshotPlugin.Controls {
 							continue;
 						}
 
-						HotkeyControl hotkeyControl = controlObject as HotkeyControl;
-						if (hotkeyControl != null) {
-							string hotkeyValue = (string)iniValue.Value;
-							if (!string.IsNullOrEmpty(hotkeyValue)) {
-								hotkeyControl.SetHotkey(hotkeyValue);
-							}
-							continue;
-						}
 					}
 				}
 			}
@@ -448,13 +448,12 @@ namespace GreenshotPlugin.Controls {
 						}
 						TextBox textBox = controlObject as TextBox;
 						if (textBox != null) {
-							HotkeyControl hotkeyControl = textBox as HotkeyControl;
-							if (hotkeyControl != null) {
-								string hotkeyString = hotkeyControl.ToString();
-								iniValue.Value = hotkeyString;
-								iniDirty = true;
-								continue;
-							}
+                            HotkeyControl hotkeyControl = controlObject as HotkeyControl;
+                            if (hotkeyControl != null) {
+                                iniValue.Value = hotkeyControl.ToString();
+                                iniDirty = true;
+                                continue;
+                            }
 							iniValue.UseValueOrDefault(textBox.Text);
 							iniDirty = true;
 							continue;
@@ -465,6 +464,7 @@ namespace GreenshotPlugin.Controls {
 							iniDirty = true;
 							continue;
 						}
+						
 					}
 				}
 			}
