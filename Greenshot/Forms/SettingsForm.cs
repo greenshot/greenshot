@@ -203,7 +203,9 @@ namespace Greenshot {
 		/// Update the UI to reflect the language and other text settings
 		/// </summary>
 		private void UpdateUI() {
-			tab_expert.Visible = !coreConfiguration.HideExpertSettings;
+            if (coreConfiguration.HideExpertSettings) {
+                tabcontrol.Controls.Remove(tab_expert);
+            }
 			toolTip.SetToolTip(label_language, Language.GetString(LangKey.settings_tooltip_language));
 			toolTip.SetToolTip(label_storagelocation, Language.GetString(LangKey.settings_tooltip_storagelocation));
 			toolTip.SetToolTip(label_screenshotname, Language.GetString(LangKey.settings_tooltip_filenamepattern));
