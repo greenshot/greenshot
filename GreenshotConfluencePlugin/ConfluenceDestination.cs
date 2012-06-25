@@ -143,10 +143,10 @@ namespace GreenshotConfluencePlugin {
 					if (uploaded) {
 						if (openPage) {
 							try {
-								Process.Start(page.Url);
+                                Process.Start(selectedPage.Url);
 							} catch { }
 						}
-						surface.UploadURL = page.Url;
+                        surface.UploadURL = selectedPage.Url;
 						surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUrl, Language.GetFormattedString("exported_to", Description));
 						surface.Modified = false;
 						return true;
