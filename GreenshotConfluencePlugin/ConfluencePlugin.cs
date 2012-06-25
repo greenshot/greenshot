@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows;
+using System.Web;
 
 using Confluence;
 using Greenshot.Plugin;
@@ -104,6 +105,9 @@ namespace GreenshotConfluencePlugin {
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			host = pluginHost;
 			ConfluencePluginAttributes = myAttributes;
+
+            // Force exception when there is no Full Profile, this will make sure the plugin isn't loaded
+            HttpUtility.UrlEncode("bla");
 
 			// Register configuration (don't need the configuration itself)
 			config = IniConfig.GetIniSection<ConfluenceConfiguration>();
