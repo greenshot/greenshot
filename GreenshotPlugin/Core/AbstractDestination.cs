@@ -124,7 +124,12 @@ namespace GreenshotPlugin.Core {
 				basisMenuItem.DropDownOpening += delegate (object source, EventArgs eventArgs) {
 					if (basisMenuItem.DropDownItems.Count == 0) {
 						List<IDestination> subDestinations = new List<IDestination>();
-						subDestinations.AddRange(DynamicDestinations());
+                        // Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
+                        try {
+                            subDestinations.AddRange(DynamicDestinations());
+                        } catch(Exception ex) {
+                            LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
+                        }
 						if (subDestinations.Count > 0) {
 							subDestinations.Sort();
 							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(Description);
