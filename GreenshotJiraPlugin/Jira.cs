@@ -294,14 +294,14 @@ namespace Jira {
 			try {
 				string base64String = Convert.ToBase64String(buffer, Base64FormattingOptions.InsertLineBreaks);
 				jira.addBase64EncodedAttachmentsToIssue(credentials, issueKey, new string[] { filename }, new string[] { base64String });
-			} catch (Exception ex1) {
+			} catch (ArgumentException ex1) {
 				LOG.WarnFormat("Failed to upload by using method addBase64EncodedAttachmentsToIssue, error was {0}", ex1.Message);
 				try {
 					LOG.Warn("Trying addAttachmentsToIssue instead");
 					jira.addAttachmentsToIssue(credentials, issueKey, new string[] { filename }, (sbyte[]) (Array)buffer);
 				} catch (Exception ex2) {
 					LOG.WarnFormat("Failed to use alternative method, error was: {0}", ex2.Message);
-					throw ex1;
+                    throw ex2;
 				}
 			}
 		}
