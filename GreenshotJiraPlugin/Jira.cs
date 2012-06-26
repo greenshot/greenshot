@@ -294,7 +294,7 @@ namespace Jira {
 			try {
 				string base64String = Convert.ToBase64String(buffer, Base64FormattingOptions.InsertLineBreaks);
 				jira.addBase64EncodedAttachmentsToIssue(credentials, issueKey, new string[] { filename }, new string[] { base64String });
-			} catch (ArgumentException ex1) {
+			} catch (Exception ex1) {
 				LOG.WarnFormat("Failed to upload by using method addBase64EncodedAttachmentsToIssue, error was {0}", ex1.Message);
 				try {
 					LOG.Warn("Trying addAttachmentsToIssue instead");
