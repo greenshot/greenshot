@@ -35,6 +35,17 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public static class EnvironmentInfo {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger("Greenshot");
+        private static bool? isWindows = null;
+
+        public static bool IsWindows {
+            get {
+                if (isWindows.HasValue) {
+                    return isWindows.Value;
+                }
+                isWindows = Environment.OSVersion.Platform.ToString().StartsWith("Windows");
+                return isWindows.Value;
+            }
+        }
 		
 		public static string EnvironmentToString(bool newline) {
 			StringBuilder environment = new StringBuilder(); 
@@ -61,21 +72,30 @@ namespace Greenshot.Helpers {
 			} else {
 				environment.Append(", ");
 			}
-			
-			environment.Append(String.Format("OS: {0} {1} {2} x{3} modus Version = {4}",OSInfo.Name, OSInfo.Edition, OSInfo.ServicePack, OSInfo.Bits, OSInfo.VersionString ));
-			if (newline) {
-				environment.AppendLine();
-			} else {
-				environment.Append(", ");
-			}
-			// Get some important information for fixing GDI related Problems
-			environment.Append("GDI object count: " + User32.GetGuiResourcesGDICount());
-			if (newline) {
-				environment.AppendLine();
-			} else {
-				environment.Append(", ");
-			}
-			environment.Append("User object count: " + User32.GetGuiResourcesUserCount());
+
+            if (IsWindows) {
+                environment.Append(String.Format("OS: {0} {1} {2} x{3} modus Version = {4}", OSInfo.Name, OSInfo.Edition, OSInfo.ServicePack, OSInfo.Bits, OSInfo.VersionString));
+                if (newline) {
+                    environment.AppendLine();
+                } else {
+                    environment.Append(", ");
+                }
+                // Get some important information for fixing GDI related Problems
+                environment.Append("GDI object count: " + User32.GetGuiResourcesGDICount());
+                if (newline) {
+                    environment.AppendLine();
+                } else {
+                    environment.Append(", ");
+                }
+                environment.Append("User object count: " + User32.GetGuiResourcesUserCount());
+            } else {
+                environment.Append("OS: " + Environment.OSVersion.Platform.ToString());
+                if (newline) {
+                    environment.AppendLine();
+                } else {
+                    environment.Append(", ");
+                }
+            }
 						
 			return environment.ToString();
 		}
@@ -154,12 +174,11 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the edition of the operating system running on this computer.
 		/// </summary>
-		static public string Edition
-		{
-			get
-			{
-				if (s_Edition != null)
-					return s_Edition;  //***** RETURN *****//
+		static public string Edition {
+			get {
+                if (s_Edition != null) {
+                    return s_Edition;  //***** RETURN *****//
+                }
 
 				string edition = String.Empty;
 
@@ -167,8 +186,7 @@ namespace Greenshot.Helpers {
 				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
 				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf( typeof( OSVERSIONINFOEX ) );
 
-				if (GetVersionEx( ref osVersionInfo ))
-				{
+				if (GetVersionEx( ref osVersionInfo )) {
 					int majorVersion = osVersion.Version.Major;
 					int minorVersion = osVersion.Version.Minor;
 					byte productType = osVersionInfo.wProductType;
@@ -625,11 +643,9 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the build version number of the operating system running on this computer.
 		/// </summary>
-		static public int BuildVersion
-		{
-			get
-			{
-				return Environment.OSVersion.Version.Build;
+        public static int BuildVersion {
+			get {
+                return Environment.OSVersion.Version.Build;
 			}
 		}
 		#endregion BUILD
