@@ -94,7 +94,8 @@ namespace Greenshot {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
-			InitializeComponent();
+            this.ManualLanguageApply = true;
+            InitializeComponent();
 			updateUI();
 			
 			this.Load += delegate {
@@ -768,7 +769,9 @@ namespace Greenshot {
 			this.redoToolStripMenuItem.Enabled = canRedo;
 			string redoAction = "";
 			if (canRedo) {
-				redoAction = Language.GetString(surface.RedoActionKey);
+                if (surface.RedoActionKey != LangKey.none) {
+                    redoAction = Language.GetString(surface.RedoActionKey);
+                }
 			}
 			string redoText = Language.GetFormattedString(LangKey.editor_redo, redoAction);
 			this.btnRedo.Text = redoText;

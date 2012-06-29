@@ -1580,7 +1580,6 @@ namespace Greenshot {
 			this.ClientSize = new System.Drawing.Size(785, 485);
 			this.Controls.Add(this.toolStripContainer1);
 			this.KeyPreview = true;
-			this.ManualLanguageApply = true;
 			this.LanguageKey = "editor_title";
 			this.Name = "ImageEditorForm";
 			this.Activated += new System.EventHandler(this.ImageEditorFormActivated);
