@@ -46,6 +46,7 @@ Source: ..\..\Languages\*lt-LT*; DestDir: {app}\Languages; Components: languages
 Source: ..\..\Languages\*pl-PL*; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*pt-BR*; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*pt-PT*; DestDir: {app}\Languages; Components: languages\ptPT; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*ro-RO*; DestDir: {app}\Languages; Components: languages\roRO; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*ru-RU*; DestDir: {app}\Languages; Components: languages\ruRU; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*sk-SK*; DestDir: {app}\Languages; Components: languages\skSK; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*sr-RS*; DestDir: {app}\Languages; Components: languages\srRS; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -205,6 +206,7 @@ Name: "languages\plPL"; Description: "Polski"; Types: Full; Check: hasLanguageGr
 Name: "languages\ptBR"; Description: "Português do Brasil"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\ptPT"; Description: "Português de Portugal"; Types: Full; Check: hasLanguageGroup('1')
 Name: "languages\ruRU"; Description: "Pусский"; Types: Full; Check: hasLanguageGroup('5')
+Name: "languages\roRO"; Description: "Română"; Types: Full; Check: hasLanguageGroup('2')
 Name: "languages\skSK"; Description: "Slovenčina"; Types: Full; Check: hasLanguageGroup('2')
 Name: "languages\srRS"; Description: "Српски"; Types: Full; Check: hasLanguageGroup('5')
 Name: "languages\svSE"; Description: "Svenska"; Types: Full; Check: hasLanguageGroup('1')
