@@ -1285,7 +1285,7 @@ namespace Greenshot {
             0,
             0});
 			this.blurRadiusUpDown.Minimum = new decimal(new int[] {
-            1,
+            0,
             0,
             0,
             0});
