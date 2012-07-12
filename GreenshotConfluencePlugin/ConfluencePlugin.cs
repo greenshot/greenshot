@@ -48,7 +48,7 @@ namespace GreenshotConfluencePlugin {
 				if (config.Url.Contains("soap-axis")) {
 					confluenceConnector = new ConfluenceConnector(config.Url, config.Timeout);
 				} else {
-					confluenceConnector = new ConfluenceConnector(config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX, config.Timeout);
+					confluenceConnector = new ConfluenceConnector(config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX2, config.Timeout);
 				}
 			}
 		}

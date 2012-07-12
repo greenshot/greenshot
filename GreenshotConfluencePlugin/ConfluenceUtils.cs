@@ -38,7 +38,7 @@ namespace GreenshotConfluencePlugin {
 			List<Confluence.Page> pages = new List<Confluence.Page>();
 			Regex pageIdRegex = new Regex(@"pageId=(\d+)");
 			Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
-			foreach(string browserurl in  GetBrowserUrls()) {
+			foreach(string browserurl in GetBrowserUrls()) {
 				string url = null;
 				try {
 					url = Uri.UnescapeDataString(browserurl).Replace("+", " ");

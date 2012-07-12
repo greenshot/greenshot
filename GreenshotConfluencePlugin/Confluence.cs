@@ -95,7 +95,8 @@ namespace Confluence {
 	public class ConfluenceConnector {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.confluence.rpc.AuthenticationFailedException";
-		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+        private const string V2_FAILED = "AXIS";
+        private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private string credentials = null;
 		private DateTime loggedInTime = DateTime.Now;
 		private bool loggedIn = false;
@@ -105,12 +106,16 @@ namespace Confluence {
 		private Cache<string, RemotePage> pageCache = new Cache<string, RemotePage>(60 * config.Timeout);
 
 		public ConfluenceConnector(string url, int timeout) {
-			this.url = url;
 			this.timeout = timeout;
-			confluence = new ConfluenceSoapServiceService();
-			confluence.Url = url;
-			confluence.Proxy = NetworkHelper.CreateProxy(new Uri(url));
+            init(url);
 		}
+
+        private void init(string url) {
+            this.url = url;
+            confluence = new ConfluenceSoapServiceService();
+            confluence.Url = url;
+            confluence.Proxy = NetworkHelper.CreateProxy(new Uri(url));
+        }
 
 		~ConfluenceConnector() {
 			logout();
@@ -126,6 +131,11 @@ namespace Confluence {
 				this.loggedInTime = DateTime.Now;
 				this.loggedIn = true;
 			} catch (Exception e) {
+                // Check if confluence-v2 caused an error, use v1 instead
+                if (e.Message.Contains(V2_FAILED) && url.Contains("v2")) {
+                    init(url.Replace("v2", "v1"));
+                    return doLogin(user, password);
+                }
 				// check if auth failed
 				if (e.Message.Contains(AUTH_FAILED_EXCEPTION_NAME)) {
 					return false;
@@ -144,8 +154,9 @@ namespace Confluence {
 			logout();
 			try {
 				// Get the system name, so the user knows where to login to
-				string systemName = url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX,"");
-		   		CredentialsDialog dialog = new CredentialsDialog(systemName);
+				string systemName = url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX1,"");
+                systemName = url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX2, "");
+                CredentialsDialog dialog = new CredentialsDialog(systemName);
 				dialog.Name = null;
 				while (dialog.Show(dialog.Name) == DialogResult.OK) {
 					if (doLogin(dialog.Name, dialog.Password)) {
