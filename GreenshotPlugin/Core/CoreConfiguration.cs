@@ -103,7 +103,15 @@ namespace GreenshotPlugin.Core {
 
 		[IniProperty("OutlookEmailFormat", Description = "Default type for emails. (Text, HTML)", DefaultValue="HTML")]
 		public EmailFormat OutlookEmailFormat;
-		[IniProperty("OutlookAllowExportInMeetings", Description = "Allow export in meeting items", DefaultValue="False")]
+        [IniProperty("EmailSubjectPattern", Description = "Email subject pattern, works like the OutputFileFilenamePattern", DefaultValue = "${title}")]
+        public string EmailSubjectPattern;
+        [IniProperty("EmailTo", Description = "Default value for the to", DefaultValue = "")]
+        public string EmailTo;
+        [IniProperty("EmailCC", Description = "Default value for the CC", DefaultValue = "")]
+        public string EmailCC;
+        [IniProperty("EmailBCC", Description = "Default value for the BCC", DefaultValue = "")]
+        public string EmailBCC;
+        [IniProperty("OutlookAllowExportInMeetings", Description = "Allow export in meeting items", DefaultValue = "False")]
 		public bool OutlookAllowExportInMeetings;
 
 		[IniProperty("OutputFileCopyPathToClipboard", Description="When saving a screenshot, copy the path to the clipboard?", DefaultValue="true")]

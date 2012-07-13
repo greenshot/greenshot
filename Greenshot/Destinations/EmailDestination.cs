@@ -223,7 +223,7 @@ namespace Greenshot.Destinations {
 						return false;
 					}
 				}
-				OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, captureDetails.Title, attachmentName);
+				OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC);
 			}
 			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
 			surface.Modified = false;

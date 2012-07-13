@@ -283,7 +283,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="outlookApplication"></param>
 		/// <param name="tmpFile"></param>
 		/// <param name="captureDetails"></param>
-		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName) {
+		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC) {
 			Item newItem = outlookApplication.CreateItem(OlItemType.olMailItem);
 			if (newItem == null) {
 				return;
@@ -291,7 +291,16 @@ namespace Greenshot.Interop.Office {
 			//MailItem newMail = COMWrapper.Cast<MailItem>(newItem);
 			MailItem newMail = (MailItem)newItem;
 			newMail.Subject = subject;
-			newMail.BodyFormat = OlBodyFormat.olFormatHTML;
+            if (string.IsNullOrEmpty(to)) {
+                newMail.To = to;
+            }
+            if (string.IsNullOrEmpty(CC)) {
+                newMail.CC = CC;
+            }
+            if (string.IsNullOrEmpty(BCC)) {
+                newMail.BCC = BCC;
+            }
+            newMail.BodyFormat = OlBodyFormat.olFormatHTML;
 			string bodyString = null;
 			// Read the default signature, if nothing found use empty email
 			try {
@@ -384,12 +393,12 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="tmpfile">The file to send, do not delete the file right away!</param>
 		/// <returns>true if it worked, false if not</returns>
-		public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName) {
+        public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC) {
 			bool exported = false;
 			try {
 				using (IOutlookApplication outlookApplication = GetOrCreateOutlookApplication()) {
 					if (outlookApplication != null) {
-						ExportToNewEmail(outlookApplication, format, tmpFile, subject, attachmentName);
+						ExportToNewEmail(outlookApplication, format, tmpFile, subject, attachmentName, to, CC, BCC);
 						exported = true;
 					}
 				}
