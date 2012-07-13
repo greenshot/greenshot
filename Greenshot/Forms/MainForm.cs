@@ -343,10 +343,14 @@ namespace Greenshot {
 				if (conf.OutputDestinations.Count == 0) {
 					conf.OutputDestinations.Add(Destinations.EditorDestination.DESIGNATION);
 				}
-				BeginInvoke((MethodInvoker)delegate {
-					// Do after all plugins & finding the destination, otherwise they are missing!
-					InitializeQuickSettingsMenu();
-				});
+                if (conf.DisableQuickSettings) {
+                    contextmenu_quicksettings.Visible = false;
+                } else {
+                    BeginInvoke((MethodInvoker)delegate {
+                        // Do after all plugins & finding the destination, otherwise they are missing!
+                        InitializeQuickSettingsMenu();
+                    });
+                }
 			});
 			pluginInitThread.Name = "Initialize plug-ins";
 			pluginInitThread.IsBackground = true;
@@ -896,6 +900,9 @@ namespace Greenshot {
 		private void InitializeQuickSettingsMenu() {
 			this.contextmenu_quicksettings.DropDownItems.Clear();
 
+            if (conf.DisableQuickSettings) {
+                return;
+            }
 			// For the capture mousecursor option
 			ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem();
 			captureMouseItem.Text = Language.GetString("settings_capture_mousepointer");
