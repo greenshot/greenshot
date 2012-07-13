@@ -161,8 +161,8 @@ Bitte überprüfen Sie, ob am Speicherort Schreibrechte bestehen.</resource>
 		<resource name="hotkey_window">Fenster abfotografieren</resource>
 		<resource name="hotkeys">Tastenkombinationen</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Bitte wählen Sie die Qualität Ihres JPEG Bilds.</resource>
-		<resource name="jpegqualitydialog_dontaskagain">Als Standard-JPEG-Qualität speichern und nicht wieder nachfragen</resource>
-		<resource name="jpegqualitydialog_title">Greenshot JPEG Qualität</resource>
+		<resource name="jpegqualitydialog_dontaskagain">Als Standard Qualität speichern und nicht wieder nachfragen</resource>
+		<resource name="jpegqualitydialog_title">Greenshot Qualität</resource>
 		<resource name="OK">OK</resource>
 		<resource name="print_error">Beim Versuch zu drucken ist ein Fehler aufgetreten.</resource>
 		<resource name="printoptions_allowcenter">Ausdruck auf der Seite zentrieren</resource>
@@ -175,7 +175,7 @@ Bitte überprüfen Sie, ob am Speicherort Schreibrechte bestehen.</resource>
 		<resource name="printoptions_timestamp">Datum und Uhrzeit am Ende der Seite anfügen</resource>
 		<resource name="printoptions_title">Greenshot Druckoptionen</resource>
 		<resource name="quicksettings_destination_file">Sofort speichern (mit bevorzugten Ausgabedatei-Einstellungen)</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">JPEG-Qualitäts-Dialog immer zeigen, wenn ein JPEG-Bild gespeichert wird</resource>
+		<resource name="settings_alwaysshowjpegqualitydialog">Qualitätsdialog immer zeigen, wenn ein Bild gespeichert wird</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Druckoptionen-Dialog immer anzeigen, wenn ein Bild gedruckt wird</resource>
 		<resource name="settings_applicationsettings">Programmeinstellungen</resource>
 		<resource name="settings_autostartshortcut">Greenshot mit Windows starten</resource>
@@ -198,7 +198,7 @@ Bitte überprüfen Sie, ob am Speicherort Schreibrechte bestehen.</resource>
 		<resource name="settings_general">Allgemein</resource>
 		<resource name="settings_iecapture">Internet Explorer abfotografieren</resource>
 		<resource name="settings_jpegquality">JPEG-Qualität</resource>
-		<resource name="settings_jpegsettings">JPEG-Einstellungen</resource>
+		<resource name="settings_jpegsettings">Qualitäts Einstellungen</resource>
 		<resource name="settings_language">Sprache</resource>
 		<resource name="settings_message_filenamepattern">Die folgenden Platzhalter werden im festgelegten Muster automatisch ersetzt:
 ${YYYY} Jahr, 4-stellig

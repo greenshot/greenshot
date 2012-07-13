@@ -57,9 +57,9 @@ namespace Greenshot {
 			// 
 			// label_choosejpegquality
 			// 
-			this.label_choosejpegquality.Location = new System.Drawing.Point(12, 31);
+            this.label_choosejpegquality.Location = new System.Drawing.Point(12, 47);
 			this.label_choosejpegquality.Name = "label_choosejpegquality";
-			this.label_choosejpegquality.Size = new System.Drawing.Size(268, 35);
+            this.label_choosejpegquality.Size = new System.Drawing.Size(268, 19);
 			this.label_choosejpegquality.TabIndex = 15;
 			this.label_choosejpegquality.Text = "Choose JPEG Quality";
 			// 
@@ -116,7 +116,7 @@ namespace Greenshot {
 			this.checkBox_reduceColors.Text = "Reduce colors";
 			this.checkBox_reduceColors.UseVisualStyleBackColor = true;
 			// 
-			// JpegQualityDialog
+            // QualityDialog
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
