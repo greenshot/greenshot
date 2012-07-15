@@ -96,17 +96,9 @@ namespace Greenshot.Helpers {
 		/// <returns>printer settings if actually printed, or null if print was cancelled or has failed</returns>
 		public PrinterSettings PrintTo(string printerName) {
 			PrinterSettings returnPrinterSettings = null;
-			bool cancelled = false;
-			if (conf.OutputPrintPromptOptions) {
-				using (PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog()) {
-					DialogResult result = printOptionsDialog.ShowDialog();
-					if (result != DialogResult.OK) {
-						cancelled = true;
-					}
-				}
-			}
-			try {
-				if (!cancelled) {
+			DialogResult? printOptionsResult = ShowPrintOptionsDialog();
+				try {
+					if (printOptionsResult == null || printOptionsResult == DialogResult.OK) {
 					printDocument.PrinterSettings.PrinterName = printerName;
 					if (conf.OutputPrintGrayscale) {
 						printDocument.DefaultPageSettings.Color = false;
@@ -131,17 +123,9 @@ namespace Greenshot.Helpers {
 		public PrinterSettings PrintWithDialog() {
 			PrinterSettings returnPrinterSettings = null;
 			if (printDialog.ShowDialog() == DialogResult.OK) {
-				bool cancelled = false;
-				if (conf.OutputPrintPromptOptions) {
-					using (PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog()) {
-						DialogResult result = printOptionsDialog.ShowDialog();
-						if (result != DialogResult.OK) {
-							cancelled = true;
-						}
-					}
-				}
+				DialogResult? printOptionsResult = ShowPrintOptionsDialog();
 				try {
-					if (!cancelled) {
+					if (printOptionsResult == null || printOptionsResult == DialogResult.OK) {
 						if (conf.OutputPrintGrayscale) {
 							printDocument.DefaultPageSettings.Color = false;
 						}
@@ -157,6 +141,20 @@ namespace Greenshot.Helpers {
 			image.Dispose();
 			image = null;
 			return returnPrinterSettings;
+		}
+
+		/// <summary>
+		/// display print options dialog (if the user has not configured Greenshot not to)
+		/// </summary>
+		/// <returns>result of the print dialog, or null if the dialog has not been displayed by config</returns>
+		private DialogResult? ShowPrintOptionsDialog() {
+			DialogResult? ret = null;
+			if (conf.OutputPrintPromptOptions) {
+				using (PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog()) {
+					ret = printOptionsDialog.ShowDialog();
+				}
+			} 
+			return ret;
 		}
 
 		void DrawImageForPrint(object sender, PrintPageEventArgs e) {
