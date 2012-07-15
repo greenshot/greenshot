@@ -881,7 +881,7 @@ namespace Greenshot {
 			// checkbox_printgrayscale
 			// 
 			this.checkbox_printgrayscale.LanguageKey = "printoptions_printgrayscale";
-			this.checkbox_printgrayscale.Location = new System.Drawing.Point(12, 192);
+			this.checkbox_printgrayscale.Location = new System.Drawing.Point(12, 167);
 			this.checkbox_printgrayscale.Name = "checkbox_printgrayscale";
 			this.checkbox_printgrayscale.PropertyName = "OutputPrintGrayscale";
 			this.checkbox_printgrayscale.Size = new System.Drawing.Size(394, 19);
@@ -906,7 +906,7 @@ namespace Greenshot {
 			// checkbox_alwaysshowprintoptionsdialog
 			// 
 			this.checkbox_alwaysshowprintoptionsdialog.LanguageKey = "settings_alwaysshowprintoptionsdialog";
-			this.checkbox_alwaysshowprintoptionsdialog.Location = new System.Drawing.Point(12, 167);
+			this.checkbox_alwaysshowprintoptionsdialog.Location = new System.Drawing.Point(12, 200);
 			this.checkbox_alwaysshowprintoptionsdialog.Name = "checkbox_alwaysshowprintoptionsdialog";
 			this.checkbox_alwaysshowprintoptionsdialog.PropertyName = "OutputPrintPromptOptions";
 			this.checkbox_alwaysshowprintoptionsdialog.Size = new System.Drawing.Size(394, 19);
