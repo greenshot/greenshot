@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Dansk" ietf="da-DK" version="0.8.0" languagegroup="1">
+  <resources>
+	<!--    
+	Note to translator: uncomment entry "about_translation" to have 
+	your efforts honored in the "About Greenshot" dialog 
+	-->
+	<resource name="about_translation">
+		Dansk oversættelse af Jens Jacob Thomsen
+	</resource>
+	<resource name="application_title">
+		Greenshot - det revolutionære hjælpeprogram til skærmklip
+	</resource>
+	<resource name="editor_drawrectangle">
+		Tegn rektangel (R)
+	</resource>
+	<resource name="editor_save">
+		Gem
+	</resource>
+	<resource name="contextmenu_settings">
+		Præferencer...
+	</resource>
+	<resource name="settings_storagelocation">
+		Lagringsplacering
+	</resource>
+	<resource name="settings_title">
+		Indstillinger
+	</resource>
+	<resource name="settings_tooltip_storagelocation">
+		Placering hvor skærmklip lagres som standard (lad være tom for at lagre på dit skrivebord)
+	</resource>
+	<resource name="settings_language">
+		Sprog
+	</resource>
+	<resource name="settings_filenamepattern">
+		Mønster for filnavn
+	</resource>
+	<resource name="settings_tooltip_language">
+		Sprog for Greenshot's brugerflade (kræver genstart)
+	</resource>
+	<resource name="settings_tooltip_filenamepattern">
+		Mønster brugt ved generering af filnavne når skærmklip gemmes
+	</resource>
+	<resource name="settings_primaryimageformat">
+		Billedformat
+	</resource>
+	<resource name="settings_tooltip_primaryimageformat">
+		Billedformat der anvendes som standard
+	</resource>
+	<resource name="contextmenu_capturearea">
+		Rektangulært klip
+	</resource>
+	<resource name="contextmenu_capturelastregion">
+		Gentag forrige klip
+	</resource>
+	<resource name="contextmenu_exit">
+		Afslut
+	</resource>
+	<resource name="settings_visualization">
+		Effekter
+	</resource>
+	<resource name="settings_playsound">
+		Afspil kameralyd
+	</resource>
+	<resource name="settings_showflashlight">
+		Vis blitzlys
+	</resource>
+	<resource name="error">
+		Fejl
+	</resource>
+	<resource name="error_nowriteaccess">
+		Kan ikke gemmes fil til {0}.
+Tjek venligt at der er skriveadgang til den valgte lagringsplacering.
+	</resource>
+	<resource name="contextmenu_capturefullscreen">
+		Fuldskærmsklip
+	</resource>
+	<resource name="editor_cuttoclipboard">
+		Klip
+	</resource>
+	<resource name="editor_copytoclipboard">
+		Kopier
+	</resource>
+	<resource name="editor_pastefromclipboard">
+		Indsæt
+	</resource>
+	<resource name="about_title">
+		Om Greenshot
+	</resource>
+	<resource name="about_license">
+		Ophavsret (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot leveres ABSOLUT UDEN GARANTI. Dette er gratis software, og du er velkommen til at redistribuere det under visse betingelser.
+Detaljer om GNU General Public License:
+	</resource>
+	<resource name="error_openlink">
+		Kunne ikke åbne link.
+	</resource>
+	<resource name="error_save">
+		Kunne ikke gemme skærmklip; find venligst passende placering.
+	</resource>
+	<resource name="about_icons">
+		Ikoner fra Yusuke Kamiyamanes Fugue ikon-sæt (Creative Commons Attribution 3.0 license):
+	</resource>
+	<resource name="about_host">
+		Greenshot hostes af sourceforge.net på:
+	</resource>
+	<resource name="about_bugs">
+		Rapporter venligst fejl til:
+	</resource>
+	<resource name="about_donations">
+		Hvis du synes om Greenshot, er du velkommen til at støtte os:
+	</resource>
+	<resource name="editor_imagesaved">
+		Billede gemt til {0}.
+	</resource>
+	<resource name="editor_storedtoclipboard">
+		Billede lagret i udklipsholder.
+	</resource>
+	<resource name="editor_saveas">
+		Gem som...
+	</resource>
+	<resource name="editor_file">
+		Fil
+	</resource>
+	<resource name="editor_edit">
+		Rediger
+	</resource>
+	<resource name="editor_object">
+		Objekt
+	</resource>
+	<resource name="editor_drawellipse">
+		Tegn ellipse (E)
+	</resource>
+	<resource name="editor_drawtextbox">
+		Tilføj tekstboks (T)
+	</resource>
+	<resource name="editor_deleteelement">
+		Slet
+	</resource>
+	<resource name="editor_selectall">
+		Vælg alle
+	</resource>
+	<resource name="editor_copyimagetoclipboard">
+		Kopier billede til udklipsholder
+	</resource>
+	<resource name="contextmenu_capturewindow">
+		Vinduesklip
+	</resource>
+	<resource name="editor_duplicate">
+		Dupliker valgte elementer
+	</resource>
+	<resource name="contextmenu_help">
+		Hjælp
+	</resource>
+	<resource name="contextmenu_about">
+		Om Greenshot
+	</resource>
+	<resource name="editor_title">
+		Greenshot billededitor
+	</resource>
+	<resource name="settings_applicationsettings">
+		Programindstillinger
+	</resource>
+	<resource name="settings_preferredfilesettings">
+		Foretrukne indstillinger for output-filer
+	</resource>
+	<resource name="settings_skipimageeditor">
+		Spring over billededitor
+	</resource>
+	<resource name="settings_registerhotkeys">
+		Registrer genvejstaster
+	</resource>
+	<resource name="settings_tooltip_registerhotkeys">
+		Afgør om genvejene Prnt, Ctrl + Print og Alt + Prnt reserveres til global anvendelse af Greenshot ved programopstart, indtil programmet lukkes.
+	</resource>
+	<resource name="editor_senttoprinter">
+		Udskriftsjob blev sendt til '{0}'.
+	</resource>
+	<resource name="editor_print">
+		Udskriv
+	</resource>
+	<resource name="help_title">
+		Greenshot hjælp
+	</resource>
+	<resource name="settings_jpegsettings">
+		JPEG-indstillinger
+	</resource>
+	<resource name="settings_jpegquality">
+		JPEG-kvalitet
+	</resource>
+	<resource name="settings_alwaysshowjpegqualitydialog">
+		Vis dialog om JPEG-kvalitet hver gang et JPEG-billede gemmes
+	</resource>
+	<resource name="jpegqualitydialog_title">
+		Greenshot JPEG-kvalitet
+	</resource>
+	<resource name="jpegqualitydialog_choosejpegquality">
+		Vælg venligst kvaliteten af dit JPEG-billede.
+	</resource>
+	<resource name="jpegqualitydialog_dontaskagain">
+		Gem som standard og spørg ikke igen
+	</resource>
+	<resource name="editor_forecolor">
+		Linjefarve
+	</resource>
+	<resource name="editor_backcolor">
+		Fyldfarve
+	</resource>
+	<resource name="editor_thickness">
+		Linjetykkelse
+	</resource>
+	<resource name="colorpicker_title">
+		Farvevælger
+	</resource>
+	<resource name="colorpicker_apply">
+		Anvend
+	</resource>
+	<resource name="colorpicker_transparent">
+		Transparent
+	</resource>
+	<resource name="colorpicker_htmlcolor">
+		HTML-farve
+	</resource>
+	<resource name="colorpicker_red">
+		Rød
+	</resource>
+	<resource name="colorpicker_green">
+		Grøn
+	</resource>
+	<resource name="colorpicker_blue">
+		Blå
+	</resource>
+	<resource name="colorpicker_alpha">
+		Alfa
+	</resource>
+	<resource name="colorpicker_recentcolors">
+		Senest anvendte farver
+	</resource>
+	<resource name="editor_close">
+		Luk
+	</resource>
+	<resource name="warning">
+		Advarsel
+	</resource>
+	<resource name="warning_hotkeys">
+		En eller flere genvejstaster kunne ikke registreres. Derfor kan genvejstasterne til Greenshot muligvis ikke anvendes.
+Problemet skyldes sandsynligvis et andet værktøjs anvendelse af de samme genvejstaster.
+Deaktiver venligt software som gør brug af Print-knappen. Du kan også blot tilgå alle Greenshot funktioner fra kontekstmenuen til ikonet i systembakken.
+	</resource>
+	<resource name="settings_destination_editor">
+		Åbn i billededitor
+	</resource>
+	<resource name="settings_destination_printer">
+		Send til printer
+	</resource>
+	<resource name="settings_destination_file">
+		Gem direkte (ud fra nedenstående)
+	</resource>
+	<resource name="settings_destination_clipboard">
+		Kopier til udklipsholder
+	</resource>
+	<resource name="editor_drawline">
+		Tegn linje (L)
+	</resource>
+	<resource name="settings_destination">
+		Skærmklipsdestination
+	</resource>
+	<resource name="editor_drawarrow">
+		Tegn pil (A)
+	</resource>
+	<resource name="editor_arrowheads">
+		Pilespidser
+	</resource>
+	<resource name="editor_arrowheads_start">
+		Startpunkt
+	</resource>
+	<resource name="editor_arrowheads_end">
+		Slutpunkt
+	</resource>
+	<resource name="editor_arrowheads_both">
+		Begge
+	</resource>
+	<resource name="editor_arrowheads_none">
+		Ingen
+	</resource>
+    <resource name="editor_obfuscate_mode">
+		Sløringstilstand
+	</resource>
+    <resource name="editor_highlight_mode">
+		Fremhævningstilstand
+	</resource>
+	<resource name="error_multipleinstances">
+		En instans af Greenshot kører allerede.
+	</resource>
+	<resource name="settings_autostartshortcut">
+		Kør Greenshot ved opstart
+	</resource>
+	<resource name="clipboard_inuse">
+		Greenshot kunne ikke skrive til udklipsholder, da processen {0} for adgangen.
+	</resource>
+  <resource name="print_error">
+  		En fejl opstod under udskrivning.
+	</resource>
+	<resource name="printoptions_title">
+		Greenshot udskriftsindstillinger
+	</resource>
+	<resource name="printoptions_allowcenter">
+		Centrer billede på side
+	</resource>
+	<resource name="printoptions_allowenlarge">
+		Forstør lille billede til at udfylde papir
+	</resource>
+	<resource name="printoptions_allowrotate">
+		Roter billede efter sideretning
+	</resource>
+	<resource name="printoptions_allowshrink">
+		Formindsk for stort billede til at udfylde papir
+	</resource>
+	<resource name="printoptions_dontaskagain">
+		Gem indstilling som standard og spørg ikke igen
+	</resource>
+	<resource name="settings_alwaysshowprintoptionsdialog">
+		Vis udskriftsdialog hver gang et billede udskrives
+	</resource>
+	<resource name="settings_printoptions">
+		Udskriftsindstillinger
+	</resource>
+	<resource name="settings_output">
+		Output
+	</resource>
+	<resource name="settings_general">
+		Generelt
+	</resource>
+	<resource name="editor_clipboardfailed">
+		Fejl under tilgang til udklipsholder. Prøv venligst igen.
+	</resource>
+	<resource name="editor_bold">
+		Fed
+	</resource>
+	<resource name="editor_italic">
+		Kursiv
+	</resource>
+	<resource name="editor_arrange">
+		Arranger
+	</resource>
+	<resource name="editor_fontsize">
+		Størrelse
+	</resource>
+	<resource name="editor_uptotop">
+		Placer forrest
+	</resource>
+	<resource name="editor_uponelevel">
+		Flyt fremad
+	</resource>
+	<resource name="editor_downonelevel">
+		Flyt bagud
+	</resource>
+	<resource name="editor_downtobottom">
+		Placer bagest
+	</resource>
+	<resource name="contextmenu_quicksettings">
+		Hurtige præferencer
+	</resource>
+	<resource name="bugreport_title">
+		Fejl
+	</resource>
+	<resource name="bugreport_info">
+		Undskyld, der opstod en uventet fejl.
+
+Den gode nyhed: Du kan hjælpe os med at rette fejlen ved at udfylde en fejlrapport.
+Besøg venligst URL'en nedenunder, lav en ny fejlrapport og indsæt indholdet fra tekstområdet ind i beskrivelsen.
+
+Tilføj venligst en meningsfuld opsummering og vedlæg al information, du mener kan hjælpe til at reproducere problemet.
+Vi vil også værdsætte at du tjekker om der allerede eksisterer en sag om denne fejl. (Du kan bruge søgefeltet til at finde dem hurtigt.) Tak :)
+	</resource>
+	<resource name="bugreport_cancel">
+		Luk
+	</resource>
+	<resource name="settings_copypathtoclipboard">
+		Kopier filsti til udklipsholder hver gang et billede gemmes
+	</resource>
+	<resource name="editor_copypathtoclipboard">
+		Kopier sti til udklipsholder
+	</resource>
+	<resource name="settings_message_filenamepattern">
+		Følgende pladsholdere erstattes automatisk i det angivne mønster:
+%YYYY% år, 4 cifre
+%MM% måned, 2 cifre
+%DD% dag, 2 cifre
+%hh% time, 2 cifre
+%mm% minut, 2 cifre
+%ss% skund, 2 cifre
+%NUM% løbenummer, 6 cifre
+%title% Vinduetitel
+%user% Windows bruger
+%domain% Windows domæne
+%hostname% PC navn
+
+Du kan også sætte Greenshot til at oprette mapper dynamisk ved blot at bruge You can also have Greenshot create directories dynamically, simply use the backslash-symbolet (\) til at adskille mappe- og filnavn.
+Eksempel: Mønstret %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+vil generere en mappe for den aktuelle dag ved din standard lagringsplacering, 
+fx 2008-06-29, og det indeholdte skærmsklips filnavn baseres på 
+tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
+	</resource>
+	<resource name="editor_cursortool">
+		Markeringsværktøj (ESC)
+	</resource>
+	<resource name="settings_destination_fileas">
+		Gem som (viser dialog)
+	</resource>
+	<resource name="quicksettings_destination_file">
+		Gem direkte (ud fra foretrukne indstillinger for output-filer)
+	</resource>
+	<resource name="editor_opendirinexplorer">
+		Åbn mappe i Windows Stifinder
+	</resource>
+	<resource name="printoptions_timestamp">
+		Udskriv dato / tidspunkt nederst på side
+	</resource>
+	<resource name="editor_drawhighlighter">
+		Fremhæv (H)
+	</resource>
+	<resource name="editor_obfuscate_blur">
+		Gør uskarp
+	</resource>
+	<resource name="editor_obfuscate_pixelize">
+		Pixeler
+	</resource>
+	<resource name="editor_highlight_area">
+		Fremhæv område
+	</resource>
+	<resource name="editor_highlight_text">
+		Fremhæv tekst
+	</resource>
+	<resource name="editor_highlight_grayscale">
+		Gråtoneskala
+	</resource>
+	<resource name="editor_highlight_magnify">
+		Forstør
+	</resource>
+	<resource name="editor_pixel_size">
+		Pixel-størrelse
+	</resource>
+	<resource name="editor_obfuscate">
+		Slør (O)
+	</resource>
+	<resource name="editor_blur_radius">
+		Slør-radius
+	</resource>
+	<resource name="editor_brightness">
+		Lysstyrke
+	</resource>
+	<resource name="editor_preview_quality">
+		Forhåndsvisningskvalitet
+	</resource>
+	<resource name="editor_magnification_factor">
+		Forstørrelsesfaktor
+	</resource>
+	<resource name="editor_shadow">
+		Skygge
+	</resource>
+	<resource name="editor_confirm">
+		Bekræft
+	</resource>
+	<resource name="editor_cancel">
+		Annuller
+	</resource>
+	<resource name="editor_crop">
+		Beskær (C)
+	</resource>
+	<resource name="contextmenu_captureclipboard">
+		Åbn billede fra udklipsholder
+	</resource>
+	<resource name="clipboard_error">
+		Der opstod en uventet fejl under skrivning til udklipsholder.
+	</resource>
+	<resource name="config_unauthorizedaccess_write">
+		Kunne ikke gemme konfigurationsfilen for Greenshot. Tjek venligst adgangsrettighederne for '{0}'.
+	</resource>
+	<resource name="settings_printer">
+		Printer
+	</resource>
+	<resource name="settings_capture">
+		Klip
+	</resource>
+	<resource name="settings_capture_mousepointer">
+		Medtag musemarkøren
+	</resource>
+	<resource name="contextmenu_openfile">
+		Åbn billede fra fil
+	</resource>
+	<resource name="error_openfile">
+		Filen "{0}" kunne ikke åbnes.
+	</resource>
+	<resource name="editor_close_on_save">
+		Vil du gemme skærmklippet?
+	</resource>
+	<resource name="editor_close_on_save_title">
+		Gem billede?
+	</resource>
+	<resource name="settings_capture_windows_interactive">
+		Brug interaktiv vinduesklip-tilstand
+	</resource>
+	<resource name="settings_capture_window_full">
+		Medtag vindue selv hvis det er blokeret
+	</resource>
+	<resource name="settings_capture_window_content">
+		Medtag kun indhold fra undersøttede programmer
+	</resource>
+	<resource name="settings_destination_email">
+		E-mail
+	</resource>
+	<resource name="editor_email">
+		E-mail
+	</resource>
+	<resource name="editor_load_objects">
+		Indlæs objekter fra fil
+	</resource>
+	<resource name="editor_save_objects">
+		Gem objekter til fil
+	</resource>
+	<resource name="settings_waittime">
+		Millisekunder der ventes inden klip
+	</resource>
+	<resource name="tooltip_firststart">
+		Højreklik her eller tryk på Print-tasten
+	</resource>
+	<resource name="contextmenu_donate">
+		Støt Greenshot
+	</resource>
+  </resources>
+</language>
