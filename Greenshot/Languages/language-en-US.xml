@@ -162,9 +162,9 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="hotkey_region">Capture region</resource>
 		<resource name="hotkey_window">Capture window</resource>
 		<resource name="hotkeys">Hotkeys</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">Please choose the quality for your image.</resource>
-		<resource name="jpegqualitydialog_dontaskagain">Save as default quality and do not ask again</resource>
-		<resource name="jpegqualitydialog_title">Greenshot quality</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Please choose the JPEG quality for your image.</resource>
+		<resource name="qualitydialog_dontaskagain">Save as default quality and do not ask again</resource>
+		<resource name="qualitydialog_title">Greenshot quality</resource>
 		<resource name="OK">Ok</resource>
 		<resource name="print_error">An error ocurred while trying to print.</resource>
 		<resource name="printoptions_allowcenter">Center printout on page</resource>
@@ -177,7 +177,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="printoptions_timestamp">Print date / time at bottom of page</resource>
 		<resource name="printoptions_title">Greenshot print options</resource>
 		<resource name="quicksettings_destination_file">Save directly (using preferred file output settings)</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">Show quality dialog every time an image is saved</resource>
+		<resource name="settings_alwaysshowqualitydialog">Show quality dialog every time an image is saved</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Show print options dialog every time an image is printed</resource>
 		<resource name="settings_applicationsettings">Application Settings</resource>
 		<resource name="settings_autostartshortcut">Launch Greenshot on startup</resource>
@@ -200,7 +200,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_general">General</resource>
 		<resource name="settings_iecapture">Internet Explorer capture</resource>
 		<resource name="settings_jpegquality">JPEG quality</resource>
-		<resource name="settings_jpegsettings">Quality settings</resource>
+		<resource name="settings_qualitysettings">Quality settings</resource>
 		<resource name="settings_language">Language</resource>
 		<resource name="settings_message_filenamepattern">The following placeholders will be replaced automatically in the pattern defined:
 ${YYYY} year, 4 digits

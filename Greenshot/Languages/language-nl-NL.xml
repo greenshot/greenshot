@@ -159,9 +159,9 @@ Controleer AUB de schrijf permissies voor de locatie.</resource>
 		<resource name="hotkey_region">Regio vastleggen</resource>
 		<resource name="hotkey_window">Window vastleggen</resource>
 		<resource name="hotkeys">Sneltoetsen</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">Kies AUB de kwaliteit voor uw beeld.</resource>
-		<resource name="jpegqualitydialog_dontaskagain">Opslaan met de standaard kwaliteit en niet meer vragen</resource>
-		<resource name="jpegqualitydialog_title">Greenshot kwaliteit</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Kies AUB de kwaliteit voor uw JPEG beeld.</resource>
+		<resource name="qualitydialog_dontaskagain">Opslaan met de standaard kwaliteit en niet meer vragen</resource>
+		<resource name="qualitydialog_title">Greenshot kwaliteit</resource>
 		<resource name="OK">Ok</resource>
 		<resource name="print_error">Er is een fout opgetreden tijdens het printen</resource>
 		<resource name="printoptions_allowcenter">Centreer afdruk op papier</resource>
@@ -174,7 +174,7 @@ Controleer AUB de schrijf permissies voor de locatie.</resource>
 		<resource name="printoptions_timestamp">Datum / tijd onder aan de pagina printen</resource>
 		<resource name="printoptions_title">Greenshot afdrukvoorkeuren</resource>
 		<resource name="quicksettings_destination_file">Direct opslaan (met de standaard opslaan instellingen)</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">Vraag iedere keer dat een beeld opgeslagen wordt om de beeld kwaliteit</resource>
+		<resource name="settings_alwaysshowqualitydialog">Vraag iedere keer dat een beeld opgeslagen wordt om de beeld kwaliteit</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Toon afdrukvoorkeuren iedere keer wanneer een beeld wordt afdrukt</resource>
 		<resource name="settings_applicationsettings">Applicatie instellingen</resource>
 		<resource name="settings_autostartshortcut">Start Greenshot wanneer Windows opstart</resource>
@@ -197,7 +197,7 @@ Controleer AUB de schrijf permissies voor de locatie.</resource>
 		<resource name="settings_general">Algemeen</resource>
 		<resource name="settings_iecapture">Internet Explorer vastleggen</resource>
 		<resource name="settings_jpegquality">JPEG kwaliteit</resource>
-		<resource name="settings_jpegsettings">Kwaliteit instellingen</resource>
+		<resource name="settings_qualitysettings">Kwaliteit instellingen</resource>
 		<resource name="settings_language">Taal</resource>
 		<resource name="settings_message_filenamepattern">De volgende variabelen worden automatisch vervangen in het ingestelde patroon:
 ${YYYY} jaar, 4 cijfers

@@ -64,9 +64,9 @@ namespace Greenshot {
 		}
 		
 		void UpdateUI() {
-			this.Text = Language.GetString(LangKey.jpegqualitydialog_title);
+			this.Text = Language.GetString(LangKey.qualitydialog_title);
 			this.label_choosejpegquality.Text = Language.GetString(LangKey.jpegqualitydialog_choosejpegquality);
-			this.checkbox_dontaskagain.Text = Language.GetString(LangKey.jpegqualitydialog_dontaskagain);
+			this.checkbox_dontaskagain.Text = Language.GetString(LangKey.qualitydialog_dontaskagain);
 			this.checkBox_reduceColors.Text = Language.GetString(LangKey.settings_reducecolors);
 		}
 		

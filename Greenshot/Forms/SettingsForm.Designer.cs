@@ -338,7 +338,7 @@ namespace Greenshot {
 			this.groupbox_qualitysettings.Controls.Add(this.label_jpegquality);
 			this.groupbox_qualitysettings.Controls.Add(this.textBoxJpegQuality);
 			this.groupbox_qualitysettings.Controls.Add(this.trackBarJpegQuality);
-			this.groupbox_qualitysettings.LanguageKey = "settings_jpegsettings";
+			this.groupbox_qualitysettings.LanguageKey = "settings_qualitysettings";
 			this.groupbox_qualitysettings.Location = new System.Drawing.Point(2, 156);
 			this.groupbox_qualitysettings.Name = "groupbox_qualitysettings";
 			this.groupbox_qualitysettings.Size = new System.Drawing.Size(412, 106);
@@ -359,7 +359,7 @@ namespace Greenshot {
 			// 
 			// checkbox_alwaysshowqualitydialog
 			// 
-			this.checkbox_alwaysshowqualitydialog.LanguageKey = "settings_alwaysshowjpegqualitydialog";
+			this.checkbox_alwaysshowqualitydialog.LanguageKey = "settings_alwaysshowqualitydialog";
 			this.checkbox_alwaysshowqualitydialog.Location = new System.Drawing.Point(12, 50);
 			this.checkbox_alwaysshowqualitydialog.Name = "checkbox_alwaysshowqualitydialog";
 			this.checkbox_alwaysshowqualitydialog.PropertyName = "OutputFilePromptQuality";
