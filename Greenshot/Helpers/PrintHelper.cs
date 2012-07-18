@@ -174,6 +174,11 @@ namespace Greenshot.Helpers {
 
 			// Get a rectangle representing the printable Area
 			RectangleF pageRect = e.PageSettings.PrintableArea;
+			if(e.PageSettings.Landscape) {
+				float origWidth = pageRect.Width;
+				pageRect.Width = pageRect.Height;
+				pageRect.Height = origWidth;
+			}
 
 			// Subtract the dateString height from the available area, this way the area stays free
 			pageRect.Height -= footerStringHeight;
