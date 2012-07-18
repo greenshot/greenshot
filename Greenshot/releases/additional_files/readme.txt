@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.0.0 build 1929 (Unstable, meaning we are in testing fase and haven't released yet)
+1.0.0 build 1956 (Unstable, meaning we are in testing fase and haven't released yet)
 
 We changed the version to 1.0.0, after 5 year the version should no longer have a "beta" feeling!
 
@@ -33,6 +33,10 @@ Bugs resolved:
 * Synchronized the selected language to the plugins
 * Fixed installer issues on Windows 8, Greenshot can be used on Windows 8. Although there are still has some small issues with the Windows 8 Release Preview but this most likely are Microsoft bugs.
 
+Known issues:
+* OCR is not working on 64 bit Windows, as the MODI-OCR component from Microsoft is not available in 64 bit.
+* I-Beam cursor isn't displayed correctly on the final result.
+* For confluence the retrieving of the current page from firefox only works on the currently displayed Firefox tab. This is a problem since Firefox 13 and currently unknown if there is a fix.
 
 0.8.1 Build 1483
 
