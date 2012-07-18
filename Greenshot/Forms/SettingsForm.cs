@@ -464,7 +464,6 @@ namespace Greenshot {
 			if (windowsVersion >= 6) {
 				switch (mode) {
 					case WindowCaptureMode.Aero:
-					case WindowCaptureMode.Auto:
 						colorButton_window_background.Visible = true;
 						return;
 				}
