@@ -291,13 +291,13 @@ namespace Greenshot.Interop.Office {
 			//MailItem newMail = COMWrapper.Cast<MailItem>(newItem);
 			MailItem newMail = (MailItem)newItem;
 			newMail.Subject = subject;
-            if (string.IsNullOrEmpty(to)) {
+            if (!string.IsNullOrEmpty(to)) {
                 newMail.To = to;
             }
-            if (string.IsNullOrEmpty(CC)) {
+            if (!string.IsNullOrEmpty(CC)) {
                 newMail.CC = CC;
             }
-            if (string.IsNullOrEmpty(BCC)) {
+            if (!string.IsNullOrEmpty(BCC)) {
                 newMail.BCC = BCC;
             }
             newMail.BodyFormat = OlBodyFormat.olFormatHTML;
