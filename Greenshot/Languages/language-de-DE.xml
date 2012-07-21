@@ -147,8 +147,8 @@ Bitte überprüfen Sie, ob am Speicherort Schreibrechte bestehen.</resource>
 		<resource name="expertsettings_clipboardformats">Zwischenablage-Formate</resource>
 		<resource name="expertsettings_counter">Wert für ${NUM} im Dateiname-Muster</resource>
 		<resource name="expertsettings_enableexpert">Ich weiß was ich tue!</resource>
-		<resource name="expertsettings_footerpattern">Fußzeilen-Muster für Druck</resource>
-		<resource name="expertsettings_minimizememoryfootprint">Speicherverbrauch reduzieren (negative Auswirkung auf Performance - nicht empfohlen)</resource>
+		<resource name="expertsettings_footerpattern">Fußzeile für Druck</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Speicherverbrauch reduzieren (auf Kosten der Performance - nicht empfohlen)</resource>
 		<resource name="expertsettings_optimizeforrdp">Für Benutzung mit Remote Desktop optimieren</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Speichern-Dialog beim Schließen des Editors unterdrücken</resource>
 		<resource name="expertsettings_thumbnailpreview">Fenster-Vorschau im Kontextmenü anzeigen (für Vista und Windows 7)</resource>
