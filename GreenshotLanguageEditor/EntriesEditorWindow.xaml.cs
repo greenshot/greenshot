@@ -93,7 +93,7 @@ namespace GreenshotLanguageEditor {
 				return;
 			}
 			
-			languagePath = @"C:\Users\jens\Documents\Sharpdevelop Projects\Greenshot\trunk\Greenshot\Languages\";
+			//languagePath = @"C:\Users\jens\Documents\dotNET Projects\Greenshot\Greenshot\Languages";
 
 			InitializeComponent();
 			DataContext = this;
@@ -102,7 +102,7 @@ namespace GreenshotLanguageEditor {
 			View = CollectionViewSource.GetDefaultView(LoadResources(languagePath));
 			languageResources.CollectionChanged += delegate {
 				
-				View = CollectionViewSource.GetDefaultView(languageResources.Values);  
+				View = CollectionViewSource.GetDefaultView(new List<LanguageEntry>(languageResources.Values));
 				View.Refresh();
 			};
 		}
