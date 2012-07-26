@@ -51,6 +51,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="contextmenu_openrecentcapture">Отвори последњи смештај хватања</resource>
 		<resource name="contextmenu_quicksettings">Брза подешавања</resource>
 		<resource name="contextmenu_settings">Подешавања...</resource>
+		<resource name="destination_exportfailed">Грешка извоза у {0}. Покушајте поново.</resource>
 		<resource name="editor_arrange">Среди</resource>
 		<resource name="editor_arrowheads">Глава стрелице</resource>
 		<resource name="editor_arrowheads_both">Оба</resource>
@@ -162,8 +163,8 @@ Details about the GNU General Public License:</resource>
 		<resource name="hotkey_window">Хватање прозора</resource>
 		<resource name="hotkeys">Пречице</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Одабрати квалитет за JPEG слику.</resource>
-		<resource name="jpegqualitydialog_dontaskagain">Сачувај као стандардни JPEG квалитет и не питај више</resource>
-		<resource name="jpegqualitydialog_title">Greenshot квалитет JPEG-а</resource>
+		<resource name="qualitydialog_dontaskagain">Сачувај као стандардни квалитет и не питај више</resource>
+		<resource name="qualitydialog_title">Greenshot квалитет</resource>
 		<resource name="OK">У реду</resource>
 		<resource name="print_error">Грешка при штампању.</resource>
 		<resource name="printoptions_allowcenter">Центрирај штампање у страницу</resource>
@@ -176,7 +177,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="printoptions_timestamp">Штампај датум/време на дно странице</resource>
 		<resource name="printoptions_title">Опције штампања</resource>
 		<resource name="quicksettings_destination_file">Директно сачувај (са подешавањима излаза)</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">Прикажи дијалог JPEG квалитета сваки пут када се сачува JPEG слика</resource>
+		<resource name="settings_alwaysshowqualitydialog">Прикажи дијалог квалитета сваки пут када се сачува JPEG слика</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Прикажи опције сваки пут када се штампа слика</resource>
 		<resource name="settings_applicationsettings">Подешавања програма</resource>
 		<resource name="settings_autostartshortcut">Покрени Greenshot са системом</resource>
@@ -199,7 +200,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="settings_general">Опште</resource>
 		<resource name="settings_iecapture">Хватање Internet Explorer-а</resource>
 		<resource name="settings_jpegquality">Квалитет JPEG-а</resource>
-		<resource name="settings_jpegsettings">Подешавања JPEG-а</resource>
+		<resource name="settings_qualitysettings">Подешавања квалитета</resource>
 		<resource name="settings_language">Језик</resource>
 		<resource name="settings_message_filenamepattern">Ови чувари места ће бити промењени са:
 ${YYYY} година, 4 цифре
