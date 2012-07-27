@@ -162,9 +162,9 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="hotkey_region">Захоплення області</resource>
 		<resource name="hotkey_window">Захоплення вікна</resource>
 		<resource name="hotkeys">Гарячі клавіши</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">Будь ласка, виберіть якість зображення.</resource>
-		<resource name="jpegqualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
-		<resource name="jpegqualitydialog_title">Якість Greenshot</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Будь ласка, виберіть JPEG-якість зображення.</resource>
+		<resource name="qualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
+		<resource name="qualitydialog_title">Якість Greenshot</resource>
 		<resource name="OK">Гаразд</resource>
 		<resource name="print_error">Під час друку виникла помилка.</resource>
 		<resource name="printoptions_allowcenter">Центрувати на сторінці</resource>
@@ -177,7 +177,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="printoptions_timestamp">Друкувати дату та час внизу сторінки</resource>
 		<resource name="printoptions_title">Параметри друку Greenshot</resource>
 		<resource name="quicksettings_destination_file">Безпосереднє збереження (з використанням наперед визначених параметрів)</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">Вікно вибору якості при кожному збереженні зображення</resource>
+		<resource name="settings_alwaysshowqualitydialog">Вікно вибору якості при кожному збереженні зображення</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Показувати вікно параметрів друку при кожному роздрукуванні</resource>
 		<resource name="settings_applicationsettings">Параметри програми</resource>
 		<resource name="settings_autostartshortcut">Запускати Greenshot при запуску системи</resource>
@@ -200,7 +200,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="settings_general">Загальні</resource>
 		<resource name="settings_iecapture">Захоплення Internet Explorer</resource>
 		<resource name="settings_jpegquality">Якість JPEG</resource>
-		<resource name="settings_jpegsettings">Параметри якості</resource>
+		<resource name="settings_qualitysettings">Параметри якості</resource>
 		<resource name="settings_language">Мова</resource>
 		<resource name="settings_message_filenamepattern">Наступні заповнювачі будуть автоматично замінені у визначеному шаблоні:
 ${YYYY} рік, 4 цифри
