@@ -118,10 +118,6 @@ namespace Greenshot {
 		
 
 		private void updateUI() {
-			if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
-				this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
-			}
-
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
 			// Disable access to the settings, for feature #3521446
@@ -165,7 +161,12 @@ namespace Greenshot {
 			this.MouseWheel += new MouseEventHandler( PanelMouseWheel);
 
 			ApplyLanguage();
-		}
+
+            // Fix title
+            if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
+                this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+            }
+        }
 		
 		/// <summary>
 		/// Get all the destinations and display them in the file menu and the buttons
@@ -312,6 +313,11 @@ namespace Greenshot {
 			this.Invoke((MethodInvoker) delegate {
 				// Even update language when needed
 				ApplyLanguage();
+
+                // Fix title
+                if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
+                    this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+                }
 			});
 		}
 		
