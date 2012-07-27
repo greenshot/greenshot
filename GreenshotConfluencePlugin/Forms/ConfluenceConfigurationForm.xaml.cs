@@ -39,7 +39,7 @@ namespace GreenshotConfluencePlugin {
 			InitializeComponent();
 		}
 		
-		void Button_Click(object sender, RoutedEventArgs e) {
+		void Button_OK_Click(object sender, RoutedEventArgs e) {
 			DialogResult = true;
 		}
 	}

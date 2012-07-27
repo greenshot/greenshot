@@ -70,5 +70,8 @@
   <resource name="loading">
 		Confluence data is loading, please wait...
 	</resource>
+  <resource name="include_person_spaces">
+    Include personal spaces in search and browsing
+  </resource>
  </resources>
 </language>

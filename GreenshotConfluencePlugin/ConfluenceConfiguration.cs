@@ -75,5 +75,10 @@ namespace GreenshotConfluencePlugin {
 			get;
 			set;
 		}
+        [IniProperty("IncludePersonSpaces", Description = "Include personal spaces in the search & browse spaces list", DefaultValue = "False")]
+        public bool IncludePersonSpaces {
+            get;
+            set;
+        }
 	}
 }

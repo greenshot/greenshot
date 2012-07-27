@@ -10,7 +10,8 @@
 	</Window.Resources>
 
 	<StackPanel>
-		<CheckBox IsChecked="{Binding OpenPageAfterUpload}" Content="{l:Translate open_page_after_upload}"/>
+        <CheckBox IsChecked="{Binding IncludePersonSpaces}" Content="{l:Translate include_person_spaces}"/>
+        <CheckBox IsChecked="{Binding OpenPageAfterUpload}" Content="{l:Translate open_page_after_upload}"/>
 		<CheckBox IsChecked="{Binding CopyWikiMarkupForImageToClipboard}" Content="{l:Translate copy_wikimarkup}"/>
 		<StackPanel Orientation="Horizontal">
 			<Label Content="{l:Translate label_url}" />
@@ -25,8 +26,8 @@
 			<ComboBox ItemsSource="{Binding Source={StaticResource outputFormats},Path=DisplayNames}" SelectedValue="{Binding UploadFormat, Converter={StaticResource outputFormats}}" />
 		</StackPanel>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button IsDefault="True" Content="{l:Translate OK}" Click="Button_OK_Click"/>
             <Button IsCancel="True" Content="{l:Translate CANCEL}"/>
-            <Button IsDefault="True" Content="{l:Translate OK}" Click="Button_Click"/>
-		</StackPanel>
+        </StackPanel>
 	</StackPanel>
 </Window>
