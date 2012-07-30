@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.0.0 build 1965 (Unstable, meaning we are in testing fase and haven't released yet)
+1.0.0 build 1970 (Unstable, meaning we are in testing fase and haven't released yet)
 
 We changed the version to 1.0.0, after 5 year the version should no longer have a "beta" feeling!
 
@@ -21,6 +21,7 @@ Features added:
 * Added direct printing to a selected printer
 * Changed multi-screen capture behaviour, assuming that capturing all screens is not a normal use-case. Now default behaviour is to capture the one with the mouse-cursor. Also the user can select which screen to capture from the context-menu.
 * Many languages added and updated, see our website for the whole listing!
+* Added some features for deploying Greenshot in companies: Fixed settings can't be changed in the settings. Settings, quicksettings and the Greenshot icon can be disabled. (See greenshot.ini)
 
 Bugs resolved:
 * Fixed a problem with temp-files being removed before they were used, now using a delay of ~10 hours
@@ -36,8 +37,11 @@ Bugs resolved:
 Known issues:
 * Greenshot general: OCR is not working on 64 bit Windows, as the MODI-OCR component from Microsoft is not available in 64 bit.
 * Greenshot general: I-Beam cursor isn't displayed correctly on the final result.
+* Greenshot general: Not all hotkeys can be changed in the editor. For example the pause or the Windows key need to be modified directly in the ini.
 * Greenshot editor: Rotate only rotates the bitmap, not the added elements or cursor
+* Greenshot editor: The shadow and torn edges effects don't create a transparent background yet.
 * Confluence Plug-in: the retrieving of the current page from firefox only works on the currently displayed Firefox tab. This is a problem since Firefox 13 and it is currently unknown if there is a fix.
+
 
 0.8.1 Build 1483
 
