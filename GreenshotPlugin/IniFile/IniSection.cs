@@ -123,7 +123,7 @@ namespace Greenshot.IniFile {
 				if (Attribute.IsDefined(fieldInfo, typeof(IniPropertyAttribute))) {
 					if (!Values.ContainsKey(fieldInfo.Name)) {
 						IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)fieldInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
-						Values.Add(fieldInfo.Name, new IniValue(this, fieldInfo, iniPropertyAttribute));
+						Values.Add(iniPropertyAttribute.Name, new IniValue(this, fieldInfo, iniPropertyAttribute));
 					}
 				}
 			}
@@ -132,7 +132,7 @@ namespace Greenshot.IniFile {
 				if (Attribute.IsDefined(propertyInfo, typeof(IniPropertyAttribute))) {
 					if (!Values.ContainsKey(propertyInfo.Name)) {
 						IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)propertyInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
-						Values.Add(propertyInfo.Name, new IniValue(this, propertyInfo, iniPropertyAttribute));
+						Values.Add(iniPropertyAttribute.Name, new IniValue(this, propertyInfo, iniPropertyAttribute));
 					}
 				}
 			}

@@ -900,39 +900,47 @@ namespace Greenshot {
 		private void InitializeQuickSettingsMenu() {
 			this.contextmenu_quicksettings.DropDownItems.Clear();
 
-            if (conf.DisableQuickSettings) {
-                return;
-            }
-			// For the capture mousecursor option
-			ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem();
-			captureMouseItem.Text = Language.GetString("settings_capture_mousepointer");
-			captureMouseItem.Checked = conf.CaptureMousepointer;
-			captureMouseItem.CheckOnClick = true;
-			captureMouseItem.CheckStateChanged += delegate {
-				conf.CaptureMousepointer = captureMouseItem.Checked;
-			};
-
-			this.contextmenu_quicksettings.DropDownItems.Add(captureMouseItem);
-
-			// screenshot destination
-			ToolStripMenuSelectList selectList = new ToolStripMenuSelectList("destinations",true);
-			selectList.Text = Language.GetString(LangKey.settings_destination);
-			// Working with IDestination:
-			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
-				selectList.AddItem(destination.Description, destination, conf.OutputDestinations.Contains(destination.Designation));
+			if (conf.DisableQuickSettings) {
+				return;
 			}
-			selectList.CheckedChanged += new EventHandler(this.QuickSettingDestinationChanged);
-			this.contextmenu_quicksettings.DropDownItems.Add(selectList);
 
-			// Capture Modes
-			selectList = new ToolStripMenuSelectList("capturemodes", false);
-			selectList.Text = Language.GetString(LangKey.settings_window_capture_mode);
-			string enumTypeName = typeof(WindowCaptureMode).Name;
-			foreach(WindowCaptureMode captureMode in Enum.GetValues(typeof(WindowCaptureMode))) {
-				selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode.ToString()), captureMode, conf.WindowCaptureMode == captureMode);
+			// Only add if the value is not fixed
+			if (!conf.Values["CaptureMousepointer"].Attributes.FixedValue) {
+				// For the capture mousecursor option
+				ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem();
+				captureMouseItem.Text = Language.GetString("settings_capture_mousepointer");
+				captureMouseItem.Checked = conf.CaptureMousepointer;
+				captureMouseItem.CheckOnClick = true;
+				captureMouseItem.CheckStateChanged += delegate {
+					conf.CaptureMousepointer = captureMouseItem.Checked;
+				};
+
+				this.contextmenu_quicksettings.DropDownItems.Add(captureMouseItem);
 			}
-			selectList.CheckedChanged += new EventHandler(this.QuickSettingCaptureModeChanged);
-			this.contextmenu_quicksettings.DropDownItems.Add(selectList);
+			ToolStripMenuSelectList selectList = null;
+			if (!conf.Values["Destinations"].Attributes.FixedValue) {
+				// screenshot destination
+				selectList = new ToolStripMenuSelectList("destinations", true);
+				selectList.Text = Language.GetString(LangKey.settings_destination);
+				// Working with IDestination:
+				foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
+					selectList.AddItem(destination.Description, destination, conf.OutputDestinations.Contains(destination.Designation));
+				}
+				selectList.CheckedChanged += new EventHandler(this.QuickSettingDestinationChanged);
+				this.contextmenu_quicksettings.DropDownItems.Add(selectList);
+			}
+
+			if (!conf.Values["WindowCaptureMode"].Attributes.FixedValue) {
+				// Capture Modes
+				selectList = new ToolStripMenuSelectList("capturemodes", false);
+				selectList.Text = Language.GetString(LangKey.settings_window_capture_mode);
+				string enumTypeName = typeof(WindowCaptureMode).Name;
+				foreach (WindowCaptureMode captureMode in Enum.GetValues(typeof(WindowCaptureMode))) {
+					selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode.ToString()), captureMode, conf.WindowCaptureMode == captureMode);
+				}
+				selectList.CheckedChanged += new EventHandler(this.QuickSettingCaptureModeChanged);
+				this.contextmenu_quicksettings.DropDownItems.Add(selectList);
+			}
 
 			// print options
 			selectList = new ToolStripMenuSelectList("printoptions",true);
@@ -942,24 +950,32 @@ namespace Greenshot {
 			foreach(string propertyName in conf.Values.Keys) {
 				if (propertyName.StartsWith("OutputPrint")) {
 					iniValue = conf.Values[propertyName];
-					if (iniValue.Attributes.LanguageKey != null) {
+					if (iniValue.Attributes.LanguageKey != null && !iniValue.Attributes.FixedValue) {
 						selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
 					}
 				}
 			}
-			selectList.CheckedChanged += new EventHandler(this.QuickSettingBoolItemChanged);
-			this.contextmenu_quicksettings.DropDownItems.Add(selectList);
+			if (selectList.DropDownItems.Count > 0) {
+				selectList.CheckedChanged += new EventHandler(this.QuickSettingBoolItemChanged);
+				this.contextmenu_quicksettings.DropDownItems.Add(selectList);
+			}
 
 			// effects
 			selectList = new ToolStripMenuSelectList("effects",true);
 			selectList.Text = Language.GetString(LangKey.settings_visualization);
 
 			iniValue = conf.Values["PlayCameraSound"];
-			selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+			if (!iniValue.Attributes.FixedValue) {
+				selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+			}
 			iniValue = conf.Values["ShowTrayNotification"];
-			selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
-			selectList.CheckedChanged += new EventHandler(this.QuickSettingBoolItemChanged);
-			this.contextmenu_quicksettings.DropDownItems.Add(selectList);
+			if (!iniValue.Attributes.FixedValue) {
+				selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+			}
+			if (selectList.DropDownItems.Count > 0) {
+				selectList.CheckedChanged += new EventHandler(this.QuickSettingBoolItemChanged);
+				this.contextmenu_quicksettings.DropDownItems.Add(selectList);
+			}
 		}
 		
 		void QuickSettingCaptureModeChanged(object sender, EventArgs e) {

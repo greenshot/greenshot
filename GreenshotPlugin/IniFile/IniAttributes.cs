@@ -50,6 +50,7 @@ namespace Greenshot.IniFile {
 		public string Separator = ",";
 		public string DefaultValue;
 		public string LanguageKey;
+		public bool FixedValue = false;
 		public bool ExcludeIfNull=false;
 		
 		public string Name {

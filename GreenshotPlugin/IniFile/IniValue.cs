@@ -57,18 +57,27 @@ namespace Greenshot.IniFile {
 			}
 		}
 
+		/// <summary>
+		/// Returns the IniSection this value is contained in
+		/// </summary>
 		public IniSection ContainingIniSection {
 			get {
 				return containingIniSection;
 			}
 		}
 		
+		/// <summary>
+		/// Get the in the ini file defined attributes
+		/// </summary>
 		public IniPropertyAttribute Attributes {
 			get {
 				return attributes;
 			}
 		}
 		
+		/// <summary>
+		/// Get the value for this IniValue
+		/// </summary>
 		public object Value {
 			get {
 				if (propertyInfo == null) {
@@ -86,6 +95,9 @@ namespace Greenshot.IniFile {
 			}
 		}
 		
+		/// <summary>
+		/// Get the Type of the value
+		/// </summary>
 		public Type ValueType {
 			get {
 				Type valueType = null;

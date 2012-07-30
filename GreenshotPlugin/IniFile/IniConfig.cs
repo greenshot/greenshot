@@ -39,6 +39,7 @@ namespace Greenshot.IniFile {
 
 		private static Dictionary<string, IniSection> sectionMap = new Dictionary<string, IniSection>();
 		private static Dictionary<string, Dictionary<string, string>> sections = new Dictionary<string, Dictionary<string, string>>();
+		private static Dictionary<string, Dictionary<string, string>> fixedProperties = null;
 		public static event FileSystemEventHandler IniChanged;
 		private static bool portableCheckMade = false;
 
@@ -224,10 +225,25 @@ namespace Greenshot.IniFile {
 			// Load the normal
 			Read(CreateIniLocation(configName + INI_EXTENSION));
 			// Load the fixed settings
-			Read(CreateIniLocation(configName + FIXED_POSTFIX + INI_EXTENSION));
+			fixedProperties = Read(CreateIniLocation(configName + FIXED_POSTFIX + INI_EXTENSION));
 
 			foreach (IniSection section in sectionMap.Values) {
 				section.Fill(PropertiesForSection(section));
+				FixProperties(section);
+			}
+		}
+
+		private static void FixProperties(IniSection section) {
+			// Make properties unchangable
+			if (fixedProperties != null) {
+				Dictionary<string, string> fixedPropertiesForSection = null;
+				if (fixedProperties.TryGetValue(section.IniSectionAttribute.Name, out fixedPropertiesForSection)) {
+					foreach (string fixedPropertyKey in fixedPropertiesForSection.Keys) {
+						if (section.Values.ContainsKey(fixedPropertyKey)) {
+							section.Values[fixedPropertyKey].Attributes.FixedValue = true;
+						}
+					}
+				}
 			}
 		}
 
@@ -235,10 +251,10 @@ namespace Greenshot.IniFile {
 		/// Read the ini file into the Dictionary
 		/// </summary>
 		/// <param name="iniLocation">Path & Filename of ini file</param>
-		private static void Read(string iniLocation) {
+		private static Dictionary<string, Dictionary<string, string>> Read(string iniLocation) {
 			if (!File.Exists(iniLocation)) {
-				//LOG.Info("Can't find file: " + iniLocation);
-				return;
+				LOG.Info("Can't find file: " + iniLocation);
+				return null;
 			}
 			LOG.DebugFormat("Loading ini-file: {0}", iniLocation);
 			//LOG.Info("Reading ini-properties from file: " + iniLocation);
@@ -264,6 +280,7 @@ namespace Greenshot.IniFile {
 					}
 				}
 			}
+			return newSections;
 		}
 
 		/// <summary>
@@ -296,6 +313,7 @@ namespace Greenshot.IniFile {
 				// Store for later save & retrieval
 				sectionMap.Add(sectionName, section);
 				section.Fill(PropertiesForSection(section));
+				FixProperties(section);
 			}
 			if (section.IsDirty) {
 				LOG.DebugFormat("Section {0} is marked dirty, saving!", sectionName);

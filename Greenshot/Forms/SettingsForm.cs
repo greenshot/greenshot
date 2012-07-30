@@ -255,6 +255,10 @@ namespace Greenshot {
 		/// Build the view with all the destinations
 		/// </summary>
 		private void DisplayDestinations() {
+			bool destinationsEnabled = true;
+			if (coreConfiguration.Values.ContainsKey("Destinations")) {
+				destinationsEnabled = !coreConfiguration.Values["Destinations"].Attributes.FixedValue;
+			}
 			checkbox_picker.Checked = false;
 
 			listview_destinations.Items.Clear();
@@ -289,6 +293,8 @@ namespace Greenshot {
 					item.Checked = false;
 				}
 			}
+			checkbox_picker.Enabled = destinationsEnabled;
+			listview_destinations.Enabled = destinationsEnabled;
 		}
 
 		private void DisplaySettings() {
@@ -304,9 +310,16 @@ namespace Greenshot {
 			if (Language.CurrentLanguage != null) {
 				combobox_language.SelectedValue = Language.CurrentLanguage;
 			}
+			// Disable editing when the value is fixed
+			combobox_language.Enabled = !coreConfiguration.Values["Language"].Attributes.FixedValue;
+
 			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
-			
+			// Disable editing when the value is fixed
+			textbox_storagelocation.Enabled = !coreConfiguration.Values["OutputFilePath"].Attributes.FixedValue;
+
 			SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
+			// Disable editing when the value is fixed
+			combobox_window_capture_mode.Enabled = !coreConfiguration.Values["WindowCaptureMode"].Attributes.FixedValue;
 
 			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
 			textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality+"%";
@@ -477,7 +490,11 @@ namespace Greenshot {
 		void CheckDestinationSettings() {
 			bool clipboardDestinationChecked = false;
 			bool pickerSelected = checkbox_picker.Checked;
-			listview_destinations.Enabled = true;
+			bool destinationsEnabled = true;
+			if (coreConfiguration.Values.ContainsKey("Destinations")) {
+				destinationsEnabled = !coreConfiguration.Values["Destinations"].Attributes.FixedValue;
+			}
+			listview_destinations.Enabled = destinationsEnabled;
 			
 			foreach(int index in listview_destinations.CheckedIndices) {
 				ListViewItem item = listview_destinations.Items[index];
