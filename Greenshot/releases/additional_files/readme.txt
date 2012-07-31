@@ -35,12 +35,12 @@ Bugs resolved:
 * Fixed installer issues on Windows 8, Greenshot can be used on Windows 8. Although there are still has some small issues with the Windows 8 Release Preview but these most likely are Microsoft bugs.
 
 Known issues:
-* Greenshot general: OCR is not working on 64 bit Windows, as the MODI-OCR component from Microsoft is not available in 64 bit.
 * Greenshot general: I-Beam cursor isn't displayed correctly on the final result.
 * Greenshot general: Not all hotkeys can be changed in the editor. For example the pause or the Windows key need to be modified directly in the ini.
 * Greenshot editor: Rotate only rotates the bitmap, not the added elements or cursor
 * Greenshot editor: The shadow and torn edges effects don't create a transparent background yet.
 * Confluence Plug-in: the retrieving of the current page from firefox only works on the currently displayed Firefox tab. This is a problem since Firefox 13 and it is currently unknown if there is a fix.
+* OCR Plug-in: OCR is not working on 64 bit Windows, as the MODI-OCR component from Microsoft is not available in 64 bit, in this case Greenshot should be run in 32-bit or the plugins should be changed to call a 32-bit exe.
 
 
 0.8.1 Build 1483
