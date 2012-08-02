@@ -121,8 +121,8 @@ namespace Greenshot.IniFile {
 			// Iterate over the members and create IniValueContainers
 			foreach (FieldInfo fieldInfo in iniSectionType.GetFields()) {
 				if (Attribute.IsDefined(fieldInfo, typeof(IniPropertyAttribute))) {
-					if (!Values.ContainsKey(fieldInfo.Name)) {
-						IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)fieldInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
+					IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)fieldInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
+					if (!Values.ContainsKey(iniPropertyAttribute.Name)) {
 						Values.Add(iniPropertyAttribute.Name, new IniValue(this, fieldInfo, iniPropertyAttribute));
 					}
 				}

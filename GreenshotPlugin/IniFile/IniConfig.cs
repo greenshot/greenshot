@@ -40,6 +40,7 @@ namespace Greenshot.IniFile {
 		private static Dictionary<string, IniSection> sectionMap = new Dictionary<string, IniSection>();
 		private static Dictionary<string, Dictionary<string, string>> sections = new Dictionary<string, Dictionary<string, string>>();
 		private static Dictionary<string, Dictionary<string, string>> fixedProperties = null;
+			
 		public static event FileSystemEventHandler IniChanged;
 		private static bool portableCheckMade = false;
 
