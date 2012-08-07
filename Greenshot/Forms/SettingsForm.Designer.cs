@@ -171,6 +171,7 @@ namespace Greenshot {
 			this.textbox_storagelocation.Name = "textbox_storagelocation";
 			this.textbox_storagelocation.Size = new System.Drawing.Size(233, 20);
 			this.textbox_storagelocation.TabIndex = 12;
+			this.textbox_storagelocation.TextChanged += new System.EventHandler(StorageLocationChanged);
 			// 
 			// label_storagelocation
 			// 

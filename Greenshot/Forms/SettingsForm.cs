@@ -55,7 +55,6 @@ namespace Greenshot {
 
 		protected override void OnLoad(EventArgs e) {
 			base.OnLoad(e);
-
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
 			// Fix for Vista/XP differences
@@ -65,50 +64,51 @@ namespace Greenshot {
 				this.trackBarJpegQuality.BackColor = System.Drawing.SystemColors.Control;
 			}
 
-            // This makes it possible to still capture the settings screen
-            this.fullscreen_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-            this.fullscreen_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-            this.window_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-            this.window_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-            this.region_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-            this.region_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-            this.ie_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-            this.ie_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-            this.lastregion_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-            this.lastregion_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			// This makes it possible to still capture the settings screen
+			this.fullscreen_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			this.fullscreen_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			this.window_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			this.window_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			this.region_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			this.region_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			this.ie_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			this.ie_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			this.lastregion_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			this.lastregion_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
 
-            DisplayPluginTab();
+			DisplayPluginTab();
 			UpdateUI();
 			ExpertSettingsEnableState(false);
 			DisplaySettings();
 			CheckSettings();
 		}
 
-        private void EnterHotkeyControl() {
-            GreenshotPlugin.Controls.HotkeyControl.UnregisterHotkeys();
-            inHotkey = true;
-        }
-        private void LeaveHotkeyControl() {
-            MainForm.RegisterHotkeys();
-            inHotkey = false;
-        }
+		private void EnterHotkeyControl() {
+			GreenshotPlugin.Controls.HotkeyControl.UnregisterHotkeys();
+			inHotkey = true;
+		}
 
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
-            switch (keyData) {
-                case Keys.Escape:
-                    if (!inHotkey) {
-                        DialogResult = DialogResult.Cancel;
-                    } else {
-                        return base.ProcessCmdKey(ref msg, keyData);
-                    }
-                    break;
-                default:
-                    return base.ProcessCmdKey(ref msg, keyData);
-            }
-            return true;
-        }
+		private void LeaveHotkeyControl() {
+			MainForm.RegisterHotkeys();
+			inHotkey = false;
+		}
 
-        /// <summary>
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
+			switch (keyData) {
+				case Keys.Escape:
+					if (!inHotkey) {
+						DialogResult = DialogResult.Cancel;
+					} else {
+						return base.ProcessCmdKey(ref msg, keyData);
+					}
+					break;
+				default:
+					return base.ProcessCmdKey(ref msg, keyData);
+			}
+			return true;
+		}
+
+		/// <summary>
 		/// This is a method to popululate the ComboBox
 		/// with the items from the enumeration
 		/// </summary>
@@ -203,9 +203,9 @@ namespace Greenshot {
 		/// Update the UI to reflect the language and other text settings
 		/// </summary>
 		private void UpdateUI() {
-            if (coreConfiguration.HideExpertSettings) {
-                tabcontrol.Controls.Remove(tab_expert);
-            }
+			if (coreConfiguration.HideExpertSettings) {
+				tabcontrol.Controls.Remove(tab_expert);
+			}
 			toolTip.SetToolTip(label_language, Language.GetString(LangKey.settings_tooltip_language));
 			toolTip.SetToolTip(label_storagelocation, Language.GetString(LangKey.settings_tooltip_storagelocation));
 			toolTip.SetToolTip(label_screenshotname, Language.GetString(LangKey.settings_tooltip_filenamepattern));
@@ -236,9 +236,18 @@ namespace Greenshot {
 				textbox_storagelocation.BackColor = Color.Red;
 				settingsOk = false;
 			} else {
-				textbox_storagelocation.BackColor = Control.DefaultBackColor;
+				// "Added" feature #3547158
+				if (Environment.OSVersion.Version.Major >= 6) {
+					this.textbox_storagelocation.BackColor = System.Drawing.SystemColors.Window;
+				} else {
+					this.textbox_storagelocation.BackColor = System.Drawing.SystemColors.Control;
+				}
 			}
 			return settingsOk;
+		}
+
+		private void StorageLocationChanged(object sender, System.EventArgs e) {
+			CheckSettings();
 		}
 
 		/// <summary>
@@ -429,7 +438,6 @@ namespace Greenshot {
 					this.textbox_storagelocation.Text = this.folderBrowserDialog1.SelectedPath;
 				}
 			}
-			CheckSettings();
 		}
 		
 		void TrackBarJpegQualityScroll(object sender, System.EventArgs e) {
@@ -552,7 +560,7 @@ namespace Greenshot {
 			ExpertSettingsEnableState(checkBox.Checked);
 		}
 	}
-	
+
 	public class ListviewWithDestinationComparer : System.Collections.IComparer {
 		public int Compare(object x, object y) {
 			if (!(x is ListViewItem)) {
@@ -561,7 +569,7 @@ namespace Greenshot {
 			if (!(y is ListViewItem)) {
 				return (0);
 			}
-	
+
 			ListViewItem l1 = (ListViewItem)x;
 			ListViewItem l2 = (ListViewItem)y;
 
