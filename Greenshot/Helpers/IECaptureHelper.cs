@@ -56,55 +56,61 @@ namespace Greenshot.Helpers {
 			ieAccessible.ActivateIETab(tabIndex);
 		}
 
-        /// <summary>
-        /// Return true if the supplied window has a sub-window which covers more than the supplied percentage
-        /// </summary>
-        /// <param name="someWindow">WindowDetails to check</param>
-        /// <param name="minimumPercentage">min percentage</param>
-        /// <returns></returns>
-        public static bool IsMostlyIEWindow(WindowDetails someWindow, int minimumPercentage) {
-            WindowDetails ieWindow = someWindow.GetChild("Internet Explorer_Server");
-            if (ieWindow != null) {
-                Rectangle wholeClient = someWindow.ClientRectangle;
-                Rectangle partClient = ieWindow.ClientRectangle;
-                int percentage = (int)(100*((float)(partClient.Width * partClient.Height)) / ((float)(wholeClient.Width * wholeClient.Height)));
-                LOG.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
-                if (percentage > minimumPercentage) {
-                    return true;
-                }
-            }
-            return false;
-        }
+		/// <summary>
+		/// Return true if the supplied window has a sub-window which covers more than the supplied percentage
+		/// </summary>
+		/// <param name="someWindow">WindowDetails to check</param>
+		/// <param name="minimumPercentage">min percentage</param>
+		/// <returns></returns>
+		public static bool IsMostlyIEWindow(WindowDetails someWindow, int minimumPercentage) {
+			WindowDetails ieWindow = someWindow.GetChild("Internet Explorer_Server");
+			if (ieWindow != null) {
+				Rectangle wholeClient = someWindow.ClientRectangle;
+				Rectangle partClient = ieWindow.ClientRectangle;
+				int percentage = (int)(100*((float)(partClient.Width * partClient.Height)) / ((float)(wholeClient.Width * wholeClient.Height)));
+				LOG.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
+				if (percentage > minimumPercentage) {
+					return true;
+				}
+			}
+			return false;
+		}
 
-        /// <summary>
-        /// Does the supplied window have a IE part?
-        /// </summary>
-        /// <param name="someWindow"></param>
-        /// <returns></returns>
-        public static bool IsIEWindow(WindowDetails someWindow) {
-            return someWindow.GetChild("Internet Explorer_Server") != null;
-        }
+		/// <summary>
+		/// Does the supplied window have a IE part?
+		/// </summary>
+		/// <param name="someWindow"></param>
+		/// <returns></returns>
+		public static bool IsIEWindow(WindowDetails someWindow) {
+			return someWindow.GetChild("Internet Explorer_Server") != null;
+		}
 
-        /// <summary>
-        /// Get Windows displaying an IE
-        /// </summary>
-        /// <returns>List<WindowDetails></returns>
-        public static List<WindowDetails> GetIEWindows() {
-            List<WindowDetails> ieWindows = new List<WindowDetails>();
-            foreach (WindowDetails possibleIEWindow in WindowDetails.GetVisibleWindows()) {
-                if (IsIEWindow(possibleIEWindow)) {
-                    ieWindows.Add(possibleIEWindow);
-                }
-            }
-            return ieWindows;
-        }
+		/// <summary>
+		/// Get Windows displaying an IE
+		/// </summary>
+		/// <returns>List<WindowDetails></returns>
+		public static List<WindowDetails> GetIEWindows() {
+			List<WindowDetails> ieWindows = new List<WindowDetails>();
+			foreach (WindowDetails possibleIEWindow in WindowDetails.GetAllWindows()) {
+				if (possibleIEWindow.Text.Length == 0) {
+					continue;
+				}
+				if (possibleIEWindow.ClientRectangle.IsEmpty) {
+					continue;
+				}
+				if (IsIEWindow(possibleIEWindow)) {
+					ieWindows.Add(possibleIEWindow);
+				}
+			}
+			return ieWindows;
+		}
 
-        /// <summary>
+		/// <summary>
 		/// Simple check if IE is running
 		/// </summary>
 		/// <returns>bool</returns>
 		public static bool IsIERunning() {
-            return GetIEWindows().Count > 0;
+			return GetIEWindows().Count > 0;
 		}
 
 		/// <summary>
@@ -116,7 +122,7 @@ namespace Greenshot.Helpers {
 			Dictionary<WindowDetails, List<string>> browserWindows = new Dictionary<WindowDetails, List<string>>();
 
 			// Find the IE windows
-            List<WindowDetails> ieWindows = GetIEWindows();
+			List<WindowDetails> ieWindows = GetIEWindows();
 			foreach (WindowDetails ieWindow in ieWindows) {
 				try {
 					if (!ieHandleList.Contains(ieWindow.Handle)) {
