@@ -596,7 +596,7 @@ namespace Greenshot {
 		}
 
 		void CaptureIE() {
-			CaptureHelper.CaptureIE(true);
+			CaptureHelper.CaptureIE(true, null);
 		}
 
 		void CaptureWindow() {
@@ -840,7 +840,7 @@ namespace Greenshot {
 					LOG.Error(exception);
 				}
 				try {
-					CaptureHelper.CaptureIE(false);
+					CaptureHelper.CaptureIE(false, tabData.Key);
 				} catch (Exception exception) {
 					LOG.Error(exception);
 				}

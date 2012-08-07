@@ -76,9 +76,13 @@ namespace Greenshot.Helpers {
 		public static void CaptureLastRegion(bool captureMouse) {
 			new CaptureHelper(CaptureMode.LastRegion, captureMouse).MakeCapture();
 		}
-		public static void CaptureIE(bool captureMouse) {
-			new CaptureHelper(CaptureMode.IE, captureMouse).MakeCapture();
+
+		public static void CaptureIE(bool captureMouse, WindowDetails windowToCapture) {
+			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse);
+			captureHelper.SelectedCaptureWindow = windowToCapture;
+			captureHelper.MakeCapture();
 		}
+
 		public static void CaptureWindow(bool captureMouse) {
 			new CaptureHelper(CaptureMode.ActiveWindow, captureMouse).MakeCapture();
 		}
@@ -224,7 +228,7 @@ namespace Greenshot.Helpers {
 					HandleCapture();
 					break;
 				case CaptureMode.IE:
-					if (IECaptureHelper.CaptureIE(capture) != null) {
+					if (IECaptureHelper.CaptureIE(capture, SelectedCaptureWindow) != null) {
 						capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
 						HandleCapture();
 					}
@@ -673,9 +677,10 @@ namespace Greenshot.Helpers {
 			// 2) Is Windows >= Vista & DWM enabled: use DWM
 			// 3) Otherwise use GDI (Screen might be also okay but might lose content)
 			if (isAutoMode) {
-				if (conf.IECapture && windowToCapture.ClassName == "IEFrame") {
+				// TODO: Decided if this is smart, although we do consider a part of the window...
+                if (conf.IECapture && IECaptureHelper.IsMostlyIEWindow(windowToCapture, 60)) {
 					try {
-						ICapture ieCapture = IECaptureHelper.CaptureIE(captureForWindow);
+						ICapture ieCapture = IECaptureHelper.CaptureIE(captureForWindow, windowToCapture);
 						if (ieCapture != null) {
 							return ieCapture;
 						}

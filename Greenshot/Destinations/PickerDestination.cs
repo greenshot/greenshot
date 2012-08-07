@@ -30,6 +30,7 @@ using Greenshot.Plugin;
 using Greenshot.Helpers;
 using Greenshot.Forms;
 using Greenshot.IniFile;
+using GreenshotPlugin.UnmanagedHelpers;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -84,26 +85,26 @@ namespace Greenshot.Destinations {
 						if (clickedDestination == null) {
 							return;
 						}
-                        bool isEditor = EditorDestination.DESIGNATION.Equals(clickedDestination.Designation);
-                        // Make sure the menu is invisible, don't close it
-                        menu.Hide();
+						bool isEditor = EditorDestination.DESIGNATION.Equals(clickedDestination.Designation);
+						// Make sure the menu is invisible, don't close it
+						menu.Hide();
 
-                        // Export
+						// Export
 						bool result = clickedDestination.ExportCapture(true, surface, captureDetails);
-                        LOG.InfoFormat("Destination was {0} and result {1}", clickedDestination.Designation, result);
-                        if (result == true) {
-                            LOG.Info("Export success, closing menu");
-                            // close menu if the destination wasn't the editor
-                            menu.Close();
+						LOG.InfoFormat("Destination was {0} and result {1}", clickedDestination.Designation, result);
+						if (result == true) {
+							LOG.Info("Export success, closing menu");
+							// close menu if the destination wasn't the editor
+							menu.Close();
 
-                            // Cleanup surface, only if the destination wasn't the editor
-                            if (!isEditor) {
-                                surface.Dispose();
-                            }
-                        } else {
-                            LOG.Info("Export failed, showing menu again");
-                            menu.Show();
-                        }
+							// Cleanup surface, only if the destination wasn't the editor
+							if (!isEditor) {
+								surface.Dispose();
+							}
+						} else {
+							LOG.Info("Export failed, showing menu again");
+							menu.Show();
+						}
 					}
 				);
 				if (item != null) {
@@ -136,6 +137,8 @@ namespace Greenshot.Destinations {
 			} else {
 				location.Offset(-40, -10);
 			}
+			// This prevents the problem that the context menu shows in the task-bar
+			User32.SetForegroundWindow(MainForm.instance.notifyIcon.ContextMenuStrip.Handle);
 			menu.Show(location);
 			menu.Focus();
 		}

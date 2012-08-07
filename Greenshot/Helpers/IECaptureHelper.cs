@@ -55,16 +55,56 @@ namespace Greenshot.Helpers {
 			// Activate Tab
 			ieAccessible.ActivateIETab(tabIndex);
 		}
-		
-		/// <summary>
+
+        /// <summary>
+        /// Return true if the supplied window has a sub-window which covers more than the supplied percentage
+        /// </summary>
+        /// <param name="someWindow">WindowDetails to check</param>
+        /// <param name="minimumPercentage">min percentage</param>
+        /// <returns></returns>
+        public static bool IsMostlyIEWindow(WindowDetails someWindow, int minimumPercentage) {
+            WindowDetails ieWindow = someWindow.GetChild("Internet Explorer_Server");
+            if (ieWindow != null) {
+                Rectangle wholeClient = someWindow.ClientRectangle;
+                Rectangle partClient = ieWindow.ClientRectangle;
+                int percentage = (int)(100*((float)(partClient.Width * partClient.Height)) / ((float)(wholeClient.Width * wholeClient.Height)));
+                LOG.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
+                if (percentage > minimumPercentage) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Does the supplied window have a IE part?
+        /// </summary>
+        /// <param name="someWindow"></param>
+        /// <returns></returns>
+        public static bool IsIEWindow(WindowDetails someWindow) {
+            return someWindow.GetChild("Internet Explorer_Server") != null;
+        }
+
+        /// <summary>
+        /// Get Windows displaying an IE
+        /// </summary>
+        /// <returns>List<WindowDetails></returns>
+        public static List<WindowDetails> GetIEWindows() {
+            List<WindowDetails> ieWindows = new List<WindowDetails>();
+            foreach (WindowDetails possibleIEWindow in WindowDetails.GetVisibleWindows()) {
+                if (IsIEWindow(possibleIEWindow)) {
+                    ieWindows.Add(possibleIEWindow);
+                }
+            }
+            return ieWindows;
+        }
+
+        /// <summary>
 		/// Simple check if IE is running
 		/// </summary>
 		/// <returns>bool</returns>
 		public static bool IsIERunning() {
-			foreach (WindowDetails shellWindow in WindowDetails.GetAllWindows("IEFrame")) {
-				return true;
-			}
-			return false;
+            return GetIEWindows().Count > 0;
 		}
 
 		/// <summary>
@@ -76,7 +116,8 @@ namespace Greenshot.Helpers {
 			Dictionary<WindowDetails, List<string>> browserWindows = new Dictionary<WindowDetails, List<string>>();
 
 			// Find the IE windows
-			foreach (WindowDetails ieWindow in WindowDetails.GetAllWindows("IEFrame")) {
+            List<WindowDetails> ieWindows = GetIEWindows();
+			foreach (WindowDetails ieWindow in ieWindows) {
 				try {
 					if (!ieHandleList.Contains(ieWindow.Handle)) {
 						WindowDetails directUIWD = IEHelper.GetDirectUI(ieWindow);
@@ -108,10 +149,10 @@ namespace Greenshot.Helpers {
 		/// Helper method which will retrieve the IHTMLDocument2 for the supplied window,
 		///  or return the first if none is supplied.
 		/// </summary>
-		/// <param name="browserWindowDetails">The WindowDetails to get the IHTMLDocument2 for</param>
+		/// <param name="browserWindow">The WindowDetails to get the IHTMLDocument2 for</param>
 		/// <param name="document2">Ref to the IHTMLDocument2 to return</param>
 		/// <returns>The WindowDetails to which the IHTMLDocument2 belongs</returns>
-		private static DocumentContainer GetDocument(WindowDetails activeWindow) {
+		private static DocumentContainer GetDocument(WindowDetails browserWindow) {
 			DocumentContainer returnDocumentContainer = null;
 			WindowDetails returnWindow = null;
 			IHTMLDocument2 returnDocument2 = null;
@@ -119,8 +160,8 @@ namespace Greenshot.Helpers {
 			WindowDetails alternativeReturnWindow = null;
 			IHTMLDocument2 alternativeReturnDocument2 = null;
 
-			// Find the IE window
-			foreach (WindowDetails ieWindow in WindowDetails.GetAllWindows("IEFrame")) {
+			// Find the IE windows
+			foreach (WindowDetails ieWindow in GetIEWindows()) {
 				LOG.DebugFormat("Processing {0} - {1}", ieWindow.ClassName, ieWindow.Text);
 				
 				Accessible ieAccessible = null;
@@ -129,8 +170,8 @@ namespace Greenshot.Helpers {
 					ieAccessible = new Accessible(directUIWD.Handle);
 				}
 				if (ieAccessible == null) {
-					LOG.InfoFormat("Active Window is {0}", activeWindow.Text);
-					if (!ieWindow.Equals(activeWindow)) {
+					LOG.InfoFormat("Active Window is {0}", browserWindow.Text);
+					if (!ieWindow.Equals(browserWindow)) {
 						LOG.WarnFormat("No ieAccessible for {0}", ieWindow.Text);
 						continue;
 					}
@@ -185,7 +226,7 @@ namespace Greenshot.Helpers {
 							break;
 						}
 						try {
-							if (ieWindow.Equals(activeWindow)) {
+							if (ieWindow.Equals(browserWindow)) {
 								returnDocument2 = document2;
 								returnWindow = new WindowDetails(contentWindowHandle);
 								break;
@@ -234,15 +275,25 @@ namespace Greenshot.Helpers {
 		/// <param name="capture">ICapture where the capture needs to be stored</param>
 		/// <returns>ICapture with the content (if any)</returns>
 		public static ICapture CaptureIE(ICapture capture) {
-			WindowDetails activeWindow = WindowDetails.GetActiveWindow();
-			
+			return CaptureIE(capture, WindowDetails.GetActiveWindow());
+		}
+		/// <summary>
+		/// Here the logic for capturing the IE Content is located
+		/// </summary>
+		/// <param name="capture">ICapture where the capture needs to be stored</param>
+		/// <param name="windowToCapture">window to use</param>
+		/// <returns>ICapture with the content (if any)</returns>
+		public static ICapture CaptureIE(ICapture capture, WindowDetails windowToCapture) {
+			if (windowToCapture == null) {
+				return CaptureIE(capture, WindowDetails.GetActiveWindow());
+			}
 			// Show backgroundform after retrieving the active window..
 			BackgroundForm backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
 			backgroundForm.Show();
 			//BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(LangKey.contextmenu_captureie), language.GetString(LangKey.wait_ie_capture));
 			try {
 				//Get IHTMLDocument2 for the current active window
-				DocumentContainer documentContainer = GetDocument(activeWindow);
+				DocumentContainer documentContainer = GetDocument(windowToCapture);
 	
 				// Nothing found
 				if (documentContainer == null) {
@@ -299,7 +350,7 @@ namespace Greenshot.Helpers {
 				if (documentContainer.Name != null) {
 					capture.CaptureDetails.Title = documentContainer.Name;
 				} else {
-					capture.CaptureDetails.Title = activeWindow.Text;
+					capture.CaptureDetails.Title = windowToCapture.Text;
 				}
 
 				// Store the URL of the page
