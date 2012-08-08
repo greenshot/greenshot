@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.0.0 build 1974 (Unstable, meaning we are in testing fase and haven't released yet)
+1.0.0 build 1978 (Unstable, meaning we are in testing fase and haven't released yet)
 
 We changed the version to 1.0.0, after 5 year the version should no longer have a "beta" feeling!
 
@@ -19,6 +19,7 @@ Features added:
 * Added a preview when using the window capture from the context menu (Windows Vista and later)
 * Added color reduction as an option and auto detection for image with less than 256 color. When using reduction this results in smaller files.
 * Added direct printing to a selected printer
+* Added some additional logic to the IE capture, which makes it possible to capture embedded IE web-sites from other applications.
 * Changed multi-screen capture behaviour, assuming that capturing all screens is not a normal use-case. Now default behaviour is to capture the one with the mouse-cursor. Also the user can select which screen to capture from the context-menu.
 * Many languages added and updated, see our website for the whole listing!
 * Added some features for deploying Greenshot in companies: Fixed settings can't be changed in the settings. Settings, quicksettings and the Greenshot icon can be disabled. (See greenshot.ini)
