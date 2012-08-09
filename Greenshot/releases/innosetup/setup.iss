@@ -1,5 +1,5 @@
 ﻿#define ExeName "Greenshot"
-#define Version "1.0.0.$WCREV$"
+#define Version "1.0.1.$WCREV$"
 
 ; Include the scripts to install .NET Framework 2.0
 ; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
@@ -107,7 +107,7 @@ InfoBeforeFile=..\additional_files\readme.txt
 LicenseFile=..\additional_files\license.txt
 LanguageDetectionMethod=uilanguage
 MinVersion=,5.01.2600
-OutputBaseFilename={#ExeName}-INSTALLER-UNSTABLE-{#Version}
+OutputBaseFilename={#ExeName}-RC1-INSTALLER-{#Version}
 OutputDir=..\
 PrivilegesRequired=none
 SetupIconFile=..\..\icons\applicationIcon\icon.ico
