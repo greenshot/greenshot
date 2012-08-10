@@ -368,14 +368,6 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 		
-		public ICaptureElement FindElementUnderPoint(Point p) {
-			foreach(ICaptureElement element in elements) {
-				if (element.Bounds.Contains(p)) {
-					return element.FindElementUnderPoint(p);
-				}
-			}
-			return null;
-		}
 	}
 	
 	/// <summary>
@@ -410,19 +402,6 @@ namespace GreenshotPlugin.Core {
 		public Rectangle Bounds {
 			get;
 			set;
-		}
-
-		public ICaptureElement FindElementUnderPoint(Point point) {
-			if (!Bounds.Contains(point)) {
-				return null;
-			}
-			foreach(CaptureElement childElement in children) {
-				if (childElement.Bounds.Contains(point)) {
-					ICaptureElement selectedElement = childElement.FindElementUnderPoint(point);
-					return selectedElement;
-				}
-			}
-			return this;
 		}
 
 		// CaptureElements are regarded equal if their bounds are equal. this should be sufficient.

@@ -96,8 +96,6 @@ namespace Greenshot.Plugin {
 			get;
 			set;
 		}
-
-		ICaptureElement FindElementUnderPoint(Point p);
 	}
 	
 	/// <summary>
