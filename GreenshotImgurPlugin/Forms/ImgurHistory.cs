@@ -120,13 +120,14 @@ namespace GreenshotImgurPlugin {
 					if (result == DialogResult.Yes) {
 						// Should fix Bug #3378699 
 						pictureBox1.Image = pictureBox1.ErrorImage;
-						BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait));
 						try {
-							ImgurUtils.DeleteImgurImage(imgurInfo);
+							new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), Language.GetString("CANCEL"), 
+								delegate() {
+									ImgurUtils.DeleteImgurImage(imgurInfo);
+								}
+							);
 						} catch (Exception ex) {
 							LOG.Warn("Problem communicating with Imgur: ", ex);
-						} finally {
-							backgroundForm.CloseDialog();
 						}
 
 						imgurInfo.Dispose();
