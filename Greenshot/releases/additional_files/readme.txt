@@ -3,6 +3,12 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
+1.0.1 build 1984 (intermediate state)
+
+Bugs resolved:
+* Rewrote the "please wait" window to allow the user to cancel the operation, this was needed due to problems with Imgur uploads
+* Fixed a memory leak when using ESC on the destination picker
+
 1.0.1 build 1980 Release Candidate 1
 
 We changed the version to 1.0 after 5 year the version should no longer have a "beta" feeling!

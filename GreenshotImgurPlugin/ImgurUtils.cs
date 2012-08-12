@@ -69,6 +69,20 @@ namespace GreenshotImgurPlugin {
 						config.ImgurUploadHistory.Remove(hash);
 						saveNeeded = true;
 					}
+				} catch (WebException wE) {
+					bool redirected = false;
+					if (wE.Status == WebExceptionStatus.ProtocolError) {
+						HttpWebResponse response = ((HttpWebResponse)wE.Response);
+						// Image no longer available
+						if (response.StatusCode == HttpStatusCode.Redirect) {
+							LOG.InfoFormat("ImgUr image for hash {0} is no longer available", hash);
+							config.ImgurUploadHistory.Remove(hash);
+							redirected = true;
+						}
+					}
+					if (!redirected) {
+						LOG.Error("Problem loading ImgUr history for hash " + hash, wE);
+					}
 				} catch (Exception e) {
 					LOG.Error("Problem loading ImgUr history for hash " + hash, e);
 				}
@@ -152,16 +166,17 @@ namespace GreenshotImgurPlugin {
 			}
 			LOG.Info(responseString);
 			ImgurInfo imgurInfo = ImgurInfo.ParseResponse(responseString);
+			LOG.Debug("Upload to imgur was finished");
 			return imgurInfo;
 		}
 
 		public static void RetrieveImgurThumbnail(ImgurInfo imgurInfo) {
-            if (imgurInfo.SmallSquare == null) {
-                LOG.Warn("Imgur URL was null, not retrieving thumbnail.");
-                return;
-            }
-            LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo);
-            HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(imgurInfo.SmallSquare);
+			if (imgurInfo.SmallSquare == null) {
+				LOG.Warn("Imgur URL was null, not retrieving thumbnail.");
+				return;
+			}
+			LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo.SmallSquare);
+			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(imgurInfo.SmallSquare);
 			webRequest.Method = "GET";
 			webRequest.ServicePoint.Expect100Continue = false;
 

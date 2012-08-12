@@ -226,6 +226,10 @@
     <Compile Include="Controls\GreenshotToolDropDownButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\PleaseWaitForm.cs" />
+    <Compile Include="Controls\PleaseWaitForm.Designer.cs">
+      <DependentUpon>PleaseWaitForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ThumbnailForm.cs">
       <SubType>Form</SubType>
     </Compile>
