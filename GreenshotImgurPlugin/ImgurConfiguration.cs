@@ -69,7 +69,7 @@ namespace GreenshotImgurPlugin {
 		public bool ShowConfigDialog() {
 			SettingsForm settingsForm = null;
 
-			new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), Language.GetString("CANCEL"), 
+			new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
 				delegate() {
 					settingsForm = new SettingsForm(this);
 				}

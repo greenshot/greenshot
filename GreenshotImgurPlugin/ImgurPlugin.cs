@@ -145,7 +145,7 @@ namespace GreenshotImgurPlugin {
 					ImgurInfo imgurInfo = null;
 			
 					// Run upload in the background
-					new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), Language.GetString("CANCEL"), 
+					new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
 						delegate() {
 							imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, captureDetails.Title, filename);
 							LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);

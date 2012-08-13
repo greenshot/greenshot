@@ -90,7 +90,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 		/// <summary>
-		/// Helper method to add a MenuItem to the Greenshot context menu
+		/// Helper method to add a plugin MenuItem to the Greenshot context menu
 		/// </summary>
 		/// <param name="imageEditor"></param>
 		/// <param name="item"></param>
@@ -102,8 +102,17 @@ namespace GreenshotPlugin.Core {
 			// Try to find a separator, so we insert ourselves after it 
 			for(int i=0; i < contextMenu.Items.Count; i++) {
 				if (contextMenu.Items[i].GetType() == typeof(ToolStripSeparator)) {
-					contextMenu.Items.Insert(i+1, item);
-					addedItem = true;
+					// Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
+					if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag)) {
+						ToolStripSeparator separator = new ToolStripSeparator();
+						separator.Size = new Size(305, 6);
+						contextMenu.Items.Insert(i, separator);
+						contextMenu.Items.Insert(i+1, item);
+						addedItem = true;
+					} else {
+						contextMenu.Items.Insert(i+1, item);
+						addedItem = true;
+					}
 					break;
 				}
 			}

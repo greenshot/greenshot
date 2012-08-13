@@ -22,6 +22,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Threading;
+using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -40,7 +41,7 @@ namespace GreenshotPlugin.Controls {
 		}
 		
 		/// <summary>
-		/// Prevent the close button showing
+		/// Prevent the close-window button showing
 		/// </summary>
 		private const int CP_NOCLOSE_BUTTON = 0x200;
 		protected override CreateParams CreateParams {
@@ -51,17 +52,26 @@ namespace GreenshotPlugin.Controls {
 			}
 		} 
 		
-		public void ShowAndWait(string title, string text, string cancelText, ThreadStart waitDelegate) {
+		/// <summary>
+		/// Show the "please wait" form, execute the code from the delegate and wait until execution finishes.
+		/// The supplied delegate will be wrapped with a try/catch so this method can return any exception that was thrown.
+		/// </summary>
+		/// <param name="title">The title of the form (and Thread)</param>
+		/// <param name="text">The text in the form</param>
+		/// <param name="waitDelegate">delegate { with your code }</param>
+		public void ShowAndWait(string title, string text, ThreadStart waitDelegate) {
 			this.title = title;
 			this.Text = title;
 			this.label_pleasewait.Text = text;
-			this.cancelButton.Text = cancelText;
+			this.cancelButton.Text = Language.GetString("CANCEL");
 
+			// Make sure the form is shown.
 			Show();
 			
+			// Variable to store the exception, if one is generated, from inside the thread.
 			Exception threadException = null;
 			try {
-				// Wrap the passed delegate in a try/catch which saves the exception
+				// Wrap the passed delegate in a try/catch which makes it possible to save the exception
 				waitFor = new Thread(new ThreadStart(
 					delegate {
 						try {
@@ -93,6 +103,11 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 		
+		/// <summary>
+		/// Called if the cancel button is clicked, will use Thread.Abort()
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void CancelButtonClick(object sender, EventArgs e) {
 			LOG.DebugFormat("Cancel clicked on {0}", title);
 			cancelButton.Enabled = false;

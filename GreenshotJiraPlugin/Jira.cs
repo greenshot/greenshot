@@ -28,6 +28,7 @@ using GreenshotJiraPlugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using System.Threading;
 
 namespace Jira {
 	#region transport classes
@@ -118,17 +119,16 @@ namespace Jira {
 			this.url = config.Url;
 			this.timeout = config.Timeout;
 			if (!suppressBackgroundForm) {
-				BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait));
-				try {
-					jira = new JiraSoapServiceService();
-				} finally {
-					backgroundForm.CloseDialog();
-				}
+				new PleaseWaitForm().ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait),
+					delegate() {
+						jira = new JiraSoapServiceService();
+					}
+				);
 			} else {
 				jira = new JiraSoapServiceService();
 			}
 			jira.Url = url;
-		   	jira.Proxy = NetworkHelper.CreateProxy(new Uri(url));
+			jira.Proxy = NetworkHelper.CreateProxy(new Uri(url));
 		}
 
 		~JiraConnector() {
@@ -140,16 +140,23 @@ namespace Jira {
 		/// </summary>
 		/// <returns>true if login was done sucessfully</returns>
 		private bool doLogin(string user, string password, bool suppressBackgroundForm) {
-			BackgroundForm backgroundForm = null;
-			if (!suppressBackgroundForm) {
-				backgroundForm = BackgroundForm.ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait));
-			}
-			try {
+
+			// This is what needs to be done
+			ThreadStart jiraLogin = delegate {
 				LOG.DebugFormat("Loggin in");
 				this.credentials = jira.login(user, password);
 				LOG.DebugFormat("Logged in");
 				this.loggedInTime = DateTime.Now;
 				this.loggedIn = true;
+
+			};
+			// Here we do it
+			try {
+				if (!suppressBackgroundForm) {
+					new PleaseWaitForm().ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait), jiraLogin);
+				} else {
+					jiraLogin.Invoke();
+				}
 			} catch (Exception e) {
 				// check if auth failed
 				if (e.Message.Contains(AUTH_FAILED_EXCEPTION_NAME)) {
@@ -161,10 +168,6 @@ namespace Jira {
 				e.Data.Add("user", user);
 				e.Data.Add("url", url);
 				throw;
-			} finally {
-				if (backgroundForm != null) {
-					backgroundForm.CloseDialog();
-				}
 			}
 			return true;
 		}
@@ -177,7 +180,7 @@ namespace Jira {
 			try {
 				// Get the system name, so the user knows where to login to
 				string systemName = url.Replace(DEFAULT_POSTFIX,"");
-		   		CredentialsDialog dialog = new CredentialsDialog(systemName);
+				CredentialsDialog dialog = new CredentialsDialog(systemName);
 				dialog.Name = null;
 				while (dialog.Show(dialog.Name) == DialogResult.OK) {
 					if (doLogin(dialog.Name, dialog.Password, suppressBackgroundForm)) {
@@ -301,7 +304,7 @@ namespace Jira {
 					jira.addAttachmentsToIssue(credentials, issueKey, new string[] { filename }, (sbyte[]) (Array)buffer);
 				} catch (Exception ex2) {
 					LOG.WarnFormat("Failed to use alternative method, error was: {0}", ex2.Message);
-                    throw ex2;
+					throw ex2;
 				}
 			}
 		}

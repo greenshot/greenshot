@@ -52,7 +52,7 @@ namespace Greenshot {
 			this.contextmenu_capturewindow = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.contextmenu_capturefullscreen = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.contextmenu_captureie = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripPluginSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.contextmenu_captureclipboard = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.contextmenu_openfile = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -79,7 +79,7 @@ namespace Greenshot {
             this.contextmenu_capturewindow,
             this.contextmenu_capturefullscreen,
             this.contextmenu_captureie,
-            this.toolStripSeparator4,
+            this.toolStripPluginSeparator,
             this.contextmenu_captureclipboard,
             this.contextmenu_openfile,
             this.toolStripSeparator2,
@@ -134,10 +134,11 @@ namespace Greenshot {
 			this.contextmenu_captureie.Size = new System.Drawing.Size(308, 22);
 			this.contextmenu_captureie.DropDownOpening += new System.EventHandler(this.CaptureIEMenuDropDownOpening);
 			// 
-			// toolStripSeparator4
+			// toolStripPluginSeparator
 			// 
-			this.toolStripSeparator4.Name = "toolStripSeparator4";
-			this.toolStripSeparator4.Size = new System.Drawing.Size(305, 6);
+			this.toolStripPluginSeparator.Name = "toolStripSeparator4";
+			this.toolStripPluginSeparator.Size = new System.Drawing.Size(305, 6);
+			this.toolStripPluginSeparator.Tag = "PluginsAreAddedBefore";
 			// 
 			// contextmenu_captureclipboard
 			// 
@@ -251,7 +252,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_captureie;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_donate;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_openfile;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+		private System.Windows.Forms.ToolStripSeparator toolStripPluginSeparator;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_captureclipboard;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_quicksettings;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;

@@ -34,7 +34,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 
 namespace Greenshot.Destinations {
 	/// <summary>
-	/// Description of PickerDestination.
+	/// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
 	/// </summary>
 	public class PickerDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PickerDestination));
@@ -59,6 +59,14 @@ namespace Greenshot.Destinations {
 			}
 		}
 		
+		/// <summary>
+		/// This method will create the destination picker menu
+		/// </summary>
+		/// <param name="addDynamics">Boolean if the dynamic values also need to be added</param>
+		/// <param name="surface">The surface which can be exported</param>
+		/// <param name="captureDetails">Details for the surface</param>
+		/// <param name="destinations">The list of destinations to show</param>
+		/// <returns></returns>
 		public static ContextMenuStrip CreatePickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations) {
 			ContextMenuStrip menu = new ContextMenuStrip();
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
@@ -106,7 +114,8 @@ namespace Greenshot.Destinations {
 							}
 						} else {
 							LOG.Info("Export failed, showing menu again");
-							menu.Show();
+							// This prevents the problem that the context menu shows in the task-bar
+							ShowMenuAtCursor(menu);
 						}
 					}
 				);
@@ -129,6 +138,10 @@ namespace Greenshot.Destinations {
 			return menu;
 		}
 
+		/// <summary>
+		/// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
+		/// </summary>
+		/// <param name="menu"></param>
 		public static void ShowMenuAtCursor(ContextMenuStrip menu) {
 			// find a suitable location
 			Point location = Cursor.Position;
@@ -146,6 +159,13 @@ namespace Greenshot.Destinations {
 			menu.Focus();
 		}
 
+		/// <summary>
+		/// Export the capture with the destination picker
+		/// </summary>
+		/// <param name="manuallyInitiated">Did the user select this destination?</param>
+		/// <param name="surface">Surface to export</param>
+		/// <param name="captureDetails">Details of the capture</param>
+		/// <returns>true if export was made</returns>
 		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			List<IDestination> destinations = new List<IDestination>();
 			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
