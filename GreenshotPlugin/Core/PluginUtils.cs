@@ -107,12 +107,9 @@ namespace GreenshotPlugin.Core {
 						ToolStripSeparator separator = new ToolStripSeparator();
 						separator.Size = new Size(305, 6);
 						contextMenu.Items.Insert(i, separator);
-						contextMenu.Items.Insert(i+1, item);
-						addedItem = true;
-					} else {
-						contextMenu.Items.Insert(i+1, item);
-						addedItem = true;
 					}
+					contextMenu.Items.Insert(i + 1, item);
+					addedItem = true;
 					break;
 				}
 			}
