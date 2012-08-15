@@ -97,7 +97,7 @@ namespace Greenshot.Forms {
 
 			this.capture = capture;
 			this.windows = windows;
-			captureMode = capture.CaptureDetails.CaptureMode;
+			this.captureMode = capture.CaptureDetails.CaptureMode;
 
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -109,6 +109,7 @@ namespace Greenshot.Forms {
 			WindowDetails.RegisterIgnoreHandle(this.Handle);
 			// Unregister at close
 			this.FormClosing += delegate {
+				LOG.Debug("Closing captureform");
 				WindowDetails.UnregisterIgnoreHandle(this.Handle);
 			};
 
@@ -118,7 +119,6 @@ namespace Greenshot.Forms {
 			cursorPos.Offset(-capture.ScreenBounds.X, -capture.ScreenBounds.Y);
 
 			this.SuspendLayout();
-			pictureBox.Image = capture.Image;
 			this.Bounds = capture.ScreenBounds;
 			this.ResumeLayout();
 			
@@ -147,7 +147,7 @@ namespace Greenshot.Forms {
 			} else if (e.KeyCode == Keys.M) {
 				// Toggle mouse cursor
 				capture.CursorVisible = !capture.CursorVisible;
-				pictureBox.Invalidate();
+				Invalidate();
 			} else if (e.KeyCode == Keys.Space) {
 				switch (captureMode) {
 					case CaptureMode.Region:
@@ -157,17 +157,17 @@ namespace Greenshot.Forms {
 						captureMode = CaptureMode.Region;
 						break;
 				}
-				pictureBox.Invalidate();
+				Invalidate();
 				selectedCaptureWindow = null;
-				PictureBoxMouseMove(this, new MouseEventArgs(MouseButtons.None, 0, Cursor.Position.X, Cursor.Position.Y, 0));
+				OnMouseMove(this, new MouseEventArgs(MouseButtons.None, 0, Cursor.Position.X, Cursor.Position.Y, 0));
 			} else if (e.KeyCode == Keys.Return && captureMode == CaptureMode.Window) {
 				DialogResult = DialogResult.OK;
 			}
 		}
 		#endregion
 
-		#region pictureBox events
-		void PictureBoxMouseDown(object sender, MouseEventArgs e) {
+		#region events
+		void OnMouseDown(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
 				Point tmpCursorLocation = WindowCapture.GetCursorLocation();
 				// As the cursorPos is not in Bitmap coordinates, we need to correct.
@@ -176,12 +176,12 @@ namespace Greenshot.Forms {
 				mX = tmpCursorLocation.X;
 				mY = tmpCursorLocation.Y;
 				mouseDown = true;
-				PictureBoxMouseMove(this, e);
-				pictureBox.Invalidate();
+				OnMouseMove(this, e);
+				Invalidate();
 			}
 		}
 		
-		void PictureBoxMouseUp(object sender, MouseEventArgs e) {
+		void OnMouseUp(object sender, MouseEventArgs e) {
 			if (mouseDown) {
 				// If the mouse goes up we set down to false (nice logic!)
 				mouseDown = false;
@@ -198,7 +198,7 @@ namespace Greenshot.Forms {
 					// Go and process the capture
 					DialogResult = DialogResult.OK;
 				} else {
-					pictureBox.Invalidate();
+					Invalidate();
 				}
 			}
 		}
@@ -219,7 +219,7 @@ namespace Greenshot.Forms {
 			return currentMouse;
 		}
 
-		void PictureBoxMouseMove(object sender, MouseEventArgs e) {
+		void OnMouseMove(object sender, MouseEventArgs e) {
 			Point lastPos = new Point(cursorPos.X, cursorPos.Y);
 			cursorPos = WindowCapture.GetCursorLocation();
 			// Make sure the mouse coordinates are fixed, when pressing shift
@@ -296,7 +296,7 @@ namespace Greenshot.Forms {
 					y1 -= measureWidth.Height + 10;
 				}
 				Rectangle invalidateRectangle = new Rectangle(x1,y1, x2-x1, y2-y1);
-				pictureBox.Invalidate(invalidateRectangle);
+				Invalidate(invalidateRectangle);
 			} else {
 				if (captureMode == CaptureMode.Window) {
 					if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
@@ -307,36 +307,37 @@ namespace Greenshot.Forms {
 						invalidateRectangle.Y -= SAFETY_SIZE/2;
 						invalidateRectangle.Width += SAFETY_SIZE;
 						invalidateRectangle.Height += SAFETY_SIZE;
-						pictureBox.Invalidate(invalidateRectangle);
+						Invalidate(invalidateRectangle);
 						invalidateRectangle = new Rectangle(captureRect.Location, captureRect.Size);
 						invalidateRectangle.X -= SAFETY_SIZE/2;
 						invalidateRectangle.Y -= SAFETY_SIZE/2;
 						invalidateRectangle.Width += SAFETY_SIZE;
 						invalidateRectangle.Height += SAFETY_SIZE;
-						pictureBox.Invalidate(invalidateRectangle);
+						Invalidate(invalidateRectangle);
 					}
 				} else {
 					if (!conf.OptimizeForRDP) {
 						if (verticalMove) {
 							Rectangle before = GuiRectangle.GetGuiRectangle(0, lastPos.Y - 2, this.Width+2, 45);
 							Rectangle after = GuiRectangle.GetGuiRectangle(0, cursorPos.Y - 2, this.Width+2, 45);
-							pictureBox.Invalidate(before);
-							pictureBox.Invalidate(after);
+							Invalidate(before);
+							Invalidate(after);
 						}
 						if (horizontalMove) {
 							Rectangle before = GuiRectangle.GetGuiRectangle(lastPos.X - 2, 0, 75, this.Height+2);
 							Rectangle after = GuiRectangle.GetGuiRectangle(cursorPos.X -2, 0, 75, this.Height+2);
-							pictureBox.Invalidate(before);
-							pictureBox.Invalidate(after);
+							Invalidate(before);
+							Invalidate(after);
 						}
 					}
 				}
 			}
 		}
 		
-		void PictureBoxPaint(object sender, PaintEventArgs e) {
+		void OnPaint(object sender, PaintEventArgs e) {
 			Graphics graphics = e.Graphics;
 			Rectangle clipRectangle = e.ClipRectangle;
+			graphics.DrawImageUnscaled(capture.Image, Point.Empty);
 			// Only draw Cursor if it's (partly) visible
 			if (capture.Cursor != null && capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(capture.CursorLocation, capture.Cursor.Size))) {
 				graphics.DrawIcon(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
