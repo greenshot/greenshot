@@ -142,10 +142,14 @@ namespace Greenshot.Helpers.IEInterop {
 			// Check what access method is needed for the document
 			IHTMLDocument5 document5 = (IHTMLDocument5)document2;
 			//compatibility mode affects how height is computed
-			if ((document3.documentElement != null) && (!document5.compatMode.Equals("BackCompat"))) {
-				isDTD = true;
-			} else {
-				isDTD = false;
+			isDTD = false;
+			try {
+				if ((document3.documentElement != null) && (!document5.compatMode.Equals("BackCompat"))) {
+					isDTD = true;
+				}
+			} catch (Exception ex) {
+				LOG.Error("Error checking the compatibility mode:");
+				LOG.Error(ex);
 			}
 			Rectangle clientRectangle = contentWindow.WindowRectangle;
 			try {
@@ -183,17 +187,14 @@ namespace Greenshot.Helpers.IEInterop {
 					}
 				}
 				LOG.DebugFormat("Zoomlevel {0}, {1}", zoomLevelX, zoomLevelY);
-	
 			} catch (Exception e) {
 				LOG.Warn("Can't get certain properties for documents, using default.  due to: ", e);
 				
 			}
 
-			LOG.DebugFormat("Calculated location {0} for {1}", startLocation, document2.title);
-			sourceLocation = new Point(ScaleX((int)startLocation.X), ScaleY((int)startLocation.Y));
-			destinationLocation = new Point(ScaleX((int)startLocation.X), ScaleY((int)startLocation.Y));
 
 			try {
+				LOG.DebugFormat("Calculated location {0} for {1}", startLocation, document2.title);
 				if (name == null) {
 					name = document2.title;
 				}
@@ -203,6 +204,8 @@ namespace Greenshot.Helpers.IEInterop {
 				url = document2.url;
 			} catch {
 			}
+			sourceLocation = new Point(ScaleX((int)startLocation.X), ScaleY((int)startLocation.Y));
+			destinationLocation = new Point(ScaleX((int)startLocation.X), ScaleY((int)startLocation.Y));
 			
 			if (parent != null) {
 				return;

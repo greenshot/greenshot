@@ -250,8 +250,8 @@ namespace Greenshot.Helpers {
 						}
 					}
 				} catch (Exception e) {
+					LOG.ErrorFormat("Major problem: Problem retrieving Document from {0}", ieWindow.Text);
 					LOG.Error(e);
-					LOG.DebugFormat("Major problem: Problem retrieving Document from {0}", ieWindow.Text);
 				}
 			}
 
@@ -262,7 +262,12 @@ namespace Greenshot.Helpers {
 				returnWindow.GetParent();
 
 				// Create the container
-				returnDocumentContainer = new DocumentContainer(returnDocument2, returnWindow);
+				try {
+					returnDocumentContainer = new DocumentContainer(returnDocument2, returnWindow);
+				} catch (Exception e) {
+					LOG.Error("Major problem: Problem retrieving Document.");
+					LOG.Error(e);
+				}
 			}
 
 			if (returnDocumentContainer == null && alternativeReturnDocument2 != null) {
@@ -270,7 +275,12 @@ namespace Greenshot.Helpers {
 				alternativeReturnWindow.Restore();
 				alternativeReturnWindow.GetParent();
 				// Create the container
-				returnDocumentContainer =  new DocumentContainer(alternativeReturnDocument2, alternativeReturnWindow);
+				try {
+					returnDocumentContainer = new DocumentContainer(alternativeReturnDocument2, alternativeReturnWindow);
+				} catch (Exception e) {
+					LOG.Error("Major problem: Problem retrieving Document.");
+					LOG.Error(e);
+				}
 			}
 			return returnDocumentContainer;
 		}
@@ -291,7 +301,7 @@ namespace Greenshot.Helpers {
 		/// <returns>ICapture with the content (if any)</returns>
 		public static ICapture CaptureIE(ICapture capture, WindowDetails windowToCapture) {
 			if (windowToCapture == null) {
-				return CaptureIE(capture, WindowDetails.GetActiveWindow());
+				windowToCapture = WindowDetails.GetActiveWindow();
 			}
 			// Show backgroundform after retrieving the active window..
 			BackgroundForm backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
