@@ -145,7 +145,7 @@ namespace Greenshot.IniFile {
 				writer.WriteLine("; {0}", attributes.Description);
 			}
 			if (myValue == null) {
-				writer.Write("{0}=", attributes.Name);
+				writer.WriteLine("{0}=", attributes.Name);
 				return;
 			}
 			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>)) {
