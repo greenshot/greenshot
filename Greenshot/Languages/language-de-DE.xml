@@ -41,8 +41,10 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="contextmenu_captureclipboard">Bild aus Zwischenablage öffnen</resource>
 		<resource name="contextmenu_capturefullscreen">Kompletten Bildschirm abfotografieren</resource>
 		<resource name="contextmenu_captureie">Internet Explorer abfotografieren</resource>
+		<resource name="contextmenu_captureiefromlist">Internet Explorer abfotografieren</resource>
 		<resource name="contextmenu_capturelastregion">Zuletzt gewählten Bereich abfotografieren</resource>
 		<resource name="contextmenu_capturewindow">Fenster abfotografieren</resource>
+		<resource name="contextmenu_capturewindowfromlist">Fenster aus Liste abfotografieren</resource>
 		<resource name="contextmenu_donate">Greenshot unterstützen</resource>
 		<resource name="contextmenu_exit">Schließen</resource>
 		<resource name="contextmenu_help">Hilfe</resource>

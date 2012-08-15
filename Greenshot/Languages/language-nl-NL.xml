@@ -40,8 +40,10 @@ We stellen het zeer op prijs als u eerst zoekt of dit probleem misschien al best
 		<resource name="contextmenu_captureclipboard">Laad beeld van het klembord</resource>
 		<resource name="contextmenu_capturefullscreen">Gehele beeldscherm vastleggen</resource>
 		<resource name="contextmenu_captureie">Internet Explorer pagina vastleggen</resource>
+		<resource name="contextmenu_captureiefromlist">Internet Explorer pagina uit de lijst vastleggen</resource>
 		<resource name="contextmenu_capturelastregion">Laast gebruikte regio vastleggen</resource>
 		<resource name="contextmenu_capturewindow">Window vastleggen</resource>
+		<resource name="contextmenu_capturewindowfromlist">Window uit de lijst vastleggen</resource>
 		<resource name="contextmenu_donate">Greenshot ondersteunen</resource>
 		<resource name="contextmenu_exit">Exit</resource>
 		<resource name="contextmenu_help">Help</resource>

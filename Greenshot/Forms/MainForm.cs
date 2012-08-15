@@ -618,8 +618,10 @@ namespace Greenshot {
 			try {
 				if (conf.IECapture && IECaptureHelper.IsIERunning()) {
 					this.contextmenu_captureie.Enabled = true;
+					this.contextmenu_captureiefromlist.Enabled = true;
 				} else {
 					this.contextmenu_captureie.Enabled = false;
+					this.contextmenu_captureiefromlist.Enabled = false;
 				}
 			} catch (Exception ex) {
 				LOG.WarnFormat("Problem accessing IE information: {0}", ex.Message);
@@ -638,8 +640,8 @@ namespace Greenshot {
 		}
 		
 		void ContextMenuClosing(object sender, EventArgs e) {
-			this.contextmenu_captureie.DropDownItems.Clear();
-			this.contextmenu_capturewindow.DropDownItems.Clear();
+			this.contextmenu_captureiefromlist.DropDownItems.Clear();
+			this.contextmenu_capturewindowfromlist.DropDownItems.Clear();
 			cleanupThumbnail();
 		}
 		
@@ -652,6 +654,7 @@ namespace Greenshot {
 				this.contextmenu_captureie.DropDownItems.Clear();
 				if (tabs.Count > 0) {
 					this.contextmenu_captureie.Enabled = true;
+					this.contextmenu_captureiefromlist.Enabled = true;
 					Dictionary<WindowDetails, int> counter = new Dictionary<WindowDetails, int>();
 					
 					foreach(KeyValuePair<WindowDetails, string> tabData in tabs) {
@@ -663,7 +666,7 @@ namespace Greenshot {
 							index = 0;
 						}
 						captureIETabItem.Tag = new KeyValuePair<WindowDetails, int>(tabData.Key, index++);
-						captureIETabItem.Click += new System.EventHandler(Contextmenu_captureIE_Click);
+						captureIETabItem.Click += new System.EventHandler(Contextmenu_captureiefromlist_Click);
 						this.contextmenu_captureie.DropDownItems.Add(captureIETabItem);
 						if (counter.ContainsKey(tabData.Key)) {
 							counter[tabData.Key] = index;
@@ -673,6 +676,7 @@ namespace Greenshot {
 					}
 				} else {
 					this.contextmenu_captureie.Enabled = false;
+					this.contextmenu_captureiefromlist.Enabled = false;
 				}
 			} catch (Exception ex) {
 				LOG.WarnFormat("Problem accessing IE information: {0}", ex.Message);
@@ -732,15 +736,15 @@ namespace Greenshot {
 		/// <summary>
 		/// Build a selectable list of windows when we enter the menu item
 		/// </summary>
-		private void CaptureWindowMenuDropDownOpening(object sender, EventArgs e) {
+		private void CaptureWindowFromListMenuDropDownOpening(object sender, EventArgs e) {
 			// The Capture window context menu item used to go to the following code:
 			// captureForm.MakeCapture(CaptureMode.Window, false);
 			// Now we check which windows are there to capture
-			ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem)sender;
-			AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
+			ToolStripMenuItem captureWindowFromListMenuItem = (ToolStripMenuItem)sender;
+			AddCaptureWindowMenuItems(captureWindowFromListMenuItem, Contextmenu_capturewindowfromlist_Click);
 		}
 		
-		private void CaptureWindowMenuDropDownClosed(object sender, EventArgs e) {
+		private void CaptureWindowFromListMenuDropDownClosed(object sender, EventArgs e) {
 			cleanupThumbnail();
 		}
 		
@@ -813,8 +817,12 @@ namespace Greenshot {
 				CaptureHelper.CaptureLastRegion(false);
 			});
 		}
+		
+		void Contextmenu_capturewindow_Click(object sender,EventArgs e) {
+			CaptureWindow();
+		}
 
-		void Contextmenu_window_Click(object sender,EventArgs e) {
+		void Contextmenu_capturewindowfromlist_Click(object sender,EventArgs e) {
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
 			BeginInvoke((MethodInvoker)delegate {
 				try {
@@ -825,8 +833,12 @@ namespace Greenshot {
 				}
 			});
 		}
+		
+		void Contextmenu_captureie_Click(object sender, EventArgs e) {
+			CaptureIE();
+		}
 
-		void Contextmenu_captureIE_Click(object sender, EventArgs e) {
+		void Contextmenu_captureiefromlist_Click(object sender, EventArgs e) {
 			if (!conf.IECapture) {
 				LOG.InfoFormat("IE Capture is disabled.");
 				return;

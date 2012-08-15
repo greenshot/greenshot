@@ -42,8 +42,10 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_captureclipboard">Open image from clipboard</resource>
 		<resource name="contextmenu_capturefullscreen">Capture full screen</resource>
 		<resource name="contextmenu_captureie">Capture Internet Explorer</resource>
+		<resource name="contextmenu_captureiefromlist">Capture Internet Explorer from list</resource>
 		<resource name="contextmenu_capturelastregion">Capture last region</resource>
 		<resource name="contextmenu_capturewindow">Capture window</resource>
+		<resource name="contextmenu_capturewindowfromlist">Capture window from list</resource>
 		<resource name="contextmenu_donate">Support Greenshot</resource>
 		<resource name="contextmenu_exit">Exit</resource>
 		<resource name="contextmenu_help">Help</resource>
