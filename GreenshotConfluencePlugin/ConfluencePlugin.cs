@@ -128,6 +128,7 @@ namespace GreenshotConfluencePlugin {
 			LOG.Debug("Confluence Plugin shutdown.");
 			if (confluenceConnector != null) {
 				confluenceConnector.logout();
+				confluenceConnector = null;
 			}
 		}
 
@@ -144,8 +145,11 @@ namespace GreenshotConfluencePlugin {
 				clonedConfig.CloneTo(config);
 				IniConfig.Save();
 				if (confluenceConnector != null) {
-					if (!url.Equals(config.Url) && confluenceConnector.isLoggedIn) {
-						confluenceConnector.logout();
+					if (!url.Equals(config.Url)) {
+						if (confluenceConnector.isLoggedIn) {
+							confluenceConnector.logout();
+						}
+						confluenceConnector = null;
 					}
 				}
 			}
