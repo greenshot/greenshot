@@ -83,7 +83,6 @@ namespace GreenshotLanguageEditor {
 				"https://greenshot.svn.sourceforge.net/svnroot/greenshot/trunk/Greenshot/Languages/";
 			dialog.ShowNewFolderButton = false;
 			System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-			string languagePath;
 			
 			
 			if (result == System.Windows.Forms.DialogResult.OK) {
@@ -92,8 +91,7 @@ namespace GreenshotLanguageEditor {
 				this.Close();
 				return;
 			}
-			
-			//languagePath = @"C:\Users\jens\Documents\dotNET Projects\Greenshot\Greenshot\Languages";
+
 
 			InitializeComponent();
 			DataContext = this;
@@ -173,6 +171,9 @@ namespace GreenshotLanguageEditor {
 			LanguageFile editedFile = (LanguageFile) (targetColumn == 1 ? language1ComboBox.SelectedItem : language2ComboBox.SelectedItem);
 
 			CreateXML(editedFile.FilePath, targetColumn);
+			
+			if(targetColumn == 1) unsavedChangesInLanguage1 = false;
+			else if(targetColumn == 2) unsavedChangesInLanguage2 = false;
 		}
 		
 		private void languageComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -216,7 +217,7 @@ namespace GreenshotLanguageEditor {
 				}
 			}
 			LanguageFile newLang = new LanguageFile();
-			newLang.FilePath = languagePath;
+			newLang.FileDir = languagePath;
 			new MetaEditorWindow(newLang).ShowDialog();
 			if(newLang.FileName != null && newLang.FileName.Length > 0) {
 				ClearColumn(targetColumn);
