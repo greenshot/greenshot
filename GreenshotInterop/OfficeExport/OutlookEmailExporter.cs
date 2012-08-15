@@ -36,7 +36,7 @@ namespace Greenshot.Interop.Office {
 	public class OutlookEmailExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookEmailExporter));
 		private static readonly string SIGNATURE_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
-		private static Version outlookVersion = new Version(1, 1, 1, 1);
+		private static Version outlookVersion = null;
 		private static string currentUser = null;
 
 		// The signature key can be found at:
@@ -474,6 +474,8 @@ namespace Greenshot.Interop.Office {
 				LOG.InfoFormat("Using Outlook {0}", outlookVersion);
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
+				LOG.Warn("Assuming outlook version 1.");
+				outlookVersion = new Version(1, 1, 1, 1);
 			}
 			// Preventing retrieval of currentUser if Outlook is older than 2007
 			if (outlookVersion.Major >= 12) {
