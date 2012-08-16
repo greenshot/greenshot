@@ -82,6 +82,9 @@ namespace Greenshot.Helpers {
 		/// <param name="someWindow"></param>
 		/// <returns></returns>
 		public static bool IsIEWindow(WindowDetails someWindow) {
+			if ("IEFrame".Equals(someWindow.ClassName)) {
+				return true;
+			}
 			return someWindow.GetChild("Internet Explorer_Server") != null;
 		}
 
@@ -89,8 +92,7 @@ namespace Greenshot.Helpers {
 		/// Get Windows displaying an IE
 		/// </summary>
 		/// <returns>List<WindowDetails></returns>
-		public static List<WindowDetails> GetIEWindows() {
-			List<WindowDetails> ieWindows = new List<WindowDetails>();
+		public static IEnumerable<WindowDetails> GetIEWindows() {
 			foreach (WindowDetails possibleIEWindow in WindowDetails.GetAllWindows()) {
 				if (possibleIEWindow.Text.Length == 0) {
 					continue;
@@ -99,10 +101,9 @@ namespace Greenshot.Helpers {
 					continue;
 				}
 				if (IsIEWindow(possibleIEWindow)) {
-					ieWindows.Add(possibleIEWindow);
+					yield return possibleIEWindow;
 				}
 			}
-			return ieWindows;
 		}
 
 		/// <summary>
@@ -110,7 +111,10 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <returns>bool</returns>
 		public static bool IsIERunning() {
-			return GetIEWindows().Count > 0;
+			foreach (WindowDetails ieWindow in GetIEWindows()) {
+				return true;
+			}
+			return false;
 		}
 
 		/// <summary>
@@ -122,8 +126,7 @@ namespace Greenshot.Helpers {
 			Dictionary<WindowDetails, List<string>> browserWindows = new Dictionary<WindowDetails, List<string>>();
 
 			// Find the IE windows
-			List<WindowDetails> ieWindows = GetIEWindows();
-			foreach (WindowDetails ieWindow in ieWindows) {
+			foreach (WindowDetails ieWindow in GetIEWindows()) {
 				try {
 					if (!ieHandleList.Contains(ieWindow.Handle)) {
 						WindowDetails directUIWD = IEHelper.GetDirectUI(ieWindow);

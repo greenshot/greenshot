@@ -649,9 +649,12 @@ namespace Greenshot {
 		/// Build a selectable list of IE tabs when we enter the menu item
 		/// </summary>
 		void CaptureIEMenuDropDownOpening(object sender, EventArgs e) {
+			if (!conf.IECapture) {
+				return;
+			}
 			try {
 				List<KeyValuePair<WindowDetails, string>> tabs = IECaptureHelper.GetTabList();
-				this.contextmenu_captureie.DropDownItems.Clear();
+				this.contextmenu_captureiefromlist.DropDownItems.Clear();
 				if (tabs.Count > 0) {
 					this.contextmenu_captureie.Enabled = true;
 					this.contextmenu_captureiefromlist.Enabled = true;
@@ -667,7 +670,7 @@ namespace Greenshot {
 						}
 						captureIETabItem.Tag = new KeyValuePair<WindowDetails, int>(tabData.Key, index++);
 						captureIETabItem.Click += new System.EventHandler(Contextmenu_captureiefromlist_Click);
-						this.contextmenu_captureie.DropDownItems.Add(captureIETabItem);
+						this.contextmenu_captureiefromlist.DropDownItems.Add(captureIETabItem);
 						if (counter.ContainsKey(tabData.Key)) {
 							counter[tabData.Key] = index;
 						} else {
