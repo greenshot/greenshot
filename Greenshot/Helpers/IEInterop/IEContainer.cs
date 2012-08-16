@@ -368,7 +368,12 @@ namespace Greenshot.Helpers.IEInterop {
 		/// <returns></returns>
 		public CaptureElement CreateCaptureElements(Size documentSize) {
 			LOG.DebugFormat("CreateCaptureElements for {0}", Name);
-			IHTMLElement baseElement = document3.documentElement as IHTMLElement;
+			IHTMLElement baseElement;
+			if (!isDTD) {
+				baseElement = document2.body;
+			} else {
+				baseElement = document3.documentElement;
+			}
 			IHTMLElement2 baseElement2 = baseElement as IHTMLElement2;
 			IHTMLRect htmlRect = baseElement2.getBoundingClientRect();
 			if (Size.Empty.Equals(documentSize)) {

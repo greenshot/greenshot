@@ -338,9 +338,13 @@ namespace Greenshot.Helpers {
 						capture.Elements.Clear();
 						CaptureElement documentCaptureElement = documentContainer.CreateCaptureElements(pageSize);
 						foreach(DocumentContainer frameDocument in documentContainer.Frames) {
-							CaptureElement frameCaptureElement = frameDocument.CreateCaptureElements(Size.Empty);
-							if (frameCaptureElement != null) {
-								documentCaptureElement.Children.Add(frameCaptureElement);
+							try {
+								CaptureElement frameCaptureElement = frameDocument.CreateCaptureElements(Size.Empty);
+								if (frameCaptureElement != null) {
+									documentCaptureElement.Children.Add(frameCaptureElement);
+								}
+							} catch (Exception ex) {
+								LOG.Warn("An error occurred while creating the capture elements: ", ex);
 							}
 						}
 						capture.AddElement(documentCaptureElement);
