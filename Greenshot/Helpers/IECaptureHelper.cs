@@ -129,13 +129,25 @@ namespace Greenshot.Helpers {
 			foreach (WindowDetails ieWindow in GetIEWindows()) {
 				try {
 					if (!ieHandleList.Contains(ieWindow.Handle)) {
-						WindowDetails directUIWD = IEHelper.GetDirectUI(ieWindow);
-						if (directUIWD != null) {
-							Accessible accessible = new Accessible(directUIWD.Handle);
-							browserWindows.Add(ieWindow, accessible.IETabCaptions);
+						if ("IEFrame".Equals(ieWindow.ClassName)) {
+							WindowDetails directUIWD = IEHelper.GetDirectUI(ieWindow);
+							if (directUIWD != null) {
+								Accessible accessible = new Accessible(directUIWD.Handle);
+								browserWindows.Add(ieWindow, accessible.IETabCaptions);
+							}
 						} else {
 							List<string> singleWindowText = new List<string>();
-							singleWindowText.Add(ieWindow.Text);
+							try {
+								IHTMLDocument2 document2 = getDocument(ieWindow);
+								string title = document2.title;
+								if (string.IsNullOrEmpty(title)) {
+									singleWindowText.Add(ieWindow.Text);
+								} else {
+									singleWindowText.Add(ieWindow.Text + " - " + title);
+								}
+							} catch {
+								singleWindowText.Add(ieWindow.Text);
+							}
 							browserWindows.Add(ieWindow, singleWindowText);
 						}
 						ieHandleList.Add(ieWindow.Handle);
@@ -152,6 +164,40 @@ namespace Greenshot.Helpers {
 				}
 			}
 			return returnList;
+		}
+
+		/// <summary>
+		/// Helper Method to get the IHTMLDocument2
+		/// </summary>
+		/// <param name="mainWindow"></param>
+		/// <returns></returns>
+		private static IHTMLDocument2 getDocument(WindowDetails mainWindow) {
+			IHTMLDocument2 document2 = null;
+			uint windowMessage = User32.RegisterWindowMessage("WM_HTML_GETOBJECT");
+			if (windowMessage == 0) {
+				LOG.WarnFormat("Couldn't register WM_HTML_GETOBJECT");
+				return null;
+			}
+
+			WindowDetails ieServer = mainWindow.GetChild("Internet Explorer_Server");
+			if (ieServer == null) {
+				LOG.WarnFormat("No Internet Explorer_Server for {0}", mainWindow.Text);
+				return null;
+			}
+			LOG.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.ClassName);
+			UIntPtr response;
+			User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 5000, out response);
+			if (response != UIntPtr.Zero) {
+				document2 = (IHTMLDocument2)Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
+				if (document2 == null) {
+					LOG.Error("No IHTMLDocument2 found");
+					return null;
+				}
+			} else {
+				LOG.Error("No answer on WM_HTML_GETOBJECT.");
+				return null;
+			}
+			return document2;
 		}
 
 		/// <summary>
@@ -189,29 +235,8 @@ namespace Greenshot.Helpers {
 
 				try {
 					// Get the Document
-					IHTMLDocument2 document2 = null;
-					uint windowMessage = User32.RegisterWindowMessage("WM_HTML_GETOBJECT");
-					if (windowMessage == 0) {
-						LOG.WarnFormat("Couldn't register WM_HTML_GETOBJECT");
-						continue;
-					}
-
-					WindowDetails ieServer= ieWindow.GetChild("Internet Explorer_Server");
-					if (ieServer == null) {
-						LOG.WarnFormat("No Internet Explorer_Server for {0}", ieWindow.Text);
-						continue;
-					}
-					LOG.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.ClassName);
-					UIntPtr response;
-					User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 5000, out response);
-					if (response != UIntPtr.Zero) {
-						document2 = (IHTMLDocument2)Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
-						if (document2 == null) {
-							LOG.Error("No IHTMLDocument2 found");
-							continue;
-						}
-					} else {
-						LOG.Error("No answer on WM_HTML_GETOBJECT.");
+					IHTMLDocument2 document2 = getDocument(ieWindow);
+					if (document2 == null) {
 						continue;
 					}
 
