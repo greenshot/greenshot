@@ -138,7 +138,7 @@ namespace Greenshot.Helpers {
 						} else {
 							List<string> singleWindowText = new List<string>();
 							try {
-								IHTMLDocument2 document2 = getDocument(ieWindow);
+								IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
 								string title = document2.title;
 								if (string.IsNullOrEmpty(title)) {
 									singleWindowText.Add(ieWindow.Text);
@@ -171,7 +171,18 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="mainWindow"></param>
 		/// <returns></returns>
-		private static IHTMLDocument2 getDocument(WindowDetails mainWindow) {
+		private static IHTMLDocument2 getHTMLDocument(WindowDetails mainWindow) {
+			WindowDetails ieServer;
+			if ("Internet Explorer_Server".Equals(mainWindow.ClassName)) {
+				ieServer = mainWindow;
+			} else {
+				ieServer = mainWindow.GetChild("Internet Explorer_Server");
+			}
+			if (ieServer == null) {
+				LOG.WarnFormat("No Internet Explorer_Server for {0}", mainWindow.Text);
+				return null;
+			}
+
 			IHTMLDocument2 document2 = null;
 			uint windowMessage = User32.RegisterWindowMessage("WM_HTML_GETOBJECT");
 			if (windowMessage == 0) {
@@ -179,11 +190,6 @@ namespace Greenshot.Helpers {
 				return null;
 			}
 
-			WindowDetails ieServer = mainWindow.GetChild("Internet Explorer_Server");
-			if (ieServer == null) {
-				LOG.WarnFormat("No Internet Explorer_Server for {0}", mainWindow.Text);
-				return null;
-			}
 			LOG.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.ClassName);
 			UIntPtr response;
 			User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 5000, out response);
@@ -207,7 +213,7 @@ namespace Greenshot.Helpers {
 		/// <param name="browserWindow">The WindowDetails to get the IHTMLDocument2 for</param>
 		/// <param name="document2">Ref to the IHTMLDocument2 to return</param>
 		/// <returns>The WindowDetails to which the IHTMLDocument2 belongs</returns>
-		private static DocumentContainer GetDocument(WindowDetails browserWindow) {
+		private static DocumentContainer CreateDocumentContainer(WindowDetails browserWindow) {
 			DocumentContainer returnDocumentContainer = null;
 			WindowDetails returnWindow = null;
 			IHTMLDocument2 returnDocument2 = null;
@@ -235,7 +241,7 @@ namespace Greenshot.Helpers {
 
 				try {
 					// Get the Document
-					IHTMLDocument2 document2 = getDocument(ieWindow);
+					IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
 					if (document2 == null) {
 						continue;
 					}
@@ -337,7 +343,7 @@ namespace Greenshot.Helpers {
 			//BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(LangKey.contextmenu_captureie), language.GetString(LangKey.wait_ie_capture));
 			try {
 				//Get IHTMLDocument2 for the current active window
-				DocumentContainer documentContainer = GetDocument(windowToCapture);
+				DocumentContainer documentContainer = CreateDocumentContainer(windowToCapture);
 	
 				// Nothing found
 				if (documentContainer == null) {
