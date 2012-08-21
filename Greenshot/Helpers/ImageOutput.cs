@@ -31,6 +31,7 @@ using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Drawing;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -159,6 +160,69 @@ namespace Greenshot.Helpers {
 					imageToSave.Dispose();
 				}
 			}
+		}
+		
+		/// <summary>
+		/// Save a Greenshot surface
+		/// </summary>
+		/// <param name="surface">Surface to save</param>
+		/// <param name="fullPath">Path to file</param>
+		public static void SaveGreenshotSurface(Surface surface, string fullPath) {
+			fullPath = FilenameHelper.MakeFQFilenameSafe(fullPath);
+			string path = Path.GetDirectoryName(fullPath);
+			// Get output settings from the configuration
+			OutputSettings outputSettings = new OutputSettings(OutputFormat.png);
+
+			// check whether path exists - if not create it
+			DirectoryInfo di = new DirectoryInfo(path);
+			if (!di.Exists) {
+				Directory.CreateDirectory(di.FullName);
+			}
+			using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) {
+				SaveToStream(surface.Image, stream, outputSettings);
+				long bytesWritten = surface.SaveElementsToStream(stream);
+				using (BinaryWriter writer = new BinaryWriter(stream)) {
+					writer.Write(bytesWritten);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// Load a Greenshot surface
+		/// </summary>
+		/// <param name="fullPath"></param>
+		/// <returns></returns>
+		public static Surface LoadGreenshotSurface(string fullPath) {
+			Surface returnSurface = null;
+			if (string.IsNullOrEmpty(fullPath)) {
+				return null;
+			}
+			Bitmap fileBitmap = null;
+			LOG.InfoFormat("Loading image from file {0}", fullPath);
+			// Fixed lock problem Bug #3431881
+			using (Stream imageFileStream = File.OpenRead(fullPath)) {
+				// And fixed problem that the bitmap stream is disposed... by Cloning the image
+				// This also ensures the bitmap is correctly created
+				
+				// We create a copy of the bitmap, so everything else can be disposed
+				imageFileStream.Position = 0;
+				using (Image tmpImage = Image.FromStream(imageFileStream, true, true)) {
+					LOG.DebugFormat("Loaded {0} with Size {1}x{2} and PixelFormat {3}", fullPath, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+					fileBitmap = ImageHelper.Clone(tmpImage);
+				}
+				returnSurface = new Surface(fileBitmap);
+				imageFileStream.Seek(-8, SeekOrigin.End);
+				long bytesWritten = 0;
+				using (BinaryReader reader = new BinaryReader(imageFileStream)) {
+					bytesWritten = reader.ReadInt64();
+					imageFileStream.Seek(-(bytesWritten+8), SeekOrigin.End);
+					returnSurface.LoadElementsFromStream(imageFileStream);
+				}
+			}
+			if (fileBitmap != null) {
+				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, fileBitmap.Width, fileBitmap.Height, fileBitmap.PixelFormat, fileBitmap.HorizontalResolution, fileBitmap.VerticalResolution);
+			}
+			return returnSurface;
 		}
 		
 		/// <summary>

@@ -301,13 +301,17 @@ namespace Greenshot.Drawing {
 			}
 		}
 		
-		public void SaveElementsToStream(Stream streamWrite) {
+		public long SaveElementsToStream(Stream streamWrite) {
+			long bytesWritten = 0;
 			try {
+				long lengtBefore = streamWrite.Length;
 				BinaryFormatter binaryWrite = new BinaryFormatter();
 				binaryWrite.Serialize(streamWrite, elements);
+				bytesWritten = streamWrite.Length - lengtBefore;
 			} catch (Exception e) {
 				LOG.Error("Error serializing elements to stream.", e);
 			}
+			return bytesWritten;
 		}
 		
 		public void LoadElementsFromStream(Stream streamRead) {
