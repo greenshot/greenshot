@@ -297,7 +297,18 @@ namespace Greenshot.Helpers {
 				case CaptureMode.File:
 					Bitmap fileBitmap = null;
 					string filename = capture.CaptureDetails.Filename;
+
 					if (!string.IsNullOrEmpty(filename)) {
+						try {
+							if (filename.EndsWith(".gsf")) {
+								ISurface surface = ImageOutput.LoadGreenshotSurface(filename);
+								DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, capture.CaptureDetails);
+								break;
+							}
+						} catch (Exception e) {
+							LOG.Error(e.Message, e);
+							MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+						}
 						try {
 							fileBitmap = ImageHelper.LoadBitmap(filename);
 						} catch (Exception e) {
