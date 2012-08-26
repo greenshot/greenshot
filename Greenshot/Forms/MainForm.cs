@@ -696,6 +696,7 @@ namespace Greenshot {
 			captureScreenMenuItem.DropDownItems.Clear();
 			if (Screen.AllScreens.Length > 1) {
 				ToolStripMenuItem captureScreenItem;
+				Rectangle allScreensBounds = WindowCapture.GetScreenBounds();
 				string allDeviceName = "";
 				foreach (Screen screen in Screen.AllScreens) {
 					string deviceName = screen.DeviceName;
@@ -704,7 +705,7 @@ namespace Greenshot {
 					}
 					allDeviceName += deviceName.Substring(deviceName.Length - 1);
 				}
-				captureScreenItem = new ToolStripMenuItem(allDeviceName);
+				captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all) + " (" + allDeviceName + ")");
 				captureScreenItem.Click += delegate {
 					BeginInvoke((MethodInvoker)delegate {
 						CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
@@ -714,7 +715,19 @@ namespace Greenshot {
 				foreach (Screen screen in Screen.AllScreens) {
 					Screen screenToCapture = screen;
 					string deviceName = screenToCapture.DeviceName;
+					string deviceAlignment = "";
 					deviceName = deviceName.Substring(deviceName.Length - 1);
+					if(screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom) {
+						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
+					} else if(screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom) {
+						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
+					}
+					if(screen.Bounds.Left == allScreensBounds.Left && screen.Bounds.Right != allScreensBounds.Right) {
+						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
+					} else if(screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right) {
+						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
+					}
+					deviceName = deviceAlignment + " ("+ deviceName +")";
 					captureScreenItem = new ToolStripMenuItem(deviceName);
 					captureScreenItem.Click += delegate {
 						BeginInvoke((MethodInvoker)delegate {
