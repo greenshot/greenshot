@@ -78,6 +78,7 @@ namespace Greenshot.Destinations {
 					case ToolStripDropDownCloseReason.Keyboard:
 						// Dispose as the close is clicked
 						surface.Dispose();
+						surface = null;
 						break;
 					default:
 						eventArgs.Cancel = true;
@@ -111,6 +112,7 @@ namespace Greenshot.Destinations {
 							// Cleanup surface, only if the destination wasn't the editor
 							if (!isEditor) {
 								surface.Dispose();
+								surface = null;
 							}
 						} else {
 							LOG.Info("Export failed, showing menu again");
@@ -132,6 +134,7 @@ namespace Greenshot.Destinations {
 				menu.Close();
 				// Dispose as the close is clicked
 				surface.Dispose();
+				surface = null;
 			};
 			menu.Items.Add(closeItem);
 
