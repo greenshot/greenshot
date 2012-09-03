@@ -1,6 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Pусский" ietf="ru-RU" version="1.0.0" languagegroup="5">
 	<resources>
+		<resource name="editor_grayscale">Оттенки серого</resource>
+		<resource name="editor_effects">Эффекты</resource>
+		<resource name="editor_drawfreehand">Произвольно нарисовать (F)</resource>
+		<resource name="editor_border">Рамка</resource>
+		<resource name="editor_autocrop">Автообрезка</resource>
+		<resource name="destination_exportfailed">Ошибка при экспорте {0}. Пожалуйста, попробуйте снова.</resource>
+		<resource name="contextmenu_openrecentcapture">Открыть последнее расположение захвата</resource>
+		<resource name="contextmenu_captureie">Захват Internet Explorer</resource>
+		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML с встроенными изображениями</resource>
+		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormat.DIB">Устройство Independend Bitmap (DIB)</resource>
+		<resource name="CANCEL">Отмена</resource>
+		<resource name="about_translation">Русский перевод Андрея Кравцова, http://sapfir.ucoz.ru</resource>
 		<resource name="about_bugs">Просьба сообщать об ошибках на</resource>
 		<resource name="about_donations">Если вам нравится Greenshot, вы можете поддержать нас:</resource>
 		<resource name="about_host">Greenshot размещается на sourceforge.net</resource>
@@ -9,7 +23,6 @@
 Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.Это бесплатная программа и вы можете распространять её на определённых условиях.
 Подробно о GNU General Public License:</resource>
 		<resource name="about_title">О программе Greenshot</resource>
-		<resource name="about_translation">Русский перевод Андрея Кравцова, http://sapfir.ucoz.ru</resource>
 		<resource name="application_title">Greenshot — передовая утилита для получения скриншотов</resource>
 		<resource name="bugreport_cancel">Закрыть</resource>
 		<resource name="bugreport_info">Извините, произошла непредвиденная ошибка.
@@ -18,15 +31,10 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 Посетите URL ниже, создайте новый отчёт об ошибке и вставьте содержимое в текстовое поле.
 
 Пожалуйста, добавьте значимое резюме и приложите любую информацию, которую вы считаете полезной для воспроизведения проблемы.
-Кроме того, мы были бы весьма признательны, если вы попробуете найти решение этой ошибки, вользовавшись поисковиком. Спасибо:) </resource>
+Кроме того, мы были бы весьма признательны, если вы попробуете найти решение этой ошибки, вользовавшись поисковиком. Спасибо:)</resource>
 		<resource name="bugreport_title">Ошибка</resource>
-		<resource name="CANCEL">Отмена</resource>
 		<resource name="clipboard_error">Произошла непредвиденная ошибка при записи в буфер обмена.</resource>
 		<resource name="clipboard_inuse">Greenshot не смог записать в буфер обмена, доступ заблокирован процессом {0}.</resource>
-		<resource name="ClipboardFormat.DIB">Устройство Independend Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML с встроенными изображениями</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Применить</resource>
 		<resource name="colorpicker_blue">Синий</resource>
@@ -41,28 +49,23 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="contextmenu_capturearea">Захват области</resource>
 		<resource name="contextmenu_captureclipboard">Открыть изображение из буфера обмена</resource>
 		<resource name="contextmenu_capturefullscreen">Снять весь экран</resource>
-		<resource name="contextmenu_captureie">Захват Internet Explorer</resource>
 		<resource name="contextmenu_capturelastregion">Захват последней области</resource>
 		<resource name="contextmenu_capturewindow">Захват окна</resource>
 		<resource name="contextmenu_donate">Поддержка Greenshot</resource>
 		<resource name="contextmenu_exit">Выход</resource>
 		<resource name="contextmenu_help">Справка</resource>
 		<resource name="contextmenu_openfile">Открыть изображение из файла</resource>
-		<resource name="contextmenu_openrecentcapture">Открыть последнее расположение захвата</resource>
 		<resource name="contextmenu_quicksettings">Быстрые настройки</resource>
 		<resource name="contextmenu_settings">Предпочтения...</resource>
-		<resource name="destination_exportfailed">Ошибка при экспорте {0}. Пожалуйста, попробуйте снова.</resource>
 		<resource name="editor_arrange">Упорядочить</resource>
 		<resource name="editor_arrowheads">Наконечник стрелки</resource>
 		<resource name="editor_arrowheads_both">Обе точки</resource>
 		<resource name="editor_arrowheads_end">Конечная точка</resource>
 		<resource name="editor_arrowheads_none">Ничего</resource>
 		<resource name="editor_arrowheads_start">Начальная точка</resource>
-		<resource name="editor_autocrop">Автообрезка</resource>
 		<resource name="editor_backcolor">Цвет заливки</resource>
 		<resource name="editor_blur_radius">Радиус размывания</resource>
 		<resource name="editor_bold">Жирный</resource>
-		<resource name="editor_border">Рамка</resource>
 		<resource name="editor_brightness">Яркость</resource>
 		<resource name="editor_cancel">Отмена</resource>
 		<resource name="editor_clipboardfailed">Ошибка при попытке доступа в буфер обмена. Пожалуйста, попробуйте снова.</resource>
@@ -81,31 +84,25 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_downtobottom">В самый низ</resource>
 		<resource name="editor_drawarrow">Нарисовать стрелку (A)</resource>
 		<resource name="editor_drawellipse">Нарисовать эллипс (E)</resource>
-		<resource name="editor_drawfreehand">Произвольно нарисовать (F)</resource>
 		<resource name="editor_drawhighlighter">Выделить (H)</resource>
 		<resource name="editor_drawline">Нарисовать линию (L)</resource>
 		<resource name="editor_drawrectangle">Нарисовать прямоугольник (R)</resource>
 		<resource name="editor_drawtextbox">Добавить текстовое поле (T)</resource>
 		<resource name="editor_duplicate">Дубликат выбранного элемента</resource>
 		<resource name="editor_edit">Изменить</resource>
-		<resource name="editor_effects">Эффекты</resource>
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">Файл</resource>
 		<resource name="editor_fontsize">Размер</resource>
 		<resource name="editor_forecolor">Цвет линии</resource>
-		<resource name="editor_grayscale">Оттенки серого</resource>
 		<resource name="editor_highlight_area">Выделить область</resource>
 		<resource name="editor_highlight_grayscale">Оттенки серого</resource>
 		<resource name="editor_highlight_magnify">Увеличить</resource>
 		<resource name="editor_highlight_mode">Режим выделения</resource>
 		<resource name="editor_highlight_text">Выделить текст</resource>
 		<resource name="editor_imagesaved">Изображения сохраняются в {0}.</resource>
-		<resource name="editor_insertwindow">Вставить окно</resource>
-		<resource name="editor_invert">Инвертировать</resource>
 		<resource name="editor_italic">Курсив</resource>
 		<resource name="editor_load_objects">Загрузить объекты из файла</resource>
 		<resource name="editor_magnification_factor">Коэффициент увеличения</resource>
-		<resource name="editor_match_capture_size">Адаптировать размер захвата</resource>
 		<resource name="editor_obfuscate">Затемнение (O)</resource>
 		<resource name="editor_obfuscate_blur">Пятно</resource>
 		<resource name="editor_obfuscate_mode">Режим затемнения</resource>
@@ -116,10 +113,6 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_pixel_size">Размер пикселя</resource>
 		<resource name="editor_preview_quality">Качество предосмотра</resource>
 		<resource name="editor_print">Печать</resource>
-		<resource name="editor_redo">Повторить {0}</resource>
-		<resource name="editor_resetsize">Сбросить размер</resource>
-		<resource name="editor_rotateccw">Повернуть против час.стрелки</resource>
-		<resource name="editor_rotatecw">Повернуть по час.стрелке</resource>
 		<resource name="editor_save">Созранить</resource>
 		<resource name="editor_save_objects">Сохранение объектов в файл</resource>
 		<resource name="editor_saveas">Сохранить как...</resource>
@@ -129,13 +122,8 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_storedtoclipboard">Изображения, хранящиеся в буфере обмена.</resource>
 		<resource name="editor_thickness">Толщина линии</resource>
 		<resource name="editor_title">Графический редактор Greenshot</resource>
-		<resource name="editor_torn_edge">Рваные края</resource>
-		<resource name="editor_undo">Отменить {0}</resource>
 		<resource name="editor_uponelevel">На один уровень вверх</resource>
 		<resource name="editor_uptotop">На самый верх</resource>
-		<resource name="EmailFormat.MAPI">MAPI клиент</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook с HTML</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook с текстом</resource>
 		<resource name="error">Ошибка</resource>
 		<resource name="error_multipleinstances">Экземпляр Greenshot уже запущен.</resource>
 		<resource name="error_nowriteaccess">Не удалось сохранить файл на {0}.
@@ -143,37 +131,16 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="error_openfile">Файл "{0}" не может быть открыт.</resource>
 		<resource name="error_openlink">Не удалось открыть ссылку '{0}'.</resource>
 		<resource name="error_save">Не удалось сохранить скриншот, пожалуйста найдите подходящее место.</resource>
-		<resource name="expertsettings">Эксперт</resource>
-		<resource name="expertsettings_autoreducecolors">Создание 8-битного изображения, если цветов менее 256; 8-битное изображение</resource>
-		<resource name="expertsettings_checkunstableupdates">Проверка нестабильных обновлений</resource>
-		<resource name="expertsettings_clipboardformats">Форматы буфера обмена</resource>
-		<resource name="expertsettings_counter">Номер ${NUM} для имени файла шаблона</resource>
-		<resource name="expertsettings_enableexpert">Я знаю, что я делаю!</resource>
-		<resource name="expertsettings_footerpattern">Нижний уровень шаблона принтера</resource>
-		<resource name="expertsettings_minimizememoryfootprint">Минимизировать объём памяти, но с уровнем производительности (не приветствуется).</resource>
-		<resource name="expertsettings_optimizeforrdp">Сделать некоторые оптимизации для использования с удалённым рабочим столом</resource>
-		<resource name="expertsettings_suppresssavedialogatclose">Подавить диалог сохранения при закрытии редактора</resource>
-		<resource name="expertsettings_thumbnailpreview">Показывать окно эскизов в контекстном меню (для Vista и windows 7)</resource>
-		<resource name="exported_to">Экспортировано в: {0}</resource>
 		<resource name="help_title">Greenshot справка</resource>
-		<resource name="hotkey_fullscreen">Захват экрана</resource>
-		<resource name="hotkey_ie">Захват Internet Explorer</resource>
-		<resource name="hotkey_lastregion">Захват последней области</resource>
-		<resource name="hotkey_region">Захват области</resource>
-		<resource name="hotkey_window">Захват окна</resource>
-		<resource name="hotkeys">Горячие клавиши</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Пожалуйста, выберите качество для вашего изображения.</resource>
 		<resource name="jpegqualitydialog_dontaskagain">Сохранить с качеством по умолчанию и больше не спрашивать</resource>
 		<resource name="jpegqualitydialog_title">Качество Greenshot</resource>
-		<resource name="OK">Ok</resource>
 		<resource name="print_error">Произошла ошибка при попытке напечатать.</resource>
 		<resource name="printoptions_allowcenter">Печать по центру страницы</resource>
 		<resource name="printoptions_allowenlarge">Растянуть на всю страницу</resource>
 		<resource name="printoptions_allowrotate">Повернуть согласно ориентации страницы</resource>
 		<resource name="printoptions_allowshrink">Подогнать, чтобы вместить на страницу</resource>
 		<resource name="printoptions_dontaskagain">Сохранить параметры по умолчанию и больше не спрашивать</resource>
-		<resource name="printoptions_inverted">Печать с инвертированием цвета</resource>
-		<resource name="printoptions_printgrayscale">Форсировать печать в оттенках серого</resource>
 		<resource name="printoptions_timestamp">Печать даты / времени в нижней части страницы</resource>
 		<resource name="printoptions_title">Параметры печати Greenshot</resource>
 		<resource name="quicksettings_destination_file">Сохранить непосредственно (с использованием предпочтительного параметра файла вывода)</resource>
@@ -184,8 +151,6 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="settings_capture">Захват</resource>
 		<resource name="settings_capture_mousepointer">Захват указателя мыши</resource>
 		<resource name="settings_capture_windows_interactive">Использовать режим захвата интерактивного окна</resource>
-		<resource name="settings_checkperiod">Интервал проверки обновлений в днях (0=без проверки)</resource>
-		<resource name="settings_configureplugin">Настройка</resource>
 		<resource name="settings_copypathtoclipboard">Копировать путь файла в буфер обмена каждый раз при сохранении изображения</resource>
 		<resource name="settings_destination">Пункт назначения</resource>
 		<resource name="settings_destination_clipboard">Копировать в буфер</resource>
@@ -193,12 +158,9 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Сохранить непосредственно (с помощью параметров ниже)</resource>
 		<resource name="settings_destination_fileas">Сохранить как (отображать диалоговое окно)</resource>
-		<resource name="settings_destination_picker">Динамический выбор назначения</resource>
 		<resource name="settings_destination_printer">Отправить на печать</resource>
-		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон имени файла</resource>
 		<resource name="settings_general">Общие</resource>
-		<resource name="settings_iecapture">Захват обозревателя Internet Explorer</resource>
 		<resource name="settings_jpegquality">Качество JPEG</resource>
 		<resource name="settings_jpegsettings">Параметры качества</resource>
 		<resource name="settings_language">Язык</resource>
@@ -219,18 +181,14 @@ ${hostname} Имя ПК
 Пример шаблона: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} 
 Будет создана папка на текущий день, в вашем хранилище по умолчанию, например 2008-06-29.Содержащее имя файла скриншота будет основываться на текущем
 времени, например 11_58_32 (плюс расширения, определённые в настройках)</resource>
-		<resource name="settings_network">Сет и обновления</resource>
 		<resource name="settings_output">Выходные данные</resource>
 		<resource name="settings_playsound">Воспроизводить звук камеры</resource>
-		<resource name="settings_plugins">Плагины</resource>
 		<resource name="settings_preferredfilesettings">Персональные настройки выходного файла</resource>
 		<resource name="settings_primaryimageformat">Формат изображения</resource>
 		<resource name="settings_printer">Принтер</resource>
 		<resource name="settings_printoptions">Параметры печати</resource>
-		<resource name="settings_reducecolors">Уменьшить количество цветов, максимум 256</resource>
 		<resource name="settings_registerhotkeys">Регистрация горячих клавиш</resource>
 		<resource name="settings_showflashlight">Показывать вспышку</resource>
-		<resource name="settings_shownotify">Показывать уведомления</resource>
 		<resource name="settings_storagelocation">Место хранения</resource>
 		<resource name="settings_title">Параметры</resource>
 		<resource name="settings_tooltip_filenamepattern">Шаблон, используемый для создания имён файлов при сохранении скриншотов</resource>
@@ -238,22 +196,70 @@ ${hostname} Имя ПК
 		<resource name="settings_tooltip_primaryimageformat">Формат изображения, используемый по умолчанию</resource>
 		<resource name="settings_tooltip_registerhotkeys">Определяет, работают ли ярлыки Prnt, Ctrl + Print, Alt + Prnt для глобального использования Greenshot при запуске программы, пока программа работает.</resource>
 		<resource name="settings_tooltip_storagelocation">Место хранения скриншотов по умолчанию (оставьте пустым для сохранения на рабочий стол)</resource>
-		<resource name="settings_usedefaultproxy">Использовать прокси-сервер системы по умолчанию</resource>
 		<resource name="settings_visualization">Эффекты</resource>
 		<resource name="settings_waittime">Ожидание перед захватом в миллисекундах</resource>
-		<resource name="settings_window_capture_mode">Режим захвата окна</resource>
-		<resource name="settings_windowscapture">Захват окна</resource>
 		<resource name="tooltip_firststart">Щёлкните здесь правой кнопкой мыши или нажмите клавишу {0}.</resource>
-		<resource name="update_found">Доступна новая версия Greenshot! Вы хотите скачать Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Подождите, пока захватываются страницы в обозревателе Internet Explorer...</resource>
 		<resource name="warning">Предупреждение</resource>
 		<resource name="warning_hotkeys">Горячие клавиши "{0}" не могут быть зарегистрированы. Эта проблема может быть связано с ещё одним инструментом, использующим те же клавиши! Нужно либо изменить настройки клавиш или деактивировать/изменить программное обеспечение, использующее горячие клавиши.
 
 Все функции Greenshot по-прежнему работают прямо из контекстного меню через значок  в трее.</resource>
+		<resource name="editor_insertwindow">Вставить окно</resource>
+		<resource name="editor_invert">Инвертировать</resource>
+		<resource name="editor_match_capture_size">Адаптировать размер захвата</resource>
+		<resource name="editor_redo">Повторить {0}</resource>
+		<resource name="editor_resetsize">Сбросить размер</resource>
+		<resource name="editor_rotateccw">Повернуть против час.стрелки</resource>
+		<resource name="editor_rotatecw">Повернуть по час.стрелке</resource>
+		<resource name="editor_torn_edge">Рваные края</resource>
+		<resource name="editor_undo">Отменить {0}</resource>
+		<resource name="EmailFormat.MAPI">MAPI клиент</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook с HTML</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook с текстом</resource>
+		<resource name="expertsettings">Эксперт</resource>
+		<resource name="expertsettings_autoreducecolors">Создание 8-битного изображения, если цветов менее 256; 8-битное изображение</resource>
+		<resource name="expertsettings_checkunstableupdates">Проверка нестабильных обновлений</resource>
+		<resource name="expertsettings_clipboardformats">Форматы буфера обмена</resource>
+		<resource name="expertsettings_counter">Номер ${NUM} для имени файла шаблона</resource>
+		<resource name="expertsettings_enableexpert">Я знаю, что я делаю!</resource>
+		<resource name="expertsettings_footerpattern">Нижний уровень шаблона принтера</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Минимизировать объём памяти, но с уровнем производительности (не приветствуется).</resource>
+		<resource name="expertsettings_optimizeforrdp">Сделать некоторые оптимизации для использования с удалённым рабочим столом</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Подавить диалог сохранения при закрытии редактора</resource>
+		<resource name="expertsettings_thumbnailpreview">Показывать окно эскизов в контекстном меню (для Vista и windows 7)</resource>
+		<resource name="exported_to">Экспортировано в: {0}</resource>
+		<resource name="hotkey_fullscreen">Захват экрана</resource>
+		<resource name="hotkey_ie">Захват Internet Explorer</resource>
+		<resource name="hotkey_lastregion">Захват последней области</resource>
+		<resource name="hotkey_region">Захват области</resource>
+		<resource name="hotkey_window">Захват окна</resource>
+		<resource name="hotkeys">Горячие клавиши</resource>
+		<resource name="OK">Ok</resource>
+		<resource name="printoptions_inverted">Печать с инвертированием цвета</resource>
+		<resource name="printoptions_printgrayscale">Форсировать печать в оттенках серого</resource>
+		<resource name="settings_checkperiod">Интервал проверки обновлений в днях (0=без проверки)</resource>
+		<resource name="settings_configureplugin">Настройка</resource>
+		<resource name="settings_destination_picker">Динамический выбор назначения</resource>
+		<resource name="settings_editor">Редактор</resource>
+		<resource name="settings_iecapture">Захват обозревателя Internet Explorer</resource>
+		<resource name="settings_network">Сет и обновления</resource>
+		<resource name="settings_plugins">Плагины</resource>
+		<resource name="settings_reducecolors">Уменьшить количество цветов, максимум 256</resource>
+		<resource name="settings_shownotify">Показывать уведомления</resource>
+		<resource name="settings_usedefaultproxy">Использовать прокси-сервер системы по умолчанию</resource>
+		<resource name="settings_window_capture_mode">Режим захвата окна</resource>
+		<resource name="settings_windowscapture">Захват окна</resource>
+		<resource name="update_found">Доступна новая версия Greenshot! Вы хотите скачать Greenshot {0}?</resource>
+		<resource name="wait_ie_capture">Подождите, пока захватываются страницы в обозревателе Internet Explorer...</resource>
 		<resource name="WindowCaptureMode.Aero">Использовать свой цвет</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Сохранить прозрачность</resource>
 		<resource name="WindowCaptureMode.Auto">Автоматически</resource>
 		<resource name="WindowCaptureMode.GDI">Использовать цвет по умолчанию</resource>
 		<resource name="WindowCaptureMode.Screen">Как показано</resource>
+		<resource name="contextmenu_captureiefromlist">Снимок Internet Explorer из списка</resource>
+		<resource name="contextmenu_capturewindowfromlist">Снимок окна из списка</resource>
+		<resource name="qualitydialog_dontaskagain">Сохранить с качеством по-умполчанию и больше не спрашивать</resource>
+		<resource name="qualitydialog_title">Качество Greenshot</resource>
+		<resource name="settings_alwaysshowqualitydialog">Показывать диалог с выбором качества каждый раз при сохранении изображения</resource>
+		<resource name="settings_qualitysettings">Настройки качества</resource>
 	</resources>
 </language>
