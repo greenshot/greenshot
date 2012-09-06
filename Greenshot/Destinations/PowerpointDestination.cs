@@ -131,8 +131,7 @@ namespace Greenshot.Destinations {
 						foreach (string presentation in presentations) {
 							destinations.Add(new PowerpointDestination(presentation));
 						}
-						ContextMenuStrip menu = PickerDestination.CreatePickerMenu(false, surface, captureDetails, destinations);
-						PickerDestination.ShowMenuAtCursor(menu);
+						PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
 						return false;
 					}
 				}

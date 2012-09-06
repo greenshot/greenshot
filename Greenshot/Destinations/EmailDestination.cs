@@ -218,8 +218,7 @@ namespace Greenshot.Destinations {
 						foreach (string inspectorCaption in inspectorCaptions.Keys) {
 							destinations.Add(new EmailDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
 						}
-						ContextMenuStrip menu = PickerDestination.CreatePickerMenu(false, surface, captureDetails, destinations);
-						PickerDestination.ShowMenuAtCursor(menu);
+						PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
 						return false;
 					}
 				}

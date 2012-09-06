@@ -60,14 +60,14 @@ namespace Greenshot.Destinations {
 		}
 		
 		/// <summary>
-		/// This method will create the destination picker menu
+		/// This method will create and show the destination picker menu
 		/// </summary>
 		/// <param name="addDynamics">Boolean if the dynamic values also need to be added</param>
 		/// <param name="surface">The surface which can be exported</param>
 		/// <param name="captureDetails">Details for the surface</param>
 		/// <param name="destinations">The list of destinations to show</param>
 		/// <returns></returns>
-		public static ContextMenuStrip CreatePickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations) {
+		public static void ShowPickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations) {
 			ContextMenuStrip menu = new ContextMenuStrip();
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
 				LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
@@ -138,14 +138,14 @@ namespace Greenshot.Destinations {
 			};
 			menu.Items.Add(closeItem);
 
-			return menu;
+			ShowMenuAtCursor(menu);
 		}
 
 		/// <summary>
 		/// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
 		/// </summary>
 		/// <param name="menu"></param>
-		public static void ShowMenuAtCursor(ContextMenuStrip menu) {
+		private static void ShowMenuAtCursor(ContextMenuStrip menu) {
 			// find a suitable location
 			Point location = Cursor.Position;
 			Rectangle menuRectangle = new Rectangle(location, menu.Size);
@@ -160,6 +160,17 @@ namespace Greenshot.Destinations {
 			User32.SetForegroundWindow(MainForm.instance.notifyIcon.ContextMenuStrip.Handle);
 			menu.Show(location);
 			menu.Focus();
+
+			// Wait for the menu to close, so we can dispose it.
+			while (true) {
+				if (menu.Visible) {
+					Application.DoEvents();
+					System.Threading.Thread.Sleep(100);
+				} else {
+					menu.Dispose();
+					break;
+				}
+			}
 		}
 
 		/// <summary>
@@ -181,8 +192,7 @@ namespace Greenshot.Destinations {
 				destinations.Add(destination);
 			}
 
-			ContextMenuStrip menu = CreatePickerMenu(true, surface, captureDetails, destinations);
-			ShowMenuAtCursor(menu);
+			ShowPickerMenu(true, surface, captureDetails, destinations);
 			return true;
 		}
 	}

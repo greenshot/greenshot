@@ -220,7 +220,7 @@ namespace Greenshot {
 				
 				// Generate the entries for the drop down
 				destinationButton.DropDownOpening += delegate(object sender, EventArgs e) {
-					destinationButton.DropDownItems.Clear();
+					ClearItems(destinationButton.DropDownItems);
 					destinationButton.DropDownItems.Add(defaultItem);
 
 					List<IDestination> subDestinations = new List<IDestination>();
@@ -255,8 +255,23 @@ namespace Greenshot {
 			}
 		}
 		
+		/// <summary>
+		/// According to some information I found, the clear doesn't work correctly when the shortcutkeys are set?
+		/// This helper method takes care of this.
+		/// </summary>
+		/// <param name="items"></param>
+		private void ClearItems(ToolStripItemCollection items) {
+			foreach(var item in items) {
+				ToolStripMenuItem menuItem = item as ToolStripMenuItem;
+				if (menuItem != null && menuItem.ShortcutKeys != Keys.None) {
+					menuItem.ShortcutKeys = Keys.None;
+				}
+			}
+			items.Clear();
+		}
+
 		void FileMenuDropDownOpening(object sender, EventArgs eventArgs) {
-			this.fileStripMenuItem.DropDownItems.Clear();
+			ClearItems(this.fileStripMenuItem.DropDownItems);
 			//this.fileStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			//						this.saveToolStripMenuItem,
 			//						this.saveAsToolStripMenuItem,

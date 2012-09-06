@@ -498,6 +498,15 @@ namespace Greenshot.Drawing {
 				AddContextMenuItems(menu, surface);
 				if (menu.Items.Count > 0) {
 					menu.Show(surface, e.Location);
+					while (true) {
+						if (menu.Visible) {
+							Application.DoEvents();
+							System.Threading.Thread.Sleep(100);
+						} else {
+							menu.Dispose();
+							break;
+						}
+					}
 				}
 			}
 		}

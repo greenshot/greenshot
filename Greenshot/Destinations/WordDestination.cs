@@ -139,8 +139,7 @@ namespace Greenshot.Destinations {
 						foreach (string document in documents) {
 							destinations.Add(new WordDestination(document));
 						}
-						ContextMenuStrip menu = PickerDestination.CreatePickerMenu(false, surface, captureDetails, destinations);
-						PickerDestination.ShowMenuAtCursor(menu);
+						PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
 						return false;
 					}
 				}
