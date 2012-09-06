@@ -49,6 +49,10 @@ namespace GreenshotImgurPlugin {
 		
 		// Not stored, only run-time!
 		public Dictionary<string, ImgurInfo> runtimeImgurHistory = new Dictionary<string, ImgurInfo>();
+		public int Credits {
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// Supply values we can't put as defaults

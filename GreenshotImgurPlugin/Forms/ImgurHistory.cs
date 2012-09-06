@@ -31,7 +31,7 @@ namespace GreenshotImgurPlugin {
 	/// <summary>
 	/// Description of ImgurHistory.
 	/// </summary>
-	public partial class ImgurHistory : Form {
+	public partial class ImgurHistory : ImgurForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
 		private GreenshotColumnSorter columnSorter;
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
@@ -48,6 +48,7 @@ namespace GreenshotImgurPlugin {
 		}
 		
 		private ImgurHistory() {
+			this.ManualLanguageApply = true;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -62,6 +63,10 @@ namespace GreenshotImgurPlugin {
 			redraw();
 			if (listview_imgur_uploads.Items.Count > 0) {
 				listview_imgur_uploads.Items[0].Selected = true;
+			}
+			ApplyLanguage();
+			if (config.Credits > 0) {
+				this.Text = this.Text + " (" + config.Credits + " credits)";
 			}
 		}
 

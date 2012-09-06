@@ -160,6 +160,7 @@ namespace GreenshotImgurPlugin {
 			}
 			string responseString;
 			using (WebResponse response = webRequest.GetResponse()) {
+				LogCredits(response);
 				Stream responseStream = response.GetResponseStream();
 				StreamReader responseReader = new StreamReader(responseStream);
 				responseString = responseReader.ReadToEnd();
@@ -181,6 +182,7 @@ namespace GreenshotImgurPlugin {
 			webRequest.ServicePoint.Expect100Continue = false;
 
 			using (WebResponse response = webRequest.GetResponse()) {
+				LogCredits(response);
 				Stream responseStream = response.GetResponseStream();
 				imgurInfo.Image = Image.FromStream(responseStream);
 			}
@@ -196,6 +198,7 @@ namespace GreenshotImgurPlugin {
 			string responseString;
 			try {
 				using (WebResponse response = webRequest.GetResponse()) {
+					LogCredits(response);
 					Stream responseStream = response.GetResponseStream();
 					StreamReader responseReader = new StreamReader(responseStream);
 					responseString = responseReader.ReadToEnd();
@@ -227,6 +230,7 @@ namespace GreenshotImgurPlugin {
 	
 				string responseString;
 				using (WebResponse response = webRequest.GetResponse()) {
+					LogCredits(response);
 					Stream responseStream = response.GetResponseStream();
 					StreamReader responseReader = new StreamReader(responseStream);
 					responseString = responseReader.ReadToEnd();
@@ -244,6 +248,18 @@ namespace GreenshotImgurPlugin {
 			config.runtimeImgurHistory.Remove(imgurInfo.Hash);
 			config.ImgurUploadHistory.Remove(imgurInfo.Hash);
 			imgurInfo.Image = null;
+		}
+		
+		private static void LogCredits(WebResponse response) {
+			try {
+				int credits = 0;
+				if (int.TryParse(response.Headers["X-RateLimit-Remaining"], out credits)) {
+					config.Credits = credits;
+				}
+				LOG.InfoFormat("X-RateLimit-Limit={0}", response.Headers["X-RateLimit-Limit"]);
+				LOG.InfoFormat("X-RateLimit-Remaining={0}", response.Headers["X-RateLimit-Remaining"]);
+				
+			} catch {}
 		}
 	}
 }
