@@ -3,15 +3,15 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.0.1 build 2007 Release Candidate 1
+1.0.1 build 2008 Release Candidate 2
 
 Bugs resolved:
-* Rewrote the "please wait" window to allow the user to cancel the operation, this was needed due to problems with Imgur uploads
-* Fixed some memory leaks
-* Fixed some problems with the IE capture
-* Fixed some jira plugin bugs
-* Fixed some confluence plugin bugs
+* Fixed a problem with the "please wait", it's no possible to cancel the operation, this was needed due to problems with Imgur and other plugin uploads
+* Fixed 2 memory leaks
+* Fixed a problem with the IE capture
+* Fixed some jira & confluence plugin bugs
 * Fixed an Outlook export bug
+* Fixed an issue with writing the greenshot.ini file
 
 Known issues:
 * Greenshot general: I-Beam cursor isn't displayed correctly on the final result.
