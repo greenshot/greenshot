@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Српски" ietf="sr-Cyrl-RS" version="1.0.0" languagegroup="5">
+<language description="Српски" ietf="sr-Cyrl-RS" version="1.0.1" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Извештајте проблеме на</resource>
 		<resource name="about_donations">Ако волите Greenshot, можете да нас подржите:</resource>
