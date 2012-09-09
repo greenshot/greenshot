@@ -50,6 +50,8 @@ namespace Greenshot.IniFile {
 		public string Separator = ",";
 		public string DefaultValue;
 		public string LanguageKey;
+		// If Encrypted is set to true, the value will be decrypted on load and encrypted on save
+		public bool Encrypted = false;
 		public bool FixedValue = false;
 		public bool ExcludeIfNull=false;
 		

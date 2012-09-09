@@ -36,7 +36,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="ClearText">the string to call upon</param>
 		/// <returns>an encryped string in base64 form</returns>
 		public static string Encrypt(this string ClearText) {
-			string returnValue = null;
+			string returnValue = ClearText;
 			try {
 				byte[] clearTextBytes = Encoding.ASCII.GetBytes(ClearText);
 				SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
@@ -63,7 +63,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="EncryptedText">a base64 encoded rijndael encrypted string</param>
 		/// <returns>Decrypeted text</returns>
 		public static string Decrypt(this string EncryptedText) {
-			string returnValue = null;
+			string returnValue = EncryptedText;
 			try {
 				byte[] encryptedTextBytes = Convert.FromBase64String(EncryptedText);
 				using (MemoryStream ms = new MemoryStream()) {

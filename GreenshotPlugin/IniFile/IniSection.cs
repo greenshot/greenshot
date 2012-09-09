@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.IO;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.IniFile {
 	/// <summary>
@@ -141,6 +142,12 @@ namespace Greenshot.IniFile {
 				IniValue iniValue = Values[fieldName];
 				try {
 					iniValue.SetValueFromProperties(properties);
+					if (iniValue.Attributes.Encrypted) {
+						string stringValue = iniValue.Value as string;
+						if (stringValue != null && stringValue.Length > 2) {
+							iniValue.Value = stringValue.Decrypt();
+						}
+					}
 				} catch (Exception ex) {
 					LOG.Error(ex);
 				}
@@ -166,7 +173,20 @@ namespace Greenshot.IniFile {
 				writer.WriteLine("[{0}]", IniSectionAttribute.Name);
 
 				foreach (IniValue value in Values.Values) {
+					if (value.Attributes.Encrypted) {
+						string stringValue = value.Value as string;
+						if (stringValue != null && stringValue.Length > 2) {
+							value.Value = stringValue.Encrypt();
+						}
+					}
+					// Write the value
 					value.Write(writer, onlyProperties);
+					if (value.Attributes.Encrypted) {
+						string stringValue = value.Value as string;
+						if (stringValue != null && stringValue.Length > 2) {
+							value.Value = stringValue.Decrypt();
+						}
+					}
 				}
 			} finally {
 				AfterSave();
