@@ -23,7 +23,8 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
-
+using System.Collections.Specialized;
+using System.Text.RegularExpressions;
 using Greenshot.IniFile;
 
 namespace GreenshotPlugin.Core {
@@ -131,6 +132,55 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 			return proxyToUse;
+		}
+		
+		/// <summary>
+		/// UrlEncodes a string without the requirement for System.Web
+		/// </summary>
+		/// <param name="String"></param>
+		/// <returns></returns>
+		// [Obsolete("Use System.Uri.EscapeDataString instead")]
+		public static string UrlEncode(string text) {
+			if (!string.IsNullOrEmpty(text)) {
+				// Sytem.Uri provides reliable parsing, but doesn't encode spaces.
+				return System.Uri.EscapeDataString(text).Replace("%20", "+");
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// UrlDecodes a string without requiring System.Web
+		/// </summary>
+		/// <param name="text">String to decode.</param>
+		/// <returns>decoded string</returns>
+		public static string UrlDecode(string text) {
+			// pre-process for + sign space formatting since System.Uri doesn't handle it
+			// plus literals are encoded as %2b normally so this should be safe
+			text = text.Replace("+", " ");
+			return System.Uri.UnescapeDataString(text);
+		}
+
+		/// <summary>
+		/// ParseQueryString without the requirement for System.Web
+		/// </summary>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		public static NameValueCollection ParseQueryString(string s) {
+			NameValueCollection nvc = new NameValueCollection();
+			// remove anything other than query string from url
+			if (s.Contains("?")) {
+				s = s.Substring(s.IndexOf('?') + 1);
+			}
+			foreach (string vp in Regex.Split(s, "&")) {
+				string[] singlePair = Regex.Split(vp, "=");
+				if (singlePair.Length == 2) {
+					nvc.Add(singlePair[0], singlePair[1]);
+				} else {
+					// only one key with no value specified in query string
+					nvc.Add(singlePair[0], string.Empty);
+				}
+			}
+			return nvc;
 		}
 	}
 }
