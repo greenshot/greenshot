@@ -262,7 +262,10 @@ namespace GreenshotLanguageEditor {
 
 			ICollectionView view = (ICollectionView)LanguageGrid.ItemsSource;
 			IList<LanguageEntry> entries = (IList<LanguageEntry>)view.SourceCollection;
-
+			
+			List<LanguageEntry> sortList = new List<LanguageEntry>(entries);
+			sortList.Sort(compareEntryKeys);
+			
 			using (XmlTextWriter xmlWriter = new XmlTextWriter(savePath, Encoding.UTF8)) {
 				xmlWriter.Formatting = Formatting.Indented;
 				xmlWriter.Indentation = 1;
@@ -274,7 +277,7 @@ namespace GreenshotLanguageEditor {
 				xmlWriter.WriteAttributeString("version", langfile.Version);
 				xmlWriter.WriteAttributeString("languagegroup", langfile.Languagegroup);
 				xmlWriter.WriteStartElement("resources");
-				foreach(LanguageEntry entry in entries) {
+				foreach(LanguageEntry entry in sortList) {
 					string entryValue = (targetColumn == 1) ? entry.Entry1 : entry.Entry2;
 					if(!String.IsNullOrWhiteSpace(entryValue) && !String.IsNullOrWhiteSpace(entry.Key)) {
 						xmlWriter.WriteStartElement("resource");
@@ -289,8 +292,9 @@ namespace GreenshotLanguageEditor {
 			}
 		}
 		
-		
-		
+		private  int compareEntryKeys(LanguageEntry a, LanguageEntry b) {
+			return a.Key.CompareTo(b.Key);
+		}
 	}
 	
 	public class LanguageEntry : IEditableObject, INotifyPropertyChanged {
