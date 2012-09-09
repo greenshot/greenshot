@@ -37,6 +37,9 @@
 	<resource name="delete_title">
 		Delete Imgur {0}
 	</resource>
+	<resource name="anonymous_access">
+		Use anonymous access
+	</resource>
 	<resource name="use_page_link">
 		Use page link instead of image link on clipboard
 	</resource>

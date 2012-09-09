@@ -53,6 +53,7 @@ namespace GreenshotImgurPlugin {
 			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
 			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.historyButton = new GreenshotPlugin.Controls.GreenshotButton();
+			this.checkbox_anonymous_access = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.checkbox_usepagelink = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
@@ -126,6 +127,18 @@ namespace GreenshotImgurPlugin {
 			this.historyButton.UseVisualStyleBackColor = true;
 			this.historyButton.Click += new System.EventHandler(this.ButtonHistoryClick);
 			// 
+			// checkbox_anonymous_access
+			// 
+			this.checkbox_anonymous_access.AutoSize = true;
+			this.checkbox_anonymous_access.LanguageKey = "imgur.anonymous_access";
+			this.checkbox_anonymous_access.Location = new System.Drawing.Point(15, 80);
+			this.checkbox_anonymous_access.Name = "checkbox_anonymous_access";
+			this.checkbox_anonymous_access.PropertyName = "AnonymousAccess";
+			this.checkbox_anonymous_access.SectionName = "Imgur";
+			this.checkbox_anonymous_access.Size = new System.Drawing.Size(297, 17);
+			this.checkbox_anonymous_access.TabIndex = 13;
+			this.checkbox_anonymous_access.UseVisualStyleBackColor = true;
+			// 
 			// checkbox_usepagelink
 			// 
 			this.checkbox_usepagelink.AutoSize = true;
@@ -143,6 +156,7 @@ namespace GreenshotImgurPlugin {
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(387, 168);
+			this.Controls.Add(this.checkbox_anonymous_access);
 			this.Controls.Add(this.checkbox_usepagelink);
 			this.Controls.Add(this.historyButton);
 			this.Controls.Add(this.label_upload_format);
@@ -167,6 +181,7 @@ namespace GreenshotImgurPlugin {
 		private GreenshotPlugin.Controls.GreenshotLabel label_url;
 		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
 		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_anonymous_access;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_usepagelink;
 	}
 }

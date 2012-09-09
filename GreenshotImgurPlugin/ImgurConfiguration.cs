@@ -43,6 +43,12 @@ namespace GreenshotImgurPlugin {
 		public bool UploadReduceColors;
 		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
 		public bool UsePageLink;
+		[IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue="true")]
+		public bool AnonymousAccess;
+		[IniProperty("ImgurToken", Description = "The Imgur token", Encrypted=true, ExcludeIfNull=true)]
+		public string ImgurToken;
+		[IniProperty("ImgurTokenSecret", Description = "The Imgur token secret", Encrypted=true, ExcludeIfNull=true)]
+		public string ImgurTokenSecret;
 		
 		[IniProperty("ImgurUploadHistory", Description="Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
 		public Dictionary<string, string> ImgurUploadHistory;
