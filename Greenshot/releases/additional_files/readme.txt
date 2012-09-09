@@ -2,16 +2,18 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 
 CHANGE LOG:
+We changed the version to 1.0 after 5 year the version should no longer have a "beta" feeling!
 
-1.0.1 build 2008 Release Candidate 2
+1.0.1 build 2009 Release Candidate 2
 
 Bugs resolved:
-* Fixed a problem with the "please wait", it's no possible to cancel the operation, this was needed due to problems with Imgur and other plugin uploads
-* Fixed 2 memory leaks
-* Fixed a problem with the IE capture
+* Fixed a problem with the "please wait". It's now possible to cancel the operation, this was needed due to problems with Imgur and other plugin uploads
+* Fixed a memory leak
+* Fixed some problems with the IE capture
 * Fixed some jira & confluence plugin bugs
 * Fixed an Outlook export bug
 * Fixed an issue with writing the greenshot.ini file
+* Changed the installer to install only a default set of components, so Greenshot is not overloaded
 
 Known issues:
 * Greenshot general: I-Beam cursor isn't displayed correctly on the final result.
@@ -19,12 +21,10 @@ Known issues:
 * Greenshot editor: Rotate only rotates the bitmap, not the added elements or cursor
 * Greenshot editor: The shadow and torn edges effects don't create a transparent background yet.
 * Confluence Plug-in: the retrieving of the current page from firefox only works on the currently displayed Firefox tab. This is a problem since Firefox 13 and it is currently unknown if there is a fix.
-* OCR Plug-in: OCR is not working on 64 bit Windows, as the MODI-OCR component from Microsoft is not available in 64 bit, in this case Greenshot should be run in 32-bit or the plugins should be changed to call a 32-bit exe.
+* OCR Plug-in: OCR is not working on 64 bit Windows, as the MODI-OCR component from Microsoft is not available in 64 bit, in this case Greenshot should be run in 32-bit. We are working on this.
 
 
 1.0.1 build 1980 Release Candidate 1
-
-We changed the version to 1.0 after 5 year the version should no longer have a "beta" feeling!
 
 Features added:
 * Greenshot will now run in 64 bit mode, if the OS supports it.

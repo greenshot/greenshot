@@ -13,21 +13,21 @@
 #include "scripts\products\dotnetfx20sp2.iss"
 
 [Files]
-Source: ..\..\bin\Release\Greenshot.exe; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\..\bin\Release\GreenshotPlugin.dll; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\..\bin\Release\Greenshot.exe.config; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\..\bin\Release\log4net.dll; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\..\bin\Release\log4net.xml; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\..\bin\Release\checksum.MD5; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
+Source: ..\..\bin\Release\Greenshot.exe; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: ..\..\bin\Release\GreenshotPlugin.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: ..\..\bin\Release\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: ..\..\bin\Release\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: ..\..\bin\Release\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: ..\..\bin\Release\checksum.MD5; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\additional_files\installer.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
-Source: ..\additional_files\license.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
-Source: ..\additional_files\readme.txt; DestDir: {app}; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
+Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
+Source: ..\additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
+Source: ..\additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 
 ; Core language files
-Source: ..\..\bin\Release\Languages\*nl-NL*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*en-US*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*de-DE*; DestDir: {app}\Languages; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*nl-NL*; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*en-US*; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\*de-DE*; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
 
 ; Additional language files
 Source: ..\..\Languages\*ar-SY*; DestDir: {app}\Languages; Components: languages\arSY; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -107,7 +107,7 @@ InfoBeforeFile=..\additional_files\readme.txt
 LicenseFile=..\additional_files\license.txt
 LanguageDetectionMethod=uilanguage
 MinVersion=,5.01.2600
-OutputBaseFilename={#ExeName}-RC1-INSTALLER-{#Version}
+OutputBaseFilename={#ExeName}-RC2-INSTALLER-{#Version}
 OutputDir=..\
 PrivilegesRequired=none
 SetupIconFile=..\..\icons\applicationIcon\icon.ico
@@ -176,49 +176,70 @@ nl.language=Extra talen
 en.optimize=Optimizing performance, this may take a while.
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 nl.optimize=Prestaties verbeteren, kan even duren.
+en.default=Default installation
+de.default=Standard installation
+nl.default=Default installation
+[Types]
+Name: "default"; Description: "{cm:default}"
+Name: "full"; Description: "{code:FullInstall}"
+Name: "compact"; Description: "{code:CompactInstall}"
+Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 
 [Components]
-Name: "plugins"; Description: "Plugins"; Types: Full
-Name: "plugins\ocr"; Description: {cm:ocr}; Types: Full;
-Name: "plugins\jira"; Description: {cm:jira}; Types: Full
-Name: "plugins\imgur"; Description: {cm:imgur}; Types: Full;
-Name: "plugins\confluence"; Description: {cm:confluence}; Types: Full; Check: hasDotNet35FullOrHigher()
-Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: Full
-;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: Full
-Name: "plugins\box"; Description: "Box Plugin"; Types: Full; Check: hasDotNet35FullOrHigher()
-Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: Full; Check: hasDotNet35FullOrHigher()
-Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: Full
-Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: Full
-Name: "languages"; Description: {cm:language}; Types: Full
-Name: "languages\arSY"; Description: "العربية"; Types: Full; Check: hasLanguageGroup('d')
-Name: "languages\csCZ"; Description: "Ceština"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\daDK"; Description: "Dansk"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\elGR"; Description: "ελληνικά"; Types: Full; Check: hasLanguageGroup('4')
-Name: "languages\esES"; Description: "Español"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\faIR"; Description: "پارسی"; Types: Full; Check: hasLanguageGroup('d')
-Name: "languages\fiFI"; Description: "Suomi"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\frFR"; Description: "Français"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\heIL"; Description: "עִבְרִית"; Types: Full; Check: hasLanguageGroup('c')
-Name: "languages\huHU"; Description: "Magyar"; Types: Full; Check: hasLanguageGroup('2')
-Name: "languages\itIT"; Description: "Italiano"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\jaJP"; Description: "日本語"; Types: Full; Check: hasLanguageGroup('7')
-Name: "languages\koKR"; Description: "한국의"; Types: Full; Check: hasLanguageGroup('8')
-Name: "languages\ltLT"; Description: "Lietuvių"; Types: Full; Check: hasLanguageGroup('3')
-Name: "languages\plPL"; Description: "Polski"; Types: Full; Check: hasLanguageGroup('2')
-Name: "languages\ptBR"; Description: "Português do Brasil"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\ptPT"; Description: "Português de Portugal"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\ruRU"; Description: "Pусский"; Types: Full; Check: hasLanguageGroup('5')
-Name: "languages\roRO"; Description: "Română"; Types: Full; Check: hasLanguageGroup('2')
-Name: "languages\skSK"; Description: "Slovenčina"; Types: Full; Check: hasLanguageGroup('2')
-Name: "languages\srRS"; Description: "Српски"; Types: Full; Check: hasLanguageGroup('5')
-Name: "languages\svSE"; Description: "Svenska"; Types: Full; Check: hasLanguageGroup('1')
-Name: "languages\trTR"; Description: "Türk"; Types: Full; Check: hasLanguageGroup('6')
-Name: "languages\ukUA"; Description: "Українська"; Types: Full; Check: hasLanguageGroup('5')
-Name: "languages\viVN"; Description: "Việt"; Types: Full; Check: hasLanguageGroup('e')
-Name: "languages\zhCN"; Description: "简体中文"; Types: Full; Check: hasLanguageGroup('a')
-Name: "languages\zhTW"; Description: "繁體中文"; Types: Full; Check: hasLanguageGroup('9')
+Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
+Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
+Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning 
+Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 
+Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
+Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning 
+;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
+Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
+Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
+Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning 
+Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning 
+Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
+Name: "languages\arSY"; Description: "العربية"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
+Name: "languages\csCZ"; Description: "Ceština"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\daDK"; Description: "Dansk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\elGR"; Description: "ελληνικά"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('4')
+Name: "languages\esES"; Description: "Español"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\faIR"; Description: "پارسی"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
+Name: "languages\fiFI"; Description: "Suomi"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\frFR"; Description: "Français"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\heIL"; Description: "עִבְרִית"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('c')
+Name: "languages\huHU"; Description: "Magyar"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\itIT"; Description: "Italiano"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\jaJP"; Description: "日本語"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('7')
+Name: "languages\koKR"; Description: "한국의"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
+Name: "languages\ltLT"; Description: "Lietuvių"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
+Name: "languages\plPL"; Description: "Polski"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\ptBR"; Description: "Português do Brasil"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\ptPT"; Description: "Português de Portugal"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\ruRU"; Description: "Pусский"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
+Name: "languages\roRO"; Description: "Română"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\skSK"; Description: "Slovenčina"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\srRS"; Description: "Српски"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
+Name: "languages\svSE"; Description: "Svenska"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\trTR"; Description: "Türk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('6')
+Name: "languages\ukUA"; Description: "Українська"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
+Name: "languages\viVN"; Description: "Việt"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('e')
+Name: "languages\zhCN"; Description: "简体中文"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('a')
+Name: "languages\zhTW"; Description: "繁體中文"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('9')
 [Code]
+function FullInstall(Param : String) : String;
+begin
+	result := SetupMessage(msgFullInstallation);
+end;
 
+function CustomInstall(Param : String) : String;
+begin
+	result := SetupMessage(msgCustomInstallation);
+end;
+
+function CompactInstall(Param : String) : String;
+begin
+	result := SetupMessage(msgCompactInstallation);
+end;
 /////////////////////////////////////////////////////////////////////
 // The following uninstall code was found at:
 // http://stackoverflow.com/questions/2000296/innosetup-how-to-automatically-uninstall-previous-installed-version
