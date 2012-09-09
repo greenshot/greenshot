@@ -346,7 +346,9 @@ namespace GreenshotPlugin.Controls {
 			if (!string.IsNullOrEmpty(languageKey)) {
 				if (!Language.TryGetString(languageKey, out langString)) {
 					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
-					MessageBox.Show(string.Format("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name));
+					if (DesignMode) {
+						MessageBox.Show(string.Format("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name));
+					}
 					return;
 				}
 				applyTo.Text = langString;
