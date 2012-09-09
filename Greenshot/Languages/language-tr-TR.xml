@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Turkish" ietf="tr-TR" version="1.0.1" languagegroup="6">
+<language description="Turkish" ietf="tr-TR" version="1.0.2" languagegroup="6">
 	<resources>
 		<resource name="about_bugs">Hataları şu adrese bildirebilirsiniz:</resource>
 		<resource name="about_donations">Greenshot'ı sevdiyseniz, bizi destekleyin:</resource>
@@ -40,6 +40,11 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="contextmenu_capturearea">Bölge yakala</resource>
 		<resource name="contextmenu_captureclipboard">Panodaki görüntüyü aç</resource>
 		<resource name="contextmenu_capturefullscreen">Tüm ekranı yakala</resource>
+		<resource name="contextmenu_capturefullscreen_all">tüm</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">alt</resource>
+		<resource name="contextmenu_capturefullscreen_left">sol</resource>
+		<resource name="contextmenu_capturefullscreen_right">sağ</resource>
+		<resource name="contextmenu_capturefullscreen_top">üst</resource>
 		<resource name="contextmenu_captureie">Internet Explorer'ı yakala</resource>
 		<resource name="contextmenu_capturelastregion">Son bölgeyi yakala</resource>
 		<resource name="contextmenu_capturewindow">Pencere yakala</resource>
@@ -162,8 +167,8 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="hotkey_window">Pencereyi Yakala</resource>
 		<resource name="hotkeys">Klavye Kısayolları</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">JPRG görüntüsünün kalitesini seçin.</resource>
-		<resource name="qualitydialog_dontaskagain">Standart kalite olarak kaydet ve bir daha sorma</resource>
-		<resource name="qualitydialog_title">Greenshot kalitesi</resource>
+		<resource name="jpegqualitydialog_dontaskagain">Varsayılan JPEG kalitesini kaydet ve bir daha sorma</resource>
+		<resource name="jpegqualitydialog_title">Greenshot JPEG kalitesi</resource>
 		<resource name="OK">Tamam</resource>
 		<resource name="print_error">Yazdırmaya çalışırken bir hata oldu.</resource>
 		<resource name="printoptions_allowcenter">Sayfayı ortala</resource>
@@ -175,9 +180,12 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="printoptions_printgrayscale">Gri tonlamalı yazdırmaya zorla</resource>
 		<resource name="printoptions_timestamp">Sayfanın altına yazdırma tarihi ve zamanını ekle</resource>
 		<resource name="printoptions_title">Greenshot yazdırma ayarları</resource>
+		<resource name="qualitydialog_dontaskagain">Standart kalite olarak kaydet ve bir daha sorma</resource>
+		<resource name="qualitydialog_title">Greenshot kalitesi</resource>
 		<resource name="quicksettings_destination_file">Doğrudan kaydet (varsayılan dosya ayarlarıyla)</resource>
-		<resource name="settings_alwaysshowqualitydialog">Kaydedilen her resim için ne yapılacağını sor</resource>
+		<resource name="settings_alwaysshowjpegqualitydialog">Her JPEG görüntüsü kaydedildiğinde JPEG kalitesi penceresini göster</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Her görüntü yazdırıldığında ayarlar penceresini göster</resource>
+		<resource name="settings_alwaysshowqualitydialog">Kaydedilen her resim için ne yapılacağını sor</resource>
 		<resource name="settings_applicationsettings">Uygulama Ayarları</resource>
 		<resource name="settings_autostartshortcut">Windows başlangıcında çalıştır</resource>
 		<resource name="settings_capture">Yakala</resource>
@@ -199,7 +207,7 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="settings_general">Genel</resource>
 		<resource name="settings_iecapture">Internet Explorer'ı yakalama</resource>
 		<resource name="settings_jpegquality">JPEG kalitesi</resource>
-		<resource name="settings_qualitysettings">Kalite Seçenekleri</resource>
+		<resource name="settings_jpegsettings">JPEG Ayarları</resource>
 		<resource name="settings_language">Dil</resource>
 		<resource name="settings_message_filenamepattern">Şu ifadeler kullanıldığında aşağıdaki tanımlar yazılır:
 ${YYYY} yıl, 4 hane
@@ -224,6 +232,7 @@ Klasör ve dosya adı arasında (\) karakterini kullanarak Greenshot'un istediğ
 		<resource name="settings_primaryimageformat">Görüntü biçimi</resource>
 		<resource name="settings_printer">Yazıcı</resource>
 		<resource name="settings_printoptions">Yazdırma ayarları</resource>
+		<resource name="settings_qualitysettings">Kalite Seçenekleri</resource>
 		<resource name="settings_reducecolors">Renkleri en fazla 256'ya indirge</resource>
 		<resource name="settings_registerhotkeys">Kısayol tuşlarını devral</resource>
 		<resource name="settings_showflashlight">Flaş etkisi</resource>
@@ -252,9 +261,5 @@ Kısayolları kullanmak için söz konusu yazılımı kapatın. Kısayollar yeri
 		<resource name="WindowCaptureMode.Auto">Otomatik</resource>
 		<resource name="WindowCaptureMode.GDI">Standart renk kullan</resource>
 		<resource name="WindowCaptureMode.Screen">Göründüğü gibi</resource>
-		<resource name="jpegqualitydialog_dontaskagain">Varsayılan JPEG kalitesini kaydet ve bir daha sorma</resource>
-		<resource name="jpegqualitydialog_title">Greenshot JPEG kalitesi</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">Her JPEG görüntüsü kaydedildiğinde JPEG kalitesi penceresini göster</resource>
-		<resource name="settings_jpegsettings">JPEG Ayarları</resource>
 	</resources>
 </language>
