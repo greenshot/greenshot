@@ -175,13 +175,14 @@ namespace GreenshotImgurPlugin {
 				oAuth.AccessTokenUrl = "https://api.imgur.com/oauth/access_token";
 				oAuth.AuthorizeUrl = "https://api.imgur.com/oauth/authorize";
 				oAuth.RequestTokenUrl = "https://api.imgur.com/oauth/request_token";
-				oAuth.ConsumerKey = "907d4455b8c38144d68c4f72190af4c40504a0ac7";
-				oAuth.ConsumerSecret = "d33902ef409fea163ab755454c15b3d0";
+				oAuth.ConsumerKey = "fill-in";
+				oAuth.ConsumerSecret = "fill-in";
 				oAuth.UserAgent = "Greenshot";
 				if (string.IsNullOrEmpty(config.ImgurToken)) {
 					LOG.Debug("Creating Imgur Token");
 					oAuth.getRequestToken();
 					if (string.IsNullOrEmpty(oAuth.authorizeToken("Imgur authorization"))) {
+						LOG.Debug("User didn't authenticate!");
 						return null;
 					}
 					string accessToken = oAuth.getAccessToken();
