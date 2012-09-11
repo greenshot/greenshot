@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Français" ietf="fr-FR" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="browse_pages">Naviguer</resource>
+		<resource name="CANCEL">Annuler</resource>
+		<resource name="copy_wikimarkup">Copier Wikimarkup vers le presse-papier</resource>
+		<resource name="filename">Fichier</resource>
+		<resource name="include_person_spaces">Inclure espaces personnels dans les recherches et la navigation</resource>
+		<resource name="label_password">Mot de passe</resource>
+		<resource name="label_timeout">Temps d'attente</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="label_user">Utilisateur</resource>
+		<resource name="loading">Récupération des données de Confluence, veuillez patienter...</resource>
+		<resource name="login_error">Une erreur s'est produite durant l'authentification : {0}</resource>
+		<resource name="login_title">Veuillez saisir vos données d'authentification Confluence</resource>
+		<resource name="OK">Ok</resource>
+		<resource name="open_page_after_upload">Ouvrir la page après le téléversement</resource>
+		<resource name="open_pages">Ouvrir pages</resource>
+		<resource name="plugin_settings">Paramètres Confluence</resource>
+		<resource name="search">Rechercher</resource>
+		<resource name="search_pages">Rechercher dans les pages</resource>
+		<resource name="search_text">Rechercher texte</resource>
+		<resource name="upload">Téléverser</resource>
+		<resource name="upload_failure">Une erreur s'est produite lors du téléversement vers Confluence :</resource>
+		<resource name="upload_format">Téléverser format</resource>
+		<resource name="upload_menu_item">Téléverser vers Confluence</resource>
+		<resource name="upload_success">Image téléversée aves succès vers Confluence !</resource>
+	</resources>
+</language>
