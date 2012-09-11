@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Српски" ietf="sr-Cyrl-RS" version="1.0.1" languagegroup="5">
+<language description="Српски" ietf="sr-Cyrl-RS" version="1.0.2" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Извештајте проблеме на</resource>
 		<resource name="about_donations">Ако волите Greenshot, можете да нас подржите:</resource>
@@ -41,9 +41,16 @@ Details about the GNU General Public License:</resource>
 		<resource name="contextmenu_capturearea">Ухвати регион</resource>
 		<resource name="contextmenu_captureclipboard">Отвори слику из оставе</resource>
 		<resource name="contextmenu_capturefullscreen">Ухвати цео екран</resource>
+		<resource name="contextmenu_capturefullscreen_all">све</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">дно</resource>
+		<resource name="contextmenu_capturefullscreen_left">лево</resource>
+		<resource name="contextmenu_capturefullscreen_right">десно</resource>
+		<resource name="contextmenu_capturefullscreen_top">врх</resource>
 		<resource name="contextmenu_captureie">Ухвати Internet Explorer</resource>
+		<resource name="contextmenu_captureiefromlist">Ухвати Internet Explorer из листе</resource>
 		<resource name="contextmenu_capturelastregion">Ухвати последњи регион</resource>
 		<resource name="contextmenu_capturewindow">Ухавти прозор</resource>
+		<resource name="contextmenu_capturewindowfromlist">Ухвати прозор из листе</resource>
 		<resource name="contextmenu_donate">Подржи Greenshot</resource>
 		<resource name="contextmenu_exit">Излаз</resource>
 		<resource name="contextmenu_help">Помоћ</resource>
@@ -163,8 +170,6 @@ Details about the GNU General Public License:</resource>
 		<resource name="hotkey_window">Хватање прозора</resource>
 		<resource name="hotkeys">Пречице</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Одабрати квалитет за JPEG слику.</resource>
-		<resource name="qualitydialog_dontaskagain">Сачувај као стандардни квалитет и не питај више</resource>
-		<resource name="qualitydialog_title">Greenshot квалитет</resource>
 		<resource name="OK">У реду</resource>
 		<resource name="print_error">Грешка при штампању.</resource>
 		<resource name="printoptions_allowcenter">Центрирај штампање у страницу</resource>
@@ -176,9 +181,11 @@ Details about the GNU General Public License:</resource>
 		<resource name="printoptions_printgrayscale">Натерај црно-бело штампање</resource>
 		<resource name="printoptions_timestamp">Штампај датум/време на дно странице</resource>
 		<resource name="printoptions_title">Опције штампања</resource>
+		<resource name="qualitydialog_dontaskagain">Сачувај као стандардни квалитет и не питај више</resource>
+		<resource name="qualitydialog_title">Greenshot квалитет</resource>
 		<resource name="quicksettings_destination_file">Директно сачувај (са подешавањима излаза)</resource>
-		<resource name="settings_alwaysshowqualitydialog">Прикажи дијалог квалитета сваки пут када се сачува JPEG слика</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Прикажи опције сваки пут када се штампа слика</resource>
+		<resource name="settings_alwaysshowqualitydialog">Прикажи дијалог квалитета сваки пут када се сачува JPEG слика</resource>
 		<resource name="settings_applicationsettings">Подешавања програма</resource>
 		<resource name="settings_autostartshortcut">Покрени Greenshot са системом</resource>
 		<resource name="settings_capture">Хватање</resource>
@@ -193,14 +200,13 @@ Details about the GNU General Public License:</resource>
 		<resource name="settings_destination_email">Е-пошта</resource>
 		<resource name="settings_destination_file">Директно сачувај (ова подешавања)</resource>
 		<resource name="settings_destination_fileas">Сачувај као (прикажи дијалог)</resource>
-		<resource name="settings_destination_picker">ДИнамично одабери дестинацију</resource>
+		<resource name="settings_destination_picker">Динамично одабери дестинацију</resource>
 		<resource name="settings_destination_printer">Пошаљи на штампач</resource>
 		<resource name="settings_editor">Уређивач</resource>
 		<resource name="settings_filenamepattern">Образац имена</resource>
 		<resource name="settings_general">Опште</resource>
 		<resource name="settings_iecapture">Хватање Internet Explorer-а</resource>
 		<resource name="settings_jpegquality">Квалитет JPEG-а</resource>
-		<resource name="settings_qualitysettings">Подешавања квалитета</resource>
 		<resource name="settings_language">Језик</resource>
 		<resource name="settings_message_filenamepattern">Ови чувари места ће бити промењени са:
 ${YYYY} година, 4 цифре
@@ -227,6 +233,7 @@ Greenshot може исто да динамично креира фасцикл�
 		<resource name="settings_primaryimageformat">Формат слике</resource>
 		<resource name="settings_printer">Штампач</resource>
 		<resource name="settings_printoptions">Опције штампања</resource>
+		<resource name="settings_qualitysettings">Подешавања квалитета</resource>
 		<resource name="settings_reducecolors">Умањи број боја на маркс од 256</resource>
 		<resource name="settings_registerhotkeys">Региструј пречице</resource>
 		<resource name="settings_showflashlight">Покажи светлост</resource>
