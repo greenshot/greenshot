@@ -33,6 +33,7 @@ namespace GreenshotPlugin.Controls {
 	/// The OAuthLoginForm is used to allow the user to authorize Greenshot with an "Oauth" application
 	/// </summary>
 	public partial class OAuthLoginForm : Form {
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OAuthLoginForm));
 		private OAuthHelper _oauth;
 		private String _token;
 		private String _verifier;
@@ -56,25 +57,39 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 
-		public OAuthLoginForm(OAuthHelper o, string browserTitle) {
+		public OAuthLoginForm(OAuthHelper o, string browserTitle, int width, int height) {
 			_oauth = o;
 			_token = null;
 			InitializeComponent();
+			this.ClientSize = new System.Drawing.Size(width, height);
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Text = browserTitle;
 			this.addressTextBox.Text = o.AuthorizationLink;
 			_token = _oauth.Token;
 			_tokenSecret = _oauth.TokenSecret;
+			browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(browser_DocumentCompleted);
 			browser.Navigate(new Uri(_oauth.AuthorizationLink));
+			
+			WindowDetails.ToForeground(this.Handle);
 		}
 
+		private void browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+			LOG.DebugFormat("document completed with url: {0}", browser.Url);
+			checkUrl();
+		}
 		private void webBrowser1_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
+			LOG.DebugFormat("Navigating to url: {0}", browser.Url);
 			this.addressTextBox.Text = e.Url.ToString();
 		}
 
 		private void browser_Navigated(object sender, WebBrowserNavigatedEventArgs e) {
-			if (browser.Url.ToString().Contains(_oauth.CallbackUrl))  {
-				string queryParams = e.Url.Query;
+			LOG.DebugFormat("Navigated to url: {0}", browser.Url);
+			checkUrl();
+		}
+
+		private void checkUrl() {
+			if (browser.Url.ToString().Contains(_oauth.CallbackUrl)) {
+				string queryParams = browser.Url.Query;
 				if (queryParams.Length > 0) {
 					//Store the Token and Token Secret
 					NameValueCollection qs = NetworkHelper.ParseQueryString(queryParams);

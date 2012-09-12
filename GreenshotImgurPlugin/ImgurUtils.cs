@@ -134,9 +134,7 @@ namespace GreenshotImgurPlugin {
 			uploadRequest.Append(EscapeText(System.Convert.ToBase64String(imageData, 0, dataLength)));
 			// add type
 			uploadRequest.Append("&type=base64");
-			// add key
-			uploadRequest.Append("&key=");
-			uploadRequest.Append(IMGUR_ANONYMOUS_API_KEY);
+
 			// add title
 			if (title != null) {
 				uploadRequest.Append("&title=");
@@ -151,6 +149,9 @@ namespace GreenshotImgurPlugin {
 			string responseString;
 
 			if (config.AnonymousAccess) {
+				// add key
+				uploadRequest.Append("&key=");
+				uploadRequest.Append(IMGUR_ANONYMOUS_API_KEY);
 				url = config.ImgurApiUrl + "/upload";
 				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 
@@ -171,10 +172,12 @@ namespace GreenshotImgurPlugin {
 			} else {
 				url = config.ImgurApiUrl + "/account/images";
 				OAuthHelper oAuth = new OAuthHelper();
+				oAuth.BrowserWidth = 650;
+				oAuth.BrowserHeight = 500;
 				oAuth.CallbackUrl = "http://getgreenshot.org";
-				oAuth.AccessTokenUrl = "https://api.imgur.com/oauth/access_token";
-				oAuth.AuthorizeUrl = "https://api.imgur.com/oauth/authorize";
-				oAuth.RequestTokenUrl = "https://api.imgur.com/oauth/request_token";
+				oAuth.AccessTokenUrl = "http://api.imgur.com/oauth/access_token";
+				oAuth.AuthorizeUrl = "http://api.imgur.com/oauth/authorize";
+				oAuth.RequestTokenUrl = "http://api.imgur.com/oauth/request_token";
 				oAuth.ConsumerKey = "fill-in";
 				oAuth.ConsumerSecret = "fill-in";
 				oAuth.UserAgent = "Greenshot";
@@ -290,32 +293,6 @@ namespace GreenshotImgurPlugin {
 				LOG.InfoFormat("X-RateLimit-Remaining={0}", response.Headers["X-RateLimit-Remaining"]);
 				
 			} catch {}
-		}
-
-		public static void ImgurOAuthExample() {
-			OAuthHelper oAuth = new OAuthHelper();
-			oAuth.CallbackUrl = "http://getgreenshot.org";
-			oAuth.AccessTokenUrl = "https://api.imgur.com/oauth/access_token";
-			oAuth.AuthorizeUrl = "https://api.imgur.com/oauth/authorize";
-			oAuth.RequestTokenUrl = "https://api.imgur.com/oauth/request_token";
-			oAuth.ConsumerKey = "907d4455b8c38144d68c4f72190af4c40504a0ac7";
-			oAuth.ConsumerSecret = "d33902ef409fea163ab755454c15b3d0";
-			oAuth.UserAgent = "Greenshot";
-			if (string.IsNullOrEmpty(config.ImgurToken)) {
-				LOG.Debug("Creating Imgur Token");
-				oAuth.getRequestToken();
-				if (string.IsNullOrEmpty(oAuth.authorizeToken("Imgur authorization"))) {
-					return;
-				}
-				string accessToken = oAuth.getAccessToken();
-				config.ImgurToken = oAuth.Token;
-				config.ImgurTokenSecret = oAuth.TokenSecret;
-			} else {
-				LOG.Debug("Using stored Imgur Token");
-				oAuth.Token = config.ImgurToken;
-				oAuth.TokenSecret = config.ImgurTokenSecret;
-			}
-			System.Windows.Forms.MessageBox.Show(oAuth.oAuthWebRequest(OAuthHelper.Method.GET, "http://api.imgur.com/2/account", null));
 		}
 	}
 }

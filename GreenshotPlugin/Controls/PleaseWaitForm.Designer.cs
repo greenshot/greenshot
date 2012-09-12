@@ -91,7 +91,6 @@ namespace GreenshotPlugin.Controls {
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Greenshot";
-			this.TopMost = true;
 			this.UseWaitCursor = true;
 			this.ResumeLayout(false);
 			this.PerformLayout();

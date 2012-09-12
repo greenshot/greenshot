@@ -26,6 +26,8 @@ using System.Text;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using Greenshot.IniFile;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -35,6 +37,14 @@ namespace GreenshotPlugin.Core {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(NetworkHelper));
 		private static CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 
+		static NetworkHelper() {
+			// Disable certificate checking
+			System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+			delegate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslError) {
+				bool validationResult = true;
+				return validationResult;
+			};
+		}
 		/// <summary>
 		/// Download a file as string
 		/// </summary>

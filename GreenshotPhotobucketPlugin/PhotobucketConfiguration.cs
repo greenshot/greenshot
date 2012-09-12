@@ -32,9 +32,6 @@ namespace GreenshotPhotobucketPlugin {
 	/// </summary>
 	[IniSection("Photobucket", Description="Greenshot Photobucket Plugin configuration")]
 	public class PhotobucketConfiguration : IniSection {
-		[IniProperty("PhotobucketApiUrl", Description = "Url to Photobucket system.", DefaultValue = "http://api.photobucket.com")]
-		public string PhotobucketApiUrl;
-		
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
 		public OutputFormat UploadFormat;
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]

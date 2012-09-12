@@ -93,20 +93,30 @@ namespace GreenshotPhotobucketPlugin {
 				uploadRequest.Append("&filename=");
 				uploadRequest.Append(EscapeText(filename));
 			}
-			string url = config.PhotobucketApiUrl + "/album/greenshot/upload";
+			string url = "http://api.photobucket.com/album/greenshot/upload";
 			string responseString;
 
 			OAuthHelper oAuth = new OAuthHelper();
+			// This url is configured in the Photobucket API settings in the Photobucket site!!
 			oAuth.CallbackUrl = "http://getgreenshot.org";
 			oAuth.AccessTokenUrl = "http://api.photobucket.com/login/access";
-			oAuth.AuthorizeUrl = " http://photobucket.com/apilogin/login";
+			oAuth.AuthorizeUrl = "http://photobucket.com/apilogin/login";
 			oAuth.RequestTokenUrl = "http://api.photobucket.com/login/request";
 			oAuth.ConsumerKey = "fill-in";
 			oAuth.ConsumerSecret = "fill-in";
 			oAuth.UserAgent = "Greenshot";
+			oAuth.BrowserWidth = 1010;
+			oAuth.BrowserHeight = 400;
+			oAuth.CheckVerifier = false;
 			if (string.IsNullOrEmpty(config.PhotobucketToken)) {
 				LOG.Debug("Creating Photobucket Token");
-				oAuth.getRequestToken();
+				try {
+					oAuth.getRequestToken();
+				} catch (Exception ex) {
+					LOG.Error(ex);
+					throw new NotSupportedException("Photobucket is not available: " + ex.Message);
+				}
+				LOG.Debug("Authorizing Photobucket");
 				if (string.IsNullOrEmpty(oAuth.authorizeToken("Photobucket authorization"))) {
 					return null;
 				}

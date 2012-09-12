@@ -30,7 +30,7 @@ using GreenshotPlugin.Controls;
 
 namespace GreenshotPlugin.Core {
 	public class OAuthHelper {
-
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OAuthHelper));
 		/// <summary>
 		/// Provides a predefined set of algorithms that are supported officially by the protocol
 		/// </summary>
@@ -106,6 +106,10 @@ namespace GreenshotPlugin.Core {
 		public enum Method { GET, POST, PUT, DELETE };
 		private string _userAgent = "Greenshot";
 		private string _callbackUrl = "http://getgreenshot.org";
+		private bool checkVerifier = true;
+		// default browser size
+		private int _browserWidth = 864;
+		private int _browserHeight = 587;
 		
 		#region PublicPropertiies
 		public string ConsumerKey { get; set; }
@@ -115,7 +119,35 @@ namespace GreenshotPlugin.Core {
 		public string AuthorizeUrl { get; set; }
 		public string AccessTokenUrl { get; set; }
 		public string CallbackUrl { get { return _callbackUrl;} set { _callbackUrl = value; } }
-		public string Token { get; set; }
+		public bool CheckVerifier {
+			get {
+				return checkVerifier;
+			}
+			set {
+				checkVerifier = value;
+			}
+		}
+
+		public int BrowserWidth {
+			get {
+				return _browserWidth;
+			}
+			set {
+				_browserWidth = value;
+			}
+		}
+		public int BrowserHeight {
+			get {
+				return _browserHeight;
+			}
+			set {
+				_browserHeight = value;
+			}
+		}
+		public string Token {
+			get;
+			set;
+		}
 		public string TokenSecret { get; set; }
 		#endregion
  
@@ -183,7 +215,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="value">The value to Url encode</param>
 		/// <returns>Returns a Url encoded string</returns>
-		public static string UrlEncodeSpecial(string value) {
+		public static string UrlEncode3986(string value) {
 			StringBuilder result = new StringBuilder();
 
 			foreach (char symbol in value) {
@@ -260,7 +292,7 @@ namespace GreenshotPlugin.Core {
 
 			//TODO: Make this less of a hack
 			if (!string.IsNullOrEmpty(callback)) {
-				parameters.Add(new QueryParameter(OAuthCallbackKey, UrlEncodeSpecial(callback)));
+				parameters.Add(new QueryParameter(OAuthCallbackKey, UrlEncode3986(callback)));
 			}
 
 			if (!string.IsNullOrEmpty(token)) {
@@ -284,8 +316,8 @@ namespace GreenshotPlugin.Core {
 
 			StringBuilder signatureBase = new StringBuilder();
 			signatureBase.AppendFormat("{0}&", httpMethod.ToUpper());
-			signatureBase.AppendFormat("{0}&", UrlEncodeSpecial(normalizedUrl));
-			signatureBase.AppendFormat("{0}", UrlEncodeSpecial(normalizedRequestParameters));
+			signatureBase.AppendFormat("{0}&", UrlEncode3986(normalizedUrl));
+			signatureBase.AppendFormat("{0}", UrlEncode3986(normalizedRequestParameters));
 
 			return signatureBase.ToString();
 		}
@@ -335,7 +367,7 @@ namespace GreenshotPlugin.Core {
 				case SignatureTypes.HMACSHA1:
 					string signatureBase = GenerateSignatureBase(url, consumerKey, token, tokenSecret, httpMethod, timeStamp, nonce, callback, HMACSHA1SignatureType, out normalizedUrl, out normalizedRequestParameters);
 					HMACSHA1 hmacsha1 = new HMACSHA1();
-					hmacsha1.Key = Encoding.ASCII.GetBytes(string.Format("{0}&{1}", UrlEncodeSpecial(consumerSecret), string.IsNullOrEmpty(tokenSecret) ? "" : UrlEncodeSpecial(tokenSecret)));
+					hmacsha1.Key = Encoding.ASCII.GetBytes(string.Format("{0}&{1}", UrlEncode3986(consumerSecret), string.IsNullOrEmpty(tokenSecret) ? "" : UrlEncode3986(tokenSecret)));
 
 					return GenerateSignatureUsingHash(signatureBase, hmacsha1);
 				case SignatureTypes.RSASHA1:
@@ -355,15 +387,6 @@ namespace GreenshotPlugin.Core {
 			TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
 			return Convert.ToInt64(ts.TotalSeconds).ToString();
 		}
-
-		/*
-	   public virtual string GenerateTimeStamp() {
-		   // Default implementation of UNIX time of the current UTC time
-		   TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
-		   string timeStamp = ts.TotalSeconds.ToString();
-		   timeStamp = timeStamp.Substring(0, timeStamp.IndexOf(","));
-		   return Convert.ToInt64(timeStamp).ToString(); 
-	   }*/
 
 		/// <summary>
 		/// Generate a nonce
@@ -401,15 +424,19 @@ namespace GreenshotPlugin.Core {
 				Exception e = new Exception("The request token is not set");
 				throw e;
 			}
-
-			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(this, browserTitle);
+			LOG.DebugFormat("Opening browser for URL: {0}", AuthorizationLink);
+			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(this, browserTitle, BrowserWidth, BrowserHeight);
 			oAuthLoginForm.ShowDialog();
 			Token = oAuthLoginForm.Token;
-			Verifier = oAuthLoginForm.Verifier;
-			if (!string.IsNullOrEmpty(Verifier)) {
-				return Token;
+			if (CheckVerifier) {
+				Verifier = oAuthLoginForm.Verifier;
+				if (!string.IsNullOrEmpty(Verifier)) {
+					return Token;
+				} else {
+					return null;
+				}
 			} else {
-				return null;
+				return Token;
 			}
 		}
 
@@ -418,7 +445,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <returns>The access token.</returns>		
 		public String getAccessToken() {
-			if (string.IsNullOrEmpty(Token) || string.IsNullOrEmpty(Verifier)) {
+			if (string.IsNullOrEmpty(Token) || (CheckVerifier && string.IsNullOrEmpty(Verifier))) {
 				Exception e = new Exception("The request token and verifier were not set");
 				throw e;
 			}
@@ -472,7 +499,7 @@ namespace GreenshotPlugin.Core {
 							postData += "&";
 						}
 						qs[key] = NetworkHelper.UrlDecode(qs[key]);
-						qs[key] = UrlEncodeSpecial(qs[key]);
+						qs[key] = UrlEncode3986(qs[key]);
 						postData += key + "=" + qs[key];
 
 					}
@@ -492,7 +519,7 @@ namespace GreenshotPlugin.Core {
 			
 			string callback = "";
 			if (url.ToString().Contains(RequestTokenUrl)) {
-				callback = _callbackUrl;
+				callback = CallbackUrl;
 			}
 
 			//Generate Signature

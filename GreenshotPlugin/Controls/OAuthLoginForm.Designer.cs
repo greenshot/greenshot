@@ -44,52 +44,49 @@ namespace GreenshotPlugin.Controls {
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.browser = new System.Windows.Forms.WebBrowser();
-            this.addressTextBox = new System.Windows.Forms.TextBox();
-            this.SuspendLayout();
-            // 
-            // browser
-            // 
-            this.browser.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.browser.Location = new System.Drawing.Point(0, 26);
-            this.browser.MinimumSize = new System.Drawing.Size(20, 20);
-            this.browser.Name = "browser";
-            this.browser.Size = new System.Drawing.Size(864, 561);
-            this.browser.TabIndex = 0;
-            this.browser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webBrowser1_Navigating);
-            this.browser.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.browser_Navigated);
-            // 
-            // addressTextBox
-            // 
-            this.addressTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.addressTextBox.Location = new System.Drawing.Point(7, 2);
-            this.addressTextBox.Name = "addressTextBox";
-            this.addressTextBox.Size = new System.Drawing.Size(840, 20);
-            this.addressTextBox.TabIndex = 1;
-            this.addressTextBox.TabStop = false;
-            this.addressTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.addressTextBox_KeyPress);
-            // 
-            // LoginForm
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(864, 587);
-            this.Controls.Add(this.addressTextBox);
-            this.Controls.Add(this.browser);
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "LoginForm";
-            this.ShowInTaskbar = false;
-            this.ResumeLayout(false);
-            this.PerformLayout();
+			this.addressTextBox = new System.Windows.Forms.TextBox();
+			this.browser = new System.Windows.Forms.WebBrowser();
+			this.SuspendLayout();
+			// 
+			// addressTextBox
+			// 
+			this.addressTextBox.Cursor = System.Windows.Forms.Cursors.Arrow;
+			this.addressTextBox.Dock = System.Windows.Forms.DockStyle.Top;
+			this.addressTextBox.Enabled = false;
+			this.addressTextBox.Location = new System.Drawing.Point(0, 0);
+			this.addressTextBox.Name = "addressTextBox";
+			this.addressTextBox.Size = new System.Drawing.Size(595, 20);
+			this.addressTextBox.TabIndex = 3;
+			this.addressTextBox.TabStop = false;
+			// 
+			// browser
+			// 
+			this.browser.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.browser.Location = new System.Drawing.Point(0, 20);
+			this.browser.MinimumSize = new System.Drawing.Size(100, 100);
+			this.browser.Name = "browser";
+			this.browser.Size = new System.Drawing.Size(595, 295);
+			this.browser.TabIndex = 4;
+			// 
+			// OAuthLoginForm
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(595, 315);
+			this.Controls.Add(this.browser);
+			this.Controls.Add(this.addressTextBox);
+			this.MaximizeBox = false;
+			this.MinimizeBox = false;
+			this.Name = "OAuthLoginForm";
+			this.ResumeLayout(false);
+			this.PerformLayout();
+
         }
 
         #endregion
 
-        private System.Windows.Forms.WebBrowser browser;
-        private System.Windows.Forms.TextBox addressTextBox;
+		private System.Windows.Forms.TextBox addressTextBox;
+		private System.Windows.Forms.WebBrowser browser;
+
 	}
 }

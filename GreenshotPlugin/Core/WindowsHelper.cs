@@ -333,7 +333,18 @@ namespace GreenshotPlugin.Core  {
 			}
 			return null;
 		}
-		
+
+		/// <summary>
+		/// Retrieve the children with mathing classname
+		/// </summary>
+		public IEnumerable<WindowDetails> GetChilden(string childClassname) {
+			foreach (WindowDetails child in Children) {
+				if (childClassname.Equals(child.ClassName)) {
+					yield return child;
+				}
+			}
+		}
+
 		public IntPtr ParentHandle {
 			get {
 				if (parentHandle == IntPtr.Zero) {

@@ -117,22 +117,24 @@ namespace GreenshotPhotobucketPlugin {
 				host.SaveToStream(image, stream, outputSettings);
 				try {
 					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, captureDetails));
-					PhotobucketInfo PhotobucketInfo = null;
+					PhotobucketInfo photobucketInfo = null;
 			
 					// Run upload in the background
 					new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait), 
 						delegate() {
-							PhotobucketInfo = PhotobucketUtils.UploadToPhotobucket(stream.GetBuffer(), (int)stream.Length, captureDetails.Title, filename);
+							photobucketInfo = PhotobucketUtils.UploadToPhotobucket(stream.GetBuffer(), (int)stream.Length, captureDetails.Title, filename);
 						}
 					);
+					// This causes an exeption if the upload failed :)
+					LOG.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
 					uploadURL = null;
 					try {
 						if (config.UsePageLink) {
-							uploadURL = PhotobucketInfo.Page;
-							Clipboard.SetText(PhotobucketInfo.Page);
+							uploadURL = photobucketInfo.Page;
+							Clipboard.SetText(photobucketInfo.Page);
 						} else {
-							uploadURL = PhotobucketInfo.Original;
-							Clipboard.SetText(PhotobucketInfo.Original);
+							uploadURL = photobucketInfo.Original;
+							Clipboard.SetText(photobucketInfo.Original);
 						}
 					} catch (Exception ex) {
 						LOG.Error("Can't write to clipboard: ", ex);

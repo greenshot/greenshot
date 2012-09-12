@@ -157,11 +157,13 @@ namespace GreenshotImgurPlugin {
 
 					imgurInfo.Image = ImageHelper.CreateThumbnail(image, 90, 90);
 					IniConfig.Save();
-					uploadURL = imgurInfo.Page;
+					uploadURL = null;
 					try {
 						if (config.UsePageLink) {
+							uploadURL = imgurInfo.Page;
 							Clipboard.SetText(imgurInfo.Page);
 						} else {
+							uploadURL = imgurInfo.Original;
 							Clipboard.SetText(imgurInfo.Original);
 						}
 					} catch (Exception ex) {
