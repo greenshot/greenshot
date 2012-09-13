@@ -58,7 +58,7 @@ namespace GreenshotImgurPlugin {
 				if (config.runtimeImgurHistory.ContainsKey(hash)) {
 					// Already loaded
 					continue;
-			    }
+				}
 				try {
 					ImgurInfo imgurInfo = ImgurUtils.RetrieveImgurInfo(hash, config.ImgurUploadHistory[hash]);
 					if (imgurInfo != null) {
@@ -92,35 +92,7 @@ namespace GreenshotImgurPlugin {
 				IniConfig.Save();
 			}
 		}
-		
-		/// <summary>
-		/// A wrapper around the EscapeDataString, as the limit is 32766 characters
-		/// See: http://msdn.microsoft.com/en-us/library/system.uri.escapedatastring%28v=vs.110%29.aspx
-		/// </summary>
-		/// <param name="dataString"></param>
-		/// <returns>escaped data string</returns>
-		private static StringBuilder EscapeDataStringToStringBuilder(string dataString) {
-			StringBuilder result = new StringBuilder();
-			int currentLocation = 0;
-			while (currentLocation < dataString.Length) {
-				string process = dataString.Substring(currentLocation,Math.Min(16384, dataString.Length-currentLocation));
-				result.Append(Uri.EscapeDataString(process));
-				currentLocation = currentLocation + 16384;
-			}
-			return result;
-		}
-
-		private static string EscapeText(string text) {
-			string[] UriRfc3986CharsToEscape = new[] { "!", "*", "'", "(", ")" };
-			LOG.DebugFormat("Text size {0}", text.Length);
-			StringBuilder escaped = EscapeDataStringToStringBuilder(text);
-			
-			for (int i = 0; i < UriRfc3986CharsToEscape.Length; i++) {
-			   escaped.Replace(UriRfc3986CharsToEscape[i], Uri.HexEscape(UriRfc3986CharsToEscape[i][0]));
-			}
-			return escaped.ToString();
-		}
-
+	
 		/// <summary>
 		/// Do the actual upload to Imgur
 		/// For more details on the available parameters, see: http://api.imgur.com/resources_anon
@@ -131,19 +103,19 @@ namespace GreenshotImgurPlugin {
 			StringBuilder uploadRequest = new StringBuilder();
 			// Add image
 			uploadRequest.Append("image=");
-			uploadRequest.Append(EscapeText(System.Convert.ToBase64String(imageData, 0, dataLength)));
+			uploadRequest.Append(OAuthHelper.UrlEncode3986(System.Convert.ToBase64String(imageData, 0, dataLength)));
 			// add type
 			uploadRequest.Append("&type=base64");
 
 			// add title
 			if (title != null) {
 				uploadRequest.Append("&title=");
-				uploadRequest.Append(EscapeText(title));
+				uploadRequest.Append(OAuthHelper.UrlEncode3986(title));
 			}
 			// add filename
 			if (filename != null) {
 				uploadRequest.Append("&name=");
-				uploadRequest.Append(EscapeText(filename));
+				uploadRequest.Append(OAuthHelper.UrlEncode3986(filename));
 			}
 			string url;
 			string responseString;
@@ -178,8 +150,8 @@ namespace GreenshotImgurPlugin {
 				oAuth.AccessTokenUrl = "http://api.imgur.com/oauth/access_token";
 				oAuth.AuthorizeUrl = "http://api.imgur.com/oauth/authorize";
 				oAuth.RequestTokenUrl = "http://api.imgur.com/oauth/request_token";
-				oAuth.ConsumerKey = "fill-in";
-				oAuth.ConsumerSecret = "fill-in";
+				oAuth.ConsumerKey = fill in;
+				oAuth.ConsumerSecret = fill in;
 				oAuth.UserAgent = "Greenshot";
 				if (string.IsNullOrEmpty(config.ImgurToken)) {
 					LOG.Debug("Creating Imgur Token");

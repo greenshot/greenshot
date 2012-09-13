@@ -48,8 +48,6 @@ namespace GreenshotImgurPlugin {
 		{
 			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
 			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.label_url = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.textBoxUrl = new GreenshotPlugin.Controls.GreenshotTextBox();
 			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
 			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.historyButton = new GreenshotPlugin.Controls.GreenshotButton();
@@ -61,7 +59,7 @@ namespace GreenshotImgurPlugin {
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.LanguageKey = "imgur.OK";
-			this.buttonOK.Location = new System.Drawing.Point(222, 129);
+			this.buttonOK.Location = new System.Drawing.Point(222, 88);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 2;
@@ -72,36 +70,18 @@ namespace GreenshotImgurPlugin {
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.LanguageKey = "imgur.CANCEL";
-			this.buttonCancel.Location = new System.Drawing.Point(303, 129);
+			this.buttonCancel.Location = new System.Drawing.Point(303, 88);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 3;
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
-			// label_url
-			// 
-			this.label_url.LanguageKey = "imgur.label_url";
-			this.label_url.Location = new System.Drawing.Point(12, 21);
-			this.label_url.Name = "label_url";
-			this.label_url.Size = new System.Drawing.Size(84, 20);
-			this.label_url.TabIndex = 7;
-			// 
-			// textBoxUrl
-			// 
-			this.textBoxUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.textBoxUrl.Location = new System.Drawing.Point(102, 21);
-			this.textBoxUrl.Name = "textBoxUrl";
-			this.textBoxUrl.PropertyName = "ImgurApiUrl";
-			this.textBoxUrl.SectionName = "Imgur";
-			this.textBoxUrl.Size = new System.Drawing.Size(276, 20);
-			this.textBoxUrl.TabIndex = 6;
-			// 
 			// combobox_uploadimageformat
 			// 
 			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
-			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 47);
+			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 7);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
 			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
 			this.combobox_uploadimageformat.SectionName = "Imgur";
@@ -111,7 +91,7 @@ namespace GreenshotImgurPlugin {
 			// label_upload_format
 			// 
 			this.label_upload_format.LanguageKey = "imgur.label_upload_format";
-			this.label_upload_format.Location = new System.Drawing.Point(12, 50);
+			this.label_upload_format.Location = new System.Drawing.Point(12, 10);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(84, 20);
 			this.label_upload_format.TabIndex = 9;
@@ -120,7 +100,7 @@ namespace GreenshotImgurPlugin {
 			// 
 			this.historyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.historyButton.LanguageKey = "imgur.history";
-			this.historyButton.Location = new System.Drawing.Point(13, 129);
+			this.historyButton.Location = new System.Drawing.Point(13, 88);
 			this.historyButton.Name = "historyButton";
 			this.historyButton.Size = new System.Drawing.Size(75, 23);
 			this.historyButton.TabIndex = 11;
@@ -131,11 +111,11 @@ namespace GreenshotImgurPlugin {
 			// 
 			this.checkbox_anonymous_access.AutoSize = true;
 			this.checkbox_anonymous_access.LanguageKey = "imgur.anonymous_access";
-			this.checkbox_anonymous_access.Location = new System.Drawing.Point(15, 80);
+			this.checkbox_anonymous_access.Location = new System.Drawing.Point(15, 38);
 			this.checkbox_anonymous_access.Name = "checkbox_anonymous_access";
 			this.checkbox_anonymous_access.PropertyName = "AnonymousAccess";
 			this.checkbox_anonymous_access.SectionName = "Imgur";
-			this.checkbox_anonymous_access.Size = new System.Drawing.Size(297, 17);
+			this.checkbox_anonymous_access.Size = new System.Drawing.Size(139, 17);
 			this.checkbox_anonymous_access.TabIndex = 13;
 			this.checkbox_anonymous_access.UseVisualStyleBackColor = true;
 			// 
@@ -143,11 +123,11 @@ namespace GreenshotImgurPlugin {
 			// 
 			this.checkbox_usepagelink.AutoSize = true;
 			this.checkbox_usepagelink.LanguageKey = "imgur.use_page_link";
-			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 97);
+			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 57);
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
 			this.checkbox_usepagelink.PropertyName = "UsePageLink";
 			this.checkbox_usepagelink.SectionName = "Imgur";
-			this.checkbox_usepagelink.Size = new System.Drawing.Size(297, 17);
+			this.checkbox_usepagelink.Size = new System.Drawing.Size(251, 17);
 			this.checkbox_usepagelink.TabIndex = 13;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 
@@ -155,14 +135,12 @@ namespace GreenshotImgurPlugin {
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(387, 168);
+			this.ClientSize = new System.Drawing.Size(387, 123);
 			this.Controls.Add(this.checkbox_anonymous_access);
 			this.Controls.Add(this.checkbox_usepagelink);
 			this.Controls.Add(this.historyButton);
 			this.Controls.Add(this.label_upload_format);
 			this.Controls.Add(this.combobox_uploadimageformat);
-			this.Controls.Add(this.label_url);
-			this.Controls.Add(this.textBoxUrl);
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -177,8 +155,6 @@ namespace GreenshotImgurPlugin {
 		private GreenshotPlugin.Controls.GreenshotButton historyButton;
 		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
 		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
-		private GreenshotPlugin.Controls.GreenshotTextBox textBoxUrl;
-		private GreenshotPlugin.Controls.GreenshotLabel label_url;
 		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
 		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_anonymous_access;
