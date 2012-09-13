@@ -480,6 +480,52 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="method">GET or POST</param>
 		/// <param name="url">The full url, including the querystring.</param>
+		/// <param name="postData">Data to post (MemoryStream)</param>
+		/// <returns>The web server response.</returns>
+		public string oAuthWebRequest(Method method, string url, MemoryStream postData) {
+			string outUrl = "";
+			string querystring = "";
+
+			Uri uri = new Uri(url);
+
+			string nonce = this.GenerateNonce();
+			string timeStamp = this.GenerateTimeStamp();
+
+			string callback = "";
+			if (url.ToString().Contains(RequestTokenUrl)) {
+				callback = CallbackUrl;
+			}
+
+			//Generate Signature
+			string sig = this.GenerateSignature(uri,
+				this.ConsumerKey,
+				this.ConsumerSecret,
+				this.Token,
+				this.TokenSecret,
+				method.ToString(),
+				timeStamp,
+				nonce,
+				callback,
+				out outUrl,
+				out querystring);
+
+			if (querystring.Length > 0) {
+				querystring += "&";
+			}
+			querystring += "oauth_signature=" + NetworkHelper.UrlEncode(sig);
+
+			if (querystring.Length > 0) {
+				outUrl += "?";
+			}
+
+			return WebRequest(method, outUrl + querystring, postData);
+		}
+
+		/// <summary>
+		/// Submit a web request using oAuth.
+		/// </summary>
+		/// <param name="method">GET or POST</param>
+		/// <param name="url">The full url, including the querystring.</param>
 		/// <param name="postData">Data to post (querystring format)</param>
 		/// <returns>The web server response.</returns>
 		public string oAuthWebRequest(Method method, string url, string postData) {
@@ -535,8 +581,10 @@ namespace GreenshotPlugin.Core {
 				out outUrl,
 				out querystring);
 
-
-			querystring += "&oauth_signature=" + NetworkHelper.UrlEncode(sig);
+			if (querystring.Length > 0) {
+				querystring += "&";
+			}
+			querystring += "oauth_signature=" + NetworkHelper.UrlEncode(sig);
 
 			//Convert the querystring to postData
 			if (method == Method.POST) {
@@ -553,6 +601,34 @@ namespace GreenshotPlugin.Core {
 			}
 				
 			return ret;
+		}
+
+		/// <summary>
+		/// Web Request Wrapper
+		/// </summary>
+		/// <param name="method">Http Method</param>
+		/// <param name="url">Full url to the web resource</param>
+		/// <param name="postData">Data to post </param>
+		/// <returns>The web server response.</returns>
+		protected string WebRequest(Method method, string url, MemoryStream postData) {
+			HttpWebRequest webRequest = null;
+			string responseData = "";
+
+			webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+			webRequest.Method = method.ToString();
+			webRequest.ServicePoint.Expect100Continue = false;
+			webRequest.UserAgent = _userAgent;
+			webRequest.Timeout = 20000;
+			webRequest.ContentLength = postData.Length;
+			using (var requestStream = webRequest.GetRequestStream()) {
+				requestStream.Write(postData.GetBuffer(), 0, (int)postData.Length);
+			}
+
+			responseData = WebResponseGet(webRequest);
+
+			webRequest = null;
+
+			return responseData;
 		}
 
 		/// <summary>
