@@ -150,6 +150,12 @@ namespace Greenshot.Helpers.IEInterop {
 			} catch (Exception ex) {
 				LOG.Error("Error checking the compatibility mode:");
 				LOG.Error(ex);
+				try {
+					Type document3Type = COMWrapper.GetUnderlyingType(document3 as IDispatch);
+					COMWrapper.DumpTypeInfo(document3Type);
+				} catch (Exception exInternal) {
+					LOG.Error(exInternal);
+				}
 			}
 			Rectangle clientRectangle = contentWindow.WindowRectangle;
 			try {

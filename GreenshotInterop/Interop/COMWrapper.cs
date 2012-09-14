@@ -365,7 +365,7 @@ namespace Greenshot.Interop {
 		/// </summary>
 		/// <param name="wrapperProxy">wrapperProxy to get the type from</param>
 		/// <returns>Type</returns>
-		public static Type GetUnderlyingType(object wrapperProxy) {
+		public static Type GetUnderlyingTypeForWrapper(object wrapperProxy) {
 			Type returnType = null;
 			COMWrapper wrapper = RemotingServices.GetRealProxy(wrapperProxy) as COMWrapper;
 			if (wrapper != null) {
@@ -381,32 +381,43 @@ namespace Greenshot.Interop {
 		}
 
 		/// <summary>
-		/// Dump the Type-Information for the COM type to the log, this uses reflection
+		/// Return the Type of a IDispatch
 		/// </summary>
-		/// <param name="wrapperProxy">wrapperProxy to inspect</param>
-		public static void DumpTypeInfo(object wrapperProxy) {
-			Type comType = COMWrapper.GetUnderlyingType(wrapperProxy);
-			if (comType == null) {
-				LOG.InfoFormat("Can't get Typeinformation");
-				return;
+		/// <param name="dispatch">IDispatch to get the type object for</param>
+		/// <returns>Type of the IDispatch</returns>
+		public static Type GetUnderlyingType(IDispatch dispatch) {
+			Type returnType = null;
+			if (dispatch != null) {
+				int result = dispatch.GetTypeInfo(0, 0, out returnType);
+				if (result != 0) {
+					LOG.DebugFormat("GetTypeInfo : 0x{0} ({1})", result.ToString("X"), result);
+				}
 			}
-			LOG.InfoFormat("Type information for COM object with name: {0}", comType.Name);
+			return returnType;
+		}
+
+		/// <summary>
+		/// Dump the Type-Information for the Type to the log, this uses reflection
+		/// </summary>
+		/// <param name="type">Type to inspect</param>
+		public static void DumpTypeInfo(Type type) {
+			LOG.InfoFormat("Type information for Type with name: {0}", type.Name);
 			try {
-				foreach (MemberInfo memberInfo in comType.GetMembers()) {
+				foreach (MemberInfo memberInfo in type.GetMembers()) {
 					LOG.InfoFormat("Member: {0};", memberInfo.ToString());
 				}
 			} catch (Exception memberException) {
 				LOG.Error(memberException);
 			}
 			try {
-				foreach (PropertyInfo propertyInfo in comType.GetProperties()) {
+				foreach (PropertyInfo propertyInfo in type.GetProperties()) {
 					LOG.InfoFormat("Property: {0};", propertyInfo.ToString());
 				}
 			} catch (Exception propertyException) {
 				LOG.Error(propertyException);
 			}
 			try {
-				foreach (FieldInfo fieldInfo in comType.GetFields()) {
+				foreach (FieldInfo fieldInfo in type.GetFields()) {
 					LOG.InfoFormat("Field: {0};", fieldInfo.ToString());
 				}
 			} catch (Exception fieldException) {
