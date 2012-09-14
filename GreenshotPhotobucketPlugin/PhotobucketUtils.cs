@@ -42,34 +42,6 @@ namespace GreenshotPhotobucketPlugin {
 		}
 
 		/// <summary>
-		/// A wrapper around the EscapeDataString, as the limit is 32766 characters
-		/// See: http://msdn.microsoft.com/en-us/library/system.uri.escapedatastring%28v=vs.110%29.aspx
-		/// </summary>
-		/// <param name="dataString"></param>
-		/// <returns>escaped data string</returns>
-		private static StringBuilder EscapeDataStringToStringBuilder(string dataString) {
-			StringBuilder result = new StringBuilder();
-			int currentLocation = 0;
-			while (currentLocation < dataString.Length) {
-				string process = dataString.Substring(currentLocation,Math.Min(16384, dataString.Length-currentLocation));
-				result.Append(Uri.EscapeDataString(process));
-				currentLocation = currentLocation + 16384;
-			}
-			return result;
-		}
-
-		private static string EscapeText(string text) {
-			string[] UriRfc3986CharsToEscape = new[] { "!", "*", "'", "(", ")" };
-			LOG.DebugFormat("Text size {0}", text.Length);
-			StringBuilder escaped = EscapeDataStringToStringBuilder(text);
-			
-			for (int i = 0; i < UriRfc3986CharsToEscape.Length; i++) {
-			   escaped.Replace(UriRfc3986CharsToEscape[i], Uri.HexEscape(UriRfc3986CharsToEscape[i][0]));
-			}
-			return escaped.ToString();
-		}
-
-		/// <summary>
 		/// Do the actual upload to Photobucket
 		/// For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
 		/// </summary>
@@ -82,16 +54,16 @@ namespace GreenshotPhotobucketPlugin {
 			uploadRequest.Append("&type=base64");
 			// Add image
 			uploadRequest.Append("&uploadfile=");
-			uploadRequest.Append(EscapeText(System.Convert.ToBase64String(imageData, 0, dataLength)));
+			uploadRequest.Append(OAuthHelper.UrlEncode3986(System.Convert.ToBase64String(imageData, 0, dataLength)));
 			// add title
 			if (title != null) {
 				uploadRequest.Append("&title=");
-				uploadRequest.Append(EscapeText(title));
+				uploadRequest.Append(OAuthHelper.UrlEncode3986(title));
 			}
 			// add filename
 			if (filename != null) {
 				uploadRequest.Append("&filename=");
-				uploadRequest.Append(EscapeText(filename));
+				uploadRequest.Append(OAuthHelper.UrlEncode3986(filename));
 			}
 			string url = "http://api.photobucket.com/album/greenshot/upload";
 			string responseString;
@@ -102,8 +74,8 @@ namespace GreenshotPhotobucketPlugin {
 			oAuth.AccessTokenUrl = "http://api.photobucket.com/login/access";
 			oAuth.AuthorizeUrl = "http://photobucket.com/apilogin/login";
 			oAuth.RequestTokenUrl = "http://api.photobucket.com/login/request";
-			oAuth.ConsumerKey = "fill-in";
-			oAuth.ConsumerSecret = "fill-in";
+			oAuth.ConsumerKey = ;
+			oAuth.ConsumerSecret = ;
 			oAuth.UserAgent = "Greenshot";
 			oAuth.BrowserWidth = 1010;
 			oAuth.BrowserHeight = 400;
