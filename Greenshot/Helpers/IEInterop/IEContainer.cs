@@ -141,6 +141,7 @@ namespace Greenshot.Helpers.IEInterop {
 			this.document3 = document2 as IHTMLDocument3;
 			// Check what access method is needed for the document
 			IHTMLDocument5 document5 = (IHTMLDocument5)document2;
+
 			//compatibility mode affects how height is computed
 			isDTD = false;
 			try {
@@ -150,12 +151,6 @@ namespace Greenshot.Helpers.IEInterop {
 			} catch (Exception ex) {
 				LOG.Error("Error checking the compatibility mode:");
 				LOG.Error(ex);
-				try {
-					Type document3Type = COMWrapper.GetUnderlyingType(document3 as IDispatch);
-					COMWrapper.DumpTypeInfo(document3Type);
-				} catch (Exception exInternal) {
-					LOG.Error(exInternal);
-				}
 			}
 			Rectangle clientRectangle = contentWindow.WindowRectangle;
 			try {
