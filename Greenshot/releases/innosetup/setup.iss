@@ -44,6 +44,7 @@ Source: ..\..\Languages\*it-IT*; DestDir: {app}\Languages; Components: languages
 Source: ..\..\Languages\*ja-JP*; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*ko-KR*; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*lt-LT*; DestDir: {app}\Languages; Components: languages\ltLT; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*nn-NO*; DestDir: {app}\Languages; Components: languages\nnNO; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*pl-PL*; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*pt-BR*; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*pt-PT*; DestDir: {app}\Languages; Components: languages\ptPT; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -212,6 +213,7 @@ Name: "languages\itIT"; Description: "Italiano"; Types: full custom; Flags: disa
 Name: "languages\jaJP"; Description: "日本語"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('7')
 Name: "languages\koKR"; Description: "한국의"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
 Name: "languages\ltLT"; Description: "Lietuvių"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
+Name: "languages\nnNO"; Description: "Nynorsk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\plPL"; Description: "Polski"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
 Name: "languages\ptBR"; Description: "Português do Brasil"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\ptPT"; Description: "Português de Portugal"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')

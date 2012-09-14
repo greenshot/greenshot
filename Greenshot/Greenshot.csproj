@@ -281,6 +281,7 @@
     <None Include="Languages\help-nl-NL.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\help-nn-NO.html" />
     <None Include="Languages\help-pl-PL.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -344,6 +345,7 @@
     <None Include="Languages\language-nl-NL.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\language-nn-NO.xml" />
     <None Include="Languages\language-pl-PL.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
