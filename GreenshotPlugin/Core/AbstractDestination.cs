@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Description of AbstractDestination.
 	/// </summary>
-	public abstract class AbstractDestination : IDestination	{
+	public abstract class AbstractDestination : IDestination {
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AbstractDestination));
 		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
@@ -124,25 +124,36 @@ namespace GreenshotPlugin.Core {
 				basisMenuItem.DropDownOpening += delegate (object source, EventArgs eventArgs) {
 					if (basisMenuItem.DropDownItems.Count == 0) {
 						List<IDestination> subDestinations = new List<IDestination>();
-                        // Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
-                        try {
-                            subDestinations.AddRange(DynamicDestinations());
-                        } catch(Exception ex) {
-                            LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
-                        }
+						// Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
+						try {
+							subDestinations.AddRange(DynamicDestinations());
+						} catch(Exception ex) {
+							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
+						}
 						if (subDestinations.Count > 0) {
 							subDestinations.Sort();
-							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(Description);
-							destinationMenuItem.Tag = this;
-							destinationMenuItem.Image = DisplayIcon;
-							destinationMenuItem.Click += destinationClickHandler;
-							basisMenuItem.DropDownItems.Add(destinationMenuItem);
-							foreach(IDestination subDestination in subDestinations) {
-								destinationMenuItem = new ToolStripMenuItem(subDestination.Description);
-								destinationMenuItem.Tag = subDestination;
-								destinationMenuItem.Image = subDestination.DisplayIcon;
+
+							ToolStripMenuItem destinationMenuItem = null;
+							if (!useDynamicsOnly) {
+								destinationMenuItem = new ToolStripMenuItem(Description);
+								destinationMenuItem.Tag = this;
+								destinationMenuItem.Image = DisplayIcon;
 								destinationMenuItem.Click += destinationClickHandler;
 								basisMenuItem.DropDownItems.Add(destinationMenuItem);
+							}
+							if (useDynamicsOnly && subDestinations.Count == 1) {
+								basisMenuItem.Tag = subDestinations[0];
+								basisMenuItem.Text = subDestinations[0].Description;
+								basisMenuItem.Click -= destinationClickHandler;
+								basisMenuItem.Click += destinationClickHandler;
+							} else {
+								foreach (IDestination subDestination in subDestinations) {
+									destinationMenuItem = new ToolStripMenuItem(subDestination.Description);
+									destinationMenuItem.Tag = subDestination;
+									destinationMenuItem.Image = subDestination.DisplayIcon;
+									destinationMenuItem.Click += destinationClickHandler;
+									basisMenuItem.DropDownItems.Add(destinationMenuItem);
+								}
 							}
 						} else {
 							// Setting base "click" only if there are no sub-destinations
@@ -168,6 +179,12 @@ namespace GreenshotPlugin.Core {
 		}
 
 		public virtual bool isDynamic {
+			get {
+				return false;
+			}
+		}
+
+		public virtual bool useDynamicsOnly {
 			get {
 				return false;
 			}

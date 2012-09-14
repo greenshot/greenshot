@@ -99,8 +99,8 @@ namespace Greenshot.Helpers {
 			ImageOutput.SaveToStream(img, stream, outputSettings);
 		}
 
-		public string SaveToTmpFile(Image img, OutputSettings outputSettings) {
-			return ImageOutput.SaveToTmpFile(img, outputSettings);
+		public string SaveToTmpFile(Image img, OutputSettings outputSettings, string destinationPath) {
+			return ImageOutput.SaveToTmpFile(img, outputSettings, destinationPath);
 		}
 
 		public string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputSettings outputSettings) {

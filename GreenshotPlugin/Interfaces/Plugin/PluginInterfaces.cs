@@ -142,7 +142,8 @@ namespace Greenshot.Plugin {
 		/// </summary>
 		/// <param name="image">The Image to save</param>
 		/// <param name="outputSettings">OutputSettings</param>
-		string SaveToTmpFile(Image image, OutputSettings outputSettings);
+		/// <param name="destinationPath">destination path, can be empty</param>
+		string SaveToTmpFile(Image image, OutputSettings outputSettings, string destinationPath);
 
 		/// <summary>
 		/// Saves the image to a temp file, but the name is build with the capture details & pattern

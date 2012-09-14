@@ -350,11 +350,14 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
-		public static string SaveToTmpFile(Image image, OutputSettings outputSettings) {
+		public static string SaveToTmpFile(Image image, OutputSettings outputSettings, string destinationPath) {
 			string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format.ToString();
 			// Prevent problems with "other characters", which could cause problems
 			tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", "");
-			string tmpPath = Path.Combine(Path.GetTempPath(), tmpFile);
+			if (destinationPath == null) {
+				destinationPath = Path.GetTempPath();
+			}
+			string tmpPath = Path.Combine(destinationPath, tmpFile);
 			LOG.Debug("Creating TMP File : " + tmpPath);
 			
 			try {

@@ -160,6 +160,13 @@ namespace Greenshot.Plugin {
 		}
 
 		/// <summary>
+		/// Returns if the destination is active
+		/// </summary>
+		bool useDynamicsOnly {
+			get;
+		}
+
+		/// <summary>
 		/// Returns true if this destination returns a link
 		/// </summary>
 		bool isLinkable {

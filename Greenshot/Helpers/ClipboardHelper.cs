@@ -381,7 +381,7 @@ EndSelection:<<<<<<<4
 				
 				// Set the HTML
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
-					string tmpFile = ImageOutput.SaveToTmpFile(image, new OutputSettings(OutputFormat.png));
+					string tmpFile = ImageOutput.SaveToTmpFile(image, new OutputSettings(OutputFormat.png), null);
 					string html = getHTMLString(image, tmpFile);
 					ido.SetText(html, TextDataFormat.Html);
 				} else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
