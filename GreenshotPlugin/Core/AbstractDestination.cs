@@ -173,6 +173,12 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
+		public virtual bool isLinkable {
+			get {
+				return false;
+			}
+		}
+
 		public virtual bool isActive {
 			get {
 				if (configuration.ExcludeDestinations != null && configuration.ExcludeDestinations.Contains(Designation)) {
@@ -182,8 +188,30 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public abstract bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
-		
+		public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
+
+		/// <summary>
+		/// A small helper method to perform some default destination actions, like inform the surface of the export
+		/// </summary>
+		/// <param name="exportInformation"></param>
+		/// <param name="surface"></param>
+		public void ProcessExport(ExportInformation exportInformation, ISurface surface) {
+			if (exportInformation != null && exportInformation.ExportMade) {
+				if (!string.IsNullOrEmpty(exportInformation.Uri)) {
+					surface.UploadURL = exportInformation.Uri;
+					surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUri, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+				} else if (!string.IsNullOrEmpty(exportInformation.Filepath)) {
+					surface.LastSaveFullPath = exportInformation.Filepath;
+					surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+				} else {
+					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+				}
+				surface.Modified = false;
+			} else if (exportInformation != null && !string.IsNullOrEmpty(exportInformation.ErrorMessage)) {
+				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("exported_to_error", exportInformation.DestinationDescription) + " " + exportInformation.ErrorMessage);
+			}
+		}
+
 		public override string ToString() {
 			return Description;
 		}

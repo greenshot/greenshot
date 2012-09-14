@@ -497,7 +497,7 @@ namespace Greenshot.Helpers {
 							MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
 							break;
 						case SurfaceMessageTyp.FileSaved:
-						case SurfaceMessageTyp.UploadedUrl:
+						case SurfaceMessageTyp.UploadedUri:
 							EventHandler balloonTipClickedHandler = null;
 							EventHandler balloonTipClosedHandler = null;
 							balloonTipClosedHandler = delegate(object sender, EventArgs e) {
@@ -570,8 +570,8 @@ namespace Greenshot.Helpers {
 					}
 					LOG.InfoFormat("Calling destination {0}", destination.Description);
 
-					bool destinationOk = destination.ExportCapture(false, surface, captureDetails);
-					if (Destinations.EditorDestination.DESIGNATION.Equals(destination.Designation) && destinationOk) {
+					ExportInformation exportInformation = destination.ExportCapture(false, surface, captureDetails);
+					if (Destinations.EditorDestination.DESIGNATION.Equals(destination.Designation) && exportInformation.ExportMade) {
 						canDisposeSurface = false;
 					}
 				}

@@ -302,7 +302,7 @@ namespace Greenshot {
 			string dateTime = DateTime.Now.ToLongTimeString();
 			// TODO: Fix that we only open files, like in the tooltip
 			//if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved || eventArgs.MessageType == SurfaceMessageTyp.UploadedUrl) {
-			if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved || eventArgs.MessageType == SurfaceMessageTyp.UploadedUrl) {
+			if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved || eventArgs.MessageType == SurfaceMessageTyp.UploadedUri) {
 				updateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
 			} else {
 				updateStatusLabel(dateTime + " - " + eventArgs.Message);
@@ -1059,7 +1059,8 @@ namespace Greenshot {
 				clickedDestination = (IDestination)clickedMenuItem.Tag;
 			}
 			if (clickedDestination != null) {
-				if (clickedDestination.ExportCapture(true, surface, surface.CaptureDetails)) {
+				ExportInformation exportInformation = clickedDestination.ExportCapture(true, surface, surface.CaptureDetails);
+				if (exportInformation != null && exportInformation.ExportMade) {
 					surface.Modified = false;
 				}
 			}

@@ -174,7 +174,29 @@ namespace Greenshot.Plugin {
 		IDictionary<PluginAttribute, IGreenshotPlugin> Plugins {
 			get;
 		}
-		
+
+		/// <summary>
+		/// Get a destination by it's designation
+		/// </summary>
+		/// <param name="destination"></param>
+		/// <returns>IDestination</returns>
+		IDestination GetDestination(string designation);
+
+		/// <summary>
+		/// Get a list of all available destinations
+		/// </summary>
+		/// <returns>List<IDestination></returns>
+		List<IDestination> GetAllDestinations();
+
+		/// <summary>
+		/// Export a surface to the destination with has the supplied designation
+		/// </summary>
+		/// <param name="manuallyInitiated"></param>
+		/// <param name="designation"></param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails);
+
 		/// <summary>
 		/// Make region capture with specified Handler
 		/// </summary>

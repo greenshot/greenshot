@@ -175,61 +175,58 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			if (!isOutlookUsed) {
 				using (Image image = surface.GetImageForExport()) {
 					MapiMailMessage.SendImage(image, captureDetails);
-					surface.Modified = false;
-					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, "Exported to " + mapiClient);
+					exportInformation.ExportMade = true;
 				}
-				return true;
-			}
-
-			// Outlook logic
-			string tmpFile = captureDetails.Filename;
-			if (tmpFile == null || surface.Modified) {
-				using (Image image = surface.GetImageForExport()) {
-					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, new OutputSettings());
-				}
+				return exportInformation;
 			} else {
-				LOG.InfoFormat("Using already available file: {0}", tmpFile);
-			}
-
-			// Create a attachment name for the image
-			string attachmentName = captureDetails.Title;
-			if (!string.IsNullOrEmpty(attachmentName)) {
-				attachmentName = attachmentName.Trim();
-			}
-			// Set default if non is set
-			if (string.IsNullOrEmpty(attachmentName)) {
-				attachmentName = "Greenshot Capture";
-			}
-			// Make sure it's "clean" so it doesn't corrupt the header
-			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
-
-			if (outlookInspectorCaption != null) {
-				OutlookEmailExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
-			} else {
-				if (!manuallyInitiated) {
-					Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets(conf.OutlookAllowExportInMeetings);
-					if (inspectorCaptions != null && inspectorCaptions.Count > 0) {
-						List<IDestination> destinations = new List<IDestination>();
-						destinations.Add(new EmailDestination());
-						foreach (string inspectorCaption in inspectorCaptions.Keys) {
-							destinations.Add(new EmailDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
-						}
-						PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
-						return false;
+				// Outlook logic
+				string tmpFile = captureDetails.Filename;
+				if (tmpFile == null || surface.Modified) {
+					using (Image image = surface.GetImageForExport()) {
+						tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, new OutputSettings());
 					}
+				} else {
+					LOG.InfoFormat("Using already available file: {0}", tmpFile);
 				}
-				OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC);
+
+				// Create a attachment name for the image
+				string attachmentName = captureDetails.Title;
+				if (!string.IsNullOrEmpty(attachmentName)) {
+					attachmentName = attachmentName.Trim();
+				}
+				// Set default if non is set
+				if (string.IsNullOrEmpty(attachmentName)) {
+					attachmentName = "Greenshot Capture";
+				}
+				// Make sure it's "clean" so it doesn't corrupt the header
+				attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
+
+				if (outlookInspectorCaption != null) {
+					OutlookEmailExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
+					exportInformation.ExportMade = true;
+				} else {
+					if (!manuallyInitiated) {
+						Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets(conf.OutlookAllowExportInMeetings);
+						if (inspectorCaptions != null && inspectorCaptions.Count > 0) {
+							List<IDestination> destinations = new List<IDestination>();
+							destinations.Add(new EmailDestination());
+							foreach (string inspectorCaption in inspectorCaptions.Keys) {
+								destinations.Add(new EmailDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
+							}
+							PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
+						}
+					}
+					OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC);
+				}
 			}
-			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
-			surface.Modified = false;
 
-			// Don't know how to handle a cancel in the email
 
-			return true;
+			return exportInformation;
 		}
 	}
 }

@@ -24,6 +24,75 @@ using System.Drawing;
 using System.Windows.Forms;
 
 namespace Greenshot.Plugin {
+	public class ExportInformation {
+		private string uri = null;
+		private string filepath = null;
+
+		private bool exportMade = false;
+		private string destinationDesignation = null;
+		private string destinationDescription = null;
+
+		private string errorMessage = null;
+
+		public ExportInformation(string destinationDesignation, string destinationDescription) {
+			this.destinationDesignation = destinationDesignation;
+			this.destinationDescription = destinationDescription;
+		}
+		public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade): this(destinationDesignation, destinationDescription) {
+			this.exportMade = exportMade;
+		}
+
+		public string DestinationDesignation {
+			get {
+				return destinationDesignation;
+			}
+		}
+		public string DestinationDescription {
+			get {
+				return destinationDescription;
+			}
+			set {
+				destinationDescription = value;
+			}
+		}
+
+		public bool ExportMade {
+			get {
+				return exportMade;
+			}
+			set {
+				exportMade = value;
+			}
+		}
+
+		public string Uri {
+			get {
+				return uri;
+			}
+			set {
+				uri = value;
+			}
+		}
+
+		public string ErrorMessage {
+			get {
+				return errorMessage;
+			}
+			set {
+				errorMessage = value;
+			}
+		}
+
+		public string Filepath {
+			get {
+				return filepath;
+			}
+			set {
+				filepath = value;
+			}
+		}
+	}
+
 	/// <summary>
 	/// Description of IDestination.
 	/// </summary>
@@ -91,12 +160,19 @@ namespace Greenshot.Plugin {
 		}
 
 		/// <summary>
+		/// Returns true if this destination returns a link
+		/// </summary>
+		bool isLinkable {
+			get;
+		}
+
+		/// <summary>
 		/// If a capture is made, and the destination is enabled, this method is called.
 		/// </summary>
 		/// <param name="manuallyInitiated">true if the user selected this destination from a GUI, false if it was called as part of a process</param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
-		/// <returns>true if the destination has "exported" the capture</returns>
-		bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
+		/// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>
+		ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 	}
 }

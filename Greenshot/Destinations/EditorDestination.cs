@@ -90,7 +90,8 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			if (editor == null) {
 				// Make sure we collect the garbage before opening the screenshot
 				GC.Collect();
@@ -105,22 +106,24 @@ namespace Greenshot.Destinations {
 					editorForm.Show();
 					editorForm.Activate();
 					LOG.Debug("Finished opening Editor");
-					return true;
+					exportInformation.ExportMade = true;
 				} catch (Exception e) {
 					LOG.Error(e);
+					exportInformation.ErrorMessage = e.Message;
 				}
 			} else {
                 try {
                     using (Bitmap image = (Bitmap)surface.GetImageForExport()) {
                         editor.Surface.AddBitmapContainer(image, 10, 10);
                     }
-                    surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
-                    return true;
+					exportInformation.ExportMade = true;
                 } catch (Exception e) {
                     LOG.Error(e);
-                }
+					exportInformation.ErrorMessage = e.Message;
+				}
 			}
-			return false;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

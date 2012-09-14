@@ -128,18 +128,19 @@ namespace Greenshot.Helpers {
 		/// <param name="designation"></param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
-		public static void ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
-			if (RegisteredDestinations.ContainsKey(designation)) {
-				IDestination destination = RegisteredDestinations[designation];
-				if (destination.isActive) {
-					if (destination.ExportCapture(manuallyInitiated, surface, captureDetails)) {
-						// Export worked, set the modified flag to false if the export wasn't to the editor or picker
-						if (!EditorDestination.DESIGNATION.Equals(designation) && !PickerDestination.DESIGNATION.Equals(designation)) {
-							surface.Modified = false;
-						}
+		public static ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
+			IDestination destination = GetDestination(designation);
+			if (destination != null && destination.isActive) {
+				ExportInformation exportInformation = destination.ExportCapture(manuallyInitiated, surface, captureDetails);
+				if (exportInformation != null && exportInformation.ExportMade) {
+					// Export worked, set the modified flag to false if the export wasn't to the editor or picker
+					if (!EditorDestination.DESIGNATION.Equals(designation) && !PickerDestination.DESIGNATION.Equals(designation)) {
+						surface.Modified = false;
 					}
 				}
+				return exportInformation;
 			}
+			return null;
 		}
 	}
 }

@@ -69,7 +69,8 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			bool outputMade;
             bool overwrite;
             string fullPath;
@@ -114,14 +115,12 @@ namespace Greenshot.Destinations {
 			}
 			// Don't overwite filename if no output is made
 			if (outputMade) {
-				surface.LastSaveFullPath = fullPath;
-				surface.Modified = false;
+				exportInformation.ExportMade = outputMade;
+				exportInformation.Filepath = fullPath;
 				captureDetails.Filename = fullPath;
-				surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, Language.GetFormattedString(LangKey.editor_imagesaved, surface.LastSaveFullPath));
-			} else {
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, "");
 			}
-			return outputMade;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

@@ -110,7 +110,8 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
             if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {
@@ -122,9 +123,9 @@ namespace Greenshot.Destinations {
 			} else {
 				ExcelExporter.InsertIntoNewWorkbook(tmpFile);
 			}
-			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
-			surface.Modified = false;
-			return true;
+			exportInformation.ExportMade = true;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

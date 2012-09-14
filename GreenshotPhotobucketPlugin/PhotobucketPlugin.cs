@@ -68,17 +68,14 @@ namespace GreenshotPhotobucketPlugin {
 			config = IniConfig.GetIniSection<PhotobucketConfiguration>();
 			resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
 			
-			ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Photobucket");
-			itemPlugInRoot.Image = (Image)resources.GetObject("Photobucket");
-
-			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure));
+			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem("Photobucket " + Language.GetString("photobucket", LangKey.configure));
 			itemPlugInConfig.Tag = host;
 			itemPlugInConfig.Click += delegate {
 				config.ShowConfigDialog();
 			};
-			itemPlugInRoot.DropDownItems.Add(itemPlugInConfig);
+			itemPlugInConfig.Image = (Image)resources.GetObject("Photobucket");
 
-			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
+			PluginUtils.AddToContextMenu(host, itemPlugInConfig);
 
 			return true;
 		}

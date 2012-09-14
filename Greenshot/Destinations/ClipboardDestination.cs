@@ -68,19 +68,19 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			try {
 				using (Image image = surface.GetImageForExport()) {
 					ClipboardHelper.SetClipboardData(image);
-					surface.Modified = false;
+					exportInformation.ExportMade = true;
 				}
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetString(LangKey.editor_storedtoclipboard));
-				return true;
 			} catch (Exception) {
+				// TODO: Change to general logic in ProcessExport
 				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
 			}
-
-			return false;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

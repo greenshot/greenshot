@@ -66,7 +66,8 @@ namespace ExternalCommand {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			OutputSettings outputSettings = new OutputSettings();
 
 			string fullPath = captureDetails.Filename;
@@ -82,10 +83,11 @@ namespace ExternalCommand {
 				commandThread.Name = "Running " + presetCommand;
 				commandThread.IsBackground = true;
 				commandThread.Start();
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", Description));
-				surface.Modified = false;
+				exportInformation.ExportMade = true;
+				//exportInformation.Uri = "file://" + fullPath;
 			}
-			return true;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 		
 		private void CallExternalCommand(string commando, string fullPath) {

@@ -102,10 +102,9 @@ namespace Greenshot.Destinations {
 						menu.Hide();
 
 						// Export
-						bool result = clickedDestination.ExportCapture(true, surface, captureDetails);
-						LOG.InfoFormat("Destination was {0} and result {1}", clickedDestination.Designation, result);
-						if (result == true) {
-							LOG.Info("Export success, closing menu");
+						ExportInformation exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
+						if (exportInformation != null && exportInformation.ExportMade) {
+							LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
 							// close menu if the destination wasn't the editor
 							menu.Close();
 
@@ -115,7 +114,7 @@ namespace Greenshot.Destinations {
 								surface = null;
 							}
 						} else {
-							LOG.Info("Export failed, showing menu again");
+							LOG.Info("Export cancelled or failed, showing menu again");
 							// This prevents the problem that the context menu shows in the task-bar
 							ShowMenuAtCursor(menu);
 						}
@@ -180,7 +179,8 @@ namespace Greenshot.Destinations {
 		/// <param name="surface">Surface to export</param>
 		/// <param name="captureDetails">Details of the capture</param>
 		/// <returns>true if export was made</returns>
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			List<IDestination> destinations = new List<IDestination>();
 			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
 				if ("Picker".Equals(destination.Designation)) {
@@ -193,7 +193,9 @@ namespace Greenshot.Destinations {
 			}
 
 			ShowPickerMenu(true, surface, captureDetails, destinations);
-			return true;
+			exportInformation.ExportMade = true;
+			// No Processing! :)
+			return exportInformation;
 		}
 	}
 }

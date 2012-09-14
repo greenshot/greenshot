@@ -111,7 +111,8 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {
@@ -121,13 +122,15 @@ namespace Greenshot.Destinations {
 			if (documentCaption != null) {
 				try {
 					WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+					exportInformation.ExportMade = true;
 				} catch (Exception) {
 					try {
 						WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
 						LOG.Error(ex);
+						// TODO: Change to general logic in ProcessExport
 						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
-						return false;
 					}
 				}
 			} else {
@@ -140,25 +143,24 @@ namespace Greenshot.Destinations {
 							destinations.Add(new WordDestination(document));
 						}
 						PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
-						return false;
 					}
 				}
 				try {
 					WordExporter.InsertIntoNewDocument(tmpFile);
+					exportInformation.ExportMade = true;
 				} catch(Exception) {
 					try {
 						WordExporter.InsertIntoNewDocument(tmpFile);
+						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
 						LOG.Error(ex);
+						// TODO: Change to general logic in ProcessExport
 						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
-						return false;
 					}
 				}
 			}
-			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
-			surface.Modified = false;
-
-			return true;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

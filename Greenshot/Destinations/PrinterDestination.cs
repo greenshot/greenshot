@@ -93,7 +93,8 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			PrinterSettings printerSettings = null;
 			using (Image image = surface.GetImageForExport()) {
 				if (!string.IsNullOrEmpty(printerName)) {
@@ -105,12 +106,15 @@ namespace Greenshot.Destinations {
 					printerSettings = new PrintHelper(image, captureDetails).PrintWithDialog();
 				}
 				if (printerSettings != null) {
-					surface.Modified = false;
-					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.editor_senttoprinter, printerSettings.PrinterName));
+					printerName = printerSettings.PrinterName;
+					// Renew destination
+					exportInformation.DestinationDescription = this.Description;
+					exportInformation.ExportMade = true;
 				}
 			}
 
-			return printerSettings != null;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

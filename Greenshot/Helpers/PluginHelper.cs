@@ -140,6 +140,17 @@ namespace Greenshot.Helpers {
 			get {return plugins;}
 		}
 
+		public IDestination GetDestination(string designation) {
+			return DestinationHelper.GetDestination(designation);
+		}
+		public List<IDestination> GetAllDestinations() {
+			return DestinationHelper.GetAllDestinations();
+		}
+
+		public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
+			return DestinationHelper.ExportCapture(manuallyInitiated, designation, surface, captureDetails);
+		}
+
 		/// <summary>
 		/// Make Capture with specified Handler
 		/// </summary>

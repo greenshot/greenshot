@@ -111,7 +111,8 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
 			Size imageSize = Size.Empty;
             if (tmpFile == null || surface.Modified) {
@@ -122,6 +123,7 @@ namespace Greenshot.Destinations {
 			}
 			if (presentationName != null) {
 				PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
+				exportInformation.ExportMade = true;
 			} else {
 				if (!manuallyInitiated) {
 					List<string> presentations = PowerpointExporter.GetPowerpointPresentations();
@@ -132,14 +134,16 @@ namespace Greenshot.Destinations {
 							destinations.Add(new PowerpointDestination(presentation));
 						}
 						PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
-						return false;
+						exportInformation.ExportMade = true;
 					}
 				}
-				PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
+				if (!exportInformation.ExportMade) {
+					PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
+					exportInformation.ExportMade = true;
+				}
 			}
-			surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString(LangKey.exported_to, Description));
-			surface.Modified = false;
-			return true;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

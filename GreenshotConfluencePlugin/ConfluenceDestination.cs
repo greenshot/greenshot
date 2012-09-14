@@ -114,10 +114,11 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			// force password check to take place before the pages load
 			if (!ConfluencePlugin.ConfluenceConnector.isLoggedIn) {
-				return false;
+				return exportInformation;
 			}
 
 			Page selectedPage = page;
@@ -132,8 +133,6 @@ namespace GreenshotConfluencePlugin {
 						openPage = false;
 					}
 					filename = confluenceUpload.Filename;
-				} else {
-					return false;
 				}
 			}
 			if (selectedPage != null) {
@@ -143,20 +142,18 @@ namespace GreenshotConfluencePlugin {
 					if (uploaded) {
 						if (openPage) {
 							try {
-                                Process.Start(selectedPage.Url);
+								Process.Start(selectedPage.Url);
 							} catch { }
 						}
-                        surface.UploadURL = selectedPage.Url;
-						surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUrl, Language.GetFormattedString("exported_to", Description));
-						surface.Modified = false;
-						return true;
+						exportInformation.ExportMade = true;
+						exportInformation.Uri = selectedPage.Url;
 					} else {
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString("confluence", LangKey.upload_failure) + " " + errorMessage);
+						exportInformation.ErrorMessage = errorMessage;
 					}
 				}
 			}
-			
-			return false;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 		
 		private bool upload(Image image, Page page, string filename, out string errorMessage) {

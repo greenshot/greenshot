@@ -101,7 +101,8 @@ namespace GreenshotJiraPlugin {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string filename = Path.GetFileName(jiraPlugin.Host.GetFilename(config.UploadFormat, captureDetails));
 			byte[] buffer;
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
@@ -121,10 +122,8 @@ namespace GreenshotJiraPlugin {
 						}
 					);
 					LOG.Debug("Uploaded to Jira.");
-					surface.UploadURL = jiraPlugin.JiraConnector.getURL(jira.Key);
-					surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUrl, Language.GetFormattedString("exported_to", FormatUpload(jira)));
-					surface.Modified = false;
-					return true;
+					exportInformation.ExportMade = true;
+					exportInformation.Uri = surface.UploadURL;
 				} catch (Exception e) {
 					MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
 				}
@@ -150,17 +149,16 @@ namespace GreenshotJiraPlugin {
 								}
 							);
 							LOG.Debug("Uploaded to Jira.");
-							surface.UploadURL = jiraPlugin.JiraConnector.getURL(jiraForm.getJiraIssue().Key);
-							surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUrl,  Language.GetFormattedString("exported_to", FormatUpload(jiraForm.getJiraIssue())));
-							surface.Modified = false;
-							return true;
+							exportInformation.ExportMade = true;
+							exportInformation.Uri = surface.UploadURL;
 						} catch(Exception e) {
 							MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
 						}
 					}
 				}
 			}
-			return false;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

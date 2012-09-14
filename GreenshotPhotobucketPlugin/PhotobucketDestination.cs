@@ -62,17 +62,18 @@ namespace GreenshotPhotobucketPlugin  {
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			using (Image image = surface.GetImageForExport()) {
 				string uploadURL = null;
 				bool uploaded = plugin.Upload(captureDetails, image, out uploadURL);
 				if (uploaded) {
-					surface.UploadURL = uploadURL;
-					surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUrl, Language.GetFormattedString("exported_to", Designation));
-					surface.Modified = false;
+					exportInformation.ExportMade = true;
+					exportInformation.Uri = uploadURL;
 				}
-				return uploaded;
 			}
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

@@ -37,7 +37,7 @@ namespace Greenshot.Plugin {
 		FileSaved,
 		Error,
 		Info,
-		UploadedUrl
+		UploadedUri
 	}
 
 	public class SurfaceMessageEventArgs : EventArgs {
