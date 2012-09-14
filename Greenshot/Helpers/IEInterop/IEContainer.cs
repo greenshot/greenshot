@@ -153,8 +153,8 @@ namespace Greenshot.Helpers.IEInterop {
 			}
 			Rectangle clientRectangle = contentWindow.WindowRectangle;
 			try {
-				IHTMLWindow3 window3 = (IHTMLWindow3)document2.parentWindow;
 				IHTMLWindow2 window2 = (IHTMLWindow2)document2.parentWindow;
+				//IHTMLWindow3 window3 = (IHTMLWindow3)document2.parentWindow;
 				IHTMLScreen2 screen2 = (IHTMLScreen2)window2.screen;
 				IHTMLScreen screen = window2.screen;
 				if (parent != null) {
@@ -172,7 +172,7 @@ namespace Greenshot.Helpers.IEInterop {
 
 					// Calculate the viewport rectangle, needed if there is a frame around the html window
 					LOG.DebugFormat("Screen {0}x{1}", ScaleX(screen.width), ScaleY(screen.height));
-					LOG.DebugFormat("Screen location {0},{1}", window3.screenLeft, window3.screenTop);
+					//LOG.DebugFormat("Screen location {0},{1}", window3.screenLeft, window3.screenTop);
 					LOG.DebugFormat("Window rectangle {0}", clientRectangle);
 					LOG.DebugFormat("Client size {0}x{1}", ClientWidth, ClientHeight);
 					int diffX = clientRectangle.Width - ClientWidth;
@@ -188,7 +188,7 @@ namespace Greenshot.Helpers.IEInterop {
 				}
 				LOG.DebugFormat("Zoomlevel {0}, {1}", zoomLevelX, zoomLevelY);
 			} catch (Exception e) {
-				LOG.Warn("Can't get certain properties for documents, using default.  due to: ", e);
+				LOG.Warn("Can't get certain properties for documents, using default. Due to: ", e);
 			}
 
 
@@ -197,12 +197,14 @@ namespace Greenshot.Helpers.IEInterop {
 				if (name == null) {
 					name = document2.title;
 				}
-			} catch {
+			} catch (Exception e) {
+				LOG.Warn("Problem while trying to get document title!", e);
 			}
 
 			try {
 				url = document2.url;
-			} catch {
+			} catch (Exception e) {
+				LOG.Warn("Problem while trying to get document url!", e);
 			}
 			sourceLocation = new Point(ScaleX((int)startLocation.X), ScaleY((int)startLocation.Y));
 			destinationLocation = new Point(ScaleX((int)startLocation.X), ScaleY((int)startLocation.Y));
@@ -210,29 +212,38 @@ namespace Greenshot.Helpers.IEInterop {
 			if (parent != null) {
 				return;
 			}
-			IHTMLFramesCollection2 frameCollection = (IHTMLFramesCollection2)document2.frames;
-			for(int frame = 0; frame < frameCollection.length; frame++) {
-				try {
-					IHTMLWindow2 frameWindow = frameCollection.item(frame);
-					DocumentContainer frameData = new DocumentContainer(frameWindow, contentWindow, this);
-					// check if frame is hidden
-					if (!frameData.isHidden) {
-						LOG.DebugFormat("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.name, frameData.SourceRectangle);
-						frames.Add(frameData);
-					} else {
-						LOG.DebugFormat("Skipping frame {0}", frameData.Name);
+			try {
+				IHTMLFramesCollection2 frameCollection = (IHTMLFramesCollection2)document2.frames;
+				for (int frame = 0; frame < frameCollection.length; frame++) {
+					try {
+						IHTMLWindow2 frameWindow = frameCollection.item(frame);
+						DocumentContainer frameData = new DocumentContainer(frameWindow, contentWindow, this);
+						// check if frame is hidden
+						if (!frameData.isHidden) {
+							LOG.DebugFormat("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.name, frameData.SourceRectangle);
+							frames.Add(frameData);
+						} else {
+							LOG.DebugFormat("Skipping frame {0}", frameData.Name);
+						}
+					} catch (Exception e) {
+						LOG.Warn("Problem while trying to get information from a frame, skipping the frame!", e);
 					}
-				} catch (Exception e) {
-					LOG.Warn("Problem while trying to get information from a frame, skipping the frame!", e);
 				}
+			} catch (Exception ex) {
+				LOG.Warn("Problem while trying to get the frames, skipping!", ex);
 			}
-			// Correct iframe locations
-			foreach (IHTMLElement frameElement in document3.getElementsByTagName("IFRAME")){
-				try {
-					CorrectFrameLocations(frameElement);
-				} catch (Exception e) {
-					LOG.Warn("Problem while trying to get information from an iframe, skipping the frame!", e);
+
+			try {
+				// Correct iframe locations
+				foreach (IHTMLElement frameElement in document3.getElementsByTagName("IFRAME")) {
+					try {
+						CorrectFrameLocations(frameElement);
+					} catch (Exception e) {
+						LOG.Warn("Problem while trying to get information from an iframe, skipping the frame!", e);
+					}
 				}
+			} catch (Exception ex) {
+				LOG.Warn("Problem while trying to get the iframes, skipping!", ex);
 			}
 		}
 		

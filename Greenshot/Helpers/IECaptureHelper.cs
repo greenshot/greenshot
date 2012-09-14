@@ -231,7 +231,9 @@ namespace Greenshot.Helpers {
 					ieAccessible = new Accessible(directUIWD.Handle);
 				}
 				if (ieAccessible == null) {
-					LOG.InfoFormat("Active Window is {0}", browserWindow.Text);
+					if (browserWindow != null) {
+						LOG.InfoFormat("Active Window is {0}", browserWindow.Text);
+					}
 					if (!ieWindow.Equals(browserWindow)) {
 						LOG.WarnFormat("No ieAccessible for {0}", ieWindow.Text);
 						continue;
