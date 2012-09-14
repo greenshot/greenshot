@@ -137,7 +137,7 @@ namespace Greenshot {
 			this.contextmenu_captureie.Name = "contextmenu_captureie";
 			this.contextmenu_captureie.ShortcutKeyDisplayString = "Ctrl + Shift + Print";
 			this.contextmenu_captureie.Size = new System.Drawing.Size(170, 22);
-			this.contextmenu_capturewindow.Click += new System.EventHandler(this.Contextmenu_captureie_Click);
+			this.contextmenu_captureie.Click += new System.EventHandler(this.Contextmenu_captureie_Click);
 			// 
 			// toolStripListCaptureSeparator
 			// 
