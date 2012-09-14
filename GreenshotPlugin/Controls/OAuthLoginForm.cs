@@ -88,7 +88,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		private void checkUrl() {
-			if (browser.Url.ToString().Contains(_oauth.CallbackUrl)) {
+			if (browser.Url.ToString().StartsWith(_oauth.CallbackUrl)) {
 				string queryParams = browser.Url.Query;
 				if (queryParams.Length > 0) {
 					//Store the Token and Token Secret

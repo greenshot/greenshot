@@ -96,7 +96,7 @@ namespace GreenshotPlugin.Core {
 		protected const string OAuthTimestampKey = "oauth_timestamp";
 		protected const string OAuthNonceKey = "oauth_nonce";
 		protected const string OAuthTokenKey = "oauth_token";
-		protected const string oAauthVerifier = "oauth_verifier";
+		protected const string oAauthVerifierKey = "oauth_verifier";
 		protected const string OAuthTokenSecretKey = "oauth_token_secret";
 
 		protected const string HMACSHA1SignatureType = "HMAC-SHA1";
@@ -313,7 +313,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			if (!string.IsNullOrEmpty(oauth_verifier)) {
-				parameters.Add(new QueryParameter(oAauthVerifier, oauth_verifier));
+				parameters.Add(new QueryParameter(oAauthVerifierKey, oauth_verifier));
 			}
 
 
@@ -419,9 +419,9 @@ namespace GreenshotPlugin.Core {
 			string response = oAuthWebRequest(Method.POST, RequestTokenUrl, String.Empty);
 			if (response.Length > 0) {
 				NameValueCollection qs = NetworkHelper.ParseQueryString(response);
-				if (qs["oauth_token"] != null) {
-					this.Token = qs["oauth_token"];
-					this.TokenSecret = qs["oauth_token_secret"];
+				if (qs[OAuthTokenKey] != null) {
+					this.Token = qs[OAuthTokenKey];
+					this.TokenSecret = qs[OAuthTokenSecretKey];
 					ret = this.Token;
 				}
 			}
@@ -437,7 +437,7 @@ namespace GreenshotPlugin.Core {
 				Exception e = new Exception("The request token is not set");
 				throw e;
 			}
-			LOG.DebugFormat("Opening browser for URL: {0}", AuthorizationLink);
+			LOG.DebugFormat("Opening AuthorizationLink: {0}", AuthorizationLink);
 			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(this, browserTitle, BrowserWidth, BrowserHeight);
 			oAuthLoginForm.ShowDialog();
 			Token = oAuthLoginForm.Token;
@@ -467,11 +467,11 @@ namespace GreenshotPlugin.Core {
 
 			if (response.Length > 0) {
 				NameValueCollection qs = NetworkHelper.ParseQueryString(response);
-				if (qs["oauth_token"] != null) {
-					this.Token = qs["oauth_token"];
+				if (qs[OAuthTokenKey] != null) {
+					this.Token = qs[OAuthTokenKey];
 				}
-				if (qs["oauth_token_secret"] != null) {
-					this.TokenSecret = qs["oauth_token_secret"];
+				if (qs[OAuthTokenSecretKey] != null) {
+					this.TokenSecret = qs[OAuthTokenSecretKey];
 				}
 			}
 
@@ -484,7 +484,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>The url with a valid request token, or a null string.</returns>
 		public string AuthorizationLink {
 			get {
-				return AuthorizeUrl + "?oauth_token=" + this.Token;
+				return AuthorizeUrl + "?" + OAuthTokenKey + "=" + this.Token + "&" + OAuthCallbackKey + "=" + UrlEncode3986(CallbackUrl);
 			}
 		}
 
@@ -525,7 +525,7 @@ namespace GreenshotPlugin.Core {
 			if (querystring.Length > 0) {
 				querystring += "&";
 			}
-			querystring += "oauth_signature=" + NetworkHelper.UrlEncode(sig);
+			querystring += OAuthSignatureKey + "=" + NetworkHelper.UrlEncode(sig);
 
 			if (querystring.Length > 0) {
 				outUrl += "?";
@@ -597,7 +597,7 @@ namespace GreenshotPlugin.Core {
 			if (querystring.Length > 0) {
 				querystring += "&";
 			}
-			querystring += "oauth_signature=" + NetworkHelper.UrlEncode(sig);
+			querystring += OAuthSignatureKey + "=" + NetworkHelper.UrlEncode(sig);
 
 			//Convert the querystring to postData
 			if (method == Method.POST) {
