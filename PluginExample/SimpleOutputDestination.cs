@@ -55,7 +55,8 @@ namespace PluginExample {
 			}
 		}
 		
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 			OutputSettings outputSettings = new OutputSettings();
 
@@ -66,8 +67,10 @@ namespace PluginExample {
 					host.SaveToStream(image, stream, outputSettings);
 				}
 			}
-			MessageBox.Show("Saved test file to: " + filePath);
-			return true;
+			exportInformation.Filepath = filePath;
+			exportInformation.ExportMade = true;
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }
