@@ -48,12 +48,14 @@ namespace Greenshot.Helpers {
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex) {
 			WindowDetails directUIWindowDetails = IEHelper.GetDirectUI(ieWindowDetails);
-			// Bring window to the front
-			ieWindowDetails.Restore();
-			// Get accessible
-			Accessible ieAccessible = new Accessible(directUIWindowDetails.Handle);
-			// Activate Tab
-			ieAccessible.ActivateIETab(tabIndex);
+			if(directUIWindowDetails != null) {
+				// Bring window to the front
+				ieWindowDetails.Restore();
+				// Get accessible
+				Accessible ieAccessible = new Accessible(directUIWindowDetails.Handle);
+				// Activate Tab
+				ieAccessible.ActivateIETab(tabIndex);
+			}
 		}
 
 		/// <summary>
@@ -411,25 +413,29 @@ namespace Greenshot.Helpers {
 
 				// Store the URL of the page
 				if (documentContainer.Url != null) {
-					Uri uri = new Uri(documentContainer.Url);
-					capture.CaptureDetails.AddMetaData("URL", uri.OriginalString);
-					// As the URL can hardly be used in a filename, the following can be used
-					if (!string.IsNullOrEmpty(uri.Scheme)) {
-						capture.CaptureDetails.AddMetaData("URL_SCHEME", uri.Scheme);
+					try {
+						Uri uri = new Uri(documentContainer.Url);
+						capture.CaptureDetails.AddMetaData("URL", uri.OriginalString);
+						// As the URL can hardly be used in a filename, the following can be used
+						if (!string.IsNullOrEmpty(uri.Scheme)) {
+							capture.CaptureDetails.AddMetaData("URL_SCHEME", uri.Scheme);
+						}
+						if (!string.IsNullOrEmpty(uri.DnsSafeHost)) {
+							capture.CaptureDetails.AddMetaData("URL_HOSTNAME", uri.DnsSafeHost);
+						}
+						if (!string.IsNullOrEmpty(uri.AbsolutePath)) {
+							capture.CaptureDetails.AddMetaData("URL_PATH", uri.AbsolutePath);
+						}
+						if (!string.IsNullOrEmpty(uri.Query)) {
+							capture.CaptureDetails.AddMetaData("URL_QUERY", uri.Query);
+						}
+						if (!string.IsNullOrEmpty(uri.UserInfo)) {
+							capture.CaptureDetails.AddMetaData("URL_USER", uri.UserInfo);
+						}
+						capture.CaptureDetails.AddMetaData("URL_PORT", uri.Port.ToString());
+					} catch(Exception e) {
+						LOG.Warn("Exception when trying to use url in metadata "+documentContainer.Url,e);
 					}
-					if (!string.IsNullOrEmpty(uri.DnsSafeHost)) {
-						capture.CaptureDetails.AddMetaData("URL_HOSTNAME", uri.DnsSafeHost);
-					}
-					if (!string.IsNullOrEmpty(uri.AbsolutePath)) {
-						capture.CaptureDetails.AddMetaData("URL_PATH", uri.AbsolutePath);
-					}
-					if (!string.IsNullOrEmpty(uri.Query)) {
-						capture.CaptureDetails.AddMetaData("URL_QUERY", uri.Query);
-					}
-					if (!string.IsNullOrEmpty(uri.UserInfo)) {
-						capture.CaptureDetails.AddMetaData("URL_USER", uri.UserInfo);
-					}
-					capture.CaptureDetails.AddMetaData("URL_PORT", uri.Port.ToString());
 				}
 
 				// Only move the mouse to correct for the capture offset
