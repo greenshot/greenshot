@@ -147,39 +147,56 @@ Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
 Name: en; MessagesFile: compiler:Default.isl
 Name: de; MessagesFile: compiler:Languages\German.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
+Name: nn; MessagesFile: compiler:Languages\Norwegian.isl
 [Tasks]
 Name: startup; Description: {cm:startup}
+
 [CustomMessages]
-en.startup=Start {#ExeName} with Windows start
-de.startup={#ExeName} starten wenn Windows hochfährt
-nl.startup=Start {#ExeName} wanneer Windows opstart
-en.startgreenshot=Start {#ExeName}
-de.startgreenshot={#ExeName} starten
-nl.startgreenshot=Start {#ExeName}
-en.jira=Jira plug-in
-de.jira=Jira Plug-in
-nl.jira=Jira plug-in
-en.confluence=Confluence plug-in
+
 de.confluence=Confluence Plug-in
-nl.confluence=Confluence plug-in
-en.externalcommand=Open with external command plug-in
-de.externalcommand=Öffne mit ein externem Kommando Plug-in
-nl.externalcommand=Open met externes commando plug-in
-en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
-de.ocr=OCR Plug-in (benötigt Microsoft Office Document Imaging (MODI))
-nl.ocr=OCR plug-in (heeft Microsoft Office Document Imaging (MODI) nodig)
-en.imgur=Imgur plug-in (See: http://imgur.com)
-de.imgur=Imgur Plug-in (Siehe: http://imgur.com)
-nl.imgur=Imgur plug-in (Zie: http://imgur.com)
-en.language=Additional languages
-de.language=Zusätzliche Sprachen
-nl.language=Extra talen
-en.optimize=Optimizing performance, this may take a while.
-de.optimize=Optimierung der Leistung, kann etwas dauern.
-nl.optimize=Prestaties verbeteren, kan even duren.
-en.default=Default installation
 de.default=Standard installation
+de.externalcommand=Öffne mit ein externem Kommando Plug-in
+de.imgur=Imgur Plug-in (Siehe: http://imgur.com)
+de.jira=Jira Plug-in
+de.language=Zusätzliche Sprachen
+de.ocr=OCR Plug-in (benötigt Microsoft Office Document Imaging (MODI))
+de.optimize=Optimierung der Leistung, kann etwas dauern.
+de.startgreenshot={#ExeName} starten
+de.startup={#ExeName} starten wenn Windows hochfährt
+
+en.confluence=Confluence plug-in
+en.default=Default installation
+en.externalcommand=Open with external command plug-in
+en.imgur=Imgur plug-in (See: http://imgur.com)
+en.jira=Jira plug-in
+en.language=Additional languages
+en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
+en.optimize=Optimizing performance, this may take a while.
+en.startgreenshot=Start {#ExeName}
+en.startup=Start {#ExeName} with Windows start
+
+nl.confluence=Confluence plug-in
 nl.default=Default installation
+nl.externalcommand=Open met externes commando plug-in
+nl.imgur=Imgur plug-in (Zie: http://imgur.com)
+nl.jira=Jira plug-in
+nl.language=Extra talen
+nl.ocr=OCR plug-in (heeft Microsoft Office Document Imaging (MODI) nodig)
+nl.optimize=Prestaties verbeteren, kan even duren.
+nl.startgreenshot=Start {#ExeName}
+nl.startup=Start {#ExeName} wanneer Windows opstart
+
+nn.confluence=Confluence-tillegg
+nn.default=Default installation 
+nn.externalcommand=Tillegg for å opne med ekstern kommando
+nn.imgur=Imgur-tillegg (sjå http://imgur.com)
+nn.jira=Jira-tillegg
+nn.language=Andre språk
+nn.ocr=OCR-tillegg (krev Microsoft Office Document Imaging (MODI))
+nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
+nn.startgreenshot=Start {#ExeName}
+nn.startup=Start {#ExeName} når Windows startar
+
 [Types]
 Name: "default"; Description: "{cm:default}"
 Name: "full"; Description: "{code:FullInstall}"
