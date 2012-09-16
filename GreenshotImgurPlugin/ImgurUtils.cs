@@ -150,8 +150,8 @@ namespace GreenshotImgurPlugin {
 				oAuth.AccessTokenUrl = "http://api.imgur.com/oauth/access_token";
 				oAuth.AuthorizeUrl = "http://api.imgur.com/oauth/authorize";
 				oAuth.RequestTokenUrl = "http://api.imgur.com/oauth/request_token";
-				oAuth.ConsumerKey = fill in;
-				oAuth.ConsumerSecret = fill in;
+				oAuth.ConsumerKey = ImgurCredentials.CONSUMER_KEY;
+				oAuth.ConsumerSecret = ImgurCredentials.CONSUMER_SECRET;
 				oAuth.UserAgent = "Greenshot";
 				if (string.IsNullOrEmpty(config.ImgurToken)) {
 					LOG.Debug("Creating Imgur Token");
