@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public partial class OAuthLoginForm : Form {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OAuthLoginForm));
-		private OAuthHelper _oauth;
+		private OAuthSession _oauthSession;
 		private String _token;
 		private String _verifier;
 		private String _tokenSecret;
@@ -57,18 +57,18 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 
-		public OAuthLoginForm(OAuthHelper o, string browserTitle, int width, int height) {
-			_oauth = o;
+		public OAuthLoginForm(OAuthSession o, string browserTitle, int width, int height) {
+			_oauthSession = o;
 			_token = null;
 			InitializeComponent();
 			this.ClientSize = new System.Drawing.Size(width, height);
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Text = browserTitle;
 			this.addressTextBox.Text = o.AuthorizationLink;
-			_token = _oauth.Token;
-			_tokenSecret = _oauth.TokenSecret;
+			_token = _oauthSession.Token;
+			_tokenSecret = _oauthSession.TokenSecret;
 			browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(browser_DocumentCompleted);
-			browser.Navigate(new Uri(_oauth.AuthorizationLink));
+			browser.Navigate(new Uri(_oauthSession.AuthorizationLink));
 			
 			WindowDetails.ToForeground(this.Handle);
 		}
@@ -88,15 +88,15 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		private void checkUrl() {
-			if (browser.Url.ToString().StartsWith(_oauth.CallbackUrl)) {
+			if (browser.Url.ToString().StartsWith(_oauthSession.CallbackUrl)) {
 				string queryParams = browser.Url.Query;
 				if (queryParams.Length > 0) {
 					//Store the Token and Token Secret
-					NameValueCollection qs = NetworkHelper.ParseQueryString(queryParams);
-					if (qs["oauth_token"] != null) {
+					IDictionary<string, string> qs = NetworkHelper.ParseQueryString(queryParams);
+					if (qs.ContainsKey("oauth_token") && qs["oauth_token"] != null) {
 						_token = qs["oauth_token"];
 					}
-					if (qs["oauth_verifier"] != null) {
+					if (qs.ContainsKey("oauth_verifier") && qs["oauth_verifier"] != null) {
 						_verifier = qs["oauth_verifier"];
 					}
 				}

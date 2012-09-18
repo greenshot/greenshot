@@ -48,59 +48,39 @@ namespace GreenshotPhotobucketPlugin {
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>PhotobucketResponse</returns>
 		public static PhotobucketInfo UploadToPhotobucket(byte[] imageData, int dataLength, string title, string filename) {
-			StringBuilder uploadRequest = new StringBuilder();
-			uploadRequest.Append("identifier=greenshot");
-			// add type
-			uploadRequest.Append("&type=base64");
-			// Add image
-			uploadRequest.Append("&uploadfile=");
-			uploadRequest.Append(OAuthHelper.UrlEncode3986(System.Convert.ToBase64String(imageData, 0, dataLength)));
-			// add title
-			if (title != null) {
-				uploadRequest.Append("&title=");
-				uploadRequest.Append(OAuthHelper.UrlEncode3986(title));
-			}
-			// add filename
-			if (filename != null) {
-				uploadRequest.Append("&filename=");
-				uploadRequest.Append(OAuthHelper.UrlEncode3986(filename));
-			}
-			string url = "http://api.photobucket.com/album/greenshot/upload";
 			string responseString;
 
-			OAuthHelper oAuth = new OAuthHelper();
+			OAuthSession oAuth = new OAuthSession();
 			// This url is configured in the Photobucket API settings in the Photobucket site!!
 			oAuth.CallbackUrl = "http://getgreenshot.org";
 			oAuth.AccessTokenUrl = "http://api.photobucket.com/login/access";
 			oAuth.AuthorizeUrl = "http://photobucket.com/apilogin/login";
 			oAuth.RequestTokenUrl = "http://api.photobucket.com/login/request";
-			oAuth.ConsumerKey = ;
-			oAuth.ConsumerSecret = ;
+			oAuth.ConsumerKey = "149833145";
+			oAuth.ConsumerSecret = "ebd828180b11103c010c7e71c66f6bcb";
 			oAuth.UserAgent = "Greenshot";
 			oAuth.BrowserWidth = 1010;
 			oAuth.BrowserHeight = 400;
 			oAuth.CheckVerifier = false;
-			if (string.IsNullOrEmpty(config.PhotobucketToken)) {
-				LOG.Debug("Creating Photobucket Token");
-				try {
-					oAuth.getRequestToken();
-				} catch (Exception ex) {
-					LOG.Error(ex);
-					throw new NotSupportedException("Photobucket is not available: " + ex.Message);
-				}
-				LOG.Debug("Authorizing Photobucket");
-				if (string.IsNullOrEmpty(oAuth.authorizeToken("Photobucket authorization"))) {
-					return null;
-				}
-				string accessToken = oAuth.getAccessToken();
-				config.PhotobucketToken = oAuth.Token;
-				config.PhotobucketTokenSecret = oAuth.TokenSecret;
-			} else {
-				LOG.Debug("Using stored Photobucket Token");
-				oAuth.Token = config.PhotobucketToken;
-				oAuth.TokenSecret = config.PhotobucketTokenSecret;
+			oAuth.LoginTitle = "Photobucket authorization";
+			Dictionary<string ,string> parameters = new Dictionary<string, string>();
+			// add album
+			parameters.Add("identifier", "greenshot");
+			// add type
+			parameters.Add("type", "base64");
+			// Add image
+			parameters.Add("uploadfile", System.Convert.ToBase64String(imageData, 0, dataLength));
+			// add title
+			if (title != null) {
+				parameters.Add("title", title);
 			}
-			responseString = oAuth.oAuthWebRequest(OAuthHelper.Method.POST, url, uploadRequest.ToString());
+			// add filename
+			if (filename != null) {
+				parameters.Add("filename", filename);
+			}
+			responseString = oAuth.oAuthWebRequest(HTTPMethod.POST, "http://api.photobucket.com/album/greenshot/upload", parameters, null, null);
+			oAuth.Token = config.PhotobucketToken;
+			oAuth.TokenSecret = config.PhotobucketTokenSecret;
 			LOG.Info(responseString);
 			PhotobucketInfo PhotobucketInfo = PhotobucketInfo.ParseResponse(responseString);
 			LOG.Debug("Upload to Photobucket was finished");

@@ -23,11 +23,13 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using Greenshot.IniFile;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using System.Web;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -159,6 +161,26 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// A wrapper around the EscapeDataString, as the limit is 32766 characters
+		/// See: http://msdn.microsoft.com/en-us/library/system.uri.escapedatastring%28v=vs.110%29.aspx
+		/// </summary>
+		/// <param name="text"></param>
+		/// <returns>escaped data string</returns>
+		public static string EscapeDataString(string text) {
+			if (!string.IsNullOrEmpty(text)) {
+				StringBuilder result = new StringBuilder();
+				int currentLocation = 0;
+				while (currentLocation < text.Length) {
+					string process = text.Substring(currentLocation, Math.Min(16384, text.Length - currentLocation));
+					result.Append(Uri.EscapeDataString(process));
+					currentLocation = currentLocation + 16384;
+				}
+				return result.ToString();
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// UrlDecodes a string without requiring System.Web
 		/// </summary>
 		/// <param name="text">String to decode.</param>
@@ -174,23 +196,50 @@ namespace GreenshotPlugin.Core {
 		/// ParseQueryString without the requirement for System.Web
 		/// </summary>
 		/// <param name="s"></param>
-		/// <returns></returns>
-		public static NameValueCollection ParseQueryString(string s) {
-			NameValueCollection nvc = new NameValueCollection();
+		/// <returns>Dictionary<string, string></returns>
+		public static IDictionary<string, string> ParseQueryString(string s) {
+			IDictionary<string, string> parameters = new SortedDictionary<string, string>();
 			// remove anything other than query string from url
 			if (s.Contains("?")) {
 				s = s.Substring(s.IndexOf('?') + 1);
 			}
 			foreach (string vp in Regex.Split(s, "&")) {
+				if (string.IsNullOrEmpty(vp)) {
+					continue;
+				}
 				string[] singlePair = Regex.Split(vp, "=");
+				if (parameters.ContainsKey(singlePair[0])) {
+					parameters.Remove(singlePair[0]);
+				}
 				if (singlePair.Length == 2) {
-					nvc.Add(singlePair[0], singlePair[1]);
+					parameters.Add(singlePair[0], singlePair[1]);
 				} else {
 					// only one key with no value specified in query string
-					nvc.Add(singlePair[0], string.Empty);
+					parameters.Add(singlePair[0], string.Empty);
 				}
 			}
-			return nvc;
+			return parameters;
 		}
+		
+		/// <summary>
+        /// Generate the query paramters
+        /// </summary>
+        /// <param name="queryParameters">the list of query parameters</param>
+        /// <returns>a string with the query parameters</returns>
+        public static string GenerateQueryParameters(IDictionary<string, string> queryParameters) {
+            if (queryParameters == null || queryParameters.Count == 0) {
+                return string.Empty;
+            }
+        	
+        	queryParameters = new SortedDictionary<string, string>(queryParameters);
+
+			StringBuilder sb = new StringBuilder();
+			foreach(string key in queryParameters.Keys) {
+				sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode(queryParameters[key]));
+			}
+			sb.Remove(sb.Length-1,1);
+
+			return sb.ToString();
+        }
 	}
 }

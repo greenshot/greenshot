@@ -100,39 +100,34 @@ namespace GreenshotImgurPlugin {
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>ImgurResponse</returns>
 		public static ImgurInfo UploadToImgur(byte[] imageData, int dataLength, string title, string filename) {
-			StringBuilder uploadRequest = new StringBuilder();
+			IDictionary<string, string> uploadParameters = new Dictionary<string, string>();
 			// Add image
-			uploadRequest.Append("image=");
-			uploadRequest.Append(OAuthHelper.UrlEncode3986(System.Convert.ToBase64String(imageData, 0, dataLength)));
+			uploadParameters.Add("image", System.Convert.ToBase64String(imageData, 0, dataLength));
 			// add type
-			uploadRequest.Append("&type=base64");
+			uploadParameters.Add("type", "base64");
 
 			// add title
 			if (title != null) {
-				uploadRequest.Append("&title=");
-				uploadRequest.Append(OAuthHelper.UrlEncode3986(title));
+				uploadParameters.Add("title", title);
 			}
 			// add filename
 			if (filename != null) {
-				uploadRequest.Append("&name=");
-				uploadRequest.Append(OAuthHelper.UrlEncode3986(filename));
+				uploadParameters.Add("name", filename);
 			}
-			string url;
-			string responseString;
 
+			string responseString = null;
 			if (config.AnonymousAccess) {
 				// add key
-				uploadRequest.Append("&key=");
-				uploadRequest.Append(IMGUR_ANONYMOUS_API_KEY);
-				url = config.ImgurApiUrl + "/upload";
-				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+				uploadParameters.Add("key", IMGUR_ANONYMOUS_API_KEY);
+				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload");
 
 				webRequest.Method = "POST";
 				webRequest.ContentType = "application/x-www-form-urlencoded";
 				webRequest.ServicePoint.Expect100Continue = false;
 	
 				using(StreamWriter streamWriter = new StreamWriter(webRequest.GetRequestStream())) {
-					streamWriter.Write(uploadRequest.ToString());
+					string urloadText = NetworkHelper.GenerateQueryParameters(uploadParameters);
+					streamWriter.Write(urloadText);
 				}
 				using (WebResponse response = webRequest.GetResponse()) {
 					LogCredits(response);
@@ -142,37 +137,38 @@ namespace GreenshotImgurPlugin {
 				}
 
 			} else {
-				url = config.ImgurApiUrl + "/account/images";
-				OAuthHelper oAuth = new OAuthHelper();
+				OAuthSession oAuth = new OAuthSession();
 				oAuth.BrowserWidth = 650;
 				oAuth.BrowserHeight = 500;
 				oAuth.CallbackUrl = "http://getgreenshot.org";
 				oAuth.AccessTokenUrl = "http://api.imgur.com/oauth/access_token";
 				oAuth.AuthorizeUrl = "http://api.imgur.com/oauth/authorize";
 				oAuth.RequestTokenUrl = "http://api.imgur.com/oauth/request_token";
-				oAuth.ConsumerKey = ImgurCredentials.CONSUMER_KEY;
-				oAuth.ConsumerSecret = ImgurCredentials.CONSUMER_SECRET;
+				oAuth.ConsumerKey = "907d4455b8c38144d68c4f72190af4c40504a0ac7";
+				oAuth.ConsumerSecret = "d33902ef409fea163ab755454c15b3d0";
 				oAuth.UserAgent = "Greenshot";
-				if (string.IsNullOrEmpty(config.ImgurToken)) {
-					LOG.Debug("Creating Imgur Token");
-					oAuth.getRequestToken();
-					if (string.IsNullOrEmpty(oAuth.authorizeToken("Imgur authorization"))) {
-						LOG.Debug("User didn't authenticate!");
-						return null;
+				oAuth.LoginTitle = "Imgur authorization";
+				//oAuth.UseHTTPHeadersForAuthorization = false;
+				oAuth.Token = config.ImgurToken;
+				oAuth.TokenSecret = config.ImgurTokenSecret;
+				try {
+					LOG.DebugFormat("Test: {0}", oAuth.oAuthWebRequest(HTTPMethod.GET, "http://api.imgur.com/2/account", null));
+					responseString = oAuth.oAuthWebRequest(HTTPMethod.POST, "http://api.imgur.com/2/account/images.xml", uploadParameters);
+				} catch (Exception ex) {
+					LOG.Error("Upload to imgur gave an exeption: ", ex);
+					throw ex;
+				} finally {
+					if (oAuth.Token != null) {
+						config.ImgurToken = oAuth.Token;
 					}
-					string accessToken = oAuth.getAccessToken();
-					config.ImgurToken = oAuth.Token;
-					config.ImgurTokenSecret = oAuth.TokenSecret;
-				} else {
-					LOG.Debug("Using stored Imgur Token");
-					oAuth.Token = config.ImgurToken;
-					oAuth.TokenSecret = config.ImgurTokenSecret;
+					if (oAuth.TokenSecret != null) {
+						config.ImgurTokenSecret = oAuth.TokenSecret;
+					}
+					IniConfig.Save();
 				}
-				responseString = oAuth.oAuthWebRequest(OAuthHelper.Method.POST, url, uploadRequest.ToString());
 			}
 			LOG.Info(responseString);
 			ImgurInfo imgurInfo = ImgurInfo.ParseResponse(responseString);
-			LOG.Debug("Upload to imgur was finished");
 			return imgurInfo;
 		}
 
