@@ -688,8 +688,7 @@ namespace Greenshot.Helpers {
 			// 2) Is Windows >= Vista & DWM enabled: use DWM
 			// 3) Otherwise use GDI (Screen might be also okay but might lose content)
 			if (isAutoMode) {
-				// TODO: Decided if this is smart, although we do consider a part of the window...
-				if (conf.IECapture && IECaptureHelper.IsMostlyIEWindow(windowToCapture, 75)) {
+				if (conf.IECapture && IECaptureHelper.IsIEWindow(windowToCapture)) {
 					try {
 						ICapture ieCapture = IECaptureHelper.CaptureIE(captureForWindow, windowToCapture);
 						if (ieCapture != null) {

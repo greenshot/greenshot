@@ -87,7 +87,10 @@ namespace Greenshot.Helpers {
 			if ("IEFrame".Equals(someWindow.ClassName)) {
 				return true;
 			}
-			return someWindow.GetChild("Internet Explorer_Server") != null;
+			if (configuration.WindowClassesToCheckForIE != null && configuration.WindowClassesToCheckForIE.Contains(someWindow.ClassName)) {
+				return someWindow.GetChild("Internet Explorer_Server") != null;
+			}
+			return false;
 		}
 
 		/// <summary>
@@ -120,10 +123,10 @@ namespace Greenshot.Helpers {
 		}
 
 		/// <summary>
-		/// Gets a list of all IE Windows with the captions of the open tabs
+		/// Gets a list of all IE Windows & tabs with the captions of the instances
 		/// </summary>
 		/// <returns>List<KeyValuePair<WindowDetails, string>></returns>
-		public static List<KeyValuePair<WindowDetails, string>> GetTabList() {
+		public static List<KeyValuePair<WindowDetails, string>> GetBrowserTabs() {
 			List<IntPtr> ieHandleList = new List<IntPtr>();
 			Dictionary<WindowDetails, List<string>> browserWindows = new Dictionary<WindowDetails, List<string>>();
 
@@ -137,7 +140,7 @@ namespace Greenshot.Helpers {
 								Accessible accessible = new Accessible(directUIWD.Handle);
 								browserWindows.Add(ieWindow, accessible.IETabCaptions);
 							}
-						} else {
+						} else if (configuration.WindowClassesToCheckForIE != null && configuration.WindowClassesToCheckForIE.Contains(ieWindow.ClassName)) {
 							List<string> singleWindowText = new List<string>();
 							try {
 								IHTMLDocument2 document2 = getHTMLDocument(ieWindow);

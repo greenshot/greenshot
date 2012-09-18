@@ -653,7 +653,7 @@ namespace Greenshot {
 				return;
 			}
 			try {
-				List<KeyValuePair<WindowDetails, string>> tabs = IECaptureHelper.GetTabList();
+				List<KeyValuePair<WindowDetails, string>> tabs = IECaptureHelper.GetBrowserTabs();
 				this.contextmenu_captureiefromlist.DropDownItems.Clear();
 				if (tabs.Count > 0) {
 					this.contextmenu_captureie.Enabled = true;
