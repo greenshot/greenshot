@@ -404,7 +404,7 @@ namespace GreenshotPlugin.Core {
 			IDictionary<string, string> requestParameters = null;
 			// Add oAuth values as HTTP headers, if this is allowed
 			StringBuilder authHeader = null;
-			if (HTTPMethod.POST == method && UseHTTPHeadersForAuthorization) {
+			if ((HTTPMethod.POST == method || HTTPMethod.PUT == method) && UseHTTPHeadersForAuthorization) {
 				authHeader = new StringBuilder();
 				requestParameters = new Dictionary<string, string>();
 				foreach (string parameterKey in parameters.Keys) {
@@ -440,7 +440,7 @@ namespace GreenshotPlugin.Core {
 				webRequest.Headers.Add("Authorization: OAuth " + authHeader.ToString());
 			}
 
-			if (HTTPMethod.POST == method && postData == null && requestParameters != null && requestParameters.Count > 0) {
+			if ( (HTTPMethod.POST == method || HTTPMethod.PUT == method) && postData == null && requestParameters != null && requestParameters.Count > 0) {
 				StringBuilder form = new StringBuilder();
 				foreach (string parameterKey in requestParameters.Keys) {
 					form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(parameters[parameterKey]));
