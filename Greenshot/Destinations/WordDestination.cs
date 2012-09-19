@@ -142,13 +142,15 @@ namespace Greenshot.Destinations {
 						foreach (string document in documents) {
 							destinations.Add(new WordDestination(document));
 						}
-						PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
+						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
+						return PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
 					}
 				}
 				try {
 					WordExporter.InsertIntoNewDocument(tmpFile);
 					exportInformation.ExportMade = true;
 				} catch(Exception) {
+					// Retry once, just in case
 					try {
 						WordExporter.InsertIntoNewDocument(tmpFile);
 						exportInformation.ExportMade = true;

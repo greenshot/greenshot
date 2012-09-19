@@ -133,11 +133,10 @@ namespace Greenshot.Destinations {
 						foreach (string presentation in presentations) {
 							destinations.Add(new PowerpointDestination(presentation));
 						}
-						PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
-						exportInformation.ExportMade = true;
+						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
+						return PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
 					}
-				}
-				if (!exportInformation.ExportMade) {
+				} else if (!exportInformation.ExportMade) {
 					PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
 					exportInformation.ExportMade = true;
 				}

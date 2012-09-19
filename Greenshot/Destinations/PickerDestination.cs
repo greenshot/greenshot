@@ -67,7 +67,9 @@ namespace Greenshot.Destinations {
 		/// <param name="captureDetails">Details for the surface</param>
 		/// <param name="destinations">The list of destinations to show</param>
 		/// <returns></returns>
-		public static void ShowPickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations) {
+		public static ExportInformation ShowPickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations) {
+			// Generate an empty ExportInformation object, for when nothing was selected.
+			ExportInformation exportInformation = new ExportInformation(DESIGNATION, Language.GetString(LangKey.settings_destination_picker));
 			ContextMenuStrip menu = new ContextMenuStrip();
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
 				LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
@@ -102,7 +104,7 @@ namespace Greenshot.Destinations {
 						menu.Hide();
 
 						// Export
-						ExportInformation exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
+						exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
 						if (exportInformation != null && exportInformation.ExportMade) {
 							LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
 							// close menu if the destination wasn't the editor
@@ -138,6 +140,7 @@ namespace Greenshot.Destinations {
 			menu.Items.Add(closeItem);
 
 			ShowMenuAtCursor(menu);
+			return exportInformation;
 		}
 
 		/// <summary>
@@ -180,7 +183,6 @@ namespace Greenshot.Destinations {
 		/// <param name="captureDetails">Details of the capture</param>
 		/// <returns>true if export was made</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			List<IDestination> destinations = new List<IDestination>();
 			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
 				if ("Picker".Equals(destination.Designation)) {
@@ -192,10 +194,8 @@ namespace Greenshot.Destinations {
 				destinations.Add(destination);
 			}
 
-			ShowPickerMenu(true, surface, captureDetails, destinations);
-			exportInformation.ExportMade = true;
-			// No Processing! :)
-			return exportInformation;
+			// No Processing, this is done in the selected destination (if anything was selected)
+			return ShowPickerMenu(true, surface, captureDetails, destinations);
 		}
 	}
 }

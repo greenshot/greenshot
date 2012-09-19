@@ -218,14 +218,16 @@ namespace Greenshot.Destinations {
 							foreach (string inspectorCaption in inspectorCaptions.Keys) {
 								destinations.Add(new EmailDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
 							}
-							PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
+							// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
+							return PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
 						}
+					} else {
+						OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC);
+						exportInformation.ExportMade = true;
 					}
-					OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC);
 				}
 			}
-
-
+			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}
