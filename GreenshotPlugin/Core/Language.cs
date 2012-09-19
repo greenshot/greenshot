@@ -100,10 +100,24 @@ namespace GreenshotPlugin.Core {
 			ScanFiles();
 			if (!string.IsNullOrEmpty(coreConfig.Language)) {
 				CurrentLanguage = coreConfig.Language;
-			} else {
-				CurrentLanguage = DEFAULT_LANGUAGE;
+				if (CurrentLanguage != null && CurrentLanguage != coreConfig.Language) {
+					coreConfig.Language = CurrentLanguage;
+					IniConfig.Save();
+				}
 			}
-			LOG.Error("Couldn't set language, installation problem?");
+
+			if (CurrentLanguage == null) {
+				LOG.Warn("Couldn't set language from configuration, changing to default. Installation problem?");
+				CurrentLanguage = DEFAULT_LANGUAGE;
+				if (CurrentLanguage != null) {
+					coreConfig.Language = CurrentLanguage;
+					IniConfig.Save();
+				}
+			}
+
+			if (CurrentLanguage == null) {
+				LOG.Error("Couldn't set language, installation problem?");
+			}
 		}
 
 		/// <summary>
