@@ -1,4 +1,4 @@
-﻿<?xml version="1.0.2" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Norwegian Nynorsk" ietf="nn-NO" version="1.0.2" languagegroup="1">
 	<resources>
 		<resource name="home_downloads">Nedlastingar</resource>
