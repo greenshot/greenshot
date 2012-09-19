@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <EmbeddedResource Include="template-homepage.html.part" />
     <Resource Include="icons\cross.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

@@ -1,0 +1,22 @@
+﻿<div class="two-col left-box">
+
+<h2>${home_whatis}</h2>
+<p>${home_whatis_intro}</p>
+<p class="ul">
+<span class="li">${home_whatis_create}</span>  <span class="li">${home_whatis_edit}</span>  <span class="li">${home_whatis_send}</span> <span class="li">${home_whatis_more}</li>
+</p>
+<p>${home_whatis_usage}</p>
+
+</div>
+<div class="two-col right-box">
+
+<h2>${home_seemore}</h2>
+<p>${home_seemore_screenshots}</p>
+
+<a class="button" href="/downloads/">${home_downloads}</a>
+
+<h2>${home_opensource}</h2>
+<p>${home_opensource_gpl}</p>
+<p>${home_opensource_donate}</p>
+
+</div>

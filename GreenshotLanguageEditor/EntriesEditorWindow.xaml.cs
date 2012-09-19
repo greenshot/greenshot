@@ -31,6 +31,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -50,11 +51,11 @@ namespace GreenshotLanguageEditor {
 		}
 		public event PropertyChangedEventHandler PropertyChanged;
 
-	    private void NotifyPropertyChanged(String info) {
-	        if (PropertyChanged != null) {
-	            PropertyChanged(this, new PropertyChangedEventArgs(info));
-	        }
-	    }
+		private void NotifyPropertyChanged(String info) {
+			if (PropertyChanged != null) {
+				PropertyChanged(this, new PropertyChangedEventArgs(info));
+			}
+		}
 		
 		// maybe refactor this encapsulating column related info
 		bool unsavedChangesInLanguage1 = false;
@@ -172,6 +173,10 @@ namespace GreenshotLanguageEditor {
 
 			CreateXML(editedFile.FilePath, targetColumn);
 			
+			if(editedFile.FileName.Contains("website")) {
+				CreateHTML(editedFile.FilePath, targetColumn);
+			}
+			
 			if(targetColumn == 1) unsavedChangesInLanguage1 = false;
 			else if(targetColumn == 2) unsavedChangesInLanguage2 = false;
 		}
@@ -257,12 +262,9 @@ namespace GreenshotLanguageEditor {
 		}
 		
 		public void CreateXML(string savePath, int targetColumn) {
-			
 			LanguageFile langfile = targetColumn == 1 ? LanguageFile1 : LanguageFile2;
-
 			ICollectionView view = (ICollectionView)LanguageGrid.ItemsSource;
 			IList<LanguageEntry> entries = (IList<LanguageEntry>)view.SourceCollection;
-			
 			List<LanguageEntry> sortList = new List<LanguageEntry>(entries);
 			sortList.Sort(compareEntryKeys);
 			
@@ -292,6 +294,28 @@ namespace GreenshotLanguageEditor {
 			}
 		}
 		
+		public void CreateHTML(string savePath, int targetColumn) {
+			LanguageFile langfile = targetColumn == 1 ? LanguageFile1 : LanguageFile2;
+			ICollectionView view = (ICollectionView)LanguageGrid.ItemsSource;
+			IList<LanguageEntry> entries = (IList<LanguageEntry>)view.SourceCollection;
+			
+			string tmp;
+			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GreenshotLanguageEditor.template-homepage.html.part")) {
+				using (StreamReader reader = new StreamReader(stream)) {
+					tmp = reader.ReadToEnd();
+					foreach(LanguageEntry e in entries) {
+						string entryString = targetColumn == 1 ? e.Entry1 : e.Entry2;
+						tmp = tmp.Replace("${"+e.Key+"}", entryString);	
+					}
+				}
+			}
+			FileInfo fi = new FileInfo(savePath.Replace("xml","html.part"));
+			FileStream fs = fi.Open(FileMode.OpenOrCreate);
+			byte[] barr = Encoding.GetEncoding("UTF-8").GetBytes(tmp);
+			fs.Write(barr,0, barr.Length);
+			fs.Close();
+		}
+
 		private  int compareEntryKeys(LanguageEntry a, LanguageEntry b) {
 			return a.Key.CompareTo(b.Key);
 		}
