@@ -1,5 +1,5 @@
 ﻿#define ExeName "Greenshot"
-#define Version "1.0.2.$WCREV$"
+#define Version "1.0.3.$WCREV$"
 
 ; Include the scripts to install .NET Framework 2.0
 ; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
