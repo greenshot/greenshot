@@ -85,6 +85,7 @@ Source: ..\..\bin\Release\Plugins\GreenshotConfluencePlugin\*; DestDir: {app}\Pl
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotConfluencePlugin\*; DestDir: {app}\Languages\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly ignoreversion replacesameversion;
 ;ExternalCommand Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotExternalCommandPlugin\*; DestDir: {app}\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\Plugins\GreenshotExternalCommandPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Network Import Plugin
 ;Source: ..\..\bin\Release\Plugins\GreenshotNetworkImportPlugin\*; DestDir: {app}\Plugins\GreenshotNetworkImportPlugin; Components: plugins\networkimport; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 [Setup]
