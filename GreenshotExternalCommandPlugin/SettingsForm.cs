@@ -92,16 +92,14 @@ namespace ExternalCommand {
 		}
 
 		void ListView1ItemSelectionChanged(object sender, EventArgs e) {
-			button4.Enabled = listView1.SelectedItems.Count > 0;
+			button_edit.Enabled = listView1.SelectedItems.Count > 0;
 		}
 		
-		void Button4Click(object sender, EventArgs e)
-		{
+		void ButtonEditClick(object sender, EventArgs e) {
 			ListView1DoubleClick(sender, e);
 		}
 		
-		void ListView1DoubleClick(object sender, EventArgs e)
-		{
+		void ListView1DoubleClick(object sender, EventArgs e) {
 			string commando = listView1.SelectedItems[0].Tag as string;
 			
 			SettingsFormDetail form = new SettingsFormDetail(commando);
@@ -110,6 +108,7 @@ namespace ExternalCommand {
 			UpdateView();
 		}
 	}
+
 	public class ListviewComparer : System.Collections.IComparer {
 		public int Compare(object x, object y) {
 			if (!(x is ListViewItem)) {

@@ -44,16 +44,15 @@ namespace ExternalCommand {
 		/// Do not change the method contents inside the source code editor. The Forms designer might
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
-		private void InitializeComponent()
-		{
+		private void InitializeComponent() {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
 			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
 			this.buttonOk = new GreenshotPlugin.Controls.GreenshotButton();
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.button1 = new GreenshotPlugin.Controls.GreenshotButton();
-			this.button2 = new GreenshotPlugin.Controls.GreenshotButton();
-			this.button4 = new GreenshotPlugin.Controls.GreenshotButton();
+			this.button_new = new GreenshotPlugin.Controls.GreenshotButton();
+			this.button_delete = new GreenshotPlugin.Controls.GreenshotButton();
+			this.button_edit = new GreenshotPlugin.Controls.GreenshotButton();
 			this.SuspendLayout();
 			// 
 			// buttonCancel
@@ -63,7 +62,7 @@ namespace ExternalCommand {
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 7;
-			this.buttonCancel.Text = "Cancel";
+			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
@@ -73,7 +72,7 @@ namespace ExternalCommand {
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.Size = new System.Drawing.Size(75, 23);
 			this.buttonOk.TabIndex = 6;
-			this.buttonOk.Text = "OK";
+			this.buttonOk.LanguageKey = "OK";
 			this.buttonOk.UseVisualStyleBackColor = true;
 			this.buttonOk.Click += new System.EventHandler(this.ButtonOkClick);
 			// 
@@ -98,36 +97,36 @@ namespace ExternalCommand {
 			this.columnHeader1.Text = "Name";
 			this.columnHeader1.Width = 226;
 			// 
-			// button1
+			// button_new
 			// 
-			this.button1.Location = new System.Drawing.Point(275, 13);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(75, 23);
-			this.button1.TabIndex = 4;
-			this.button1.Text = "New";
-			this.button1.UseVisualStyleBackColor = true;
-			this.button1.Click += new System.EventHandler(this.ButtonAddClick);
+			this.button_new.Location = new System.Drawing.Point(275, 13);
+			this.button_new.Name = "button_new";
+			this.button_new.Size = new System.Drawing.Size(75, 23);
+			this.button_new.TabIndex = 4;
+			this.button_new.LanguageKey = "externalcommand.settings_new";
+			this.button_new.UseVisualStyleBackColor = true;
+			this.button_new.Click += new System.EventHandler(this.ButtonAddClick);
 			// 
 			// button2
 			// 
-			this.button2.Location = new System.Drawing.Point(274, 71);
-			this.button2.Name = "button2";
-			this.button2.Size = new System.Drawing.Size(75, 23);
-			this.button2.TabIndex = 5;
-			this.button2.Text = "Delete";
-			this.button2.UseVisualStyleBackColor = true;
-			this.button2.Click += new System.EventHandler(this.ButtonDeleteClick);
+			this.button_delete.Location = new System.Drawing.Point(274, 71);
+			this.button_delete.Name = "button_delete";
+			this.button_delete.Size = new System.Drawing.Size(75, 23);
+			this.button_delete.TabIndex = 5;
+			this.button_delete.LanguageKey = "externalcommand.settings_delete";
+			this.button_delete.UseVisualStyleBackColor = true;
+			this.button_delete.Click += new System.EventHandler(this.ButtonDeleteClick);
 			// 
-			// button4
+			// button_edit
 			// 
-			this.button4.Enabled = false;
-			this.button4.Location = new System.Drawing.Point(275, 42);
-			this.button4.Name = "button4";
-			this.button4.Size = new System.Drawing.Size(75, 23);
-			this.button4.TabIndex = 13;
-			this.button4.Text = "Edit";
-			this.button4.UseVisualStyleBackColor = true;
-			this.button4.Click += new System.EventHandler(this.Button4Click);
+			this.button_edit.Enabled = false;
+			this.button_edit.Location = new System.Drawing.Point(275, 42);
+			this.button_edit.Name = "button_edit";
+			this.button_edit.Size = new System.Drawing.Size(75, 23);
+			this.button_edit.TabIndex = 13;
+			this.button_edit.LanguageKey = "externalcommand.settings_edit";
+			this.button_edit.UseVisualStyleBackColor = true;
+			this.button_edit.Click += new System.EventHandler(this.ButtonEditClick);
 			// 
 			// SettingsForm
 			// 
@@ -136,18 +135,19 @@ namespace ExternalCommand {
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
 			this.ClientSize = new System.Drawing.Size(365, 208);
-			this.Controls.Add(this.button4);
-			this.Controls.Add(this.button2);
-			this.Controls.Add(this.button1);
+			this.Controls.Add(this.button_edit);
+			this.Controls.Add(this.button_delete);
+			this.Controls.Add(this.button_new);
 			this.Controls.Add(this.listView1);
 			this.Controls.Add(this.buttonOk);
 			this.Controls.Add(this.buttonCancel);
+			this.LanguageKey = "externalcommand.settings_title";
 			this.Name = "SettingsForm";
 			this.ResumeLayout(false);
 		}
-		private GreenshotPlugin.Controls.GreenshotButton button4;
-		private GreenshotPlugin.Controls.GreenshotButton button2;
-		private GreenshotPlugin.Controls.GreenshotButton button1;
+		private GreenshotPlugin.Controls.GreenshotButton button_edit;
+		private GreenshotPlugin.Controls.GreenshotButton button_delete;
+		private GreenshotPlugin.Controls.GreenshotButton button_new;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ListView listView1;
 		private GreenshotPlugin.Controls.GreenshotButton buttonOk;

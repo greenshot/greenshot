@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0">
+  <resources>
+	<resource name="settings_title">
+  		External command settings
+	</resource>
+	<resource name="settings_detail_title">
+  		Configure command
+	</resource>
+	<resource name="settings_new">
+  		New
+	</resource>
+	<resource name="settings_delete">
+  		Delete
+	</resource>
+	<resource name="settings_edit">
+  		Edit
+	</resource>
+  </resources>
+</language>

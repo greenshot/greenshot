@@ -1,15 +1,25 @@
 ﻿/*
- * Created by SharpDevelop.
- * User: 05018038
- * Date: 04.04.2012
- * Time: 10:50
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
  * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace ExternalCommand
-{
-	partial class SettingsFormDetail
-	{
+namespace ExternalCommand {
+	partial class SettingsFormDetail {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
@@ -167,7 +177,7 @@ namespace ExternalCommand
 			this.Controls.Add(this.buttonCancel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.Name = "SettingsFormDetail";
-			this.Text = "Configure";
+			this.LanguageKey = "externalcommand.settings_detail_title";
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);
