@@ -67,7 +67,7 @@ namespace GreenshotPhotobucketPlugin {
 			oAuth.TokenSecret = config.PhotobucketTokenSecret;
 			Dictionary<string ,string> parameters = new Dictionary<string, string>();
 			// add album
-			//parameters.Add("identifier", "Apex75/greenshot");
+			parameters.Add("id", "Apex75");
 			// add type
 			parameters.Add("type", "base64");
 			// Add image
@@ -78,10 +78,14 @@ namespace GreenshotPhotobucketPlugin {
 			}
 			// add filename
 			if (filename != null) {
-				//parameters.Add("filename", filename);
+				parameters.Add("filename", filename);
 			}
 			try {
-				responseString = oAuth.oAuthWebRequest(HTTPMethod.POST, "http://api.photobucket.com/album/greenshot/upload.xml", parameters, null, null);
+				LOG.DebugFormat("Album info", oAuth.oAuthWebRequest(HTTPMethod.GET, "http://api.photobucket.com/album/Apex75", null, null, null));
+				responseString = oAuth.oAuthWebRequest(HTTPMethod.POST, "http://api.photobucket.com/album/!/upload", parameters, null, null);
+			} catch (Exception ex) {
+				LOG.Error("Error uploading to Photobucket.", ex);
+				throw ex;
 			} finally {
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
 					config.PhotobucketToken = oAuth.Token;
