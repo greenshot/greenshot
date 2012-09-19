@@ -69,12 +69,12 @@ namespace Greenshot.Destinations {
 			mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
 
 			if (isOutlookUsed) {
-				exePath = GetExePath("OUTLOOK.EXE");
+				exePath = PluginUtils.GetExePath("OUTLOOK.EXE");
 				if (exePath != null && File.Exists(exePath)) {
-					applicationIcon = GetExeIcon(exePath, 0);
+					applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
 					WindowDetails.AddProcessToExcludeFromFreeze("outlook");
 					if (conf.OutlookAllowExportInMeetings) {
-						meetingIcon = GetExeIcon(exePath, 2);
+						meetingIcon = PluginUtils.GetExeIcon(exePath, 2);
 					}
 				} else {
 					exePath = null;
@@ -151,7 +151,7 @@ namespace Greenshot.Destinations {
 					if (OlObjectClass.olAppointment.Equals(outlookInspectorType)) {
 						// Make sure we loaded the icon, maybe the configuration has been changed!
 						if (meetingIcon == null) {
-							meetingIcon = GetExeIcon(exePath, 2);
+							meetingIcon = PluginUtils.GetExeIcon(exePath, 2);
 						}
 						return meetingIcon;
 					} else {

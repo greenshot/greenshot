@@ -45,10 +45,10 @@ namespace Greenshot.Destinations {
 		private string documentCaption = null;
 
 		static WordDestination() {
-			exePath = GetExePath("WINWORD.EXE");
+			exePath = PluginUtils.GetExePath("WINWORD.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = GetExeIcon(exePath, 0);
-				documentIcon = GetExeIcon(exePath, 1);
+				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
+				documentIcon = PluginUtils.GetExeIcon(exePath, 1);
 			} else {
 				exePath = null;
 			}

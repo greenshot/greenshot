@@ -44,10 +44,10 @@ namespace Greenshot.Destinations {
 		private string presentationName = null;
 		
 		static PowerpointDestination() {
-			exePath = GetExePath("POWERPNT.EXE");
+			exePath = PluginUtils.GetExePath("POWERPNT.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = GetExeIcon(exePath, 0);
-				presentationIcon = GetExeIcon(exePath, 1);
+				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
+				presentationIcon = PluginUtils.GetExeIcon(exePath, 1);
 				WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
 			} else {
 				exePath = null;

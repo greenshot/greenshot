@@ -24,6 +24,8 @@ using System.Diagnostics;
 using System.IO;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
+using System.Windows.Forms;
+using GreenshotPlugin.Core;
 
 namespace ExternalCommand {
 	/// <summary>
@@ -65,13 +67,29 @@ namespace ExternalCommand {
 			}
 			this.host = pluginHost;
 			this.myAttributes = myAttributes;
+
+
+			ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem();
+			itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
+			itemPlugInRoot.Tag = host;
+			string exePath = PluginUtils.GetExePath("cmd.exe");
+			if (exePath != null && File.Exists(exePath)) {
+				itemPlugInRoot.Image = PluginUtils.GetExeIcon(exePath, 0);
+			}
+			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
+
+			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
 			return true;
 		}
 
 		public virtual void Shutdown() {
 			LOG.Debug("Shutdown of " + myAttributes.Name);
 		}
-		
+
+		private void ConfigMenuClick(object sender, EventArgs eventArgs) {
+			Configure();
+		}
+
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>

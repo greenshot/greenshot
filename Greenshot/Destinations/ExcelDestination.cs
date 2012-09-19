@@ -44,10 +44,10 @@ namespace Greenshot.Destinations {
 		private string workbookName = null;
 
 		static ExcelDestination() {
-			exePath = GetExePath("EXCEL.EXE");
+			exePath = PluginUtils.GetExePath("EXCEL.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = GetExeIcon(exePath, 0);
-				workbookIcon = GetExeIcon(exePath, 1);
+				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
+				workbookIcon = PluginUtils.GetExeIcon(exePath, 1);
 				WindowDetails.AddProcessToExcludeFromFreeze("excel");
 			} else {
 				exePath = null;

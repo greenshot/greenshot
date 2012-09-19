@@ -36,41 +36,8 @@ namespace GreenshotPlugin.Core {
 	/// Description of AbstractDestination.
 	/// </summary>
 	public abstract class AbstractDestination : IDestination {
-		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AbstractDestination));
 		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
-
-		public static string GetExePath(string exeName) {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(PATH_KEY + exeName, false)) {
-				if (key != null) {
-					// "" is the default key, which should point to the outlook location
-					return (string)key.GetValue("");
-				}
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// Internaly used to create an icon
-		/// </summary>
-		/// <param name="path">path to the exe or dll</param>
-		/// <param name="index">index of the icon</param>
-		/// <returns>Bitmap with the icon or null if something happended</returns>
-		public static Bitmap GetExeIcon(string path, int index) {
-			if (!File.Exists(path)) {
-				return null;
-			}
-			try {
-				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, false)) {
-					if (appIcon != null) {
-						return appIcon.ToBitmap();
-					}
-				}
-			} catch (Exception exIcon) {
-				LOG.Error("error retrieving icon: ", exIcon);
-			}
-			return null;
-		}
 		
 		public virtual int CompareTo(object obj) {
 			IDestination other = obj as IDestination;

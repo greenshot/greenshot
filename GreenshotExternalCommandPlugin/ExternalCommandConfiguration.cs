@@ -49,7 +49,7 @@ namespace ExternalCommand {
 		private static bool hasPaintDotNet = false;
 		static ExternalCommandConfiguration() {
 			try {
-				paintPath = AbstractDestination.GetExePath("pbrush.exe");
+				paintPath = PluginUtils.GetExePath("pbrush.exe");
 				hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
 				paintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
 				hasPaintDotNet = !string.IsNullOrEmpty(paintDotNetPath) && File.Exists(paintDotNetPath);

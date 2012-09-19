@@ -43,10 +43,10 @@ namespace Greenshot.Destinations {
 		private OneNotePage page = null;
 
 		static OneNoteDestination() {
-			exePath = GetExePath("ONENOTE.EXE");
+			exePath = PluginUtils.GetExePath("ONENOTE.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = GetExeIcon(exePath, 0);
-				notebookIcon = GetExeIcon(exePath, 0);
+				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
+				notebookIcon = PluginUtils.GetExeIcon(exePath, 0);
 				WindowDetails.AddProcessToExcludeFromFreeze("onenote");
 			} else {
 				exePath = null;

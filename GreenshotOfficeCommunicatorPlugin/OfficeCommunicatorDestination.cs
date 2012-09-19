@@ -43,9 +43,9 @@ namespace GreenshotOfficeCommunicatorPlugin  {
 		private CommunicatorConversation conversation = null;
 
 		static OfficeCommunicatorDestination() {
-			exePath = GetExePath("communicator.exe");
+			exePath = PluginUtils.GetExePath("communicator.exe");
 			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = GetExeIcon(exePath, 0);
+				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
 			} else {
 				exePath = null;
 			}

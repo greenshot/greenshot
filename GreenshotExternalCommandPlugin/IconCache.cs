@@ -18,7 +18,7 @@ namespace ExternalCommand {
 					Image icon = null;
 					if (File.Exists(config.commandlines[exepath])) {
 						try {
-							icon = AbstractDestination.GetExeIcon(config.commandlines[exepath], 0);
+							icon = PluginUtils.GetExeIcon(config.commandlines[exepath], 0);
 						} catch (Exception ex) {
 							LOG.Warn("Problem loading icon for " + config.commandlines[exepath], ex);
 						}
