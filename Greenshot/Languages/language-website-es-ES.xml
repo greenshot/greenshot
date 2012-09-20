@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Español" ietf="en-ES" version="1.0.2" languagegroup="1">
+	<resources>
+		<resource name="home_downloads">Descargas</resource>
+		<resource name="home_headline">Greenshot - herramienta de captura gratis, optimizados para la productividad</resource>
+		<resource name="home_opensource">Greenshot es de código libre y abierto</resource>
+		<resource name="home_opensource_donate">Si usted encuentra que Greenshot le ahorra un montón de tiempo y / o dinero, usted puede apoyar el desarrollo de este software captura de pantalla.</resource>
+		<resource name="home_opensource_gpl">Greenshot es publicado con licencia &lt;a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;. Este software se puede descargar y utilizar de forma gratuita, incluso en un entorno comercial.</resource>
+		<resource name="home_seemore">¿Quieres más?</resource>
+		<resource name="home_seemore_screenshots">Por supuesto hay mucho más que Greenshot puede hacer por usted. Echa un vistazo a algunas &lt;a href="/screenshots/"&gt;capturas de pantalla&lt;/a&gt; de Greenshot en acción o probar la &lt;a href="/downloads/"&gt;última versión&lt;/a&gt;.</resource>
+		<resource name="home_whatis">Greenshot - ¿Qué es eso?</resource>
+		<resource name="home_whatis_create">Rápidamente hacer imágenes de una región seleccionada, ventana o pantalla completa, se puede incluso capturar páginas web desde Internet Explorer completos (scrolling).</resource>
+		<resource name="home_whatis_edit">Fácil de anotar, resaltar o ocultar partes de la captura de pantalla.</resource>
+		<resource name="home_whatis_intro">Greenshot es una herramienta de captura de pantalla ligero para Windows con las características esencial:</resource>
+		<resource name="home_whatis_more">... y muchas más opciones para poder crear fácilmente y trabajar con imágenes de todos los días.</resource>
+		<resource name="home_whatis_send">Exportar la captura de pantalla de diversas maneras: guardar en un archivo, imprimir, copiar al portapapeles, adjuntar a un correo electrónico, enviar a los programas de Office o subir a sitios de fotos como Flickr o Picasa, entre otros.</resource>
+		<resource name="home_whatis_usage">Al ser fácil de entender y configurar, Greenshot es una herramienta eficaz para los administradores de proyectos, desarrolladores de software, escritores técnicos, evaluadores y cualquier persona crear capturas de pantalla.</resource>
+	</resources>
+</language>
