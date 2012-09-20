@@ -25,14 +25,15 @@ Source: ..\additional_files\license.txt; DestDir: {app}; Components: greenshot; 
 Source: ..\additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 
 ; Core language files
-Source: ..\..\bin\Release\Languages\*nl-NL*; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*en-US*; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\*de-DE*; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*nl-NL*; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*en-US*; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*de-DE*; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
 
 ; Additional language files
 Source: ..\..\Languages\*ar-SY*; DestDir: {app}\Languages; Components: languages\arSY; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*cs-CZ*; DestDir: {app}\Languages; Components: languages\csCZ; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*da-DK*; DestDir: {app}\Languages; Components: languages\daDK; Flags: overwritereadonly ignoreversion replacesameversion;
+;Source: ..\..\Languages\*de-FR*; DestDir: {app}\Languages; Components: languages\deFR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*el-GR*; DestDir: {app}\Languages; Components: languages\elGR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*es-ES*; DestDir: {app}\Languages; Components: languages\esES; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*fa-IR*; DestDir: {app}\Languages; Components: languages\faIR; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -220,6 +221,7 @@ Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disabl
 Name: "languages\arSY"; Description: "العربية"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\csCZ"; Description: "Ceština"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\daDK"; Description: "Dansk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+;Name: "languages\deFR"; Description: "Frängisch (Deutsch)"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\elGR"; Description: "ελληνικά"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('4')
 Name: "languages\esES"; Description: "Español"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\faIR"; Description: "پارسی"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
