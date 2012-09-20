@@ -137,23 +137,19 @@ namespace GreenshotImgurPlugin {
 				}
 
 			} else {
-				OAuthSession oAuth = new OAuthSession();
-				oAuth.BrowserWidth = 650;
-				oAuth.BrowserHeight = 500;
+				OAuthSession oAuth = new OAuthSession(ImgurCredentials.CONSUMER_KEY, ImgurCredentials.CONSUMER_SECRET);
+				oAuth.BrowserSize = new Size(650, 500);
 				oAuth.CallbackUrl = "http://getgreenshot.org";
 				oAuth.AccessTokenUrl = "http://api.imgur.com/oauth/access_token";
 				oAuth.AuthorizeUrl = "http://api.imgur.com/oauth/authorize";
 				oAuth.RequestTokenUrl = "http://api.imgur.com/oauth/request_token";
-				oAuth.ConsumerKey = ImgurCredentials.CONSUMER_KEY;
-				oAuth.ConsumerSecret = ImgurCredentials.CONSUMER_SECRET;
-				oAuth.UserAgent = "Greenshot";
 				oAuth.LoginTitle = "Imgur authorization";
 				//oAuth.UseHTTPHeadersForAuthorization = false;
 				oAuth.Token = config.ImgurToken;
 				oAuth.TokenSecret = config.ImgurTokenSecret;
 				try {
-					LOG.DebugFormat("Test: {0}", oAuth.oAuthWebRequest(HTTPMethod.GET, "http://api.imgur.com/2/account", null));
-					responseString = oAuth.oAuthWebRequest(HTTPMethod.POST, "http://api.imgur.com/2/account/images.xml", uploadParameters);
+					LOG.DebugFormat("Test: {0}", oAuth.MakeOAuthRequest(HTTPMethod.GET, "http://api.imgur.com/2/account", null));
+					responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.imgur.com/2/account/images.xml", uploadParameters);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
 					throw ex;

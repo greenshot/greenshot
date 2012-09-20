@@ -40,10 +40,12 @@ namespace GreenshotPhotobucketPlugin {
 		public bool UploadReduceColors;
 		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
 		public bool UsePageLink;
-		[IniProperty("PhotobucketToken", Description = "The Photobucket token", Encrypted=true, ExcludeIfNull=true)]
-		public string PhotobucketToken;
-		[IniProperty("PhotobucketTokenSecret", Description = "The Photobucket token secret", Encrypted=true, ExcludeIfNull=true)]
-		public string PhotobucketTokenSecret;
+		[IniProperty("Token", Description = "The Photobucket token", Encrypted=true, ExcludeIfNull=true)]
+		public string Token;
+		[IniProperty("TokenSecret", Description = "The Photobucket token secret", Encrypted=true, ExcludeIfNull=true)]
+		public string TokenSecret;
+		[IniProperty("SubDomain", Description = "The Photobucket api subdomain", Encrypted = true, ExcludeIfNull = true)]
+		public string SubDomain;
 		
 		public int Credits {
 			get;

@@ -50,48 +50,62 @@ namespace GreenshotPhotobucketPlugin {
 		public static PhotobucketInfo UploadToPhotobucket(byte[] imageData, int dataLength, string title, string filename) {
 			string responseString;
 
-			OAuthSession oAuth = new OAuthSession();
+			OAuthSession oAuth = new OAuthSession("149833145", "ebd828180b11103c010c7e71c66f6bcb");
+			oAuth.CheckVerifier = false;
 			// This url is configured in the Photobucket API settings in the Photobucket site!!
 			oAuth.CallbackUrl = "http://getgreenshot.org";
 			oAuth.AccessTokenUrl = "http://api.photobucket.com/login/access";
 			oAuth.AuthorizeUrl = "http://photobucket.com/apilogin/login";
 			oAuth.RequestTokenUrl = "http://api.photobucket.com/login/request";
-			oAuth.ConsumerKey = "149833145";
-			oAuth.ConsumerSecret = "ebd828180b11103c010c7e71c66f6bcb";
-			oAuth.UserAgent = "Greenshot";
-			oAuth.BrowserWidth = 1010;
-			oAuth.BrowserHeight = 400;
-			oAuth.CheckVerifier = false;
+			oAuth.BrowserSize = new Size(1010, 400);
 			oAuth.LoginTitle = "Photobucket authorization";
-			oAuth.Token = config.PhotobucketToken;
-			oAuth.TokenSecret = config.PhotobucketTokenSecret;
+			if (string.IsNullOrEmpty(config.SubDomain) || string.IsNullOrEmpty(config.Token)) {
+				if (!oAuth.Authorize()) {
+					return null;
+				}
+				if (!string.IsNullOrEmpty(oAuth.Token)) {
+					config.Token = oAuth.Token;
+				}
+				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
+					config.TokenSecret = oAuth.TokenSecret;
+				}
+				if (oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters["subdomain"] != null) {
+					config.SubDomain = oAuth.AccessTokenResponseParameters["subdomain"];
+				}
+				IniConfig.Save();
+			}
+			oAuth.Token = config.Token;
+			oAuth.TokenSecret = config.TokenSecret;
+
 			Dictionary<string ,string> parameters = new Dictionary<string, string>();
 			// add album
-			parameters.Add("id", "Apex75");
+			parameters.Add("id", "Apex75/greenshot");
 			// add type
 			parameters.Add("type", "base64");
-			// Add image
-			parameters.Add("uploadfile", System.Convert.ToBase64String(imageData, 0, dataLength));
 			// add title
 			if (title != null) {
-				//parameters.Add("title", title);
+				parameters.Add("title", title);
 			}
 			// add filename
 			if (filename != null) {
 				parameters.Add("filename", filename);
 			}
 			try {
-				LOG.DebugFormat("Album info", oAuth.oAuthWebRequest(HTTPMethod.GET, "http://api.photobucket.com/album/Apex75", null, null, null));
-				responseString = oAuth.oAuthWebRequest(HTTPMethod.POST, "http://api.photobucket.com/album/!/upload", parameters, null, null);
+				string apiUrl = "http://api.photobucket.com/album/!/upload";
+				oAuth.Sign(HTTPMethod.POST, apiUrl, parameters);
+				apiUrl = apiUrl.Replace("api.photobucket.com", config.SubDomain);
+				// Add image
+				parameters.Add("uploadfile", System.Convert.ToBase64String(imageData, 0, dataLength));
+				responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, parameters, null, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw ex;
 			} finally {
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
-					config.PhotobucketToken = oAuth.Token;
+					config.Token = oAuth.Token;
 				}
 				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
-					config.PhotobucketTokenSecret = oAuth.TokenSecret;
+					config.TokenSecret = oAuth.TokenSecret;
 				}
 			}
 			LOG.Info(responseString);

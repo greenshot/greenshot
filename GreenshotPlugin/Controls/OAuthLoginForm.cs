@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public partial class OAuthLoginForm : Form {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OAuthLoginForm));
-		private OAuthSession _oauthSession;
+		private string callbackUrl = null;
 		private String _token;
 		private String _verifier;
 		private String _tokenSecret;
@@ -57,18 +57,16 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 
-		public OAuthLoginForm(OAuthSession o, string browserTitle, int width, int height) {
-			_oauthSession = o;
+		public OAuthLoginForm(OAuthSession o, string browserTitle, Size size, string authorizationLink, string callbackUrl) {
+			this.callbackUrl = callbackUrl;
 			_token = null;
 			InitializeComponent();
-			this.ClientSize = new System.Drawing.Size(width, height);
+			this.ClientSize = size;
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Text = browserTitle;
-			this.addressTextBox.Text = o.AuthorizationLink;
-			_token = _oauthSession.Token;
-			_tokenSecret = _oauthSession.TokenSecret;
+			this.addressTextBox.Text = authorizationLink;
 			browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(browser_DocumentCompleted);
-			browser.Navigate(new Uri(_oauthSession.AuthorizationLink));
+			browser.Navigate(new Uri(authorizationLink));
 			
 			WindowDetails.ToForeground(this.Handle);
 		}
@@ -88,7 +86,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		private void checkUrl() {
-			if (browser.Url.ToString().StartsWith(_oauthSession.CallbackUrl)) {
+			if (browser.Url.ToString().StartsWith(callbackUrl)) {
 				string queryParams = browser.Url.Query;
 				if (queryParams.Length > 0) {
 					//Store the Token and Token Secret
