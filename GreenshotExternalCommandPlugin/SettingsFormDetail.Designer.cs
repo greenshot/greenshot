@@ -46,16 +46,16 @@ namespace ExternalCommand {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOk = new System.Windows.Forms.Button();
-			this.buttonCancel = new System.Windows.Forms.Button();
-			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.label4 = new System.Windows.Forms.Label();
-			this.button3 = new System.Windows.Forms.Button();
-			this.label3 = new System.Windows.Forms.Label();
+			this.buttonOk = new GreenshotPlugin.Controls.GreenshotButton();
+			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
+			this.groupBox1 = new GreenshotPlugin.Controls.GreenshotGroupBox();
+			this.label4 = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.buttonPathSelect = new System.Windows.Forms.Button();
+			this.label3 = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBox_name = new System.Windows.Forms.TextBox();
-			this.label2 = new System.Windows.Forms.Label();
+			this.label2 = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBox_arguments = new System.Windows.Forms.TextBox();
-			this.label1 = new System.Windows.Forms.Label();
+			this.label1 = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBox_commandline = new System.Windows.Forms.TextBox();
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
@@ -67,7 +67,7 @@ namespace ExternalCommand {
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.Size = new System.Drawing.Size(75, 23);
 			this.buttonOk.TabIndex = 26;
-			this.buttonOk.Text = "OK";
+			this.buttonOk.LanguageKey = "OK";
 			this.buttonOk.UseVisualStyleBackColor = true;
 			this.buttonOk.Click += new System.EventHandler(this.ButtonOkClick);
 			// 
@@ -78,14 +78,14 @@ namespace ExternalCommand {
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 27;
-			this.buttonCancel.Text = "Cancel";
+			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
 			// groupBox1
 			// 
 			this.groupBox1.Controls.Add(this.label4);
-			this.groupBox1.Controls.Add(this.button3);
+			this.groupBox1.Controls.Add(this.buttonPathSelect);
 			this.groupBox1.Controls.Add(this.label3);
 			this.groupBox1.Controls.Add(this.textBox_name);
 			this.groupBox1.Controls.Add(this.label2);
@@ -97,33 +97,33 @@ namespace ExternalCommand {
 			this.groupBox1.Size = new System.Drawing.Size(339, 122);
 			this.groupBox1.TabIndex = 28;
 			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "Configure";
+			this.groupBox1.LanguageKey = "settings_title";
 			// 
 			// label4
 			// 
+			this.label4.LanguageKey = "externalcommand.label_information";
 			this.label4.Location = new System.Drawing.Point(68, 98);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(225, 21);
 			this.label4.TabIndex = 19;
-			this.label4.Text = "{0} is the filename of your screenshot";
 			// 
-			// button3
+			// buttonPathSelect
 			// 
-			this.button3.Location = new System.Drawing.Point(298, 47);
-			this.button3.Name = "button3";
-			this.button3.Size = new System.Drawing.Size(33, 23);
-			this.button3.TabIndex = 18;
-			this.button3.Text = "...";
-			this.button3.UseVisualStyleBackColor = true;
-			this.button3.Click += new System.EventHandler(this.Button3Click);
+			this.buttonPathSelect.Location = new System.Drawing.Point(298, 47);
+			this.buttonPathSelect.Name = "buttonPathSelect";
+			this.buttonPathSelect.Size = new System.Drawing.Size(33, 23);
+			this.buttonPathSelect.TabIndex = 18;
+			this.buttonPathSelect.Text = "...";
+			this.buttonPathSelect.UseVisualStyleBackColor = true;
+			this.buttonPathSelect.Click += new System.EventHandler(this.Button3Click);
 			// 
 			// label3
 			// 
+			this.label3.LanguageKey = "externalcommand.label_name";
 			this.label3.Location = new System.Drawing.Point(6, 26);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(56, 17);
 			this.label3.TabIndex = 17;
-			this.label3.Text = "Name";
 			// 
 			// textBox_name
 			// 
@@ -135,11 +135,11 @@ namespace ExternalCommand {
 			// 
 			// label2
 			// 
+			this.label2.LanguageKey = "externalcommand.label_argument";
 			this.label2.Location = new System.Drawing.Point(6, 78);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(56, 17);
 			this.label2.TabIndex = 16;
-			this.label2.Text = "Arguments";
 			// 
 			// textBox_arguments
 			// 
@@ -150,11 +150,11 @@ namespace ExternalCommand {
 			// 
 			// label1
 			// 
+			this.label1.LanguageKey = "externalcommand.label_command";
 			this.label1.Location = new System.Drawing.Point(6, 52);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(56, 17);
 			this.label1.TabIndex = 15;
-			this.label1.Text = "Command";
 			// 
 			// textBox_commandline
 			// 
@@ -176,23 +176,24 @@ namespace ExternalCommand {
 			this.Controls.Add(this.buttonOk);
 			this.Controls.Add(this.buttonCancel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.Name = "SettingsFormDetail";
 			this.LanguageKey = "externalcommand.settings_detail_title";
+			this.Name = "SettingsFormDetail";
+			this.Text = "Configure command";
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
-		private System.Windows.Forms.Label label4;
-		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.Button buttonCancel;
-		private System.Windows.Forms.Button buttonOk;
+		private GreenshotPlugin.Controls.GreenshotLabel label1;
+		private GreenshotPlugin.Controls.GreenshotLabel label2;
+		private GreenshotPlugin.Controls.GreenshotLabel label3;
+		private GreenshotPlugin.Controls.GreenshotLabel label4;
+		private GreenshotPlugin.Controls.GreenshotGroupBox groupBox1;
+		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
+		private GreenshotPlugin.Controls.GreenshotButton buttonOk;
 		private System.Windows.Forms.TextBox textBox_commandline;
-		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.TextBox textBox_arguments;
-		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TextBox textBox_name;
-		private System.Windows.Forms.Label label3;
-		private System.Windows.Forms.Button button3;
+		private System.Windows.Forms.Button buttonPathSelect;
 	}
 }

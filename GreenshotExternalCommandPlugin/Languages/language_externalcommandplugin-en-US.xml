@@ -19,5 +19,17 @@
 	<resource name="settings_edit">
   		Edit
 	</resource>
+    <resource name="label_name">
+      Name
+    </resource>
+    <resource name="label_command">
+      Command
+    </resource>
+    <resource name="label_argument">
+      Arguments
+    </resource>
+    <resource name="label_information">
+      {0} is the filename of your screenshot
+    </resource>
   </resources>
 </language>
