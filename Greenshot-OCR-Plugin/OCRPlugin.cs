@@ -29,17 +29,43 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Interop;
+using System.Diagnostics;
 
 //using Microsoft.Win32;
 
 namespace GreenshotOCR {
+	// Needed for the drop down, available languages for OCR
+	public enum ModiLanguage {
+		CHINESE_SIMPLIFIED = 2052,
+		CHINESE_TRADITIONAL = 1028,
+		CZECH = 5,
+		DANISH = 6,
+		DUTCH = 19,
+		ENGLISH = 9,
+		FINNISH = 11,
+		FRENCH = 12,
+		GERMAN = 7,
+		GREEK = 8,
+		HUNGARIAN = 14,
+		ITALIAN = 16,
+		JAPANESE = 17,
+		KOREAN = 18,
+		NORWEGIAN = 20,
+		POLISH = 21,
+		PORTUGUESE = 22,
+		RUSSIAN = 25,
+		SPANISH = 10,
+		SWEDISH = 29,
+		TURKISH = 31,
+		SYSDEFAULT = 2048
+	}
 	/// <summary>
 	/// OCR Plugin Greenshot
 	/// </summary>
 	public class OcrPlugin : IGreenshotPlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
 		private const string CONFIG_FILENAME = "ocr-config.properties";
-
+		private const string OCR_COMMAND = "greenshotocrcommand.exe";
 		private static IGreenshotHost host;
 		private static OCRConfiguration config;
 		private PluginAttribute myAttributes;
@@ -175,15 +201,13 @@ namespace GreenshotOCR {
 
 			string text = "";
 			try {
-				using (ModiDocu modiDocument = COMWrapper.GetOrCreateInstance<ModiDocu>()) {
-					if (modiDocument != null) {
-						modiDocument.Create(filePath);
-						modiDocument.OCR((ModiLanguage)Enum.Parse(typeof(ModiLanguage), config.Language), config.Orientimage, config.StraightenImage);
-						IImage modiImage = modiDocument.Images[0];
-						ILayout layout = modiImage.Layout;
-						text = layout.Text;
-						modiDocument.Close(false);
-					}
+				ProcessStartInfo processStartInfo = new ProcessStartInfo(OCR_COMMAND, "\"" + filePath + "\" " + config.Language + " " + config.Orientimage + " " + config.StraightenImage);
+				processStartInfo.CreateNoWindow = true;
+				processStartInfo.RedirectStandardOutput = true;
+				Process process = Process.Start(processStartInfo);
+				process.WaitForExit(30*1000);
+				if (process.ExitCode == 0) {
+					text = process.StandardOutput.ReadToEnd();
 				}
 			} catch (Exception e) {
 				LOG.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
@@ -210,12 +234,10 @@ namespace GreenshotOCR {
 
 		private bool HasMODI() {
 			try {
-				using (ModiDocu modiDocument = COMWrapper.GetOrCreateInstance<ModiDocu>()) {
-					if (modiDocument != null) {
-						modiDocument.Close(false);
-						return true;
-					}
-				}
+				Process process = Process.Start(OCR_COMMAND, "-c");
+				process.WaitForExit();
+				int errorCode = process.ExitCode;
+				return errorCode == 0;
 			} catch(Exception e) {
 				LOG.DebugFormat("Error trying to initiate MODI: {0}", e.Message);
 			}
