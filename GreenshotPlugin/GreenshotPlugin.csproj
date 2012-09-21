@@ -226,11 +226,15 @@
     <Compile Include="Controls\GreenshotToolDropDownButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\OAuthLoginForm.cs" />
+    <Compile Include="Controls\OAuthLoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Controls\OAuthLoginForm.Designer.cs">
       <DependentUpon>OAuthLoginForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\PleaseWaitForm.cs" />
+    <Compile Include="Controls\PleaseWaitForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Controls\PleaseWaitForm.Designer.cs">
       <DependentUpon>PleaseWaitForm.cs</DependentUpon>
     </Compile>
@@ -253,6 +257,7 @@
     <Compile Include="Core\GreenshotResources.cs" />
     <Compile Include="Core\IEHelper.cs" />
     <Compile Include="Core\ImageHelper.cs" />
+    <Compile Include="Core\JSONHelper.cs" />
     <Compile Include="Core\Language.cs" />
     <Compile Include="Core\LogHelper.cs" />
     <Compile Include="Core\NetworkHelper.cs" />
