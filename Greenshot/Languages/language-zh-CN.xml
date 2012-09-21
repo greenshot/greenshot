@@ -121,11 +121,6 @@
 		<resource name="error_openlink">无法打开此链接</resource>
 		<resource name="error_save">无法保存图片，请选择其它路径来保存。</resource>
 		<resource name="help_title">Greenshot 帮助</resource>
-		<resource name="hotkey_fullscreen">抓取全屏</resource>
-		<resource name="hotkey_ie">抓取 Internet Explorer</resource>
-		<resource name="hotkey_lastregion">抓取上次选择的区域</resource>
-		<resource name="hotkey_region">抓取屏幕的一部分</resource>
-		<resource name="hotkey_window">抓取窗口</resource>
 		<resource name="hotkeys">热键</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">请选择您需要的图像质量</resource>
 		<resource name="jpegqualitydialog_dontaskagain">不再询问图像质量</resource>

@@ -162,11 +162,6 @@ Har du skrivetilgang til det valde området?</resource>
 		<resource name="expertsettings_thumbnailpreview">Syn vindauge i høgreklikkmeny (for Vista og 7)</resource>
 		<resource name="exported_to">Eksporter til: {0}</resource>
 		<resource name="help_title">Greenshot-hjelp</resource>
-		<resource name="hotkey_fullscreen">Knips fullskjerm</resource>
-		<resource name="hotkey_ie">Knips Internet Explorer</resource>
-		<resource name="hotkey_lastregion">Knips førre område</resource>
-		<resource name="hotkey_region">Knips område</resource>
-		<resource name="hotkey_window">Knips vindauge</resource>
 		<resource name="hotkeys">Snøggtastar</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Ver venleg og vel JPEG-kvalitet for bildet ditt.</resource>
 		<resource name="OK">OK</resource>

@@ -163,11 +163,6 @@ Details about the GNU General Public License:</resource>
 		<resource name="expertsettings_thumbnailpreview">Прикажи сличице прозора у контектуелном менију (за Vista и windows 7)</resource>
 		<resource name="exported_to">Извоз у: {0}</resource>
 		<resource name="help_title">Помоћ Greenshot-а</resource>
-		<resource name="hotkey_fullscreen">Хватање екрана</resource>
-		<resource name="hotkey_ie">Хватање Internet Explorer-а</resource>
-		<resource name="hotkey_lastregion">Хватање последњег региона</resource>
-		<resource name="hotkey_region">Хватање региона</resource>
-		<resource name="hotkey_window">Хватање прозора</resource>
 		<resource name="hotkeys">Пречице</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Одабрати квалитет за JPEG слику.</resource>
 		<resource name="OK">У реду</resource>

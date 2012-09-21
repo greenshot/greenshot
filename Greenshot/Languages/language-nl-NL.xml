@@ -161,11 +161,6 @@ Controleer AUB de schrijf permissies voor de locatie.</resource>
 		<resource name="expertsettings_thumbnailpreview">Laat voorbeelden zien bij het vastleggen van Windows via het context menu</resource>
 		<resource name="exported_to">Exporteert naar: {0}</resource>
 		<resource name="help_title">Greenshot Help</resource>
-		<resource name="hotkey_fullscreen">Beeldscherm vastleggen</resource>
-		<resource name="hotkey_ie">Internet explorer vastleggen</resource>
-		<resource name="hotkey_lastregion">Laast gebruikte regio vastleggen</resource>
-		<resource name="hotkey_region">Regio vastleggen</resource>
-		<resource name="hotkey_window">Window vastleggen</resource>
 		<resource name="hotkeys">Sneltoetsen</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Kies AUB de kwaliteit voor uw JPEG beeld.</resource>
 		<resource name="OK">Ok</resource>

@@ -162,11 +162,6 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="expertsettings_thumbnailpreview">Fenster-Vorschau im Kontextmenü anzeigen (für Vista und Windows 7)</resource>
 		<resource name="exported_to">Exportiert nach: {0}</resource>
 		<resource name="help_title">Greenshot Hilfe</resource>
-		<resource name="hotkey_fullscreen">Bildschirm abfotografieren</resource>
-		<resource name="hotkey_ie">Internet Explorer abfotografieren</resource>
-		<resource name="hotkey_lastregion">Bereich abfotografieren</resource>
-		<resource name="hotkey_region">Zuletzt gewählten Bereich abfotografieren</resource>
-		<resource name="hotkey_window">Fenster abfotografieren</resource>
 		<resource name="hotkeys">Tastenkombinationen</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Bitte wählen Sie die Qualität Ihres JPEG Bilds.</resource>
 		<resource name="OK">OK</resource>

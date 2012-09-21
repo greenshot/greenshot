@@ -225,11 +225,6 @@ All Greenshot features still work directly from the tray icon context menu witho
 		<resource name="expertsettings_thumbnailpreview">Show window thumbnails in context menu (for Vista and windows 7)</resource>
 		<resource name="exported_to">Exported to: {0}</resource>
 		<resource name="exported_to_error">An error occured while exporting to {0}:</resource>
-		<resource name="hotkey_fullscreen">Capture screen</resource>
-		<resource name="hotkey_ie">Capture Internet Explorer</resource>
-		<resource name="hotkey_lastregion">Capture last region</resource>
-		<resource name="hotkey_region">Capture region</resource>
-		<resource name="hotkey_window">Capture window</resource>
 		<resource name="hotkeys">Hotkeys</resource>
 		<resource name="qualitydialog_dontaskagain">Save as default quality and do not ask again</resource>
 		<resource name="qualitydialog_title">Greenshot quality</resource>

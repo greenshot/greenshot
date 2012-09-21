@@ -164,11 +164,6 @@ Var god kontrollera skrivrättigheterna till den förvalda mappen.</resource>
 		<resource name="expertsettings_thumbnailpreview">Visa miniatyrbilder av fönstret i snabbmenyn (för Vista och Windows 7)</resource>
 		<resource name="exported_to">Exporterad till: {0}</resource>
 		<resource name="help_title">Greenshot Hjälp</resource>
-		<resource name="hotkey_fullscreen">Skärmdump</resource>
-		<resource name="hotkey_ie">Skärmdump av Internet Explorer</resource>
-		<resource name="hotkey_lastregion">Skärmdump av senaste regionen</resource>
-		<resource name="hotkey_region">Skärmdump av region</resource>
-		<resource name="hotkey_window">Skärmdump av fönster</resource>
 		<resource name="hotkeys">Snabbknappar</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Välj kvalitetsgrad för din JPEG-bild.</resource>
 		<resource name="OK">Ok</resource>

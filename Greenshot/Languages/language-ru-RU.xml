@@ -173,11 +173,6 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="exported_to">Экспортировано в: {0}</resource>
 		<resource name="help_title">Greenshot справка</resource>
 		<resource name="History">История</resource>
-		<resource name="hotkey_fullscreen">Захват экрана</resource>
-		<resource name="hotkey_ie">Захват Internet Explorer</resource>
-		<resource name="hotkey_lastregion">Захват последней области</resource>
-		<resource name="hotkey_region">Захват области</resource>
-		<resource name="hotkey_window">Захват окна</resource>
 		<resource name="hotkeys">Горячие клавиши</resource>
 		<resource name="InvalidCredentials">Неверно. Откройте экран настроек для изменений.</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Пожалуйста, выберите качество для вашего изображения.</resource>

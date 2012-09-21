@@ -160,11 +160,6 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="expertsettings_thumbnailpreview">Fenêtre de miniatures dans le menu contextuel (pour Vista et Windows 7)</resource>
 		<resource name="exported_to">Exporter vers : {0}</resource>
 		<resource name="help_title">Aide de Greenshot</resource>
-		<resource name="hotkey_fullscreen">Capturer l'écran</resource>
-		<resource name="hotkey_ie">Capturer Internet Explorer</resource>
-		<resource name="hotkey_lastregion">Capturer la dernière région</resource>
-		<resource name="hotkey_region">Capturer une région</resource>
-		<resource name="hotkey_window">Capturer une fenêtre</resource>
 		<resource name="hotkeys">Raccourcis clavier</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Veuillez choisir la qualité JPEG de l'image.</resource>
 		<resource name="OK">Ok</resource>
