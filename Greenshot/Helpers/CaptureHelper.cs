@@ -343,6 +343,19 @@ namespace Greenshot.Helpers {
 						if (windowDetailsThread != null) {
 							windowDetailsThread.Join();
 						}
+						// Set capture title, fixing bug #3569703
+						foreach (WindowDetails window in WindowDetails.GetVisibleWindows()) {
+							Point estimatedLocation = new Point(RuntimeConfig.LastCapturedRegion.X + (RuntimeConfig.LastCapturedRegion.Width / 2), RuntimeConfig.LastCapturedRegion.Y + (RuntimeConfig.LastCapturedRegion.Height / 2));
+							if (window.Contains(estimatedLocation)) {
+								selectedCaptureWindow = window;
+								capture.CaptureDetails.Title = selectedCaptureWindow.Text;
+								break;
+							}
+						}
+						// Move cursor, fixing bug #3569703
+						capture.MoveMouseLocation(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
+						capture.MoveElements(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
+
 						capture.CaptureDetails.AddMetaData("source", "screen");
 						HandleCapture();
 					}
