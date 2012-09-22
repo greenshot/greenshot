@@ -53,7 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LanguageKeys.cs" />
-    <Compile Include="ModiInterop.cs" />
     <Compile Include="OCRConfiguration.cs" />
     <Compile Include="OCRDestination.cs" />
     <Compile Include="OCRPlugin.cs" />

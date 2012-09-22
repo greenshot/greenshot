@@ -38,7 +38,7 @@ namespace GreenshotOCRCommand {
 						if ("-c".Equals(filename)) {
 							return 0;
 						}
-						modiDocument.Create(args[1]);
+						modiDocument.Create(filename);
 						modiDocument.OCR(language, orientimage, straightenImage);
 						IImage modiImage = modiDocument.Images[0];
 						ILayout layout = modiImage.Layout;

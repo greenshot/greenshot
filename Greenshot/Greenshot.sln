@@ -17,6 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot", "Greenshot.cspr
 		{0A07500E-7404-48D7-8789-7EB2A23E0DD5} = {0A07500E-7404-48D7-8789-7EB2A23E0DD5}
 		{19FEEF09-313F-43C7-819D-F1BCA782B08B} = {19FEEF09-313F-43C7-819D-F1BCA782B08B}
 		{80D8DEB9-94E3-4876-8CCA-2DF1ED5F2C50} = {80D8DEB9-94E3-4876-8CCA-2DF1ED5F2C50}
+		{D61E6ECE-E0B6-4467-B492-F08A06BA8F02} = {D61E6ECE-E0B6-4467-B492-F08A06BA8F02}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotTest", "..\GreenshotTest\GreenshotTest.csproj", "{EFD01BC7-15E5-48AD-BE68-D7B62FEEED2D}"
@@ -32,6 +33,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotFlickrPlugin", "..\..\Greenshot-Plugins\GreenshotFlickrPlugin\GreenshotFlickrPlugin.csproj", "{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotDropboxPlugin", "..\..\Greenshot-Plugins\GreenshotDropboxPlugin\GreenshotDropboxPlugin.csproj", "{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOCRCommand", "..\GreenshotOCRCommand\GreenshotOCRCommand.csproj", "{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,5 +132,13 @@ Global
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}.Debug|Any CPU.Build.0 = Debug|x86
+		{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}.Debug|x86.Build.0 = Debug|x86
+		{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}.Debug|x86.ActiveCfg = Debug|x86
+		{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}.Release|Any CPU.Build.0 = Release|x86
+		{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}.Release|Any CPU.ActiveCfg = Release|x86
+		{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}.Release|x86.Build.0 = Release|x86
+		{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 EndGlobal

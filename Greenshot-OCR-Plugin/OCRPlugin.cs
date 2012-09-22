@@ -65,7 +65,7 @@ namespace GreenshotOCR {
 	public class OcrPlugin : IGreenshotPlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
 		private const string CONFIG_FILENAME = "ocr-config.properties";
-		private const string OCR_COMMAND = "greenshotocrcommand.exe";
+		private string OCR_COMMAND;
 		private static IGreenshotHost host;
 		private static OCRConfiguration config;
 		private PluginAttribute myAttributes;
@@ -92,6 +92,8 @@ namespace GreenshotOCR {
 			LOG.Debug("Initialize called of " + myAttributes.Name);
 			host = greenshotHost;
 			this.myAttributes = myAttributes;
+			
+			OCR_COMMAND = Path.Combine(Path.GetDirectoryName(myAttributes.DllFile), "greenshotocrcommand.exe");
 
 			if (!HasMODI()) {
 				LOG.Warn("No MODI found!");
@@ -154,7 +156,7 @@ namespace GreenshotOCR {
 
 		private void StartOCRRegion() {
 			LOG.Debug("Starting OCR!");
-			host.CaptureRegion(false, new OCRDestination());
+			host.CaptureRegion(false, new OCRDestination(this));
 		}
 		
 		private void MyHotkeyHandler() {
@@ -176,7 +178,7 @@ namespace GreenshotOCR {
 		/// <param name="ImageOutputEventArgs">Has the Image and the capture details</param>
 		private const int MIN_WIDTH = 130;
 		private const int MIN_HEIGHT = 130;
-		public static void DoOCR(ISurface surface) {
+		public void DoOCR(ISurface surface) {
 			string filePath = null;
 			OutputSettings outputSettings = new OutputSettings(OutputFormat.bmp);
 
@@ -204,6 +206,7 @@ namespace GreenshotOCR {
 				ProcessStartInfo processStartInfo = new ProcessStartInfo(OCR_COMMAND, "\"" + filePath + "\" " + config.Language + " " + config.Orientimage + " " + config.StraightenImage);
 				processStartInfo.CreateNoWindow = true;
 				processStartInfo.RedirectStandardOutput = true;
+				processStartInfo.UseShellExecute = false;
 				Process process = Process.Start(processStartInfo);
 				process.WaitForExit(30*1000);
 				if (process.ExitCode == 0) {
@@ -218,6 +221,7 @@ namespace GreenshotOCR {
 				}
 			}
 			if (text == null || text.Trim().Length == 0) {
+				LOG.Info("No text returned");
 				return;
 			}
 				

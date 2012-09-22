@@ -37,6 +37,7 @@ namespace GreenshotOCR {
 		private static OCRConfiguration config = IniConfig.GetIniSection<OCRConfiguration>();
 		private const int MIN_WIDTH = 130;
 		private const int MIN_HEIGHT = 130;
+		private OcrPlugin plugin;
 
 		public override string Designation {
 			get {
@@ -50,8 +51,11 @@ namespace GreenshotOCR {
 			}
 		}
 		
+		public OCRDestination(OcrPlugin plugin) {
+			this.plugin = plugin;
+		}
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			OcrPlugin.DoOCR(surface);
+			plugin.DoOCR(surface);
 			return new ExportInformation(this.Designation, this.Description, true);
 		}
 	}
