@@ -6,10 +6,9 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Library</OutputType>
     <RootNamespace>GreenshotOCR</RootNamespace>
-    <AssemblyName>Greenshot-OCR-Plugin</AssemblyName>
+    <AssemblyName>GreenshotOCRPlugin</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <SourceAnalysisOverrideSettingsFile>C:\Dokumente und Einstellungen\05018085\Anwendungsdaten\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
@@ -52,9 +51,9 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LanguageKeys.cs" />
     <Compile Include="OCRConfiguration.cs" />
     <Compile Include="OCRDestination.cs" />
+    <Compile Include="OCRForm.cs" />
     <Compile Include="OCRPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingsForm.cs">

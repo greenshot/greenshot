@@ -4,7 +4,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # SharpDevelop 4.2.1.8805
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotPlugin", "..\GreenshotPlugin\GreenshotPlugin.csproj", "{5B924697-4DCD-4F98-85F1-105CB84B7341}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot-OCR-Plugin", "..\Greenshot-OCR-Plugin\Greenshot-OCR-Plugin.csproj", "{C6988EE8-2FEE-4349-9F09-F9628A0D8965}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOCRPlugin", "..\GreenshotOCRPlugin\GreenshotOCRPlugin.csproj", "{C6988EE8-2FEE-4349-9F09-F9628A0D8965}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotJiraPlugin", "..\GreenshotJiraPlugin\GreenshotJiraPlugin.csproj", "{19FEEF09-313F-43C7-819D-F1BCA782B08B}"
 EndProject

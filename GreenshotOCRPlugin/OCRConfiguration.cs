@@ -33,7 +33,5 @@ namespace GreenshotOCR {
 		public bool Orientimage;
 		[IniProperty("straightenImage", Description="Straighten image?", DefaultValue="true")]
 		public bool StraightenImage;
-		[IniProperty("hotkey", Description="OCR Hotkey", DefaultValue="Alt + Ctrl + PrintScreen")]
-		public string HotKey;
 	}
 }

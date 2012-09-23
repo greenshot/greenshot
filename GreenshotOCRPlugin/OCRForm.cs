@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -21,9 +21,11 @@
 using System;
 
 namespace GreenshotOCR {
-    public enum LangKey {
-		language,
-		orient_image,
-		straighten_image
-    }
+	/// <summary>
+	/// This class is needed for design-time resolving of the language files
+	/// </summary>
+	public class OCRForm : GreenshotPlugin.Controls.GreenshotForm {
+		public OCRForm() : base() {
+		}
+	}
 }

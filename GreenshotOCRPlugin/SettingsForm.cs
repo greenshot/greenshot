@@ -26,7 +26,7 @@ namespace GreenshotOCR {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
-	public partial class SettingsForm : Form {
+	public partial class SettingsForm : OCRForm {
 		private OCRConfiguration config;
 
 		public SettingsForm(string [] languages, OCRConfiguration config) {
@@ -36,7 +36,6 @@ namespace GreenshotOCR {
 			this.config = config;
 			InitializeComponent();
 			this.Icon = GreenshotResources.getGreenshotIcon();
-			initializeComponentText();
 			
 			comboBox_languages.Items.Clear();
 			int index=0;
@@ -54,16 +53,8 @@ namespace GreenshotOCR {
 				}
 				index++;
 			}
-			checkBox_orientImage.Checked = config.Orientimage;
-			checkBox_straightenImage.Checked = config.StraightenImage;
-			ocr_hotkeyControl.SetHotkey(config.HotKey);
 		}
 
-		private void initializeComponentText() {
-			this.label_language.Text = Language.GetString("ocr", LangKey.language);
-			this.checkBox_orientImage.Text = Language.GetString("ocr", LangKey.orient_image);
-		}
-		
 		void ButtonCancelClick(object sender, EventArgs e) {
 			DialogResult = DialogResult.Cancel;
 		}
@@ -73,8 +64,6 @@ namespace GreenshotOCR {
 			if (selectedString != null) {
 				config.Language = selectedString.ToUpper();
 			}
-			config.Orientimage = checkBox_orientImage.Checked;
-			config.StraightenImage = checkBox_straightenImage.Checked;
 
 			DialogResult = DialogResult.OK;
 		}

@@ -70,12 +70,11 @@ namespace GreenshotOCR {
 		private static OCRConfiguration config;
 		private PluginAttribute myAttributes;
 		private ToolStripMenuItem ocrMenuItem = new ToolStripMenuItem();
-		private int hotkeyIdentifier = 0;
 
 		public OcrPlugin() { }
 
 		public IEnumerable<IDestination> Destinations() {
-			yield break;
+			yield return new OCRDestination(this);
 		}
 		public IEnumerable<IProcessor> Processors() {
 			yield break;
@@ -105,13 +104,6 @@ namespace GreenshotOCR {
 			if (config.Language != null) {
 				config.Language = config.Language.Replace("miLANG_","").Replace("_"," ");
 			}
-
-			SetHotkeys();
-
-			// Here we can hang ourselves to the main context menu!
-			ocrMenuItem.Text = "Region OCR";
-			ocrMenuItem.Click += new System.EventHandler(MainMenuClick);
-			PluginUtils.AddToContextMenu(host, ocrMenuItem);
 			return true;
 		}
 		
@@ -120,23 +112,8 @@ namespace GreenshotOCR {
 		/// </summary>
 		public void Shutdown() {
 			LOG.Debug("Shutdown of " + myAttributes.Name);
-			HotkeyControl.UnregisterHotkey(hotkeyIdentifier);
-			hotkeyIdentifier = 0;
 		}
 		
-		private void SetHotkeys() {
-			if (hotkeyIdentifier > 0) {
-				HotkeyControl.UnregisterHotkey(hotkeyIdentifier);
-				hotkeyIdentifier = 0;
-			}
-			hotkeyIdentifier = HotkeyControl.RegisterHotKey(config.HotKey, new HotKeyHandler(MyHotkeyHandler));
-			if (hotkeyIdentifier > 0) {
-				ocrMenuItem.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(config.HotKey);
-			} else {
-				ocrMenuItem.ShortcutKeyDisplayString = "";
-			}
-		}
-
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
@@ -149,27 +126,10 @@ namespace GreenshotOCR {
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
 				// "Re"set hotkeys
-				SetHotkeys();
 				IniConfig.Save();
 			}
 		}
 
-		private void StartOCRRegion() {
-			LOG.Debug("Starting OCR!");
-			host.CaptureRegion(false, new OCRDestination(this));
-		}
-		
-		private void MyHotkeyHandler() {
-			StartOCRRegion();
-		}
-		/// <summary>
-		/// Is called when the OCR menu is selected
-		/// </summary>
-		/// <param name="sender">ContextMenu</param>
-		/// <param name="e">EventArgs from ContextMenu</param>
-		private void MainMenuClick(object sender, EventArgs e) {
-			StartOCRRegion();
-		}
 
 		/// <summary>
 		/// Handling of the CaptureTaken "event" from the ICaptureHost
@@ -178,7 +138,7 @@ namespace GreenshotOCR {
 		/// <param name="ImageOutputEventArgs">Has the Image and the capture details</param>
 		private const int MIN_WIDTH = 130;
 		private const int MIN_HEIGHT = 130;
-		public void DoOCR(ISurface surface) {
+		public string DoOCR(ISurface surface) {
 			string filePath = null;
 			OutputSettings outputSettings = new OutputSettings(OutputFormat.bmp);
 
@@ -222,7 +182,7 @@ namespace GreenshotOCR {
 			}
 			if (text == null || text.Trim().Length == 0) {
 				LOG.Info("No text returned");
-				return;
+				return null;
 			}
 				
 			try {
@@ -234,6 +194,7 @@ namespace GreenshotOCR {
 			} catch (Exception e) {
 				LOG.Error("Problem pasting text to clipboard: ", e);
 			}
+			return text;
 		}
 
 		private bool HasMODI() {
