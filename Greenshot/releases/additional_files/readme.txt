@@ -4,6 +4,30 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 CHANGE LOG:
 We changed the version to 1.0 after 5 years it should no longer have a "beta" feeling!
 
+1.0.3 build XXXX Release Candidate 3
+
+Bugs resolved:
+* Fixed OCR not working on Windows in 64 bit modus. People who want to use OCR without having office, read our FAQ!
+* Fixed issues with Dropbox authentication, using our own OAuth implementation
+* Fixed 2 bugs with the capture last region, see bug #3569703
+* Fixed weird window titles showing up in the "Capture Internet Explorer from list"
+* Fixed some more bugs with the dynamic destination picker and also fixed a small general issue with Office destinations.
+* Cleanup of files that were packed in the installer
+* Fixed a lot of small translation texts and some icons in menus
+* Fixed missing translations for the external command plugin
+
+Features added:
+* The Imgur plugin now has login support, uncheck the "Annonymous" checkbox in the settings.
+* Added new languages, see our blog
+
+Known issues:
+* Greenshot general: I-Beam cursor isn't displayed correctly on the final result.
+* Greenshot general: Not all hotkeys can be changed in the editor. For example the pause or the Windows key need to be modified directly in the ini.
+* Greenshot editor: Rotate only rotates the bitmap, not the added elements or cursor
+* Greenshot editor: The shadow and torn edges effects don't create a transparent background yet.
+* Confluence Plug-in: the retrieving of the current page from firefox only works on the currently displayed Firefox tab. This is a problem since Firefox 13 and it is currently unknown if there is a fix.
+
+
 1.0.2 build 2011 Release Candidate 2
 
 Bugs resolved:
