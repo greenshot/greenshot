@@ -37,7 +37,6 @@ namespace GreenshotPlugin.Controls {
 		private string callbackUrl = null;
 		private String _token;
 		private String _verifier;
-		private String _tokenSecret;
 
 		public String Token {
 			get {
@@ -48,12 +47,6 @@ namespace GreenshotPlugin.Controls {
 		public String Verifier {
 			get {
 				return _verifier;
-			}
-		}
-
-		public String TokenSecret {
-			get {
-				return _tokenSecret;
 			}
 		}
 

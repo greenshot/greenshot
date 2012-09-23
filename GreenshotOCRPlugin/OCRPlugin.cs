@@ -140,23 +140,23 @@ namespace GreenshotOCR {
 		private const int MIN_HEIGHT = 130;
 		public string DoOCR(ISurface surface) {
 			string filePath = null;
-			OutputSettings outputSettings = new OutputSettings(OutputFormat.bmp);
+			OutputSettings outputSettings = new OutputSettings(OutputFormat.bmp, 0, true);
 
-			using (Image capturedImage = surface.GetImageForExport()) {
-				if (capturedImage.Width < MIN_WIDTH || capturedImage.Height < MIN_HEIGHT) {
-					LOG.Debug("Captured image is not big enough for OCR, growing image...");
-					int newWidth = Math.Max(capturedImage.Width, MIN_WIDTH);
-					int newHeight = Math.Max(capturedImage.Height, MIN_HEIGHT);
-					using (Image tmpImage = new Bitmap(newWidth, newHeight, capturedImage.PixelFormat)) {
-						using (Graphics graphics = Graphics.FromImage(tmpImage)) {
-							graphics.Clear(Color.White);
-							graphics.DrawImage(capturedImage, Point.Empty);
-						}
-						filePath = host.SaveToTmpFile(tmpImage, outputSettings, null);
+			// Use surface background image, this prevents having a mouse cursor in the way.
+			Image capturedImage = surface.Image;
+			if (capturedImage.Width < MIN_WIDTH || capturedImage.Height < MIN_HEIGHT) {
+				LOG.Debug("Captured image is not big enough for OCR, growing image...");
+				int newWidth = Math.Max(capturedImage.Width, MIN_WIDTH);
+				int newHeight = Math.Max(capturedImage.Height, MIN_HEIGHT);
+				using (Image tmpImage = new Bitmap(newWidth, newHeight, capturedImage.PixelFormat)) {
+					using (Graphics graphics = Graphics.FromImage(tmpImage)) {
+						graphics.Clear(Color.White);
+						graphics.DrawImage(capturedImage, Point.Empty);
 					}
-				} else {
-					filePath = host.SaveToTmpFile(capturedImage, outputSettings, null);
+					filePath = host.SaveToTmpFile(tmpImage, outputSettings, null);
 				}
+			} else {
+				filePath = host.SaveToTmpFile(capturedImage, outputSettings, null);
 			}
 		
 			LOG.Debug("Saved tmp file to: " + filePath);
