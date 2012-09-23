@@ -73,7 +73,7 @@ namespace GreenshotOCR
 			this.checkBox_orientImage.Name = "checkBox_orientImage";
 			this.checkBox_orientImage.Size = new System.Drawing.Size(104, 24);
 			this.checkBox_orientImage.TabIndex = 1;
-			this.checkBox_orientImage.LanguageKey = "orient_image";
+			this.checkBox_orientImage.LanguageKey = "ocr.orient_image";
 			this.checkBox_orientImage.UseVisualStyleBackColor = true;
 			this.checkBox_orientImage.SectionName = "OCR";
 			this.checkBox_orientImage.PropertyName = "orientimage";
@@ -84,7 +84,7 @@ namespace GreenshotOCR
 			this.checkBox_straightenImage.Name = "checkBox_straightenImage";
 			this.checkBox_straightenImage.Size = new System.Drawing.Size(109, 24);
 			this.checkBox_straightenImage.TabIndex = 2;
-			this.checkBox_straightenImage.LanguageKey = "straighten_image";
+			this.checkBox_straightenImage.LanguageKey = "ocr.straighten_image";
 			this.checkBox_straightenImage.UseVisualStyleBackColor = true;
 			this.checkBox_straightenImage.SectionName = "OCR";
 			this.checkBox_straightenImage.PropertyName = "straightenImage";
