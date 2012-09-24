@@ -1,0 +1,265 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<language description="Frängisch" ietf="de-x-franconia" version="1.0.2" languagegroup="1">
+	<resources>
+		<resource name="about_bugs">Lefft was falsch, meldst di hier</resource>
+		<resource name="about_donations">Wenn der Greenshot gfälld, kannsd uns gern a weng helfn:</resource>
+		<resource name="about_host">Greenshot is a bei sourceforge, und zwa dordn:</resource>
+		<resource name="about_icons">Dei Fuztl-Bildla sin vom Yusuke Kamiyamane's Fugue icon set (Griäidif Gommens Äddribuschn 3.0 Laisns)</resource>
+		<resource name="about_license">Kobbireid (C) 2007-2012 Domas Braun, Jens Glingen, Robin Grohm
+A Garandie gibds für Greenshot ned, des kannst vergessn. Greenshot is umsonsd und wennsd mogst, kannsd es a rumreichn.
+Mehr Infos zur GNU Dschännerel Bablig Laisns:</resource>
+		<resource name="about_title">Was issn Greenshot???</resource>
+		<resource name="application_title">Greenshot - des subber Sgrienschod-Duhl</resource>
+		<resource name="bugreport_cancel">Legg mich</resource>
+		<resource name="bugreport_info">Des doud mer etz leid, da hammer wohl an Fehler.
+Wenns mogst, kannsd uns gern a weng helfn, den Fehler zer findn, wennsd uns an Brichd schiggst.
+Undn steht a Interned-Adressn, do gehst etz hin und maxd an neun Brichd.
+Dann schreibst no nei, wassd widder für an Scheiß gmachd hasd, gobiersd des Dexdfeld in die Bschreibung nei und saggsd halt noch, wassd so gmachd hast,
+damid mers selber brobiern könna.
+Wennsd etz der Gschichd noch die Grone aufsedzn mogst, schausd vorher amal, ob vor dir scho anner so bläid war. Dodafär gibds däi Suchn.
+Dangschee, wassd scho :)</resource>
+		<resource name="bugreport_title">Scheiße, Fehler</resource>
+		<resource name="CANCEL">Legg mich</resource>
+		<resource name="clipboard_error">Scheiße, etz hat des mid der Zwischnablach ned glabbd.</resource>
+		<resource name="clipboard_inuse">Sachamal, ich kann nix in däi Zwischnablach schreim. Der do hoggd draff: {0}</resource>
+		<resource name="ClipboardFormat.DIB">Gerädeunabhängiches Bidmäb (DIB)</resource>
+		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML (mit Bildla)</resource>
+		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="colorpicker_alpha">Alpha</resource>
+		<resource name="colorpicker_apply">Mach mer</resource>
+		<resource name="colorpicker_blue">Blau</resource>
+		<resource name="colorpicker_green">Grün</resource>
+		<resource name="colorpicker_htmlcolor">HTML Farb</resource>
+		<resource name="colorpicker_recentcolors">Zledzd bnudzde Farm</resource>
+		<resource name="colorpicker_red">Rod</resource>
+		<resource name="colorpicker_title">Farbauswahl</resource>
+		<resource name="colorpicker_transparent">Dransbarend</resource>
+		<resource name="config_unauthorizedaccess_write">Wasn etz los? Ich kann ned schbaichern. Schau amal, was da los is: '{0}'.</resource>
+		<resource name="contextmenu_about">Was issn Greenshot???</resource>
+		<resource name="contextmenu_capturearea">A Schdüggerla abmoln</resource>
+		<resource name="contextmenu_captureclipboard">Bild vo der Zwischnablach aufmachn</resource>
+		<resource name="contextmenu_capturefullscreen">En ganzn Bildschirm abmoln</resource>
+		<resource name="contextmenu_capturefullscreen_all">alle</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">undn</resource>
+		<resource name="contextmenu_capturefullscreen_left">lings</resource>
+		<resource name="contextmenu_capturefullscreen_right">rechds</resource>
+		<resource name="contextmenu_capturefullscreen_top">ohm</resource>
+		<resource name="contextmenu_captureie">Inderned Eggsblohrer abmoln</resource>
+		<resource name="contextmenu_captureiefromlist">Inderned Eggsblohrer abmoln</resource>
+		<resource name="contextmenu_capturelastregion">En ledzdn Breich nochamal abmoln</resource>
+		<resource name="contextmenu_capturewindow">Fensder abmoln</resource>
+		<resource name="contextmenu_capturewindowfromlist">Fensder aus Lisde abmoln</resource>
+		<resource name="contextmenu_donate">A weng helfn</resource>
+		<resource name="contextmenu_exit">Wech mid dem Misd</resource>
+		<resource name="contextmenu_help">Hüüülfe!</resource>
+		<resource name="contextmenu_openfile">Dadei aufmachn</resource>
+		<resource name="contextmenu_openrecentcapture">Ledzdn Sgrienschod im Eggsblorer ozeing</resource>
+		<resource name="contextmenu_quicksettings">Zaggich rumdogdern</resource>
+		<resource name="contextmenu_settings">Rumdogdern...</resource>
+		<resource name="destination_exportfailed">Scheiße, des war nix '{0}'. Brobiers hald nochamal.</resource>
+		<resource name="editor_arrange">Anordnen</resource>
+		<resource name="editor_arrowheads">Bfeilschbidzn</resource>
+		<resource name="editor_arrowheads_both">Beide</resource>
+		<resource name="editor_arrowheads_end">Endbungd</resource>
+		<resource name="editor_arrowheads_none">Kanne</resource>
+		<resource name="editor_arrowheads_start">Anfangsbunkd</resource>
+		<resource name="editor_autocrop">Audomadisch zamschneidn</resource>
+		<resource name="editor_backcolor">Hindergrundfarm</resource>
+		<resource name="editor_blur_radius">Weichzeichner-Rodius</resource>
+		<resource name="editor_bold">Fedd</resource>
+		<resource name="editor_border">Rohma</resource>
+		<resource name="editor_brightness">Hellichgeid</resource>
+		<resource name="editor_cancel">Ahh, doch ned</resource>
+		<resource name="editor_clipboardfailed">Des woa nix mid der Zwischnablach. Brobiers einfach nochamal.</resource>
+		<resource name="editor_close">Wech!</resource>
+		<resource name="editor_close_on_save">Moggsd dei Gschmarri ned schbeichern?</resource>
+		<resource name="editor_close_on_save_title">Bild schbeichern?</resource>
+		<resource name="editor_confirm">Fei wärgli!</resource>
+		<resource name="editor_copyimagetoclipboard">Grafig in däi Zwischnblach nei</resource>
+		<resource name="editor_copypathtoclipboard">Bfad in däi Zwischnblach nei</resource>
+		<resource name="editor_copytoclipboard">Kobiern</resource>
+		<resource name="editor_crop">Zamschneidn (C)</resource>
+		<resource name="editor_cursortool">Angriffln (ESC)</resource>
+		<resource name="editor_cuttoclipboard">Ausschneidn</resource>
+		<resource name="editor_deleteelement">Wech mid dem Ding!</resource>
+		<resource name="editor_downonelevel">Aanz nach hindn</resource>
+		<resource name="editor_downtobottom">Ganz nach hindn</resource>
+		<resource name="editor_drawarrow">An Bfeil moln (A)</resource>
+		<resource name="editor_drawellipse">An Greis moln (E)</resource>
+		<resource name="editor_drawfreehand">A weng rumgridzln (F)</resource>
+		<resource name="editor_drawhighlighter">Hervorheem (H)</resource>
+		<resource name="editor_drawline">An Schdrich moln (L)</resource>
+		<resource name="editor_drawrectangle">A Vieregg moln (R)</resource>
+		<resource name="editor_drawtextbox">An Dexd draff schreim (T)</resource>
+		<resource name="editor_duplicate">Elemend dubliziern</resource>
+		<resource name="editor_edit">Beabbeidn</resource>
+		<resource name="editor_effects">Effegde</resource>
+		<resource name="editor_email">I-Mehl</resource>
+		<resource name="editor_file">Dadei</resource>
+		<resource name="editor_fontsize">Größe</resource>
+		<resource name="editor_forecolor">Rahmafarb</resource>
+		<resource name="editor_grayscale">Grauschdufn</resource>
+		<resource name="editor_highlight_area">Breich hervorheem</resource>
+		<resource name="editor_highlight_grayscale">Grauschdufn</resource>
+		<resource name="editor_highlight_magnify">Vergrößän</resource>
+		<resource name="editor_highlight_mode">Hervorheem - Modus</resource>
+		<resource name="editor_highlight_text">Dexdmarger</resource>
+		<resource name="editor_imagesaved">Do is etz dei Bild: {0}.</resource>
+		<resource name="editor_insertwindow">Fensder nei gladschn</resource>
+		<resource name="editor_invert">Inverdiern</resource>
+		<resource name="editor_italic">Gusiev</resource>
+		<resource name="editor_load_objects">Objegde aus Dadei ladn</resource>
+		<resource name="editor_magnification_factor">Vergrößerungsfagdor</resource>
+		<resource name="editor_match_capture_size">Anbassen an Aufnahmebereich</resource>
+		<resource name="editor_obfuscate">Zensiern (O)</resource>
+		<resource name="editor_obfuscate_blur">Absofdn</resource>
+		<resource name="editor_obfuscate_mode">Zensier - Modus</resource>
+		<resource name="editor_obfuscate_pixelize">Verbixln</resource>
+		<resource name="editor_object">Objegd</resource>
+		<resource name="editor_opendirinexplorer">Verzeichnis im Windous Eggsblorer öffnen</resource>
+		<resource name="editor_pastefromclipboard">Eifüchn</resource>
+		<resource name="editor_pixel_size">Bixlgröß</resource>
+		<resource name="editor_preview_quality">Vorschaugwalidäd</resource>
+		<resource name="editor_print">Druggn</resource>
+		<resource name="editor_redo">Widderherschdelln {0}</resource>
+		<resource name="editor_resetsize">Größe zrüggsedzn</resource>
+		<resource name="editor_rotateccw">Gechern Uhrzeichersinn drehn</resource>
+		<resource name="editor_rotatecw">Im Uhrzeichersinn drehn</resource>
+		<resource name="editor_save">Schbeichern</resource>
+		<resource name="editor_save_objects">Objegde in Dadei schbeichern</resource>
+		<resource name="editor_saveas">Schbeichern under...</resource>
+		<resource name="editor_selectall">Alle Objegde auswähln</resource>
+		<resource name="editor_senttoprinter">Drugger läffd: '{0}'</resource>
+		<resource name="editor_shadow">Schaddn An/Aus</resource>
+		<resource name="editor_image_shadow">Schaddn</resource>
+		<resource name="editor_storedtoclipboard">Bild is in der Zwischnablach.</resource>
+		<resource name="editor_thickness">Linienschdärge</resource>
+		<resource name="editor_title">Greenshot Edidor</resource>
+		<resource name="editor_torn_edge">Ausgfranzde Kandn</resource>
+		<resource name="editor_undo">Rüggängich {0}</resource>
+		<resource name="editor_uponelevel">Aanz nach vorn</resource>
+		<resource name="editor_uptotop">Ganz nach vorn</resource>
+		<resource name="EmailFormat.MAPI">MAPI Glaiend</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Audlugg mid HTML</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Audlugg mit Dexd</resource>
+		<resource name="error">Scheißdregg</resource>
+		<resource name="error_multipleinstances">Greenshot läffd scho.</resource>
+		<resource name="error_nowriteaccess">Es schbeichern hat ned glabbd: {0}
+Schau hald amal, obsd da übbahabds hi schreim däffsd oder duhs woannersch hi.</resource>
+		<resource name="error_openfile">Däi Dadei gäid ned aff: "{0}"</resource>
+		<resource name="error_openlink">Der Ling gäid ned aff: '{0}'</resource>
+		<resource name="error_save">Dees woa nix. Schbeichers bidde woannersch hi.</resource>
+		<resource name="expertsettings">Exbädde</resource>
+		<resource name="expertsettings_autoreducecolors">8-Bit-Bilder machn bei wenicher als 256 Farm</resource>
+		<resource name="expertsettings_checkunstableupdates">Auch inschdabile Abdäids anbiedn</resource>
+		<resource name="expertsettings_clipboardformats">Zwischnablach-Formade</resource>
+		<resource name="expertsettings_counter">Werd für ${NUM} im Dadeiname-Musder</resource>
+		<resource name="expertsettings_enableexpert">Ich wass scho was ich mach, du bläide Sau!</resource>
+		<resource name="expertsettings_footerpattern">Undn draff druggn</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Schbeicher schbarn (kosd Berformänz - max ned)</resource>
+		<resource name="expertsettings_optimizeforrdp">Für Rimoud Desgdob obdimiern</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Ned nervn beim zumachn vom Edidor</resource>
+		<resource name="expertsettings_thumbnailpreview">Fensder-Vorschau im Gondexdmenü ozeing (für Visda und Windous 7)</resource>
+		<resource name="exported_to">Exbordierd nach: {0}</resource>
+		<resource name="help_title">Greenshot Hüüülfe</resource>
+		<resource name="hotkeys">Dasdnküdzl</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Dschäibeg-Qualidäd auswähln.</resource>
+		<resource name="OK">Bassd</resource>
+		<resource name="print_error">Des Druggn hat ned glabbd.</resource>
+		<resource name="printoptions_allowcenter">Ausdrugg in däi Middn baggn</resource>
+		<resource name="printoptions_allowenlarge">Ausdrugg auf Seidngröß vergrößern</resource>
+		<resource name="printoptions_allowrotate">Drehung vom Ausdrugg ans Seidenformad anbassn</resource>
+		<resource name="printoptions_allowshrink">Ausdrugg auf Seidengröß vergleinern</resource>
+		<resource name="printoptions_dontaskagain">Als Schdandard sbeichern und nimmer nervn</resource>
+		<resource name="printoptions_inverted">Farm umkehrn</resource>
+		<resource name="printoptions_printgrayscale">Nur grau druggn</resource>
+		<resource name="printoptions_timestamp">Dadum und Uhrzeid mid draff gladschn</resource>
+		<resource name="printoptions_title">Greenshot Druggeinschdellungen</resource>
+		<resource name="qualitydialog_dontaskagain">Als Schdandardgwalidäd schbeichern und nimmer nervn</resource>
+		<resource name="qualitydialog_title">Greenshot Gwalidäd</resource>
+		<resource name="quicksettings_destination_file">Soford schbeichern (mit bevorzugdn Ausgabedadei-Einschdellungen)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Druggeinschdellungen vor jeem Ausdrugg ozeing</resource>
+		<resource name="settings_alwaysshowqualitydialog">Gwalidädseinschdellungen vor jeem Schbeichern ozeing</resource>
+		<resource name="settings_applicationsettings">Brogrammeinschdellungen</resource>
+		<resource name="settings_autostartshortcut">Greenshot mit Windous schdaddn</resource>
+		<resource name="settings_capture">Abmoln</resource>
+		<resource name="settings_capture_mousepointer">Mauszeicher mid abmoln</resource>
+		<resource name="settings_capture_windows_interactive">Fensder-Deile einzeln abmoln</resource>
+		<resource name="settings_checkperiod">Alle X Daache aff Abdäids dschäggn (0=ned dschäggn)</resource>
+		<resource name="settings_configureplugin">Rumdogdern</resource>
+		<resource name="settings_copypathtoclipboard">Beim schbeichern en Bfad in däi Zwischnablaach baggn.</resource>
+		<resource name="settings_destination">Ziele</resource>
+		<resource name="settings_destination_clipboard">In däi Zwischnablaach</resource>
+		<resource name="settings_destination_editor">Im Greenshot-Edidor aufmachn</resource>
+		<resource name="settings_destination_email">I-Mehl</resource>
+		<resource name="settings_destination_file">Sofodd schbeichern</resource>
+		<resource name="settings_destination_fileas">Schbeichern under (mit Dialooch)</resource>
+		<resource name="settings_destination_picker">Schdändich froong</resource>
+		<resource name="settings_destination_printer">An Drugger schiggn</resource>
+		<resource name="settings_editor">Edidor</resource>
+		<resource name="settings_filenamepattern">Dadeinamen-Musder</resource>
+		<resource name="settings_general">Allgemein</resource>
+		<resource name="settings_iecapture">Inderned Eggsblorer abmoln</resource>
+		<resource name="settings_jpegquality">JPEG-Gwalidäd</resource>
+		<resource name="settings_language">Schbrache</resource>
+		<resource name="settings_message_filenamepattern">Däi Bladzhalder gibds:
+${YYYY} Jahr, 4-schdellich
+${MM} Monad, 2-schdellich
+${DD} Daach, 2-schdellich
+${hh} Schdunde, 2-schdellich
+${mm} Minude, 2-schdellich
+${ss} Sekunde, 2-schdellich
+${NUM} ingremendiernde Zahl, 6-schdellich
+${title} Fensderdiddl
+${user} Windous-Benudzername
+${domain} Windous-Domäne
+${hostname} Kombjudername
+
+Greenshot kann a Ordner selber ohleeng. 
+Wennsd Ordner vom Dadeinamen drennen willsd, nimssd an Beggsläsch \ 
+So hald: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} 
+Da gibds dann an Ordner fürn agduelln Dooch im Schdandard-Schbeicherord und däi Foddos landn dann da drin und heißn wäi die Uhrzeid.
+z.B. C:\Users\MaxMusdermann\Desgdob\2012-08-13\12-58-32.png</resource>
+		<resource name="settings_network">Nedswerch und Abdäids</resource>
+		<resource name="settings_output">Ausgabe</resource>
+		<resource name="settings_playsound">Kameradoon abschbieln</resource>
+		<resource name="settings_plugins">Blaggins</resource>
+		<resource name="settings_preferredfilesettings">Bevorzugde Ausgabedadei-Einschdellungen</resource>
+		<resource name="settings_primaryimageformat">Bildformad</resource>
+		<resource name="settings_printer">Drugger</resource>
+		<resource name="settings_printoptions">Druggeinschdellungen</resource>
+		<resource name="settings_qualitysettings">Gwalidädseinschdellungen</resource>
+		<resource name="settings_reducecolors">Ned mehr als 256 Farm</resource>
+		<resource name="settings_registerhotkeys">Globale Dasdnkombis agdiviern</resource>
+		<resource name="settings_showflashlight">Blidslichd ozeing</resource>
+		<resource name="settings_shownotify">Bnachrichdigunga ozeing</resource>
+		<resource name="settings_storagelocation">Schbeicherord</resource>
+		<resource name="settings_title">Rumdogdern</resource>
+		<resource name="settings_tooltip_filenamepattern">Musder für die Dadeinamen beim Schbeichern von Sgrienschods</resource>
+		<resource name="settings_tooltip_language">Schbrache der Benudzeroberfläche</resource>
+		<resource name="settings_tooltip_primaryimageformat">Schdandard Bildformad</resource>
+		<resource name="settings_tooltip_registerhotkeys">Wennsd des Häggerla sedzd, wern beim Schdaddn von Greenshot däi Dasdnkürzl Drucken, Strg + Drucken, Alt + Drucken reservierd solang Greenshot läffd.</resource>
+		<resource name="settings_tooltip_storagelocation">Schdandardbfad für Sgrienschods. Leer lassn für Desgdob.</resource>
+		<resource name="settings_usedefaultproxy">Schdandard-Broxysörver vom Bedriebssysdem benudzn</resource>
+		<resource name="settings_visualization">Effegde</resource>
+		<resource name="settings_waittime">Millisekundn waddn vorm abmoln</resource>
+		<resource name="settings_window_capture_mode">Fensder-abmol-Modus</resource>
+		<resource name="settings_windowscapture">Fensder abmoln</resource>
+		<resource name="tooltip_firststart">Hier rechds gliggn oder die {0} Dasde drüggn.</resource>
+		<resource name="update_found">Was hasdn du für an aldn Scheiß?! Magsd des neue Greenshot {0} ham?</resource>
+		<resource name="wait_ie_capture">Etz watzd an Momend! Des dauerd a weng...</resource>
+		<resource name="warning">Hinweis</resource>
+		<resource name="warning_hotkeys">Die globale Dasdnkombi "{0}" konnd ned agdivierd wern. 
+Warscheinli hoggd irgend so a andrer Debb draff. 
+Endweder ändersd die Dasdnkombi für Greenshot, oder du bisd a Mann und findsd die Sau!
+
+Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G rechds undn).
+</resource>
+		<resource name="WindowCaptureMode.Aero">Selber a Farm aussuchn</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Dransbarens erhaldn</resource>
+		<resource name="WindowCaptureMode.Auto">Audomadisch</resource>
+		<resource name="WindowCaptureMode.GDI">Schdandardfarm benudzn</resource>
+		<resource name="WindowCaptureMode.Screen">Wäisd es siggsd</resource>
+	</resources>
+</language>
