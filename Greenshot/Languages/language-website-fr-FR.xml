@@ -4,7 +4,7 @@
 		<resource name="home_downloads">Téléchargement</resource>
 		<resource name="home_headline">Greenshot - Un outil de capture d’écran gratuit pour une productivité optimale</resource>
 		<resource name="home_opensource">Greenshot est gratuit et «Open Source».</resource>
-		<resource name="home_opensource_donate">Si vous trouvez que Greenshot vous permet de faire des économies de temps et d’argent, vous êtes les bienvenus si vous nous apportez _votre support dans le développement_ de ce logiciel de capture d’écran.</resource>
+		<resource name="home_opensource_donate">Si vous trouvez que Greenshot vous permet de faire des économies de temps et d’argent, vous êtes les bienvenus si vous nous apportez &lt;a href="/support/"&gt;votre support dans le développement&lt;/a&gt; de ce logiciel de capture d’écran.</resource>
 		<resource name="home_opensource_gpl">Greenshot a été publié sous &lt;a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;, à savoir que ce logiciel peut être utilisé gratuitement, même dans un environnement commercial.</resource>
 		<resource name="home_seemore">Voulez-vous en savoir plus?</resource>
 		<resource name="home_seemore_screenshots">Bien entendu Greenshot peut en faire beaucoup plus pour vous. Prenez la peine de regarder quelques &lt;a href="/screenshots/"&gt;captures d’écran&lt;/a&gt; de Greenshot en action ou essayer &lt;a title="Download the latest stable version of Greenshot" href="/downloads/"&gt;la dernière mise à niveau&lt;/a&gt;.</resource>

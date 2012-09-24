@@ -4,7 +4,7 @@
 		<resource name="home_downloads">Downloads</resource>
 		<resource name="home_headline">Greenshot - ein kostenloses Screenshot-Programm für maximale Produktivität</resource>
 		<resource name="home_opensource">Greenshot ist kostenlos und open-source</resource>
-		<resource name="home_opensource_donate">Falls Sie merken, dass Greenshot Ihnen viel Zeit und/oder Geld spart, würde sich das Entwickler-Team über Ihre Unterstützung für die Weiterentwicklung dieser Screenshot-Software freuen.</resource>
+		<resource name="home_opensource_donate">Falls Sie merken, dass Greenshot Ihnen viel Zeit und/oder Geld spart, würde sich das Entwickler-Team über Ihre &lt;a href="/support/"&gt;Unterstützung für die Weiterentwicklung&lt;/a&gt; dieser Screenshot-Software freuen.</resource>
 		<resource name="home_opensource_gpl">Greenshot wurde unter der &lt;a href="http://de.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt; veröffentlicht und kann kostenlos heruntergeladen und verwendet werden, auch zur kommerziellen Nutzung.</resource>
 		<resource name="home_seemore">Und weiter?</resource>
 		<resource name="home_seemore_screenshots">Natürlich kann Greenshot noch einiges mehr. Werfen Sie einen Blick auf einige &lt;a title="Screenshots von Greenshot in Aktion" href="/screenshots/"&gt;Screenshots&lt;/a&gt; von Greenshot in Aktion oder probieren Sie die &lt;a title="Download der aktuellen Version von Greenshot" href="/downloads/"&gt;aktuelle Version&lt;/a&gt; einfach aus.</resource>

@@ -4,7 +4,7 @@
 		<resource name="home_downloads">Download</resource>
 		<resource name="home_headline">Greenshot - strumento di cattura gratis ottimizzato per la produttività</resource>
 		<resource name="home_opensource">Greenshot è gratuito e open source</resource>
-		<resource name="home_opensource_donate">Se si scopre che Greenshot risparmiare un sacco di tempo e / o denaro, è possibile sostenere lo sviluppo di questa strumento di cattura.</resource>
+		<resource name="home_opensource_donate">Se si scopre che Greenshot risparmiare un sacco di tempo e / o denaro, è possibile &lt;a href="/support/"&gt;sostenere lo sviluppo&lt;/a&gt; di questa strumento di cattura.</resource>
 		<resource name="home_opensource_gpl">Greenshot è pubblicato sotto licenza &lt;a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;. Questo software può essere scaricato e utilizzato gratuitamente, anche in un ambiente commerciale.</resource>
 		<resource name="home_seemore">Vuoi saperne di più?</resource>
 		<resource name="home_seemore_screenshots">Naturalmente c'è molto di più che si può fare per Greenshot. Check out alcuni &lt;a href="/screenshots/"&gt;screenshot&lt;/a&gt; di Greenshot in azione o provare la versione &lt;a href="/downloads/"&gt;più recente&lt;/a&gt;.</resource>

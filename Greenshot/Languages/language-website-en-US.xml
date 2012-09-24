@@ -4,7 +4,7 @@
 		<resource name="home_downloads">Downloads</resource>
 		<resource name="home_headline">Greenshot - a free screenshot tool optimized for productivity</resource>
 		<resource name="home_opensource">Greenshot is free and open source</resource>
-		<resource name="home_opensource_donate">If you find that Greenshot saves you a lot of time and/or money, you are very welcome to _support the development_ of this screenshot software.</resource>
+		<resource name="home_opensource_donate">If you find that Greenshot saves you a lot of time and/or money, you are very welcome to &lt;a href="/support/"&gt;support the development&lt;/a&gt; of this screenshot software.</resource>
 		<resource name="home_opensource_gpl">Greenshot was published under &lt;a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;, i.e. this software can be downloaded and used free of charge, even in a commercial environment.</resource>
 		<resource name="home_seemore">Want to see more?</resource>
 		<resource name="home_seemore_screenshots">Of course there is more that Greenshot can do for you. Have a look at some &lt;a title="Screenshots of Greenshot in action" href="/screenshots/"&gt;screenshots&lt;/a&gt; of Greenshot in action or try the &lt;a title="Download the latest stable version of Greenshot" href="/downloads/"&gt;latest release&lt;/a&gt;.</resource>
