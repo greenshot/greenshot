@@ -134,6 +134,7 @@ Innan du skickar uppskattar vi verkligen om du har kontrollerat ifall felet reda
 		<resource name="editor_selectall">Markera allt</resource>
 		<resource name="editor_senttoprinter">Utskriften skickades till '{0}'.</resource>
 		<resource name="editor_shadow">Skugga</resource>
+		<resource name="editor_image_shadow">Skugga</resource>
 		<resource name="editor_storedtoclipboard">Bilden sparades i klippminnet.</resource>
 		<resource name="editor_thickness">Linjens tjocklek</resource>
 		<resource name="editor_title">Greenshot Bildredigerare</resource>

@@ -133,6 +133,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_selectall">Одабери све</resource>
 		<resource name="editor_senttoprinter">Штампање послано '{0}'.</resource>
 		<resource name="editor_shadow">Сенка</resource>
+		<resource name="editor_image_shadow">Сенка</resource>
 		<resource name="editor_storedtoclipboard">Слика сачлувана у остави.</resource>
 		<resource name="editor_thickness">Дебљина линије</resource>
 		<resource name="editor_title">Greenshot едитор слика</resource>

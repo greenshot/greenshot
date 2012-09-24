@@ -126,6 +126,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_selectall">Виділити все</resource>
 		<resource name="editor_senttoprinter">Завдання друку надіслано на „{0}“.</resource>
 		<resource name="editor_shadow">Тінь</resource>
+		<resource name="editor_image_shadow">Тінь</resource>
 		<resource name="editor_storedtoclipboard">Зображення надіслано в буфер обміну.</resource>
 		<resource name="editor_thickness">Товщина лінії</resource>
 		<resource name="editor_title">Редактор зображень Greenshot</resource>

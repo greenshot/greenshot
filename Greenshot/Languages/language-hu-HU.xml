@@ -105,6 +105,7 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 		<resource name="editor_selectall">Mindet kijelöl</resource>
 		<resource name="editor_senttoprinter">Nyomtatási feladat küldése '{0}'.</resource>
 		<resource name="editor_shadow">Árnyékolás</resource>
+		<resource name="editor_image_shadow">Árnyékolás</resource>
 		<resource name="editor_storedtoclipboard">A tárolt képet a vágólapra.</resource>
 		<resource name="editor_thickness">Vonal vastagság</resource>
 		<resource name="editor_title">Greenshot kép szerkesztő</resource>

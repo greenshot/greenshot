@@ -105,6 +105,7 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="editor_selectall">Zaznacz wszystko</resource>
 		<resource name="editor_senttoprinter">Zadanie drukowania zostało wysłane do '{0}'.</resource>
 		<resource name="editor_shadow">Cień</resource>
+		<resource name="editor_image_shadow">Cień</resource>
 		<resource name="editor_storedtoclipboard">Obraz został zapisany w schowku.</resource>
 		<resource name="editor_thickness">Grubość linii</resource>
 		<resource name="editor_title">Greenshot - edytor obrazów</resource>

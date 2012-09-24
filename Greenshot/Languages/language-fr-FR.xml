@@ -130,6 +130,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_selectall">Sélectionner tout</resource>
 		<resource name="editor_senttoprinter">La tâche d'impression a été envoyée vers '{0}'.</resource>
 		<resource name="editor_shadow">Supprimer l'ombre</resource>
+		<resource name="editor_image_shadow">Supprimer l'ombre</resource>
 		<resource name="editor_storedtoclipboard">L'image a été placée dans le presse-papier.</resource>
 		<resource name="editor_thickness">Épaisseur de ligne</resource>
 		<resource name="editor_title">Greenshot Image Editor</resource>

@@ -108,6 +108,7 @@
 		<resource name="editor_selectall">全选</resource>
 		<resource name="editor_senttoprinter">已使用 '{0}' 进行打印。</resource>
 		<resource name="editor_shadow">阴影</resource>
+		<resource name="editor_image_shadow">阴影</resource>
 		<resource name="editor_storedtoclipboard">图片已保存到剪切板。</resource>
 		<resource name="editor_thickness">线条粗细</resource>
 		<resource name="editor_title">Greenshot 图片编辑器</resource>

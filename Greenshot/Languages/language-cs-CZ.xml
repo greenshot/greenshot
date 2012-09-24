@@ -126,6 +126,7 @@ Také bychom velmi ocenili, kdyby jste zkontrolovali, zda položka pro tuto chyb
 		<resource name="editor_selectall">Vybrat vše</resource>
 		<resource name="editor_senttoprinter">Tisková úloha byla zaslána na '{0}'.</resource>
 		<resource name="editor_shadow">Stín</resource>
+		<resource name="editor_image_shadow">Stín</resource>
 		<resource name="editor_storedtoclipboard">Obrázek uložený do schránky.</resource>
 		<resource name="editor_thickness">Tloušťka linky</resource>
 		<resource name="editor_title">Greenshot editor obrázků</resource>

@@ -132,6 +132,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_selectall">Alle Objekte auswählen</resource>
 		<resource name="editor_senttoprinter">Druckauftrag wurde an '{0}' gesendet.</resource>
 		<resource name="editor_shadow">Schatten An/Aus</resource>
+		<resource name="editor_image_shadow">Schatten</resource>
 		<resource name="editor_storedtoclipboard">Bild wurde in Zwischenablage kopiert.</resource>
 		<resource name="editor_thickness">Linienstärke</resource>
 		<resource name="editor_title">Greenshot Editor</resource>

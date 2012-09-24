@@ -106,6 +106,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_selectall">전체선택</resource>
 		<resource name="editor_senttoprinter">프린터 작업이 '{0}' 으로 전달되었습니다.</resource>
 		<resource name="editor_shadow">그림자</resource>
+		<resource name="editor_image_shadow">그림자</resource>
 		<resource name="editor_storedtoclipboard">클립보드에 이미지 저장</resource>
 		<resource name="editor_thickness">선 굵기</resource>
 		<resource name="editor_title">Greenshot 이미지 편집기</resource>

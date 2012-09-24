@@ -104,6 +104,7 @@ Olisi myös hyvä jos voisit tarkistaa onko virhe jo raportoitu aikaisemmin (voi
 		<resource name="editor_selectall">Valitse kaikki</resource>
 		<resource name="editor_senttoprinter">Tulostustyö lähetettiin tulostimelle '{0}'.</resource>
 		<resource name="editor_shadow">Varjo</resource>
+		<resource name="editor_image_shadow">Varjo</resource>
 		<resource name="editor_storedtoclipboard">Kuva on kopioitu leikepöydälle.</resource>
 		<resource name="editor_thickness">Viivan paksuus</resource>
 		<resource name="editor_title">Greenshot kuvan muokkaus</resource>

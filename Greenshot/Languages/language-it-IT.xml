@@ -125,6 +125,7 @@ Inoltre, apprezzeremo molto se prima di inserire, tu controllassi se esiste già
 	<resource name="editor_selectall">Seleziona tutto</resource>
 	<resource name="editor_senttoprinter">Stampa inviata a '{0}'.</resource>
 	<resource name="editor_shadow">Ombra</resource>
+	<resource name="editor_image_shadow">Ombra</resource>
 	<resource name="editor_storedtoclipboard">Immagine posta negli appunti (clipboard).</resource>
 	<resource name="editor_thickness">Spessore linea</resource>
 	<resource name="editor_title">Gestione Immagini di Greenshot</resource>

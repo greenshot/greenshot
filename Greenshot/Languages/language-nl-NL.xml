@@ -131,6 +131,7 @@ Gebruik de zoekfunctie om bekende foutmeldingen snel te vinden. Hartelijk bedank
 		<resource name="editor_selectall">Alles selecteren</resource>
 		<resource name="editor_senttoprinter">Print opdracht is naar '{0}' gestuurt.</resource>
 		<resource name="editor_shadow">Schaduw</resource>
+		<resource name="editor_image_shadow">Schaduw</resource>
 		<resource name="editor_storedtoclipboard">Beeld naar het klembord gekopieerd.</resource>
 		<resource name="editor_thickness">Lijn dikte</resource>
 		<resource name="editor_title">Greenshot beeld bewerking</resource>

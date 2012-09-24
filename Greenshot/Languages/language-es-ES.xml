@@ -105,6 +105,7 @@ También, no sotros apreciaremos mucho si tu marcas si uno de los existentes art
 		<resource name="editor_selectall">Seleccionar todo</resource>
 		<resource name="editor_senttoprinter">Imprimir trabajo enviado a '{0}'.</resource>
 		<resource name="editor_shadow">Sombra</resource>
+		<resource name="editor_image_shadow">Sombra</resource>
 		<resource name="editor_storedtoclipboard">Imagen alojada en el portapapeles.</resource>
 		<resource name="editor_thickness">Ancho de linea</resource>
 		<resource name="editor_title">Editor de Imagenes Greenshot</resource>

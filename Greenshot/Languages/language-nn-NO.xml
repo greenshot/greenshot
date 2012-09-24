@@ -132,6 +132,7 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="editor_selectall">Vel alt</resource>
 		<resource name="editor_senttoprinter">Utskrifta vart sent til "{0}".</resource>
 		<resource name="editor_shadow">Skuggeeffekt</resource>
+		<resource name="editor_image_shadow">Skuggeeffekt</resource>
 		<resource name="editor_storedtoclipboard">Bildet er sendt til utklyppstavla.</resource>
 		<resource name="editor_thickness">Linebreidde</resource>
 		<resource name="editor_title">Greenshot knipsfiksar</resource>

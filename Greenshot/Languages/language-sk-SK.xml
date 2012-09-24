@@ -105,6 +105,7 @@ Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje 
 		<resource name="editor_selectall">Vybrať všetko</resource>
 		<resource name="editor_senttoprinter">Tlačová úloha odoslaná do '{0}'.</resource>
 		<resource name="editor_shadow">Tieň</resource>
+		<resource name="editor_image_shadow">Tieň</resource>
 		<resource name="editor_storedtoclipboard">Obrázek je uložený do schránky.</resource>
 		<resource name="editor_thickness">Hrúbka čiary</resource>
 		<resource name="editor_title">Greenshot editor obrázkov</resource>

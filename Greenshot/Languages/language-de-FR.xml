@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <language description="Frängisch" ietf="de-FR" version="1.0.2" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Lefft was falsch, meldst di hier</resource>
@@ -132,6 +132,7 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_selectall">Alle Objegde auswähln</resource>
 		<resource name="editor_senttoprinter">Drugger läffd: '{0}'</resource>
 		<resource name="editor_shadow">Schaddn An/Aus</resource>
+		<resource name="editor_image_shadow">Schaddn</resource>
 		<resource name="editor_storedtoclipboard">Bild is in der Zwischnablach.</resource>
 		<resource name="editor_thickness">Linienschdärge</resource>
 		<resource name="editor_title">Greenshot Edidor</resource>

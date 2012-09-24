@@ -103,6 +103,7 @@ Dėkojame už pagalbą :)</resource>
 		<resource name="editor_selectall">išskirti viską</resource>
 		<resource name="editor_senttoprinter">Spausdinys nusiųstas į {0}.</resource>
 		<resource name="editor_shadow">Šešėlis</resource>
+		<resource name="editor_image_shadow">Šešėlis</resource>
 		<resource name="editor_storedtoclipboard">Vaizdas patalpintas į iškarpinių podelį.</resource>
 		<resource name="editor_thickness">Apvado storis</resource>
 		<resource name="editor_title">Greenshot: ekrano nuotraukų redagtorius</resource>

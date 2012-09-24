@@ -105,6 +105,7 @@ Também apreciaremos muito se você puder verificar se não existe já um relat�
 		<resource name="editor_selectall">Selecionar tudo</resource>
 		<resource name="editor_senttoprinter">A impressão foi enviada para '{0}'.</resource>
 		<resource name="editor_shadow">Sombra</resource>
+		<resource name="editor_image_shadow">Sombra</resource>
 		<resource name="editor_storedtoclipboard">Imagem enviada para a área de transferência.</resource>
 		<resource name="editor_thickness">Espessura da linha</resource>
 		<resource name="editor_title">Editor de Imagens do Greenshot</resource>

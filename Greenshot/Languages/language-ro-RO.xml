@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Română" ietf="ro-RO" version="0.8.0" languagegroup="2">
   <resources>
 	<!--    
@@ -456,6 +456,9 @@ timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
 		Factor de mărire
 	</resource>
 	<resource name="editor_shadow">
+		Umbră
+	</resource>
+	<resource name="editor_image_shadow">
 		Umbră
 	</resource>
 	<resource name="editor_confirm">

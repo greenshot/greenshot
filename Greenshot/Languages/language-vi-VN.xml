@@ -100,6 +100,7 @@
 		<resource name="editor_selectall">Chọn tất cả</resource>
 		<resource name="editor_senttoprinter">Đã gửi yêu cầu in'{0}'.</resource>
 		<resource name="editor_shadow">Đổ bóng</resource>
+		<resource name="editor_image_shadow">Đổ bóng</resource>
 		<resource name="editor_storedtoclipboard">Đã chép ảnh vào clipboard.</resource>
 		<resource name="editor_thickness">Độ dày của đường kẻ</resource>
 		<resource name="editor_title">Trình soạn thảo ảnh Greenshot</resource>

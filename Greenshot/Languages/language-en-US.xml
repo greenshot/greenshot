@@ -119,6 +119,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_selectall">Select all</resource>
 		<resource name="editor_senttoprinter">Print job was sent to '{0}'.</resource>
 		<resource name="editor_shadow">Drop shadow</resource>
+		<resource name="editor_image_shadow">Drop shadow</resource>
 		<resource name="editor_storedtoclipboard">Image stored to clipboard.</resource>
 		<resource name="editor_thickness">Line thickness</resource>
 		<resource name="editor_title">Greenshot image editor</resource>

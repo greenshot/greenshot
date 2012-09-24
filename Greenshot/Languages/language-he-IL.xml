@@ -105,6 +105,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_selectall">בחר הכל</resource>
 		<resource name="editor_senttoprinter">ההדפסה נשלחה אל  '{0}'.</resource>
 		<resource name="editor_shadow">הצללה</resource>
+		<resource name="editor_image_shadow">הצללה</resource>
 		<resource name="editor_storedtoclipboard">תמונה הועברה אל הלוח</resource>
 		<resource name="editor_thickness">עובי קו</resource>
 		<resource name="editor_title">עורך התמונה של התוכנה</resource>

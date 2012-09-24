@@ -117,6 +117,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_selectall">اتخاب همه</resource>
 		<resource name="editor_senttoprinter">.چاپ به     ' {0} ' فرستاده شد</resource>
 		<resource name="editor_shadow">سایه</resource>
+		<resource name="editor_image_shadow">سایه</resource>
 		<resource name="editor_storedtoclipboard">.تصویر در حافظه موقت ذخیره شد</resource>
 		<resource name="editor_thickness">ضخامت خط</resource>
 		<resource name="editor_title">ویرایشگر گرین شات</resource>

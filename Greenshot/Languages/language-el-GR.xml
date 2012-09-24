@@ -105,6 +105,7 @@
 		<resource name="editor_selectall">Επιλογή όλων</resource>
 		<resource name="editor_senttoprinter">Η εκτύπωση στάλθηκε στον '{0}'.</resource>
 		<resource name="editor_shadow">Σκιά</resource>
+		<resource name="editor_image_shadow">Σκιά</resource>
 		<resource name="editor_storedtoclipboard">Η εικόνα αποθηκεύτηκε στο πρόχειρο.</resource>
 		<resource name="editor_thickness">Πάχος γραμμής</resource>
 		<resource name="editor_title">Επεξεργαστής εικόνας του Greenshot</resource>

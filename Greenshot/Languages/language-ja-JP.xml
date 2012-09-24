@@ -104,6 +104,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_selectall">すべて選択</resource>
 		<resource name="editor_senttoprinter">'{0}' に印刷ジョブを送りました。</resource>
 		<resource name="editor_shadow">シャドウ</resource>
+		<resource name="editor_image_shadow">シャドウ</resource>
 		<resource name="editor_storedtoclipboard">画像をクリップボードに送りました。</resource>
 		<resource name="editor_thickness">ラインの太さ</resource>
 		<resource name="editor_title">Greenshot イメージ エディター</resource>

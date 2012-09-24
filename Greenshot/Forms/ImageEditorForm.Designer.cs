@@ -442,7 +442,7 @@ namespace Greenshot {
 			// 
 			this.addDropshadowToolStripMenuItem.Name = "addDropshadowToolStripMenuItem";
 			this.addDropshadowToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-			this.addDropshadowToolStripMenuItem.LanguageKey = "editor_shadow";
+			this.addDropshadowToolStripMenuItem.LanguageKey = "editor_image_shadow";
 			this.addDropshadowToolStripMenuItem.Click += new System.EventHandler(this.AddDropshadowToolStripMenuItemClick);
 			// 
 			// tornEdgesToolStripMenuItem

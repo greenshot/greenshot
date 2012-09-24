@@ -130,6 +130,7 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="editor_selectall">Tümünü seç</resource>
 		<resource name="editor_senttoprinter">Yazdırma işi şuraya iletildi '{0}'.</resource>
 		<resource name="editor_shadow">Gölge</resource>
+		<resource name="editor_image_shadow">Gölge</resource>
 		<resource name="editor_storedtoclipboard">Görüntü panoya kopyalandı.</resource>
 		<resource name="editor_thickness">Çizgi kalınlığı</resource>
 		<resource name="editor_title">Greenshot görüntü düzenleyici</resource>

@@ -104,6 +104,7 @@
 		<resource name="editor_selectall">حدد الكل</resource>
 		<resource name="editor_senttoprinter">امر الطباعة ارسل الى '{0}'.</resource>
 		<resource name="editor_shadow">الظل</resource>
+		<resource name="editor_image_shadow">الظل</resource>
 		<resource name="editor_storedtoclipboard">ثم حفظ الصورة في الذاكرة.</resource>
 		<resource name="editor_thickness">سماكة الخط</resource>
 		<resource name="editor_title">محرر جرين شوت للصور</resource>
