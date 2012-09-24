@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="1.0.1" languagegroup="5">
+<language description="Українська" ietf="uk-UA" version="1.0.2" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
 		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
@@ -9,7 +9,6 @@
 Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
 Подробиці Загальної Публічної Ліцензії GNU:</resource>
 		<resource name="about_title">Про Greenshot</resource>
-		<resource name="about_translation"><![CDATA[Український переклад: Олександр (6c6c6) [http://localize.org.ua]]]></resource>
 		<resource name="application_title">Greenshot – революційна утиліта для отримання знімків екрану</resource>
 		<resource name="bugreport_cancel">Закрити</resource>
 		<resource name="bugreport_info">Вибачте, виникла непередбачувана помилка.
@@ -41,9 +40,16 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="contextmenu_capturearea">Захоплення області</resource>
 		<resource name="contextmenu_captureclipboard">Відкрити зображення з буферу обміну</resource>
 		<resource name="contextmenu_capturefullscreen">Захопити весь екран</resource>
+		<resource name="contextmenu_capturefullscreen_all">все</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">знизу</resource>
+		<resource name="contextmenu_capturefullscreen_left">зліва</resource>
+		<resource name="contextmenu_capturefullscreen_right">справа</resource>
+		<resource name="contextmenu_capturefullscreen_top">згори</resource>
 		<resource name="contextmenu_captureie">Захопити Internet Explorer</resource>
+		<resource name="contextmenu_captureiefromlist">Захопити Internet Explorer зі списку</resource>
 		<resource name="contextmenu_capturelastregion">Захоплення останньої області</resource>
 		<resource name="contextmenu_capturewindow">Захоплення вікна</resource>
+		<resource name="contextmenu_capturewindowfromlist">Захопити вікно зі списку</resource>
 		<resource name="contextmenu_donate">Підтримати Greenshot</resource>
 		<resource name="contextmenu_exit">Вихід</resource>
 		<resource name="contextmenu_help">Допомога</resource>
@@ -99,6 +105,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_highlight_magnify">Збільшення</resource>
 		<resource name="editor_highlight_mode">Режим підсвічування</resource>
 		<resource name="editor_highlight_text">Підсвічення тексту</resource>
+		<resource name="editor_image_shadow">Тінь</resource>
 		<resource name="editor_imagesaved">Зображення збережено в {0}.</resource>
 		<resource name="editor_insertwindow">Вставити вікно</resource>
 		<resource name="editor_invert">Інверсія</resource>
@@ -126,7 +133,6 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_selectall">Виділити все</resource>
 		<resource name="editor_senttoprinter">Завдання друку надіслано на „{0}“.</resource>
 		<resource name="editor_shadow">Тінь</resource>
-		<resource name="editor_image_shadow">Тінь</resource>
 		<resource name="editor_storedtoclipboard">Зображення надіслано в буфер обміну.</resource>
 		<resource name="editor_thickness">Товщина лінії</resource>
 		<resource name="editor_title">Редактор зображень Greenshot</resource>
@@ -157,10 +163,13 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="expertsettings_thumbnailpreview">Показувати вікно ескізів у контекстному меню (для Vista та Windows 7)</resource>
 		<resource name="exported_to">Експортовано: {0}</resource>
 		<resource name="help_title">Довідка Greenshot</resource>
+		<resource name="hotkey_fullscreen">Захопити екран</resource>
+		<resource name="hotkey_ie">Захопити Internet Explorer</resource>
+		<resource name="hotkey_lastregion">Захоплення останньої області</resource>
+		<resource name="hotkey_region">Захоплення області</resource>
+		<resource name="hotkey_window">Захоплення вікна</resource>
 		<resource name="hotkeys">Гарячі клавіши</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Будь ласка, виберіть JPEG-якість зображення.</resource>
-		<resource name="qualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
-		<resource name="qualitydialog_title">Якість Greenshot</resource>
 		<resource name="OK">Гаразд</resource>
 		<resource name="print_error">Під час друку виникла помилка.</resource>
 		<resource name="printoptions_allowcenter">Центрувати на сторінці</resource>
@@ -172,9 +181,11 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="printoptions_printgrayscale">Примусовий друк у відтінках сірого</resource>
 		<resource name="printoptions_timestamp">Друкувати дату та час внизу сторінки</resource>
 		<resource name="printoptions_title">Параметри друку Greenshot</resource>
+		<resource name="qualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
+		<resource name="qualitydialog_title">Якість Greenshot</resource>
 		<resource name="quicksettings_destination_file">Безпосереднє збереження (з використанням наперед визначених параметрів)</resource>
-		<resource name="settings_alwaysshowqualitydialog">Вікно вибору якості при кожному збереженні зображення</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Показувати вікно параметрів друку при кожному роздрукуванні</resource>
+		<resource name="settings_alwaysshowqualitydialog">Вікно вибору якості при кожному збереженні зображення</resource>
 		<resource name="settings_applicationsettings">Параметри програми</resource>
 		<resource name="settings_autostartshortcut">Запускати Greenshot при запуску системи</resource>
 		<resource name="settings_capture">Захоплення</resource>
@@ -196,7 +207,6 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="settings_general">Загальні</resource>
 		<resource name="settings_iecapture">Захоплення Internet Explorer</resource>
 		<resource name="settings_jpegquality">Якість JPEG</resource>
-		<resource name="settings_qualitysettings">Параметри якості</resource>
 		<resource name="settings_language">Мова</resource>
 		<resource name="settings_message_filenamepattern">Наступні заповнювачі будуть автоматично замінені у визначеному шаблоні:
 ${YYYY} рік, 4 цифри
@@ -222,6 +232,7 @@ ${hostname} назва комп’ютера
 		<resource name="settings_primaryimageformat">Формат зображення</resource>
 		<resource name="settings_printer">Принтер</resource>
 		<resource name="settings_printoptions">Параметри друку</resource>
+		<resource name="settings_qualitysettings">Параметри якості</resource>
 		<resource name="settings_reducecolors">Зменшити максимальну кількість кольорів до 256</resource>
 		<resource name="settings_registerhotkeys">Зареєструвати гарячі клавіші</resource>
 		<resource name="settings_showflashlight">Показати спалах</resource>
@@ -244,7 +255,7 @@ ${hostname} назва комп’ютера
 		<resource name="warning">Попередження</resource>
 		<resource name="warning_hotkeys">Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
 
-All Greenshot features still work directly from the tray icon context menu without hotkeys.</resource>
+Всі функції Greenshot досі працюють безпосередньо з контекстного меню іконки у лотку без застосування гарячих клавіш.</resource>
 		<resource name="WindowCaptureMode.Aero">Використовувати користувацький колір</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Зберігати прозорість</resource>
 		<resource name="WindowCaptureMode.Auto">Автоматично</resource>
