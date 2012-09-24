@@ -99,7 +99,7 @@ namespace Greenshot.Interop {
 				} else {
 					//LOG.Warn("Error getting active object for " + progId, comE);
 				}
-			} catch (Exception e) {
+			} catch (Exception) {
 				//LOG.Warn("Error getting active object for " + progId, e);
 			}
 
@@ -157,14 +157,14 @@ namespace Greenshot.Interop {
 				} else {
 					//LOG.Warn("Error getting active object for " + progId, comE);
 				}
-			} catch (Exception e) {
+			} catch (Exception) {
 				//LOG.Warn("Error getting active object for " + progId, e);
 			}
 			// Did we get the current instance? If not, try to create a new
 			if (comObject == null) {
 				try {
 					comType = Type.GetTypeFromProgID(progId, true);
-				} catch (Exception ex) {
+				} catch (Exception) {
 					//LOG.Warn("Error type for " + progId, ex);
 				}
 				if (comType != null) {
@@ -173,7 +173,7 @@ namespace Greenshot.Interop {
 						if (comObject != null) {
 							//LOG.DebugFormat("Created new instance of {0} object.", progId);
 						}
-					} catch (Exception e) {
+					} catch (Exception) {
 						//LOG.Warn("Error creating object for " + progId, e);
 					}
 				}
@@ -254,7 +254,7 @@ namespace Greenshot.Interop {
 					try {
 						while (Marshal.ReleaseComObject(this._COMObject) > 0)
 							;
-					} catch (Exception ex) {
+					} catch (Exception) {
 						//LOG.WarnFormat("Problem releasing {0}", _COMType);
 						//LOG.Warn("Error: ", ex);
 					}
@@ -407,21 +407,21 @@ namespace Greenshot.Interop {
 				foreach (MemberInfo memberInfo in type.GetMembers()) {
 					//LOG.InfoFormat("Member: {0};", memberInfo.ToString());
 				}
-			} catch (Exception memberException) {
+			} catch (Exception) {
 				//LOG.Error(memberException);
 			}
 			try {
 				foreach (PropertyInfo propertyInfo in type.GetProperties()) {
 					//LOG.InfoFormat("Property: {0};", propertyInfo.ToString());
 				}
-			} catch (Exception propertyException) {
+			} catch (Exception) {
 				//LOG.Error(propertyException);
 			}
 			try {
 				foreach (FieldInfo fieldInfo in type.GetFields()) {
 					//LOG.InfoFormat("Field: {0};", fieldInfo.ToString());
 				}
-			} catch (Exception fieldException) {
+			} catch (Exception) {
 				//LOG.Error(fieldException);
 			}
 			//LOG.InfoFormat("Type information end.");

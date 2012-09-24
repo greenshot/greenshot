@@ -70,29 +70,50 @@ namespace ExternalCommand {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			OutputSettings outputSettings = new OutputSettings();
 
-			string fullPath = captureDetails.Filename;
-			if (fullPath == null) {
-				using (Image image = surface.GetImageForExport()) {
-					fullPath = host.SaveNamedTmpFile(image, captureDetails, outputSettings);
-				}
-			}
+			
 			if (presetCommand != null) {
-				Thread commandThread = new Thread (delegate() {
-					CallExternalCommand(presetCommand, fullPath);
-				});
-				commandThread.Name = "Running " + presetCommand;
-				commandThread.IsBackground = true;
-				commandThread.Start();
-				exportInformation.ExportMade = true;
+				if (!config.runInbackground.ContainsKey(presetCommand)) {
+					config.runInbackground.Add(presetCommand, true);
+				}
+				bool runInBackground = config.runInbackground[presetCommand];
+				string fullPath = captureDetails.Filename;
+				if (fullPath == null) {
+					using (Image image = surface.GetImageForExport()) {
+						fullPath = host.SaveNamedTmpFile(image, captureDetails, outputSettings);
+					}
+				}
+
+				string output = null;
+				if (runInBackground) {
+					Thread commandThread = new Thread(delegate() {
+						CallExternalCommand(presetCommand, fullPath, out output);
+					});
+					commandThread.Name = "Running " + presetCommand;
+					commandThread.IsBackground = true;
+					commandThread.Start();
+					exportInformation.ExportMade = true;
+				} else {
+					try {
+						if (CallExternalCommand(presetCommand, fullPath, out output) == 0) {
+							exportInformation.ExportMade = true;
+						} else {
+							exportInformation.ErrorMessage = output;
+						}
+					} catch (Exception ex) {
+						exportInformation.ErrorMessage = ex.Message;
+					}
+				}
+
 				//exportInformation.Uri = "file://" + fullPath;
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 		
-		private void CallExternalCommand(string commando, string fullPath) {
+		private int CallExternalCommand(string commando, string fullPath, out string output) {
 			string commandline = config.commandlines[commando];
 			string arguments = config.arguments[commando];
+			output = null;
 			if (commandline != null && commandline.Length > 0) {
 				Process p = new Process();
 				p.StartInfo.FileName = commandline;
@@ -101,12 +122,15 @@ namespace ExternalCommand {
 				p.StartInfo.RedirectStandardOutput = true;
 				LOG.Info("Starting : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
 				p.Start();
-				string output = p.StandardOutput.ReadToEnd();
+				p.WaitForExit();
+				output = p.StandardOutput.ReadToEnd();
 				if (output != null && output.Trim().Length > 0) {
 					LOG.Info("Output:\n" + output);
 				}
 				LOG.Info("Finished : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
-			}					
+				return p.ExitCode;
+			}
+			return -1;
 		}
 	}
 }

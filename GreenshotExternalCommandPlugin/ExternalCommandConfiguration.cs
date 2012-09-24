@@ -39,7 +39,10 @@ namespace ExternalCommand {
 
 		[IniProperty("Argument", Description="The arguments for the output command.")]
 		public Dictionary<string, string> arguments;
-		
+
+		[IniProperty("RunInbackground", Description = "Should the command be started in the background.")]
+		public Dictionary<string, bool> runInbackground;
+
 		private const string MSPAINT = "MS Paint";
 		private static string paintPath;
 		private static bool hasPaint = false;
@@ -84,11 +87,22 @@ namespace ExternalCommand {
 					return commandlineDefaults; 
 				case "Argument":
 					Dictionary<string, string> argumentDefaults = new Dictionary<string, string>();
-					argumentDefaults.Add(PAINTDOTNET, "\"{0}\"");
+					if (hasPaintDotNet) {
+						argumentDefaults.Add(PAINTDOTNET, "\"{0}\"");
+					}
 					if (hasPaint) {
 						argumentDefaults.Add(MSPAINT, "\"{0}\"");
 					}
-					return argumentDefaults; 
+					return argumentDefaults;
+				case "RunInBackground":
+					Dictionary<string, bool> runInBackground = new Dictionary<string, bool>();
+					if (hasPaintDotNet) {
+						runInBackground.Add(PAINTDOTNET, true);
+					}
+					if (hasPaint) {
+						runInBackground.Add(MSPAINT, true);
+					}
+					return runInBackground;
 			}
 			return null;
 		}

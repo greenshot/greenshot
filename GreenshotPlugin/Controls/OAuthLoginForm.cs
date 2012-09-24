@@ -58,9 +58,11 @@ namespace GreenshotPlugin.Controls {
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Text = browserTitle;
 			this.addressTextBox.Text = authorizationLink;
+
+			browser.ScriptErrorsSuppressed = true;
 			browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(browser_DocumentCompleted);
 			browser.Navigate(new Uri(authorizationLink));
-			
+
 			WindowDetails.ToForeground(this.Handle);
 		}
 

@@ -114,8 +114,18 @@ namespace GreenshotPlugin.Core {
 		/// <param name="key"></param>
 		/// <param name="value"></param>
 		public void Add(TK key, TV value) {
+			Add(key, value, null);
+		}
+
+		/// <summary>
+		/// Add a value to the cache
+		/// </summary>
+		/// <param name="key"></param>
+		/// <param name="value"></param>
+		/// <param name="secondsToExpire?">optional value for the seconds to expire</param>
+		public void Add(TK key, TV value, int? secondsToExpire) {
 			lock (lockObject) {
-				var cachedItem = new CachedItem(key, value, secondsToExpire);
+				var cachedItem = new CachedItem(key, value, secondsToExpire.HasValue ? secondsToExpire.Value : this.secondsToExpire);
 				cachedItem.Expired += delegate(TK cacheKey, TV cacheValue) {
 					if (internalCache.ContainsKey(cacheKey)) {
 						LOG.DebugFormat("Expiring object with Key: {0}", cacheKey);
