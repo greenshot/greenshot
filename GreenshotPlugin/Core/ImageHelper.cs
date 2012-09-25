@@ -428,7 +428,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			byte[] nullColor = new byte[] { 255, 255, 255, 255 };
-			if (sourceBitmap.PixelFormat == PixelFormat.Format32bppArgb) {
+			if (sourceBitmap.PixelFormat == PixelFormat.Format32bppArgb || sourceBitmap.PixelFormat == PixelFormat.Format32bppPArgb) {
 				nullColor = new byte[] { 0, 0, 0, 0 };
 			}
 			byte[] settingColor = new byte[4];
@@ -724,53 +724,51 @@ namespace GreenshotPlugin.Core {
 		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
 		/// <param name="offset">How many pixels is the original image moved?</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, Point offset, PixelFormat targetPixelformat) {
+		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, ref Point offset, PixelFormat targetPixelformat) {
 			// Create a new "clean" image
-			Bitmap newImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			Bitmap returnImage = null;
+			offset.X += shadowSize - 1;
+			offset.Y += shadowSize - 1;
+			using (Bitmap tmpImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution)) {
+				using (Graphics graphics = Graphics.FromImage(tmpImage)) {
+					// Make sure we draw with the best quality!
+					graphics.SmoothingMode = SmoothingMode.HighQuality;
+					graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+					graphics.CompositingQuality = CompositingQuality.HighQuality;
+					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-			using (Graphics graphics = Graphics.FromImage(newImage)) {
-				// Make sure we draw with the best quality!
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-				// Draw "shadow" offsetted
-				ImageAttributes ia = new ImageAttributes();
-				ColorMatrix cm = new ColorMatrix();
-				cm.Matrix00 = 0;
-				cm.Matrix11 = 0;
-				cm.Matrix22 = 0;
-				cm.Matrix33 = darkness;
-				ia.SetColorMatrix(cm);
-				Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
-				graphics.DrawImage(sourceBitmap, shadowRectangle, 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
-
-				
-				// Only do the blur on the edges
-				//Rectangle blurRectangle = new Rectangle(shadowSize + 30, shadowSize + 30, sourceBitmap.Width - 60, sourceBitmap.Height - 60);
-				//Rectangle applyRect = ImageHelper.CreateIntersectRectangle(newImage.Size, blurRectangle, true);
-				//LOG.DebugFormat("blurRect = {0} - applyRect = {1}", blurRectangle, applyRect);
-				//using (Bitmap blurImage = ImageHelper.CreateBlur(newImage, applyRect, true, shadowSize, 1d, true, blurRectangle)) {
-				//    if (blurImage != null) {
-				//        graphics.DrawImageUnscaled(blurImage, applyRect.Location);
-				//    }
-				//}
-				// blur "shadow", apply to whole new image
-				Rectangle newImageRectangle = new Rectangle(0, 0, newImage.Width, newImage.Height);
-				//using (Bitmap blurImage = FastBlur(newImage, shadowSize-1)) {
-				using (Bitmap blurImage = CreateBlur(newImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle)) {
-					graphics.DrawImageUnscaled(blurImage, newImageRectangle.Location);
+					// Draw "shadow" offsetted
+					ImageAttributes ia = new ImageAttributes();
+					ColorMatrix cm = new ColorMatrix();
+					cm.Matrix00 = 0;
+					cm.Matrix11 = 0;
+					cm.Matrix22 = 0;
+					cm.Matrix33 = darkness;
+					ia.SetColorMatrix(cm);
+					Rectangle shadowRectangle = new Rectangle(new Point(shadowSize - 1, shadowSize - 1), sourceBitmap.Size);
+					graphics.DrawImage(sourceBitmap, shadowRectangle, 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
 				}
-
-				// draw original with a TextureBrush so we have nice antialiasing!
-				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {
-					// We need to do a translate-tranform otherwise the image is wrapped
-					graphics.TranslateTransform(offset.X, offset.Y);
-					graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
+				// blur "shadow", apply to whole new image
+				Rectangle newImageRectangle = new Rectangle(0, 0, tmpImage.Width, tmpImage.Height);
+				//using (Bitmap blurImage = FastBlur(newImage, shadowSize-1)) {
+				returnImage = CreateBlur(tmpImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
+			}
+			if (returnImage != null) {
+				using (Graphics graphics = Graphics.FromImage(returnImage)) {
+					// Make sure we draw with the best quality!
+					graphics.SmoothingMode = SmoothingMode.HighQuality;
+					graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+					graphics.CompositingQuality = CompositingQuality.HighQuality;
+					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+					// draw original with a TextureBrush so we have nice antialiasing!
+					using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {
+						// We need to do a translate-tranform otherwise the image is wrapped
+						graphics.TranslateTransform(offset.X, offset.Y);
+						graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
+					}
 				}
 			}
-			return newImage;
+			return returnImage;
 		}
 
 		/// <summary>
@@ -883,6 +881,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>bool if we support it</returns>
 		public static bool SupportsPixelFormat(PixelFormat pixelformat) {
 			return (pixelformat.Equals(PixelFormat.Format32bppArgb) ||
+					pixelformat.Equals(PixelFormat.Format32bppPArgb) ||
 					pixelformat.Equals(PixelFormat.Format32bppRgb) ||
 					pixelformat.Equals(PixelFormat.Format24bppRgb));
 		}

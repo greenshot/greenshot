@@ -605,16 +605,14 @@ namespace Greenshot.Drawing {
 			try {
 				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
 				Bitmap newImage = null;
-				Point offset = Point.Empty;
+				Point offset = new Point(-1,-1);
 				switch (effect) {
 					case Effects.Shadow:
-						offset = new Point(6, 6);
-						newImage = ImageHelper.CreateShadow((Bitmap)Image, 1f, 7, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
+						newImage = ImageHelper.CreateShadow((Bitmap)Image, 1f, 9, ref offset, PixelFormat.Format32bppArgb); //Image.PixelFormat);
 						break;
 					case Effects.TornEdge:
-						offset = new Point(5, 5);
 						using (Bitmap tmpImage = ImageHelper.CreateTornEdge((Bitmap)Image)) {
-							newImage = ImageHelper.CreateShadow(tmpImage, 1f, 6, offset, PixelFormat.Format24bppRgb); //Image.PixelFormat);
+							newImage = ImageHelper.CreateShadow(tmpImage, 1f, 6, ref offset, PixelFormat.Format32bppArgb); //Image.PixelFormat);
 						}
 						break;
 					case Effects.Border:
@@ -971,7 +969,7 @@ namespace Greenshot.Drawing {
 		// Draw a checkboard when capturing with transparency
 		protected override void OnPaintBackground(PaintEventArgs e) {
 			// check if we need to draw the checkerboard
-			if (Image.PixelFormat == PixelFormat.Format32bppArgb && transparencyBackgroundBrush != null) {
+			if (Image.IsAlphaPixelFormat(Image.PixelFormat) && transparencyBackgroundBrush != null) {
 				Graphics targetGraphics = e.Graphics;
 				Rectangle clipRectangle = e.ClipRectangle;
 				targetGraphics.FillRectangle(transparencyBackgroundBrush, clipRectangle);

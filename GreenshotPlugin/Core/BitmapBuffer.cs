@@ -422,6 +422,7 @@ namespace GreenshotPlugin.Core {
 			// aIndex is only set if the pixel format supports "A".
 			aIndex = -1;
 			switch(bitmap.PixelFormat) {
+				case PixelFormat.Format32bppPArgb:
 				case PixelFormat.Format32bppArgb: 
 					bIndex = 0;
 					gIndex = 1;

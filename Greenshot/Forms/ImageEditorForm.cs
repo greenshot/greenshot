@@ -1109,8 +1109,8 @@ namespace Greenshot {
 					if (capture!= null && capture.Image != null) {
 						bool addShadow = false;
 						if (addShadow) {
-							Point offset = new Point(6, 6);
-							using (Bitmap shadowImage = ImageHelper.CreateShadow(capture.Image, 1f, 7, offset, PixelFormat.Format32bppArgb)) {
+							Point offset = new Point(-1,-1);
+							using (Bitmap shadowImage = ImageHelper.CreateShadow(capture.Image, 1f, 7, ref offset, PixelFormat.Format32bppArgb)) {
 								surface.AddBitmapContainer(shadowImage, 100, 100);
 							}
 						} else {
