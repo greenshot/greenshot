@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Import Project="..\CommonProject.properties" />
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\CommonProject.properties" />
   <PropertyGroup>
     <ProjectGuid>{47F23C86-604E-4CC3-8767-B3D4088F30BB}</ProjectGuid>
     <OutputType>Library</OutputType>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Import Project="..\CommonProject.properties" />
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\CommonProject.properties" />
   <PropertyGroup>
     <ProjectGuid>{C6988EE8-2FEE-4349-9F09-F9628A0D8965}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -14,6 +14,10 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <TargetFrameworkProfile />
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
@@ -27,7 +31,9 @@
   <ItemGroup>
     <Compile Include="OCRConfiguration.cs" />
     <Compile Include="OCRDestination.cs" />
-    <Compile Include="OCRForm.cs" />
+    <Compile Include="OCRForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="OCRPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingsForm.cs">
@@ -62,7 +68,6 @@
     <PostBuildEvent>mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)"
 copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
 copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\"
-copy "$(ProjectDir)bin\$(Configuration)\MODI*.dll" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\*"
 mkdir "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
 copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
