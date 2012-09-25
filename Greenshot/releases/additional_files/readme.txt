@@ -15,6 +15,7 @@ Bugs resolved:
 * Cleanup of files that were packed in the installer
 * Fixed a lot of small translation texts and some icons in menus
 * Fixed missing translations for the external command plugin
+* Fixed problems with generating transparency for shadow & torn edges.
 
 Features added:
 * The Imgur plugin now has login support, uncheck the "Annonymous" checkbox in the settings.
@@ -24,7 +25,6 @@ Known issues:
 * Greenshot general: I-Beam cursor isn't displayed correctly on the final result.
 * Greenshot general: Not all hotkeys can be changed in the editor. For example the pause or the Windows key need to be modified directly in the ini.
 * Greenshot editor: Rotate only rotates the bitmap, not the added elements or cursor
-* Greenshot editor: The shadow and torn edges effects don't create a transparent background yet.
 * Confluence Plug-in: the retrieving of the current page from firefox only works on the currently displayed Firefox tab. This is a problem since Firefox 13 and it is currently unknown if there is a fix.
 
 
