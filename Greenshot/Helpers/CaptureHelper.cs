@@ -301,7 +301,10 @@ namespace Greenshot.Helpers {
 					if (!string.IsNullOrEmpty(filename)) {
 						try {
 							if (filename.EndsWith(".gsf")) {
-								ISurface surface = ImageOutput.LoadGreenshotSurface(filename);
+
+								ISurface surface = new Surface();
+
+								surface = ImageOutput.LoadGreenshotSurface(filename, surface);
 								DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, capture.CaptureDetails);
 								break;
 							}

@@ -153,10 +153,10 @@ namespace GreenshotOCR {
 						graphics.Clear(Color.White);
 						graphics.DrawImage(capturedImage, Point.Empty);
 					}
-					filePath = host.SaveToTmpFile(tmpImage, outputSettings, null);
+					filePath = ImageOutput.SaveToTmpFile(tmpImage, outputSettings, null);
 				}
 			} else {
-				filePath = host.SaveToTmpFile(capturedImage, outputSettings, null);
+				filePath = ImageOutput.SaveToTmpFile(capturedImage, outputSettings, null);
 			}
 		
 			LOG.Debug("Saved tmp file to: " + filePath);

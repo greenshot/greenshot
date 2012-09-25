@@ -28,13 +28,12 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 
-namespace Greenshot.Helpers {
+namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Description of ClipboardHelper.
 	/// </summary>
@@ -141,9 +140,9 @@ EndSelection:<<<<<<<4
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
 							if (clipboardOwner != null) {
-								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
+								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
 							} else {
-								messageText = Language.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString("clipboard_error");
 							}
 							LOG.Error(messageText, ee);
 						} else {
@@ -172,9 +171,9 @@ EndSelection:<<<<<<<4
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
 							if (clipboardOwner != null) {
-								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
+								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
 							} else {
-								messageText = Language.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString("clipboard_error");
 							}
 							LOG.Error(messageText, ee);
 						} else {
@@ -204,9 +203,9 @@ EndSelection:<<<<<<<4
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
 							if (clipboardOwner != null) {
-								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
+								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
 							} else {
-								messageText = Language.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString("clipboard_error");
 							}
 							LOG.Error(messageText, ee);
 						} else {
@@ -247,9 +246,9 @@ EndSelection:<<<<<<<4
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
 							if (clipboardOwner != null) {
-								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
+								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
 							} else {
-								messageText = Language.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString("clipboard_error");
 							}
 							LOG.Error(messageText, ee);
 						} else {
@@ -279,9 +278,9 @@ EndSelection:<<<<<<<4
 							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
 							if (clipboardOwner != null) {
-								messageText = Language.GetFormattedString(LangKey.clipboard_inuse, clipboardOwner);
+								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
 							} else {
-								messageText = Language.GetString(LangKey.clipboard_error);
+								messageText = Language.GetString("clipboard_error");
 							}
 							LOG.Error(messageText, ee);
 						} else {

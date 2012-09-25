@@ -123,7 +123,7 @@ namespace GreenshotConfluencePlugin {
 
 			Page selectedPage = page;
 			bool openPage = (page == null) && config.OpenPageAfterUpload;
-			string filename = ConfluencePlugin.Host.GetFilename(config.UploadFormat, captureDetails);
+			string filename = FilenameHelper.GetFilename(config.UploadFormat, captureDetails);
 			if (selectedPage == null) {
 				ConfluenceUpload confluenceUpload = new ConfluenceUpload(filename);
 				Nullable<bool> dialogResult = confluenceUpload.ShowDialog();
@@ -160,7 +160,7 @@ namespace GreenshotConfluencePlugin {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			byte[] buffer;
 			using (MemoryStream stream = new MemoryStream()) {
-				ConfluencePlugin.Host.SaveToStream(image, stream, outputSettings);
+				ImageOutput.SaveToStream(image, stream, outputSettings);
 				// COPY buffer to array
 				buffer = stream.ToArray();
 			}

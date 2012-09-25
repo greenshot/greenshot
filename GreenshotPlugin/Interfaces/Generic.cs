@@ -24,6 +24,7 @@ using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 using Greenshot.Plugin.Drawing;
+using System.IO;
 
 namespace Greenshot.Plugin {
 	/// <summary>
@@ -111,6 +112,8 @@ namespace Greenshot.Plugin {
 		ICursorContainer AddCursorContainer(string filename, int x, int y);
 		IIconContainer AddIconContainer(string filename, int x, int y);
 		IMetafileContainer AddMetafileContainer(string filename, int x, int y);
+		long SaveElementsToStream(Stream stream);
+		void LoadElementsFromStream(Stream stream);
 
 		bool HasSelectedElements();
 		void RemoveSelectedElements();

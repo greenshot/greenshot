@@ -215,6 +215,13 @@
     <Compile Include="Controls\PleaseWaitForm.Designer.cs">
       <DependentUpon>PleaseWaitForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\QualityDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\QualityDialog.Designer.cs">
+      <DependentUpon>QualityDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SaveImageFileDialog.cs" />
     <Compile Include="Controls\ThumbnailForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -223,9 +230,12 @@
     <Compile Include="Core\AccessibleHelper.cs" />
     <Compile Include="Core\BitmapBuffer.cs" />
     <Compile Include="Core\Cache.cs" />
+    <Compile Include="Core\ClipboardHelper.cs" />
     <Compile Include="Core\CoreConfiguration.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
     <Compile Include="Core\EncryptionHelper.cs" />
+    <Compile Include="Core\FilenameHelper.cs" />
+    <Compile Include="Core\ImageOutput.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />
     <Compile Include="Core\DisplayKeyAttribute.cs" />
     <Compile Include="Core\EmailConfigHelper.cs" />
@@ -275,15 +285,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="IniFile" />
-    <Folder Include="Interfaces\Drawing" />
-    <Folder Include="Interfaces\Drawing\Filters" />
-    <Folder Include="Interfaces\Forms" />
-    <Folder Include="Interfaces" />
-    <Folder Include="Core" />
-    <Folder Include="Interfaces\Plugin" />
-    <Folder Include="Controls" />
-    <Folder Include="UnmanagedHelpers" />
+    <Folder Include="Interfaces\Drawing\Filters\" />
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>rmdir /S /Q "$(SolutionDir)bin\$(Configuration)\Plugins"

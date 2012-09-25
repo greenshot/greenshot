@@ -139,9 +139,9 @@ namespace GreenshotImgurPlugin {
 		public bool Upload(ICaptureDetails captureDetails, Image image, out string uploadURL) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			using (MemoryStream stream = new MemoryStream()) {
-				host.SaveToStream(image, stream, outputSettings);
+				ImageOutput.SaveToStream(image, stream, outputSettings);
 				try {
-					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, captureDetails));
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
 					ImgurInfo imgurInfo = null;
 			
 					// Run upload in the background

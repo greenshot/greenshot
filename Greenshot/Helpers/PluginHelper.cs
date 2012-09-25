@@ -94,26 +94,6 @@ namespace Greenshot.Helpers {
 
 		#region Implementation of IGreenshotPluginHost
 		private ContextMenuStrip mainMenu = null;
-
-		public void SaveToStream(Image img, Stream stream, OutputSettings outputSettings) {
-			ImageOutput.SaveToStream(img, stream, outputSettings);
-		}
-
-		public string SaveToTmpFile(Image img, OutputSettings outputSettings, string destinationPath) {
-			return ImageOutput.SaveToTmpFile(img, outputSettings, destinationPath);
-		}
-
-		public string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputSettings outputSettings) {
-			return ImageOutput.SaveNamedTmpFile(image, captureDetails, outputSettings);
-		}
-		
-		public string GetFilename(OutputFormat format, ICaptureDetails captureDetails) {
-			string pattern = conf.OutputFileFilenamePattern;
-			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
-				pattern = "greenshot ${capturetime}";
-			}
-			return FilenameHelper.GetFilenameFromPattern(pattern, format, captureDetails);
-		}
 		
 		/// <summary>
 		/// Create a Thumbnail

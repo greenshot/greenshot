@@ -42,7 +42,7 @@ namespace ExternalCommand {
 
 		public IEnumerable<IDestination> Destinations() {
 			foreach(string command in config.commands) {
-				yield return new ExternalCommandDestination(host, command);
+				yield return new ExternalCommandDestination(command);
 			}
 		}
 

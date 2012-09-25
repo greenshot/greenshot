@@ -162,7 +162,6 @@
     <Compile Include="Forms\PrintOptionsDialog.Designer.cs">
       <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\SaveImageFileDialog.cs" />
     <Compile Include="Forms\SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -187,7 +186,6 @@
     <None Include="App.config" />
     <None Include="Helpers\AviHelper.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
-    <Compile Include="Helpers\ClipboardHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
     <Compile Include="Helpers\CopyData.cs" />
     <Compile Include="Helpers\GeometryHelper.cs" />
@@ -216,7 +214,6 @@
     <Compile Include="Helpers\MailHelper.cs" />
     <Compile Include="Helpers\PluginHelper.cs" />
     <Compile Include="Helpers\PrintHelper.cs" />
-    <Compile Include="Helpers\ImageOutput.cs" />
     <Compile Include="Helpers\ScaleHelper.cs" />
     <Compile Include="Helpers\SoundHelper.cs" />
     <Compile Include="Helpers\StartupHelper.cs" />
@@ -370,13 +367,6 @@
     <None Include="log4net.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <Compile Include="Helpers\FilenameHelper.cs" />
-    <Compile Include="Forms\QualityDialog.Designer.cs">
-      <DependentUpon>QualityDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\QualityDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Forms\ColorDialog.Designer.cs">
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </Compile>

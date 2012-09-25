@@ -36,11 +36,9 @@ namespace ExternalCommand {
 	public class ExternalCommandDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
 		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		private IGreenshotHost host;
 		private string presetCommand;
 		
-		public ExternalCommandDestination(IGreenshotHost host, string commando) {
-			this.host = host;
+		public ExternalCommandDestination(string commando) {
 			this.presetCommand = commando;
 		}
 
@@ -79,7 +77,7 @@ namespace ExternalCommand {
 				string fullPath = captureDetails.Filename;
 				if (fullPath == null) {
 					using (Image image = surface.GetImageForExport()) {
-						fullPath = host.SaveNamedTmpFile(image, captureDetails, outputSettings);
+						fullPath = ImageOutput.SaveNamedTmpFile(image, captureDetails, outputSettings);
 					}
 				}
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -28,7 +28,7 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 
-namespace Greenshot.Helpers {
+namespace GreenshotPlugin.Core {
 	public static class FilenameHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FilenameHelper));
 		private static readonly Regex VAR_REGEXP = new Regex(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
@@ -58,7 +58,7 @@ namespace Greenshot.Helpers {
 			// Make the filename save!
 			if (filename != null) {
 				foreach (char disallowed in Path.GetInvalidFileNameChars()) {
-					filename = filename.Replace( disallowed.ToString(), UNSAFE_REPLACEMENT );
+					filename = filename.Replace(disallowed.ToString(), UNSAFE_REPLACEMENT);
 				}
 			}
 			return filename;
@@ -73,7 +73,7 @@ namespace Greenshot.Helpers {
 			// Make the path save!
 			if (path != null) {
 				foreach (char disallowed in Path.GetInvalidPathChars()) {
-					path = path.Replace( disallowed.ToString(), UNSAFE_REPLACEMENT );
+					path = path.Replace(disallowed.ToString(), UNSAFE_REPLACEMENT);
 				}
 			}
 			return path;
@@ -94,7 +94,22 @@ namespace Greenshot.Helpers {
 		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails) {
 			return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
 		}
+
+		/// <summary>
+		/// Return a filename for the current image format (png,jpg etc) with the default file pattern
+		/// that is specified in the configuration
+		/// </summary>
+		/// <param name="format">A string with the format</param>
+		/// <returns>The filename which should be used to save the image</returns>
+		public static string GetFilename(OutputFormat format, ICaptureDetails captureDetails) {
+			string pattern = conf.OutputFileFilenamePattern;
+			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
+				pattern = "greenshot ${capturetime}";
+			}
+			return FilenameHelper.GetFilenameFromPattern(pattern, format, captureDetails);
+		}
 		
+
 		/// <summary>
 		/// This method will be called by the regexp.replace as a MatchEvaluator delegate!
 		/// Will delegate this to the MatchVarEvaluatorInternal and catch any exceptions
@@ -132,14 +147,15 @@ namespace Greenshot.Helpers {
 			string parameters = match.Groups["parameters"].Value;
 
 			if (parameters != null && parameters.Length > 0) {
-				string []parms = SPLIT_REGEXP.Split(parameters);
-				foreach(string parameter in parms) {
-					switch (parameter.Substring(0,1)) {
+				string[] parms = SPLIT_REGEXP.Split(parameters);
+				foreach (string parameter in parms) {
+					switch (parameter.Substring(0, 1)) {
 						case "p":
-							string []padParams = parameter.Substring(1).Split(new char[] {','});
+							string[] padParams = parameter.Substring(1).Split(new char[] { ',' });
 							try {
 								padWidth = int.Parse(padParams[0]);
-							} catch {};
+							} catch {
+							};
 							if (padParams.Length > 1) {
 								padChar = padParams[1][0];
 							}
@@ -150,12 +166,12 @@ namespace Greenshot.Helpers {
 								dateFormat = dateFormat.Substring(1);
 							}
 							if (dateFormat.EndsWith("\"")) {
-								dateFormat = dateFormat.Substring(0, dateFormat.Length-1);
+								dateFormat = dateFormat.Substring(0, dateFormat.Length - 1);
 							}
 							break;
 						case "s":
-							string range=parameter.Substring(1);
-							string []rangelist = range.Split(new char[] {','});
+							string range = parameter.Substring(1);
+							string[] rangelist = range.Split(new char[] { ',' });
 							if (rangelist.Length > 0) {
 								try {
 									startIndex = int.Parse(rangelist[0]);
@@ -196,11 +212,11 @@ namespace Greenshot.Helpers {
 				}
 			} else {
 				// Handle other variables
-				// Default use "now" for the capture take�n
+				// Default use "now" for the capture take´n
 				DateTime capturetime = DateTime.Now;
 				// Use default application name for title
 				string title = Application.ProductName;
-	
+
 				// Check if we have capture details
 				if (captureDetails != null) {
 					capturetime = captureDetails.DateTime;
@@ -211,7 +227,7 @@ namespace Greenshot.Helpers {
 						}
 					}
 				}
-				switch(variable) {
+				switch (variable) {
 					case "domain":
 						replaceValue = Environment.UserDomainName;
 						break;
@@ -277,13 +293,13 @@ namespace Greenshot.Helpers {
 						break;
 					case "NUM":
 						conf.OutputFileIncrementingNumber++;
-					   	IniConfig.Save();
+						IniConfig.Save();
 						replaceValue = conf.OutputFileIncrementingNumber.ToString();
 						if (padWidth == 0) {
 							padWidth = -6;
 							padChar = '0';
 						}
-						
+
 						break;
 					case "title":
 						replaceValue = title;
@@ -294,7 +310,7 @@ namespace Greenshot.Helpers {
 				}
 			}
 			// do padding
-			if (padWidth >0) {
+			if (padWidth > 0) {
 				replaceValue = replaceValue.PadRight(padWidth, padChar);
 			} else if (padWidth < 0) {
 				replaceValue = replaceValue.PadLeft(-padWidth, padChar);
@@ -322,7 +338,7 @@ namespace Greenshot.Helpers {
 					}
 				}
 			}
-			
+
 			return replaceValue;
 		}
 
@@ -355,8 +371,10 @@ namespace Greenshot.Helpers {
 			}
 
 			return VAR_REGEXP.Replace(pattern,
-				new MatchEvaluator(delegate(Match m) { return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode); })
-      		);
+				new MatchEvaluator(delegate(Match m) {
+				return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode);
+			})
+			);
 		}
 
 		/// <summary>
@@ -390,8 +408,10 @@ namespace Greenshot.Helpers {
 
 			try {
 				return VAR_REGEXP.Replace(pattern,
-					new MatchEvaluator(delegate(Match m) { return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode); })
-	      		);
+					new MatchEvaluator(delegate(Match m) {
+					return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode);
+				})
+				);
 			} catch (Exception e) {
 				// adding additional data for bug tracking
 				e.Data.Add("title", captureDetails.Title);

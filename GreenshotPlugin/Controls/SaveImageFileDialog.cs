@@ -22,12 +22,11 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 
-namespace Greenshot.Forms {
+namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// Custom dialog for saving images, wraps SaveFileDialog.
 	/// For some reason SFD is sealed :(

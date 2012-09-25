@@ -130,38 +130,6 @@ namespace Greenshot.Plugin {
 		}
 		
 		/// <summary>
-		/// Saves the image to the supplied stream using the specified extension as the format
-		/// </summary>
-		/// <param name="image">The Image to save</param>
-		/// <param name="stream">The Stream to save to</param>
-		/// <param name="outputSettings">OutputSettings</param>
-		void SaveToStream(Image image, Stream stream, OutputSettings outputSettings);
-
-		/// <summary>
-		/// Saves the image to a temp file (random name) using the specified outputformat
-		/// </summary>
-		/// <param name="image">The Image to save</param>
-		/// <param name="outputSettings">OutputSettings</param>
-		/// <param name="destinationPath">destination path, can be empty</param>
-		string SaveToTmpFile(Image image, OutputSettings outputSettings, string destinationPath);
-
-		/// <summary>
-		/// Saves the image to a temp file, but the name is build with the capture details & pattern
-		/// </summary>
-		/// <param name="image">The Image to save</param>
-		/// <param name="captureDetails">captureDetails with the information to build the filename</param>
-		/// <param name="outputSettings">OutputSettings</param>
-		string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputSettings outputSettings);
-
-		/// <summary>
-		/// Return a filename for the current image format (png,jpg etc) with the default file pattern
-		/// that is specified in the configuration
-		/// </summary>
-		/// <param name="format">A string with the format</param>
-		/// <returns>The filename which should be used to save the image</returns>
-		string GetFilename(OutputFormat format, ICaptureDetails captureDetails);
-		
-		/// <summary>
 		/// Create a Thumbnail
 		/// </summary>
 		/// <param name="image">Image of which we need a Thumbnail</param>

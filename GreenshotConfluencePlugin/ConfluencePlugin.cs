@@ -74,12 +74,6 @@ namespace GreenshotConfluencePlugin {
 				return confluenceConnector;
 			}
 		}
-		
-		public static IGreenshotHost Host {
-			get {
-				return host;
-			}
-		}
 
 		public ConfluencePlugin() {
 		}

@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace Greenshot {
-	partial class QualityDialog : System.Windows.Forms.Form {
+namespace GreenshotPlugin.Controls {
+	partial class QualityDialog {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
@@ -46,11 +46,11 @@ namespace Greenshot {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.label_choosejpegquality = new System.Windows.Forms.Label();
+			this.label_choosejpegquality = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
-			this.checkbox_dontaskagain = new System.Windows.Forms.CheckBox();
-			this.button_ok = new System.Windows.Forms.Button();
+			this.checkbox_dontaskagain = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.button_ok = new GreenshotPlugin.Controls.GreenshotButton();
 			this.checkBox_reduceColors = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).BeginInit();
 			this.SuspendLayout();
@@ -61,7 +61,7 @@ namespace Greenshot {
 			this.label_choosejpegquality.Name = "label_choosejpegquality";
             this.label_choosejpegquality.Size = new System.Drawing.Size(268, 19);
 			this.label_choosejpegquality.TabIndex = 15;
-			this.label_choosejpegquality.Text = "Choose JPEG Quality";
+			this.label_choosejpegquality.LanguageKey = "jpegqualitydialog_choosejpegquality";
 			// 
 			// textBoxJpegQuality
 			// 
@@ -89,9 +89,9 @@ namespace Greenshot {
 			this.checkbox_dontaskagain.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 106);
 			this.checkbox_dontaskagain.Name = "checkbox_dontaskagain";
+			this.checkbox_dontaskagain.LanguageKey = "qualitydialog_dontaskagain";
 			this.checkbox_dontaskagain.Size = new System.Drawing.Size(268, 37);
 			this.checkbox_dontaskagain.TabIndex = 17;
-			this.checkbox_dontaskagain.Text = "Save as default quality and do not ask again.";
 			this.checkbox_dontaskagain.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.UseVisualStyleBackColor = true;
 			// 
@@ -102,7 +102,7 @@ namespace Greenshot {
 			this.button_ok.Name = "button_ok";
 			this.button_ok.Size = new System.Drawing.Size(75, 23);
 			this.button_ok.TabIndex = 18;
-			this.button_ok.Text = "OK";
+			this.button_ok.LanguageKey = "OK";
 			this.button_ok.UseVisualStyleBackColor = true;
 			this.button_ok.Click += new System.EventHandler(this.Button_okClick);
 			// 
@@ -113,7 +113,7 @@ namespace Greenshot {
 			this.checkBox_reduceColors.Name = "checkBox_reduceColors";
 			this.checkBox_reduceColors.Size = new System.Drawing.Size(95, 17);
 			this.checkBox_reduceColors.TabIndex = 19;
-			this.checkBox_reduceColors.Text = "Reduce colors";
+			this.checkBox_reduceColors.Text = "settings_reducecolors";
 			this.checkBox_reduceColors.UseVisualStyleBackColor = true;
 			// 
             // QualityDialog
@@ -132,17 +132,17 @@ namespace Greenshot {
 			this.MinimizeBox = false;
 			this.Name = "QualityDialog";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.Text = "QualityDialog";
+			this.LanguageKey = "qualitydialog_title";
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
 		}
-		private System.Windows.Forms.Button button_ok;
-		private System.Windows.Forms.CheckBox checkbox_dontaskagain;
+		private GreenshotPlugin.Controls.GreenshotButton button_ok;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_dontaskagain;
 		private System.Windows.Forms.TrackBar trackBarJpegQuality;
 		private System.Windows.Forms.TextBox textBoxJpegQuality;
-		private System.Windows.Forms.Label label_choosejpegquality;
+		private GreenshotPlugin.Controls.GreenshotLabel label_choosejpegquality;
 		private System.Windows.Forms.CheckBox checkBox_reduceColors;
 	}
 }

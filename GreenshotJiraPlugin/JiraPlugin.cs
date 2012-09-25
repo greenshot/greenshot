@@ -59,12 +59,6 @@ namespace GreenshotJiraPlugin {
 				return jiraPluginAttributes;
 			}
 		}
-		
-		public IGreenshotHost Host {
-			get {
-				return host;
-			}
-		}
 
 		public IEnumerable<IDestination> Destinations() {
 			yield return new JiraDestination(this);

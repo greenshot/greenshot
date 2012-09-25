@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -26,14 +26,12 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
-using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
-using Greenshot.Drawing;
+using GreenshotPlugin.Controls;
 
-namespace Greenshot.Helpers {
+namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Description of ImageOutput.
 	/// </summary>
@@ -41,8 +39,8 @@ namespace Greenshot.Helpers {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageOutput));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
-		private static Cache<string, string> tmpFileCache = new Cache<string, string>(10*60*60, new Cache<string, string>.CacheObjectExpired(RemoveExpiredTmpFile));
-		
+		private static Cache<string, string> tmpFileCache = new Cache<string, string>(10 * 60 * 60, new Cache<string, string>.CacheObjectExpired(RemoveExpiredTmpFile));
+
 		/// <summary>
 		/// Creates a PropertyItem (Metadata) to store with the image.
 		/// For the possible ID's see: http://msdn.microsoft.com/de-de/library/system.drawing.imaging.propertyitem.id(v=vs.80).aspx
@@ -54,16 +52,16 @@ namespace Greenshot.Helpers {
 		private static PropertyItem CreatePropertyItem(int id, string text) {
 			PropertyItem propertyItem = null;
 			try {
-				ConstructorInfo ci = typeof(PropertyItem).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public , null, new Type[] { }, null);
+				ConstructorInfo ci = typeof(PropertyItem).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, new Type[] { }, null);
 				propertyItem = (PropertyItem)ci.Invoke(null);
 				// Make sure it's of type string
-				propertyItem.Type =2;
+				propertyItem.Type = 2;
 				// Set the ID
 				propertyItem.Id = id;
 				// Set the text
-				byte [] byteString = System.Text.ASCIIEncoding.ASCII.GetBytes(text + " ");
+				byte[] byteString = System.Text.ASCIIEncoding.ASCII.GetBytes(text + " ");
 				// Set Zero byte for String end.
-				byteString[byteString.Length-1] = 0;
+				byteString[byteString.Length - 1] = 0;
 				propertyItem.Value = byteString;
 				propertyItem.Len = text.Length + 1;
 			} catch (Exception e) {
@@ -161,13 +159,13 @@ namespace Greenshot.Helpers {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Save a Greenshot surface
 		/// </summary>
 		/// <param name="surface">Surface to save</param>
 		/// <param name="fullPath">Path to file</param>
-		public static void SaveGreenshotSurface(Surface surface, string fullPath) {
+		public static void SaveGreenshotSurface(ISurface surface, string fullPath) {
 			fullPath = FilenameHelper.MakeFQFilenameSafe(fullPath);
 			string path = Path.GetDirectoryName(fullPath);
 			// Get output settings from the configuration
@@ -186,14 +184,13 @@ namespace Greenshot.Helpers {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Load a Greenshot surface
 		/// </summary>
 		/// <param name="fullPath"></param>
 		/// <returns></returns>
-		public static Surface LoadGreenshotSurface(string fullPath) {
-			Surface returnSurface = null;
+		public static ISurface LoadGreenshotSurface(string fullPath, ISurface returnSurface) {
 			if (string.IsNullOrEmpty(fullPath)) {
 				return null;
 			}
@@ -203,19 +200,18 @@ namespace Greenshot.Helpers {
 			using (Stream imageFileStream = File.OpenRead(fullPath)) {
 				// And fixed problem that the bitmap stream is disposed... by Cloning the image
 				// This also ensures the bitmap is correctly created
-				
+
 				// We create a copy of the bitmap, so everything else can be disposed
 				imageFileStream.Position = 0;
 				using (Image tmpImage = Image.FromStream(imageFileStream, true, true)) {
 					LOG.DebugFormat("Loaded {0} with Size {1}x{2} and PixelFormat {3}", fullPath, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 					fileBitmap = ImageHelper.Clone(tmpImage);
 				}
-				returnSurface = new Surface(fileBitmap);
 				imageFileStream.Seek(-8, SeekOrigin.End);
 				long bytesWritten = 0;
 				using (BinaryReader reader = new BinaryReader(imageFileStream)) {
 					bytesWritten = reader.ReadInt64();
-					imageFileStream.Seek(-(bytesWritten+8), SeekOrigin.End);
+					imageFileStream.Seek(-(bytesWritten + 8), SeekOrigin.End);
 					returnSurface.LoadElementsFromStream(imageFileStream);
 				}
 			}
@@ -224,7 +220,7 @@ namespace Greenshot.Helpers {
 			}
 			return returnSurface;
 		}
-		
+
 		/// <summary>
 		/// Saves image to specific path with specified quality
 		/// </summary>
@@ -246,7 +242,7 @@ namespace Greenshot.Helpers {
 				if (extension != null) {
 					format = (OutputFormat)Enum.Parse(typeof(OutputFormat), extension.ToLower());
 				}
-			} catch(ArgumentException ae) {
+			} catch (ArgumentException ae) {
 				LOG.Warn("Couldn't parse extension: " + extension, ae);
 			}
 			if (!allowOverwrite && File.Exists(fullPath)) {
@@ -291,7 +287,7 @@ namespace Greenshot.Helpers {
 			Save(img, fullPath, allowOverwrite, outputSettings, conf.OutputFileCopyPathToClipboard);
 		}
 		#endregion
-		
+
 		#region save-as
 		public static string SaveWithDialog(Image image) {
 			return SaveWithDialog(image, null);
@@ -309,8 +305,8 @@ namespace Greenshot.Helpers {
 					returnValue = fileNameWithExtension;
 					conf.OutputFileAsFullpath = fileNameWithExtension;
 					IniConfig.Save();
-				} catch(System.Runtime.InteropServices.ExternalException) {
-					MessageBox.Show(Language.GetFormattedString(LangKey.error_nowriteaccess,saveImageFileDialog.FileName).Replace(@"\\",@"\"), Language.GetString(LangKey.error));
+				} catch (System.Runtime.InteropServices.ExternalException) {
+					MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
 				}
 			}
 			return returnValue;
@@ -327,10 +323,10 @@ namespace Greenshot.Helpers {
 			filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
 			// Remove multiple "_"
 			filename = Regex.Replace(filename, @"_+", "_");
-			string tmpFile = Path.Combine(Path.GetTempPath(),filename);
+			string tmpFile = Path.Combine(Path.GetTempPath(), filename);
 
 			LOG.Debug("Creating TMP File: " + tmpFile);
-			
+
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
 			try {
@@ -344,8 +340,8 @@ namespace Greenshot.Helpers {
 			}
 			return tmpFile;
 		}
-		
-				/// <summary>
+
+		/// <summary>
 		/// Helper method to create a temp image file
 		/// </summary>
 		/// <param name="image"></param>
@@ -359,7 +355,7 @@ namespace Greenshot.Helpers {
 			}
 			string tmpPath = Path.Combine(destinationPath, tmpFile);
 			LOG.Debug("Creating TMP File : " + tmpPath);
-			
+
 			try {
 				ImageOutput.Save(image, tmpPath, true, outputSettings, false);
 				tmpFileCache.Add(tmpPath, tmpPath);
@@ -373,7 +369,7 @@ namespace Greenshot.Helpers {
 		/// Cleanup all created tmpfiles
 		/// </summary>	
 		public static void RemoveTmpFiles() {
-			foreach(string tmpFile in tmpFileCache.Elements) {
+			foreach (string tmpFile in tmpFileCache.Elements) {
 				if (File.Exists(tmpFile)) {
 					LOG.DebugFormat("Removing old temp file {0}", tmpFile);
 					File.Delete(tmpFile);
@@ -381,7 +377,7 @@ namespace Greenshot.Helpers {
 				tmpFileCache.Remove(tmpFile);
 			}
 		}
-		
+
 		/// <summary>
 		/// Cleanup handler for expired tempfiles
 		/// </summary>

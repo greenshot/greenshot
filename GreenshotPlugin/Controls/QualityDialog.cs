@@ -20,21 +20,21 @@
  */
 using System;
 using System.Windows.Forms;
-using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 
-namespace Greenshot {
+namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// Description of JpegQualityDialog.
 	/// </summary>
-	public partial class QualityDialog : Form {
+	public partial class QualityDialog : GreenshotForm {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public OutputSettings Settings {
 			get;
 			set;
 		}
+
 		public QualityDialog(OutputSettings outputSettings) {
 			Settings = outputSettings;
 			//
@@ -48,7 +48,6 @@ namespace Greenshot {
 			this.trackBarJpegQuality.Value = Settings.JPGQuality;
 			this.textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
 			this.textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
-			UpdateUI();
 			WindowDetails.ToForeground(Handle);
 		}
 		
@@ -61,13 +60,6 @@ namespace Greenshot {
 				conf.OutputFileReduceColors = Settings.ReduceColors;
 				IniConfig.Save();
 			}
-		}
-		
-		void UpdateUI() {
-			this.Text = Language.GetString(LangKey.qualitydialog_title);
-			this.label_choosejpegquality.Text = Language.GetString(LangKey.jpegqualitydialog_choosejpegquality);
-			this.checkbox_dontaskagain.Text = Language.GetString(LangKey.qualitydialog_dontaskagain);
-			this.checkBox_reduceColors.Text = Language.GetString(LangKey.settings_reducecolors);
 		}
 		
 		void TrackBarJpegQualityScroll(object sender, System.EventArgs e) {
