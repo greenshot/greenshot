@@ -50,35 +50,188 @@ namespace Greenshot.Drawing {
 	public class Surface : PictureBox, ISurface {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Surface));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		public event SurfaceElementEventHandler MovingElementChanged;
-		public event SurfaceDrawingModeEventHandler DrawingModeChanged;
-		public event SurfaceSizeChangeEventHandler SurfaceSizeChanged;
-		public event SurfaceMessageEventHandler SurfaceMessage;
+
+		/// <summary>
+		/// Event handlers (do not serialize!)
+		/// </summary>
+		[NonSerialized]
+		private SurfaceElementEventHandler movingElementChanged;
+		public event SurfaceElementEventHandler MovingElementChanged {
+			add {
+				movingElementChanged += value;
+			}
+			remove {
+				movingElementChanged -= value;
+			}
+		}
+		[NonSerialized]
+		private SurfaceDrawingModeEventHandler drawingModeChanged;
+		public event SurfaceDrawingModeEventHandler DrawingModeChanged {
+			add {
+				drawingModeChanged += value;
+			}
+			remove {
+				drawingModeChanged -= value;
+			}
+		}
+		[NonSerialized]
+		private SurfaceSizeChangeEventHandler surfaceSizeChanged;
+		public event SurfaceSizeChangeEventHandler SurfaceSizeChanged {
+			add {
+				surfaceSizeChanged += value;
+			}
+			remove {
+				surfaceSizeChanged -= value;
+			}
+		}
+		[NonSerialized]
+		private SurfaceMessageEventHandler surfaceMessage;
+		public event SurfaceMessageEventHandler SurfaceMessage {
+			add {
+				surfaceMessage += value;
+			}
+			remove {
+				surfaceMessage -= value;
+			}
+		}
+
+		/// <summary>
+		/// inUndoRedo makes sure we don't undo/redo while in a undo/redo action
+		/// </summary>
+		[NonSerialized]
 		private bool inUndoRedo = false;
+
+		/// <summary>
+		/// Make only one surfacemove cycle undoable, see SurfaceMouseMove
+		/// </summary>
+		[NonSerialized]
 		private bool isSurfaceMoveMadeUndoable = false;
+
+		/// <summary>
+		/// Undo/Redo stacks, should not be serialized as the file would be way to big
+		/// </summary>
+		[NonSerialized]
 		private Stack<IMemento> undoStack = new Stack<IMemento>();
+		[NonSerialized]
 		private Stack<IMemento> redoStack = new Stack<IMemento>();
+
+		/// <summary>
+		/// Last save location, do not serialize!
+		/// </summary>
+		[NonSerialized]
 		private string lastSaveFullPath = null;
 
-		public FieldAggregator FieldAggregator = new FieldAggregator();
-		
-		private ICaptureDetails captureDetails = null;
-		
-		private Bitmap buffer = null;
+		/// <summary>
+		/// current drawing mode, do not serialize!
+		/// </summary>
+		[NonSerialized]
+		private DrawingModes drawingMode = DrawingModes.None;
 
-		Point mouseStart = Point.Empty;
+		/// <summary>
+		/// the keyslocked flag helps with focus issues
+		/// </summary>
+		[NonSerialized]
+		private bool keysLocked = false;
+
+		/// <summary>
+		/// Location of the mouse-down (it "starts" here), do not serialize
+		/// </summary>
+		[NonSerialized]
+		private Point mouseStart = Point.Empty;
+
+		/// <summary>
+		/// are we in a mouse down, do not serialize
+		/// </summary>
+		[NonSerialized]
 		private bool mouseDown = false;
+
+		/// <summary>
+		/// are we dragging, do not serialize
+		/// </summary>
+		[NonSerialized]
 		private bool draggingInProgress = false;
+
+		/// <summary>
+		/// The selected element for the mouse down, do not serialize
+		/// </summary>
+		[NonSerialized]
 		private DrawableContainer mouseDownElement = null;
 
-		private DrawableContainerList elements = new DrawableContainerList();
-		
+		/// <summary>
+		/// all selected elements, do not serialize
+		/// </summary>
+		[NonSerialized]
 		private DrawableContainerList selectedElements = new DrawableContainerList();
+
+		/// <summary>
+		/// the element we are drawing with, do not serialize
+		/// </summary>
+		[NonSerialized]
 		private DrawableContainer drawingElement = null;
+
+		/// <summary>
+		/// the element we want to draw with (not yet drawn), do not serialize
+		/// </summary>
+		[NonSerialized]
 		private DrawableContainer undrawnElement = null;
+
+		/// <summary>
+		/// the cropcontainer, when cropping this is set, do not serialize
+		/// </summary>
+		[NonSerialized]
 		private DrawableContainer cropContainer = null;
-		private IDrawableContainer cursorContainer = null;
+
+		/// <summary>
+		/// the brush which is used for transparent backgrounds, set by the editor, do not serialize
+		/// </summary>
+		[NonSerialized]
 		private TextureBrush transparencyBackgroundBrush;
+
+		/// <summary>
+		/// The buffer is only for drawing on it, saving a lot of "create new bitmap" commands
+		/// Should not be serialized, as it's generated.
+		/// The actual bitmap is in the paintbox...
+		/// TODO: Check if this buffer is still needed!
+		/// </summary>
+		[NonSerialized]
+		private Bitmap buffer = null;
+
+		/// <summary>
+		/// all elements on the surface, needed with serialization
+		/// </summary>
+		private DrawableContainerList elements = new DrawableContainerList();
+
+		/// <summary>
+		/// all elements on the surface, needed with serialization
+		/// </summary>
+		private FieldAggregator fieldAggregator = new FieldAggregator();
+
+		/// <summary>
+		/// the cursor container, needed with serialization as we need a direct acces to it.
+		/// </summary>
+		private IDrawableContainer cursorContainer = null;
+
+		/// <summary>
+		/// the capture details, needed with serialization
+		/// </summary>
+		private ICaptureDetails captureDetails = null;
+
+		/// <summary>
+		/// the modified flag specifies if the surface has had modifications after the last export.
+		/// Initial state is modified, as "it's not saved"
+		/// After serialization this should actually be "false" (the surface came from a stream)
+		/// For now we just serialize it...
+		/// </summary>
+		private bool modified = true;
+
+		public FieldAggregator FieldAggregator {
+			get {
+				return fieldAggregator;
+			}
+			set {
+				fieldAggregator = value;
+			}
+		}
 
 		public IDrawableContainer CursorContainer {
 			get {
@@ -106,9 +259,15 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public bool KeysLocked = false;
-		
-		private bool modified = true;	// Initial state is modified, as it's not saved
+		public bool KeysLocked {
+			get {
+				return keysLocked;
+			}
+			set {
+				keysLocked = value;
+			}
+		}
+
 		public bool Modified {
 			get {
 				return modified;
@@ -117,13 +276,14 @@ namespace Greenshot.Drawing {
 				modified = value;
 			}
 		}
-		
-		private DrawingModes drawingMode = DrawingModes.None;
+
 		public DrawingModes DrawingMode {
 			get {return drawingMode;}
 			set {
 				drawingMode = value;
-				DrawingModeChanged.Invoke(this, drawingMode);
+				if (drawingModeChanged != null) {
+					drawingModeChanged.Invoke(this, drawingMode);
+				}
 				DeselectAllElements();
 				CreateUndrawnElement();
 			}
@@ -571,7 +731,9 @@ namespace Greenshot.Drawing {
 			MakeUndoable(new SurfaceBackgroundChangeMemento(this, new Point(left, top)), false);
 			SetImage(newImage, false);
 			Invalidate();
-			SurfaceSizeChanged(this);
+			if (surfaceSizeChanged != null) {
+				surfaceSizeChanged(this);
+			}
 		}
 		
 		/// <summary>
@@ -591,7 +753,9 @@ namespace Greenshot.Drawing {
 			MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
 			SetImage(newImage, false);
 			Invalidate();
-			SurfaceSizeChanged(this);
+			if (surfaceSizeChanged != null) {
+				surfaceSizeChanged(this);
+			}
 		}
 
 		/// <summary>
@@ -660,8 +824,8 @@ namespace Greenshot.Drawing {
 					MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
 					SetImage(newImage, false);
 					Invalidate();
-					if (SurfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
-						SurfaceSizeChanged(this);
+					if (surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
+						surfaceSizeChanged(this);
 					}
 				}
 			} finally {
@@ -695,12 +859,12 @@ namespace Greenshot.Drawing {
 		/// <param name="messageType">Type of message</param>
 		/// <param name="message">Message itself</param>
 		public void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message) {
-			if (SurfaceMessage != null) {
+			if (surfaceMessage != null) {
 				SurfaceMessageEventArgs eventArgs = new SurfaceMessageEventArgs();
 				eventArgs.Message = message;
 				eventArgs.MessageType = messageType;
 				eventArgs.Surface = this;
-				SurfaceMessage(source, eventArgs);
+				surfaceMessage(source, eventArgs);
 			}
 		}
 
@@ -721,8 +885,8 @@ namespace Greenshot.Drawing {
 
 				SetImage(tmpImage, false);
 				elements.MoveBy(offset.X, offset.Y);
-				if (SurfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size))) {
-					SurfaceSizeChanged(this);
+				if (surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size))) {
+					surfaceSizeChanged(this);
 				}
 				Invalidate();
 				return true;
@@ -733,8 +897,8 @@ namespace Greenshot.Drawing {
 		public void UndoBackgroundChange(Image previous, Point offset) {
 			SetImage(previous, false);
 			elements.MoveBy(offset.X, offset.Y);
-			if (SurfaceSizeChanged != null) {
-				SurfaceSizeChanged(this);
+			if (surfaceSizeChanged != null) {
+				surfaceSizeChanged(this);
 			}
 			Invalidate();
 		}
@@ -944,8 +1108,8 @@ namespace Greenshot.Drawing {
 					}
 				}
 				if (buffer == null) {
+					buffer = ImageHelper.CreateEmpty(Image.Width, Image.Height, Image.PixelFormat, Color.Empty, Image.HorizontalResolution, Image.VerticalResolution);
 					LOG.DebugFormat("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
-					buffer = new Bitmap(Image.Width, Image.Height, Image.PixelFormat);
 				}
 				// Elements might need the bitmap, so we copy the part we need
 				using (Graphics graphics = Graphics.FromImage(buffer)) {
@@ -1045,7 +1209,9 @@ namespace Greenshot.Drawing {
 					RemoveElement(element, true);
 				}
 				selectedElements.Clear();
-				MovingElementChanged(this, selectedElements);
+				if (movingElementChanged != null) {
+					movingElementChanged(this, selectedElements);
+				}
 			}
 		}
 		
@@ -1135,8 +1301,8 @@ namespace Greenshot.Drawing {
 			element.Selected = false;
 			selectedElements.Remove(element);
 			FieldAggregator.UnbindElement(element);
-			if (MovingElementChanged != null) {
-				MovingElementChanged(this, selectedElements);
+			if (movingElementChanged != null) {
+				movingElementChanged(this, selectedElements);
 			}
 		}
 
@@ -1150,8 +1316,8 @@ namespace Greenshot.Drawing {
 					selectedElements.Remove(element);
 					FieldAggregator.UnbindElement(element);
 				}
-				if (MovingElementChanged != null) {
-					MovingElementChanged(this, selectedElements);
+				if (movingElementChanged != null) {
+					movingElementChanged(this, selectedElements);
 				}
 			}
 		}
@@ -1163,8 +1329,8 @@ namespace Greenshot.Drawing {
 				element.ShowGrippers();
 				element.Selected = true;
 				FieldAggregator.BindElement(element);
-				if (MovingElementChanged != null) {
-					MovingElementChanged(this, selectedElements);
+				if (movingElementChanged != null) {
+					movingElementChanged(this, selectedElements);
 				}
 				element.Invalidate();
 			}
