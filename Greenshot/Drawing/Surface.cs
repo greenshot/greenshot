@@ -47,7 +47,7 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// Description of Surface.
 	/// </summary>
-	public class Surface : PictureBox, ISurface {
+	public class Surface : Control, ISurface {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Surface));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
@@ -188,7 +188,8 @@ namespace Greenshot.Drawing {
 		private TextureBrush transparencyBackgroundBrush;
 
 		/// <summary>
-		/// The buffer is only for drawing on it, saving a lot of "create new bitmap" commands
+		/// The buffer is only for drawing on it when using filters (to supply access)
+		/// This saves a lot of "create new bitmap" commands
 		/// Should not be serialized, as it's generated.
 		/// The actual bitmap is in the paintbox...
 		/// TODO: Check if this buffer is still needed!
@@ -223,6 +224,20 @@ namespace Greenshot.Drawing {
 		/// For now we just serialize it...
 		/// </summary>
 		private bool modified = true;
+
+		/// <summary>
+		/// The image is the actual captured image, needed with serialization
+		/// </summary>
+		private Image image = null;
+
+		public Image Image {
+			get {
+				return image;
+			}
+			set {
+				image = value;
+			}
+		}
 
 		public FieldAggregator FieldAggregator {
 			get {
@@ -310,7 +325,6 @@ namespace Greenshot.Drawing {
 		
 		public Surface() : base(){
 			LOG.Debug("Creating a surface!");
-			this.SizeMode = PictureBoxSizeMode.AutoSize;
 			this.MouseDown += new MouseEventHandler(SurfaceMouseDown);
 			this.MouseUp += new MouseEventHandler(SurfaceMouseUp);
 			this.MouseMove += new MouseEventHandler(SurfaceMouseMove);
@@ -319,10 +333,14 @@ namespace Greenshot.Drawing {
 			this.AllowDrop = true;
 			this.DragDrop += new DragEventHandler(OnDragDrop);
 			this.DragEnter += new DragEventHandler(OnDragEnter);
-			
 			// bind selected & elements to this, otherwise they can't inform of modifications
-			selectedElements.Parent = this;
-			elements.Parent = this;
+			this.selectedElements.Parent = this;
+			this.elements.Parent = this;
+			// Make sure we are visible
+			this.Visible = true;
+			// Enable double buffering
+			this.DoubleBuffered = true;
+			this.SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.ContainerControl | ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
 		}
 		
 		/// <summary>
@@ -330,20 +348,22 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="image">The new image</param>
 		/// <param name="dispose">true if the old image needs to be disposed, when using undo this should not be true!!</param>
-		private void SetImage(Image image, bool dispose) {
+		private void SetImage(Image newImage, bool dispose) {
 			// Dispose
-			if (Image != null && dispose) {
-				Image.Dispose();
+			if (image != null && dispose) {
+				image.Dispose();
 			}
 
 			// Set new values
-			Image = image;
+			Image = newImage;
+			Size = newImage.Size;
+
 			modified = true;
 		}
 
-		public Surface(Image image) : this() {
-			LOG.Debug("Got image with dimensions " + image.Width + "," + image.Height + " bpp: " + image.PixelFormat);
-			SetImage(image, true);
+		public Surface(Image newImage) : this() {
+			LOG.Debug("Got image with dimensions " + newImage.Width + "," + newImage.Height + " bpp: " + newImage.PixelFormat);
+			SetImage(newImage, true);
 		}
 		
 		public Surface(ICapture capture) : this(capture.Image) {
@@ -651,8 +671,7 @@ namespace Greenshot.Drawing {
 				e.Effect=DragDropEffects.None;
 			} else {
 				List<string> filenames = GetFilenames(e);
-				//|| e.Data.GetDataPresent(DataFormats.EnhancedMetafile, true)
-				if ( (filenames != null && filenames.Count > 0) || e.Data.GetDataPresent(DataFormats.Bitmap, true) || e.Data.GetDataPresent(DataFormats.EnhancedMetafile, true)) {
+				if ((filenames != null && filenames.Count > 0) || e.Data.GetDataPresent(DataFormats.Bitmap, true) || e.Data.GetDataPresent(DataFormats.EnhancedMetafile, true)) {
 					e.Effect=DragDropEffects.Copy;
 				} else {
 					e.Effect=DragDropEffects.None;
@@ -664,7 +683,7 @@ namespace Greenshot.Drawing {
 			List<string> filenames = GetFilenames(e);
 			Point mouse = this.PointToClient(new Point(e.X, e.Y));
 			if ((filenames != null && filenames.Count > 0)) {
-				foreach(string filename in filenames) {
+				foreach (string filename in filenames) {
 					if (filename != null && filename.Trim().Length > 0) {
 						LOG.Debug("Drop - filename: " + filename);
 						if (filename.ToLower().EndsWith("wmf")) {
@@ -1031,12 +1050,12 @@ namespace Greenshot.Drawing {
 				Cursor = Cursors.Default;
 			}
 
-			if(mouseDown) {
-				if(mouseDownElement != null) { // an element is currently dragged
+			if (mouseDown) {
+				if (mouseDownElement != null) { // an element is currently dragged
 					mouseDownElement.Invalidate();
 					selectedElements.HideGrippers();
 					// Move the element
-					if(mouseDownElement.Selected) {
+					if (mouseDownElement.Selected) {
 						if (!isSurfaceMoveMadeUndoable) {
 							// Only allow one undoable per mouse-down/move/up "cycle"
 							isSurfaceMoveMadeUndoable = true;
@@ -1070,7 +1089,7 @@ namespace Greenshot.Drawing {
 
 		private Image GetImage(RenderMode renderMode) {
 			// Generate a copy of the original image with a dpi equal to the default...
-			Bitmap clone = ImageHelper.Clone(Image);
+			Bitmap clone = ImageHelper.Clone(image);
 			// otherwise we would have a problem drawing the image to the surface... :(
 			using (Graphics graphics = Graphics.FromImage(clone)) {
 				// Do not set the following, the containers need to decide themselves
@@ -1124,8 +1143,7 @@ namespace Greenshot.Drawing {
 				}
 				targetGraphics.DrawImage(buffer, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 			} else {
-				// Only "simple" elements need to be redrawn, as the image is already drawn before getting the event we don't need the next line:
-				// targetGraphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
+				targetGraphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 				elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
 			}
 		}
@@ -1267,10 +1285,10 @@ namespace Greenshot.Drawing {
 					SelectElements(dcs);
 				}
 			} else if (ClipboardHelper.ContainsImage()) {
-				using (Image image = ClipboardHelper.GetImage()) {
-					if (image != null) {
+				using (Image clipboardImage = ClipboardHelper.GetImage()) {
+					if (clipboardImage != null) {
 						DeselectAllElements();
-						IBitmapContainer bitmapContainer = AddBitmapContainer(image as Bitmap, 0, 0);
+						IBitmapContainer bitmapContainer = AddBitmapContainer(clipboardImage as Bitmap, 0, 0);
 						SelectElement(bitmapContainer);
 					}
 				}

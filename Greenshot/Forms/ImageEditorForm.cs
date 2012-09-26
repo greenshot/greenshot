@@ -94,8 +94,8 @@ namespace Greenshot {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
-            this.ManualLanguageApply = true;
-            InitializeComponent();
+			this.ManualLanguageApply = true;
+			InitializeComponent();
 			updateUI();
 			
 			this.Load += delegate {
@@ -162,11 +162,11 @@ namespace Greenshot {
 
 			ApplyLanguage();
 
-            // Fix title
-            if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
-                this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
-            }
-        }
+			// Fix title
+			if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
+				this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+			}
+		}
 		
 		/// <summary>
 		/// Get all the destinations and display them in the file menu and the buttons
