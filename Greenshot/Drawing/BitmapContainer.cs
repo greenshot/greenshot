@@ -38,26 +38,78 @@ namespace Greenshot.Drawing {
 	public class BitmapContainer : DrawableContainer, IBitmapContainer {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapContainer));
 
-		protected Bitmap bitmap;
+		private Bitmap bitmap;
+
+		/// <summary>
+		/// This is the shadow version of the bitmap, rendered once to save performance
+		/// Do not serialize, as the shadow is recreated from the original bitmap if it's not available
+		/// </summary>
+		[NonSerialized]
+		private Bitmap shadowBitmap = null;
+
+		/// <summary>
+		/// This is the offset for the shadow version of the bitmap
+		/// Do not serialize, as the offset is recreated
+		/// </summary>
+		[NonSerialized]
+		private Point shadowOffset = new Point(-1, -1);
 
 		public BitmapContainer(Surface parent, string filename) : this(parent) {
-			AddField(GetType(), FieldType.SHADOW, false);
 			Load(filename);
 		}
 
 		public BitmapContainer(Surface parent) : base(parent) {
 			AddField(GetType(), FieldType.SHADOW, false);
+			FieldChanged += BitmapContainer_OnFieldChanged;
 		}
 
+		protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
+			if (sender.Equals(this)) {
+				if (e.Field.FieldType == FieldType.SHADOW) {
+					ChangeShadowField();
+				}
+			}
+		}
+
+		public void ChangeShadowField() {
+			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			if (shadow) {
+				CheckShadow(shadow);
+				this.Width = shadowBitmap.Width;
+				this.Height = shadowBitmap.Height;
+				this.Left = this.Left - this.shadowOffset.X;
+				this.Top = this.Top - this.shadowOffset.Y;
+			} else {
+				this.Width = bitmap.Width;
+				this.Height = bitmap.Height;
+				if (shadowBitmap != null) {
+					this.Left = this.Left + this.shadowOffset.X;
+					this.Top = this.Top + this.shadowOffset.Y;
+				}
+			}
+		}
 
 		public Bitmap Bitmap {
 			set {
 				if (bitmap != null) {
 					bitmap.Dispose();
 				}
+				if (shadowBitmap != null) {
+					shadowBitmap.Dispose();
+					shadowBitmap = null;
+				}
 				bitmap = ImageHelper.Clone(value);
-				Width = value.Width;
-				Height = value.Height;
+				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+				CheckShadow(shadow);
+				if (!shadow) {
+					Width = bitmap.Width;
+					Height = bitmap.Height;
+				} else {
+					Width = shadowBitmap.Width;
+					Height = shadowBitmap.Height;
+					this.Left = this.Left - this.shadowOffset.X;
+					this.Top = this.Top - this.shadowOffset.Y;
+				}
 			}
 			get { return bitmap; }
 		}
@@ -90,13 +142,21 @@ namespace Greenshot.Drawing {
 				if (bitmap != null) {
 					bitmap.Dispose();
 				}
+				if (shadowBitmap != null) {
+					shadowBitmap.Dispose();
+				}
 			}
 			bitmap = null;
+			shadowBitmap = null;
 		}
 
 		public void Load(string filename) {
 			if (File.Exists(filename)) {
-				Bitmap = ImageHelper.LoadBitmap(filename);
+				// Always make sure ImageHelper.LoadBitmap results are disposed some time,
+				// as we close the bitmap internally, we need to do it afterwards
+				using (Bitmap tmpImage = ImageHelper.LoadBitmap(filename)) {
+					Bitmap = tmpImage;
+				}
 				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 			}
 		}
@@ -110,6 +170,12 @@ namespace Greenshot.Drawing {
 			base.Rotate(rotateFlipType);
 		}
 
+		private void CheckShadow(bool shadow) {
+			if (shadow && shadowBitmap == null) {
+				shadowBitmap = ImageHelper.CreateShadow(bitmap, 1f, 6, ref shadowOffset, PixelFormat.Format32bppArgb);
+			}
+		}
+
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			if (bitmap != null) {
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
@@ -119,16 +185,11 @@ namespace Greenshot.Drawing {
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
 				if (shadow) {
-					ImageAttributes ia = new ImageAttributes();
-					ColorMatrix cm = new ColorMatrix();
-					cm.Matrix00 = 0;
-					cm.Matrix11 = 0;
-					cm.Matrix22 = 0;
-					cm.Matrix33 = 0.25f;
-					ia.SetColorMatrix(cm);
-					graphics.DrawImage(bitmap, new Rectangle(Bounds.Left + 2, Bounds.Top + 2, Bounds.Width, Bounds.Height), 0, 0, bitmap.Width, bitmap.Height, GraphicsUnit.Pixel, ia); 
+					CheckShadow(shadow);
+					graphics.DrawImage(shadowBitmap, Bounds);
+				} else {
+					graphics.DrawImage(bitmap, Bounds);
 				}
-				graphics.DrawImage(bitmap, Bounds); 
 			}
 		}
 
