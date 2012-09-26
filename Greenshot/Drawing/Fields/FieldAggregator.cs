@@ -24,6 +24,7 @@ using System.ComponentModel;
 
 using Greenshot.Configuration;
 using Greenshot.IniFile;
+using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>
@@ -39,7 +40,7 @@ namespace Greenshot.Drawing.Fields {
 	/// </summary>
 	public class FieldAggregator : AbstractFieldHolder {
 		
-		private List<DrawableContainer> boundContainers;
+		private List<IDrawableContainer> boundContainers;
 		private bool internalUpdateRunning = false;
 		
 		enum Status {IDLE, BINDING, UPDATING};
@@ -52,7 +53,7 @@ namespace Greenshot.Drawing.Fields {
 				Field field = new Field(fieldType, GetType());
 				AddField(field);
 			}
-			boundContainers = new List<DrawableContainer>();
+			boundContainers = new List<IDrawableContainer>();
 		}
 		
 		public override void AddField(Field field) {
@@ -66,31 +67,38 @@ namespace Greenshot.Drawing.Fields {
 			}
 		}
 
-		public void BindElement(DrawableContainer dc) {
-			if (!boundContainers.Contains(dc)) {
-				boundContainers.Add(dc);
-				dc.ChildrenChanged += delegate { UpdateFromBoundElements(); };
+		public void BindElement(IDrawableContainer dc) {
+			DrawableContainer container = dc as DrawableContainer;
+			if (container != null && !boundContainers.Contains(container)) {
+				boundContainers.Add(container);
+				container.ChildrenChanged += delegate {
+					UpdateFromBoundElements();
+				};
 				UpdateFromBoundElements();
 			}
 		}
 		
-		public void BindAndUpdateElement(DrawableContainer dc) {
+		public void BindAndUpdateElement(IDrawableContainer dc) {
 			UpdateElement(dc);
 			BindElement(dc);
 		}
 		
-		public void UpdateElement(DrawableContainer dc) {
+		public void UpdateElement(IDrawableContainer dc) {
+			DrawableContainer container = dc as DrawableContainer;
+			if (container == null) {
+				return;
+			}
 			internalUpdateRunning = true;
 			foreach(Field field in GetFields()) {
-				if (dc.HasField(field.FieldType) && field.HasValue) {
+				if (container.HasField(field.FieldType) && field.HasValue) {
 					//if(LOG.IsDebugEnabled) LOG.Debug("   "+field+ ": "+field.Value);
-					dc.SetFieldValue(field.FieldType, field.Value);
+					container.SetFieldValue(field.FieldType, field.Value);
 				}
 			}
 			internalUpdateRunning = false;
 		}
 				
-		public void UnbindElement(DrawableContainer dc) {
+		public void UnbindElement(IDrawableContainer dc) {
 			if (boundContainers.Contains(dc)) {
 				boundContainers.Remove(dc);
 				UpdateFromBoundElements();
@@ -129,28 +137,33 @@ namespace Greenshot.Drawing.Fields {
 		}
 		
 		private List<Field> FindCommonFields() {
-			List<Field> ret = null;
+			List<Field> returnFields = null;
 			if (boundContainers.Count > 0) {
 				// take all fields from the least selected container...
-				ret = boundContainers[boundContainers.Count-1].GetFields();
-				for(int i=0;i<boundContainers.Count-1; i++) {
-					DrawableContainer dc = boundContainers[i];
-					List<Field> fieldsToRemove = new List<Field>();
-					foreach(Field f in ret) {
-						// ... throw out those that do not apply to one of the other containers
-						if (!dc.HasField(f.FieldType)) {
-							fieldsToRemove.Add(f);
+				DrawableContainer leastSelectedContainer = boundContainers[boundContainers.Count - 1] as DrawableContainer;
+				if (leastSelectedContainer != null) {
+					returnFields = leastSelectedContainer.GetFields();
+					for (int i = 0; i < boundContainers.Count - 1; i++) {
+						DrawableContainer dc = boundContainers[i] as DrawableContainer;
+						if (dc != null) {
+							List<Field> fieldsToRemove = new List<Field>();
+							foreach (Field f in returnFields) {
+								// ... throw out those that do not apply to one of the other containers
+								if (!dc.HasField(f.FieldType)) {
+									fieldsToRemove.Add(f);
+								}
+							}
+							foreach (Field f in fieldsToRemove) {
+								returnFields.Remove(f);
+							}
 						}
-					}
-					foreach(Field f in fieldsToRemove) {
-						ret.Remove(f);
 					}
 				}
 			}
-			if (ret == null) {
-				ret = new List<Field>();
+			if (returnFields == null) {
+				returnFields = new List<Field>();
 			}
-			return ret;
+			return returnFields;
 		}
 		
 		public void OwnPropertyChanged(object sender, PropertyChangedEventArgs ea) {

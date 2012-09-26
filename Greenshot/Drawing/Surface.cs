@@ -39,10 +39,6 @@ using System.Drawing.Drawing2D;
 using GreenshotPlugin.Controls;
 
 namespace Greenshot.Drawing {
-	public delegate void SurfaceElementEventHandler(object source, DrawableContainerList element);
-	public delegate void SurfaceDrawingModeEventHandler(object source, DrawingModes drawingMode);
-	
-	public enum DrawingModes { None, Rect, Ellipse, Text, Line, Arrow, Crop, Highlight, Obfuscate, Bitmap, Path }
 
 	/// <summary>
 	/// Description of Surface.
@@ -155,7 +151,7 @@ namespace Greenshot.Drawing {
 		/// The selected element for the mouse down, do not serialize
 		/// </summary>
 		[NonSerialized]
-		private DrawableContainer mouseDownElement = null;
+		private IDrawableContainer mouseDownElement = null;
 
 		/// <summary>
 		/// all selected elements, do not serialize
@@ -167,19 +163,19 @@ namespace Greenshot.Drawing {
 		/// the element we are drawing with, do not serialize
 		/// </summary>
 		[NonSerialized]
-		private DrawableContainer drawingElement = null;
+		private IDrawableContainer drawingElement = null;
 
 		/// <summary>
 		/// the element we want to draw with (not yet drawn), do not serialize
 		/// </summary>
 		[NonSerialized]
-		private DrawableContainer undrawnElement = null;
+		private IDrawableContainer undrawnElement = null;
 
 		/// <summary>
 		/// the cropcontainer, when cropping this is set, do not serialize
 		/// </summary>
 		[NonSerialized]
-		private DrawableContainer cropContainer = null;
+		private IDrawableContainer cropContainer = null;
 
 		/// <summary>
 		/// the brush which is used for transparent backgrounds, set by the editor, do not serialize
@@ -319,8 +315,12 @@ namespace Greenshot.Drawing {
 		}
 
 		public ICaptureDetails CaptureDetails {
-			get {return captureDetails;}
-			set {captureDetails = value;}
+			get {
+				return captureDetails;
+			}
+			set {
+				captureDetails = value;
+			}
 		}
 		
 		public Surface() : base(){
@@ -338,6 +338,7 @@ namespace Greenshot.Drawing {
 			this.elements.Parent = this;
 			// Make sure we are visible
 			this.Visible = true;
+			this.TabStop = false;
 			// Enable double buffering
 			this.DoubleBuffered = true;
 			this.SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.ContainerControl | ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
@@ -447,6 +448,7 @@ namespace Greenshot.Drawing {
 				}
 			}
 		}
+
 		public LangKey RedoActionKey {
 			get {
 				if (CanRedo) {
@@ -932,7 +934,7 @@ namespace Greenshot.Drawing {
 					selectedList = selectedElements;
 				} else {
 					// Single element
-					DrawableContainer rightClickedContainer = elements.ClickableElementAt(mouseStart.X, mouseStart.Y);
+					IDrawableContainer rightClickedContainer = elements.ClickableElementAt(mouseStart.X, mouseStart.Y);
 					if (rightClickedContainer != null) {
 						selectedList = new DrawableContainerList();
 						selectedList.Add(rightClickedContainer);
@@ -996,7 +998,7 @@ namespace Greenshot.Drawing {
 			mouseDownElement = null;
 			if (DrawingMode == DrawingModes.None) {
 				// check whether an existing element was clicked
-				DrawableContainer element = elements.ClickableElementAt(currentMouse.X, currentMouse.Y);
+				IDrawableContainer element = elements.ClickableElementAt(currentMouse.X, currentMouse.Y);
 				bool shiftModifier = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
 				if (element != null) {
 					element.Invalidate();
@@ -1166,7 +1168,7 @@ namespace Greenshot.Drawing {
 		/// Wrapper for makeUndoable flag which was introduced later, will call AddElement with makeundoable set to true
 		/// </summary>
 		/// <param name="element">the new element</param>
-		public void AddElement(DrawableContainer element) {
+		public void AddElement(IDrawableContainer element) {
 			AddElement(element, true);
 		}
 
@@ -1175,11 +1177,14 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="element">the new element</param>
 		/// <param name="makeUndoable">true if the adding should be undoable</param>
-		public void AddElement(DrawableContainer element, bool makeUndoable) {
+		public void AddElement(IDrawableContainer element, bool makeUndoable) {
 			elements.Add(element);
-			element.FieldChanged += element_FieldChanged;
+			DrawableContainer container = element as DrawableContainer;
+			if (container != null) {
+				container.FieldChanged += element_FieldChanged;
+			}
 			element.PropertyChanged += ElementPropertyChanged;
-			if(element.Status == EditStatus.UNDRAWN) {
+			if (element.Status == EditStatus.UNDRAWN) {
 				element.Status = EditStatus.IDLE;
 			}
 			element.Invalidate();
@@ -1190,21 +1195,23 @@ namespace Greenshot.Drawing {
 		}
 
 		public void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable) {
+			DeselectElement(elementToRemove);
+			elements.Remove(elementToRemove);
 			DrawableContainer element = elementToRemove as DrawableContainer;
-			DeselectElement(element);
-			elements.Remove(element);
-			element.FieldChanged -= element_FieldChanged;
-			element.PropertyChanged -= ElementPropertyChanged;
+			if (element != null) {
+				element.FieldChanged -= element_FieldChanged;
+			}
+			elementToRemove.PropertyChanged -= ElementPropertyChanged;
 			// Do not dispose, the memento should!! element.Dispose();
-			element.Invalidate();
+			elementToRemove.Invalidate();
 			if (makeUndoable) {
-				MakeUndoable(new DeleteElementMemento(this, element), false);
+				MakeUndoable(new DeleteElementMemento(this, elementToRemove), false);
 			}
 			modified = true;
 		}
 		
 		public void AddElements(DrawableContainerList elementsToAdd) {
-			foreach(DrawableContainer element in elementsToAdd) {
+			foreach(IDrawableContainer element in elementsToAdd) {
 				AddElement(element, true);
 			}
 		}
@@ -1248,8 +1255,8 @@ namespace Greenshot.Drawing {
 		
 		public void ConfirmSelectedConfirmableElements(bool confirm){
 			// create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
-			List<DrawableContainer> selectedDCs = new List<DrawableContainer>(selectedElements);
-			foreach(DrawableContainer dc in selectedDCs){
+			List<IDrawableContainer> selectedDCs = new List<IDrawableContainer>(selectedElements);
+			foreach(IDrawableContainer dc in selectedDCs){
 				if(dc.Equals(cropContainer)){
 					DrawingMode = DrawingModes.None;
 					// No undo memento for the cropcontainer itself, only for the effect
@@ -1314,11 +1321,10 @@ namespace Greenshot.Drawing {
 		}
 		
 		public void DeselectElement(IDrawableContainer container) {
-			DrawableContainer element = container as DrawableContainer;
-			element.HideGrippers();
-			element.Selected = false;
-			selectedElements.Remove(element);
-			FieldAggregator.UnbindElement(element);
+			container.HideGrippers();
+			container.Selected = false;
+			selectedElements.Remove(container);
+			FieldAggregator.UnbindElement(container);
 			if (movingElementChanged != null) {
 				movingElementChanged(this, selectedElements);
 			}
@@ -1327,7 +1333,7 @@ namespace Greenshot.Drawing {
 		public void DeselectAllElements() {
 			if (HasSelectedElements()) {
 				while(selectedElements.Count > 0) {
-					DrawableContainer element = selectedElements[0];
+					IDrawableContainer element = selectedElements[0];
 					element.Invalidate();
 					element.HideGrippers();
 					element.Selected = false;
@@ -1341,16 +1347,15 @@ namespace Greenshot.Drawing {
 		}
 		
 		public void SelectElement(IDrawableContainer container) {
-			DrawableContainer element = container as DrawableContainer;
-			if(!selectedElements.Contains(element)) {
-				selectedElements.Add(element);
-				element.ShowGrippers();
-				element.Selected = true;
-				FieldAggregator.BindElement(element);
+			if (!selectedElements.Contains(container)) {
+				selectedElements.Add(container);
+				container.ShowGrippers();
+				container.Selected = true;
+				FieldAggregator.BindElement(container);
 				if (movingElementChanged != null) {
 					movingElementChanged(this, selectedElements);
 				}
-				element.Invalidate();
+				container.Invalidate();
 			}
 		}
 		

@@ -745,7 +745,7 @@ namespace GreenshotPlugin.Core {
 					cm.Matrix22 = 0;
 					cm.Matrix33 = darkness;
 					ia.SetColorMatrix(cm);
-					Rectangle shadowRectangle = new Rectangle(new Point(shadowSize - 1, shadowSize - 1), sourceBitmap.Size);
+					Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
 					graphics.DrawImage(sourceBitmap, shadowRectangle, 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
 				}
 				// blur "shadow", apply to whole new image

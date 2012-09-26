@@ -25,6 +25,7 @@ using System.Windows.Forms;
 
 using Greenshot.Plugin.Drawing;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Greenshot.Plugin {
 	/// <summary>
@@ -58,13 +59,18 @@ namespace Greenshot.Plugin {
 	
 	public delegate void SurfaceSizeChangeEventHandler(object source);
 	public delegate void SurfaceMessageEventHandler(object source, SurfaceMessageEventArgs eventArgs);
+	public delegate void SurfaceElementEventHandler(object source, IList<IDrawableContainer> element);
+	public delegate void SurfaceDrawingModeEventHandler(object source, DrawingModes drawingMode);
+	public enum DrawingModes { None, Rect, Ellipse, Text, Line, Arrow, Crop, Highlight, Obfuscate, Bitmap, Path }
 
 	/// <summary>
 	/// The interface to the Surface object, so Plugins can use it.
 	/// </summary>
 	public interface ISurface : IDisposable {
 		event SurfaceSizeChangeEventHandler SurfaceSizeChanged;
-		event SurfaceMessageEventHandler SurfaceMessage;		
+		event SurfaceMessageEventHandler SurfaceMessage;
+		event SurfaceDrawingModeEventHandler DrawingModeChanged;
+		event SurfaceElementEventHandler MovingElementChanged;
 
 		/// <summary>
 		/// Get/Set the image to the Surface

@@ -35,8 +35,8 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// Dispatches most of a DrawableContainer's public properties and methods to a list of DrawableContainers.
 	/// </summary>
-	[Serializable()] 
-	public class DrawableContainerList : List<DrawableContainer> {
+	[Serializable()]
+	public class DrawableContainerList : List<IDrawableContainer> {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static System.ComponentModel.ComponentResourceManager editorFormResources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
 
@@ -48,7 +48,9 @@ namespace Greenshot.Drawing {
 				return this[Count-1].Status; 
 			}
 			set {
-				foreach(DrawableContainer dc in this) dc.Status = value; 
+				foreach (DrawableContainer dc in this) {
+					dc.Status = value;
+				}
 			}
 		}
 		
@@ -178,9 +180,9 @@ namespace Greenshot.Drawing {
 		/// <param name="x">x coordinate to be checked</param>
 		/// <param name="y">y coordinate to be checked</param>
 		/// <returns>the topmost element from the list being clickable at the given location, null if there is no clickable element</returns>
-		public DrawableContainer ClickableElementAt(int x, int y) {
-			for(int i=Count-1; i>=0; i--) {
-				if(this[i].ClickableAt(x,y)) {
+		public IDrawableContainer ClickableElementAt(int x, int y) {
+			for (int i=Count-1; i>=0; i--) {
+				if (this[i].ClickableAt(x,y)) {
 					return this[i];
 				}
 			}
@@ -280,7 +282,7 @@ namespace Greenshot.Drawing {
 		/// <param name="elements">list of elements to pull up</param>
 		public void PullElementsUp(DrawableContainerList elements) {
 			for(int i=this.Count-1; i>=0; i--) {
-				DrawableContainer dc = this[i];
+				IDrawableContainer dc = this[i];
 				if (elements.Contains(dc)) {
 					if (Count > (i+1) && !elements.Contains(this[i+1])) {
 						SwapElements(i,i+1);
@@ -294,9 +296,9 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="elements">of elements to pull to top</param>
 		public void PullElementsToTop(DrawableContainerList elements) {
-			DrawableContainer[] dcs = this.ToArray();
+			IDrawableContainer[] dcs = this.ToArray();
 			for(int i=0; i<dcs.Length; i++) {
-				DrawableContainer dc = dcs[i];
+				IDrawableContainer dc = dcs[i];
 				if (elements.Contains(dc)) {
 					this.Remove(dc);
 					this.Add(dc);
@@ -329,7 +331,7 @@ namespace Greenshot.Drawing {
 		/// <param name="elements">list of elements to push down</param>
 		public void PushElementsDown(DrawableContainerList elements) {
 			for(int i=0; i<Count; i++) {
-				DrawableContainer dc = this[i];
+				IDrawableContainer dc = this[i];
 				if(elements.Contains(dc)) {
 					if((i>0) && !elements.Contains(this[i-1])) {
 						SwapElements(i,i-1);
@@ -343,9 +345,9 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="elements">of elements to push to bottom</param>
 		public void PushElementsToBottom(DrawableContainerList elements) {
-			DrawableContainer[] dcs = this.ToArray();
+			IDrawableContainer[] dcs = this.ToArray();
 			for(int i=dcs.Length-1; i>=0; i--) {
-				DrawableContainer dc = dcs[i];
+				IDrawableContainer dc = dcs[i];
 				if(elements.Contains(dc)) {
 					this.Remove(dc);
 					this.Insert(0, dc);
@@ -362,7 +364,7 @@ namespace Greenshot.Drawing {
 		/// <param name="index2">index of the 2nd element</param>
 		private void SwapElements(int index1, int index2) {
 			if(index1 >= 0 && index1 < Count && index2 >= 0 && index2 < Count && index1 != index2) {
-				DrawableContainer dc = this[index1];
+				IDrawableContainer dc = this[index1];
 				this[index1] = this[index2];
 				this[index2] = dc;
 				Parent.Modified = true;

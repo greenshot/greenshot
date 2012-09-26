@@ -40,6 +40,7 @@ using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using System.Threading;
 using System.Drawing.Imaging;
+using Greenshot.Plugin.Drawing;
 
 namespace Greenshot {
 	/// <summary>
@@ -71,12 +72,6 @@ namespace Greenshot {
 			get { return this; }
 		}
 
-		public Surface EditorSurface {
-			get {
-				return surface;
-			}
-		}
-		
 		public static List<IImageEditor> Editors {
 			get {
 				return editorList;
@@ -84,19 +79,13 @@ namespace Greenshot {
 		}
 
 		public ImageEditorForm(ISurface iSurface, bool outputMade) {
-			// init surface
-			this.surface = iSurface as Surface;
 			editorList.Add(this);
-			
-			// Intial "saved" flag for asking if the image needs to be save
-			surface.Modified = !outputMade;
-			
+
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			this.ManualLanguageApply = true;
 			InitializeComponent();
-			updateUI();
 			
 			this.Load += delegate {
 				new Thread(delegate() {AddDestinations();}).Start();
@@ -104,18 +93,58 @@ namespace Greenshot {
 			
 			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
 
+
+			// init surface
+			Surface = iSurface;
+			// Intial "saved" flag for asking if the image needs to be save
+			surface.Modified = !outputMade;
+			updateUI();
+
 			// Make sure the editor is placed on the same location as the last editor was on close
 			WindowDetails thisForm = new WindowDetails(this.Handle);
 			thisForm.SetWindowPlacement(editorConfiguration.GetEditorPlacement());
 
-			SurfaceSizeChanged(this.Surface);
-						
-			bindFieldControls();
-			refreshEditorControls();
 			// Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
 			hideToolstripItems();
 		}
-		
+
+		private void RemoveSurface() {
+			if (surface != null) {
+				panel1.Controls.Remove(surface as Control);
+				this.surface.Dispose();
+				this.surface = null;
+			}
+		}
+
+		private void SetSurface(ISurface newSurface) {
+			if (this.Surface != null && this.Surface.Modified) {
+				throw new ApplicationException("Surface modified");
+			}
+
+			RemoveSurface();
+
+			this.surface = newSurface as Surface;
+			panel1.Controls.Add(surface as Surface);
+			Image backgroundForTransparency = GreenshotPlugin.Core.GreenshotResources.getImage("Checkerboard.Image");
+			this.surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
+
+			surface.MovingElementChanged += delegate {
+				refreshEditorControls();
+			};
+			surface.DrawingModeChanged += new SurfaceDrawingModeEventHandler(surface_DrawingModeChanged);
+			surface.SurfaceSizeChanged += new SurfaceSizeChangeEventHandler(SurfaceSizeChanged);
+			surface.SurfaceMessage += new SurfaceMessageEventHandler(SurfaceMessageReceived);
+			surface.FieldAggregator.FieldChanged += new FieldChangedEventHandler(FieldAggregatorFieldChanged);
+
+			SurfaceSizeChanged(this.Surface);
+
+			bindFieldControls();
+			refreshEditorControls();
+			// Fix title
+			if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
+				this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+			}
+		}
 
 		private void updateUI() {
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
@@ -126,9 +155,6 @@ namespace Greenshot {
 			toolStripSeparator11.Visible = !coreConf.DisableSettings;
 			btnSettings.Visible = !coreConf.DisableSettings;
 
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
-			Image backgroundForTransparency = GreenshotPlugin.Core.GreenshotResources.getImage("Checkerboard.Image");
-			surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 			// Make sure Double-buffer is enabled
 			SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
 
@@ -136,22 +162,12 @@ namespace Greenshot {
 			// to fix the bug (?) with the vscrollbar not being able to shrink to
 			// a smaller size than the initial panel size (as set by the forms designer)
 			panel1.Height = 10;
-			
-			surface.TabStop = false;
-			
-			surface.MovingElementChanged += delegate { refreshEditorControls(); };
-			surface.DrawingModeChanged += new SurfaceDrawingModeEventHandler(surface_DrawingModeChanged);
-			surface.SurfaceSizeChanged += new SurfaceSizeChangeEventHandler(SurfaceSizeChanged);
-			surface.SurfaceMessage += new SurfaceMessageEventHandler(SurfaceMessageReceived);
 
 			this.fontFamilyComboBox.PropertyChanged += new PropertyChangedEventHandler(FontPropertyChanged);
 			
-			surface.FieldAggregator.FieldChanged += new FieldChangedEventHandler( FieldAggregatorFieldChanged );
 			obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 			highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 			
-			panel1.Controls.Add(surface);
-
 			toolbarButtons = new GreenshotPlugin.Controls.GreenshotToolStripButton[] { btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop };
 			//toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -161,11 +177,6 @@ namespace Greenshot {
 			this.MouseWheel += new MouseEventHandler( PanelMouseWheel);
 
 			ApplyLanguage();
-
-			// Fix title
-			if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
-				this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
-			}
 		}
 		
 		/// <summary>
@@ -329,15 +340,20 @@ namespace Greenshot {
 				// Even update language when needed
 				ApplyLanguage();
 
-                // Fix title
-                if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
-                    this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
-                }
+				// Fix title
+				if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
+					this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+				}
 			});
 		}
 		
 		public ISurface Surface {
-			get {return surface;}
+			get {
+				return surface;
+			}
+			set {
+				SetSurface(value);
+			}
 		}
 
 		public void SetImagePath(string fullpath) {
@@ -648,7 +664,7 @@ namespace Greenshot {
 			updateClipboardSurfaceDependencies();
 			updateUndoRedoSurfaceDependencies();
 		}
-		
+
 		void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e) {
 			IniConfig.IniChanged -= new FileSystemEventHandler(ReloadConfiguration);
 			if (surface.Modified && !editorConfiguration.SuppressSaveDialogAtClose) {

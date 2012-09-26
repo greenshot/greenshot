@@ -21,16 +21,17 @@
 using System;
 using Greenshot.Configuration;
 using Greenshot.Drawing;
+using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Memento {
 	/// <summary>
 	/// The DeleteElementMemento makes it possible to undo deleting an element
 	/// </summary>
 	public class DeleteElementMemento : IMemento  {
-		private DrawableContainer drawableContainer;
+		private IDrawableContainer drawableContainer;
 		private Surface surface;
-		
-		public DeleteElementMemento(Surface surface, DrawableContainer drawableContainer) {
+
+		public DeleteElementMemento(Surface surface, IDrawableContainer drawableContainer) {
 			this.surface = surface;
 			this.drawableContainer = drawableContainer;
 		}

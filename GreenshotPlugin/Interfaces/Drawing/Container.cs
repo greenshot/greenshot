@@ -22,12 +22,13 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Greenshot.Plugin.Drawing {
 	public enum RenderMode {EDIT, EXPORT};
 	public enum EditStatus {UNDRAWN, DRAWING, MOVING, RESIZING, IDLE};
 
-	public interface IDrawableContainer {
+	public interface IDrawableContainer : INotifyPropertyChanged {
 		ISurface Parent {
 			get;
 		}
@@ -76,9 +77,22 @@ namespace Greenshot.Plugin.Drawing {
 			get;
 		}
 
+		EditStatus Status {
+			get;
+			set;
+		}
 		void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment);
 		void Invalidate();
 		void Dispose();
+		bool ClickableAt(int x, int y);
+		void HideGrippers();
+		void ShowGrippers();
+		void MoveBy(int x, int y);
+		bool HandleMouseDown(int x, int y);
+		void HandleMouseUp(int x, int y);
+		bool HandleMouseMove(int x, int y);
+		bool InitContent();
+		void MakeBoundsChangeUndoable(bool allowMerge);
 	}
 
 	public interface ITextContainer: IDrawableContainer {

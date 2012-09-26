@@ -38,7 +38,7 @@ namespace Greenshot.Destinations {
 	/// </summary>
 	public class EditorDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EditorDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		public const string DESIGNATION = "Editor";
 		private IImageEditor editor = null;
 		private static Image greenshotIcon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon().ToBitmap();
@@ -92,33 +92,44 @@ namespace Greenshot.Destinations {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			// Make sure we collect the garbage before opening the screenshot
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+
 			if (editor == null) {
-				// Make sure we collect the garbage before opening the screenshot
-				GC.Collect();
-				GC.WaitForPendingFinalizers();
-				
-				try {
-					ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
-	
-					if (!string.IsNullOrEmpty(captureDetails.Filename)) {
-						editorForm.SetImagePath(captureDetails.Filename);
+				if (editorConfiguration.ReuseEditor) {
+					foreach(IImageEditor openedEditor in ImageEditorForm.Editors) {
+						if (!openedEditor.Surface.Modified) {
+							openedEditor.Surface = surface;
+							exportInformation.ExportMade = true;
+							break;
+						}
 					}
-					editorForm.Show();
-					editorForm.Activate();
-					LOG.Debug("Finished opening Editor");
+				}
+				if (!exportInformation.ExportMade) {
+					try {
+						ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
+
+						if (!string.IsNullOrEmpty(captureDetails.Filename)) {
+							editorForm.SetImagePath(captureDetails.Filename);
+						}
+						editorForm.Show();
+						editorForm.Activate();
+						LOG.Debug("Finished opening Editor");
+						exportInformation.ExportMade = true;
+					} catch (Exception e) {
+						LOG.Error(e);
+						exportInformation.ErrorMessage = e.Message;
+					}
+				}
+			} else {
+				try {
+					using (Bitmap image = (Bitmap)surface.GetImageForExport()) {
+						editor.Surface.AddBitmapContainer(image, 10, 10);
+					}
 					exportInformation.ExportMade = true;
 				} catch (Exception e) {
 					LOG.Error(e);
-					exportInformation.ErrorMessage = e.Message;
-				}
-			} else {
-                try {
-                    using (Bitmap image = (Bitmap)surface.GetImageForExport()) {
-                        editor.Surface.AddBitmapContainer(image, 10, 10);
-                    }
-					exportInformation.ExportMade = true;
-                } catch (Exception e) {
-                    LOG.Error(e);
 					exportInformation.ErrorMessage = e.Message;
 				}
 			}

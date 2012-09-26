@@ -24,12 +24,10 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using Greenshot.Plugin.Drawing;
 using Greenshot.Memento;
 using System.Drawing.Drawing2D;
@@ -87,7 +85,16 @@ namespace Greenshot.Drawing {
 		}
 		
 		[NonSerialized]
-		public EditStatus Status = EditStatus.UNDRAWN;
+		private EditStatus status = EditStatus.UNDRAWN;
+		public EditStatus Status {
+			get {
+				return status;
+			}
+			set {
+				status = value;
+			}
+		}
+
 		
 		private int left = 0;
 		public int Left {

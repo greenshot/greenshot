@@ -21,16 +21,17 @@
 using System;
 using Greenshot.Configuration;
 using Greenshot.Drawing;
+using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Memento {
 	/// <summary>
 	/// The AddElementMemento makes it possible to undo adding an element
 	/// </summary>
 	public class AddElementMemento : IMemento  {
-		private DrawableContainer drawableContainer;
+		private IDrawableContainer drawableContainer;
 		private Surface surface;
 		
-		public AddElementMemento(Surface surface, DrawableContainer drawableContainer) {
+		public AddElementMemento(Surface surface, IDrawableContainer drawableContainer) {
 			this.surface = surface;
 			this.drawableContainer = drawableContainer;
 		}

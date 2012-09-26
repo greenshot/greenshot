@@ -70,9 +70,10 @@ namespace Greenshot.Plugin {
 		ICaptureDetails CaptureDetails {
 			get;
 		}
-		
+
 		ISurface Surface {
 			get;
+			set;
 		}
 	}
 }

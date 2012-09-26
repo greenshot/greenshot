@@ -50,6 +50,8 @@ namespace Greenshot.Configuration {
 		public Point WindowMaxPosition;
 		[IniProperty("WindowNormalPosition", Description="Position of normal window", DefaultValue="100,100,400,400")]
 		public Rectangle WindowNormalPosition;
+		[IniProperty("ReuseEditor", Description = "Reuse already open editor", DefaultValue = "false")]
+		public bool ReuseEditor;
 
 		[IniProperty("SuppressSaveDialogAtClose", Description="Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue="False")]
 		public bool SuppressSaveDialogAtClose;
