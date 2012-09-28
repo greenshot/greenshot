@@ -125,6 +125,7 @@ namespace Greenshot {
 			this.button_pluginconfigure = new GreenshotPlugin.Controls.GreenshotButton();
 			this.tab_expert = new GreenshotPlugin.Controls.GreenshotTabPage();
 			this.groupbox_expert = new GreenshotPlugin.Controls.GreenshotGroupBox();
+			this.checkbox_reuseeditor = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.checkbox_minimizememoryfootprint = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.checkbox_checkunstableupdates = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.checkbox_suppresssavedialogatclose = new GreenshotPlugin.Controls.GreenshotCheckBox();
@@ -171,7 +172,7 @@ namespace Greenshot {
 			this.textbox_storagelocation.Name = "textbox_storagelocation";
 			this.textbox_storagelocation.Size = new System.Drawing.Size(233, 20);
 			this.textbox_storagelocation.TabIndex = 12;
-			this.textbox_storagelocation.TextChanged += new System.EventHandler(StorageLocationChanged);
+			this.textbox_storagelocation.TextChanged += new System.EventHandler(this.StorageLocationChanged);
 			// 
 			// label_storagelocation
 			// 
@@ -180,7 +181,6 @@ namespace Greenshot {
 			this.label_storagelocation.Name = "label_storagelocation";
 			this.label_storagelocation.Size = new System.Drawing.Size(126, 23);
 			this.label_storagelocation.TabIndex = 11;
-			this.label_storagelocation.Text = "Storage location";
 			// 
 			// settings_cancel
 			// 
@@ -189,7 +189,6 @@ namespace Greenshot {
 			this.settings_cancel.Name = "settings_cancel";
 			this.settings_cancel.Size = new System.Drawing.Size(75, 23);
 			this.settings_cancel.TabIndex = 7;
-			this.settings_cancel.Text = "Cancel";
 			this.settings_cancel.UseVisualStyleBackColor = true;
 			this.settings_cancel.Click += new System.EventHandler(this.Settings_cancelClick);
 			// 
@@ -200,7 +199,6 @@ namespace Greenshot {
 			this.settings_confirm.Name = "settings_confirm";
 			this.settings_confirm.Size = new System.Drawing.Size(75, 23);
 			this.settings_confirm.TabIndex = 6;
-			this.settings_confirm.Text = "OK";
 			this.settings_confirm.UseVisualStyleBackColor = true;
 			this.settings_confirm.Click += new System.EventHandler(this.Settings_okayClick);
 			// 
@@ -221,7 +219,6 @@ namespace Greenshot {
 			this.label_screenshotname.Name = "label_screenshotname";
 			this.label_screenshotname.Size = new System.Drawing.Size(126, 23);
 			this.label_screenshotname.TabIndex = 9;
-			this.label_screenshotname.Text = "Filename pattern";
 			// 
 			// textbox_screenshotname
 			// 
@@ -238,7 +235,6 @@ namespace Greenshot {
 			this.label_language.Name = "label_language";
 			this.label_language.Size = new System.Drawing.Size(181, 23);
 			this.label_language.TabIndex = 10;
-			this.label_language.Text = "Language";
 			// 
 			// combobox_language
 			// 
@@ -267,7 +263,6 @@ namespace Greenshot {
 			this.label_primaryimageformat.Name = "label_primaryimageformat";
 			this.label_primaryimageformat.Size = new System.Drawing.Size(126, 19);
 			this.label_primaryimageformat.TabIndex = 8;
-			this.label_primaryimageformat.Text = "Image format";
 			// 
 			// groupbox_preferredfilesettings
 			// 
@@ -286,7 +281,6 @@ namespace Greenshot {
 			this.groupbox_preferredfilesettings.Size = new System.Drawing.Size(412, 122);
 			this.groupbox_preferredfilesettings.TabIndex = 13;
 			this.groupbox_preferredfilesettings.TabStop = false;
-			this.groupbox_preferredfilesettings.Text = "Preferred Output File Settings";
 			// 
 			// btnPatternHelp
 			// 
@@ -306,7 +300,6 @@ namespace Greenshot {
 			this.checkbox_copypathtoclipboard.PropertyName = "OutputFileCopyPathToClipboard";
 			this.checkbox_copypathtoclipboard.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_copypathtoclipboard.TabIndex = 18;
-			this.checkbox_copypathtoclipboard.Text = "Copy file path to clipboard every time an image is saved";
 			this.checkbox_copypathtoclipboard.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_applicationsettings
@@ -320,7 +313,6 @@ namespace Greenshot {
 			this.groupbox_applicationsettings.Size = new System.Drawing.Size(412, 68);
 			this.groupbox_applicationsettings.TabIndex = 14;
 			this.groupbox_applicationsettings.TabStop = false;
-			this.groupbox_applicationsettings.Text = "Application Settings";
 			// 
 			// checkbox_autostartshortcut
 			// 
@@ -329,7 +321,6 @@ namespace Greenshot {
 			this.checkbox_autostartshortcut.Name = "checkbox_autostartshortcut";
 			this.checkbox_autostartshortcut.Size = new System.Drawing.Size(397, 25);
 			this.checkbox_autostartshortcut.TabIndex = 15;
-			this.checkbox_autostartshortcut.Text = "Launch Greenshot on startup";
 			this.checkbox_autostartshortcut.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_qualitysettings
@@ -345,7 +336,6 @@ namespace Greenshot {
 			this.groupbox_qualitysettings.Size = new System.Drawing.Size(412, 106);
 			this.groupbox_qualitysettings.TabIndex = 14;
 			this.groupbox_qualitysettings.TabStop = false;
-			this.groupbox_qualitysettings.Text = "Quality settings";
 			// 
 			// checkbox_reducecolors
 			// 
@@ -355,7 +345,6 @@ namespace Greenshot {
 			this.checkbox_reducecolors.PropertyName = "OutputFileReduceColors";
 			this.checkbox_reducecolors.Size = new System.Drawing.Size(394, 25);
 			this.checkbox_reducecolors.TabIndex = 17;
-			this.checkbox_reducecolors.Text = "Reduce the amount of colors to a maximum of 256";
 			this.checkbox_reducecolors.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_alwaysshowqualitydialog
@@ -366,7 +355,6 @@ namespace Greenshot {
 			this.checkbox_alwaysshowqualitydialog.PropertyName = "OutputFilePromptQuality";
 			this.checkbox_alwaysshowqualitydialog.Size = new System.Drawing.Size(394, 25);
 			this.checkbox_alwaysshowqualitydialog.TabIndex = 16;
-			this.checkbox_alwaysshowqualitydialog.Text = "Show quality dialog every time an image is saved";
 			this.checkbox_alwaysshowqualitydialog.UseVisualStyleBackColor = true;
 			// 
 			// label_jpegquality
@@ -376,7 +364,6 @@ namespace Greenshot {
 			this.label_jpegquality.Name = "label_jpegquality";
 			this.label_jpegquality.Size = new System.Drawing.Size(116, 23);
 			this.label_jpegquality.TabIndex = 13;
-			this.label_jpegquality.Text = "JPEG quality";
 			// 
 			// textBoxJpegQuality
 			// 
@@ -408,7 +395,6 @@ namespace Greenshot {
 			this.groupbox_destination.Size = new System.Drawing.Size(412, 311);
 			this.groupbox_destination.TabIndex = 16;
 			this.groupbox_destination.TabStop = false;
-			this.groupbox_destination.Text = "Destination";
 			// 
 			// checkbox_picker
 			// 
@@ -417,7 +403,6 @@ namespace Greenshot {
 			this.checkbox_picker.Name = "checkbox_picker";
 			this.checkbox_picker.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_picker.TabIndex = 19;
-			this.checkbox_picker.Text = "Select destination dynamically";
 			this.checkbox_picker.UseVisualStyleBackColor = true;
 			this.checkbox_picker.CheckStateChanged += new System.EventHandler(this.DestinationsCheckStateChanged);
 			// 
@@ -471,7 +456,6 @@ namespace Greenshot {
 			this.tab_general.Padding = new System.Windows.Forms.Padding(3);
 			this.tab_general.Size = new System.Drawing.Size(423, 320);
 			this.tab_general.TabIndex = 0;
-			this.tab_general.Text = "General";
 			this.tab_general.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_network
@@ -485,7 +469,6 @@ namespace Greenshot {
 			this.groupbox_network.Size = new System.Drawing.Size(412, 72);
 			this.groupbox_network.TabIndex = 54;
 			this.groupbox_network.TabStop = false;
-			this.groupbox_network.Text = "Network and updates";
 			// 
 			// numericUpDown_daysbetweencheck
 			// 
@@ -502,7 +485,6 @@ namespace Greenshot {
 			this.label_checkperiod.Name = "label_checkperiod";
 			this.label_checkperiod.Size = new System.Drawing.Size(334, 23);
 			this.label_checkperiod.TabIndex = 19;
-			this.label_checkperiod.Text = "Update check interval in days (0=no check)";
 			// 
 			// checkbox_usedefaultproxy
 			// 
@@ -512,7 +494,6 @@ namespace Greenshot {
 			this.checkbox_usedefaultproxy.PropertyName = "UseProxy";
 			this.checkbox_usedefaultproxy.Size = new System.Drawing.Size(397, 25);
 			this.checkbox_usedefaultproxy.TabIndex = 17;
-			this.checkbox_usedefaultproxy.Text = "Use default system proxy";
 			this.checkbox_usedefaultproxy.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_hotkeys
@@ -533,7 +514,6 @@ namespace Greenshot {
 			this.groupbox_hotkeys.Size = new System.Drawing.Size(412, 152);
 			this.groupbox_hotkeys.TabIndex = 15;
 			this.groupbox_hotkeys.TabStop = false;
-			this.groupbox_hotkeys.Text = "Hotkeys";
 			// 
 			// label_lastregion_hotkey
 			// 
@@ -542,7 +522,6 @@ namespace Greenshot {
 			this.label_lastregion_hotkey.Name = "label_lastregion_hotkey";
 			this.label_lastregion_hotkey.Size = new System.Drawing.Size(212, 20);
 			this.label_lastregion_hotkey.TabIndex = 53;
-			this.label_lastregion_hotkey.Text = "Capture last region";
 			// 
 			// lastregion_hotkeyControl
 			// 
@@ -553,7 +532,6 @@ namespace Greenshot {
 			this.lastregion_hotkeyControl.PropertyName = "LastregionHotkey";
 			this.lastregion_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.lastregion_hotkeyControl.TabIndex = 52;
-			this.lastregion_hotkeyControl.Text = "None";
 			// 
 			// label_ie_hotkey
 			// 
@@ -562,7 +540,6 @@ namespace Greenshot {
 			this.label_ie_hotkey.Name = "label_ie_hotkey";
 			this.label_ie_hotkey.Size = new System.Drawing.Size(212, 20);
 			this.label_ie_hotkey.TabIndex = 51;
-			this.label_ie_hotkey.Text = "Capture Internet Explorer";
 			// 
 			// ie_hotkeyControl
 			// 
@@ -573,7 +550,6 @@ namespace Greenshot {
 			this.ie_hotkeyControl.PropertyName = "IEHotkey";
 			this.ie_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.ie_hotkeyControl.TabIndex = 50;
-			this.ie_hotkeyControl.Text = "None";
 			// 
 			// label_region_hotkey
 			// 
@@ -582,7 +558,6 @@ namespace Greenshot {
 			this.label_region_hotkey.Name = "label_region_hotkey";
 			this.label_region_hotkey.Size = new System.Drawing.Size(212, 20);
 			this.label_region_hotkey.TabIndex = 49;
-			this.label_region_hotkey.Text = "Capture region";
 			// 
 			// label_window_hotkey
 			// 
@@ -591,7 +566,6 @@ namespace Greenshot {
 			this.label_window_hotkey.Name = "label_window_hotkey";
 			this.label_window_hotkey.Size = new System.Drawing.Size(212, 23);
 			this.label_window_hotkey.TabIndex = 48;
-			this.label_window_hotkey.Text = "Capture window";
 			// 
 			// label_fullscreen_hotkey
 			// 
@@ -600,7 +574,6 @@ namespace Greenshot {
 			this.label_fullscreen_hotkey.Name = "label_fullscreen_hotkey";
 			this.label_fullscreen_hotkey.Size = new System.Drawing.Size(212, 23);
 			this.label_fullscreen_hotkey.TabIndex = 47;
-			this.label_fullscreen_hotkey.Text = "Capture full screen";
 			// 
 			// region_hotkeyControl
 			// 
@@ -611,7 +584,6 @@ namespace Greenshot {
 			this.region_hotkeyControl.PropertyName = "RegionHotkey";
 			this.region_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.region_hotkeyControl.TabIndex = 46;
-			this.region_hotkeyControl.Text = "None";
 			// 
 			// window_hotkeyControl
 			// 
@@ -622,7 +594,6 @@ namespace Greenshot {
 			this.window_hotkeyControl.PropertyName = "WindowHotkey";
 			this.window_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.window_hotkeyControl.TabIndex = 45;
-			this.window_hotkeyControl.Text = "None";
 			// 
 			// fullscreen_hotkeyControl
 			// 
@@ -633,7 +604,6 @@ namespace Greenshot {
 			this.fullscreen_hotkeyControl.PropertyName = "FullscreenHotkey";
 			this.fullscreen_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.fullscreen_hotkeyControl.TabIndex = 44;
-			this.fullscreen_hotkeyControl.Text = "None";
 			// 
 			// tab_capture
 			// 
@@ -646,7 +616,6 @@ namespace Greenshot {
 			this.tab_capture.Name = "tab_capture";
 			this.tab_capture.Size = new System.Drawing.Size(423, 320);
 			this.tab_capture.TabIndex = 3;
-			this.tab_capture.Text = "Capture";
 			this.tab_capture.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_editor
@@ -658,7 +627,6 @@ namespace Greenshot {
 			this.groupbox_editor.Size = new System.Drawing.Size(416, 50);
 			this.groupbox_editor.TabIndex = 27;
 			this.groupbox_editor.TabStop = false;
-			this.groupbox_editor.Text = "Editor";
 			// 
 			// checkbox_editor_match_capture_size
 			// 
@@ -669,7 +637,6 @@ namespace Greenshot {
 			this.checkbox_editor_match_capture_size.SectionName = "Editor";
 			this.checkbox_editor_match_capture_size.Size = new System.Drawing.Size(397, 24);
 			this.checkbox_editor_match_capture_size.TabIndex = 26;
-			this.checkbox_editor_match_capture_size.Text = "Match capture size";
 			this.checkbox_editor_match_capture_size.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_iecapture
@@ -681,7 +648,6 @@ namespace Greenshot {
 			this.groupbox_iecapture.Size = new System.Drawing.Size(416, 50);
 			this.groupbox_iecapture.TabIndex = 2;
 			this.groupbox_iecapture.TabStop = false;
-			this.groupbox_iecapture.Text = "Internet Explorer capture";
 			// 
 			// checkbox_ie_capture
 			// 
@@ -691,7 +657,6 @@ namespace Greenshot {
 			this.checkbox_ie_capture.PropertyName = "IECapture";
 			this.checkbox_ie_capture.Size = new System.Drawing.Size(404, 24);
 			this.checkbox_ie_capture.TabIndex = 26;
-			this.checkbox_ie_capture.Text = "Internet Explorer capture";
 			this.checkbox_ie_capture.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_windowscapture
@@ -706,7 +671,6 @@ namespace Greenshot {
 			this.groupbox_windowscapture.Size = new System.Drawing.Size(416, 80);
 			this.groupbox_windowscapture.TabIndex = 1;
 			this.groupbox_windowscapture.TabStop = false;
-			this.groupbox_windowscapture.Text = "Window capture";
 			// 
 			// colorButton_window_background
 			// 
@@ -726,7 +690,6 @@ namespace Greenshot {
 			this.label_window_capture_mode.Name = "label_window_capture_mode";
 			this.label_window_capture_mode.Size = new System.Drawing.Size(205, 23);
 			this.label_window_capture_mode.TabIndex = 26;
-			this.label_window_capture_mode.Text = "Window capture mode";
 			// 
 			// checkbox_capture_windows_interactive
 			// 
@@ -736,7 +699,6 @@ namespace Greenshot {
 			this.checkbox_capture_windows_interactive.PropertyName = "CaptureWindowsInteractive";
 			this.checkbox_capture_windows_interactive.Size = new System.Drawing.Size(394, 18);
 			this.checkbox_capture_windows_interactive.TabIndex = 19;
-			this.checkbox_capture_windows_interactive.Text = "Use interactive window capture mode";
 			this.checkbox_capture_windows_interactive.UseVisualStyleBackColor = true;
 			// 
 			// combobox_window_capture_mode
@@ -763,7 +725,6 @@ namespace Greenshot {
 			this.groupbox_capture.Size = new System.Drawing.Size(416, 115);
 			this.groupbox_capture.TabIndex = 0;
 			this.groupbox_capture.TabStop = false;
-			this.groupbox_capture.Text = "Capture";
 			// 
 			// checkbox_notifications
 			// 
@@ -783,7 +744,6 @@ namespace Greenshot {
 			this.checkbox_playsound.PropertyName = "PlayCameraSound";
 			this.checkbox_playsound.Size = new System.Drawing.Size(399, 24);
 			this.checkbox_playsound.TabIndex = 18;
-			this.checkbox_playsound.Text = "Play camera sound";
 			this.checkbox_playsound.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_capture_mousepointer
@@ -794,7 +754,6 @@ namespace Greenshot {
 			this.checkbox_capture_mousepointer.PropertyName = "CaptureMousepointer";
 			this.checkbox_capture_mousepointer.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_capture_mousepointer.TabIndex = 17;
-			this.checkbox_capture_mousepointer.Text = "Capture mousepointer";
 			this.checkbox_capture_mousepointer.UseVisualStyleBackColor = true;
 			// 
 			// numericUpDownWaitTime
@@ -822,7 +781,6 @@ namespace Greenshot {
 			this.label_waittime.Name = "label_waittime";
 			this.label_waittime.Size = new System.Drawing.Size(331, 16);
 			this.label_waittime.TabIndex = 25;
-			this.label_waittime.Text = "Milliseconds to wait before capture";
 			// 
 			// tab_output
 			// 
@@ -835,7 +793,6 @@ namespace Greenshot {
 			this.tab_output.Padding = new System.Windows.Forms.Padding(3);
 			this.tab_output.Size = new System.Drawing.Size(423, 320);
 			this.tab_output.TabIndex = 1;
-			this.tab_output.Text = "Output";
 			this.tab_output.UseVisualStyleBackColor = true;
 			// 
 			// tab_destinations
@@ -846,7 +803,6 @@ namespace Greenshot {
 			this.tab_destinations.Name = "tab_destinations";
 			this.tab_destinations.Size = new System.Drawing.Size(423, 320);
 			this.tab_destinations.TabIndex = 4;
-			this.tab_destinations.Text = "Destination";
 			this.tab_destinations.UseVisualStyleBackColor = true;
 			// 
 			// tab_printer
@@ -858,7 +814,6 @@ namespace Greenshot {
 			this.tab_printer.Padding = new System.Windows.Forms.Padding(3);
 			this.tab_printer.Size = new System.Drawing.Size(423, 320);
 			this.tab_printer.TabIndex = 2;
-			this.tab_printer.Text = "Printer";
 			this.tab_printer.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_printoptions
@@ -877,7 +832,6 @@ namespace Greenshot {
 			this.groupbox_printoptions.Size = new System.Drawing.Size(412, 227);
 			this.groupbox_printoptions.TabIndex = 18;
 			this.groupbox_printoptions.TabStop = false;
-			this.groupbox_printoptions.Text = "Print options";
 			// 
 			// checkbox_printgrayscale
 			// 
@@ -887,7 +841,6 @@ namespace Greenshot {
 			this.checkbox_printgrayscale.PropertyName = "OutputPrintGrayscale";
 			this.checkbox_printgrayscale.Size = new System.Drawing.Size(394, 19);
 			this.checkbox_printgrayscale.TabIndex = 32;
-			this.checkbox_printgrayscale.Text = "Force grayscale printing";
 			this.checkbox_printgrayscale.UseVisualStyleBackColor = true;
 			// 
 			// checkboxPrintInverted
@@ -900,7 +853,6 @@ namespace Greenshot {
 			this.checkboxPrintInverted.PropertyName = "OutputPrintInverted";
 			this.checkboxPrintInverted.Size = new System.Drawing.Size(394, 16);
 			this.checkboxPrintInverted.TabIndex = 31;
-			this.checkboxPrintInverted.Text = "Print with inverted colors";
 			this.checkboxPrintInverted.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.UseVisualStyleBackColor = true;
 			// 
@@ -912,7 +864,6 @@ namespace Greenshot {
 			this.checkbox_alwaysshowprintoptionsdialog.PropertyName = "OutputPrintPromptOptions";
 			this.checkbox_alwaysshowprintoptionsdialog.Size = new System.Drawing.Size(394, 19);
 			this.checkbox_alwaysshowprintoptionsdialog.TabIndex = 17;
-			this.checkbox_alwaysshowprintoptionsdialog.Text = "Show print options dialog every time an image is printed";
 			this.checkbox_alwaysshowprintoptionsdialog.UseVisualStyleBackColor = true;
 			// 
 			// checkboxTimestamp
@@ -925,7 +876,6 @@ namespace Greenshot {
 			this.checkboxTimestamp.PropertyName = "OutputPrintFooter";
 			this.checkboxTimestamp.Size = new System.Drawing.Size(394, 16);
 			this.checkboxTimestamp.TabIndex = 30;
-			this.checkboxTimestamp.Text = "Print date / time at bottom of page";
 			this.checkboxTimestamp.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxTimestamp.UseVisualStyleBackColor = true;
 			// 
@@ -939,7 +889,6 @@ namespace Greenshot {
 			this.checkboxAllowCenter.PropertyName = "OutputPrintCenter";
 			this.checkboxAllowCenter.Size = new System.Drawing.Size(394, 18);
 			this.checkboxAllowCenter.TabIndex = 29;
-			this.checkboxAllowCenter.Text = "Center printout on page";
 			this.checkboxAllowCenter.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowCenter.UseVisualStyleBackColor = true;
 			// 
@@ -953,7 +902,6 @@ namespace Greenshot {
 			this.checkboxAllowRotate.PropertyName = "OutputPrintAllowRotate";
 			this.checkboxAllowRotate.Size = new System.Drawing.Size(394, 17);
 			this.checkboxAllowRotate.TabIndex = 28;
-			this.checkboxAllowRotate.Text = "Rotate printout to page orientation";
 			this.checkboxAllowRotate.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowRotate.UseVisualStyleBackColor = true;
 			// 
@@ -967,7 +915,6 @@ namespace Greenshot {
 			this.checkboxAllowEnlarge.PropertyName = "OutputPrintAllowEnlarge";
 			this.checkboxAllowEnlarge.Size = new System.Drawing.Size(394, 19);
 			this.checkboxAllowEnlarge.TabIndex = 27;
-			this.checkboxAllowEnlarge.Text = "Enlarge printout to fit paper size";
 			this.checkboxAllowEnlarge.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowEnlarge.UseVisualStyleBackColor = true;
 			// 
@@ -981,7 +928,6 @@ namespace Greenshot {
 			this.checkboxAllowShrink.PropertyName = "OutputPrintAllowShrink";
 			this.checkboxAllowShrink.Size = new System.Drawing.Size(394, 17);
 			this.checkboxAllowShrink.TabIndex = 26;
-			this.checkboxAllowShrink.Text = "Shrink printout to fit paper size";
 			this.checkboxAllowShrink.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowShrink.UseVisualStyleBackColor = true;
 			// 
@@ -993,7 +939,6 @@ namespace Greenshot {
 			this.tab_plugins.Name = "tab_plugins";
 			this.tab_plugins.Size = new System.Drawing.Size(423, 320);
 			this.tab_plugins.TabIndex = 2;
-			this.tab_plugins.Text = "Plugins";
 			this.tab_plugins.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_plugins
@@ -1010,7 +955,6 @@ namespace Greenshot {
 			this.groupbox_plugins.Size = new System.Drawing.Size(423, 314);
 			this.groupbox_plugins.TabIndex = 0;
 			this.groupbox_plugins.TabStop = false;
-			this.groupbox_plugins.Text = "Plugins";
 			// 
 			// listview_plugins
 			// 
@@ -1035,7 +979,6 @@ namespace Greenshot {
 			this.button_pluginconfigure.Name = "button_pluginconfigure";
 			this.button_pluginconfigure.Size = new System.Drawing.Size(75, 23);
 			this.button_pluginconfigure.TabIndex = 1;
-			this.button_pluginconfigure.Text = "Configure";
 			this.button_pluginconfigure.UseVisualStyleBackColor = true;
 			this.button_pluginconfigure.Click += new System.EventHandler(this.Button_pluginconfigureClick);
 			// 
@@ -1047,11 +990,11 @@ namespace Greenshot {
 			this.tab_expert.Name = "tab_expert";
 			this.tab_expert.Size = new System.Drawing.Size(423, 320);
 			this.tab_expert.TabIndex = 5;
-			this.tab_expert.Text = "Expert";
 			this.tab_expert.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_expert
 			// 
+			this.groupbox_expert.Controls.Add(this.checkbox_reuseeditor);
 			this.groupbox_expert.Controls.Add(this.checkbox_minimizememoryfootprint);
 			this.groupbox_expert.Controls.Add(this.checkbox_checkunstableupdates);
 			this.groupbox_expert.Controls.Add(this.checkbox_suppresssavedialogatclose);
@@ -1072,6 +1015,17 @@ namespace Greenshot {
 			this.groupbox_expert.TabIndex = 17;
 			this.groupbox_expert.TabStop = false;
 			this.groupbox_expert.Text = "Expert";
+			// 
+			// checkbox_reuseeditor
+			// 
+			this.checkbox_reuseeditor.LanguageKey = "expertsettings_reuseeditorifpossible";
+			this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 231);
+			this.checkbox_reuseeditor.Name = "greenshotCheckBox1";
+			this.checkbox_reuseeditor.PropertyName = "ReuseEditor";
+			this.checkbox_reuseeditor.SectionName = "Editor";
+			this.checkbox_reuseeditor.Size = new System.Drawing.Size(394, 19);
+			this.checkbox_reuseeditor.TabIndex = 31;
+			this.checkbox_reuseeditor.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_minimizememoryfootprint
 			// 
@@ -1108,15 +1062,14 @@ namespace Greenshot {
 			// 
 			this.label_counter.AutoSize = true;
 			this.label_counter.LanguageKey = "expertsettings_counter";
-			this.label_counter.Location = new System.Drawing.Point(7, 266);
+			this.label_counter.Location = new System.Drawing.Point(7, 285);
 			this.label_counter.Name = "label_counter";
 			this.label_counter.Size = new System.Drawing.Size(246, 13);
 			this.label_counter.TabIndex = 27;
-			this.label_counter.Text = "The number for the ${NUM} in the filename pattern";
 			// 
 			// textbox_counter
 			// 
-			this.textbox_counter.Location = new System.Drawing.Point(259, 263);
+			this.textbox_counter.Location = new System.Drawing.Point(259, 282);
 			this.textbox_counter.Name = "textbox_counter";
 			this.textbox_counter.PropertyName = "OutputFileIncrementingNumber";
 			this.textbox_counter.Size = new System.Drawing.Size(141, 20);
@@ -1126,15 +1079,14 @@ namespace Greenshot {
 			// 
 			this.label_footerpattern.AutoSize = true;
 			this.label_footerpattern.LanguageKey = "expertsettings_footerpattern";
-			this.label_footerpattern.Location = new System.Drawing.Point(7, 240);
+			this.label_footerpattern.Location = new System.Drawing.Point(7, 259);
 			this.label_footerpattern.Name = "label_footerpattern";
 			this.label_footerpattern.Size = new System.Drawing.Size(103, 13);
 			this.label_footerpattern.TabIndex = 25;
-			this.label_footerpattern.Text = "Printer footer pattern";
 			// 
 			// textbox_footerpattern
 			// 
-			this.textbox_footerpattern.Location = new System.Drawing.Point(138, 237);
+			this.textbox_footerpattern.Location = new System.Drawing.Point(138, 256);
 			this.textbox_footerpattern.Name = "textbox_footerpattern";
 			this.textbox_footerpattern.PropertyName = "OutputPrintFooterPattern";
 			this.textbox_footerpattern.Size = new System.Drawing.Size(262, 20);
@@ -1148,7 +1100,6 @@ namespace Greenshot {
 			this.checkbox_thumbnailpreview.PropertyName = "ThumnailPreview";
 			this.checkbox_thumbnailpreview.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_thumbnailpreview.TabIndex = 23;
-			this.checkbox_thumbnailpreview.Text = "Show window thumbnails in context menu (for Vista and windows 7)";
 			this.checkbox_thumbnailpreview.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_optimizeforrdp
@@ -1159,7 +1110,6 @@ namespace Greenshot {
 			this.checkbox_optimizeforrdp.PropertyName = "OptimizeForRDP";
 			this.checkbox_optimizeforrdp.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_optimizeforrdp.TabIndex = 22;
-			this.checkbox_optimizeforrdp.Text = "Make some optimizations for usage with remote desktop";
 			this.checkbox_optimizeforrdp.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_autoreducecolors
@@ -1170,7 +1120,6 @@ namespace Greenshot {
 			this.checkbox_autoreducecolors.PropertyName = "OutputFileAutoReduceColors";
 			this.checkbox_autoreducecolors.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_autoreducecolors.TabIndex = 21;
-			this.checkbox_autoreducecolors.Text = "Write a 256-color image if the colors are less than 256";
 			this.checkbox_autoreducecolors.UseVisualStyleBackColor = true;
 			// 
 			// label_clipboardformats
@@ -1181,7 +1130,6 @@ namespace Greenshot {
 			this.label_clipboardformats.Name = "label_clipboardformats";
 			this.label_clipboardformats.Size = new System.Drawing.Size(88, 13);
 			this.label_clipboardformats.TabIndex = 20;
-			this.label_clipboardformats.Text = "Clipboard formats";
 			// 
 			// checkbox_enableexpert
 			// 
@@ -1190,7 +1138,6 @@ namespace Greenshot {
 			this.checkbox_enableexpert.Name = "checkbox_enableexpert";
 			this.checkbox_enableexpert.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_enableexpert.TabIndex = 19;
-			this.checkbox_enableexpert.Text = "I know what I am doing!";
 			this.checkbox_enableexpert.UseVisualStyleBackColor = true;
 			this.checkbox_enableexpert.CheckedChanged += new System.EventHandler(this.checkbox_enableexpert_CheckedChanged);
 			// 
@@ -1354,5 +1301,6 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_reducecolors;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_suppresssavedialogatclose;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_checkunstableupdates;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_reuseeditor;
 	}
 }
