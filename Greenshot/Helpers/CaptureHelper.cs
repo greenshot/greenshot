@@ -223,12 +223,14 @@ namespace Greenshot.Helpers {
 					break;
 				case CaptureMode.ActiveWindow:
 					if (CaptureActiveWindow()) {
-						if (windowDetailsThread != null) {
-							windowDetailsThread.Join();
-						}
+						// TODO: Reactive / check if the elements code is activated
+						//if (windowDetailsThread != null) {
+						//	windowDetailsThread.Join();
+						//}
+						//capture.MoveElements(capture.ScreenBounds.Location.X-capture.Location.X, capture.ScreenBounds.Location.Y-capture.Location.Y);
+
 						// Capture worked, offset mouse according to screen bounds and capture location
 						capture.MoveMouseLocation(capture.ScreenBounds.Location.X-capture.Location.X, capture.ScreenBounds.Location.Y-capture.Location.Y);
-						capture.MoveElements(capture.ScreenBounds.Location.X-capture.Location.X, capture.ScreenBounds.Location.Y-capture.Location.Y);
 						capture.CaptureDetails.AddMetaData("source", "Window");
 					} else {
 						captureMode = CaptureMode.FullScreen;
@@ -354,9 +356,11 @@ namespace Greenshot.Helpers {
 				case CaptureMode.LastRegion:
 					if (!RuntimeConfig.LastCapturedRegion.IsEmpty) {
 						capture = WindowCapture.CaptureRectangle(capture, RuntimeConfig.LastCapturedRegion);
-						if (windowDetailsThread != null) {
-							windowDetailsThread.Join();
-						}
+						// TODO: Reactive / check if the elements code is activated
+						//if (windowDetailsThread != null) {
+						//	windowDetailsThread.Join();
+						//}
+
 						// Set capture title, fixing bug #3569703
 						foreach (WindowDetails window in WindowDetails.GetVisibleWindows()) {
 							Point estimatedLocation = new Point(RuntimeConfig.LastCapturedRegion.X + (RuntimeConfig.LastCapturedRegion.Width / 2), RuntimeConfig.LastCapturedRegion.Y + (RuntimeConfig.LastCapturedRegion.Height / 2));
@@ -390,9 +394,10 @@ namespace Greenshot.Helpers {
 					LOG.Warn("Unknown capture mode: " + captureMode);
 					break;
 			}
-			if (windowDetailsThread != null) {
-				windowDetailsThread.Join();
-			}
+			// TODO: Reactive / check if the elements code is activated
+			//if (windowDetailsThread != null) {
+			//	windowDetailsThread.Join();
+			//}
 			if (capture != null) {
 				LOG.Debug("Disposing capture");
 				capture.Dispose();
@@ -822,9 +827,11 @@ namespace Greenshot.Helpers {
 					}
 					
 					if (captureRect.Height > 0 && captureRect.Width > 0) {
-						if (windowDetailsThread != null) {
-							windowDetailsThread.Join();
-						}
+						// TODO: Reactive / check if the elements code is activated
+						//if (windowDetailsThread != null) {
+						//	windowDetailsThread.Join();
+						//}
+
 						// Take the captureRect, this already is specified as bitmap coordinates
 						capture.Crop(captureRect);
 						
