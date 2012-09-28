@@ -8,14 +8,15 @@ We changed the version to 1.0 after 5 years it should no longer have a "beta" fe
 
 Bugs resolved:
 * Fixed OCR not working on Windows in 64 bit modus. People who want to use OCR without having office, read our FAQ!
+* Fixed a performance issue with the windows capture.
 * Fixed issues with Dropbox authentication, using our own OAuth implementation
+* Fixed problems with generating transparency for shadow & torn edges.
 * Fixed 2 bugs with the capture last region, see bug #3569703
 * Fixed weird window titles showing up in the "Capture Internet Explorer from list"
 * Fixed some more bugs with the dynamic destination picker and also fixed a small general issue with Office destinations.
-* Cleanup of files that were packed in the installer
+* Removed unneeded files in the installer, making it smaller
 * Fixed a lot of small translation texts and some icons in menus
 * Fixed missing translations for the external command plugin
-* Fixed problems with generating transparency for shadow & torn edges.
 
 Features added:
 * The Imgur plugin now has login support, uncheck the "Annonymous" checkbox in the settings.
