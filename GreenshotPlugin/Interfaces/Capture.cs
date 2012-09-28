@@ -153,26 +153,27 @@ namespace Greenshot.Plugin {
 		/// <param name="y">y coordinates to move the mouse</param>
 		void MoveMouseLocation(int x, int y);
 
-		/// <summary>
-		/// Apply a translate to the elements e.g. needed for crop
-		/// </summary>
-		/// <param name="x">x coordinates to move the elements</param>
-		/// <param name="y">y coordinates to move the elements</param>
-		void MoveElements(int x, int y);
+		// / TODO: Enable when the elements are usable again.
+		///// <summary>
+		///// Apply a translate to the elements e.g. needed for crop
+		///// </summary>
+		///// <param name="x">x coordinates to move the elements</param>
+		///// <param name="y">y coordinates to move the elements</param>
+		//void MoveElements(int x, int y);
 		
-		/// <summary>
-		/// Add a new element to the capture
-		/// </summary>
-		/// <param name="element">Rectangle</param>
-		void AddElement(ICaptureElement element);
+		///// <summary>
+		///// Add a new element to the capture
+		///// </summary>
+		///// <param name="element">Rectangle</param>
+		//void AddElement(ICaptureElement element);
 
-		/// <summary>
-		/// Returns a list of rectangles which represent objects that are "on" the capture
-		/// </summary>
-		List<ICaptureElement> Elements {
-			get;
-			set;
-		}
+		///// <summary>
+		///// Returns a list of rectangles which represent objects that are "on" the capture
+		///// </summary>
+		//List<ICaptureElement> Elements {
+		//    get;
+		//    set;
+		//}
 	}
 
 }

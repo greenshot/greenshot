@@ -372,7 +372,7 @@ namespace Greenshot.Helpers {
 						}
 						// Move cursor, fixing bug #3569703
 						capture.MoveMouseLocation(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
-						capture.MoveElements(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
+						//capture.MoveElements(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
 
 						capture.CaptureDetails.AddMetaData("source", "screen");
 						HandleCapture();

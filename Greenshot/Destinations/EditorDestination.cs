@@ -96,6 +96,7 @@ namespace Greenshot.Destinations {
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
 
+			bool modified = surface.Modified;
 			if (editor == null) {
 				if (editorConfiguration.ReuseEditor) {
 					foreach(IImageEditor openedEditor in ImageEditorForm.Editors) {
@@ -134,6 +135,8 @@ namespace Greenshot.Destinations {
 				}
 			}
 			ProcessExport(exportInformation, surface);
+			// Workaround for the modified flag when using the editor.
+			surface.Modified = modified;
 			return exportInformation;
 		}
 	}

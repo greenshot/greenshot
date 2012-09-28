@@ -131,14 +131,7 @@ namespace Greenshot.Helpers {
 		public static ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
 			IDestination destination = GetDestination(designation);
 			if (destination != null && destination.isActive) {
-				ExportInformation exportInformation = destination.ExportCapture(manuallyInitiated, surface, captureDetails);
-				if (exportInformation != null && exportInformation.ExportMade) {
-					// Export worked, set the modified flag to false if the export wasn't to the editor or picker
-					if (!EditorDestination.DESIGNATION.Equals(designation) && !PickerDestination.DESIGNATION.Equals(designation)) {
-						surface.Modified = false;
-					}
-				}
-				return exportInformation;
+				return destination.ExportCapture(manuallyInitiated, surface, captureDetails);
 			}
 			return null;
 		}

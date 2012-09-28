@@ -295,7 +295,8 @@ namespace GreenshotPlugin.Core {
 				// Change mouse location according to the cropRegtangle (including screenbounds) offset
 				MoveMouseLocation(-cropRectangle.Location.X, -cropRectangle.Location.Y);
 				// Move all the elements
-				MoveElements(-cropRectangle.Location.X, -cropRectangle.Location.Y);
+				// TODO: Enable when the elements are usable again.
+				// MoveElements(-cropRectangle.Location.X, -cropRectangle.Location.Y);
 				
 				// Remove invisible elements
 				List <ICaptureElement> newElements = new List<ICaptureElement>();
@@ -320,53 +321,54 @@ namespace GreenshotPlugin.Core {
 		public void MoveMouseLocation(int x, int y) {
 			cursorLocation.Offset(x, y);
 		}
-		
-		/// <summary>
-		/// Apply a translate to the elements
-		/// e.g. needed for crop
-		/// </summary>
-		/// <param name="x">x coordinates to move the elements</param>
-		/// <param name="y">y coordinates to move the elements</param>
-		public void MoveElements(int x, int y) {
-			MoveElements(elements, x, y);
-		}
 
-		private void MoveElements(List<ICaptureElement> listOfElements, int x, int y) {
-			foreach(ICaptureElement childElement in listOfElements) {
-				Rectangle bounds = childElement.Bounds;
-				bounds.Offset(x, y);
-				childElement.Bounds = bounds;
-				MoveElements(childElement.Children, x, y);
-			}
-		}
+		// TODO: Enable when the elements are usable again.
+		///// <summary>
+		///// Apply a translate to the elements
+		///// e.g. needed for crop
+		///// </summary>
+		///// <param name="x">x coordinates to move the elements</param>
+		///// <param name="y">y coordinates to move the elements</param>
+		//public void MoveElements(int x, int y) {
+		//    MoveElements(elements, x, y);
+		//}
+
+		//private void MoveElements(List<ICaptureElement> listOfElements, int x, int y) {
+		//    foreach(ICaptureElement childElement in listOfElements) {
+		//        Rectangle bounds = childElement.Bounds;
+		//        bounds.Offset(x, y);
+		//        childElement.Bounds = bounds;
+		//        MoveElements(childElement.Children, x, y);
+		//    }
+		//}
 		
-		/// <summary>
-		/// Add a new element to the capture
-		/// </summary>
-		/// <param name="element">CaptureElement</param>
-		public void AddElement(ICaptureElement element) {
-			int match = elements.IndexOf(element);
-			if (match >= 0) {
-				if (elements[match].Children.Count < element.Children.Count) {
-					elements.RemoveAt(match);
-					elements.Add(element);
-				}
-			} else {
-				elements.Add(element);
-			}
-		}
+		///// <summary>
+		///// Add a new element to the capture
+		///// </summary>
+		///// <param name="element">CaptureElement</param>
+		//public void AddElement(ICaptureElement element) {
+		//    int match = elements.IndexOf(element);
+		//    if (match >= 0) {
+		//        if (elements[match].Children.Count < element.Children.Count) {
+		//            elements.RemoveAt(match);
+		//            elements.Add(element);
+		//        }
+		//    } else {
+		//        elements.Add(element);
+		//    }
+		//}
 		
-		/// <summary>
-		/// Returns a list of rectangles which represent object that are on the capture
-		/// </summary>
-		public List<ICaptureElement> Elements {
-			get {
-				return elements;
-			}
-			set {
-				elements = value;
-			}
-		}
+		///// <summary>
+		///// Returns a list of rectangles which represent object that are on the capture
+		///// </summary>
+		//public List<ICaptureElement> Elements {
+		//    get {
+		//        return elements;
+		//    }
+		//    set {
+		//        elements = value;
+		//    }
+		//}
 		
 	}
 	

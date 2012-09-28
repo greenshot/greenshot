@@ -372,30 +372,31 @@ namespace Greenshot.Helpers {
 				} catch (Exception captureException) {
 					LOG.Error("Exception found, ignoring and returning nothing! Error was: ", captureException);
 				}
+				// TODO: Enable when the elements are usable again.
 				// Capture the element on the page
-				try {
-					if (configuration.IEFieldCapture && capture.CaptureDetails.HasDestination("Editor")) {
-						// clear the current elements, as they are for the window itself
-						capture.Elements.Clear();
-						CaptureElement documentCaptureElement = documentContainer.CreateCaptureElements(pageSize);
-						foreach(DocumentContainer frameDocument in documentContainer.Frames) {
-							try {
-								CaptureElement frameCaptureElement = frameDocument.CreateCaptureElements(Size.Empty);
-								if (frameCaptureElement != null) {
-									documentCaptureElement.Children.Add(frameCaptureElement);
-								}
-							} catch (Exception ex) {
-								LOG.Warn("An error occurred while creating the capture elements: ", ex);
-							}
-						}
-						capture.AddElement(documentCaptureElement);
-						// Offset the elements, as they are "back offseted" later...
-						Point windowLocation = documentContainer.ContentWindow.WindowRectangle.Location;
-						capture.MoveElements(-(capture.ScreenBounds.Location.X-windowLocation.X), -(capture.ScreenBounds.Location.Y-windowLocation.Y));
-					}
-				} catch (Exception elementsException) {
-					LOG.Warn("An error occurred while creating the capture elements: ", elementsException);
-				}
+				//try {
+				//    if (configuration.IEFieldCapture && capture.CaptureDetails.HasDestination("Editor")) {
+				//        // clear the current elements, as they are for the window itself
+				//        capture.Elements.Clear();
+				//        CaptureElement documentCaptureElement = documentContainer.CreateCaptureElements(pageSize);
+				//        foreach(DocumentContainer frameDocument in documentContainer.Frames) {
+				//            try {
+				//                CaptureElement frameCaptureElement = frameDocument.CreateCaptureElements(Size.Empty);
+				//                if (frameCaptureElement != null) {
+				//                    documentCaptureElement.Children.Add(frameCaptureElement);
+				//                }
+				//            } catch (Exception ex) {
+				//                LOG.Warn("An error occurred while creating the capture elements: ", ex);
+				//            }
+				//        }
+				//        capture.AddElement(documentCaptureElement);
+				//        // Offset the elements, as they are "back offseted" later...
+				//        Point windowLocation = documentContainer.ContentWindow.WindowRectangle.Location;
+				//        capture.MoveElements(-(capture.ScreenBounds.Location.X-windowLocation.X), -(capture.ScreenBounds.Location.Y-windowLocation.Y));
+				//    }
+				//} catch (Exception elementsException) {
+				//    LOG.Warn("An error occurred while creating the capture elements: ", elementsException);
+				//}
 	
 				
 				if (returnBitmap == null) {

@@ -108,6 +108,9 @@ namespace Greenshot {
 			hideToolstripItems();
 		}
 
+		/// <summary>
+		/// Remove the current surface
+		/// </summary>
 		private void RemoveSurface() {
 			if (surface != null) {
 				panel1.Controls.Remove(surface as Control);
@@ -116,6 +119,10 @@ namespace Greenshot {
 			}
 		}
 
+		/// <summary>
+		/// Change the surface
+		/// </summary>
+		/// <param name="newSurface"></param>
 		private void SetSurface(ISurface newSurface) {
 			if (this.Surface != null && this.Surface.Modified) {
 				throw new ApplicationException("Surface modified");
@@ -123,6 +130,8 @@ namespace Greenshot {
 
 			RemoveSurface();
 
+			panel1.Height = 10;
+			panel1.Width = 10;
 			this.surface = newSurface as Surface;
 			panel1.Controls.Add(surface as Surface);
 			Image backgroundForTransparency = GreenshotPlugin.Core.GreenshotResources.getImage("Checkerboard.Image");
@@ -135,7 +144,6 @@ namespace Greenshot {
 			surface.SurfaceSizeChanged += new SurfaceSizeChangeEventHandler(SurfaceSizeChanged);
 			surface.SurfaceMessage += new SurfaceMessageEventHandler(SurfaceMessageReceived);
 			surface.FieldAggregator.FieldChanged += new FieldChangedEventHandler(FieldAggregatorFieldChanged);
-
 			SurfaceSizeChanged(this.Surface);
 
 			bindFieldControls();
@@ -144,6 +152,7 @@ namespace Greenshot {
 			if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
 				this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
 			}
+			WindowDetails.ToForeground(this.Handle);
 		}
 
 		private void updateUI() {
