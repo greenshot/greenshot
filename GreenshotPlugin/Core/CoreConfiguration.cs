@@ -105,11 +105,11 @@ namespace GreenshotPlugin.Core {
 		public EmailFormat OutlookEmailFormat;
         [IniProperty("EmailSubjectPattern", Description = "Email subject pattern, works like the OutputFileFilenamePattern", DefaultValue = "${title}")]
         public string EmailSubjectPattern;
-        [IniProperty("EmailTo", Description = "Default value for the to", DefaultValue = "")]
+        [IniProperty("EmailTo", Description = "Default value for the to in emails that are created", DefaultValue = "")]
         public string EmailTo;
-        [IniProperty("EmailCC", Description = "Default value for the CC", DefaultValue = "")]
+        [IniProperty("EmailCC", Description = "Default value for the CC in emails that are created", DefaultValue = "")]
         public string EmailCC;
-        [IniProperty("EmailBCC", Description = "Default value for the BCC", DefaultValue = "")]
+        [IniProperty("EmailBCC", Description = "Default value for the BCC in emails that are created", DefaultValue = "")]
         public string EmailBCC;
         [IniProperty("OutlookAllowExportInMeetings", Description = "Allow export in meeting items", DefaultValue = "False")]
 		public bool OutlookAllowExportInMeetings;
