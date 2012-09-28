@@ -533,8 +533,10 @@ namespace Greenshot {
 			if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", new HotKeyHandler(instance.CaptureLastRegion))) {
 				success = false;
 			}
-			if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", new HotKeyHandler(instance.CaptureIE))) {
-				success = false;
+			if (conf.IECapture) {
+				if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", new HotKeyHandler(instance.CaptureIE))) {
+					success = false;
+				}
 			}
 
 			if (!success) {
@@ -597,7 +599,9 @@ namespace Greenshot {
 		}
 
 		void CaptureIE() {
-			CaptureHelper.CaptureIE(true, null);
+			if (conf.IECapture) {
+				CaptureHelper.CaptureIE(true, null);
+			}
 		}
 
 		void CaptureWindow() {
