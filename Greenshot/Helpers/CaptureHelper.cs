@@ -169,8 +169,19 @@ namespace Greenshot.Helpers {
 			LOG.Debug(String.Format("Capturing with mode {0} and using Cursor {1}", captureMode, captureMouseCursor));
 			capture.CaptureDetails.CaptureMode = captureMode;
 
-			// Get the windows details in a seperate thread
-			windowDetailsThread = PrepareForCaptureWithFeedback();
+			// Get the windows details in a seperate thread, only for those captures that have a Feedback
+			// As currently the "elements" aren't used, we don't need them yet
+			switch (captureMode) {
+				case CaptureMode.Region:
+					// Check if a region is pre-supplied!
+					if (Rectangle.Empty.Equals(captureRect)) {
+						windowDetailsThread = PrepareForCaptureWithFeedback();
+					}
+					break;
+				case CaptureMode.Window:
+					windowDetailsThread = PrepareForCaptureWithFeedback();
+					break;
+			}
 
 			// Add destinations if no-one passed a handler
 			if (capture.CaptureDetails.CaptureDestinations == null || capture.CaptureDetails.CaptureDestinations.Count == 0) {
@@ -421,23 +432,24 @@ namespace Greenshot.Helpers {
 					lock (windows) {
 						windows.Add(window);
 					}
-					
-					// Get window rectangle as capture Element
-					CaptureElement windowCaptureElement = new CaptureElement(windowRectangle);
-					if (capture == null) {
-						break;
-					}
-					capture.Elements.Add(windowCaptureElement);
+
+					// TODO: Following code should be enabled & checked if the editor can support "elements"
+					//// Get window rectangle as capture Element
+					//CaptureElement windowCaptureElement = new CaptureElement(windowRectangle);
+					//if (capture == null) {
+					//	break;
+					//}
+					//capture.Elements.Add(windowCaptureElement);
 	
-					if (!window.HasParent) {
-						// Get window client rectangle as capture Element, place all the other "children" in there
-						Rectangle clientRectangle = window.ClientRectangle;
-						CaptureElement windowClientCaptureElement = new CaptureElement(clientRectangle);
-						windowCaptureElement.Children.Add(windowClientCaptureElement);
-						AddCaptureElementsForWindow(windowClientCaptureElement, window, goLevelDeep);
-					} else {
-						AddCaptureElementsForWindow(windowCaptureElement, window, goLevelDeep);
-					}
+					//if (!window.HasParent) {
+					//	// Get window client rectangle as capture Element, place all the other "children" in there
+					//	Rectangle clientRectangle = window.ClientRectangle;
+					//	CaptureElement windowClientCaptureElement = new CaptureElement(clientRectangle);
+					//	windowCaptureElement.Children.Add(windowClientCaptureElement);
+					//	AddCaptureElementsForWindow(windowClientCaptureElement, window, goLevelDeep);
+					//} else {
+					//	AddCaptureElementsForWindow(windowCaptureElement, window, goLevelDeep);
+					//}
 				}
 				lock (windows) {
 					windows = WindowDetails.SortByZOrder(IntPtr.Zero, windows);
