@@ -38,6 +38,9 @@ namespace Greenshot.Interop.Office {
 		private static readonly string SIGNATURE_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
 		private static Version outlookVersion = null;
 		private static string currentUser = null;
+		privats const int OUTLOOK_2003 = 11;
+		privats const int OUTLOOK_2007 = 12;
+		privats const int OUTLOOK_2010 = 14;
 
 		// The signature key can be found at:
 		// HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\<DefaultProfile>\9375CFF0413111d3B88A00104B2A6676\<xxxx> [New Signature]
@@ -98,10 +101,10 @@ namespace Greenshot.Interop.Office {
 						if (!mailItem.Sent) {
 							return true;
 						}
-					} else if (outlookVersion.Major >= 12 && allowMeetingAsTarget && OlObjectClass.olAppointment.Equals(currentItemClass)) {
+					} else if (outlookVersion.Major >= OUTLOOK_2010 && allowMeetingAsTarget && OlObjectClass.olAppointment.Equals(currentItemClass)) {
 						//AppointmentItem appointmentItem = COMWrapper.Cast<AppointmentItem>(currentItem);
 						AppointmentItem appointmentItem = (AppointmentItem)currentItem;
-						if (string.IsNullOrEmpty(appointmentItem.Organizer) || (currentUser == null && currentUser.Equals(appointmentItem.Organizer))) {
+						if (string.IsNullOrEmpty(appointmentItem.Organizer) || (currentUser != null && currentUser.Equals(appointmentItem.Organizer))) {
 							return true;
 						} else {
 							LOG.DebugFormat("Not exporting, as organizer is {1} and currentuser {2}", appointmentItem.Organizer, currentUser);
@@ -217,7 +220,7 @@ namespace Greenshot.Interop.Office {
 				LOG.InfoFormat("Item '{0}' has format: {1}", mailItem.Subject, mailItem.BodyFormat);
 
 				string contentID;
-				if (outlookVersion.Major >= 12) {
+				if (outlookVersion.Major >= OUTLOOK_2007) {
 					contentID = Guid.NewGuid().ToString();
 				} else {
 					LOG.Info("Older Outlook (<2007) found, using filename as contentid.");
@@ -261,7 +264,7 @@ namespace Greenshot.Interop.Office {
 
 				// Create the attachment (if inlined the attachment isn't visible as attachment!)
 				using (Attachment attachment = mailItem.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName)) {
-					if (outlookVersion.Major >= 12) {
+					if (outlookVersion.Major >= OUTLOOK_2007) {
 						// Add the content id to the attachment, this only works for Outlook >= 2007
 						try {
 							PropertyAccessor propertyAccessor = attachment.PropertyAccessor;
@@ -323,7 +326,7 @@ namespace Greenshot.Interop.Office {
 					// Create the attachment
 					using (Attachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName)) {
 						// add content ID to the attachment
-						if (outlookVersion.Major >= 12) {
+						if (outlookVersion.Major >= OUTLOOK_2007) {
 							try {
 								contentID = Guid.NewGuid().ToString();
 								PropertyAccessor propertyAccessor = attachment.PropertyAccessor;
@@ -478,7 +481,7 @@ namespace Greenshot.Interop.Office {
 				outlookVersion = new Version(1, 1, 1, 1);
 			}
 			// Preventing retrieval of currentUser if Outlook is older than 2007
-			if (outlookVersion.Major >= 12) {
+			if (outlookVersion.Major >= OUTLOOK_2007) {
 				try {
 					INameSpace mapiNamespace = outlookApplication.GetNameSpace("MAPI");
 					currentUser = mapiNamespace.CurrentUser.Name;
