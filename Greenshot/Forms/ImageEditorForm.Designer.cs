@@ -65,7 +65,7 @@ namespace Greenshot {
 			this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnHighlight = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.btnObfuscate = new GreenshotPlugin.Controls.GreenshotToolStripButton();
-			this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripDropDownButton();
+			this.toolStripSplitButton1 = new GreenshotPlugin.Controls.GreenshotToolStripDropDownButton();
 			this.addBorderToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.addDropshadowToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.tornEdgesToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
@@ -429,7 +429,7 @@ namespace Greenshot {
 			this.toolStripSplitButton1.ShowDropDownArrow = false;
 			this.toolStripSplitButton1.Size = new System.Drawing.Size(22, 20);
 			this.toolStripSplitButton1.Text = "toolStripSplitButton1";
-			this.toolStripSplitButton1.ToolTipText = "Effects";
+			this.toolStripSplitButton1.LanguageKey = "editor_effects";
 			// 
 			// addBorderToolStripMenuItem
 			// 
@@ -1615,7 +1615,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addBorderToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem tornEdgesToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addDropshadowToolStripMenuItem;
-		private System.Windows.Forms.ToolStripDropDownButton toolStripSplitButton1;
+		private GreenshotPlugin.Controls.GreenshotToolStripDropDownButton toolStripSplitButton1;
 		private System.Windows.Forms.ToolStripStatusLabel dimensionsLabel;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem insert_window_toolstripmenuitem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
