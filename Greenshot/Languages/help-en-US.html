@@ -23,7 +23,7 @@
 	<!-- 
 	Note to translator: uncomment entry below to have your effort honored 
 	-->
-	<small>Version 0.8<!-- - English translation of help content by YOUR_NAME--></small>
+	<small>Version 1.0<!-- - English translation of help content by YOUR_NAME--></small>
 	
 	<h2>Contents</h2>
 	<ol>
@@ -42,6 +42,7 @@
 			<li><a href="#editor-text">Adding text</a></li>
 			<li><a href="#editor-highlight">Highlighting things</a></li>
 			<li><a href="#editor-obfuscate">Obfuscating things</a></li>
+			<li><a href="#editor-effects">Adding effects</a></li>
 			<li><a href="#editor-crop">Cropping the screenshot</a></li>
 			<li><a href="#editor-adding-graphics">Adding graphics to a screenshot</a></li>
 			<li><a href="#editor-reuse-elements">Re-using drawn elements</a></li>
@@ -52,7 +53,9 @@
 			<li><a href="#settings-general">General settings</a></li>
 			<li><a href="#settings-capture">Capture settings</a></li>
 			<li><a href="#settings-output">Output settings</a></li>
+			<li><a href="#settings-destination">Destination settings</a></li>
 			<li><a href="#settings-printer">Printer settings</a></li>
+			<li><a href="#settings-expert">Expert settings</a></li>
 		</ol>
 		<li><a href="#help">Want to help?</a></li>
 		<ol>
@@ -101,6 +104,11 @@
 	<h3>Capture window <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
 	<p>
 		Creates a screenshot of the window which is currently active.
+	</p>
+	<p class="hint">
+		For Windows 7 or Vista systems, use the Window Capture mode setting to control
+		how Greenshot handles semi transparent (Aero) window borders, e.g. replacing
+		transparency with a custom color.
 	</p>
 	<p class="hint">
 		The <a href="#settings">settings dialog</a> offers an option not to capture
@@ -236,6 +244,14 @@
 		If the blur performance is still too bad for you to work with, you might prefer
 		to use the pixelize effect instead.
 	</p>
+	<a name="editor-effects"></a>
+	<h3>Adding effects</h3>
+	<p>
+		You can add different effects to your screenshot. You might want to apply a border, shadow or 
+		torn edges effect, e.g. to visually separate your screenshot from other content in a document.
+		The Grayscale and Invert effects are mainly useful before printing, saving ink or toner when 
+		printing colorful or dark screenshots.
+	</p>
 	
 	<a name="editor-crop"></a>
 	<h3>Cropping the screenshot</h3>
@@ -252,6 +268,11 @@
 		<em>Auto-Crop</em>: If you need to crop a border of solid background color from your screenshot,
 		simply choose <em>Auto-Crop</em> from the <em>Edit</em> menu and Greenshot will automatically 
 		select the area for cropping.
+	</p>
+	
+	<a name="editor-rotate"></a>
+	<p class="hint">
+		Use the rotation tools to rotate the screenshot clockwise or anti-clockwise.
 	</p>
 
 	<a name="editor-adding-graphics"></a>
@@ -288,6 +309,10 @@
 		<li><em>Print...</em> <kbd>Control</kbd> + <kbd>P</kbd>: sends the image to a printer</li>
 		<li><em>E-Mail</em> <kbd>Control</kbd> + <kbd>E</kbd>: opens a new message in your default e-mail client, adding the image as attachment</li>
 	</ul>
+	<p> 
+		There are plugins for exporting screenshots to other targets, e.g. DropBox, Picasa, Flickr. Simply select
+		the appropriate plugins during the installation process.
+	</p>
 	<p class="hint">
 		After saving an image from the editor, right-click the status bar at the bottom of
 		the editor window to either copy the file path into the clipboard or open the
@@ -345,6 +370,17 @@
 		<li><em>JPEG settings</em>: Quality to be used when saving JPEG files</li>
 	</ul>
 	
+	<a name="settings-destination"></a>
+	<h3>Destination settings</h3>
+	<p>
+		By default, Greenshot lets you pick a destination dynamically after creating a screenshot, displaying a small
+		menu with different destinations to select from. If you do not want or need to switch destinations instantly,
+		you might prefer to configure Greenshot to export to one or more destinations directly, without displaying the
+		destination picker.<br/>
+		Note: as with <a href="#editor-export">exporting from the editor window, the displayed destinations vary 
+		depending on the plugins that you have installed with Greenshot.</a>
+	</p>
+	
 	<a name="settings-printer"></a>
 	<h3>Printer settings</h3>
 	<ul>
@@ -352,6 +388,7 @@
 		<li><em>Enlarge printout to fit paper size</em>: If the image is smaller than the paper size, it will be scaled to be printed as large as possible without exceeding paper size.</li>
 		<li><em>Rotate printout to page orientation</em>: Will rotate a landscape format image by 90&deg; for printing.</li>
 		<li><em>Print with inverted colors</em>: Will invert the screenshot before printing it, useful e.g. when printing a screenshot of white text on black background (to save toner/ink).</li>
+		<li><em>Force grayscale printing</em>: Will convert colors to grayscale before printing.</li>
 	</ul>
 
 	<a name="settings-plugins"></a>
@@ -359,6 +396,12 @@
 	<p>
 		Displays a list of installed Greenshot plugins. Select one from the list and click <em>Configure</em> in order to access
 		the configuration of a plugin.
+	</p>
+	
+	<a name="settings-expert"></a>
+	<h3>expert settings</h3>
+	<p>
+		We mean it: you rather should not change anything here if you do not know what you are doing, as these settings might lead to unexpected behavior.
 	</p>
 	
 	
