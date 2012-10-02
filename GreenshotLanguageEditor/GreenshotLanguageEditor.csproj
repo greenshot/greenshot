@@ -97,6 +97,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <EmbeddedResource Include="template-homepage.html.part" />
+    <EmbeddedResource Include="template-installer.iss.part" />
     <Resource Include="icons\cross.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
