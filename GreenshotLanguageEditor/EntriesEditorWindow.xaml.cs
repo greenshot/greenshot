@@ -93,7 +93,6 @@ namespace GreenshotLanguageEditor {
 				return;
 			}
 
-
 			InitializeComponent();
 			DataContext = this;
 			this.Activate();
@@ -174,7 +173,9 @@ namespace GreenshotLanguageEditor {
 			CreateXML(editedFile.FilePath, targetColumn);
 			
 			if(editedFile.FileName.Contains("website")) {
-				CreateHTML(editedFile.FilePath, targetColumn);
+				CreateWebsitePart(editedFile.FilePath, targetColumn);
+			} else if(editedFile.FileName.Contains("installer")) {
+				CreateInstallerPart(editedFile.FilePath, targetColumn);
 			}
 			
 			if(targetColumn == 1) unsavedChangesInLanguage1 = false;
@@ -294,30 +295,46 @@ namespace GreenshotLanguageEditor {
 			}
 		}
 		
-		public void CreateHTML(string savePath, int targetColumn) {
+		public void CreateWebsitePart(string savePath, int targetColumn) {
+			PopulateTemplate("template-homepage.html.part", savePath, targetColumn);
+		}
+		
+		public void CreateInstallerPart(string savePath, int targetColumn) {
+			PopulateTemplate("template-installer.iss.part", savePath, targetColumn);
+		}
+
+
+		void PopulateTemplate(string fileName, string savePath, int targetColumn) {
 			LanguageFile langfile = targetColumn == 1 ? LanguageFile1 : LanguageFile2;
 			ICollectionView view = (ICollectionView)LanguageGrid.ItemsSource;
 			IList<LanguageEntry> entries = (IList<LanguageEntry>)view.SourceCollection;
-			
 			string tmp;
-			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GreenshotLanguageEditor.template-homepage.html.part")) {
+			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GreenshotLanguageEditor."+fileName)) {
 				using (StreamReader reader = new StreamReader(stream)) {
 					tmp = reader.ReadToEnd();
-					foreach(LanguageEntry e in entries) {
+					foreach (LanguageEntry e in entries) {
 						string entryString = targetColumn == 1 ? e.Entry1 : e.Entry2;
-						tmp = tmp.Replace("${"+e.Key+"}", entryString);	
+						tmp = tmp.Replace("${" + e.Key + "}", entryString);
 					}
+					tmp = tmp.Replace("${lang}",extractIetfLanguageCode(savePath));
 				}
 			}
-			FileInfo fi = new FileInfo(savePath.Replace("xml","html.part"));
+			FileInfo fi = new FileInfo(savePath.Replace(".xml", fileName.Substring(fileName.IndexOf("."))));
 			FileStream fs = fi.Open(FileMode.OpenOrCreate);
 			byte[] barr = Encoding.GetEncoding("UTF-8").GetBytes(tmp);
-			fs.Write(barr,0, barr.Length);
+			fs.Write(barr, 0, barr.Length);
 			fs.Close();
 		}
 
 		private  int compareEntryKeys(LanguageEntry a, LanguageEntry b) {
 			return a.Key.CompareTo(b.Key);
+		}
+		
+		// assuming that filename always ends with -LANG-REGION.EXT, extracting LANG
+		private string extractIetfLanguageCode(string filename) {
+			string[] s = filename.Split('-');
+			if(s.Length > 2) return s[s.Length - 2];
+			else throw new ArgumentException("Filename does not match expected pattern: "+filename);
 		}
 	}
 	
