@@ -38,9 +38,9 @@ namespace Greenshot.Interop.Office {
 		private static readonly string SIGNATURE_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
 		private static Version outlookVersion = null;
 		private static string currentUser = null;
-		privats const int OUTLOOK_2003 = 11;
-		privats const int OUTLOOK_2007 = 12;
-		privats const int OUTLOOK_2010 = 14;
+		private const int OUTLOOK_2003 = 11;
+		private const int OUTLOOK_2007 = 12;
+		private const int OUTLOOK_2010 = 14;
 
 		// The signature key can be found at:
 		// HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\<DefaultProfile>\9375CFF0413111d3B88A00104B2A6676\<xxxx> [New Signature]
