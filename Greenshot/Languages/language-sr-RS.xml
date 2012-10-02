@@ -106,6 +106,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_highlight_magnify">Увећај</resource>
 		<resource name="editor_highlight_mode">Подвлачење</resource>
 		<resource name="editor_highlight_text">Истакни теркст</resource>
+		<resource name="editor_image_shadow">Сенка</resource>
 		<resource name="editor_imagesaved">Слика сачувана на {0}.</resource>
 		<resource name="editor_insertwindow">Обрни прозор</resource>
 		<resource name="editor_invert">Обрни</resource>
@@ -133,7 +134,6 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_selectall">Одабери све</resource>
 		<resource name="editor_senttoprinter">Штампање послано '{0}'.</resource>
 		<resource name="editor_shadow">Сенка</resource>
-		<resource name="editor_image_shadow">Сенка</resource>
 		<resource name="editor_storedtoclipboard">Слика сачлувана у остави.</resource>
 		<resource name="editor_thickness">Дебљина линије</resource>
 		<resource name="editor_title">Greenshot едитор слика</resource>
@@ -160,9 +160,11 @@ Details about the GNU General Public License:</resource>
 		<resource name="expertsettings_footerpattern">Шаблом стампања подножја</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Минимизује меморију, али спорије (није препоручено).</resource>
 		<resource name="expertsettings_optimizeforrdp">Уради неме оптимизације за употребу преко удаљеног дектопа</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Поново употреби едитор ако може</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Угаси дијалог сачувавања на затварање едитора</resource>
 		<resource name="expertsettings_thumbnailpreview">Прикажи сличице прозора у контектуелном менију (за Vista и windows 7)</resource>
 		<resource name="exported_to">Извоз у: {0}</resource>
+		<resource name="exported_to_error">Десила се грешка при извоз у {0}:</resource>
 		<resource name="help_title">Помоћ Greenshot-а</resource>
 		<resource name="hotkeys">Пречице</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Одабрати квалитет за JPEG слику.</resource>
