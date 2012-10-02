@@ -1,0 +1,10 @@
+﻿${lang}.confluence=${confluence}
+${lang}.default=${default}
+${lang}.externalcommand=${externalcommand}
+${lang}.imgur=${imgur}
+${lang}.jira=${jira}
+${lang}.language=${language}
+${lang}.ocr=${ocr}
+${lang}.optimize=${optimize}
+${lang}.startgreenshot=${startgreenshot}
+${lang}.startup=${startup}
