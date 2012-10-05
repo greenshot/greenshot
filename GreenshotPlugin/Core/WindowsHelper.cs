@@ -488,6 +488,9 @@ namespace GreenshotPlugin.Core  {
 		/// <returns>null if nothing found, otherwise the WindowDetails instance of the "child"</returns>
 		public WindowDetails GetWindow(GetWindowCommand gwCommand) {
 			IntPtr tmphWnd = User32.GetWindow(Handle, gwCommand);
+			if (IntPtr.Zero == tmphWnd) {
+				return null;
+			}
 			WindowDetails windowDetails = new WindowDetails(tmphWnd);
 			windowDetails.parent = this;
 			return windowDetails;
@@ -1389,9 +1392,13 @@ namespace GreenshotPlugin.Core  {
 		public static WindowDetails GetActiveWindow() {
 			IntPtr hWnd = User32.GetForegroundWindow();
 			if (hWnd != null && hWnd != IntPtr.Zero) {
+				if (ignoreHandles.Contains(hWnd)) {
+					return WindowDetails.GetDesktopWindow();
+				}
+
 				WindowDetails activeWindow = new WindowDetails(hWnd);
 				// Invisible Windows should not be active
-				if (!activeWindow.Visible || ignoreHandles.Contains(activeWindow.Handle)) {
+				if (!activeWindow.Visible) {
 					return WindowDetails.GetDesktopWindow();
 				}
 				return activeWindow;
