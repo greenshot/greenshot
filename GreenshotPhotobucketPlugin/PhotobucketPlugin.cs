@@ -111,9 +111,9 @@ namespace GreenshotPhotobucketPlugin {
 		public bool Upload(ICaptureDetails captureDetails, Image image, out string uploadURL) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			using (MemoryStream stream = new MemoryStream()) {
-				host.SaveToStream(image, stream, outputSettings);
+				ImageOutput.SaveToStream(image, stream, outputSettings);
 				try {
-					string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, captureDetails));
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
 					PhotobucketInfo photobucketInfo = null;
 			
 					// Run upload in the background
