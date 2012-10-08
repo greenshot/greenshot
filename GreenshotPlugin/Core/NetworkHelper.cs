@@ -222,24 +222,24 @@ namespace GreenshotPlugin.Core {
 		}
 		
 		/// <summary>
-        /// Generate the query paramters
-        /// </summary>
-        /// <param name="queryParameters">the list of query parameters</param>
-        /// <returns>a string with the query parameters</returns>
-        public static string GenerateQueryParameters(IDictionary<string, string> queryParameters) {
-            if (queryParameters == null || queryParameters.Count == 0) {
-                return string.Empty;
-            }
-        	
-        	queryParameters = new SortedDictionary<string, string>(queryParameters);
+		/// Generate the query paramters
+		/// </summary>
+		/// <param name="queryParameters">the list of query parameters</param>
+		/// <returns>a string with the query parameters</returns>
+		public static string GenerateQueryParameters(IDictionary<string, object> queryParameters) {
+			if (queryParameters == null || queryParameters.Count == 0) {
+				return string.Empty;
+			}
+
+			queryParameters = new SortedDictionary<string, object>(queryParameters);
 
 			StringBuilder sb = new StringBuilder();
 			foreach(string key in queryParameters.Keys) {
-				sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode(queryParameters[key]));
+				sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode(string.Format("{0}",queryParameters[key])));
 			}
 			sb.Remove(sb.Length-1,1);
 
 			return sb.ToString();
-        }
+		}
 	}
 }

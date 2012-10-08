@@ -41,6 +41,22 @@ namespace GreenshotPlugin.Core {
 		
 	public enum HTTPMethod { GET, POST, PUT, DELETE };
 
+	public class FileParameter {
+		public byte[] File { get; set; }
+		public string FileName { get; set; }
+		public string ContentType { get; set; }
+		public int FileSize {get; set; }
+		public FileParameter(byte[] file) : this(file, null) { }
+		public FileParameter(byte[] file, string filename) : this(file, filename, null) { }
+		public FileParameter(byte[] file, string filename, string contenttype) : this(file, filename, contenttype, 0) { }
+		public FileParameter(byte[] file, string filename, string contenttype, int filesize) {
+			File = file;
+			FileName = filename;
+			ContentType = contenttype;
+			FileSize = filesize;
+		}
+	}
+
 	public class OAuthSession {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OAuthSession));
 		protected const string OAUTH_VERSION = "1.0";
@@ -100,11 +116,31 @@ namespace GreenshotPlugin.Core {
 		private string loginTitle = "Authorize Greenshot access";
 
 		#region PublicPropertiies
-		public string UserAgent { get { return _userAgent; } set { _userAgent = value; } }
 		public string RequestTokenUrl { get; set; }
 		public string AuthorizeUrl { get; set; }
 		public string AccessTokenUrl { get; set; }
-		public string CallbackUrl { get { return _callbackUrl;} set { _callbackUrl = value; } }
+
+		public string Token { get; set; }
+		public string TokenSecret { get; set; }
+		public string Verifier { get; set; }
+
+		public bool UseMultipartFormData { get; set; }
+		public string UserAgent {
+			get {
+				return _userAgent;
+			}
+			set {
+				_userAgent = value;
+			}
+		}
+		public string CallbackUrl {
+			get {
+				return _callbackUrl;
+			}
+			set {
+				_callbackUrl = value;
+			}
+		}
 		public bool CheckVerifier {
 			get {
 				return checkVerifier;
@@ -123,12 +159,6 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public string Token {
-			get;
-			set;
-		}
-		public string TokenSecret { get; set; }
-
 		public string LoginTitle {
 			get {
 				return loginTitle;
@@ -136,10 +166,6 @@ namespace GreenshotPlugin.Core {
 			set {
 				loginTitle = value;
 			}
-		}
-		public string Verifier {
-			get;
-			set;
 		}
 		public bool UseHTTPHeadersForAuthorization {
 			get {
@@ -155,6 +181,7 @@ namespace GreenshotPlugin.Core {
 		public OAuthSession(string consumerKey, string consumerSecret) {
 			this.consumerKey = consumerKey;
 			this.consumerSecret = consumerSecret;
+			this.UseMultipartFormData = true;
 		}
 
 		/// <summary>
@@ -183,16 +210,18 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="queryParameters">the list of query parameters</param>
 		/// <returns>a string with the normalized query parameters</returns>
-		private static string GenerateNormalizedParametersString(IDictionary<string, string> queryParameters) {
+		private static string GenerateNormalizedParametersString(IDictionary<string, object> queryParameters) {
 			if (queryParameters == null || queryParameters.Count == 0) {
 				return string.Empty;
 			}
 
-			queryParameters = new SortedDictionary<string, string>(queryParameters);
+			queryParameters = new SortedDictionary<string, object>(queryParameters);
 
 			StringBuilder sb = new StringBuilder();
 			foreach (string key in queryParameters.Keys) {
-				sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode3986(queryParameters[key]));
+				if (queryParameters[key] is string) {
+					sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode3986(string.Format("{0}",queryParameters[key])));
+				}
 			}
 			sb.Remove(sb.Length - 1, 1);
 
@@ -245,7 +274,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>The request token.</returns>
 		private String getRequestToken() {
 			string ret = null;
-			IDictionary<string, string> parameters = new Dictionary<string, string>();
+			IDictionary<string, object> parameters = new Dictionary<string, object>();
 			Sign(HTTPMethod.POST, RequestTokenUrl, parameters);
 			string response = MakeRequest(HTTPMethod.POST, RequestTokenUrl, parameters, null, null);
 			LOG.DebugFormat("Request token response: {0}", response);
@@ -295,7 +324,7 @@ namespace GreenshotPlugin.Core {
 				throw e;
 			}
 
-			IDictionary<string, string> parameters = new Dictionary<string, string>();
+			IDictionary<string, object> parameters = new Dictionary<string, object>();
 			Sign(HTTPMethod.POST, AccessTokenUrl, parameters);
 			string response = MakeRequest(HTTPMethod.POST, AccessTokenUrl, parameters, null, null);
 			LOG.DebugFormat("Access token response: {0}", response);
@@ -351,7 +380,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="requestURL"></param>
 		/// <param name="parameters"></param>
 		/// <returns></returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, string> parameters) {
+		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters) {
 			return MakeOAuthRequest(method, requestURL, parameters, null, null);
 		}
 
@@ -364,9 +393,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="contentType">contenttype for the postdata</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, string> parameters, string contentType, MemoryStream postData) {
+		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, MemoryStream postData) {
 			if (parameters == null) {
-				parameters = new Dictionary<string, string>();
+				parameters = new Dictionary<string, object>();
 			}
 			int retries = 2;
 			Exception lastException = null;
@@ -389,7 +418,7 @@ namespace GreenshotPlugin.Core {
 							TokenSecret = null;
 
 							// Remove oauth keys, so they aren't added double
-							IDictionary<string, string> newParameters = new Dictionary<string, string>();
+							IDictionary<string, object> newParameters = new Dictionary<string, object>();
 							foreach (string parameterKey in parameters.Keys) {
 								if (!parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
 									newParameters.Add(parameterKey, parameters[parameterKey]);
@@ -415,7 +444,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="method">Method (POST,PUT,GET)</param>
 		/// <param name="requestURL">Url to call</param>
 		/// <param name="parameters">IDictionary<string, string></param>
-		public void Sign(HTTPMethod method, string requestURL, IDictionary<string, string> parameters) {
+		public void Sign(HTTPMethod method, string requestURL, IDictionary<string, object> parameters) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -450,6 +479,7 @@ namespace GreenshotPlugin.Core {
 				parameters.Add(OAUTH_TOKEN_KEY, Token);
 			}
 			signatureBase.Append(UrlEncode3986(GenerateNormalizedParametersString(parameters)));
+			LOG.DebugFormat("Signature base: {0}", signatureBase);
 			// Generate Signature and add it to the parameters
 			HMACSHA1 hmacsha1 = new HMACSHA1();
 			hmacsha1.Key = Encoding.UTF8.GetBytes(string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret)));
@@ -467,19 +497,19 @@ namespace GreenshotPlugin.Core {
 		/// <param name="contentType"></param>
 		/// <param name="postData"></param>
 		/// <returns>Response from server</returns>
-		public string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, string> parameters, string contentType, MemoryStream postData) {
+		public string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, MemoryStream postData) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
-			IDictionary<string, string> requestParameters = null;
+			IDictionary<string, object> requestParameters = null;
 			// Add oAuth values as HTTP headers, if this is allowed
 			StringBuilder authHeader = null;
 			if (HTTPMethod.POST == method && UseHTTPHeadersForAuthorization) {
 				authHeader = new StringBuilder();
-				requestParameters = new Dictionary<string, string>();
+				requestParameters = new Dictionary<string, object>();
 				foreach (string parameterKey in parameters.Keys) {
 					if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
-						authHeader.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}=\"{1}\", ", parameterKey, UrlEncode3986(parameters[parameterKey]));
+						authHeader.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}=\"{1}\", ", parameterKey, UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
 					} else if (!requestParameters.ContainsKey(parameterKey)) {
 						requestParameters.Add(parameterKey, parameters[parameterKey]);
 					}
@@ -509,18 +539,32 @@ namespace GreenshotPlugin.Core {
 			}
 
 			if (HTTPMethod.POST == method && postData == null && requestParameters != null && requestParameters.Count > 0) {
-				StringBuilder form = new StringBuilder();
-				foreach (string parameterKey in requestParameters.Keys) {
-					form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(parameters[parameterKey]));
-				}
-				// Remove trailing &
-				if (form.Length > 0) {
-					form.Remove(form.Length - 1, 1);
-				}
-				webRequest.ContentType = "application/x-www-form-urlencoded";
-				byte[] data = Encoding.UTF8.GetBytes(form.ToString());
-				using (var requestStream = webRequest.GetRequestStream()) {
-					requestStream.Write(data, 0, data.Length);
+				
+				if (UseMultipartFormData) {
+					byte [] data = GetMultipartFormData(requestParameters, out contentType);
+					webRequest.ContentType = contentType;
+					using (var requestStream = webRequest.GetRequestStream()) {
+						requestStream.Write(data, 0, data.Length);
+					}
+				} else {
+					StringBuilder form = new StringBuilder();
+					foreach (string parameterKey in requestParameters.Keys) {
+						if (parameters[parameterKey] is FileParameter) {
+							FileParameter fileParameter = parameters[parameterKey] as FileParameter;
+							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(System.Convert.ToBase64String(fileParameter.File, 0, fileParameter.FileSize != 0 ? fileParameter.FileSize : fileParameter.File.Length)));
+						} else {
+							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
+						}
+					}
+					// Remove trailing &
+					if (form.Length > 0) {
+						form.Remove(form.Length - 1, 1);
+					}
+					webRequest.ContentType = "application/x-www-form-urlencoded";
+					byte[] data = Encoding.UTF8.GetBytes(form.ToString());
+					using (var requestStream = webRequest.GetRequestStream()) {
+						requestStream.Write(data, 0, data.Length);
+					}
 				}
 			} else {
 				webRequest.ContentType = contentType;
@@ -537,6 +581,67 @@ namespace GreenshotPlugin.Core {
 			webRequest = null;
 
 			return responseData;
+		}
+	
+		/// <summary>
+		/// Create a Multipart Form Data as byte[]
+		/// </summary>
+		/// <param name="postParameters">Parameters to include in the multipart form data</param>
+		/// <param name="contentType">out parameter for contenttype</param>
+		/// <returns>byte[] with Multipart Form Data which can be used to upload</returns>
+		private static byte[] GetMultipartFormData(IDictionary<string, object> postParameters, out string contentType) {
+			string boundary = String.Format("----------{0:N}", Guid.NewGuid());
+			contentType = "multipart/form-data; boundary=" + boundary;
+			Stream formDataStream = new MemoryStream();
+			bool needsCLRF = false;
+ 
+			foreach (var param in postParameters) {
+				// Thanks to feedback from commenters, add a CRLF to allow multiple parameters to be added.
+				// Skip it on the first parameter, add it to subsequent parameters.
+				if (needsCLRF) {
+					formDataStream.Write(Encoding.UTF8.GetBytes("\r\n"), 0, Encoding.UTF8.GetByteCount("\r\n"));
+				}
+
+				needsCLRF = true;
+
+				if (param.Value is FileParameter) {
+					FileParameter fileToUpload = (FileParameter)param.Value;
+
+					// Add just the first part of this param, since we will write the file data directly to the Stream
+					string header = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\";\r\nContent-Type: {3}\r\n\r\n",
+						boundary,
+						param.Key,
+						fileToUpload.FileName ?? param.Key,
+						fileToUpload.ContentType ?? "application/octet-stream");
+
+					formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
+
+					// Write the file data directly to the Stream, rather than serializing it to a string.
+					if (fileToUpload.FileSize > 0) {
+						formDataStream.Write(fileToUpload.File, 0, fileToUpload.FileSize);
+					} else {
+						formDataStream.Write(fileToUpload.File, 0, fileToUpload.File.Length);
+					}
+				} else {
+					string postData = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"\r\n\r\n{2}",
+						boundary,
+						param.Key,
+						param.Value);
+					formDataStream.Write(Encoding.UTF8.GetBytes(postData), 0, Encoding.UTF8.GetByteCount(postData));
+				}
+			}
+
+			// Add the end of the request.  Start with a newline
+			string footer = "\r\n--" + boundary + "--\r\n";
+			formDataStream.Write(Encoding.UTF8.GetBytes(footer), 0, Encoding.UTF8.GetByteCount(footer));
+
+			// Dump the Stream into a byte[]
+			formDataStream.Position = 0;
+			byte[] formData = new byte[formDataStream.Length];
+			formDataStream.Read(formData, 0, formData.Length);
+			formDataStream.Close();
+
+			return formData;
 		}
 
 		/// <summary>

@@ -100,35 +100,30 @@ namespace GreenshotImgurPlugin {
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>ImgurResponse</returns>
 		public static ImgurInfo UploadToImgur(byte[] imageData, int dataLength, string title, string filename) {
-			IDictionary<string, string> uploadParameters = new Dictionary<string, string>();
-			// Add image
-			uploadParameters.Add("image", System.Convert.ToBase64String(imageData, 0, dataLength));
-			// add type
-			uploadParameters.Add("type", "base64");
-
-			// add title
-			if (title != null) {
-				uploadParameters.Add("title", title);
-			}
-			// add filename
-			if (filename != null) {
-				uploadParameters.Add("name", filename);
-			}
+			IDictionary<string, object> uploadParameters = new Dictionary<string, object>();
 
 			string responseString = null;
 			if (config.AnonymousAccess) {
+				// add title
+				if (title != null) {
+					uploadParameters.Add("title", title);
+				}
+				// add filename
+				if (filename != null) {
+					uploadParameters.Add("name", filename);
+				}
+
 				// add key
 				uploadParameters.Add("key", IMGUR_ANONYMOUS_API_KEY);
-				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload");
+				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(uploadParameters));
 
 				webRequest.Method = "POST";
-				webRequest.ContentType = "application/x-www-form-urlencoded";
+				webRequest.ContentType = "image/png";
 				webRequest.ServicePoint.Expect100Continue = false;
-	
-				using(StreamWriter streamWriter = new StreamWriter(webRequest.GetRequestStream())) {
-					string urloadText = NetworkHelper.GenerateQueryParameters(uploadParameters);
-					streamWriter.Write(urloadText);
+				using (var requestStream = webRequest.GetRequestStream()) {
+					requestStream.Write(imageData, 0, dataLength);
 				}
+	
 				using (WebResponse response = webRequest.GetResponse()) {
 					LogCredits(response);
 					Stream responseStream = response.GetResponseStream();
@@ -144,12 +139,34 @@ namespace GreenshotImgurPlugin {
 				oAuth.AuthorizeUrl = "http://api.imgur.com/oauth/authorize";
 				oAuth.RequestTokenUrl = "http://api.imgur.com/oauth/request_token";
 				oAuth.LoginTitle = "Imgur authorization";
-				//oAuth.UseHTTPHeadersForAuthorization = false;
 				oAuth.Token = config.ImgurToken;
 				oAuth.TokenSecret = config.ImgurTokenSecret;
+				if (string.IsNullOrEmpty(oAuth.Token)) {
+					if (!oAuth.Authorize()) {
+						return null;
+					}
+					if (!string.IsNullOrEmpty(oAuth.Token)) {
+						config.ImgurToken = oAuth.Token;
+					}
+					if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
+						config.ImgurTokenSecret = oAuth.TokenSecret;
+					}
+					IniConfig.Save();
+				}
 				try {
-					LOG.DebugFormat("Test: {0}", oAuth.MakeOAuthRequest(HTTPMethod.GET, "http://api.imgur.com/2/account", null));
-					responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.imgur.com/2/account/images.xml", uploadParameters);
+					string apiUrl = "http://api.imgur.com/2/account/images.xml";
+					// sign without parameters
+					oAuth.Sign(HTTPMethod.POST, apiUrl, uploadParameters);
+					// add title
+					if (title != null) {
+						uploadParameters.Add("title", title);
+					}
+					// add filename
+					if (filename != null) {
+						uploadParameters.Add("name", filename);
+					}
+					uploadParameters.Add("image", new FileParameter(imageData, filename, "image/png", dataLength));
+					responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, uploadParameters, null, null);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
 					throw ex;
@@ -163,9 +180,7 @@ namespace GreenshotImgurPlugin {
 					IniConfig.Save();
 				}
 			}
-			LOG.Info(responseString);
-			ImgurInfo imgurInfo = ImgurInfo.ParseResponse(responseString);
-			return imgurInfo;
+			return ImgurInfo.ParseResponse(responseString);
 		}
 
 		public static void RetrieveImgurThumbnail(ImgurInfo imgurInfo) {
