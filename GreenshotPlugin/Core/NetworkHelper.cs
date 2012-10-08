@@ -416,8 +416,16 @@ namespace GreenshotPlugin.Core {
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
 
-			// Write the file data directly to the Stream, rather than serializing it to a string.
-			ImageOutput.SaveToStream(image, formDataStream, outputSettings);
+			if (outputSettings.Format == OutputFormat.png) {
+				// The PNG image formats need to be written to a seekable stream, so we need a intermediate MemoryStream
+				using (MemoryStream memoryStream = new MemoryStream()) {
+					ImageOutput.SaveToStream(image, memoryStream, outputSettings);
+					memoryStream.WriteTo(formDataStream);
+				}				
+			} else {
+				ImageOutput.SaveToStream(image, formDataStream, outputSettings);			
+			}
+
 		}
 
 		/// <summary>
