@@ -28,6 +28,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GreenshotPlugin.Controls;
 using System.Drawing;
+using Greenshot.Plugin;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -40,22 +41,6 @@ namespace GreenshotPlugin.Core {
 	}
 		
 	public enum HTTPMethod { GET, POST, PUT, DELETE };
-
-	public class FileParameter {
-		public byte[] File { get; set; }
-		public string FileName { get; set; }
-		public string ContentType { get; set; }
-		public int FileSize {get; set; }
-		public FileParameter(byte[] file) : this(file, null) { }
-		public FileParameter(byte[] file, string filename) : this(file, filename, null) { }
-		public FileParameter(byte[] file, string filename, string contenttype) : this(file, filename, contenttype, 0) { }
-		public FileParameter(byte[] file, string filename, string contenttype, int filesize) {
-			File = file;
-			FileName = filename;
-			ContentType = contenttype;
-			FileSize = filesize;
-		}
-	}
 
 	public class OAuthSession {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OAuthSession));
@@ -393,7 +378,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="contentType">contenttype for the postdata</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, MemoryStream postData) {
+		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, IBinaryParameter postData) {
 			if (parameters == null) {
 				parameters = new Dictionary<string, object>();
 			}
@@ -495,9 +480,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="requestURL"></param>
 		/// <param name="parameters"></param>
 		/// <param name="contentType"></param>
-		/// <param name="postData"></param>
+		/// <param name="postData">IBinaryParameter</param>
 		/// <returns>Response from server</returns>
-		public string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, MemoryStream postData) {
+		public string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, IBinaryParameter postData) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -539,19 +524,14 @@ namespace GreenshotPlugin.Core {
 			}
 
 			if (HTTPMethod.POST == method && postData == null && requestParameters != null && requestParameters.Count > 0) {
-				
 				if (UseMultipartFormData) {
-					byte [] data = GetMultipartFormData(requestParameters, out contentType);
-					webRequest.ContentType = contentType;
-					using (var requestStream = webRequest.GetRequestStream()) {
-						requestStream.Write(data, 0, data.Length);
-					}
+					NetworkHelper.WriteMultipartFormData(webRequest, requestParameters);
 				} else {
 					StringBuilder form = new StringBuilder();
 					foreach (string parameterKey in requestParameters.Keys) {
-						if (parameters[parameterKey] is FileParameter) {
-							FileParameter fileParameter = parameters[parameterKey] as FileParameter;
-							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(System.Convert.ToBase64String(fileParameter.File, 0, fileParameter.FileSize != 0 ? fileParameter.FileSize : fileParameter.File.Length)));
+						if (parameters[parameterKey] is IBinaryParameter) {
+							IBinaryParameter binaryParameter = parameters[parameterKey] as IBinaryParameter;
+							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(binaryParameter.ToBase64String()));
 						} else {
 							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
 						}
@@ -570,7 +550,7 @@ namespace GreenshotPlugin.Core {
 				webRequest.ContentType = contentType;
 				if (postData != null) {
 					using (var requestStream = webRequest.GetRequestStream()) {
-						requestStream.Write(postData.GetBuffer(), 0, (int)postData.Length);
+						postData.WriteToStream(requestStream);
 					}
 				}
 			}
@@ -582,67 +562,6 @@ namespace GreenshotPlugin.Core {
 
 			return responseData;
 		}
-	
-		/// <summary>
-		/// Create a Multipart Form Data as byte[]
-		/// </summary>
-		/// <param name="postParameters">Parameters to include in the multipart form data</param>
-		/// <param name="contentType">out parameter for contenttype</param>
-		/// <returns>byte[] with Multipart Form Data which can be used to upload</returns>
-		private static byte[] GetMultipartFormData(IDictionary<string, object> postParameters, out string contentType) {
-			string boundary = String.Format("----------{0:N}", Guid.NewGuid());
-			contentType = "multipart/form-data; boundary=" + boundary;
-			Stream formDataStream = new MemoryStream();
-			bool needsCLRF = false;
- 
-			foreach (var param in postParameters) {
-				// Thanks to feedback from commenters, add a CRLF to allow multiple parameters to be added.
-				// Skip it on the first parameter, add it to subsequent parameters.
-				if (needsCLRF) {
-					formDataStream.Write(Encoding.UTF8.GetBytes("\r\n"), 0, Encoding.UTF8.GetByteCount("\r\n"));
-				}
-
-				needsCLRF = true;
-
-				if (param.Value is FileParameter) {
-					FileParameter fileToUpload = (FileParameter)param.Value;
-
-					// Add just the first part of this param, since we will write the file data directly to the Stream
-					string header = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\";\r\nContent-Type: {3}\r\n\r\n",
-						boundary,
-						param.Key,
-						fileToUpload.FileName ?? param.Key,
-						fileToUpload.ContentType ?? "application/octet-stream");
-
-					formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
-
-					// Write the file data directly to the Stream, rather than serializing it to a string.
-					if (fileToUpload.FileSize > 0) {
-						formDataStream.Write(fileToUpload.File, 0, fileToUpload.FileSize);
-					} else {
-						formDataStream.Write(fileToUpload.File, 0, fileToUpload.File.Length);
-					}
-				} else {
-					string postData = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"\r\n\r\n{2}",
-						boundary,
-						param.Key,
-						param.Value);
-					formDataStream.Write(Encoding.UTF8.GetBytes(postData), 0, Encoding.UTF8.GetByteCount(postData));
-				}
-			}
-
-			// Add the end of the request.  Start with a newline
-			string footer = "\r\n--" + boundary + "--\r\n";
-			formDataStream.Write(Encoding.UTF8.GetBytes(footer), 0, Encoding.UTF8.GetByteCount(footer));
-
-			// Dump the Stream into a byte[]
-			formDataStream.Position = 0;
-			byte[] formData = new byte[formDataStream.Length];
-			formDataStream.Read(formData, 0, formData.Length);
-			formDataStream.Close();
-
-			return formData;
-		}
 
 		/// <summary>
 		/// Process the web response.
@@ -650,18 +569,13 @@ namespace GreenshotPlugin.Core {
 		/// <param name="webRequest">The request object.</param>
 		/// <returns>The response data.</returns>
 		protected string WebResponseGet(HttpWebRequest webRequest) {
-			StreamReader responseReader = null;
-			string responseData = "";
-
+			string responseData;
 			try {
-				responseReader = new StreamReader(webRequest.GetResponse().GetResponseStream());
-				responseData = responseReader.ReadToEnd();
+				using (StreamReader reader = new StreamReader(webRequest.GetResponse().GetResponseStream(), true)) {
+					responseData = reader.ReadToEnd();
+				}
 			} catch (Exception e) {
 				throw e;
-			} finally {
-				webRequest.GetResponse().GetResponseStream().Close();
-				responseReader.Close();
-				responseReader = null;
 			}
 
 			return responseData;

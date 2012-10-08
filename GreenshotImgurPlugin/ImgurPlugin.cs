@@ -138,42 +138,39 @@ namespace GreenshotImgurPlugin {
 		/// <returns>true if the upload succeeded</returns>
 		public bool Upload(ICaptureDetails captureDetails, Image image, out string uploadURL) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			using (MemoryStream stream = new MemoryStream()) {
-				ImageOutput.SaveToStream(image, stream, outputSettings);
-				try {
-					string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-					ImgurInfo imgurInfo = null;
+			try {
+				string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
+				ImgurInfo imgurInfo = null;
 			
-					// Run upload in the background
-					new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
-						delegate() {
-							imgurInfo = ImgurUtils.UploadToImgur(stream.GetBuffer(), (int)stream.Length, captureDetails.Title, filename);
-							LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
-							config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
-							config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
-							CheckHistory();
-						}
-					);
-
-					imgurInfo.Image = ImageHelper.CreateThumbnail(image, 90, 90);
-					IniConfig.Save();
-					uploadURL = null;
-					try {
-						if (config.UsePageLink) {
-							uploadURL = imgurInfo.Page;
-							Clipboard.SetText(imgurInfo.Page);
-						} else {
-							uploadURL = imgurInfo.Original;
-							Clipboard.SetText(imgurInfo.Original);
-						}
-					} catch (Exception ex) {
-						LOG.Error("Can't write to clipboard: ", ex);
+				// Run upload in the background
+				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
+					delegate() {
+						imgurInfo = ImgurUtils.UploadToImgur(image, outputSettings, captureDetails.Title, filename);
+						LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
+						config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
+						config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
+						CheckHistory();
 					}
-					return true;
-				} catch (Exception e) {
-					LOG.Error(e);
-					MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
+				);
+
+				imgurInfo.Image = ImageHelper.CreateThumbnail(image, 90, 90);
+				IniConfig.Save();
+				uploadURL = null;
+				try {
+					if (config.UsePageLink) {
+						uploadURL = imgurInfo.Page;
+						Clipboard.SetText(imgurInfo.Page);
+					} else {
+						uploadURL = imgurInfo.Original;
+						Clipboard.SetText(imgurInfo.Original);
+					}
+				} catch (Exception ex) {
+					LOG.Error("Can't write to clipboard: ", ex);
 				}
+				return true;
+			} catch (Exception e) {
+				LOG.Error(e);
+				MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
 			}
 			uploadURL = null;
 			return false;

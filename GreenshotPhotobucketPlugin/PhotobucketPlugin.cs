@@ -110,37 +110,34 @@ namespace GreenshotPhotobucketPlugin {
 		/// <returns>true if the upload succeeded</returns>
 		public bool Upload(ICaptureDetails captureDetails, Image image, out string uploadURL) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			using (MemoryStream stream = new MemoryStream()) {
-				ImageOutput.SaveToStream(image, stream, outputSettings);
-				try {
-					string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-					PhotobucketInfo photobucketInfo = null;
+			try {
+				string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
+				PhotobucketInfo photobucketInfo = null;
 			
-					// Run upload in the background
-					new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait), 
-						delegate() {
-							photobucketInfo = PhotobucketUtils.UploadToPhotobucket(stream.GetBuffer(), (int)stream.Length, captureDetails.Title, filename);
-						}
-					);
-					// This causes an exeption if the upload failed :)
-					LOG.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
-					uploadURL = null;
-					try {
-						if (config.UsePageLink) {
-							uploadURL = photobucketInfo.Page;
-							Clipboard.SetText(photobucketInfo.Page);
-						} else {
-							uploadURL = photobucketInfo.Original;
-							Clipboard.SetText(photobucketInfo.Original);
-						}
-					} catch (Exception ex) {
-						LOG.Error("Can't write to clipboard: ", ex);
+				// Run upload in the background
+				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait), 
+					delegate() {
+						photobucketInfo = PhotobucketUtils.UploadToPhotobucket(image, outputSettings, captureDetails.Title, filename);
 					}
-					return true;
-				} catch (Exception e) {
-					LOG.Error(e);
-					MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
+				);
+				// This causes an exeption if the upload failed :)
+				LOG.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
+				uploadURL = null;
+				try {
+					if (config.UsePageLink) {
+						uploadURL = photobucketInfo.Page;
+						Clipboard.SetText(photobucketInfo.Page);
+					} else {
+						uploadURL = photobucketInfo.Original;
+						Clipboard.SetText(photobucketInfo.Original);
+					}
+				} catch (Exception ex) {
+					LOG.Error("Can't write to clipboard: ", ex);
 				}
+				return true;
+			} catch (Exception e) {
+				LOG.Error(e);
+				MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
 			}
 			uploadURL = null;
 			return false;

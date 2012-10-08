@@ -29,6 +29,7 @@ using System.Web;
 
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Plugin;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -92,14 +93,17 @@ namespace GreenshotImgurPlugin {
 				IniConfig.Save();
 			}
 		}
-	
+
 		/// <summary>
 		/// Do the actual upload to Imgur
 		/// For more details on the available parameters, see: http://api.imgur.com/resources_anon
 		/// </summary>
-		/// <param name="imageData">byte[] with image data</param>
-		/// <returns>ImgurResponse</returns>
-		public static ImgurInfo UploadToImgur(byte[] imageData, int dataLength, string title, string filename) {
+		/// <param name="image">Image to upload</param>
+		/// <param name="outputSettings">OutputSettings for the image file format</param>
+		/// <param name="title">Title</param>
+		/// <param name="filename">Filename</param>
+		/// <returns>ImgurInfo with details</returns>
+		public static ImgurInfo UploadToImgur(Image image, OutputSettings outputSettings, string title, string filename) {
 			IDictionary<string, object> uploadParameters = new Dictionary<string, object>();
 
 			string responseString = null;
@@ -118,19 +122,18 @@ namespace GreenshotImgurPlugin {
 				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(uploadParameters));
 
 				webRequest.Method = "POST";
-				webRequest.ContentType = "image/png";
+				webRequest.ContentType = "image/" + outputSettings.Format.ToString();
 				webRequest.ServicePoint.Expect100Continue = false;
 				using (var requestStream = webRequest.GetRequestStream()) {
-					requestStream.Write(imageData, 0, dataLength);
+					ImageOutput.SaveToStream(image, requestStream, outputSettings);
 				}
 	
 				using (WebResponse response = webRequest.GetResponse()) {
 					LogCredits(response);
-					Stream responseStream = response.GetResponseStream();
-					StreamReader responseReader = new StreamReader(responseStream);
-					responseString = responseReader.ReadToEnd();
+					using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
+						responseString = reader.ReadToEnd();
+					}
 				}
-
 			} else {
 				OAuthSession oAuth = new OAuthSession(ImgurCredentials.CONSUMER_KEY, ImgurCredentials.CONSUMER_SECRET);
 				oAuth.BrowserSize = new Size(650, 500);
@@ -165,7 +168,7 @@ namespace GreenshotImgurPlugin {
 					if (filename != null) {
 						uploadParameters.Add("name", filename);
 					}
-					uploadParameters.Add("image", new FileParameter(imageData, filename, "image/png", dataLength));
+					uploadParameters.Add("image", new ImageParameter(image, outputSettings, filename));
 					responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, uploadParameters, null, null);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
@@ -211,9 +214,9 @@ namespace GreenshotImgurPlugin {
 			try {
 				using (WebResponse response = webRequest.GetResponse()) {
 					LogCredits(response);
-					Stream responseStream = response.GetResponseStream();
-					StreamReader responseReader = new StreamReader(responseStream);
-					responseString = responseReader.ReadToEnd();
+					using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
+						responseString = reader.ReadToEnd();
+					}
 				}
 			} catch (WebException wE) {
 				if (wE.Status == WebExceptionStatus.ProtocolError) {
@@ -243,9 +246,9 @@ namespace GreenshotImgurPlugin {
 				string responseString;
 				using (WebResponse response = webRequest.GetResponse()) {
 					LogCredits(response);
-					Stream responseStream = response.GetResponseStream();
-					StreamReader responseReader = new StreamReader(responseStream);
-					responseString = responseReader.ReadToEnd();
+					using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
+						responseString = reader.ReadToEnd();
+					}
 				}
 				LOG.InfoFormat("Delete result: {0}", responseString);
 			} catch (WebException wE) {

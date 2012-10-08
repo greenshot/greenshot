@@ -29,6 +29,7 @@ using System.Web;
 
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Plugin;
 
 namespace GreenshotPhotobucketPlugin {
 	/// <summary>
@@ -47,7 +48,7 @@ namespace GreenshotPhotobucketPlugin {
 		/// </summary>
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>PhotobucketResponse</returns>
-		public static PhotobucketInfo UploadToPhotobucket(byte[] imageData, int dataLength, string title, string filename) {
+		public static PhotobucketInfo UploadToPhotobucket(Image image, OutputSettings outputSettings, string title, string filename) {
 			string responseString;
 
 			OAuthSession oAuth = new OAuthSession("149833145", "ebd828180b11103c010c7e71c66f6bcb");
@@ -77,7 +78,7 @@ namespace GreenshotPhotobucketPlugin {
 			oAuth.Token = config.Token;
 			oAuth.TokenSecret = config.TokenSecret;
 
-			Dictionary<string ,string> parameters = new Dictionary<string, string>();
+			Dictionary<string, object> parameters = new Dictionary<string, object>();
 			// add album
 			parameters.Add("id", "Apex75/greenshot");
 			// add type
@@ -95,7 +96,7 @@ namespace GreenshotPhotobucketPlugin {
 				oAuth.Sign(HTTPMethod.POST, apiUrl, parameters);
 				apiUrl = apiUrl.Replace("api.photobucket.com", config.SubDomain);
 				// Add image
-				parameters.Add("uploadfile", new FileParameter(imageData, filename, "image/png", dataLength));
+				parameters.Add("uploadfile", new ImageParameter(image, outputSettings, filename));
 				responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, parameters, null, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
