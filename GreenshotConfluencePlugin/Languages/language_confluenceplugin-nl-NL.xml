@@ -70,5 +70,8 @@
   <resource name="loading">
 		Confluence daten worden geladen, wachten A.U.B.
 	</resource>
+   <resource name="communication_wait">
+     Gegevensoverdracht naar Confluence, wachten A.U.B...
+   </resource>
  </resources>
 </language>

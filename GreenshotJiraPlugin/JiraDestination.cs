@@ -104,50 +104,38 @@ namespace GreenshotJiraPlugin {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-			byte[] buffer;
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			if (jira != null) {
-				using (MemoryStream stream = new MemoryStream()) {
-					using (Image image = surface.GetImageForExport()) {
-						ImageOutput.SaveToStream(image, stream, outputSettings);							
+				using (Image image = surface.GetImageForExport()) {
+					try {
+						// Run upload in the background
+						new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
+							delegate() {
+								jiraPlugin.JiraConnector.addAttachment(jira.Key, filename, new ImageContainer(image, outputSettings, filename));
+							}
+						);
+						LOG.Debug("Uploaded to Jira.");
+						exportInformation.ExportMade = true;
+						exportInformation.Uri = surface.UploadURL;
+					} catch (Exception e) {
+						MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
 					}
-					// COPY stream to buffer
-					buffer = stream.ToArray();
-				}
-				try {
-					// Run upload in the background
-					new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
-						delegate() {
-							jiraPlugin.JiraConnector.addAttachment(jira.Key, filename, buffer);
-						}
-					);
-					LOG.Debug("Uploaded to Jira.");
-					exportInformation.ExportMade = true;
-					exportInformation.Uri = surface.UploadURL;
-				} catch (Exception e) {
-					MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
 				}
 			} else {
 				JiraForm jiraForm = new JiraForm(jiraPlugin.JiraConnector);
-	
 				if (jiraPlugin.JiraConnector.isLoggedIn) {
 					jiraForm.setFilename(filename);
 					DialogResult result = jiraForm.ShowDialog();
 					if (result == DialogResult.OK) {
-						using (MemoryStream stream = new MemoryStream()) {
-							using (Image image = surface.GetImageForExport()) {
-								ImageOutput.SaveToStream(image, stream, outputSettings);
-							}
-							// COPY stream to buffer
-							buffer = stream.ToArray();
-						}
 						try {
-							// Run upload in the background
-							new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
-								delegate() {
-									jiraForm.upload(buffer);
-								}
-							);
+							using (Image image = surface.GetImageForExport()) {
+								// Run upload in the background
+								new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
+									delegate() {
+										jiraForm.upload(new ImageContainer(image, outputSettings, filename));
+									}
+								);
+							}
 							LOG.Debug("Uploaded to Jira.");
 							exportInformation.ExportMade = true;
 							exportInformation.Uri = surface.UploadURL;

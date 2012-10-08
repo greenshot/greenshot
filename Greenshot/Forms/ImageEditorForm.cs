@@ -428,12 +428,6 @@ namespace Greenshot {
 			get { return surface.CaptureDetails; }
 		}
 		
-		public void SaveToStream(Stream stream, OutputSettings outputSettings) {
-			using (Image image = surface.GetImageForExport()) {
-				ImageOutput.SaveToStream(image, stream, outputSettings);
-			}
-		}
-
 		public ToolStripMenuItem GetPluginMenuItem() {
 			return pluginToolStripMenuItem;
 		}

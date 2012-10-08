@@ -208,14 +208,14 @@ namespace Confluence {
 			}
 		}
 		
-		public void addAttachment(long pageId, string mime, string comment, string filename, byte[] buffer) {
+		public void addAttachment(long pageId, string mime, string comment, string filename, IBinaryContainer image) {
 			checkCredentials();
 			RemoteAttachment attachment = new RemoteAttachment();
 			// Comment is ignored, see: http://jira.atlassian.com/browse/CONF-9395
 			attachment.comment = comment;
 			attachment.fileName = filename;
 			attachment.contentType = mime;
-			confluence.addAttachment(credentials, pageId, attachment, buffer);
+			confluence.addAttachment(credentials, pageId, attachment, image.ToByteArray());
 		}
 		
 		public Page getPage(string spaceKey, string pageTitle) {

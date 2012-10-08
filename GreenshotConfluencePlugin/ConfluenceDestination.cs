@@ -30,6 +30,7 @@ using Confluence;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotPlugin.Controls;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
@@ -158,15 +159,13 @@ namespace GreenshotConfluencePlugin {
 		
 		private bool upload(Image image, Page page, string filename, out string errorMessage) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			byte[] buffer;
-			using (MemoryStream stream = new MemoryStream()) {
-				ImageOutput.SaveToStream(image, stream, outputSettings);
-				// COPY buffer to array
-				buffer = stream.ToArray();
-			}
 			errorMessage = null;
 			try {
-				ConfluencePlugin.ConfluenceConnector.addAttachment(page.id, "image/" + config.UploadFormat.ToString().ToLower(),  null, filename, buffer);
+				new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
+					delegate() {
+						ConfluencePlugin.ConfluenceConnector.addAttachment(page.id, "image/" + config.UploadFormat.ToString().ToLower(), null, filename, new ImageContainer(image, outputSettings, filename));
+					}
+				);
 				LOG.Debug("Uploaded to Confluence.");
 				if (config.CopyWikiMarkupForImageToClipboard) {
 					int retryCount = 2;

@@ -65,7 +65,7 @@
   		Beeld formaat
 	</resource>
   	<resource name="communication_wait">
-  		Data overdraging naar Jira, wachten AUB...
-	</resource>
+      Gegevensoverdracht naar Jira, wachten A.U.B...
+    </resource>
   </resources>
 </language>

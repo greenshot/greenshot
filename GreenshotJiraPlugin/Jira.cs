@@ -292,36 +292,20 @@ namespace Jira {
 			return url.Replace(DEFAULT_POSTFIX,"") + "/browse/" + issueKey;
 		}
 
-		public void addAttachment(string issueKey, string filename, byte [] buffer) {
+		public void addAttachment(string issueKey, string filename, IBinaryContainer attachment) {
 			checkCredentials();
 			try {
-				string base64String = Convert.ToBase64String(buffer, Base64FormattingOptions.InsertLineBreaks);
-				jira.addBase64EncodedAttachmentsToIssue(credentials, issueKey, new string[] { filename }, new string[] { base64String });
+				jira.addBase64EncodedAttachmentsToIssue(credentials, issueKey, new string[] { filename }, new string[] { attachment.ToBase64String(Base64FormattingOptions.InsertLineBreaks) });
 			} catch (Exception ex1) {
 				LOG.WarnFormat("Failed to upload by using method addBase64EncodedAttachmentsToIssue, error was {0}", ex1.Message);
 				try {
 					LOG.Warn("Trying addAttachmentsToIssue instead");
-					jira.addAttachmentsToIssue(credentials, issueKey, new string[] { filename }, (sbyte[]) (Array)buffer);
+					jira.addAttachmentsToIssue(credentials, issueKey, new string[] { filename }, (sbyte[])(Array)attachment.ToByteArray());
 				} catch (Exception ex2) {
 					LOG.WarnFormat("Failed to use alternative method, error was: {0}", ex2.Message);
 					throw ex2;
 				}
 			}
-		}
-
-		public void addAttachment(string issueKey, string filename, string attachmentText) {
-			Encoding WINDOWS1252 = Encoding.GetEncoding(1252);
-			byte[] attachment = WINDOWS1252.GetBytes(attachmentText.ToCharArray());
-			addAttachment(issueKey, filename, attachment);
-		}
-
-		public void addAttachment(string issueKey, string filePath) {
-			FileInfo fileInfo = new FileInfo(filePath);
-			byte[] buffer = new byte[fileInfo.Length];
-			using (FileStream stream = new FileStream(filePath, FileMode.Open)) {
-				stream.Read(buffer, 0, (int)fileInfo.Length);
-			}
-			addAttachment(issueKey, Path.GetFileName(filePath), buffer);
 		}
 
 		public void addComment(string issueKey, string commentString) {

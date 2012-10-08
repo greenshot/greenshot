@@ -46,13 +46,6 @@ namespace Greenshot.Plugin {
 		Image GetImageForExport();
 		
 		/// <summary>
-		/// Will save the current Image in the supplied format to the given stream
-		/// </summary>
-		/// <param name="stream">The stream the image is stored on</param>
-		/// <param name="outputSettings">OutputSettings</param>
-		void SaveToStream(Stream stream, OutputSettings outputSettings);
-		
-		/// <summary>
 		/// Get the ToolStripMenuItem where plugins can place their Menu entrys
 		/// </summary>
 		/// <returns>ToolStripMenuItem</returns>

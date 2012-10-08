@@ -30,6 +30,7 @@ namespace GreenshotConfluencePlugin {
 		CANCEL,
 		upload_menu_item,
 		upload_success,
-		upload_failure
+		upload_failure,
+		communication_wait
 	}
 }

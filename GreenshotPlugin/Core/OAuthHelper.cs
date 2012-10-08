@@ -378,7 +378,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="contentType">contenttype for the postdata</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, IBinaryParameter postData) {
+		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, IBinaryContainer postData) {
 			if (parameters == null) {
 				parameters = new Dictionary<string, object>();
 			}
@@ -482,7 +482,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="contentType"></param>
 		/// <param name="postData">IBinaryParameter</param>
 		/// <returns>Response from server</returns>
-		public string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, IBinaryParameter postData) {
+		public string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, IBinaryContainer postData) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -529,9 +529,9 @@ namespace GreenshotPlugin.Core {
 				} else {
 					StringBuilder form = new StringBuilder();
 					foreach (string parameterKey in requestParameters.Keys) {
-						if (parameters[parameterKey] is IBinaryParameter) {
-							IBinaryParameter binaryParameter = parameters[parameterKey] as IBinaryParameter;
-							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(binaryParameter.ToBase64String()));
+						if (parameters[parameterKey] is IBinaryContainer) {
+							IBinaryContainer binaryParameter = parameters[parameterKey] as IBinaryContainer;
+							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(binaryParameter.ToBase64String(Base64FormattingOptions.None)));
 						} else {
 							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
 						}

@@ -73,5 +73,8 @@
   <resource name="include_person_spaces">
     Include personal spaces in search and browsing
   </resource>
+   <resource name="communication_wait">
+     Transferring data to Confluence, please wait...
+   </resource>
  </resources>
 </language>

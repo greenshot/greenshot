@@ -101,14 +101,7 @@ namespace GreenshotJiraPlugin {
 			return selectedIssue;
 		}
 
-		public void upload(string text) {
-			jiraConnector.addAttachment(selectedIssue.Key, jiraFilenameBox.Text, text);
-			if (jiraCommentBox.Text != null && jiraCommentBox.Text.Length > 0) {
-				jiraConnector.addComment(selectedIssue.Key, jiraCommentBox.Text);
-			}
-		}
-
-		public void upload(byte [] attachment) {
+		public void upload(IBinaryContainer attachment) {
 			config.LastUsedJira = selectedIssue.Key;
 			jiraConnector.addAttachment(selectedIssue.Key, jiraFilenameBox.Text, attachment);
 			if (jiraCommentBox.Text != null && jiraCommentBox.Text.Length > 0) {
