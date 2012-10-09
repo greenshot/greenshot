@@ -415,17 +415,7 @@ namespace GreenshotPlugin.Core {
 				"image/" + outputSettings.Format.ToString());
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
-
-			if (outputSettings.Format == OutputFormat.png) {
-				// The PNG image formats need to be written to a seekable stream, so we need a intermediate MemoryStream
-				using (MemoryStream memoryStream = new MemoryStream()) {
-					ImageOutput.SaveToStream(image, memoryStream, outputSettings);
-					memoryStream.WriteTo(formDataStream);
-				}				
-			} else {
-				ImageOutput.SaveToStream(image, formDataStream, outputSettings);			
-			}
-
+			ImageOutput.SaveToStream(image, formDataStream, outputSettings);			
 		}
 
 		/// <summary>

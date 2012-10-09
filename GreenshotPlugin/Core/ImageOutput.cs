@@ -73,10 +73,14 @@ namespace GreenshotPlugin.Core {
 
 		/// <summary>
 		/// Saves image to stream with specified quality
+		/// To prevent problems with GDI version of before Windows 7:
+		/// the stream is checked if it's seekable and if needed a MemoryStream as "cache" is used.
 		/// </summary>
 		public static void SaveToStream(Image imageToSave, Stream stream, OutputSettings outputSettings) {
 			ImageFormat imageFormat = null;
 			bool disposeImage = false;
+			bool useMemoryStream = false;
+			MemoryStream memoryStream = null;
 
 			switch (outputSettings.Format) {
 				case OutputFormat.bmp:
@@ -88,13 +92,17 @@ namespace GreenshotPlugin.Core {
 				case OutputFormat.jpg:
 					imageFormat = ImageFormat.Jpeg;
 					break;
-				case OutputFormat.png:
-					imageFormat = ImageFormat.Png;
-					break;
 				case OutputFormat.tiff:
 					imageFormat = ImageFormat.Tiff;
 					break;
+				case OutputFormat.png:
 				default:
+					// Problem with non-seekable streams most likely doesn't happen with Windows 7 (OS Version 6.1 and later)
+					// http://stackoverflow.com/questions/8349260/generic-gdi-error-on-one-machine-but-not-the-other
+					if (!stream.CanSeek && (Environment.OSVersion.Version.Major < 6 || (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor == 1))) {
+						useMemoryStream = true;
+						LOG.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
+					}
 					imageFormat = ImageFormat.Png;
 					break;
 			}
@@ -139,20 +147,36 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 				LOG.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
+
+				// Check if we want to use a memory stream, to prevent a issue which happens with Windows before "7".
+				// The save is made to the targetStream, this is directed to either the MemoryStream or the original
+				Stream targetStream = stream;
+				if (useMemoryStream) {
+					memoryStream = new MemoryStream();
+					targetStream = memoryStream;
+				}
+
 				if (imageFormat == ImageFormat.Jpeg) {
 					EncoderParameters parameters = new EncoderParameters(1);
 					parameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(Encoder.Quality, outputSettings.JPGQuality);
 					ImageCodecInfo[] ies = ImageCodecInfo.GetImageEncoders();
-					imageToSave.Save(stream, ies[1], parameters);
+					imageToSave.Save(targetStream, ies[1], parameters);
 				} else if (imageFormat != ImageFormat.Png && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
 					// No transparency in target format
 					using (Bitmap tmpBitmap = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb)) {
-						tmpBitmap.Save(stream, imageFormat);
+						tmpBitmap.Save(targetStream, imageFormat);
 					}
 				} else {
-					imageToSave.Save(stream, imageFormat);
+					imageToSave.Save(targetStream, imageFormat);
+				}
+				// If we used a memory stream, we need to stream the memory stream to the original stream.
+				if (useMemoryStream) {
+					memoryStream.WriteTo(stream);
 				}
 			} finally {
+				if (memoryStream != null) {
+					memoryStream.Dispose();
+				}
 				// cleanup if needed
 				if (disposeImage && imageToSave != null) {
 					imageToSave.Dispose();
