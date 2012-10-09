@@ -157,10 +157,19 @@ namespace GreenshotPlugin.Core {
 				}
 
 				if (imageFormat == ImageFormat.Jpeg) {
-					EncoderParameters parameters = new EncoderParameters(1);
-					parameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(Encoder.Quality, outputSettings.JPGQuality);
-					ImageCodecInfo[] ies = ImageCodecInfo.GetImageEncoders();
-					imageToSave.Save(targetStream, ies[1], parameters);
+					bool foundEncoder = false;
+					foreach (ImageCodecInfo imageCodec in ImageCodecInfo.GetImageEncoders()) {
+						if (imageCodec.FormatID == imageFormat.Guid) {
+							EncoderParameters parameters = new EncoderParameters(1);
+							parameters.Param[0] = new EncoderParameter(Encoder.Quality, outputSettings.JPGQuality);
+							imageToSave.Save(targetStream, imageCodec, parameters);
+							foundEncoder = true;
+							break;
+						}
+					}
+					if (!foundEncoder) {
+						throw new ApplicationException("No JPG encoder found, this should not happen.");
+					}
 				} else if (imageFormat != ImageFormat.Png && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
 					// No transparency in target format
 					using (Bitmap tmpBitmap = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb)) {

@@ -256,11 +256,9 @@ namespace GreenshotPlugin.Core {
 						int iImageSize   = BitConverter.ToInt32(srcBuf, SizeICONDIR + SizeICONDIRENTRY * iIndex + 8);
 						int iImageOffset = BitConverter.ToInt32(srcBuf, SizeICONDIR + SizeICONDIRENTRY * iIndex + 12);
 						using (MemoryStream destStream = new MemoryStream()) {
-							using (BinaryWriter writer = new BinaryWriter(destStream)) {
-								writer.Write(srcBuf, iImageOffset, iImageSize);
-								destStream.Seek(0, System.IO.SeekOrigin.Begin);
-								bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
-							}
+							destStream.Write(srcBuf, iImageOffset, iImageSize);
+							destStream.Seek(0, System.IO.SeekOrigin.Begin);
+							bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
 						}
 						break;
 					}
