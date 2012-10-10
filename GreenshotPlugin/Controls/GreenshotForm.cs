@@ -88,7 +88,6 @@ namespace GreenshotPlugin.Controls {
 						Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
 					}
 				} catch (Exception ex) {
-					MessageBox.Show(ex.ToString(), "Greenshot designer exception!");
 				}
 			}
 		}
@@ -104,7 +103,6 @@ namespace GreenshotPlugin.Controls {
 					try {
 						ApplyLanguage();
 					} catch (Exception ex) {
-						MessageBox.Show(ex.ToString());
 					}
 				}
 			}
@@ -240,9 +238,6 @@ namespace GreenshotPlugin.Controls {
 			if (!string.IsNullOrEmpty(languageKey)) {
 				if (!Language.TryGetString(languageKey, out langString)) {
 					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
-					if (DesignMode) {
-						MessageBox.Show(string.Format("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name));
-					}
 					return;
 				}
 				applyTo.Text = langString;
@@ -252,9 +247,7 @@ namespace GreenshotPlugin.Controls {
 					applyTo.Text = langString;
 					return;
 				}
-				if (this.DesignMode) {
-					MessageBox.Show(string.Format("Greenshot control without language key: {0}", applyTo.Name));
-				} else {
+				if (!this.DesignMode) {
 					LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
 				}
 			}
@@ -366,9 +359,6 @@ namespace GreenshotPlugin.Controls {
 			if (!string.IsNullOrEmpty(languageKey)) {
 				if (!Language.TryGetString(languageKey, out langString)) {
 					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
-					if (DesignMode) {
-						MessageBox.Show(string.Format("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name));
-					}
 					return;
 				}
 				applyTo.Text = langString;
@@ -378,9 +368,7 @@ namespace GreenshotPlugin.Controls {
 					applyTo.Text = langString;
 					return;
 				}
-				if (this.DesignMode) {
-					MessageBox.Show(string.Format("Greenshot control without language key: {0}", applyTo.Name));
-				} else {
+				if (!this.DesignMode) {
 					LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
 				}
 			}
