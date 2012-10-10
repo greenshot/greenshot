@@ -163,8 +163,8 @@ namespace Greenshot.Helpers {
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
 			// forcefully removes the balloon!
 			if (!conf.HideTrayicon) {
-				MainForm.instance.notifyIcon.Visible = false;
-				MainForm.instance.notifyIcon.Visible = true;
+				MainForm.Instance.NotifyIcon.Visible = false;
+				MainForm.Instance.NotifyIcon.Visible = true;
 			}
 			LOG.Debug(String.Format("Capturing with mode {0} and using Cursor {1}", captureMode, captureMouseCursor));
 			capture.CaptureDetails.CaptureMode = captureMode;
@@ -191,7 +191,7 @@ namespace Greenshot.Helpers {
 			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
 			WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
 			// Workaround for changed DPI settings in Windows 7
-			using (Graphics graphics = Graphics.FromHwnd(MainForm.instance.Handle)) {
+			using (Graphics graphics = Graphics.FromHwnd(MainForm.Instance.Handle)) {
 				capture.CaptureDetails.DpiX = graphics.DpiX;
 				capture.CaptureDetails.DpiY = graphics.DpiY; 
 			}
@@ -524,10 +524,10 @@ namespace Greenshot.Helpers {
 					}
 					switch (eventArgs.MessageType) {
 						case SurfaceMessageTyp.Error:
-							MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
+							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
 							break;
 						case SurfaceMessageTyp.Info:
-							MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
+							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
 							break;
 						case SurfaceMessageTyp.FileSaved:
 						case SurfaceMessageTyp.UploadedUri:
@@ -535,8 +535,8 @@ namespace Greenshot.Helpers {
 							EventHandler balloonTipClosedHandler = null;
 							balloonTipClosedHandler = delegate(object sender, EventArgs e) {
 								LOG.DebugFormat("Deregistering the BalloonTipClosed");
-								MainForm.instance.notifyIcon.BalloonTipClicked -= balloonTipClickedHandler;
-								MainForm.instance.notifyIcon.BalloonTipClosed -= balloonTipClosedHandler;
+								MainForm.Instance.NotifyIcon.BalloonTipClicked -= balloonTipClickedHandler;
+								MainForm.Instance.NotifyIcon.BalloonTipClosed -= balloonTipClosedHandler;
 							};
 
 							balloonTipClickedHandler = delegate(object sender, EventArgs e) {
@@ -555,12 +555,12 @@ namespace Greenshot.Helpers {
 									}
 								}
 								LOG.DebugFormat("Deregistering the BalloonTipClicked");
-								MainForm.instance.notifyIcon.BalloonTipClicked -= balloonTipClickedHandler;
-								MainForm.instance.notifyIcon.BalloonTipClosed -= balloonTipClosedHandler;
+								MainForm.Instance.NotifyIcon.BalloonTipClicked -= balloonTipClickedHandler;
+								MainForm.Instance.NotifyIcon.BalloonTipClosed -= balloonTipClosedHandler;
 							};
-							MainForm.instance.notifyIcon.BalloonTipClicked += balloonTipClickedHandler;
-							MainForm.instance.notifyIcon.BalloonTipClosed += balloonTipClosedHandler;
-							MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
+							MainForm.Instance.NotifyIcon.BalloonTipClicked += balloonTipClickedHandler;
+							MainForm.Instance.NotifyIcon.BalloonTipClosed += balloonTipClosedHandler;
+							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
 							break;
 					}
 				};

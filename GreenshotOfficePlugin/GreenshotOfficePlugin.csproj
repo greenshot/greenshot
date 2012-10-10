@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{D14382D5-D870-4B55-AC21-6E64A8A68420}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GreenshotOfficePlugin</RootNamespace>
+    <AssemblyName>GreenshotOfficePlugin</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Destinations\OutlookDestination.cs" />
+    <Compile Include="Destinations\ExcelDestination.cs" />
+    <Compile Include="Destinations\OneNoteDestination.cs" />
+    <Compile Include="Destinations\PowerpointDestination.cs" />
+    <Compile Include="Destinations\WordDestination.cs" />
+    <Compile Include="OfficeConfiguration.cs" />
+    <Compile Include="OfficePlugin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\GreenshotInterop\OfficeExport\ExcelExporter.cs">
+      <Link>Interop\ExcelExporter.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeExport\OneNoteExporter.cs">
+      <Link>Interop\OneNoteExporter.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeExport\OutlookEmailExporter.cs">
+      <Link>Interop\OutlookEmailExporter.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeExport\PowerpointExporter.cs">
+      <Link>Interop\PowerpointExporter.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeExport\WordExporter.cs">
+      <Link>Interop\WordExporter.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeInterop\ExcelInterop.cs">
+      <Link>Interop\ExcelInterop.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeInterop\OfficeInterop.cs">
+      <Link>Interop\OfficeInterop.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeInterop\OneNoteInterop.cs">
+      <Link>Interop\OneNoteInterop.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeInterop\OutlookInterop.cs">
+      <Link>Interop\OutlookInterop.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeInterop\OutlookUtils.cs">
+      <Link>Interop\OutlookUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeInterop\PowerpointInterop.cs">
+      <Link>Interop\PowerpointInterop.cs</Link>
+    </Compile>
+    <Compile Include="..\GreenshotInterop\OfficeInterop\WordInterop.cs">
+      <Link>Interop\WordInterop.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\AssemblyInfo.cs.template" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
+      <Name>GreenshotPlugin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Destinations" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"
+</PreBuildEvent>
+    <PostBuildEvent>mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)"
+copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
+</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+</Project>

@@ -30,7 +30,6 @@ using Greenshot.Plugin;
 using Greenshot.Helpers;
 using Greenshot.Forms;
 using Greenshot.IniFile;
-using GreenshotPlugin.UnmanagedHelpers;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -59,121 +58,6 @@ namespace Greenshot.Destinations {
 			}
 		}
 		
-		/// <summary>
-		/// This method will create and show the destination picker menu
-		/// </summary>
-		/// <param name="addDynamics">Boolean if the dynamic values also need to be added</param>
-		/// <param name="surface">The surface which can be exported</param>
-		/// <param name="captureDetails">Details for the surface</param>
-		/// <param name="destinations">The list of destinations to show</param>
-		/// <returns></returns>
-		public static ExportInformation ShowPickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations) {
-			// Generate an empty ExportInformation object, for when nothing was selected.
-			ExportInformation exportInformation = new ExportInformation(DESIGNATION, Language.GetString(LangKey.settings_destination_picker));
-			ContextMenuStrip menu = new ContextMenuStrip();
-			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
-				LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
-				switch (eventArgs.CloseReason) {
-					case ToolStripDropDownCloseReason.ItemClicked:
-					case ToolStripDropDownCloseReason.CloseCalled:
-						break;
-					case ToolStripDropDownCloseReason.Keyboard:
-						// Dispose as the close is clicked
-						surface.Dispose();
-						surface = null;
-						break;
-					default:
-						eventArgs.Cancel = true;
-						break;
-				}
-			};
-			foreach (IDestination destination in destinations) {
-				// Fix foreach loop variable for the delegate
-				ToolStripMenuItem item = destination.GetMenuItem(addDynamics,
-					delegate(object sender, EventArgs e) {
-						ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
-						if (toolStripMenuItem == null) {
-							return;
-						}
-						IDestination clickedDestination = (IDestination)toolStripMenuItem.Tag;
-						if (clickedDestination == null) {
-							return;
-						}
-						bool isEditor = EditorDestination.DESIGNATION.Equals(clickedDestination.Designation);
-						// Make sure the menu is invisible, don't close it
-						menu.Hide();
-
-						// Export
-						exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
-						if (exportInformation != null && exportInformation.ExportMade) {
-							LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
-							// close menu if the destination wasn't the editor
-							menu.Close();
-
-							// Cleanup surface, only if the destination wasn't the editor
-							if (!isEditor) {
-								surface.Dispose();
-								surface = null;
-							}
-						} else {
-							LOG.Info("Export cancelled or failed, showing menu again");
-							// This prevents the problem that the context menu shows in the task-bar
-							ShowMenuAtCursor(menu);
-						}
-					}
-				);
-				if (item != null) {
-					menu.Items.Add(item);
-				}
-			}
-			// Close
-			menu.Items.Add(new ToolStripSeparator());
-			ToolStripMenuItem closeItem = new ToolStripMenuItem(Language.GetString(LangKey.editor_close));
-			closeItem.Image = ((System.Drawing.Image)(new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm)).GetObject("closeToolStripMenuItem.Image")));
-			closeItem.Click += delegate {
-				// This menu entry is the close itself, we can dispose the surface
-				menu.Close();
-				// Dispose as the close is clicked
-				surface.Dispose();
-				surface = null;
-			};
-			menu.Items.Add(closeItem);
-
-			ShowMenuAtCursor(menu);
-			return exportInformation;
-		}
-
-		/// <summary>
-		/// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
-		/// </summary>
-		/// <param name="menu"></param>
-		private static void ShowMenuAtCursor(ContextMenuStrip menu) {
-			// find a suitable location
-			Point location = Cursor.Position;
-			Rectangle menuRectangle = new Rectangle(location, menu.Size);
-
-			menuRectangle.Intersect(WindowCapture.GetScreenBounds());
-			if (menuRectangle.Height < menu.Height) {
-				location.Offset(-40, -(menuRectangle.Height - menu.Height));
-			} else {
-				location.Offset(-40, -10);
-			}
-			// This prevents the problem that the context menu shows in the task-bar
-			User32.SetForegroundWindow(MainForm.instance.notifyIcon.ContextMenuStrip.Handle);
-			menu.Show(location);
-			menu.Focus();
-
-			// Wait for the menu to close, so we can dispose it.
-			while (true) {
-				if (menu.Visible) {
-					Application.DoEvents();
-					System.Threading.Thread.Sleep(100);
-				} else {
-					menu.Dispose();
-					break;
-				}
-			}
-		}
 
 		/// <summary>
 		/// Export the capture with the destination picker

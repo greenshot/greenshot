@@ -650,7 +650,7 @@ namespace Greenshot {
 		}
 
 		void PreferencesToolStripMenuItemClick(object sender, System.EventArgs e) {
-			MainForm.instance.ShowSetting();
+			MainForm.Instance.ShowSetting();
 		}
 
 		void BtnSettingsClick(object sender, System.EventArgs e) {
@@ -1107,7 +1107,7 @@ namespace Greenshot {
 		
 		void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e) {
 			ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem)sender;
-			MainForm.instance.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);	
+			MainForm.Instance.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);	
 		}
 
 		void Contextmenu_window_Click(object sender, EventArgs e) {

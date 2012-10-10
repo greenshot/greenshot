@@ -33,7 +33,7 @@ using Greenshot.IniFile;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
-	/// This is the JiraPlugin base code
+	/// This is the ImgurPlugin code
 	/// </summary>
 	public class ImgurPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurPlugin));

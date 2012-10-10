@@ -129,6 +129,9 @@ namespace Greenshot.Plugin {
 			get;
 		}
 		
+		NotifyIcon NotifyIcon {
+			get;
+		}
 		/// <summary>
 		/// Create a Thumbnail
 		/// </summary>

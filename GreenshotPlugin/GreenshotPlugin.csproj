@@ -116,42 +116,6 @@
     <Compile Include="..\GreenshotInterop\Interop\IServiceProvider.cs">
       <Link>Interop\IServiceProvider.cs</Link>
     </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeExport\ExcelExporter.cs">
-      <Link>Interop\ExcelExporter.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeExport\OneNoteExporter.cs">
-      <Link>Interop\OneNoteExporter.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeExport\OutlookEmailExporter.cs">
-      <Link>Interop\OutlookEmailExporter.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeExport\PowerpointExporter.cs">
-      <Link>Interop\PowerpointExporter.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeExport\WordExporter.cs">
-      <Link>Interop\WordExporter.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeInterop\ExcelInterop.cs">
-      <Link>Interop\ExcelInterop.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeInterop\OfficeInterop.cs">
-      <Link>Interop\OfficeInterop.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeInterop\OneNoteInterop.cs">
-      <Link>Interop\OneNoteInterop.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeInterop\OutlookInterop.cs">
-      <Link>Interop\OutlookInterop.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeInterop\OutlookUtils.cs">
-      <Link>Interop\OutlookUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeInterop\PowerpointInterop.cs">
-      <Link>Interop\PowerpointInterop.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\OfficeInterop\WordInterop.cs">
-      <Link>Interop\WordInterop.cs</Link>
-    </Compile>
     <Compile Include="Controls\FormWithoutActivation.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -25,20 +25,17 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
-using Greenshot.Helpers;
 using Greenshot.Interop.Office;
 using Greenshot.IniFile;
 
-namespace Greenshot.Destinations {
+namespace GreenshotOfficePlugin {
 	/// <summary>
 	/// Description of EmailDestination.
 	/// </summary>
 	public class WordDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static string exePath = null;
 		private static Image applicationIcon = null;
 		private static Image documentIcon = null;
@@ -143,7 +140,7 @@ namespace Greenshot.Destinations {
 							destinations.Add(new WordDestination(document));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
+						return ShowPickerMenu(false, surface, captureDetails, destinations);
 					}
 				}
 				try {

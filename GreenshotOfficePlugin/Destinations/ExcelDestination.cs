@@ -24,62 +24,59 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
-using Greenshot.Helpers;
 using Greenshot.Interop.Office;
 using Greenshot.IniFile;
 
-namespace Greenshot.Destinations {
+namespace GreenshotOfficePlugin {
 	/// <summary>
 	/// Description of PowerpointDestination.
 	/// </summary>
-	public class PowerpointDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+	public class ExcelDestination : AbstractDestination {
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelDestination));
 		private static string exePath = null;
 		private static Image applicationIcon = null;
-		private static Image presentationIcon = null;
-		private string presentationName = null;
-		
-		static PowerpointDestination() {
-			exePath = PluginUtils.GetExePath("POWERPNT.EXE");
+		private static Image workbookIcon = null;
+		private string workbookName = null;
+
+		static ExcelDestination() {
+			exePath = PluginUtils.GetExePath("EXCEL.EXE");
 			if (exePath != null && File.Exists(exePath)) {
 				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
-				presentationIcon = PluginUtils.GetExeIcon(exePath, 1);
-				WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
+				workbookIcon = PluginUtils.GetExeIcon(exePath, 1);
+				WindowDetails.AddProcessToExcludeFromFreeze("excel");
 			} else {
 				exePath = null;
 			}
 		}
 
-		public PowerpointDestination() {
+		public ExcelDestination() {
 		}
 
-		public PowerpointDestination(string presentationName) {
-			this.presentationName = presentationName;
+		public ExcelDestination(string workbookName) {
+			this.workbookName = workbookName;
 		}
 
 		public override string Designation {
 			get {
-				return "Powerpoint";
+				return "Excel";
 			}
 		}
 
 		public override string Description {
 			get {
-				if (presentationName == null) {
-					return "Microsoft Powerpoint";
+				if (workbookName == null) {
+					return "Microsoft Excel";
 				} else {
-					return presentationName;
+					return workbookName;
 				}
 			}
 		}
 
 		public override int Priority {
 			get {
-				return 4;
+				return 5;
 			}
 		}
 		
@@ -97,50 +94,33 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				if (!string.IsNullOrEmpty(presentationName)) {
-					return presentationIcon;
+				if (!string.IsNullOrEmpty(workbookName)) {
+					return workbookIcon;
 				}
-
 				return applicationIcon;
 			}
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (string presentationName in PowerpointExporter.GetPowerpointPresentations()) {
-				yield return new PowerpointDestination(presentationName);
+			foreach (string workbookName in ExcelExporter.GetWorkbooks()) {
+				yield return new ExcelDestination(workbookName);
 			}
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
-			Size imageSize = Size.Empty;
             if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {
 					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, new OutputSettings());
-					imageSize = image.Size;
 				}
 			}
-			if (presentationName != null) {
-				PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
-				exportInformation.ExportMade = true;
+			if (workbookName != null) {
+				ExcelExporter.InsertIntoExistingWorkbook(workbookName, tmpFile);
 			} else {
-				if (!manuallyInitiated) {
-					List<string> presentations = PowerpointExporter.GetPowerpointPresentations();
-					if (presentations != null && presentations.Count > 0) {
-						List<IDestination> destinations = new List<IDestination>();
-						destinations.Add(new PowerpointDestination());
-						foreach (string presentation in presentations) {
-							destinations.Add(new PowerpointDestination(presentation));
-						}
-						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
-					}
-				} else if (!exportInformation.ExportMade) {
-					PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
-					exportInformation.ExportMade = true;
-				}
+				ExcelExporter.InsertIntoNewWorkbook(tmpFile);
 			}
+			exportInformation.ExportMade = true;
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}

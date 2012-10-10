@@ -110,7 +110,7 @@ namespace GreenshotConfluencePlugin {
 			}
 			try {
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
-				//resources = new ComponentResourceManager(typeof(JiraPlugin));
+				//resources = new ComponentResourceManager(typeof(ConfluencePlugin));
 			} catch (Exception ex) {
 				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return false;

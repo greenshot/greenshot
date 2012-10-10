@@ -35,6 +35,14 @@ namespace GreenshotPlugin.Core {
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 
 		/// <summary>
+		/// Simple global property to get the Greenshot host
+		/// </summary>
+		public static IGreenshotHost Host {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Get the path of an executable
 		/// </summary>
 		/// <param name="exeName">e.g. cmd.exe</param>

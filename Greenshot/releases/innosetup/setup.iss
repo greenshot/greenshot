@@ -60,6 +60,8 @@ Source: ..\..\Languages\*vi-VN*; DestDir: {app}\Languages; Components: languages
 Source: ..\..\Languages\*zh-CN*; DestDir: {app}\Languages; Components: languages\zhCN; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*zh-TW*; DestDir: {app}\Languages; Components: languages\zhTW; Flags: overwritereadonly ignoreversion replacesameversion;
 
+;Office Plugin
+Source: ..\..\bin\Release\Plugins\GreenshotOfficePlugin\GreenshotOfficePlugin.gsp; DestDir: {app}\Plugins\GreenshotOfficePlugin; Components: plugins\office; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;OCR Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotOCRPlugin\GreenshotOCRPlugin.gsp; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Plugins\GreenshotOCRPlugin\GreenshotOCRCommand.exe; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
@@ -159,6 +161,7 @@ Name: startup; Description: {cm:startup}
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
+en.office=Microsoft Office Plug-in
 de.externalcommand=Öffne mit ein externem Kommando Plug-in
 de.imgur=Imgur Plug-in (Siehe: http://imgur.com)
 de.jira=Jira Plug-in
@@ -170,6 +173,7 @@ de.startup={#ExeName} starten wenn Windows hochfährt
 
 en.confluence=Confluence plug-in
 en.default=Default installation
+en.office=Microsoft Office plug-in
 en.externalcommand=Open with external command plug-in
 en.imgur=Imgur plug-in (See: http://imgur.com)
 en.jira=Jira plug-in
@@ -181,6 +185,7 @@ en.startup=Start {#ExeName} with Windows start
 
 fr.confluence=Greffon Confluence
 fr.default=${default}
+fr.office=Greffon Microsoft Office
 fr.externalcommand=Ouvrir avec le greffon de commande externe
 fr.imgur=Greffon Imgur (Voir: http://imgur.com)
 fr.jira=Greffon Jira
@@ -192,6 +197,7 @@ fr.startup=Démarrer {#ExeName} avec le bouton Démarrer de Windows
 
 nl.confluence=Confluence plug-in
 nl.default=Default installation
+nl.office=Microsoft Office plug-in
 nl.externalcommand=Open met externes commando plug-in
 nl.imgur=Imgur plug-in (Zie: http://imgur.com)
 nl.jira=Jira plug-in
@@ -203,6 +209,7 @@ nl.startup=Start {#ExeName} wanneer Windows opstart
 
 nn.confluence=Confluence-tillegg
 nn.default=Default installation 
+nl.office=Microsoft Office Tillegg
 nn.externalcommand=Tillegg for å opne med ekstern kommando
 nn.imgur=Imgur-tillegg (sjå http://imgur.com)
 nn.jira=Jira-tillegg
@@ -220,6 +227,7 @@ Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 
 [Components]
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
+Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 

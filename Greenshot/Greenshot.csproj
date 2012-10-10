@@ -70,14 +70,10 @@
     <Compile Include="Destinations\ClipboardDestination.cs" />
     <Compile Include="Destinations\EditorDestination.cs" />
     <Compile Include="Destinations\EmailDestination.cs" />
-    <Compile Include="Destinations\ExcelDestination.cs" />
     <Compile Include="Destinations\FileDestination.cs" />
     <Compile Include="Destinations\FileWithDialogDestination.cs" />
-    <Compile Include="Destinations\OneNoteDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
-    <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\PrinterDestination.cs" />
-    <Compile Include="Destinations\WordDestination.cs" />
     <Compile Include="Drawing\ArrowContainer.cs" />
     <Compile Include="Drawing\BitmapContainer.cs" />
     <Compile Include="Drawing\CropContainer.cs" />

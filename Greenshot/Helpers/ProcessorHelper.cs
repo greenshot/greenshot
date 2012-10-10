@@ -73,8 +73,8 @@ namespace Greenshot.Helpers {
 
 		private static List<IProcessor> GetPluginsProcessors() {
 			List<IProcessor> processors = new List<IProcessor>();
-			foreach (PluginAttribute pluginAttribute in PluginHelper.instance.Plugins.Keys) {
-				IGreenshotPlugin plugin = PluginHelper.instance.Plugins[pluginAttribute];
+			foreach (PluginAttribute pluginAttribute in PluginHelper.Instance.Plugins.Keys) {
+				IGreenshotPlugin plugin = PluginHelper.Instance.Plugins[pluginAttribute];
 				try {
 					var procs = plugin.Processors();
 					if (procs != null) {

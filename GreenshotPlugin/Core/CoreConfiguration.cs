@@ -25,7 +25,6 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Plugin;
-using Greenshot.Interop.Office;
 using Greenshot.IniFile;
 
 namespace GreenshotPlugin.Core {
@@ -100,19 +99,6 @@ namespace GreenshotPlugin.Core {
 		public bool OutputFileReduceColors;
 		[IniProperty("OutputFileAutoReduceColors", Description = "If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used.", DefaultValue = "true")]
 		public bool OutputFileAutoReduceColors;
-
-		[IniProperty("OutlookEmailFormat", Description = "Default type for emails. (Text, HTML)", DefaultValue="HTML")]
-		public EmailFormat OutlookEmailFormat;
-        [IniProperty("EmailSubjectPattern", Description = "Email subject pattern, works like the OutputFileFilenamePattern", DefaultValue = "${title}")]
-        public string EmailSubjectPattern;
-        [IniProperty("EmailTo", Description = "Default value for the to in emails that are created", DefaultValue = "")]
-        public string EmailTo;
-        [IniProperty("EmailCC", Description = "Default value for the CC in emails that are created", DefaultValue = "")]
-        public string EmailCC;
-        [IniProperty("EmailBCC", Description = "Default value for the BCC in emails that are created", DefaultValue = "")]
-        public string EmailBCC;
-        [IniProperty("OutlookAllowExportInMeetings", Description = "Allow export in meeting items", DefaultValue = "False")]
-		public bool OutlookAllowExportInMeetings;
 
 		[IniProperty("OutputFileCopyPathToClipboard", Description="When saving a screenshot, copy the path to the clipboard?", DefaultValue="true")]
 		public bool OutputFileCopyPathToClipboard;

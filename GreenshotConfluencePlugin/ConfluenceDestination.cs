@@ -34,7 +34,7 @@ using GreenshotPlugin.Controls;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
-	/// Description of JiraDestination.
+	/// Description of ConfluenceDestination.
 	/// </summary>
 	public class ConfluenceDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));

@@ -27,7 +27,6 @@ using System.Windows.Forms;
 
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using Greenshot.Interop.Office;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
@@ -39,16 +38,10 @@ namespace Greenshot.Destinations {
 	public class EmailDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EmailDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static string exePath = null;
-		private static Image applicationIcon = null;
-		private static Image mailIcon = null;
-		private static Image meetingIcon = null;
+		private static Image mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
 		private static bool isActiveFlag = false;
-		private static bool isOutlookUsed = false;
 		private static string mapiClient = null;
 		public const string DESIGNATION = "EMail";
-		private string outlookInspectorCaption;
-		private OlObjectClass outlookInspectorType;
 
 		static EmailDestination() {
 			// Logic to decide what email implementation we use
@@ -57,47 +50,14 @@ namespace Greenshot.Destinations {
 				mapiClient = EmailConfigHelper.GetMapiClient();
 				if (!string.IsNullOrEmpty(mapiClient)) {
 					if (mapiClient.ToLower().Contains("microsoft outlook")) {
-						isOutlookUsed = true;
-					}
-				}
-			} else if (EmailConfigHelper.HasOutlook()) {
-				mapiClient = "Microsoft Outlook";
-				isActiveFlag = true;
-				isOutlookUsed = true;
-			}
-			// Use default email icon
-			mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
-
-			if (isOutlookUsed) {
-				exePath = PluginUtils.GetExePath("OUTLOOK.EXE");
-				if (exePath != null && File.Exists(exePath)) {
-					applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
-					WindowDetails.AddProcessToExcludeFromFreeze("outlook");
-					if (conf.OutlookAllowExportInMeetings) {
-						meetingIcon = PluginUtils.GetExeIcon(exePath, 2);
-					}
-				} else {
-					exePath = null;
-				}
-				if (exePath == null) {
-					isOutlookUsed = false;
-					if (!EmailConfigHelper.HasMAPI()) {
 						isActiveFlag = false;
 					}
 				}
-			}
-			if (isActiveFlag && !isOutlookUsed) {
-				// Use default email icon
-				applicationIcon = mailIcon;
 			}
 		}
 
 		public EmailDestination() {
 			
-		}
-		public EmailDestination(string outlookInspectorCaption, OlObjectClass outlookInspectorType) {
-			this.outlookInspectorCaption = outlookInspectorCaption;
-			this.outlookInspectorType = outlookInspectorType;
 		}
 
 		public override string Designation {
@@ -112,12 +72,7 @@ namespace Greenshot.Destinations {
 				if (mapiClient == null) {
 					mapiClient = Language.GetString(LangKey.editor_email);
 				}
-
-				if (outlookInspectorCaption == null) {
-					return mapiClient;
-				} else {
-					return outlookInspectorCaption;
-				}
+				return mapiClient;
 			}
 		}
 
@@ -133,12 +88,6 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool isDynamic {
-			get {
-				return isOutlookUsed;
-			}
-		}
-
 		public override Keys EditorShortcutKeys {
 			get {
 				return Keys.Control | Keys.E;
@@ -147,85 +96,15 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				if (isOutlookUsed && outlookInspectorCaption != null) {
-					if (OlObjectClass.olAppointment.Equals(outlookInspectorType)) {
-						// Make sure we loaded the icon, maybe the configuration has been changed!
-						if (meetingIcon == null) {
-							meetingIcon = PluginUtils.GetExeIcon(exePath, 2);
-						}
-						return meetingIcon;
-					} else {
-						return mailIcon;
-					}
-				} else {
-					return applicationIcon;
-				}
+				return mailIcon;
 			}
 		}
 		
-		public override IEnumerable<IDestination> DynamicDestinations() {
-			if (!isOutlookUsed) {
-				yield break;
-			}
-			Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets(conf.OutlookAllowExportInMeetings);
-			if (inspectorCaptions != null) {
-				foreach (string inspectorCaption in inspectorCaptions.Keys) {
-					yield return new EmailDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
-				}
-			}
-		}
-
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			if (!isOutlookUsed) {
-				using (Image image = surface.GetImageForExport()) {
-					MapiMailMessage.SendImage(image, captureDetails);
-					exportInformation.ExportMade = true;
-				}
-				return exportInformation;
-			} else {
-				// Outlook logic
-				string tmpFile = captureDetails.Filename;
-				if (tmpFile == null || surface.Modified) {
-					using (Image image = surface.GetImageForExport()) {
-						tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, new OutputSettings());
-					}
-				} else {
-					LOG.InfoFormat("Using already available file: {0}", tmpFile);
-				}
-
-				// Create a attachment name for the image
-				string attachmentName = captureDetails.Title;
-				if (!string.IsNullOrEmpty(attachmentName)) {
-					attachmentName = attachmentName.Trim();
-				}
-				// Set default if non is set
-				if (string.IsNullOrEmpty(attachmentName)) {
-					attachmentName = "Greenshot Capture";
-				}
-				// Make sure it's "clean" so it doesn't corrupt the header
-				attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
-
-				if (outlookInspectorCaption != null) {
-					OutlookEmailExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
-					exportInformation.ExportMade = true;
-				} else {
-					if (!manuallyInitiated) {
-						Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets(conf.OutlookAllowExportInMeetings);
-						if (inspectorCaptions != null && inspectorCaptions.Count > 0) {
-							List<IDestination> destinations = new List<IDestination>();
-							destinations.Add(new EmailDestination());
-							foreach (string inspectorCaption in inspectorCaptions.Keys) {
-								destinations.Add(new EmailDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
-							}
-							// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-							return PickerDestination.ShowPickerMenu(false, surface, captureDetails, destinations);
-						}
-					} else {
-						OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC);
-						exportInformation.ExportMade = true;
-					}
-				}
+			using (Image image = surface.GetImageForExport()) {
+				MapiMailMessage.SendImage(image, captureDetails);
+				exportInformation.ExportMade = true;
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

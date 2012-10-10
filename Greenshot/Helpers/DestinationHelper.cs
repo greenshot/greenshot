@@ -74,8 +74,8 @@ namespace Greenshot.Helpers {
 		/// <returns>List<IDestination></returns>
 		private static List<IDestination> GetPluginDestinations() {
 			List<IDestination> destinations = new List<IDestination>();
-			foreach (PluginAttribute pluginAttribute in PluginHelper.instance.Plugins.Keys) {
-				IGreenshotPlugin plugin = PluginHelper.instance.Plugins[pluginAttribute];
+			foreach (PluginAttribute pluginAttribute in PluginHelper.Instance.Plugins.Keys) {
+				IGreenshotPlugin plugin = PluginHelper.Instance.Plugins[pluginAttribute];
 				try {
 					var dests = plugin.Destinations();
 					if (dests != null) {

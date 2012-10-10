@@ -288,7 +288,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_capturefullscreen;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_capturelastregion;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_capturearea;
-		public System.Windows.Forms.NotifyIcon notifyIcon;
+		private System.Windows.Forms.NotifyIcon notifyIcon;
 		private System.Windows.Forms.ToolStripSeparator toolStripCloseSeparator;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_exit;
 		private System.Windows.Forms.ContextMenuStrip contextMenu;

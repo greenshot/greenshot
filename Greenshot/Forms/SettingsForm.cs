@@ -170,7 +170,7 @@ namespace Greenshot {
 		}
 		
 		private void DisplayPluginTab() {
-			if (!PluginHelper.instance.HasPlugins()) {
+			if (!PluginHelper.Instance.HasPlugins()) {
 				this.tabcontrol.TabPages.Remove(tab_plugins);
 			} else {
 				// Draw the Plugin listview
@@ -181,7 +181,7 @@ namespace Greenshot {
 				foreach (string column in columns) {
 					listview_plugins.Columns.Add(column);
 				}
-				PluginHelper.instance.FillListview(this.listview_plugins);
+				PluginHelper.Instance.FillListview(this.listview_plugins);
 				// Maximize Column size!
 				for (int i = 0; i < listview_plugins.Columns.Count; i++) {
 					listview_plugins.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.ColumnContent);
@@ -393,7 +393,7 @@ namespace Greenshot {
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
 			// Make sure the current language & settings are reflected in the Main-context menu
-			MainForm.instance.UpdateUI();
+			MainForm.Instance.UpdateUI();
 
 			try {
 				// Check if the Run for all is set
@@ -453,11 +453,11 @@ namespace Greenshot {
 		}
 		
 		void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
-			button_pluginconfigure.Enabled = PluginHelper.instance.isSelectedItemConfigurable(listview_plugins);
+			button_pluginconfigure.Enabled = PluginHelper.Instance.isSelectedItemConfigurable(listview_plugins);
 		}
 		
 		void Button_pluginconfigureClick(object sender, EventArgs e) {
-			PluginHelper.instance.ConfigureSelectedItem(listview_plugins);
+			PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
 		}
 
 		void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {

@@ -78,9 +78,9 @@ namespace Greenshot.Experimental {
 				try {
 					UpdateHelper.ProcessRSSInfo(currentVersion);
 					if (latestGreenshot != null) {
-						MainForm.instance.notifyIcon.BalloonTipClicked += HandleBalloonTipClick;
-						MainForm.instance.notifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-						MainForm.instance.notifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, latestGreenshot.Version), ToolTipIcon.Info);
+						MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
+						MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
+						MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, latestGreenshot.Version), ToolTipIcon.Info);
 					}
 					conf.LastUpdateCheck = DateTime.Now;
 					IniConfig.Save();
@@ -91,8 +91,8 @@ namespace Greenshot.Experimental {
 		}
 
 		private static void CleanupBalloonTipClick(object sender, EventArgs e) {
-			MainForm.instance.notifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
-			MainForm.instance.notifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
+			MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
+			MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
 		}
 		
 		private static void HandleBalloonTipClick(object sender, EventArgs e) {
@@ -106,8 +106,8 @@ namespace Greenshot.Experimental {
 			} catch (Exception) {
 				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, latestGreenshot.Link), Language.GetString(LangKey.error));
 			} finally {
-				MainForm.instance.notifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
-				MainForm.instance.notifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
+				MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
+				MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
 			}
 		}
 

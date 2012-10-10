@@ -288,19 +288,30 @@ namespace Greenshot {
 			}
 		}
 
-		public static MainForm instance = null;
+		private static MainForm instance = null;
+		public static MainForm Instance {
+			get {
+				return instance;
+			}
+		}
 
 		private ToolTip tooltip;
 		private CopyData copyData = null;
 		
 		// Thumbnail preview
-        private ThumbnailForm thumbnailForm = null;
+		private ThumbnailForm thumbnailForm = null;
 		private IntPtr thumbnailHandle = IntPtr.Zero;
 		private Rectangle parentMenuBounds = Rectangle.Empty;
 		// Make sure we have only one settings form
 		private SettingsForm settingsForm = null;
 		// Make sure we have only one about form
 		private AboutForm aboutForm = null;
+		
+		public NotifyIcon NotifyIcon {
+			get {
+				return notifyIcon;				
+			}
+		}
 
 		public MainForm(CopyDataTransport dataTransport) {
 			instance = this;
@@ -330,7 +341,7 @@ namespace Greenshot {
 			// Do loading on a different Thread to shorten the startup
 			Thread pluginInitThread = new Thread (delegate() {
 				// Load all the plugins
-				PluginHelper.instance.LoadPlugins(this);
+				PluginHelper.Instance.LoadPlugins(this);
 	
 				// Check destinations, remove all that don't exist
 				foreach(string destination in conf.OutputDestinations.ToArray()) {
@@ -1142,7 +1153,7 @@ namespace Greenshot {
 	
 			// Inform all registed plugins
 			try {
-				PluginHelper.instance.Shutdown();
+				PluginHelper.Instance.Shutdown();
 			} catch (Exception e) {
 				LOG.Error("Error shutting down plugins!", e);
 			}

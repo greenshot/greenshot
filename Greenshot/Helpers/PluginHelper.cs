@@ -39,14 +39,26 @@ namespace Greenshot.Helpers {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PluginHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
-		public static string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
-		public static string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-		public static string pafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
-		public static readonly PluginHelper instance = new PluginHelper();
-
+		private static string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
+		private static string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
+		private static string pafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
 		private static IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new SortedDictionary<PluginAttribute, IGreenshotPlugin>();
+		private static readonly PluginHelper instance = new PluginHelper();
+		public static PluginHelper Instance {
+			get {
+				return instance;
+			}
+		}
+
 
 		private PluginHelper() {
+			PluginUtils.Host = this;
+		}
+		
+		public NotifyIcon NotifyIcon {
+			get {
+				return MainForm.Instance.NotifyIcon;
+			}
 		}
 
 		public bool HasPlugins() {
@@ -145,7 +157,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="imageToImport">Image to handle</param>
 		public void ImportCapture(ICapture captureToImport) {
-			MainForm.instance.BeginInvoke((MethodInvoker)delegate {
+			MainForm.Instance.BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.ImportCapture(captureToImport);
 			});
 		}
