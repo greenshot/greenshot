@@ -17,10 +17,15 @@ Bugs resolved:
 * Removed unneeded files in the installer, making it smaller
 * Fixed a lot of small translation texts and some icons in menus
 * Fixed missing translations for the external command plugin
+* Fixed some upload issues, most uploads should have better performance and use less memory. Also removed some dependencies, which make the plugins and Greenshot smaller and work with .NET 2.0
 
 Features added:
 * The Imgur plugin now has login support, uncheck the "Annonymous" checkbox in the settings.
 * Added new languages, see our blog
+* Moved Office destinations to their own plugin, making it possible for people to install Greenshot without
+
+Features removed:
+* Remove any history management of all non annonymous plug-ins, Greenshot is for uploading not managing uploads.
 
 Known issues:
 * Greenshot general: I-Beam cursor isn't displayed correctly on the final result.
