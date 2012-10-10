@@ -291,6 +291,7 @@ namespace GreenshotPlugin.Core {
 		void WriteToStream(Stream formDataStream);
 		string ToBase64String(Base64FormattingOptions formattingOptions);
 		byte[] ToByteArray();
+		void Upload(HttpWebRequest webRequest);
 	}
 
 	/// <summary>
@@ -361,6 +362,17 @@ namespace GreenshotPlugin.Core {
 			// Write the file data directly to the Stream, rather than serializing it to a string.
 			dataStream.Write(file, 0, fileSize);
 		}
+		
+		/// <summary>
+		/// Upload the file to the webrequest
+		/// </summary>
+		/// <param name="webRequest"></param>
+		public void Upload(HttpWebRequest webRequest) {
+			webRequest.ContentType = contentType;
+			using (var requestStream = webRequest.GetRequestStream()) {
+				WriteToStream(requestStream);
+			}
+		}
 	}
 
 	/// <summary>
@@ -425,6 +437,17 @@ namespace GreenshotPlugin.Core {
 		public void WriteToStream(Stream dataStream) {
 			// Write the file data directly to the Stream, rather than serializing it to a string.
 			ImageOutput.SaveToStream(image, dataStream, outputSettings);
+		}
+		
+		/// <summary>
+		/// Upload the image to the webrequest
+		/// </summary>
+		/// <param name="webRequest"></param>
+		public void Upload(HttpWebRequest webRequest) {
+			webRequest.ContentType = "image/" + outputSettings.Format.ToString();
+			using (var requestStream = webRequest.GetRequestStream()) {
+				WriteToStream(requestStream);
+			}
 		}
 	}
 }

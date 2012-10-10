@@ -169,7 +169,7 @@ namespace GreenshotImgurPlugin {
 						uploadParameters.Add("name", filename);
 					}
 					uploadParameters.Add("image", new ImageContainer(image, outputSettings, filename));
-					responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, uploadParameters, null, null);
+					responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, uploadParameters, null);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
 					throw ex;

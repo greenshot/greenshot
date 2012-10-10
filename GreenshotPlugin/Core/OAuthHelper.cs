@@ -76,7 +76,12 @@ namespace GreenshotPlugin.Core {
 		private bool useHTTPHeadersForAuthorization = true;
 		private IDictionary<string, string> accessTokenResponseParameters = null;
 		private IDictionary<string, string> requestTokenResponseParameters = null;
+		private IDictionary<string, object> requestTokenParameters = new Dictionary<string, object>();
 		
+		public IDictionary<string, object> RequestTokenParameters {
+			get { return requestTokenParameters; }
+		}
+
 		/// <summary>
 		/// Parameters of the last called getAccessToken
 		/// </summary>
@@ -100,7 +105,7 @@ namespace GreenshotPlugin.Core {
 		private Size _browserSize = new Size(864, 587);
 		private string loginTitle = "Authorize Greenshot access";
 
-		#region PublicPropertiies
+		#region PublicProperties
 		public string RequestTokenUrl { get; set; }
 		public string AuthorizeUrl { get; set; }
 		public string AccessTokenUrl { get; set; }
@@ -260,10 +265,14 @@ namespace GreenshotPlugin.Core {
 		private String getRequestToken() {
 			string ret = null;
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
+			foreach(var value in requestTokenParameters) {
+				parameters.Add(value);
+			}
 			Sign(HTTPMethod.POST, RequestTokenUrl, parameters);
-			string response = MakeRequest(HTTPMethod.POST, RequestTokenUrl, parameters, null, null);
-			LOG.DebugFormat("Request token response: {0}", response);
+			string response = MakeRequest(HTTPMethod.POST, RequestTokenUrl, parameters, null);
 			if (response.Length > 0) {
+				response = NetworkHelper.UrlDecode(response);
+				LOG.DebugFormat("Request token response: {0}", response);
 				requestTokenResponseParameters = NetworkHelper.ParseQueryString(response);
 				if (requestTokenResponseParameters.ContainsKey(OAUTH_TOKEN_KEY)) {
 					this.Token = requestTokenResponseParameters[OAUTH_TOKEN_KEY];
@@ -311,9 +320,10 @@ namespace GreenshotPlugin.Core {
 
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
 			Sign(HTTPMethod.POST, AccessTokenUrl, parameters);
-			string response = MakeRequest(HTTPMethod.POST, AccessTokenUrl, parameters, null, null);
-			LOG.DebugFormat("Access token response: {0}", response);
+			string response = MakeRequest(HTTPMethod.POST, AccessTokenUrl, parameters, null);
 			if (response.Length > 0) {
+				response = NetworkHelper.UrlDecode(response);
+				LOG.DebugFormat("Access token response: {0}", response);
 				accessTokenResponseParameters = NetworkHelper.ParseQueryString(response);
 				if (accessTokenResponseParameters.ContainsKey(OAUTH_TOKEN_KEY) && accessTokenResponseParameters[OAUTH_TOKEN_KEY] != null) {
 					this.Token = accessTokenResponseParameters[OAUTH_TOKEN_KEY];
@@ -345,7 +355,13 @@ namespace GreenshotPlugin.Core {
 				LOG.Debug("User didn't authenticate!");
 				return false;
 			}
-			return getAccessToken() != null;
+			try {
+				System.Threading.Thread.Sleep(1000);
+				return getAccessToken() != null;
+			} catch (Exception ex) {
+				LOG.Error(ex);
+				throw ex;
+			}
 		}
 
 		/// <summary>
@@ -366,7 +382,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="parameters"></param>
 		/// <returns></returns>
 		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters) {
-			return MakeOAuthRequest(method, requestURL, parameters, null, null);
+			return MakeOAuthRequest(method, requestURL, parameters, null);
 		}
 
 		/// <summary>
@@ -375,10 +391,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="method">GET or POST</param>
 		/// <param name="requestURL">The full url, including the querystring.</param>
 		/// <param name="parameters">Parameters for the request</param>
-		/// <param name="contentType">contenttype for the postdata</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, IBinaryContainer postData) {
+		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, IBinaryContainer postData) {
 			if (parameters == null) {
 				parameters = new Dictionary<string, object>();
 			}
@@ -393,7 +408,7 @@ namespace GreenshotPlugin.Core {
 				}
 				try {
 					Sign(method, requestURL, parameters);
-					return MakeRequest(method, requestURL, parameters, contentType, postData);
+					return MakeRequest(method, requestURL, parameters, postData);
 				} catch (WebException wEx) {
 					lastException = wEx;
 					if (wEx.Response != null) {
@@ -479,10 +494,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="method"></param>
 		/// <param name="requestURL"></param>
 		/// <param name="parameters"></param>
-		/// <param name="contentType"></param>
 		/// <param name="postData">IBinaryParameter</param>
 		/// <returns>Response from server</returns>
-		public string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, string contentType, IBinaryContainer postData) {
+		public string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, IBinaryContainer postData) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -546,13 +560,10 @@ namespace GreenshotPlugin.Core {
 						requestStream.Write(data, 0, data.Length);
 					}
 				}
+			} else if (postData != null) {
+				postData.Upload(webRequest);
 			} else {
-				webRequest.ContentType = contentType;
-				if (postData != null) {
-					using (var requestStream = webRequest.GetRequestStream()) {
-						postData.WriteToStream(requestStream);
-					}
-				}
+				webRequest.ContentLength = 0;
 			}
 
 			string responseData = WebResponseGet(webRequest);
@@ -574,7 +585,11 @@ namespace GreenshotPlugin.Core {
 				using (StreamReader reader = new StreamReader(webRequest.GetResponse().GetResponseStream(), true)) {
 					responseData = reader.ReadToEnd();
 				}
-			} catch (Exception e) {
+			} catch (WebException e) {
+				HttpWebResponse response = (HttpWebResponse)e.Response;
+				using (Stream responseStream = response.GetResponseStream()) {
+					LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, new StreamReader(responseStream).ReadToEnd());
+				}
 				throw e;
 			}
 

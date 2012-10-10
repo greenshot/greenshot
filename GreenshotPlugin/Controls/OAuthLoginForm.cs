@@ -84,6 +84,7 @@ namespace GreenshotPlugin.Controls {
 			if (browser.Url.ToString().StartsWith(callbackUrl)) {
 				string queryParams = browser.Url.Query;
 				if (queryParams.Length > 0) {
+					queryParams = NetworkHelper.UrlDecode(queryParams);
 					//Store the Token and Token Secret
 					IDictionary<string, string> qs = NetworkHelper.ParseQueryString(queryParams);
 					if (qs.ContainsKey("oauth_token") && qs["oauth_token"] != null) {
