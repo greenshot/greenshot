@@ -97,7 +97,7 @@ namespace GreenshotPhotobucketPlugin {
 				apiUrl = apiUrl.Replace("api.photobucket.com", config.SubDomain);
 				// Add image
 				parameters.Add("uploadfile", new ImageContainer(image, outputSettings, filename));
-				responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, parameters, null, null);
+				responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, parameters, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw ex;
