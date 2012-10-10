@@ -87,7 +87,7 @@ namespace GreenshotPlugin.Controls {
 					if (!Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\"))) {
 						Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
 					}
-				} catch (Exception ex) {
+				} catch (Exception) {
 				}
 			}
 		}
@@ -102,7 +102,7 @@ namespace GreenshotPlugin.Controls {
 					isDesignModeLanguageSet = true;
 					try {
 						ApplyLanguage();
-					} catch (Exception ex) {
+					} catch (Exception) {
 					}
 				}
 			}
