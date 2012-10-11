@@ -128,6 +128,7 @@ namespace GreenshotImgurPlugin {
 					ImageOutput.SaveToStream(image, requestStream, outputSettings);
 				}
 	
+				responseString =  NetworkHelper.GetResponse(webRequest);
 				using (WebResponse response = webRequest.GetResponse()) {
 					LogCredits(response);
 					using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {

@@ -281,6 +281,28 @@ namespace GreenshotPlugin.Core {
 				formDataStream.Write(Encoding.UTF8.GetBytes(footer), 0, Encoding.UTF8.GetByteCount(footer));
 			}
 		}
+		
+		/// <summary>
+		/// Process the web response.
+		/// </summary>
+		/// <param name="webRequest">The request object.</param>
+		/// <returns>The response data.</returns>
+		public static string GetResponse(HttpWebRequest webRequest) {
+			string responseData;
+			try {
+				using (StreamReader reader = new StreamReader(webRequest.GetResponse().GetResponseStream(), true)) {
+					responseData = reader.ReadToEnd();
+				}
+			} catch (WebException e) {
+				HttpWebResponse response = (HttpWebResponse)e.Response;
+				using (Stream responseStream = response.GetResponseStream()) {
+					LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, new StreamReader(responseStream, true).ReadToEnd());
+				}
+				throw e;
+			}
+
+			return responseData;
+		}
 	}
 
 	/// <summary>

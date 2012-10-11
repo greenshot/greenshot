@@ -566,32 +566,10 @@ namespace GreenshotPlugin.Core {
 				webRequest.ContentLength = 0;
 			}
 
-			string responseData = WebResponseGet(webRequest);
+			string responseData = NetworkHelper.GetResponse(webRequest);
 			LOG.DebugFormat("Response: {0}", responseData);
 
 			webRequest = null;
-
-			return responseData;
-		}
-
-		/// <summary>
-		/// Process the web response.
-		/// </summary>
-		/// <param name="webRequest">The request object.</param>
-		/// <returns>The response data.</returns>
-		protected string WebResponseGet(HttpWebRequest webRequest) {
-			string responseData;
-			try {
-				using (StreamReader reader = new StreamReader(webRequest.GetResponse().GetResponseStream(), true)) {
-					responseData = reader.ReadToEnd();
-				}
-			} catch (WebException e) {
-				HttpWebResponse response = (HttpWebResponse)e.Response;
-				using (Stream responseStream = response.GetResponseStream()) {
-					LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, new StreamReader(responseStream).ReadToEnd());
-				}
-				throw e;
-			}
 
 			return responseData;
 		}
