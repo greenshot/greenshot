@@ -375,27 +375,31 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Wrapper
+		/// Submit a web request using oAuth.
 		/// </summary>
-		/// <param name="method"></param>
-		/// <param name="requestURL"></param>
-		/// <param name="parameters"></param>
-		/// <returns></returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters) {
-			return MakeOAuthRequest(method, requestURL, parameters, null);
+		/// <param name="method">GET or POST</param>
+		/// <param name="requestURL">The full url, including the querystring for the signing/request</param>
+		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
+		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
+		/// <param name="postData">Data to post (MemoryStream)</param>
+		/// <returns>The web server response.</returns>
+		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			return MakeOAuthRequest(method, requestURL, requestURL, parametersToSign, additionalParameters, postData);
 		}
 
 		/// <summary>
 		/// Submit a web request using oAuth.
 		/// </summary>
 		/// <param name="method">GET or POST</param>
-		/// <param name="requestURL">The full url, including the querystring.</param>
-		/// <param name="parameters">Parameters for the request</param>
+		/// <param name="signUrl">The full url, including the querystring for the signing</param>
+		/// <param name="requestURL">The full url, including the querystring for the request</param>
+		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
+		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, IBinaryContainer postData) {
-			if (parameters == null) {
-				parameters = new Dictionary<string, object>();
+		public string MakeOAuthRequest(HTTPMethod method, string signUrl, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			if (parametersToSign == null) {
+				parametersToSign = new Dictionary<string, object>();
 			}
 			int retries = 2;
 			Exception lastException = null;
@@ -407,8 +411,19 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 				try {
-					Sign(method, requestURL, parameters);
-					return MakeRequest(method, requestURL, parameters, postData);
+					Sign(method, signUrl, parametersToSign);
+					
+					// Join all parameters
+					IDictionary<string, object> newParameters = new Dictionary<string, object>();
+					foreach(var parameter in parametersToSign) {
+						newParameters.Add(parameter);
+					}
+					if (additionalParameters != null) {
+						foreach(var parameter in additionalParameters) {
+							newParameters.Add(parameter);
+						}
+					}
+					return MakeRequest(method, requestURL, newParameters, postData);
 				} catch (WebException wEx) {
 					lastException = wEx;
 					if (wEx.Response != null) {
@@ -416,15 +431,16 @@ namespace GreenshotPlugin.Core {
 						if (response != null && response.StatusCode == HttpStatusCode.Unauthorized) {
 							Token = null;
 							TokenSecret = null;
-
 							// Remove oauth keys, so they aren't added double
-							IDictionary<string, object> newParameters = new Dictionary<string, object>();
-							foreach (string parameterKey in parameters.Keys) {
-								if (!parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
-									newParameters.Add(parameterKey, parameters[parameterKey]);
+							List<string> keysToDelete = new List<string>();
+							foreach (string parameterKey in parametersToSign.Keys) {
+								if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
+									keysToDelete.Add(parameterKey);
 								}
 							}
-							parameters = newParameters;
+							foreach(string keyToDelete in keysToDelete) {
+								parametersToSign.Remove(keyToDelete);
+							}
 							continue;
 						}
 					}
@@ -437,6 +453,7 @@ namespace GreenshotPlugin.Core {
 			throw new Exception("Not authorized");
 		}
 
+
 		/// <summary>
 		/// OAuth sign the parameters, meaning all oauth parameters are added to the supplied dictionary.
 		/// And additionally a signature is added.
@@ -444,7 +461,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="method">Method (POST,PUT,GET)</param>
 		/// <param name="requestURL">Url to call</param>
 		/// <param name="parameters">IDictionary<string, string></param>
-		public void Sign(HTTPMethod method, string requestURL, IDictionary<string, object> parameters) {
+		private void Sign(HTTPMethod method, string requestURL, IDictionary<string, object> parameters) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -497,7 +514,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="parameters"></param>
 		/// <param name="postData">IBinaryParameter</param>
 		/// <returns>Response from server</returns>
-		public string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, IBinaryContainer postData) {
+		private string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, IBinaryContainer postData) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -522,7 +539,7 @@ namespace GreenshotPlugin.Core {
 				requestParameters = parameters;
 			}
 
-			if (HTTPMethod.GET == method) {
+			if (HTTPMethod.GET == method || postData != null) {
 				if (requestParameters.Count > 0) {
 					// Add the parameters to the request
 					requestURL += "?" + NetworkHelper.GenerateQueryParameters(requestParameters);
@@ -540,7 +557,7 @@ namespace GreenshotPlugin.Core {
 				webRequest.Headers.Add("Authorization: OAuth " + authHeader.ToString());
 			}
 
-			if (HTTPMethod.POST == method && postData == null && requestParameters != null && requestParameters.Count > 0) {
+			if ((HTTPMethod.POST == method || HTTPMethod.PUT == method) && postData == null && requestParameters != null && requestParameters.Count > 0) {
 				if (UseMultipartFormData) {
 					NetworkHelper.WriteMultipartFormData(webRequest, requestParameters);
 				} else {

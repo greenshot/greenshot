@@ -338,36 +338,31 @@ namespace Greenshot {
 			
 			UpdateUI();
 			
-			// Do loading on a different Thread to shorten the startup
-			Thread pluginInitThread = new Thread (delegate() {
-				// Load all the plugins
-				PluginHelper.Instance.LoadPlugins(this);
-	
-				// Check destinations, remove all that don't exist
-				foreach(string destination in conf.OutputDestinations.ToArray()) {
-					if (DestinationHelper.GetDestination(destination) == null) {
-						conf.OutputDestinations.Remove(destination);
-					}
-				}
-	
-				// we should have at least one!
-				if (conf.OutputDestinations.Count == 0) {
-					conf.OutputDestinations.Add(Destinations.EditorDestination.DESIGNATION);
-				}
-				if (conf.DisableQuickSettings) {
-					contextmenu_quicksettings.Visible = false;
-				} else {
-					BeginInvoke((MethodInvoker)delegate {
-						// Do after all plugins & finding the destination, otherwise they are missing!
-						InitializeQuickSettingsMenu();
-					});
-				}
-			});
-			pluginInitThread.Name = "Initialize plug-ins";
-			pluginInitThread.IsBackground = true;
-			pluginInitThread.SetApartmentState(ApartmentState.STA);
-			pluginInitThread.Start();
+			// This forces the registration of all destinations inside Greenshot itself.
+			DestinationHelper.GetAllDestinations();
+			// This forces the registration of all processors inside Greenshot itself.
+			ProcessorHelper.GetAllProcessors();
+			
+			// Load all the plugins
+			PluginHelper.Instance.LoadPlugins(this);
 
+			// Check destinations, remove all that don't exist
+			foreach(string destination in conf.OutputDestinations.ToArray()) {
+				if (DestinationHelper.GetDestination(destination) == null) {
+					conf.OutputDestinations.Remove(destination);
+				}
+			}
+
+			// we should have at least one!
+			if (conf.OutputDestinations.Count == 0) {
+				conf.OutputDestinations.Add(Destinations.EditorDestination.DESIGNATION);
+			}
+			if (conf.DisableQuickSettings) {
+				contextmenu_quicksettings.Visible = false;
+			} else {
+				// Do after all plugins & finding the destination, otherwise they are missing!
+				InitializeQuickSettingsMenu();
+			}
 			SoundHelper.Initialize();
 
 			// Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)

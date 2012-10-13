@@ -100,12 +100,16 @@ namespace GreenshotImgurPlugin {
 		private void CheckHistory() {
 			try {
 				ImgurUtils.LoadHistory();
-				if (config.ImgurUploadHistory.Count > 0) {
-					historyMenuItem.Enabled = true;
-				} else {
-					historyMenuItem.Enabled = false;
-				}
-			} catch {};
+				host.MainMenu.BeginInvoke((MethodInvoker)delegate {
+					if (config.ImgurUploadHistory.Count > 0) {
+						historyMenuItem.Enabled = true;
+					} else {
+						historyMenuItem.Enabled = false;
+					}
+				});
+			} catch (Exception ex) {
+				LOG.Error("Error loading history", ex);
+			};
 		}
 
 		public virtual void Shutdown() {

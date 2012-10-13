@@ -365,7 +365,7 @@ namespace GreenshotPlugin.Core {
 				LOG.InfoFormat("Searching language directory '{0}' for language files with pattern '{1}'", languagePath, LANGUAGE_FILENAME_PATTERN);
 				try {
 					foreach (string languageFilepath in Directory.GetFiles(languagePath, LANGUAGE_FILENAME_PATTERN, SearchOption.AllDirectories)) {
-						LOG.DebugFormat("Found language file: {0}", languageFilepath);
+						//LOG.DebugFormat("Found language file: {0}", languageFilepath);
 						LanguageFile languageFile = LoadFileInfo(languageFilepath);
 						if (languageFile == null) {
 							continue;
@@ -385,7 +385,7 @@ namespace GreenshotPlugin.Core {
 
 						// Check if we can display the file
 						if (!string.IsNullOrEmpty(languageFile.LanguageGroup) && unsupportedLanguageGroups.Contains(languageFile.LanguageGroup)) {
-							LOG.InfoFormat("Skipping unsuported (not able to display) language {0}", languageFile.Description);
+							LOG.InfoFormat("Skipping unsuported (not able to display) language {0} from file {1}", languageFile.Description, languageFilepath);
 							continue;
 						}
 

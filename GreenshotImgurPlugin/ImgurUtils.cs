@@ -105,22 +105,20 @@ namespace GreenshotImgurPlugin {
 		/// <returns>ImgurInfo with details</returns>
 		public static ImgurInfo UploadToImgur(Image image, OutputSettings outputSettings, string title, string filename) {
 			IDictionary<string, object> uploadParameters = new Dictionary<string, object>();
-
+			IDictionary<string, object> otherParameters = new Dictionary<string, object>();
+			// add title
+			if (title != null) {
+				otherParameters.Add("title", title);
+			}
+			// add filename
+			if (filename != null) {
+				otherParameters.Add("name", filename);
+			}
 			string responseString = null;
 			if (config.AnonymousAccess) {
-				// add title
-				if (title != null) {
-					uploadParameters.Add("title", title);
-				}
-				// add filename
-				if (filename != null) {
-					uploadParameters.Add("name", filename);
-				}
-
 				// add key
 				uploadParameters.Add("key", IMGUR_ANONYMOUS_API_KEY);
-				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(uploadParameters));
-
+				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(uploadParameters) + NetworkHelper.GenerateQueryParameters(otherParameters));
 				webRequest.Method = "POST";
 				webRequest.ContentType = "image/" + outputSettings.Format.ToString();
 				webRequest.ServicePoint.Expect100Continue = false;
@@ -158,19 +156,8 @@ namespace GreenshotImgurPlugin {
 					IniConfig.Save();
 				}
 				try {
-					string apiUrl = "http://api.imgur.com/2/account/images.xml";
-					// sign without parameters
-					oAuth.Sign(HTTPMethod.POST, apiUrl, uploadParameters);
-					// add title
-					if (title != null) {
-						uploadParameters.Add("title", title);
-					}
-					// add filename
-					if (filename != null) {
-						uploadParameters.Add("name", filename);
-					}
-					uploadParameters.Add("image", new ImageContainer(image, outputSettings, filename));
-					responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, uploadParameters, null);
+					otherParameters.Add("image", new ImageContainer(image, outputSettings, filename));
+					responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.imgur.com/2/account/images.xml", uploadParameters, otherParameters, null);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
 					throw ex;
@@ -227,7 +214,7 @@ namespace GreenshotImgurPlugin {
 				}
 				throw wE;
 			}
-			LOG.Info(responseString);
+			LOG.Debug(responseString);
 			ImgurInfo imgurInfo = ImgurInfo.ParseResponse(responseString);
 			imgurInfo.DeleteHash = deleteHash;
 			return imgurInfo;

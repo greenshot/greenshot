@@ -78,26 +78,25 @@ namespace GreenshotPhotobucketPlugin {
 			oAuth.Token = config.Token;
 			oAuth.TokenSecret = config.TokenSecret;
 
-			Dictionary<string, object> parameters = new Dictionary<string, object>();
+			IDictionary<string, object> signedParameters = new Dictionary<string, object>();
 			// add album
-			parameters.Add("id", "Apex75/greenshot");
+			signedParameters.Add("id", "Apex75/greenshot");
 			// add type
-			parameters.Add("type", "base64");
+			signedParameters.Add("type", "base64");
 			// add title
 			if (title != null) {
-				parameters.Add("title", title);
+				signedParameters.Add("title", title);
 			}
 			// add filename
 			if (filename != null) {
-				parameters.Add("filename", filename);
+				signedParameters.Add("filename", filename);
 			}
+			IDictionary<string, object> unsignedParameters = new Dictionary<string, object>();
+			// Add image
+			unsignedParameters.Add("uploadfile", new ImageContainer(image, outputSettings, filename));
 			try {
 				string apiUrl = "http://api.photobucket.com/album/!/upload";
-				oAuth.Sign(HTTPMethod.POST, apiUrl, parameters);
-				apiUrl = apiUrl.Replace("api.photobucket.com", config.SubDomain);
-				// Add image
-				parameters.Add("uploadfile", new ImageContainer(image, outputSettings, filename));
-				responseString = oAuth.MakeRequest(HTTPMethod.POST, apiUrl, parameters, null);
+				responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, unsignedParameters, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw ex;

@@ -230,7 +230,7 @@ namespace Greenshot.Helpers {
 			Dictionary<string, Assembly> tmpAssemblies = new Dictionary<string, Assembly>();
 			// Loop over the list of available files and get the Plugin Attributes
 			foreach (string pluginFile in pluginFiles) {
-				LOG.DebugFormat("Checking the following file for plugins: {0}", pluginFile);
+				//LOG.DebugFormat("Checking the following file for plugins: {0}", pluginFile);
 				try {
 					Assembly assembly = Assembly.LoadFrom(pluginFile);
 					PluginAttribute[] pluginAttributes = assembly.GetCustomAttributes(typeof(PluginAttribute), false) as PluginAttribute[];
