@@ -189,7 +189,7 @@ namespace GreenshotPlugin.Core {
 				throw new ArgumentNullException("data");
 			}
 
-			byte[] dataBuffer = System.Text.Encoding.UTF8.GetBytes(data);
+			byte[] dataBuffer = Encoding.UTF8.GetBytes(data);
 			byte[] hashBytes = hashAlgorithm.ComputeHash(dataBuffer);
 
 			return Convert.ToBase64String(hashBytes);
@@ -268,8 +268,8 @@ namespace GreenshotPlugin.Core {
 			foreach(var value in requestTokenParameters) {
 				parameters.Add(value);
 			}
-			Sign(HTTPMethod.POST, RequestTokenUrl, parameters);
-			string response = MakeRequest(HTTPMethod.POST, RequestTokenUrl, parameters, null);
+			Sign(HTTPMethod.GET, RequestTokenUrl, parameters);
+			string response = MakeRequest(HTTPMethod.GET, RequestTokenUrl, parameters, null);
 			if (response.Length > 0) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Request token response: {0}", response);
@@ -319,8 +319,8 @@ namespace GreenshotPlugin.Core {
 			}
 
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
-			Sign(HTTPMethod.POST, AccessTokenUrl, parameters);
-			string response = MakeRequest(HTTPMethod.POST, AccessTokenUrl, parameters, null);
+			Sign(HTTPMethod.GET, AccessTokenUrl, parameters);
+			string response = MakeRequest(HTTPMethod.GET, AccessTokenUrl, parameters, null);
 			if (response.Length > 0) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Access token response: {0}", response);
@@ -482,7 +482,8 @@ namespace GreenshotPlugin.Core {
 			LOG.DebugFormat("Signature base: {0}", signatureBase);
 			// Generate Signature and add it to the parameters
 			HMACSHA1 hmacsha1 = new HMACSHA1();
-			hmacsha1.Key = Encoding.UTF8.GetBytes(string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret)));
+			string key = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret));
+			hmacsha1.Key = Encoding.UTF8.GetBytes(key);
 			string signature = ComputeHash(hmacsha1, signatureBase.ToString());
 			parameters.Add(OAUTH_SIGNATURE_KEY, signature);
 		}
@@ -503,7 +504,7 @@ namespace GreenshotPlugin.Core {
 			IDictionary<string, object> requestParameters = null;
 			// Add oAuth values as HTTP headers, if this is allowed
 			StringBuilder authHeader = null;
-			if (HTTPMethod.POST == method && UseHTTPHeadersForAuthorization) {
+			if (UseHTTPHeadersForAuthorization) {
 				authHeader = new StringBuilder();
 				requestParameters = new Dictionary<string, object>();
 				foreach (string parameterKey in parameters.Keys) {
@@ -517,13 +518,15 @@ namespace GreenshotPlugin.Core {
 				if (authHeader.Length > 0) {
 					authHeader.Remove(authHeader.Length - 2, 2);
 				}
-			} else if (HTTPMethod.GET == method) {
-				if (parameters.Count > 0) {
-					// Add the parameters to the request
-					requestURL += "?" + NetworkHelper.GenerateQueryParameters(parameters);
-				}
 			} else {
 				requestParameters = parameters;
+			}
+
+			if (HTTPMethod.GET == method) {
+				if (requestParameters.Count > 0) {
+					// Add the parameters to the request
+					requestURL += "?" + NetworkHelper.GenerateQueryParameters(requestParameters);
+				}
 			}
 			// Create webrequest
 			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(requestURL);
