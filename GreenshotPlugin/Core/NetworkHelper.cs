@@ -391,6 +391,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="webRequest"></param>
 		public void Upload(HttpWebRequest webRequest) {
 			webRequest.ContentType = contentType;
+			webRequest.ContentLength = fileSize;
 			using (var requestStream = webRequest.GetRequestStream()) {
 				WriteToStream(requestStream);
 			}

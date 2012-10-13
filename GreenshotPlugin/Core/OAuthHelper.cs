@@ -225,7 +225,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="value">The value to Url encode</param>
 		/// <returns>Returns a Url encoded string</returns>
 		/// <remarks>This will cause an ignorable CA1055 warning in code analysis.</remarks>
-		private static string UrlEncode3986(string value) {
+		public static string UrlEncode3986(string value) {
 			StringBuilder result = new StringBuilder();
 
 			foreach (char symbol in value) {
