@@ -50,11 +50,16 @@ namespace Greenshot.Helpers {
 			}
 		}
 
-
 		private PluginHelper() {
 			PluginUtils.Host = this;
 		}
 		
+		public Form GreenshotForm {
+			get {
+				return MainForm.Instance;
+			}
+		}
+
 		public NotifyIcon NotifyIcon {
 			get {
 				return MainForm.Instance.NotifyIcon;
@@ -105,7 +110,6 @@ namespace Greenshot.Helpers {
 		}
 
 		#region Implementation of IGreenshotPluginHost
-		private ContextMenuStrip mainMenu = null;
 		
 		/// <summary>
 		/// Create a Thumbnail
@@ -125,7 +129,9 @@ namespace Greenshot.Helpers {
 		}
 
 		public ContextMenuStrip MainMenu {
-			get { return mainMenu;}
+			get {
+				return MainForm.Instance.MainMenu;
+			}
 		}
 		
 		public IDictionary<PluginAttribute, IGreenshotPlugin> Plugins {
@@ -202,10 +208,7 @@ namespace Greenshot.Helpers {
 			return false;
 		}
 
-		public void LoadPlugins(MainForm mainForm) {
-			// Copy ContextMenu
-			mainMenu = mainForm.MainMenu;
-			
+		public void LoadPlugins() {
 			List<string> pluginFiles = new List<string>();
 
 			if (IniConfig.IsPortable && Directory.Exists(pafPath)) {

@@ -128,6 +128,11 @@ namespace Greenshot.Plugin {
 		ContextMenuStrip MainMenu {
 			get;
 		}
+
+		// This is a reference to the MainForm, can be used for Invoking on the UI thread.
+		Form GreenshotForm {
+			get;
+		}
 		
 		NotifyIcon NotifyIcon {
 			get;

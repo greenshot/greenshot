@@ -35,24 +35,20 @@ namespace GreenshotPlugin.Controls {
 	public partial class OAuthLoginForm : Form {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OAuthLoginForm));
 		private string callbackUrl = null;
-		private String _token;
-		private String _verifier;
-
-		public String Token {
+		private IDictionary<string, string> callbackParameters = null;
+		
+		public IDictionary<string, string> CallbackParameters {
+			get { return callbackParameters; }
+		}
+		
+		public bool isOk {
 			get {
-				return _token;
+				return DialogResult == DialogResult.OK;
 			}
 		}
-
-		public String Verifier {
-			get {
-				return _verifier;
-			}
-		}
-
-		public OAuthLoginForm(OAuthSession o, string browserTitle, Size size, string authorizationLink, string callbackUrl) {
+		
+		public OAuthLoginForm(string browserTitle, Size size, string authorizationLink, string callbackUrl) {
 			this.callbackUrl = callbackUrl;
-			_token = null;
 			InitializeComponent();
 			this.ClientSize = size;
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
@@ -86,15 +82,9 @@ namespace GreenshotPlugin.Controls {
 				if (queryParams.Length > 0) {
 					queryParams = NetworkHelper.UrlDecode(queryParams);
 					//Store the Token and Token Secret
-					IDictionary<string, string> qs = NetworkHelper.ParseQueryString(queryParams);
-					if (qs.ContainsKey("oauth_token") && qs["oauth_token"] != null) {
-						_token = qs["oauth_token"];
-					}
-					if (qs.ContainsKey("oauth_verifier") && qs["oauth_verifier"] != null) {
-						_verifier = qs["oauth_verifier"];
-					}
+					callbackParameters = NetworkHelper.ParseQueryString(queryParams);
 				}
-				this.Close();
+				DialogResult = DialogResult.OK;
 			}
 		}
 

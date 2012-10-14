@@ -344,7 +344,7 @@ namespace Greenshot {
 			ProcessorHelper.GetAllProcessors();
 			
 			// Load all the plugins
-			PluginHelper.Instance.LoadPlugins(this);
+			PluginHelper.Instance.LoadPlugins();
 
 			// Check destinations, remove all that don't exist
 			foreach(string destination in conf.OutputDestinations.ToArray()) {

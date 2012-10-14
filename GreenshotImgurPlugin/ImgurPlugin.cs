@@ -100,7 +100,7 @@ namespace GreenshotImgurPlugin {
 		private void CheckHistory() {
 			try {
 				ImgurUtils.LoadHistory();
-				host.MainMenu.BeginInvoke((MethodInvoker)delegate {
+				host.GreenshotForm.BeginInvoke((MethodInvoker)delegate {
 					if (config.ImgurUploadHistory.Count > 0) {
 						historyMenuItem.Enabled = true;
 					} else {

@@ -49,25 +49,16 @@ namespace GreenshotPlugin.Core {
 			};
 		}
 		/// <summary>
-		/// Download a file as string
+		/// Download a url response as string
 		/// </summary>
 		/// <param name=url">An Uri to specify the download location</param>
-		/// <param name=encoding">The encoding to use</param>
 		/// <returns>string with the file content</returns>
-		public static string DownloadFileAsString(Uri url, Encoding encoding) {
-			try {
-				HttpWebRequest request = (HttpWebRequest)CreateWebRequest(url);
-				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-				if (request.HaveResponse) {
-					using (StreamReader reader = new StreamReader(response.GetResponseStream(), encoding)) {
-						return reader.ReadToEnd();
-					}
-				}
-				
-			} catch (Exception e) {
-				LOG.Error("Problem downloading from: " + url.ToString(), e);
-			}
-			return null;
+		public static string GetAsString(Uri url) {
+			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+			webRequest.Method = "GET";
+			webRequest.KeepAlive = true;
+			webRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			return GetResponse(webRequest);				
 		}
 
 		/// <summary>
@@ -290,9 +281,11 @@ namespace GreenshotPlugin.Core {
 		public static string GetResponse(HttpWebRequest webRequest) {
 			string responseData;
 			try {
-				using (StreamReader reader = new StreamReader(webRequest.GetResponse().GetResponseStream(), true)) {
+				HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+				using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
 					responseData = reader.ReadToEnd();
 				}
+				LOG.DebugFormat("Response status: {0}", response.StatusCode);
 			} catch (WebException e) {
 				HttpWebResponse response = (HttpWebResponse)e.Response;
 				using (Stream responseStream = response.GetResponseStream()) {

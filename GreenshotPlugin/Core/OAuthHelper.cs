@@ -295,11 +295,20 @@ namespace GreenshotPlugin.Core {
 				Exception e = new Exception("The request token is not set");
 				throw e;
 			}
+			Token = null;
+			Verifier = null;
 			LOG.DebugFormat("Opening AuthorizationLink: {0}", authorizationLink);
-			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(this, LoginTitle, BrowserSize, authorizationLink, CallbackUrl);
-			oAuthLoginForm.ShowDialog();
-			Token = oAuthLoginForm.Token;
-			Verifier = oAuthLoginForm.Verifier;
+			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, authorizationLink, CallbackUrl);
+			if (oAuthLoginForm.isOk) {
+				if (oAuthLoginForm.CallbackParameters != null) {
+					if (oAuthLoginForm.CallbackParameters.ContainsKey(OAUTH_TOKEN_KEY)) {
+						Token = oAuthLoginForm.CallbackParameters[OAUTH_TOKEN_KEY];
+					}
+					if (oAuthLoginForm.CallbackParameters.ContainsKey(OAUTH_VERIFIER_KEY)) {
+						Verifier = oAuthLoginForm.CallbackParameters[OAUTH_VERIFIER_KEY];
+					}
+				}
+			}
 			if (CheckVerifier) {
 				if (!string.IsNullOrEmpty(Verifier)) {
 					return Token;
