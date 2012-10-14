@@ -221,10 +221,10 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// This is a different Url Encode implementation since the default .NET one outputs the percent encoding in lower case.
 		/// While this is not a problem with the percent encoding spec, it is used in upper case throughout OAuth
+		/// The resulting string is for UTF-8 encoding!
 		/// </summary>
 		/// <param name="value">The value to Url encode</param>
-		/// <returns>Returns a Url encoded string</returns>
-		/// <remarks>This will cause an ignorable CA1055 warning in code analysis.</remarks>
+		/// <returns>Returns a Url encoded string (unicode) with UTF-8 encoded % values</returns>
 		public static string UrlEncode3986(string value) {
 			StringBuilder result = new StringBuilder();
 
@@ -232,7 +232,10 @@ namespace GreenshotPlugin.Core {
 				if (UNRESERVED_CHARS.IndexOf(symbol) != -1) {
 					result.Append(symbol);
 				} else {
-					result.Append('%' + String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:X2}", (int)symbol));
+					byte[] utf8Bytes = Encoding.UTF8.GetBytes(symbol.ToString());
+					foreach(byte utf8Byte in utf8Bytes) {
+						result.AppendFormat("%{0:X2}", utf8Byte);
+					}
 				}
 			}
 
