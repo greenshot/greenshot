@@ -196,7 +196,7 @@ namespace GreenshotJiraPlugin {
 			this.jiraListView.Sort();
 		}
 
-        void JiraKeyTextChanged(object sender, EventArgs e) {
+		void JiraKeyTextChanged(object sender, EventArgs e) {
 			string jiranumber = jiraKey.Text;
 			uploadButton.Enabled = false;
 			int dashIndex = jiranumber.IndexOf('-');
@@ -206,6 +206,6 @@ namespace GreenshotJiraPlugin {
 					uploadButton.Enabled = true;
 				}
 			}
-        }
+		}
 	}
 }

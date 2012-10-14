@@ -110,7 +110,7 @@ namespace GreenshotOfficePlugin {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
-            if (tmpFile == null || surface.Modified) {
+			if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {
 					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, new OutputSettings());
 				}

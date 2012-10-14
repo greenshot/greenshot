@@ -112,7 +112,7 @@ namespace GreenshotOfficePlugin {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
 			Size imageSize = Size.Empty;
-            if (tmpFile == null || surface.Modified) {
+			if (tmpFile == null || surface.Modified) {
 				using (Image image = surface.GetImageForExport()) {
 					tmpFile = ImageOutput.SaveNamedTmpFile(image, captureDetails, new OutputSettings());
 					imageSize = image.Size;

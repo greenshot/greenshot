@@ -85,10 +85,10 @@ namespace Greenshot.Interop.Office {
 		string SenderName { get; }
 		DateTime SentOn { get; }
 		OlBodyFormat BodyFormat { get; set; }
-        string To { get; set; }
-        string CC { get; set; }
-        string BCC { get; set; }
-    }
+		string To { get; set; }
+		string CC { get; set; }
+		string BCC { get; set; }
+	}
 
 	// See: http://msdn.microsoft.com/en-us/library/ff869026.aspx
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.appointmentitem.aspx

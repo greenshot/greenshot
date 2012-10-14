@@ -24,10 +24,10 @@ using System.Runtime.InteropServices;
 
 // Versionsinformationen für eine Assembly bestehen aus den folgenden vier Werten:
 //
-//      Hauptversion
-//      Nebenversion 
-//      Buildnummer
-//      Revision
+//	  Hauptversion
+//	  Nebenversion 
+//	  Buildnummer
+//	  Revision
 //
 // Sie können alle Werte angeben oder die standardmäßigen Build- und Revisionsnummern 
 // übernehmen, indem Sie "*" eingeben:

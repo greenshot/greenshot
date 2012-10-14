@@ -294,16 +294,16 @@ namespace Greenshot.Interop.Office {
 			//MailItem newMail = COMWrapper.Cast<MailItem>(newItem);
 			MailItem newMail = (MailItem)newItem;
 			newMail.Subject = subject;
-            if (!string.IsNullOrEmpty(to)) {
-                newMail.To = to;
-            }
-            if (!string.IsNullOrEmpty(CC)) {
-                newMail.CC = CC;
-            }
-            if (!string.IsNullOrEmpty(BCC)) {
-                newMail.BCC = BCC;
-            }
-            newMail.BodyFormat = OlBodyFormat.olFormatHTML;
+			if (!string.IsNullOrEmpty(to)) {
+				newMail.To = to;
+			}
+			if (!string.IsNullOrEmpty(CC)) {
+				newMail.CC = CC;
+			}
+			if (!string.IsNullOrEmpty(BCC)) {
+				newMail.BCC = BCC;
+			}
+			newMail.BodyFormat = OlBodyFormat.olFormatHTML;
 			string bodyString = null;
 			// Read the default signature, if nothing found use empty email
 			try {
@@ -396,7 +396,7 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="tmpfile">The file to send, do not delete the file right away!</param>
 		/// <returns>true if it worked, false if not</returns>
-        public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC) {
+		public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC) {
 			bool exported = false;
 			try {
 				using (IOutlookApplication outlookApplication = GetOrCreateOutlookApplication()) {

@@ -23,24 +23,24 @@ using System.Runtime.InteropServices;
 
 namespace Greenshot.Interop.Office {
 	enum PT : uint {
-		PT_UNSPECIFIED = 0,    /* (Reserved for interface use) type doesn't matter to caller */
-		PT_NULL = 1,    /* NULL property value */
-		PT_I2 = 2,    /* Signed 16-bit value */
-		PT_LONG = 3,    /* Signed 32-bit value */
-		PT_R4 = 4,    /* 4-byte floating point */
-		PT_DOUBLE = 5,    /* Floating point double */
-		PT_CURRENCY = 6,    /* Signed 64-bit int (decimal w/    4 digits right of decimal pt) */
-		PT_APPTIME = 7,    /* Application time */
-		PT_ERROR = 10,    /* 32-bit error value */
-		PT_BOOLEAN = 11,    /* 16-bit boolean (non-zero true, */
+		PT_UNSPECIFIED = 0,	/* (Reserved for interface use) type doesn't matter to caller */
+		PT_NULL = 1,	/* NULL property value */
+		PT_I2 = 2,	/* Signed 16-bit value */
+		PT_LONG = 3,	/* Signed 32-bit value */
+		PT_R4 = 4,	/* 4-byte floating point */
+		PT_DOUBLE = 5,	/* Floating point double */
+		PT_CURRENCY = 6,	/* Signed 64-bit int (decimal w/	4 digits right of decimal pt) */
+		PT_APPTIME = 7,	/* Application time */
+		PT_ERROR = 10,	/* 32-bit error value */
+		PT_BOOLEAN = 11,	/* 16-bit boolean (non-zero true, */
 		// Use PT_BOOLEAN_DESKTOP to be specific instead of using PT_BOOLEAN which is mapped to 2 in addrmapi.h
-		PT_BOOLEAN_DESKTOP = 11,    /* 16-bit boolean (non-zero true) */
-		PT_OBJECT = 13,    /* Embedded object in a property */
-		PT_I8 = 20,    /* 8-byte signed integer */
-		PT_STRING8 = 30,    /* Null terminated 8-bit character string */
-		PT_UNICODE = 31,    /* Null terminated Unicode string */
-		PT_SYSTIME = 64,    /* FILETIME 64-bit int w/ number of 100ns periods since Jan 1,1601 */
-		PT_CLSID = 72,    /* OLE GUID */
+		PT_BOOLEAN_DESKTOP = 11,	/* 16-bit boolean (non-zero true) */
+		PT_OBJECT = 13,	/* Embedded object in a property */
+		PT_I8 = 20,	/* 8-byte signed integer */
+		PT_STRING8 = 30,	/* Null terminated 8-bit character string */
+		PT_UNICODE = 31,	/* Null terminated Unicode string */
+		PT_SYSTIME = 64,	/* FILETIME 64-bit int w/ number of 100ns periods since Jan 1,1601 */
+		PT_CLSID = 72,	/* OLE GUID */
 		PT_BINARY = 258,   /* Uninterpreted (counted byte array) */
 
 		PT_TSTRING = PT_UNICODE
@@ -192,7 +192,7 @@ namespace Greenshot.Interop.Office {
 		PR_RECIPIENT_TYPE = PT.PT_LONG | 0x0C15 << 16,
 		PR_REGISTERED_MAIL_TYPE = PT.PT_LONG | 0x0C16 << 16,
 		PR_REPLY_REQUESTED = PT.PT_BOOLEAN | 0x0C17 << 16,
-		//PR_REQUESTED_DELIVERY_METHOD                = PT.PT_LONG |      0x0C18 << 16,
+		//PR_REQUESTED_DELIVERY_METHOD				= PT.PT_LONG |	  0x0C18 << 16,
 		PR_SENDER_ENTRYID = PT.PT_BINARY | 0x0C19 << 16,
 		PR_SENDER_NAME = PT.PT_TSTRING | 0x0C1A << 16,
 		PR_SENDER_NAME_W = PT.PT_UNICODE | 0x0C1A << 16,
@@ -348,7 +348,7 @@ namespace Greenshot.Interop.Office {
 		PR_START_DATE = PT.PT_SYSTIME | 0x0060 << 16,
 		PR_END_DATE = PT.PT_SYSTIME | 0x0061 << 16,
 		PR_OWNER_APPT_ID = PT.PT_LONG | 0x0062 << 16,
-		//PR_RESPONSE_REQUESTED                       = PT.PT_BOOLEAN |   0x0063 << 16,
+		//PR_RESPONSE_REQUESTED					   = PT.PT_BOOLEAN |   0x0063 << 16,
 
 		PR_SENT_REPRESENTING_ADDRTYPE = PT.PT_TSTRING | 0x0064 << 16,
 		PR_SENT_REPRESENTING_ADDRTYPE_W = PT.PT_UNICODE | 0x0064 << 16,
@@ -495,62 +495,62 @@ namespace Greenshot.Interop.Office {
 			int SetReadFlag();
 		}
 		//		[ComVisible(false)]
-		//	    [ComImport()]
-		//	    [Guid(IID_IMAPIFolder)]
-		//	    [InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
-		//	    interface IMAPIFolder : IMAPIContainer {
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int CreateMessage(IntPtr interf, uint uFlags, [MarshalAs(UnmanagedType.Interface)]  ref IMessage pMsg);
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int CopyMessages();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int CreateFolder();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int CopyFolder();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int DeleteFolder();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int SetReadFlags();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int GetMessageStatus();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int SetMessageStatus();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int SaveContentsSort();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int EmptyFolder();
-		//	    }
-		//	    [ComVisible(false)]
-		//	    [ComImport()]
-		//	    [Guid(IID_IMAPIContainer)]
-		//	    [InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
-		//	    interface IMAPIContainer : IMAPIProp {
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int GetContentsTable(uint uFlags, [MarshalAs(UnmanagedType.Interface), Out] out outlook.Table tbl);
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int GetHierarchyTable();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int OpenEntry();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int SetSearchCriteria();
-		//	        [return: MarshalAs(UnmanagedType.I4)]
-		//	        [PreserveSig]
-		//	        int GetSearchCriteria();
-		//	    }
+		//		[ComImport()]
+		//		[Guid(IID_IMAPIFolder)]
+		//		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
+		//		interface IMAPIFolder : IMAPIContainer {
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int CreateMessage(IntPtr interf, uint uFlags, [MarshalAs(UnmanagedType.Interface)]  ref IMessage pMsg);
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int CopyMessages();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int CreateFolder();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int CopyFolder();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int DeleteFolder();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int SetReadFlags();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int GetMessageStatus();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int SetMessageStatus();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int SaveContentsSort();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int EmptyFolder();
+		//		}
+		//		[ComVisible(false)]
+		//		[ComImport()]
+		//		[Guid(IID_IMAPIContainer)]
+		//		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
+		//		interface IMAPIContainer : IMAPIProp {
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int GetContentsTable(uint uFlags, [MarshalAs(UnmanagedType.Interface), Out] out outlook.Table tbl);
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int GetHierarchyTable();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int OpenEntry();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int SetSearchCriteria();
+		//			[return: MarshalAs(UnmanagedType.I4)]
+		//			[PreserveSig]
+		//			int GetSearchCriteria();
+		//		}
 
 		[ComVisible(false)]
 		[ComImport()]
