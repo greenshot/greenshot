@@ -154,11 +154,7 @@ namespace GreenshotImgurPlugin {
 					}
 				}
 			}
-			try {
-				Clipboard.SetText(links.ToString());
-			} catch (Exception ex) {
-				LOG.Error("Can't write to clipboard: ", ex);
-			}
+			ClipboardHelper.SetClipboardData(links.ToString());
 		}
 
 		private void FinishedButtonClick(object sender, EventArgs e) {

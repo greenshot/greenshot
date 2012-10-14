@@ -123,7 +123,7 @@ namespace GreenshotImmioPlugin {
 
 				IniConfig.Save();
 				try {
-					Clipboard.SetText(url);
+					ClipboardHelper.SetClipboardData(url);
 				} catch (Exception ex) {
 					LOG.Error("Can't write to clipboard: ", ex);
 				}

@@ -163,10 +163,10 @@ namespace GreenshotImgurPlugin {
 				try {
 					if (config.UsePageLink) {
 						uploadURL = imgurInfo.Page;
-						Clipboard.SetText(imgurInfo.Page);
+						ClipboardHelper.SetClipboardData(imgurInfo.Page);
 					} else {
 						uploadURL = imgurInfo.Original;
-						Clipboard.SetText(imgurInfo.Original);
+						ClipboardHelper.SetClipboardData(imgurInfo.Original);
 					}
 				} catch (Exception ex) {
 					LOG.Error("Can't write to clipboard: ", ex);
