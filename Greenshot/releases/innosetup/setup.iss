@@ -39,6 +39,7 @@ Source: ..\..\Languages\*es-ES*; DestDir: {app}\Languages; Components: languages
 Source: ..\..\Languages\*fa-IR*; DestDir: {app}\Languages; Components: languages\faIR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*fi-FI*; DestDir: {app}\Languages; Components: languages\fiFI; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*fr-FR*; DestDir: {app}\Languages; Components: languages\frFR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*fr-QC*; DestDir: {app}\Languages; Components: languages\frQC; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*he-IL*; DestDir: {app}\Languages; Components: languages\heIL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*hu-HU*; DestDir: {app}\Languages; Components: languages\huHU; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*it-IT*; DestDir: {app}\Languages; Components: languages\itIT; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -248,6 +249,7 @@ Name: "languages\esES"; Description: "Español"; Types: full custom; Flags: disa
 Name: "languages\faIR"; Description: "پارسی"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\fiFI"; Description: "Suomi"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\frFR"; Description: "Français"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\frQC"; Description: "Français - Québec"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\heIL"; Description: "עִבְרִית"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('c')
 Name: "languages\huHU"; Description: "Magyar"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
 Name: "languages\itIT"; Description: "Italiano"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')

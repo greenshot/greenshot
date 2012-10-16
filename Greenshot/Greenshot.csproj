@@ -294,6 +294,7 @@
     <None Include="Languages\language-fr-FR.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Languages\language-fr-QC.xml" />
     <None Include="Languages\language-he-IL.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
