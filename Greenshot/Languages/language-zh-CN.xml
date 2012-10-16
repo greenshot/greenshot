@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="简体中文" ietf="zh-CN" version="1.0.3" languagegroup="a">
+<language description="简体中文" ietf="zh-CN" version="1.0.0" languagegroup="">
 	<resources>
 		<resource name="about_bugs">请到以下网址报告错误：</resource>
 		<resource name="about_donations">如果你喜欢Greenshot，欢迎您对我们进行捐助。</resource>
@@ -9,6 +9,7 @@
 Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在遵守GNU通用公共许可的前提下进行传播。
 关于GNU通用公共许可的详细信息，请到：</resource>
 		<resource name="about_title">关于Greenshot</resource>
+		<resource name="about_translation">简体中文界面由hookilah翻译</resource>
 		<resource name="application_title">Greenshot - 革命性的截屏工具</resource>
 		<resource name="bugreport_cancel">关闭</resource>
 		<resource name="bugreport_info">抱歉，发生了意料之外的错误。
@@ -22,7 +23,7 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="bugreport_title">错误</resource>
 		<resource name="CANCEL">取消</resource>
 		<resource name="clipboard_error">在写入剪贴板时发生了错误。</resource>
-		<resource name="clipboard_inuse">剪贴板已被进程{0}锁定导致Greenshot无法写入。</resource>
+		<resource name="clipboard_inuse">剪贴板已被进程{0}锁定，导致Greenshot无法写入。</resource>
 		<resource name="ClipboardFormat.DIB">设备无关位图（DIB）</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML带内联图片</resource>
@@ -47,10 +48,10 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="contextmenu_capturefullscreen_right">右</resource>
 		<resource name="contextmenu_capturefullscreen_top">顶部</resource>
 		<resource name="contextmenu_captureie">截取IE浏览器</resource>
-		<resource name="contextmenu_captureiefromlist">从列表中选取要截取的IE浏览器页面</resource>
+		<resource name="contextmenu_captureiefromlist">从列表中选择要截取的IE浏览器页面</resource>
 		<resource name="contextmenu_capturelastregion">截取上一次选取的区域</resource>
 		<resource name="contextmenu_capturewindow">截取窗口</resource>
-		<resource name="contextmenu_capturewindowfromlist">从列表中选取要截取的窗口</resource>
+		<resource name="contextmenu_capturewindowfromlist">从列表中选择要截取的窗口</resource>
 		<resource name="contextmenu_donate">捐助Greenshot</resource>
 		<resource name="contextmenu_exit">退出</resource>
 		<resource name="contextmenu_help">帮助</resource>
@@ -74,7 +75,7 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="editor_cancel">取消</resource>
 		<resource name="editor_clipboardfailed">在写入剪贴板时发生错误，请再试一次。</resource>
 		<resource name="editor_close">关闭</resource>
-		<resource name="editor_close_on_save">你是否要想要保存存截图文件？</resource>
+		<resource name="editor_close_on_save">您是否想要保存截图文件？</resource>
 		<resource name="editor_close_on_save_title">保存图片？</resource>
 		<resource name="editor_confirm">确认</resource>
 		<resource name="editor_copyimagetoclipboard">把图片复制到剪贴板</resource>
@@ -89,7 +90,7 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="editor_drawarrow">绘制箭头 (A)</resource>
 		<resource name="editor_drawellipse">绘制椭圆形 (E)</resource>
 		<resource name="editor_drawfreehand">徒手绘制 (F)</resource>
-		<resource name="editor_drawhighlighter">高亮显示 (H)</resource>
+		<resource name="editor_drawhighlighter">突出显示 (H)</resource>
 		<resource name="editor_drawline">绘制直线 (L)</resource>
 		<resource name="editor_drawrectangle">绘制矩形 (R)</resource>
 		<resource name="editor_drawtextbox">添加文字 (T)</resource>
@@ -102,10 +103,10 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="editor_forecolor">线条颜色</resource>
 		<resource name="editor_grayscale">灰阶</resource>
 		<resource name="editor_highlight_area">四周模糊化</resource>
-		<resource name="editor_highlight_grayscale">四周变暗</resource>
+		<resource name="editor_highlight_grayscale">四周显示为灰色</resource>
 		<resource name="editor_highlight_magnify">放大</resource>
-		<resource name="editor_highlight_mode">高亮模式</resource>
-		<resource name="editor_highlight_text">彩色笔</resource>
+		<resource name="editor_highlight_mode">突出显示模式</resource>
+		<resource name="editor_highlight_text">高亮彩色笔</resource>
 		<resource name="editor_image_shadow">投影</resource>
 		<resource name="editor_imagesaved">图片保存到{0}</resource>
 		<resource name="editor_insertwindow">插入窗口</resource>
@@ -137,13 +138,13 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="editor_storedtoclipboard">图片已保存到剪贴板。</resource>
 		<resource name="editor_thickness">线条粗细</resource>
 		<resource name="editor_title">Greenshot图片编辑器</resource>
-		<resource name="editor_torn_edge">撕裂边缘效果</resource>
+		<resource name="editor_torn_edge">撕边效果</resource>
 		<resource name="editor_undo">重做{0}</resource>
 		<resource name="editor_uponelevel">往下移一层</resource>
 		<resource name="editor_uptotop">移到最上层</resource>
 		<resource name="EmailFormat.MAPI">MAPI客户端</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook带HTML</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook纯文字</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook (HTML)</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook (纯文本)</resource>
 		<resource name="error">错误</resource>
 		<resource name="error_multipleinstances">已经有一个Greenshot程序正在运行。</resource>
 		<resource name="error_nowriteaccess">无法保存到{0}。
@@ -152,7 +153,7 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="error_openlink">无法打开链接“{0}”。</resource>
 		<resource name="error_save">无法保存截图，请选择一个合适的位置保存。</resource>
 		<resource name="expertsettings">专家模式</resource>
-		<resource name="expertsettings_autoreducecolors">如果一个图片超过8位色，但是少于256色，则创建为8位的图片。</resource>
+		<resource name="expertsettings_autoreducecolors">如果一个图片超过8位色，但是少于256色，则创建为8位色的图片。</resource>
 		<resource name="expertsettings_checkunstableupdates">检查不稳定版本的更新</resource>
 		<resource name="expertsettings_clipboardformats">剪贴板格式</resource>
 		<resource name="expertsettings_counter">文件名中${NUM}变量目前的数值</resource>
@@ -161,13 +162,13 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="expertsettings_minimizememoryfootprint">内存占用最小化，但是会牺牲性能（不推荐）。</resource>
 		<resource name="expertsettings_optimizeforrdp">为远程桌面进行一些优化</resource>
 		<resource name="expertsettings_reuseeditorifpossible">如果可能的话，重复使用编辑器</resource>
-		<resource name="expertsettings_suppresssavedialogatclose">关闭编辑其实不提示保存</resource>
-		<resource name="expertsettings_thumbnailpreview">在“从列表截取...”的菜单里显示窗口的缩略图（Vista和Windows 7)</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">关闭编辑器时不提示保存</resource>
+		<resource name="expertsettings_thumbnailpreview">在列表中显示窗口的缩略图 (Vista和Windows 7)</resource>
 		<resource name="exported_to">导出到：{0}</resource>
 		<resource name="exported_to_error">导出到{0}时发生错误：</resource>
 		<resource name="help_title">Greenshot帮助</resource>
 		<resource name="hotkeys">热键</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">请为你的图片选择JPEG压缩质量。</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">请为您的JPEG格式图片选择压缩质量。</resource>
 		<resource name="OK">确认</resource>
 		<resource name="print_error">打印时发生错误。</resource>
 		<resource name="printoptions_allowcenter">打印到页面正中</resource>
@@ -182,10 +183,10 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="qualitydialog_dontaskagain">保存为默认质量并不再询问</resource>
 		<resource name="qualitydialog_title">Greenshot JPEG图片质量设置</resource>
 		<resource name="quicksettings_destination_file">直接保存（使用已有的输出设置）</resource>
-		<resource name="settings_alwaysshowprintoptionsdialog">在每次打印图片时显示打印选项</resource>
-		<resource name="settings_alwaysshowqualitydialog">每次保存图片是显示图片质量设置对话框</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">每次打印图片时显示打印选项</resource>
+		<resource name="settings_alwaysshowqualitydialog">每次保存图片时显示图片质量设置对话框</resource>
 		<resource name="settings_applicationsettings">程序设置</resource>
-		<resource name="settings_autostartshortcut">让Greenshot随系统一起启动</resource>
+		<resource name="settings_autostartshortcut">让Greenshot程序随Windows系统一起启动</resource>
 		<resource name="settings_capture">截图</resource>
 		<resource name="settings_capture_mousepointer">截取鼠标箭头</resource>
 		<resource name="settings_capture_windows_interactive">使用交互式窗口截取模式</resource>
@@ -201,7 +202,7 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="settings_destination_picker">每次截图后显示选择对话框</resource>
 		<resource name="settings_destination_printer">发送到打印机</resource>
 		<resource name="settings_editor">编辑器</resource>
-		<resource name="settings_filenamepattern">文件名样式</resource>
+		<resource name="settings_filenamepattern">文件名格式</resource>
 		<resource name="settings_general">常规</resource>
 		<resource name="settings_iecapture">截取IE浏览器</resource>
 		<resource name="settings_jpegquality">JPEG图片质量</resource>
@@ -241,7 +242,7 @@ ${hostname} 表示PC名称
 		<resource name="settings_tooltip_filenamepattern">在保存截图时自动生成的文件名格式</resource>
 		<resource name="settings_tooltip_language">Greenshot的界面语言</resource>
 		<resource name="settings_tooltip_primaryimageformat">默认使用的图片格式</resource>
-		<resource name="settings_tooltip_registerhotkeys">在启动程序时确认热键Prnt, Ctrl+Prnt, Alt+Prnt是否被保留给Greenshot使用，直到程序关闭为止。</resource>
+		<resource name="settings_tooltip_registerhotkeys">在启动程序时确认热键Prnt, Ctrl+Prnt, Alt+Prnt是否被保留给Greenshot使用直到程序关闭为止。</resource>
 		<resource name="settings_tooltip_storagelocation">截图的默认保存位置（如果要保存在桌面则此处留空）</resource>
 		<resource name="settings_usedefaultproxy">使用系统默认的代理设置</resource>
 		<resource name="settings_visualization">特效</resource>
@@ -254,7 +255,7 @@ ${hostname} 表示PC名称
 		<resource name="warning">警告</resource>
 		<resource name="warning_hotkeys">无法注册热键“{0}”。这个问题可能是因为其他程序占用了相同的热键引起的！您可以更改本程序的热键设置或者禁用/更改其他程序的热键设置。
 
-如果无法使用热键的话，您依然可以点击Windows系统托盘里的Greenshot图标来显示菜单选项进行操作。</resource>
+在无法使用热键时，您依然可以点击Windows系统托盘里的Greenshot图标来显示菜单选项进行操作。</resource>
 		<resource name="WindowCaptureMode.Aero">使用自定义颜色</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">保持透明度</resource>
 		<resource name="WindowCaptureMode.Auto">自动</resource>
