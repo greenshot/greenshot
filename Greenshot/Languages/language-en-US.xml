@@ -180,6 +180,11 @@ will generate a folder for the current day in your default storage location, e.g
 time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="settings_output">Output</resource>
 		<resource name="settings_playsound">Play camera sound</resource>
+		<resource name="settings_plugins">Plugins</resource>
+		<resource name="settings_plugins_name">Name</resource>
+		<resource name="settings_plugins_version">Version</resource>
+		<resource name="settings_plugins_createdby">Created by</resource>
+		<resource name="settings_plugins_dllpath">DLL Path</resource>
 		<resource name="settings_preferredfilesettings">Preferred Output File Settings</resource>
 		<resource name="settings_primaryimageformat">Image format</resource>
 		<resource name="settings_printer">Printer</resource>

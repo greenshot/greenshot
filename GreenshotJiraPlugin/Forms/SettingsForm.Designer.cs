@@ -80,38 +80,40 @@ namespace GreenshotJiraPlugin {
 			// 
 			// label_url
 			// 
+			this.label_url.LanguageKey = "label_url";
 			this.label_url.Location = new System.Drawing.Point(12, 21);
 			this.label_url.Name = "label_url";
-			this.label_url.Size = new System.Drawing.Size(84, 20);
+			this.label_url.Size = new System.Drawing.Size(146, 20);
 			this.label_url.TabIndex = 7;
 			this.label_url.Text = "Url";
 			// 
 			// textBoxUrl
 			// 
 			this.textBoxUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.textBoxUrl.Location = new System.Drawing.Point(102, 21);
+			this.textBoxUrl.Location = new System.Drawing.Point(164, 21);
 			this.textBoxUrl.Name = "textBoxUrl";
 			this.textBoxUrl.PropertyName = "Url";
 			this.textBoxUrl.SectionName = "Jira";
-			this.textBoxUrl.Size = new System.Drawing.Size(276, 20);
+			this.textBoxUrl.Size = new System.Drawing.Size(214, 20);
 			this.textBoxUrl.TabIndex = 6;
 			// 
 			// combobox_uploadimageformat
 			// 
 			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
-			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 47);
+			this.combobox_uploadimageformat.Location = new System.Drawing.Point(164, 47);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
 			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
 			this.combobox_uploadimageformat.SectionName = "Jira";
-			this.combobox_uploadimageformat.Size = new System.Drawing.Size(276, 21);
+			this.combobox_uploadimageformat.Size = new System.Drawing.Size(214, 21);
 			this.combobox_uploadimageformat.TabIndex = 8;
 			// 
 			// label_upload_format
 			// 
+			this.label_upload_format.LanguageKey = "label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(12, 50);
 			this.label_upload_format.Name = "label_upload_format";
-			this.label_upload_format.Size = new System.Drawing.Size(84, 20);
+			this.label_upload_format.Size = new System.Drawing.Size(146, 20);
 			this.label_upload_format.TabIndex = 9;
 			this.label_upload_format.Text = "Upload format";
 			// 
@@ -133,7 +135,6 @@ namespace GreenshotJiraPlugin {
 			this.Text = "Please enter your Jira data";
 			this.ResumeLayout(false);
 			this.PerformLayout();
-
 		}
 		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
 		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;

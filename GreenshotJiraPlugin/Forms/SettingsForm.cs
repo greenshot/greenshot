@@ -26,8 +26,8 @@ namespace GreenshotJiraPlugin {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : GreenshotPlugin.Controls.GreenshotForm {
-		public SettingsForm(JiraConfiguration config) {
+	public partial class SettingsForm : JiraFormBase {
+		public SettingsForm(JiraConfiguration config) :base () {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

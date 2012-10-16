@@ -177,7 +177,11 @@ namespace Greenshot {
 				listview_plugins.BeginUpdate();
 				listview_plugins.Items.Clear();
 				listview_plugins.Columns.Clear();
-				string[] columns = { "Name", "Version", "Created by", "DLL path"};
+				string[] columns = {
+					Language.GetString("settings_plugins_name"), 
+					Language.GetString("settings_plugins_version"), 
+					Language.GetString("settings_plugins_createdby"), 
+					Language.GetString("settings_plugins_dllpath")};
 				foreach (string column in columns) {
 					listview_plugins.Columns.Add(column);
 				}

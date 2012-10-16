@@ -839,7 +839,7 @@ namespace Greenshot {
 			this.checkbox_printgrayscale.Location = new System.Drawing.Point(12, 167);
 			this.checkbox_printgrayscale.Name = "checkbox_printgrayscale";
 			this.checkbox_printgrayscale.PropertyName = "OutputPrintGrayscale";
-			this.checkbox_printgrayscale.Size = new System.Drawing.Size(394, 19);
+			this.checkbox_printgrayscale.Size = new System.Drawing.Size(394, 20);
 			this.checkbox_printgrayscale.TabIndex = 32;
 			this.checkbox_printgrayscale.UseVisualStyleBackColor = true;
 			// 
@@ -851,7 +851,7 @@ namespace Greenshot {
 			this.checkboxPrintInverted.Location = new System.Drawing.Point(12, 144);
 			this.checkboxPrintInverted.Name = "checkboxPrintInverted";
 			this.checkboxPrintInverted.PropertyName = "OutputPrintInverted";
-			this.checkboxPrintInverted.Size = new System.Drawing.Size(394, 16);
+			this.checkboxPrintInverted.Size = new System.Drawing.Size(394, 20);
 			this.checkboxPrintInverted.TabIndex = 31;
 			this.checkboxPrintInverted.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.UseVisualStyleBackColor = true;
@@ -862,7 +862,7 @@ namespace Greenshot {
 			this.checkbox_alwaysshowprintoptionsdialog.Location = new System.Drawing.Point(12, 200);
 			this.checkbox_alwaysshowprintoptionsdialog.Name = "checkbox_alwaysshowprintoptionsdialog";
 			this.checkbox_alwaysshowprintoptionsdialog.PropertyName = "OutputPrintPromptOptions";
-			this.checkbox_alwaysshowprintoptionsdialog.Size = new System.Drawing.Size(394, 19);
+			this.checkbox_alwaysshowprintoptionsdialog.Size = new System.Drawing.Size(394, 20);
 			this.checkbox_alwaysshowprintoptionsdialog.TabIndex = 17;
 			this.checkbox_alwaysshowprintoptionsdialog.UseVisualStyleBackColor = true;
 			// 
@@ -874,7 +874,7 @@ namespace Greenshot {
 			this.checkboxTimestamp.Location = new System.Drawing.Point(12, 121);
 			this.checkboxTimestamp.Name = "checkboxTimestamp";
 			this.checkboxTimestamp.PropertyName = "OutputPrintFooter";
-			this.checkboxTimestamp.Size = new System.Drawing.Size(394, 16);
+			this.checkboxTimestamp.Size = new System.Drawing.Size(394, 20);
 			this.checkboxTimestamp.TabIndex = 30;
 			this.checkboxTimestamp.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxTimestamp.UseVisualStyleBackColor = true;
@@ -887,7 +887,7 @@ namespace Greenshot {
 			this.checkboxAllowCenter.Location = new System.Drawing.Point(12, 96);
 			this.checkboxAllowCenter.Name = "checkboxAllowCenter";
 			this.checkboxAllowCenter.PropertyName = "OutputPrintCenter";
-			this.checkboxAllowCenter.Size = new System.Drawing.Size(394, 18);
+			this.checkboxAllowCenter.Size = new System.Drawing.Size(394, 20);
 			this.checkboxAllowCenter.TabIndex = 29;
 			this.checkboxAllowCenter.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowCenter.UseVisualStyleBackColor = true;
@@ -900,7 +900,7 @@ namespace Greenshot {
 			this.checkboxAllowRotate.Location = new System.Drawing.Point(12, 72);
 			this.checkboxAllowRotate.Name = "checkboxAllowRotate";
 			this.checkboxAllowRotate.PropertyName = "OutputPrintAllowRotate";
-			this.checkboxAllowRotate.Size = new System.Drawing.Size(394, 17);
+			this.checkboxAllowRotate.Size = new System.Drawing.Size(394, 20);
 			this.checkboxAllowRotate.TabIndex = 28;
 			this.checkboxAllowRotate.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowRotate.UseVisualStyleBackColor = true;
@@ -913,7 +913,7 @@ namespace Greenshot {
 			this.checkboxAllowEnlarge.Location = new System.Drawing.Point(12, 47);
 			this.checkboxAllowEnlarge.Name = "checkboxAllowEnlarge";
 			this.checkboxAllowEnlarge.PropertyName = "OutputPrintAllowEnlarge";
-			this.checkboxAllowEnlarge.Size = new System.Drawing.Size(394, 19);
+			this.checkboxAllowEnlarge.Size = new System.Drawing.Size(394, 20);
 			this.checkboxAllowEnlarge.TabIndex = 27;
 			this.checkboxAllowEnlarge.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowEnlarge.UseVisualStyleBackColor = true;
@@ -926,7 +926,7 @@ namespace Greenshot {
 			this.checkboxAllowShrink.Location = new System.Drawing.Point(12, 22);
 			this.checkboxAllowShrink.Name = "checkboxAllowShrink";
 			this.checkboxAllowShrink.PropertyName = "OutputPrintAllowShrink";
-			this.checkboxAllowShrink.Size = new System.Drawing.Size(394, 17);
+			this.checkboxAllowShrink.Size = new System.Drawing.Size(394, 20);
 			this.checkboxAllowShrink.TabIndex = 26;
 			this.checkboxAllowShrink.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowShrink.UseVisualStyleBackColor = true;
@@ -1020,7 +1020,7 @@ namespace Greenshot {
 			// 
 			this.checkbox_reuseeditor.LanguageKey = "expertsettings_reuseeditorifpossible";
 			this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 231);
-			this.checkbox_reuseeditor.Name = "greenshotCheckBox1";
+			this.checkbox_reuseeditor.Name = "checkbox_reuseeditor";
 			this.checkbox_reuseeditor.PropertyName = "ReuseEditor";
 			this.checkbox_reuseeditor.SectionName = "Editor";
 			this.checkbox_reuseeditor.Size = new System.Drawing.Size(394, 19);
@@ -1064,7 +1064,7 @@ namespace Greenshot {
 			this.label_counter.LanguageKey = "expertsettings_counter";
 			this.label_counter.Location = new System.Drawing.Point(7, 285);
 			this.label_counter.Name = "label_counter";
-			this.label_counter.Size = new System.Drawing.Size(246, 13);
+			this.label_counter.Size = new System.Drawing.Size(0, 13);
 			this.label_counter.TabIndex = 27;
 			// 
 			// textbox_counter
@@ -1081,7 +1081,7 @@ namespace Greenshot {
 			this.label_footerpattern.LanguageKey = "expertsettings_footerpattern";
 			this.label_footerpattern.Location = new System.Drawing.Point(7, 259);
 			this.label_footerpattern.Name = "label_footerpattern";
-			this.label_footerpattern.Size = new System.Drawing.Size(103, 13);
+			this.label_footerpattern.Size = new System.Drawing.Size(0, 13);
 			this.label_footerpattern.TabIndex = 25;
 			// 
 			// textbox_footerpattern
@@ -1128,7 +1128,7 @@ namespace Greenshot {
 			this.label_clipboardformats.LanguageKey = "expertsettings_clipboardformats";
 			this.label_clipboardformats.Location = new System.Drawing.Point(7, 39);
 			this.label_clipboardformats.Name = "label_clipboardformats";
-			this.label_clipboardformats.Size = new System.Drawing.Size(88, 13);
+			this.label_clipboardformats.Size = new System.Drawing.Size(0, 13);
 			this.label_clipboardformats.TabIndex = 20;
 			// 
 			// checkbox_enableexpert

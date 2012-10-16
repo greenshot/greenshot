@@ -81,11 +81,11 @@ namespace GreenshotImgurPlugin {
 			// 
 			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
-			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 7);
+			this.combobox_uploadimageformat.Location = new System.Drawing.Point(168, 7);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
 			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
 			this.combobox_uploadimageformat.SectionName = "Imgur";
-			this.combobox_uploadimageformat.Size = new System.Drawing.Size(276, 21);
+			this.combobox_uploadimageformat.Size = new System.Drawing.Size(210, 21);
 			this.combobox_uploadimageformat.TabIndex = 8;
 			// 
 			// label_upload_format
@@ -93,7 +93,7 @@ namespace GreenshotImgurPlugin {
 			this.label_upload_format.LanguageKey = "imgur.label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(12, 10);
 			this.label_upload_format.Name = "label_upload_format";
-			this.label_upload_format.Size = new System.Drawing.Size(84, 20);
+			this.label_upload_format.Size = new System.Drawing.Size(150, 20);
 			this.label_upload_format.TabIndex = 9;
 			// 
 			// historyButton
@@ -115,7 +115,7 @@ namespace GreenshotImgurPlugin {
 			this.checkbox_anonymous_access.Name = "checkbox_anonymous_access";
 			this.checkbox_anonymous_access.PropertyName = "AnonymousAccess";
 			this.checkbox_anonymous_access.SectionName = "Imgur";
-			this.checkbox_anonymous_access.Size = new System.Drawing.Size(139, 17);
+			this.checkbox_anonymous_access.Size = new System.Drawing.Size(15, 14);
 			this.checkbox_anonymous_access.TabIndex = 13;
 			this.checkbox_anonymous_access.UseVisualStyleBackColor = true;
 			// 
@@ -127,7 +127,7 @@ namespace GreenshotImgurPlugin {
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
 			this.checkbox_usepagelink.PropertyName = "UsePageLink";
 			this.checkbox_usepagelink.SectionName = "Imgur";
-			this.checkbox_usepagelink.Size = new System.Drawing.Size(251, 17);
+			this.checkbox_usepagelink.Size = new System.Drawing.Size(15, 14);
 			this.checkbox_usepagelink.TabIndex = 13;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 
@@ -150,7 +150,6 @@ namespace GreenshotImgurPlugin {
 			this.Name = "SettingsForm";
 			this.ResumeLayout(false);
 			this.PerformLayout();
-
 		}
 		private GreenshotPlugin.Controls.GreenshotButton historyButton;
 		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
