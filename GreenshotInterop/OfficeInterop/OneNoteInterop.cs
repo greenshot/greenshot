@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
-using System.Xml.Schema;
-using Greenshot.Interop;
 
 namespace Greenshot.Interop.Office {
 	// More details about OneNote: http://msdn.microsoft.com/en-us/magazine/ff796230.aspx

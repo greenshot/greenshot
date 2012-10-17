@@ -20,7 +20,6 @@
  */
 using System;
 using System.Collections;
-using System.Collections.Generic;
 
 /// <summary>
 /// This utils class should help setting the content-id on the attachment for Outlook < 2007

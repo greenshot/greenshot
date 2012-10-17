@@ -18,10 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Greenshot.Interop;
 
 namespace Greenshot.Interop.Office {
 	// See http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.application.aspx
