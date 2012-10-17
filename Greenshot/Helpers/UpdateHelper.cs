@@ -125,17 +125,34 @@ namespace Greenshot.Experimental {
 					SourceforgeFile rssFile = rssFiles[fileType][file];
 					if (fileType.StartsWith("Greenshot")) {
 						// check for exe
-						if (rssFile.File == null || !rssFile.File.EndsWith(".exe")) {
+						if (!rssFile.isExe) {
 							continue;
 						}
-						// Check if non stable
-						if (!conf.CheckUnstable && rssFile.File.ToLower().Contains("unstable")) {
-							continue;
-						}
+
+						// do we have a version?
 						if (rssFile.Version == null) {
-							LOG.DebugFormat("Skipping unversioned exe {0} with published at {1} : {2}", file, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+							LOG.DebugFormat("Skipping unversioned exe {0} which is published at {1} : {2}", file, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 							continue;
 						}
+
+						// if the file is unstable, we will skip it when:
+						// the current version is a release or release candidate AND check unstable is turned off.
+						if (rssFile.isUnstable) {
+							// Skip if we shouldn't check unstables
+							if ((conf.isRelease || conf.isReleaseCandidate) && !conf.CheckUnstable) {
+								continue;
+							}
+						}
+
+						// if the file is a release candidate, we will skip it when:
+						// the current version is a release AND check unstable is turned off.
+						if (rssFile.isReleaseCandidate) {
+							if (conf.isRelease && !conf.CheckUnstable) {
+								continue;
+							}
+						}
+
+						// Compare versions
 						int versionCompare = rssFile.Version.CompareTo(currentVersion);
 						if (versionCompare > 0) {
 							LOG.DebugFormat("Found newer version as exe {0} with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);

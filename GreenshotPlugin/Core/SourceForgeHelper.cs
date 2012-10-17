@@ -55,7 +55,34 @@ namespace GreenshotPlugin.Core {
 			get {return language;}
 			set {language = value;}
 		}
-		
+
+		public bool isExe {
+			get {
+				if (file != null) {
+					return file.ToLower().EndsWith(".exe");
+				}
+				return false;
+			}
+		}
+
+		public bool isUnstable {
+			get {
+				if (file != null) {
+					return file.ToLower().Contains("unstable");
+				}
+				return false;
+			}
+		}
+
+		public bool isReleaseCandidate {
+			get {
+				if (file != null) {
+					return file.ToLower().Contains("RC");
+				}
+				return false;
+			}
+		}
+
 		public SourceforgeFile(string file, string pubdate, string link, string directLink) {
 			this.file = file;
 			this.pubdate = DateTime.Parse(pubdate);
@@ -78,7 +105,7 @@ namespace GreenshotPlugin.Core {
 			HttpWebRequest webRequest;
 			XmlDocument rssDoc = new XmlDocument();
 			try {
-				webRequest = (HttpWebRequest)GreenshotPlugin.Core.NetworkHelper.CreateWebRequest(RSSFEED);
+				webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(RSSFEED);
 				XmlTextReader rssReader = new XmlTextReader(webRequest.GetResponse().GetResponseStream());
 	
 				// Load the XML content into a XmlDocument
