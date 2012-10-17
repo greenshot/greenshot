@@ -20,7 +20,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -30,10 +29,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
-
+using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.IniFile;
 
 /// <summary>
 /// Code for handling with "windows"

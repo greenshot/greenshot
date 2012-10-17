@@ -23,10 +23,8 @@ using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Plugin;
 
 namespace GreenshotPlugin.Core {
 	public static class FilenameHelper {

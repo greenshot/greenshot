@@ -25,7 +25,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Automation;
 
 using GreenshotPlugin.Core;
-using Confluence;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>

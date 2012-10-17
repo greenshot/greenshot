@@ -21,15 +21,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Drawing.Drawing2D;
-
-using GreenshotPlugin.UnmanagedHelpers;
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using System.Runtime.InteropServices;
-using System.Collections;
+using Greenshot.IniFile;
+using GreenshotPlugin.UnmanagedHelpers;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>

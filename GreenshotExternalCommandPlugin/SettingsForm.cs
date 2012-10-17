@@ -20,11 +20,9 @@
  */
 using System;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 
 using Greenshot.IniFile;
-using GreenshotPlugin.Core;
 
 namespace ExternalCommand {
 	/// <summary>

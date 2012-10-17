@@ -18,18 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.IO;
 using System.Net;
-using System.Text;
-using System.Web;
-
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 
 namespace GreenshotImmioPlugin {
 	/// <summary>

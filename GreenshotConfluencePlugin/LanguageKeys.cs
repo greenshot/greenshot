@@ -18,10 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
 
 namespace GreenshotConfluencePlugin {
-    public enum LangKey {
+	public enum LangKey {
 		login_error,
 		login_title,
 		label_url,

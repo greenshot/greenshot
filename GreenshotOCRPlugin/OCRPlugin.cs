@@ -20,16 +20,13 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-
-using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
-using Greenshot.Interop;
-using System.Diagnostics;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 
 //using Microsoft.Win32;
 

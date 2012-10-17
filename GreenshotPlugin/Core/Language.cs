@@ -20,13 +20,12 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Reflection;
-using Microsoft.Win32;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Greenshot.IniFile;
-using System.Text.RegularExpressions;
+using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>

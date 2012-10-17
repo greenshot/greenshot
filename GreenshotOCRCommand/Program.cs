@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using GreenshotOCR;
-using Greenshot.Interop;
 using System.IO;
+using Greenshot.Interop;
+using GreenshotOCR;
 
 namespace GreenshotOCRCommand {
 	public class Program {

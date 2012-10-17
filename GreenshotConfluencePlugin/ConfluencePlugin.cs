@@ -20,16 +20,12 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Windows;
 using System.Web;
-
+using System.Windows;
 using Confluence;
+using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using TranslationByMarkupExtension;
 
 namespace GreenshotConfluencePlugin {

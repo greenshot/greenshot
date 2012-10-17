@@ -20,9 +20,9 @@
  */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Collections.Generic;
 
 namespace GreenshotPlugin.Core {
 	internal class WuColorCube {

@@ -20,15 +20,12 @@
  */
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using System.Threading;
 using System.Windows.Forms;
-
+using Greenshot.IniFile;
 using GreenshotJiraPlugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
-using System.Threading;
 
 namespace Jira {
 	#region transport classes

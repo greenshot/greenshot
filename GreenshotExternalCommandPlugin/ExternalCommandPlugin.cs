@@ -20,11 +20,10 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using Greenshot.Plugin;
-using Greenshot.IniFile;
 using System.Windows.Forms;
+using Greenshot.IniFile;
+using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
 namespace ExternalCommand {

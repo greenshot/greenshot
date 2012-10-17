@@ -25,12 +25,11 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows;
-
 using Confluence;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>

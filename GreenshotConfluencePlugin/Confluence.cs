@@ -21,11 +21,10 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-
+using Greenshot.IniFile;
 using GreenshotConfluencePlugin;
 using GreenshotConfluencePlugin.confluence;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 
 /// <summary>
 /// For details see the Confluence API site

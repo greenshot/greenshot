@@ -25,10 +25,8 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 
 namespace GreenshotPlugin.Core {

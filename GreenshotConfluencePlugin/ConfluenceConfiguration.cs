@@ -19,8 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotPlugin.Core;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
@@ -30,8 +30,8 @@ namespace GreenshotConfluencePlugin {
 	[IniSection("Confluence", Description="Greenshot Confluence Plugin configuration")]
 	public class ConfluenceConfiguration : IniSection {
 		public const string DEFAULT_POSTFIX1 = "/rpc/soap-axis/confluenceservice-v1?wsdl";
-        public const string DEFAULT_POSTFIX2 = "/rpc/soap-axis/confluenceservice-v2?wsdl";
-        public const string DEFAULT_PREFIX = "http://";
+		public const string DEFAULT_POSTFIX2 = "/rpc/soap-axis/confluenceservice-v2?wsdl";
+		public const string DEFAULT_PREFIX = "http://";
 		private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence";
 
 		[IniProperty("Url", Description="Url to Confluence system, including wsdl.", DefaultValue=DEFAULT_URL)]
@@ -75,10 +75,10 @@ namespace GreenshotConfluencePlugin {
 			get;
 			set;
 		}
-        [IniProperty("IncludePersonSpaces", Description = "Include personal spaces in the search & browse spaces list", DefaultValue = "False")]
-        public bool IncludePersonSpaces {
-            get;
-            set;
-        }
+		[IniProperty("IncludePersonSpaces", Description = "Include personal spaces in the search & browse spaces list", DefaultValue = "False")]
+		public bool IncludePersonSpaces {
+			get;
+			set;
+		}
 	}
 }

@@ -20,11 +20,10 @@
  */
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
-
 using Greenshot.Plugin;
 using Microsoft.Win32;
-using System.IO;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>

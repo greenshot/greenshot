@@ -19,17 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using Greenshot.IniFile;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-using System.Web;
 using Greenshot.Plugin;
 
 namespace GreenshotPlugin.Core {

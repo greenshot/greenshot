@@ -22,12 +22,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Threading;
-
+using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 
 namespace ExternalCommand {
 	/// <summary>

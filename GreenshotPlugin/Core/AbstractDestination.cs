@@ -21,15 +21,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Windows.Forms;
-using System.Reflection;
-
-using Microsoft.Win32;
-
-using Greenshot.Plugin;
 using Greenshot.IniFile;
+using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 
 namespace GreenshotPlugin.Core {

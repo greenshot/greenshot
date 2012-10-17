@@ -21,15 +21,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Net;
-using System.Text;
-using System.Web;
-
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>

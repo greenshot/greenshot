@@ -27,11 +27,9 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-
-using GreenshotPlugin.UnmanagedHelpers;
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using GreenshotPlugin.UnmanagedHelpers;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
