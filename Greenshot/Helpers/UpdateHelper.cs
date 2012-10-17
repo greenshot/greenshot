@@ -80,7 +80,7 @@ namespace Greenshot.Experimental {
 					if (latestGreenshot != null) {
 						MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
 						MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-						MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, latestGreenshot.Version), ToolTipIcon.Info);
+						MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, latestGreenshot.File), ToolTipIcon.Info);
 					}
 					conf.LastUpdateCheck = DateTime.Now;
 					IniConfig.Save();
