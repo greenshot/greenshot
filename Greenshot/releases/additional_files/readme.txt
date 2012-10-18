@@ -16,7 +16,8 @@ Bugs resolved:
 * Fixed some more bugs with the dynamic destination picker and also fixed a small general issue with Office destinations.
 * Removed unneeded files in the installer, making it smaller
 * Fixed a lot of small translation texts and some icons in menus
-* Fixed missing translations for the external command plugin
+* Fixed missing translations and enlarged some labels of settings for several plugins: external command, Jira, Imgur, Flickr and Picasa
+* Fixed missing tranlsation in SettingsForm, plugins tab
 * Fixed some upload issues, most uploads should have better performance and use less memory. Also removed some dependencies, which make the plugins and Greenshot smaller and work with .NET 2.0
 
 Features added:
