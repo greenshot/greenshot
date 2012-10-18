@@ -235,7 +235,7 @@ Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flag
 Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning 
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
-Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
+Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning 
