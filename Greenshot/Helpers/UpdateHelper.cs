@@ -38,10 +38,12 @@ namespace Greenshot.Experimental {
 	public static class UpdateHelper {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(UpdateHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private const string STABLE_DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
+		private const string VERSION_HISTORY_LINK = "http://getgreenshot.org/version-history/";
 		private static object lockObject = new object();
 		private static SourceforgeFile latestGreenshot;
 		private static SourceforgeFile currentGreenshot;
-		private const string DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
+		private static string downloadLink = STABLE_DOWNLOAD_LINK;
 
 		/// <summary>
 		/// Is an update check needed?
@@ -73,7 +75,7 @@ namespace Greenshot.Experimental {
 			lock (lockObject) {
 				Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
 				// Test like this:
-				//currentVersion = new Version("0.8.1.1198");
+				// currentVersion = new Version("0.8.1.1198");
 	
 				try {
 					latestGreenshot = null;
@@ -102,7 +104,7 @@ namespace Greenshot.Experimental {
 					// "Direct" download link
 					// Process.Start(latestGreenshot.Link);
 					// Go to getgreenshot.org
-					Process.Start(DOWNLOAD_LINK);
+					Process.Start(downloadLink);
 				}
 			} catch (Exception) {
 				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, latestGreenshot.Link), Language.GetString(LangKey.error));
@@ -159,6 +161,11 @@ namespace Greenshot.Experimental {
 							LOG.DebugFormat("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 							if (latestGreenshot == null || rssFile.Version.CompareTo(latestGreenshot.Version) > 0) {
 								latestGreenshot = rssFile;
+								if (rssFile.isReleaseCandidate || rssFile.isUnstable) {
+									downloadLink = VERSION_HISTORY_LINK;
+								} else {
+									downloadLink = STABLE_DOWNLOAD_LINK;
+								}
 							}
 						} else if (versionCompare < 0) {
 							LOG.DebugFormat("Skipping older greenshot with version {0}", rssFile.Version);
