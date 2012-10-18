@@ -237,7 +237,7 @@ namespace GreenshotPlugin.Controls {
 			string langString = null;
 			if (!string.IsNullOrEmpty(languageKey)) {
 				if (!Language.TryGetString(languageKey, out langString)) {
-					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
+					LOG.WarnFormat("Unknown language key '{0}' configured for control '{1}', this might be okay.", languageKey, applyTo.Name);
 					return;
 				}
 				applyTo.Text = langString;

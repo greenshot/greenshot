@@ -77,7 +77,7 @@ namespace GreenshotPlugin.Core {
 		public bool isReleaseCandidate {
 			get {
 				if (file != null) {
-					return file.ToLower().Contains("RC");
+					return Regex.IsMatch(file.ToLower(), "rc[0-9]+");
 				}
 				return false;
 			}
@@ -175,21 +175,24 @@ namespace GreenshotPlugin.Core {
 							}
 							SourceforgeFile rssFile = new SourceforgeFile(file, pubdate, sfLink, directLink);
 							if (file.EndsWith(".exe") ||file.EndsWith(".zip")) {
-								string version = Regex.Replace(file, ".*[a-zA-Z]-", "");
-								version = version.Replace("-[a-zA-Z]+.*","");
-								version = Regex.Replace(version, ".exe$", "");
-								version = Regex.Replace(version, ".zip$", "");
+								string version = Regex.Replace(file, @".*[a-zA-Z_]\-", "");
+								version = version.Replace(@"\-[a-zA-Z]+.*","");
+								version = Regex.Replace(version, @"\.exe$", "");
+								version = Regex.Replace(version, @"\.zip$", "");
+								version = Regex.Replace(version, @"RC[0-9]+", "");
 								if (version.Trim().Length > 0) {
 									version = version.Replace('-','.');
 									version = version.Replace(',','.');
+									version = Regex.Replace(version, @"^[a-zA-Z_]*\.", "");
+									version = Regex.Replace(version, @"\.[a-zA-Z_]*$", "");
+
 									try {
 										rssFile.Version = new Version(version);
 									} catch (Exception) {
 										LOG.DebugFormat("Found invalid version {0} in file {1}", version, file);
 									}
 								}
-							}
-							if (type.Equals("Translations")) {
+							} else if (type.Equals("Translations")) {
 								string culture = Regex.Replace(file, @"[a-zA-Z]+-(..-..)\.(xml|html)", "$1");
 								try {
 									CultureInfo cultureInfo = new CultureInfo(culture);

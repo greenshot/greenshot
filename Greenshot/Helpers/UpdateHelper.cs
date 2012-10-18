@@ -73,14 +73,15 @@ namespace Greenshot.Experimental {
 			lock (lockObject) {
 				Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
 				// Test like this:
-				// Version currentVersion = new Version("0.8.1.1198");
+				//currentVersion = new Version("0.8.1.1198");
 	
 				try {
+					latestGreenshot = null;
 					UpdateHelper.ProcessRSSInfo(currentVersion);
 					if (latestGreenshot != null) {
 						MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
 						MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-						MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, latestGreenshot.File), ToolTipIcon.Info);
+						MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, "'" + latestGreenshot.File + "'"), ToolTipIcon.Info);
 					}
 					conf.LastUpdateCheck = DateTime.Now;
 					IniConfig.Save();
@@ -155,7 +156,7 @@ namespace Greenshot.Experimental {
 						// Compare versions
 						int versionCompare = rssFile.Version.CompareTo(currentVersion);
 						if (versionCompare > 0) {
-							LOG.DebugFormat("Found newer version as exe {0} with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+							LOG.DebugFormat("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 							if (latestGreenshot == null || rssFile.Version.CompareTo(latestGreenshot.Version) > 0) {
 								latestGreenshot = rssFile;
 							}
