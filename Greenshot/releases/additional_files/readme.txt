@@ -4,7 +4,12 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 CHANGE LOG:
 We changed the version to 1.0 after 5 years it should no longer have a "beta" feeling!
 
-1.0.3 build XXXX Release Candidate 3
+1.0.3 build 2159 Release Candidate 3
+
+Features added:
+* The Imgur plugin now has login support, uncheck the "Annonymous" checkbox in the settings.
+* Added new languages, see our blog
+* Moved Office destinations to their own plugin, making it possible for people to install Greenshot without
 
 Bugs resolved:
 * Fixed OCR not working on Windows in 64 bit modus. People who want to use OCR without having office, read our FAQ!
@@ -17,21 +22,15 @@ Bugs resolved:
 * Removed unneeded files in the installer, making it smaller
 * Fixed a lot of small translation texts and some icons in menus
 * Fixed missing translations and enlarged some labels of settings for several plugins: external command, Jira, Imgur, Flickr and Picasa
-* Fixed missing tranlsation in SettingsForm, plugins tab
 * Fixed some upload issues, most uploads should have better performance and use less memory. Also removed some dependencies, which make the plugins and Greenshot smaller and work with .NET 2.0
 
-Features added:
-* The Imgur plugin now has login support, uncheck the "Annonymous" checkbox in the settings.
-* Added new languages, see our blog
-* Moved Office destinations to their own plugin, making it possible for people to install Greenshot without
-
 Features removed:
-* Remove any history management of all non annonymous plug-ins, Greenshot is for uploading not managing uploads.
+* Remove any history management of all non annonymous upload plug-ins, Greenshot is for uploading not managing uploads.
 
 Known issues:
-* Greenshot general: I-Beam cursor isn't displayed correctly on the final result.
+* Greenshot general: the I-Beam cursor isn't displayed correctly on the final result.
 * Greenshot general: Not all hotkeys can be changed in the editor. For example the pause or the Windows key need to be modified directly in the ini.
-* Greenshot editor: Rotate only rotates the bitmap, not the added elements or cursor
+* Greenshot editor: Rotate only rotates the screenshot, not the added elements or cursor
 * Confluence Plug-in: the retrieving of the current page from firefox only works on the currently displayed Firefox tab. This is a problem since Firefox 13 and it is currently unknown if there is a fix.
 
 
