@@ -93,7 +93,7 @@ namespace ExternalCommand {
 						argumentDefaults.Add(MSPAINT, "\"{0}\"");
 					}
 					return argumentDefaults;
-				case "RunInBackground":
+				case "RunInbackground":
 					Dictionary<string, bool> runInBackground = new Dictionary<string, bool>();
 					if (hasPaintDotNet) {
 						runInBackground.Add(PAINTDOTNET, true);
