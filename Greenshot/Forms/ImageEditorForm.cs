@@ -93,16 +93,16 @@ namespace Greenshot {
 			
 			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
 
+			// Make sure the editor is placed on the same location as the last editor was on close
+			WindowDetails thisForm = new WindowDetails(this.Handle);
+			thisForm.SetWindowPlacement(editorConfiguration.GetEditorPlacement());
 
 			// init surface
 			Surface = iSurface;
 			// Intial "saved" flag for asking if the image needs to be save
 			surface.Modified = !outputMade;
-			updateUI();
 
-			// Make sure the editor is placed on the same location as the last editor was on close
-			WindowDetails thisForm = new WindowDetails(this.Handle);
-			thisForm.SetWindowPlacement(editorConfiguration.GetEditorPlacement());
+			updateUI();
 
 			// Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
 			hideToolstripItems();
@@ -791,6 +791,9 @@ namespace Greenshot {
 		#region helpers
 		
 		private void updateUndoRedoSurfaceDependencies() {
+			if (surface == null) {
+				return;
+			}
 			bool canUndo = surface.CanUndo;
 			this.btnUndo.Enabled = canUndo;
 			this.undoToolStripMenuItem.Enabled = canUndo;
@@ -820,6 +823,9 @@ namespace Greenshot {
 		}
 
 		private void updateClipboardSurfaceDependencies() {
+			if (surface == null) {
+				return;
+			}
 			// check dependencies for the Surface
 			bool hasItems = surface.HasSelectedElements();
 			bool actionAllowedForSelection = hasItems && !controlsDisabledDueToConfirmable;
