@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="French" ietf="fr-FR" version="1.0.0" languagegroup="1">
+<language description="French" ietf="fr-FR" version="1.0.1" languagegroup="1">
 	<resources>
 		<resource name="confluence">Greffon Confluence</resource>
 		<resource name="externalcommand">Ouvrir avec le greffon de commande externe</resource>
@@ -9,6 +9,6 @@
 		<resource name="ocr">Greffon OCR (nécessite Document Imaging de Microsoft Office [MODI])</resource>
 		<resource name="optimize">Optimisation des performances, Ceci peut prendre un certain temps.</resource>
 		<resource name="startgreenshot">Démarrer {#ExeName}</resource>
-		<resource name="startup">Démarrer {#ExeName} avec le bouton Démarrer de Windows</resource>
+		<resource name="startup">Lancer {#ExeName} au démarrage de Windows</resource>
 	</resources>
 </language>
