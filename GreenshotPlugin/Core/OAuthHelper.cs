@@ -295,6 +295,7 @@ namespace GreenshotPlugin.Core {
 			Verifier = null;
 			LOG.DebugFormat("Opening AuthorizationLink: {0}", authorizationLink);
 			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, authorizationLink, CallbackUrl);
+			oAuthLoginForm.ShowDialog();
 			if (oAuthLoginForm.isOk) {
 				if (oAuthLoginForm.CallbackParameters != null) {
 					if (oAuthLoginForm.CallbackParameters.ContainsKey(OAUTH_TOKEN_KEY)) {
