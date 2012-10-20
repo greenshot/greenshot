@@ -194,7 +194,7 @@ fr.language=Langues additionnelles
 fr.ocr=Greffon OCR (nécessite Document Imaging de Microsoft Office [MODI])
 fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
-fr.startup=Démarrer {#ExeName} avec le bouton Démarrer de Windows
+fr.startup=Lancer {#ExeName} au démarrage de Windows
 
 nl.confluence=Confluence plug-in
 nl.default=Default installation
