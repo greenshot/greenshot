@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Français" ietf="fr-FR" version="1.0.2" languagegroup="1">
+<language description="Français" ietf="fr-FR" version="1.0.3" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Veuillez rapporter les bogues &#224;</resource>
 		<resource name="about_donations">Si vous aimez Greenshot, vous pouvez nous soutenir :</resource>
@@ -77,7 +77,7 @@ De plus, nous appr&#233;cierions beaucoup que vous preniez la peine de v&#233;ri
 		<resource name="editor_copyimagetoclipboard">Copier l'image vers le presse-papier</resource>
 		<resource name="editor_copypathtoclipboard">Copier le chemin vers le presse-papier</resource>
 		<resource name="editor_copytoclipboard">Copier</resource>
-		<resource name="editor_crop">Rogner (C)</resource>
+		<resource name="editor_crop">Recadrer (C)</resource>
 		<resource name="editor_cursortool">Outil de s&#233;lection (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Couper</resource>
 		<resource name="editor_deleteelement">Supprimer</resource>
@@ -129,8 +129,8 @@ De plus, nous appr&#233;cierions beaucoup que vous preniez la peine de v&#233;ri
 		<resource name="editor_saveas">Enregistrer sous...</resource>
 		<resource name="editor_selectall">S&#233;lectionner tout</resource>
 		<resource name="editor_senttoprinter">La tâche d'impression a &#233;t&#233; envoy&#233;e vers '{0}'.</resource>
-		<resource name="editor_shadow">Supprimer l'ombre</resource>
-		<resource name="editor_image_shadow">Supprimer l'ombre</resource>
+		<resource name="editor_shadow">Ombre port&#233;e</resource>
+		<resource name="editor_image_shadow">Ombre port&#233;e</resource>
 		<resource name="editor_storedtoclipboard">L'image a &#233;t&#233; plac&#233;e dans le presse-papier.</resource>
 		<resource name="editor_thickness">&#201;paisseur de ligne</resource>
 		<resource name="editor_title">Greenshot Image Editor</resource>
@@ -159,13 +159,10 @@ Veuillez v&#233;rifier l'accessibilit&#233; du r&#233;pertoire de stockage.</res
 		<resource name="expertsettings_optimizeforrdp">Optimisations pour l'utilisation avec le bureau &#224; distance</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Supprimer bo&#238;te de dialogue de sauvegarde lors de la fermeture de l'&#233;diteur</resource>
 		<resource name="expertsettings_thumbnailpreview">Fen&#234;tre de miniatures dans le menu contextuel (pour Vista et Windows 7)</resource>
+		<resource name="expertsettings_reuseeditorifpossible">R&#233;utiliser l'&#233;diteur si possible</resource>
 		<resource name="exported_to">Exporter vers : {0}</resource>
+		<resource name="exported_to_error">Une erreur s'est produite lors de l'exportation de {0}:</resource>
 		<resource name="help_title">Aide de Greenshot</resource>
-		<resource name="hotkey_fullscreen">Capturer plein &#233;cran</resource>
-		<resource name="hotkey_ie">Capturer Internet Explorer</resource>
-		<resource name="hotkey_lastregion">Capturer la derni&#232;re r&#233;gion</resource>
-		<resource name="hotkey_region">Capturer une r&#233;gion</resource>
-		<resource name="hotkey_window">Capturer la fen&#234;tre active</resource>
 		<resource name="hotkeys">Raccourcis clavier</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Veuillez choisir la qualit&#233; de l'image JPEG.</resource>
 		<resource name="OK">Ok</resource>
@@ -227,6 +224,11 @@ en cours, par exemple 11_58_32 (plus l'extension d&#233;finie dans les param&#23
 		<resource name="settings_output">Sortie</resource>
 		<resource name="settings_playsound">Jouer un son d'appareil photo</resource>
 		<resource name="settings_plugins">Extensions</resource>
+		<resource name="settings_plugins_name">Nom</resource>
+		<resource name="settings_plugins_version">Version</resource>
+		<resource name="settings_plugins_createdby">Cr&#233;&#233; par</resource>
+		<resource name="settings_plugins_dllpath">Chemin de la DLL</resource>
+		<resource name="settings_plugins">Extensions</resource>
 		<resource name="settings_preferredfilesettings">Pr&#233;f&#233;rences d'enregistrement</resource>
 		<resource name="settings_primaryimageformat">Format d'image</resource>
 		<resource name="settings_printer">Imprimante</resource>
@@ -246,8 +248,8 @@ en cours, par exemple 11_58_32 (plus l'extension d&#233;finie dans les param&#23
 		<resource name="settings_usedefaultproxy">Utilisation du proxy syst&#232;me par d&#233;faut</resource>
 		<resource name="settings_visualization">Effets</resource>
 		<resource name="settings_waittime">Millisecondes d'attente avant la capture</resource>
-		<resource name="settings_window_capture_mode">Mode de capture de la fen&#234;tre</resource>
-		<resource name="settings_windowscapture">Capture de la fen&#234;tre</resource>
+		<resource name="settings_window_capture_mode">Mode de capture de fen&#234;tre</resource>
+		<resource name="settings_windowscapture">Capture de la fen&#234;tre active</resource>
 		<resource name="tooltip_firststart">Cliquez droit ici ou appuyez sur la touche {0}.</resource>
 		<resource name="update_found">Une nouvelle version de Greenshot est disponible ! Voulez-vous t&#233;l&#233;charger Greenshot {0} ?</resource>
 		<resource name="wait_ie_capture">Veuillez patienter pendant la capture de la page Internet Explorer...</resource>
