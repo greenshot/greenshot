@@ -96,9 +96,6 @@ namespace GreenshotConfluencePlugin {
 			host = pluginHost;
 			ConfluencePluginAttributes = myAttributes;
 
-            // Force exception when there is no Full Profile, this will make sure the plugin isn't loaded
-            HttpUtility.UrlEncode("bla");
-
 			// Register configuration (don't need the configuration itself)
 			config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 			if(config.IsDirty) {

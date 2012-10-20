@@ -46,6 +46,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interop\IOleCommandTarget.cs" />
     <Compile Include="RemedyInterop\RemedyExporter.cs" />
     <Compile Include="RemedyInterop\RemedyInterop.cs" />
     <Compile Include="IEInterop\IHTMLBodyElement.cs" />

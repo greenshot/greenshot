@@ -45,7 +45,7 @@ namespace GreenshotPlugin.Controls {
         /// </summary>
         private void InitializeComponent() {
 			this.addressTextBox = new System.Windows.Forms.TextBox();
-			this.browser = new System.Windows.Forms.WebBrowser();
+			this.browser = new ExtendedWebBrowser();
 			this.SuspendLayout();
 			// 
 			// addressTextBox
@@ -81,12 +81,12 @@ namespace GreenshotPlugin.Controls {
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
-        }
+		}
 
-        #endregion
+		#endregion
 
 		private System.Windows.Forms.TextBox addressTextBox;
-		private System.Windows.Forms.WebBrowser browser;
+		private ExtendedWebBrowser browser;
 
 	}
 }

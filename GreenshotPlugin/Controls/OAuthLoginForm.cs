@@ -55,7 +55,8 @@ namespace GreenshotPlugin.Controls {
 			this.Text = browserTitle;
 			this.addressTextBox.Text = authorizationLink;
 
-			browser.ScriptErrorsSuppressed = true;
+			// The script errors are suppressed by using the ExtendedWebBrowser
+			browser.ScriptErrorsSuppressed = false;
 			browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(browser_DocumentCompleted);
 			browser.Navigate(new Uri(authorizationLink));
 

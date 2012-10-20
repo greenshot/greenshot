@@ -4,7 +4,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 CHANGE LOG:
 We changed the version to 1.0 after 5 years it should no longer have a "beta" feeling!
 
-1.0.4 build 2172 Release Candidate 4
+1.0.4 build 2176 Release Candidate 4
 
 Bugs resolved:
 * Fixed error during OAuth process due to authorization dialog not opening, see bug #3578480

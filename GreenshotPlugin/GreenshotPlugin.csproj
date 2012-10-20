@@ -113,8 +113,14 @@
     <Compile Include="..\GreenshotInterop\Interop\IOleWindow.cs">
       <Link>Interop\IOleWindow.cs</Link>
     </Compile>
+    <Compile Include="..\GreenshotInterop\Interop\IOleCommandTarget.cs">
+      <Link>Interop\IOleCommandTarget.cs</Link>
+    </Compile>
     <Compile Include="..\GreenshotInterop\Interop\IServiceProvider.cs">
       <Link>Interop\IServiceProvider.cs</Link>
+    </Compile>
+    <Compile Include="Controls\ExtendedWebBrowser.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\FormWithoutActivation.cs">
       <SubType>Form</SubType>
