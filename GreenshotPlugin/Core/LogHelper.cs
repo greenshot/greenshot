@@ -75,9 +75,10 @@ namespace GreenshotPlugin.Core {
 				// Get the logfile name
 				try {
 					if (((Hierarchy)LogManager.GetRepository()).Root.Appenders.Count > 0) {
-						IAppender appender = ((Hierarchy)LogManager.GetRepository()).Root.Appenders[0];
-						if (appender is FileAppender) {
-							return ((FileAppender)appender).File;
+						foreach (IAppender appender in ((Hierarchy)LogManager.GetRepository()).Root.Appenders) {
+							if (appender is FileAppender) {
+								return ((FileAppender)appender).File;
+							}
 						}
 					}
 				} catch {}
