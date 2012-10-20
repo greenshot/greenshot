@@ -112,22 +112,26 @@ namespace GreenshotImgurPlugin {
 			}
 			string responseString = null;
 			if (config.AnonymousAccess) {
-				// add key
-				uploadParameters.Add("key", IMGUR_ANONYMOUS_API_KEY);
-				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(uploadParameters) + NetworkHelper.GenerateQueryParameters(otherParameters));
+				// add key, we only use the other parameters for the AnonymousAccess
+				otherParameters.Add("key", IMGUR_ANONYMOUS_API_KEY);
+				HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(otherParameters));
 				webRequest.Method = "POST";
 				webRequest.ContentType = "image/" + outputSettings.Format.ToString();
 				webRequest.ServicePoint.Expect100Continue = false;
-				using (var requestStream = webRequest.GetRequestStream()) {
-					ImageOutput.SaveToStream(image, requestStream, outputSettings);
-				}
-	
-				responseString =  NetworkHelper.GetResponse(webRequest);
-				using (WebResponse response = webRequest.GetResponse()) {
-					LogCredits(response);
-					using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
-						responseString = reader.ReadToEnd();
+				try {
+					using (var requestStream = webRequest.GetRequestStream()) {
+						ImageOutput.SaveToStream(image, requestStream, outputSettings);
 					}
+		
+					using (WebResponse response = webRequest.GetResponse()) {
+						using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
+							responseString = reader.ReadToEnd();
+						}
+						LogCredits(response);
+					}
+				} catch (Exception ex) {
+					LOG.Error("Upload to imgur gave an exeption: ", ex);
+					throw ex;
 				}
 			} else {
 				OAuthSession oAuth = new OAuthSession(ImgurCredentials.CONSUMER_KEY, ImgurCredentials.CONSUMER_SECRET);
