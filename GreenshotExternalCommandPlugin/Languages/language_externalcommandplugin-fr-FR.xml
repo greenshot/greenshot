@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="French" ietf="fr-FR" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    Configuration de commandes externes 
+  </resource>
+  <resource name="settings_title">
+  		Paramètrage de la commande externe
+	</resource>
+	<resource name="settings_detail_title">
+  		Configuration de la commande
+	</resource>
+	<resource name="settings_new">
+  		Nouvelle
+	</resource>
+	<resource name="settings_delete">
+  		Supprimer
+	</resource>
+	<resource name="settings_edit">
+  		Editer
+	</resource>
+    <resource name="label_name">
+      Nom
+    </resource>
+    <resource name="label_command">
+      Commande
+    </resource>
+    <resource name="label_argument">
+      Arguments
+    </resource>
+    <resource name="label_information">
+      {0} est le nom du fichier de votre capture d'écran
+    </resource>
+  </resources>
+</language>
