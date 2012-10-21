@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Deutsch" ietf="de-DE" version="1.0.2" languagegroup="1">
+<language description="Deutsch" ietf="de-DE" version="1.0.4" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Bitte melden Sie Fehler unter</resource>
 		<resource name="about_donations">Wenn Sie Greenshot mögen, können Sie uns gerne unterstützen:</resource>
@@ -105,6 +105,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_highlight_magnify">Vergrößern</resource>
 		<resource name="editor_highlight_mode">Hervorheben - Modus</resource>
 		<resource name="editor_highlight_text">Textmarker</resource>
+		<resource name="editor_image_shadow">Schatten</resource>
 		<resource name="editor_imagesaved">Bild wurde gespeichert unter {0}.</resource>
 		<resource name="editor_insertwindow">Fenster einfügen</resource>
 		<resource name="editor_invert">Invertieren</resource>
@@ -132,7 +133,6 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_selectall">Alle Objekte auswählen</resource>
 		<resource name="editor_senttoprinter">Druckauftrag wurde an '{0}' gesendet.</resource>
 		<resource name="editor_shadow">Schatten An/Aus</resource>
-		<resource name="editor_image_shadow">Schatten</resource>
 		<resource name="editor_storedtoclipboard">Bild wurde in Zwischenablage kopiert.</resource>
 		<resource name="editor_thickness">Linienstärke</resource>
 		<resource name="editor_title">Greenshot Editor</resource>
@@ -159,9 +159,11 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="expertsettings_footerpattern">Fußzeile für Druck</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Speicherverbrauch reduzieren (auf Kosten der Performance - nicht empfohlen)</resource>
 		<resource name="expertsettings_optimizeforrdp">Für Benutzung mit Remote Desktop optimieren</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Editor wiederverwenden, falls möglich</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Speichern-Dialog beim Schließen des Editors unterdrücken</resource>
 		<resource name="expertsettings_thumbnailpreview">Fenster-Vorschau im Kontextmenü anzeigen (für Vista und Windows 7)</resource>
 		<resource name="exported_to">Exportiert nach: {0}</resource>
+		<resource name="exported_to_error">Beim Export zu {0} ist ein Fehler aufgetreten:</resource>
 		<resource name="help_title">Greenshot Hilfe</resource>
 		<resource name="hotkeys">Tastenkombinationen</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Bitte wählen Sie die Qualität Ihres JPEG Bilds.</resource>
@@ -225,6 +227,10 @@ z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_output">Ausgabe</resource>
 		<resource name="settings_playsound">Kameraton abspielen</resource>
 		<resource name="settings_plugins">Plugins</resource>
+		<resource name="settings_plugins_createdby">Erstellt von</resource>
+		<resource name="settings_plugins_dllpath">DLL-Pfad</resource>
+		<resource name="settings_plugins_name">Name</resource>
+		<resource name="settings_plugins_version">Version</resource>
 		<resource name="settings_preferredfilesettings">Bevorzugte Ausgabedatei-Einstellungen</resource>
 		<resource name="settings_primaryimageformat">Bildformat</resource>
 		<resource name="settings_printer">Drucker</resource>
