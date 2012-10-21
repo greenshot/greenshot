@@ -18,13 +18,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOCRPlugin", "..\Gr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOCRCommand", "..\GreenshotOCRCommand\GreenshotOCRCommand.csproj", "{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotBoxPlugin", "..\..\Greenshot-Plugins\GreenshotBoxPlugin\GreenshotBoxPlugin.csproj", "{697CF066-9077-4F22-99D9-D989CCE7282B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotBoxPlugin", "..\GreenshotBoxPlugin\GreenshotBoxPlugin.csproj", "{697CF066-9077-4F22-99D9-D989CCE7282B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotDropboxPlugin", "..\..\Greenshot-Plugins\GreenshotDropboxPlugin\GreenshotDropboxPlugin.csproj", "{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotDropboxPlugin", "..\GreenshotDropboxPlugin\GreenshotDropboxPlugin.csproj", "{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotFlickrPlugin", "..\..\Greenshot-Plugins\GreenshotFlickrPlugin\GreenshotFlickrPlugin.csproj", "{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotFlickrPlugin", "..\GreenshotFlickrPlugin\GreenshotFlickrPlugin.csproj", "{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotPicasaPlugin", "..\..\Greenshot-Plugins\GreenshotPicasaPlugin\GreenshotPicasaPlugin.csproj", "{1893A2E4-A78A-4713-A8E7-E70058DABEE0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotPicasaPlugin", "..\GreenshotPicasaPlugin\GreenshotPicasaPlugin.csproj", "{1893A2E4-A78A-4713-A8E7-E70058DABEE0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOfficePlugin", "..\GreenshotOfficePlugin\GreenshotOfficePlugin.csproj", "{92599C09-FF29-4ABD-B6E6-C48ECD781BAB}"
 EndProject

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Français" ietf="fr-FR" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="communication_wait">Communication en cours avec Flickr. Veuillez patientez...</resource>
+		<resource name="Configure">Configurer Flickr</resource>
+		<resource name="family">Famille</resource>
+		<resource name="friend">Ami</resource>
+		<resource name="label_AfterUpload">Après téléversement</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Copier le lien dans le presse-papier</resource>
+		<resource name="label_HiddenFromSearch">Caché dans les recherches</resource>
+		<resource name="label_SafetyLevel">Niveau de sécurité</resource>
+		<resource name="label_upload_format">Format image</resource>
+		<resource name="public">Publique</resource>
+		<resource name="settings_title">Paramètres Flickr</resource>
+		<resource name="upload_failure">Une erreur s'est produite lors du téléversement vers Flickr :</resource>
+		<resource name="upload_menu_item">Téléverser vers Flickr</resource>
+		<resource name="upload_success">Image téléversée aves succès vers Flickr !</resource>
+	</resources>
+</language>

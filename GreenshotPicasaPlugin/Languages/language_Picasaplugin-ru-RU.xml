@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Русский" ietf="ru-RU" version="1.0.0">
+  <resources>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	  Ссылки в буфер обмена
+	</resource>
+	<resource name="label_AfterUpload">
+	  После загрузки
+	</resource>
+	<resource name="Configure">
+	  Настройка Picasa
+	</resource>
+	<resource name="upload_menu_item">
+	  Загрузить на Picasa
+	</resource>
+	<resource name="settings_title">
+	  Настройки Picasa
+	</resource>
+	<resource name="upload_success">
+	  Изображение успешно загружено на Picasa!
+	</resource>
+	<resource name="upload_failure">
+	  Произошла ошибка при загрузке на Picasa:
+	</resource>
+	<resource name="label_upload_format">
+	  Формат изображения
+  	</resource>
+	<resource name="communication_wait">
+	  Общение с Picasa. Подождите...
+	</resource>
+  </resources>
+</language>

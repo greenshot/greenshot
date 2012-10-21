@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="1.0.3" languagegroup="a">
+	<resources>
+		<resource name="communication_wait">正在连接到Flickr。请稍后...</resource>
+		<resource name="Configure">配置Flickr</resource>
+		<resource name="family">家庭</resource>
+		<resource name="friend">朋友</resource>
+		<resource name="label_AfterUpload">上传之后</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">复制链接到剪贴板</resource>
+		<resource name="label_HiddenFromSearch">从搜索结果中隐藏</resource>
+		<resource name="label_SafetyLevel">安全级别</resource>
+		<resource name="label_upload_format">图片格式</resource>
+		<resource name="public">公开</resource>
+		<resource name="settings_title">Flickr设置</resource>
+		<resource name="upload_failure">上除到Flickr时发生错误！</resource>
+		<resource name="upload_menu_item">上传到Flickr</resource>
+		<resource name="upload_success">图片已成功上传到了Flickr！</resource>
+	</resources>
+</language>
