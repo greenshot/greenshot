@@ -15,6 +15,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using Greenshot.Helpers;
 
 namespace GreenshotLanguageEditor
 {
@@ -23,11 +24,14 @@ namespace GreenshotLanguageEditor
 	/// </summary>
 	public partial class ErrorWindow : Window
 	{
-		public ErrorWindow(string msg)
+		public ErrorWindow(Exception e)
 		{
 			InitializeComponent();
+			this.Title = "Unexpected Error in GreenshotLanguageEditor";
 
-			this.textBox.Text = msg;
+			this.textBox.Text = "Sorry, an unexpected error occurred :(\n\n"
+				+ EnvironmentInfo.BuildReport(e);
+			
 		}
 	}
 }
