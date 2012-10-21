@@ -4,6 +4,11 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 CHANGE LOG:
 We changed the version to 1.0 after 5 years it should no longer have a "beta" feeling!
 
+1.0.5 build #### Release Candidate 5
+
+Bugs resolved
+* Fixed translation issue in expert settings, clipboard format options not being updated right away after switching UI language, see bug #3576073
+
 1.0.4 build 2177 Release Candidate 4
 
 Bugs resolved:
