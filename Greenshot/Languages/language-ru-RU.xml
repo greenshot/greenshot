@@ -182,6 +182,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="qualitydialog_dontaskagain">Сохранять с качеством по умолчанию и не спрашивать</resource>
 		<resource name="qualitydialog_title">Качество Greenshot</resource>
 		<resource name="quicksettings_destination_file">Сохранить непосредственно (с использованием предпочтительного параметра файла вывода)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Показывать диалоговое окно опций печати каждый раз при печати изображения</resource>
 		<resource name="settings_alwaysshowqualitydialog">Показывать диалог качества каждый раз при сохранении изображения</resource>
 		<resource name="settings_applicationsettings">Параметры приложения</resource>
 		<resource name="settings_autostartshortcut">Автозагрузка</resource>
@@ -201,7 +202,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="settings_destination_printer">Отправить на печать</resource>
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон имени файла</resource>
-		<resource name="settings_iecapture">Захват обозревателя Internet Explorer</resource>
+		<resource name="settings_iecapture">Захват Internet Explorer</resource>
 		<resource name="settings_jpegquality">Качество JPEG</resource>
 		<resource name="settings_language">Язык</resource>
 		<resource name="settings_message_filenamepattern">В определённом шаблоне автоматически будут заменены следующие заполнители:
@@ -229,13 +230,13 @@ ${hostname} Имя ПК
 		<resource name="settings_primaryimageformat">Формат изображения</resource>
 		<resource name="settings_printer">Принтер</resource>
 		<resource name="settings_printoptions">Параметры печати</resource>
-		<resource name="settings_qualitysettings">Настройки качества</resource>
-		<resource name="settings_reducecolors">Уменьшить количество цветов, максимум 256</resource>
+		<resource name="settings_qualitysettings">Параметры качества</resource>
+		<resource name="settings_reducecolors">Уменьшить количество цветов максимально до 256</resource>
 		<resource name="settings_registerhotkeys">Регистрация горячих клавиш</resource>
 		<resource name="settings_showflashlight">Показывать вспышку</resource>
 		<resource name="settings_shownotify">Показывать уведомления</resource>
 		<resource name="settings_storagelocation">Место хранения</resource>
-		<resource name="settings_title">Настройки Picasa</resource>
+		<resource name="settings_title">Настройки</resource>
 		<resource name="settings_tooltip_filenamepattern">Шаблон, используемый для создания имён файлов при сохранении скриншотов</resource>
 		<resource name="settings_tooltip_language">Язык интерфейса пользователя</resource>
 		<resource name="settings_tooltip_primaryimageformat">Формат изображения, используемый по умолчанию</resource>

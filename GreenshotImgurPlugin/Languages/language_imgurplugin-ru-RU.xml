@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Русский" ietf="ru-RU" version="1.0.2">
+<language description="Русский" ietf="ru-RU" version="1.0.0">
   <resources>
 	<resource name="upload_menu_item">
 		Загрузить на Imgur
@@ -26,7 +26,7 @@
 		Формат изображения
 	</resource>
 	<resource name="communication_wait">
-		Общение с Imgur. Подождите...
+		Взаимодействие с Imgur. Подождите...
 	</resource>
 	<resource name="delete_question">
 		Вы действительно хотите удалить изображение {0} из Imgur?
@@ -36,6 +36,9 @@
 	</resource>
 	<resource name="delete_title">
 		Удалить Imgur {0}
+	</resource>
+        <resource name="anonymous_access">
+		Использовать анонимный доступ
 	</resource>
 	<resource name="use_page_link">
 		Использовать ссылку страницы, вместо ссылки изображения в буфере обмена
