@@ -9,12 +9,20 @@ We changed the version to 1.0 after 5 years it should no longer have a "beta" fe
 Bugs resolved
 * Fixed translation issue in expert settings, clipboard format options not being updated right away after switching UI language, see bug #3576073
 
+Known issues:
+* Greenshot general: the I-Beam cursor isn't displayed correctly on the final result.
+* Greenshot general: Not all hotkeys can be changed in the editor. For example the pause or the Windows key need to be modified directly in the ini.
+* Greenshot editor: Rotate only rotates the screenshot, not the added elements or cursor
+* Confluence Plug-in: the retrieving of the current page from firefox only works on the currently displayed Firefox tab. This is a problem since Firefox 13 and it is currently unknown if there is a fix.
+
+
 1.0.4 build 2177 Release Candidate 4
 
 Bugs resolved:
 * Fixed error during OAuth process due to authorization dialog not opening, see bug #3578480
 * Fixed error in external command plugin, see bugs #3578391, #3578379, #3578377
 * Fixed editor window not being resized to image size, see bug #3578325
+
 
 1.0.3 build 2159 Release Candidate 3
 
@@ -38,12 +46,6 @@ Bugs resolved:
 
 Features removed:
 * Remove any history management of all non annonymous upload plug-ins, Greenshot is for uploading not managing uploads.
-
-Known issues:
-* Greenshot general: the I-Beam cursor isn't displayed correctly on the final result.
-* Greenshot general: Not all hotkeys can be changed in the editor. For example the pause or the Windows key need to be modified directly in the ini.
-* Greenshot editor: Rotate only rotates the screenshot, not the added elements or cursor
-* Confluence Plug-in: the retrieving of the current page from firefox only works on the currently displayed Firefox tab. This is a problem since Firefox 13 and it is currently unknown if there is a fix.
 
 
 1.0.2 build 2011 Release Candidate 2
