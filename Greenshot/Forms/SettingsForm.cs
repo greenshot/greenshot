@@ -231,6 +231,7 @@ namespace Greenshot {
 			// Delaying the SelectedIndexChanged events untill all is initiated
 			this.combobox_language.SelectedIndexChanged += new System.EventHandler(this.Combobox_languageSelectedIndexChanged);
 			UpdateDestinationDescriptions();
+			UpdateClipboardFormatDescriptions();
 		}
 		
 		// Check the settings and somehow visibly mark when something is incorrect
@@ -261,6 +262,16 @@ namespace Greenshot {
 			foreach (ListViewItem item in listview_destinations.Items) {
 				IDestination destination = item.Tag as IDestination;
 				item.Text = destination.Description;
+			}
+		}
+
+		/// <summary>
+		/// Show all clipboard format descriptions in the current language
+		/// </summary>
+		private void UpdateClipboardFormatDescriptions() {
+			foreach(ListViewItem item in listview_clipboardformats.Items) {
+				ClipboardFormat cf = (ClipboardFormat) item.Tag;
+			    item.Text = Language.Translate(cf);
 			}
 		}
 
@@ -319,7 +330,7 @@ namespace Greenshot {
 				item.Tag = clipboardFormat;
 				item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
 			}
-
+			
 			if (Language.CurrentLanguage != null) {
 				combobox_language.SelectedValue = Language.CurrentLanguage;
 			}
