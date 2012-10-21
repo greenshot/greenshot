@@ -152,6 +152,7 @@ Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
 Name: de; MessagesFile: compiler:Languages\German.isl
+Name: es; MessagesFile: compiler:Languages\Spanish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: nn; MessagesFile: compiler:Languages\Norwegian.isl
@@ -183,6 +184,17 @@ en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
 en.optimize=Optimizing performance, this may take a while.
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
+
+es.confluence=Extensión para Confluence
+es.default=${default}
+es.externalcommand=Extensión para abrir con programas externos
+es.imgur=Extensión para Imgur (Ver http://imgur.com)
+es.jira=Extensión para Jira
+es.language=Idiomas adicionales
+es.ocr=Extensión para OCR (necesita Microsoft Office Document Imaging (MODI))
+es.optimize=Optimizando rendimiento; por favor, espera.
+es.startgreenshot=Lanzar {#ExeName}
+es.startup=Lanzar {#ExeName} al iniciarse Windows
 
 fr.confluence=Greffon Confluence
 fr.default=${default}
