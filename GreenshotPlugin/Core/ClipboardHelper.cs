@@ -355,7 +355,8 @@ EndSelection:<<<<<<<4
 				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG) || config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
 					pngStream = new MemoryStream();
 					// PNG works for Powerpoint
-					image.Save(pngStream, ImageFormat.Png);
+					OutputSettings pngOutputSettings = new OutputSettings(OutputFormat.png, 100, false);
+					ImageOutput.SaveToStream(image, pngStream, pngOutputSettings);
 					pngStream.Seek(0, SeekOrigin.Begin);
 				}
 
@@ -367,7 +368,9 @@ EndSelection:<<<<<<<4
 				if (config.ClipboardFormats.Contains(ClipboardFormat.DIB)) {
 					bmpStream = new MemoryStream();
 					// Save image as BMP
-					image.Save(bmpStream, ImageFormat.Bmp);
+					OutputSettings bmpOutputSettings = new OutputSettings(OutputFormat.bmp, 100, false);
+					ImageOutput.SaveToStream(image, bmpStream, bmpOutputSettings);
+
 					imageStream = new MemoryStream();
 					// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
 					imageStream.Write(bmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int) bmpStream.Length - BITMAPFILEHEADER_LENGTH);

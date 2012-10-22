@@ -28,6 +28,8 @@ using System.Xml;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Interop.Office {
 	public class OneNotePage {
@@ -43,7 +45,8 @@ namespace Greenshot.Interop.Office {
 
 		public static void ExportToPage(Bitmap imageToExport, OneNotePage page) {
 			using (MemoryStream pngStream = new MemoryStream()) {
-				imageToExport.Save(pngStream, ImageFormat.Png);
+				OutputSettings pngOutputSettings = new OutputSettings(OutputFormat.png, 100, false);
+				ImageOutput.SaveToStream(imageToExport, pngStream, pngOutputSettings);
 				string base64String = Convert.ToBase64String(pngStream.GetBuffer());
 				string imageXmlStr = string.Format(XML_IMAGE_CONTENT, base64String, imageToExport.Width, imageToExport.Height);
 				string pageChangesXml = string.Format(XML_OUTLINE, new object[] { imageXmlStr, page.PageID, ONENOTE_NAMESPACE_2010, page.PageName });
