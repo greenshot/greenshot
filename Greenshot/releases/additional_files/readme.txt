@@ -8,6 +8,10 @@ We changed the version to 1.0 after 5 years it should no longer have a "beta" fe
 
 Bugs resolved
 * Fixed translation issue in expert settings, clipboard format options not being updated right away after switching UI language, see bug #3576073
+* Fixed bug #3578392: one of the clipboard formats we generate doesn't support transparency, but we forgot to remove it.
+* Fixed a bug that prevented the clipboard formats to represent the general output settings. (decrease colors if possible etc)
+* Fixed a bug that the context menu was shown 2x, it's not really visible but does not improve the performance.
+* Fixed a bug when capturung a minimized IE window, now we first restore it (un-minimize) before capturing.
 
 Known issues:
 * Greenshot general: the I-Beam cursor isn't displayed correctly on the final result.
