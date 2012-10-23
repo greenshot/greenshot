@@ -46,7 +46,17 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("gdi32", SetLastError = true)]
 		public static extern uint GetPixel(IntPtr hdc, int nXPos, int nYPos);
 	}
-	
+
+	[StructLayout(LayoutKind.Sequential, Pack = 2)]
+	public struct BitmapFileHeader {
+		public static readonly short BM = 0x4d42; // BM
+		public short bfType;
+		public int bfSize;
+		public short bfReserved1;
+		public short bfReserved2;
+		public int bfOffBits;
+	}
+
 	[StructLayout(LayoutKind.Sequential)] 
 	public struct BitmapInfoHeader {
 		public uint biSize;

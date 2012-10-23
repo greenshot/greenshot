@@ -52,6 +52,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="browserWindowDetails">The browser WindowDetails</param>
 		/// <returns>WindowDetails for the DirectUI window</returns>
 		public static WindowDetails GetDirectUI(WindowDetails browserWindowDetails) {
+			if (browserWindowDetails == null) {
+				return null;
+			}
 			WindowDetails tmpWD = browserWindowDetails;
 			// Since IE 9 the TabBandClass is less deep!
 			if (IEHelper.IEVersion() < 9) {

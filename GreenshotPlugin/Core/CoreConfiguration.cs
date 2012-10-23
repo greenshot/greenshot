@@ -191,6 +191,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("ExperimentalFeatures", Description="A list of experimental features, this allows us to test certain features before releasing them.", ExcludeIfNull=true)]
 		public List<string> ExperimentalFeatures;
 
+		[IniProperty("EnableSpecialDIBClipboardReader", Description = "Enable a special DIB clipboard reader", DefaultValue="False")]
+		public bool EnableSpecialDIBClipboardReader;
+
 		// Specify what THIS build is
 		public bool isRelease = false;
 		public bool isReleaseCandidate = true;

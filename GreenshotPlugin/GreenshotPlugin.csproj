@@ -198,6 +198,7 @@
     <Compile Include="Core\AbstractDestination.cs" />
     <Compile Include="Core\AbstractProcessor.cs" />
     <Compile Include="Core\AccessibleHelper.cs" />
+    <Compile Include="Core\BinaryStructHelper.cs" />
     <Compile Include="Core\BitmapBuffer.cs" />
     <Compile Include="Core\Cache.cs" />
     <Compile Include="Core\ClipboardHelper.cs" />
