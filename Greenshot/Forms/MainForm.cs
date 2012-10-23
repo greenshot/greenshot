@@ -1083,10 +1083,12 @@ namespace Greenshot {
 			LOG.Error(EnvironmentInfo.ExceptionToString(exceptionToLog));
 			new BugReportForm(exceptionText).ShowDialog();
 		}
-		
-		private void NotifyIconClick(object sender, EventArgs eventArgs) {
-			MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-			oMethodInfo.Invoke(notifyIcon, null);
+
+		private void NotifyIconClick(object sender, MouseEventArgs e) {
+			if (e.Button == MouseButtons.Left) {
+				MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
+				oMethodInfo.Invoke(notifyIcon, null);
+			}
 		}
 
 		/// <summary>
