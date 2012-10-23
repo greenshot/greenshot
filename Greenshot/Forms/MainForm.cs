@@ -873,13 +873,17 @@ namespace Greenshot {
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
 			KeyValuePair<WindowDetails, int> tabData = (KeyValuePair<WindowDetails, int>)clickedItem.Tag;
 			BeginInvoke((MethodInvoker)delegate {
+				WindowDetails ieWindowToCapture = tabData.Key;
+				if (ieWindowToCapture != null && (!ieWindowToCapture.Visible || ieWindowToCapture.Iconic)) {
+					ieWindowToCapture.Restore();
+				}
 				try {
-					IECaptureHelper.ActivateIETab(tabData.Key, tabData.Value);
+					IECaptureHelper.ActivateIETab(ieWindowToCapture, tabData.Value);
 				} catch (Exception exception) {
 					LOG.Error(exception);
 				}
 				try {
-					CaptureHelper.CaptureIE(false, tabData.Key);
+					CaptureHelper.CaptureIE(false, ieWindowToCapture);
 				} catch (Exception exception) {
 					LOG.Error(exception);
 				}
