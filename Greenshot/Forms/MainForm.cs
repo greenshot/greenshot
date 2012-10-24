@@ -846,7 +846,9 @@ namespace Greenshot {
 		}
 		
 		void Contextmenu_capturewindow_Click(object sender,EventArgs e) {
-			CaptureWindow();
+			BeginInvoke((MethodInvoker)delegate {
+				CaptureHelper.CaptureWindowInteractive(false);
+			});
 		}
 
 		void Contextmenu_capturewindowfromlist_Click(object sender,EventArgs e) {
