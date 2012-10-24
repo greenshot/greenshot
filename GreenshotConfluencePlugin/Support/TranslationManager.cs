@@ -10,7 +10,7 @@ namespace TranslationByMarkupExtension {
 
         public event EventHandler LanguageChanged;
 
-        public CultureInfo CurrentLanguage {
+        /*public CultureInfo CurrentLanguage {
             get { return Thread.CurrentThread.CurrentUICulture; }
             set {
                 if( value != Thread.CurrentThread.CurrentUICulture) {
@@ -27,7 +27,7 @@ namespace TranslationByMarkupExtension {
                }
                return Enumerable.Empty<CultureInfo>();
             }
-        }
+        }*/
 
         public static TranslationManager Instance {
             get {

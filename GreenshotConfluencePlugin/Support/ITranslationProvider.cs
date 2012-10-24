@@ -15,6 +15,6 @@ namespace TranslationByMarkupExtension {
         /// Gets the available languages.
         /// </summary>
         /// <value>The available languages.</value>
-        IEnumerable<CultureInfo> Languages { get; }
+        //IEnumerable<CultureInfo> Languages { get; }
     }
 }

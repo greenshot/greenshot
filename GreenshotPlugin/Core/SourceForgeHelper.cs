@@ -195,8 +195,8 @@ namespace GreenshotPlugin.Core {
 							} else if (type.Equals("Translations")) {
 								string culture = Regex.Replace(file, @"[a-zA-Z]+-(..-..)\.(xml|html)", "$1");
 								try {
-									CultureInfo cultureInfo = new CultureInfo(culture);
-									rssFile.Language = cultureInfo.NativeName;
+									//CultureInfo cultureInfo = new CultureInfo(culture);
+									rssFile.Language = culture;//cultureInfo.NativeName;
 								} catch (Exception) {
 									LOG.WarnFormat("Can't read the native name of the culture {0}", culture);
 								}
