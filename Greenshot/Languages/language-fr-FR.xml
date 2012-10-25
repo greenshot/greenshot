@@ -228,7 +228,6 @@ en cours, par exemple 11_58_32 (plus l'extension d&#233;finie dans les param&#23
 		<resource name="settings_plugins_version">Version</resource>
 		<resource name="settings_plugins_createdby">Cr&#233;&#233; par</resource>
 		<resource name="settings_plugins_dllpath">Chemin de la DLL</resource>
-		<resource name="settings_plugins">Extensions</resource>
 		<resource name="settings_preferredfilesettings">Pr&#233;f&#233;rences d'enregistrement</resource>
 		<resource name="settings_primaryimageformat">Format d'image</resource>
 		<resource name="settings_printer">Imprimante</resource>
