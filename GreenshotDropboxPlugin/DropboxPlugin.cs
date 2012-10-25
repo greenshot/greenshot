@@ -39,6 +39,7 @@ namespace GreenshotDropboxPlugin {
 		public static PluginAttribute Attributes;
 		private IGreenshotHost host;
 		private ComponentResourceManager resources;
+		private ToolStripMenuItem itemPlugInConfig;
 
 		public DropboxPlugin() {
 		}
@@ -65,15 +66,21 @@ namespace GreenshotDropboxPlugin {
 			config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 			resources = new ComponentResourceManager(typeof(DropboxPlugin));
 
-			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem();
+			itemPlugInConfig = new ToolStripMenuItem();
 			itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
 			itemPlugInConfig.Tag = host;
 			itemPlugInConfig.Click += new System.EventHandler(ConfigMenuClick);
 			itemPlugInConfig.Image = (Image)resources.GetObject("Dropbox");
 
 			PluginUtils.AddToContextMenu(host, itemPlugInConfig);
-
+			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 			return true;
+		}
+
+		public void OnLanguageChanged() {
+			if (itemPlugInConfig != null) {
+				itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
+			}
 		}
 
 		public virtual void Shutdown() {

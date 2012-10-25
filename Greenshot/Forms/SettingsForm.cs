@@ -407,9 +407,6 @@ namespace Greenshot {
 			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
-			// Make sure the current language & settings are reflected in the Main-context menu
-			MainForm.Instance.UpdateUI();
-
 			try {
 				// Check if the Run for all is set
 				if(!StartupHelper.checkRunAll()) {
@@ -438,6 +435,9 @@ namespace Greenshot {
 				SaveSettings();
 				StoreFields();
 				MainForm.RegisterHotkeys();
+
+				// Make sure the current language & settings are reflected in the Main-context menu
+				MainForm.Instance.UpdateUI();
 				DialogResult = DialogResult.OK;
 			} else {
 				this.tabcontrol.SelectTab(this.tab_output);

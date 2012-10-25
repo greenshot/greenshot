@@ -38,6 +38,7 @@ namespace GreenshotPicasaPlugin {
 		public static PluginAttribute Attributes;
 		private IGreenshotHost host;
 		private ComponentResourceManager resources;
+		private ToolStripMenuItem itemPlugInRoot;
 
 		public PicasaPlugin() {
 		}
@@ -65,18 +66,25 @@ namespace GreenshotPicasaPlugin {
 			config = IniConfig.GetIniSection<PicasaConfiguration>();
 			resources = new ComponentResourceManager(typeof(PicasaPlugin));
 
-			ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem();
+			itemPlugInRoot = new ToolStripMenuItem();
 			itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
 			itemPlugInRoot.Tag = host;
 			itemPlugInRoot.Image = (Image)resources.GetObject("Picasa");
 			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
 			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
-			
+			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 			return true;
+		}
+
+		public void OnLanguageChanged() {
+			if (itemPlugInRoot != null) {
+				itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
+			}
 		}
 
 		public virtual void Shutdown() {
 			LOG.Debug("Picasa Plugin shutdown.");
+			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
 		}
 

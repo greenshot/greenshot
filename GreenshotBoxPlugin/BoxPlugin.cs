@@ -39,6 +39,7 @@ namespace GreenshotBoxPlugin {
 		public static PluginAttribute Attributes;
 		private IGreenshotHost host;
 		private ComponentResourceManager resources;
+		private ToolStripMenuItem itemPlugInConfig;
 
 		public BoxPlugin() {
 		}
@@ -65,14 +66,20 @@ namespace GreenshotBoxPlugin {
 			config = IniConfig.GetIniSection<BoxConfiguration>();
 			resources = new ComponentResourceManager(typeof(BoxPlugin));
 
-			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem();
+			itemPlugInConfig = new ToolStripMenuItem();
 			itemPlugInConfig.Image = (Image)resources.GetObject("Box");
 			itemPlugInConfig.Text = Language.GetString("box", LangKey.Configure);
 			itemPlugInConfig.Click += new System.EventHandler(ConfigMenuClick);
 
 			PluginUtils.AddToContextMenu(host, itemPlugInConfig);
-
+			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 			return true;
+		}
+
+		public void OnLanguageChanged() {
+			if (itemPlugInConfig != null) {
+				itemPlugInConfig.Text = Language.GetString("box", LangKey.Configure);
+			}
 		}
 
 		public virtual void Shutdown() {

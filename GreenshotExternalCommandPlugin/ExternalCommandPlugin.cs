@@ -35,6 +35,7 @@ namespace ExternalCommand {
 		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private IGreenshotHost host;
 		private PluginAttribute myAttributes;
+		private ToolStripMenuItem itemPlugInRoot;
 
 		public ExternalCommandPlugin() {
 		}
@@ -68,7 +69,7 @@ namespace ExternalCommand {
 			this.myAttributes = myAttributes;
 
 
-			ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem();
+			itemPlugInRoot = new ToolStripMenuItem();
 			itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
 			itemPlugInRoot.Tag = host;
 			string exePath = PluginUtils.GetExePath("cmd.exe");
@@ -78,7 +79,14 @@ namespace ExternalCommand {
 			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
 
 			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
+			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 			return true;
+		}
+
+		public void OnLanguageChanged() {
+			if (itemPlugInRoot != null) {
+				itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
+			}
 		}
 
 		public virtual void Shutdown() {

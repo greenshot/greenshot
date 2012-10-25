@@ -40,6 +40,7 @@ namespace GreenshotFlickrPlugin
 		public static PluginAttribute Attributes;
 		private IGreenshotHost host;
 		private ComponentResourceManager resources;
+		private ToolStripMenuItem itemPlugInConfig;
 
 		public FlickrPlugin() {
 		}
@@ -67,15 +68,21 @@ namespace GreenshotFlickrPlugin
 			config = IniConfig.GetIniSection<FlickrConfiguration>();
 			resources = new ComponentResourceManager(typeof(FlickrPlugin));
 
-			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem();
+			itemPlugInConfig = new ToolStripMenuItem();
 			itemPlugInConfig.Text = Language.GetString("flickr", LangKey.Configure);
 			itemPlugInConfig.Tag = host;
 			itemPlugInConfig.Image = (Image)resources.GetObject("flickr");
 			itemPlugInConfig.Click += new System.EventHandler(ConfigMenuClick);
 
 			PluginUtils.AddToContextMenu(host, itemPlugInConfig);
-
+			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 			return true;
+		}
+
+		public void OnLanguageChanged() {
+			if (itemPlugInConfig != null) {
+				itemPlugInConfig.Text = Language.GetString("flickr", LangKey.Configure);
+			}
 		}
 
 		public virtual void Shutdown() {

@@ -41,6 +41,7 @@ namespace GreenshotImgurPlugin {
 		private IGreenshotHost host;
 		private ComponentResourceManager resources;
 		private ToolStripMenuItem historyMenuItem = null;
+		private ToolStripMenuItem itemPlugInConfig;
 
 		public ImgurPlugin() {
 		}
@@ -78,7 +79,7 @@ namespace GreenshotImgurPlugin {
 			};
 			itemPlugInRoot.DropDownItems.Add(historyMenuItem);
 
-			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
+			itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
 			itemPlugInConfig.Tag = host;
 			itemPlugInConfig.Click += delegate {
 				config.ShowConfigDialog();
@@ -86,6 +87,7 @@ namespace GreenshotImgurPlugin {
 			itemPlugInRoot.DropDownItems.Add(itemPlugInConfig);
 
 			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
+			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 
 			// retrieve history in the background
 			Thread backgroundTask = new Thread (new ThreadStart(CheckHistory));
@@ -95,7 +97,16 @@ namespace GreenshotImgurPlugin {
 			backgroundTask.Start();
 			return true;
 		}
-		
+
+		public void OnLanguageChanged() {
+			if (itemPlugInConfig != null) {
+				itemPlugInConfig.Text = Language.GetString("imgur", LangKey.configure);
+			}
+			if (historyMenuItem != null) {
+				historyMenuItem.Text = Language.GetString("imgur", LangKey.history);
+			}
+		}
+
 		private void CheckHistory() {
 			try {
 				ImgurUtils.LoadHistory();

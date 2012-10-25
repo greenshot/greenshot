@@ -28,6 +28,7 @@ using Greenshot.IniFile;
 using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core {
+	public delegate void LanguageChangedHandler();
 	/// <summary>
 	/// This class supplies the GUI with translations, based upon keys.
 	/// The language resources are loaded from the language files found on fixed or supplied paths
@@ -48,6 +49,8 @@ namespace GreenshotPlugin.Core {
 		private static IDictionary<string, string> resources = new Dictionary<string, string>();
 		private static string currentLanguage = null;
 		private static CoreConfiguration coreConfig = null;
+
+		public static event LanguageChangedHandler LanguageChanged;
 
 		/// <summary>
 		/// Static initializer for the language code
@@ -197,6 +200,12 @@ namespace GreenshotPlugin.Core {
 					if (currentLanguage == null || !currentLanguage.Equals(ietf)) {
 						currentLanguage = ietf;
 						Reload();
+						if (LanguageChanged != null) {
+							try {
+								LanguageChanged();
+							} catch {
+							}
+						}
 						return;
 					}
 				}
