@@ -241,31 +241,33 @@ EndSelection:<<<<<<<4
 						// If the EnableSpecialDIBClipboardReader flag in the config is set, use the code from:
 						// http://www.thomaslevesque.com/2009/02/05/wpf-paste-an-image-from-the-clipboard/
 						// to read the DeviceIndependentBitmap from the clipboard, this might fix bug 3576125
-						if (config.EnableSpecialDIBClipboardReader) {
-							MemoryStream ms = Clipboard.GetData("DeviceIndependentBitmap") as MemoryStream;
+						if (config.EnableSpecialDIBClipboardReader && formats.Contains("DeviceIndependentBitmap")) {
+							MemoryStream ms = GetClipboardData("DeviceIndependentBitmap") as MemoryStream;
 							if (ms != null) {
 								byte[] dibBuffer = new byte[ms.Length];
 								ms.Read(dibBuffer, 0, dibBuffer.Length);
 								BitmapInfoHeader infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
+								// Only use this code, when the biCommpression != 0 (BI_RGB)
+								if (infoHeader.biCompression != 0) {
+									int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
+									uint infoHeaderSize = infoHeader.biSize;
+									int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
 
-								int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
-								uint infoHeaderSize = infoHeader.biSize;
-								int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
+									BitmapFileHeader fileHeader = new BitmapFileHeader();
+									fileHeader.bfType = BitmapFileHeader.BM;
+									fileHeader.bfSize = fileSize;
+									fileHeader.bfReserved1 = 0;
+									fileHeader.bfReserved2 = 0;
+									fileHeader.bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4);
 
-								BitmapFileHeader fileHeader = new BitmapFileHeader();
-								fileHeader.bfType = BitmapFileHeader.BM;
-								fileHeader.bfSize = fileSize;
-								fileHeader.bfReserved1 = 0;
-								fileHeader.bfReserved2 = 0;
-								fileHeader.bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4);
+									byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray<BitmapFileHeader>(fileHeader);
 
-								byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray<BitmapFileHeader>(fileHeader);
-
-								using (MemoryStream msBitmap = new MemoryStream()) {
-									msBitmap.Write(fileHeaderBytes, 0, fileHeaderSize);
-									msBitmap.Write(dibBuffer, 0, dibBuffer.Length);
-									msBitmap.Seek(0, SeekOrigin.Begin);
-									return Image.FromStream(msBitmap);
+									using (MemoryStream msBitmap = new MemoryStream()) {
+										msBitmap.Write(fileHeaderBytes, 0, fileHeaderSize);
+										msBitmap.Write(dibBuffer, 0, dibBuffer.Length);
+										msBitmap.Seek(0, SeekOrigin.Begin);
+										return Image.FromStream(msBitmap);
+									}
 								}
 							}
 						}

@@ -38,13 +38,23 @@ namespace GreenshotPlugin.Core {
 				int size = Marshal.SizeOf(typeof(T));
 				ptr = Marshal.AllocHGlobal(size);
 				Marshal.Copy(bytes, 0, ptr, size);
-				object obj = Marshal.PtrToStructure(ptr, typeof(T));
-				return (T)obj;
+				return FromIntPtr<T>(ptr);
 			} finally {
 				if (ptr != IntPtr.Zero) {
 					Marshal.FreeHGlobal(ptr);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Get a struct from a byte array
+		/// </summary>
+		/// <typeparam name="T">typeof struct</typeparam>
+		/// <param name="bytes">byte[]</param>
+		/// <returns>struct</returns>
+		public static T FromIntPtr<T>(IntPtr intPtr) where T : struct {
+			object obj = Marshal.PtrToStructure(intPtr, typeof(T));
+			return (T)obj;
 		}
 
 		/// <summary>
@@ -59,14 +69,25 @@ namespace GreenshotPlugin.Core {
 				int size = Marshal.SizeOf(typeof(T));
 				ptr = Marshal.AllocHGlobal(size);
 				Marshal.StructureToPtr(obj, ptr, true);
-				byte[] bytes = new byte[size];
-				Marshal.Copy(ptr, bytes, 0, size);
-				return bytes;
+				return FromPtrToByteArray<T>(ptr);
 			} finally {
 				if (ptr != IntPtr.Zero) {
 					Marshal.FreeHGlobal(ptr);
 				}
 			}
+		}
+
+		/// <summary>
+		/// copy a struct from a pointer to a byte array
+		/// </summary>
+		/// <typeparam name="T">typeof struct</typeparam>
+		/// <param name="ptr">IntPtr to struct</param>
+		/// <returns>byte[]</returns>
+		public static byte[] FromPtrToByteArray<T>(IntPtr ptr) where T : struct {
+			int size = Marshal.SizeOf(typeof(T));
+			byte[] bytes = new byte[size];
+			Marshal.Copy(ptr, bytes, 0, size);
+			return bytes;
 		}
 	}
 }

@@ -1019,31 +1019,31 @@ namespace Greenshot {
 			// checkbox_reuseeditor
 			// 
 			this.checkbox_reuseeditor.LanguageKey = "expertsettings_reuseeditorifpossible";
-			this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 231);
+			this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 225);
 			this.checkbox_reuseeditor.Name = "checkbox_reuseeditor";
 			this.checkbox_reuseeditor.PropertyName = "ReuseEditor";
 			this.checkbox_reuseeditor.SectionName = "Editor";
-			this.checkbox_reuseeditor.Size = new System.Drawing.Size(394, 19);
+			this.checkbox_reuseeditor.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_reuseeditor.TabIndex = 31;
 			this.checkbox_reuseeditor.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_minimizememoryfootprint
 			// 
 			this.checkbox_minimizememoryfootprint.LanguageKey = "expertsettings_minimizememoryfootprint";
-			this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 211);
+			this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 206);
 			this.checkbox_minimizememoryfootprint.Name = "checkbox_minimizememoryfootprint";
 			this.checkbox_minimizememoryfootprint.PropertyName = "MinimizeWorkingSetSize";
-			this.checkbox_minimizememoryfootprint.Size = new System.Drawing.Size(394, 19);
+			this.checkbox_minimizememoryfootprint.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_minimizememoryfootprint.TabIndex = 30;
 			this.checkbox_minimizememoryfootprint.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_checkunstableupdates
 			// 
 			this.checkbox_checkunstableupdates.LanguageKey = "expertsettings_checkunstableupdates";
-			this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 191);
+			this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 187);
 			this.checkbox_checkunstableupdates.Name = "checkbox_checkunstableupdates";
 			this.checkbox_checkunstableupdates.PropertyName = "CheckUnstable";
-			this.checkbox_checkunstableupdates.Size = new System.Drawing.Size(394, 19);
+			this.checkbox_checkunstableupdates.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_checkunstableupdates.TabIndex = 29;
 			this.checkbox_checkunstableupdates.UseVisualStyleBackColor = true;
 			// 
@@ -1064,7 +1064,7 @@ namespace Greenshot {
 			this.label_counter.LanguageKey = "expertsettings_counter";
 			this.label_counter.Location = new System.Drawing.Point(7, 285);
 			this.label_counter.Name = "label_counter";
-			this.label_counter.Size = new System.Drawing.Size(0, 13);
+			this.label_counter.Size = new System.Drawing.Size(246, 13);
 			this.label_counter.TabIndex = 27;
 			// 
 			// textbox_counter
@@ -1081,7 +1081,7 @@ namespace Greenshot {
 			this.label_footerpattern.LanguageKey = "expertsettings_footerpattern";
 			this.label_footerpattern.Location = new System.Drawing.Point(7, 259);
 			this.label_footerpattern.Name = "label_footerpattern";
-			this.label_footerpattern.Size = new System.Drawing.Size(0, 13);
+			this.label_footerpattern.Size = new System.Drawing.Size(103, 13);
 			this.label_footerpattern.TabIndex = 25;
 			// 
 			// textbox_footerpattern
@@ -1128,7 +1128,7 @@ namespace Greenshot {
 			this.label_clipboardformats.LanguageKey = "expertsettings_clipboardformats";
 			this.label_clipboardformats.Location = new System.Drawing.Point(7, 39);
 			this.label_clipboardformats.Name = "label_clipboardformats";
-			this.label_clipboardformats.Size = new System.Drawing.Size(0, 13);
+			this.label_clipboardformats.Size = new System.Drawing.Size(88, 13);
 			this.label_clipboardformats.TabIndex = 20;
 			// 
 			// checkbox_enableexpert

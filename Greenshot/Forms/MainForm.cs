@@ -121,7 +121,7 @@ namespace Greenshot {
 				for(int argumentNr = 0; argumentNr < args.Length; argumentNr++) {
 					string argument = args[argumentNr];
 					// Help
-					if (argument.ToLower().Equals("/help")) {
+					if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?")) {
 						// Try to attach to the console
 						bool attachedToConsole = Kernel32.AttachConsole(Kernel32.ATTACHCONSOLE_ATTACHPARENTPROCESS);
 						// If attach didn't work, open a console
