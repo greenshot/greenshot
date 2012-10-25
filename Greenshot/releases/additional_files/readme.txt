@@ -12,6 +12,7 @@ Bugs resolved
 * Fixed a bug that prevented the clipboard formats to represent the general output settings. (decrease colors if possible etc)
 * Fixed a bug that the context menu was shown 2x, it's not really visible but does not improve the performance.
 * Fixed a bug when capturung a minimized IE window, now we first restore it (un-minimize) before capturing.
+* Fixed bug #3579138 when selecting the context menu entry "Capture Window" it is trying to capture the active Window (which is not possible when using a context menu)
 * Fixed bug #3576125 when opening an image from the clipboard which is created on a remote system (Remote Desktop) with native Windows Alt+Printscreen
 * Fixed bug #3579467 after changing the language some translations in the context menu are not update, also hotkey changes were not visible.
 
