@@ -579,7 +579,8 @@ namespace GreenshotPlugin.Core  {
 		
 		public bool HasParent {
 			get {
-				return !IntPtr.Zero.Equals(parentHandle);
+				GetParent();
+				return parentHandle != IntPtr.Zero;
 			}
 		}
 		
@@ -1477,12 +1478,8 @@ namespace GreenshotPlugin.Core  {
 				if (!window.Visible) {
 					continue;
 				}
-				// Ignore internal windows
-				if (ignoreHandles.Contains(window.Handle)) {
-					continue;
-				}
 				// Ignore some classes
-				List<string> ignoreClasses = new List<string>(new string[] {"Progman", "XLMAIN", "Button"}); //"MS-SDIa"
+				List<string> ignoreClasses = new List<string>(new string[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
 				if (ignoreClasses.Contains(window.ClassName)) {
 					continue;
 				}
@@ -1490,6 +1487,42 @@ namespace GreenshotPlugin.Core  {
 				Rectangle windowRect = window.WindowRectangle;
 				windowRect.Intersect(screenBounds);
 				if (windowRect.Size.IsEmpty) {
+					continue;
+				}
+				windows.Add(window);
+			}
+			return windows;
+		}
+
+		/// <summary>
+		/// Get all the top level windows
+		/// </summary>
+		/// <returns>List<WindowDetails> with all the top level windows</returns>
+		public static List<WindowDetails> GetTopLevelWindows() {
+			List<WindowDetails> windows = new List<WindowDetails>();
+			Rectangle screenBounds = WindowCapture.GetScreenBounds();
+			List<WindowDetails> allWindows = WindowDetails.GetAllWindows();
+			foreach (WindowDetails window in allWindows) {
+				// Ignore windows without title
+				if (window.Text.Length == 0) {
+					continue;
+				}
+				// Ignore some classes
+				List<string> ignoreClasses = new List<string>(new string[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
+				if (ignoreClasses.Contains(window.ClassName)) {
+					continue;
+				}
+				// Windows without size
+				if (window.WindowRectangle.Size.IsEmpty) {
+					continue;
+				}
+				if (window.HasParent) {
+					continue;
+				}
+				if ((window.ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) != 0) {
+					continue;
+				}
+				if (!window.Visible && !window.Iconic) {
 					continue;
 				}
 				windows.Add(window);

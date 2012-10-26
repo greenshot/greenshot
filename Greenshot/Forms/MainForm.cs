@@ -316,8 +316,6 @@ namespace Greenshot {
 		public MainForm(CopyDataTransport dataTransport) {
 			instance = this;
 			
-			// Make sure we never capture the mainform
-			WindowDetails.RegisterIgnoreHandle(this.Handle);
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -368,6 +366,9 @@ namespace Greenshot {
 			// Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
 			// Setting it to true this late prevents Problems with the context menu
 			notifyIcon.Visible = !conf.HideTrayicon;
+
+			// Make sure we never capture the mainform
+			WindowDetails.RegisterIgnoreHandle(this.Handle);
 
 			// Create a new instance of the class: copyData = new CopyData();
 			copyData = new CopyData();
@@ -799,8 +800,8 @@ namespace Greenshot {
 			menuItem.DropDownItems.Clear();
 			// check if thumbnailPreview is enabled and DWM is enabled
 			bool thumbnailPreview = conf.ThumnailPreview && DWM.isDWMEnabled();
-		
-			List<WindowDetails> windows = WindowDetails.GetVisibleWindows();
+
+			List<WindowDetails> windows = WindowDetails.GetTopLevelWindows();
 			foreach(WindowDetails window in windows) {
 				ToolStripMenuItem captureWindowItem = new ToolStripMenuItem(window.Text);
 				captureWindowItem.Tag = window;
