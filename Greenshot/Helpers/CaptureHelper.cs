@@ -800,6 +800,8 @@ namespace Greenshot.Helpers {
 						if (windowToCapture.Iconic) {
 							// Restore the window making sure it's visible!
 							windowToCapture.Restore();
+						} else {
+							windowToCapture.ToForeground();
 						}
 						windowRectangle.Intersect(captureForWindow.ScreenBounds);
 						try {
