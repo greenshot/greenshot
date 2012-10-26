@@ -705,7 +705,9 @@ namespace GreenshotPlugin.Core  {
 			User32.BringWindowToTop(this.hWnd);
 			User32.SetForegroundWindow(this.hWnd);
 			// Make sure windows has time to perform the action
-			Application.DoEvents();
+			while(Iconic) {
+				Application.DoEvents();
+			}
 		}
 
 		public WindowStyleFlags WindowStyle {
@@ -738,7 +740,7 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		/// <param name="capture">The capture to fill</param>
 		/// <returns>ICapture</returns>
-		public ICapture CaptureWindow(ICapture capture) {
+		public ICapture CaptureGDIWindow(ICapture capture) {
 			Image capturedImage = PrintWindow();
 			if (capturedImage != null) {
 				capture.Image = capturedImage;
@@ -772,7 +774,7 @@ namespace GreenshotPlugin.Core  {
 				SIZE sourceSize;
 				DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
 
-				if (sourceSize.cx <= 0 || sourceSize.cy <= 0) {
+				if (sourceSize.width <= 0 || sourceSize.height <= 0) {
 					return null;
 				}
 
@@ -819,7 +821,7 @@ namespace GreenshotPlugin.Core  {
 				tempForm.Size = sourceSize.ToSize();
 
 				// Prepare rectangle to capture from the screen.
-				Rectangle captureRectangle = new Rectangle(formLocation.X, formLocation.Y, sourceSize.cx, sourceSize.cy);
+				Rectangle captureRectangle = new Rectangle(formLocation.X, formLocation.Y, sourceSize.width, sourceSize.height);
 				if (Maximised) {
 					// Correct capture size for maximized window by offsetting the X,Y with the border size
 					captureRectangle.X += borderSize.Width;
@@ -838,14 +840,12 @@ namespace GreenshotPlugin.Core  {
 					}
 				}
 				
-				// Make sure the to be captured window is active, important for the close/resize buttons
-				this.Restore();
 
 				// Prepare the displaying of the Thumbnail
 				DWM_THUMBNAIL_PROPERTIES props = new DWM_THUMBNAIL_PROPERTIES();
 				props.Opacity = (byte)255;
 				props.Visible = true;
-				props.Destination = new RECT(0, 0, sourceSize.cx, sourceSize.cy);
+				props.Destination = new RECT(0, 0, sourceSize.width, sourceSize.height);
 				DWM.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
 				tempForm.Show();
 				tempFormShown = true;
@@ -1322,9 +1322,7 @@ namespace GreenshotPlugin.Core  {
 		/// As GDI+ draws it, it will be without Aero borders!
 		/// </summary>
 		public Image PrintWindow() {
-			Rectangle windowRect = Rectangle.Empty;
-			GetWindowRect(out windowRect);
-			
+			Rectangle windowRect = WindowRectangle;
 			// Start the capture
 			Exception exceptionOccured = null;
 			Image returnImage = null;

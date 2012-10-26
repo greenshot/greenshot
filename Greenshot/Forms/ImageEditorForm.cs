@@ -1125,7 +1125,6 @@ namespace Greenshot {
 					capture.CaptureDetails.DpiX = graphics.DpiY;
 					capture.CaptureDetails.DpiY = graphics.DpiY;
 				}
-				windowToCapture.Restore();
 				windowToCapture = CaptureHelper.SelectCaptureWindow(windowToCapture);
 				if (windowToCapture != null) {
 					capture = CaptureHelper.CaptureWindow(windowToCapture, capture, coreConf.WindowCaptureMode);

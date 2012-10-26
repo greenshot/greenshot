@@ -631,12 +631,11 @@ namespace Greenshot.Helpers {
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
-			if (selectedCaptureWindow != null && selectedCaptureWindow.Iconic) {
+			if (!presupplied && selectedCaptureWindow != null && selectedCaptureWindow.Iconic) {
 				// Restore the window making sure it's visible!
 				// This is done mainly for a screen capture, but some applications like Excel and TOAD have weird behaviour!
 				selectedCaptureWindow.Restore();
 			}
-			selectedCaptureWindow.ToForeground();
 			selectedCaptureWindow = SelectCaptureWindow(selectedCaptureWindow);
 			if (selectedCaptureWindow == null) {
 				LOG.Warn("No window to capture, after SelectCaptureWindow!");
@@ -657,7 +656,7 @@ namespace Greenshot.Helpers {
 		/// <returns>WindowDetails with the target Window OR a replacement</returns>
 		public static WindowDetails SelectCaptureWindow(WindowDetails windowToCapture) {
 			Rectangle windowRectangle = windowToCapture.WindowRectangle;
-			if (windowToCapture.Iconic || windowRectangle.Width == 0 || windowRectangle.Height == 0) {
+			if (windowRectangle.Width == 0 || windowRectangle.Height == 0) {
 				LOG.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
 				// Trying workaround, the size 0 arrises with e.g. Toad.exe, has a different Window when minimized
 				WindowDetails linkedWindow = WindowDetails.GetLinkedWindow(windowToCapture);
@@ -706,10 +705,6 @@ namespace Greenshot.Helpers {
 				captureForWindow = new Capture();
 			}
 			Rectangle windowRectangle = windowToCapture.WindowRectangle;
-			if (windowToCapture.Iconic) {
-				// Restore the window making sure it's visible!
-				windowToCapture.Restore();
-			}
 
 			// When Vista & DWM (Aero) enabled
 			bool dwmEnabled = DWM.isDWMEnabled();
@@ -769,40 +764,52 @@ namespace Greenshot.Helpers {
 			bool captureTaken = false;
 			// Try to capture
 			while (!captureTaken) {
-				if (windowCaptureMode == WindowCaptureMode.GDI) {
-					ICapture tmpCapture = null;
-					if (WindowCapture.isGDIAllowed(process)) {
-						tmpCapture = windowToCapture.CaptureWindow(captureForWindow);
-					}
-					if (tmpCapture != null) {
-						captureForWindow = tmpCapture;
-						captureTaken = true;
-					} else {
-						// A problem, try Screen
-						windowCaptureMode = WindowCaptureMode.Screen;
-					}
-				} else if (windowCaptureMode == WindowCaptureMode.Aero || windowCaptureMode == WindowCaptureMode.AeroTransparent) {
-					ICapture tmpCapture = null;
-					if (WindowCapture.isDWMAllowed(process)) {
-						tmpCapture = windowToCapture.CaptureDWMWindow(captureForWindow, windowCaptureMode, isAutoMode);
-					}
-					if (tmpCapture != null) {
-						captureForWindow = tmpCapture;
-						captureTaken = true;
-					} else {
-						// A problem, try GDI
-						windowCaptureMode = WindowCaptureMode.GDI;
-					}
-				} else {
-					// Screen capture
-					windowRectangle.Intersect(captureForWindow.ScreenBounds);
-					try {
-						captureForWindow = WindowCapture.CaptureRectangle(captureForWindow, windowRectangle);
-						captureTaken = true;
-					} catch (Exception e) {
-						LOG.Error("Problem capturing", e);
-						return null;
-					}
+				ICapture tmpCapture = null;
+				switch (windowCaptureMode) {
+					case WindowCaptureMode.GDI:
+						if (WindowCapture.isGDIAllowed(process)) {
+							if (windowToCapture.Iconic) {
+								// Restore the window making sure it's visible!
+								windowToCapture.Restore();
+							}
+							tmpCapture = windowToCapture.CaptureGDIWindow(captureForWindow);
+						}
+						if (tmpCapture != null) {
+							captureForWindow = tmpCapture;
+							captureTaken = true;
+						} else {
+							// A problem, try Screen
+							windowCaptureMode = WindowCaptureMode.Screen;
+						}
+						break;
+					case WindowCaptureMode.Aero:
+					case WindowCaptureMode.AeroTransparent:
+						if (WindowCapture.isDWMAllowed(process)) {
+							tmpCapture = windowToCapture.CaptureDWMWindow(captureForWindow, windowCaptureMode, isAutoMode);
+						}
+						if (tmpCapture != null) {
+							captureForWindow = tmpCapture;
+							captureTaken = true;
+						} else {
+							// A problem, try GDI
+							windowCaptureMode = WindowCaptureMode.GDI;
+						}
+						break;
+					default:
+						// Screen capture
+						if (windowToCapture.Iconic) {
+							// Restore the window making sure it's visible!
+							windowToCapture.Restore();
+						}
+						windowRectangle.Intersect(captureForWindow.ScreenBounds);
+						try {
+							captureForWindow = WindowCapture.CaptureRectangle(captureForWindow, windowRectangle);
+							captureTaken = true;
+						} catch (Exception e) {
+							LOG.Error("Problem capturing", e);
+							return null;
+						}
+						break;
 				}
 			}
 
@@ -835,11 +842,11 @@ namespace Greenshot.Helpers {
 						// Take the captureRect, this already is specified as bitmap coordinates
 						capture.Crop(captureRect);
 						
-                        // save for re-capturing later and show recapture context menu option
-                        // Important here is that the location needs to be offsetted back to screen coordinates!
-                        Rectangle tmpRectangle = captureRect.Clone();
-                        tmpRectangle.Offset(capture.ScreenBounds.Location.X, capture.ScreenBounds.Location.Y);
-                        RuntimeConfig.LastCapturedRegion = tmpRectangle;
+						// save for re-capturing later and show recapture context menu option
+						// Important here is that the location needs to be offsetted back to screen coordinates!
+						Rectangle tmpRectangle = captureRect.Clone();
+						tmpRectangle.Offset(capture.ScreenBounds.Location.X, capture.ScreenBounds.Location.Y);
+						RuntimeConfig.LastCapturedRegion = tmpRectangle;
 						HandleCapture();
 					}
 				}
