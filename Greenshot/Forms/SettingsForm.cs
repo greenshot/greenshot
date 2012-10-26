@@ -352,14 +352,16 @@ namespace Greenshot {
 
 			numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >=0?coreConfiguration.CaptureDelay:0;
 
-			// If the run for all is set we disable and set the checkbox
-			if (StartupHelper.checkRunAll()) {
-				checkbox_autostartshortcut.Enabled = false;
-				checkbox_autostartshortcut.Checked = true;
+			// Autostart checkbox logic.
+			if (StartupHelper.hasRunAll()) {
+				// Remove runUser if we already have a run under all
+				StartupHelper.deleteRunUser();
+				checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunAll();
+				checkbox_autostartshortcut.Checked = StartupHelper.hasRunAll();
 			} else {
 				// No run for all, enable the checkbox and set it to true if the current user has a key
-				checkbox_autostartshortcut.Enabled = true;
-				checkbox_autostartshortcut.Checked = StartupHelper.checkRunUser();
+				checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunUser();
+				checkbox_autostartshortcut.Checked = StartupHelper.hasRunUser();
 			}
 			
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
@@ -408,17 +410,20 @@ namespace Greenshot {
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
 			try {
-				// Check if the Run for all is set
-				if(!StartupHelper.checkRunAll()) {
-					// If not set the registry according to the settings
-					if (checkbox_autostartshortcut.Checked) {
+				if (checkbox_autostartshortcut.Checked) {
+					// It's checked, so we set the RunUser if the RunAll isn't set.
+					// Do this every time, so the executable is correct.
+					if (!StartupHelper.hasRunAll()) {
 						StartupHelper.setRunUser();
-					} else {
-						StartupHelper.deleteRunUser();
 					}
 				} else {
-					// The run key for Greenshot is set for all users, delete the local version!
-					StartupHelper.deleteRunUser();
+					// Delete both settings if it's unchecked
+					if (StartupHelper.hasRunAll()) {
+						StartupHelper.deleteRunAll();
+					}
+					if (StartupHelper.hasRunUser()) {
+						StartupHelper.deleteRunUser();
+					}
 				}
 			} catch (Exception e) {
 				LOG.Warn("Problem checking registry, ignoring for now: ", e);
