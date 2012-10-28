@@ -3,6 +3,7 @@
 	<resources>
 		<resource name="browse_pages">浏览器页面</resource>
 		<resource name="CANCEL">取消</resource>
+		<resource name="communication_wait">正在传送数据到Confluence，请稍后...</resource>
 		<resource name="copy_wikimarkup">把Wikimarkup复制到剪贴板</resource>
 		<resource name="filename">文件名</resource>
 		<resource name="include_person_spaces">在搜索和浏览时包含个人空间</resource>
