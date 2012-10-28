@@ -155,7 +155,7 @@ Name: de; MessagesFile: compiler:Languages\German.isl
 Name: es; MessagesFile: compiler:Languages\Spanish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
-Name: nn; MessagesFile: compiler:Languages\Norwegian.isl
+Name: nn; MessagesFile: compiler:Languages\NorwegianNynorsk.isl
 [Tasks]
 Name: startup; Description: {cm:startup}
 
