@@ -51,7 +51,7 @@ De plus, nous appr&#233;cierions beaucoup que vous preniez la peine de v&#233;ri
 		<resource name="contextmenu_donate">Soutenez Greenshot</resource>
 		<resource name="contextmenu_exit">Quitter</resource>
 		<resource name="contextmenu_help">Aide</resource>
-		<resource name="contextmenu_openfile">Ouvrir &#224; partir d'un fichier</resource>
+		<resource name="contextmenu_openfile">Ouvrir une image &#224; partir d'un fichier</resource>
 		<resource name="contextmenu_openrecentcapture">Ouvrir le dernier emplacement de sauvegarde</resource>
 		<resource name="contextmenu_quicksettings">Pr&#233;f&#233;rences rapides</resource>
 		<resource name="contextmenu_settings">Pr&#233;f&#233;rences...</resource>
@@ -86,7 +86,7 @@ De plus, nous appr&#233;cierions beaucoup que vous preniez la peine de v&#233;ri
 		<resource name="editor_drawarrow">Dessiner une fl&#232;che (A)</resource>
 		<resource name="editor_drawellipse">Dessiner une ellipse (E)</resource>
 		<resource name="editor_drawfreehand">Dessiner &#224; main lev&#233;e (F)</resource>
-		<resource name="editor_drawhighlighter">Surligner (H)</resource>
+		<resource name="editor_drawhighlighter">Surligneur (H)</resource>
 		<resource name="editor_drawline">Dessiner une ligne (L)</resource>
 		<resource name="editor_drawrectangle">Dessiner un rectangle (R)</resource>
 		<resource name="editor_drawtextbox">Ajouter une boite de texte (T)</resource>
@@ -110,20 +110,20 @@ De plus, nous appr&#233;cierions beaucoup que vous preniez la peine de v&#233;ri
 		<resource name="editor_load_objects">Charger les objets depuis un fichier</resource>
 		<resource name="editor_magnification_factor">Facteur de grossissement</resource>
 		<resource name="editor_match_capture_size">Adapter le format de capture</resource>
-		<resource name="editor_obfuscate">Brouiller (O)</resource>
+		<resource name="editor_obfuscate">Occulter (O)</resource>
 		<resource name="editor_obfuscate_blur">Flouter</resource>
 		<resource name="editor_obfuscate_mode">Mode de brouillage</resource>
-		<resource name="editor_obfuscate_pixelize">Pixeliser</resource>
+		<resource name="editor_obfuscate_pixelize">Pix&#233;liser</resource>
 		<resource name="editor_object">Objet</resource>
 		<resource name="editor_opendirinexplorer">Ouvrir le r&#233;pertoire dans l'explorateur Windows</resource>
 		<resource name="editor_pastefromclipboard">Coller</resource>
 		<resource name="editor_pixel_size">Taille de pixel</resource>
-		<resource name="editor_preview_quality">Qualit&#233; des pr&#233;visualisations</resource>
+		<resource name="editor_preview_quality">Qualit&#233; de pr&#233;visualisation</resource>
 		<resource name="editor_print">Imprimer</resource>
 		<resource name="editor_redo">R&#233;tablir {0}</resource>
 		<resource name="editor_resetsize">R&#233;initialiser la taille</resource>
-		<resource name="editor_rotateccw">Tourner dans le sens antihoraire</resource>
-		<resource name="editor_rotatecw">Tourner dans le sens horaire</resource>
+		<resource name="editor_rotateccw">Tourner vers la gauche</resource>
+		<resource name="editor_rotatecw">Tourner vers la droite</resource>
 		<resource name="editor_save">Enregistrer</resource>
 		<resource name="editor_save_objects">Enregistrer les objets dans un fichier</resource>
 		<resource name="editor_saveas">Enregistrer sous...</resource>
@@ -133,7 +133,7 @@ De plus, nous appr&#233;cierions beaucoup que vous preniez la peine de v&#233;ri
 		<resource name="editor_image_shadow">Ombre port&#233;e</resource>
 		<resource name="editor_storedtoclipboard">L'image a &#233;t&#233; plac&#233;e dans le presse-papier.</resource>
 		<resource name="editor_thickness">&#201;paisseur de ligne</resource>
-		<resource name="editor_title">Greenshot Image Editor</resource>
+		<resource name="editor_title">Greenshot &#202;diteur d'Image</resource>
 		<resource name="editor_torn_edge">Bord d&#233;chir&#233;</resource>
 		<resource name="editor_undo">Annuler {0}</resource>
 		<resource name="editor_uponelevel">&#201;lever</resource>
@@ -182,7 +182,7 @@ Veuillez v&#233;rifier l'accessibilit&#233; du r&#233;pertoire de stockage.</res
 		<resource name="settings_alwaysshowprintoptionsdialog">Afficher syst&#233;matiquement la boite de dialogue d'impression.</resource>
 		<resource name="settings_alwaysshowqualitydialog">Afficher la bo&#238;te de dialogue de qualit&#233; &#224; chaque enregistrement</resource>
 		<resource name="settings_applicationsettings">Param&#232;tres de l'application</resource>
-		<resource name="settings_autostartshortcut">Lancer Greenshot au d&#233;marrage</resource>
+		<resource name="settings_autostartshortcut">Lancer Greenshot au d&#233;marrage de Windows</resource>
 		<resource name="settings_capture">Capture</resource>
 		<resource name="settings_capture_mousepointer">Capturer le pointeur de la souris</resource>
 		<resource name="settings_capture_windows_interactive">Utiliser le mode interactif de capture de fen&#234;tre</resource>
@@ -228,6 +228,7 @@ en cours, par exemple 11_58_32 (plus l'extension d&#233;finie dans les param&#23
 		<resource name="settings_plugins_version">Version</resource>
 		<resource name="settings_plugins_createdby">Cr&#233;&#233; par</resource>
 		<resource name="settings_plugins_dllpath">Chemin de la DLL</resource>
+		<resource name="settings_plugins">Extensions</resource>
 		<resource name="settings_preferredfilesettings">Pr&#233;f&#233;rences d'enregistrement</resource>
 		<resource name="settings_primaryimageformat">Format d'image</resource>
 		<resource name="settings_printer">Imprimante</resource>
@@ -244,10 +245,10 @@ en cours, par exemple 11_58_32 (plus l'extension d&#233;finie dans les param&#23
 		<resource name="settings_tooltip_primaryimageformat">Format d'image par d&#233;faut</resource>
 		<resource name="settings_tooltip_registerhotkeys">D&#233;termine si les raccourcis clavier Impr. &#233;cran, Ctrl+Impr. &#233;cran, Alt+Impr. &#233;cran sont r&#233;serv&#233;s &#224; Greenshot lorsqu'il est en cours d'ex&#233;cution.</resource>
 		<resource name="settings_tooltip_storagelocation">R&#233;pertoire où sont stock&#233;s vos captures d'&#233;cran par d&#233;faut. (Laisser vide pour sauvegarder sur le bureau)</resource>
-		<resource name="settings_usedefaultproxy">Utilisation du proxy syst&#232;me par d&#233;faut</resource>
+		<resource name="settings_usedefaultproxy">Utiliser le proxy syst&#232;me par d&#233;faut</resource>
 		<resource name="settings_visualization">Effets</resource>
 		<resource name="settings_waittime">Millisecondes d'attente avant la capture</resource>
-		<resource name="settings_window_capture_mode">Mode de capture de fen&#234;tre</resource>
+		<resource name="settings_window_capture_mode">Mode de capture de fen&#234;tre (style Aero)</resource>
 		<resource name="settings_windowscapture">Capture de la fen&#234;tre active</resource>
 		<resource name="tooltip_firststart">Cliquez droit ici ou appuyez sur la touche {0}.</resource>
 		<resource name="update_found">Une nouvelle version de Greenshot est disponible ! Voulez-vous t&#233;l&#233;charger Greenshot {0} ?</resource>
@@ -256,10 +257,10 @@ en cours, par exemple 11_58_32 (plus l'extension d&#233;finie dans les param&#23
 		<resource name="warning_hotkeys">Le(s) raccourci(s) clavier "{0}" n'a pu &#234;tre enregistr&#233;. Ce probl&#232;me est probablement dû &#224; un autre outil qui utilise le(s) m&#234;me(s) raccourci(s) clavier. Vous pouvez soit modifier vos raccourcis clavier soit d&#233;sactiver/modifier le logiciel utilisant le(s) raccourci(s).
 
 Toutes les fonctionnalit&#233;s de Greenshot se lancent aussi directement depuis le menu contextuel de l'ic&#244;ne de la zone de notifications syst&#232;me.</resource>
-		<resource name="WindowCaptureMode.Aero">Utiliser des couleurs personnalis&#233;es</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Conserver la transparence</resource>
+		<resource name="WindowCaptureMode.Aero">Utiliser une couleurs personnalis&#233;e</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Pr&#233;server la transparence</resource>
 		<resource name="WindowCaptureMode.Auto">Automatique</resource>
 		<resource name="WindowCaptureMode.GDI">Utiliser la couleur par d&#233;faut</resource>
-		<resource name="WindowCaptureMode.Screen">Tel qu'elle appara&#238;t</resource>
+		<resource name="WindowCaptureMode.Screen">Tel qu'il appara&#238;t</resource>
 	</resources>
 </language>
