@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="简体中文" ietf="zh-CN" version="1.0.0" languagegroup="">
+<language description="简体中文" ietf="zh-CN" version="1.0.5" languagegroup="">
 	<resources>
 		<resource name="about_bugs">请到以下网址报告错误：</resource>
 		<resource name="about_donations">如果你喜欢Greenshot，欢迎您对我们进行捐助。</resource>
@@ -24,7 +24,7 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="CANCEL">取消</resource>
 		<resource name="clipboard_error">在写入剪贴板时发生了错误。</resource>
 		<resource name="clipboard_inuse">剪贴板已被进程{0}锁定，导致Greenshot无法写入。</resource>
-		<resource name="ClipboardFormat.DIB">设备无关位图（DIB）</resource>
+		<resource name="ClipboardFormat.DIB">设备无关位图(DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML带内联图片</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
@@ -152,7 +152,7 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="error_openfile">无法打开文件“{0}”。</resource>
 		<resource name="error_openlink">无法打开链接“{0}”。</resource>
 		<resource name="error_save">无法保存截图，请选择一个合适的位置保存。</resource>
-		<resource name="expertsettings">专家模式</resource>
+		<resource name="expertsettings">专家</resource>
 		<resource name="expertsettings_autoreducecolors">如果一个图片超过8位色，但是少于256色，则创建为8位色的图片。</resource>
 		<resource name="expertsettings_checkunstableupdates">检查不稳定版本的更新</resource>
 		<resource name="expertsettings_clipboardformats">剪贴板格式</resource>
@@ -186,7 +186,7 @@ Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在�
 		<resource name="settings_alwaysshowprintoptionsdialog">每次打印图片时显示打印选项</resource>
 		<resource name="settings_alwaysshowqualitydialog">每次保存图片时显示图片质量设置对话框</resource>
 		<resource name="settings_applicationsettings">程序设置</resource>
-		<resource name="settings_autostartshortcut">让Greenshot程序随Windows系统一起启动</resource>
+		<resource name="settings_autostartshortcut">让Greenshot随系统一起启动</resource>
 		<resource name="settings_capture">截图</resource>
 		<resource name="settings_capture_mousepointer">截取鼠标箭头</resource>
 		<resource name="settings_capture_windows_interactive">使用交互式窗口截取模式</resource>
@@ -228,6 +228,10 @@ ${hostname} 表示PC名称
 		<resource name="settings_output">输出</resource>
 		<resource name="settings_playsound">截图时播放相机快门声</resource>
 		<resource name="settings_plugins">插件</resource>
+		<resource name="settings_plugins_createdby">创建者</resource>
+		<resource name="settings_plugins_dllpath">文件路径</resource>
+		<resource name="settings_plugins_name">名称</resource>
+		<resource name="settings_plugins_version">版本</resource>
 		<resource name="settings_preferredfilesettings">首选文件输出设置</resource>
 		<resource name="settings_primaryimageformat">图片格式</resource>
 		<resource name="settings_printer">打印机</resource>
