@@ -156,6 +156,7 @@ Name: es; MessagesFile: compiler:Languages\Spanish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: nn; MessagesFile: compiler:Languages\NorwegianNynorsk.isl
+Name: cn; MessagesFile: compiler:Languages\ChineseSimplified.isl
 [Tasks]
 Name: startup; Description: {cm:startup}
 
@@ -231,6 +232,18 @@ nn.ocr=OCR-tillegg (krev Microsoft Office Document Imaging (MODI))
 nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
+
+cn.confluence=Confluence插件
+cn.default=${default}
+cn.externalcommand=使用外部命令打开插件
+cn.imgur=Imgur插件( (请访问： http://imgur.com))
+cn.jira=Jira插件
+cn.language=其它语言
+cn.ocr=OCR插件(需要Microsoft Office Document Imaging (MODI)的支持)
+cn.optimize=正在优化性能，这可能需要一点时间。
+cn.startgreenshot=启动{#ExeName}
+cn.startup=让{#ExeName}随Windows一起启动
+
 
 [Types]
 Name: "default"; Description: "{cm:default}"
