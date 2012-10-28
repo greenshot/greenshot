@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Русский" ietf="ru-RU" version="1.0.0">
+<language description="Русский" ietf="ru-RU" version="1.0.5">
 	<resources>
 	 <resource name="label_HiddenFromSearch">
 			Поиск скрытых форм		</resource>
@@ -30,7 +30,8 @@
 			Общение с Flickr. Подождите...
 	</resource>
 	  <resource name="public">
-      Общество	  </resource>
+          Общество
+	  </resource>
     <resource name="family">
       Семья    </resource>
     <resource name="friend">

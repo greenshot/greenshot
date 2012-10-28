@@ -1,35 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Русский" ietf="ru-RU" version="1.0.0" languagegroup="">
+<language description="Русский" ietf="ru-RU" version="1.0.5" languagegroup="">
 	<resources>
                 <resource name="label_AfterUploadLinkToClipBoard">
-Ссылку в буфер обмена</resource>
+                Ссылку в буфер обмена
+                </resource>
 
                 <resource name="label_AfterUploadOpenHistory">
-Открыть историию</resource>
+                Открыть историию
+                </resource>
                 <resource name="label_AfterUpload">
-После загрузки</resource>
+                После загрузки
+                </resource>
 
-		<resource name="Configure">Настройка Dropbox
-</resource>
+		<resource name="Configure">
+                Настройка Dropbox
+                </resource>
 
 		<resource name="upload_menu_item">
-Добавить в Dropbox
-</resource>
+                Добавить в Dropbox
+                </resource>
 	
                 <resource name="settings_title">
-Настройки Dropbox
-</resource>
+                Настройки Dropbox
+                </resource>
 
 		<resource name="upload_success">
-Изображение успешно загружено на Dropbox!
-</resource>
+                Изображение успешно загружено на Dropbox!
+                </resource>
 
 		<resource name="upload_failure">
-Произошла ошибка при загрузке на Dropbox:
-</resource>
+                Произошла ошибка при загрузке на Dropbox:
+                </resource>
 
 		<resource name="label_upload_format">
-Формат изображения</resource>
-		<resource name="communication_wait">Обмен информацией с Dropbox. Подождите...</resource>
+                Формат изображения
+                </resource>
+		<resource name="communication_wait">
+                Обмен информацией с Dropbox. Подождите...
+                </resource>
 	</resources>
 </language>

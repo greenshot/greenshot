@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Pусский" ietf="ru-RU" version="1.0.2" languagegroup="5">
+<language description="Pусский" ietf="ru-RU" version="1.0.5" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Просьба сообщать об ошибках на</resource>
 		<resource name="about_donations">Если вам нравится Greenshot, вы можете поддержать нас:</resource>
@@ -202,6 +202,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="settings_destination_printer">Отправить на печать</resource>
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон имени файла</resource>
+		<resource name="settings_general">Общие</resource>
 		<resource name="settings_iecapture">Захват Internet Explorer</resource>
 		<resource name="settings_jpegquality">Качество JPEG</resource>
 		<resource name="settings_language">Язык</resource>
@@ -222,10 +223,14 @@ ${hostname} Имя ПК
 Пример шаблона: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} 
 Будет создана папка на текущий день, в вашем хранилище по умолчанию, например 2008-06-29.Содержащее имя файла скриншота будет основываться на текущем
 времени, например 11_58_32 (плюс расширения, определённые в настройках)</resource>
-		<resource name="settings_network">Сет и обновления</resource>
+		<resource name="settings_network">Сеть и обновления</resource>
 		<resource name="settings_output">Выходные данные</resource>
 		<resource name="settings_playsound">Воспроизводить звук камеры</resource>
 		<resource name="settings_plugins">Плагины</resource>
+		<resource name="settings_plugins_createdby">Созданный с</resource>
+		<resource name="settings_plugins_dllpath">Путь DLL</resource>
+		<resource name="settings_plugins_name">Имя</resource>
+		<resource name="settings_plugins_version">Версия</resource>
 		<resource name="settings_preferredfilesettings">Персональные настройки выходного файла</resource>
 		<resource name="settings_primaryimageformat">Формат изображения</resource>
 		<resource name="settings_printer">Принтер</resource>
