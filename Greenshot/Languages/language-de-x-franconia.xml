@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<language description="Frängisch" ietf="de-x-franconia" version="1.0.2" languagegroup="1">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Frängisch" ietf="de-x-franconia" version="1.0.5" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Lefft was falsch, meldst di hier</resource>
 		<resource name="about_donations">Wenn der Greenshot gfälld, kannsd uns gern a weng helfn:</resource>
@@ -105,6 +105,7 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_highlight_magnify">Vergrößän</resource>
 		<resource name="editor_highlight_mode">Hervorheem - Modus</resource>
 		<resource name="editor_highlight_text">Dexdmarger</resource>
+		<resource name="editor_image_shadow">Schaddn</resource>
 		<resource name="editor_imagesaved">Do is etz dei Bild: {0}.</resource>
 		<resource name="editor_insertwindow">Fensder nei gladschn</resource>
 		<resource name="editor_invert">Inverdiern</resource>
@@ -132,7 +133,6 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_selectall">Alle Objegde auswähln</resource>
 		<resource name="editor_senttoprinter">Drugger läffd: '{0}'</resource>
 		<resource name="editor_shadow">Schaddn An/Aus</resource>
-		<resource name="editor_image_shadow">Schaddn</resource>
 		<resource name="editor_storedtoclipboard">Bild is in der Zwischnablach.</resource>
 		<resource name="editor_thickness">Linienschdärge</resource>
 		<resource name="editor_title">Greenshot Edidor</resource>
@@ -159,9 +159,11 @@ Schau hald amal, obsd da übbahabds hi schreim däffsd oder duhs woannersch hi.<
 		<resource name="expertsettings_footerpattern">Undn draff druggn</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Schbeicher schbarn (kosd Berformänz - max ned)</resource>
 		<resource name="expertsettings_optimizeforrdp">Für Rimoud Desgdob obdimiern</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Edidor numol bnudzn wenns gäihd</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Ned nervn beim zumachn vom Edidor</resource>
 		<resource name="expertsettings_thumbnailpreview">Fensder-Vorschau im Gondexdmenü ozeing (für Visda und Windous 7)</resource>
 		<resource name="exported_to">Exbordierd nach: {0}</resource>
+		<resource name="exported_to_error">Exbord nach {0} is fehlgschlong</resource>
 		<resource name="help_title">Greenshot Hüüülfe</resource>
 		<resource name="hotkeys">Dasdnküdzl</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Dschäibeg-Qualidäd auswähln.</resource>
@@ -225,6 +227,10 @@ z.B. C:\Users\MaxMusdermann\Desgdob\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_output">Ausgabe</resource>
 		<resource name="settings_playsound">Kameradoon abschbieln</resource>
 		<resource name="settings_plugins">Blaggins</resource>
+		<resource name="settings_plugins_createdby">Zammbasdeld vom</resource>
+		<resource name="settings_plugins_dllpath">DLL Bfod</resource>
+		<resource name="settings_plugins_name">Name</resource>
+		<resource name="settings_plugins_version">Väsion</resource>
 		<resource name="settings_preferredfilesettings">Bevorzugde Ausgabedadei-Einschdellungen</resource>
 		<resource name="settings_primaryimageformat">Bildformad</resource>
 		<resource name="settings_printer">Drugger</resource>
@@ -254,8 +260,7 @@ z.B. C:\Users\MaxMusdermann\Desgdob\2012-08-13\12-58-32.png</resource>
 Warscheinli hoggd irgend so a andrer Debb draff. 
 Endweder ändersd die Dasdnkombi für Greenshot, oder du bisd a Mann und findsd die Sau!
 
-Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G rechds undn).
-</resource>
+Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G rechds undn).</resource>
 		<resource name="WindowCaptureMode.Aero">Selber a Farm aussuchn</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Dransbarens erhaldn</resource>
 		<resource name="WindowCaptureMode.Auto">Audomadisch</resource>
