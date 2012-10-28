@@ -195,8 +195,8 @@ namespace GreenshotPlugin.Core {
 		public bool EnableSpecialDIBClipboardReader;
 
 		// Specify what THIS build is
-		public bool isRelease = false;
-		public bool isReleaseCandidate = true;
+		public bool isRelease = true;
+		public bool isReleaseCandidate = false;
 		public bool isUnstable = false;
 
 		/// <summary>
@@ -294,7 +294,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public override void AfterLoad() {
 			// Comment with releases
-			CheckUnstable = true;
+			// CheckUnstable = true;
 			
 			if (OutputDestinations == null) {
 				OutputDestinations = new List<string>();
