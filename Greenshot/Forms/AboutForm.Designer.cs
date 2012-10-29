@@ -117,7 +117,7 @@ namespace Greenshot {
 			this.linkLblBugs.Size = new System.Drawing.Size(465, 23);
 			this.linkLblBugs.TabIndex = 8;
 			this.linkLblBugs.TabStop = true;
-			this.linkLblBugs.Text = "http://sourceforge.net/tracker/?group_id=191585&atid=937972";
+			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/";
 			this.linkLblBugs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblBugs
