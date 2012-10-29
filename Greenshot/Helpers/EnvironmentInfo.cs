@@ -35,17 +35,17 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public static class EnvironmentInfo {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger("Greenshot");
-        private static bool? isWindows = null;
+		private static bool? isWindows = null;
 
-        public static bool IsWindows {
-            get {
-                if (isWindows.HasValue) {
-                    return isWindows.Value;
-                }
-                isWindows = Environment.OSVersion.Platform.ToString().StartsWith("Windows");
-                return isWindows.Value;
-            }
-        }
+		public static bool IsWindows {
+			get {
+				if (isWindows.HasValue) {
+					return isWindows.Value;
+				}
+				isWindows = Environment.OSVersion.Platform.ToString().StartsWith("Win");
+				return isWindows.Value;
+			}
+		}
 		
 		public static string EnvironmentToString(bool newline) {
 			StringBuilder environment = new StringBuilder(); 
@@ -74,13 +74,13 @@ namespace Greenshot.Helpers {
 			}
 
             if (IsWindows) {
-                environment.Append(String.Format("OS: {0} {1} {2} x{3} modus Version = {4}", OSInfo.Name, OSInfo.Edition, OSInfo.ServicePack, OSInfo.Bits, OSInfo.VersionString));
+				environment.Append(String.Format("OS: {0} {1} {2} (x{3})  {4}", OSInfo.Name, OSInfo.Edition, OSInfo.ServicePack, OSInfo.Bits, OSInfo.VersionString));
                 if (newline) {
                     environment.AppendLine();
                 } else {
                     environment.Append(", ");
                 }
-                // Get some important information for fixing GDI related Problems
+				// Get some important information for fixing GDI related Problems
                 environment.Append("GDI object count: " + User32.GetGuiResourcesGDICount());
                 if (newline) {
                     environment.AppendLine();
@@ -415,12 +415,11 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the name of the operating system running on this computer.
 		/// </summary>
-		static public string Name
-		{
-			get
-			{
-				if (s_Name != null)
+		static public string Name {
+			get {
+				if (s_Name != null) {
 					return s_Name;  //***** RETURN *****//
+				}
 
 				string name = "unknown";
 
@@ -428,91 +427,119 @@ namespace Greenshot.Helpers {
 				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
 				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf( typeof( OSVERSIONINFOEX ) );
 
-				if (GetVersionEx( ref osVersionInfo ))
-				{
+				if (GetVersionEx( ref osVersionInfo )) {
 					int majorVersion = osVersion.Version.Major;
 					int minorVersion = osVersion.Version.Minor;
-
-					switch (osVersion.Platform)
-					{
+					byte productType = osVersionInfo.wProductType;
+					short suiteMask = osVersionInfo.wSuiteMask;
+					switch (osVersion.Platform) {
 						case PlatformID.Win32Windows:
-							{
-								if (majorVersion == 4)
-								{
-									string csdVersion = osVersionInfo.szCSDVersion;
-									switch (minorVersion)
-									{
-										case 0:
-											if (csdVersion == "B" || csdVersion == "C")
-												name = "Windows 95 OSR2";
-											else
-												name = "Windows 95";
+							if (majorVersion == 4) {
+								string csdVersion = osVersionInfo.szCSDVersion;
+								switch (minorVersion) {
+									case 0:
+										if (csdVersion == "B" || csdVersion == "C") {
+											name = "Windows 95 OSR2";
+										} else {
+											name = "Windows 95";
+										}
+										break;
+									case 10:
+										if (csdVersion == "A") {
+											name = "Windows 98 Second Edition";
+										} else {
+											name = "Windows 98";
+										}
+										break;
+									case 90:
+										name = "Windows Me";
+										break;
+								}
+							}
+							break;
+						case PlatformID.Win32NT:
+							switch (majorVersion) {
+								case 3:
+									name = "Windows NT 3.51";
+									break;
+								case 4:
+									switch (productType) {
+										case 1:
+											name = "Windows NT 4.0";
 											break;
-										case 10:
-											if (csdVersion == "A")
-												name = "Windows 98 Second Edition";
-											else
-												name = "Windows 98";
-											break;
-										case 90:
-											name = "Windows Me";
+										case 3:
+											name = "Windows NT 4.0 Server";
 											break;
 									}
-								}
-								break;
+									break;
+								case 5:
+									switch (minorVersion) {
+										case 0:
+											name = "Windows 2000";
+											break;
+										case 1:
+											switch (suiteMask) {
+												case 0x0200:
+													name = "Windows XP Professional";
+													break;
+												default:
+													name = "Windows XP";
+													break;
+											}
+											break;
+										case 2:
+											switch (suiteMask) {
+												case 0x0200:
+													name = "Windows XP Professional x64";
+													break;
+												case 0x0002:
+													name = "Windows Server 2003 Enterprise";
+													break;
+												case 0x0080:
+													name = "Windows Server 2003 Data Center";
+													break;
+												case 0x0400:
+													name = "Windows Server 2003 Web Edition";
+													break;
+												case unchecked ((short)0x8000):
+													name = "Windows Home Server";
+													break;
+												default:
+													name = "Windows Server 2003";
+													break;
+											}
+											break;
+									}
+									break;
+								case 6:
+									switch (minorVersion) {
+										case 0:
+											switch (productType) {
+												case 3:
+													name = "Windows Server 2008";
+													break;
+												default:
+													name = "Windows Vista";
+													break;
+											}
+											break;
+										case 1:
+											switch (productType) {
+												case 3:
+													name = "Windows Server 2008 R2";
+													break;
+												default:
+													name = "Windows 7";
+													break;
+											}
+											break;
+										case 2:
+											name = "Windows 8";
+											break;
+									}
+									break;
 							}
-
-						case PlatformID.Win32NT:
-							{
-								byte productType = osVersionInfo.wProductType;
-
-								switch (majorVersion)
-								{
-									case 3:
-										name = "Windows NT 3.51";
-										break;
-									case 4:
-										switch (productType)
-										{
-											case 1:
-												name = "Windows NT 4.0";
-												break;
-											case 3:
-												name = "Windows NT 4.0 Server";
-												break;
-										}
-										break;
-									case 5:
-										switch (minorVersion)
-										{
-											case 0:
-												name = "Windows 2000";
-												break;
-											case 1:
-												name = "Windows XP";
-												break;
-											case 2:
-												name = "Windows Server 2003";
-												break;
-										}
-										break;
-									case 6:
-										switch (minorVersion)
-										{
-											case 0:
-												name = "Windows Vista";
-												break;
-											case 1:
-												name = "Windows 7";
-												break;
-											case 3:
-												name = "Windows Server 2008";
-												break;
-										}
-										break;
-								}
-								break;
-							}
+							break;
 					}
 				}
 
@@ -655,11 +682,9 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the full version string of the operating system running on this computer.
 		/// </summary>
-		static public string VersionString
-		{
-			get
-			{
-				return Environment.OSVersion.Version.ToString();
+		static public string VersionString {
+			get {
+				return string.Format("{0}.{1} build {3} revision {2:X}", Environment.OSVersion.Version.Major, Environment.OSVersion.Version.Minor, Environment.OSVersion.Version.Revision, Environment.OSVersion.Version.Build);
 			}
 		}
 		#endregion STRING
