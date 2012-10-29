@@ -166,9 +166,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("ThumnailPreview", Description="Enable/disable thumbnail previews", DefaultValue="True")]
 		public bool ThumnailPreview;
 		
-		[IniProperty("NoGDICaptureForProduct", Description="List of products for which GDI capturing doesn't work.", DefaultValue="IntelliJ IDEA")]
+		[IniProperty("NoGDICaptureForProduct", Description="List of products for which GDI capturing doesn't work.", DefaultValue="IntelliJ,IDEA")]
 		public List<string> NoGDICaptureForProduct;
-		[IniProperty("NoDWMCaptureForProduct", Description="List of products for which DWM capturing doesn't work.", DefaultValue="Citrix ICA Client")]
+		[IniProperty("NoDWMCaptureForProduct", Description="List of products for which DWM capturing doesn't work.", DefaultValue="Citrix,ICA,Client")]
 		public List<string> NoDWMCaptureForProduct;
 
 		[IniProperty("OptimizeForRDP", Description="Make some optimizations for usage with remote desktop", DefaultValue="False")]
@@ -320,11 +320,25 @@ namespace GreenshotPlugin.Core {
 
 			// Make sure the lists are lowercase, to speedup the check
 			if (NoGDICaptureForProduct != null) {
-				for(int i=0; i< NoGDICaptureForProduct.Count; i++) {
+				// Fix error in configuration
+				if (NoGDICaptureForProduct.Count == 1) {
+					if ("intellij idea".Equals(NoGDICaptureForProduct[0])) {
+						NoGDICaptureForProduct[0] = "intellij,idea";
+						this.IsDirty = true;
+					}
+				}
+				for (int i = 0; i < NoGDICaptureForProduct.Count; i++) {
 					NoGDICaptureForProduct[i] = NoGDICaptureForProduct[i].ToLower();
 				}
 			}
 			if (NoDWMCaptureForProduct != null) {
+				// Fix error in configuration
+				if (NoDWMCaptureForProduct.Count == 1) {
+					if ("citrix ica client".Equals(NoDWMCaptureForProduct[0])) {
+						NoDWMCaptureForProduct[0] = "citrix,ica,client";
+						this.IsDirty = true;
+					}
+				}
 				for(int i=0; i< NoDWMCaptureForProduct.Count; i++) {
 					NoDWMCaptureForProduct[i] = NoDWMCaptureForProduct[i].ToLower();
 				}
