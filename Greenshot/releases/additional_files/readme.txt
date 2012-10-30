@@ -4,17 +4,17 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 CHANGE LOG:
 We changed the version to 1.0 after 5 years it should no longer have a "beta" feeling!
 
-1.0.6 build #### Release
+1.0.6 build 2227 Release
 
 Some features we added since 0.8:
 * General: Greenshot will now run in 64 bit mode, if the OS supports it.
-* General: Added a way to dynamically select a destination
+* General: Added a dynamic destination picker
 * General: Added a preview when using the window capture from the context menu (Windows Vista and later)
 * General: Added color reduction as an option and auto detection for image with less than 256 color. When using reduction this results in smaller files.
 * General: Added direct printing to a selected printer
 * General: Added some additional logic to the IE capture, which makes it possible to capture embedded IE web-sites from other applications.
 * General: Changed multi-screen capture behaviour, assuming that capturing all screens is not a normal use-case. Now default behaviour is to capture the one with the mouse-cursor. Also the user can select which screen to capture from the context-menu.
-* General: Changed to .ini for configuration: Fixed settings can't be changed in the settings. Settings, quicksettings and the Greenshot icon can be disabled. (See greenshot.ini and our website)
+* General: Changed the configuration to use a .ini with some advanced features. Fixed settings can't be changed in the settings. Settings, quicksettings and the Greenshot icon can be disabled. (See greenshot.ini and our website)
 * General: Added and update many languages, see our website for the whole listing!
 * General: Now one can use the shift key to fix the mouse coordinates while capturing. If you press and hold shift only the first direction in which you move can be change, the other stays fixed.
 * General: Added an expert tab in the settings, here some Greenshot behavior can be changed
@@ -43,7 +43,10 @@ Bugs resolved:
 Known issues:
 * Greenshot general: a captured I-Beam cursor isn't displayed correctly on the final result.
 * Greenshot general: Not all hotkeys can be changed in the editor. When you want to use e.g. the pause or the Windows key, you will need to be modified the ini directly.
+* Greenshot general: Can't capture 256 color screens
+* Greenshot general: Hotkeys don't function when a UAC (elevated) process is active. This we won't change as it is a Windows security measure.
 * Greenshot editor: Rotate only rotates the screenshot, not the added elements or cursor
+
 
 
 0.8.0 (Build 0627)
