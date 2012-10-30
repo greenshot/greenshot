@@ -1042,7 +1042,7 @@ namespace Greenshot {
 			this.checkbox_checkunstableupdates.LanguageKey = "expertsettings_checkunstableupdates";
 			this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 187);
 			this.checkbox_checkunstableupdates.Name = "checkbox_checkunstableupdates";
-			this.checkbox_checkunstableupdates.PropertyName = "CheckUnstable";
+			this.checkbox_checkunstableupdates.PropertyName = "CheckForUnstable";
 			this.checkbox_checkunstableupdates.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_checkunstableupdates.TabIndex = 29;
 			this.checkbox_checkunstableupdates.UseVisualStyleBackColor = true;

@@ -4,7 +4,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 CHANGE LOG:
 We changed the version to 1.0 after 5 years it should no longer have a "beta" feeling!
 
-1.0.6 build 2227 Release
+1.0.6 build 2228 Release
 
 Some features we added since 0.8:
 * General: Greenshot will now run in 64 bit mode, if the OS supports it.

@@ -59,7 +59,7 @@
     <Content Include="Languages\language_Boxplugin-en-US.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Greenshot\GreenshotPlugin\GreenshotPlugin.csproj">
+    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
     </ProjectReference>
