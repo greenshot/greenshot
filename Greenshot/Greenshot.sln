@@ -17,6 +17,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOCRPlugin", "..\GreenshotOCRPlugin\GreenshotOCRPlugin.csproj", "{C6988EE8-2FEE-4349-9F09-F9628A0D8965}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOCRCommand", "..\GreenshotOCRCommand\GreenshotOCRCommand.csproj", "{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C6988EE8-2FEE-4349-9F09-F9628A0D8965} = {C6988EE8-2FEE-4349-9F09-F9628A0D8965}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotBoxPlugin", "..\GreenshotBoxPlugin\GreenshotBoxPlugin.csproj", "{697CF066-9077-4F22-99D9-D989CCE7282B}"
 EndProject
