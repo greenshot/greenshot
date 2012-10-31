@@ -102,13 +102,38 @@ namespace GreenshotPlugin.Core {
 		private string loginTitle = "Authorize Greenshot access";
 
 		#region PublicProperties
-		public string RequestTokenUrl { get; set; }
-		public string AuthorizeUrl { get; set; }
-		public string AccessTokenUrl { get; set; }
-
-		public string Token { get; set; }
-		public string TokenSecret { get; set; }
-		public string Verifier { get; set; }
+		public HTTPMethod RequestTokenMethod {
+			get;
+			set;
+		}
+		public HTTPMethod AccessTokenMethod {
+			get;
+			set;
+		}
+		public string RequestTokenUrl {
+			get;
+			set;
+		}
+		public string AuthorizeUrl {
+			get;
+			set;
+		}
+		public string AccessTokenUrl {
+			get;
+			set;
+		}
+		public string Token {
+			get;
+			set;
+		}
+		public string TokenSecret {
+			get;
+			set;
+		}
+		public string Verifier {
+			get;
+			set;
+		}
 
 		public bool UseMultipartFormData { get; set; }
 		public string UserAgent {
@@ -168,6 +193,8 @@ namespace GreenshotPlugin.Core {
 			this.consumerKey = consumerKey;
 			this.consumerSecret = consumerSecret;
 			this.UseMultipartFormData = true;
+			this.RequestTokenMethod = HTTPMethod.GET;
+			this.AccessTokenMethod = HTTPMethod.GET;
 		}
 
 		/// <summary>
@@ -267,8 +294,8 @@ namespace GreenshotPlugin.Core {
 			foreach(var value in requestTokenParameters) {
 				parameters.Add(value);
 			}
-			Sign(HTTPMethod.GET, RequestTokenUrl, parameters);
-			string response = MakeRequest(HTTPMethod.GET, RequestTokenUrl, parameters, null);
+			Sign(RequestTokenMethod, RequestTokenUrl, parameters);
+			string response = MakeRequest(RequestTokenMethod, RequestTokenUrl, parameters, null);
 			if (response.Length > 0) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Request token response: {0}", response);
@@ -326,8 +353,8 @@ namespace GreenshotPlugin.Core {
 			}
 
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
-			Sign(HTTPMethod.GET, AccessTokenUrl, parameters);
-			string response = MakeRequest(HTTPMethod.GET, AccessTokenUrl, parameters, null);
+			Sign(AccessTokenMethod, AccessTokenUrl, parameters);
+			string response = MakeRequest(AccessTokenMethod, AccessTokenUrl, parameters, null);
 			if (response.Length > 0) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Access token response: {0}", response);
