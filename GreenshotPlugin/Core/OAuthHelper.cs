@@ -295,7 +295,7 @@ namespace GreenshotPlugin.Core {
 				parameters.Add(value);
 			}
 			Sign(RequestTokenMethod, RequestTokenUrl, parameters);
-			string response = MakeRequest(RequestTokenMethod, RequestTokenUrl, parameters, null);
+			string response = MakeRequest(RequestTokenMethod, RequestTokenUrl, null, parameters, null);
 			if (response.Length > 0) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Request token response: {0}", response);
@@ -354,7 +354,7 @@ namespace GreenshotPlugin.Core {
 
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
 			Sign(AccessTokenMethod, AccessTokenUrl, parameters);
-			string response = MakeRequest(AccessTokenMethod, AccessTokenUrl, parameters, null);
+			string response = MakeRequest(AccessTokenMethod, AccessTokenUrl, null, parameters, null);
 			if (response.Length > 0) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Access token response: {0}", response);
@@ -418,7 +418,21 @@ namespace GreenshotPlugin.Core {
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
 		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return MakeOAuthRequest(method, requestURL, requestURL, parametersToSign, additionalParameters, postData);
+			return MakeOAuthRequest(method, requestURL, requestURL, null, parametersToSign, additionalParameters, postData);
+		}
+
+		/// <summary>
+		/// Submit a web request using oAuth.
+		/// </summary>
+		/// <param name="method">GET or POST</param>
+		/// <param name="requestURL">The full url, including the querystring for the signing/request</param>
+		/// <param name="headers">Header values</param>
+		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
+		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
+		/// <param name="postData">Data to post (MemoryStream)</param>
+		/// <returns>The web server response.</returns>
+		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			return MakeOAuthRequest(method, requestURL, requestURL, headers, parametersToSign, additionalParameters, postData);
 		}
 
 		/// <summary>
@@ -432,6 +446,21 @@ namespace GreenshotPlugin.Core {
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
 		public string MakeOAuthRequest(HTTPMethod method, string signUrl, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			return MakeOAuthRequest(method, signUrl, requestURL, null, parametersToSign, additionalParameters, postData);
+		}
+
+		/// <summary>
+		/// Submit a web request using oAuth.
+		/// </summary>
+		/// <param name="method">GET or POST</param>
+		/// <param name="signUrl">The full url, including the querystring for the signing</param>
+		/// <param name="requestURL">The full url, including the querystring for the request</param>
+		/// <param name="headers">Headers for the request</param>
+		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
+		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
+		/// <param name="postData">Data to post (MemoryStream)</param>
+		/// <returns>The web server response.</returns>
+		public string MakeOAuthRequest(HTTPMethod method, string signUrl, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
 			if (parametersToSign == null) {
 				parametersToSign = new Dictionary<string, object>();
 			}
@@ -457,7 +486,7 @@ namespace GreenshotPlugin.Core {
 							newParameters.Add(parameter);
 						}
 					}
-					return MakeRequest(method, requestURL, newParameters, postData);
+					return MakeRequest(method, requestURL, headers, newParameters, postData);
 				} catch (WebException wEx) {
 					lastException = wEx;
 					if (wEx.Response != null) {
@@ -486,7 +515,6 @@ namespace GreenshotPlugin.Core {
 			}
 			throw new Exception("Not authorized");
 		}
-
 
 		/// <summary>
 		/// OAuth sign the parameters, meaning all oauth parameters are added to the supplied dictionary.
@@ -545,10 +573,11 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="method"></param>
 		/// <param name="requestURL"></param>
+		/// <param name="headers"></param>
 		/// <param name="parameters"></param>
 		/// <param name="postData">IBinaryParameter</param>
 		/// <returns>Response from server</returns>
-		private string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parameters, IBinaryContainer postData) {
+		private string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parameters, IBinaryContainer postData) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -591,6 +620,12 @@ namespace GreenshotPlugin.Core {
 				webRequest.Headers.Add("Authorization: OAuth " + authHeader.ToString());
 			}
 
+			if (headers != null) {
+				foreach(string key in headers.Keys) {
+					webRequest.Headers.Add(key, headers[key]);
+				}
+			}
+
 			if ((HTTPMethod.POST == method || HTTPMethod.PUT == method) && postData == null && requestParameters != null && requestParameters.Count > 0) {
 				if (UseMultipartFormData) {
 					NetworkHelper.WriteMultipartFormData(webRequest, requestParameters);
@@ -628,5 +663,4 @@ namespace GreenshotPlugin.Core {
 			return responseData;
 		}
 	}
-
 }

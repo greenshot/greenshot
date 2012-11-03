@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Xml;
 using Greenshot.IniFile;
@@ -64,7 +65,9 @@ namespace GreenshotPicasaPlugin {
 				IniConfig.Save();
 			}
 			try {
-				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, "https://picasaweb.google.com/data/feed/api/user/default/albumid/default", null, null, new ImageContainer(imageToUpload, outputSettings, filename));
+				IDictionary<string, string> headers = new Dictionary<string, string>();
+				headers.Add("slug", OAuthSession.UrlEncode3986(filename));
+				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, "https://picasaweb.google.com/data/feed/api/user/default/albumid/default", headers, null, null, new ImageContainer(imageToUpload, outputSettings, filename));
 				return ParseResponse(response);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
