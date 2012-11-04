@@ -119,8 +119,7 @@ namespace GreenshotOfficePlugin {
 				}
 			}
 			if (presentationName != null) {
-				PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
-				exportInformation.ExportMade = true;
+				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
 			} else {
 				if (!manuallyInitiated) {
 					List<string> presentations = PowerpointExporter.GetPowerpointPresentations();
@@ -134,8 +133,7 @@ namespace GreenshotOfficePlugin {
 						return ShowPickerMenu(false, surface, captureDetails, destinations);
 					}
 				} else if (!exportInformation.ExportMade) {
-					PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
-					exportInformation.ExportMade = true;
+					exportInformation.ExportMade = PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
 				}
 			}
 			ProcessExport(exportInformation, surface);

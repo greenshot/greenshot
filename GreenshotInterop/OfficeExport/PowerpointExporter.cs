@@ -107,48 +107,48 @@ namespace Greenshot.Interop.Office {
 				float height = imageSize.Height;
 				bool isLayoutPictureWithCaption = false;
 				IShape shapeForCaption = null;
-				bool isWidthResized = false;
-				bool isHeightResized = false;
+				bool hasScaledWidth = false;
+				bool hasScaledHeight = false;
 				try {
 					slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int)PPSlideLayout.ppLayoutPictureWithCaption);
 					isLayoutPictureWithCaption = true;
 					// Shapes[2] is the image shape on this layout.
 					shapeForCaption = slide.Shapes.item(1);
 					IShape shapeForLocation = slide.Shapes.item(2);
+
 					if (width > shapeForLocation.Width) {
 						width = shapeForLocation.Width;
-						isWidthResized = true;
 						left = shapeForLocation.Left;
+						hasScaledWidth = true;
 					} else {
-						//left = (shapeForLocation.Left + (shapeForLocation.Width / 2)) - (imageSize.Width / 2);
-						shapeForLocation.Width = width;
 						shapeForLocation.Left = left;
 					}
+					shapeForLocation.Width = imageSize.Width;
+
 					if (height > shapeForLocation.Height) {
 						height = shapeForLocation.Height;
-						isHeightResized = true;
 						top = shapeForLocation.Top;
+						hasScaledHeight = true;
 					} else {
 						top = (shapeForLocation.Top + (shapeForLocation.Height / 2)) - (imageSize.Height / 2);
-						shapeForLocation.Height = height;
-						//shapeForLocation.Top = top;
 					}
-					//shapeForLocation.Top = top;
-					//LOG.DebugFormat("Shape {0},{1},{2},{3}", shapeForLocation.Left, shapeForLocation.Top, imageSize.Width, imageSize.Height);
+					shapeForLocation.Height = imageSize.Height;
 				} catch (Exception e) {
 					LOG.Error(e);
 					slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int)PPSlideLayout.ppLayoutBlank);
 				}
 				IShape shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height);
 				shape.LockAspectRatio = MsoTriState.msoTrue;
+				shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
+				shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
+				if (hasScaledWidth) {
+					shape.Width = width;
+				}
+				if (hasScaledHeight) {
+					shape.Height = height;	
+				}
 				shape.Left = left;
 				shape.Top = top;
-				if (!isHeightResized) {
-					shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
-				}
-				if (!isWidthResized) {
-					shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
-				}
 				shape.AlternativeText = title;
 				if (isLayoutPictureWithCaption && shapeForCaption != null) {
 					try {
@@ -164,15 +164,22 @@ namespace Greenshot.Interop.Office {
 			}
 		}
 
-		public static void InsertIntoNewPresentation(string tmpFile, Size imageSize, string title) {
+		public static bool InsertIntoNewPresentation(string tmpFile, Size imageSize, string title) {
+			bool isPictureAdded = false;
 			using (IPowerpointApplication powerpointApplication = COMWrapper.GetOrCreateInstance<IPowerpointApplication>()) {
 				if (powerpointApplication != null) {
 					powerpointApplication.Visible = true;
 					IPresentation presentation = powerpointApplication.Presentations.Add(MsoTriState.msoTrue);
-					AddPictureToPresentation(presentation, tmpFile, imageSize, title);
-					presentation.Application.Activate();
+					try {
+						AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+						isPictureAdded = true;
+						presentation.Application.Activate();
+					} catch (Exception e) {
+						LOG.Error(e);
+					}
 				}
 			}
+			return isPictureAdded;
 		}
 	}
 }
