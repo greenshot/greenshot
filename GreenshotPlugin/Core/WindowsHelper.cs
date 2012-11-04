@@ -954,40 +954,61 @@ namespace GreenshotPlugin.Core  {
 		/// <param name="redBitmap">The bitmap taken with a red background</param>
 		/// <param name="cornerColor">The background color</param>
 		private void RemoveCorners(Bitmap normalBitmap, Bitmap redBitmap, Color cornerColor) {
+			const int thresholdTopLeft = 60;
+			const int thresholdTopRight = 40;
+			const int thresholdBottomLeft = 45;
+			const int thresholdBottomRight = 35;
+			const int range = 15;
 			using (BitmapBuffer redBuffer = new BitmapBuffer(redBitmap, false)) {
 				redBuffer.Lock();
 				using (BitmapBuffer normalBuffer = new BitmapBuffer(normalBitmap, false)) {
 					normalBuffer.Lock();
-					for (int y = 0; y < 8; y++) {
-						for (int x = 0; x < 8; x++) {
-							// top left
-							int cornerX = x;
-							int cornerY = y;
-							Color currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
-							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
-								normalBuffer.SetColorAt(cornerX, cornerY, cornerColor);
+					// top left
+					for (int y = 0; y < range; y++) {
+						for (int x = 0; x < range; x++) {
+							Color redBufferPixel = redBuffer.GetColorAt(x, y);
+							Color normalBufferPixel = normalBuffer.GetColorAt(x, y);
+							int redDiff = redBufferPixel.R - normalBufferPixel.R;
+							if (redDiff < thresholdTopLeft) {
+								break;
 							}
-							// top right
-							cornerX = normalBitmap.Width - x;
-							cornerY = y;
-							currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
-							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
-								normalBuffer.SetColorAt(cornerX, cornerY, cornerColor);
+							normalBuffer.SetColorAt(x, y, cornerColor);
+						}
+					}
+					// top right
+					for (int y = 0; y < range; y++) {
+						for (int x = normalBitmap.Width-1; x > normalBitmap.Width - range; x--) {
+							Color redBufferPixel = redBuffer.GetColorAt(x, y);
+							Color normalBufferPixel = normalBuffer.GetColorAt(x, y);
+							int redDiff = redBufferPixel.R - normalBufferPixel.R;
+							if (redDiff < thresholdTopRight) {
+								break;
 							}
-							// bottom right
-							cornerX = normalBitmap.Width - x;
-							cornerY = normalBitmap.Height - y;
-							currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
-							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
-								normalBuffer.SetColorAt(cornerX, cornerY, cornerColor);
+							normalBuffer.SetColorAt(x, y, cornerColor);
+						}
+					}
+					// bottom left
+					for (int y = normalBitmap.Height-1; y > normalBitmap.Height - range; y--) {
+						for (int x = 0; x < range; x++) {
+							Color redBufferPixel = redBuffer.GetColorAt(x, y);
+							Color normalBufferPixel = normalBuffer.GetColorAt(x, y);
+							int redDiff = redBufferPixel.R - normalBufferPixel.R;
+							if (redDiff < thresholdBottomLeft) {
+								break;
 							}
-							// bottom left
-							cornerX = x;
-							cornerY = normalBitmap.Height - y;
-							currentPixel = redBuffer.GetColorAt(cornerX, cornerY);
-							if (currentPixel.R > 0 && currentPixel.G == 0 && currentPixel.B == 0) {
-								normalBuffer.SetColorAt(cornerX, cornerY, cornerColor);
+							normalBuffer.SetColorAt(x, y, cornerColor);
+						}
+					}
+					// Bottom right
+					for (int y = normalBitmap.Height-1; y > normalBitmap.Height - range; y--) {
+						for (int x = normalBitmap.Width-1; x > normalBitmap.Width - range; x--) {
+							Color redBufferPixel = redBuffer.GetColorAt(x, y);
+							Color normalBufferPixel = normalBuffer.GetColorAt(x, y);
+							int redDiff = redBufferPixel.R - normalBufferPixel.R;
+							if (redDiff < thresholdBottomRight) {
+								break;
 							}
+							normalBuffer.SetColorAt(x, y, cornerColor);
 						}
 					}
 				}
