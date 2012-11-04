@@ -24,6 +24,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
+using System.Windows.Forms;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Interop {
 	/// <summary>
@@ -33,6 +35,7 @@ namespace Greenshot.Interop {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(COMWrapper));
 		private const int MK_E_UNAVAILABLE = -2147221021;
 		private const int CO_E_CLASSSTRING = -2147221005;
+		private const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
 
 		#region Private Data
 
@@ -556,11 +559,23 @@ namespace Greenshot.Interop {
 					}
 				}
 
-				try {
-					returnValue = invokeType.InvokeMember(methodName, flags, null, invokeObject, args, argModifiers, null, null);
-				} catch (Exception ex) {
-					return new ReturnMessage(ex, callMessage);
-				}
+				do {
+					try {
+						returnValue = invokeType.InvokeMember(methodName, flags, null, invokeObject, args, argModifiers, null, null);
+						break;
+					} catch (Exception ex) {
+						// Test for rejected
+						COMException comEx = ex as COMException;
+						if (comEx != null && comEx.ErrorCode == RPC_E_CALL_REJECTED) {
+							DialogResult result = MessageBox.Show(Language.GetString("com_rejected"), Language.GetString("com_rejected_title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+							if (result == DialogResult.OK) {
+								continue;
+							}
+						}
+						// Not rejected OR pressed cancel
+						return new ReturnMessage(ex, callMessage);
+					}
+				} while (true);
 
 				// Handle enum and interface return types
 				if (null != returnValue) {

@@ -35,6 +35,8 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="colorpicker_red">Rot</resource>
 		<resource name="colorpicker_title">Farbauswahl</resource>
 		<resource name="colorpicker_transparent">Transparent</resource>
+		<resource name="com_rejected">Das Ziel hat Greenshot abgewiesen, vermutlich ist ein Dialogfeld geöffnet. Schließen Sie das Dialogfeld und versuchen Sie es erneut.</resource>
+		<resource name="com_rejected_title">Greenshot Zugriff abgewiesen</resource>
 		<resource name="config_unauthorizedaccess_write">Die Greenshot Einstellungen konnten nicht gespeichert werden. Bitte prüfen Sie die Berechtigungen auf '{0}'.</resource>
 		<resource name="contextmenu_about">Über Greenshot</resource>
 		<resource name="contextmenu_capturearea">Bereich abfotografieren</resource>

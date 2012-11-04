@@ -35,6 +35,8 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="colorpicker_red">Red</resource>
 		<resource name="colorpicker_title">Color picker</resource>
 		<resource name="colorpicker_transparent">Transparent</resource>
+		<resource name="com_rejected">The destination rejected Greenshot access, a dialog is probably open. Close the dialog and try again.</resource>
+		<resource name="com_rejected_title">Greenshot access rejected</resource>
 		<resource name="config_unauthorizedaccess_write">Could not save Greenshot's configuration file. Please check access permissions for '{0}'.</resource>
 		<resource name="contextmenu_about">About Greenshot</resource>
 		<resource name="contextmenu_capturearea">Capture region</resource>

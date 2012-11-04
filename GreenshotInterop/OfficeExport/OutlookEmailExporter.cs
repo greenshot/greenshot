@@ -364,9 +364,9 @@ namespace Greenshot.Interop.Office {
 				newMail.Display(false);
 				newMail.GetInspector().Activate();
 			} catch (Exception ex) {
-				LOG.WarnFormat("Problem displaying the new email, retrying to display it. Problem: {0}", ex.Message);
+				LOG.Warn("Problem displaying the new email, retrying to display it. Problem:", ex);
 				Thread retryDisplayEmail = new Thread(delegate() {
-					int retries = 60;
+					int retries = 10;
 					int retryInXSeconds = 5;
 					while (retries-- > 0) {
 						Thread.Sleep(retryInXSeconds * 1000);
