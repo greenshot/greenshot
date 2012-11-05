@@ -353,7 +353,21 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		public static extern int SetWindowLong(IntPtr hWnd, int index, uint styleFlags);
 		[DllImport("user32", EntryPoint="GetWindowLongPtr", SetLastError=true)]
-		public extern static IntPtr GetWindowLongPtr(IntPtr hwnd, int nIndex);
+		public extern static uint GetWindowLongPtr(IntPtr hwnd, int nIndex);
+
+		/// <summary>
+		/// Wrapper for the GetWindowLong which decides if the system is 64-bit or not and calls the right one.
+		/// </summary>
+		/// <param name="hwnd"></param>
+		/// <param name="nIndex"></param>
+		/// <returns></returns>
+		public static uint GetWindowLongWrapper(IntPtr hwnd, int nIndex) {
+			if (IntPtr.Size == 8) {
+				return GetWindowLongPtr(hwnd, nIndex);
+			} else {
+				return GetWindowLong(hwnd, nIndex);
+			}
+		}
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowInfo(IntPtr hwnd, ref WindowInfo pwi);

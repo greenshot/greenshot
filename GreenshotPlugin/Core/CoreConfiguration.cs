@@ -176,6 +176,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("MinimizeWorkingSetSize", Description="Optimize memory footprint, but with a performance penalty!", DefaultValue="False")]
 		public bool MinimizeWorkingSetSize;
 
+		[IniProperty("WindowCaptureRemoveCorners", Description = "Remove the corners from a window capture", DefaultValue = "True")]
+		public bool WindowCaptureRemoveCorners;
+
 		[IniProperty("CheckForUnstable", Description = "Also check for unstable version updates", DefaultValue = "False")]
 		public bool CheckForUnstable;
 

@@ -712,7 +712,7 @@ namespace GreenshotPlugin.Core  {
 
 		public WindowStyleFlags WindowStyle {
 			get {
-				return (WindowStyleFlags)User32.GetWindowLong(this.hWnd, (int)WindowLongIndex.GWL_STYLE);
+				return (WindowStyleFlags)User32.GetWindowLongWrapper(this.hWnd, (int)WindowLongIndex.GWL_STYLE);
 			}
 			set {
 				User32.SetWindowLong(this.hWnd, (int)WindowLongIndex.GWL_STYLE, (uint)value);
@@ -731,7 +731,7 @@ namespace GreenshotPlugin.Core  {
 
 		public ExtendedWindowStyleFlags ExtendedWindowStyle {
 			get {
-				return (ExtendedWindowStyleFlags)User32.GetWindowLong(this.hWnd, (int)WindowLongIndex.GWL_EXSTYLE);
+				return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(this.hWnd, (int)WindowLongIndex.GWL_EXSTYLE);
 			}
 		}
 
@@ -916,11 +916,15 @@ namespace GreenshotPlugin.Core  {
 								capturedBitmap.Dispose();
 								capturedBitmap = tmpBitmap;
 							}
-							Color cornerColor = Color.Transparent;
-							if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
-								cornerColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
+						}
+						if (capturedBitmap != null) {
+							if (conf.WindowCaptureRemoveCorners) {
+								Color cornerColor = Color.Transparent;
+								if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
+									cornerColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
+								}
+								RemoveCorners(capturedBitmap, cornerColor);
 							}
-							RemoveCorners(capturedBitmap, redMask, cornerColor);
 						}
 					}
 				} finally {
@@ -950,68 +954,17 @@ namespace GreenshotPlugin.Core  {
 		/// <summary>
 		/// Helper method to remove the corners from a DMW capture
 		/// </summary>
-		/// <param name="normalBitmap">The bitmap taken which would normally be returned to the editor etc.</param>
-		/// <param name="redBitmap">The bitmap taken with a red background</param>
+		/// <param name="normalBitmap">The bitmap to remove the corners from.</param>
 		/// <param name="cornerColor">The background color</param>
-		private void RemoveCorners(Bitmap normalBitmap, Bitmap redBitmap, Color cornerColor) {
-			const int thresholdTopLeft = 60;
-			const int thresholdTopRight = 40;
-			const int thresholdBottomLeft = 45;
-			const int thresholdBottomRight = 35;
-			const int range = 15;
-			using (BitmapBuffer redBuffer = new BitmapBuffer(redBitmap, false)) {
-				redBuffer.Lock();
-				using (BitmapBuffer normalBuffer = new BitmapBuffer(normalBitmap, false)) {
-					normalBuffer.Lock();
-					// top left
-					for (int y = 0; y < range; y++) {
-						for (int x = 0; x < range; x++) {
-							Color redBufferPixel = redBuffer.GetColorAt(x, y);
-							Color normalBufferPixel = normalBuffer.GetColorAt(x, y);
-							int redDiff = redBufferPixel.R - normalBufferPixel.R;
-							if (redDiff < thresholdTopLeft) {
-								break;
-							}
-							normalBuffer.SetColorAt(x, y, cornerColor);
-						}
-					}
-					// top right
-					for (int y = 0; y < range; y++) {
-						for (int x = normalBitmap.Width-1; x > normalBitmap.Width - range; x--) {
-							Color redBufferPixel = redBuffer.GetColorAt(x, y);
-							Color normalBufferPixel = normalBuffer.GetColorAt(x, y);
-							int redDiff = redBufferPixel.R - normalBufferPixel.R;
-							if (redDiff < thresholdTopRight) {
-								break;
-							}
-							normalBuffer.SetColorAt(x, y, cornerColor);
-						}
-					}
-					// bottom left
-					for (int y = normalBitmap.Height-1; y > normalBitmap.Height - range; y--) {
-						for (int x = 0; x < range; x++) {
-							Color redBufferPixel = redBuffer.GetColorAt(x, y);
-							Color normalBufferPixel = normalBuffer.GetColorAt(x, y);
-							int redDiff = redBufferPixel.R - normalBufferPixel.R;
-							if (redDiff < thresholdBottomLeft) {
-								break;
-							}
-							normalBuffer.SetColorAt(x, y, cornerColor);
-						}
-					}
-					// Bottom right
-					for (int y = normalBitmap.Height-1; y > normalBitmap.Height - range; y--) {
-						for (int x = normalBitmap.Width-1; x > normalBitmap.Width - range; x--) {
-							Color redBufferPixel = redBuffer.GetColorAt(x, y);
-							Color normalBufferPixel = normalBuffer.GetColorAt(x, y);
-							int redDiff = redBufferPixel.R - normalBufferPixel.R;
-							if (redDiff < thresholdBottomRight) {
-								break;
-							}
-							normalBuffer.SetColorAt(x, y, cornerColor);
-						}
-					}
-				}
+		private void RemoveCorners(Bitmap normalBitmap, Color cornerColor) {
+			int borderWidth = User32.GetSystemMetrics(SystemMetric.SM_CXFRAME)+2;
+			int borderHeight = User32.GetSystemMetrics(SystemMetric.SM_CYFRAME)+2;
+			IntPtr regionHandle = GDI32.CreateRoundRectRgn(0, 0, normalBitmap.Width+1, normalBitmap.Height+1, borderWidth, borderHeight);
+			Region region = Region.FromHrgn(regionHandle);
+			GDI32.DeleteObject(regionHandle);
+			using (Graphics graphics = Graphics.FromImage(normalBitmap)) {
+				graphics.ExcludeClip(region);
+				graphics.Clear(cornerColor);
 			}
 		}
 
