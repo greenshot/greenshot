@@ -113,6 +113,8 @@ namespace Greenshot.Plugin {
 			get;
 			set;
 		}
+
+		void NullImage();
 		
 		Rectangle ScreenBounds {
 			get;

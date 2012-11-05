@@ -762,6 +762,7 @@ namespace Greenshot.Helpers {
 
 			LOG.InfoFormat("Capturing window with mode {0}", windowCaptureMode);
 			bool captureTaken = false;
+			windowRectangle.Intersect(captureForWindow.ScreenBounds);
 			// Try to capture
 			while (!captureTaken) {
 				ICapture tmpCapture = null;
@@ -771,8 +772,49 @@ namespace Greenshot.Helpers {
 							if (windowToCapture.Iconic) {
 								// Restore the window making sure it's visible!
 								windowToCapture.Restore();
+							} else {
+								windowToCapture.ToForeground();
 							}
 							tmpCapture = windowToCapture.CaptureGDIWindow(captureForWindow);
+							if (tmpCapture != null) {
+								// check if GDI capture any good, by comparing it with the screen content
+								int blackCountGDI = ImageHelper.CountColor((Bitmap)tmpCapture.Image, Color.Black, false);
+								int GDIPixels = tmpCapture.Image.Width * tmpCapture.Image.Height;
+								int blackPercentageGDI = (blackCountGDI * 100) / GDIPixels;
+								if (blackPercentageGDI >= 1) {
+									int screenPixels = windowRectangle.Width * windowRectangle.Height;
+									using (ICapture screenCapture = new Capture()) {
+										screenCapture.CaptureDetails = captureForWindow.CaptureDetails;
+										if (WindowCapture.CaptureRectangle(screenCapture, windowRectangle) != null) {
+											int blackCountScreen = ImageHelper.CountColor((Bitmap)screenCapture.Image, Color.Black, false);
+											int blackPercentageScreen = (blackCountScreen * 100) / screenPixels;
+											if (screenPixels == GDIPixels) {
+												// "easy compare", both have the same size
+												// If GDI has more black, use the screen capture.
+												if (blackPercentageGDI > blackPercentageScreen) {
+													LOG.Debug("Using screen capture, as GDI had additional black.");
+													// changeing the image will automatically dispose the previous
+													tmpCapture.Image = screenCapture.Image;
+													// Make sure it's not disposed, else the picture is gone!
+													screenCapture.NullImage();
+												}
+											} else if (screenPixels < GDIPixels) {
+												// Screen capture is cropped, window is outside of screen
+												if (blackPercentageGDI > 50 && blackPercentageGDI > blackPercentageScreen) {
+													LOG.Debug("Using screen capture, as GDI had additional black.");
+													// changeing the image will automatically dispose the previous
+													tmpCapture.Image = screenCapture.Image;
+													// Make sure it's not disposed, else the picture is gone!
+													screenCapture.NullImage();
+												}
+											} else {
+												// Use the GDI capture by doing nothing
+												LOG.Debug("This should not happen, how can there be more screen as GDI pixels?");
+											}
+										}
+									}
+								}
+							}
 						}
 						if (tmpCapture != null) {
 							captureForWindow = tmpCapture;
@@ -803,7 +845,7 @@ namespace Greenshot.Helpers {
 						} else {
 							windowToCapture.ToForeground();
 						}
-						windowRectangle.Intersect(captureForWindow.ScreenBounds);
+
 						try {
 							captureForWindow = WindowCapture.CaptureRectangle(captureForWindow, windowRectangle);
 							captureTaken = true;
