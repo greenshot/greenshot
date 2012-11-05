@@ -918,7 +918,7 @@ namespace GreenshotPlugin.Core  {
 							}
 						}
 						if (capturedBitmap != null) {
-							if (conf.WindowCaptureRemoveCorners) {
+							if (conf.WindowCaptureRemoveCorners && !Maximised) {
 								Color cornerColor = Color.Transparent;
 								if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
 									cornerColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
