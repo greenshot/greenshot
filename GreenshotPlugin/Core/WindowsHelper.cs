@@ -839,7 +839,6 @@ namespace GreenshotPlugin.Core  {
 						}
 					}
 				}
-				
 
 				// Prepare the displaying of the Thumbnail
 				DWM_THUMBNAIL_PROPERTIES props = new DWM_THUMBNAIL_PROPERTIES();
@@ -855,81 +854,74 @@ namespace GreenshotPlugin.Core  {
 				
 				// Destination bitmap for the capture
 				Bitmap capturedBitmap = null;
+				bool frozen = false;
 				try {
-					this.FreezeWindow();
-					// Use red to make removal of the corners possible
-					tempForm.BackColor = Color.Red;
-					// Make sure everything is visible
-					tempForm.Refresh();
-					Application.DoEvents();
-					using (Bitmap redMask = WindowCapture.CaptureRectangle(captureRectangle)) {
-						// Check if we make a transparent capture
-						if (windowCaptureMode == WindowCaptureMode.AeroTransparent) {
-							// Use white, later black to capture transparent
-							tempForm.BackColor = Color.White;
-							// Make sure everything is visible
-							tempForm.Refresh();
-							Application.DoEvents();
+					// Check if we make a transparent capture
+					if (windowCaptureMode == WindowCaptureMode.AeroTransparent) {
+						frozen = this.FreezeWindow();
+						// Use white, later black to capture transparent
+						tempForm.BackColor = Color.White;
+						// Make sure everything is visible
+						tempForm.Refresh();
+						Application.DoEvents();
 
-							try {
-								using (Bitmap whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
-									// Apply a white color
-									tempForm.BackColor = Color.Black;
-									// Make sure everything is visible
-									tempForm.Refresh();
-									Application.DoEvents();
-									using (Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
-										capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
-									}
-								}
-							} catch (Exception e) {
-								LOG.Debug("Exception: ", e);
-								// Some problem occured, cleanup and make a normal capture
-								if (capturedBitmap != null) {
-									capturedBitmap.Dispose();
-									capturedBitmap = null;
+						try {
+							using (Bitmap whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
+								// Apply a white color
+								tempForm.BackColor = Color.Black;
+								// Make sure everything is visible
+								tempForm.Refresh();
+								Application.DoEvents();
+								using (Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
+									capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
 								}
 							}
-						}
-						// If no capture up till now, create a normal capture.
-						if (capturedBitmap == null) {
-							// Remove transparency, this will break the capturing
-							if (!autoMode) {
-								tempForm.BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
-							} else {
-								Color colorizationColor = DWM.ColorizationColor;
-								// Modify by losing the transparency and increasing the intensity (as if the background color is white)
-								colorizationColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
-								tempForm.BackColor = colorizationColor; 
-							}
-							// Make sure everything is visible
-							tempForm.Refresh();
-							Application.DoEvents();
-							// Capture from the screen
-							capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
-						}
-						if (capturedBitmap != null && redMask != null) {
-							// Remove corners
-							if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
-								LOG.Debug("Changing pixelformat to Alpha for the RemoveCorners");
-								Bitmap tmpBitmap = ImageHelper.Clone(capturedBitmap, PixelFormat.Format32bppArgb);
+						} catch (Exception e) {
+							LOG.Debug("Exception: ", e);
+							// Some problem occured, cleanup and make a normal capture
+							if (capturedBitmap != null) {
 								capturedBitmap.Dispose();
-								capturedBitmap = tmpBitmap;
+								capturedBitmap = null;
 							}
 						}
-						if (capturedBitmap != null) {
+					}
+					// If no capture up till now, create a normal capture.
+					if (capturedBitmap == null) {
+						// Remove transparency, this will break the capturing
+						if (!autoMode) {
+							tempForm.BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
+						} else {
+							Color colorizationColor = DWM.ColorizationColor;
+							// Modify by losing the transparency and increasing the intensity (as if the background color is white)
+							colorizationColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
+							tempForm.BackColor = colorizationColor; 
+						}
+						// Make sure everything is visible
+						tempForm.Refresh();
+						Application.DoEvents();
+						// Capture from the screen
+						capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+					}
+					if (capturedBitmap != null) {
+						// Not needed for Windows 8
+						if (!(Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor >= 2)) {
 							if (conf.WindowCaptureRemoveCorners && !Maximised) {
-								Color cornerColor = Color.Transparent;
+								// Remove corners
 								if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
-									cornerColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
+									LOG.Debug("Changing pixelformat to Alpha for the RemoveCorners");
+									Bitmap tmpBitmap = ImageHelper.Clone(capturedBitmap, PixelFormat.Format32bppArgb);
+									capturedBitmap.Dispose();
+									capturedBitmap = tmpBitmap;
 								}
-								RemoveCorners(capturedBitmap, cornerColor);
+								RemoveCorners(capturedBitmap);
 							}
 						}
 					}
 				} finally {
 					// Make sure to ALWAYS unfreeze!!
-					this.UnfreezeWindow();
+					if (frozen) {
+						this.UnfreezeWindow();
+					}
 				}
 				
 				capture.Image = capturedBitmap;
@@ -954,17 +946,19 @@ namespace GreenshotPlugin.Core  {
 		/// <summary>
 		/// Helper method to remove the corners from a DMW capture
 		/// </summary>
-		/// <param name="normalBitmap">The bitmap to remove the corners from.</param>
-		/// <param name="cornerColor">The background color</param>
-		private void RemoveCorners(Bitmap normalBitmap, Color cornerColor) {
-			int borderWidth = User32.GetSystemMetrics(SystemMetric.SM_CXFRAME)+2;
-			int borderHeight = User32.GetSystemMetrics(SystemMetric.SM_CYFRAME)+2;
-			IntPtr regionHandle = GDI32.CreateRoundRectRgn(0, 0, normalBitmap.Width+1, normalBitmap.Height+1, borderWidth, borderHeight);
-			Region region = Region.FromHrgn(regionHandle);
-			GDI32.DeleteObject(regionHandle);
-			using (Graphics graphics = Graphics.FromImage(normalBitmap)) {
-				graphics.ExcludeClip(region);
-				graphics.Clear(cornerColor);
+		/// <param name="image">The bitmap to remove the corners from.</param>
+		private void RemoveCorners(Bitmap image) {
+			int [] cornerRange = {5,3,2,1,1};
+			using (BitmapBuffer buffer = new BitmapBuffer((Bitmap)image, false)) {
+				buffer.Lock();
+				for (int y = 0; y < cornerRange.Length; y++) {
+					for (int x = 0; x < cornerRange[y]; x++) {
+						buffer.SetColorAt(x, y, Color.Transparent);
+						buffer.SetColorAt(image.Width-1-x, y, Color.Transparent);
+						buffer.SetColorAt(image.Width-1-x, image.Height-1-y, Color.Transparent);
+						buffer.SetColorAt(x, image.Height-1-y, Color.Transparent);
+					}
+				}
 			}
 		}
 
@@ -1131,18 +1125,20 @@ namespace GreenshotPlugin.Core  {
 		/// Freezes the process belonging to the window
 		/// Warning: Use only if no other way!!
 		/// </summary>
-		private void FreezeWindow() {
+		private bool FreezeWindow() {
 			Process proc = Process.GetProcessById(this.ProcessId.ToInt32());
 			string processName = proc.ProcessName;
 			if (!CanFreezeOrUnfreeze(processName)) {
 				LOG.DebugFormat("Not freezing {0}", processName);
-				return;
+				return false;
 			}
 			if (!CanFreezeOrUnfreeze(Text)) {
 				LOG.DebugFormat("Not freezing {0}", processName);
-				return;
+				return false;
 			}
 			LOG.DebugFormat("Freezing process: {0}", processName);
+			
+			bool frozen = false;
 		
 			foreach (ProcessThread pT in proc.Threads) {
 				IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
@@ -1150,9 +1146,10 @@ namespace GreenshotPlugin.Core  {
 				if (pOpenThread == IntPtr.Zero) {
 					break;
 				}
-		
+				frozen = true;
 				Kernel32.SuspendThread(pOpenThread);
 			}
+			return frozen;
 		}
 
 		/// <summary>
