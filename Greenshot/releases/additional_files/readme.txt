@@ -2,7 +2,16 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 
 CHANGE LOG:
-We changed the version to 1.0 after 5 years it should no longer have a "beta" feeling!
+
+1.0.7 build xxxx Release
+
+Bugs resolved:
+* Bug #3582807: The window corners weren't cut correctly.
+* Bug #3582692: Picasa-Web uploads didn't have a filename.
+* Bug #3582282: Exporting captures to Powerpoint give errors when a Powerpoint dialog is open, this is fixed by displaying a retry with info.
+* Bug #3582282: Exporting captures to Powerpoint were cropped incorrectly.
+* Bug #3572995: Firefox captures on Windows XP are mainly black
+
 
 1.0.6 build 2228 Release
 
