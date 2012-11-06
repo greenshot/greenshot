@@ -797,7 +797,7 @@ namespace Greenshot.Drawing {
 						break;
 					case Effects.TornEdge:
 						using (Bitmap tmpImage = ImageHelper.CreateTornEdge((Bitmap)Image)) {
-							newImage = ImageHelper.CreateShadow(tmpImage, 1f, 6, ref offset, PixelFormat.Format32bppArgb); //Image.PixelFormat);
+							newImage = ImageHelper.CreateShadow(tmpImage, 1f, 7, ref offset, PixelFormat.Format32bppArgb); //Image.PixelFormat);
 						}
 						break;
 					case Effects.Border:

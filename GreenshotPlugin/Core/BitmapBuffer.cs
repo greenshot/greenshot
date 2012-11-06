@@ -62,12 +62,20 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
+		public PixelFormat PixelFormat {
+			get {
+				return bitmap.PixelFormat;
+			}
+		}
+
 		[NonSerialized]
 		private BitmapData bmData;
 		[NonSerialized]
 		private Rectangle rect;
 		[NonSerialized]
 		private byte* pointer;
+		[NonSerialized]
+		private int* intPointer;
 		[NonSerialized]
 		private int stride; /* bytes per pixel row */
 		[NonSerialized]
@@ -219,7 +227,8 @@ namespace GreenshotPlugin.Core {
 				bitsLocked = true;
 	
 				IntPtr Scan0 = bmData.Scan0; 
-				pointer = (byte*)(void*)Scan0; 
+				pointer = (byte*)(void*)Scan0;
+				intPointer = (int*)(void*)Scan0; 
 
 				PrepareForPixelFormat();
 				stride = bmData.Stride;
@@ -301,6 +310,28 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Use only when 32-bit bitmap!
+		/// </summary>
+		/// <param name="x">x</param>
+		/// <param name="y">y</param>
+		/// <returns>int with argb value</returns>
+		public int GetARGB(int x, int y) {
+			int offset = (y * (stride >> 2)) + x;
+			return intPointer[offset];
+		}
+
+		/// <summary>
+		/// Use only when 32-bit bitmap!
+		/// </summary>
+		/// <param name="x">x</param>
+		/// <param name="y">y</param>
+		/// <param name="argb">argb value</param>
+		public void SetARGB(int x, int y, int argb) {
+			int offset = (y * (stride>>2)) + x;
+			intPointer[offset] = argb;
+		}
+
+		/// <summary>
 		/// Retrieve the color at location x,y
 		/// Before the first time this is called the Lock() should be called once!
 		/// </summary>
@@ -370,6 +401,18 @@ namespace GreenshotPlugin.Core {
 			} else {
 				return new byte[] { 0, 0, 0, 0 };
 			}
+		}
+
+		/**
+		 * Retrieve the color at location x,y to a byte[]
+		 * Before the first time this is called the Lock() should be called once!
+		 */
+		public void GetUncheckedColorIn(int x, int y, byte[] color) {
+			int offset = x * bytesPerPixel + y * stride;
+			color[0] = (aIndex == -1) ? (byte)255 : (byte)pointer[aIndex + offset];
+			color[1] = pointer[rIndex + offset];
+			color[2] = pointer[gIndex + offset];
+			color[3] = pointer[bIndex + offset];
 		}
 
 		/**

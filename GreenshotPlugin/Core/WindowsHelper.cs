@@ -776,32 +776,25 @@ namespace GreenshotPlugin.Core  {
 				Size borderSize = new Size();
 
 				if (!Maximised) {
-					Screen displayScreen = null;
-
-					// Find the screen where the window is and check if it fits
-					foreach(Screen screen in Screen.AllScreens) {
-						if (screen.WorkingArea.Contains(windowRectangle)) {
-							displayScreen = screen;
-							break;
+					// Assume using it's own location
+					formLocation = windowRectangle.Location;
+					using (Region workingArea = new Region(Screen.PrimaryScreen.WorkingArea)) {
+						// Find the screen where the window is and check if it fits
+						foreach (Screen screen in Screen.AllScreens) {
+							workingArea.Union(screen.WorkingArea);
 						}
-					}
-					if (displayScreen == null) {
-						// If none found we find the biggest screen
-						foreach(Screen screen in Screen.AllScreens) {
-							if (displayScreen == null || (screen.Bounds.Width >= displayScreen.Bounds.Width && screen.Bounds.Height >= displayScreen.Bounds.Height)) {
-								displayScreen = screen;
+
+						// If the formLocation is not inside the visible area
+						if (!workingArea.AreRectangleCornersVisisble(windowRectangle)) {
+							// If none found we find the biggest screen
+							foreach (Screen screen in Screen.AllScreens) {
+								Rectangle newWindowRectangle = new Rectangle(screen.WorkingArea.Location, windowRectangle.Size);
+								if (workingArea.AreRectangleCornersVisisble(newWindowRectangle)) {
+									formLocation = screen.WorkingArea.Location;
+									break;
+								}
 							}
 						}
-						// check if the window will fit
-						if (displayScreen != null && displayScreen.Bounds.Contains(new Rectangle(Point.Empty, windowRectangle.Size))) {
-							formLocation = new Point(displayScreen.Bounds.X, displayScreen.Bounds.Y);
-						} else {
-							// No, just use the primary screen
-							formLocation = new Point(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y);
-						}
-					} else {
-						// The window actually fits, so while capturing create the copy over the original
-						formLocation = new Point(windowRectangle.X, windowRectangle.Y);
 					}
 				} else {
 					//GetClientRect(out windowRectangle);

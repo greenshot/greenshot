@@ -593,6 +593,130 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
+		/// <summary>
+		/// Create a new Bitmap with the BoxBlur result of the sourceBitmap
+		/// </summary>
+		/// <param name="sourceBitmap">Bitmap to blur</param>
+		/// <param name="range">Must be ODD!</param>
+		/// <returns>Bitmap</returns>
+		public static Bitmap BoxBlur(Bitmap sourceBitmap, int range) {
+			if ((range & 1) == 0) {
+				throw new InvalidOperationException("Range must be odd!");
+			}
+			using (BitmapBuffer bbbDest = new BitmapBuffer(sourceBitmap, true)) {
+				bbbDest.Lock();
+				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
+					bbbSrc.Lock();
+					BoxBlurHorizontal(bbbSrc, bbbDest, range);
+				}
+				BoxBlurVertical(bbbDest, range);
+				bbbDest.Unlock();
+				return bbbDest.Bitmap;
+			}
+		}
+
+		/// <summary>
+		/// BoxBlurHorizontal is a private helper method for the BoxBlur
+		/// </summary>
+		/// <param name="bbbSrc">Source BitmapBuffer</param>
+		/// <param name="bbbDest">Target BitmapBuffer</param>
+		/// <param name="range">Range must be odd!</param>
+		private static void BoxBlurHorizontal(BitmapBuffer bbbSrc, BitmapBuffer bbbDest, int range) {
+			int w = bbbSrc.Width;
+			int h = bbbSrc.Height;
+			int halfRange = range / 2;
+			int[] newColors = new int[w];
+			byte[] tmpColor = new byte[4];
+			for (int y = 0; y < h; y++) {
+				int hits = 0;
+				int a = 0;
+				int r = 0;
+				int g = 0;
+				int b = 0;
+				for (int x = -halfRange; x < w; x++) {
+					int oldPixel = x - halfRange - 1;
+					if (oldPixel >= 0) {
+						bbbSrc.GetUncheckedColorIn(oldPixel, y, tmpColor);
+						a -= tmpColor[0];
+						r -= tmpColor[1];
+						g -= tmpColor[2];
+						b -= tmpColor[3];
+						hits--;
+					}
+
+					int newPixel = x + halfRange;
+					if (newPixel < w) {
+						bbbSrc.GetUncheckedColorIn(newPixel, y, tmpColor);
+						a += tmpColor[0];
+						r += tmpColor[1];
+						g += tmpColor[2];
+						b += tmpColor[3];
+						hits++;
+					}
+
+					if (x >= 0) {
+						newColors[x] = ((byte)(a / hits)) << 24 | ((byte)(r / hits) << 16) | ((byte)(g / hits) << 8 ) | ((byte)(b / hits));
+					}
+				}
+				for (int x = 0; x < w; x++) {
+					bbbDest.SetARGB(x, y, newColors[x]);
+				}
+			}
+		}
+
+		/// <summary>
+		/// BoxBlurVertical is a private helper method for the BoxBlur
+		/// </summary>
+		/// <param name="bbbDest">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
+		/// <param name="range">Range must be odd!</param>
+		private static void BoxBlurVertical(BitmapBuffer bbbDest, int range) {
+			int w = bbbDest.Width;
+			int h = bbbDest.Height;
+			int halfRange = range / 2;
+			int[] newColors = new int[h];
+			int oldPixelOffset = -(halfRange + 1) * w;
+			int newPixelOffset = (halfRange) * w;
+			byte[] tmpColor = new byte[4];
+			for (int x = 0; x < w; x++) {
+				int hits = 0;
+				int a = 0;
+				int r = 0;
+				int g = 0;
+				int b = 0;
+				for (int y = -halfRange; y < h; y++) {
+					int oldPixel = y - halfRange - 1;
+					if (oldPixel >= 0) {
+						//int colorg = pixels[index + oldPixelOffset];
+						bbbDest.GetUncheckedColorIn(x, oldPixel, tmpColor);
+						a -= tmpColor[0];
+						r -= tmpColor[1];
+						g -= tmpColor[2];
+						b -= tmpColor[3];
+						hits--;
+					}
+
+					int newPixel = y + halfRange;
+					if (newPixel < h) {
+						//int colorg = pixels[index + newPixelOffset];
+						bbbDest.GetUncheckedColorIn(x, newPixel, tmpColor);
+						a += tmpColor[0];
+						r += tmpColor[1];
+						g += tmpColor[2];
+						b += tmpColor[3];
+						hits++;
+					}
+
+					if (y >= 0) {
+						newColors[y] = ((byte)(a / hits)) << 24 | ((byte)(r / hits) << 16) | ((byte)(g / hits) << 8) | ((byte)(b / hits));
+					}
+				}
+
+				for (int y = 0; y < h; y++) {
+					bbbDest.SetARGB(x, y, newColors[y]);
+				}
+			}
+		}
+
 		public static Bitmap FastBlur(Bitmap sourceBitmap, int radius) {
 			if (radius < 1) return null;
 			
@@ -747,6 +871,7 @@ namespace GreenshotPlugin.Core {
 				Rectangle newImageRectangle = new Rectangle(0, 0, tmpImage.Width, tmpImage.Height);
 				//using (Bitmap blurImage = FastBlur(newImage, shadowSize-1)) {
 				returnImage = CreateBlur(tmpImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
+				//returnImage = BoxBlur(tmpImage, shadowSize);
 			}
 			if (returnImage != null) {
 				using (Graphics graphics = Graphics.FromImage(returnImage)) {

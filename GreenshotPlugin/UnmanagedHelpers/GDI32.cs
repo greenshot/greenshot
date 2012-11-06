@@ -23,6 +23,20 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
+	public static class GDIExtensions {
+		public static bool AreRectangleCornersVisisble(this Region region, Rectangle rectangle) {
+			Point topLeft = new Point(rectangle.X, rectangle.Y);
+			Point topRight = new Point(rectangle.X + rectangle.Width, rectangle.Y);
+			Point bottomLeft = new Point(rectangle.X, rectangle.Y + rectangle.Height);
+			Point bottomRight = new Point(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height);
+			bool topLeftVisible = region.IsVisible(topLeft);
+			bool topRightVisible = region.IsVisible(topRight);
+			bool bottomLeftVisible = region.IsVisible(bottomLeft);
+			bool bottomRightVisible = region.IsVisible(bottomRight);
+
+			return topLeftVisible && topRightVisible && bottomLeftVisible && bottomRightVisible;
+		}
+	}
 	/// <summary>
 	/// GDI32 Helpers
 	/// </summary>
