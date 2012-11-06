@@ -544,11 +544,7 @@ namespace GreenshotPlugin.Core  {
 				return User32.IsIconic(this.hWnd) || Location.X <= -32000;
 			}
 			set {
-				User32.SendMessage(
-					this.hWnd, 
-					User32.WM_SYSCOMMAND, 
-					(IntPtr)User32.SC_MINIMIZE,
-					IntPtr.Zero);
+				User32.SendMessage(this.hWnd,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
 			}
 		}
 			
@@ -560,11 +556,7 @@ namespace GreenshotPlugin.Core  {
 				return User32.IsZoomed(this.hWnd);
 			}
 			set {
-				User32.SendMessage(
-					this.hWnd,
-					User32.WM_SYSCOMMAND, 
-					(IntPtr)User32.SC_MAXIMIZE,
-					IntPtr.Zero);
+				User32.SendMessage(this.hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MAXIMIZE, IntPtr.Zero);
 			}
 		}
 
@@ -700,7 +692,7 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		public void Restore() {
 			if (Iconic) {
-				User32.SendMessage(this.hWnd, User32.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
+				User32.SendMessage(this.hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
 			}
 			User32.BringWindowToTop(this.hWnd);
 			User32.SetForegroundWindow(this.hWnd);
@@ -871,6 +863,9 @@ namespace GreenshotPlugin.Core  {
 								tempForm.BackColor = Color.Black;
 								// Make sure everything is visible
 								tempForm.Refresh();
+								// Make sure the application window is active, so the colors & buttons are right
+								ToForeground();
+								// Make sure all changes are processed and visisble
 								Application.DoEvents();
 								using (Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
 									capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
@@ -898,6 +893,9 @@ namespace GreenshotPlugin.Core  {
 						}
 						// Make sure everything is visible
 						tempForm.Refresh();
+						// Make sure the application window is active, so the colors & buttons are right
+						ToForeground();
+						// Make sure all changes are processed and visisble
 						Application.DoEvents();
 						// Capture from the screen
 						capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);

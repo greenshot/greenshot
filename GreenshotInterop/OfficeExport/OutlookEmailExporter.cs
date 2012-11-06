@@ -375,12 +375,16 @@ namespace Greenshot.Interop.Office {
 							newMail.GetInspector().Activate();
 							LOG.InfoFormat("Managed to display the message.");
 							return;
-						} catch (Exception) {
-							LOG.WarnFormat("Retrying to show email in {0} seconds... Retries left: {1}", retryInXSeconds, retries);
+						} catch (Exception displayEx) {
+							LOG.WarnFormat("Error displaying message: {0}, retrying to show email in {1} seconds... Retries left: {2}", displayEx, retryInXSeconds, retries);
 						}
 					}
 					LOG.WarnFormat("Retry failed, saving message to draft.");
-					newMail.Save();
+					try {
+						newMail.Save();
+					} catch (Exception saveEx) {
+						LOG.WarnFormat("Saving message to draft failed: {0}", saveEx);
+					}
 				});
 				retryDisplayEmail.Name = "Retry to display email";
 				retryDisplayEmail.IsBackground = true;

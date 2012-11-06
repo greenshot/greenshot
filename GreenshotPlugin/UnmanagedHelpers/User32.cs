@@ -264,9 +264,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// User32 Wrappers
 	/// </summary>
 	public class User32 {
-		public const int WM_COMMAND = 0x111;
-		public const int WM_SYSCOMMAND = 0x112;
-			
 		public const int SC_RESTORE = 0xF120;
 		public const int SC_CLOSE = 0xF060;
 		public const int SC_MAXIMIZE = 0xF030;
@@ -409,7 +406,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
 		public static extern bool ChangeClipboardChain(IntPtr hWndRemove, IntPtr hWndNewNext);
-		
+
+		// Added for finding Metro apps		
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
+
 		/// uiFlags: 0 - Count of GDI objects
 		/// uiFlags: 1 - Count of USER objects
 		/// - Win32 GDI objects (pens, brushes, fonts, palettes, regions, device contexts, bitmap headers)
