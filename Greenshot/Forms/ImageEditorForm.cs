@@ -342,6 +342,7 @@ namespace Greenshot {
 				this.Size = new Size(newWidth, newHeight);
 			}
 			dimensionsLabel.Text = this.Surface.Image.Width + "x" + this.Surface.Image.Height;
+			ImageEditorFormResize(source,new EventArgs());
 		}
 
 		private void ReloadConfiguration(object source, FileSystemEventArgs e) {
@@ -1198,6 +1199,21 @@ namespace Greenshot {
 		{
 			surface.ApplyBitmapEffect(Effects.Invert);
 			updateUndoRedoSurfaceDependencies();
+		}
+
+		private void ImageEditorFormResize(object sender, EventArgs e) {
+			if (this.Surface == null) {
+				return;
+			}
+			Size imageSize = this.Surface.Image.Size;
+			Size currentImageClientSize = this.panel1.ClientSize;
+			if (currentImageClientSize.Height > imageSize.Height && currentImageClientSize.Width > imageSize.Width) {
+				var canvas = this.Surface as Control;
+				if (canvas != null) {
+					canvas.Top = (currentImageClientSize.Height - imageSize.Height) / 2;
+					canvas.Left = (currentImageClientSize.Width - imageSize.Width) / 2;
+				}
+			}
 		}
 	}
 }

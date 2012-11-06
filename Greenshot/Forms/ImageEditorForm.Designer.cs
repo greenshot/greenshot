@@ -1585,6 +1585,7 @@ namespace Greenshot {
 			this.Activated += new System.EventHandler(this.ImageEditorFormActivated);
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImageEditorFormFormClosing);
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ImageEditorFormKeyDown);
+			this.Resize += new System.EventHandler(this.ImageEditorFormResize);
 			this.toolStripContainer1.BottomToolStripPanel.ResumeLayout(false);
 			this.toolStripContainer1.BottomToolStripPanel.PerformLayout();
 			this.toolStripContainer1.ContentPanel.ResumeLayout(false);
