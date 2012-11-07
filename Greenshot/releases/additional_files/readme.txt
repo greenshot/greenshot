@@ -6,12 +6,15 @@ CHANGE LOG:
 1.0.7 build xxxx Release
 
 Bugs resolved:
-* Bug #3582807: The window corners weren't cut correctly.
-* Bug #3582692: Picasa-Web uploads didn't have a filename.
-* Bug #3582282: Exporting captures to Powerpoint give errors when a Powerpoint dialog is open, this is fixed by displaying a retry with info.
-* Bug #3582282: Exporting captures to Powerpoint were cropped incorrectly.
-* Bug #3572995: Firefox captures on Windows XP are mainly black
+* Bug #3582807: The window corners on Windows Vista & Windows 7 weren't cut correctly.
+* While fixing #3582807 we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
+* Bug #3582692: Picasa-Web uploads didn't have a filename and the filename was shown as "UNSET" in Picasa-Web.
+* Bug #3582282: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
+* Bug #3582282: Exported captures to Powerpoint were displayed cropped, which needed extra actions to correct.
+* Bug #3572995: On Windows XP Firefox captures are mainly black, this fix does not only work for Firefox.
 
+Features:
+* Editor is now centering the image, the code for this was supplied by Viktar Karpach.
 
 1.0.6 build 2228 Release
 
