@@ -141,6 +141,7 @@ namespace ExternalCommand {
 			this.Controls.Add(this.listView1);
 			this.Controls.Add(this.buttonOk);
 			this.Controls.Add(this.buttonCancel);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.LanguageKey = "externalcommand.settings_title";
 			this.Name = "SettingsForm";
 			this.ResumeLayout(false);

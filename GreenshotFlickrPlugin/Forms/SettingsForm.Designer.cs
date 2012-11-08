@@ -112,7 +112,7 @@ namespace GreenshotFlickrPlugin {
 			this.checkBoxPublic.LanguageKey = "flickr.public";
 			this.checkBoxPublic.Location = new System.Drawing.Point(174, 88);
 			this.checkBoxPublic.Name = "checkBoxPublic";
-			this.checkBoxPublic.PropertyName = "IsPublic";
+			this.checkBoxPublic.PropertyName = "flickrIsPublic";
 			this.checkBoxPublic.SectionName = "Flickr";
 			this.checkBoxPublic.Size = new System.Drawing.Size(55, 17);
 			this.checkBoxPublic.TabIndex = 11;
@@ -125,7 +125,7 @@ namespace GreenshotFlickrPlugin {
 			this.checkBoxFamily.LanguageKey = "flickr.family";
 			this.checkBoxFamily.Location = new System.Drawing.Point(265, 88);
 			this.checkBoxFamily.Name = "checkBoxFamily";
-			this.checkBoxFamily.PropertyName = "IsFamily";
+			this.checkBoxFamily.PropertyName = "flickrIsFamily";
 			this.checkBoxFamily.SectionName = "Flickr";
 			this.checkBoxFamily.Size = new System.Drawing.Size(55, 17);
 			this.checkBoxFamily.TabIndex = 12;
@@ -138,7 +138,7 @@ namespace GreenshotFlickrPlugin {
 			this.checkBoxFriend.LanguageKey = "flickr.friend";
 			this.checkBoxFriend.Location = new System.Drawing.Point(350, 88);
 			this.checkBoxFriend.Name = "checkBoxFriend";
-			this.checkBoxFriend.PropertyName = "IsFriend";
+			this.checkBoxFriend.PropertyName = "flickrIsFriend";
 			this.checkBoxFriend.SectionName = "Flickr";
 			this.checkBoxFriend.Size = new System.Drawing.Size(52, 17);
 			this.checkBoxFriend.TabIndex = 13;

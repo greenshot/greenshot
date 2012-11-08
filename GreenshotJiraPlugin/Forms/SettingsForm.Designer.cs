@@ -128,6 +128,7 @@ namespace GreenshotJiraPlugin {
 			this.Controls.Add(this.textBoxUrl);
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.LanguageKey = "settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;

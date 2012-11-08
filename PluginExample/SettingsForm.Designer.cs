@@ -100,11 +100,12 @@ namespace PluginExample
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(187, 106);
+			this.ClientSize = new System.Drawing.Size(200, 106);
 			this.Controls.Add(this.checkBox2);
 			this.Controls.Add(this.button2);
 			this.Controls.Add(this.button1);
 			this.Controls.Add(this.checkBox1);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.Name = "SettingsForm";
 			this.Text = "Plugin example settings";
 			this.ResumeLayout(false);
