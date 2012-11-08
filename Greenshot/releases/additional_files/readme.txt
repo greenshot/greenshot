@@ -12,6 +12,7 @@ Bugs resolved:
 * Bug #3582282: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
 * Bug #3582282: Exported captures to Powerpoint were displayed cropped, which needed extra actions to correct.
 * Bug #3572995: On Windows XP Firefox captures are mainly black, this fix does not only work for Firefox.
+* Removed unneeded code from the Confluence Plug-in, this makes the Greenshot installer / .zip a bit smaller.
 
 Features:
 * Editor is now centering the image, the code for this was supplied by Viktar Karpach.
