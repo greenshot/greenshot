@@ -159,6 +159,7 @@ namespace GreenshotPlugin.Core  {
 	/// enumeration
 	/// </summary>
 	public class WindowDetails : IEquatable<WindowDetails>{
+		private const string METRO_WINDOWS_CLASS = "Windows.UI.Core.CoreWindow";
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WindowDetails));
 		private static Dictionary<string, List<string>> classnameTree = new Dictionary<string, List<string>>();
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
@@ -181,9 +182,13 @@ namespace GreenshotPlugin.Core  {
 		private WindowDetails parent = null;
 		private bool frozen = false;
 
+		/// <summary>
+		/// Check if this window is the window of a metro app
+		/// </summary>
 		public bool isMetroApp {
-			get;
-			set;
+			get {
+				return METRO_WINDOWS_CLASS.Equals(ClassName);
+			}
 		}
 
 		/// <summary>
@@ -783,14 +788,16 @@ namespace GreenshotPlugin.Core  {
 				Point formLocation;
 				Rectangle windowRectangle = WindowRectangle;
 				Size borderSize = new Size();
-
+				bool doesCaptureFit = false;
 				if (!Maximised) {
 					// Assume using it's own location
 					formLocation = windowRectangle.Location;
 					using (Region workingArea = new Region(Screen.PrimaryScreen.WorkingArea)) {
 						// Find the screen where the window is and check if it fits
 						foreach (Screen screen in Screen.AllScreens) {
-							workingArea.Union(screen.WorkingArea);
+							if (screen != Screen.PrimaryScreen) {
+								workingArea.Union(screen.WorkingArea);
+							}
 						}
 
 						// If the formLocation is not inside the visible area
@@ -800,9 +807,12 @@ namespace GreenshotPlugin.Core  {
 								Rectangle newWindowRectangle = new Rectangle(screen.WorkingArea.Location, windowRectangle.Size);
 								if (workingArea.AreRectangleCornersVisisble(newWindowRectangle)) {
 									formLocation = screen.WorkingArea.Location;
+									doesCaptureFit = true;
 									break;
 								}
 							}
+						} else {
+							doesCaptureFit = true;
 						}
 					}
 				} else {
@@ -825,8 +835,8 @@ namespace GreenshotPlugin.Core  {
 					captureRectangle.Height -= 2 * borderSize.Height;
 				} else if (autoMode) {
 					// check if the capture fits
-					if (!capture.ScreenBounds.Contains(captureRectangle)) {
-						// if GDI is allowed..
+					if (!doesCaptureFit) {
+						// if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
 						if (WindowCapture.isGDIAllowed(Process)) {
 							// we return null which causes the capturing code to try another method.
 							return null;
@@ -1367,13 +1377,12 @@ namespace GreenshotPlugin.Core  {
 		/// <returns>List<WindowDetails> with visible metro apps</returns>
 		public static List<WindowDetails> GetMetroApps() {
 			List<WindowDetails> metroApps = new List<WindowDetails>();
-			IntPtr nextHandle = User32.FindWindow("Windows.UI.Core.CoreWindow", null);
+			IntPtr nextHandle = User32.FindWindow(METRO_WINDOWS_CLASS, null);
 			while (nextHandle != IntPtr.Zero) {
 				WindowDetails metroApp = new WindowDetails(nextHandle);
-				metroApp.isMetroApp = true;
 				metroApps.Add(metroApp);
 				LOG.DebugFormat("Found metro app {0}", metroApp.Text);
-				nextHandle = User32.FindWindowEx( IntPtr.Zero, nextHandle, "Windows.UI.Core.CoreWindow", null);
+				nextHandle = User32.FindWindowEx(IntPtr.Zero, nextHandle, METRO_WINDOWS_CLASS, null);
 			};
 			
 			return metroApps;
