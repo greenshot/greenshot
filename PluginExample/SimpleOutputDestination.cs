@@ -60,11 +60,11 @@ namespace PluginExample {
 			CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 			OutputSettings outputSettings = new OutputSettings();
 
-			string file = host.GetFilename(OutputFormat.png, null);
+			string file = FilenameHelper.GetFilename(OutputFormat.png, null);
 			string filePath = Path.Combine(config.OutputFilePath, file);
 			using (FileStream stream = new FileStream(filePath, FileMode.Create)) {
 				using (Image image = surface.GetImageForExport()) {
-					host.SaveToStream(image, stream, outputSettings);
+					ImageOutput.SaveToStream(image, stream, outputSettings);
 				}
 			}
 			exportInformation.Filepath = filePath;
