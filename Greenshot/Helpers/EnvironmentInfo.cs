@@ -34,7 +34,7 @@ namespace Greenshot.Helpers {
 	/// Description of EnvironmentInfo.
 	/// </summary>
 	public static class EnvironmentInfo {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger("Greenshot");
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EnvironmentInfo));
 		private static bool? isWindows = null;
 
 		public static bool IsWindows {

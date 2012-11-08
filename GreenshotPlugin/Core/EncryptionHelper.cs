@@ -25,7 +25,7 @@ using System.Text;
 
 namespace GreenshotPlugin.Core {
 	public static class EncryptionHelper {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger("EncryptionHelper");
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EncryptionHelper));
 		private const string RGBIV = "dlgjowejgogkklwj";
 		private const string KEY = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 
