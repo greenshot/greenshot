@@ -865,8 +865,10 @@ namespace GreenshotPlugin.Core  {
 								tempForm.BackColor = Color.Black;
 								// Make sure everything is visible
 								tempForm.Refresh();
-								// Make sure the application window is active, so the colors & buttons are right
-								ToForeground();
+								if (!isMetroApp) {
+									// Make sure the application window is active, so the colors & buttons are right
+									ToForeground();
+								}
 								// Make sure all changes are processed and visisble
 								Application.DoEvents();
 								using (Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
@@ -895,8 +897,10 @@ namespace GreenshotPlugin.Core  {
 						}
 						// Make sure everything is visible
 						tempForm.Refresh();
-						// Make sure the application window is active, so the colors & buttons are right
-						ToForeground();
+						if (!isMetroApp) {
+							// Make sure the application window is active, so the colors & buttons are right
+							ToForeground();
+						}
 						// Make sure all changes are processed and visisble
 						Application.DoEvents();
 						// Capture from the screen
