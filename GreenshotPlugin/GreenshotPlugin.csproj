@@ -28,93 +28,35 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLBodyElement.cs">
-      <Link>Interop\IHTMLBodyElement.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLCurrentStyle.cs">
-      <Link>Interop\IHTMLCurrentStyle.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLDocument.cs">
-      <Link>Interop\IHTMLDocument.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLDocument2.cs">
-      <Link>Interop\IHTMLDocument2.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLDocument3.cs">
-      <Link>Interop\IHTMLDocument3.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLDocument4.cs">
-      <Link>Interop\IHTMLDocument4.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLDocument5.cs">
-      <Link>Interop\IHTMLDocument5.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLElement.cs">
-      <Link>Interop\IHTMLElement.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLElement2.cs">
-      <Link>Interop\IHTMLElement2.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLElementCollection.cs">
-      <Link>Interop\IHTMLElementCollection.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLFrameBase.cs">
-      <Link>Interop\IHTMLFrameBase.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLFramesCollection2.cs">
-      <Link>Interop\IHTMLFramesCollection2.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLRect.cs">
-      <Link>Interop\IHTMLRect.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLScreen.cs">
-      <Link>Interop\IHTMLScreen.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLScreen2.cs">
-      <Link>Interop\IHTMLScreen2.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLSelectionObject.cs">
-      <Link>Interop\IHTMLSelectionObject.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLStyle.cs">
-      <Link>Interop\IHTMLStyle.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLTxtRange.cs">
-      <Link>Interop\IHTMLTxtRange.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLWindow2.cs">
-      <Link>Interop\IHTMLWindow2.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLWindow3.cs">
-      <Link>Interop\IHTMLWindow3.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IHTMLWindow4.cs">
-      <Link>Interop\IHTMLWindow4.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\IEInterop\IWebBrowser2.cs">
-      <Link>Interop\IWebBrowser2.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\Interop\Base.cs">
-      <Link>Interop\Base.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\Interop\ComProgIdAttribute.cs">
-      <Link>Interop\ComProgIdAttribute.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\Interop\COMWrapper.cs">
-      <Link>Interop\COMWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\Interop\IDispatch.cs">
-      <Link>Interop\IDispatch.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\Interop\IOleWindow.cs">
-      <Link>Interop\IOleWindow.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\Interop\IOleCommandTarget.cs">
-      <Link>Interop\IOleCommandTarget.cs</Link>
-    </Compile>
-    <Compile Include="..\GreenshotInterop\Interop\IServiceProvider.cs">
-      <Link>Interop\IServiceProvider.cs</Link>
-    </Compile>
+    <Compile Include="IEInterop\IHTMLBodyElement.cs" />
+    <Compile Include="IEInterop\IHTMLCurrentStyle.cs" />
+    <Compile Include="IEInterop\IHTMLDocument.cs" />
+    <Compile Include="IEInterop\IHTMLDocument2.cs" />
+    <Compile Include="IEInterop\IHTMLDocument3.cs" />
+    <Compile Include="IEInterop\IHTMLDocument4.cs" />
+    <Compile Include="IEInterop\IHTMLDocument5.cs" />
+    <Compile Include="IEInterop\IHTMLElement.cs" />
+    <Compile Include="IEInterop\IHTMLElement2.cs" />
+    <Compile Include="IEInterop\IHTMLElementCollection.cs" />
+    <Compile Include="IEInterop\IHTMLFrameBase.cs" />
+    <Compile Include="IEInterop\IHTMLFramesCollection2.cs" />
+    <Compile Include="IEInterop\IHTMLRect.cs" />
+    <Compile Include="IEInterop\IHTMLScreen.cs" />
+    <Compile Include="IEInterop\IHTMLScreen2.cs" />
+    <Compile Include="IEInterop\IHTMLSelectionObject.cs" />
+    <Compile Include="IEInterop\IHTMLStyle.cs" />
+    <Compile Include="IEInterop\IHTMLTxtRange.cs" />
+    <Compile Include="IEInterop\IHTMLWindow2.cs" />
+    <Compile Include="IEInterop\IHTMLWindow3.cs" />
+    <Compile Include="IEInterop\IHTMLWindow4.cs" />
+    <Compile Include="IEInterop\IWebBrowser2.cs" />
+    <Compile Include="Interop\Base.cs" />
+    <Compile Include="Interop\ComProgIdAttribute.cs" />
+    <Compile Include="Interop\COMWrapper.cs" />
+    <Compile Include="Interop\IDispatch.cs" />
+    <Compile Include="Interop\IOleWindow.cs" />
+    <Compile Include="Interop\IOleCommandTarget.cs" />
+    <Compile Include="Interop\IServiceProvider.cs" />
     <Compile Include="Controls\ExtendedWebBrowser.cs">
       <SubType>Component</SubType>
     </Compile>
