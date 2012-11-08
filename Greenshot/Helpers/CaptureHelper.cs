@@ -412,7 +412,9 @@ namespace Greenshot.Helpers {
 			
 			Thread getWindowDetailsThread = new Thread (delegate() {
 				// Start Enumeration of "active" windows
-				foreach (WindowDetails window in WindowDetails.GetAllWindows()) {
+				List<WindowDetails> allWindows = WindowDetails.GetMetroApps();
+				allWindows.AddRange(WindowDetails.GetAllWindows());
+				foreach (WindowDetails window in allWindows) {
 					// Window should be visible and not ourselves
 					if (!window.Visible) {
 						continue;
@@ -456,9 +458,9 @@ namespace Greenshot.Helpers {
 					//	AddCaptureElementsForWindow(windowCaptureElement, window, goLevelDeep);
 					//}
 				}
-				lock (windows) {
-					windows = WindowDetails.SortByZOrder(IntPtr.Zero, windows);
-				}
+//				lock (windows) {
+//					windows = WindowDetails.SortByZOrder(IntPtr.Zero, windows);
+//				}
 			});
 			getWindowDetailsThread.Name = "Retrieve window details";
 			getWindowDetailsThread.IsBackground = true;

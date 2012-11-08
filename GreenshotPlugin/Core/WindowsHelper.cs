@@ -181,6 +181,11 @@ namespace GreenshotPlugin.Core  {
 		private WindowDetails parent = null;
 		private bool frozen = false;
 
+		public bool isMetroApp {
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// The window handle.
 		/// </summary>
@@ -246,6 +251,10 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		public Image DisplayIcon {
 			get {
+				if (isMetroApp) {
+					// No method yet to get the metro icon
+					return null;
+				}
 				try {
 					string filename = ProcessPath;
 					if (!iconCache.ContainsKey(filename)) {
@@ -1320,7 +1329,8 @@ namespace GreenshotPlugin.Core  {
 		public static List<WindowDetails> GetVisibleWindows() {
 			List<WindowDetails> windows = new List<WindowDetails>();
 			Rectangle screenBounds = WindowCapture.GetScreenBounds();
-			List<WindowDetails> allWindows = WindowDetails.GetAllWindows();
+			List<WindowDetails> allWindows = GetMetroApps();
+			allWindows.AddRange(WindowDetails.GetAllWindows());
 			foreach(WindowDetails window in allWindows) {
 				// Ignore windows without title
 				if (window.Text.Length == 0) {
@@ -1347,14 +1357,33 @@ namespace GreenshotPlugin.Core  {
 		}
 
 		/// <summary>
+		/// Get the WindowDetails for all Metro Apps
+		/// These are all Windows with Classname "Windows.UI.Core.CoreWindow"
+		/// </summary>
+		/// <returns>List<WindowDetails> with visible metro apps</returns>
+		public static List<WindowDetails> GetMetroApps() {
+			List<WindowDetails> metroApps = new List<WindowDetails>();
+			IntPtr nextHandle = User32.FindWindow("Windows.UI.Core.CoreWindow", null);
+			while (nextHandle != IntPtr.Zero) {
+				WindowDetails metroApp = new WindowDetails(nextHandle);
+				metroApp.isMetroApp = true;
+				metroApps.Add(metroApp);
+				LOG.DebugFormat("Found metro app {0}", metroApp.Text);
+				nextHandle = User32.FindWindowEx( IntPtr.Zero, nextHandle, "Windows.UI.Core.CoreWindow", null);
+			};
+			
+			return metroApps;
+		}
+
+		/// <summary>
 		/// Get all the top level windows
 		/// </summary>
 		/// <returns>List<WindowDetails> with all the top level windows</returns>
 		public static List<WindowDetails> GetTopLevelWindows() {
 			List<WindowDetails> windows = new List<WindowDetails>();
-			Rectangle screenBounds = WindowCapture.GetScreenBounds();
-			List<WindowDetails> allWindows = WindowDetails.GetAllWindows();
-			foreach (WindowDetails window in allWindows) {
+			var possibleTopLevelWindows = GetMetroApps();
+			possibleTopLevelWindows.AddRange(WindowDetails.GetAllWindows());
+			foreach (WindowDetails window in possibleTopLevelWindows) {
 				// Ignore windows without title
 				if (window.Text.Length == 0) {
 					continue;
