@@ -18,6 +18,8 @@ Bugs resolved:
 
 Features:
 * Editor is now centering the image, the code for this was supplied by Viktar Karpach.
+* Better Windows 8 integration: Capture window from list now has the apps and the interactive window capture is not confused by apps or the app launcher.
+* Added Special-Folder support for the OutputPath/Filenames, now one can use the following values: MyPictures, MyMusic, MyDocuments, Personal, Desktop, ApplicationData, LocalApplicationData. Meaning one can now set the output path to e.g. ${MyPictures}
 
 1.0.6 build 2228 Release
 
