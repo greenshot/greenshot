@@ -47,12 +47,29 @@ namespace Greenshot.IniFile {
 			this.attributes = iniPropertyAttribute;
 		}
 		
+		/// <summary>
+		/// Return true when the value is fixed
+		/// </summary>
+		public bool IsFixed {
+			get {
+				if (attributes != null) {
+					return attributes.FixedValue;
+				}
+				return false;
+			}
+			set {
+				if (attributes != null) {
+					attributes.FixedValue = value;
+				}
+			}
+		}
+
 		public MemberInfo MemberInfo {
 			get {
 				if (propertyInfo == null) {
 					return fieldInfo;
 				} else {
-					return propertyInfo;					
+					return propertyInfo;
 				}
 			}
 		}
@@ -104,7 +121,7 @@ namespace Greenshot.IniFile {
 				if (propertyInfo == null) {
 					valueType = fieldInfo.FieldType;
 				} else {
-					valueType = propertyInfo.PropertyType;					
+					valueType = propertyInfo.PropertyType;
 				}
 				if (valueType.IsGenericType && valueType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
 					// We are dealing with a generic type that is nullable

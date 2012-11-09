@@ -399,7 +399,7 @@ namespace GreenshotPlugin.Controls {
 						CheckBox checkBox = controlObject as CheckBox;
 						if (checkBox != null) {
 							checkBox.Checked = (bool)iniValue.Value;
-							checkBox.Enabled = !iniValue.Attributes.FixedValue;
+							checkBox.Enabled = !iniValue.IsFixed;
 							continue;
 						}
 
@@ -410,12 +410,12 @@ namespace GreenshotPlugin.Controls {
 								string hotkeyValue = (string)iniValue.Value;
 								if (!string.IsNullOrEmpty(hotkeyValue)) {
 									hotkeyControl.SetHotkey(hotkeyValue);
-									hotkeyControl.Enabled = !iniValue.Attributes.FixedValue;
+									hotkeyControl.Enabled = !iniValue.IsFixed;
 								}
 								continue;
 							}
 							textBox.Text = iniValue.ToString();
-							textBox.Enabled = !iniValue.Attributes.FixedValue;
+							textBox.Enabled = !iniValue.IsFixed;
 							continue;
 						} 
 
@@ -423,7 +423,7 @@ namespace GreenshotPlugin.Controls {
 						if (comboxBox != null) {
 							comboxBox.Populate(iniValue.ValueType);
 							comboxBox.SetValue((Enum)iniValue.Value);
-							comboxBox.Enabled = !iniValue.Attributes.FixedValue;
+							comboxBox.Enabled = !iniValue.IsFixed;
 							continue;
 						}
 					}

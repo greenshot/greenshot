@@ -241,7 +241,7 @@ namespace Greenshot.IniFile {
 				if (fixedProperties.TryGetValue(section.IniSectionAttribute.Name, out fixedPropertiesForSection)) {
 					foreach (string fixedPropertyKey in fixedPropertiesForSection.Keys) {
 						if (section.Values.ContainsKey(fixedPropertyKey)) {
-							section.Values[fixedPropertyKey].Attributes.FixedValue = true;
+							section.Values[fixedPropertyKey].IsFixed = true;
 						}
 					}
 				}

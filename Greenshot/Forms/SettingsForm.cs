@@ -281,7 +281,7 @@ namespace Greenshot {
 		private void DisplayDestinations() {
 			bool destinationsEnabled = true;
 			if (coreConfiguration.Values.ContainsKey("Destinations")) {
-				destinationsEnabled = !coreConfiguration.Values["Destinations"].Attributes.FixedValue;
+				destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
 			}
 			checkbox_picker.Checked = false;
 
@@ -335,23 +335,24 @@ namespace Greenshot {
 				combobox_language.SelectedValue = Language.CurrentLanguage;
 			}
 			// Disable editing when the value is fixed
-			combobox_language.Enabled = !coreConfiguration.Values["Language"].Attributes.FixedValue;
+			combobox_language.Enabled = !coreConfiguration.Values["Language"].IsFixed;
 
 			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
 			// Disable editing when the value is fixed
-			textbox_storagelocation.Enabled = !coreConfiguration.Values["OutputFilePath"].Attributes.FixedValue;
+			textbox_storagelocation.Enabled = !coreConfiguration.Values["OutputFilePath"].IsFixed;
 
 			SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
 			// Disable editing when the value is fixed
-			combobox_window_capture_mode.Enabled = !coreConfiguration.Values["WindowCaptureMode"].Attributes.FixedValue;
+			combobox_window_capture_mode.Enabled = !coreConfiguration.Values["WindowCaptureMode"].IsFixed;
 
 			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
+			trackBarJpegQuality.Enabled = !coreConfiguration.Values["OutputFileJpegQuality"].IsFixed;
 			textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality+"%";
 
 			DisplayDestinations();
 
 			numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >=0?coreConfiguration.CaptureDelay:0;
-
+			numericUpDownWaitTime.Enabled = !coreConfiguration.Values["CaptureDelay"].IsFixed;
 			// Autostart checkbox logic.
 			if (StartupHelper.hasRunAll()) {
 				// Remove runUser if we already have a run under all
@@ -365,6 +366,7 @@ namespace Greenshot {
 			}
 			
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
+			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
 			CheckDestinationSettings();
 		}
 
@@ -520,7 +522,7 @@ namespace Greenshot {
 			bool pickerSelected = checkbox_picker.Checked;
 			bool destinationsEnabled = true;
 			if (coreConfiguration.Values.ContainsKey("Destinations")) {
-				destinationsEnabled = !coreConfiguration.Values["Destinations"].Attributes.FixedValue;
+				destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
 			}
 			listview_destinations.Enabled = destinationsEnabled;
 			

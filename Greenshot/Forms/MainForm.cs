@@ -951,7 +951,7 @@ namespace Greenshot {
 			}
 
 			// Only add if the value is not fixed
-			if (!conf.Values["CaptureMousepointer"].Attributes.FixedValue) {
+			if (!conf.Values["CaptureMousepointer"].IsFixed) {
 				// For the capture mousecursor option
 				ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem();
 				captureMouseItem.Text = Language.GetString("settings_capture_mousepointer");
@@ -964,7 +964,7 @@ namespace Greenshot {
 				this.contextmenu_quicksettings.DropDownItems.Add(captureMouseItem);
 			}
 			ToolStripMenuSelectList selectList = null;
-			if (!conf.Values["Destinations"].Attributes.FixedValue) {
+			if (!conf.Values["Destinations"].IsFixed) {
 				// screenshot destination
 				selectList = new ToolStripMenuSelectList("destinations", true);
 				selectList.Text = Language.GetString(LangKey.settings_destination);
@@ -976,7 +976,7 @@ namespace Greenshot {
 				this.contextmenu_quicksettings.DropDownItems.Add(selectList);
 			}
 
-			if (!conf.Values["WindowCaptureMode"].Attributes.FixedValue) {
+			if (!conf.Values["WindowCaptureMode"].IsFixed) {
 				// Capture Modes
 				selectList = new ToolStripMenuSelectList("capturemodes", false);
 				selectList.Text = Language.GetString(LangKey.settings_window_capture_mode);
@@ -996,7 +996,7 @@ namespace Greenshot {
 			foreach(string propertyName in conf.Values.Keys) {
 				if (propertyName.StartsWith("OutputPrint")) {
 					iniValue = conf.Values[propertyName];
-					if (iniValue.Attributes.LanguageKey != null && !iniValue.Attributes.FixedValue) {
+					if (iniValue.Attributes.LanguageKey != null && !iniValue.IsFixed) {
 						selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
 					}
 				}
@@ -1011,11 +1011,11 @@ namespace Greenshot {
 			selectList.Text = Language.GetString(LangKey.settings_visualization);
 
 			iniValue = conf.Values["PlayCameraSound"];
-			if (!iniValue.Attributes.FixedValue) {
+			if (!iniValue.IsFixed) {
 				selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
 			}
 			iniValue = conf.Values["ShowTrayNotification"];
-			if (!iniValue.Attributes.FixedValue) {
+			if (!iniValue.IsFixed) {
 				selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
 			}
 			if (selectList.DropDownItems.Count > 0) {
