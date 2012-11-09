@@ -305,6 +305,27 @@ namespace GreenshotPlugin.Core {
 							replaceValue = MakeFilenameSafe(replaceValue);
 						}
 						break;
+					case "MyPictures":
+						replaceValue = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+						break;
+					case "MyMusic":
+						replaceValue = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+						break;
+					case "MyDocuments":
+						replaceValue = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+						break;
+					case "Personal":
+						replaceValue = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+						break;
+					case "Desktop":
+						replaceValue = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+						break;
+					case "ApplicationData":
+						replaceValue = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+						break;
+					case "LocalApplicationData":
+						replaceValue = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+						break;
 				}
 			}
 			// do padding
