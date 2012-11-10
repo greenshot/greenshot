@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="1.0.2" languagegroup="5">
+<language description="Українська" ietf="uk-UA" version="1.0.4" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
 		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
@@ -151,7 +151,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="error_openlink">Неможливо відкрити посилання „{0}“.</resource>
 		<resource name="error_save">Неможливо зберегти знімок. Будь ласка, знайдіть відповідне місце.</resource>
 		<resource name="expertsettings">Експертні</resource>
-		<resource name="expertsettings_autoreducecolors">Створити 8-бітне зображення, якщо більш ніж 8-бітне зображення має менше 256 кольорів</resource>
+		<resource name="expertsettings_autoreducecolors">Створити 8-бітне зображення, якщо більш ніж 8-бітне має менше 256 кольорів</resource>
 		<resource name="expertsettings_checkunstableupdates">Перевірити наявність нестабільних оновлень</resource>
 		<resource name="expertsettings_clipboardformats">Формати буферу обміну</resource>
 		<resource name="expertsettings_counter">Номер для ${NUM} у шаблон назви файла</resource>
@@ -159,15 +159,12 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="expertsettings_footerpattern">Нижній колонтитул</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Зменшити споживання пам’яті, з погіршенням продуктивності (не рекомендовано).</resource>
 		<resource name="expertsettings_optimizeforrdp">Зробити кілька оптимізацій для використання з віддалених стільниць</resource>
+		<resource name="expertsettings_reuseeditorifpossible">За можливості повторно використовувати редактор</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Заборонити діалог збереження при закритті редактора</resource>
 		<resource name="expertsettings_thumbnailpreview">Показувати вікно ескізів у контекстному меню (для Vista та Windows 7)</resource>
 		<resource name="exported_to">Експортовано: {0}</resource>
+		<resource name="exported_to_error">Відбулась помилка під час експорту до {0}:</resource>
 		<resource name="help_title">Довідка Greenshot</resource>
-		<resource name="hotkey_fullscreen">Захопити екран</resource>
-		<resource name="hotkey_ie">Захопити Internet Explorer</resource>
-		<resource name="hotkey_lastregion">Захоплення останньої області</resource>
-		<resource name="hotkey_region">Захоплення області</resource>
-		<resource name="hotkey_window">Захоплення вікна</resource>
 		<resource name="hotkeys">Гарячі клавіши</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Будь ласка, виберіть JPEG-якість зображення.</resource>
 		<resource name="OK">Гаразд</resource>
@@ -228,6 +225,10 @@ ${hostname} назва комп’ютера
 		<resource name="settings_output">Виведення</resource>
 		<resource name="settings_playsound">Відтворити звук камери</resource>
 		<resource name="settings_plugins">Плагіни</resource>
+		<resource name="settings_plugins_createdby">Створений</resource>
+		<resource name="settings_plugins_dllpath">Шлях до DLL</resource>
+		<resource name="settings_plugins_name">Назва</resource>
+		<resource name="settings_plugins_version">Версія</resource>
 		<resource name="settings_preferredfilesettings">Параметри кінцевого файла</resource>
 		<resource name="settings_primaryimageformat">Формат зображення</resource>
 		<resource name="settings_printer">Принтер</resource>

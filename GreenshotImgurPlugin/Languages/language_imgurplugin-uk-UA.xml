@@ -13,6 +13,7 @@
 	<resource name="delete_question">Чи дійсно Ви хочете видалити зображення {0} з Imgur?</resource>
 	<resource name="clear_question">Чи дійсно Ви хочете видалити локальну історію Imgur?</resource>
 	<resource name="delete_title">Видалити Imgur {0}</resource>
+	<resource name="anonymous_access">Використовувати анонімний доступ</resource>
 	<resource name="use_page_link">Використовувати посилання на сторінку замість посилання на зображення</resource>
 	<resource name="history">Історія</resource>
 	<resource name="configure">Налаштувати</resource>

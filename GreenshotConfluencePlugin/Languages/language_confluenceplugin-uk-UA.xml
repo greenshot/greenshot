@@ -25,5 +25,6 @@
   <resource name="search">Пошук</resource>
   <resource name="loading">Завантаження даних Confluence, будь ласка, зачекайте...</resource>
   <resource name="include_person_spaces">Включити особистий простір у пошук та перегляд</resource>
+   <resource name="communication_wait">Передача даних на Confluence, будь ласка, зачекайте...</resource>
  </resources>
 </language>
