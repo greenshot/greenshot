@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Italiano" ietf="it-IT" version="1.0.0">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">
+		 Collegamento agli appunti
+		</resource>
+		<resource name="label_AfterUpload">
+		Dopo il carico
+		</resource>
+		<resource name="Configure">
+			Configurazione di Box
+		</resource>
+		<resource name="upload_menu_item">
+		Carica su Box
+	</resource>
+	<resource name="settings_title">
+		Impostazioni di Box
+	</resource>
+		<resource name="upload_success">
+		Immagine caricata correttamente su Box!
+	</resource>
+		<resource name="upload_failure">
+		Si è verificato un errore durante il caricamento su Box:
+	</resource>
+		<resource name="label_upload_format">
+			Formato immagine
+	</resource>
+		<resource name="communication_wait">
+			Comunicazione con Box. Attendere prego...
+	</resource>
+	</resources>
+</language>

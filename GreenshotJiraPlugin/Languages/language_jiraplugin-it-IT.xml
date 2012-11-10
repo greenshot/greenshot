@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="0.8.1">
+<language description="Italiano" ietf="it-IT" version="1.0.0">
   <resources>
 	<resource name="upload_menu_item">
 		Carica su Jira

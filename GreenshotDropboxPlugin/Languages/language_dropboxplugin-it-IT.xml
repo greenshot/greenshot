@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Italiano" ietf="it-IT" version="1.0.0">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">
+		 Collegamento agli appunti
+		</resource>
+		<resource name="label_AfterUploadOpenHistory">
+		 Apri cronologia
+		</resource>
+		<resource name="label_AfterUpload">
+		Dopo il carico
+		</resource>
+		<resource name="Configure">
+			Configurazione di Dropbox
+		</resource>
+		<resource name="upload_menu_item">
+		Carica su Dropbox
+	</resource>
+	<resource name="settings_title">
+		Impostazioni di Dropbox
+	</resource>
+		<resource name="upload_success">
+		Immagine caricata correttamente su Dropbox!
+	</resource>
+		<resource name="upload_failure">
+		Si è verificato un errore durante il caricamento su Dropbox:
+	</resource>
+		<resource name="label_upload_format">
+			Formato immagine
+	</resource>
+		<resource name="communication_wait">
+			Comunicazione con Dropbox. Attendere prego...
+	</resource>
+  </resources>
+</language>

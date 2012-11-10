@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="0.8.1" languagegroup="1">
+<language description="Italiano" ietf="it-IT" version="1.0.4" languagegroup="1">
   <resources>
   	<resource name="about_bugs">Per favore, riporta le anomalie a</resource>
 	<resource name="about_donations">Se gradisci Greenshot, puoi darci il tuo aiuto su:</resource>
@@ -41,9 +41,16 @@ Inoltre, apprezzeremo molto se prima di inserire, tu controllassi se esiste già
 	<resource name="contextmenu_capturearea">Cattura regione</resource>
 	<resource name="contextmenu_captureclipboard">Apri immagine dagli appunti</resource>
 	<resource name="contextmenu_capturefullscreen">Cattura schermo intero</resource>
+	<resource name="contextmenu_capturefullscreen_all">Tutto</resource>
+	<resource name="contextmenu_capturefullscreen_bottom">Basso</resource>
+	<resource name="contextmenu_capturefullscreen_left">Sinistra</resource>
+	<resource name="contextmenu_capturefullscreen_right">Destra</resource>
+	<resource name="contextmenu_capturefullscreen_top">Alto</resource>
 	<resource name="contextmenu_captureie">Cattura Internet Explorer</resource>
+	<resource name="contextmenu_captureiefromlist">Cattura Internet Explorer da lista</resource>
 	<resource name="contextmenu_capturelastregion">Cattura ultima regione</resource>
 	<resource name="contextmenu_capturewindow">Cattura finestra</resource>
+	<resource name="contextmenu_capturewindowfromlist">Cattura finestra da lista</resource>
 	<resource name="contextmenu_donate">Supporta Greenshot</resource>
 	<resource name="contextmenu_exit">Esci</resource>
 	<resource name="contextmenu_help">Aiuto</resource>
@@ -51,6 +58,7 @@ Inoltre, apprezzeremo molto se prima di inserire, tu controllassi se esiste già
 	<resource name="contextmenu_openrecentcapture">Apri ultima ubicazione di cattura</resource>
 	<resource name="contextmenu_quicksettings">Preferenze veloci</resource>
 	<resource name="contextmenu_settings">Preferenze...</resource>
+	<resource name="destination_exportfailed">Errori durente l'esportazione verso {0}. Pregasi riprovare nuovamente.</resource>
 	<resource name="editor_arrange">Disponi</resource>
 	<resource name="editor_arrowheads">Tipi di punta di freccia</resource>
 	<resource name="editor_arrowheads_both">Entrambe</resource>
@@ -98,6 +106,7 @@ Inoltre, apprezzeremo molto se prima di inserire, tu controllassi se esiste già
 	<resource name="editor_highlight_magnify">Ingrandisci</resource>
 	<resource name="editor_highlight_mode">Modalità evidenziazione</resource>
 	<resource name="editor_highlight_text">Evidenzia il testo</resource>
+	<resource name="editor_image_shadow">Aggiungi ombra</resource>
 	<resource name="editor_imagesaved">Immagine salvata su {0}.</resource>
 	<resource name="editor_insertwindow">Inserisci finestra</resource>
 	<resource name="editor_invert">Negativo</resource>
@@ -152,9 +161,11 @@ Verifica l'accesso in scrittura sulla destinazione di salvataggio.</resource>
 	<resource name="expertsettings_footerpattern">Modello piede di stampa</resource>
 	<resource name="expertsettings_minimizememoryfootprint">Riduci uso della memoria, perdendo però in prestazioni (sconsigliato).</resource>
 	<resource name="expertsettings_optimizeforrdp">Esegui ottimizzazioni per uso con desktop remoto</resource>
+	<resource name="expertsettings_reuseeditorifpossible">Riutilizza la Gestione Immagini, se possibile</resource>
 	<resource name="expertsettings_suppresssavedialogatclose">Evita avviso di salvataggio in chiusura della gestione immagini</resource>
 	<resource name="expertsettings_thumbnailpreview">Mostra anteprima finestra nel menù di contesto (Vista e Windows 7)</resource>
 	<resource name="exported_to">Esportato su: {0}</resource>
+	<resource name="exported_to_error">Si è verificato un errore durante l'esportazione verso {0}:</resource>	
 	<resource name="help_title">Guida di Greenshot</resource>
 	<resource name="hotkeys">Scorciatoie di tastiera</resource>
 	<resource name="jpegqualitydialog_choosejpegquality">Scegliere la qualità per l'immagine JPEG.</resource>
@@ -171,9 +182,11 @@ Verifica l'accesso in scrittura sulla destinazione di salvataggio.</resource>
 	<resource name="printoptions_printgrayscale">Forza stampa in scala di grigi</resource>
 	<resource name="printoptions_timestamp">Stampa data / ora sul piede della pagina</resource>
 	<resource name="printoptions_title">Opzioni di stampa di Greenshot</resource>
+	<resource name="qualitydialog_dontaskagain">Save come qualità di default, e non chiedere più</resource>
+	<resource name="qualitydialog_title">Qualità di Greenshot</resource>
 	<resource name="quicksettings_destination_file">Salva direttamente (usando le impostazioni di emissione preferite)</resource>
-	<resource name="settings_alwaysshowjpegqualitydialog">Visualizza scelta qualità ogni volta che si salva una immagine JPEG</resource>
 	<resource name="settings_alwaysshowprintoptionsdialog">Visualizza scelta opzioni di stampa ogni volta che si stampa un'immagine</resource>
+	<resource name="settings_alwaysshowqualitydialog">Visualizza scelta qualità ogni volta che si salva una immagine</resource>	
 	<resource name="settings_applicationsettings">Impostazioni dell'applicazione</resource>
 	<resource name="settings_autostartshortcut">Lancia Greenshot all'avvio</resource>
 	<resource name="settings_capture">Cattura</resource>
@@ -218,10 +231,15 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)</resource
 	<resource name="settings_output">Emissione</resource>
 	<resource name="settings_playsound">Emetti suono fotocamera</resource>
 	<resource name="settings_plugins">Componenti Aggiuntivi</resource>
+	<resource name="settings_plugins_createdby">Creato da</resource>
+	<resource name="settings_plugins_dllpath">Percorso DLL</resource>
+	<resource name="settings_plugins_name">Nome</resource>
+	<resource name="settings_plugins_version">Versione</resource>
 	<resource name="settings_preferredfilesettings">Impostazioni Preferite per l'Emissione File</resource>
 	<resource name="settings_primaryimageformat">Formato immagine</resource>
 	<resource name="settings_printer">Stampante</resource>
 	<resource name="settings_printoptions">Opzioni di stampa</resource>
+	<resource name="settings_qualitysettings">Impostazioni Qualità</resource>
 	<resource name="settings_reducecolors">Riduci i colori a un massimo di 256</resource>
 	<resource name="settings_registerhotkeys">Registra scorciatoie di tastiera</resource>
 	<resource name="settings_showflashlight">Mostra torcia elettrica</resource>
@@ -243,6 +261,7 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)</resource
 	<resource name="wait_ie_capture">Attendere prego, finchè la pagina di Internet Explorer viene catturata...</resource>
 	<resource name="warning">Attenzione</resource>
 	<resource name="warning_hotkeys">La registrazione della/e scorciatoie di tastiera "{0}" non è andata a buon fine. Questo problema è causato probabilmente da un altro software che richiede l'uso delle stesse scorciatoie di tastiera. E' possibile però variare le impostazioni delle scorciatoie, oppure disattivare il software.
+
 
 In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono comunque disponibili dal menù visualizzabile con tasto destro del mouse sull'icona G nella barra.</resource>
 	<resource name="WindowCaptureMode.Aero">Usa colori personalizzati</resource>
