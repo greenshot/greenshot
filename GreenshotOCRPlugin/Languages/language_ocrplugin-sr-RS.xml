@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Српски" ietf="sr-RS" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="language">Језик за препознавање знакова</resource>
+		<resource name="orient_image">Усмери слику</resource>
+		<resource name="straighten_image">Исправи слику</resource>
+	</resources>
+</language>

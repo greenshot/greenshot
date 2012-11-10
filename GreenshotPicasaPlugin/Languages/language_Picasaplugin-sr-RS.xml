@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Српски" ietf="sr-RS" version="1.0.5" languagegroup="">
+	<resources>
+		<resource name="communication_wait">Комуницирам с Пикасом. Сачекајте…</resource>
+		<resource name="Configure">Поставке Пикасе</resource>
+		<resource name="label_AfterUpload">Након отпремања:</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Веза ка остави</resource>
+		<resource name="label_upload_format">Формат слике:</resource>
+		<resource name="settings_title">Поставке Пикасе</resource>
+		<resource name="upload_failure">Дошло је до грешке при отпремању на Пикасу:</resource>
+		<resource name="upload_menu_item">Отпреми на Пикасу</resource>
+		<resource name="upload_success">Слика је успешно отпремљена на Пикасу.</resource>
+	</resources>
+</language>

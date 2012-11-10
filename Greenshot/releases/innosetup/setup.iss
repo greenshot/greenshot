@@ -151,12 +151,14 @@ Name: {group}\Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
 Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
+Name: cn; MessagesFile: compiler:Languages\ChineseSimplified.isl
 Name: de; MessagesFile: compiler:Languages\German.isl
 Name: es; MessagesFile: compiler:Languages\Spanish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: nn; MessagesFile: compiler:Languages\NorwegianNynorsk.isl
-Name: cn; MessagesFile: compiler:Languages\ChineseSimplified.isl
+Name: sr; MessagesFile: compiler:Languages\SerbianCyrillic.isl
+
 [Tasks]
 Name: startup; Description: {cm:startup}
 
@@ -223,7 +225,7 @@ nl.startup=Start {#ExeName} wanneer Windows opstart
 
 nn.confluence=Confluence-tillegg
 nn.default=Default installation 
-nl.office=Microsoft Office Tillegg
+nn.office=Microsoft Office Tillegg
 nn.externalcommand=Tillegg for å opne med ekstern kommando
 nn.imgur=Imgur-tillegg (sjå http://imgur.com)
 nn.jira=Jira-tillegg
@@ -232,6 +234,17 @@ nn.ocr=OCR-tillegg (krev Microsoft Office Document Imaging (MODI))
 nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
+
+sr.confluence=Прикључак за Конфлуенс
+sr.default=${default}
+sr.externalcommand=Отвори са прикључком за спољне наредбе
+sr.imgur=Прикључак за Имиџер (http://imgur.com)
+sr.jira=Прикључак за Џиру
+sr.language=Додатни језици
+sr.ocr=OCR прикључак (захтева Microsoft Office Document Imaging (MODI))
+sr.optimize=Оптимизујем перформансе…
+sr.startgreenshot=Покрени Гриншот
+sr.startup=Покрени програм са системом
 
 cn.confluence=Confluence插件
 cn.default=${default}

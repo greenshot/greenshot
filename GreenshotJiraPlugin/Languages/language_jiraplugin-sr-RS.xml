@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Српски" ietf="sr-RS" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="CANCEL">Откажи</resource>
+		<resource name="column_assignee">Представник</resource>
+		<resource name="column_created">Направљено</resource>
+		<resource name="column_id">ИД</resource>
+		<resource name="column_reporter">Кореспондент</resource>
+		<resource name="column_summary">Резиме</resource>
+		<resource name="communication_wait">Преносим податке на Џиру…</resource>
+		<resource name="label_comment">Коментар</resource>
+		<resource name="label_filename">Назив датотеке</resource>
+		<resource name="label_jira">Џира</resource>
+		<resource name="label_jirafilter">Филтер Џире</resource>
+		<resource name="label_upload_format">Формат слике:</resource>
+		<resource name="label_url">Адреса:</resource>
+		<resource name="login_error">Дошло је до грешке при пријављивању: {0}</resource>
+		<resource name="login_title">Унесите податке за пријављивање на Џиру</resource>
+		<resource name="OK">У реду</resource>
+		<resource name="settings_title">Поставке Џире</resource>
+		<resource name="upload_failure">Дошло је до грешке при отпремању на Џиру:</resource>
+		<resource name="upload_menu_item">Отпреми на Џиру</resource>
+		<resource name="upload_success">Слика је успешно постављена на Џиру.</resource>
+	</resources>
+</language>

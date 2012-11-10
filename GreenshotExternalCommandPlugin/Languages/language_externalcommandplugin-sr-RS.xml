@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Српски" ietf="sr-RS" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="contextmenu_configure">Подеси спољне наредбе</resource>
+		<resource name="label_argument">Аргумент:</resource>
+		<resource name="label_command">Наредба:</resource>
+		<resource name="label_information">{0} је назив снимка екрана.</resource>
+		<resource name="label_name">Назив:</resource>
+		<resource name="settings_delete">Обриши</resource>
+		<resource name="settings_detail_title">Подешавање наредби</resource>
+		<resource name="settings_edit">Уреди</resource>
+		<resource name="settings_new">Ново</resource>
+		<resource name="settings_title">Поставке спољних наредби</resource>
+	</resources>
+</language>

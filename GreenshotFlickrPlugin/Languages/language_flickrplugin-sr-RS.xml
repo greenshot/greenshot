@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Српски" ietf="sr-RS" version="1.0.5" languagegroup="">
+	<resources>
+		<resource name="communication_wait">Комуницирам с Фликром. Сачекајте…</resource>
+		<resource name="Configure">Поставке Фликра</resource>
+		<resource name="family">Породица</resource>
+		<resource name="friend">Пријатељи</resource>
+		<resource name="label_AfterUpload">Након отпремања:</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Веза ка остави</resource>
+		<resource name="label_HiddenFromSearch">Претражи скривене обрасце</resource>
+		<resource name="label_SafetyLevel">Ниво безбедности:</resource>
+		<resource name="label_upload_format">Формат слике:</resource>
+		<resource name="public">Јавно</resource>
+		<resource name="settings_title">Поставке Фликра</resource>
+		<resource name="upload_failure">Дошло је до грешке при отпремању на Фликр:</resource>
+		<resource name="upload_menu_item">Отпреми на Фликр</resource>
+		<resource name="upload_success">Слика је успешно отпремљена на Фликр.</resource>
+	</resources>
+</language>
