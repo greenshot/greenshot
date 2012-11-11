@@ -30,6 +30,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.IniFile;
+using Greenshot.Interop;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 
@@ -160,6 +161,7 @@ namespace GreenshotPlugin.Core  {
 	/// </summary>
 	public class WindowDetails : IEquatable<WindowDetails>{
 		private const string METRO_WINDOWS_CLASS = "Windows.UI.Core.CoreWindow";
+		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WindowDetails));
 		private static Dictionary<string, List<string>> classnameTree = new Dictionary<string, List<string>>();
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
@@ -182,12 +184,25 @@ namespace GreenshotPlugin.Core  {
 		private WindowDetails parent = null;
 		private bool frozen = false;
 
+
+		public bool isApp {
+			get {
+				return METRO_WINDOWS_CLASS.Equals(ClassName);
+			}
+		}
+		
+		public bool isAppLauncher {
+			get {
+				return METRO_APPLAUNCHER_CLASS.Equals(ClassName);
+			}
+		}
+
 		/// <summary>
 		/// Check if this window is the window of a metro app
 		/// </summary>
 		public bool isMetroApp {
 			get {
-				return METRO_WINDOWS_CLASS.Equals(ClassName);
+				return isAppLauncher || isApp;
 			}
 		}
 
@@ -555,6 +570,9 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		public bool Iconic {
 			get {
+				if (isMetroApp) {
+					return !Visible;
+				}
 				return User32.IsIconic(this.hWnd) || Location.X <= -32000;
 			}
 			set {
@@ -579,6 +597,22 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		public bool Visible {
 			get {
+				if (isApp) {
+	//				IAppVisibility appVisibility = COMWrapper.CreateInstance<IAppVisibility>();
+	//				if (appVisibility != null) {
+	//					IntPtr monitor = User32.MonitorFromWindow(Handle, User32.MONITOR_DEFAULTTONULL);
+	//					if (monitor != IntPtr.Zero) {
+	//						LOG.DebugFormat("Monitor = {0}", monitor);
+	//						MONITOR_APP_VISIBILITY monitorAppVisibility = appVisibility.GetAppVisibilityOnMonitor(monitor);
+	//						LOG.DebugFormat("App visible: {0}", monitorAppVisibility);
+	//						return monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE;
+	//					}
+	//				}
+					
+				}
+				if (isAppLauncher) {
+					return IsAppLauncherVisible;
+				}
 				return User32.IsWindowVisible(this.hWnd);
 			}
 		}
@@ -837,7 +871,7 @@ namespace GreenshotPlugin.Core  {
 					// check if the capture fits
 					if (!doesCaptureFit) {
 						// if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
-						if (WindowCapture.isGDIAllowed(Process)) {
+						if (!isMetroApp && WindowCapture.isGDIAllowed(Process)) {
 							// we return null which causes the capturing code to try another method.
 							return null;
 						}
@@ -1286,7 +1320,9 @@ namespace GreenshotPlugin.Core  {
 		public bool IsGreenshot {
 			get {
 				try {
-					return "Greenshot".Equals(Process.MainModule.FileVersionInfo.ProductName);
+					if (!isMetroApp) {
+						return "Greenshot".Equals(Process.MainModule.FileVersionInfo.ProductName);
+					}
 				} catch (Exception ex) {
 					LOG.Warn(ex);
 				}
@@ -1514,6 +1550,35 @@ namespace GreenshotPlugin.Core  {
 				if (!oldWindows.Contains(window)) {
 					window.ToForeground();
 				}
+			}
+		}
+		
+		/// <summary>
+		/// Get the AppLauncher
+		/// </summary>
+		/// <returns></returns>
+		public static WindowDetails GetAppLauncher() {
+			IntPtr appLauncher = User32.FindWindow("ImmersiveLauncher", null);
+			if (appLauncher != IntPtr.Zero) {
+				return new WindowDetails (appLauncher);
+			}
+			return null;
+		}
+		
+		/// <summary>
+		/// Return true if the metro-app-launcher is visible
+		/// </summary>
+		/// <returns></returns>
+		public static bool IsAppLauncherVisible {
+			get {
+				try {
+					IAppVisibility appVisibility = COMWrapper.CreateInstance<IAppVisibility>();
+					if (appVisibility != null) {
+						return appVisibility.IsLauncherVisible;
+					}
+				} catch {}
+				return false;
+				
 			}
 		}
 	}

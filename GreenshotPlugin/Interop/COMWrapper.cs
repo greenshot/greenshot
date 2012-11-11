@@ -57,6 +57,9 @@ namespace Greenshot.Interop {
 		#endregion
 		[DllImport("ole32.dll")]
 		static extern int ProgIDFromCLSID([In] ref Guid clsid, [MarshalAs(UnmanagedType.LPWStr)] out string lplpszProgID);
+		// Converts failure HRESULTs to exceptions:
+		[DllImport("oleaut32", PreserveSig=false)]
+		static extern void GetActiveObject(ref Guid rclsid, IntPtr pvReserved, [MarshalAs(UnmanagedType.IUnknown)] out Object ppunk);
 
 		#region Construction
 
@@ -81,35 +84,102 @@ namespace Greenshot.Interop {
 			}
 			string progId = progIDAttribute.Value;
 
+			object comObject = null;
+
 			// Convert from clsid to Prog ID, if needed
 			if (progId.StartsWith("clsid:")) {
 				Guid guid = new Guid(progId.Substring(6));
 				int result = ProgIDFromCLSID(ref guid, out progId);
 				if (result != 0) {
-					LOG.WarnFormat("Error {0} getting progId {1}", result, progIDAttribute.Value);
+					// Restore progId, as it's overwritten
+					progId = progIDAttribute.Value;
+
+					try {
+						GetActiveObject(ref guid, IntPtr.Zero, out comObject);
+					} catch (Exception) {
+						LOG.WarnFormat("Error {0} getting instance for class id {1}", result, progIDAttribute.Value);
+					}
+					if (comObject == null) {
+						LOG.WarnFormat("Error {0} getting progId {1}", result, progIDAttribute.Value);
+					}
 				} else {
 					LOG.InfoFormat("Mapped {0} to progId {1}", progIDAttribute.Value, progId);
 				}
 			}
 
-			object comObject = null;
-			try {
-				comObject = Marshal.GetActiveObject(progId);
-			} catch (COMException comE) {
-				if (comE.ErrorCode == MK_E_UNAVAILABLE) {
-					LOG.DebugFormat("No current instance of {0} object available.", progId);
-				} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
-					LOG.WarnFormat("Unknown progId {0}", progId);
-				} else {
-					LOG.Warn("Error getting active object for " + progId, comE);
+			if (comObject == null) {
+				try {
+					comObject = Marshal.GetActiveObject(progId);
+				} catch (COMException comE) {
+					if (comE.ErrorCode == MK_E_UNAVAILABLE) {
+						LOG.DebugFormat("No current instance of {0} object available.", progId);
+					} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
+						LOG.WarnFormat("Unknown progId {0}", progId);
+					} else {
+						LOG.Warn("Error getting active object for " + progIDAttribute.Value, comE);
+					}
+				} catch (Exception e) {
+					LOG.Warn("Error getting active object for " + progIDAttribute.Value, e);
 				}
-			} catch (Exception e) {
-				LOG.Warn("Error getting active object for " + progId, e);
 			}
 
 			if (comObject != null) {
-				COMWrapper wrapper = new COMWrapper(comObject, type);
-				return (T)wrapper.GetTransparentProxy();
+				if (comObject is IDispatch) {
+					COMWrapper wrapper = new COMWrapper(comObject, type);
+					return (T)wrapper.GetTransparentProxy();
+				} else {
+					return (T)comObject;
+				}
+			}
+			return default(T);
+		}
+		
+		/// <summary>
+		/// A simple create instance, doesn't create a wrapper!!
+		/// </summary>
+		/// <returns>T</returns>
+		public static T CreateInstance<T>() {
+			Type type = typeof(T);
+			if (null == type) {
+				throw new ArgumentNullException("type");
+			}
+			if (!type.IsInterface) {
+				throw new ArgumentException("The specified type must be an interface.", "type");
+			}
+
+			ComProgIdAttribute progIDAttribute = ComProgIdAttribute.GetAttribute(type);
+			if (null == progIDAttribute || null == progIDAttribute.Value || 0 == progIDAttribute.Value.Length) {
+				throw new ArgumentException("The specified type must define a ComProgId attribute.", "type");
+			}
+			string progId = progIDAttribute.Value;
+			Type comType = null;
+			if (progId.StartsWith("clsid:")) {
+				Guid guid = new Guid(progId.Substring(6));
+				try {
+					comType = Type.GetTypeFromCLSID(guid);
+				} catch (Exception ex) {
+					LOG.Warn("Error type for " + progId, ex);
+				}
+			} else {
+				try {
+					comType = Type.GetTypeFromProgID(progId, true);
+				} catch (Exception ex) {
+					LOG.Warn("Error type for " + progId, ex);
+				}
+			}
+			object comObject = null;
+			if (comType != null) {
+				try {
+					comObject = Activator.CreateInstance(comType);
+					if (comObject != null) {
+						LOG.DebugFormat("Created new instance of {0} object.", progId);
+					}
+				} catch (Exception e) {
+					LOG.Warn("Error creating object for " + progId, e);
+				}
+			}
+			if (comObject != null) {
+				return (T)comObject;
 			}
 			return default(T);
 		}
@@ -138,39 +208,59 @@ namespace Greenshot.Interop {
 			object comObject = null;
 			Type comType = null;
 			string progId = progIDAttribute.Value;
+			Guid guid = Guid.Empty;
 
 			// Convert from clsid to Prog ID, if needed
 			if (progId.StartsWith("clsid:")) {
-				Guid guid = new Guid(progId.Substring(6));
+				guid = new Guid(progId.Substring(6));
 				int result = ProgIDFromCLSID(ref guid, out progId);
 				if (result != 0) {
-					LOG.WarnFormat("Error {0} getting progId {1}", result, progIDAttribute.Value);
+					// Restore progId, as it's overwritten
+					progId = progIDAttribute.Value;
+					try {
+						GetActiveObject(ref guid, IntPtr.Zero, out comObject);
+					} catch (Exception) {
+						LOG.WarnFormat("Error {0} getting instance for class id {1}", result, progIDAttribute.Value);
+					}
+					if (comObject == null) {
+						LOG.WarnFormat("Error {0} getting progId {1}", result, progIDAttribute.Value);
+					}
 				} else {
 					LOG.InfoFormat("Mapped {0} to progId {1}", progIDAttribute.Value, progId);
 				}
 			}
 
-			try {
-				comObject = Marshal.GetActiveObject(progId);
-			} catch (COMException comE) {
-				if (comE.ErrorCode == MK_E_UNAVAILABLE) {
-					LOG.DebugFormat("No current instance of {0} object available.", progId);
-				} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
-					LOG.WarnFormat("Unknown progId {0} (application not installed)", progId);
-					return default(T);
-				} else {
-					LOG.Warn("Error getting active object for " + progId, comE);
+			if (comObject == null) {
+				if (!progId.StartsWith("clsid:")) {
+					try {
+						comObject = Marshal.GetActiveObject(progId);
+					} catch (COMException comE) {
+						if (comE.ErrorCode == MK_E_UNAVAILABLE) {
+							LOG.DebugFormat("No current instance of {0} object available.", progId);
+						} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
+							LOG.WarnFormat("Unknown progId {0} (application not installed)", progId);
+							return default(T);
+						} else {
+							LOG.Warn("Error getting active object for " + progId, comE);
+						}
+					} catch (Exception e) {
+						LOG.Warn("Error getting active object for " + progId, e);
+					}
 				}
-			} catch (Exception e) {
-				LOG.Warn("Error getting active object for " + progId, e);
 			}
+
 			// Did we get the current instance? If not, try to create a new
 			if (comObject == null) {
 				try {
 					comType = Type.GetTypeFromProgID(progId, true);
 				} catch (Exception ex) {
-					LOG.Warn("Error type for " + progId, ex);
+					if (Guid.Empty != guid) {
+						comType = Type.GetTypeFromCLSID(guid);
+					} else {
+						LOG.Warn("Error type for " + progId, ex);
+					}
 				}
+				
 				if (comType != null) {
 					try {
 						comObject = Activator.CreateInstance(comType);
@@ -183,8 +273,12 @@ namespace Greenshot.Interop {
 				}
 			}
 			if (comObject != null) {
-				COMWrapper wrapper = new COMWrapper(comObject, type);
-				return (T)wrapper.GetTransparentProxy();
+				if (comObject is IDispatch) {
+					COMWrapper wrapper = new COMWrapper(comObject, type);
+					return (T)wrapper.GetTransparentProxy();
+				} else {
+					return (T)comObject;
+				}
 			}
 			return default(T);
 		}

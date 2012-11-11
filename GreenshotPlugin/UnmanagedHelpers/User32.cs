@@ -271,6 +271,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 		public const int PW_DEFAULT = 0x00;
 		public const int PW_CLIENTONLY = 0x01;
+		
+		// For MonitorFromWindow
+		public const int MONITOR_DEFAULTTONULL = 0;
+		public const int MONITOR_DEFAULTTOPRIMARY = 1;
+		public const int MONITOR_DEFAULTTONEAREST = 2;
 
 		/// <summary>
 		/// Stop flashing. The system restores the window to its original state.
@@ -347,10 +352,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool SendMessage(IntPtr hWnd, uint msg, int wParam, int lParam);
 		[DllImport("user32", SetLastError=true)]
 		public extern static uint GetWindowLong(IntPtr hwnd, int index);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int SetWindowLong(IntPtr hWnd, int index, uint styleFlags);
 		[DllImport("user32", EntryPoint="GetWindowLongPtr", SetLastError=true)]
 		public extern static uint GetWindowLongPtr(IntPtr hwnd, int nIndex);
+		[DllImport("user32", SetLastError = true)]
+		public static extern int SetWindowLong(IntPtr hWnd, int index, uint styleFlags);
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr MonitorFromRect([In] ref RECT lprc, uint dwFlags);
 
 		/// <summary>
 		/// Wrapper for the GetWindowLong which decides if the system is 64-bit or not and calls the right one.
