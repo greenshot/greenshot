@@ -14,6 +14,7 @@ Bugs resolved:
 * Bug #3572995: On Windows XP Firefox captures are mainly black, this fix does not only work for Firefox.
 * Bug #3585393: resize issues with some the plugin configuration dialogs.
 * Not reported: Flickr configuration for the Family, Friend & Public wasn't stored.
+* Not reported: If Greenshot is linked in a Windows startup folder, the "Start with startup" checkbox wasn't checked.
 * Removed unneeded code from the Confluence Plug-in, this makes the Greenshot installer / .zip a bit smaller.
 
 Features:

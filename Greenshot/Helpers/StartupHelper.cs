@@ -217,17 +217,18 @@ namespace Greenshot.Helpers {
 		/// <returns></returns>
 		public static bool IsInStartupFolder() {
 			try {
+				string lnkName = Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".lnk";
 				string startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
 				if (Directory.Exists(startupPath)) {
 					LOG.DebugFormat("Startup path: {0}", startupPath);
-					if (File.Exists(Path.Combine(startupPath, Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".lnk"))) {
+					if (File.Exists(Path.Combine(startupPath, lnkName))) {
 						return true;
 					}
 				}
 				string startupAll = Environment.GetEnvironmentVariable("ALLUSERSPROFILE") + @"\Microsoft\Windows\Start Menu\Programs\Startup";
 				if (Directory.Exists(startupAll)) {
 					LOG.DebugFormat("Startup all path: {0}", startupAll);
-					if (File.Exists(Path.Combine(startupAll, Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".lnk"))) {
+					if (File.Exists(Path.Combine(startupAll, lnkName))) {
 						return true;
 					}
 				}
