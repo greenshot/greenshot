@@ -224,6 +224,13 @@ namespace Greenshot.Helpers {
 						return true;
 					}
 				}
+				string startupAll = Environment.GetEnvironmentVariable("ALLUSERSPROFILE") + @"\Microsoft\Windows\Start Menu\Programs\Startup";
+				if (Directory.Exists(startupAll)) {
+					LOG.DebugFormat("Startup all path: {0}", startupAll);
+					if (File.Exists(Path.Combine(startupAll, Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".lnk"))) {
+						return true;
+					}
+				}
 			} catch {
 			}
 			return false;
