@@ -16,7 +16,9 @@ pause
 
 del releases\Greenshot-NO-INSTALLER.zip
 mkdir releases\NO-INSTALLER
-echo dummy config, used to make greenshot store the configuration in this directory  > releases\NO-INSTALLER\greenshot.ini
+echo ;dummy config, used to make greenshot store the configuration in this directory  > releases\NO-INSTALLER\greenshot.ini
+echo ;In this file you should add your default settings  > releases\NO-INSTALLER\greenshot-defaults.ini
+echo ;In this file you should add your fixed settings > releases\NO-INSTALLER\greenshot-fixed.ini
 xcopy /S bin\Release\Plugins releases\NO-INSTALLER\Plugins\
 copy /B bin\Release\checksum.MD5 releases\NO-INSTALLER
 copy /B bin\Release\Greenshot.exe releases\NO-INSTALLER

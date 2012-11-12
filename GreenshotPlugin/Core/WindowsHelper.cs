@@ -600,6 +600,13 @@ namespace GreenshotPlugin.Core  {
 				if (isApp) {
 	//				IAppVisibility appVisibility = COMWrapper.CreateInstance<IAppVisibility>();
 	//				if (appVisibility != null) {
+						//foreach (Screen screen in Screen.AllScreens) {
+						//	RECT rect = new RECT(screen.Bounds);
+						//	IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
+						//	if (monitor != IntPtr.Zero) {
+						//		LOG.DebugFormat("Monitor {0} has hMonitor {1}", screen.DeviceName, monitor);
+						//	}
+						//}
 	//					IntPtr monitor = User32.MonitorFromWindow(Handle, User32.MONITOR_DEFAULTTONULL);
 	//					if (monitor != IntPtr.Zero) {
 	//						LOG.DebugFormat("Monitor = {0}", monitor);
@@ -826,11 +833,11 @@ namespace GreenshotPlugin.Core  {
 				if (!Maximised) {
 					// Assume using it's own location
 					formLocation = windowRectangle.Location;
-					using (Region workingArea = new Region(Screen.PrimaryScreen.WorkingArea)) {
+					using (Region workingArea = new Region(Screen.PrimaryScreen.Bounds)) {
 						// Find the screen where the window is and check if it fits
 						foreach (Screen screen in Screen.AllScreens) {
 							if (screen != Screen.PrimaryScreen) {
-								workingArea.Union(screen.WorkingArea);
+								workingArea.Union(screen.Bounds);
 							}
 						}
 
@@ -840,7 +847,7 @@ namespace GreenshotPlugin.Core  {
 							foreach (Screen screen in Screen.AllScreens) {
 								Rectangle newWindowRectangle = new Rectangle(screen.WorkingArea.Location, windowRectangle.Size);
 								if (workingArea.AreRectangleCornersVisisble(newWindowRectangle)) {
-									formLocation = screen.WorkingArea.Location;
+									formLocation = screen.Bounds.Location;
 									doesCaptureFit = true;
 									break;
 								}
