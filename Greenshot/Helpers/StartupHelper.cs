@@ -21,6 +21,7 @@
 using System;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using System.IO;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -38,6 +39,10 @@ namespace Greenshot.Helpers {
 			return "\"" + Application.ExecutablePath + "\"";
 		}
 
+		/// <summary>
+		/// Return true if the current user can write the RUN key of the local machine.
+		/// </summary>
+		/// <returns>true if Greenshot can write key</returns>
 		public static bool canWriteRunAll() {
 			try {
 				using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY, true)) {
@@ -48,6 +53,10 @@ namespace Greenshot.Helpers {
 			return true;
 		}
 
+		/// <summary>
+		/// Return true if the current user can write the RUN key of the current user.
+		/// </summary>
+		/// <returns>true if Greenshot can write key</returns>
 		public static bool canWriteRunUser() {
 			try {
 				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, true)) {
@@ -58,6 +67,10 @@ namespace Greenshot.Helpers {
 			return true;
 		}
 
+		/// <summary>
+		/// Return the RUN key value of the local machine
+		/// </summary>
+		/// <returns>the RUN key value of the local machine</returns>
 		public static Object getRunAllValue() {
 			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY, false)) {
 				if (key != null) {
@@ -81,6 +94,10 @@ namespace Greenshot.Helpers {
 			return null;
 		}
 
+		/// <summary>
+		/// Return the RUN key value of the current user
+		/// </summary>
+		/// <returns>the RUN key value of the current user</returns>
 		public static Object getRunUserValue() {
 			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, false)) {
 				if (key != null) {
@@ -103,7 +120,11 @@ namespace Greenshot.Helpers {
 			}
 			return null;
 		}
-		
+
+		/// <summary>
+		/// Return true if the local machine has a RUN entry for Greenshot
+		/// </summary>
+		/// <returns>true if there is a run key</returns>
 		public static bool hasRunAll() {
 			try {
 				return getRunAllValue() != null;
@@ -113,6 +134,10 @@ namespace Greenshot.Helpers {
 			return false;
 		}
 
+		/// <summary>
+		/// Return true if the current user has a RUN entry for Greenshot
+		/// </summary>
+		/// <returns>true if there is a run key</returns>
 		public static bool hasRunUser() {
 			Object runValue = null;
 			try {
@@ -123,6 +148,9 @@ namespace Greenshot.Helpers {
 			return runValue != null;
 		}
 
+		/// <summary>
+		/// Delete the RUN key for the localmachine ("ALL")
+		/// </summary>
 		public static void deleteRunAll() {
 			if (hasRunAll()) {
 				try {
@@ -145,6 +173,9 @@ namespace Greenshot.Helpers {
 			}
 		}
 
+		/// <summary>
+		/// Delete the RUN key for the current user
+		/// </summary>
 		public static void deleteRunUser() {
 			if (hasRunUser()) {
 				try {
@@ -167,6 +198,9 @@ namespace Greenshot.Helpers {
 			}
 		}
 
+		/// <summary>
+		/// Set the RUN key for the current user
+		/// </summary>
 		public static void setRunUser() {
 			try {
 				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, true)) {
@@ -175,6 +209,24 @@ namespace Greenshot.Helpers {
 			} catch (Exception e) {
 				LOG.Error("Error in setRunUser.", e);
 			}
+		}
+
+		/// <summary>
+		/// Test if there is a link in the Statup folder
+		/// </summary>
+		/// <returns></returns>
+		public static bool IsInStartupFolder() {
+			try {
+				string startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+				if (Directory.Exists(startupPath)) {
+					LOG.DebugFormat("Startup path: {0}", startupPath);
+					if (File.Exists(Path.Combine(startupPath, Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".lnk"))) {
+						return true;
+					}
+				}
+			} catch {
+			}
+			return false;
 		}
 	}
 }

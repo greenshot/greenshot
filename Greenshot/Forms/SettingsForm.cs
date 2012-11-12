@@ -358,7 +358,10 @@ namespace Greenshot {
 				// Remove runUser if we already have a run under all
 				StartupHelper.deleteRunUser();
 				checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunAll();
-				checkbox_autostartshortcut.Checked = StartupHelper.hasRunAll();
+				checkbox_autostartshortcut.Checked = true; // We already checked this
+			} else if (StartupHelper.IsInStartupFolder()) {
+				checkbox_autostartshortcut.Enabled = false;
+				checkbox_autostartshortcut.Checked = true; // We already checked this
 			} else {
 				// No run for all, enable the checkbox and set it to true if the current user has a key
 				checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunUser();
