@@ -127,6 +127,7 @@ namespace Greenshot.Forms {
 			// Fix missing focus
 			WindowDetails.ToForeground(this.Handle);
 			this.TopMost = true;
+			CreateZoom();
 		}
 
 		private void CreateZoom() {
