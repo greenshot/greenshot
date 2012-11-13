@@ -37,6 +37,12 @@ namespace GreenshotPlugin.Core {
 		Screen, GDI, Aero, AeroTransparent, Auto
 	}
 
+	public enum BuildStates {
+		UNSTABLE,
+		RELEASE_CANDIDATE,
+		RELEASE
+	}
+
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
@@ -197,10 +203,8 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("EnableSpecialDIBClipboardReader", Description = "Enable a special DIB clipboard reader", DefaultValue="True")]
 		public bool EnableSpecialDIBClipboardReader;
 
-		// Specify what THIS build is
-		public bool isRelease = true;
-		public bool isReleaseCandidate = false;
-		public bool isUnstable = false;
+		// Specifies what THIS build is
+		public BuildStates BuildState = BuildStates.UNSTABLE;
 
 		/// <summary>
 		/// A helper method which returns true if the supplied experimental feature is enabled

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="English" ietf="en-US" version="1.0.0">
+<language description="Slovenčina" ietf="sk-SK" version="1.0.0">
   <resources>
 	<resource name="upload_menu_item">
 		Nahrať na Imgur

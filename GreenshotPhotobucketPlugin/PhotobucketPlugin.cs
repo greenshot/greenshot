@@ -39,6 +39,7 @@ namespace GreenshotPhotobucketPlugin {
 		public static PluginAttribute Attributes;
 		private IGreenshotHost host;
 		private ComponentResourceManager resources;
+		private ToolStripMenuItem itemPlugInConfig;
 
 		public PhotobucketPlugin() {
 		}
@@ -66,7 +67,7 @@ namespace GreenshotPhotobucketPlugin {
 			config = IniConfig.GetIniSection<PhotobucketConfiguration>();
 			resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
 			
-			ToolStripMenuItem itemPlugInConfig = new ToolStripMenuItem("Photobucket " + Language.GetString("photobucket", LangKey.configure));
+			itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure));
 			itemPlugInConfig.Tag = host;
 			itemPlugInConfig.Click += delegate {
 				config.ShowConfigDialog();
@@ -74,12 +75,19 @@ namespace GreenshotPhotobucketPlugin {
 			itemPlugInConfig.Image = (Image)resources.GetObject("Photobucket");
 
 			PluginUtils.AddToContextMenu(host, itemPlugInConfig);
-
+			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 			return true;
 		}
-		
+
+		public void OnLanguageChanged() {
+			if (itemPlugInConfig != null) {
+				itemPlugInConfig.Text = Language.GetString("photobucket", LangKey.configure);
+			}
+		}
+
 		public virtual void Shutdown() {
 			LOG.Debug("Photobucket Plugin shutdown.");
+			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
 		}
 
 		/// <summary>

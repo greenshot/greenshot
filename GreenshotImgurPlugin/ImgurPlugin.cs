@@ -124,6 +124,7 @@ namespace GreenshotImgurPlugin {
 
 		public virtual void Shutdown() {
 			LOG.Debug("Imgur Plugin shutdown.");
+			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
 		}
 
 		/// <summary>
