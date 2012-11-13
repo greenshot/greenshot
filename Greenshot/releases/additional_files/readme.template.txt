@@ -3,7 +3,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.0.7 build xxxx Release
+1.1.0 build $WCREV$ unstable
 
 Bugs resolved:
 * Bug #3582807: The window corners on Windows Vista & Windows 7 weren't cut correctly.
@@ -18,9 +18,11 @@ Bugs resolved:
 * Removed unneeded code from the Confluence Plug-in, this makes the Greenshot installer / .zip a bit smaller.
 
 Features:
-* Editor is now centering the image, the code for this was supplied by Viktar Karpach.
-* Better Windows 8 integration: Capture window from list now has the apps and the interactive window capture is not confused by apps or the app launcher.
-* Added Special-Folder support for the OutputPath/Filenames, now one can use the following values: MyPictures, MyMusic, MyDocuments, Personal, Desktop, ApplicationData, LocalApplicationData. Meaning one can now set the output path to e.g. ${MyPictures}
+* General: Added zoom when capturing
+* General: Better Windows 8 integration: Capture window from list now has the apps and the interactive window capture is not confused by apps or the app launcher.
+* General: Added Special-Folder support for the OutputPath/Filenames, now one can use the following values: MyPictures, MyMusic, MyDocuments, Personal, Desktop, ApplicationData, LocalApplicationData. Meaning one can now set the output path to e.g. ${MyPictures}
+* Editor: is now centering the image, the code for this was supplied by Viktar Karpach.
+* Plug-in: Added Photobucket plugin
 
 1.0.6 build 2228 Release
 
