@@ -57,7 +57,7 @@ namespace GreenshotPhotobucketPlugin {
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.LanguageKey = "OK";
-			this.buttonOK.Location = new System.Drawing.Point(222, 129);
+			this.buttonOK.Location = new System.Drawing.Point(222, 70);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 2;
@@ -68,7 +68,7 @@ namespace GreenshotPhotobucketPlugin {
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.LanguageKey = "CANCEL";
-			this.buttonCancel.Location = new System.Drawing.Point(303, 129);
+			this.buttonCancel.Location = new System.Drawing.Point(303, 70);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 3;
@@ -79,7 +79,7 @@ namespace GreenshotPhotobucketPlugin {
 			// 
 			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
-			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 47);
+			this.combobox_uploadimageformat.Location = new System.Drawing.Point(102, 11);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
 			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
 			this.combobox_uploadimageformat.SectionName = "Photobucket";
@@ -89,7 +89,7 @@ namespace GreenshotPhotobucketPlugin {
 			// label_upload_format
 			// 
 			this.label_upload_format.LanguageKey = "photobucket.label_upload_format";
-			this.label_upload_format.Location = new System.Drawing.Point(12, 50);
+			this.label_upload_format.Location = new System.Drawing.Point(12, 14);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(84, 20);
 			this.label_upload_format.TabIndex = 9;
@@ -98,11 +98,11 @@ namespace GreenshotPhotobucketPlugin {
 			// 
 			this.checkbox_usepagelink.AutoSize = true;
 			this.checkbox_usepagelink.LanguageKey = "photobucket.use_page_link";
-			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 97);
+			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 43);
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
 			this.checkbox_usepagelink.PropertyName = "UsePageLink";
 			this.checkbox_usepagelink.SectionName = "Photobucket";
-			this.checkbox_usepagelink.Size = new System.Drawing.Size(297, 17);
+			this.checkbox_usepagelink.Size = new System.Drawing.Size(251, 17);
 			this.checkbox_usepagelink.TabIndex = 13;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 
@@ -110,7 +110,7 @@ namespace GreenshotPhotobucketPlugin {
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(387, 168);
+			this.ClientSize = new System.Drawing.Size(387, 109);
 			this.Controls.Add(this.checkbox_usepagelink);
 			this.Controls.Add(this.label_upload_format);
 			this.Controls.Add(this.combobox_uploadimageformat);
