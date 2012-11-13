@@ -158,13 +158,13 @@ namespace Greenshot.Interop {
 				try {
 					comType = Type.GetTypeFromCLSID(guid);
 				} catch (Exception ex) {
-					LOG.Warn("Error type for " + progId, ex);
+					LOG.WarnFormat("Error {1} type for {0}", progId, ex.Message);
 				}
 			} else {
 				try {
 					comType = Type.GetTypeFromProgID(progId, true);
 				} catch (Exception ex) {
-					LOG.Warn("Error type for " + progId, ex);
+					LOG.WarnFormat("Error {1} type for {0}", progId, ex.Message);
 				}
 			}
 			object comObject = null;
@@ -175,7 +175,7 @@ namespace Greenshot.Interop {
 						LOG.DebugFormat("Created new instance of {0} object.", progId);
 					}
 				} catch (Exception e) {
-					LOG.Warn("Error creating object for " + progId, e);
+					LOG.WarnFormat("Error {1} creating object for {0}", progId, e.Message);
 				}
 			}
 			if (comObject != null) {

@@ -34,10 +34,14 @@ namespace Greenshot.Forms {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ZoomForm));
 		private ICapture captureToZoom = null;
 		private Point mouseLocation = Point.Empty;
+		private const int distanceX = 20;
+		private const int distanceY = 20;
+		private	Rectangle screenBounds;
 
 		public ZoomForm(ICapture captureToZoom) {
 			InitializeComponent();
 			this.captureToZoom = captureToZoom;
+			screenBounds = new Rectangle(Point.Empty, captureToZoom.Image.Size);
 			Zoom = 400;
 		}
 
@@ -47,7 +51,21 @@ namespace Greenshot.Forms {
 			}
 			set {
 				mouseLocation = value;
-				this.Location = new Point(mouseLocation.X + 20, mouseLocation.Y + 20);
+
+				Rectangle tl = new Rectangle(mouseLocation.X - (distanceX + Width), mouseLocation.Y - (distanceY + Height), Width, Height);
+				Rectangle tr = new Rectangle(mouseLocation.X + distanceX, mouseLocation.Y - (distanceY + Height), Width, Height);
+				Rectangle bl = new Rectangle(mouseLocation.X - (distanceX + Width), mouseLocation.Y + distanceY, Width, Height);
+				Rectangle br = new Rectangle(mouseLocation.X + distanceX, mouseLocation.Y + distanceY, Width, Height);
+				if (screenBounds.Contains(br)) {
+					this.Location = br.Location;
+				} else if (screenBounds.Contains(bl)) {
+					this.Location = bl.Location;
+				} else if (screenBounds.Contains(tr)) {
+					this.Location = tr.Location;
+				} else {
+					this.Location = tl.Location;
+				}
+
 				this.Invalidate();
 			}
 		}

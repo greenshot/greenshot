@@ -133,14 +133,10 @@ namespace Greenshot.Forms {
 		private void CreateZoom() {
 			if (zoomForm == null) {
 				zoomForm = new ZoomForm(capture);
-				zoomForm.Show();
-				WindowDetails.ToForeground(zoomForm.Handle);
+				zoomForm.Show(this);
 
 				// Fix missing focus issue
 				WindowDetails.ToForeground(this.Handle);
-				this.TopMost = false;
-				zoomForm.TopMost = true;
-				Activate();
 			}
 		}
 
@@ -149,7 +145,6 @@ namespace Greenshot.Forms {
 				zoomForm.Close();
 				// Fix missing focus issue
 				WindowDetails.ToForeground(this.Handle);
-				this.TopMost = true;
 				zoomForm = null;
 			}
 		}

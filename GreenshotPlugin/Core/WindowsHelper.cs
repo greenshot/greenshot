@@ -168,6 +168,13 @@ namespace GreenshotPlugin.Core  {
 		private static List<IntPtr> ignoreHandles = new List<IntPtr>();
 		private static Dictionary<string, Image> iconCache = new Dictionary<string, Image>();
 		private static List<string> excludeProcessesFromFreeze = new List<string>();
+		private static IAppVisibility appVisibility = null;
+		
+		static WindowDetails() {
+			try {
+				appVisibility = COMWrapper.CreateInstance<IAppVisibility>();
+			} catch {}
+		}
 
 		public static void AddProcessToExcludeFromFreeze(string processname) {
 			if (!excludeProcessesFromFreeze.Contains(processname)) {
@@ -598,24 +605,30 @@ namespace GreenshotPlugin.Core  {
 		public bool Visible {
 			get {
 				if (isApp) {
-	//				IAppVisibility appVisibility = COMWrapper.CreateInstance<IAppVisibility>();
-	//				if (appVisibility != null) {
-						//foreach (Screen screen in Screen.AllScreens) {
-						//	RECT rect = new RECT(screen.Bounds);
-						//	IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
-						//	if (monitor != IntPtr.Zero) {
-						//		LOG.DebugFormat("Monitor {0} has hMonitor {1}", screen.DeviceName, monitor);
-						//	}
-						//}
-	//					IntPtr monitor = User32.MonitorFromWindow(Handle, User32.MONITOR_DEFAULTTONULL);
-	//					if (monitor != IntPtr.Zero) {
-	//						LOG.DebugFormat("Monitor = {0}", monitor);
-	//						MONITOR_APP_VISIBILITY monitorAppVisibility = appVisibility.GetAppVisibilityOnMonitor(monitor);
-	//						LOG.DebugFormat("App visible: {0}", monitorAppVisibility);
-	//						return monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE;
-	//					}
-	//				}
-					
+					Rectangle windowRectangle = WindowRectangle;
+					foreach (Screen screen in Screen.AllScreens) {
+						if (screen.Bounds.Contains(windowRectangle)) {
+							if (windowRectangle.Equals(screen.Bounds)) {
+								// Fullscreen, it's "visible" when AppVisibilityOnMonitor says yes
+								// Although it might be the other App, this is not "very" important
+								RECT rect = new RECT(screen.Bounds);
+								IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
+								if (monitor != IntPtr.Zero) {
+									if (appVisibility != null) {
+										MONITOR_APP_VISIBILITY monitorAppVisibility = appVisibility.GetAppVisibilityOnMonitor(monitor);
+										LOG.DebugFormat("App visible: {0}", monitorAppVisibility);
+										if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE) {
+											return true;
+										}
+									}
+								}
+							} else {
+								// Not Fullscreen -> Than it's visible!
+								return true;
+							}
+						}
+					}
+					return false;
 				}
 				if (isAppLauncher) {
 					return IsAppLauncherVisible;
@@ -1578,14 +1591,10 @@ namespace GreenshotPlugin.Core  {
 		/// <returns></returns>
 		public static bool IsAppLauncherVisible {
 			get {
-				try {
-					IAppVisibility appVisibility = COMWrapper.CreateInstance<IAppVisibility>();
-					if (appVisibility != null) {
-						return appVisibility.IsLauncherVisible;
-					}
-				} catch {}
+				if (appVisibility != null) {
+					return appVisibility.IsLauncherVisible;
+				}
 				return false;
-				
 			}
 		}
 	}
