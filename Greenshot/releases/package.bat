@@ -1,6 +1,7 @@
 @echo off
 cd ..
 echo Getting current Version
+tools\TortoiseSVN\SubWCRev.exe ..\ releases\additional_files\readme.template.txt releases\additional_files\readme.txt
 tools\TortoiseSVN\SubWCRev.exe ..\ releases\innosetup\setup.iss releases\innosetup\setup-SVN.iss
 cd bin\Release
 del *.log
