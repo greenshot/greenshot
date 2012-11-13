@@ -37,6 +37,7 @@ del /s *.pdb
 del /s *.bak
 del /s *installer*.xml
 del /s *website*.xml
+del /s *template.txt
 ..\..\tools\7zip\7za.exe a -x!.SVN -r ..\Greenshot-NO-INSTALLER.zip *
 cd ..\..
 echo Cleanup after key press
