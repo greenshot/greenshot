@@ -1,5 +1,5 @@
 ﻿#define ExeName "Greenshot"
-#define Version "1.0.7.$WCREV$"
+#define Version "1.1.0.$WCREV$"
 
 ; Include the scripts to install .NET Framework 2.0
 ; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
@@ -82,6 +82,9 @@ Source: ..\..\bin\Release\Languages\Plugins\GreenshotDropBoxPlugin\*; DestDir: {
 ;Flickr Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotFlickrPlugin\GreenshotFlickrPlugin.gsp; DestDir: {app}\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotFlickrPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly ignoreversion replacesameversion;
+;Photobucket Plugin
+Source: ..\..\bin\Release\Plugins\GreenshotPhotobucketPlugin\GreenshotPhotobucketPlugin.gsp; DestDir: {app}\Plugins\GreenshotPhotobucketPlugin; Components: plugins\photobucket; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\Plugins\GreenshotPhotobucketPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotPhotobucketPlugin; Components: plugins\photobucket; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Picasa Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotPicasaPlugin\GreenshotPicasaPlugin.gsp; DestDir: {app}\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotPicasaPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -277,6 +280,7 @@ Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disab
 Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning 
+Name: "plugins\photobucket"; Description: "Photobucket Plugin"; Types: full custom; Flags: disablenouninstallwarning 
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: "العربية"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\csCZ"; Description: "Ceština"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
