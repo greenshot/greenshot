@@ -1207,11 +1207,16 @@ namespace Greenshot {
 			}
 			Size imageSize = this.Surface.Image.Size;
 			Size currentImageClientSize = this.panel1.ClientSize;
-			if (currentImageClientSize.Height > imageSize.Height && currentImageClientSize.Width > imageSize.Width) {
+			if (currentImageClientSize.Width > imageSize.Width) {
+				var canvas = this.Surface as Control;
+				if (canvas != null) {
+					canvas.Left = (currentImageClientSize.Width - imageSize.Width) / 2;
+				}
+			}
+			if (currentImageClientSize.Height > imageSize.Height) {
 				var canvas = this.Surface as Control;
 				if (canvas != null) {
 					canvas.Top = (currentImageClientSize.Height - imageSize.Height) / 2;
-					canvas.Left = (currentImageClientSize.Width - imageSize.Width) / 2;
 				}
 			}
 		}

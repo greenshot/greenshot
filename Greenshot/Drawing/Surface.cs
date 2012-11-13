@@ -673,7 +673,7 @@ namespace Greenshot.Drawing {
 				e.Effect=DragDropEffects.None;
 			} else {
 				List<string> filenames = GetFilenames(e);
-				if ((filenames != null && filenames.Count > 0) || e.Data.GetDataPresent(DataFormats.Bitmap, true) || e.Data.GetDataPresent(DataFormats.EnhancedMetafile, true)) {
+				if ((filenames != null && filenames.Count > 0) || e.Data.GetDataPresent("DragImageBits") || e.Data.GetDataPresent(DataFormats.Bitmap, true) || e.Data.GetDataPresent(DataFormats.EnhancedMetafile, true)) {
 					e.Effect=DragDropEffects.Copy;
 				} else {
 					e.Effect=DragDropEffects.None;
@@ -684,6 +684,18 @@ namespace Greenshot.Drawing {
 		private void OnDragDrop(object sender, DragEventArgs e) {
 			List<string> filenames = GetFilenames(e);
 			Point mouse = this.PointToClient(new Point(e.X, e.Y));
+			if (e.Data.GetDataPresent("Text")) {
+				string possibleUrl = (string)e.Data.GetData("Text");
+				if (possibleUrl != null && possibleUrl.StartsWith("http")) {
+					using (Bitmap image = NetworkHelper.DownloadImage(possibleUrl)) {
+						if (image != null) {
+							AddBitmapContainer(image, mouse.X, mouse.Y);
+							return;
+						}
+					}
+				}
+			}
+
 			if ((filenames != null && filenames.Count > 0)) {
 				foreach (string filename in filenames) {
 					if (filename != null && filename.Trim().Length > 0) {

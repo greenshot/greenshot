@@ -80,6 +80,27 @@ namespace GreenshotPlugin.Core {
 			}
 			return null;
 		}
+
+		/// <summary>
+		/// Download the url to Bitmap
+		/// </summary>
+		/// <param name="baseUri"></param>
+		/// <returns>Bitmap</returns>
+		public static Bitmap DownloadImage(string url) {
+			try {
+				HttpWebRequest request = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+				if (request.HaveResponse) {
+					using (Image image = Image.FromStream(response.GetResponseStream())) {
+						return new Bitmap(image);
+					}
+				}
+
+			} catch (Exception e) {
+				LOG.Error("Problem downloading the image from: " + url, e);
+			}
+			return null;
+		}
 		
 		/// <summary>
 		/// Helper method to create a web request, eventually with proxy
