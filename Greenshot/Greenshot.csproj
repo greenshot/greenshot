@@ -181,6 +181,7 @@
     </Compile>
     <None Include="App.config" />
     <None Include="Helpers\AviHelper.cs" />
+    <Compile Include="Forms\ZoomForm.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
     <Compile Include="Helpers\CopyData.cs" />
@@ -206,7 +207,6 @@
     <Compile Include="Helpers\UpdateHelper.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />
     <Compile Include="Helpers\GuiRectangle.cs" />
-    <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\MailHelper.cs" />
     <Compile Include="Helpers\PluginHelper.cs" />
     <Compile Include="Helpers\PrintHelper.cs" />

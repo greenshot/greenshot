@@ -61,6 +61,7 @@ namespace Greenshot.Forms {
 
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
+		private ZoomForm zoomForm = null;
 
 		public Rectangle CaptureRectangle {
 			get {
@@ -91,6 +92,7 @@ namespace Greenshot.Forms {
 
 			// clean up
 			this.FormClosed += delegate {
+				RemoveZoom();
 				currentForm = null;
 				LOG.Debug("Remove CaptureForm from currentForm");
 			};
@@ -127,6 +129,30 @@ namespace Greenshot.Forms {
 			this.TopMost = true;
 		}
 
+		private void CreateZoom() {
+			if (zoomForm == null) {
+				zoomForm = new ZoomForm(capture);
+				zoomForm.Show();
+				WindowDetails.ToForeground(zoomForm.Handle);
+
+				// Fix missing focus issue
+				WindowDetails.ToForeground(this.Handle);
+				this.TopMost = false;
+				zoomForm.TopMost = true;
+				Activate();
+			}
+		}
+
+		private void RemoveZoom() {
+			if (zoomForm != null) {
+				zoomForm.Close();
+				// Fix missing focus issue
+				WindowDetails.ToForeground(this.Handle);
+				this.TopMost = true;
+				zoomForm = null;
+			}
+		}
+
 		#region key handling		
 		void CaptureFormKeyUp(object sender, KeyEventArgs e) {
 			if (e.KeyCode == Keys.ShiftKey) {
@@ -148,6 +174,13 @@ namespace Greenshot.Forms {
 				// Toggle mouse cursor
 				capture.CursorVisible = !capture.CursorVisible;
 				Invalidate();
+			} else if (e.KeyCode == Keys.Z) {
+				// Toggle zoom
+				if (zoomForm == null) {
+					CreateZoom();
+				} else {
+					RemoveZoom();
+				}
 			} else if (e.KeyCode == Keys.Space) {
 				switch (captureMode) {
 					case CaptureMode.Region:
@@ -230,6 +263,11 @@ namespace Greenshot.Forms {
 			WindowDetails lastWindow = selectedCaptureWindow;
 			bool horizontalMove = false;
 			bool verticalMove = false;
+
+			// Change the zoom location
+			if (zoomForm != null) {
+				zoomForm.MouseLocation = cursorPos;
+			}
 
 			if (lastPos.X != cursorPos.X) {
 				horizontalMove = true;
