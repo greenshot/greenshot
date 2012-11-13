@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\CommonProject.properties" />
+  <PropertyGroup>
+    <ProjectGuid>{9C0ECC4C-7807-4111-916A-4F57BB29788A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GreenshotPhotobucketPlugin</RootNamespace>
+    <AssemblyName>GreenshotPhotobucketPlugin</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Forms\PhotobucketForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PhotobucketDestination.cs" />
+    <Compile Include="PhotobucketInfo.cs" />
+    <Compile Include="PhotobucketPlugin.cs" />
+    <Compile Include="PhotobucketConfiguration.cs" />
+    <Compile Include="PhotobucketCredentials.cs" />
+    <Compile Include="PhotobucketUtils.cs" />
+    <Compile Include="LanguageKeys.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Languages\language_Photobucketplugin-de-DE.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language_Photobucketplugin-en-US.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language_Photobucketplugin-fr_FR.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language_Photobucketplugin-nl-NL.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language_Photobucketplugin-zh-CN.xml" />
+    <None Include="Properties\AssemblyInfo.cs.template" />
+    <EmbeddedResource Include="PhotobucketPlugin.resx">
+      <DependentUpon>PhotobucketPlugin.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
+      <Name>GreenshotPlugin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+if exist "$(ProjectDir)PhotobucketCredentials.private.cs" (
+   rename "$(ProjectDir)PhotobucketCredentials.cs" "PhotobucketCredentials.orig.cs"
+   rename "$(ProjectDir)PhotobucketCredentials.private.cs" "PhotobucketCredentials.cs"
+)
+"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"
+	</PreBuildEvent>
+    <PostBuildEvent>
+if exist "$(ProjectDir)PhotobucketCredentials.orig.cs" (
+   rename "$(ProjectDir)PhotobucketCredentials.cs" "PhotobucketCredentials.private.cs"
+   rename "$(ProjectDir)PhotobucketCredentials.orig.cs" "PhotobucketCredentials.cs"
+)
+mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
+copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
+copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
+	</PostBuildEvent>
+  </PropertyGroup>
+</Project>
