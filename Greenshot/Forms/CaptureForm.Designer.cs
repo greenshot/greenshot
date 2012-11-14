@@ -59,7 +59,6 @@ namespace Greenshot.Forms {
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(0, 0);
 			this.Cursor = System.Windows.Forms.Cursors.Cross;
-			this.DoubleBuffered = true;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.Name = "CaptureForm";
 			this.ShowIcon = false;

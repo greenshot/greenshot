@@ -45,6 +45,17 @@ namespace Greenshot.Forms {
 			Zoom = 400;
 		}
 
+		/// <summary>
+		/// Prevent the clipping of the child (this Form is a child of another)
+		/// </summary>
+		protected override CreateParams CreateParams {
+			get {
+				var parms = base.CreateParams;
+				parms.Style &= ~0x02000000;  // Turn off WS_CLIPCHILDREN
+				return parms;
+			}
+		}
+
 		public Point MouseLocation {
 			get {
 				return mouseLocation;
@@ -74,6 +85,12 @@ namespace Greenshot.Forms {
 			get;
 			set;
 		}
+		/// <summary>
+		/// This makes sure there is no background painted, as we have complete "paint" control it doesn't make sense to do otherwise.
+		/// </summary>
+		/// <param name="pevent"></param>
+		protected override void OnPaintBackground(PaintEventArgs pevent) {
+		}
 
 		protected override void OnPaint(PaintEventArgs e) {
 			if (captureToZoom == null || captureToZoom.Image == null) {
@@ -83,13 +100,13 @@ namespace Greenshot.Forms {
 			graphics.SmoothingMode = SmoothingMode.None;
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.HighSpeed;
-			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 			Rectangle clipRectangle = e.ClipRectangle;
 			float zoom = (float)100 / (float)Zoom;
 
 			int sourceWidth = (int)(Width * zoom);
 			int sourceHeight = (int)(Height * zoom);
-			Rectangle sourceRectangle = new Rectangle(MouseLocation.X - (sourceHeight / 2), MouseLocation.Y - (sourceHeight / 2), sourceWidth, sourceHeight);
+			Rectangle sourceRectangle = new Rectangle(MouseLocation.X - (sourceWidth / 2), MouseLocation.Y - (sourceHeight / 2), sourceWidth, sourceHeight);
 			Rectangle destinationRectangle = new Rectangle(0, 0, Width, Height);
 			graphics.DrawImage(captureToZoom.Image, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 
@@ -115,11 +132,12 @@ namespace Greenshot.Forms {
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
 			this.ClientSize = new System.Drawing.Size(100, 100);
 			this.ControlBox = false;
-			this.DoubleBuffered = true;
+			// Only double-buffer when we are not in a TerminalServerSession
+			this.DoubleBuffered = !System.Windows.Forms.SystemInformation.TerminalServerSession;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
-			this.MinimumSize = new Size(50, 50);
+			this.MinimumSize = ClientSize;
 			this.Name = "Zoom";
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;

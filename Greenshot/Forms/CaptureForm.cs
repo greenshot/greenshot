@@ -81,6 +81,17 @@ namespace Greenshot.Forms {
 			}
 		}
 
+		/// <summary>
+		/// This should prevent childs to draw backgrounds
+		/// </summary>
+		protected override CreateParams CreateParams {
+			get {
+				CreateParams cp = base.CreateParams;
+				cp.ExStyle |= 0x02000000;
+				return cp;
+			}
+		}
+
 		public CaptureForm(ICapture capture, List<WindowDetails> windows) {
 			if (currentForm != null) {
 				LOG.Debug("Found currentForm, Closing already opened CaptureForm");
@@ -105,6 +116,8 @@ namespace Greenshot.Forms {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			// Only double-buffer when we are not in a TerminalServerSession
+			this.DoubleBuffered = !System.Windows.Forms.SystemInformation.TerminalServerSession;
 			this.Text = "Greenshot capture form";
 
 			// Make sure we never capture the captureform
@@ -367,7 +380,14 @@ namespace Greenshot.Forms {
 				}
 			}
 		}
-		
+
+		/// <summary>
+		/// This makes sure there is no background painted, as we have complete "paint" control it doesn't make sense to do otherwise.
+		/// </summary>
+		/// <param name="pevent"></param>
+		protected override void OnPaintBackground(PaintEventArgs pevent) {
+		}
+
 		void OnPaint(object sender, PaintEventArgs e) {
 			Graphics graphics = e.Graphics;
 			Rectangle clipRectangle = e.ClipRectangle;
