@@ -169,7 +169,7 @@ namespace Greenshot.Helpers {
 				throw exceptionToThrow;
 			}
 			// Create a GDI Bitmap so we can use GDI and GDI+ operations on the same memory
-			GDIBitmap = new Bitmap(recordingSize.Width, recordingSize.Height, 32, PixelFormat.Format32bppPArgb, bits0);
+			GDIBitmap = new Bitmap(recordingSize.Width, recordingSize.Height, 32, PixelFormat.Format32bppArgb, bits0);
 			// select the bitmap object and store the old handle
 			hOldObject = GDI32.SelectObject(hDCDest, hDIBSection);
 			stop = false;
@@ -297,7 +297,7 @@ namespace Greenshot.Helpers {
 				if (ffmpegexe != null) {
 					try {
 						string webMFile = filename.Replace(".avi", ".webm");
-						ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegexe, "-i \"" + filename + "\" -vcodec libvpx -g 30 \"" + webMFile + "\"");
+						ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegexe, "-i \"" + filename + "\" -vcodec libvpx \"" + webMFile + "\"");
 						processStartInfo.CreateNoWindow = false;
 						processStartInfo.RedirectStandardOutput = false;
 						processStartInfo.UseShellExecute = false;
