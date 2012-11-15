@@ -285,14 +285,33 @@ namespace Greenshot.Helpers {
 				// free up the Bitmap object
 				GDI32.DeleteObject(hDIBSection);
 			}
-			if (aviWriter != null) {
-				aviWriter.Dispose();
-				aviWriter = null;
-				MessageBox.Show("Recording written to " + filename);
-			}
 
 			if (disabledDWM) {
 				DWM.EnableComposition();
+			}
+			if (aviWriter != null) {
+				aviWriter.Dispose();
+				aviWriter = null;
+
+				string ffmpegexe = PluginUtils.GetExePath("ffmpeg.exe");
+				if (ffmpegexe != null) {
+					try {
+						string webMFile = filename.Replace(".avi", ".webm");
+						ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegexe, "-i \"" + filename + "\" -vcodec libvpx -g 30 \"" + webMFile + "\"");
+						processStartInfo.CreateNoWindow = false;
+						processStartInfo.RedirectStandardOutput = false;
+						processStartInfo.UseShellExecute = false;
+						Process process = Process.Start(processStartInfo);
+						process.WaitForExit();
+						if (process.ExitCode == 0) {
+							MessageBox.Show("Recording written to " + webMFile);
+						}
+					} catch (Exception ex) {
+						MessageBox.Show("Recording written to " + filename + " couldn't convert due to an error: " + ex.Message);
+					}
+				} else {
+					MessageBox.Show("Recording written to " + filename);
+				}
 			}
 		}
 	}
