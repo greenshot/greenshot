@@ -183,6 +183,13 @@ namespace Greenshot.Forms {
 				// Toggle mouse cursor
 				capture.CursorVisible = !capture.CursorVisible;
 				Invalidate();
+			} else if (e.KeyCode == Keys.V) {
+				if (capture.CaptureDetails.CaptureMode != CaptureMode.Video) {
+					capture.CaptureDetails.CaptureMode = CaptureMode.Video;
+				} else {
+					capture.CaptureDetails.CaptureMode = captureMode;
+				}
+				Invalidate();
 			} else if (e.KeyCode == Keys.Z) {
 				// Toggle zoom
 				if (zoomForm == null) {
@@ -400,7 +407,11 @@ namespace Greenshot.Forms {
 			if (mouseDown || captureMode == CaptureMode.Window) {
 				captureRect.Intersect(new Rectangle(Point.Empty, capture.ScreenBounds.Size)); // crop what is outside the screen
 				Rectangle fixedRect = new Rectangle( captureRect.X, captureRect.Y, captureRect.Width, captureRect.Height );
-				graphics.FillRectangle(GreenOverlayBrush, fixedRect);
+				if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
+					graphics.FillRectangle(RedOverlayBrush, fixedRect);
+				} else {
+					graphics.FillRectangle(GreenOverlayBrush, fixedRect);
+				}
 				graphics.DrawRectangle(OverlayPen, fixedRect);
 				
 				// rulers

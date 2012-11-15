@@ -609,7 +609,6 @@ namespace GreenshotPlugin.Core {
 			} else {
 				LOG.Debug("CaptureRectangle Called!");
 			}
-			
 			// .NET GDI+ Solution, according to some post this has a GDI+ leak...
 			// See http://connect.microsoft.com/VisualStudio/feedback/details/344752/gdi-object-leak-when-calling-graphics-copyfromscreen
 			// Bitmap capturedBitmap = new Bitmap(captureBounds.Width, captureBounds.Height);
@@ -623,7 +622,7 @@ namespace GreenshotPlugin.Core {
 			IntPtr hWndDesktop = User32.GetDesktopWindow();
 			// get te hDC of the target window
 			IntPtr hDCDesktop = User32.GetWindowDC(hWndDesktop);
- 
+
 			// Make sure the last error is set to 0
 			Win32.SetLastError(0);
 
@@ -667,7 +666,7 @@ namespace GreenshotPlugin.Core {
 	
 				// bitblt over (make copy)
 				GDI32.BitBlt(hDCDest, 0, 0, captureBounds.Width, captureBounds.Height, hDCDesktop, captureBounds.X,  captureBounds.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
-				
+
 				// restore selection (old handle)
 				GDI32.SelectObject(hDCDest, hOldObject);
 				// clean up
@@ -697,7 +696,7 @@ namespace GreenshotPlugin.Core {
 				GDI32.DeleteObject(hDIBSection);
 				
 			}
-            return returnBitmap;
-        }
+			return returnBitmap;
+		}
 	}
 }

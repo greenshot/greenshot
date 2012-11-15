@@ -44,7 +44,6 @@ namespace Greenshot.Helpers {
 	public class ScreenCaptureHelper {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ScreenCaptureHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private const int MAX_FRAMES = 500;
 		private const int ALIGNMENT = 8;
 		private IntPtr hWndDesktop = IntPtr.Zero;
 		private IntPtr hDCDesktop = IntPtr.Zero;
@@ -63,11 +62,19 @@ namespace Greenshot.Helpers {
 		private Bitmap GDIBitmap;
 		private string filename = null;
 		private Stopwatch stopwatch = new Stopwatch();
+		private bool disabledDWM = false;
 
-		public ScreenCaptureHelper(Rectangle recordingRectangle) {
+		private ScreenCaptureHelper() {
+			if (DWM.isDWMEnabled()) {
+				// with DWM Composition disabled the capture goes ~2x faster
+				DWM.DisableComposition();
+				disabledDWM = true;
+			}
+		}
+		public ScreenCaptureHelper(Rectangle recordingRectangle) : this() {
 			this.recordingRectangle = recordingRectangle;
 		}
-		public ScreenCaptureHelper(WindowDetails recordingWindow) {
+		public ScreenCaptureHelper(WindowDetails recordingWindow) : this() {
 			this.recordingWindow = recordingWindow;
 		}
 
@@ -111,14 +118,14 @@ namespace Greenshot.Helpers {
 				LOG.InfoFormat("Starting recording rectangle {0}", recordingRectangle);
 				recordingSize = recordingRectangle.Size;
 			}
-			if (recordingSize.Width % ALIGNMENT > 0) {
-				LOG.InfoFormat("Correcting width to be factor alignment, {0} => {1}", recordingSize.Width, recordingSize.Width + (ALIGNMENT - (recordingSize.Width % ALIGNMENT)));
-				recordingSize = new Size(recordingSize.Width + (ALIGNMENT - (recordingSize.Width % ALIGNMENT)), recordingSize.Height);
-			}
-			if (recordingSize.Height % ALIGNMENT > 0) {
-				LOG.InfoFormat("Correcting Height to be factor alignment, {0} => {1}", recordingSize.Height, recordingSize.Height + (ALIGNMENT - (recordingSize.Height % ALIGNMENT)));
-				recordingSize = new Size(recordingSize.Width, recordingSize.Height + (ALIGNMENT - (recordingSize.Height % ALIGNMENT)));
-			}
+			//if (recordingSize.Width % ALIGNMENT > 0) {
+			//	LOG.InfoFormat("Correcting width to be factor alignment, {0} => {1}", recordingSize.Width, recordingSize.Width + (ALIGNMENT - (recordingSize.Width % ALIGNMENT)));
+			//	recordingSize = new Size(recordingSize.Width + (ALIGNMENT - (recordingSize.Width % ALIGNMENT)), recordingSize.Height);
+			//}
+			//if (recordingSize.Height % ALIGNMENT > 0) {
+			//	LOG.InfoFormat("Correcting Height to be factor alignment, {0} => {1}", recordingSize.Height, recordingSize.Height + (ALIGNMENT - (recordingSize.Height % ALIGNMENT)));
+			//	recordingSize = new Size(recordingSize.Width, recordingSize.Height + (ALIGNMENT - (recordingSize.Height % ALIGNMENT)));
+			//}
 			this.framesPerSecond = framesPerSecond;
 			// "P/Invoke" Solution for capturing the screen
 			hWndDesktop = User32.GetDesktopWindow();
@@ -162,7 +169,7 @@ namespace Greenshot.Helpers {
 				throw exceptionToThrow;
 			}
 			// Create a GDI Bitmap so we can use GDI and GDI+ operations on the same memory
-			GDIBitmap = new Bitmap(recordingSize.Width, recordingSize.Height, 32, PixelFormat.Format32bppArgb, bits0);
+			GDIBitmap = new Bitmap(recordingSize.Width, recordingSize.Height, 32, PixelFormat.Format32bppPArgb, bits0);
 			// select the bitmap object and store the old handle
 			hOldObject = GDI32.SelectObject(hDCDest, hDIBSection);
 			stop = false;
@@ -202,7 +209,8 @@ namespace Greenshot.Helpers {
 					captureLocation = new Point(recordingRectangle.X,  recordingRectangle.Y);
 				}
 				// "Capture"
-				GDI32.BitBlt(hDCDest, 0, 0, recordingSize.Width, recordingSize.Height, hDCDesktop, captureLocation.X,  captureLocation.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
+				GDI32.BitBlt(hDCDest, 0, 0, recordingSize.Width, recordingSize.Height, hDCDesktop, captureLocation.X,  captureLocation.Y, CopyPixelOperation.SourceCopy);
+				//GDI32.BitBlt(hDCDest, 0, 0, recordingSize.Width, recordingSize.Height, hDCDesktop, captureLocation.X, captureLocation.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
 
 				// Mouse
 				if (RecordMouse) {
@@ -281,6 +289,10 @@ namespace Greenshot.Helpers {
 				aviWriter.Dispose();
 				aviWriter = null;
 				MessageBox.Show("Recording written to " + filename);
+			}
+
+			if (disabledDWM) {
+				DWM.EnableComposition();
 			}
 		}
 	}

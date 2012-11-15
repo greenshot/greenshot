@@ -45,7 +45,7 @@ namespace Greenshot.Helpers {
 	public class CaptureHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CaptureHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		//private static ScreenCaptureHelper screenCapture = null;
+		private static ScreenCaptureHelper screenCapture = null;
 		private List<WindowDetails> windows = new List<WindowDetails>();
 		private WindowDetails selectedCaptureWindow = null;
 		private Rectangle captureRect = Rectangle.Empty;
@@ -160,6 +160,12 @@ namespace Greenshot.Helpers {
 		/// Make Capture with specified destinations
 		/// </summary>
 		private void MakeCapture() {
+			// Experimental code
+			if (screenCapture != null) {
+				screenCapture.Stop();
+				screenCapture = null;
+				return;
+			}
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
 			// forcefully removes the balloon!
 			if (!conf.HideTrayicon) {
@@ -892,6 +898,24 @@ namespace Greenshot.Helpers {
 						//	windowDetailsThread.Join();
 						//}
 
+						// Experimental code for Video capture
+						if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
+							if (captureForm.UsedCaptureMode == CaptureMode.Window) {
+								screenCapture = new ScreenCaptureHelper(selectedCaptureWindow);
+							} else if (captureForm.UsedCaptureMode == CaptureMode.Region) {
+								screenCapture = new ScreenCaptureHelper(captureRect);
+							}
+							if (screenCapture != null) {
+								screenCapture.RecordMouse = capture.CursorVisible;
+								if (screenCapture.Start(25)) {
+									return;
+								}
+								// User clicked cancel or a problem occured
+								screenCapture.Stop();
+								screenCapture = null;
+								return;
+							}
+						}
 						// Take the captureRect, this already is specified as bitmap coordinates
 						capture.Crop(captureRect);
 						

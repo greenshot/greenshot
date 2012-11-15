@@ -180,8 +180,10 @@
       <DependentUpon>MovableShowColorForm.cs</DependentUpon>
     </Compile>
     <None Include="App.config" />
-    <None Include="Helpers\AviHelper.cs" />
-    <Compile Include="Forms\ZoomForm.cs" />
+    <Compile Include="Helpers\AviHelper.cs" />
+    <Compile Include="Forms\ZoomForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
     <Compile Include="Helpers\CopyData.cs" />
@@ -203,7 +205,7 @@
     <Compile Include="Memento\IMemento.cs" />
     <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
     <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
-    <None Include="Helpers\ScreenCaptureHelper.cs" />
+    <Compile Include="Helpers\ScreenCaptureHelper.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />
     <Compile Include="Helpers\GuiRectangle.cs" />
