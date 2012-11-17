@@ -52,6 +52,7 @@ namespace Greenshot.Forms {
 		private int mX;
 		private int mY;
 		private Point cursorPos = Point.Empty;
+		private Point bitmapPos = Point.Empty;
 		private CaptureMode captureMode = CaptureMode.None;
 		private List<WindowDetails> windows = new List<WindowDetails>();
 		private WindowDetails selectedCaptureWindow;
@@ -131,7 +132,8 @@ namespace Greenshot.Forms {
 			// set cursor location
 			cursorPos = WindowCapture.GetCursorLocation();
 			// Offset to screen coordinates
-			cursorPos.Offset(-capture.ScreenBounds.X, -capture.ScreenBounds.Y);
+			bitmapPos = new Point(cursorPos.X, cursorPos.Y);
+			bitmapPos.Offset(-capture.ScreenBounds.X, -capture.ScreenBounds.Y);
 
 			this.SuspendLayout();
 			this.Bounds = capture.ScreenBounds;
@@ -274,7 +276,7 @@ namespace Greenshot.Forms {
 			// Make sure the mouse coordinates are fixed, when pressing shift
 			cursorPos = FixMouseCoordinates(cursorPos);
 			// As the cursorPos is not in Bitmap coordinates, we need to correct.
-			Point bitmapPos = new Point(cursorPos.X, cursorPos.Y);
+			bitmapPos = new Point(cursorPos.X, cursorPos.Y);
 			bitmapPos.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
 			Rectangle lastCaptureRect = new Rectangle(captureRect.Location, captureRect.Size);
 			WindowDetails lastWindow = selectedCaptureWindow;
@@ -506,20 +508,20 @@ namespace Greenshot.Forms {
 					using (Pen pen = new Pen(Color.LightSeaGreen)) {
 						pen.DashStyle = DashStyle.Dot;
 						Rectangle screenBounds = capture.ScreenBounds;
-						graphics.DrawLine(pen, cursorPos.X, screenBounds.Y, cursorPos.X, screenBounds.Height);
-						graphics.DrawLine(pen, screenBounds.X, cursorPos.Y, screenBounds.Width, cursorPos.Y);
+						graphics.DrawLine(pen, bitmapPos.X, screenBounds.Y, bitmapPos.X, screenBounds.Height);
+						graphics.DrawLine(pen, screenBounds.X, bitmapPos.Y, screenBounds.Width, bitmapPos.Y);
 					}
 
-					string xy = cursorPos.X + " x " + cursorPos.Y;
+					string xy = bitmapPos.X + " x " + bitmapPos.Y;
 					using (Font f = new Font(FontFamily.GenericSansSerif, 8)) {
 						Size xySize = TextRenderer.MeasureText(xy, f);
-						using (GraphicsPath gp = Drawing.RoundedRectangle.Create2(cursorPos.X + 5, cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3)) {
+						using (GraphicsPath gp = Drawing.RoundedRectangle.Create2(bitmapPos.X + 5, bitmapPos.Y + 5, xySize.Width - 3, xySize.Height, 3)) {
 							using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227))) {
 								graphics.FillPath(bgBrush, gp);
 							}
 							using (Pen pen = new Pen(Color.SeaGreen)) {
 								graphics.DrawPath(pen, gp);
-								Point coordinatePosition = new Point(cursorPos.X + 5, cursorPos.Y + 5);
+								Point coordinatePosition = new Point(bitmapPos.X + 5, bitmapPos.Y + 5);
 								graphics.DrawString(xy, f, pen.Brush, coordinatePosition);
 							}
 						}
