@@ -107,6 +107,7 @@ namespace Greenshot.Forms {
 				return;
 			}
 			Graphics graphics = e.Graphics;
+			graphics.Clear(Color.Black);
 			graphics.SmoothingMode = SmoothingMode.None;
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.HighSpeed;
