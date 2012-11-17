@@ -274,7 +274,8 @@ namespace Greenshot.Forms {
 			// Make sure the mouse coordinates are fixed, when pressing shift
 			cursorPos = FixMouseCoordinates(cursorPos);
 			// As the cursorPos is not in Bitmap coordinates, we need to correct.
-			cursorPos.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
+			Point bitmapPos = new Point(cursorPos.X, cursorPos.Y);
+			bitmapPos.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
 			Rectangle lastCaptureRect = new Rectangle(captureRect.Location, captureRect.Size);
 			WindowDetails lastWindow = selectedCaptureWindow;
 			bool horizontalMove = false;
@@ -283,6 +284,7 @@ namespace Greenshot.Forms {
 			// Change the zoom location
 			if (zoomForm != null) {
 				zoomForm.MouseLocation = cursorPos;
+				zoomForm.ZoomLocation = bitmapPos;
 			}
 
 			if (lastPos.X != cursorPos.X) {
@@ -293,7 +295,7 @@ namespace Greenshot.Forms {
 			}
 
 			if (captureMode == CaptureMode.Region && mouseDown) {
-				captureRect = GuiRectangle.GetGuiRectangle(cursorPos.X, cursorPos.Y, mX - cursorPos.X, mY - cursorPos.Y);
+				captureRect = GuiRectangle.GetGuiRectangle(bitmapPos.X, bitmapPos.Y, mX - bitmapPos.X, mY - bitmapPos.Y);
 			}
 			
 			// Iterate over the found windows and check if the current location is inside a window
@@ -327,10 +329,10 @@ namespace Greenshot.Forms {
 				int x2 = Math.Max(mX, lastPos.X);
 				int y1 = Math.Min(mY, lastPos.Y);
 				int y2 = Math.Max(mY, lastPos.Y);
-				x1= Math.Min(x1, cursorPos.X);
-				x2= Math.Max(x2, cursorPos.X);
-				y1= Math.Min(y1, cursorPos.Y);
-				y2= Math.Max(y2, cursorPos.Y);
+				x1= Math.Min(x1, bitmapPos.X);
+				x2= Math.Max(x2, bitmapPos.X);
+				y1= Math.Min(y1, bitmapPos.Y);
+				y2= Math.Max(y2, bitmapPos.Y);
 
 				// Safety correction
 				x2 += 2;
@@ -339,8 +341,8 @@ namespace Greenshot.Forms {
 				// Here we correct for text-size
 				
 				// Calculate the size
-				int textForWidth = Math.Max(Math.Abs(mX - cursorPos.X), Math.Abs(mX - lastPos.X));
-				int textForHeight = Math.Max(Math.Abs(mY - cursorPos.Y), Math.Abs(mY - lastPos.Y));
+				int textForWidth = Math.Max(Math.Abs(mX - bitmapPos.X), Math.Abs(mX - lastPos.X));
+				int textForHeight = Math.Max(Math.Abs(mY - bitmapPos.Y), Math.Abs(mY - lastPos.Y));
 
 				using (Font rulerFont = new Font(FontFamily.GenericSansSerif, 8)) {
 					Size measureWidth = TextRenderer.MeasureText(textForWidth.ToString(), rulerFont);
@@ -373,13 +375,13 @@ namespace Greenshot.Forms {
 					if (!conf.OptimizeForRDP) {
 						if (verticalMove) {
 							Rectangle before = GuiRectangle.GetGuiRectangle(0, lastPos.Y - 2, this.Width+2, 45);
-							Rectangle after = GuiRectangle.GetGuiRectangle(0, cursorPos.Y - 2, this.Width+2, 45);
+							Rectangle after = GuiRectangle.GetGuiRectangle(0, bitmapPos.Y - 2, this.Width+2, 45);
 							Invalidate(before);
 							Invalidate(after);
 						}
 						if (horizontalMove) {
 							Rectangle before = GuiRectangle.GetGuiRectangle(lastPos.X - 2, 0, 75, this.Height+2);
-							Rectangle after = GuiRectangle.GetGuiRectangle(cursorPos.X -2, 0, 75, this.Height+2);
+							Rectangle after = GuiRectangle.GetGuiRectangle(bitmapPos.X -2, 0, 75, this.Height+2);
 							Invalidate(before);
 							Invalidate(after);
 						}

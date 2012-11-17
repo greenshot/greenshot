@@ -33,15 +33,13 @@ namespace Greenshot.Forms {
 	public class ZoomForm : FormWithoutActivation {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ZoomForm));
 		private ICapture captureToZoom = null;
-		private Point mouseLocation = Point.Empty;
+		private Point zoomLocation = Point.Empty;
 		private const int distanceX = 20;
 		private const int distanceY = 20;
-		private	Rectangle screenBounds;
 
 		public ZoomForm(ICapture captureToZoom) {
 			InitializeComponent();
 			this.captureToZoom = captureToZoom;
-			screenBounds = new Rectangle(Point.Empty, captureToZoom.Image.Size);
 			Zoom = 400;
 		}
 
@@ -56,17 +54,16 @@ namespace Greenshot.Forms {
 			}
 		}
 
+		/// <summary>
+		/// Sets the location of the mouse on the screen (using screen coordinates, which might differ from bitmap coordindates in a multi screen setup)
+		/// </summary>
 		public Point MouseLocation {
-			get {
-				return mouseLocation;
-			}
 			set {
-				mouseLocation = value;
-
-				Rectangle tl = new Rectangle(mouseLocation.X - (distanceX + Width), mouseLocation.Y - (distanceY + Height), Width, Height);
-				Rectangle tr = new Rectangle(mouseLocation.X + distanceX, mouseLocation.Y - (distanceY + Height), Width, Height);
-				Rectangle bl = new Rectangle(mouseLocation.X - (distanceX + Width), mouseLocation.Y + distanceY, Width, Height);
-				Rectangle br = new Rectangle(mouseLocation.X + distanceX, mouseLocation.Y + distanceY, Width, Height);
+				Rectangle tl = new Rectangle(value.X - (distanceX + Width), value.Y - (distanceY + Height), Width, Height);
+				Rectangle tr = new Rectangle(value.X + distanceX, value.Y - (distanceY + Height), Width, Height);
+				Rectangle bl = new Rectangle(value.X - (distanceX + Width), value.Y + distanceY, Width, Height);
+				Rectangle br = new Rectangle(value.X + distanceX, value.Y + distanceY, Width, Height);
+				Rectangle screenBounds = Screen.GetBounds(value);
 				if (screenBounds.Contains(br)) {
 					this.Location = br.Location;
 				} else if (screenBounds.Contains(bl)) {
@@ -79,6 +76,19 @@ namespace Greenshot.Forms {
 
 				this.Invalidate();
 			}
+		}
+		
+		/// <summary>
+		/// Gets or sets the location of the bitmap to be displayed in zoom (using bitmap coordinates, which might differ from screen coordinates in a multi screen setup)
+		/// </summary>
+		public Point ZoomLocation {
+			get {
+				return zoomLocation;
+			}
+			set {
+				zoomLocation = value;
+			}
+			
 		}
 
 		public int Zoom {
@@ -106,7 +116,7 @@ namespace Greenshot.Forms {
 
 			int sourceWidth = (int)(Width * zoom);
 			int sourceHeight = (int)(Height * zoom);
-			Rectangle sourceRectangle = new Rectangle(MouseLocation.X - (sourceWidth / 2), MouseLocation.Y - (sourceHeight / 2), sourceWidth, sourceHeight);
+			Rectangle sourceRectangle = new Rectangle(ZoomLocation.X - (sourceWidth / 2), ZoomLocation.Y - (sourceHeight / 2), sourceWidth, sourceHeight);
 			Rectangle destinationRectangle = new Rectangle(0, 0, Width, Height);
 			graphics.DrawImage(captureToZoom.Image, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 
