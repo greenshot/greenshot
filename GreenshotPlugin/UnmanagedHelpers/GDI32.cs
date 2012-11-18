@@ -40,7 +40,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// GDI32 Helpers
 	/// </summary>
-	public class GDI32 {
+	public static class GDI32 {
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern bool BitBlt(IntPtr hObject,int nXDest,int nYDest, int nWidth,int nHeight,IntPtr hObjectSource, int nXSrc,int nYSrc, CopyPixelOperation dwRop);
 		[DllImport("gdi32", SetLastError=true)]
@@ -61,6 +61,29 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern uint GetPixel(IntPtr hdc, int nXPos, int nYPos);
 		[DllImport("gdi32")]
 		public static extern IntPtr CreateRoundRectRgn(int x1, int y1, int x2, int y2, int cx, int cy);
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="source"></param>
+		public static void BitBlt(this Graphics target, Bitmap source, Point location) {
+			IntPtr hDCSrc = IntPtr.Zero;
+			IntPtr hDCDest = IntPtr.Zero;
+			try {
+				hDCDest = target.GetHdc();
+				hDCSrc = CreateCompatibleDC(hDCDest);
+				SelectObject(hDCSrc, source.GetHbitmap());
+				GDI32.BitBlt(hDCDest, location.X, location.Y, source.Width, source.Height, hDCSrc, 0, 0, CopyPixelOperation.SourceCopy);
+			} finally {
+				if (hDCSrc != IntPtr.Zero) {
+					DeleteDC(hDCSrc);
+				}
+				if (hDCDest != IntPtr.Zero) {
+					target.ReleaseHdc(hDCDest);
+				}
+			}
+		}
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 2)]

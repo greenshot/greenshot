@@ -23,10 +23,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Drawing.Printing;
 using System.IO;
 using System.Windows.Forms;
-
 using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Helpers;
@@ -51,6 +51,7 @@ namespace Greenshot.Forms {
 
 		private int mX;
 		private int mY;
+		private Point mouseMovePos = Point.Empty;
 		private Point cursorPos = Point.Empty;
 		private Point cursorPosOnBitmap = Point.Empty;
 		private CaptureMode captureMode = CaptureMode.None;
@@ -59,6 +60,8 @@ namespace Greenshot.Forms {
 		private bool mouseDown = false;
 		private Rectangle captureRect = Rectangle.Empty;
 		private ICapture capture = null;
+		private Image capturedImage = null;
+		private Timer timer = null;
 
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
@@ -101,6 +104,14 @@ namespace Greenshot.Forms {
 				Application.DoEvents();
 			}
 			currentForm = this;
+			
+			// comment this out if the timer should not be used
+			timer = new Timer();
+			
+			// Using 32bppPArgb speeds up the drawing.
+			capturedImage = ImageHelper.Clone(capture.Image, PixelFormat.Format32bppPArgb);
+			// comment the clone, uncomment the assignment and the original bitmap is used.
+			//capturedImage = capture.Image;
 
 			// clean up
 			this.FormClosed += delegate {
@@ -125,6 +136,13 @@ namespace Greenshot.Forms {
 			WindowDetails.RegisterIgnoreHandle(this.Handle);
 			// Unregister at close
 			this.FormClosing += delegate {
+				if (timer != null) {
+					timer.Stop();
+				}
+				// remove the buffer if it was created inside this form
+				if (capturedImage != capture.Image) {
+					capturedImage.Dispose();
+				}
 				LOG.Debug("Closing captureform");
 				WindowDetails.UnregisterIgnoreHandle(this.Handle);
 			};
@@ -143,12 +161,20 @@ namespace Greenshot.Forms {
 			WindowDetails.ToForeground(this.Handle);
 			this.TopMost = true;
 			CreateZoom();
+			if (timer != null) {
+				timer.Interval = 40;
+				timer.Tick += new EventHandler(timer_Tick);
+				timer.Start();
+			}
 		}
 
 		private void CreateZoom() {
 			if (zoomForm == null) {
-				zoomForm = new ZoomForm(capture);
+				zoomForm = new ZoomForm(capturedImage);
 				zoomForm.Show(this);
+
+				zoomForm.MouseLocation = cursorPos;
+				zoomForm.ZoomLocation = cursorPosOnBitmap;
 
 				// Fix missing focus issue
 				WindowDetails.ToForeground(this.Handle);
@@ -271,13 +297,30 @@ namespace Greenshot.Forms {
 		}
 
 		void OnMouseMove(object sender, MouseEventArgs e) {
-			Point lastPos = new Point(cursorPos.X, cursorPos.Y);
-			cursorPos = WindowCapture.GetCursorLocation();
 			// Make sure the mouse coordinates are fixed, when pressing shift
-			cursorPos = FixMouseCoordinates(cursorPos);
+			mouseMovePos = FixMouseCoordinates(WindowCapture.GetCursorLocation());
+			// If the timer is used, the timer_Tick does the following.
+			// If the timer is not used, we need to call the update ourselves
+			if (timer == null) {
+				updateFrame();
+			}
+		}
+
+		void timer_Tick(object sender, EventArgs e) {
+			updateFrame();
+		}
+
+		void updateFrame() {
+			Point lastPos = cursorPos.Clone();
+			cursorPos = mouseMovePos.Clone();
+			if (lastPos.Equals(cursorPos)) {
+				return;
+			}
+
 			// As the cursorPos is not in Bitmap coordinates, we need to correct.
 			cursorPosOnBitmap = new Point(cursorPos.X, cursorPos.Y);
 			cursorPosOnBitmap.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
+
 			Rectangle lastCaptureRect = new Rectangle(captureRect.Location, captureRect.Size);
 			WindowDetails lastWindow = selectedCaptureWindow;
 			bool horizontalMove = false;
@@ -390,6 +433,8 @@ namespace Greenshot.Forms {
 					}
 				}
 			}
+			// Force update "now"
+			Update();
 		}
 
 		/// <summary>
@@ -402,7 +447,8 @@ namespace Greenshot.Forms {
 		void OnPaint(object sender, PaintEventArgs e) {
 			Graphics graphics = e.Graphics;
 			Rectangle clipRectangle = e.ClipRectangle;
-			graphics.DrawImageUnscaled(capture.Image, Point.Empty);
+			//graphics.BitBlt((Bitmap)buffer, Point.Empty);
+			graphics.DrawImageUnscaled(capturedImage, Point.Empty);
 			// Only draw Cursor if it's (partly) visible
 			if (capture.Cursor != null && capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(capture.CursorLocation, capture.Cursor.Size))) {
 				graphics.DrawIcon(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);

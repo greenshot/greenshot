@@ -32,14 +32,14 @@ namespace Greenshot.Forms {
 	/// </summary>
 	public class ZoomForm : FormWithoutActivation {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ZoomForm));
-		private ICapture captureToZoom = null;
+		private Image imageToZoom = null;
 		private Point zoomLocation = Point.Empty;
 		private const int distanceX = 20;
 		private const int distanceY = 20;
 
-		public ZoomForm(ICapture captureToZoom) {
+		public ZoomForm(Image imageToZoom) {
 			InitializeComponent();
-			this.captureToZoom = captureToZoom;
+			this.imageToZoom = imageToZoom;
 			Zoom = 400;
 		}
 
@@ -103,7 +103,7 @@ namespace Greenshot.Forms {
 		}
 
 		protected override void OnPaint(PaintEventArgs e) {
-			if (captureToZoom == null || captureToZoom.Image == null) {
+			if (imageToZoom == null) {
 				return;
 			}
 			Graphics graphics = e.Graphics;
@@ -111,7 +111,7 @@ namespace Greenshot.Forms {
 			graphics.SmoothingMode = SmoothingMode.None;
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.HighSpeed;
-			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			Rectangle clipRectangle = e.ClipRectangle;
 			float zoom = (float)100 / (float)Zoom;
 
@@ -119,7 +119,7 @@ namespace Greenshot.Forms {
 			int sourceHeight = (int)(Height * zoom);
 			Rectangle sourceRectangle = new Rectangle(ZoomLocation.X - (sourceWidth / 2), ZoomLocation.Y - (sourceHeight / 2), sourceWidth, sourceHeight);
 			Rectangle destinationRectangle = new Rectangle(0, 0, Width, Height);
-			graphics.DrawImage(captureToZoom.Image, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
+			graphics.DrawImage(imageToZoom, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 
 			int pixelThickness = Zoom / 100;
 			using (Pen pen = new Pen(Color.Black, pixelThickness)) {
