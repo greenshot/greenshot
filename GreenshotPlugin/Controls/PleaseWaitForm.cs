@@ -77,6 +77,7 @@ namespace GreenshotPlugin.Controls {
 						try {
 							waitDelegate.Invoke();
 						} catch (Exception ex) {
+							LOG.Error("invoke error:", ex);
 							threadException = ex;
 						}
 					})
