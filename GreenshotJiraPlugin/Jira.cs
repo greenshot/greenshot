@@ -109,6 +109,7 @@ namespace Jira {
 		private string url;
 		private Cache<string, JiraIssue> jiraCache = new Cache<string, JiraIssue>(60 * config.Timeout);
 		private Cache<string, RemoteUser> userCache = new Cache<string, RemoteUser>(60 * config.Timeout);
+		private bool suppressBackgroundForm = false;
 
 		public JiraConnector() : this(false) {
 		}
@@ -116,6 +117,11 @@ namespace Jira {
 		public JiraConnector(bool suppressBackgroundForm) {
 			this.url = config.Url;
 			this.timeout = config.Timeout;
+			this.suppressBackgroundForm = suppressBackgroundForm;
+			createService();
+		}
+
+		private void createService() {
 			if (!suppressBackgroundForm) {
 				new PleaseWaitForm().ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait),
 					delegate() {
@@ -127,6 +133,9 @@ namespace Jira {
 			}
 			jira.Url = url;
 			jira.Proxy = NetworkHelper.CreateProxy(new Uri(url));
+			// Do not use:
+			//jira.AllowAutoRedirect = true;
+			jira.UserAgent = "Greenshot";
 		}
 
 		~JiraConnector() {
@@ -145,10 +154,13 @@ namespace Jira {
 				try {
 					this.credentials = jira.login(user, password);
 				} catch(Exception ex) {
-					if (!config.Url.EndsWith("wsdl")) {
-						config.Url = config.Url + "/rpc/soap/jirasoapservice-v2?wsdl";
-						jira = new JiraSoapServiceService();
+					if (!url.EndsWith("wsdl")) {
+						url = url + "/rpc/soap/jirasoapservice-v2?wsdl";
+						// recreate the service with the new url
+						createService();
 						this.credentials = jira.login(user, password);
+						// Worked, store the url in the configuration
+						config.Url = url;
 						IniConfig.Save();
 					} else {
 						throw ex;
