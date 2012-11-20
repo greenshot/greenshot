@@ -28,9 +28,8 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	[IniSection("Jira", Description="Greenshot Jira Plugin configuration")]
 	public class JiraConfiguration : IniSection {
-		public const string DEFAULT_POSTFIX = "/rpc/soap/jirasoapservice-v2?wsdl";
 		public const string DEFAULT_PREFIX = "http://";
-		private const string DEFAULT_URL = DEFAULT_PREFIX + "jira" + DEFAULT_POSTFIX;
+		private const string DEFAULT_URL = DEFAULT_PREFIX + "jira" + Jira.JiraConnector.DEFAULT_POSTFIX;
 
 		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue=DEFAULT_URL)]
 		public string Url;
