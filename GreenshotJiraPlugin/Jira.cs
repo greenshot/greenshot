@@ -26,6 +26,7 @@ using Greenshot.IniFile;
 using GreenshotJiraPlugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotJiraPlugin.JiraSoap;
 
 namespace Jira {
 	#region transport classes
@@ -141,7 +142,19 @@ namespace Jira {
 			// This is what needs to be done
 			ThreadStart jiraLogin = delegate {
 				LOG.DebugFormat("Loggin in");
-				this.credentials = jira.login(user, password);
+				try {
+					this.credentials = jira.login(user, password);
+				} catch(Exception ex) {
+					if (!config.Url.EndsWith("wsdl")) {
+						config.Url = config.Url + "/rpc/soap/jirasoapservice-v2?wsdl";
+						jira = new JiraSoapServiceService();
+						this.credentials = jira.login(user, password);
+						IniConfig.Save();
+					} else {
+						throw ex;
+					}
+				}
+				
 				LOG.DebugFormat("Logged in");
 				this.loggedInTime = DateTime.Now;
 				this.loggedIn = true;
