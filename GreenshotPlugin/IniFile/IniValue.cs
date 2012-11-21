@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Text;
 
 namespace Greenshot.IniFile {
 	/// <summary>
@@ -165,23 +166,7 @@ namespace Greenshot.IniFile {
 				writer.WriteLine("{0}=", attributes.Name);
 				return;
 			}
-			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>)) {
-				Type specificValueType = valueType.GetGenericArguments()[0];
-				writer.Write("{0}=", attributes.Name);
-				int listCount = (int)valueType.GetProperty("Count").GetValue(myValue, null);
-				// Loop though generic list
-				for (int index = 0; index < listCount; index++) {
-					object item = valueType.GetMethod("get_Item").Invoke(myValue, new object[] { index });
-
-					// Now you have an instance of the item in the generic list
-					if (index < listCount - 1) {
-						writer.Write("{0}" + attributes.Separator, ConvertValueToString(specificValueType, item));
-					} else {
-						writer.Write("{0}", ConvertValueToString(specificValueType, item));
-					}
-				}
-				writer.WriteLine();
-			} else if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
 				// Handle dictionaries.
 				Type valueType1 = valueType.GetGenericArguments()[0];
 				Type valueType2 = valueType.GetGenericArguments()[1];
@@ -196,12 +181,11 @@ namespace Greenshot.IniFile {
 					var key = current.Invoke(enumerator, null);
 					var valueObject = item.GetValue(myValue, new object[] { key });
 					// Write to ini file!
-					writer.WriteLine("{0}.{1}={2}", attributes.Name, ConvertValueToString(valueType1, key), ConvertValueToString(valueType2, valueObject));
+					writer.WriteLine("{0}.{1}={2}", attributes.Name, ConvertValueToString(valueType1, key, attributes.Separator), ConvertValueToString(valueType2, valueObject, attributes.Separator));
 				}
 			} else {
-				writer.WriteLine("{0}={1}", attributes.Name, ConvertValueToString(valueType, myValue));
+				writer.WriteLine("{0}={1}", attributes.Name, ConvertValueToString(valueType, myValue, attributes.Separator));
 			}
-
 		}
 
 		/// <summary>
@@ -252,58 +236,7 @@ namespace Greenshot.IniFile {
 				}
 			}
 			// Now set the value
-			if (valueType.IsGenericType && ValueType.GetGenericTypeDefinition() == typeof(List<>)) {
-				string arraySeparator = attributes.Separator;
-				object list = Activator.CreateInstance(ValueType);
-				// Logic for List<>
-				if (propertyValue == null) {
-					if (defaultValueFromConfig != null) {
-						Value = defaultValueFromConfig;
-						return;
-					}
-					Value = list;
-					return;
-				}
-				string[] arrayValues = propertyValue.Split(new string[] { arraySeparator }, StringSplitOptions.None);
-				if (arrayValues == null || arrayValues.Length == 0) {
-					Value = list;
-					return;
-				}
-				bool addedElements = false;
-				bool parseProblems = false;
-				MethodInfo addMethodInfo = valueType.GetMethod("Add");
-
-				foreach (string arrayValue in arrayValues) {
-					if (arrayValue != null && arrayValue.Length > 0) {
-						object newValue = null;
-						try {
-							newValue = ConvertStringToValueType(valueType.GetGenericArguments()[0], arrayValue);
-						} catch (Exception ex) {
-							LOG.Warn(ex);
-							//LOG.Error("Problem converting " + arrayValue + " to type " + fieldType.FullName, e);
-							parseProblems = true;
-						}
-						if (newValue != null) {
-							addMethodInfo.Invoke(list, new object[] { newValue });
-							addedElements = true;
-						}
-					}
-				}
-				// Try to fallback on a default
-				if (!addedElements && parseProblems) {
-					try {
-						object fallbackValue = ConvertStringToValueType(valueType.GetGenericArguments()[0], defaultValue);
-						addMethodInfo.Invoke(list, new object[] { fallbackValue });
-						Value = list;
-						return;
-					} catch (Exception ex) {
-						LOG.Warn(ex);
-						//LOG.Error("Problem converting " + defaultValue + " to type " + fieldType.FullName, e);
-					}
-				}
-				Value = list;
-				return;
-			} else if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
 				// Logic for Dictionary<,>
 				Type type1 = valueType.GetGenericArguments()[0];
 				Type type2 = valueType.GetGenericArguments()[1];
@@ -320,13 +253,13 @@ namespace Greenshot.IniFile {
 						object newValue1 = null;
 						object newValue2 = null;
 						try {
-							newValue1 = ConvertStringToValueType(type1, subPropertyName);
+							newValue1 = ConvertStringToValueType(type1, subPropertyName, attributes.Separator);
 						} catch (Exception ex) {
 							LOG.Warn(ex);
 							//LOG.Error("Problem converting " + subPropertyName + " to type " + type1.FullName, e);
 						}
 						try {
-							newValue2 = ConvertStringToValueType(type2, stringValue);
+							newValue2 = ConvertStringToValueType(type2, stringValue, attributes.Separator);
 						} catch (Exception ex) {
 							LOG.Warn(ex);
 							//LOG.Error("Problem converting " + stringValue + " to type " + type2.FullName, e);
@@ -350,12 +283,12 @@ namespace Greenshot.IniFile {
 				}
 				object newValue = null;
 				try {
-					newValue = ConvertStringToValueType(valueType, propertyValue);
+					newValue = ConvertStringToValueType(valueType, propertyValue, attributes.Separator);
 				} catch (Exception ex1) {
 					newValue = null;
 					if (!defaultUsed) {
 						try {
-							newValue = ConvertStringToValueType(valueType, defaultValue);
+							newValue = ConvertStringToValueType(valueType, defaultValue, attributes.Separator);
 						} catch (Exception ex2) {
 							LOG.Warn("Problem converting " + propertyValue + " to type " + valueType.FullName, ex2);
 						}
@@ -371,23 +304,49 @@ namespace Greenshot.IniFile {
 			if (defaultValueFromConfig != null) {
 				Value = defaultValueFromConfig;
 				return;
-			} 
+			}
+			Value = Activator.CreateInstance(ValueType);
 		}
 
 		/// <summary>
-		/// Helper method for conversion
+		/// Convert a string to a value of type "valueType"
 		/// </summary>
-		/// <param name="valueType"></param>
-		/// <param name="valueString"></param>
-		/// <returns></returns>
-		private static object ConvertStringToValueType(Type valueType, string valueString) {
+		/// <param name="valueType">Type to convert tp</param>
+		/// <param name="valueString">string to convert from</param>
+		/// <returns>Value</returns>
+		private static object ConvertStringToValueType(Type valueType, string valueString, string separator) {
 			if (valueString == null) {
 				return null;
 			}
 			if (valueType == typeof(string)) {
 				return valueString;
 			}
-			TypeConverter converter = TypeDescriptor.GetConverter(valueType);
+
+			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>)) {
+				string arraySeparator = separator;
+				object list = Activator.CreateInstance(valueType);
+				// Logic for List<>
+				string[] arrayValues = valueString.Split(new string[] { arraySeparator }, StringSplitOptions.None);
+				if (arrayValues == null || arrayValues.Length == 0) {
+					return list;
+				}
+				MethodInfo addMethodInfo = valueType.GetMethod("Add");
+
+				foreach (string arrayValue in arrayValues) {
+					if (arrayValue != null && arrayValue.Length > 0) {
+						object newValue = null;
+						try {
+							newValue = ConvertStringToValueType(valueType.GetGenericArguments()[0], arrayValue, separator);
+						} catch (Exception ex) {
+							LOG.Warn("Problem converting " + arrayValue + " to type " + valueType.FullName, ex);
+						}
+						if (newValue != null) {
+							addMethodInfo.Invoke(list, new object[] { newValue });
+						}
+					}
+				}
+				return list;
+			}
 			//LOG.Debug("No convertor for " + fieldType.ToString());
 			if (valueType == typeof(object) && valueString.Length > 0) {
 				//LOG.Debug("Parsing: " + valueString);
@@ -396,8 +355,10 @@ namespace Greenshot.IniFile {
 				//LOG.Debug("Value: " + values[1]);
 				Type fieldTypeForValue = Type.GetType(values[0], true);
 				//LOG.Debug("Type after GetType: " + fieldTypeForValue);
-				return ConvertStringToValueType(fieldTypeForValue, values[1]);
-			} else if (converter != null) {
+				return ConvertStringToValueType(fieldTypeForValue, values[1], separator);
+			}
+			TypeConverter converter = TypeDescriptor.GetConverter(valueType);
+			if (converter != null) {
 				return converter.ConvertFromInvariantString(valueString);
 			} else if (valueType.IsEnum) {
 				if (valueString.Length > 0) {
@@ -418,16 +379,44 @@ namespace Greenshot.IniFile {
 			return null;
 		}
 
+		/// <summary>
+		/// Override of ToString which calls the ConvertValueToString
+		/// </summary>
+		/// <returns>string representation of this</returns>
 		public override string ToString() {
-			return ConvertValueToString(ValueType, Value);
+			return ConvertValueToString(ValueType, Value, attributes.Separator);
 		}
 
-		private static string ConvertValueToString(Type valueType, object valueObject) {
+		/// <summary>
+		/// Convert the supplied value to a string
+		/// </summary>
+		/// <param name="valueType">Type to convert</param>
+		/// <param name="valueObject">Value to convert</param>
+		/// <param name="separator">separator for lists</param>
+		/// <returns>string representation of the value</returns>
+		private static string ConvertValueToString(Type valueType, object valueObject, string separator) {
 			if (valueObject == null) {
 				// If there is nothing, deliver nothing!
 				return "";
 			}
-			if (valueType == typeof(object)) {
+
+			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>)) {
+				StringBuilder stringBuilder = new StringBuilder();
+				Type specificValueType = valueType.GetGenericArguments()[0];
+				int listCount = (int)valueType.GetProperty("Count").GetValue(valueObject, null);
+				// Loop though generic list
+				for (int index = 0; index < listCount; index++) {
+					object item = valueType.GetMethod("get_Item").Invoke(valueObject, new object[] { index });
+
+					// Now you have an instance of the item in the generic list
+					if (index < listCount - 1) {
+						stringBuilder.AppendFormat("{0}{1}", ConvertValueToString(specificValueType, item, separator), separator);
+					} else {
+						stringBuilder.AppendFormat("{0}", ConvertValueToString(specificValueType, item, separator));
+					}
+				}
+				return stringBuilder.ToString();
+			} else if (valueType == typeof(object)) {
 				// object to String, this is the hardest
 				// Format will be "FQTypename[,Assemblyname]:Value"
 
@@ -435,7 +424,7 @@ namespace Greenshot.IniFile {
 				Type objectType = valueObject.GetType();
 
 				// Get the value as string
-				string ourValue = ConvertValueToString(objectType, valueObject);
+				string ourValue = ConvertValueToString(objectType, valueObject, separator);
 
 				// Get the valuetype as string
 				string valueTypeName = objectType.FullName;
