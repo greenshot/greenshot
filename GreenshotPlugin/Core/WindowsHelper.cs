@@ -973,7 +973,8 @@ namespace GreenshotPlugin.Core  {
 					if (capturedBitmap != null) {
 						// Not needed for Windows 8
 						if (!(Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor >= 2)) {
-							if (conf.WindowCaptureRemoveCorners && !Maximised) {
+							// Only if the Inivalue is set, not maximized and it's not a tool window.
+							if (conf.WindowCaptureRemoveCorners && !Maximised && (this.ExtendedWindowStyle | ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) != 0) {
 								// Remove corners
 								if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
 									LOG.Debug("Changing pixelformat to Alpha for the RemoveCorners");
@@ -1016,11 +1017,10 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		/// <param name="image">The bitmap to remove the corners from.</param>
 		private void RemoveCorners(Bitmap image) {
-			int [] cornerRange = {5,3,2,1,1};
 			using (BitmapBuffer buffer = new BitmapBuffer((Bitmap)image, false)) {
 				buffer.Lock();
-				for (int y = 0; y < cornerRange.Length; y++) {
-					for (int x = 0; x < cornerRange[y]; x++) {
+				for (int y = 0; y < conf.WindowCornerCutShape.Count; y++) {
+					for (int x = 0; x < conf.WindowCornerCutShape[y]; x++) {
 						buffer.SetColorAt(x, y, Color.Transparent);
 						buffer.SetColorAt(image.Width-1-x, y, Color.Transparent);
 						buffer.SetColorAt(image.Width-1-x, image.Height-1-y, Color.Transparent);

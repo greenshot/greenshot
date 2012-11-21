@@ -48,7 +48,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	[IniSection("Core", Description="Greenshot core configuration")]
 	public class CoreConfiguration : IniSection {
-		[IniProperty("Language", Description="The language in IETF format (e.g. en-US)")]
+		[IniProperty("Language", Description = "The language in IETF format (e.g. en-US)")]
 		public string Language;
 
 		[IniProperty("RegionHotkey", Description="Hotkey for starting the region capture", DefaultValue="PrintScreen")]
@@ -203,6 +203,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("EnableSpecialDIBClipboardReader", Description = "Enable a special DIB clipboard reader", DefaultValue="True")]
 		public bool EnableSpecialDIBClipboardReader;
 
+		[IniProperty("WindowCornerCutShape", Description = "The cutshape which is used to remove the window corners, is mirrorred for all corners", DefaultValue = "5,3,2,1,1")]
+		public List<int> WindowCornerCutShape;
+
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.UNSTABLE;
 
@@ -222,9 +225,6 @@ namespace GreenshotPlugin.Core {
 		/// <returns>object with the default value for the supplied property</returns>
 		public override object GetDefault(string property) {
 			switch(property) {
-				case "OutputPrintFooterPattern":
-
-					break;
 				case "PluginWhitelist":
 				case "PluginBacklist":
 					return new List<string>();
