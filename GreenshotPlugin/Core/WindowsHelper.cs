@@ -974,7 +974,7 @@ namespace GreenshotPlugin.Core  {
 						// Not needed for Windows 8
 						if (!(Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor >= 2)) {
 							// Only if the Inivalue is set, not maximized and it's not a tool window.
-							if (conf.WindowCaptureRemoveCorners && !Maximised && (this.ExtendedWindowStyle | ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) != 0) {
+							if (conf.WindowCaptureRemoveCorners && !Maximised && (this.ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0) {
 								// Remove corners
 								if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
 									LOG.Debug("Changing pixelformat to Alpha for the RemoveCorners");
