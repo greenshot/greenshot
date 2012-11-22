@@ -26,7 +26,7 @@ using Greenshot.IniFile;
 using GreenshotJiraPlugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotJiraPlugin.JiraSoap;
+//using GreenshotJiraPlugin.JiraSoap;
 
 namespace Jira {
 	#region transport classes
