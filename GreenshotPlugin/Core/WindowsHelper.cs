@@ -172,7 +172,10 @@ namespace GreenshotPlugin.Core  {
 		
 		static WindowDetails() {
 			try {
-				appVisibility = COMWrapper.CreateInstance<IAppVisibility>();
+				// Only try to instanciate when Windows 8 or later.
+				if (Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 2) {
+					appVisibility = COMWrapper.CreateInstance<IAppVisibility>();					
+				}
 			} catch {}
 		}
 
