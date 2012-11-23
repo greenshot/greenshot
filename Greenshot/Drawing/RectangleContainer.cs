@@ -45,7 +45,7 @@ namespace Greenshot.Drawing {
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
-			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
