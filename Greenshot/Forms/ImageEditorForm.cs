@@ -229,6 +229,7 @@ namespace Greenshot {
 				ToolStripMenuItem defaultItem = new ToolStripMenuItem(toolstripDestination.Description);
 				defaultItem.Tag = toolstripDestination;
 				defaultItem.Image = toolstripDestination.DisplayIcon;
+				defaultItem.ShortcutKeys = Keys.None;
 				defaultItem.Click += delegate {
 					toolstripDestination.ExportCapture(true, surface, surface.CaptureDetails);
 				};
@@ -307,8 +308,8 @@ namespace Greenshot {
 				}
 				
 				ToolStripMenuItem item = destination.GetMenuItem(true, new EventHandler(DestinationToolStripMenuItemClick));
-				item.ShortcutKeys = destination.EditorShortcutKeys;
 				if (item != null) {
+					item.ShortcutKeys = destination.EditorShortcutKeys;
 					fileStripMenuItem.DropDownItems.Add(item);
 				}
 			}
