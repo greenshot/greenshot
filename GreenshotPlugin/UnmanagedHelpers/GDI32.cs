@@ -44,6 +44,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern bool BitBlt(IntPtr hObject,int nXDest,int nYDest, int nWidth,int nHeight,IntPtr hObjectSource, int nXSrc,int nYSrc, CopyPixelOperation dwRop);
 		[DllImport("gdi32", SetLastError=true)]
+		public static extern bool StretchBlt(IntPtr hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, IntPtr hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, CopyPixelOperation dwRop );
+		[DllImport("gdi32", SetLastError=true)]
 		public static extern IntPtr CreateCompatibleDC(IntPtr hDC);
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern bool DeleteDC(IntPtr hDC);
@@ -63,18 +65,43 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr CreateRoundRectRgn(int x1, int y1, int x2, int y2, int cx, int cy);
 		
 		/// <summary>
-		/// 
+		/// Doesn't work?
 		/// </summary>
 		/// <param name="target"></param>
 		/// <param name="source"></param>
-		public static void BitBlt(this Graphics target, Bitmap source, Point location) {
+		public static void StretchBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Rectangle destination) {
 			IntPtr hDCSrc = IntPtr.Zero;
 			IntPtr hDCDest = IntPtr.Zero;
 			try {
 				hDCDest = target.GetHdc();
 				hDCSrc = CreateCompatibleDC(hDCDest);
-				SelectObject(hDCSrc, source.GetHbitmap());
-				GDI32.BitBlt(hDCDest, location.X, location.Y, source.Width, source.Height, hDCSrc, 0, 0, CopyPixelOperation.SourceCopy);
+				IntPtr pOrig = SelectObject(hDCSrc, sourceBitmap.GetHbitmap());
+				StretchBlt(hDCDest, destination.X, destination.Y, destination.Width, destination.Height, hDCSrc, source.Left, source.Top, source.Width, source.Height, CopyPixelOperation.SourceCopy);				
+				IntPtr pNew = SelectObject(hDCDest, pOrig);
+			} finally {
+				if (hDCSrc != IntPtr.Zero) {
+					DeleteDC(hDCSrc);
+				}
+				if (hDCDest != IntPtr.Zero) {
+					target.ReleaseHdc(hDCDest);
+				}
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="source"></param>
+		public static void BitBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Point destination) {
+			IntPtr hDCSrc = IntPtr.Zero;
+			IntPtr hDCDest = IntPtr.Zero;
+			try {
+				hDCDest = target.GetHdc();
+				hDCSrc = CreateCompatibleDC(hDCDest);
+				IntPtr pOrig = SelectObject(hDCSrc, sourceBitmap.GetHbitmap());
+				BitBlt(hDCDest, destination.X, destination.Y, source.Width, source.Height, hDCSrc, source.Left, source.Top, CopyPixelOperation.SourceCopy);
+				IntPtr pNew = SelectObject(hDCDest, pOrig);
 			} finally {
 				if (hDCSrc != IntPtr.Zero) {
 					DeleteDC(hDCSrc);

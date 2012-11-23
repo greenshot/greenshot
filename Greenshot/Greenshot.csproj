@@ -67,6 +67,9 @@
     <Compile Include="Controls\Pipette.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\ZoomControl.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Destinations\ClipboardDestination.cs" />
     <Compile Include="Destinations\EditorDestination.cs" />
     <Compile Include="Destinations\EmailDestination.cs" />
@@ -181,9 +184,6 @@
     </Compile>
     <None Include="App.config" />
     <Compile Include="Helpers\AviHelper.cs" />
-    <Compile Include="Forms\ZoomForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
     <Compile Include="Helpers\CopyData.cs" />

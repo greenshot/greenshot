@@ -309,10 +309,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public extern static bool IsWindowVisible(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, out IntPtr processId);
-		[DllImport("user32", SetLastError = true, ExactSpelling=true, CharSet=CharSet.Auto)]
+		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetParent(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
+		public static extern int SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetWindow(IntPtr hWnd, GetWindowCommand uCmd);
+		[DllImport("user32", SetLastError = true)]
+		public static extern int ShowWindow(IntPtr hWnd, ShowWindowCommand nCmdShow);
 		[DllImport("user32", CharSet = CharSet.Auto, SetLastError = true)]
 		public extern static int GetWindowText(IntPtr hWnd, StringBuilder lpString, int cch);
 		[DllImport("user32", CharSet = CharSet.Auto, SetLastError = true)]

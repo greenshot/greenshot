@@ -37,7 +37,7 @@ using Greenshot.IniFile;
 
 namespace Greenshot.Forms {
 	/// <summary>
-	/// Description of CaptureForm.
+	/// The capture form is used to select a part of the capture
 	/// </summary>
 	public partial class CaptureForm : Form {
 		private enum FixMode {None, Initiated, Horizontal, Vertical};
@@ -65,20 +65,29 @@ namespace Greenshot.Forms {
 
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
-		private ZoomForm zoomForm = null;
+		private ZoomControl zoomControl = null;
 
+		/// <summary>
+		/// Property to access the selected capture rectangle
+		/// </summary>
 		public Rectangle CaptureRectangle {
 			get {
 				return captureRect;
 			}
 		}
 
+		/// <summary>
+		/// Property to access the used capture mode
+		/// </summary>
 		public CaptureMode UsedCaptureMode {
 			get {
 				return captureMode;
 			}
 		}
 
+		/// <summary>
+		/// Get the selected window
+		/// </summary>
 		public WindowDetails SelectedCaptureWindow {
 			get {
 				return selectedCaptureWindow;
@@ -96,6 +105,11 @@ namespace Greenshot.Forms {
 			}
 		}
 
+		/// <summary>
+		/// This creates the capture form
+		/// </summary>
+		/// <param name="capture"></param>
+		/// <param name="windows"></param>
 		public CaptureForm(ICapture capture, List<WindowDetails> windows) {
 			if (currentForm != null) {
 				LOG.Debug("Found currentForm, Closing already opened CaptureForm");
@@ -109,9 +123,9 @@ namespace Greenshot.Forms {
 			timer = new Timer();
 			
 			// Using 32bppPArgb speeds up the drawing.
-			capturedImage = ImageHelper.Clone(capture.Image, PixelFormat.Format32bppPArgb);
+			//capturedImage = ImageHelper.Clone(capture.Image, PixelFormat.Format32bppPArgb);
 			// comment the clone, uncomment the assignment and the original bitmap is used.
-			//capturedImage = capture.Image;
+			capturedImage = capture.Image;
 
 			// clean up
 			this.FormClosed += delegate {
@@ -160,34 +174,41 @@ namespace Greenshot.Forms {
 			// Fix missing focus
 			WindowDetails.ToForeground(this.Handle);
 			this.TopMost = true;
-			CreateZoom();
 			if (timer != null) {
-				timer.Interval = 40;
+				timer.Interval = 30;
 				timer.Tick += new EventHandler(timer_Tick);
 				timer.Start();
 			}
 		}
 
+		/// <summary>
+		/// Create the zoom control
+		/// </summary>
 		private void CreateZoom() {
-			if (zoomForm == null) {
-				zoomForm = new ZoomForm(capturedImage);
-				zoomForm.Show(this);
-
-				zoomForm.MouseLocation = cursorPos;
-				zoomForm.ZoomLocation = cursorPosOnBitmap;
-
-				// Fix missing focus issue
-				WindowDetails.ToForeground(this.Handle);
+			if (zoomControl == null) {
+				zoomControl = new ZoomControl(capturedImage, new Size(200, 200));
+				zoomControl.MouseLocation = cursorPos;
+				zoomControl.ZoomLocation = cursorPosOnBitmap;
+				zoomControl.ShowFloating();
 			}
 		}
 
+		/// <summary>
+		/// Hide the zoom control
+		/// </summary>
 		private void RemoveZoom() {
-			if (zoomForm != null) {
-				zoomForm.Close();
-				// Fix missing focus issue
-				WindowDetails.ToForeground(this.Handle);
-				zoomForm = null;
+			if (zoomControl != null) {
+				zoomControl.Hide();
 			}
+		}
+
+		/// <summary>
+		/// Create the zoom after the window is showing
+		/// </summary>
+		/// <param name="e"></param>
+		protected override void OnShown(EventArgs e) {
+			base.OnShown(e);
+			CreateZoom();
 		}
 
 		#region key handling		
@@ -220,7 +241,7 @@ namespace Greenshot.Forms {
 				Invalidate();
 			} else if (e.KeyCode == Keys.Z) {
 				// Toggle zoom
-				if (zoomForm == null) {
+				if (zoomControl == null) {
 					CreateZoom();
 				} else {
 					RemoveZoom();
@@ -327,9 +348,9 @@ namespace Greenshot.Forms {
 			bool verticalMove = false;
 
 			// Change the zoom location
-			if (zoomForm != null) {
-				zoomForm.MouseLocation = cursorPos;
-				zoomForm.ZoomLocation = cursorPosOnBitmap;
+			if (zoomControl != null) {
+				zoomControl.MouseLocation = cursorPos;
+				zoomControl.ZoomLocation = cursorPosOnBitmap;
 			}
 
 			if (lastPos.X != cursorPos.X) {
