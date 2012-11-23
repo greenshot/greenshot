@@ -25,6 +25,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using GreenshotPlugin.Controls;
+using System.Security.Cryptography.X509Certificates;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -134,6 +135,10 @@ namespace GreenshotPlugin.Core {
 			get;
 			set;
 		}
+		public OAuthSignatureTypes SignatureType {
+			get;
+			set;
+		}
 
 		public bool UseMultipartFormData { get; set; }
 		public string UserAgent {
@@ -189,12 +194,18 @@ namespace GreenshotPlugin.Core {
 		
 		#endregion
 
+		/// <summary>
+		/// Create an OAuthSession with the consumerKey / consumerSecret
+		/// </summary>
+		/// <param name="consumerKey">"Public" key for the encoding. When using RSASHA1 this is the path to the private key file</param>
+		/// <param name="consumerSecret">"Private" key for the encoding. when usin RSASHA1 this is the password for the private key file</param>
 		public OAuthSession(string consumerKey, string consumerSecret) {
 			this.consumerKey = consumerKey;
 			this.consumerSecret = consumerSecret;
 			this.UseMultipartFormData = true;
 			this.RequestTokenMethod = HTTPMethod.GET;
 			this.AccessTokenMethod = HTTPMethod.GET;
+			this.SignatureType = OAuthSignatureTypes.HMACSHA1;
 		}
 
 		/// <summary>
@@ -546,7 +557,18 @@ namespace GreenshotPlugin.Core {
 			parameters.Add(OAUTH_VERSION_KEY, OAUTH_VERSION);
 			parameters.Add(OAUTH_NONCE_KEY, GenerateNonce());
 			parameters.Add(OAUTH_TIMESTAMP_KEY, GenerateTimeStamp());
-			parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, HMACSHA1SignatureType);
+			switch(SignatureType) {
+				case OAuthSignatureTypes.RSASHA1:
+					parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, RSASHA1SignatureType);
+					break;
+				case OAuthSignatureTypes.PLAINTEXT:
+					parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, PlainTextSignatureType);
+					break;
+				case OAuthSignatureTypes.HMACSHA1:
+				default:
+					parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, HMACSHA1SignatureType);
+					break;
+			}
 			parameters.Add(OAUTH_CONSUMER_KEY_KEY, consumerKey);
 			if (CallbackUrl != null && RequestTokenUrl != null && requestURL.ToString().StartsWith(RequestTokenUrl)) {
 				parameters.Add(OAUTH_CALLBACK_KEY, CallbackUrl);
@@ -559,12 +581,44 @@ namespace GreenshotPlugin.Core {
 			}
 			signatureBase.Append(UrlEncode3986(GenerateNormalizedParametersString(parameters)));
 			LOG.DebugFormat("Signature base: {0}", signatureBase);
-			// Generate Signature and add it to the parameters
-			HMACSHA1 hmacsha1 = new HMACSHA1();
 			string key = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret));
-			hmacsha1.Key = Encoding.UTF8.GetBytes(key);
-			string signature = ComputeHash(hmacsha1, signatureBase.ToString());
-			parameters.Add(OAUTH_SIGNATURE_KEY, signature);
+			switch (SignatureType) {
+				case OAuthSignatureTypes.RSASHA1:
+					// Code comes from here: http://www.dotnetfunda.com/articles/article1932-rest-service-call-using-oauth-10-authorization-with-rsa-sha1.aspx
+					// Read the .P12 file to read Private/Public key Certificate
+					string certFilePath = consumerKey; // The .P12 certificate file path Example: "C:/mycertificate/MCOpenAPI.p12
+					string password = consumerSecret; // password to read certificate .p12 file
+					// Read the Certification from .P12 file.
+					X509Certificate2 cert = new X509Certificate2(certFilePath.ToString(), password);
+					// Retrieve the Private key from Certificate.
+					RSACryptoServiceProvider RSAcrypt = (RSACryptoServiceProvider)cert.PrivateKey;
+					// Create a RSA-SHA1 Hash object
+					using (SHA1Managed shaHASHObject = new SHA1Managed()) {
+						// Create Byte Array of Signature base string
+						byte[] data = System.Text.Encoding.ASCII.GetBytes(signatureBase.ToString());
+						// Create Hashmap of Signature base string
+						byte[] hash = shaHASHObject.ComputeHash(data);
+						// Create Sign Hash of base string
+						// NOTE - 'SignHash' gives correct data. Don't use SignData method
+						byte[] rsaSignature = RSAcrypt.SignHash(hash, CryptoConfig.MapNameToOID("SHA1"));
+						// Convert to Base64 string
+						string base64string = Convert.ToBase64String(rsaSignature);
+						// Return the Encoded UTF8 string
+						parameters.Add(OAUTH_SIGNATURE_KEY, UrlEncode3986(base64string));
+					}
+					break;
+				case OAuthSignatureTypes.PLAINTEXT:
+					parameters.Add(OAUTH_SIGNATURE_KEY, key);
+					break;
+				case OAuthSignatureTypes.HMACSHA1:
+				default:
+					// Generate Signature and add it to the parameters
+					HMACSHA1 hmacsha1 = new HMACSHA1();
+					hmacsha1.Key = Encoding.UTF8.GetBytes(key);
+					string signature = ComputeHash(hmacsha1, signatureBase.ToString());
+					parameters.Add(OAUTH_SIGNATURE_KEY, signature);
+					break;
+			}
 		}
 
 		/// <summary>
