@@ -314,15 +314,29 @@ namespace Greenshot {
 			this.fileStripMenuItem.DropDownItems.Add(this.closeToolStripMenuItem);
 		}
 
+		/// <summary>
+		/// This is the SufraceMessageEvent receiver which display a message in the status bar if the
+		/// surface is exported. It also updates the title to represent the filename, if there is one.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="eventArgs"></param>
 		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs) {
 			string dateTime = DateTime.Now.ToLongTimeString();
 			// TODO: Fix that we only open files, like in the tooltip
-			//if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved || eventArgs.MessageType == SurfaceMessageTyp.UploadedUrl) {
-			if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved || eventArgs.MessageType == SurfaceMessageTyp.UploadedUri) {
-				updateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
-				this.Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
-			} else {
-				updateStatusLabel(dateTime + " - " + eventArgs.Message);
+			switch (eventArgs.MessageType) {
+				case SurfaceMessageTyp.FileSaved:
+					// Put the event message on the status label and attach the context menu
+					updateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
+					// Change title
+					this.Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
+					break;
+				case SurfaceMessageTyp.Error:
+				case SurfaceMessageTyp.Info:
+				case SurfaceMessageTyp.UploadedUri:
+				default:
+					// Put the event message on the status label
+					updateStatusLabel(dateTime + " - " + eventArgs.Message);
+					break;
 			}
 		}
 
