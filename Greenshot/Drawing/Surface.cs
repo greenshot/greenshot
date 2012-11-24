@@ -734,15 +734,19 @@ namespace Greenshot.Drawing {
 		public bool AutoCrop() {
 			Rectangle cropRectangle = ImageHelper.FindAutoCropRectangle(Image, conf.AutoCropDifference);
 			if (isCropPossible(ref cropRectangle)) {
-				DrawingMode = DrawingModes.Crop;
-				cropContainer = new CropContainer(this);
-				cropContainer.Left = cropRectangle.X;
-				cropContainer.Top = cropRectangle.Y;
-				cropContainer.Width = cropRectangle.Width;
-				cropContainer.Height = cropRectangle.Height;
 				DeselectAllElements();
-				AddElement(cropContainer);
-				SelectElement(cropContainer);
+				// Maybe a bit obscure, but the following line creates a drop container
+				// It's available as "undrawnElement"
+				DrawingMode = DrawingModes.Crop;
+				undrawnElement.Left = cropRectangle.X;
+				undrawnElement.Top = cropRectangle.Y;
+				undrawnElement.Width = cropRectangle.Width;
+				undrawnElement.Height = cropRectangle.Height;
+				undrawnElement.Status = EditStatus.UNDRAWN;
+				AddElement(undrawnElement);
+				SelectElement(undrawnElement);
+				drawingElement = null;
+				undrawnElement = null;
 				return true;
 			}
 			return false;
@@ -970,7 +974,7 @@ namespace Greenshot.Drawing {
 			if (drawingElement == null && DrawingMode != DrawingModes.None) {
 				if (undrawnElement == null) {
 					DeselectAllElements();
-					if(undrawnElement == null) {
+					if (undrawnElement == null) {
 						CreateUndrawnElement();
 					}
 				}
