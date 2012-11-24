@@ -293,12 +293,8 @@ namespace Greenshot {
 
 		void FileMenuDropDownOpening(object sender, EventArgs eventArgs) {
 			ClearItems(this.fileStripMenuItem.DropDownItems);
-			//this.fileStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			//						this.saveToolStripMenuItem,
-			//						this.saveAsToolStripMenuItem,
-			//						this.copyImageToClipboardToolStripMenuItem,
-			//						this.printToolStripMenuItem});
 
+			// Add the destinations
 			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
 				if (ignoreDestinations.Contains(destination.Designation)) {
 					continue;
@@ -314,9 +310,8 @@ namespace Greenshot {
 				}
 			}
 			// add the elements after the destinations
-			this.fileStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
-									this.toolStripSeparator9,
-									this.closeToolStripMenuItem});
+			this.fileStripMenuItem.DropDownItems.Add(this.toolStripSeparator9);
+			this.fileStripMenuItem.DropDownItems.Add(this.closeToolStripMenuItem);
 		}
 
 		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs) {
@@ -325,6 +320,7 @@ namespace Greenshot {
 			//if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved || eventArgs.MessageType == SurfaceMessageTyp.UploadedUrl) {
 			if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved || eventArgs.MessageType == SurfaceMessageTyp.UploadedUri) {
 				updateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
+				this.Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
 			} else {
 				updateStatusLabel(dateTime + " - " + eventArgs.Message);
 			}
