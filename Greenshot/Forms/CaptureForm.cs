@@ -432,14 +432,14 @@ namespace Greenshot.Forms {
 				} else {
 					if (!conf.OptimizeForRDP) {
 						if (verticalMove) {
-							Rectangle before = GuiRectangle.GetGuiRectangle(0, lastPos.Y - 2, this.Width+2, 45);
-							Rectangle after = GuiRectangle.GetGuiRectangle(0, cursorPosOnBitmap.Y - 2, this.Width+2, 45);
+							Rectangle before = GuiRectangle.GetGuiRectangle(WindowCapture.GetScreenBounds().Left, lastPos.Y - 2, this.Width+2, 45);
+							Rectangle after = GuiRectangle.GetGuiRectangle(WindowCapture.GetScreenBounds().Left, cursorPos.Y - 2, this.Width+2, 45);
 							Invalidate(before);
 							Invalidate(after);
 						}
 						if (horizontalMove) {
-							Rectangle before = GuiRectangle.GetGuiRectangle(lastPos.X - 2, 0, 75, this.Height+2);
-							Rectangle after = GuiRectangle.GetGuiRectangle(cursorPosOnBitmap.X -2, 0, 75, this.Height+2);
+							Rectangle before = GuiRectangle.GetGuiRectangle(lastPos.X - 2, WindowCapture.GetScreenBounds().Top, 75, this.Height+2);
+							Rectangle after = GuiRectangle.GetGuiRectangle(cursorPos.X -2, WindowCapture.GetScreenBounds().Top, 75, this.Height+2);
 							Invalidate(before);
 							Invalidate(after);
 						}
@@ -474,7 +474,7 @@ namespace Greenshot.Forms {
 			Rectangle tr = new Rectangle(pos.X + distanceX, pos.Y - (distanceY + size.Height), size.Width, size.Height);
 			Rectangle bl = new Rectangle(pos.X - (distanceX + size.Width), pos.Y + distanceY, size.Width, size.Height);
 			Rectangle br = new Rectangle(pos.X + distanceX, pos.Y + distanceY, size.Width, size.Height);
-			Rectangle screenBounds = capture.ScreenBounds;
+			Rectangle screenBounds = Screen.GetBounds(pos);
 			if (screenBounds.Contains(br)) {
 				return br;
 			} else if (screenBounds.Contains(bl)) {
@@ -501,6 +501,8 @@ namespace Greenshot.Forms {
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.HighSpeed;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			
+			destinationRectangle.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
 			
 			using (GraphicsPath path = new GraphicsPath()) {
 				path.AddEllipse(destinationRectangle);
@@ -665,7 +667,7 @@ namespace Greenshot.Forms {
 				const int zoomSourceHeight = 25;
 				
 				Rectangle sourceRectangle = new Rectangle(cursorPosOnBitmap.X - (zoomSourceWidth / 2), cursorPosOnBitmap.Y - (zoomSourceHeight / 2), zoomSourceWidth, zoomSourceHeight);
-				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPosOnBitmap, new Size(200, 200)));
+				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, new Size(200, 200)));
 
 			}
 		}
