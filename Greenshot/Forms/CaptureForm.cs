@@ -62,10 +62,9 @@ namespace Greenshot.Forms {
 		private ICapture capture = null;
 		private Image capturedImage = null;
 		private Timer timer = null;
-
+		private bool isZooming = true;
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
-		private ZoomControl zoomControl = null;
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -129,7 +128,6 @@ namespace Greenshot.Forms {
 
 			// clean up
 			this.FormClosed += delegate {
-				RemoveZoom();
 				currentForm = null;
 				LOG.Debug("Remove CaptureForm from currentForm");
 			};
@@ -181,36 +179,6 @@ namespace Greenshot.Forms {
 			}
 		}
 
-		/// <summary>
-		/// Create the zoom control
-		/// </summary>
-		private void CreateZoom() {
-			if (zoomControl == null) {
-				zoomControl = new ZoomControl(capturedImage, new Size(200, 200));
-				zoomControl.MouseLocation = cursorPos;
-				zoomControl.ZoomLocation = cursorPosOnBitmap;
-				zoomControl.ShowFloating();
-			}
-		}
-
-		/// <summary>
-		/// Hide the zoom control
-		/// </summary>
-		private void RemoveZoom() {
-			if (zoomControl != null) {
-				zoomControl.Hide();
-			}
-		}
-
-		/// <summary>
-		/// Create the zoom after the window is showing
-		/// </summary>
-		/// <param name="e"></param>
-		protected override void OnShown(EventArgs e) {
-			base.OnShown(e);
-			CreateZoom();
-		}
-
 		#region key handling		
 		void CaptureFormKeyUp(object sender, KeyEventArgs e) {
 			if (e.KeyCode == Keys.ShiftKey) {
@@ -241,11 +209,7 @@ namespace Greenshot.Forms {
 				Invalidate();
 			} else if (e.KeyCode == Keys.Z) {
 				// Toggle zoom
-				if (zoomControl == null) {
-					CreateZoom();
-				} else {
-					RemoveZoom();
-				}
+				isZooming = !isZooming;
 			} else if (e.KeyCode == Keys.Space) {
 				switch (captureMode) {
 					case CaptureMode.Region:
@@ -265,6 +229,11 @@ namespace Greenshot.Forms {
 		#endregion
 
 		#region events
+		/// <summary>
+		/// The mousedown handler of the capture form
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void OnMouseDown(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
 				Point tmpCursorLocation = WindowCapture.GetCursorLocation();
@@ -279,6 +248,11 @@ namespace Greenshot.Forms {
 			}
 		}
 		
+		/// <summary>
+		/// The mouse up handler of the capture form
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void OnMouseUp(object sender, MouseEventArgs e) {
 			if (mouseDown) {
 				// If the mouse goes up we set down to false (nice logic!)
@@ -301,6 +275,11 @@ namespace Greenshot.Forms {
 			}
 		}
 		
+		/// <summary>
+		/// This method is used to "fix" the mouse coordinates when keeping shift/ctrl pressed
+		/// </summary>
+		/// <param name="currentMouse"></param>
+		/// <returns></returns>
 		private Point FixMouseCoordinates(Point currentMouse) {
 			if (fixMode == FixMode.Initiated) {
 				if (previousMousePos.X != currentMouse.X) {
@@ -317,6 +296,11 @@ namespace Greenshot.Forms {
 			return currentMouse;
 		}
 
+		/// <summary>
+		/// The mouse move handler of the capture form
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void OnMouseMove(object sender, MouseEventArgs e) {
 			// Make sure the mouse coordinates are fixed, when pressing shift
 			mouseMovePos = FixMouseCoordinates(WindowCapture.GetCursorLocation());
@@ -327,10 +311,18 @@ namespace Greenshot.Forms {
 			}
 		}
 
+		/// <summary>
+		/// The tick handler of the capture form, this initiates the frame drawing.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void timer_Tick(object sender, EventArgs e) {
 			updateFrame();
 		}
 
+		/// <summary>
+		/// update the frame, this only invalidates
+		/// </summary>
 		void updateFrame() {
 			Point lastPos = cursorPos.Clone();
 			cursorPos = mouseMovePos.Clone();
@@ -346,12 +338,6 @@ namespace Greenshot.Forms {
 			WindowDetails lastWindow = selectedCaptureWindow;
 			bool horizontalMove = false;
 			bool verticalMove = false;
-
-			// Change the zoom location
-			if (zoomControl != null) {
-				zoomControl.MouseLocation = cursorPos;
-				zoomControl.ZoomLocation = cursorPosOnBitmap;
-			}
 
 			if (lastPos.X != cursorPos.X) {
 				horizontalMove = true;
@@ -454,6 +440,10 @@ namespace Greenshot.Forms {
 					}
 				}
 			}
+			if (isZooming && captureMode != CaptureMode.Window) {
+				Invalidate(ZoomArea(lastPos, new Size(200, 200)));
+				Invalidate(ZoomArea(cursorPos, new Size(200, 200)));
+			}
 			// Force update "now"
 			Update();
 		}
@@ -465,6 +455,73 @@ namespace Greenshot.Forms {
 		protected override void OnPaintBackground(PaintEventArgs pevent) {
 		}
 
+		/// <summary>
+		/// Get the area of where the zoom can be drawn
+		/// </summary>
+		/// <param name="pos"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		private Rectangle ZoomArea(Point pos, Size size) {
+			const int distanceX = 20;
+			const int distanceY = 20;
+			Rectangle tl = new Rectangle(pos.X - (distanceX + size.Width), pos.Y - (distanceY + size.Height), size.Width, size.Height);
+			Rectangle tr = new Rectangle(pos.X + distanceX, pos.Y - (distanceY + size.Height), size.Width, size.Height);
+			Rectangle bl = new Rectangle(pos.X - (distanceX + size.Width), pos.Y + distanceY, size.Width, size.Height);
+			Rectangle br = new Rectangle(pos.X + distanceX, pos.Y + distanceY, size.Width, size.Height);
+			Rectangle screenBounds = Screen.GetBounds(pos);
+			if (screenBounds.Contains(br)) {
+				return br;
+			} else if (screenBounds.Contains(bl)) {
+				return bl;
+			} else if (screenBounds.Contains(tr)) {
+				return tr;
+			} else {
+				return tl;
+			}
+		}
+
+		/// <summary>
+		/// Draw the zoomed area
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="sourceRectangle"></param>
+		/// <param name="destinationRectangle"></param>
+		private void DrawZoom(Graphics graphics, Rectangle sourceRectangle, Rectangle destinationRectangle) {
+			if (capturedImage == null || !isZooming) {
+				return;
+			}
+			
+			graphics.SmoothingMode = SmoothingMode.None;
+			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+			graphics.CompositingQuality = CompositingQuality.HighSpeed;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			
+			using (GraphicsPath path = new GraphicsPath()) {
+				path.AddEllipse(destinationRectangle);
+				using (Region clipRegion = new Region(path)) {
+					graphics.Clip = clipRegion;
+					graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
+				}
+			}
+
+			int pixelThickness = destinationRectangle.Width / sourceRectangle.Width;
+			using (Pen pen = new Pen(Color.Black, pixelThickness)) {
+				int halfWidth = (destinationRectangle.Width >> 1) - (pixelThickness >> 1);
+				int halfWidthEnd = (destinationRectangle.Width >> 1) - pixelThickness;
+				int halfHeight = (destinationRectangle.Height >> 1) - (pixelThickness >> 1);
+				int halfHeightEnd = (destinationRectangle.Height >> 1) - pixelThickness;
+				graphics.DrawLine(pen, destinationRectangle.X + halfWidth, destinationRectangle.Y, destinationRectangle.X + halfWidth, destinationRectangle.Y + halfHeightEnd);
+				graphics.DrawLine(pen, destinationRectangle.X + halfWidth, destinationRectangle.Y + halfHeightEnd + pixelThickness, destinationRectangle.X + halfWidth, destinationRectangle.Y + destinationRectangle.Height);
+				graphics.DrawLine(pen, destinationRectangle.X, destinationRectangle.Y + halfHeight, destinationRectangle.X + halfWidthEnd, destinationRectangle.Y + halfHeight);
+				graphics.DrawLine(pen, destinationRectangle.X + halfWidthEnd + pixelThickness, destinationRectangle.Y + halfHeight, destinationRectangle.X + destinationRectangle.Width, destinationRectangle.Y + halfHeight);
+			}
+		}
+
+		/// <summary>
+		/// Paint the actual visible parts
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void OnPaint(object sender, PaintEventArgs e) {
 			Graphics graphics = e.Graphics;
 			Rectangle clipRectangle = e.ClipRectangle;
@@ -594,6 +651,15 @@ namespace Greenshot.Forms {
 						}
 					}
 				}
+			}
+
+			if (captureMode != CaptureMode.Window) {
+				const int zoomSourceWidth = 25;
+				const int zoomSourceHeight = 25;
+				
+				Rectangle sourceRectangle = new Rectangle(cursorPosOnBitmap.X - (zoomSourceWidth / 2), cursorPosOnBitmap.Y - (zoomSourceHeight / 2), zoomSourceWidth, zoomSourceHeight);
+				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, new Size(200, 200)));
+
 			}
 		}
 		#endregion

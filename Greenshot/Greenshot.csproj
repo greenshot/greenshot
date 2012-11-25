@@ -67,9 +67,6 @@
     <Compile Include="Controls\Pipette.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\ZoomControl.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Destinations\ClipboardDestination.cs" />
     <Compile Include="Destinations\EditorDestination.cs" />
     <Compile Include="Destinations\EmailDestination.cs" />
