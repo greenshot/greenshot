@@ -167,9 +167,7 @@ namespace Greenshot.Forms {
 
 			// set cursor location
 			cursorPos = WindowCapture.GetCursorLocation();
-			// Offset to screen coordinates
-			cursorPosOnBitmap = new Point(cursorPos.X, cursorPos.Y);
-			cursorPosOnBitmap.Offset(-capture.ScreenBounds.X, -capture.ScreenBounds.Y);
+			cursorPosOnBitmap = GetAbsoluteLocation(cursorPos);
 
 			this.SuspendLayout();
 			this.Bounds = capture.ScreenBounds;
@@ -244,8 +242,7 @@ namespace Greenshot.Forms {
 			if (e.Button == MouseButtons.Left) {
 				Point tmpCursorLocation = WindowCapture.GetCursorLocation();
 				// As the cursorPos is not in Bitmap coordinates, we need to correct.
-				tmpCursorLocation.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
-
+				tmpCursorLocation = GetAbsoluteLocation(tmpCursorLocation);
 				mX = tmpCursorLocation.X;
 				mY = tmpCursorLocation.Y;
 				mouseDown = true;
@@ -337,8 +334,8 @@ namespace Greenshot.Forms {
 			}
 
 			// As the cursorPos is not in Bitmap coordinates, we need to correct.
-			cursorPosOnBitmap = new Point(cursorPos.X, cursorPos.Y);
-			cursorPosOnBitmap.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
+			cursorPosOnBitmap = GetAbsoluteLocation(cursorPos);
+			Point lastPosOnBitmap = GetAbsoluteLocation(lastPos);
 
 			Rectangle lastCaptureRect = new Rectangle(captureRect.Location, captureRect.Size);
 			WindowDetails lastWindow = selectedCaptureWindow;
@@ -383,10 +380,10 @@ namespace Greenshot.Forms {
 				}
 			}
 			if (mouseDown && (CaptureMode.Window != captureMode)) {
-				int x1 = Math.Min(mX, lastPos.X);
-				int x2 = Math.Max(mX, lastPos.X);
-				int y1 = Math.Min(mY, lastPos.Y);
-				int y2 = Math.Max(mY, lastPos.Y);
+				int x1 = Math.Min(mX, lastPosOnBitmap.X);
+				int x2 = Math.Max(mX, lastPosOnBitmap.X);
+				int y1 = Math.Min(mY, lastPosOnBitmap.Y);
+				int y2 = Math.Max(mY, lastPosOnBitmap.Y);
 				x1= Math.Min(x1, cursorPosOnBitmap.X);
 				x2= Math.Max(x2, cursorPosOnBitmap.X);
 				y1= Math.Min(y1, cursorPosOnBitmap.Y);
@@ -452,6 +449,12 @@ namespace Greenshot.Forms {
 			}
 			// Force update "now"
 			Update();
+		}
+		
+		private Point GetAbsoluteLocation(Point screenLocation) {
+			Point ret = screenLocation.Clone();
+			ret.Offset(-capture.ScreenBounds.X, -capture.ScreenBounds.Y);
+			return ret;
 		}
 
 		/// <summary>
