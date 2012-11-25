@@ -665,7 +665,7 @@ namespace Greenshot.Forms {
 				const int zoomSourceHeight = 25;
 				
 				Rectangle sourceRectangle = new Rectangle(cursorPosOnBitmap.X - (zoomSourceWidth / 2), cursorPosOnBitmap.Y - (zoomSourceHeight / 2), zoomSourceWidth, zoomSourceHeight);
-				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, new Size(200, 200)));
+				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPosOnBitmap, new Size(200, 200)));
 
 			}
 		}
