@@ -468,6 +468,7 @@ namespace Greenshot.Forms {
 		/// <param name="size"></param>
 		/// <returns></returns>
 		private Rectangle ZoomArea(Point pos, Size size) {
+			Rectangle ret;
 			const int distanceX = 20;
 			const int distanceY = 20;
 			Rectangle tl = new Rectangle(pos.X - (distanceX + size.Width), pos.Y - (distanceY + size.Height), size.Width, size.Height);
@@ -476,14 +477,16 @@ namespace Greenshot.Forms {
 			Rectangle br = new Rectangle(pos.X + distanceX, pos.Y + distanceY, size.Width, size.Height);
 			Rectangle screenBounds = Screen.GetBounds(pos);
 			if (screenBounds.Contains(br)) {
-				return br;
+				ret = br;
 			} else if (screenBounds.Contains(bl)) {
-				return bl;
+				ret = bl;
 			} else if (screenBounds.Contains(tr)) {
-				return tr;
+				ret = tr;
 			} else {
-				return tl;
+				ret = tl;
 			}
+			ret.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
+			return ret;
 		}
 
 		/// <summary>
@@ -501,8 +504,6 @@ namespace Greenshot.Forms {
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.HighSpeed;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
-			
-			destinationRectangle.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
 			
 			using (GraphicsPath path = new GraphicsPath()) {
 				path.AddEllipse(destinationRectangle);
