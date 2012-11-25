@@ -48,6 +48,12 @@ namespace Greenshot.Forms {
 		private static Brush RedOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.DarkRed));
 		private static Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
 		private static CaptureForm currentForm = null;
+		private static Brush backgroundBrush = null;
+
+		static CaptureForm() {
+			Image backgroundForTransparency = GreenshotPlugin.Core.GreenshotResources.getImage("Checkerboard.Image");
+			backgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
+		}
 
 		private int mX;
 		private int mY;
@@ -500,6 +506,7 @@ namespace Greenshot.Forms {
 				path.AddEllipse(destinationRectangle);
 				using (Region clipRegion = new Region(path)) {
 					graphics.Clip = clipRegion;
+					graphics.FillRectangle(backgroundBrush,destinationRectangle);
 					graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 				}
 			}
