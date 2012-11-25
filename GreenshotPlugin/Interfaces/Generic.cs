@@ -121,7 +121,9 @@ namespace Greenshot.Plugin {
 		long SaveElementsToStream(Stream stream);
 		void LoadElementsFromStream(Stream stream);
 
-		bool HasSelectedElements();
+		bool HasSelectedElements {
+			get;
+		}
 		void RemoveSelectedElements();
 		void CutSelectedElements();
 		void CopySelectedElements();

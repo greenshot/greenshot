@@ -44,7 +44,7 @@ namespace Greenshot.Memento {
 		/// <summary>
 		/// Returns the language key for the action which is performed
 		/// </summary>
-		LangKey ActionKey {
+		LangKey ActionLanguageKey {
 			get;
 		}
 	}

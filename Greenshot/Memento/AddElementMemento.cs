@@ -39,7 +39,7 @@ namespace Greenshot.Memento {
 		public void Dispose() {
 		}
 
-		public LangKey ActionKey {
+		public LangKey ActionLanguageKey {
 			get {
 				return LangKey.none;
 			}
@@ -52,9 +52,12 @@ namespace Greenshot.Memento {
 		public IMemento Restore() {
 			// Before
 			drawableContainer.Invalidate();
+			// Store the selected state, as it's overwritten by the RemoveElement
+			bool selected = drawableContainer.Selected;
 
 			DeleteElementMemento oldState = new DeleteElementMemento(surface, drawableContainer);
 			surface.RemoveElement(drawableContainer, false);
+			drawableContainer.Selected = true;
 
 			// After
 			drawableContainer.Invalidate();

@@ -811,8 +811,8 @@ namespace Greenshot {
 			this.undoToolStripMenuItem.Enabled = canUndo;
 			string undoAction = "";
 			if (canUndo) {
-				if (surface.UndoActionKey != LangKey.none) {
-					undoAction = Language.GetString(surface.UndoActionKey);
+				if (surface.UndoActionLanguageKey != LangKey.none) {
+					undoAction = Language.GetString(surface.UndoActionLanguageKey);
 				}
 			}
 			string undoText = Language.GetFormattedString(LangKey.editor_undo, undoAction);
@@ -824,8 +824,8 @@ namespace Greenshot {
 			this.redoToolStripMenuItem.Enabled = canRedo;
 			string redoAction = "";
 			if (canRedo) {
-                if (surface.RedoActionKey != LangKey.none) {
-                    redoAction = Language.GetString(surface.RedoActionKey);
+                if (surface.RedoActionLanguageKey != LangKey.none) {
+                    redoAction = Language.GetString(surface.RedoActionLanguageKey);
                 }
 			}
 			string redoText = Language.GetFormattedString(LangKey.editor_redo, redoAction);
@@ -839,7 +839,7 @@ namespace Greenshot {
 				return;
 			}
 			// check dependencies for the Surface
-			bool hasItems = surface.HasSelectedElements();
+			bool hasItems = surface.HasSelectedElements;
 			bool actionAllowedForSelection = hasItems && !controlsDisabledDueToConfirmable;
 			
 			// buttons
@@ -918,7 +918,7 @@ namespace Greenshot {
 		/// </summary>
 		private void refreshFieldControls() {
 			propertiesToolStrip.SuspendLayout();
-			if(surface.HasSelectedElements() || surface.DrawingMode != DrawingModes.None) {
+			if(surface.HasSelectedElements || surface.DrawingMode != DrawingModes.None) {
 				FieldAggregator props = surface.FieldAggregator;
 				btnFillColor.Visible = props.HasFieldValue(FieldType.FILL_COLOR);
 				btnLineColor.Visible = props.HasFieldValue(FieldType.LINE_COLOR);
@@ -983,7 +983,7 @@ namespace Greenshot {
 			updateUndoRedoSurfaceDependencies();
 			
 			// en/disablearrage controls depending on hierarchy of selected elements
-			bool actionAllowedForSelection = surface.HasSelectedElements() && !controlsDisabledDueToConfirmable;
+			bool actionAllowedForSelection = surface.HasSelectedElements && !controlsDisabledDueToConfirmable;
 			bool push = actionAllowedForSelection && surface.CanPushSelectionDown();
 			bool pull = actionAllowedForSelection && surface.CanPullSelectionUp();
 			this.arrangeToolStripMenuItem.Enabled = (push || pull);

@@ -50,7 +50,7 @@ namespace Greenshot.Memento {
 			return false;
 		}
 		
-		public LangKey ActionKey {
+		public LangKey ActionLanguageKey {
 			get {
 				//return LangKey.editor_crop;
 				return LangKey.none;

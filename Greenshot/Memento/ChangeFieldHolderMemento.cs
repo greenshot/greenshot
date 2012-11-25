@@ -42,7 +42,7 @@ namespace Greenshot.Memento {
 		public void Dispose() {
 		}
 
-		public LangKey ActionKey {
+		public LangKey ActionLanguageKey {
 			get {
 				return LangKey.none;
 			}

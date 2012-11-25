@@ -43,7 +43,7 @@ namespace Greenshot.Memento {
 			}
 		}
 
-		public LangKey ActionKey {
+		public LangKey ActionLanguageKey {
 			get {
 				//return LangKey.editor_deleteelement;
 				return LangKey.none;
@@ -60,6 +60,10 @@ namespace Greenshot.Memento {
 
 			AddElementMemento oldState = new AddElementMemento(surface, drawableContainer);
 			surface.AddElement(drawableContainer, false);
+			// The container has a selected flag which represents the state at the moment it was deleted.
+			if (drawableContainer.Selected) {
+				surface.SelectElement(drawableContainer);
+			}
 
 			// After
 			drawableContainer.Invalidate();
