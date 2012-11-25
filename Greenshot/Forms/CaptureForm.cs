@@ -474,7 +474,7 @@ namespace Greenshot.Forms {
 			Rectangle tr = new Rectangle(pos.X + distanceX, pos.Y - (distanceY + size.Height), size.Width, size.Height);
 			Rectangle bl = new Rectangle(pos.X - (distanceX + size.Width), pos.Y + distanceY, size.Width, size.Height);
 			Rectangle br = new Rectangle(pos.X + distanceX, pos.Y + distanceY, size.Width, size.Height);
-			Rectangle screenBounds = Screen.GetBounds(pos);
+			Rectangle screenBounds = capture.ScreenBounds;
 			if (screenBounds.Contains(br)) {
 				return br;
 			} else if (screenBounds.Contains(bl)) {
