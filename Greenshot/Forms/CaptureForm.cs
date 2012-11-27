@@ -71,6 +71,8 @@ namespace Greenshot.Forms {
 		private bool isZooming = true;
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
+		private Size zoomSize = new Size(20, 20);
+		private bool isAnimating = true;
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -329,7 +331,7 @@ namespace Greenshot.Forms {
 		void updateFrame() {
 			Point lastPos = cursorPos.Clone();
 			cursorPos = mouseMovePos.Clone();
-			if (lastPos.Equals(cursorPos)) {
+			if (lastPos.Equals(cursorPos) && !isAnimating) {
 				return;
 			}
 
@@ -444,8 +446,14 @@ namespace Greenshot.Forms {
 				}
 			}
 			if (isZooming && captureMode != CaptureMode.Window) {
-				Invalidate(ZoomArea(lastPos, new Size(200, 200)));
-				Invalidate(ZoomArea(cursorPos, new Size(200, 200)));
+				Invalidate(ZoomArea(lastPos, zoomSize));
+				if (zoomSize.Width < 200) {
+					zoomSize.Width += 10;
+					zoomSize.Height += 10;
+				} else {
+					isAnimating = false;
+				}
+				Invalidate(ZoomArea(cursorPos, zoomSize));
 			}
 			// Force update "now"
 			Update();
@@ -671,7 +679,7 @@ namespace Greenshot.Forms {
 				const int zoomSourceHeight = 25;
 				
 				Rectangle sourceRectangle = new Rectangle(cursorPosOnBitmap.X - (zoomSourceWidth / 2), cursorPosOnBitmap.Y - (zoomSourceHeight / 2), zoomSourceWidth, zoomSourceHeight);
-				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, new Size(200, 200)));
+				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, zoomSize));
 
 			}
 		}
