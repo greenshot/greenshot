@@ -1119,9 +1119,12 @@ namespace Greenshot {
 							CaptureHelper.CaptureFile(conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));				
 						}
 						break;
-					default:
+					case LeftClickActions.CONTEXT_MENU:
 						MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
 						oMethodInfo.Invoke(notifyIcon, null);
+						break;
+					default:
+						// Do nothing
 						break;
 				}
 			}

@@ -42,6 +42,13 @@ namespace GreenshotPlugin.Core {
 		RELEASE_CANDIDATE,
 		RELEASE
 	}
+	
+	public enum LeftClickActions {
+		NOTHING,
+		OPEN_LAST_IN_EXPLORER,
+		OPEN_LAST_IN_EDITOR,
+		CONTEXT_MENU
+	}
 
 	/// <summary>
 	/// Description of CoreConfiguration.
@@ -205,6 +212,9 @@ namespace GreenshotPlugin.Core {
 
 		[IniProperty("WindowCornerCutShape", Description = "The cutshape which is used to remove the window corners, is mirrorred for all corners", DefaultValue = "5,3,2,1,1")]
 		public List<int> WindowCornerCutShape;
+		
+		[IniProperty("LeftClickAction", Description = "Specify what action is made if the tray icon is left clicked", DefaultValue = "CONTEXT_MENU")]		
+		public LeftClickActions LeftClickAction;
 
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.UNSTABLE;
