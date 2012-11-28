@@ -71,8 +71,8 @@ namespace Greenshot.Forms {
 		private bool isZooming = true;
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
-		private Size zoomSize = new Size(20, 20);
-		private bool isAnimating = true;
+		private AnimationHelper windowAnimator = new AnimationHelper(Rectangle.Empty, Rectangle.Empty, 0);
+		private AnimationHelper zoomAnimator;
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -178,6 +178,8 @@ namespace Greenshot.Forms {
 			// Fix missing focus
 			WindowDetails.ToForeground(this.Handle);
 			this.TopMost = true;
+			
+			zoomAnimator = new AnimationHelper(new Rectangle(Point.Empty, Size.Empty), new Rectangle(Point.Empty, new Size(200, 200)), 10);
 			if (timer != null) {
 				timer.Interval = 30;
 				timer.Tick += new EventHandler(timer_Tick);
@@ -331,7 +333,7 @@ namespace Greenshot.Forms {
 		void updateFrame() {
 			Point lastPos = cursorPos.Clone();
 			cursorPos = mouseMovePos.Clone();
-			if (lastPos.Equals(cursorPos) && !isAnimating) {
+			if (selectedCaptureWindow != null && lastPos.Equals(cursorPos) && !zoomAnimator.hasNext && !windowAnimator.hasNext) {
 				return;
 			}
 
@@ -398,8 +400,8 @@ namespace Greenshot.Forms {
 				// Here we correct for text-size
 				
 				// Calculate the size
-				int textForWidth = Math.Max(Math.Abs(mX - cursorPosOnBitmap.X), Math.Abs(mX - lastPos.X));
-				int textForHeight = Math.Max(Math.Abs(mY - cursorPosOnBitmap.Y), Math.Abs(mY - lastPos.Y));
+				int textForWidth = Math.Max(Math.Abs(mX - cursorPosOnBitmap.X), Math.Abs(mX - lastPosOnBitmap.X));
+				int textForHeight = Math.Max(Math.Abs(mY - cursorPosOnBitmap.Y), Math.Abs(mY - lastPosOnBitmap.Y));
 
 				using (Font rulerFont = new Font(FontFamily.GenericSansSerif, 8)) {
 					Size measureWidth = TextRenderer.MeasureText(textForWidth.ToString(), rulerFont);
@@ -412,20 +414,23 @@ namespace Greenshot.Forms {
 				Invalidate(invalidateRectangle);
 			} else {
 				if (captureMode == CaptureMode.Window) {
+					// Using a 50 Pixel offset to the left, top, to make sure the text is invalidated too
+					const int SAFETY_SIZE = 25;
+					if (windowAnimator.hasNext) {
+						Rectangle invalidateRectangle = windowAnimator.Current;
+						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
+						Invalidate(invalidateRectangle);
+						invalidateRectangle = windowAnimator.Next();
+						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
+						Invalidate(invalidateRectangle);
+					}
 					if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
-						// Using a 50 Pixel offset to the left, top, to make sure the text is invalidated too
-						const int SAFETY_SIZE = 50;
+						windowAnimator = new AnimationHelper(lastCaptureRect,captureRect, 5);
 						Rectangle invalidateRectangle = new Rectangle(lastCaptureRect.Location, lastCaptureRect.Size);
-						invalidateRectangle.X -= SAFETY_SIZE/2;
-						invalidateRectangle.Y -= SAFETY_SIZE/2;
-						invalidateRectangle.Width += SAFETY_SIZE;
-						invalidateRectangle.Height += SAFETY_SIZE;
+						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
 						Invalidate(invalidateRectangle);
 						invalidateRectangle = new Rectangle(captureRect.Location, captureRect.Size);
-						invalidateRectangle.X -= SAFETY_SIZE/2;
-						invalidateRectangle.Y -= SAFETY_SIZE/2;
-						invalidateRectangle.Width += SAFETY_SIZE;
-						invalidateRectangle.Height += SAFETY_SIZE;
+						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
 						Invalidate(invalidateRectangle);
 					}
 				} else {
@@ -446,19 +451,23 @@ namespace Greenshot.Forms {
 				}
 			}
 			if (isZooming && captureMode != CaptureMode.Window) {
-				Invalidate(ZoomArea(lastPos, zoomSize));
-				if (zoomSize.Width < 200) {
-					zoomSize.Width += (220-zoomSize.Width)/5;
-					zoomSize.Height += (220-zoomSize.Height)/5;
-				} else {
-					isAnimating = false;
-				}
-				Invalidate(ZoomArea(cursorPos, zoomSize));
-			}
+				Invalidate(ZoomArea(lastPos, zoomAnimator.Current.Size));
+				Invalidate(ZoomArea(cursorPos, zoomAnimator.Next().Size));
+
+				// TODO: Check what this should accomplish
+				//if (zoomSize.Width < 200) {
+				//	zoomSize.Width += (220-zoomSize.Width)/5;
+				//	zoomSize.Height += (220-zoomSize.Height)/5;
+				//}			}
 			// Force update "now"
 			Update();
 		}
 		
+		/// <summary>
+		/// Get the absolute location for the supplied screen location
+		/// </summary>
+		/// <param name="screenLocation"></param>
+		/// <returns>Absolute location</returns>
 		private Point GetAbsoluteLocation(Point screenLocation) {
 			Point ret = screenLocation.Clone();
 			ret.Offset(-capture.ScreenBounds.X, -capture.ScreenBounds.Y);
@@ -520,41 +529,30 @@ namespace Greenshot.Forms {
 				path.AddEllipse(destinationRectangle);
 				using (Region clipRegion = new Region(path)) {
 					graphics.Clip = clipRegion;
-					graphics.FillRectangle(backgroundBrush,destinationRectangle);
+					graphics.FillRectangle(backgroundBrush, destinationRectangle);
 					graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 				}
 			}
 
 			int pixelThickness = destinationRectangle.Width / sourceRectangle.Width;
-			using (Pen pen = new Pen(Color.White, 1)) {
-				using(Brush brush = new SolidBrush(Color.Black)) {
-					int halfWidth = destinationRectangle.Width / 2;
-					int halfWidthEnd = (destinationRectangle.Width / 2) - (pixelThickness / 2);
-					int halfHeight = destinationRectangle.Height / 2;
-					int halfHeightEnd = (destinationRectangle.Height / 2) - (pixelThickness / 2);
-	
-					int drawAtHeight = destinationRectangle.Y + halfHeight - (pixelThickness / 2);
-					int drawAtWidth = destinationRectangle.X + halfWidth - (pixelThickness / 2);
-					int padding = pixelThickness;
-	
-					// Vertical top to middle
-					graphics.FillRectangle(brush, drawAtWidth, destinationRectangle.Y + padding, pixelThickness, halfHeightEnd - 2*padding);
-					graphics.DrawRectangle(pen,   drawAtWidth, destinationRectangle.Y + padding, pixelThickness, halfHeightEnd - 2*padding);
-					// Vertical middle + 1 to bottom
-					graphics.FillRectangle(brush, drawAtWidth, destinationRectangle.Y + halfHeightEnd + pixelThickness + padding, pixelThickness, halfHeightEnd - 2*padding);
-					graphics.DrawRectangle(pen,   drawAtWidth, destinationRectangle.Y + halfHeightEnd + pixelThickness + padding, pixelThickness, halfHeightEnd - 2*padding);
-					// Horizontal left to middle
-					graphics.FillRectangle(brush, destinationRectangle.X + padding, drawAtHeight, halfWidthEnd - 2*padding, pixelThickness);
-					graphics.DrawRectangle(pen,   destinationRectangle.X + padding, drawAtHeight, halfWidthEnd - 2*padding, pixelThickness);
-					// Horizontal middle + 1 to right
-					graphics.FillRectangle(brush, destinationRectangle.X + halfWidthEnd + pixelThickness + padding, drawAtHeight, halfWidthEnd - 2*padding, pixelThickness);
-					graphics.DrawRectangle(pen,   destinationRectangle.X + halfWidthEnd + pixelThickness + padding, drawAtHeight, halfWidthEnd - 2*padding, pixelThickness);
-					
-					pen.Width = 2;
-					graphics.DrawEllipse(pen, destinationRectangle);
-				}
+			using (Pen pen = new Pen(Color.Black, pixelThickness)) {
+				int halfWidth = destinationRectangle.Width / 2;
+				int halfWidthEnd = (destinationRectangle.Width / 2) - (pixelThickness / 2);
+				int halfHeight = destinationRectangle.Height / 2;
+				int halfHeightEnd = (destinationRectangle.Height / 2) - (pixelThickness / 2);
+
+				int drawAtHeight = destinationRectangle.Y + halfHeight;
+				int drawAtWidth = destinationRectangle.X + halfWidth;
+
+				// Vertical top to middle
+				graphics.DrawLine(pen, drawAtWidth, destinationRectangle.Y, drawAtWidth, destinationRectangle.Y + halfHeightEnd);
+				// Vertical middle + 1 to bottom
+				graphics.DrawLine(pen, drawAtWidth, destinationRectangle.Y + halfHeightEnd + pixelThickness, drawAtWidth, destinationRectangle.Y + destinationRectangle.Height);
+				// Horizontal left to middle
+				graphics.DrawLine(pen, destinationRectangle.X, drawAtHeight, destinationRectangle.X + halfWidthEnd, drawAtHeight);
+				// Horizontal middle + 1 to right
+				graphics.DrawLine(pen, destinationRectangle.X + halfWidthEnd + pixelThickness, drawAtHeight, destinationRectangle.X + destinationRectangle.Width, drawAtHeight);
 			}
-			
 		}
 
 		/// <summary>
@@ -574,7 +572,14 @@ namespace Greenshot.Forms {
 
 			if (mouseDown || captureMode == CaptureMode.Window) {
 				captureRect.Intersect(new Rectangle(Point.Empty, capture.ScreenBounds.Size)); // crop what is outside the screen
-				Rectangle fixedRect = new Rectangle( captureRect.X, captureRect.Y, captureRect.Width, captureRect.Height );
+				
+				Rectangle fixedRect;
+				if (captureMode == CaptureMode.Window) {
+					fixedRect = windowAnimator.Current;
+				} else {
+					fixedRect = new Rectangle( captureRect.X, captureRect.Y, captureRect.Width, captureRect.Height);					
+				}
+
 				if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
 					graphics.FillRectangle(RedOverlayBrush, fixedRect);
 				} else {
@@ -698,7 +703,7 @@ namespace Greenshot.Forms {
 				const int zoomSourceHeight = 25;
 				
 				Rectangle sourceRectangle = new Rectangle(cursorPosOnBitmap.X - (zoomSourceWidth / 2), cursorPosOnBitmap.Y - (zoomSourceHeight / 2), zoomSourceWidth, zoomSourceHeight);
-				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, zoomSize));
+				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, zoomAnimator.Current.Size));
 
 			}
 		}

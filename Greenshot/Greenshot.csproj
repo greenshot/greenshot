@@ -180,6 +180,7 @@
       <DependentUpon>MovableShowColorForm.cs</DependentUpon>
     </Compile>
     <None Include="App.config" />
+    <Compile Include="Helpers\AnimationHelper.cs" />
     <Compile Include="Helpers\AviHelper.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
