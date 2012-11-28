@@ -6,23 +6,33 @@ CHANGE LOG:
 1.1.0 build $WCREV$ unstable
 
 Bugs resolved:
-* Bug #3582807: The window corners on Windows Vista & Windows 7 weren't cut correctly.
-* While fixing #3582807 we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
-* Bug #3582692: Picasa-Web uploads didn't have a filename and the filename was shown as "UNSET" in Picasa-Web.
+* Bug #3572995: On Windows XP Firefox captures are mainly black. This fix should also work with other OS versions and applications.
 * Bug #3582282: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
 * Bug #3582282: Exported captures to Powerpoint were displayed cropped, which needed extra actions to correct.
-* Bug #3572995: On Windows XP Firefox captures are mainly black, this fix does not only work for Firefox.
+* Bug #3582692: Picasa-Web uploads didn't have a filename and the filename was shown as "UNSET" in Picasa-Web.
+* Bug #3582807: The window corners on Windows Vista & Windows 7 weren't cut correctly.
+* While fixing #3582807 we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
 * Bug #3585393: resize issues with some the plugin configuration dialogs.
+* Bug #3589370: Fixed missing filename in the Editor title
 * Not reported: Flickr configuration for the Family, Friend & Public wasn't stored.
 * Not reported: If Greenshot is linked in a Windows startup folder, the "Start with startup" checkbox wasn't checked.
-* Removed unneeded code from the Confluence Plug-in, this makes the Greenshot installer / .zip a bit smaller.
+* Not reported: Some shortcut keys in the editor didn't respond.
+* Not reported: Fixed some issues with capturing windows that were larger than the visible screen, logic should now be more reliable.
+* Not reported: Fixed some cases where Dragging & Dropping an image from a browser on the editor lost transparency.
+* Not reported: Undo while in an Auto-Crop made the editor unusable.
 
 Features:
 * General: Added zoom when capturing
 * General: Better Windows 8 integration: Capture window from list now has the apps and the interactive window capture is not confused by apps or the app launcher.
 * General: Added Special-Folder support for the OutputPath/Filenames, now one can use the following values: MyPictures, MyMusic, MyDocuments, Personal, Desktop, ApplicationData, LocalApplicationData. Meaning one can now set the output path to e.g. ${MyPictures}
-* Editor: is now centering the image, the code for this was supplied by Viktar Karpach.
+* Editor: The capture is now displayed in the center of the editor, the code for this was supplied by Viktar Karpach.
 * Plug-in: Added Photobucket plugin
+* Plug-in: Removed unneeded code from the Confluence Plug-in, this makes the Greenshot installer / .zip a bit smaller.
+
+Languages:
+* Installer: Added Spanish
+* Installer: Added Serbian
+* General: Fixes for Italian, Serbian, Slovak, Urkainian
 
 1.0.6 build 2228 Release
 
