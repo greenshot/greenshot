@@ -526,24 +526,35 @@ namespace Greenshot.Forms {
 			}
 
 			int pixelThickness = destinationRectangle.Width / sourceRectangle.Width;
-			using (Pen pen = new Pen(Color.Black, pixelThickness)) {
-				int halfWidth = destinationRectangle.Width / 2;
-				int halfWidthEnd = (destinationRectangle.Width / 2) - (pixelThickness / 2);
-				int halfHeight = destinationRectangle.Height / 2;
-				int halfHeightEnd = (destinationRectangle.Height / 2) - (pixelThickness / 2);
-
-				int drawAtHeight = destinationRectangle.Y + halfHeight;
-				int drawAtWidth = destinationRectangle.X + halfWidth;
-
-				// Vertical top to middle
-				graphics.DrawLine(pen, drawAtWidth, destinationRectangle.Y, drawAtWidth, destinationRectangle.Y + halfHeightEnd);
-				// Vertical middle + 1 to bottom
-				graphics.DrawLine(pen, drawAtWidth, destinationRectangle.Y + halfHeightEnd + pixelThickness, drawAtWidth, destinationRectangle.Y + destinationRectangle.Height);
-				// Horizontal left to middle
-				graphics.DrawLine(pen, destinationRectangle.X, drawAtHeight, destinationRectangle.X + halfWidthEnd, drawAtHeight);
-				// Horizontal middle + 1 to right
-				graphics.DrawLine(pen, destinationRectangle.X + halfWidthEnd + pixelThickness, drawAtHeight, destinationRectangle.X + destinationRectangle.Width, drawAtHeight);
+			using (Pen pen = new Pen(Color.White, 1)) {
+				using(Brush brush = new SolidBrush(Color.Black)) {
+					int halfWidth = destinationRectangle.Width / 2;
+					int halfWidthEnd = (destinationRectangle.Width / 2) - (pixelThickness / 2);
+					int halfHeight = destinationRectangle.Height / 2;
+					int halfHeightEnd = (destinationRectangle.Height / 2) - (pixelThickness / 2);
+	
+					int drawAtHeight = destinationRectangle.Y + halfHeight - (pixelThickness / 2);
+					int drawAtWidth = destinationRectangle.X + halfWidth - (pixelThickness / 2);
+					int padding = pixelThickness;
+	
+					// Vertical top to middle
+					graphics.FillRectangle(brush, drawAtWidth, destinationRectangle.Y + padding, pixelThickness, halfHeightEnd - 2*padding);
+					graphics.DrawRectangle(pen,   drawAtWidth, destinationRectangle.Y + padding, pixelThickness, halfHeightEnd - 2*padding);
+					// Vertical middle + 1 to bottom
+					graphics.FillRectangle(brush, drawAtWidth, destinationRectangle.Y + halfHeightEnd + pixelThickness + padding, pixelThickness, halfHeightEnd - 2*padding);
+					graphics.DrawRectangle(pen,   drawAtWidth, destinationRectangle.Y + halfHeightEnd + pixelThickness + padding, pixelThickness, halfHeightEnd - 2*padding);
+					// Horizontal left to middle
+					graphics.FillRectangle(brush, destinationRectangle.X + padding, drawAtHeight, halfWidthEnd - 2*padding, pixelThickness);
+					graphics.DrawRectangle(pen,   destinationRectangle.X + padding, drawAtHeight, halfWidthEnd - 2*padding, pixelThickness);
+					// Horizontal middle + 1 to right
+					graphics.FillRectangle(brush, destinationRectangle.X + halfWidthEnd + pixelThickness + padding, drawAtHeight, halfWidthEnd - 2*padding, pixelThickness);
+					graphics.DrawRectangle(pen,   destinationRectangle.X + halfWidthEnd + pixelThickness + padding, drawAtHeight, halfWidthEnd - 2*padding, pixelThickness);
+					
+					pen.Width = 2;
+					graphics.DrawEllipse(pen, destinationRectangle);
+				}
 			}
+			
 		}
 
 		/// <summary>
