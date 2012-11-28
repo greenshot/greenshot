@@ -516,8 +516,9 @@ namespace Greenshot.Forms {
 			graphics.CompositingQuality = CompositingQuality.HighSpeed;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			
+			int pixelThickness = destinationRectangle.Width / sourceRectangle.Width;
 			using (GraphicsPath path = new GraphicsPath()) {
-				path.AddEllipse(destinationRectangle);
+				path.AddEllipse(new Rectangle(destinationRectangle.Location, new Size(destinationRectangle.Width - pixelThickness, destinationRectangle.Height - pixelThickness)));
 				using (Region clipRegion = new Region(path)) {
 					graphics.Clip = clipRegion;
 					graphics.FillRectangle(backgroundBrush,destinationRectangle);
@@ -525,7 +526,6 @@ namespace Greenshot.Forms {
 				}
 			}
 
-			int pixelThickness = destinationRectangle.Width / sourceRectangle.Width;
 			using (Pen pen = new Pen(Color.Black, pixelThickness)) {
 				int halfWidth = (destinationRectangle.Width >> 1) - (pixelThickness >> 1);
 				int halfWidthEnd = (destinationRectangle.Width >> 1) - pixelThickness;
