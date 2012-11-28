@@ -211,9 +211,6 @@ namespace Greenshot {
 						LOG.Warn("Exception: ", addingException);
 					}
 				}
-				// Create the file menu, normally this is done when opening but if we don't do it now the short-cut keys are missing.
-				// See Bugs #3526974 & #3527020
-				FileMenuDropDownOpening(null, null);
 			});
 		}
 
@@ -229,7 +226,6 @@ namespace Greenshot {
 				ToolStripMenuItem defaultItem = new ToolStripMenuItem(toolstripDestination.Description);
 				defaultItem.Tag = toolstripDestination;
 				defaultItem.Image = toolstripDestination.DisplayIcon;
-				defaultItem.ShortcutKeys = Keys.None;
 				defaultItem.Click += delegate {
 					toolstripDestination.ExportCapture(true, surface, surface.CaptureDetails);
 				};
@@ -790,11 +786,29 @@ namespace Greenshot {
 			return false;
 		}
 
-		protected override bool ProcessCmdKey(ref Message msg, Keys k) {
+		protected override bool ProcessCmdKey(ref Message msg, Keys keys) {
 			// disable default key handling if surface has requested a lock
 			if (!surface.KeysLocked) {
-				surface.ProcessCmdKey(k);
-				return base.ProcessCmdKey(ref msg, k);
+
+				// Go through the destinations to check the EditorShortcut Keys
+				// this way the menu entries don't need to be enabled.
+				// This also fixes bugs #3526974 & #3527020
+				foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
+					if (ignoreDestinations.Contains(destination.Designation)) {
+						continue;
+					}
+					if (!destination.isActive) {
+						continue;
+					}
+
+					if (destination.EditorShortcutKeys == keys) {
+						destination.ExportCapture(true, surface, surface.CaptureDetails);
+						return true;
+					}
+				}
+				if (!surface.ProcessCmdKey(keys)) {
+					return base.ProcessCmdKey(ref msg, keys);
+				}
 			}
 			return false;
 		}
