@@ -384,7 +384,7 @@ namespace Greenshot {
 				return;
 			}
 			updateStatusLabel(Language.GetFormattedString(LangKey.editor_imagesaved, fullpath), fileSavedStatusContextMenu);
-			this.Text = Language.GetString(LangKey.editor_title) + " - " + Path.GetFileName(fullpath);
+			this.Text = Path.GetFileName(fullpath) + " - " + Language.GetString(LangKey.editor_title);
 		}
 		
 		void surface_DrawingModeChanged(object source, DrawingModes drawingMode) {

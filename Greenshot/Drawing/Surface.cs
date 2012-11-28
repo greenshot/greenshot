@@ -1556,10 +1556,11 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
-		/// Process key
+		/// Process key presses on the surface, this is called from the editor (and NOT an override from the Control)
 		/// </summary>
-		/// <param name="k"></param>
-		public void ProcessCmdKey(Keys k) {
+		/// <param name="k">Keys</param>
+		/// <returns>false if no keys were processed</returns>
+		public bool ProcessCmdKey(Keys k) {
 			if (selectedElements.Count > 0) {
 				bool shiftModifier = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
 				int px = shiftModifier ? 10 : 1;
@@ -1604,13 +1605,15 @@ namespace Greenshot.Drawing {
 						RemoveSelectedElements();
 						break;*/
 					default:
-						return;
+						return false;
 				}
 				if (!Point.Empty.Equals(moveBy)) {
 					selectedElements.MakeBoundsChangeUndoable(true);
 					selectedElements.MoveBy(moveBy.X, moveBy.Y);
 				}
+				return true;
 			}
+			return false;
 		}
 
 		/// <summary>

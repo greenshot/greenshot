@@ -86,22 +86,34 @@ namespace Greenshot.Helpers {
 		public static void CaptureWindow(bool captureMouse) {
 			new CaptureHelper(CaptureMode.ActiveWindow, captureMouse).MakeCapture();
 		}
+
 		public static void CaptureWindow(WindowDetails windowToCapture) {
 			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow);
 			captureHelper.SelectedCaptureWindow = windowToCapture;
 			captureHelper.MakeCapture();
 		}
+
 		public static void CaptureWindowInteractive(bool captureMouse) {
 			new CaptureHelper(CaptureMode.Window, captureMouse).MakeCapture();
 		}
+
 		public static void CaptureFile(string filename) {
 			new CaptureHelper(CaptureMode.File).MakeCapture(filename);
+		}
+
+		public static void CaptureFile(string filename, IDestination destination) {
+			new CaptureHelper(CaptureMode.File).AddDestination(destination).MakeCapture(filename);
 		}
 
 		public static void ImportCapture(ICapture captureToImport) {
 			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File);
 			captureHelper.capture = captureToImport;
 			captureHelper.HandleCapture();
+		}
+
+		public CaptureHelper AddDestination(IDestination destination) {
+			capture.CaptureDetails.AddDestination(destination);
+			return this;
 		}
 
 		public CaptureHelper(CaptureMode captureMode) {

@@ -592,7 +592,7 @@ namespace Greenshot {
 			openFileDialog.Filter = "Image files (*.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf";
 			if (openFileDialog.ShowDialog() == DialogResult.OK) {
 				if (File.Exists(openFileDialog.FileName)) {
-					CaptureHelper.CaptureFile(openFileDialog.FileName);				
+					CaptureHelper.CaptureFile(openFileDialog.FileName);
 				}
 			}
 		}
@@ -1087,10 +1087,43 @@ namespace Greenshot {
 			new BugReportForm(exceptionText).ShowDialog();
 		}
 
+		/// <summary>
+		/// Handle the notify icon click
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void NotifyIconClick(object sender, MouseEventArgs e) {
+			// The right button will automatically be handled with the context menu, here we only check the left.
 			if (e.Button == MouseButtons.Left) {
-				MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-				oMethodInfo.Invoke(notifyIcon, null);
+				switch (conf.LeftClickAction) {
+					case LeftClickActions.OPEN_LAST_IN_EXPLORER:
+						string path = null;
+						string configPath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
+						string lastFilePath = Path.GetDirectoryName(conf.OutputFileAsFullpath);
+						if (Directory.Exists(lastFilePath)) {
+							path = lastFilePath;
+						} else if (Directory.Exists(configPath)) {
+							path = configPath;
+						}
+
+						try {
+							System.Diagnostics.Process.Start(path);
+						} catch (Exception ex) {
+							// Make sure we show what we tried to open in the exception
+							ex.Data.Add("path", path);
+							throw ex;
+						}
+						break;
+					case LeftClickActions.OPEN_LAST_IN_EDITOR:
+						if (File.Exists(conf.OutputFileAsFullpath)) {
+							CaptureHelper.CaptureFile(conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));				
+						}
+						break;
+					default:
+						MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
+						oMethodInfo.Invoke(notifyIcon, null);
+						break;
+				}
 			}
 		}
 
