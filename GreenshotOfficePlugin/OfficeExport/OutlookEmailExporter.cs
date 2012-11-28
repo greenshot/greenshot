@@ -28,6 +28,9 @@ using Microsoft.Win32;
 using Greenshot.Interop;
 using Greenshot.Interop.IE;
 using System.Threading;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Interop.Office {
 	/// <summary>
@@ -360,36 +363,26 @@ namespace Greenshot.Interop.Office {
 					break;
 			}
 			// So not save, otherwise the email is always stored in Draft folder.. (newMail.Save();)
-			try {
-				newMail.Display(false);
-				newMail.GetInspector().Activate();
-			} catch (Exception ex) {
-				LOG.Warn("Problem displaying the new email, retrying to display it. Problem:", ex);
-				Thread retryDisplayEmail = new Thread(delegate() {
-					int retries = 10;
-					int retryInXSeconds = 5;
-					while (retries-- > 0) {
-						Thread.Sleep(retryInXSeconds * 1000);
-						try {
-							newMail.Display(false);
-							newMail.GetInspector().Activate();
-							LOG.InfoFormat("Managed to display the message.");
-							return;
-						} catch (Exception displayEx) {
-							LOG.WarnFormat("Error displaying message: {0}, retrying to show email in {1} seconds... Retries left: {2}", displayEx, retryInXSeconds, retries);
+			do {
+				try {
+					newMail.Display(false);
+					newMail.GetInspector().Activate();
+					break;
+				} catch (Exception ex) {
+					// Test for rejected
+					LOG.Warn("Problem displaying the new email, retrying to display it. Problem:", ex);
+					COMException comEx = ex.InnerException as COMException;
+					if (comEx != null && (comEx.ErrorCode == COMWrapper.RPC_E_CALL_REJECTED || comEx.ErrorCode == COMWrapper.RPC_E_FAIL)) {
+						DialogResult result = MessageBox.Show(PluginUtils.Host.GreenshotForm, Language.GetFormattedString("com_rejected", "Outlook "), Language.GetString("com_rejected_title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+						if (result == DialogResult.OK) {
+							continue;
 						}
 					}
-					LOG.WarnFormat("Retry failed, saving message to draft.");
-					try {
-						newMail.Save();
-					} catch (Exception saveEx) {
-						LOG.WarnFormat("Saving message to draft failed: {0}", saveEx);
-					}
-				});
-				retryDisplayEmail.Name = "Retry to display email";
-				retryDisplayEmail.IsBackground = true;
-				retryDisplayEmail.Start();
-			}
+					// Not rejected OR pressed cancel
+					throw ex;
+				}
+			} while (true);
+
 			if (newItem != null) {
 				newItem.Dispose();
 			}

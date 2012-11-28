@@ -35,7 +35,8 @@ namespace Greenshot.Interop {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(COMWrapper));
 		private const int MK_E_UNAVAILABLE = -2147221021;
 		private const int CO_E_CLASSSTRING = -2147221005;
-		private const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
+		public const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
+		public const int RPC_E_FAIL = unchecked((int)0x80004005);
 
 		#region Private Data
 
@@ -661,7 +662,12 @@ namespace Greenshot.Interop {
 						// Test for rejected
 						COMException comEx = ex as COMException;
 						if (comEx != null && comEx.ErrorCode == RPC_E_CALL_REJECTED) {
-							DialogResult result = MessageBox.Show(Language.GetString("com_rejected"), Language.GetString("com_rejected_title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+							ComProgIdAttribute progIDAttribute = ComProgIdAttribute.GetAttribute(_InterceptType);
+							string destinationName = "";
+							if (progIDAttribute != null) {
+								destinationName = progIDAttribute.Value + " ";
+							}
+							DialogResult result = MessageBox.Show(PluginUtils.Host.GreenshotForm, Language.GetFormattedString("com_rejected", destinationName), Language.GetString("com_rejected_title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
 							if (result == DialogResult.OK) {
 								continue;
 							}
