@@ -55,6 +55,11 @@ namespace Greenshot.Interop {
 		/// </summary>
 		private Type _InterceptType;
 
+		/// <summary>
+		/// The humanly readable target name
+		/// </summary>
+		private string _TargetName;
+
 		#endregion
 		[DllImport("ole32.dll")]
 		static extern int ProgIDFromCLSID([In] ref Guid clsid, [MarshalAs(UnmanagedType.LPWStr)] out string lplpszProgID);
@@ -126,7 +131,7 @@ namespace Greenshot.Interop {
 
 			if (comObject != null) {
 				if (comObject is IDispatch) {
-					COMWrapper wrapper = new COMWrapper(comObject, type);
+					COMWrapper wrapper = new COMWrapper(comObject, type, progIDAttribute.Value);
 					return (T)wrapper.GetTransparentProxy();
 				} else {
 					return (T)comObject;
@@ -275,7 +280,7 @@ namespace Greenshot.Interop {
 			}
 			if (comObject != null) {
 				if (comObject is IDispatch) {
-					COMWrapper wrapper = new COMWrapper(comObject, type);
+					COMWrapper wrapper = new COMWrapper(comObject, type, progIDAttribute.Value);
 					return (T)wrapper.GetTransparentProxy();
 				} else {
 					return (T)comObject;
@@ -290,7 +295,7 @@ namespace Greenshot.Interop {
 		/// <param name="comObject">An object to intercept</param>
 		/// <param name="type">Interface which defines the method and properties to intercept</param>
 		/// <returns>Transparent proxy to the real proxy for the object</returns>
-		private static object Wrap(object comObject, Type type) {
+		private static object Wrap(object comObject, Type type, string targetName) {
 			if (null == comObject) {
 				throw new ArgumentNullException("comObject");
 			}
@@ -298,7 +303,7 @@ namespace Greenshot.Interop {
 				throw new ArgumentNullException("type");
 			}
 
-			COMWrapper wrapper = new COMWrapper(comObject, type);
+			COMWrapper wrapper = new COMWrapper(comObject, type, targetName);
 			return wrapper.GetTransparentProxy();
 		}
 
@@ -311,10 +316,11 @@ namespace Greenshot.Interop {
 		/// <param name="type">
 		/// The interface type to impersonate.
 		/// </param>
-		private COMWrapper(object comObject, Type type) : base(type) {
+		private COMWrapper(object comObject, Type type, string targetName) : base(type) {
 			this._COMObject = comObject;
 			this._COMType = comObject.GetType();
 			this._InterceptType = type;
+			this._TargetName = targetName;
 		}
 
 		#endregion
@@ -452,7 +458,7 @@ namespace Greenshot.Interop {
 				throw new ArgumentException("wrapper proxy was no COMWrapper");
 			}
 			if (oldWrapper._InterceptType.IsAssignableFrom(newType)) {
-				COMWrapper newWrapper = new COMWrapper(oldWrapper._COMObject, newType);
+				COMWrapper newWrapper = new COMWrapper(oldWrapper._COMObject, newType, oldWrapper._TargetName);
 				return (T)newWrapper.GetTransparentProxy();
 			}
 			throw new InvalidCastException(string.Format("{0} is not assignable from {1}", oldWrapper._InterceptType, newType));
@@ -661,11 +667,17 @@ namespace Greenshot.Interop {
 					} catch (Exception ex) {
 						// Test for rejected
 						COMException comEx = ex as COMException;
-						if (comEx != null && comEx.ErrorCode == RPC_E_CALL_REJECTED) {
-							ComProgIdAttribute progIDAttribute = ComProgIdAttribute.GetAttribute(_InterceptType);
-							string destinationName = "";
-							if (progIDAttribute != null) {
-								destinationName = progIDAttribute.Value + " ";
+						if (comEx == null) {
+							comEx = ex.InnerException as COMException;
+						}
+						if (comEx != null && (comEx.ErrorCode == RPC_E_CALL_REJECTED || comEx.ErrorCode == COMWrapper.RPC_E_FAIL)) {
+							string destinationName = _TargetName;
+							// Try to find a "catchy" name for the rejecting application
+							if (destinationName != null && destinationName.Contains(".")) {
+								destinationName = destinationName.Substring(0, destinationName.IndexOf("."));
+							}
+							if (destinationName == null) {
+								destinationName = _InterceptType.FullName;
 							}
 							DialogResult result = MessageBox.Show(PluginUtils.Host.GreenshotForm, Language.GetFormattedString("com_rejected", destinationName), Language.GetString("com_rejected_title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
 							if (result == DialogResult.OK) {
@@ -682,7 +694,7 @@ namespace Greenshot.Interop {
 					if (returnType.IsInterface) {
 						// Wrap the returned value in an intercepting COM wrapper
 						if (Marshal.IsComObject(returnValue)) {
-							returnValue = COMWrapper.Wrap(returnValue, returnType);
+							returnValue = COMWrapper.Wrap(returnValue, returnType, _TargetName);
 						}
 					} else if (returnType.IsEnum) {
 						// Convert to proper Enum type
@@ -722,7 +734,7 @@ namespace Greenshot.Interop {
 								}
 
 								if (null == wrapper) {
-									wrapper = new COMWrapper(arg, byValType);
+									wrapper = new COMWrapper(arg, byValType, _TargetName);
 								}
 								arg = wrapper.GetTransparentProxy();
 							}

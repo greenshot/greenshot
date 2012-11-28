@@ -141,6 +141,13 @@ namespace GreenshotOfficePlugin {
 			}
 		}
 
+		/// <summary>
+		/// Export the capture to outlook
+		/// </summary>
+		/// <param name="manuallyInitiated"></param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <returns></returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			// Outlook logic

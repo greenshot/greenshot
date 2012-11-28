@@ -363,25 +363,8 @@ namespace Greenshot.Interop.Office {
 					break;
 			}
 			// So not save, otherwise the email is always stored in Draft folder.. (newMail.Save();)
-			do {
-				try {
-					newMail.Display(false);
-					newMail.GetInspector().Activate();
-					break;
-				} catch (Exception ex) {
-					// Test for rejected
-					LOG.Warn("Problem displaying the new email, retrying to display it. Problem:", ex);
-					COMException comEx = ex.InnerException as COMException;
-					if (comEx != null && (comEx.ErrorCode == COMWrapper.RPC_E_CALL_REJECTED || comEx.ErrorCode == COMWrapper.RPC_E_FAIL)) {
-						DialogResult result = MessageBox.Show(PluginUtils.Host.GreenshotForm, Language.GetFormattedString("com_rejected", "Outlook "), Language.GetString("com_rejected_title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
-						if (result == DialogResult.OK) {
-							continue;
-						}
-					}
-					// Not rejected OR pressed cancel
-					throw ex;
-				}
-			} while (true);
+			newMail.Display(false);
+			newMail.GetInspector().Activate();
 
 			if (newItem != null) {
 				newItem.Dispose();
