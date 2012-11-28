@@ -448,8 +448,8 @@ namespace Greenshot.Forms {
 			if (isZooming && captureMode != CaptureMode.Window) {
 				Invalidate(ZoomArea(lastPos, zoomSize));
 				if (zoomSize.Width < 200) {
-					zoomSize.Width += 10;
-					zoomSize.Height += 10;
+					zoomSize.Width += (220-zoomSize.Width)/5;
+					zoomSize.Height += (220-zoomSize.Height)/5;
 				} else {
 					isAnimating = false;
 				}
