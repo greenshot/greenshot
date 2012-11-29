@@ -194,44 +194,74 @@ namespace Greenshot.Forms {
 			}
 		}
 
+		/// <summary>
+		/// Handle the key down event
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void CaptureFormKeyDown(object sender, KeyEventArgs e) {
-			// Check fixmode
-			if (e.KeyCode == Keys.ShiftKey) {
-				if (fixMode == FixMode.None) {
-					fixMode = FixMode.Initiated;
-					return;
-				}
-			}
-			if (e.KeyCode == Keys.Escape) {
-				DialogResult = DialogResult.Cancel;
-			} else if (e.KeyCode == Keys.M) {
-				// Toggle mouse cursor
-				capture.CursorVisible = !capture.CursorVisible;
-				Invalidate();
-			} else if (e.KeyCode == Keys.V) {
-				if (capture.CaptureDetails.CaptureMode != CaptureMode.Video) {
-					capture.CaptureDetails.CaptureMode = CaptureMode.Video;
-				} else {
-					capture.CaptureDetails.CaptureMode = captureMode;
-				}
-				Invalidate();
-			} else if (e.KeyCode == Keys.Z) {
-				// Toggle zoom
-				isZooming = !isZooming;
-			} else if (e.KeyCode == Keys.Space) {
-				switch (captureMode) {
-					case CaptureMode.Region:
-						captureMode = CaptureMode.Window;
-						break;
-					case CaptureMode.Window:
-						captureMode = CaptureMode.Region;
-						break;
-				}
-				Invalidate();
-				selectedCaptureWindow = null;
-				OnMouseMove(this, new MouseEventArgs(MouseButtons.None, 0, Cursor.Position.X, Cursor.Position.Y, 0));
-			} else if (e.KeyCode == Keys.Return && captureMode == CaptureMode.Window) {
-				DialogResult = DialogResult.OK;
+			switch (e.KeyCode) {
+				case Keys.Up:
+					Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y - 1);
+					break;
+				case Keys.Down:
+					Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y + 1);
+					break;
+				case Keys.Left:
+					Cursor.Position = new Point(Cursor.Position.X - 1, Cursor.Position.Y);
+					break;
+				case Keys.Right:
+					Cursor.Position = new Point(Cursor.Position.X + 1, Cursor.Position.Y);
+					break;
+				case Keys.ShiftKey:
+					// Fixmode
+					if (fixMode == FixMode.None) {
+						fixMode = FixMode.Initiated;
+						return;
+					}
+					break;
+				case Keys.Escape:
+					// Cancel
+					DialogResult = DialogResult.Cancel;
+					break;
+				case Keys.M:
+					// Toggle mouse cursor
+					capture.CursorVisible = !capture.CursorVisible;
+					Invalidate();
+					break;
+				case Keys.V:
+					// Video
+					if (capture.CaptureDetails.CaptureMode != CaptureMode.Video) {
+						capture.CaptureDetails.CaptureMode = CaptureMode.Video;
+					} else {
+						capture.CaptureDetails.CaptureMode = captureMode;
+					}
+					Invalidate();
+					break;
+				case Keys.Z:
+					// Toggle zoom
+					isZooming = !isZooming;
+					break;
+				case Keys.Space:
+					// Toggle capture mode
+					switch (captureMode) {
+						case CaptureMode.Region:
+							captureMode = CaptureMode.Window;
+							break;
+						case CaptureMode.Window:
+							captureMode = CaptureMode.Region;
+							break;
+					}
+					Invalidate();
+					selectedCaptureWindow = null;
+					OnMouseMove(this, new MouseEventArgs(MouseButtons.None, 0, Cursor.Position.X, Cursor.Position.Y, 0));
+					break;
+				case Keys.Return:
+					// Confirm
+					if (captureMode == CaptureMode.Window) {
+						DialogResult = DialogResult.OK;
+					}
+					break;
 			}
 		}
 		#endregion
