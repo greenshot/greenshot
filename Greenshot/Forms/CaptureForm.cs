@@ -564,22 +564,30 @@ namespace Greenshot.Forms {
 					graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 				}
 			}
-			int pixelThickness = destinationRectangle.Width / sourceRectangle.Width;
-			// Make sure we don't have a pixeloffsetmode/smoothingmode
+
+			// Draw the circle around the zoomer
+			using (Pen pen = new Pen(Color.White, 2)) {
+				graphics.DrawEllipse(pen, destinationRectangle);
+			}
+
+			// Make sure we don't have a pixeloffsetmode/smoothingmode when drawing the crosshair
 			graphics.SmoothingMode = SmoothingMode.None;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
-			LOG.DebugFormat("{0}", pixelThickness);
+
+			// Calculate some values
+			int pixelThickness = destinationRectangle.Width / sourceRectangle.Width;
+			int halfWidth = destinationRectangle.Width / 2;
+			int halfWidthEnd = (destinationRectangle.Width / 2) - (pixelThickness / 2);
+			int halfHeight = destinationRectangle.Height / 2;
+			int halfHeightEnd = (destinationRectangle.Height / 2) - (pixelThickness / 2);
+
+			int drawAtHeight = destinationRectangle.Y + halfHeight;
+			int drawAtWidth = destinationRectangle.X + halfWidth;
+			int padding = pixelThickness;
+
+			// Pen to draw
 			using (Pen pen = new Pen(Color.Black, pixelThickness)) {
-				pen.Alignment = PenAlignment.Inset;
-				int halfWidth = destinationRectangle.Width / 2;
-				int halfWidthEnd = (destinationRectangle.Width / 2) - (pixelThickness / 2);
-				int halfHeight = destinationRectangle.Height / 2;
-				int halfHeightEnd = (destinationRectangle.Height / 2) - (pixelThickness / 2);
-
-				int drawAtHeight = destinationRectangle.Y + halfHeight;
-				int drawAtWidth = destinationRectangle.X + halfWidth;
-				int padding = pixelThickness;
-
+				// Draw the croshair-lines
 				// Vertical top to middle
 				graphics.DrawLine(pen, drawAtWidth, destinationRectangle.Y + padding, drawAtWidth, destinationRectangle.Y + halfHeightEnd - padding);
 				// Vertical middle + 1 to bottom
@@ -589,13 +597,13 @@ namespace Greenshot.Forms {
 				// Horizontal middle + 1 to right
 				graphics.DrawLine(pen, destinationRectangle.X + halfWidthEnd + 2 * padding, drawAtHeight, destinationRectangle.X + destinationRectangle.Width - padding, drawAtHeight);
 
-				// Fix offset
+				// Fix offset for drawing the white rectangle around the crosshair-lines
 				drawAtHeight -= (pixelThickness / 2);
 				drawAtWidth -= (pixelThickness / 2);
 				// Fix off by one error with the DrawRectangle
 				pixelThickness -= 1;
+				// Change the color and the pen width
 				pen.Color = Color.White;
-				pen.Alignment = PenAlignment.Center;
 				pen.Width = 1;
 				// Vertical top to middle
 				graphics.DrawRectangle(pen, drawAtWidth, destinationRectangle.Y + padding, pixelThickness, halfHeightEnd - 2 * padding - 1);
@@ -605,15 +613,6 @@ namespace Greenshot.Forms {
 				graphics.DrawRectangle(pen, destinationRectangle.X + padding, drawAtHeight, halfWidthEnd - 2 * padding - 1, pixelThickness);
 				// Horizontal middle + 1 to right
 				graphics.DrawRectangle(pen, destinationRectangle.X + halfWidthEnd + 2 * padding, drawAtHeight, halfWidthEnd - 2 * padding - 1, pixelThickness);
-
-
-				pen.Width = 2;
-				// Make sure the pixeloffsetmode/smoothingmodeis etc are set to high quality, so the ellipse is correct.
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.High;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.DrawEllipse(pen, destinationRectangle);
 			}
 		}
 
