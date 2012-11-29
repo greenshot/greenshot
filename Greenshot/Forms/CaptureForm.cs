@@ -454,11 +454,12 @@ namespace Greenshot.Forms {
 				Invalidate(ZoomArea(lastPos, zoomAnimator.Current.Size));
 				Invalidate(ZoomArea(cursorPos, zoomAnimator.Next().Size));
 
-				// TODO: Check what this should accomplish
+				// TODO: Move this to the Animator, but we need to check how to make sure we have an exact result.
 				//if (zoomSize.Width < 200) {
 				//	zoomSize.Width += (220-zoomSize.Width)/5;
 				//	zoomSize.Height += (220-zoomSize.Height)/5;
-				//}			}
+				//}
+			}
 			// Force update "now"
 			Update();
 		}
