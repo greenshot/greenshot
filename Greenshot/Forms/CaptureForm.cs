@@ -591,9 +591,16 @@ namespace Greenshot.Forms {
 				// rulers
 				int dist = 8;
 				
-				string captureWidth = (captureRect.Width + 1).ToString();
-				string captureHeight = (captureRect.Height + 1).ToString();
-
+				string captureWidth;
+				string captureHeight;
+				// The following fixes the very old incorrect size information bug
+				if (captureMode == CaptureMode.Window) {
+					captureWidth = captureRect.Width.ToString();
+					captureHeight = captureRect.Height.ToString();
+				} else {
+					captureWidth = (captureRect.Width + 1).ToString();
+					captureHeight = (captureRect.Height + 1).ToString();
+				}
 				using (Font rulerFont = new Font(FontFamily.GenericSansSerif, 8)) {
 					Size measureWidth = TextRenderer.MeasureText(captureWidth, rulerFont);
 					Size measureHeight = TextRenderer.MeasureText(captureHeight, rulerFont);
