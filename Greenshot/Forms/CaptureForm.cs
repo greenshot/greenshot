@@ -551,7 +551,7 @@ namespace Greenshot.Forms {
 				return;
 			}
 			
-			graphics.SmoothingMode = SmoothingMode.None;
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.HighSpeed;
 			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
@@ -564,35 +564,56 @@ namespace Greenshot.Forms {
 					graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 				}
 			}
-
 			int pixelThickness = destinationRectangle.Width / sourceRectangle.Width;
-			using (Pen pen = new Pen(Color.White, 1)) {
-				using (Brush brush = new SolidBrush(Color.Black)) {
-					int halfWidth = destinationRectangle.Width / 2;
-					int halfWidthEnd = (destinationRectangle.Width / 2) - (pixelThickness / 2);
-					int halfHeight = destinationRectangle.Height / 2;
-					int halfHeightEnd = (destinationRectangle.Height / 2) - (pixelThickness / 2);
+			// Make sure we don't have a pixeloffsetmode/smoothingmode
+			graphics.SmoothingMode = SmoothingMode.None;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			LOG.DebugFormat("{0}", pixelThickness);
+			using (Pen pen = new Pen(Color.Black, pixelThickness)) {
+				pen.Alignment = PenAlignment.Inset;
+				int halfWidth = destinationRectangle.Width / 2;
+				int halfWidthEnd = (destinationRectangle.Width / 2) - (pixelThickness / 2);
+				int halfHeight = destinationRectangle.Height / 2;
+				int halfHeightEnd = (destinationRectangle.Height / 2) - (pixelThickness / 2);
 
-					int drawAtHeight = destinationRectangle.Y + halfHeight - (pixelThickness / 2);
-					int drawAtWidth = destinationRectangle.X + halfWidth - (pixelThickness / 2);
-					int padding = pixelThickness;
+				int drawAtHeight = destinationRectangle.Y + halfHeight;
+				int drawAtWidth = destinationRectangle.X + halfWidth;
+				int padding = pixelThickness;
 
-					// Vertical top to middle
-					graphics.FillRectangle(brush, drawAtWidth, destinationRectangle.Y + padding, pixelThickness, halfHeightEnd - 2 * padding);
-					graphics.DrawRectangle(pen, drawAtWidth, destinationRectangle.Y + padding, pixelThickness, halfHeightEnd - 2 * padding);
-					// Vertical middle + 1 to bottom
-					graphics.FillRectangle(brush, drawAtWidth, destinationRectangle.Y + halfHeightEnd + pixelThickness + padding, pixelThickness, halfHeightEnd - 2 * padding);
-					graphics.DrawRectangle(pen, drawAtWidth, destinationRectangle.Y + halfHeightEnd + pixelThickness + padding, pixelThickness, halfHeightEnd - 2 * padding);
-					// Horizontal left to middle
-					graphics.FillRectangle(brush, destinationRectangle.X + padding, drawAtHeight, halfWidthEnd - 2 * padding, pixelThickness);
-					graphics.DrawRectangle(pen, destinationRectangle.X + padding, drawAtHeight, halfWidthEnd - 2 * padding, pixelThickness);
-					// Horizontal middle + 1 to right
-					graphics.FillRectangle(brush, destinationRectangle.X + halfWidthEnd + pixelThickness + padding, drawAtHeight, halfWidthEnd - 2 * padding, pixelThickness);
-					graphics.DrawRectangle(pen, destinationRectangle.X + halfWidthEnd + pixelThickness + padding, drawAtHeight, halfWidthEnd - 2 * padding, pixelThickness);
+				// Vertical top to middle
+				graphics.DrawLine(pen, drawAtWidth, destinationRectangle.Y + padding, drawAtWidth, destinationRectangle.Y + halfHeightEnd - padding);
+				// Vertical middle + 1 to bottom
+				graphics.DrawLine(pen, drawAtWidth, destinationRectangle.Y + halfHeightEnd + 2 * padding, drawAtWidth, destinationRectangle.Y + destinationRectangle.Width - padding);
+				// Horizontal left to middle
+				graphics.DrawLine(pen, destinationRectangle.X + padding, drawAtHeight, destinationRectangle.X + halfWidthEnd - padding, drawAtHeight);
+				// Horizontal middle + 1 to right
+				graphics.DrawLine(pen, destinationRectangle.X + halfWidthEnd + 2 * padding, drawAtHeight, destinationRectangle.X + destinationRectangle.Width - padding, drawAtHeight);
 
-					pen.Width = 2;
-					graphics.DrawEllipse(pen, destinationRectangle);
-				}
+				// Fix offset
+				drawAtHeight -= (pixelThickness / 2);
+				drawAtWidth -= (pixelThickness / 2);
+				// Fix off by one error with the DrawRectangle
+				pixelThickness -= 1;
+				pen.Color = Color.White;
+				pen.Alignment = PenAlignment.Center;
+				pen.Width = 1;
+				// Vertical top to middle
+				graphics.DrawRectangle(pen, drawAtWidth, destinationRectangle.Y + padding, pixelThickness, halfHeightEnd - 2 * padding - 1);
+				// Vertical middle + 1 to bottom
+				graphics.DrawRectangle(pen, drawAtWidth, destinationRectangle.Y + halfHeightEnd + 2 * padding, pixelThickness, halfHeightEnd - 2 * padding - 1);
+				// Horizontal left to middle
+				graphics.DrawRectangle(pen, destinationRectangle.X + padding, drawAtHeight, halfWidthEnd - 2 * padding - 1, pixelThickness);
+				// Horizontal middle + 1 to right
+				graphics.DrawRectangle(pen, destinationRectangle.X + halfWidthEnd + 2 * padding, drawAtHeight, halfWidthEnd - 2 * padding - 1, pixelThickness);
+
+
+				pen.Width = 2;
+				// Make sure the pixeloffsetmode/smoothingmodeis etc are set to high quality, so the ellipse is correct.
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.High;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.DrawEllipse(pen, destinationRectangle);
 			}
 		}
 
