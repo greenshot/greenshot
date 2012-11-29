@@ -24,17 +24,18 @@ using System.Drawing.Drawing2D;
 	
 namespace Greenshot.Helpers {
 	/// <summary>
-	/// Description of AnimationHelper.
+	/// Base class for the animation logic, this only implements Properties and a constructor
 	/// </summary>
-	public class AnimationHelper {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AnimationHelper));
-		private Rectangle first;
-		private Rectangle last;
-		private Rectangle current;
-		private double frames;
-		private double currentFrame = 0;
-		
-		public AnimationHelper(Rectangle first, Rectangle last, int frames) {
+	/// <typeparam name="T">Type for the animation, like Point/Rectangle/Size</typeparam>
+	public abstract class AnimatorBase<T> {
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AnimatorBase<T>));
+		protected T first;
+		protected T last;
+		protected T current;
+		protected double frames;
+		protected double currentFrame = 0;
+
+		public AnimatorBase(T first, T last, int frames) {
 			this.first = first;
 			this.last = last;
 			this.frames = frames;
@@ -42,7 +43,7 @@ namespace Greenshot.Helpers {
 			current = first;
 		}
 		
-		public Rectangle Current {
+		public T Current {
 			get {
 				return current;
 			}
@@ -54,21 +55,83 @@ namespace Greenshot.Helpers {
 			}
 		}
 
-		public Rectangle Next() {
+		public abstract T Next();
+	}
+
+	/// <summary>
+	/// Implementation of the RectangleAnimator
+	/// </summary>
+	public class RectangleAnimator : AnimatorBase<Rectangle> {
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RectangleAnimator));
+
+		public RectangleAnimator(Rectangle first, Rectangle last, int frames) : base(first, last, frames) {
+		}
+
+		public override Rectangle Next() {
 			if (hasNext) {
 				currentFrame++;
-				
+
 				double dx = (last.X - first.X) / frames;
 				double dy = (last.Y - first.Y) / frames;
 				double dw = (last.Width - first.Width) / frames;
 				double dh = (last.Height - first.Height) / frames;
-				
-				LOG.DebugFormat("dx {0}, dy {1}, dw {2}, dh {3}", dx ,dy, dw, dh);
+
+				LOG.DebugFormat("dx {0}, dy {1}, dw {2}, dh {3}", dx, dy, dw, dh);
 				int x = first.X + (int)(currentFrame * dx);
 				int y = first.Y + (int)(currentFrame * dy);
 				int width = first.Width + (int)(currentFrame * dw);
 				int height = first.Height + (int)(currentFrame * dh);
 				current = new Rectangle(x, y, width, height);
+				LOG.DebugFormat("frame {0} : {1}", currentFrame, current);
+			}
+			return current;
+		}
+	}
+
+	/// <summary>
+	/// Implementation of the PointAnimator
+	/// </summary>
+	public class PointAnimator : AnimatorBase<Point> {
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RectangleAnimator));
+		public PointAnimator(Point first, Point last, int frames)
+			: base(first, last, frames) {
+		}
+		public override Point Next() {
+			if (hasNext) {
+				currentFrame++;
+
+				double dx = (last.X - first.X) / frames;
+				double dy = (last.Y - first.Y) / frames;
+				
+				LOG.DebugFormat("dx {0}, dy {1}", dx ,dy);
+				int x = first.X + (int)(currentFrame * dx);
+				int y = first.Y + (int)(currentFrame * dy);
+				current = new Point(x, y);
+				LOG.DebugFormat("frame {0} : {1}", currentFrame, current);
+			}
+			return current;
+		}
+	}
+
+	/// <summary>
+	/// Implementation of the SizeAnimator
+	/// </summary>
+	public class SizeAnimator : AnimatorBase<Size> {
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RectangleAnimator));
+		public SizeAnimator(Size first, Size last, int frames)
+			: base(first, last, frames) {
+		}
+		public override Size Next() {
+			if (hasNext) {
+				currentFrame++;
+
+				double dw = (last.Width - first.Width) / frames;
+				double dh = (last.Height - first.Height) / frames;
+
+				LOG.DebugFormat("dw {0}, dh {1}", dw, dh);
+				int width = first.Width + (int)(currentFrame * dw);
+				int height = first.Height + (int)(currentFrame * dh);
+				current = new Size(width, height);
 				LOG.DebugFormat("frame {0} : {1}", currentFrame, current);
 			}
 			return current;

@@ -71,8 +71,8 @@ namespace Greenshot.Forms {
 		private bool isZooming = true;
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
-		private AnimationHelper windowAnimator = new AnimationHelper(Rectangle.Empty, Rectangle.Empty, 0);
-		private AnimationHelper zoomAnimator;
+		private RectangleAnimator windowAnimator = new RectangleAnimator(Rectangle.Empty, Rectangle.Empty, 0);
+		private SizeAnimator zoomAnimator;
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -179,7 +179,7 @@ namespace Greenshot.Forms {
 			WindowDetails.ToForeground(this.Handle);
 			this.TopMost = true;
 			
-			zoomAnimator = new AnimationHelper(new Rectangle(Point.Empty, Size.Empty), new Rectangle(Point.Empty, new Size(200, 200)), 10);
+			zoomAnimator = new SizeAnimator(Size.Empty, new Size(200, 200), 10);
 			if (timer != null) {
 				timer.Interval = 30;
 				timer.Tick += new EventHandler(timer_Tick);
@@ -425,7 +425,7 @@ namespace Greenshot.Forms {
 						Invalidate(invalidateRectangle);
 					}
 					if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
-						windowAnimator = new AnimationHelper(lastCaptureRect,captureRect, 5);
+						windowAnimator = new RectangleAnimator(lastCaptureRect,captureRect, 5);
 						Rectangle invalidateRectangle = new Rectangle(lastCaptureRect.Location, lastCaptureRect.Size);
 						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
 						Invalidate(invalidateRectangle);
@@ -451,8 +451,8 @@ namespace Greenshot.Forms {
 				}
 			}
 			if (isZooming && captureMode != CaptureMode.Window) {
-				Invalidate(ZoomArea(lastPos, zoomAnimator.Current.Size));
-				Invalidate(ZoomArea(cursorPos, zoomAnimator.Next().Size));
+				Invalidate(ZoomArea(lastPos, zoomAnimator.Current));
+				Invalidate(ZoomArea(cursorPos, zoomAnimator.Next()));
 
 				// TODO: Move this to the Animator, but we need to check how to make sure we have an exact result.
 				//if (zoomSize.Width < 200) {
@@ -576,9 +576,10 @@ namespace Greenshot.Forms {
 				
 				Rectangle fixedRect;
 				if (captureMode == CaptureMode.Window) {
+					// Use the animator
 					fixedRect = windowAnimator.Current;
 				} else {
-					fixedRect = new Rectangle( captureRect.X, captureRect.Y, captureRect.Width, captureRect.Height);					
+					fixedRect = captureRect;					
 				}
 
 				if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
@@ -711,7 +712,7 @@ namespace Greenshot.Forms {
 				const int zoomSourceHeight = 25;
 				
 				Rectangle sourceRectangle = new Rectangle(cursorPosOnBitmap.X - (zoomSourceWidth / 2), cursorPosOnBitmap.Y - (zoomSourceHeight / 2), zoomSourceWidth, zoomSourceHeight);
-				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, zoomAnimator.Current.Size));
+				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, zoomAnimator.Current));
 
 			}
 		}
