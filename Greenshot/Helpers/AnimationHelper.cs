@@ -43,13 +43,18 @@ namespace Greenshot.Helpers {
 			current = first;
 		}
 		
-		public T Current {
+		public virtual void Reset() {
+			currentFrame = 0;
+			current = first;
+		}
+
+		public virtual T Current {
 			get {
 				return current;
 			}
 		}
 		
-		public bool hasNext {
+		public virtual bool hasNext {
 			get {
 				return currentFrame < frames;
 			}
@@ -92,7 +97,7 @@ namespace Greenshot.Helpers {
 	/// Implementation of the PointAnimator
 	/// </summary>
 	public class PointAnimator : AnimatorBase<Point> {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RectangleAnimator));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PointAnimator));
 		public PointAnimator(Point first, Point last, int frames)
 			: base(first, last, frames) {
 		}
@@ -117,10 +122,11 @@ namespace Greenshot.Helpers {
 	/// Implementation of the SizeAnimator
 	/// </summary>
 	public class SizeAnimator : AnimatorBase<Size> {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RectangleAnimator));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SizeAnimator));
 		public SizeAnimator(Size first, Size last, int frames)
 			: base(first, last, frames) {
 		}
+
 		public override Size Next() {
 			if (hasNext) {
 				currentFrame++;
@@ -133,6 +139,37 @@ namespace Greenshot.Helpers {
 				int height = first.Height + (int)(currentFrame * dh);
 				current = new Size(width, height);
 				LOG.DebugFormat("frame {0} : {1}", currentFrame, current);
+			}
+			return current;
+		}
+	}
+
+	
+	/// <summary>
+	/// Implementation of the FlexibleSizeAnimator
+	/// </summary>
+	public class FlexibleAnimator<T> : AnimatorBase<T> {
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FlexibleAnimator<T>));
+		public delegate bool HasNextValue(T current);
+		public delegate T NextValue(T current);
+		private HasNextValue hasNextValue;
+		private NextValue nextValue;
+
+		public FlexibleAnimator(T first, HasNextValue hasNextDelegate, NextValue nextValueDelegate)
+			: base(first, default(T) , 0) {
+			this.hasNextValue = hasNextDelegate;
+			this.nextValue = nextValueDelegate;
+		}
+				
+		public override bool hasNext {
+			get {
+				return hasNextValue(current);
+			}
+		}
+		
+		public override T Next() {
+			if (hasNext) {
+				current = nextValue(current);
 			}
 			return current;
 		}

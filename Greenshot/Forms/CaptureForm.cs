@@ -72,7 +72,7 @@ namespace Greenshot.Forms {
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
 		private RectangleAnimator windowAnimator = new RectangleAnimator(Rectangle.Empty, Rectangle.Empty, 0);
-		private SizeAnimator zoomAnimator;
+		private FlexibleAnimator<Size> zoomAnimator;
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -179,7 +179,14 @@ namespace Greenshot.Forms {
 			WindowDetails.ToForeground(this.Handle);
 			this.TopMost = true;
 			
-			zoomAnimator = new SizeAnimator(Size.Empty, new Size(200, 200), 10);
+			zoomAnimator = new FlexibleAnimator<Size>(Size.Empty,
+			                                          delegate(Size current) {
+			                                          	return current.Width < 200;
+			                                          },
+			                                          delegate(Size current) {
+			                                          	int newvalue = current.Width + (220-current.Width) /5;
+			                                          	return new Size(newvalue, newvalue);
+			                                          });
 			if (timer != null) {
 				timer.Interval = 30;
 				timer.Tick += new EventHandler(timer_Tick);
