@@ -34,13 +34,36 @@ namespace Greenshot.Helpers {
 		protected T current;
 		protected double frames;
 		protected double currentFrame = 0;
+		public EasingType EasingType {
+			get;
+			set;
+		}
+		public EasingMode EasingMode {
+			get;
+			set;
+		}
 
-		public AnimatorBase(T first, T last, int frames) {
+		protected double EasingValue {
+			get {
+				switch (EasingMode) {
+					case EasingMode.EaseOut:
+						return Easing.EaseOut(currentFrame / frames, EasingType);
+					case EasingMode.EaseInOut:
+						return Easing.EaseInOut(currentFrame / frames, EasingType);
+					case EasingMode.EaseIn:
+					default:
+						return Easing.EaseIn(currentFrame / frames, EasingType);
+				}
+			}
+		}
+
+		public AnimatorBase(T first, T last, int frames, EasingType easingType, EasingMode easingMode) {
 			this.first = first;
 			this.last = last;
 			this.frames = frames;
-			LOG.DebugFormat("First {0} Last {1} frames {2}", first, last, frames);
-			current = first;
+			this.current = first;
+			this.EasingType = easingType;
+			this.EasingMode = easingMode;
 		}
 		
 		public virtual void Reset() {
@@ -69,25 +92,32 @@ namespace Greenshot.Helpers {
 	public class RectangleAnimator : AnimatorBase<Rectangle> {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RectangleAnimator));
 
-		public RectangleAnimator(Rectangle first, Rectangle last, int frames) : base(first, last, frames) {
+		public RectangleAnimator(Rectangle first, Rectangle last, int frames)
+			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
+		}
+		public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingType easingType)
+			: base(first, last, frames, easingType, EasingMode.EaseIn) {
+		}
+
+		public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingType easingType, EasingMode easingMode)
+			: base(first, last, frames, easingType, easingMode) {
 		}
 
 		public override Rectangle Next() {
 			if (hasNext) {
 				currentFrame++;
 
-				double dx = (last.X - first.X) / frames;
-				double dy = (last.Y - first.Y) / frames;
-				double dw = (last.Width - first.Width) / frames;
-				double dh = (last.Height - first.Height) / frames;
+				double easingValue = EasingValue;
+				double dx = last.X - first.X;
+				double dy = last.Y - first.Y;
 
-				LOG.DebugFormat("dx {0}, dy {1}, dw {2}, dh {3}", dx, dy, dw, dh);
-				int x = first.X + (int)(currentFrame * dx);
-				int y = first.Y + (int)(currentFrame * dy);
-				int width = first.Width + (int)(currentFrame * dw);
-				int height = first.Height + (int)(currentFrame * dh);
+				int x = first.X + (int)(easingValue * dx);
+				int y = first.Y + (int)(easingValue * dy);
+				double dw = last.Width - first.Width;
+				double dh = last.Height - first.Height;
+				int width = first.Width + (int)(easingValue * dw);
+				int height = first.Height + (int)(easingValue * dh);
 				current = new Rectangle(x, y, width, height);
-				LOG.DebugFormat("frame {0} : {1}", currentFrame, current);
 			}
 			return current;
 		}
@@ -99,20 +129,25 @@ namespace Greenshot.Helpers {
 	public class PointAnimator : AnimatorBase<Point> {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PointAnimator));
 		public PointAnimator(Point first, Point last, int frames)
-			: base(first, last, frames) {
+			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
+		}
+		public PointAnimator(Point first, Point last, int frames, EasingType easingType)
+			: base(first, last, frames, easingType, EasingMode.EaseIn) {
+		}
+		public PointAnimator(Point first, Point last, int frames, EasingType easingType, EasingMode easingMode)
+			: base(first, last, frames, easingType, easingMode) {
 		}
 		public override Point Next() {
 			if (hasNext) {
 				currentFrame++;
 
-				double dx = (last.X - first.X) / frames;
-				double dy = (last.Y - first.Y) / frames;
-				
-				LOG.DebugFormat("dx {0}, dy {1}", dx ,dy);
-				int x = first.X + (int)(currentFrame * dx);
-				int y = first.Y + (int)(currentFrame * dy);
+				double easingValue = EasingValue;
+				double dx = last.X - first.X;
+				double dy = last.Y - first.Y;
+
+				int x = first.X + (int)(easingValue * dx);
+				int y = first.Y + (int)(easingValue * dy);
 				current = new Point(x, y);
-				LOG.DebugFormat("frame {0} : {1}", currentFrame, current);
 			}
 			return current;
 		}
@@ -124,54 +159,157 @@ namespace Greenshot.Helpers {
 	public class SizeAnimator : AnimatorBase<Size> {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SizeAnimator));
 		public SizeAnimator(Size first, Size last, int frames)
-			: base(first, last, frames) {
+			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
+		}
+		public SizeAnimator(Size first, Size last, int frames, EasingType easingType)
+			: base(first, last, frames, easingType, EasingMode.EaseIn) {
+		}
+		public SizeAnimator(Size first, Size last, int frames, EasingType easingType, EasingMode easingMode)
+			: base(first, last, frames, easingType, easingMode) {
 		}
 
 		public override Size Next() {
 			if (hasNext) {
 				currentFrame++;
 
-				double dw = (last.Width - first.Width) / frames;
-				double dh = (last.Height - first.Height) / frames;
-
-				LOG.DebugFormat("dw {0}, dh {1}", dw, dh);
-				int width = first.Width + (int)(currentFrame * dw);
-				int height = first.Height + (int)(currentFrame * dh);
+				double easingValue = EasingValue;
+				double dw = last.Width - first.Width;
+				double dh = last.Height - first.Height;
+				int width = first.Width + (int)(easingValue * dw);
+				int height = first.Height + (int)(easingValue * dh);
 				current = new Size(width, height);
-				LOG.DebugFormat("frame {0} : {1}", currentFrame, current);
 			}
 			return current;
 		}
 	}
 
-	
 	/// <summary>
-	/// Implementation of the FlexibleSizeAnimator
+	/// Easing logic, to make the animations more "fluent"
 	/// </summary>
-	public class FlexibleAnimator<T> : AnimatorBase<T> {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FlexibleAnimator<T>));
-		public delegate bool HasNextValue(T current);
-		public delegate T NextValue(T current);
-		private HasNextValue hasNextValue;
-		private NextValue nextValue;
+	public static class Easing {
+		// Adapted from http://www.robertpenner.com/easing/penner_chapter7_tweening.pdf
 
-		public FlexibleAnimator(T first, HasNextValue hasNextDelegate, NextValue nextValueDelegate)
-			: base(first, default(T) , 0) {
-			this.hasNextValue = hasNextDelegate;
-			this.nextValue = nextValueDelegate;
+		public static float Ease(double linearStep, float acceleration, EasingType type) {
+			double easedStep = acceleration > 0 ? EaseIn(linearStep, type) : acceleration < 0 ? EaseOut(linearStep, type) : (float)linearStep;
+			return MathHelper.Lerp(linearStep, easedStep, Math.Abs(acceleration));
 		}
-				
-		public override bool hasNext {
-			get {
-				return hasNextValue(current);
+
+		public static double EaseIn(double linearStep, EasingType type) {
+			switch (type) {
+				case EasingType.Step:
+					return linearStep < 0.5 ? 0 : 1;
+				case EasingType.Linear:
+					return (double)linearStep;
+				case EasingType.Sine:
+					return Sine.EaseIn(linearStep);
+				case EasingType.Quadratic:
+					return Power.EaseIn(linearStep, 2);
+				case EasingType.Cubic:
+					return Power.EaseIn(linearStep, 3);
+				case EasingType.Quartic:
+					return Power.EaseIn(linearStep, 4);
+				case EasingType.Quintic:
+					return Power.EaseIn(linearStep, 5);
+			}
+			throw new NotImplementedException();
+		}
+
+		public static double EaseOut(double linearStep, EasingType type) {
+			switch (type) {
+				case EasingType.Step:
+					return linearStep < 0.5 ? 0 : 1;
+				case EasingType.Linear:
+					return (double)linearStep;
+				case EasingType.Sine:
+					return Sine.EaseOut(linearStep);
+				case EasingType.Quadratic:
+					return Power.EaseOut(linearStep, 2);
+				case EasingType.Cubic:
+					return Power.EaseOut(linearStep, 3);
+				case EasingType.Quartic:
+					return Power.EaseOut(linearStep, 4);
+				case EasingType.Quintic:
+					return Power.EaseOut(linearStep, 5);
+			}
+			throw new NotImplementedException();
+		}
+
+		public static double EaseInOut(double linearStep, EasingType easeInType, EasingType easeOutType) {
+			return linearStep < 0.5 ? EaseInOut(linearStep, easeInType) : EaseInOut(linearStep, easeOutType);
+		}
+
+		public static double EaseInOut(double linearStep, EasingType type) {
+			switch (type) {
+				case EasingType.Step:
+					return linearStep < 0.5 ? 0 : 1;
+				case EasingType.Linear:
+					return (float)linearStep;
+				case EasingType.Sine:
+					return Sine.EaseInOut(linearStep);
+				case EasingType.Quadratic:
+					return Power.EaseInOut(linearStep, 2);
+				case EasingType.Cubic:
+					return Power.EaseInOut(linearStep, 3);
+				case EasingType.Quartic:
+					return Power.EaseInOut(linearStep, 4);
+				case EasingType.Quintic:
+					return Power.EaseInOut(linearStep, 5);
+			}
+			throw new NotImplementedException();
+		}
+
+		static class Sine {
+			public static double EaseIn(double s) {
+				return (double)Math.Sin(s * MathHelper.HalfPi - MathHelper.HalfPi) + 1;
+			}
+			public static double EaseOut(double s) {
+				return (double)Math.Sin(s * MathHelper.HalfPi);
+			}
+			public static double EaseInOut(double s) {
+				return (double)(Math.Sin(s * MathHelper.Pi - MathHelper.HalfPi) + 1) / 2;
 			}
 		}
-		
-		public override T Next() {
-			if (hasNext) {
-				current = nextValue(current);
+
+		static class Power {
+			public static double EaseIn(double s, int power) {
+				return (double)Math.Pow(s, power);
 			}
-			return current;
+			public static double EaseOut(double s, int power) {
+				var sign = power % 2 == 0 ? -1 : 1;
+				return (double)(sign * (Math.Pow(s - 1, power) + sign));
+			}
+			public static double EaseInOut(double s, int power) {
+				s *= 2;
+				if (s < 1)
+					return EaseIn(s, power) / 2;
+				var sign = power % 2 == 0 ? -1 : 1;
+				return (float)(sign / 2.0 * (Math.Pow(s - 2, power) + sign * 2));
+			}
+		}
+	}
+
+	public enum EasingType {
+		Step,
+		Linear,
+		Sine,
+		Quadratic,
+		Cubic,
+		Quartic,
+		Quintic
+	}
+
+	public enum EasingMode {
+		EaseIn,
+		EaseOut,
+		EaseInOut
+	}
+
+	public static class MathHelper {
+		public const float Pi = (float)Math.PI;
+		public const float HalfPi = (float)(Math.PI / 2);
+
+		public static float Lerp(double from, double to, double step) {
+			return (float)((to - from) * step + from);
 		}
 	}
 }

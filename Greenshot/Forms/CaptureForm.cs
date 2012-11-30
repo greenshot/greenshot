@@ -71,8 +71,8 @@ namespace Greenshot.Forms {
 		private bool isZooming = true;
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
-		private RectangleAnimator windowAnimator = new RectangleAnimator(Rectangle.Empty, Rectangle.Empty, 0);
-		private FlexibleAnimator<Size> zoomAnimator;
+		private RectangleAnimator windowAnimator = new RectangleAnimator(Rectangle.Empty, Rectangle.Empty, 0, EasingType.Linear);
+		private SizeAnimator zoomAnimator = new SizeAnimator(Size.Empty, new Size(200, 200), 30, EasingType.Quintic);
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -179,14 +179,6 @@ namespace Greenshot.Forms {
 			WindowDetails.ToForeground(this.Handle);
 			this.TopMost = true;
 			
-			zoomAnimator = new FlexibleAnimator<Size>(Size.Empty,
-			                                          delegate(Size current) {
-			                                          	return current.Width < 200;
-			                                          },
-			                                          delegate(Size current) {
-			                                          	int newvalue = current.Width + (220-current.Width) /5;
-			                                          	return new Size(newvalue, newvalue);
-			                                          });
 			if (timer != null) {
 				timer.Interval = 30;
 				timer.Tick += new EventHandler(timer_Tick);
@@ -462,7 +454,8 @@ namespace Greenshot.Forms {
 						Invalidate(invalidateRectangle);
 					}
 					if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
-						windowAnimator = new RectangleAnimator(lastCaptureRect,captureRect, 5);
+						// Window changes, make new animation from current to target
+						windowAnimator = new RectangleAnimator(windowAnimator.Current,captureRect, 18, EasingType.Quintic);
 						Rectangle invalidateRectangle = new Rectangle(lastCaptureRect.Location, lastCaptureRect.Size);
 						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
 						Invalidate(invalidateRectangle);
