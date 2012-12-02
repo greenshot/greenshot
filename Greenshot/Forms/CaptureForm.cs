@@ -71,8 +71,10 @@ namespace Greenshot.Forms {
 		private bool isZooming = true;
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
-		private RectangleAnimator windowAnimator = new RectangleAnimator(Rectangle.Empty, Rectangle.Empty, 0, EasingType.Linear);
-		private SizeAnimator zoomAnimator = new SizeAnimator(Size.Empty, new Size(200, 200), 30, EasingType.Quintic);
+		private RectangleAnimator windowAnimator = new RectangleAnimator(Rectangle.Empty, Rectangle.Empty, 0, EasingType.Quadratic);
+		private Size zoomSize = new Size(200, 200);
+		private Point zoomOffset = new Point(20, 20);
+		private RectangleAnimator zoomAnimator;
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -125,6 +127,14 @@ namespace Greenshot.Forms {
 				Application.DoEvents();
 			}
 			currentForm = this;
+			
+			// get te hDC of the desktop to get the VREFRESH
+			IntPtr hDCDesktop = User32.GetWindowDC(User32.GetDesktopWindow());
+			int vRefesh = GDI32.GetDeviceCaps(hDCDesktop, DeviceCaps.VREFRESH);
+			User32.ReleaseDC(hDCDesktop);
+			LOG.DebugFormat("VRefresh {0}", vRefesh);
+
+			zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(zoomOffset, zoomSize), 20, EasingType.Quintic);
 			
 			// comment this out if the timer should not be used
 			timer = new Timer();
@@ -180,7 +190,7 @@ namespace Greenshot.Forms {
 			this.TopMost = true;
 			
 			if (timer != null) {
-				timer.Interval = 30;
+				timer.Interval = 1000/vRefesh;
 				timer.Tick += new EventHandler(timer_Tick);
 				timer.Start();
 			}
@@ -455,7 +465,7 @@ namespace Greenshot.Forms {
 					}
 					if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
 						// Window changes, make new animation from current to target
-						windowAnimator = new RectangleAnimator(windowAnimator.Current,captureRect, 18, EasingType.Quintic);
+						windowAnimator.ChangeDestination(captureRect, 14);
 						Rectangle invalidateRectangle = new Rectangle(lastCaptureRect.Location, lastCaptureRect.Size);
 						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
 						Invalidate(invalidateRectangle);
@@ -481,14 +491,13 @@ namespace Greenshot.Forms {
 				}
 			}
 			if (isZooming && captureMode != CaptureMode.Window) {
-				Invalidate(ZoomArea(lastPos, zoomAnimator.Current));
-				Invalidate(ZoomArea(cursorPos, zoomAnimator.Next()));
-
-				// TODO: Move this to the Animator, but we need to check how to make sure we have an exact result.
-				//if (zoomSize.Width < 200) {
-				//	zoomSize.Width += (220-zoomSize.Width)/5;
-				//	zoomSize.Height += (220-zoomSize.Height)/5;
-				//}
+				Rectangle zoomArea = zoomAnimator.Current;
+				zoomArea.Offset(lastPos);
+				Invalidate(zoomArea);
+				
+				zoomArea = AnimateZoomArea(cursorPos);
+				zoomArea.Offset(cursorPos);
+				Invalidate(zoomArea);
 			}
 			// Force update "now"
 			Update();
@@ -513,31 +522,36 @@ namespace Greenshot.Forms {
 		}
 
 		/// <summary>
-		/// Get the area of where the zoom can be drawn
+		/// Checks if the Zoom area can move there where it wants to go
+		/// Change direction if not.
 		/// </summary>
-		/// <param name="pos"></param>
-		/// <param name="size"></param>
-		/// <returns></returns>
-		private Rectangle ZoomArea(Point pos, Size size) {
-			Rectangle ret;
-			const int distanceX = 20;
-			const int distanceY = 20;
-			Rectangle tl = new Rectangle(pos.X - (distanceX + size.Width), pos.Y - (distanceY + size.Height), size.Width, size.Height);
-			Rectangle tr = new Rectangle(pos.X + distanceX, pos.Y - (distanceY + size.Height), size.Width, size.Height);
-			Rectangle bl = new Rectangle(pos.X - (distanceX + size.Width), pos.Y + distanceY, size.Width, size.Height);
-			Rectangle br = new Rectangle(pos.X + distanceX, pos.Y + distanceY, size.Width, size.Height);
-			Rectangle screenBounds = Screen.GetBounds(pos);
-			if (screenBounds.Contains(br)) {
-				ret = br;
-			} else if (screenBounds.Contains(bl)) {
-				ret = bl;
-			} else if (screenBounds.Contains(tr)) {
-				ret = tr;
-			} else {
-				ret = tl;
+		private Rectangle AnimateZoomArea(Point pos) {
+			Rectangle screenBounds = Screen.GetBounds(MousePosition);
+			
+			Rectangle targetRectangle = zoomAnimator.Last;
+			targetRectangle.Offset(pos);
+			
+			if (screenBounds.Contains(targetRectangle)) {
+				// All okay
+				return zoomAnimator.Next();
 			}
-			ret.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
-			return ret;
+
+			Point destinationLocation;
+			Rectangle tl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
+			Rectangle tr = new Rectangle(pos.X + zoomOffset.X, pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
+			Rectangle bl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
+			Rectangle br = new Rectangle(pos.X + zoomOffset.X, pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
+			if (screenBounds.Contains(br)) {
+				destinationLocation = new Point(zoomOffset.X, zoomOffset.Y);
+			} else if (screenBounds.Contains(bl)) {
+				destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, zoomOffset.Y);
+			} else if (screenBounds.Contains(tr)) {
+				destinationLocation = new Point(zoomOffset.X, -zoomOffset.Y - zoomSize.Width);
+			} else {
+				destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
+			}
+			zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
+			return zoomAnimator.Next();
 		}
 
 		/// <summary>
@@ -772,7 +786,10 @@ namespace Greenshot.Forms {
 				const int zoomSourceHeight = 25;
 				
 				Rectangle sourceRectangle = new Rectangle(cursorPosOnBitmap.X - (zoomSourceWidth / 2), cursorPosOnBitmap.Y - (zoomSourceHeight / 2), zoomSourceWidth, zoomSourceHeight);
-				DrawZoom(graphics, sourceRectangle, ZoomArea(cursorPos, zoomAnimator.Current));
+				
+				Rectangle destinationRectangle = zoomAnimator.Current;
+				destinationRectangle.Offset(cursorPos);
+				DrawZoom(graphics, sourceRectangle, destinationRectangle);
 
 			}
 		}

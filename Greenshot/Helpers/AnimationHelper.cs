@@ -34,6 +34,34 @@ namespace Greenshot.Helpers {
 		protected T current;
 		protected double frames;
 		protected double currentFrame = 0;
+		
+		public double Frames {
+			get { return frames; }
+		}
+
+		public double CurrentFrame {
+			get { return currentFrame; }
+		}
+
+		public T First {
+			get { return first; }
+		}
+		
+		public T Last {
+			get { return last; }
+		}
+		
+		public void ChangeDestination(T last) {
+			ChangeDestination(last, frames);
+		}
+
+		public void ChangeDestination(T last, double frames) {
+			this.first = current;
+			this.currentFrame = 0;
+			this.frames = frames;
+			this.last = last;
+		}
+
 		public EasingType EasingType {
 			get;
 			set;

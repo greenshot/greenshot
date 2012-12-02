@@ -61,8 +61,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern int GetClipBox(IntPtr hdc, out RECT lprc);
 		[DllImport("gdi32", SetLastError = true)]
 		public static extern uint GetPixel(IntPtr hdc, int nXPos, int nYPos);
-		[DllImport("gdi32")]
+		[DllImport("gdi32", SetLastError = true)]
 		public static extern IntPtr CreateRoundRectRgn(int x1, int y1, int x2, int y2, int cx, int cy);
+		[DllImport("gdi32", SetLastError = true)]
+		public static extern int GetDeviceCaps(IntPtr hdc, DeviceCaps nIndex);
 		
 		/// <summary>
 		/// Doesn't work?
