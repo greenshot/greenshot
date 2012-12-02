@@ -37,46 +37,81 @@ namespace Greenshot.Helpers {
 		protected double frames;
 		protected double currentFrame = 0;
 		
+		/// <summary>
+		/// The amount of frames
+		/// </summary>
 		public double Frames {
 			get { return frames; }
 		}
 
+		/// <summary>
+		/// Current frame number
+		/// </summary>
 		public double CurrentFrame {
 			get { return currentFrame; }
 		}
 
+		/// <summary>
+		/// First animation value
+		/// </summary>
 		public T First {
 			get { return first; }
 		}
 		
+		/// <summary>
+		/// Last animation value
+		/// </summary>
 		public T Last {
 			get { return last; }
 		}
 		
-		public void ChangeDestination(T last) {
-			ChangeDestination(last, frames);
+		/// <summary>
+		/// This restarts the current animation and changes the last frame
+		/// </summary>
+		/// <param name="newDestination"></param>
+		public void ChangeDestination(T newDestination) {
+			ChangeDestination(newDestination, frames);
 		}
 		
+		/// <summary>
+		/// This restarts the current animation and changes the last frame
+		/// </summary>
+		/// <param name="newDestination"></param>
+		/// <param name="frames"></param>
+		public void ChangeDestination(T newDestination, double frames) {
+			this.first = current;
+			this.currentFrame = 0;
+			this.frames = frames;
+			this.last = newDestination;
+		}
+
+		/// <summary>
+		/// Queue the destination, it will be used after the current animation is finished
+		/// </summary>
+		/// <param name="queuedDestination"></param>
 		public void QueueDestination(T queuedDestination) {
 			queue.Enqueue(queuedDestination);
 		}
 
-		public void ChangeDestination(T last, double frames) {
-			this.first = current;
-			this.currentFrame = 0;
-			this.frames = frames;
-			this.last = last;
-		}
-
+		/// <summary>
+		/// The EasingType to use for the animation
+		/// </summary>
 		public EasingType EasingType {
 			get;
 			set;
 		}
+		
+		/// <summary>
+		/// The EasingMode to use for the animation
+		/// </summary>
 		public EasingMode EasingMode {
 			get;
 			set;
 		}
 
+		/// <summary>
+		/// Get the easing value, which is from 0-1 and depends on the frame
+		/// </summary>
 		protected double EasingValue {
 			get {
 				switch (EasingMode) {
@@ -91,6 +126,14 @@ namespace Greenshot.Helpers {
 			}
 		}
 
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="first"></param>
+		/// <param name="last"></param>
+		/// <param name="frames"></param>
+		/// <param name="easingType"></param>
+		/// <param name="easingMode"></param>
 		public AnimatorBase(T first, T last, int frames, EasingType easingType, EasingMode easingMode) {
 			this.first = first;
 			this.last = last;
@@ -99,18 +142,19 @@ namespace Greenshot.Helpers {
 			this.EasingType = easingType;
 			this.EasingMode = easingMode;
 		}
-		
-		public virtual void Reset() {
-			currentFrame = 0;
-			current = first;
-		}
 
+		/// <summary>
+		/// Get the current (previous) frame object
+		/// </summary>
 		public virtual T Current {
 			get {
 				return current;
 			}
 		}
 		
+		/// <summary>
+		/// Returns if there are any frame left, and if this is the case than the frame is increaded.
+		/// </summary>
 		public virtual bool NextFrame {
 			get {
 				if (currentFrame < frames) {
@@ -127,6 +171,9 @@ namespace Greenshot.Helpers {
 			}
 		}
 		
+		/// <summary>
+		/// Are there more frames to animate?
+		/// </summary>
 		public virtual bool hasNext {
 			get {
 				if (currentFrame < frames) {
@@ -136,6 +183,10 @@ namespace Greenshot.Helpers {
 			}
 		}
 
+		/// <summary>
+		/// Get the next animation frame value object
+		/// </summary>
+		/// <returns></returns>
 		public abstract T Next();
 	}
 
@@ -156,6 +207,10 @@ namespace Greenshot.Helpers {
 			: base(first, last, frames, easingType, easingMode) {
 		}
 
+		/// <summary>
+		/// Calculate the next frame object
+		/// </summary>
+		/// <returns>Rectangle</returns>
 		public override Rectangle Next() {
 			if (NextFrame) {
 				double easingValue = EasingValue;
@@ -188,6 +243,11 @@ namespace Greenshot.Helpers {
 		public PointAnimator(Point first, Point last, int frames, EasingType easingType, EasingMode easingMode)
 			: base(first, last, frames, easingType, easingMode) {
 		}
+		
+		/// <summary>
+		/// Calculate the next frame value
+		/// </summary>
+		/// <returns>Point</returns>
 		public override Point Next() {
 			if (NextFrame) {
 				double easingValue = EasingValue;
@@ -217,6 +277,10 @@ namespace Greenshot.Helpers {
 			: base(first, last, frames, easingType, easingMode) {
 		}
 
+		/// <summary>
+		/// Calculate the next frame values
+		/// </summary>
+		/// <returns>Size</returns>
 		public override Size Next() {
 			if (NextFrame) {
 				double easingValue = EasingValue;
@@ -236,9 +300,10 @@ namespace Greenshot.Helpers {
 	public static class Easing {
 		// Adapted from http://www.robertpenner.com/easing/penner_chapter7_tweening.pdf
 
-		public static float Ease(double linearStep, float acceleration, EasingType type) {
-			double easedStep = acceleration > 0 ? EaseIn(linearStep, type) : acceleration < 0 ? EaseOut(linearStep, type) : (float)linearStep;
-			return MathHelper.Lerp(linearStep, easedStep, Math.Abs(acceleration));
+		public static double Ease(double linearStep, double acceleration, EasingType type) {
+			double easedStep = acceleration > 0 ? EaseIn(linearStep, type) : acceleration < 0 ? EaseOut(linearStep, type) : (double)linearStep;
+			// Lerp:
+			return ((easedStep - linearStep) * Math.Abs(acceleration) + linearStep);
 		}
 
 		public static double EaseIn(double linearStep, EasingType type) {
@@ -246,7 +311,7 @@ namespace Greenshot.Helpers {
 				case EasingType.Step:
 					return linearStep < 0.5 ? 0 : 1;
 				case EasingType.Linear:
-					return (double)linearStep;
+					return linearStep;
 				case EasingType.Sine:
 					return Sine.EaseIn(linearStep);
 				case EasingType.Quadratic:
@@ -266,7 +331,7 @@ namespace Greenshot.Helpers {
 				case EasingType.Step:
 					return linearStep < 0.5 ? 0 : 1;
 				case EasingType.Linear:
-					return (double)linearStep;
+					return linearStep;
 				case EasingType.Sine:
 					return Sine.EaseOut(linearStep);
 				case EasingType.Quadratic:
@@ -290,7 +355,7 @@ namespace Greenshot.Helpers {
 				case EasingType.Step:
 					return linearStep < 0.5 ? 0 : 1;
 				case EasingType.Linear:
-					return (float)linearStep;
+					return linearStep;
 				case EasingType.Sine:
 					return Sine.EaseInOut(linearStep);
 				case EasingType.Quadratic:
@@ -307,34 +372,37 @@ namespace Greenshot.Helpers {
 
 		static class Sine {
 			public static double EaseIn(double s) {
-				return (double)Math.Sin(s * MathHelper.HalfPi - MathHelper.HalfPi) + 1;
+				return Math.Sin(s * (Math.PI / 2) - (Math.PI / 2)) + 1;
 			}
 			public static double EaseOut(double s) {
-				return (double)Math.Sin(s * MathHelper.HalfPi);
+				return Math.Sin(s * (Math.PI / 2));
 			}
 			public static double EaseInOut(double s) {
-				return (double)(Math.Sin(s * MathHelper.Pi - MathHelper.HalfPi) + 1) / 2;
+				return Math.Sin(s * Math.PI - (Math.PI / 2) + 1) / 2;
 			}
 		}
 
 		static class Power {
 			public static double EaseIn(double s, int power) {
-				return (double)Math.Pow(s, power);
+				return Math.Pow(s, power);
 			}
 			public static double EaseOut(double s, int power) {
 				var sign = power % 2 == 0 ? -1 : 1;
-				return (double)(sign * (Math.Pow(s - 1, power) + sign));
+				return sign * (Math.Pow(s - 1, power) + sign);
 			}
 			public static double EaseInOut(double s, int power) {
 				s *= 2;
 				if (s < 1)
 					return EaseIn(s, power) / 2;
 				var sign = power % 2 == 0 ? -1 : 1;
-				return (float)(sign / 2.0 * (Math.Pow(s - 2, power) + sign * 2));
+				return (sign / 2.0 * (Math.Pow(s - 2, power) + sign * 2));
 			}
 		}
 	}
 
+	/// <summary>
+	/// This defines the way the animation works
+	/// </summary>
 	public enum EasingType {
 		Step,
 		Linear,
@@ -349,14 +417,5 @@ namespace Greenshot.Helpers {
 		EaseIn,
 		EaseOut,
 		EaseInOut
-	}
-
-	public static class MathHelper {
-		public const float Pi = (float)Math.PI;
-		public const float HalfPi = (float)(Math.PI / 2);
-
-		public static float Lerp(double from, double to, double step) {
-			return (float)((to - from) * step + from);
-		}
 	}
 }
