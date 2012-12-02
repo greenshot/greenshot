@@ -59,7 +59,6 @@ namespace Greenshot.Forms {
 		private int mY;
 		private Point mouseMovePos = Point.Empty;
 		private Point cursorPos = Point.Empty;
-		private Point cursorPosOnBitmap = Point.Empty;
 		private CaptureMode captureMode = CaptureMode.None;
 		private List<WindowDetails> windows = new List<WindowDetails>();
 		private WindowDetails selectedCaptureWindow;
@@ -178,8 +177,7 @@ namespace Greenshot.Forms {
 			};
 
 			// set cursor location
-			cursorPos = WindowCapture.GetCursorLocation();
-			cursorPosOnBitmap = GetAbsoluteLocation(cursorPos);
+			cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
 
 			this.SuspendLayout();
 			this.Bounds = capture.ScreenBounds;
@@ -283,9 +281,7 @@ namespace Greenshot.Forms {
 		/// <param name="e"></param>
 		void OnMouseDown(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
-				Point tmpCursorLocation = WindowCapture.GetCursorLocation();
-				// As the cursorPos is not in Bitmap coordinates, we need to correct.
-				tmpCursorLocation = GetAbsoluteLocation(tmpCursorLocation);
+				Point tmpCursorLocation = WindowCapture.GetCursorLocationRelativeToScreenBounds();
 				mX = tmpCursorLocation.X;
 				mY = tmpCursorLocation.Y;
 				mouseDown = true;
@@ -350,6 +346,7 @@ namespace Greenshot.Forms {
 		void OnMouseMove(object sender, MouseEventArgs e) {
 			// Make sure the mouse coordinates are fixed, when pressing shift
 			mouseMovePos = FixMouseCoordinates(WindowCapture.GetCursorLocation());
+			mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(mouseMovePos);
 			// If the timer is used, the timer_Tick does the following.
 			// If the timer is not used, we need to call the update ourselves
 			if (timer == null) {
@@ -376,10 +373,6 @@ namespace Greenshot.Forms {
 				return;
 			}
 
-			// As the cursorPos is not in Bitmap coordinates, we need to correct.
-			cursorPosOnBitmap = GetAbsoluteLocation(cursorPos);
-			Point lastPosOnBitmap = GetAbsoluteLocation(lastPos);
-
 			Rectangle lastCaptureRect = new Rectangle(captureRect.Location, captureRect.Size);
 			WindowDetails lastWindow = selectedCaptureWindow;
 			bool horizontalMove = false;
@@ -393,7 +386,7 @@ namespace Greenshot.Forms {
 			}
 
 			if (captureMode == CaptureMode.Region && mouseDown) {
-				captureRect = GuiRectangle.GetGuiRectangle(cursorPosOnBitmap.X, cursorPosOnBitmap.Y, mX - cursorPosOnBitmap.X, mY - cursorPosOnBitmap.Y);
+				captureRect = GuiRectangle.GetGuiRectangle(cursorPos.X, cursorPos.Y, mX - cursorPos.X, mY - cursorPos.Y);
 			}
 			
 			// Iterate over the found windows and check if the current location is inside a window
@@ -423,14 +416,14 @@ namespace Greenshot.Forms {
 				}
 			}
 			if (mouseDown && (CaptureMode.Window != captureMode)) {
-				int x1 = Math.Min(mX, lastPosOnBitmap.X);
-				int x2 = Math.Max(mX, lastPosOnBitmap.X);
-				int y1 = Math.Min(mY, lastPosOnBitmap.Y);
-				int y2 = Math.Max(mY, lastPosOnBitmap.Y);
-				x1= Math.Min(x1, cursorPosOnBitmap.X);
-				x2= Math.Max(x2, cursorPosOnBitmap.X);
-				y1= Math.Min(y1, cursorPosOnBitmap.Y);
-				y2= Math.Max(y2, cursorPosOnBitmap.Y);
+				int x1 = Math.Min(mX, lastPos.X);
+				int x2 = Math.Max(mX, lastPos.X);
+				int y1 = Math.Min(mY, lastPos.Y);
+				int y2 = Math.Max(mY, lastPos.Y);
+				x1= Math.Min(x1, cursorPos.X);
+				x2= Math.Max(x2, cursorPos.X);
+				y1= Math.Min(y1, cursorPos.Y);
+				y2= Math.Max(y2, cursorPos.Y);
 
 				// Safety correction
 				x2 += 2;
@@ -439,8 +432,8 @@ namespace Greenshot.Forms {
 				// Here we correct for text-size
 				
 				// Calculate the size
-				int textForWidth = Math.Max(Math.Abs(mX - cursorPosOnBitmap.X), Math.Abs(mX - lastPosOnBitmap.X));
-				int textForHeight = Math.Max(Math.Abs(mY - cursorPosOnBitmap.Y), Math.Abs(mY - lastPosOnBitmap.Y));
+				int textForWidth = Math.Max(Math.Abs(mX - cursorPos.X), Math.Abs(mX - lastPos.X));
+				int textForHeight = Math.Max(Math.Abs(mY - cursorPos.Y), Math.Abs(mY - lastPos.Y));
 
 				using (Font rulerFont = new Font(FontFamily.GenericSansSerif, 8)) {
 					Size measureWidth = TextRenderer.MeasureText(textForWidth.ToString(), rulerFont);
@@ -492,26 +485,15 @@ namespace Greenshot.Forms {
 			}
 			if (isZooming && captureMode != CaptureMode.Window) {
 				Rectangle zoomArea = zoomAnimator.Current;
-				zoomArea.Offset(lastPosOnBitmap);
+				zoomArea.Offset(lastPos);
 				Invalidate(zoomArea);
 				
-				zoomArea = AnimateZoomArea(cursorPosOnBitmap);
-				zoomArea.Offset(cursorPosOnBitmap);
+				zoomArea = AnimateZoomArea(cursorPos);
+				zoomArea.Offset(cursorPos);
 				Invalidate(zoomArea);
 			}
 			// Force update "now"
 			Update();
-		}
-		
-		/// <summary>
-		/// Get the absolute location for the supplied screen location
-		/// </summary>
-		/// <param name="screenLocation"></param>
-		/// <returns>Absolute location</returns>
-		private Point GetAbsoluteLocation(Point screenLocation) {
-			Point ret = screenLocation.Clone();
-			ret.Offset(-capture.ScreenBounds.X, -capture.ScreenBounds.Y);
-			return ret;
 		}
 
 		/// <summary>
@@ -528,10 +510,12 @@ namespace Greenshot.Forms {
 		private Rectangle AnimateZoomArea(Point pos) {
 			Rectangle ret;
 			Rectangle screenBounds = Screen.GetBounds(MousePosition);
+			// convert to be relative to top left corner of all screen bounds
+			screenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location);
+
 			
 			Rectangle targetRectangle = zoomAnimator.Last;
 			targetRectangle.Offset(pos);
-			screenBounds.Location = GetAbsoluteLocation(screenBounds.Location);
 			if (screenBounds.Contains(targetRectangle)) {
 				// All okay
 				ret = zoomAnimator.Next();
@@ -763,20 +747,20 @@ namespace Greenshot.Forms {
 					using (Pen pen = new Pen(Color.LightSeaGreen)) {
 						pen.DashStyle = DashStyle.Dot;
 						Rectangle screenBounds = capture.ScreenBounds;
-						graphics.DrawLine(pen, cursorPosOnBitmap.X, screenBounds.Y, cursorPosOnBitmap.X, screenBounds.Height);
-						graphics.DrawLine(pen, screenBounds.X, cursorPosOnBitmap.Y, screenBounds.Width, cursorPosOnBitmap.Y);
+						graphics.DrawLine(pen, cursorPos.X, screenBounds.Y, cursorPos.X, screenBounds.Height);
+						graphics.DrawLine(pen, screenBounds.X, cursorPos.Y, screenBounds.Width, cursorPos.Y);
 					}
 
-					string xy = cursorPosOnBitmap.X + " x " + cursorPosOnBitmap.Y;
+					string xy = cursorPos.X + " x " + cursorPos.Y;
 					using (Font f = new Font(FontFamily.GenericSansSerif, 8)) {
 						Size xySize = TextRenderer.MeasureText(xy, f);
-						using (GraphicsPath gp = Drawing.RoundedRectangle.Create2(cursorPosOnBitmap.X + 5, cursorPosOnBitmap.Y + 5, xySize.Width - 3, xySize.Height, 3)) {
+						using (GraphicsPath gp = Drawing.RoundedRectangle.Create2(cursorPos.X + 5, cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3)) {
 							using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227))) {
 								graphics.FillPath(bgBrush, gp);
 							}
 							using (Pen pen = new Pen(Color.SeaGreen)) {
 								graphics.DrawPath(pen, gp);
-								Point coordinatePosition = new Point(cursorPosOnBitmap.X + 5, cursorPosOnBitmap.Y + 5);
+								Point coordinatePosition = new Point(cursorPos.X + 5, cursorPos.Y + 5);
 								graphics.DrawString(xy, f, pen.Brush, coordinatePosition);
 							}
 						}
@@ -788,10 +772,10 @@ namespace Greenshot.Forms {
 				const int zoomSourceWidth = 25;
 				const int zoomSourceHeight = 25;
 				
-				Rectangle sourceRectangle = new Rectangle(cursorPosOnBitmap.X - (zoomSourceWidth / 2), cursorPosOnBitmap.Y - (zoomSourceHeight / 2), zoomSourceWidth, zoomSourceHeight);
+				Rectangle sourceRectangle = new Rectangle(cursorPos.X - (zoomSourceWidth / 2), cursorPos.Y - (zoomSourceHeight / 2), zoomSourceWidth, zoomSourceHeight);
 				
 				Rectangle destinationRectangle = zoomAnimator.Current;
-				destinationRectangle.Offset(cursorPosOnBitmap);
+				destinationRectangle.Offset(cursorPos);
 				DrawZoom(graphics, sourceRectangle, destinationRectangle);
 
 			}

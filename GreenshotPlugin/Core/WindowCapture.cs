@@ -449,8 +449,9 @@ namespace GreenshotPlugin.Core {
 		}
 		
 		/// <summary>
-		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7
-		/// <returns>Point with cursor location</returns>
+		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7.
+		/// <returns>Point with cursor location, relative to the origin of the monitor setup (i.e. negative coordinates are
+		/// possible in multiscreen setups)</returns>
 		public static Point GetCursorLocation() {
 			if (Environment.OSVersion.Version.Major >= 6) {
 				POINT cursorLocation;
@@ -462,6 +463,29 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 			return new Point(Cursor.Position.X, Cursor.Position.Y);
+		}
+		
+		/// <summary>
+		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
+		/// can conveniently be used when the cursor location is needed to deal with a fullscreen bitmap.
+		/// <returns>Point with cursor location, relative to the top left corner of the monitor setup (which itself might
+		/// actually not be on any screen)</returns>
+		public static Point GetCursorLocationRelativeToScreenBounds() {
+			return GetLocationRelativeToScreenBounds(GetCursorLocation());
+		}
+		
+		/// <summary>
+		/// Converts locationRelativeToScreenOrigin to be relative to top left corner of all screen bounds, which might
+		/// be different in multiscreen setups. This implementation
+		/// can conveniently be used when the cursor location is needed to deal with a fullscreen bitmap.
+		/// </summary>
+		/// <param name="locationRelativeToScreenOrigin"></param>
+		/// <returns></returns>
+		public static Point GetLocationRelativeToScreenBounds(Point locationRelativeToScreenOrigin) {
+			Point ret = locationRelativeToScreenOrigin;
+			Rectangle bounds = GetScreenBounds();
+			ret.Offset(-bounds.X, -bounds.Y);
+			return ret;
 		}
 
 		/// <summary>
