@@ -468,18 +468,22 @@ namespace Greenshot.Forms {
 					}
 				} else {
 					if (!conf.OptimizeForRDP) {
+						Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
+						allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
 						if (verticalMove) {
-							Rectangle before = GuiRectangle.GetGuiRectangle(WindowCapture.GetScreenBounds().Left, lastPos.Y - 2, this.Width+2, 45);
-							Rectangle after = GuiRectangle.GetGuiRectangle(WindowCapture.GetScreenBounds().Left, cursorPos.Y - 2, this.Width+2, 45);
+							Rectangle before = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, lastPos.Y - 2, this.Width+2, 45);
+							Rectangle after = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, cursorPos.Y - 2, this.Width+2, 45);
 							Invalidate(before);
 							Invalidate(after);
 						}
 						if (horizontalMove) {
-							Rectangle before = GuiRectangle.GetGuiRectangle(lastPos.X - 2, WindowCapture.GetScreenBounds().Top, 75, this.Height+2);
-							Rectangle after = GuiRectangle.GetGuiRectangle(cursorPos.X -2, WindowCapture.GetScreenBounds().Top, 75, this.Height+2);
+							Rectangle before = GuiRectangle.GetGuiRectangle(lastPos.X - 2, allScreenBounds.Top, 75, this.Height+2);
+							Rectangle after = GuiRectangle.GetGuiRectangle(cursorPos.X -2, allScreenBounds.Top, 75, this.Height+2);
 							Invalidate(before);
 							Invalidate(after);
+							LOG.Info(after);
 						}
+						
 					}
 				}
 			}
