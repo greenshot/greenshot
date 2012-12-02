@@ -550,7 +550,8 @@ namespace Greenshot.Forms {
 			} else {
 				destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
 			}
-			zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
+			zoomAnimator.ChangeDestination(new Rectangle(new Point(-10, -10), new Size(20, 20)));
+			zoomAnimator.QueueDestination(new Rectangle(destinationLocation, zoomSize));
 			return zoomAnimator.Next();
 		}
 

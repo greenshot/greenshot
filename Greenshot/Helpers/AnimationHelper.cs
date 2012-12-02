@@ -21,7 +21,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-	
+using System.Collections.Generic;
+
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// Base class for the animation logic, this only implements Properties and a constructor
@@ -32,6 +33,7 @@ namespace Greenshot.Helpers {
 		protected T first;
 		protected T last;
 		protected T current;
+		protected Queue<T> queue = new Queue<T>();
 		protected double frames;
 		protected double currentFrame = 0;
 		
@@ -53,6 +55,10 @@ namespace Greenshot.Helpers {
 		
 		public void ChangeDestination(T last) {
 			ChangeDestination(last, frames);
+		}
+		
+		public void QueueDestination(T queuedDestination) {
+			queue.Enqueue(queuedDestination);
 		}
 
 		public void ChangeDestination(T last, double frames) {
@@ -105,9 +111,28 @@ namespace Greenshot.Helpers {
 			}
 		}
 		
+		public virtual bool NextFrame {
+			get {
+				if (currentFrame < frames) {
+					currentFrame++;
+					return true;
+				}
+				if (queue.Count > 0) {
+					this.first = current;
+					this.last = queue.Dequeue();
+					this.currentFrame = 0;
+					return true;
+				}
+				return false;
+			}
+		}
+		
 		public virtual bool hasNext {
 			get {
-				return currentFrame < frames;
+				if (currentFrame < frames) {
+					return true;
+				}
+				return queue.Count > 0;
 			}
 		}
 
@@ -132,9 +157,7 @@ namespace Greenshot.Helpers {
 		}
 
 		public override Rectangle Next() {
-			if (hasNext) {
-				currentFrame++;
-
+			if (NextFrame) {
 				double easingValue = EasingValue;
 				double dx = last.X - first.X;
 				double dy = last.Y - first.Y;
@@ -166,9 +189,7 @@ namespace Greenshot.Helpers {
 			: base(first, last, frames, easingType, easingMode) {
 		}
 		public override Point Next() {
-			if (hasNext) {
-				currentFrame++;
-
+			if (NextFrame) {
 				double easingValue = EasingValue;
 				double dx = last.X - first.X;
 				double dy = last.Y - first.Y;
@@ -197,9 +218,7 @@ namespace Greenshot.Helpers {
 		}
 
 		public override Size Next() {
-			if (hasNext) {
-				currentFrame++;
-
+			if (NextFrame) {
 				double easingValue = EasingValue;
 				double dw = last.Width - first.Width;
 				double dh = last.Height - first.Height;
