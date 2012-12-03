@@ -701,10 +701,49 @@ namespace GreenshotPlugin.Core {
 				// A suggestion for the "A generic error occurred in GDI+." E_FAIL/0×80004005 error is to re-try...
 				bool success = false;
 				ExternalException exception = null;
-				for(int i = 0; i < 3; i++) {
+				for (int i = 0; i < 3; i++) {
 					try {
-						// assign image to Capture, the image will be disposed there..
-						returnBitmap = Bitmap.FromHbitmap(hDIBSection);
+						// Collect all screens inside this capture
+						List<Screen> screensInsideCapture = new List<Screen>();
+						foreach (Screen screen in Screen.AllScreens) {
+							if (screen.Bounds.IntersectsWith(captureBounds)) {
+								screensInsideCapture.Add(screen);
+							}
+						}
+						// Check all all screens are of an equal size
+						bool offscreenContent = false;
+						using (Region captureRegion = new Region(captureBounds)) {
+							// Exclude every visible part
+							foreach (Screen screen in screensInsideCapture) {
+								captureRegion.Exclude(screen.Bounds);
+							}
+							// If the region is not empty, we have "offscreenContent"
+							using (Graphics screenGraphics = Graphics.FromHwnd(User32.GetDesktopWindow())) {
+								offscreenContent = !captureRegion.IsEmpty(screenGraphics);
+							}
+						}
+						// Check if we need to have a transparent background, needed for offscreen content
+						if (offscreenContent) {
+							using (Bitmap tmpBitmap = Bitmap.FromHbitmap(hDIBSection)) {
+								// Create a new bitmap which has a transparent background
+								returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
+								// Content will be copied here
+								using (Graphics graphics = Graphics.FromImage(returnBitmap)) {
+									// For all screens copy the content to the new bitmap
+									foreach (Screen screen in Screen.AllScreens) {
+										Rectangle screenBounds = screen.Bounds;
+										// Make sure the bounds are offsetted to the capture bounds
+										screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
+										graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);
+									}
+								}
+							}
+						} else {
+							// All screens, which are inside the capture, are of equal size
+							// assign image to Capture, the image will be disposed there..
+							returnBitmap = Bitmap.FromHbitmap(hDIBSection);
+						}
+						// We got through the capture without exception
 						success = true;
 						break;
 					} catch (ExternalException ee) {
