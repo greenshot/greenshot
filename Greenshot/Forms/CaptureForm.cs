@@ -71,9 +71,8 @@ namespace Greenshot.Forms {
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
 		private RectangleAnimator windowAnimator = new RectangleAnimator(Rectangle.Empty, Rectangle.Empty, 0, EasingType.Quadratic);
-		private Size zoomSize = new Size(200, 200);
-		private Point zoomOffset = new Point(20, 20);
-		private RectangleAnimator zoomAnimator;
+
+		private RectangleAnimator zoomAnimator = null;
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -133,8 +132,6 @@ namespace Greenshot.Forms {
 			User32.ReleaseDC(hDCDesktop);
 			LOG.DebugFormat("VRefresh {0}", vRefesh);
 
-			zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(zoomOffset, zoomSize), 20, EasingType.Quintic, EasingMode.EaseOut);
-			
 			// comment this out if the timer should not be used
 			timer = new Timer();
 			
@@ -178,7 +175,10 @@ namespace Greenshot.Forms {
 
 			// set cursor location
 			cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
-
+			// Initialize with a invalid position
+			zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), 20, EasingType.Quintic, EasingMode.EaseOut);
+			VerifyZoomAnimation(cursorPos);
+			
 			this.SuspendLayout();
 			this.Bounds = capture.ScreenBounds;
 			this.ResumeLayout();
@@ -495,8 +495,8 @@ namespace Greenshot.Forms {
 				Rectangle zoomArea = zoomAnimator.Current;
 				zoomArea.Offset(lastPos);
 				Invalidate(zoomArea);
-				
-				zoomArea = AnimateZoomArea(cursorPos);
+				VerifyZoomAnimation(cursorPos);
+				zoomArea = zoomAnimator.Next();
 				zoomArea.Offset(cursorPos);
 				Invalidate(zoomArea);
 			}
@@ -512,22 +512,19 @@ namespace Greenshot.Forms {
 		}
 
 		/// <summary>
-		/// Checks if the Zoom area can move there where it wants to go
-		/// Change direction if not.
+		/// Checks if the Zoom area can move there where it wants to go, change direction if not.
 		/// </summary>
-		private Rectangle AnimateZoomArea(Point pos) {
-			Rectangle ret;
+		private void VerifyZoomAnimation(Point pos) {
 			Rectangle screenBounds = Screen.GetBounds(MousePosition);
 			// convert to be relative to top left corner of all screen bounds
 			screenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location);
-
+			int relativeZoomSize = Math.Min(screenBounds.Width, screenBounds.Height) / 5;
+			Size zoomSize = new Size(relativeZoomSize, relativeZoomSize);
+			Point zoomOffset = new Point(20, 20);
 
 			Rectangle targetRectangle = zoomAnimator.Final;
 			targetRectangle.Offset(pos);
-			if (screenBounds.Contains(targetRectangle)) {
-				// All okay
-				ret = zoomAnimator.Next();
-			} else {
+			if (!screenBounds.Contains(targetRectangle)) {
 				Point destinationLocation;
 				Rectangle tl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
 				Rectangle tr = new Rectangle(pos.X + zoomOffset.X, pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
@@ -546,9 +543,7 @@ namespace Greenshot.Forms {
 				//zoomAnimator.ChangeDestination(new Rectangle(new Point(-10, -10), new Size(20, 20)));
 				//zoomAnimator.QueueDestinationLeg(new Rectangle(destinationLocation, zoomSize));
 				zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
-				ret = zoomAnimator.Next();
 			}
-			return ret;
 		}
 
 		/// <summary>
