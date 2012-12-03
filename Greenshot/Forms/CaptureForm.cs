@@ -485,7 +485,6 @@ namespace Greenshot.Forms {
 							Rectangle after = GuiRectangle.GetGuiRectangle(cursorPos.X -2, allScreenBounds.Top, 75, this.Height+2);
 							Invalidate(before);
 							Invalidate(after);
-							LOG.Info(after);
 						}
 						
 					}
@@ -519,6 +518,8 @@ namespace Greenshot.Forms {
 			// convert to be relative to top left corner of all screen bounds
 			screenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location);
 			int relativeZoomSize = Math.Min(screenBounds.Width, screenBounds.Height) / 5;
+			// Make sure the final size is a plural of 4, this makes it look better
+			relativeZoomSize = relativeZoomSize - (relativeZoomSize % 4);
 			Size zoomSize = new Size(relativeZoomSize, relativeZoomSize);
 			Point zoomOffset = new Point(20, 20);
 
