@@ -36,7 +36,24 @@ namespace Greenshot.Helpers {
 		protected Queue<T> queue = new Queue<T>();
 		protected double frames;
 		protected double currentFrame = 0;
-		
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="first"></param>
+		/// <param name="last"></param>
+		/// <param name="frames"></param>
+		/// <param name="easingType"></param>
+		/// <param name="easingMode"></param>
+		public AnimatorBase(T first, T last, int frames, EasingType easingType, EasingMode easingMode) {
+			this.first = first;
+			this.last = last;
+			this.frames = frames;
+			this.current = first;
+			this.EasingType = easingType;
+			this.EasingMode = easingMode;
+		}
+
 		/// <summary>
 		/// The amount of frames
 		/// </summary>
@@ -59,10 +76,22 @@ namespace Greenshot.Helpers {
 		}
 		
 		/// <summary>
-		/// Last animation value
+		/// Last animation value, of this "leg"
 		/// </summary>
 		public T Last {
 			get { return last; }
+		}
+
+		/// <summary>
+		/// Final animation value, this is including the legs
+		/// </summary>
+		public T Final {
+			get {
+				if (queue.Count == 0) {
+					return last;
+				}
+				return queue.ToArray()[queue.Count - 1];
+			}
 		}
 		
 		/// <summary>
@@ -83,13 +112,14 @@ namespace Greenshot.Helpers {
 			this.currentFrame = 0;
 			this.frames = frames;
 			this.last = newDestination;
+			queue.Clear();
 		}
 
 		/// <summary>
 		/// Queue the destination, it will be used after the current animation is finished
 		/// </summary>
 		/// <param name="queuedDestination"></param>
-		public void QueueDestination(T queuedDestination) {
+		public void QueueDestinationLeg(T queuedDestination) {
 			queue.Enqueue(queuedDestination);
 		}
 
@@ -124,23 +154,6 @@ namespace Greenshot.Helpers {
 						return Easing.EaseIn(currentFrame / frames, EasingType);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="first"></param>
-		/// <param name="last"></param>
-		/// <param name="frames"></param>
-		/// <param name="easingType"></param>
-		/// <param name="easingMode"></param>
-		public AnimatorBase(T first, T last, int frames, EasingType easingType, EasingMode easingMode) {
-			this.first = first;
-			this.last = last;
-			this.frames = frames;
-			this.current = first;
-			this.EasingType = easingType;
-			this.EasingMode = easingMode;
 		}
 
 		/// <summary>

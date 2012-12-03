@@ -448,7 +448,7 @@ namespace Greenshot.Forms {
 				if (captureMode == CaptureMode.Window) {
 					// Using a 50 Pixel offset to the left, top, to make sure the text is invalidated too
 					const int SAFETY_SIZE = 25;
-					if (windowAnimator.hasNext) {
+					if (windowAnimator != null && windowAnimator.hasNext) {
 						Rectangle invalidateRectangle = windowAnimator.Current;
 						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
 						Invalidate(invalidateRectangle);
@@ -458,7 +458,11 @@ namespace Greenshot.Forms {
 					}
 					if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
 						// Window changes, make new animation from current to target
-						windowAnimator.ChangeDestination(captureRect, 14);
+						if (windowAnimator.Last.Size == Size.Empty) {
+							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, 10, EasingType.Quintic, EasingMode.EaseOut);
+						} else {
+							windowAnimator.ChangeDestination(captureRect, 10);
+						}
 						Rectangle invalidateRectangle = new Rectangle(lastCaptureRect.Location, lastCaptureRect.Size);
 						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
 						Invalidate(invalidateRectangle);
@@ -517,8 +521,8 @@ namespace Greenshot.Forms {
 			// convert to be relative to top left corner of all screen bounds
 			screenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location);
 
-			
-			Rectangle targetRectangle = zoomAnimator.Last;
+
+			Rectangle targetRectangle = zoomAnimator.Final;
 			targetRectangle.Offset(pos);
 			if (screenBounds.Contains(targetRectangle)) {
 				// All okay
@@ -538,8 +542,10 @@ namespace Greenshot.Forms {
 				} else {
 					destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
 				}
-				zoomAnimator.ChangeDestination(new Rectangle(new Point(-10, -10), new Size(20, 20)));
-				zoomAnimator.QueueDestination(new Rectangle(destinationLocation, zoomSize));
+				// Change animation to destination "small with the mouse-cursor at the center"
+				//zoomAnimator.ChangeDestination(new Rectangle(new Point(-10, -10), new Size(20, 20)));
+				//zoomAnimator.QueueDestinationLeg(new Rectangle(destinationLocation, zoomSize));
+				zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
 				ret = zoomAnimator.Next();
 			}
 			return ret;
