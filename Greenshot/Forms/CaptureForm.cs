@@ -177,7 +177,7 @@ namespace Greenshot.Forms {
 			cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
 			// Initialize with a invalid position
 			zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), 20, EasingType.Quintic, EasingMode.EaseOut);
-			VerifyZoomAnimation(cursorPos);
+			VerifyZoomAnimation(cursorPos, false);
 			
 			this.SuspendLayout();
 			this.Bounds = capture.ScreenBounds;
@@ -494,7 +494,7 @@ namespace Greenshot.Forms {
 				Rectangle zoomArea = zoomAnimator.Current;
 				zoomArea.Offset(lastPos);
 				Invalidate(zoomArea);
-				VerifyZoomAnimation(cursorPos);
+				VerifyZoomAnimation(cursorPos, false);
 				zoomArea = zoomAnimator.Next();
 				zoomArea.Offset(cursorPos);
 				Invalidate(zoomArea);
@@ -513,7 +513,9 @@ namespace Greenshot.Forms {
 		/// <summary>
 		/// Checks if the Zoom area can move there where it wants to go, change direction if not.
 		/// </summary>
-		private void VerifyZoomAnimation(Point pos) {
+		/// <param name="pos">preferred destination location for the zoom area</param>
+		/// <param name="allowZoomOverCaptureRect">false to try to find a location which is neither out of screen bounds nor intersects with the selected rectangle</param>
+		private void VerifyZoomAnimation(Point pos, bool allowZoomOverCaptureRect) {
 			Rectangle screenBounds = Screen.GetBounds(MousePosition);
 			// convert to be relative to top left corner of all screen bounds
 			screenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location);
@@ -525,25 +527,29 @@ namespace Greenshot.Forms {
 
 			Rectangle targetRectangle = zoomAnimator.Final;
 			targetRectangle.Offset(pos);
-			if (!screenBounds.Contains(targetRectangle)) {
-				Point destinationLocation;
+			if (!screenBounds.Contains(targetRectangle) || (!allowZoomOverCaptureRect && captureRect.IntersectsWith(targetRectangle))) {
+				Point destinationLocation = Point.Empty;
 				Rectangle tl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
 				Rectangle tr = new Rectangle(pos.X + zoomOffset.X, pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
 				Rectangle bl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
 				Rectangle br = new Rectangle(pos.X + zoomOffset.X, pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
-				if (screenBounds.Contains(br)) {
+				if (screenBounds.Contains(br) && (allowZoomOverCaptureRect || !captureRect.IntersectsWith(br))) {
 					destinationLocation = new Point(zoomOffset.X, zoomOffset.Y);
-				} else if (screenBounds.Contains(bl)) {
+				} else if (screenBounds.Contains(bl) && (allowZoomOverCaptureRect || !captureRect.IntersectsWith(bl))) {
 					destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, zoomOffset.Y);
-				} else if (screenBounds.Contains(tr)) {
+				} else if (screenBounds.Contains(tr) && (allowZoomOverCaptureRect || !captureRect.IntersectsWith(tr))) {
 					destinationLocation = new Point(zoomOffset.X, -zoomOffset.Y - zoomSize.Width);
-				} else {
+				} else if (screenBounds.Contains(tl) && (allowZoomOverCaptureRect || !captureRect.IntersectsWith(tl))) {
 					destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
+				} 
+				if(destinationLocation == Point.Empty && !allowZoomOverCaptureRect) {
+					VerifyZoomAnimation(pos, true);
+				} else {
+					// Change animation to destination "small with the mouse-cursor at the center"
+					//zoomAnimator.ChangeDestination(new Rectangle(new Point(-10, -10), new Size(20, 20)));
+					//zoomAnimator.QueueDestinationLeg(new Rectangle(destinationLocation, zoomSize));
+					zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
 				}
-				// Change animation to destination "small with the mouse-cursor at the center"
-				//zoomAnimator.ChangeDestination(new Rectangle(new Point(-10, -10), new Size(20, 20)));
-				//zoomAnimator.QueueDestinationLeg(new Rectangle(destinationLocation, zoomSize));
-				zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
 			}
 		}
 
