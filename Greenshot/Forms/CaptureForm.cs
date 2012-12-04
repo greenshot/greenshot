@@ -70,8 +70,7 @@ namespace Greenshot.Forms {
 		private bool isZooming = true;
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
-		private RectangleAnimator windowAnimator = new RectangleAnimator(Rectangle.Empty, Rectangle.Empty, 0, EasingType.Quadratic);
-
+		private RectangleAnimator windowAnimator = null;
 		private RectangleAnimator zoomAnimator = null;
 
 		/// <summary>
@@ -175,10 +174,14 @@ namespace Greenshot.Forms {
 
 			// set cursor location
 			cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
-			// Initialize with a invalid position
+
+			// Initialize the animations, the window capture zooms out from the cursor to the window under the cursor 
+			if (captureMode == CaptureMode.Window) {
+				windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, 10, EasingType.Quintic, EasingMode.EaseOut);
+			}
+			// Initialize the zoom with a invalid position
 			zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), 20, EasingType.Quintic, EasingMode.EaseOut);
 			VerifyZoomAnimation(cursorPos, false);
-			
 			this.SuspendLayout();
 			this.Bounds = capture.ScreenBounds;
 			this.ResumeLayout();
@@ -253,13 +256,23 @@ namespace Greenshot.Forms {
 					// Toggle capture mode
 					switch (captureMode) {
 						case CaptureMode.Region:
+							// Set the window capture mode
 							captureMode = CaptureMode.Window;
+							// "Fade out" Zoom
+							zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), 20);
+							// "Fade in" window
+							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, 10, EasingType.Quintic, EasingMode.EaseOut);
 							break;
 						case CaptureMode.Window:
+							// Set the region capture mode
 							captureMode = CaptureMode.Region;
+							// "Fade out" window
+							windowAnimator.ChangeDestination(new Rectangle(cursorPos, Size.Empty));
+							// Fade in zoom
+							zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), 20, EasingType.Quintic, EasingMode.EaseOut);
+							VerifyZoomAnimation(cursorPos, false);
 							break;
 					}
-					Invalidate();
 					selectedCaptureWindow = null;
 					OnMouseMove(this, new MouseEventArgs(MouseButtons.None, 0, Cursor.Position.X, Cursor.Position.Y, 0));
 					break;
@@ -364,12 +377,25 @@ namespace Greenshot.Forms {
 		}
 
 		/// <summary>
+		/// Helper method to simplify check
+		/// </summary>
+		/// <param name="animator"></param>
+		/// <returns></returns>
+		bool isAnimating(IAnimator animator) {
+			if (animator == null) {
+				return false;
+			}
+			return animator.hasNext;
+		}
+
+		/// <summary>
 		/// update the frame, this only invalidates
 		/// </summary>
 		void updateFrame() {
 			Point lastPos = cursorPos.Clone();
 			cursorPos = mouseMovePos.Clone();
-			if (selectedCaptureWindow != null && lastPos.Equals(cursorPos) && !zoomAnimator.hasNext && !windowAnimator.hasNext) {
+
+			if (selectedCaptureWindow != null && lastPos.Equals(cursorPos) && !isAnimating(zoomAnimator) && !isAnimating(windowAnimator)) {
 				return;
 			}
 
@@ -415,7 +441,9 @@ namespace Greenshot.Forms {
 					captureRect.Offset(-capture.ScreenBounds.Location.X, -capture.ScreenBounds.Location.Y);
 				}
 			}
-			if (mouseDown && (CaptureMode.Window != captureMode)) {
+
+			Rectangle invalidateRectangle = Rectangle.Empty;
+			if (mouseDown && (captureMode != CaptureMode.Window)) {
 				int x1 = Math.Min(mX, lastPos.X);
 				int x2 = Math.Max(mX, lastPos.X);
 				int y1 = Math.Min(mY, lastPos.Y);
@@ -442,62 +470,70 @@ namespace Greenshot.Forms {
 					Size measureHeight = TextRenderer.MeasureText(textForHeight.ToString(), rulerFont);
 					y1 -= measureWidth.Height + 10;
 				}
-				Rectangle invalidateRectangle = new Rectangle(x1,y1, x2-x1, y2-y1);
+				invalidateRectangle = new Rectangle(x1,y1, x2-x1, y2-y1);
 				Invalidate(invalidateRectangle);
-			} else {
-				if (captureMode == CaptureMode.Window) {
-					// Using a 50 Pixel offset to the left, top, to make sure the text is invalidated too
-					const int SAFETY_SIZE = 25;
-					if (windowAnimator != null && windowAnimator.hasNext) {
-						Rectangle invalidateRectangle = windowAnimator.Current;
-						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
+			} else if (captureMode != CaptureMode.Window) {
+				if (!conf.OptimizeForRDP) {
+					Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
+					allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
+					if (verticalMove) {
+						// Before
+						invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, lastPos.Y - 2, this.Width + 2, 45);
 						Invalidate(invalidateRectangle);
-						invalidateRectangle = windowAnimator.Next();
-						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
-						Invalidate(invalidateRectangle);
-					}
-					if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
-						// Window changes, make new animation from current to target
-						if (windowAnimator.Last.Size == Size.Empty) {
-							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, 10, EasingType.Quintic, EasingMode.EaseOut);
-						} else {
-							windowAnimator.ChangeDestination(captureRect, 10);
-						}
-						Rectangle invalidateRectangle = new Rectangle(lastCaptureRect.Location, lastCaptureRect.Size);
-						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
-						Invalidate(invalidateRectangle);
-						invalidateRectangle = new Rectangle(captureRect.Location, captureRect.Size);
-						invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
+						// After
+						invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, cursorPos.Y - 2, this.Width + 2, 45);
 						Invalidate(invalidateRectangle);
 					}
-				} else {
-					if (!conf.OptimizeForRDP) {
-						Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
-						allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
-						if (verticalMove) {
-							Rectangle before = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, lastPos.Y - 2, this.Width+2, 45);
-							Rectangle after = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, cursorPos.Y - 2, this.Width+2, 45);
-							Invalidate(before);
-							Invalidate(after);
-						}
-						if (horizontalMove) {
-							Rectangle before = GuiRectangle.GetGuiRectangle(lastPos.X - 2, allScreenBounds.Top, 75, this.Height+2);
-							Rectangle after = GuiRectangle.GetGuiRectangle(cursorPos.X -2, allScreenBounds.Top, 75, this.Height+2);
-							Invalidate(before);
-							Invalidate(after);
-						}
-						
+					if (horizontalMove) {
+						// Before
+						invalidateRectangle = GuiRectangle.GetGuiRectangle(lastPos.X - 2, allScreenBounds.Top, 75, this.Height + 2);
+						Invalidate(invalidateRectangle);
+						// After
+						invalidateRectangle = GuiRectangle.GetGuiRectangle(cursorPos.X - 2, allScreenBounds.Top, 75, this.Height + 2);
+						Invalidate(invalidateRectangle);
 					}
 				}
+			} else {
+				if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
+					// Window changes, make new animation from current to target
+					windowAnimator.ChangeDestination(captureRect, 10);
+				}
 			}
-			if (isZooming && captureMode != CaptureMode.Window) {
-				Rectangle zoomArea = zoomAnimator.Current;
-				zoomArea.Offset(lastPos);
-				Invalidate(zoomArea);
-				VerifyZoomAnimation(cursorPos, false);
-				zoomArea = zoomAnimator.Next();
-				zoomArea.Offset(cursorPos);
-				Invalidate(zoomArea);
+			// always animate the Window area through to the last frame, so we see the fade-in/out untill the end
+			// Using a safety "offset" to make sure the text is invalidated too
+			const int SAFETY_SIZE = 30;
+			// Check if the 
+			if (isAnimating(windowAnimator)) {
+				invalidateRectangle = windowAnimator.Current;
+				invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
+				Invalidate(invalidateRectangle);
+				invalidateRectangle = windowAnimator.Next();
+				invalidateRectangle.Inflate(SAFETY_SIZE, SAFETY_SIZE);
+				Invalidate(invalidateRectangle);
+				// Check if this was the last of the windows animations in the normal region capture.
+				if (captureMode != CaptureMode.Window && !isAnimating(windowAnimator)) {
+					Invalidate();
+				}
+			}
+
+			if (isAnimating(zoomAnimator) || captureMode != CaptureMode.Window) {
+				// Make sure we invalidate the old zoom area
+				invalidateRectangle = zoomAnimator.Current;
+				invalidateRectangle.Offset(lastPos);
+				Invalidate(invalidateRectangle);
+				// Only verify if we are really showing the zoom, not the outgoing animation
+				if (isZooming && captureMode != CaptureMode.Window) {
+					VerifyZoomAnimation(cursorPos, false);
+				}
+				// The following logic is not needed, next always returns the current if there are no frames left
+				// but it makes more sense if we want to change something in the logic
+				if (isAnimating(zoomAnimator)) {
+					invalidateRectangle = zoomAnimator.Next();
+				} else {
+					invalidateRectangle = zoomAnimator.Current;
+				}
+				invalidateRectangle.Offset(cursorPos);
+				Invalidate(invalidateRectangle);
 			}
 			// Force update "now"
 			Update();
@@ -542,12 +578,9 @@ namespace Greenshot.Forms {
 				} else if (screenBounds.Contains(tl) && (allowZoomOverCaptureRect || !captureRect.IntersectsWith(tl))) {
 					destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
 				} 
-				if(destinationLocation == Point.Empty && !allowZoomOverCaptureRect) {
+				if (destinationLocation == Point.Empty && !allowZoomOverCaptureRect) {
 					VerifyZoomAnimation(pos, true);
 				} else {
-					// Change animation to destination "small with the mouse-cursor at the center"
-					//zoomAnimator.ChangeDestination(new Rectangle(new Point(-10, -10), new Size(20, 20)));
-					//zoomAnimator.QueueDestinationLeg(new Rectangle(destinationLocation, zoomSize));
 					zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
 				}
 			}
@@ -560,7 +593,7 @@ namespace Greenshot.Forms {
 		/// <param name="sourceRectangle"></param>
 		/// <param name="destinationRectangle"></param>
 		private void DrawZoom(Graphics graphics, Rectangle sourceRectangle, Rectangle destinationRectangle) {
-			if (capturedImage == null || !isZooming) {
+			if (capturedImage == null) {
 				return;
 			}
 			
@@ -644,15 +677,16 @@ namespace Greenshot.Forms {
 				graphics.DrawIcon(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
 			}
 
-			if (mouseDown || captureMode == CaptureMode.Window) {
+			if (mouseDown || captureMode == CaptureMode.Window || isAnimating(windowAnimator)) {
 				captureRect.Intersect(new Rectangle(Point.Empty, capture.ScreenBounds.Size)); // crop what is outside the screen
 				
 				Rectangle fixedRect;
-				if (captureMode == CaptureMode.Window) {
+				//if (captureMode == CaptureMode.Window) {
+				if (isAnimating(windowAnimator)) {
 					// Use the animator
 					fixedRect = windowAnimator.Current;
 				} else {
-					fixedRect = captureRect;					
+					fixedRect = captureRect;
 				}
 
 				if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
@@ -780,7 +814,8 @@ namespace Greenshot.Forms {
 				}
 			}
 
-			if (captureMode != CaptureMode.Window) {
+			// Zoom
+			if (isAnimating(zoomAnimator) || captureMode != CaptureMode.Window) {
 				const int zoomSourceWidth = 25;
 				const int zoomSourceHeight = 25;
 				
@@ -789,7 +824,6 @@ namespace Greenshot.Forms {
 				Rectangle destinationRectangle = zoomAnimator.Current;
 				destinationRectangle.Offset(cursorPos);
 				DrawZoom(graphics, sourceRectangle, destinationRectangle);
-
 			}
 		}
 		#endregion

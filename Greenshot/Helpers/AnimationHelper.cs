@@ -24,18 +24,44 @@ using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 
 namespace Greenshot.Helpers {
+
+	/// <summary>
+	/// Helper interface for passing base type
+	/// </summary>
+	public interface IAnimator {
+		/// <summary>
+		/// Is there a next frame?
+		/// </summary>
+		bool hasNext {
+			get;
+		}
+		/// <summary>
+		/// The amount of frames
+		/// </summary>
+		int Frames {
+			get;
+		}
+
+		/// <summary>
+		/// Current frame number
+		/// </summary>
+		int CurrentFrameNr {
+			get;
+		}
+	}
+
 	/// <summary>
 	/// Base class for the animation logic, this only implements Properties and a constructor
 	/// </summary>
 	/// <typeparam name="T">Type for the animation, like Point/Rectangle/Size</typeparam>
-	public abstract class AnimatorBase<T> {
+	public abstract class AnimatorBase<T> : IAnimator {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AnimatorBase<T>));
 		protected T first;
 		protected T last;
 		protected T current;
 		protected Queue<T> queue = new Queue<T>();
-		protected double frames;
-		protected double currentFrame = 0;
+		protected int frames;
+		protected int currentFrameNr = 0;
 
 		/// <summary>
 		/// Constructor
@@ -57,15 +83,15 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// The amount of frames
 		/// </summary>
-		public double Frames {
+		public int Frames {
 			get { return frames; }
 		}
 
 		/// <summary>
 		/// Current frame number
 		/// </summary>
-		public double CurrentFrame {
-			get { return currentFrame; }
+		public int CurrentFrameNr {
+			get { return currentFrameNr; }
 		}
 
 		/// <summary>
@@ -107,12 +133,12 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="newDestination"></param>
 		/// <param name="frames"></param>
-		public void ChangeDestination(T newDestination, double frames) {
+		public void ChangeDestination(T newDestination, int frames) {
+			queue.Clear();
 			this.first = current;
-			this.currentFrame = 0;
+			this.currentFrameNr = 0;
 			this.frames = frames;
 			this.last = newDestination;
-			queue.Clear();
 		}
 
 		/// <summary>
@@ -146,12 +172,12 @@ namespace Greenshot.Helpers {
 			get {
 				switch (EasingMode) {
 					case EasingMode.EaseOut:
-						return Easing.EaseOut(currentFrame / frames, EasingType);
+						return Easing.EaseOut((double)currentFrameNr / (double)frames, EasingType);
 					case EasingMode.EaseInOut:
-						return Easing.EaseInOut(currentFrame / frames, EasingType);
+						return Easing.EaseInOut((double)currentFrameNr / (double)frames, EasingType);
 					case EasingMode.EaseIn:
 					default:
-						return Easing.EaseIn(currentFrame / frames, EasingType);
+						return Easing.EaseIn((double)currentFrameNr / (double)frames, EasingType);
 				}
 			}
 		}
@@ -170,14 +196,14 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public virtual bool NextFrame {
 			get {
-				if (currentFrame < frames) {
-					currentFrame++;
+				if (currentFrameNr < frames) {
+					currentFrameNr++;
 					return true;
 				}
 				if (queue.Count > 0) {
 					this.first = current;
 					this.last = queue.Dequeue();
-					this.currentFrame = 0;
+					this.currentFrameNr = 0;
 					return true;
 				}
 				return false;
@@ -189,7 +215,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public virtual bool hasNext {
 			get {
-				if (currentFrame < frames) {
+				if (currentFrameNr < frames) {
 					return true;
 				}
 				return queue.Count > 0;
