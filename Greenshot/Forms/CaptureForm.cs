@@ -262,6 +262,7 @@ namespace Greenshot.Forms {
 							zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), 20);
 							// "Fade in" window
 							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, 10, EasingType.Quintic, EasingMode.EaseOut);
+							captureRect = Rectangle.Empty;
 							break;
 						case CaptureMode.Window:
 							// Set the region capture mode
@@ -271,6 +272,7 @@ namespace Greenshot.Forms {
 							// Fade in zoom
 							zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), 20, EasingType.Quintic, EasingMode.EaseOut);
 							VerifyZoomAnimation(cursorPos, false);
+							captureRect = Rectangle.Empty;
 							break;
 					}
 					selectedCaptureWindow = null;
@@ -431,6 +433,7 @@ namespace Greenshot.Forms {
 					}
 				}
 			}
+
 			if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
 				capture.CaptureDetails.Title = selectedCaptureWindow.Text;
 				capture.CaptureDetails.AddMetaData("windowtitle", selectedCaptureWindow.Text);
