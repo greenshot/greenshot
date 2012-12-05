@@ -20,6 +20,7 @@ Bugs resolved:
 * Not reported: Fixed some issues with capturing windows that were larger than the visible screen, logic should now be more reliable.
 * Not reported: Fixed some cases where Dragging & Dropping an image from a browser on the editor lost transparency.
 * Not reported: Undo while in an Auto-Crop made the editor unusable.
+* Not reported: When first selecting a printer, the main printer destination has been replaced by the selected one, making the Windows printer dialog unavailable for further prints
 
 Features:
 * General: Added zoom when capturing

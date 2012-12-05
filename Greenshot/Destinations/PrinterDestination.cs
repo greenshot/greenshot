@@ -106,9 +106,6 @@ namespace Greenshot.Destinations {
 					printerSettings = new PrintHelper(image, captureDetails).PrintWithDialog();
 				}
 				if (printerSettings != null) {
-					printerName = printerSettings.PrinterName;
-					// Renew destination
-					exportInformation.DestinationDescription = this.Description;
 					exportInformation.ExportMade = true;
 				}
 			}
