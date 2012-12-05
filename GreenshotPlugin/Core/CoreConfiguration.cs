@@ -216,6 +216,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("LeftClickAction", Description = "Specify what action is made if the tray icon is left clicked", DefaultValue = "CONTEXT_MENU")]		
 		public LeftClickActions LeftClickAction;
 
+		[IniProperty("ZoomerEnabled", Description = "Sets if the zoomer is enabled", DefaultValue = "True")]
+		public bool ZoomerEnabled;
+
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.UNSTABLE;
 

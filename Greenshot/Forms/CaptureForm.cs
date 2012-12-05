@@ -68,7 +68,6 @@ namespace Greenshot.Forms {
 		private ICapture capture = null;
 		private Image capturedImage = null;
 		private Timer timer = null;
-		private bool isZooming = true;
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
 		private RectangleAnimator windowAnimator = null;
@@ -88,13 +87,26 @@ namespace Greenshot.Forms {
 				return vRefresh;
 			}
 		}
+		
+		/// <summary>
+		/// Check if we need to optimize for RDP / Terminal Server sessions
+		/// </summary>
+		private static bool optimizeForTerminalServer {
+			get {
+				return conf.OptimizeForRDP || SystemInformation.TerminalServerSession;
+			}
+		}
 
 		/// <summary>
 		/// Calculate the amount of frames that an animation takes
 		/// </summary>
 		/// <param name="milliseconds"></param>
-		/// <returns></returns>
+		/// <returns>Number of frames, 1 if in Terminal Server Session</returns>
 		private static int calculateFrames(int milliseconds) {
+			// If we are in a Terminal Server Session we return 1
+			if (optimizeForTerminalServer) {
+				return 1;
+			}
 			return milliseconds / VRefresh;
 		}
 
@@ -173,7 +185,7 @@ namespace Greenshot.Forms {
 			//
 			InitializeComponent();
 			// Only double-buffer when we are not in a TerminalServerSession
-			this.DoubleBuffered = !System.Windows.Forms.SystemInformation.TerminalServerSession;
+			this.DoubleBuffered = !optimizeForTerminalServer;
 			this.Text = "Greenshot capture form";
 
 			// Make sure we never capture the captureform
@@ -198,9 +210,10 @@ namespace Greenshot.Forms {
 			if (captureMode == CaptureMode.Window) {
 				windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, calculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
 			}
-			// Initialize the zoom with a invalid position
-			zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), calculateFrames(1000), EasingType.Quintic, EasingMode.EaseOut);
-			VerifyZoomAnimation(cursorPos, false);
+
+			// Set the zoomer animation
+			InitializeZoomer(conf.ZoomerEnabled);
+
 			this.SuspendLayout();
 			this.Bounds = capture.ScreenBounds;
 			this.ResumeLayout();
@@ -213,6 +226,19 @@ namespace Greenshot.Forms {
 				timer.Interval = 1000/VRefresh;
 				timer.Tick += new EventHandler(timer_Tick);
 				timer.Start();
+			}
+		}
+		
+		/// <summary>
+		/// Create an animation for the zoomer, depending on if it's active or not.
+		/// </summary>
+		void InitializeZoomer(bool isOn) {
+			if (isOn) {
+				// Initialize the zoom with a invalid position
+				zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), calculateFrames(1000), EasingType.Quintic, EasingMode.EaseOut);
+				VerifyZoomAnimation(cursorPos, false);
+			} else if (zoomAnimator != null) {
+				zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), calculateFrames(1000));
 			}
 		}
 
@@ -269,7 +295,9 @@ namespace Greenshot.Forms {
 					break;
 				case Keys.Z:
 					// Toggle zoom
-					isZooming = !isZooming;
+					conf.ZoomerEnabled = !conf.ZoomerEnabled;
+					InitializeZoomer(conf.ZoomerEnabled);
+					Invalidate();
 					break;
 				case Keys.Space:
 					// Toggle capture mode
@@ -278,7 +306,7 @@ namespace Greenshot.Forms {
 							// Set the window capture mode
 							captureMode = CaptureMode.Window;
 							// "Fade out" Zoom
-							zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty));
+							InitializeZoomer(false);
 							// "Fade in" window
 							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, calculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
 							captureRect = Rectangle.Empty;
@@ -288,10 +316,9 @@ namespace Greenshot.Forms {
 							// Set the region capture mode
 							captureMode = CaptureMode.Region;
 							// "Fade out" window
-							windowAnimator.ChangeDestination(new Rectangle(cursorPos, Size.Empty));
+							windowAnimator.ChangeDestination(new Rectangle(cursorPos, Size.Empty), calculateFrames(700));
 							// Fade in zoom
-							zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), calculateFrames(1000), EasingType.Quintic, EasingMode.EaseOut);
-							VerifyZoomAnimation(cursorPos, false);
+							InitializeZoomer(conf.ZoomerEnabled);
 							captureRect = Rectangle.Empty;
 							Invalidate();
 							break;
@@ -497,7 +524,7 @@ namespace Greenshot.Forms {
 				invalidateRectangle = new Rectangle(x1,y1, x2-x1, y2-y1);
 				Invalidate(invalidateRectangle);
 			} else if (captureMode != CaptureMode.Window) {
-				if (!conf.OptimizeForRDP) {
+				if (!optimizeForTerminalServer) {
 					Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
 					allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
 					if (verticalMove) {
@@ -520,7 +547,7 @@ namespace Greenshot.Forms {
 			} else {
 				if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
 					// Window changes, make new animation from current to target
-					windowAnimator.ChangeDestination(captureRect, 10);
+					windowAnimator.ChangeDestination(captureRect, calculateFrames(700));
 				}
 			}
 			// always animate the Window area through to the last frame, so we see the fade-in/out untill the end
@@ -540,13 +567,13 @@ namespace Greenshot.Forms {
 				}
 			}
 
-			if (isAnimating(zoomAnimator) || captureMode != CaptureMode.Window) {
+			if (zoomAnimator != null && (isAnimating(zoomAnimator) || captureMode != CaptureMode.Window)) {
 				// Make sure we invalidate the old zoom area
 				invalidateRectangle = zoomAnimator.Current;
 				invalidateRectangle.Offset(lastPos);
 				Invalidate(invalidateRectangle);
 				// Only verify if we are really showing the zoom, not the outgoing animation
-				if (isZooming && captureMode != CaptureMode.Window) {
+				if (conf.ZoomerEnabled && captureMode != CaptureMode.Window) {
 					VerifyZoomAnimation(cursorPos, false);
 				}
 				// The following logic is not needed, next always returns the current if there are no frames left
@@ -813,7 +840,7 @@ namespace Greenshot.Forms {
 					}
 				}
 			} else {
-				if (!conf.OptimizeForRDP) {
+				if (!optimizeForTerminalServer) {
 					using (Pen pen = new Pen(Color.LightSeaGreen)) {
 						pen.DashStyle = DashStyle.Dot;
 						Rectangle screenBounds = capture.ScreenBounds;
@@ -839,7 +866,7 @@ namespace Greenshot.Forms {
 			}
 
 			// Zoom
-			if (isAnimating(zoomAnimator) || captureMode != CaptureMode.Window) {
+			if (zoomAnimator != null && (isAnimating(zoomAnimator) || captureMode != CaptureMode.Window)) {
 				const int zoomSourceWidth = 25;
 				const int zoomSourceHeight = 25;
 				
