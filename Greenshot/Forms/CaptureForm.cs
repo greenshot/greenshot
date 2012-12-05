@@ -49,6 +49,7 @@ namespace Greenshot.Forms {
 		private static Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
 		private static CaptureForm currentForm = null;
 		private static Brush backgroundBrush = null;
+		private static int vRefresh = 0;
 
 		static CaptureForm() {
 			Image backgroundForTransparency = GreenshotPlugin.Core.GreenshotResources.getImage("Checkerboard.Image");
@@ -72,6 +73,30 @@ namespace Greenshot.Forms {
 		private FixMode fixMode = FixMode.None;
 		private RectangleAnimator windowAnimator = null;
 		private RectangleAnimator zoomAnimator = null;
+
+		/// <summary>
+		/// Vertical Refresh Rate
+		/// </summary>
+		private static int VRefresh {
+			get {
+				if (vRefresh == 0) {
+					// get te hDC of the desktop to get the VREFRESH
+					IntPtr hDCDesktop = User32.GetWindowDC(User32.GetDesktopWindow());
+					vRefresh = GDI32.GetDeviceCaps(hDCDesktop, DeviceCaps.VREFRESH);
+					User32.ReleaseDC(hDCDesktop);
+				}
+				return vRefresh;
+			}
+		}
+
+		/// <summary>
+		/// Calculate the amount of frames that an animation takes
+		/// </summary>
+		/// <param name="milliseconds"></param>
+		/// <returns></returns>
+		private static int calculateFrames(int milliseconds) {
+			return milliseconds / VRefresh;
+		}
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -124,12 +149,6 @@ namespace Greenshot.Forms {
 				Application.DoEvents();
 			}
 			currentForm = this;
-			
-			// get te hDC of the desktop to get the VREFRESH
-			IntPtr hDCDesktop = User32.GetWindowDC(User32.GetDesktopWindow());
-			int vRefesh = GDI32.GetDeviceCaps(hDCDesktop, DeviceCaps.VREFRESH);
-			User32.ReleaseDC(hDCDesktop);
-			LOG.DebugFormat("VRefresh {0}", vRefesh);
 
 			// comment this out if the timer should not be used
 			timer = new Timer();
@@ -177,10 +196,10 @@ namespace Greenshot.Forms {
 
 			// Initialize the animations, the window capture zooms out from the cursor to the window under the cursor 
 			if (captureMode == CaptureMode.Window) {
-				windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, 10, EasingType.Quintic, EasingMode.EaseOut);
+				windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, calculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
 			}
 			// Initialize the zoom with a invalid position
-			zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), 20, EasingType.Quintic, EasingMode.EaseOut);
+			zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), calculateFrames(1000), EasingType.Quintic, EasingMode.EaseOut);
 			VerifyZoomAnimation(cursorPos, false);
 			this.SuspendLayout();
 			this.Bounds = capture.ScreenBounds;
@@ -191,7 +210,7 @@ namespace Greenshot.Forms {
 			this.TopMost = true;
 			
 			if (timer != null) {
-				timer.Interval = 1000/vRefesh;
+				timer.Interval = 1000/VRefresh;
 				timer.Tick += new EventHandler(timer_Tick);
 				timer.Start();
 			}
@@ -259,9 +278,9 @@ namespace Greenshot.Forms {
 							// Set the window capture mode
 							captureMode = CaptureMode.Window;
 							// "Fade out" Zoom
-							zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), 20);
+							zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty));
 							// "Fade in" window
-							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, 10, EasingType.Quintic, EasingMode.EaseOut);
+							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, calculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
 							captureRect = Rectangle.Empty;
 							break;
 						case CaptureMode.Window:
@@ -270,7 +289,7 @@ namespace Greenshot.Forms {
 							// "Fade out" window
 							windowAnimator.ChangeDestination(new Rectangle(cursorPos, Size.Empty));
 							// Fade in zoom
-							zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), 20, EasingType.Quintic, EasingMode.EaseOut);
+							zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), calculateFrames(1000), EasingType.Quintic, EasingMode.EaseOut);
 							VerifyZoomAnimation(cursorPos, false);
 							captureRect = Rectangle.Empty;
 							break;
