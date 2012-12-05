@@ -282,6 +282,7 @@ namespace Greenshot.Forms {
 							// "Fade in" window
 							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, calculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
 							captureRect = Rectangle.Empty;
+							Invalidate();
 							break;
 						case CaptureMode.Window:
 							// Set the region capture mode
@@ -292,6 +293,7 @@ namespace Greenshot.Forms {
 							zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), calculateFrames(1000), EasingType.Quintic, EasingMode.EaseOut);
 							VerifyZoomAnimation(cursorPos, false);
 							captureRect = Rectangle.Empty;
+							Invalidate();
 							break;
 					}
 					selectedCaptureWindow = null;
