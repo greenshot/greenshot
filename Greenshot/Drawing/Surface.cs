@@ -753,11 +753,17 @@ namespace Greenshot.Drawing {
 			}
 		}
 
+		/// <summary>
+		/// Handle the drag/drop
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void OnDragDrop(object sender, DragEventArgs e) {
 			List<string> filenames = GetFilenames(e);
 			Point mouse = this.PointToClient(new Point(e.X, e.Y));
 			if (e.Data.GetDataPresent("Text")) {
 				string possibleUrl = (string)e.Data.GetData("Text");
+				// Test if it's an url and try to download the image so we have it in the original form
 				if (possibleUrl != null && possibleUrl.StartsWith("http")) {
 					using (Bitmap image = NetworkHelper.DownloadImage(possibleUrl)) {
 						if (image != null) {
@@ -864,6 +870,21 @@ namespace Greenshot.Drawing {
 			Invalidate();
 			if (surfaceSizeChanged != null) {
 				surfaceSizeChanged(this);
+			}
+		}
+
+		/// <summary>
+		/// A simple clear
+		/// </summary>
+		/// <param name="newColor">The color for the background</param>
+		public void Clear(Color newColor) {
+			//create a blank bitmap the same size as original
+			Bitmap newBitmap = ImageHelper.CreateEmptyLike((Bitmap)Image, Color.Empty);
+			if (newBitmap != null) {
+				// Make undoable
+				MakeUndoable(new SurfaceBackgroundChangeMemento(this, Point.Empty), false);
+				SetImage(newBitmap, false);
+				Invalidate();
 			}
 		}
 

@@ -1115,7 +1115,11 @@ namespace GreenshotPlugin.Core {
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
 		/// <returns></returns>
 		public static Bitmap CreateEmptyLike(Bitmap sourceBitmap, Color backgroundColor) {
-			return CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			PixelFormat pixelFormat = sourceBitmap.PixelFormat;
+			if (backgroundColor.A < 255) {
+				pixelFormat = PixelFormat.Format32bppArgb;
+			}
+			return CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, pixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 		}
 
 		/// <summary>

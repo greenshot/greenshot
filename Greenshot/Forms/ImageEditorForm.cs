@@ -501,7 +501,6 @@ namespace Greenshot {
 			refreshFieldControls();
 		}
 		
-		
 		void BtnCropClick(object sender, EventArgs e) {
 			surface.DrawingMode = DrawingModes.Crop;
 			refreshFieldControls();
@@ -749,19 +748,38 @@ namespace Greenshot {
 					case Keys.C:
 						BtnCropClick(sender, e);
 						break;
-					case Keys.P:
-						//surface.PreviewMode = !surface.PreviewMode;
-						break;
 				}
 			} else if (e.Modifiers.Equals(Keys.Control)) {
 				switch (e.KeyCode) {
 					case Keys.Z:
-						surface.Undo();
-						updateUndoRedoSurfaceDependencies();
+						UndoToolStripMenuItemClick(sender, e);
 						break;
 					case Keys.Y:
-						surface.Redo();
-						updateUndoRedoSurfaceDependencies();
+						RedoToolStripMenuItemClick(sender, e);
+						break;
+					case Keys.Q:	// Dropshadow Ctrl + Q
+						AddDropshadowToolStripMenuItemClick(sender, e);
+						break;
+					case Keys.B:	// Border Ctrl + B
+						AddBorderToolStripMenuItemClick(sender, e);
+						break;
+					case Keys.T:	// Torn edge Ctrl + T
+						TornEdgesToolStripMenuItemClick(sender, e);
+						break;
+					case Keys.I:	// Invert Ctrl + I
+						InvertToolStripMenuItemClick(sender, e);
+						break;
+					case Keys.G:	// Grayscale Ctrl + G
+						GrayscaleToolStripMenuItemClick(sender, e);
+						break;
+					case Keys.Delete:	// Grayscale Ctrl + Delete
+						ClearToolStripMenuItemClick(sender, e);
+						break;
+					case Keys.Oemcomma:	// Rotate CCW Ctrl + ,
+						RotateCcwToolstripButtonClick(sender, e);
+						break;
+					case Keys.OemPeriod:	// Rotate CW Ctrl + .
+						RotateCwToolstripButtonClick(sender, e);
 						break;
 				}
 			}
@@ -1157,15 +1175,7 @@ namespace Greenshot {
 					this.Activate();
 					WindowDetails.ToForeground(this.Handle);
 					if (capture!= null && capture.Image != null) {
-						bool addShadow = false;
-						if (addShadow) {
-							Point offset = new Point(-1,-1);
-							using (Bitmap shadowImage = ImageHelper.CreateShadow(capture.Image, 1f, 7, ref offset, PixelFormat.Format32bppArgb)) {
-								surface.AddBitmapContainer(shadowImage, 100, 100);
-							}
-						} else {
-							surface.AddBitmapContainer((Bitmap)capture.Image, 100, 100);
-						}
+						surface.AddBitmapContainer((Bitmap)capture.Image, 100, 100);
 					}
 				}
 
@@ -1176,52 +1186,49 @@ namespace Greenshot {
 				LOG.Error(exception);
 			}
 		}
-		
+
 		void AutoCropToolStripMenuItemClick(object sender, EventArgs e) {
 			if (surface.AutoCrop()) {
 				refreshFieldControls();
 			}
 		}
 
-		
-		void AddBorderToolStripMenuItemClick(object sender, EventArgs e)
-		{
+		void AddBorderToolStripMenuItemClick(object sender, EventArgs e) {
 			surface.ApplyBitmapEffect(Effects.Border);
 			updateUndoRedoSurfaceDependencies();
 		}
-		
-		void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e)
-		{
+
+		void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) {
 			surface.ApplyBitmapEffect(Effects.Shadow);
 			updateUndoRedoSurfaceDependencies();
 		}
-		
-		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e)
-		{
+
+		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) {
 			surface.ApplyBitmapEffect(Effects.TornEdge);
 			updateUndoRedoSurfaceDependencies();
 		}
-		
-		void GrayscaleToolStripMenuItemClick(object sender, EventArgs e)
-		{
+
+		void GrayscaleToolStripMenuItemClick(object sender, EventArgs e) {
 			surface.ApplyBitmapEffect(Effects.Grayscale);
 			updateUndoRedoSurfaceDependencies();
 		}
-		
-		void RotateCwToolstripButtonClick(object sender, EventArgs e)
-		{
+
+		void ClearToolStripMenuItemClick(object sender, EventArgs e) {
+			surface.Clear(Color.Transparent);
+			updateUndoRedoSurfaceDependencies();
+		}
+
+		void RotateCwToolstripButtonClick(object sender, EventArgs e) {
 			surface.ApplyBitmapEffect(Effects.RotateClockwise);
 			updateUndoRedoSurfaceDependencies();
 		}
 		
-		void RotateCcwToolstripButtonClick(object sender, EventArgs e)
-		{
+		void RotateCcwToolstripButtonClick(object sender, EventArgs e) {
 			surface.ApplyBitmapEffect(Effects.RotateCounterClockwise);
 			updateUndoRedoSurfaceDependencies();
 		}
 		
-		void InvertToolStripMenuItemClick(object sender, EventArgs e)
-		{
+		void InvertToolStripMenuItemClick(object sender, EventArgs e) {
 			surface.ApplyBitmapEffect(Effects.Invert);
 			updateUndoRedoSurfaceDependencies();
 		}
