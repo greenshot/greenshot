@@ -106,6 +106,7 @@ namespace Greenshot {
 			// 
 			// contextmenu_capturearea
 			// 
+			this.contextmenu_capturearea.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturearea.Image")));
 			this.contextmenu_capturearea.Name = "contextmenu_capturearea";
 			this.contextmenu_capturearea.ShortcutKeyDisplayString = "Print";
 			this.contextmenu_capturearea.Size = new System.Drawing.Size(170, 22);
@@ -114,6 +115,7 @@ namespace Greenshot {
 			// contextmenu_capturelastregion
 			// 
 			this.contextmenu_capturelastregion.Enabled = false;
+			this.contextmenu_capturelastregion.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturelastregion.Image")));
 			this.contextmenu_capturelastregion.Name = "contextmenu_capturelastregion";
 			this.contextmenu_capturelastregion.ShortcutKeyDisplayString = "Shift + Print";
 			this.contextmenu_capturelastregion.Size = new System.Drawing.Size(170, 22);
@@ -121,6 +123,7 @@ namespace Greenshot {
 			// 
 			// contextmenu_capturewindow
 			// 
+			this.contextmenu_capturewindow.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturewindow.Image")));
 			this.contextmenu_capturewindow.Name = "contextmenu_capturewindow";
 			this.contextmenu_capturewindow.ShortcutKeyDisplayString = "Alt + Print";
 			this.contextmenu_capturewindow.Size = new System.Drawing.Size(170, 22);
@@ -128,12 +131,14 @@ namespace Greenshot {
 			// 
 			// contextmenu_capturefullscreen
 			// 
+			this.contextmenu_capturefullscreen.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturefullscreen.Image")));
 			this.contextmenu_capturefullscreen.Name = "contextmenu_capturefullscreen";
 			this.contextmenu_capturefullscreen.ShortcutKeyDisplayString = "Ctrl + Print";
 			this.contextmenu_capturefullscreen.Size = new System.Drawing.Size(170, 22);
 			// 
 			// contextmenu_captureie
 			// 
+			this.contextmenu_captureie.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_captureie.Image")));
 			this.contextmenu_captureie.Name = "contextmenu_captureie";
 			this.contextmenu_captureie.ShortcutKeyDisplayString = "Ctrl + Shift + Print";
 			this.contextmenu_captureie.Size = new System.Drawing.Size(170, 22);
@@ -164,12 +169,14 @@ namespace Greenshot {
 			// 
 			// contextmenu_captureclipboard
 			// 
+			this.contextmenu_captureclipboard.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_captureclipboard.Image")));
 			this.contextmenu_captureclipboard.Name = "contextmenu_captureclipboard";
 			this.contextmenu_captureclipboard.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_captureclipboard.Click += new System.EventHandler(this.CaptureClipboardToolStripMenuItemClick);
 			// 
 			// contextmenu_openfile
 			// 
+			this.contextmenu_openfile.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_openfile.Image")));
 			this.contextmenu_openfile.Name = "contextmenu_openfile";
 			this.contextmenu_openfile.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_openfile.Click += new System.EventHandler(this.OpenFileToolStripMenuItemClick);
