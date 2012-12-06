@@ -294,10 +294,12 @@ namespace Greenshot.Forms {
 					Invalidate();
 					break;
 				case Keys.Z:
-					// Toggle zoom
-					conf.ZoomerEnabled = !conf.ZoomerEnabled;
-					InitializeZoomer(conf.ZoomerEnabled);
-					Invalidate();
+					if (captureMode == CaptureMode.Region) {
+						// Toggle zoom
+						conf.ZoomerEnabled = !conf.ZoomerEnabled;
+						InitializeZoomer(conf.ZoomerEnabled);
+						Invalidate();
+					}
 					break;
 				case Keys.Space:
 					// Toggle capture mode
