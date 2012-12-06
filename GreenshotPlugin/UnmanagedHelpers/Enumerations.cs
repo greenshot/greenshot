@@ -962,6 +962,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
         SND_FILENAME = 0x00020000,	// name is file name
     }
     
+	/// <summary>
+	/// Used by GDI32.GetDeviceCaps
+	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd144877%28v=vs.85%29.aspx
+	/// </summary>
 	public enum DeviceCaps {
         /// <summary>
         /// Device driver version
@@ -1125,4 +1129,83 @@ namespace GreenshotPlugin.UnmanagedHelpers {
         /// </summary>
         BLTALIGNMENT = 119
     }
+
+	/// <summary>
+	/// Used for User32.SetWinEventHook
+	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd373640%28v=vs.85%29.aspx
+	/// </summary>
+	public enum WinEventHookFlags : int {
+		WINEVENT_SKIPOWNTHREAD = 1,
+		WINEVENT_SKIPOWNPROCESS = 2,
+		WINEVENT_OUTOFCONTEXT = 0,
+		WINEVENT_INCONTEXT = 4
+	}
+
+	/// <summary>
+	/// Used for User32.SetWinEventHook
+	/// See MSDN: http://msdn.microsoft.com/en-us/library/windows/desktop/dd318066%28v=vs.85%29.aspx
+	/// </summary>
+	public enum WinEvent : uint {
+		EVENT_OBJECT_ACCELERATORCHANGE = 32786,
+		EVENT_OBJECT_CREATE = 32768,
+		EVENT_OBJECT_DESTROY = 32769,
+		EVENT_OBJECT_DEFACTIONCHANGE = 32785,
+		EVENT_OBJECT_DESCRIPTIONCHANGE = 32781,
+		EVENT_OBJECT_FOCUS = 32773,
+		EVENT_OBJECT_HELPCHANGE = 32784,
+		EVENT_OBJECT_SHOW = 32770,
+		EVENT_OBJECT_HIDE = 32771,
+		EVENT_OBJECT_LOCATIONCHANGE = 32779,
+		EVENT_OBJECT_NAMECHANGE = 32780,
+		EVENT_OBJECT_PARENTCHANGE = 32783,
+		EVENT_OBJECT_REORDER = 32772,
+		EVENT_OBJECT_SELECTION = 32774,
+		EVENT_OBJECT_SELECTIONADD = 32775,
+		EVENT_OBJECT_SELECTIONREMOVE = 32776,
+		EVENT_OBJECT_SELECTIONWITHIN = 32777,
+		EVENT_OBJECT_STATECHANGE = 32778,
+		EVENT_OBJECT_VALUECHANGE = 32782,
+		EVENT_SYSTEM_ALERT = 2,
+		EVENT_SYSTEM_CAPTUREEND = 9,
+		EVENT_SYSTEM_CAPTURESTART = 8,
+		EVENT_SYSTEM_CONTEXTHELPEND = 13,
+		EVENT_SYSTEM_CONTEXTHELPSTART = 12,
+		EVENT_SYSTEM_DIALOGEND = 17,
+		EVENT_SYSTEM_DIALOGSTART = 16,
+		EVENT_SYSTEM_DRAGDROPEND = 15,
+		EVENT_SYSTEM_DRAGDROPSTART = 14,
+		EVENT_SYSTEM_FOREGROUND = 3,
+		EVENT_SYSTEM_MENUEND = 5,
+		EVENT_SYSTEM_MENUPOPUPEND = 7,
+		EVENT_SYSTEM_MENUPOPUPSTART = 6,
+		EVENT_SYSTEM_MENUSTART = 4,
+		EVENT_SYSTEM_MINIMIZEEND = 23,
+		EVENT_SYSTEM_MINIMIZESTART = 22,
+		EVENT_SYSTEM_MOVESIZEEND = 11,
+		EVENT_SYSTEM_MOVESIZESTART = 10,
+		EVENT_SYSTEM_SCROLLINGEND = 19,
+		EVENT_SYSTEM_SCROLLINGSTART = 18,
+		EVENT_SYSTEM_SOUND = 1,
+		EVENT_SYSTEM_SWITCHEND = 21,
+		EVENT_SYSTEM_SWITCHSTART = 20
+	}
+
+	/// <summary>
+	/// Used for User32.SetWinEventHook
+	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd373606%28v=vs.85%29.aspx#OBJID_WINDOW
+	/// </summary>
+	public enum EventObjects : int {
+		OBJID_ALERT = -10,
+		OBJID_CARET = -8,
+		OBJID_CLIENT = -4,
+		OBJID_CURSOR = -9,
+		OBJID_HSCROLL = -6,
+		OBJID_MENU = -3,
+		OBJID_SIZEGRIP = -7,
+		OBJID_SOUND = -11,
+		OBJID_SYSMENU = -1,
+		OBJID_TITLEBAR = -2,
+		OBJID_VSCROLL = -5,
+		OBJID_WINDOW = 0
+	}
 }

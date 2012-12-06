@@ -567,9 +567,7 @@ namespace GreenshotPlugin.Core  {
 		public string ClassName {
 			get {
 				if (className == null) {
-					StringBuilder classNameBuilder = new StringBuilder(260, 260);
-					User32.GetClassName(this.hWnd, classNameBuilder, classNameBuilder.Capacity);
-					className = classNameBuilder.ToString();
+					className = GetClassName(this.hWnd);
 				}
 				return className;
 			}
@@ -1394,7 +1392,18 @@ namespace GreenshotPlugin.Core  {
 			}
 			return this;
 		}
-		
+
+		/// <summary>
+		/// Retrieves the classname for a hWnd
+		/// </summary>
+		/// <param name="hWnd">IntPtr with the windows handle</param>
+		/// <returns>String with ClassName</returns>
+		public static String GetClassName(IntPtr hWnd) {
+			StringBuilder classNameBuilder = new StringBuilder(260, 260);
+			User32.GetClassName(hWnd, classNameBuilder, classNameBuilder.Capacity);
+			return classNameBuilder.ToString();
+		}
+
 		/// <summary>
 		/// Get all the visible top level windows
 		/// </summary>

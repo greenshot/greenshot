@@ -55,7 +55,6 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	/// <typeparam name="T">Type for the animation, like Point/Rectangle/Size</typeparam>
 	public abstract class AnimatorBase<T> : IAnimator {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AnimatorBase<T>));
 		protected T first;
 		protected T last;
 		protected T current;
