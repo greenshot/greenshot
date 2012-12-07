@@ -34,6 +34,14 @@ namespace GreenshotPlugin.Controls {
 		private Timer timer = null;
 
 		/// <summary>
+		/// This flag specifies if any animation is used
+		/// </summary>
+		protected bool EnableAnimation {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Vertical Refresh Rate
 		/// </summary>
 		protected int VRefresh {
@@ -74,12 +82,13 @@ namespace GreenshotPlugin.Controls {
 		/// Initialize the animation
 		/// </summary>
 		protected AnimatingForm() {
-			timer = new Timer();
-			timer.Interval = 1000 / VRefresh;
-			timer.Tick += new EventHandler(timer_Tick);
-
 			this.Load += delegate {
-				timer.Start();
+				if (EnableAnimation) {
+					timer = new Timer();
+					timer.Interval = 1000 / VRefresh;
+					timer.Tick += new EventHandler(timer_Tick);
+					timer.Start();
+				}
 			};
 
 			// Unregister at close

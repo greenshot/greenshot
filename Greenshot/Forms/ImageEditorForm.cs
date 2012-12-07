@@ -47,10 +47,8 @@ namespace Greenshot {
 	/// Description of ImageEditorForm.
 	/// </summary>
 	public partial class ImageEditorForm : BaseForm, IImageEditor {
-		
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageEditorForm));
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-		private static CoreConfiguration coreConf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static List<string> ignoreDestinations = new List<string>() {PickerDestination.DESIGNATION, EditorDestination.DESIGNATION};
 		private static List<IImageEditor> editorList = new List<IImageEditor>();
 
@@ -161,10 +159,10 @@ namespace Greenshot {
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
 			// Disable access to the settings, for feature #3521446
-			preferencesToolStripMenuItem.Visible = !coreConf.DisableSettings;
-			toolStripSeparator12.Visible = !coreConf.DisableSettings;
-			toolStripSeparator11.Visible = !coreConf.DisableSettings;
-			btnSettings.Visible = !coreConf.DisableSettings;
+			preferencesToolStripMenuItem.Visible = !coreConfiguration.DisableSettings;
+			toolStripSeparator12.Visible = !coreConfiguration.DisableSettings;
+			toolStripSeparator11.Visible = !coreConfiguration.DisableSettings;
+			btnSettings.Visible = !coreConfiguration.DisableSettings;
 
 			// Make sure Double-buffer is enabled
 			SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
@@ -655,7 +653,7 @@ namespace Greenshot {
 		}
 
 		void AboutToolStripMenuItemClick(object sender, System.EventArgs e) {
-			new AboutForm().Show();
+			new AboutForm().ShowDialog(this);
 		}
 
 		void PreferencesToolStripMenuItemClick(object sender, System.EventArgs e) {
@@ -1096,7 +1094,7 @@ namespace Greenshot {
 		void SaveElementsToolStripMenuItemClick(object sender, EventArgs e) {
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
 			saveFileDialog.Filter = "Greenshot templates (*.gst)|*.gst";
-			saveFileDialog.FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConf.OutputFileFilenamePattern, surface.CaptureDetails);
+			saveFileDialog.FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, surface.CaptureDetails);
 			DialogResult dialogResult = saveFileDialog.ShowDialog();
 			if(dialogResult.Equals(DialogResult.OK)) {
 				using (Stream streamWrite = File.OpenWrite(saveFileDialog.FileName)) {
@@ -1173,7 +1171,7 @@ namespace Greenshot {
 				}
 				windowToCapture = CaptureHelper.SelectCaptureWindow(windowToCapture);
 				if (windowToCapture != null) {
-					capture = CaptureHelper.CaptureWindow(windowToCapture, capture, coreConf.WindowCaptureMode);
+					capture = CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfiguration.WindowCaptureMode);
 					this.Activate();
 					WindowDetails.ToForeground(this.Handle);
 					if (capture!= null && capture.Image != null) {

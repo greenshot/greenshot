@@ -29,8 +29,6 @@ namespace Greenshot.Forms {
 	/// Description of PrintOptionsDialog.
 	/// </summary>
 	public partial class PrintOptionsDialog : BaseForm {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		
 		public PrintOptionsDialog() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -43,7 +41,7 @@ namespace Greenshot.Forms {
 		
 		void Button_okClick(object sender, EventArgs e) {
 			// update config
-			conf.OutputPrintPromptOptions = !this.checkbox_dontaskagain.Checked;
+			coreConfiguration.OutputPrintPromptOptions = !this.checkbox_dontaskagain.Checked;
 			IniConfig.Save();
 			DialogResult = DialogResult.OK;
 		}

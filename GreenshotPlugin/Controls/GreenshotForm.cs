@@ -30,7 +30,7 @@ using System.ComponentModel.Design;
 using System.IO;
 
 namespace GreenshotPlugin.Controls {
-	public abstract class GreenshotForm : Form, IGreenshotLanguageBindable {
+	public abstract class GreenshotForm : AnimatingForm, IGreenshotLanguageBindable {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(GreenshotForm));
 		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
@@ -62,6 +62,13 @@ namespace GreenshotPlugin.Controls {
 			set {
 				storeFieldsManually = value;
 			}
+		}
+
+		/// <summary>
+		/// Normally a Greenshot form doesn't animate
+		/// </summary>
+		protected override void Animate() {
+			throw new NotImplementedException();
 		}
 
 		/// <summary>

@@ -211,7 +211,7 @@ namespace Greenshot {
 			this.Controls.Add(this.lblHost);
 			this.Controls.Add(this.lblLicense);
 			this.Controls.Add(this.lblTitle);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
 			this.LanguageKey = "about_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;

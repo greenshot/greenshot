@@ -897,18 +897,31 @@ namespace Greenshot {
 			});
 		}
 
+		/// <summary>
+		/// Context menu entry "Support Greenshot"
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void Contextmenu_donateClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				Process.Start("http://getgreenshot.org/support/");
 			});
 		}
 		
+		/// <summary>
+		/// Context menu entry "Preferences"
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void Contextmenu_settingsClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				ShowSetting();
 			});
 		}
 		
+		/// <summary>
+		/// This is called indirectly from the context menu "Preferences"
+		/// </summary>
 		public void ShowSetting() {
 			if (settingsForm != null) {
 				WindowDetails.ToForeground(settingsForm.Handle);
@@ -925,13 +938,18 @@ namespace Greenshot {
 			}
 		}
 		
+		/// <summary>
+		/// The "About Greenshot" entry is clicked
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void Contextmenu_aboutClick(object sender, EventArgs e) {
 			if (aboutForm != null) {
 				WindowDetails.ToForeground(aboutForm.Handle);
 			} else {
 				try {
 					using (aboutForm = new AboutForm()) {
-						aboutForm.ShowDialog();
+						aboutForm.ShowDialog(this);
 					}
 				} finally {
 					aboutForm = null;
@@ -939,14 +957,27 @@ namespace Greenshot {
 			}
 		}
 		
+		/// <summary>
+		/// The "Help" entry is clicked
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void Contextmenu_helpClick(object sender, EventArgs e) {
 			HelpFileLoader.LoadHelp();
 		}
 		
+		/// <summary>
+		/// The "Exit" entry is clicked
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void Contextmenu_exitClick(object sender, EventArgs e) {
 			 Exit();
 		}
 		
+		/// <summary>
+		/// This needs to be called to initialize the quick settings menu entries
+		/// </summary>
 		private void InitializeQuickSettingsMenu() {
 			this.contextmenu_quicksettings.DropDownItems.Clear();
 

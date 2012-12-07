@@ -127,6 +127,9 @@ namespace Greenshot.Forms {
 			}
 			currentForm = this;
 
+			// Enable the AnimatingForm
+			EnableAnimation = true;
+
 			// Using 32bppPArgb speeds up the drawing.
 			//capturedImage = ImageHelper.Clone(capture.Image, PixelFormat.Format32bppPArgb);
 			// comment the clone, uncomment the assignment and the original bitmap is used.

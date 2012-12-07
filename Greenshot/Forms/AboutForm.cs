@@ -30,7 +30,7 @@ using Greenshot.IniFile;
 
 namespace Greenshot {
 	/// <summary>
-	/// Description of AboutForm.
+	/// The about form
 	/// </summary>
 	public partial class AboutForm : BaseForm {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AboutForm));
@@ -39,31 +39,42 @@ namespace Greenshot {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			// Not needed for a Tool Window:
+			//this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.pictureBox1.Image = GreenshotPlugin.Core.GreenshotResources.getGreenshotImage();
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
 			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable?" Portable":"") + (" (" + OSInfo.Bits +" bit)");
 		}
 
+		/// <summary>
+		/// This is called when a link is clicked
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void LinkLabelClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {
-			openLink((LinkLabel)sender);
-		}
-
-		private void openLink(LinkLabel link) {
-			try {
-				link.LinkVisited = true;
-				System.Diagnostics.Process.Start(link.Text);
-			} catch (Exception) {
-				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link.Text), Language.GetString(LangKey.error));
+			LinkLabel linkLabel = sender as LinkLabel;
+			if (linkLabel != null) {
+				try {
+					linkLabel.LinkVisited = true;
+					System.Diagnostics.Process.Start(linkLabel.Text);
+				} catch (Exception) {
+					MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
+				}
 			}
 		}
 
+		/// <summary>
+		/// CmdKey handler
+		/// </summary>
+		/// <param name="msg"></param>
+		/// <param name="keyData"></param>
+		/// <returns></returns>
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
 			try {
 				switch (keyData) {
 					case Keys.Escape:
-                        DialogResult = DialogResult.Cancel;
+						DialogResult = DialogResult.Cancel;
 						break;
 					case Keys.E:
 						MessageBox.Show(EnvironmentInfo.EnvironmentToString(true));
