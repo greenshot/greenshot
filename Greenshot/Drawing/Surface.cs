@@ -1013,13 +1013,23 @@ namespace Greenshot.Drawing {
 		public bool ApplyCrop(Rectangle cropRectangle) {
 			if (isCropPossible(ref cropRectangle)) {
 				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-				// we should not forget to Dispose the images!!
-				Bitmap tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
+				Bitmap tmpImage;
+				// Make sure we have information, this this fails
+				try {
+					tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
+				} catch (Exception ex) {
+					ex.Data.Add("CropRectangle", cropRectangle);
+					ex.Data.Add("Width", Image.Width);
+					ex.Data.Add("Height", Image.Height);
+					ex.Data.Add("Pixelformat", Image.PixelFormat);
+					throw ex;
+				}
 
 				Point offset = new Point(-cropRectangle.Left, -cropRectangle.Top);
 				// Make undoable
 				MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
 
+				// Do not dispose otherwise we can't undo the image!
 				SetImage(tmpImage, false);
 				elements.MoveBy(offset.X, offset.Y);
 				if (surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size))) {
@@ -1439,12 +1449,12 @@ namespace Greenshot.Drawing {
 		public void ConfirmSelectedConfirmableElements(bool confirm){
 			// create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
 			List<IDrawableContainer> selectedDCs = new List<IDrawableContainer>(selectedElements);
-			foreach(IDrawableContainer dc in selectedDCs){
-				if(dc.Equals(cropContainer)){
+			foreach (IDrawableContainer dc in selectedDCs){
+				if (dc.Equals(cropContainer)){
 					DrawingMode = DrawingModes.None;
 					// No undo memento for the cropcontainer itself, only for the effect
 					RemoveElement(cropContainer, false);
-					if(confirm) {
+					if (confirm) {
 						ApplyCrop(cropContainer.Bounds);
 					}
 					cropContainer.Dispose();
