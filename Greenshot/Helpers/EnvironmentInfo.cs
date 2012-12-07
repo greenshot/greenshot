@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Drawing;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -46,14 +47,14 @@ namespace Greenshot.Helpers {
 				return isWindows.Value;
 			}
 		}
-		
+
 		public static string EnvironmentToString(bool newline) {
-			StringBuilder environment = new StringBuilder(); 
+			StringBuilder environment = new StringBuilder();
 			environment.Append("Software version: " + Application.ProductVersion);
 			if (IniConfig.IsPortable) {
 				environment.Append(" Portable");
 			}
-			environment.Append(" (" + OSInfo.Bits +" bit)");
+			environment.Append(" (" + OSInfo.Bits + " bit)");
 
 			if (newline) {
 				environment.AppendLine();
@@ -67,51 +68,57 @@ namespace Greenshot.Helpers {
 				environment.Append(", ");
 			}
 			environment.Append("Time: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss zzz"));
+
+			if (IsWindows) {
+				if (newline) {
+					environment.AppendLine();
+				} else {
+					environment.Append(", ");
+				}
+				environment.Append(String.Format("OS: {0} {1} {2} (x{3})  {4}", OSInfo.Name, OSInfo.Edition, OSInfo.ServicePack, OSInfo.Bits, OSInfo.VersionString));
+				if (newline) {
+					environment.AppendLine();
+				} else {
+					environment.Append(", ");
+				}
+				// Get some important information for fixing GDI related Problems
+				environment.Append("GDI object count: " + User32.GetGuiResourcesGDICount());
+				if (newline) {
+					environment.AppendLine();
+				} else {
+					environment.Append(", ");
+				}
+				environment.Append("User object count: " + User32.GetGuiResourcesUserCount());
+			} else {
+				if (newline) {
+					environment.AppendLine();
+				} else {
+					environment.Append(", ");
+				}
+				environment.Append("OS: " + Environment.OSVersion.Platform.ToString());
+			}
 			if (newline) {
 				environment.AppendLine();
 			} else {
 				environment.Append(", ");
 			}
+			environment.Append("Surface count: " + Surface.Count);
 
-            if (IsWindows) {
-				environment.Append(String.Format("OS: {0} {1} {2} (x{3})  {4}", OSInfo.Name, OSInfo.Edition, OSInfo.ServicePack, OSInfo.Bits, OSInfo.VersionString));
-                if (newline) {
-                    environment.AppendLine();
-                } else {
-                    environment.Append(", ");
-                }
-				// Get some important information for fixing GDI related Problems
-                environment.Append("GDI object count: " + User32.GetGuiResourcesGDICount());
-                if (newline) {
-                    environment.AppendLine();
-                } else {
-                    environment.Append(", ");
-                }
-                environment.Append("User object count: " + User32.GetGuiResourcesUserCount());
-            } else {
-                environment.Append("OS: " + Environment.OSVersion.Platform.ToString());
-                if (newline) {
-                    environment.AppendLine();
-                } else {
-                    environment.Append(", ");
-                }
-            }
-						
 			return environment.ToString();
 		}
-		
+
 		public static string ExceptionToString(Exception ex) {
 			if (ex == null)
 				return "null\r\n";
-		
-			StringBuilder report = new StringBuilder(); 
-			
+
+			StringBuilder report = new StringBuilder();
+
 			report.AppendLine("Exception: " + ex.GetType().ToString());
 			report.AppendLine("Message: " + ex.Message);
 			if (ex.Data != null && ex.Data.Count > 0) {
 				report.AppendLine();
 				report.AppendLine("Additional Information:");
-				foreach(object key in ex.Data.Keys) {
+				foreach (object key in ex.Data.Keys) {
 					object data = ex.Data[key];
 					if (data != null) {
 						report.AppendLine(key + " = " + data);
@@ -125,9 +132,9 @@ namespace Greenshot.Helpers {
 
 			report.AppendLine().AppendLine("Stack:").AppendLine(ex.StackTrace);
 
-			if(ex is ReflectionTypeLoadException) {
+			if (ex is ReflectionTypeLoadException) {
 				report.AppendLine().AppendLine("LoaderExceptions: ");
-				foreach(Exception cbE in (ex as ReflectionTypeLoadException).LoaderExceptions) {
+				foreach (Exception cbE in (ex as ReflectionTypeLoadException).LoaderExceptions) {
 					report.AppendLine(cbE.Message);
 				}
 			}
@@ -138,7 +145,7 @@ namespace Greenshot.Helpers {
 			}
 			return report.ToString();
 		}
-		
+
 		public static string BuildReport(Exception exception) {
 			StringBuilder exceptionText = new StringBuilder();
 			exceptionText.AppendLine(EnvironmentInfo.EnvironmentToString(true));
@@ -147,7 +154,7 @@ namespace Greenshot.Helpers {
 			using (TextWriter writer = new StringWriter(exceptionText)) {
 				IniConfig.GetIniSection<CoreConfiguration>().Write(writer, true);
 			}
-			
+
 			return exceptionText.ToString();
 		}
 	}
@@ -162,8 +169,7 @@ namespace Greenshot.Helpers {
 		/// Determines if the current application is 32 or 64-bit.
 		/// </summary>
 		static public int Bits {
-			get
-			{
+			get {
 				return IntPtr.Size * 8;
 			}
 		}
@@ -176,39 +182,32 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		static public string Edition {
 			get {
-                if (s_Edition != null) {
-                    return s_Edition;  //***** RETURN *****//
-                }
+				if (s_Edition != null) {
+					return s_Edition;  //***** RETURN *****//
+				}
 
 				string edition = String.Empty;
 
 				OperatingSystem osVersion = Environment.OSVersion;
 				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
-				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf( typeof( OSVERSIONINFOEX ) );
+				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
 
-				if (GetVersionEx( ref osVersionInfo )) {
+				if (GetVersionEx(ref osVersionInfo)) {
 					int majorVersion = osVersion.Version.Major;
 					int minorVersion = osVersion.Version.Minor;
 					byte productType = osVersionInfo.wProductType;
 					short suiteMask = osVersionInfo.wSuiteMask;
 
 					#region VERSION 4
-					if (majorVersion == 4)
-					{
-						if (productType == VER_NT_WORKSTATION)
-						{
+					if (majorVersion == 4) {
+						if (productType == VER_NT_WORKSTATION) {
 							// Windows NT 4.0 Workstation
 							edition = "Workstation";
-						}
-						else if (productType == VER_NT_SERVER)
-						{
-							if ((suiteMask & VER_SUITE_ENTERPRISE) != 0)
-							{
+						} else if (productType == VER_NT_SERVER) {
+							if ((suiteMask & VER_SUITE_ENTERPRISE) != 0) {
 								// Windows NT 4.0 Server Enterprise
 								edition = "Enterprise Server";
-							}
-							else
-							{
+							} else {
 								// Windows NT 4.0 Server
 								edition = "Standard Server";
 							}
@@ -217,60 +216,38 @@ namespace Greenshot.Helpers {
 					#endregion VERSION 4
 
 					#region VERSION 5
-					else if (majorVersion == 5)
-					{
-						if (productType == VER_NT_WORKSTATION)
-						{
-							if ((suiteMask & VER_SUITE_PERSONAL) != 0)
-							{
+ else if (majorVersion == 5) {
+						if (productType == VER_NT_WORKSTATION) {
+							if ((suiteMask & VER_SUITE_PERSONAL) != 0) {
 								// Windows XP Home Edition
 								edition = "Home";
-							}
-							else
-							{
+							} else {
 								// Windows XP / Windows 2000 Professional
 								edition = "Professional";
 							}
-						}
-						else if (productType == VER_NT_SERVER)
-						{
-							if (minorVersion == 0)
-							{
-								if ((suiteMask & VER_SUITE_DATACENTER) != 0)
-								{
+						} else if (productType == VER_NT_SERVER) {
+							if (minorVersion == 0) {
+								if ((suiteMask & VER_SUITE_DATACENTER) != 0) {
 									// Windows 2000 Datacenter Server
 									edition = "Datacenter Server";
-								}
-								else if ((suiteMask & VER_SUITE_ENTERPRISE) != 0)
-								{
+								} else if ((suiteMask & VER_SUITE_ENTERPRISE) != 0) {
 									// Windows 2000 Advanced Server
 									edition = "Advanced Server";
-								}
-								else
-								{
+								} else {
 									// Windows 2000 Server
 									edition = "Server";
 								}
-							}
-							else
-							{
-								if ((suiteMask & VER_SUITE_DATACENTER) != 0)
-								{
+							} else {
+								if ((suiteMask & VER_SUITE_DATACENTER) != 0) {
 									// Windows Server 2003 Datacenter Edition
 									edition = "Datacenter";
-								}
-								else if ((suiteMask & VER_SUITE_ENTERPRISE) != 0)
-								{
+								} else if ((suiteMask & VER_SUITE_ENTERPRISE) != 0) {
 									// Windows Server 2003 Enterprise Edition
 									edition = "Enterprise";
-								}
-								else if ((suiteMask & VER_SUITE_BLADE) != 0)
-								{
+								} else if ((suiteMask & VER_SUITE_BLADE) != 0) {
 									// Windows Server 2003 Web Edition
 									edition = "Web Edition";
-								}
-								else
-								{
+								} else {
 									// Windows Server 2003 Standard Edition
 									edition = "Standard";
 								}
@@ -280,13 +257,10 @@ namespace Greenshot.Helpers {
 					#endregion VERSION 5
 
 					#region VERSION 6
-					else if (majorVersion == 6)
-					{
+ else if (majorVersion == 6) {
 						int ed;
-						if (GetProductInfo( majorVersion, minorVersion, osVersionInfo.wServicePackMajor, osVersionInfo.wServicePackMinor, out ed ))
-						{
-							switch (ed)
-							{
+						if (GetProductInfo(majorVersion, minorVersion, osVersionInfo.wServicePackMajor, osVersionInfo.wServicePackMinor, out ed)) {
+							switch (ed) {
 								case PRODUCT_BUSINESS:
 									edition = "Business";
 									break;
@@ -425,9 +399,9 @@ namespace Greenshot.Helpers {
 
 				OperatingSystem osVersion = Environment.OSVersion;
 				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
-				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf( typeof( OSVERSIONINFOEX ) );
+				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
 
-				if (GetVersionEx( ref osVersionInfo )) {
+				if (GetVersionEx(ref osVersionInfo)) {
 					int majorVersion = osVersion.Version.Major;
 					int minorVersion = osVersion.Version.Minor;
 					byte productType = osVersionInfo.wProductType;
@@ -501,7 +475,7 @@ namespace Greenshot.Helpers {
 												case 0x0400:
 													name = "Windows Server 2003 Web Edition";
 													break;
-												case unchecked ((short)0x8000):
+												case unchecked((short)0x8000):
 													name = "Windows Home Server";
 													break;
 												default:
@@ -552,31 +526,30 @@ namespace Greenshot.Helpers {
 		#region PINVOKE
 		#region GET
 		#region PRODUCT INFO
-		[DllImport( "Kernel32.dll" )]
+		[DllImport("Kernel32.dll")]
 		internal static extern bool GetProductInfo(
 			int osMajorVersion,
 			int osMinorVersion,
 			int spMajorVersion,
 			int spMinorVersion,
-			out int edition );
+			out int edition);
 		#endregion PRODUCT INFO
 
 		#region VERSION
-		[DllImport( "kernel32.dll" )]
-		private static extern bool GetVersionEx( ref OSVERSIONINFOEX osVersionInfo );
+		[DllImport("kernel32.dll")]
+		private static extern bool GetVersionEx(ref OSVERSIONINFOEX osVersionInfo);
 		#endregion VERSION
 		#endregion GET
 
 		#region OSVERSIONINFOEX
-		[StructLayout( LayoutKind.Sequential )]
-		private struct OSVERSIONINFOEX
-		{
+		[StructLayout(LayoutKind.Sequential)]
+		private struct OSVERSIONINFOEX {
 			public int dwOSVersionInfoSize;
 			public int dwMajorVersion;
 			public int dwMinorVersion;
 			public int dwBuildNumber;
 			public int dwPlatformId;
-			[MarshalAs( UnmanagedType.ByValTStr, SizeConst = 128 )]
+			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
 			public string szCSDVersion;
 			public short wServicePackMajor;
 			public short wServicePackMinor;
@@ -646,17 +619,14 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the service pack information of the operating system running on this computer.
 		/// </summary>
-		static public string ServicePack
-		{
-			get
-			{
+		static public string ServicePack {
+			get {
 				string servicePack = String.Empty;
 				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
 
-				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf( typeof( OSVERSIONINFOEX ) );
+				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
 
-				if (GetVersionEx( ref osVersionInfo ))
-				{
+				if (GetVersionEx(ref osVersionInfo)) {
 					servicePack = osVersionInfo.szCSDVersion;
 				}
 
@@ -670,9 +640,9 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the build version number of the operating system running on this computer.
 		/// </summary>
-        public static int BuildVersion {
+		public static int BuildVersion {
 			get {
-                return Environment.OSVersion.Version.Build;
+				return Environment.OSVersion.Version.Build;
 			}
 		}
 		#endregion BUILD
@@ -693,10 +663,8 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the full version of the operating system running on this computer.
 		/// </summary>
-		static public Version Version
-		{
-			get
-			{
+		static public Version Version {
+			get {
 				return Environment.OSVersion.Version;
 			}
 		}
@@ -707,10 +675,8 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the major version number of the operating system running on this computer.
 		/// </summary>
-		static public int MajorVersion
-		{
-			get
-			{
+		static public int MajorVersion {
+			get {
 				return Environment.OSVersion.Version.Major;
 			}
 		}
@@ -720,10 +686,8 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the minor version number of the operating system running on this computer.
 		/// </summary>
-		static public int MinorVersion
-		{
-			get
-			{
+		static public int MinorVersion {
+			get {
 				return Environment.OSVersion.Version.Minor;
 			}
 		}
@@ -733,10 +697,8 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the revision version number of the operating system running on this computer.
 		/// </summary>
-		static public int RevisionVersion
-		{
-			get
-			{
+		static public int RevisionVersion {
+			get {
 				return Environment.OSVersion.Version.Revision;
 			}
 		}

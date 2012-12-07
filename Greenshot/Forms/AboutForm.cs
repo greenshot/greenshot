@@ -33,6 +33,7 @@ namespace Greenshot {
 	/// Description of AboutForm.
 	/// </summary>
 	public partial class AboutForm : BaseForm {
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AboutForm));
 		public AboutForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -88,7 +89,8 @@ namespace Greenshot {
 					default:
 						return base.ProcessCmdKey(ref msg, keyData);
 				}
-			} catch (Exception) {
+			} catch (Exception ex) {
+				LOG.Error(string.Format("Error handling key '{0}'", keyData), ex);
 			}
 			return true;
 		}

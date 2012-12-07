@@ -67,11 +67,15 @@ namespace Greenshot {
 			Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
+			// Initialize the IniConfig
+			IniConfig.Init();
+
 			// Log the startup
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 
-			IniConfig.Init();
+			// Upgrade if needed
 			AppConfig.UpgradeToIni();
+
 			// Read configuration
 			conf = IniConfig.GetIniSection<CoreConfiguration>();
 			try {

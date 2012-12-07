@@ -45,6 +45,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	public class Surface : Control, ISurface {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Surface));
+		public static int Count = 0;
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		/// <summary>
@@ -360,7 +361,8 @@ namespace Greenshot.Drawing {
 		/// Base Surface constructor
 		/// </summary>
 		public Surface() : base(){
-			LOG.Debug("Creating a surface!");
+			Count++;
+			LOG.Debug("Creating surface!");
 			this.MouseDown += new MouseEventHandler(SurfaceMouseDown);
 			this.MouseUp += new MouseEventHandler(SurfaceMouseUp);
 			this.MouseMove += new MouseEventHandler(SurfaceMouseMove);
@@ -427,7 +429,8 @@ namespace Greenshot.Drawing {
 		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice 		
 		/// </summary>
 		public new void Dispose() {
-			LOG.Debug("Disposing a surface!");
+			Count--;
+			LOG.Debug("Disposing surface!");
 			if (buffer != null) {
 				buffer.Dispose();
 				buffer = null;
@@ -438,10 +441,10 @@ namespace Greenshot.Drawing {
 			}
 
 			// Cleanup undo/redo stacks
-			while(undoStack != null && undoStack.Count > 0) {
+			while (undoStack != null && undoStack.Count > 0) {
 				undoStack.Pop().Dispose();
 			}
-			while(redoStack != null && redoStack.Count > 0) {
+			while (redoStack != null && redoStack.Count > 0) {
 				redoStack.Pop().Dispose();
 			}
 			base.Dispose();
