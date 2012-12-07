@@ -127,8 +127,8 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_print">Print</resource>
 		<resource name="editor_redo">Redo {0}</resource>
 		<resource name="editor_resetsize">Reset size</resource>
-		<resource name="editor_rotateccw">Rotate counter clockwise</resource>
-		<resource name="editor_rotatecw">Rotate clockwise</resource>
+		<resource name="editor_rotateccw">Rotate counter clockwise (Control + ,)</resource>
+		<resource name="editor_rotatecw">Rotate clockwise (Control + .)</resource>
 		<resource name="editor_save">Save</resource>
 		<resource name="editor_save_objects">Save objects to file</resource>
 		<resource name="editor_saveas">Save as...</resource>

@@ -88,7 +88,9 @@ namespace Greenshot {
 			InitializeComponent();
 			
 			this.Load += delegate {
-				new Thread(delegate() {AddDestinations();}).Start();
+				var thread = new Thread(delegate() {AddDestinations();});
+				thread.Name = "add destinations";
+				thread.Start();
 			};
 			
 			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
