@@ -23,7 +23,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 
-namespace Greenshot.Helpers {
+namespace GreenshotPlugin.Core {
 
 	/// <summary>
 	/// Helper interface for passing base type
@@ -327,6 +327,71 @@ namespace Greenshot.Helpers {
 				int width = first.Width + (int)(easingValue * dw);
 				int height = first.Height + (int)(easingValue * dh);
 				current = new Size(width, height);
+			}
+			return current;
+		}
+	}
+
+	/// <summary>
+	/// Implementation of the ColorAnimator
+	/// </summary>
+	public class ColorAnimator : AnimatorBase<Color> {
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ColorAnimator));
+		public ColorAnimator(Color first, Color last, int frames)
+			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
+		}
+		public ColorAnimator(Color first, Color last, int frames, EasingType easingType)
+			: base(first, last, frames, easingType, EasingMode.EaseIn) {
+		}
+		public ColorAnimator(Color first, Color last, int frames, EasingType easingType, EasingMode easingMode)
+			: base(first, last, frames, easingType, easingMode) {
+		}
+
+		/// <summary>
+		/// Calculate the next frame values
+		/// </summary>
+		/// <returns>Color</returns>
+		public override Color Next() {
+			if (NextFrame) {
+				double easingValue = EasingValue;
+				double da = last.A - first.A;
+				double dr = last.R - first.R;
+				double dg = last.G - first.G;
+				double db = last.B - first.B;
+				int a = first.A + (int)(easingValue * da);
+				int r = first.R + (int)(easingValue * dr);
+				int g = first.G + (int)(easingValue * dg);
+				int b = first.B + (int)(easingValue * db);
+				current = Color.FromArgb(a,r,g,b);
+			}
+			return current;
+		}
+	}
+
+	/// <summary>
+	/// Implementation of the IntAnimator
+	/// </summary>
+	public class IntAnimator : AnimatorBase<int> {
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IntAnimator));
+		public IntAnimator(int first, int last, int frames)
+			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
+		}
+		public IntAnimator(int first, int last, int frames, EasingType easingType)
+			: base(first, last, frames, easingType, EasingMode.EaseIn) {
+		}
+		public IntAnimator(int first, int last, int frames, EasingType easingType, EasingMode easingMode)
+			: base(first, last, frames, easingType, easingMode) {
+		}
+
+		/// <summary>
+		/// Calculate the next frame values
+		/// </summary>
+		/// <returns>int</returns>
+		public override int Next() {
+			if (NextFrame) {
+				double easingValue = EasingValue;
+				double delta = last - first;
+				current = first + (int)(easingValue * delta);
 			}
 			return current;
 		}
