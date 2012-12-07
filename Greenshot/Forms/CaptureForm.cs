@@ -34,12 +34,13 @@ using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotPlugin.Controls;
 
 namespace Greenshot.Forms {
 	/// <summary>
 	/// The capture form is used to select a part of the capture
 	/// </summary>
-	public partial class CaptureForm : Form {
+	public partial class CaptureForm : AnimatingForm {
 		private enum FixMode {None, Initiated, Horizontal, Vertical};
 
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CaptureForm));
@@ -49,8 +50,10 @@ namespace Greenshot.Forms {
 		private static Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
 		private static CaptureForm currentForm = null;
 		private static Brush backgroundBrush = null;
-		private static int vRefresh = 0;
 
+		/// <summary>
+		/// Initialize the background brush
+		/// </summary>
 		static CaptureForm() {
 			Image backgroundForTransparency = GreenshotPlugin.Core.GreenshotResources.getImage("Checkerboard.Image");
 			backgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
@@ -67,48 +70,10 @@ namespace Greenshot.Forms {
 		private Rectangle captureRect = Rectangle.Empty;
 		private ICapture capture = null;
 		private Image capturedImage = null;
-		private Timer timer = null;
 		private Point previousMousePos = Point.Empty;
 		private FixMode fixMode = FixMode.None;
 		private RectangleAnimator windowAnimator = null;
 		private RectangleAnimator zoomAnimator = null;
-
-		/// <summary>
-		/// Vertical Refresh Rate
-		/// </summary>
-		private static int VRefresh {
-			get {
-				if (vRefresh == 0) {
-					// get te hDC of the desktop to get the VREFRESH
-					IntPtr hDCDesktop = User32.GetWindowDC(User32.GetDesktopWindow());
-					vRefresh = GDI32.GetDeviceCaps(hDCDesktop, DeviceCaps.VREFRESH);
-					User32.ReleaseDC(hDCDesktop);
-				}
-				return vRefresh;
-			}
-		}
-		
-		/// <summary>
-		/// Check if we need to optimize for RDP / Terminal Server sessions
-		/// </summary>
-		private static bool optimizeForTerminalServer {
-			get {
-				return conf.OptimizeForRDP || SystemInformation.TerminalServerSession;
-			}
-		}
-
-		/// <summary>
-		/// Calculate the amount of frames that an animation takes
-		/// </summary>
-		/// <param name="milliseconds"></param>
-		/// <returns>Number of frames, 1 if in Terminal Server Session</returns>
-		private static int calculateFrames(int milliseconds) {
-			// If we are in a Terminal Server Session we return 1
-			if (optimizeForTerminalServer) {
-				return 1;
-			}
-			return milliseconds / VRefresh;
-		}
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -153,7 +118,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="capture"></param>
 		/// <param name="windows"></param>
-		public CaptureForm(ICapture capture, List<WindowDetails> windows) {
+		public CaptureForm(ICapture capture, List<WindowDetails> windows) : base() {
 			if (currentForm != null) {
 				LOG.Debug("Found currentForm, Closing already opened CaptureForm");
 				currentForm.Close();
@@ -162,9 +127,6 @@ namespace Greenshot.Forms {
 			}
 			currentForm = this;
 
-			// comment this out if the timer should not be used
-			timer = new Timer();
-			
 			// Using 32bppPArgb speeds up the drawing.
 			//capturedImage = ImageHelper.Clone(capture.Image, PixelFormat.Format32bppPArgb);
 			// comment the clone, uncomment the assignment and the original bitmap is used.
@@ -185,16 +147,13 @@ namespace Greenshot.Forms {
 			//
 			InitializeComponent();
 			// Only double-buffer when we are not in a TerminalServerSession
-			this.DoubleBuffered = !optimizeForTerminalServer;
+			this.DoubleBuffered = !OptimizeForTerminalServer;
 			this.Text = "Greenshot capture form";
 
 			// Make sure we never capture the captureform
 			WindowDetails.RegisterIgnoreHandle(this.Handle);
 			// Unregister at close
 			this.FormClosing += delegate {
-				if (timer != null) {
-					timer.Stop();
-				}
 				// remove the buffer if it was created inside this form
 				if (capturedImage != capture.Image) {
 					capturedImage.Dispose();
@@ -208,7 +167,7 @@ namespace Greenshot.Forms {
 
 			// Initialize the animations, the window capture zooms out from the cursor to the window under the cursor 
 			if (captureMode == CaptureMode.Window) {
-				windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, calculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
+				windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, CalculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
 			}
 
 			// Set the zoomer animation
@@ -221,12 +180,6 @@ namespace Greenshot.Forms {
 			// Fix missing focus
 			WindowDetails.ToForeground(this.Handle);
 			this.TopMost = true;
-			
-			if (timer != null) {
-				timer.Interval = 1000/VRefresh;
-				timer.Tick += new EventHandler(timer_Tick);
-				timer.Start();
-			}
 		}
 		
 		/// <summary>
@@ -235,10 +188,10 @@ namespace Greenshot.Forms {
 		void InitializeZoomer(bool isOn) {
 			if (isOn) {
 				// Initialize the zoom with a invalid position
-				zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), calculateFrames(1000), EasingType.Quintic, EasingMode.EaseOut);
+				zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), CalculateFrames(1000), EasingType.Quintic, EasingMode.EaseOut);
 				VerifyZoomAnimation(cursorPos, false);
 			} else if (zoomAnimator != null) {
-				zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), calculateFrames(1000));
+				zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), CalculateFrames(1000));
 			}
 		}
 
@@ -310,7 +263,7 @@ namespace Greenshot.Forms {
 							// "Fade out" Zoom
 							InitializeZoomer(false);
 							// "Fade in" window
-							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, calculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
+							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, CalculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
 							captureRect = Rectangle.Empty;
 							Invalidate();
 							break;
@@ -318,7 +271,7 @@ namespace Greenshot.Forms {
 							// Set the region capture mode
 							captureMode = CaptureMode.Region;
 							// "Fade out" window
-							windowAnimator.ChangeDestination(new Rectangle(cursorPos, Size.Empty), calculateFrames(700));
+							windowAnimator.ChangeDestination(new Rectangle(cursorPos, Size.Empty), CalculateFrames(700));
 							// Fade in zoom
 							InitializeZoomer(conf.ZoomerEnabled);
 							captureRect = Rectangle.Empty;
@@ -412,20 +365,6 @@ namespace Greenshot.Forms {
 			// Make sure the mouse coordinates are fixed, when pressing shift
 			mouseMovePos = FixMouseCoordinates(WindowCapture.GetCursorLocation());
 			mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(mouseMovePos);
-			// If the timer is used, the timer_Tick does the following.
-			// If the timer is not used, we need to call the update ourselves
-			if (timer == null) {
-				updateFrame();
-			}
-		}
-
-		/// <summary>
-		/// The tick handler of the capture form, this initiates the frame drawing.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void timer_Tick(object sender, EventArgs e) {
-			updateFrame();
 		}
 
 		/// <summary>
@@ -443,7 +382,7 @@ namespace Greenshot.Forms {
 		/// <summary>
 		/// update the frame, this only invalidates
 		/// </summary>
-		void updateFrame() {
+		protected override void Animate() {
 			Point lastPos = cursorPos.Clone();
 			cursorPos = mouseMovePos.Clone();
 
@@ -526,7 +465,7 @@ namespace Greenshot.Forms {
 				invalidateRectangle = new Rectangle(x1,y1, x2-x1, y2-y1);
 				Invalidate(invalidateRectangle);
 			} else if (captureMode != CaptureMode.Window) {
-				if (!optimizeForTerminalServer) {
+				if (!OptimizeForTerminalServer) {
 					Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
 					allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
 					if (verticalMove) {
@@ -549,7 +488,7 @@ namespace Greenshot.Forms {
 			} else {
 				if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
 					// Window changes, make new animation from current to target
-					windowAnimator.ChangeDestination(captureRect, calculateFrames(700));
+					windowAnimator.ChangeDestination(captureRect, CalculateFrames(700));
 				}
 			}
 			// always animate the Window area through to the last frame, so we see the fade-in/out untill the end
@@ -657,11 +596,9 @@ namespace Greenshot.Forms {
 			
 			using (GraphicsPath path = new GraphicsPath()) {
 				path.AddEllipse(destinationRectangle);
-				using (Region clipRegion = new Region(path)) {
-					graphics.Clip = clipRegion;
-					graphics.FillRectangle(backgroundBrush, destinationRectangle);
-					graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
-				}
+				graphics.SetClip(path);
+				graphics.FillRectangle(backgroundBrush, destinationRectangle);
+				graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 			}
 
 			// Draw the circle around the zoomer
@@ -842,7 +779,7 @@ namespace Greenshot.Forms {
 					}
 				}
 			} else {
-				if (!optimizeForTerminalServer) {
+				if (!OptimizeForTerminalServer) {
 					using (Pen pen = new Pen(Color.LightSeaGreen)) {
 						pen.DashStyle = DashStyle.Dot;
 						Rectangle screenBounds = capture.ScreenBounds;
