@@ -93,6 +93,11 @@ namespace Greenshot.Helpers {
 			return exceptionToThrow;
 		}
 		
+		/// <summary>
+		/// Start the recording
+		/// </summary>
+		/// <param name="framesPerSecond"></param>
+		/// <returns></returns>
 		public bool Start(int framesPerSecond) {
 			if (recordingWindow != null) {
 				string windowTitle = Regex.Replace(recordingWindow.Text, @"[^\x20\d\w]", "");
@@ -176,8 +181,8 @@ namespace Greenshot.Helpers {
 			
 			aviWriter = new AVIWriter();
 			// Comment the following 2 lines to make the user select it's own codec
-			//aviWriter.Codec = "msvc";
-			//aviWriter.Quality = 99;
+			aviWriter.Codec = "msvc";
+			aviWriter.Quality = 10000;
 
 			aviWriter.FrameRate = framesPerSecond;
 			if (aviWriter.Open(filename, recordingSize.Width, recordingSize.Height)) {
@@ -195,6 +200,9 @@ namespace Greenshot.Helpers {
 			return false;
 		}
 		
+		/// <summary>
+		/// Do the actual frame capture
+		/// </summary>
 		private void CaptureFrame() {
 			int MSBETWEENCAPTURES = 1000/framesPerSecond;
 			int msToNextCapture = MSBETWEENCAPTURES;
@@ -262,6 +270,9 @@ namespace Greenshot.Helpers {
 			Cleanup();
 		}
 		
+		/// <summary>
+		/// Stop the recording, after the next frame
+		/// </summary>
 		public void Stop() {
 			stop = true;
 			if (backgroundTask != null) {
@@ -269,6 +280,7 @@ namespace Greenshot.Helpers {
 			}
 			Cleanup();
 		}
+
 		/// <summary>
 		///  Free resources
 		/// </summary>
@@ -297,7 +309,9 @@ namespace Greenshot.Helpers {
 				if (ffmpegexe != null) {
 					try {
 						string webMFile = filename.Replace(".avi", ".webm");
-						ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegexe, "-i \"" + filename + "\" -vcodec libvpx \"" + webMFile + "\"");
+						string arguments = "-i \"" + filename + "\" -codec:v libvpx -quality good -cpu-used 0 -b:v 1000k -qmin 10 -qmax 42 -maxrate 1000k -bufsize 4000k -threads 4 \"" + webMFile + "\"";
+						LOG.DebugFormat("Starting {0} with arguments {1}", ffmpegexe, arguments);
+						ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegexe, arguments);
 						processStartInfo.CreateNoWindow = false;
 						processStartInfo.RedirectStandardOutput = false;
 						processStartInfo.UseShellExecute = false;
