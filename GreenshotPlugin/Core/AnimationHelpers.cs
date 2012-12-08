@@ -49,6 +49,31 @@ namespace GreenshotPlugin.Core {
 			get;
 		}
 	}
+	
+	/// <summary>
+	/// This class is used to store a animation leg
+	/// </summary>
+	internal class AnimationLeg<T> {
+		public T Destination {
+			get;
+			set;
+		}
+		
+		public int Frames {
+			get;
+			set;
+		}
+		
+		public EasingType EasingType {
+			get;
+			set;
+		}
+		
+		public EasingMode EasingMode {
+			get;
+			set;
+		}
+	}
 
 	/// <summary>
 	/// Base class for the animation logic, this only implements Properties and a constructor
@@ -58,7 +83,7 @@ namespace GreenshotPlugin.Core {
 		protected T first;
 		protected T last;
 		protected T current;
-		protected Queue<T> queue = new Queue<T>();
+		private Queue<AnimationLeg<T>> queue = new Queue<AnimationLeg<T>>();
 		protected int frames;
 		protected int currentFrameNr = 0;
 
@@ -115,7 +140,7 @@ namespace GreenshotPlugin.Core {
 				if (queue.Count == 0) {
 					return last;
 				}
-				return queue.ToArray()[queue.Count - 1];
+				return queue.ToArray()[queue.Count - 1].Destination;
 			}
 		}
 		
@@ -141,11 +166,47 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Queue the destination, it will be used after the current animation is finished
+		/// Queue the destination, it will be used to continue at the last frame
+		/// All values will stay the same
 		/// </summary>
 		/// <param name="queuedDestination"></param>
 		public void QueueDestinationLeg(T queuedDestination) {
-			queue.Enqueue(queuedDestination);
+			QueueDestinationLeg(queuedDestination, Frames, EasingType, EasingMode);
+		}
+
+		/// <summary>
+		/// Queue the destination, it will be used to continue at the last frame
+		/// </summary>
+		/// <param name="queuedDestination"></param>
+		/// <param name="frames"></param>
+		public void QueueDestinationLeg(T queuedDestination, int frames) {
+			QueueDestinationLeg(queuedDestination, frames, EasingType, EasingMode);
+		}
+
+		/// <summary>
+		/// Queue the destination, it will be used to continue at the last frame
+		/// </summary>
+		/// <param name="queuedDestination"></param>
+		/// <param name="frames"></param>
+		/// <param name="easingType">EasingType</param>
+		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType) {
+			QueueDestinationLeg(queuedDestination, frames, easingType, EasingMode);
+		}
+
+		/// <summary>
+		/// Queue the destination, it will be used to continue at the last frame
+		/// </summary>
+		/// <param name="queuedDestination"></param>
+		/// <param name="frames"></param>
+		/// <param name="easingType"></param>
+		/// <param name="easingMode"></param>
+		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType, EasingMode easingMode) {
+			AnimationLeg<T> leg = new AnimationLeg<T>();
+			leg.Destination = queuedDestination;
+			leg.Frames = frames;
+			leg.EasingType = easingType;
+			leg.EasingMode = easingMode;
+			queue.Enqueue(leg);
 		}
 
 		/// <summary>
@@ -191,7 +252,7 @@ namespace GreenshotPlugin.Core {
 		}
 		
 		/// <summary>
-		/// Returns if there are any frame left, and if this is the case than the frame is increaded.
+		/// Returns if there are any frame left, and if this is the case than the frame is increased.
 		/// </summary>
 		public virtual bool NextFrame {
 			get {
@@ -201,8 +262,12 @@ namespace GreenshotPlugin.Core {
 				}
 				if (queue.Count > 0) {
 					this.first = current;
-					this.last = queue.Dequeue();
 					this.currentFrameNr = 0;
+					AnimationLeg<T> nextLeg = queue.Dequeue();
+					this.last = nextLeg.Destination;
+					this.frames = nextLeg.Frames;
+					this.EasingType = nextLeg.EasingType;
+					this.EasingMode = nextLeg.EasingMode;
 					return true;
 				}
 				return false;
@@ -495,8 +560,9 @@ namespace GreenshotPlugin.Core {
 			}
 			public static double EaseInOut(double s, int power) {
 				s *= 2;
-				if (s < 1)
+				if (s < 1) {
 					return EaseIn(s, power) / 2;
+				}
 				var sign = power % 2 == 0 ? -1 : 1;
 				return (sign / 2.0 * (Math.Pow(s - 2, power) + sign * 2));
 			}
