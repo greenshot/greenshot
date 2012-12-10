@@ -34,34 +34,41 @@ using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 
 namespace Greenshot {
-       /// <summary>
-       /// The about form
-       /// </summary>
-       public partial class AboutForm : BaseForm {
-             private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AboutForm));
-             private Bitmap gBitmap = new Bitmap(90, 90, PixelFormat.Format32bppRgb);
-             private ColorAnimator backgroundColor;
-             private List<RectangleAnimator> pixels = new List<RectangleAnimator>();
-             private List<Color> colorFlow = new List<Color>();
-             private List<Color> pixelColors = new List<Color>();
-             private IntAnimator angleAnimator;
-             private Random rand = new Random();
-             private Color backColor = Color.FromArgb(61, 61, 61);
-             private Color pixelColor = Color.FromArgb(138, 255, 0);
-             private int waitFrames = 0;
-             private int colorIndex = 0;
-             private int scrollCount = 0;
-             
-             private const int w = 13;
-             private const int p1 = 7;
-             private const int p2 = p1+w;
-             private const int p3 = p2+w;
-             private const int p4 = p3+w;
-             private const int p5 = p4+w;
-             private const int p6 = p5+w;
-             private const int p7 = p6+w;
-             
-             private List<Point> gSpots = new List<Point>() {
+	/// <summary>
+	/// The about form
+	/// </summary>
+	public partial class AboutForm : BaseForm {
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AboutForm));
+		private Bitmap gBitmap = new Bitmap(90, 90, PixelFormat.Format32bppRgb);
+		private ColorAnimator backgroundAnimation;
+		private List<RectangleAnimator> pixels = new List<RectangleAnimator>();
+		private List<Color> colorFlow = new List<Color>();
+		private List<Color> pixelColors = new List<Color>();
+		//private IntAnimator angleAnimator;
+		private Random rand = new Random();
+		private readonly Color backColor = Color.FromArgb(61, 61, 61);
+		private readonly Color pixelColor = Color.FromArgb(138, 255, 0);
+
+		// Variables used for the color-cycle
+		private int waitFrames = 0;
+		private int colorIndex = 0;
+		private int scrollCount = 0;
+		private bool hasAnimationsLeft;
+
+		// Variables are used to define the location of the dots
+		private const int w = 13;
+		private const int p1 = 7;
+		private const int p2 = p1 + w;
+		private const int p3 = p2 + w;
+		private const int p4 = p3 + w;
+		private const int p5 = p4 + w;
+		private const int p6 = p5 + w;
+		private const int p7 = p6 + w;
+
+		/// <summary>
+		/// The location of every dot in the "G"
+		/// </summary>
+		private List<Point> gSpots = new List<Point>() {
              	// Top row
              	new Point(p2, p1),	// 0
              	new Point(p3, p1),  // 1
@@ -98,168 +105,211 @@ namespace Greenshot {
              	new Point(p5, p6),	// 22
              	new Point(p6, p6)	// 23
              };
-             
-             //     0  1  2  3  4
-             //  5  6
-             //  7  8
-             //  9 10       11 12 13
-             // 14 15          16 17
-             // 18 19 20 21 22 23
-             
-             
-             List<int> flowOrder = new List<int>() {
-             	4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11
-             };
 
-             public AboutForm() {
-                    EnableAnimation = true;
-                    //
-                    // The InitializeComponent() call is required for Windows Forms designer support.
-                    //
-                    InitializeComponent();
-                    DoubleBuffered = !OptimizeForTerminalServer;
+		//     0  1  2  3  4
+		//  5  6
+		//  7  8
+		//  9 10       11 12 13
+		// 14 15          16 17
+		// 18 19 20 21 22 23
 
-                    // Not needed for a Tool Window, but still for the task manager it's important
-                    this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+		// The order in which we draw the dots & flow the collors.
+		List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
-                    // Use the self drawn image
-                    this.pictureBox1.Image = gBitmap;
-                    Version v = Assembly.GetExecutingAssembly().GetName().Version;
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		public AboutForm() {
+			EnableAnimation = true;
+			//
+			// The InitializeComponent() call is required for Windows Forms designer support.
+			//
+			InitializeComponent();
+			DoubleBuffered = !OptimizeForTerminalServer;
 
-                    // Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
-                    lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable?" Portable":"") + (" (" + OSInfo.Bits +" bit)");
+			// Not needed for a Tool Window, but still for the task manager it's important
+			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
-                    //Random rand = new Random();
-                    
-                    // Number of frames the "fade-in" takes
-                    int frames = CalculateFrames(3000);
-                    waitFrames = CalculateFrames(5000);
+			// Use the self drawn image
+			this.pictureBox1.Image = gBitmap;
+			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 
-                    // Create pixels
-                    foreach (Point gSpot in gSpots) {
-                           RectangleAnimator pixelAnimation = new RectangleAnimator(new Rectangle(p4, p3, 0, 0), new Rectangle(gSpot.X, gSpot.Y, w-2, w-2), frames, EasingType.Sine, EasingMode.EaseIn);
-                           pixels.Add(pixelAnimation);
-                           pixelColors.Add(pixelColor);
-                    }
-                    
-                    // Pixel Color animation
-                    ColorAnimator pixelColorAnimator = new ColorAnimator(pixelColor, Color.FromArgb(255, 255, 255), 6, EasingType.Quadratic, EasingMode.EaseIn);
-                    pixelColorAnimator.QueueDestinationLeg(pixelColor, 6, EasingType.Quadratic, EasingMode.EaseOut);
-                    do {
-                    	colorFlow.Add(pixelColorAnimator.Current);
-                    	pixelColorAnimator.Next();
-                    } while (pixelColorAnimator.hasNext);
+			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
+			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OSInfo.Bits + " bit)");
 
-                    // color animation
-                    backgroundColor = new ColorAnimator(this.BackColor, backColor, frames, EasingType.Linear, EasingMode.EaseIn);
-                    // Angle animation
-                    angleAnimator = new IntAnimator(-30, 20, frames, EasingType.Sine, EasingMode.EaseIn);
-             }
- 
-             /// <summary>
-             /// This is called when a link is clicked
-             /// </summary>
-             /// <param name="sender"></param>
-             /// <param name="e"></param>
-             void LinkLabelClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {
-                    LinkLabel linkLabel = sender as LinkLabel;
-                    if (linkLabel != null) {
-                           try {
-                                  linkLabel.LinkVisited = true;
-                                  System.Diagnostics.Process.Start(linkLabel.Text);
-                           } catch (Exception) {
-                                  MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
-                           }
-                    }
-             }
- 
-             protected override void Animate() {
-             	
-             	// Color cycle
-             	if (waitFrames != 0) {
-             		waitFrames--;
-             	} else if (scrollCount < (pixelColors.Count + colorFlow.Count)) {
-             		// Scroll colors, the scrollCount is the amount of pixels + the amount of colors to cycle.
-	             	for (int index = pixelColors.Count - 1; index > 0; index--) {
-             			pixelColors[flowOrder[index]] = pixelColors[flowOrder[index-1]];
-	             	}
-             		// Keep adding from  the colors to cycle until there is nothing left
-             		if (colorIndex < colorFlow.Count) {
-	             		pixelColors[flowOrder[0]] = colorFlow[colorIndex++];             			
-             		}
-             		scrollCount++;
-             	} else {
-             		// Reset values, wait X time for the next one
-             		waitFrames = CalculateFrames(rand.Next(40000));
-             		colorIndex = 0;
-             		scrollCount = 0;
-             	}
+			//Random rand = new Random();
 
-             	// Draw the "G"
-                using (Graphics graphics = Graphics.FromImage(gBitmap)) {
-                   graphics.SmoothingMode = SmoothingMode.HighQuality;
-                   graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
-                   graphics.CompositingQuality = CompositingQuality.HighQuality;
-                   graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+			// Number of frames the "fade-in" takes
+			int frames = CalculateFrames(1400);
+			// The number of frames the color-cycle waits before it starts
+			waitFrames = CalculateFrames(5000);
 
-                   graphics.Clear(backgroundColor.Next());
-                   
-                   graphics.TranslateTransform(2, -2);
-                   graphics.RotateTransform(angleAnimator.Next());
+			// Every pixel is created after pixelWaitFrames frames, which is increased in the loop.
+			int pixelWaitFrames = CalculateFrames(100);
+			// Create pixels
+			for (int index = 0; index < gSpots.Count; index++) {
+				// Read the pixels in the order of the flow
+				Point gSpot = gSpots[flowOrder[index]];
+				// Create the animation, first we do nothing (on the final destination)
+				RectangleAnimator pixelAnimation;
 
-                   using (SolidBrush brush = new SolidBrush(pixelColor)) {
-                   		int index = 0;
-                   		// Pixels of the G
-                      foreach (RectangleAnimator pixel in pixels) {
-                   		brush.Color = pixelColors[index++];
-                        graphics.FillEllipse(brush, pixel.Current);
-                        pixel.Next();
-                      }
-                   }
-                }
-                pictureBox1.Invalidate();
-             }
- 
-             /// <summary>
-             /// CmdKey handler
-             /// </summary>
-             /// <param name="msg"></param>
-             /// <param name="keyData"></param>
-             /// <returns></returns>
-             protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
-                    try {
-                           switch (keyData) {
-                                  case Keys.Escape:
-                                        DialogResult = DialogResult.Cancel;
-                                        break;
-                                  case Keys.E:
-                                        MessageBox.Show(EnvironmentInfo.EnvironmentToString(true));
-                                        break;
-                                  case Keys.L:
-                                        try {
-                                               if (File.Exists( MainForm.LogFileLocation)) {
-                                                      System.Diagnostics.Process.Start("\"" + MainForm.LogFileLocation + "\"");
-                                               } else {
-                                                      MessageBox.Show("Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
-                                               }
-                                        } catch (Exception) {
-                                               MessageBox.Show("Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, "Error opening greeenshot.log", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                                        }
-                                        break;
-                                  case Keys.I:
-                                        try {
-                                               System.Diagnostics.Process.Start("\"" + IniFile.IniConfig.ConfigLocation + "\"");
-                                        } catch (Exception) {
-                                               MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniFile.IniConfig.ConfigLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                                        }
-                                        break;
-                                  default:
-                                        return base.ProcessCmdKey(ref msg, keyData);
-                           }
-                    } catch (Exception ex) {
-                           LOG.Error(string.Format("Error handling key '{0}'", keyData), ex);
-                    }
-                    return true;
-             }
-       }
+				// If the optimize for Terminal Server is set we make the animation without much ado
+				if (OptimizeForTerminalServer) {
+					// No animation
+					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), 1, EasingType.Cubic, EasingMode.EaseIn);
+				} else {
+					// Create the animation, first we do nothing (on the final destination)
+					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, 0, 0), new Rectangle(gSpot.X, gSpot.Y, 0, 0), pixelWaitFrames, EasingType.Cubic, EasingMode.EaseIn);
+					// And than we size to the wanted size.
+					pixelAnimation.QueueDestinationLeg(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), frames);
+				}
+				// Increase the wait frames
+				pixelWaitFrames += CalculateFrames(100);
+				// Add to the list of to be animated pixels
+				pixels.Add(pixelAnimation);
+				// Add a color to the list for this pixel.
+				pixelColors.Add(pixelColor);
+			}
+			// Make sure the frame "loop" knows we have to animate
+			hasAnimationsLeft = true;
+
+			// Pixel Color cycle colors, here we use a pre-animated loop which stores the values.
+			ColorAnimator pixelColorAnimator = new ColorAnimator(pixelColor, Color.FromArgb(255, 255, 255), 6, EasingType.Quadratic, EasingMode.EaseIn);
+			pixelColorAnimator.QueueDestinationLeg(pixelColor, 6, EasingType.Quadratic, EasingMode.EaseOut);
+			do {
+				colorFlow.Add(pixelColorAnimator.Current);
+				pixelColorAnimator.Next();
+			} while (pixelColorAnimator.hasNext);
+
+			// color animation for the background
+			backgroundAnimation = new ColorAnimator(this.BackColor, backColor, frames, EasingType.Linear, EasingMode.EaseIn);
+			// Angle animation
+			// angleAnimator = new IntAnimator(-30, 20, frames, EasingType.Sine, EasingMode.EaseIn);
+		}
+
+		/// <summary>
+		/// This is called when a link is clicked
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void LinkLabelClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {
+			LinkLabel linkLabel = sender as LinkLabel;
+			if (linkLabel != null) {
+				try {
+					linkLabel.LinkVisited = true;
+					System.Diagnostics.Process.Start(linkLabel.Text);
+				} catch (Exception) {
+					MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
+				}
+			}
+		}
+
+		/// <summary>
+		/// Called from the AnimatingForm, for every frame
+		/// </summary>
+		protected override void Animate() {
+			if (!OptimizeForTerminalServer) {
+				// Color cycle
+				if (waitFrames != 0) {
+					waitFrames--;
+					// Check if there is something else to do, if not we return so we don't occupy the CPU
+					if (!hasAnimationsLeft) {
+						return;
+					}
+				} else if (scrollCount < (pixelColors.Count + colorFlow.Count)) {
+					// Scroll colors, the scrollCount is the amount of pixels + the amount of colors to cycle.
+					for (int index = pixelColors.Count - 1; index > 0; index--) {
+						pixelColors[index] = pixelColors[index - 1];
+					}
+					// Keep adding from  the colors to cycle until there is nothing left
+					if (colorIndex < colorFlow.Count) {
+						pixelColors[0] = colorFlow[colorIndex++];
+					}
+					scrollCount++;
+				} else {
+					// Reset values, wait X time for the next one
+					waitFrames = CalculateFrames(3000 + rand.Next(35000));
+					colorIndex = 0;
+					scrollCount = 0;
+					// Check if there is something else to do, if not we return so we don't occupy the CPU
+					if (!hasAnimationsLeft) {
+						return;
+					}
+				}
+			} else if (!hasAnimationsLeft) {
+				return;
+			}
+
+			// Draw the "G"
+			using (Graphics graphics = Graphics.FromImage(gBitmap)) {
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+				graphics.Clear(backgroundAnimation.Next());
+
+				graphics.TranslateTransform(2, -2);
+				//graphics.RotateTransform(angleAnimator.Next());
+				graphics.RotateTransform(20);
+
+				using (SolidBrush brush = new SolidBrush(pixelColor)) {
+					int index = 0;
+					// We asume there is nothing to animate in the next Animate loop
+					hasAnimationsLeft = false;
+					// Pixels of the G
+					foreach (RectangleAnimator pixel in pixels) {
+						brush.Color = pixelColors[index++];
+						graphics.FillEllipse(brush, pixel.Current);
+						// If a pixel still has frames left, the hasAnimationsLeft will be true
+						hasAnimationsLeft = hasAnimationsLeft | pixel.hasNext;
+						pixel.Next();
+					}
+				}
+			}
+			pictureBox1.Invalidate();
+		}
+
+		/// <summary>
+		/// CmdKey handler
+		/// </summary>
+		/// <param name="msg"></param>
+		/// <param name="keyData"></param>
+		/// <returns></returns>
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
+			try {
+				switch (keyData) {
+					case Keys.Escape:
+						DialogResult = DialogResult.Cancel;
+						break;
+					case Keys.E:
+						MessageBox.Show(EnvironmentInfo.EnvironmentToString(true));
+						break;
+					case Keys.L:
+						try {
+							if (File.Exists(MainForm.LogFileLocation)) {
+								System.Diagnostics.Process.Start("\"" + MainForm.LogFileLocation + "\"");
+							} else {
+								MessageBox.Show("Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
+							}
+						} catch (Exception) {
+							MessageBox.Show("Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, "Error opening greeenshot.log", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+						}
+						break;
+					case Keys.I:
+						try {
+							System.Diagnostics.Process.Start("\"" + IniFile.IniConfig.ConfigLocation + "\"");
+						} catch (Exception) {
+							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniFile.IniConfig.ConfigLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+						}
+						break;
+					default:
+						return base.ProcessCmdKey(ref msg, keyData);
+				}
+			} catch (Exception ex) {
+				LOG.Error(string.Format("Error handling key '{0}'", keyData), ex);
+			}
+			return true;
+		}
+	}
 }
