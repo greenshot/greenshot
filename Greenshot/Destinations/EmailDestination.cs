@@ -102,10 +102,8 @@ namespace Greenshot.Destinations {
 		
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			using (Image image = surface.GetImageForExport()) {
-				MapiMailMessage.SendImage(image, captureDetails);
-				exportInformation.ExportMade = true;
-			}
+			MapiMailMessage.SendImage(surface, captureDetails);
+			exportInformation.ExportMade = true;
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}

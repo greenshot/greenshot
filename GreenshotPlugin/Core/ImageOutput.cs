@@ -216,6 +216,11 @@ namespace GreenshotPlugin.Core {
 				long bytesWritten = surface.SaveElementsToStream(stream);
 				using (BinaryWriter writer = new BinaryWriter(stream)) {
 					writer.Write(bytesWritten);
+					Version v = Assembly.GetExecutingAssembly().GetName().Version;
+					string marker = String.Format("Greenshot{0:00}.{1:00}", v.Major, v.Minor);
+					using (StreamWriter streamWriter = new StreamWriter(stream)) {
+						streamWriter.Write(marker);
+					}
 				}
 			}
 		}
@@ -232,25 +237,38 @@ namespace GreenshotPlugin.Core {
 			Bitmap fileBitmap = null;
 			LOG.InfoFormat("Loading image from file {0}", fullPath);
 			// Fixed lock problem Bug #3431881
-			using (Stream imageFileStream = File.OpenRead(fullPath)) {
+			using (Stream surfaceFileStream = File.OpenRead(fullPath)) {
 				// And fixed problem that the bitmap stream is disposed... by Cloning the image
 				// This also ensures the bitmap is correctly created
 
 				// We create a copy of the bitmap, so everything else can be disposed
-				imageFileStream.Position = 0;
-				using (Image tmpImage = Image.FromStream(imageFileStream, true, true)) {
+				surfaceFileStream.Position = 0;
+				using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true)) {
 					LOG.DebugFormat("Loaded {0} with Size {1}x{2} and PixelFormat {3}", fullPath, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 					fileBitmap = ImageHelper.Clone(tmpImage);
 				}
-				imageFileStream.Seek(-8, SeekOrigin.End);
-				long bytesWritten = 0;
-				using (BinaryReader reader = new BinaryReader(imageFileStream)) {
-					bytesWritten = reader.ReadInt64();
-					imageFileStream.Seek(-(bytesWritten + 8), SeekOrigin.End);
-					returnSurface.LoadElementsFromStream(imageFileStream);
+				// Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
+				const int markerSize = 14;
+				surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
+				string greenshotMarker;
+				using (StreamReader streamReader = new StreamReader(surfaceFileStream)) {
+					greenshotMarker = streamReader.ReadToEnd();
+					if (greenshotMarker == null || !greenshotMarker.StartsWith("Greenshot")) {
+						throw new ArgumentException(string.Format("{0} is not a Greenshot file!", fullPath));
+					}
+					LOG.InfoFormat("Greenshot file format: {0}", greenshotMarker);
+					const int filesizeLocation = 8 + markerSize;
+					surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
+					long bytesWritten = 0;
+					using (BinaryReader reader = new BinaryReader(surfaceFileStream)) {
+						bytesWritten = reader.ReadInt64();
+						surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
+						returnSurface.LoadElementsFromStream(surfaceFileStream);
+					}
 				}
 			}
 			if (fileBitmap != null) {
+				returnSurface.Image = fileBitmap;
 				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, fileBitmap.Width, fileBitmap.Height, fileBitmap.PixelFormat, fileBitmap.HorizontalResolution, fileBitmap.VerticalResolution);
 			}
 			return returnSurface;
@@ -297,12 +315,46 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// saves img to fullpath
+		/// Saves image to specific path with specified quality
 		/// </summary>
-		/// <param name="img">the image to save</param>
-		/// <param name="fullPath">the absolute destination path including file name</param>
-		/// <param name="allowOverwrite">true if overwrite is allowed, false if not</param>
-		public static void Save(Image img, string fullPath, bool allowOverwrite) {
+		public static void Save(ISurface surface, string fullPath, bool allowOverwrite, OutputSettings outputSettings, bool copyPathToClipboard) {
+			fullPath = FilenameHelper.MakeFQFilenameSafe(fullPath);
+			string path = Path.GetDirectoryName(fullPath);
+
+			// check whether path exists - if not create it
+			DirectoryInfo di = new DirectoryInfo(path);
+			if (!di.Exists) {
+				Directory.CreateDirectory(di.FullName);
+			}
+
+			if (!allowOverwrite && File.Exists(fullPath)) {
+				ArgumentException throwingException = new ArgumentException("File '" + fullPath + "' already exists.");
+				throwingException.Data.Add("fullPath", fullPath);
+				throw throwingException;
+			}
+			LOG.DebugFormat("Saving image to {0}", fullPath);
+			// Create the stream and call SaveToStream
+			if (outputSettings.Format == OutputFormat.greenshot) {
+				SaveGreenshotSurface(surface, fullPath);
+			} else {
+				using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) {
+					using (Image image = surface.GetImageForExport()) {
+						SaveToStream(image, stream, outputSettings);
+					}
+				}
+			}
+
+			if (copyPathToClipboard) {
+				ClipboardHelper.SetClipboardData(fullPath);
+			}
+		}
+
+		/// <summary>
+		/// Get the OutputFormat for a filename
+		/// </summary>
+		/// <param name="fullPath">filename (can be a complete path)</param>
+		/// <returns>OutputFormat</returns>
+		public static OutputFormat FormatForFilename(string fullPath) {
 			// Fix for bug 2912959
 			string extension = fullPath.Substring(fullPath.LastIndexOf(".") + 1);
 			OutputFormat format = OutputFormat.png;
@@ -313,6 +365,17 @@ namespace GreenshotPlugin.Core {
 			} catch (ArgumentException ae) {
 				LOG.Warn("Couldn't parse extension: " + extension, ae);
 			}
+			return format;
+		}
+
+		/// <summary>
+		/// saves img to fullpath
+		/// </summary>
+		/// <param name="img">the image to save</param>
+		/// <param name="fullPath">the absolute destination path including file name</param>
+		/// <param name="allowOverwrite">true if overwrite is allowed, false if not</param>
+		public static void Save(Image img, string fullPath, bool allowOverwrite) {
+			OutputFormat format = FormatForFilename(fullPath);
 			// Get output settings from the configuration
 			OutputSettings outputSettings = new OutputSettings(format);
 			if (conf.OutputFilePromptQuality) {
@@ -324,19 +387,27 @@ namespace GreenshotPlugin.Core {
 		#endregion
 
 		#region save-as
-		public static string SaveWithDialog(Image image) {
-			return SaveWithDialog(image, null);
-		}
 
-		public static string SaveWithDialog(Image image, ICaptureDetails captureDetails) {
+		/// <summary>
+		/// Save with showing a dialog
+		/// </summary>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <returns>Path to filename</returns>
+		public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails) {
 			string returnValue = null;
 			SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails);
 			DialogResult dialogResult = saveImageFileDialog.ShowDialog();
 			if (dialogResult.Equals(DialogResult.OK)) {
 				try {
 					string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-					// TODO: For now we overwrite, should be changed
-					ImageOutput.Save(image, fileNameWithExtension, true);
+					OutputSettings outputSettings = new OutputSettings(FormatForFilename(fileNameWithExtension));
+					if (conf.OutputFilePromptQuality) {
+						QualityDialog qualityDialog = new QualityDialog(outputSettings);
+						qualityDialog.ShowDialog();
+					}
+					// TODO: For now we always overwrite, should be changed
+					ImageOutput.Save(surface, fileNameWithExtension, true, outputSettings, conf.OutputFileCopyPathToClipboard);
 					returnValue = fileNameWithExtension;
 					conf.OutputFileAsFullpath = fileNameWithExtension;
 					IniConfig.Save();
@@ -348,7 +419,15 @@ namespace GreenshotPlugin.Core {
 		}
 		#endregion
 
-		public static string SaveNamedTmpFile(Image image, ICaptureDetails captureDetails, OutputSettings outputSettings) {
+		/// <summary>
+		/// Create a tmpfile which has the name like in the configured pattern.
+		/// Used e.g. by the email export
+		/// </summary>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <param name="outputSettings"></param>
+		/// <returns>Path to image file</returns>
+		public static string SaveNamedTmpFile(ISurface surface, ICaptureDetails captureDetails, OutputSettings outputSettings) {
 			string pattern = conf.OutputFileFilenamePattern;
 			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
 				pattern = "greenshot ${capturetime}";
@@ -365,13 +444,13 @@ namespace GreenshotPlugin.Core {
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
 			try {
-				ImageOutput.Save(image, tmpFile, true, outputSettings, false);
+				ImageOutput.Save(surface, tmpFile, true, outputSettings, false);
 				tmpFileCache.Add(tmpFile, tmpFile);
 			} catch (Exception e) {
 				// Show the problem
 				MessageBox.Show(e.Message, "Error");
 				// when save failed we present a SaveWithDialog
-				tmpFile = ImageOutput.SaveWithDialog(image, captureDetails);
+				tmpFile = ImageOutput.SaveWithDialog(surface, captureDetails);
 			}
 			return tmpFile;
 		}

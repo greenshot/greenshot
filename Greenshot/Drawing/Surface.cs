@@ -232,6 +232,7 @@ namespace Greenshot.Drawing {
 			}
 			set {
 				image = value;
+				Size = image.Size;
 			}
 		}
 

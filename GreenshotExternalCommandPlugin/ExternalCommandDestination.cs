@@ -74,9 +74,7 @@ namespace ExternalCommand {
 				bool runInBackground = config.runInbackground[presetCommand];
 				string fullPath = captureDetails.Filename;
 				if (fullPath == null) {
-					using (Image image = surface.GetImageForExport()) {
-						fullPath = ImageOutput.SaveNamedTmpFile(image, captureDetails, outputSettings);
-					}
+					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
 				}
 
 				string output = null;

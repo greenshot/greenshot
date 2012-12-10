@@ -153,5 +153,10 @@ namespace Greenshot.Plugin {
 		bool HasCursor {
 			get;
 		}
+
+		ICaptureDetails CaptureDetails {
+			get;
+			set;
+		}
 	}
 }

@@ -336,6 +336,10 @@ namespace Greenshot {
 			}
 		}
 
+		/// <summary>
+		/// This is called when the size of the surface chances, used for resizing and displaying the size information
+		/// </summary>
+		/// <param name="source"></param>
 		private void SurfaceSizeChanged(object source) {
 			if (editorConfiguration.MatchSizeToCapture) {
 				// Set editor's initial size to the size of the surface plus the size of the chrome

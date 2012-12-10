@@ -593,7 +593,7 @@ namespace Greenshot {
 
 		void CaptureFile() {
 			OpenFileDialog openFileDialog = new OpenFileDialog();
-			openFileDialog.Filter = "Image files (*.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf";
+			openFileDialog.Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf";
 			if (openFileDialog.ShowDialog() == DialogResult.OK) {
 				if (File.Exists(openFileDialog.FileName)) {
 					CaptureHelper.CaptureFile(openFileDialog.FileName);

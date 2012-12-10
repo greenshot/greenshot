@@ -29,6 +29,7 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
 using Greenshot.IniFile;
+using GreenshotPlugin.Controls;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -74,12 +75,15 @@ namespace Greenshot.Destinations {
 			bool outputMade;
             bool overwrite;
             string fullPath;
+			// Get output settings from the configuration
+			OutputSettings outputSettings = new OutputSettings();
 
-            if (captureDetails.Filename != null) {
+			if (captureDetails != null && captureDetails.Filename != null) {
                 // As we save a pre-selected file, allow to overwrite.
                 overwrite = true;
                 LOG.InfoFormat("Using previous filename");
                 fullPath = captureDetails.Filename;
+				outputSettings.Format = ImageOutput.FormatForFilename(fullPath);
             } else {
                 LOG.InfoFormat("Creating new filename");
                 string pattern = conf.OutputFileFilenamePattern;
@@ -92,26 +96,29 @@ namespace Greenshot.Destinations {
                 // As we generate a file, the configuration tells us if we allow to overwrite
                 overwrite = conf.OutputFileAllowOverwrite;
             }
+			if (conf.OutputFilePromptQuality) {
+				QualityDialog qualityDialog = new QualityDialog(outputSettings);
+				qualityDialog.ShowDialog();
+			}
+
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
-			using (Image image = surface.GetImageForExport()) {
-				try {
-                    ImageOutput.Save(image, fullPath, overwrite);
-					outputMade = true;
-                } catch (ArgumentException ex1) {
-                    // Our generated filename exists, display 'save-as'
-                    LOG.InfoFormat("Not overwriting: {0}", ex1.Message);
-                    // when we don't allow to overwrite present a new SaveWithDialog
-                    fullPath = ImageOutput.SaveWithDialog(image, captureDetails);
-                    outputMade = (fullPath != null);
-				} catch (Exception ex2) {
-                    LOG.Error("Error saving screenshot!", ex2);
-					// Show the problem
-					MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
-					// when save failed we present a SaveWithDialog
-					fullPath = ImageOutput.SaveWithDialog(image, captureDetails);
-					outputMade = (fullPath != null);
-				}
+			try {
+				ImageOutput.Save(surface, fullPath, overwrite, outputSettings, conf.OutputFileCopyPathToClipboard);
+				outputMade = true;
+			} catch (ArgumentException ex1) {
+				// Our generated filename exists, display 'save-as'
+				LOG.InfoFormat("Not overwriting: {0}", ex1.Message);
+				// when we don't allow to overwrite present a new SaveWithDialog
+				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
+				outputMade = (fullPath != null);
+			} catch (Exception ex2) {
+				LOG.Error("Error saving screenshot!", ex2);
+				// Show the problem
+				MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
+				// when save failed we present a SaveWithDialog
+				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
+				outputMade = (fullPath != null);
 			}
 			// Don't overwite filename if no output is made
 			if (outputMade) {
@@ -119,6 +126,7 @@ namespace Greenshot.Destinations {
 				exportInformation.Filepath = fullPath;
 				captureDetails.Filename = fullPath;
 			}
+
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
