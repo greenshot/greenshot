@@ -140,12 +140,12 @@ namespace Greenshot {
 			//Random rand = new Random();
 
 			// Number of frames the "fade-in" takes
-			int frames = CalculateFrames(1400);
+			int frames = CalculateFrames(2000);
 			// The number of frames the color-cycle waits before it starts
-			waitFrames = CalculateFrames(5000);
+			waitFrames = CalculateFrames(6000);
 
 			// Every pixel is created after pixelWaitFrames frames, which is increased in the loop.
-			int pixelWaitFrames = CalculateFrames(100);
+			int pixelWaitFrames = 0;
 			// Create pixels
 			for (int index = 0; index < gSpots.Count; index++) {
 				// Read the pixels in the order of the flow
@@ -153,13 +153,17 @@ namespace Greenshot {
 				// Create the animation, first we do nothing (on the final destination)
 				RectangleAnimator pixelAnimation;
 
+				// Make the pixel grom from the middle, if this offset isn't used it looks like it's shifted
+				int offset = (w - 2) / 2;
+
 				// If the optimize for Terminal Server is set we make the animation without much ado
 				if (OptimizeForTerminalServer) {
 					// No animation
 					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), 1, EasingType.Cubic, EasingMode.EaseIn);
 				} else {
 					// Create the animation, first we do nothing (on the final destination)
-					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, 0, 0), new Rectangle(gSpot.X, gSpot.Y, 0, 0), pixelWaitFrames, EasingType.Cubic, EasingMode.EaseIn);
+					Rectangle standingStill = new Rectangle(gSpot.X + offset, gSpot.Y + offset, 0, 0);
+					pixelAnimation = new RectangleAnimator(standingStill, standingStill, pixelWaitFrames, EasingType.Quintic, EasingMode.EaseIn);
 					// And than we size to the wanted size.
 					pixelAnimation.QueueDestinationLeg(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), frames);
 				}
