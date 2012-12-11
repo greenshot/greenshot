@@ -28,8 +28,7 @@ namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// Extend this Form to have the possibility for animations on your form
 	/// </summary>
-	public abstract class AnimatingForm : Form {
-		protected static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+	public class AnimatingForm : GreenshotForm {
 		private int vRefresh = 0;
 		private Timer timer = null;
 
@@ -111,6 +110,8 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// This method will be called every frame, so implement your animation/redraw logic here.
 		/// </summary>
-		protected abstract void Animate();
+		protected virtual void Animate() {
+			throw new NotImplementedException();
+		}
 	}
 }

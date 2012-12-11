@@ -32,12 +32,13 @@ using Greenshot.Helpers;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotPlugin.Controls;
 
 namespace Greenshot {
 	/// <summary>
 	/// The about form
 	/// </summary>
-	public partial class AboutForm : BaseForm {
+	public partial class AboutForm : AnimatingBaseForm {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AboutForm));
 		private Bitmap gBitmap = new Bitmap(90, 90, PixelFormat.Format32bppRgb);
 		private ColorAnimator backgroundAnimation;

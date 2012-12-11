@@ -20,7 +20,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
 using GreenshotPlugin.Core;
@@ -30,8 +29,12 @@ using System.ComponentModel.Design;
 using System.IO;
 
 namespace GreenshotPlugin.Controls {
-	public abstract class GreenshotForm : AnimatingForm, IGreenshotLanguageBindable {
+	/// <summary>
+	/// This form is used for automatically binding the elements of the form to the language
+	/// </summary>
+	public class GreenshotForm : Form, IGreenshotLanguageBindable {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(GreenshotForm));
+		protected static CoreConfiguration coreConfiguration;
 		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
 		private bool isDesignModeLanguageSet = false;
@@ -40,10 +43,29 @@ namespace GreenshotPlugin.Controls {
 		private IDictionary<string, Control> designTimeControls;
 		private IDictionary<string, ToolStripItem> designTimeToolStripItems;
 
+		static GreenshotForm() {
+			if (!IsInDesignMode) {
+				coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+			}
+		}
+
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
 			get;
 			set;
+		}
+
+		/// <summary>
+		/// Used to check the designmode during a constructor
+		/// </summary>
+		/// <returns></returns>
+		protected static bool IsInDesignMode {
+			get {
+				if (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1) {
+					return true;
+				}
+				return false;
+			}
 		}
 
 		protected bool ManualLanguageApply {
@@ -62,13 +84,6 @@ namespace GreenshotPlugin.Controls {
 			set {
 				storeFieldsManually = value;
 			}
-		}
-
-		/// <summary>
-		/// Normally a Greenshot form doesn't animate
-		/// </summary>
-		protected override void Animate() {
-			throw new NotImplementedException();
 		}
 
 		/// <summary>
