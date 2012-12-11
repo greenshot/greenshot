@@ -110,12 +110,12 @@ namespace GreenshotBoxPlugin {
 		/// <summary>
 		/// This will be called when the menu item in the Editor is clicked
 		/// </summary>
-		public string Upload(ICaptureDetails captureDetails, Image image) {
+		public string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
 			try {
 				string url = null;
 				string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-				ImageContainer imageToUpload = new ImageContainer(image, outputSettings, filename);
+				SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 				
 				new PleaseWaitForm().ShowAndWait(BoxPlugin.Attributes.Name, Language.GetString("box", LangKey.communication_wait), 
 					delegate() {

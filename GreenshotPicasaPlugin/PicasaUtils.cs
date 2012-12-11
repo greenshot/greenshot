@@ -41,7 +41,7 @@ namespace GreenshotPicasaPlugin {
 		/// </summary>
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>PicasaResponse</returns>
-		public static string UploadToPicasa(Image imageToUpload, OutputSettings outputSettings, string title, string filename) {
+		public static string UploadToPicasa(ISurface surfaceToUpload, OutputSettings outputSettings, string title, string filename) {
 			OAuthSession oAuth = new OAuthSession(PicasaCredentials.ConsumerKey, PicasaCredentials.ConsumerSecret);
 			oAuth.BrowserSize = new Size(1020, 590);
 			oAuth.AccessTokenUrl =  "https://www.google.com/accounts/OAuthGetAccessToken";
@@ -67,7 +67,7 @@ namespace GreenshotPicasaPlugin {
 			try {
 				IDictionary<string, string> headers = new Dictionary<string, string>();
 				headers.Add("slug", OAuthSession.UrlEncode3986(filename));
-				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, "https://picasaweb.google.com/data/feed/api/user/default/albumid/default", headers, null, null, new ImageContainer(imageToUpload, outputSettings, filename));
+				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, "https://picasaweb.google.com/data/feed/api/user/default/albumid/default", headers, null, null, new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 				return ParseResponse(response);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);

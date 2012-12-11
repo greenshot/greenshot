@@ -44,7 +44,7 @@ namespace GreenshotFlickrPlugin {
 		/// </summary>
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>url to image</returns>
-		public static string UploadToFlickr(Image image, OutputSettings outputSettings, string title, string filename) {
+		public static string UploadToFlickr(ISurface surfaceToUpload, OutputSettings outputSettings, string title, string filename) {
 			OAuthSession oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret);
 			oAuth.BrowserSize = new Size(520, 800);
 			oAuth.CheckVerifier = false;
@@ -76,7 +76,7 @@ namespace GreenshotFlickrPlugin {
 				signedParameters.Add("safety_level", string.Format("{0}", (int)config.SafetyLevel));
 				signedParameters.Add("hidden", config.HiddenFromSearch?"1":"2");
 				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
-				otherParameters.Add("photo", new ImageContainer(image, outputSettings, filename));
+				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.flickr.com/services/upload/", signedParameters, otherParameters, null);
 				string photoId = GetPhotoId(response);
 

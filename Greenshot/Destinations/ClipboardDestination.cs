@@ -71,10 +71,8 @@ namespace Greenshot.Destinations {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			try {
-				using (Image image = surface.GetImageForExport()) {
-					ClipboardHelper.SetClipboardData(image);
-					exportInformation.ExportMade = true;
-				}
+				ClipboardHelper.SetClipboardData(surface);
+				exportInformation.ExportMade = true;
 			} catch (Exception) {
 				// TODO: Change to general logic in ProcessExport
 				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));

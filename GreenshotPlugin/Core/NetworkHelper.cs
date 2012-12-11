@@ -413,13 +413,13 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// A container to supply images to a Multi-part form data upload
 	/// </summary>
-	public class ImageContainer : IBinaryContainer {
-		private Image image;
+	public class SurfaceContainer : IBinaryContainer {
+		private ISurface surface;
 		private OutputSettings outputSettings;
 		private string fileName;
 
-		public ImageContainer(Image image, OutputSettings outputSettings, string filename) {
-			this.image = image;
+		public SurfaceContainer(ISurface surface, OutputSettings outputSettings, string filename) {
+			this.surface = surface;
 			this.outputSettings = outputSettings;
 			this.fileName = filename;
 		}
@@ -431,7 +431,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>string</returns>
 		public string ToBase64String(Base64FormattingOptions formattingOptions) {
 			using (MemoryStream stream = new MemoryStream()) {
-				ImageOutput.SaveToStream(image, stream, outputSettings);
+				ImageOutput.SaveToStream(surface, stream, outputSettings);
 				return System.Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
 			}
 		}
@@ -443,7 +443,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>byte[]</returns>
 		public byte[] ToByteArray() {
 			using (MemoryStream stream = new MemoryStream()) {
-				ImageOutput.SaveToStream(image, stream, outputSettings);
+				ImageOutput.SaveToStream(surface, stream, outputSettings);
 				return stream.ToArray();
 			}
 		}
@@ -462,7 +462,7 @@ namespace GreenshotPlugin.Core {
 				"image/" + outputSettings.Format.ToString());
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
-			ImageOutput.SaveToStream(image, formDataStream, outputSettings);			
+			ImageOutput.SaveToStream(surface, formDataStream, outputSettings);			
 		}
 
 		/// <summary>
@@ -471,7 +471,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="dataStream"></param>
 		public void WriteToStream(Stream dataStream) {
 			// Write the file data directly to the Stream, rather than serializing it to a string.
-			ImageOutput.SaveToStream(image, dataStream, outputSettings);
+			ImageOutput.SaveToStream(surface, dataStream, outputSettings);
 		}
 		
 		/// <summary>

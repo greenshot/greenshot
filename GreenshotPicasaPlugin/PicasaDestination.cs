@@ -54,13 +54,11 @@ namespace GreenshotPicasaPlugin {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			using (Image image = surface.GetImageForExport()) {
-				string uploadURL = null;
-				bool uploaded = plugin.Upload(captureDetails, image, out uploadURL);
-				if (uploaded) {
-					exportInformation.ExportMade = true;
-					exportInformation.Uri = uploadURL;
-				}
+			string uploadURL = null;
+			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
+			if (uploaded) {
+				exportInformation.ExportMade = true;
+				exportInformation.Uri = uploadURL;
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

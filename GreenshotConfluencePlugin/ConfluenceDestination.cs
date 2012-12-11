@@ -136,33 +136,31 @@ namespace GreenshotConfluencePlugin {
 				}
 			}
 			if (selectedPage != null) {
-				using (Image image = surface.GetImageForExport()) {
-					string errorMessage;
-					bool uploaded = upload(image, selectedPage, filename, out errorMessage);
-					if (uploaded) {
-						if (openPage) {
-							try {
-								Process.Start(selectedPage.Url);
-							} catch { }
-						}
-						exportInformation.ExportMade = true;
-						exportInformation.Uri = selectedPage.Url;
-					} else {
-						exportInformation.ErrorMessage = errorMessage;
+				string errorMessage;
+				bool uploaded = upload(surface, selectedPage, filename, out errorMessage);
+				if (uploaded) {
+					if (openPage) {
+						try {
+							Process.Start(selectedPage.Url);
+						} catch { }
 					}
+					exportInformation.ExportMade = true;
+					exportInformation.Uri = selectedPage.Url;
+				} else {
+					exportInformation.ErrorMessage = errorMessage;
 				}
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
-		
-		private bool upload(Image image, Page page, string filename, out string errorMessage) {
+
+		private bool upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			errorMessage = null;
 			try {
 				new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
 					delegate() {
-						ConfluencePlugin.ConfluenceConnector.addAttachment(page.id, "image/" + config.UploadFormat.ToString().ToLower(), null, filename, new ImageContainer(image, outputSettings, filename));
+						ConfluencePlugin.ConfluenceConnector.addAttachment(page.id, "image/" + config.UploadFormat.ToString().ToLower(), null, filename, new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 					}
 				);
 				LOG.Debug("Uploaded to Confluence.");

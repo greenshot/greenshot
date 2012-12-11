@@ -58,11 +58,9 @@ namespace GreenshotImgurPlugin  {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			using (Image image = surface.GetImageForExport()) {
-				string uploadURL = null;
-				exportInformation.ExportMade = plugin.Upload(captureDetails, image, out uploadURL);
-				exportInformation.Uri = uploadURL;
-			}
+			string uploadURL = null;
+			exportInformation.ExportMade = plugin.Upload(captureDetails, surface, out uploadURL);
+			exportInformation.Uri = uploadURL;
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}

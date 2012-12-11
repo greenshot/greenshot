@@ -92,7 +92,7 @@ namespace GreenshotBoxPlugin {
 		/// </summary>
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>url to uploaded image</returns>
-		public static string UploadToBox(ImageContainer image, string title, string filename) {
+		public static string UploadToBox(SurfaceContainer image, string title, string filename) {
 			string folderId = "0";
 			if (string.IsNullOrEmpty(config.BoxToken)) {
 				if (!Authorize()) {

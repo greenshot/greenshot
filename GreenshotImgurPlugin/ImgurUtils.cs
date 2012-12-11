@@ -94,12 +94,12 @@ namespace GreenshotImgurPlugin {
 		/// Do the actual upload to Imgur
 		/// For more details on the available parameters, see: http://api.imgur.com/resources_anon
 		/// </summary>
-		/// <param name="image">Image to upload</param>
+		/// <param name="surfaceToUpload">ISurface to upload</param>
 		/// <param name="outputSettings">OutputSettings for the image file format</param>
 		/// <param name="title">Title</param>
 		/// <param name="filename">Filename</param>
 		/// <returns>ImgurInfo with details</returns>
-		public static ImgurInfo UploadToImgur(Image image, OutputSettings outputSettings, string title, string filename) {
+		public static ImgurInfo UploadToImgur(ISurface surfaceToUpload, OutputSettings outputSettings, string title, string filename) {
 			IDictionary<string, object> uploadParameters = new Dictionary<string, object>();
 			IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 			// add title
@@ -120,7 +120,7 @@ namespace GreenshotImgurPlugin {
 				webRequest.ServicePoint.Expect100Continue = false;
 				try {
 					using (var requestStream = webRequest.GetRequestStream()) {
-						ImageOutput.SaveToStream(image, requestStream, outputSettings);
+						ImageOutput.SaveToStream(surfaceToUpload, requestStream, outputSettings);
 					}
 		
 					using (WebResponse response = webRequest.GetResponse()) {
@@ -156,7 +156,7 @@ namespace GreenshotImgurPlugin {
 					IniConfig.Save();
 				}
 				try {
-					otherParameters.Add("image", new ImageContainer(image, outputSettings, filename));
+					otherParameters.Add("image", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 					responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.imgur.com/2/account/images.xml", uploadParameters, otherParameters, null);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);

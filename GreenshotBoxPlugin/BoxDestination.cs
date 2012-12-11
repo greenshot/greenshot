@@ -55,12 +55,10 @@ namespace GreenshotBoxPlugin {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			using (Image image = surface.GetImageForExport()) {
-				string uploadUrl = plugin.Upload(captureDetails, image);
-				if (uploadUrl != null) {
-					exportInformation.ExportMade = true;
-					exportInformation.Uri = uploadUrl;
-				}
+			string uploadUrl = plugin.Upload(captureDetails, surface);
+			if (uploadUrl != null) {
+				exportInformation.ExportMade = true;
+				exportInformation.Uri = uploadUrl;
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

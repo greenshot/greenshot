@@ -43,12 +43,12 @@ namespace Greenshot.Interop.Office {
 		private const string ONENOTE_NAMESPACE_2007 = "http://schemas.microsoft.com/office/onenote/2007/onenote";
 		private const string ONENOTE_NAMESPACE_2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
 
-		public static void ExportToPage(Bitmap imageToExport, OneNotePage page) {
+		public static void ExportToPage(ISurface surfaceToUpload, OneNotePage page) {
 			using (MemoryStream pngStream = new MemoryStream()) {
 				OutputSettings pngOutputSettings = new OutputSettings(OutputFormat.png, 100, false);
-				ImageOutput.SaveToStream(imageToExport, pngStream, pngOutputSettings);
+				ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
 				string base64String = Convert.ToBase64String(pngStream.GetBuffer());
-				string imageXmlStr = string.Format(XML_IMAGE_CONTENT, base64String, imageToExport.Width, imageToExport.Height);
+				string imageXmlStr = string.Format(XML_IMAGE_CONTENT, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
 				string pageChangesXml = string.Format(XML_OUTLINE, new object[] { imageXmlStr, page.PageID, ONENOTE_NAMESPACE_2010, page.PageName });
 				using (IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
 					LOG.InfoFormat("Sending XML: {0}", pageChangesXml);

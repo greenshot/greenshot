@@ -111,7 +111,7 @@ namespace GreenshotDropboxPlugin {
 		/// <summary>
 		/// This will be called when the menu item in the Editor is clicked
 		/// </summary>
-		public bool Upload(ICaptureDetails captureDetails, Image image, out string uploadUrl) {
+		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
 			uploadUrl = null;
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
 			try {
@@ -119,7 +119,7 @@ namespace GreenshotDropboxPlugin {
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("dropbox", LangKey.communication_wait), 
 					delegate() {
 						string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-						dropboxUrl = DropboxUtils.UploadToDropbox(image, outputSettings, filename);
+						dropboxUrl = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, filename);
 					}
 				);
 				if (dropboxUrl == null) {

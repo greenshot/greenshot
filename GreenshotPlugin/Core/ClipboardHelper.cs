@@ -335,10 +335,10 @@ EndSelection:<<<<<<<4
 			SetDataObject(ido);
 		}
 		
-		private static string getHTMLString(Image image, string filename) {
+		private static string getHTMLString(ISurface surface, string filename) {
 			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_STRING));
-			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${width}", image.Width.ToString());
-			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${height}", image.Height.ToString());
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", surface.Image.Width.ToString());
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", surface.Image.Height.ToString());
 			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${file}", filename);
 			StringBuilder sb=new StringBuilder();
 			sb.Append(utf8EncodedHTMLString);
@@ -349,10 +349,10 @@ EndSelection:<<<<<<<4
 			return sb.ToString(); 
 		}
 
-		private static string getHTMLDataURLString(Image image, MemoryStream pngStream) {
+		private static string getHTMLDataURLString(ISurface surface, MemoryStream pngStream) {
 			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_BASE64_STRING));
-			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${width}", image.Width.ToString());
-			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${height}", image.Height.ToString());
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", surface.Image.Width.ToString());
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", surface.Image.Height.ToString());
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${format}", "png");
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(),0, (int)pngStream.Length));
 			StringBuilder sb=new StringBuilder();
@@ -374,7 +374,7 @@ EndSelection:<<<<<<<4
 		/// For this problem the user should not use the direct paste (=Dib), but select Bitmap
 		/// </summary>
 		private const int BITMAPFILEHEADER_LENGTH = 14;
-		public static void SetClipboardData(Image image) {
+		public static void SetClipboardData(ISurface surface) {
 			DataObject ido = new DataObject();
 
 			// This will work for Office and most other applications
@@ -389,7 +389,7 @@ EndSelection:<<<<<<<4
 					pngStream = new MemoryStream();
 					// PNG works for Powerpoint
 					OutputSettings pngOutputSettings = new OutputSettings(OutputFormat.png, 100, false);
-					ImageOutput.SaveToStream(image, pngStream, pngOutputSettings);
+					ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
 					pngStream.Seek(0, SeekOrigin.Begin);
 				}
 
@@ -402,7 +402,7 @@ EndSelection:<<<<<<<4
 					bmpStream = new MemoryStream();
 					// Save image as BMP
 					OutputSettings bmpOutputSettings = new OutputSettings(OutputFormat.bmp, 100, false);
-					ImageOutput.SaveToStream(image, bmpStream, bmpOutputSettings);
+					ImageOutput.SaveToStream(surface, bmpStream, bmpOutputSettings);
 
 					imageStream = new MemoryStream();
 					// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
@@ -414,11 +414,11 @@ EndSelection:<<<<<<<4
 				
 				// Set the HTML
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
-					string tmpFile = ImageOutput.SaveToTmpFile(image, new OutputSettings(OutputFormat.png), null);
-					string html = getHTMLString(image, tmpFile);
+					string tmpFile = ImageOutput.SaveToTmpFile(surface, new OutputSettings(OutputFormat.png), null);
+					string html = getHTMLString(surface, tmpFile);
 					ido.SetText(html, TextDataFormat.Html);
 				} else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
-					string html = getHTMLDataURLString(image, pngStream);
+					string html = getHTMLDataURLString(surface, pngStream);
 					ido.SetText(html, TextDataFormat.Html);
 				}
 			} finally {

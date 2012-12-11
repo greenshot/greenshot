@@ -110,14 +110,14 @@ namespace GreenshotFlickrPlugin
 			config.ShowConfigDialog();
 		}
 
-		public void Upload(ICaptureDetails captureDetails, Image image, ExportInformation exportInformation) {
+		public void Upload(ICaptureDetails captureDetails, ISurface surface, ExportInformation exportInformation) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
 			try {
 				string flickrUrl = null;
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("flickr", LangKey.communication_wait), 
 					delegate() {
 						string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-						flickrUrl = FlickrUtils.UploadToFlickr(image, outputSettings, captureDetails.Title, filename);
+						flickrUrl = FlickrUtils.UploadToFlickr(surface, outputSettings, captureDetails.Title, filename);
 					}
 				);
 					

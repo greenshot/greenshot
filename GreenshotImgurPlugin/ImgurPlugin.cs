@@ -151,7 +151,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="image"></param>
 		/// <param name="uploadURL">out string for the url</param>
 		/// <returns>true if the upload succeeded</returns>
-		public bool Upload(ICaptureDetails captureDetails, Image image, out string uploadURL) {
+		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadURL) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			try {
 				string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
@@ -160,7 +160,7 @@ namespace GreenshotImgurPlugin {
 				// Run upload in the background
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
 					delegate() {
-						imgurInfo = ImgurUtils.UploadToImgur(image, outputSettings, captureDetails.Title, filename);
+						imgurInfo = ImgurUtils.UploadToImgur(surfaceToUpload, outputSettings, captureDetails.Title, filename);
 						LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
 						config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
 						config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
@@ -168,7 +168,10 @@ namespace GreenshotImgurPlugin {
 					}
 				);
 
-				imgurInfo.Image = ImageHelper.CreateThumbnail(image, 90, 90);
+				// TODO: Optimize a second call for export
+				using (Image tmpImage = surfaceToUpload.GetImageForExport()) {
+					imgurInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
+				}
 				IniConfig.Save();
 				uploadURL = null;
 				try {

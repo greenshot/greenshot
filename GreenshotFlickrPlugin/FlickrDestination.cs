@@ -54,9 +54,7 @@ namespace GreenshotFlickrPlugin {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			using (Image image = surface.GetImageForExport()) {
-			   	plugin.Upload(captureDetails, image, exportInformation);
-			}
+			plugin.Upload(captureDetails, surface, exportInformation);
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}

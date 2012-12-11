@@ -36,7 +36,7 @@ namespace GreenshotDropboxPlugin {
 		private DropboxUtils() {
 		}
 
-		public static string UploadToDropbox(Image image, OutputSettings outputSettings, string filename) {
+		public static string UploadToDropbox(ISurface surfaceToUpload, OutputSettings outputSettings, string filename) {
 			OAuthSession oAuth = new OAuthSession(DropBoxCredentials.CONSUMER_KEY, DropBoxCredentials.CONSUMER_SECRET);
 			oAuth.BrowserSize = new Size(1080, 650);
 			oAuth.CheckVerifier = false;
@@ -48,7 +48,7 @@ namespace GreenshotDropboxPlugin {
 			oAuth.TokenSecret = config.DropboxTokenSecret;
 
 			try {
-				ImageContainer imageToUpload = new ImageContainer(image, outputSettings, filename);
+				SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 				string uploadResponse = oAuth.MakeOAuthRequest(HTTPMethod.POST, "https://api-content.dropbox.com/1/files_put/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, imageToUpload);
 				LOG.DebugFormat("Upload response: {0}", uploadResponse);
 			} catch (Exception ex) {

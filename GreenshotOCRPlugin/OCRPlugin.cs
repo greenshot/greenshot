@@ -138,24 +138,10 @@ namespace GreenshotOCR {
 		public string DoOCR(ISurface surface) {
 			string filePath = null;
 			OutputSettings outputSettings = new OutputSettings(OutputFormat.bmp, 0, true);
+			// TODO: Add some filter & output settings so the output image is easier to process for the MODI-OCR code
+			// Also we need to check the size, resize if needed to 130x130 this is the minimum
+			filePath = ImageOutput.SaveToTmpFile(surface, outputSettings, null);
 
-			// Use surface background image, this prevents having a mouse cursor in the way.
-			Image capturedImage = surface.Image;
-			if (capturedImage.Width < MIN_WIDTH || capturedImage.Height < MIN_HEIGHT) {
-				LOG.Debug("Captured image is not big enough for OCR, growing image...");
-				int newWidth = Math.Max(capturedImage.Width, MIN_WIDTH);
-				int newHeight = Math.Max(capturedImage.Height, MIN_HEIGHT);
-				using (Image tmpImage = new Bitmap(newWidth, newHeight, capturedImage.PixelFormat)) {
-					using (Graphics graphics = Graphics.FromImage(tmpImage)) {
-						graphics.Clear(Color.White);
-						graphics.DrawImage(capturedImage, Point.Empty);
-					}
-					filePath = ImageOutput.SaveToTmpFile(tmpImage, outputSettings, null);
-				}
-			} else {
-				filePath = ImageOutput.SaveToTmpFile(capturedImage, outputSettings, null);
-			}
-		
 			LOG.Debug("Saved tmp file to: " + filePath);
 
 			string text = "";

@@ -109,7 +109,7 @@ namespace GreenshotPicasaPlugin {
 			Configure();
 		}
 
-		public bool Upload(ICaptureDetails captureDetails, Image image, out string uploadUrl) {
+		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
 			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality);
 			try {
 				string url = null;
@@ -117,7 +117,7 @@ namespace GreenshotPicasaPlugin {
 					delegate() {
 						string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
 						string contentType = "image/" + config.UploadFormat.ToString();
-						url = PicasaUtils.UploadToPicasa(image, outputSettings, captureDetails.Title, filename);
+						url = PicasaUtils.UploadToPicasa(surfaceToUpload, outputSettings, captureDetails.Title, filename);
 					}
 				);
 				uploadUrl = url;

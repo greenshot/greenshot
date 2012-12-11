@@ -40,9 +40,8 @@ namespace GreenshotPhotobucketPlugin {
 		/// Do the actual upload to Photobucket
 		/// For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
 		/// </summary>
-		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>PhotobucketResponse</returns>
-		public static PhotobucketInfo UploadToPhotobucket(Image image, OutputSettings outputSettings, string title, string filename) {
+		public static PhotobucketInfo UploadToPhotobucket(ISurface surfaceToUpload, OutputSettings outputSettings, string title, string filename) {
 			string responseString;
 
 			OAuthSession oAuth = new OAuthSession(PhotobucketCredentials.ConsumerKey, PhotobucketCredentials.ConsumerSecret);
@@ -94,7 +93,7 @@ namespace GreenshotPhotobucketPlugin {
 			}
 			IDictionary<string, object> unsignedParameters = new Dictionary<string, object>();
 			// Add image
-			unsignedParameters.Add("uploadfile", new ImageContainer(image, outputSettings, filename));
+			unsignedParameters.Add("uploadfile", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 			try {
 				string apiUrl = "http://api.photobucket.com/album/!/upload";
 				responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, unsignedParameters, null);
