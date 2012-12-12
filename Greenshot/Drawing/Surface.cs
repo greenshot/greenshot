@@ -37,6 +37,7 @@ using Greenshot.IniFile;
 using Greenshot.Drawing.Filters;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Controls;
+using Greenshot.Core;
 
 namespace Greenshot.Drawing {
 
@@ -896,61 +897,14 @@ namespace Greenshot.Drawing {
 		/// Apply a bitmap effect to the surface
 		/// </summary>
 		/// <param name="effect"></param>
-		public void ApplyBitmapEffect(Effects effect) {
+		public void ApplyBitmapEffect(IEffect effect) {
 			BackgroundForm backgroundForm = new BackgroundForm("Effect", "Please wait");
 			backgroundForm.Show();
 			Application.DoEvents();
 			try {
 				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-				Bitmap newImage = null;
-				Point offset = new Point(-1,-1);
-				switch (effect) {
-					case Effects.Shadow:
-						newImage = ImageHelper.CreateShadow((Bitmap)Image, 1f, 9, ref offset, PixelFormat.Format32bppArgb); //Image.PixelFormat);
-						break;
-					case Effects.TornEdge:
-						using (Bitmap tmpImage = ImageHelper.CreateTornEdge((Bitmap)Image)) {
-							newImage = ImageHelper.CreateShadow(tmpImage, 1f, 7, ref offset, PixelFormat.Format32bppArgb); //Image.PixelFormat);
-						}
-						break;
-					case Effects.Border:
-						newImage = ImageHelper.CreateBorder((Bitmap)Image, 2, Color.Black, Image.PixelFormat, out offset);
-						break;
-					case Effects.Grayscale:
-						newImage = ImageHelper.CreateGrayscale((Bitmap)Image);
-						break;
-					case Effects.Invert:
-						newImage = ImageHelper.CreateNegative((Bitmap)Image);
-						break;
-					case Effects.RotateClockwise:
-					case Effects.RotateCounterClockwise:
-						RotateFlipType rotateFlipType = RotateFlipType.Rotate270FlipNone;
-						if (effect == Effects.RotateClockwise) {
-							rotateFlipType = RotateFlipType.Rotate90FlipNone;
-						}
-						// Do not rotate the drawable containers until this works!
-						//MakeUndoable(new DrawableContainerBoundsChangeMemento(elements.AsIDrawableContainerList()), false);
-						//foreach (DrawableContainer drawableContainer in elements) {
-						//	if (drawableContainer.CanRotate) {
-						//		drawableContainer.Rotate(rotateFlipType);
-						//	}
-						//}
-						newImage = ImageHelper.RotateFlip((Bitmap)Image, rotateFlipType);
-						break;
-				}
-				// The following was added to correct any unneeded pixels, had the bad effect that sometimes everything was cropped... :(
-				//Rectangle autoCropRectangle = ImageHelper.FindAutoCropRectangle(newImage, 0);
-				//if (!Size.Empty.Equals(autoCropRectangle.Size) && !autoCropRectangle.Size.Equals(newImage.Size)) {
-				//    LOG.InfoFormat("Crop to {0}", autoCropRectangle);
-				//    using (Bitmap tmpImage = newImage) {
-				//        newImage = ImageHelper.CloneArea(newImage, autoCropRectangle, PixelFormat.DontCare);
-				//    }
-				//    // Fix offset
-				//    offset = new Point(offset.X - autoCropRectangle.X, offset.Y - autoCropRectangle.Y);
-				//} else {
-				//    LOG.DebugFormat("No cropping needed!");
-				//}
-
+				Point offset;
+				Bitmap newImage = ImageHelper.ApplyEffect((Bitmap)Image, effect, out offset);
 				if (newImage != null) {
 					// Make sure the elements move according to the offset the effect made the bitmap move
 					elements.MoveBy(offset.X, offset.Y);

@@ -99,7 +99,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="title">Title</param>
 		/// <param name="filename">Filename</param>
 		/// <returns>ImgurInfo with details</returns>
-		public static ImgurInfo UploadToImgur(ISurface surfaceToUpload, OutputSettings outputSettings, string title, string filename) {
+		public static ImgurInfo UploadToImgur(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
 			IDictionary<string, object> uploadParameters = new Dictionary<string, object>();
 			IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 			// add title

@@ -113,7 +113,7 @@ namespace GreenshotDropboxPlugin {
 		/// </summary>
 		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
 			uploadUrl = null;
-			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
 			try {
 				string dropboxUrl = null;
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("dropbox", LangKey.communication_wait), 

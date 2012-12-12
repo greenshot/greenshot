@@ -36,7 +36,7 @@ namespace GreenshotDropboxPlugin {
 		private DropboxUtils() {
 		}
 
-		public static string UploadToDropbox(ISurface surfaceToUpload, OutputSettings outputSettings, string filename) {
+		public static string UploadToDropbox(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string filename) {
 			OAuthSession oAuth = new OAuthSession(DropBoxCredentials.CONSUMER_KEY, DropBoxCredentials.CONSUMER_SECRET);
 			oAuth.BrowserSize = new Size(1080, 650);
 			oAuth.CheckVerifier = false;

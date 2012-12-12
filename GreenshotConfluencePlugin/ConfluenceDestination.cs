@@ -155,7 +155,7 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		private bool upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage) {
-			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			errorMessage = null;
 			try {
 				new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),

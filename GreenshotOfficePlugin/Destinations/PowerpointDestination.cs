@@ -113,7 +113,7 @@ namespace GreenshotOfficePlugin {
 			string tmpFile = captureDetails.Filename;
 			Size imageSize = Size.Empty;
 			if (tmpFile == null || surface.Modified) {
-				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new OutputSettings());
+				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings());
 				imageSize = surface.Image.Size;
 			}
 			if (presentationName != null) {

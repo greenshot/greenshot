@@ -29,6 +29,7 @@ using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
+using Greenshot.Core;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -91,13 +92,8 @@ namespace Greenshot.Drawing {
 
 		public Bitmap Bitmap {
 			set {
-				if (bitmap != null) {
-					bitmap.Dispose();
-				}
-				if (shadowBitmap != null) {
-					shadowBitmap.Dispose();
-					shadowBitmap = null;
-				}
+				// Remove all current bitmaps
+				Dispose(true);
 				bitmap = ImageHelper.Clone(value);
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 				CheckShadow(shadow);
@@ -114,29 +110,29 @@ namespace Greenshot.Drawing {
 			get { return bitmap; }
 		}
 
-		/**
-		 * Destructor
-		 */
+		/// <summary>
+		/// Destructor
+		/// </summary>
 		~BitmapContainer() {
 			Dispose(false);
 		}
 
-		/**
-		 * The public accessible Dispose
-		 * Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
-		 */
+		/// <summary>
+		/// The public accessible Dispose
+		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
+		/// </summary>
 		public new void Dispose() {
 			Dispose(true);
 			base.Dispose();
 			GC.SuppressFinalize(this);
 		}
 
-		// The bulk of the clean-up code is implemented in Dispose(bool)
-
-		/**
-		 * This Dispose is called from the Dispose and the Destructor.
-		 * When disposing==true all non-managed resources should be freed too!
-		 */
+		/// <summary>
+		/// The bulk of the clean-up code is implemented in Dispose(bool)
+		/// This Dispose is called from the Dispose and the Destructor.
+		/// When disposing==true all non-managed resources should be freed too!
+		/// </summary>
+		/// <param name="disposing"></param>
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
 				if (bitmap != null) {
@@ -150,6 +146,10 @@ namespace Greenshot.Drawing {
 			shadowBitmap = null;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="filename"></param>
 		public void Load(string filename) {
 			if (File.Exists(filename)) {
 				// Always make sure ImageHelper.LoadBitmap results are disposed some time,
@@ -161,21 +161,35 @@ namespace Greenshot.Drawing {
 			}
 		}
 
+		/// <summary>
+		/// Rotate the bitmap
+		/// </summary>
+		/// <param name="rotateFlipType"></param>
 		public override void Rotate(RotateFlipType rotateFlipType) {
 			Bitmap newBitmap = ImageHelper.RotateFlip((Bitmap)bitmap, rotateFlipType);
-			if (bitmap != null) {
-				bitmap.Dispose();
+			if (newBitmap != null) {
+				// Remove all current bitmaps, also the shadow (will be recreated)
+				Dispose(true);
+				bitmap = newBitmap;
 			}
-			bitmap = newBitmap;
 			base.Rotate(rotateFlipType);
 		}
 
+		/// <summary>
+		/// This checks if a shadow is already generated
+		/// </summary>
+		/// <param name="shadow"></param>
 		private void CheckShadow(bool shadow) {
 			if (shadow && shadowBitmap == null) {
-				shadowBitmap = ImageHelper.CreateShadow(bitmap, 1f, 6, ref shadowOffset, PixelFormat.Format32bppArgb);
+				shadowBitmap = ImageHelper.ApplyEffect(bitmap, new DropShadowEffect(), out shadowOffset);
 			}
 		}
 
+		/// <summary>
+		/// Draw the actual container to the graphics object
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="rm"></param>
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			if (bitmap != null) {
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);

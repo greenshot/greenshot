@@ -110,7 +110,7 @@ namespace GreenshotPicasaPlugin {
 		}
 
 		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
-			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality);
 			try {
 				string url = null;
 				new PleaseWaitForm().ShowAndWait(PicasaPlugin.Attributes.Name, Language.GetString("picasa", LangKey.communication_wait), 

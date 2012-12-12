@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
+using Greenshot.Core;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -74,7 +75,7 @@ namespace GreenshotPlugin.Core {
 		/// To prevent problems with GDI version of before Windows 7:
 		/// the stream is checked if it's seekable and if needed a MemoryStream as "cache" is used.
 		/// </summary>
-		public static void SaveToStream(ISurface surface, Stream stream, OutputSettings outputSettings) {
+		public static void SaveToStream(ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
 			ImageFormat imageFormat = null;
 			bool disposeImage = false;
 			bool useMemoryStream = false;
@@ -112,7 +113,7 @@ namespace GreenshotPlugin.Core {
 
 			// check what image we want to save
 			Image imageToSave = null;
-			if (outputSettings.Format == OutputFormat.greenshot) {
+			if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly) {
 				// We save the image of the surface, this should not be disposed
 				imageToSave = surface.Image;
 			} else {
@@ -122,7 +123,18 @@ namespace GreenshotPlugin.Core {
 			}
 			try {
 
-				// Removing transparency if it's not supported
+				// apply effects, if there are any
+				Point ignoreOffset;
+				Image tmpImage = ImageHelper.ApplyEffects((Bitmap)imageToSave, outputSettings.Effects, out ignoreOffset);
+				if (tmpImage != null) {
+					if (disposeImage) {
+						imageToSave.Dispose();
+					}
+					imageToSave = tmpImage;
+					disposeImage = true;
+				}
+
+				// Removing transparency if it's not supported in the output
 				if (imageFormat != ImageFormat.Png && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
 					Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
 					if (disposeImage) {
@@ -141,7 +153,7 @@ namespace GreenshotPlugin.Core {
 					if (outputSettings.ReduceColors || colorCount < 256) {
 						try {
 							LOG.Info("Reducing colors on bitmap to 255.");
-							Image tmpImage = quantizer.GetQuantizedImage(255);
+							tmpImage = quantizer.GetQuantizedImage(255);
 							if (disposeImage) {
 								imageToSave.Dispose();
 							}
@@ -152,8 +164,6 @@ namespace GreenshotPlugin.Core {
 							LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 						}
 					}
-				} else {
-					LOG.Info("Skipping color reduction test, OutputFileAutoReduceColors is set to false.");
 				}
 
 				// Create meta-data
@@ -273,7 +283,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Saves image to specific path with specified quality
 		/// </summary>
-		public static void Save(ISurface surface, string fullPath, bool allowOverwrite, OutputSettings outputSettings, bool copyPathToClipboard) {
+		public static void Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings, bool copyPathToClipboard) {
 			fullPath = FilenameHelper.MakeFQFilenameSafe(fullPath);
 			string path = Path.GetDirectoryName(fullPath);
 
@@ -334,7 +344,7 @@ namespace GreenshotPlugin.Core {
 			if (dialogResult.Equals(DialogResult.OK)) {
 				try {
 					string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-					OutputSettings outputSettings = new OutputSettings(FormatForFilename(fileNameWithExtension));
+					SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
 					if (conf.OutputFilePromptQuality) {
 						QualityDialog qualityDialog = new QualityDialog(outputSettings);
 						qualityDialog.ShowDialog();
@@ -360,7 +370,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="captureDetails"></param>
 		/// <param name="outputSettings"></param>
 		/// <returns>Path to image file</returns>
-		public static string SaveNamedTmpFile(ISurface surface, ICaptureDetails captureDetails, OutputSettings outputSettings) {
+		public static string SaveNamedTmpFile(ISurface surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings) {
 			string pattern = conf.OutputFileFilenamePattern;
 			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
 				pattern = "greenshot ${capturetime}";
@@ -393,7 +403,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
-		public static string SaveToTmpFile(ISurface surface, OutputSettings outputSettings, string destinationPath) {
+		public static string SaveToTmpFile(ISurface surface, SurfaceOutputSettings outputSettings, string destinationPath) {
 			string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format.ToString();
 			// Prevent problems with "other characters", which could cause problems
 			tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", "");

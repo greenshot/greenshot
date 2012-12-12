@@ -65,7 +65,7 @@ namespace Greenshot.Helpers {
 		/// <param name="image">The image to send</param>
 		/// <param name="captureDetails">ICaptureDetails</param>
 		public static void SendImage(ISurface surface, ICaptureDetails captureDetails) {
-			string tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new OutputSettings());
+			string tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings());
 
 			if (tmpFile != null) {
 				// Store the list of currently active windows, so we can make sure we show the email window later!

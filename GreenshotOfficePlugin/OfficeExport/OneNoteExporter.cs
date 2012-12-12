@@ -45,7 +45,7 @@ namespace Greenshot.Interop.Office {
 
 		public static void ExportToPage(ISurface surfaceToUpload, OneNotePage page) {
 			using (MemoryStream pngStream = new MemoryStream()) {
-				OutputSettings pngOutputSettings = new OutputSettings(OutputFormat.png, 100, false);
+				SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
 				ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
 				string base64String = Convert.ToBase64String(pngStream.GetBuffer());
 				string imageXmlStr = string.Format(XML_IMAGE_CONTENT, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);

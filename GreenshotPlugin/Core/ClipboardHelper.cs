@@ -388,7 +388,7 @@ EndSelection:<<<<<<<4
 				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG) || config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
 					pngStream = new MemoryStream();
 					// PNG works for Powerpoint
-					OutputSettings pngOutputSettings = new OutputSettings(OutputFormat.png, 100, false);
+					SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
 					ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
 					pngStream.Seek(0, SeekOrigin.Begin);
 				}
@@ -401,7 +401,7 @@ EndSelection:<<<<<<<4
 				if (config.ClipboardFormats.Contains(ClipboardFormat.DIB)) {
 					bmpStream = new MemoryStream();
 					// Save image as BMP
-					OutputSettings bmpOutputSettings = new OutputSettings(OutputFormat.bmp, 100, false);
+					SurfaceOutputSettings bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
 					ImageOutput.SaveToStream(surface, bmpStream, bmpOutputSettings);
 
 					imageStream = new MemoryStream();
@@ -414,7 +414,7 @@ EndSelection:<<<<<<<4
 				
 				// Set the HTML
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
-					string tmpFile = ImageOutput.SaveToTmpFile(surface, new OutputSettings(OutputFormat.png), null);
+					string tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png), null);
 					string html = getHTMLString(surface, tmpFile);
 					ido.SetText(html, TextDataFormat.Html);
 				} else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {

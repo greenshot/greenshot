@@ -111,7 +111,7 @@ namespace GreenshotFlickrPlugin
 		}
 
 		public void Upload(ICaptureDetails captureDetails, ISurface surface, ExportInformation exportInformation) {
-			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
 			try {
 				string flickrUrl = null;
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("flickr", LangKey.communication_wait), 

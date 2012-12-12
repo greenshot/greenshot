@@ -64,7 +64,7 @@ namespace ExternalCommand {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			OutputSettings outputSettings = new OutputSettings();
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
 
 			
 			if (presetCommand != null) {

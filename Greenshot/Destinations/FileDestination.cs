@@ -76,7 +76,7 @@ namespace Greenshot.Destinations {
             bool overwrite;
             string fullPath;
 			// Get output settings from the configuration
-			OutputSettings outputSettings = new OutputSettings();
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
 
 			if (captureDetails != null && captureDetails.Filename != null) {
                 // As we save a pre-selected file, allow to overwrite.

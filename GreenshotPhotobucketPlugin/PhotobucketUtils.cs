@@ -41,7 +41,7 @@ namespace GreenshotPhotobucketPlugin {
 		/// For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
 		/// </summary>
 		/// <returns>PhotobucketResponse</returns>
-		public static PhotobucketInfo UploadToPhotobucket(ISurface surfaceToUpload, OutputSettings outputSettings, string title, string filename) {
+		public static PhotobucketInfo UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
 			string responseString;
 
 			OAuthSession oAuth = new OAuthSession(PhotobucketCredentials.ConsumerKey, PhotobucketCredentials.ConsumerSecret);

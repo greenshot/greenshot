@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using Greenshot.Core;
 
 //using Microsoft.Win32;
 
@@ -137,9 +138,18 @@ namespace GreenshotOCR {
 		private const int MIN_HEIGHT = 130;
 		public string DoOCR(ISurface surface) {
 			string filePath = null;
-			OutputSettings outputSettings = new OutputSettings(OutputFormat.bmp, 0, true);
-			// TODO: Add some filter & output settings so the output image is easier to process for the MODI-OCR code
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true);
+			outputSettings.ReduceColors = true;
+			// We only want the background
+			outputSettings.SaveBackgroundOnly = true;
+			// Force Grayscale output
+			outputSettings.Effects.Add(new GrayscaleEffect());
+
 			// Also we need to check the size, resize if needed to 130x130 this is the minimum
+			if (surface.Image.Width < MIN_WIDTH || surface.Image.Height < MIN_HEIGHT) {
+				IEffect resizeEffect = new ResizeEffect(Math.Max(surface.Image.Width, MIN_WIDTH), Math.Max(surface.Image.Height, MIN_HEIGHT), true);
+				outputSettings.Effects.Add(resizeEffect);
+			}
 			filePath = ImageOutput.SaveToTmpFile(surface, outputSettings, null);
 
 			LOG.Debug("Saved tmp file to: " + filePath);
@@ -163,11 +173,12 @@ namespace GreenshotOCR {
 					File.Delete(filePath);
 				}
 			}
+
 			if (text == null || text.Trim().Length == 0) {
 				LOG.Info("No text returned");
 				return null;
 			}
-				
+
 			try {
 				LOG.DebugFormat("Pasting OCR Text to Clipboard: {0}", text);
 				// Paste to Clipboard (the Plugin currently doesn't have access to the ClipboardHelper from Greenshot

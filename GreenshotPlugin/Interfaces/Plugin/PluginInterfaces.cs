@@ -26,6 +26,7 @@ using System.Windows.Forms;
 
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using Greenshot.Core;
 
 namespace Greenshot.Plugin {
 	[Serializable]
@@ -74,25 +75,26 @@ namespace Greenshot.Plugin {
 	// Delegates for hooking up events.
 	public delegate void HotKeyHandler();
 
-	public class OutputSettings {
+	public class SurfaceOutputSettings {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private bool reduceColors;
+		private List<IEffect> effects = new List<IEffect>();
 
-		public OutputSettings() {
+		public SurfaceOutputSettings() {
 			Format = conf.OutputFileFormat;
 			JPGQuality = conf.OutputFileJpegQuality;
 			ReduceColors = conf.OutputFileReduceColors;
 		}
 
-		public OutputSettings(OutputFormat format) : this() {
+		public SurfaceOutputSettings(OutputFormat format) : this() {
 			Format = format;
 		}
 
-		public OutputSettings(OutputFormat format, int quality) : this(format) {
+		public SurfaceOutputSettings(OutputFormat format, int quality) : this(format) {
 			JPGQuality = quality;
 		}
 
-		public OutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality) {
+		public SurfaceOutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality) {
 			ReduceColors = reduceColors;
 		}
 
@@ -104,6 +106,17 @@ namespace Greenshot.Plugin {
 		public int JPGQuality {
 			get;
 			set;
+		}
+
+		public bool SaveBackgroundOnly {
+			get;
+			set;
+		}
+
+		public List<IEffect> Effects {
+			get {
+				return effects;
+			}
 		}
 
 		public bool ReduceColors {

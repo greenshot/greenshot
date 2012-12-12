@@ -30,12 +30,12 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public partial class QualityDialog : GreenshotForm {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		public OutputSettings Settings {
+		public SurfaceOutputSettings Settings {
 			get;
 			set;
 		}
 
-		public QualityDialog(OutputSettings outputSettings) {
+		public QualityDialog(SurfaceOutputSettings outputSettings) {
 			Settings = outputSettings;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.

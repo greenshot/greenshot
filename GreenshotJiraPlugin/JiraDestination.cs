@@ -102,7 +102,7 @@ namespace GreenshotJiraPlugin {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			if (jira != null) {
 				try {
 					// Run upload in the background

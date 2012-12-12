@@ -415,10 +415,10 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class SurfaceContainer : IBinaryContainer {
 		private ISurface surface;
-		private OutputSettings outputSettings;
+		private SurfaceOutputSettings outputSettings;
 		private string fileName;
 
-		public SurfaceContainer(ISurface surface, OutputSettings outputSettings, string filename) {
+		public SurfaceContainer(ISurface surface, SurfaceOutputSettings outputSettings, string filename) {
 			this.surface = surface;
 			this.outputSettings = outputSettings;
 			this.fileName = filename;

@@ -111,7 +111,7 @@ namespace GreenshotBoxPlugin {
 		/// This will be called when the menu item in the Editor is clicked
 		/// </summary>
 		public string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload) {
-			OutputSettings outputSettings = new OutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
 			try {
 				string url = null;
 				string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));

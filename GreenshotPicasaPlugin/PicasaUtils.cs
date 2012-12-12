@@ -41,7 +41,7 @@ namespace GreenshotPicasaPlugin {
 		/// </summary>
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>PicasaResponse</returns>
-		public static string UploadToPicasa(ISurface surfaceToUpload, OutputSettings outputSettings, string title, string filename) {
+		public static string UploadToPicasa(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
 			OAuthSession oAuth = new OAuthSession(PicasaCredentials.ConsumerKey, PicasaCredentials.ConsumerSecret);
 			oAuth.BrowserSize = new Size(1020, 590);
 			oAuth.AccessTokenUrl =  "https://www.google.com/accounts/OAuthGetAccessToken";

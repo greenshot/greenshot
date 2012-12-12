@@ -44,7 +44,7 @@ namespace GreenshotFlickrPlugin {
 		/// </summary>
 		/// <param name="imageData">byte[] with image data</param>
 		/// <returns>url to image</returns>
-		public static string UploadToFlickr(ISurface surfaceToUpload, OutputSettings outputSettings, string title, string filename) {
+		public static string UploadToFlickr(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
 			OAuthSession oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret);
 			oAuth.BrowserSize = new Size(520, 800);
 			oAuth.CheckVerifier = false;

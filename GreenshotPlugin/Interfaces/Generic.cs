@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using Greenshot.Plugin.Drawing;
 using System.IO;
 using System.Collections.Generic;
+using Greenshot.Core;
 
 namespace Greenshot.Plugin {
 	/// <summary>
@@ -33,7 +34,6 @@ namespace Greenshot.Plugin {
 	/// </summary>
 	//public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
 	public enum VerticalAlignment {TOP, CENTER, BOTTOM};
-	public enum Effects { Shadow, TornEdge, Border, Grayscale, RotateClockwise, RotateCounterClockwise, Invert };
 
 	public enum SurfaceMessageTyp {
 		FileSaved,
@@ -148,7 +148,7 @@ namespace Greenshot.Plugin {
 		}
 		void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable);
 		void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
-		void ApplyBitmapEffect(Effects effect);
+		void ApplyBitmapEffect(IEffect effect);
 		void RemoveCursor();
 		bool HasCursor {
 			get;

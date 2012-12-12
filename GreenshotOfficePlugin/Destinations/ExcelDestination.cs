@@ -111,7 +111,7 @@ namespace GreenshotOfficePlugin {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified) {
-				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new OutputSettings(OutputFormat.png));
+				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings(OutputFormat.png));
 			}
 			if (workbookName != null) {
 				ExcelExporter.InsertIntoExistingWorkbook(workbookName, tmpFile);

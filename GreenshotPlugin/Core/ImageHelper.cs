@@ -27,6 +27,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Greenshot.IniFile;
 using GreenshotPlugin.UnmanagedHelpers;
+using Greenshot.Plugin;
+using Greenshot.Core;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -36,9 +38,26 @@ namespace GreenshotPlugin.Core {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
+		/// <summary>
+		/// Create a thumbnail from an image
+		/// </summary>
+		/// <param name="image"></param>
+		/// <param name="thumbWidth"></param>
+		/// <param name="thumbHeight"></param>
+		/// <returns></returns>
 		public static Image CreateThumbnail(Image image, int thumbWidth, int thumbHeight) {
 			return CreateThumbnail(image, thumbWidth, thumbHeight, -1, -1);
 		}
+
+		/// <summary>
+		/// Create a Thumbnail
+		/// </summary>
+		/// <param name="image"></param>
+		/// <param name="thumbWidth"></param>
+		/// <param name="thumbHeight"></param>
+		/// <param name="maxWidth"></param>
+		/// <param name="maxHeight"></param>
+		/// <returns></returns>
 		public static Image CreateThumbnail(Image image, int thumbWidth, int thumbHeight, int maxWidth, int maxHeight) {
 			int srcWidth=image.Width;
 			int srcHeight=image.Height; 
@@ -90,11 +109,11 @@ namespace GreenshotPlugin.Core {
 		}
 		
 		/// <summary>
-		/// Helper method for the FindAutoCropRectangle
+		/// Private helper method for the FindAutoCropRectangle
 		/// </summary>
 		/// <param name="buffer"></param>
 		/// <param name="colorPoint"></param>
-		/// <returns></returns>
+		/// <returns>Rectangle</returns>
 		private static Rectangle FindAutoCropRectangle(BitmapBuffer buffer, Point colorPoint, int cropDifference) {
 			Rectangle cropRectangle = Rectangle.Empty;
 			Color referenceColor = buffer.GetColorAtWithoutAlpha(colorPoint.X,colorPoint.Y);
@@ -225,19 +244,15 @@ namespace GreenshotPlugin.Core {
 			}
 			return fileBitmap;
 		}
-		
-		/**
-		 * Checks if we support the supplied PixelFormat
-		 */
-		private static bool isSupported(PixelFormat pixelformat) {
-			return (PixelFormat.Format32bppArgb.Equals(pixelformat)||
-					PixelFormat.Format32bppRgb.Equals(pixelformat) || 
-					PixelFormat.Format24bppRgb.Equals(pixelformat));
-		}
-		
-		// Based on: http://www.codeproject.com/KB/cs/IconExtractor.aspx
-		// And a hint from: http://www.codeproject.com/KB/cs/IconLib.aspx
-		public static Bitmap ExtractVistaIcon(Stream iconStream) {
+
+
+		/// <summary>
+		/// Based on: http://www.codeproject.com/KB/cs/IconExtractor.aspx
+		/// And a hint from: http://www.codeproject.com/KB/cs/IconLib.aspx
+		/// </summary>
+		/// <param name="iconStream">Stream with the icon information</param>
+		/// <returns>Bitmap with the Vista Icon (256x256)</returns>
+		private static Bitmap ExtractVistaIcon(Stream iconStream) {
 			const int SizeICONDIR = 6;
 			const int SizeICONDIRENTRY = 16;
 			Bitmap bmpPngExtracted = null;
@@ -313,6 +328,44 @@ namespace GreenshotPlugin.Core {
 			IntPtr large = IntPtr.Zero;
 			IntPtr small = IntPtr.Zero;
 			return Shell32.ExtractIconEx(location, -1, out large, out small, 0);
+		}
+
+		/// <summary>
+		/// Apply the effect to the bitmap
+		/// </summary>
+		/// <param name="sourceBitmap">Bitmap</param>
+		/// <param name="effect">IEffect</param>
+		/// <returns>Bitmap</returns>
+		public static Bitmap ApplyEffect(Bitmap sourceBitmap, IEffect effect, out Point offset) {
+			List<IEffect> effects = new List<IEffect>();
+			effects.Add(effect);
+			return ApplyEffects(sourceBitmap, effects, out offset);
+		}
+
+		/// <summary>
+		/// Apply the effects in the supplied order to the bitmap
+		/// </summary>
+		/// <param name="sourceBitmap">Bitmap</param>
+		/// <param name="effects">List<IEffect></param>
+		/// <returns>Bitmap</returns>
+		public static Bitmap ApplyEffects(Bitmap sourceBitmap, List<IEffect> effects, out Point offset) {
+			Bitmap currentBitmap = sourceBitmap;
+			bool disposeImage = false;
+			// Default out value for the offset, will be modified there where needed
+			offset = new Point(0, 0);
+			Point tmpPoint;
+			Bitmap tmpBitmap = null;
+			foreach (IEffect effect in effects) {
+				tmpBitmap = effect.Apply(currentBitmap, out tmpPoint);
+				offset.Offset(tmpPoint);
+				if (disposeImage) {
+					currentBitmap.Dispose();
+				}
+				currentBitmap = tmpBitmap;
+				// Make sure the "new" image is disposed
+				disposeImage = true;
+			}
+			return tmpBitmap;
 		}
 
 		/// <summary>
@@ -843,9 +896,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
 		/// <param name="offset">How many pixels is the original image moved?</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, ref Point offset, PixelFormat targetPixelformat) {
+		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, Point shadowOffset, out Point offset, PixelFormat targetPixelformat) {
 			// Create a new "clean" image
 			Bitmap returnImage = null;
+			offset = shadowOffset;
 			offset.X += shadowSize - 1;
 			offset.Y += shadowSize - 1;
 			using (Bitmap tmpImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution)) {
@@ -958,9 +1012,16 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Bitmap with grayscale</returns>
 		public static Bitmap CreateGrayscale(Bitmap sourceBitmap) {
 			//create a blank bitmap the same size as original
-			Bitmap newBitmap = CreateEmptyLike(sourceBitmap, Color.Empty);
+			// If using 8bpp than the following exception comes: A Graphics object cannot be created from an image that has an indexed pixel format. 
+			Bitmap newBitmap = CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format24bppRgb, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			//ColorPalette imagePalette = newBitmap.Palette;
+			//for (int i = 0; i <= 255; i++) {
+			//    // create greyscale color table
+			//    imagePalette.Entries[i] = Color.FromArgb(i, i, i);
+			//}
+			//newBitmap.Palette = imagePalette;
 
-			//get a graphics object from the new image
+			// get a graphics object from the new image
 			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
 				// create the grayscale ColorMatrix
 				ColorMatrix colorMatrix = new ColorMatrix(

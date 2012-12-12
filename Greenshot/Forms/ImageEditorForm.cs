@@ -41,6 +41,7 @@ using Greenshot.IniFile;
 using System.Threading;
 using System.Drawing.Imaging;
 using Greenshot.Plugin.Drawing;
+using Greenshot.Core;
 
 namespace Greenshot {
 	/// <summary>
@@ -1198,22 +1199,22 @@ namespace Greenshot {
 		}
 
 		void AddBorderToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(Effects.Border);
+			surface.ApplyBitmapEffect(new BorderEffect());
 			updateUndoRedoSurfaceDependencies();
 		}
 
 		void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(Effects.Shadow);
+			surface.ApplyBitmapEffect(new DropShadowEffect());
 			updateUndoRedoSurfaceDependencies();
 		}
 
 		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(Effects.TornEdge);
+			surface.ApplyBitmapEffect(new TornEdgeEffect());
 			updateUndoRedoSurfaceDependencies();
 		}
 
 		void GrayscaleToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(Effects.Grayscale);
+			surface.ApplyBitmapEffect(new GrayscaleEffect());
 			updateUndoRedoSurfaceDependencies();
 		}
 
@@ -1223,17 +1224,17 @@ namespace Greenshot {
 		}
 
 		void RotateCwToolstripButtonClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(Effects.RotateClockwise);
+			surface.ApplyBitmapEffect(new RotateEffect(90));
 			updateUndoRedoSurfaceDependencies();
 		}
 		
 		void RotateCcwToolstripButtonClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(Effects.RotateCounterClockwise);
+			surface.ApplyBitmapEffect(new RotateEffect(270));
 			updateUndoRedoSurfaceDependencies();
 		}
 		
 		void InvertToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(Effects.Invert);
+			surface.ApplyBitmapEffect(new InvertEffect());
 			updateUndoRedoSurfaceDependencies();
 		}
 
