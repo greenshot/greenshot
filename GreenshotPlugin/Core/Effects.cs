@@ -183,4 +183,42 @@ namespace Greenshot.Core {
 			return ImageHelper.ResizeBitmap(sourceBitmap, MaintainAspectRatio, Width, Height);
 		}
 	}
+
+	/// <summary>
+	/// GrowEffect
+	/// </summary>
+	public class GrowEffect : IEffect {
+		public GrowEffect(int left, int right, int top, int bottom) {
+			Left = left;
+			Right = right;
+			Top = top;
+			Bottom = bottom;
+			BackgroundColor = Color.Empty;	// Uses the default background color depending on the format
+		}
+		public int Left {
+			get;
+			set;
+		}
+		public int Right {
+			get;
+			set;
+		}
+		public int Top {
+			get;
+			set;
+		}
+		public int Bottom {
+			get;
+			set;
+		}
+		public Color BackgroundColor {
+			get;
+			set;
+		}
+		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
+			// Make sure the elements move according to the offset the effect made the bitmap move
+			offsetChange = new Point(Left, Top);
+			return ImageHelper.GrowCanvas(sourceBitmap, BackgroundColor, Left, Right, Top, Bottom);
+		}
+	}
 }

@@ -834,49 +834,6 @@ namespace Greenshot.Drawing {
 			}
 			return false;
 		}
-		
-		/// <summary>
-		/// "Grow" the canvas with the specified pixels on the left, right, top and bottom. Using the backgroundColor.
-		/// </summary>
-		/// <param name="backgroundColor"></param>
-		/// <param name="left"></param>
-		/// <param name="right"></param>
-		/// <param name="top"></param>
-		/// <param name="bottom"></param>
-		public void GrowCanvas(Color backgroundColor, int left, int right, int top, int bottom) {
-			Bitmap newImage = ImageHelper.GrowCanvas((Bitmap)Image, backgroundColor, left, right, top, bottom);
-			// Make sure the elements move according to the offset the effect made the bitmap move
-			elements.MoveBy(left, top);
-			// Make undoable
-			MakeUndoable(new SurfaceBackgroundChangeMemento(this, new Point(left, top)), false);
-			SetImage(newImage, false);
-			Invalidate();
-			if (surfaceSizeChanged != null) {
-				surfaceSizeChanged(this);
-			}
-		}
-		
-		/// <summary>
-		/// Resize bitmap
-		/// </summary>
-		/// <param name="backgroundColor"></param>
-		/// <param name="left"></param>
-		/// <param name="right"></param>
-		/// <param name="top"></param>
-		/// <param name="bottom"></param>
-		public void ResizeBitmap(bool lockAspectRatio, bool canvasUsedNewSize, Color backgroundColor, int newWidth, int newHeight) {
-			Point offset;
-			Bitmap newImage = ImageHelper.ResizeBitmap((Bitmap)Image, lockAspectRatio, canvasUsedNewSize, backgroundColor, newWidth, newHeight, out offset);
-			// Make sure the elements move according to the offset the effect made the bitmap move
-			elements.MoveBy(offset.X, offset.Y);
-			// Make undoable
-			MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
-			SetImage(newImage, false);
-			Invalidate();
-			if (surfaceSizeChanged != null) {
-				surfaceSizeChanged(this);
-			}
-		}
 
 		/// <summary>
 		/// A simple clear
