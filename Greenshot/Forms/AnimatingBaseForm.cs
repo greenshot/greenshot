@@ -22,6 +22,9 @@ using System;
 using GreenshotPlugin.Controls;
 
 namespace Greenshot {
+	/// <summary>
+	/// This class is only here to help in the Designer mode, so it's clear where the language files are
+	/// </summary>
 	public class AnimatingBaseForm : AnimatingForm {
 	}
 }

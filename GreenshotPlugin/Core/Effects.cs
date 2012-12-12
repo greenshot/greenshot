@@ -57,35 +57,36 @@ namespace Greenshot.Core {
 			get;
 			set;
 		}
-		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
+		public virtual Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
 			return ImageHelper.CreateShadow(sourceBitmap, Darkness, ShadowSize, ShadowOffset, out offsetChange, PixelFormat.Format32bppArgb); //Image.PixelFormat);
 		}
 	}
 
 	/// <summary>
-	/// TornEdgeEffect
+	/// TornEdgeEffect extends on DropShadowEffect
 	/// </summary>
-	public class TornEdgeEffect : IEffect {
-		public TornEdgeEffect() {
-			Darkness = 1f;
+	public class TornEdgeEffect : DropShadowEffect {
+		public TornEdgeEffect() : base() {
 			ShadowSize = 7;
-			ShadowOffset = new Point(-1, -1);
+			ToothHeight = 12;
+			HorizontalToothRange = 20;
+			VerticalToothRange = 20;
 		}
-		public float Darkness {
+		public int ToothHeight {
 			get;
 			set;
 		}
-		public int ShadowSize {
+		public int HorizontalToothRange {
 			get;
 			set;
 		}
-		public Point ShadowOffset {
+		public int VerticalToothRange {
 			get;
 			set;
 		}
-		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
-			using (Bitmap tmpTornImage = ImageHelper.CreateTornEdge(sourceBitmap)) {
-				return ImageHelper.CreateShadow(tmpTornImage, Darkness, ShadowSize, ShadowOffset, out offsetChange, PixelFormat.Format32bppArgb); //Image.PixelFormat);
+		public override Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
+			using (Bitmap tmpTornImage = ImageHelper.CreateTornEdge(sourceBitmap, ToothHeight, HorizontalToothRange, VerticalToothRange)) {
+				return ImageHelper.CreateShadow(tmpTornImage, Darkness, ShadowSize, ShadowOffset, out offsetChange, PixelFormat.Format32bppArgb);
 			}
 		}
 	}

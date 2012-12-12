@@ -1204,13 +1204,21 @@ namespace Greenshot {
 		}
 
 		void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(new DropShadowEffect());
-			updateUndoRedoSurfaceDependencies();
+			DropShadowEffect dropShadowEffect= new DropShadowEffect();
+			DialogResult result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
+			if (result == DialogResult.OK) {
+				surface.ApplyBitmapEffect(dropShadowEffect);
+				updateUndoRedoSurfaceDependencies();
+			}
 		}
 
 		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(new TornEdgeEffect());
-			updateUndoRedoSurfaceDependencies();
+			TornEdgeEffect tornEdgeEffect = new TornEdgeEffect();
+			DialogResult result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
+			if (result == DialogResult.OK) {
+				surface.ApplyBitmapEffect(tornEdgeEffect);
+				updateUndoRedoSurfaceDependencies();
+			}
 		}
 
 		void GrayscaleToolStripMenuItemClick(object sender, EventArgs e) {

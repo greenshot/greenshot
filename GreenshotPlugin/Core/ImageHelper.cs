@@ -372,24 +372,24 @@ namespace GreenshotPlugin.Core {
 		/// Make the picture look like it's torn
 		/// </summary>
 		/// <param name="sourceBitmap">Bitmap to make torn edge off</param>
+		/// <param name="toothHeight">How large (height) is each tooth</param>
+		/// <param name="horizontalToothRange">How wide is a horizontal tooth</param>
+		/// <param name="verticalToothRange">How wide is a vertical tooth</param>
 		/// <returns>Changed bitmap</returns>
-		public static Bitmap CreateTornEdge(Bitmap sourceBitmap) {
+		public static Bitmap CreateTornEdge(Bitmap sourceBitmap, int toothHeight, int horizontalToothRange, int verticalToothRange) {
 			Bitmap returnImage = CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			using (GraphicsPath path = new GraphicsPath()) {
 				Random random = new Random();
-				int regionWidth = 20;
-				int regionHeight = 20;
-				int HorizontalRegions = (int)(sourceBitmap.Width / regionWidth);
-				int VerticalRegions = (int)(sourceBitmap.Height / regionHeight);
-				int distance = 12;
+				int HorizontalRegions = (int)(sourceBitmap.Width / horizontalToothRange);
+				int VerticalRegions = (int)(sourceBitmap.Height / verticalToothRange);
 
 				// Start
-				Point previousEndingPoint = new Point(regionWidth, random.Next(1, distance));
+				Point previousEndingPoint = new Point(horizontalToothRange, random.Next(1, toothHeight));
 				Point newEndingPoint;
 				// Top
 				for (int i = 0; i < HorizontalRegions; i++) {
-					int x = (int)previousEndingPoint.X + regionWidth;
-					int y = random.Next(1, distance);
+					int x = (int)previousEndingPoint.X + horizontalToothRange;
+					int y = random.Next(1, toothHeight);
 					newEndingPoint = new Point(x, y);
 					path.AddLine(previousEndingPoint, newEndingPoint);
 					previousEndingPoint = newEndingPoint;
@@ -397,8 +397,8 @@ namespace GreenshotPlugin.Core {
 
 				// Right
 				for (int i = 0; i < VerticalRegions; i++) {
-					int x = sourceBitmap.Width - random.Next(1, distance);
-					int y = (int)previousEndingPoint.Y + regionHeight;
+					int x = sourceBitmap.Width - random.Next(1, toothHeight);
+					int y = (int)previousEndingPoint.Y + verticalToothRange;
 					newEndingPoint = new Point(x, y);
 					path.AddLine(previousEndingPoint, newEndingPoint);
 					previousEndingPoint = newEndingPoint;
@@ -406,8 +406,8 @@ namespace GreenshotPlugin.Core {
 
 				// Bottom
 				for (int i = 0; i < HorizontalRegions; i++) {
-					int x = (int)previousEndingPoint.X - regionWidth;
-					int y = sourceBitmap.Height - random.Next(1, distance);
+					int x = (int)previousEndingPoint.X - horizontalToothRange;
+					int y = sourceBitmap.Height - random.Next(1, toothHeight);
 					newEndingPoint = new Point(x, y);
 					path.AddLine(previousEndingPoint, newEndingPoint);
 					previousEndingPoint = newEndingPoint;
@@ -415,8 +415,8 @@ namespace GreenshotPlugin.Core {
 
 				// Left
 				for (int i = 0; i < VerticalRegions; i++) {
-					int x = random.Next(1, distance);
-					int y = (int)previousEndingPoint.Y - regionHeight;
+					int x = random.Next(1, toothHeight);
+					int y = (int)previousEndingPoint.Y - verticalToothRange;
 					newEndingPoint = new Point(x, y);
 					path.AddLine(previousEndingPoint, newEndingPoint);
 					previousEndingPoint = newEndingPoint;
