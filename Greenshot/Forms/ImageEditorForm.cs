@@ -354,7 +354,7 @@ namespace Greenshot {
 				this.Size = new Size(newWidth, newHeight);
 			}
 			dimensionsLabel.Text = this.Surface.Image.Width + "x" + this.Surface.Image.Height;
-			ImageEditorFormResize(source,new EventArgs());
+			ImageEditorFormResize(source, new EventArgs());
 		}
 
 		private void ReloadConfiguration(object source, FileSystemEventArgs e) {
@@ -1266,16 +1266,23 @@ namespace Greenshot {
 			}
 			Size imageSize = this.Surface.Image.Size;
 			Size currentImageClientSize = this.panel1.ClientSize;
+			var canvas = this.Surface as Control;
 			if (currentImageClientSize.Width > imageSize.Width) {
-				var canvas = this.Surface as Control;
 				if (canvas != null) {
 					canvas.Left = (currentImageClientSize.Width - imageSize.Width) / 2;
 				}
+			} else {
+				if (canvas != null) {
+					canvas.Left = 0;
+				}
 			}
 			if (currentImageClientSize.Height > imageSize.Height) {
-				var canvas = this.Surface as Control;
 				if (canvas != null) {
 					canvas.Top = (currentImageClientSize.Height - imageSize.Height) / 2;
+				}
+			} else {
+				if (canvas != null) {
+					canvas.Top = 0;
 				}
 			}
 		}

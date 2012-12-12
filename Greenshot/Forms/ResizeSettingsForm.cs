@@ -54,21 +54,7 @@ namespace Greenshot.Forms {
 			checkbox_aspectratio.Checked = effect.MaintainAspectRatio;
 		}
 
-		private void checkValues() {
-			if (value_pixel.Equals(combobox_width.SelectedItem)) {
-				newWidth = int.Parse(textbox_width.Text);
-			} else {
-				newWidth = (int)(effect.Width * (100f / double.Parse(textbox_width.Text)));
-			}
-			if (value_pixel.Equals(combobox_height.SelectedItem)) {
-				newHeight = int.Parse(textbox_height.Text);
-			} else {
-				newHeight = (int)(effect.Height * (100f / double.Parse(textbox_height.Text)));
-			}
-		}
-
 		private void buttonOK_Click(object sender, EventArgs e) {
-			checkValues();
 			if (newWidth != effect.Width || newHeight != effect.Height) {
 				effect.Width = newWidth;
 				effect.Height = newHeight;
@@ -111,7 +97,9 @@ namespace Greenshot.Forms {
 		}
 
 		private void textbox_KeyUp(object sender, KeyEventArgs e) {
-			validate(sender);
+			if (!validate(sender)) {
+				return;
+			}
 			if (!checkbox_aspectratio.Checked) {
 				return;
 			}
@@ -164,8 +152,12 @@ namespace Greenshot.Forms {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void combobox_SelectedIndexChanged(object sender, EventArgs e) {
-			displayWidth();
-			displayHeight();
+			if (validate(textbox_width)) {
+				displayWidth();
+			}
+			if (validate(textbox_height)) {
+				displayHeight();
+			}
 		}
 	}
 }
