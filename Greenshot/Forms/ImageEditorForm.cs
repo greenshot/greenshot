@@ -1212,12 +1212,26 @@ namespace Greenshot {
 			}
 		}
 
+		/// <summary>
+		/// Currently unused
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void ResizeToolStripMenuItemClick(object sender, EventArgs e) {
+			ResizeEffect resizeEffect = new ResizeEffect(surface.Image.Width, surface.Image.Height, true);
+			DialogResult result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
+			if (result == DialogResult.OK) {
+				surface.ApplyBitmapEffect(resizeEffect);
+				updateUndoRedoSurfaceDependencies();
+			}
+		}
+
 		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) {
 			TornEdgeEffect tornEdgeEffect = new TornEdgeEffect();
 			DialogResult result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
 			if (result == DialogResult.OK) {
-				surface.ApplyBitmapEffect(tornEdgeEffect);
-				updateUndoRedoSurfaceDependencies();
+			    surface.ApplyBitmapEffect(tornEdgeEffect);
+			    updateUndoRedoSurfaceDependencies();
 			}
 		}
 

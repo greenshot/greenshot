@@ -1,4 +1,24 @@
-﻿namespace Greenshot.Forms {
+﻿/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+namespace Greenshot.Forms {
 	partial class DropShadowSettingsForm {
 		/// <summary>
 		/// Required designer variable.
@@ -152,31 +172,31 @@
 			this.labelDarkness.LanguageKey = "editor_dropshadow_darkness";
 			this.labelDarkness.Location = new System.Drawing.Point(12, 73);
 			this.labelDarkness.Name = "labelDarkness";
-			this.labelDarkness.Size = new System.Drawing.Size(52, 13);
+			this.labelDarkness.Size = new System.Drawing.Size(92, 13);
 			this.labelDarkness.TabIndex = 13;
-			this.labelDarkness.Text = "Darkness";
+			this.labelDarkness.Text = "Shadow darkness";
 			// 
 			// labelOffset
 			// 
 			this.labelOffset.AutoSize = true;
 			this.labelOffset.LanguageKey = "editor_dropshadow_offset";
-			this.labelOffset.Location = new System.Drawing.Point(12, 40);
+			this.labelOffset.Location = new System.Drawing.Point(12, 35);
 			this.labelOffset.Name = "labelOffset";
-			this.labelOffset.Size = new System.Drawing.Size(35, 13);
+			this.labelOffset.Size = new System.Drawing.Size(75, 13);
 			this.labelOffset.TabIndex = 14;
-			this.labelOffset.Text = "Offset";
+			this.labelOffset.Text = "Shadow offset";
 			// 
 			// labelThickness
 			// 
 			this.labelThickness.AutoSize = true;
 			this.labelThickness.LanguageKey = "editor_dropshadow_thickness";
-			this.labelThickness.Location = new System.Drawing.Point(12, 14);
+			this.labelThickness.Location = new System.Drawing.Point(12, 9);
 			this.labelThickness.Name = "labelThickness";
-			this.labelThickness.Size = new System.Drawing.Size(56, 13);
+			this.labelThickness.Size = new System.Drawing.Size(94, 13);
 			this.labelThickness.TabIndex = 15;
-			this.labelThickness.Text = "Thickness";
+			this.labelThickness.Text = "Shadow thickness";
 			// 
-			// CreateShadowForm
+			// DropShadowSettingsForm
 			// 
 			this.AcceptButton = this.buttonOK;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -198,9 +218,9 @@
 			this.LanguageKey = "editor_dropshadow_settings";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
-			this.Name = "CreateShadowForm";
+			this.Name = "DropShadowSettingsForm";
 			this.ShowIcon = false;
-			this.Text = "CreateShadowForm";
+			this.Text = "Dropshadow settings";
 			((System.ComponentModel.ISupportInitialize)(this.thickness)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetX)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetY)).EndInit();
