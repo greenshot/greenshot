@@ -147,6 +147,7 @@
     <Compile Include="Core\ClipboardHelper.cs" />
     <Compile Include="Core\CoreConfiguration.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
+    <Compile Include="Core\Effects.cs" />
     <Compile Include="Core\EncryptionHelper.cs" />
     <Compile Include="Core\FilenameHelper.cs" />
     <Compile Include="Core\ImageOutput.cs" />

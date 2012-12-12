@@ -121,58 +121,61 @@ namespace GreenshotPlugin.Core {
 				imageToSave = surface.GetImageForExport();
 				disposeImage = true;
 			}
+
 			try {
-
-				// apply effects, if there are any
-				Point ignoreOffset;
-				Image tmpImage = ImageHelper.ApplyEffects((Bitmap)imageToSave, outputSettings.Effects, out ignoreOffset);
-				if (tmpImage != null) {
-					if (disposeImage) {
-						imageToSave.Dispose();
+				// The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
+				if (outputSettings.Format != OutputFormat.greenshot) {
+					// apply effects, if there are any
+					Point ignoreOffset;
+					Image tmpImage = ImageHelper.ApplyEffects((Bitmap)imageToSave, outputSettings.Effects, out ignoreOffset);
+					if (tmpImage != null) {
+						if (disposeImage) {
+							imageToSave.Dispose();
+						}
+						imageToSave = tmpImage;
+						disposeImage = true;
 					}
-					imageToSave = tmpImage;
-					disposeImage = true;
-				}
 
-				// Removing transparency if it's not supported in the output
-				if (imageFormat != ImageFormat.Png && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
-					Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
-					if (disposeImage) {
-						imageToSave.Dispose();
+					// Removing transparency if it's not supported in the output
+					if (imageFormat != ImageFormat.Png && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
+						Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
+						if (disposeImage) {
+							imageToSave.Dispose();
+						}
+						// Make sure the image is disposed!
+						disposeImage = true;
+						imageToSave = nonAlphaImage;
 					}
-					// Make sure the image is disposed!
-					disposeImage = true;
-					imageToSave = nonAlphaImage;
-				}
 
-				// check for color reduction, forced or automatically
-				if (conf.OutputFileAutoReduceColors || outputSettings.ReduceColors) {
-					WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave);
-					int colorCount = quantizer.GetColorCount();
-					LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
-					if (outputSettings.ReduceColors || colorCount < 256) {
-						try {
-							LOG.Info("Reducing colors on bitmap to 255.");
-							tmpImage = quantizer.GetQuantizedImage(255);
-							if (disposeImage) {
-								imageToSave.Dispose();
+					// check for color reduction, forced or automatically
+					if (conf.OutputFileAutoReduceColors || outputSettings.ReduceColors) {
+						WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave);
+						int colorCount = quantizer.GetColorCount();
+						LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
+						if (outputSettings.ReduceColors || colorCount < 256) {
+							try {
+								LOG.Info("Reducing colors on bitmap to 255.");
+								tmpImage = quantizer.GetQuantizedImage(255);
+								if (disposeImage) {
+									imageToSave.Dispose();
+								}
+								imageToSave = tmpImage;
+								// Make sure the "new" image is disposed
+								disposeImage = true;
+							} catch (Exception e) {
+								LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 							}
-							imageToSave = tmpImage;
-							// Make sure the "new" image is disposed
-							disposeImage = true;
-						} catch (Exception e) {
-							LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 						}
 					}
-				}
 
-				// Create meta-data
-				PropertyItem softwareUsedPropertyItem = CreatePropertyItem(PROPERTY_TAG_SOFTWARE_USED, "Greenshot");
-				if (softwareUsedPropertyItem != null) {
-					try {
-						imageToSave.SetPropertyItem(softwareUsedPropertyItem);
-					} catch (ArgumentException) {
-						LOG.WarnFormat("Image of type {0} do not support property {1}", imageFormat, softwareUsedPropertyItem.Id);
+					// Create meta-data
+					PropertyItem softwareUsedPropertyItem = CreatePropertyItem(PROPERTY_TAG_SOFTWARE_USED, "Greenshot");
+					if (softwareUsedPropertyItem != null) {
+						try {
+							imageToSave.SetPropertyItem(softwareUsedPropertyItem);
+						} catch (ArgumentException) {
+							LOG.WarnFormat("Image of type {0} do not support property {1}", imageFormat, softwareUsedPropertyItem.Id);
+						}
 					}
 				}
 				LOG.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
@@ -207,6 +210,7 @@ namespace GreenshotPlugin.Core {
 				if (useMemoryStream) {
 					memoryStream.WriteTo(stream);
 				}
+
 				// Output the surface elements, size and marker to the stream
 				if (outputSettings.Format == OutputFormat.greenshot) {
 					using (MemoryStream tmpStream = new MemoryStream()) {
