@@ -61,10 +61,8 @@ namespace GreenshotPlugin.Controls {
 		/// <returns></returns>
 		protected static bool IsInDesignMode {
 			get {
-				if (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1) {
-					return true;
-				}
-				return false;
+				return (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1)
+					|| (Application.ExecutablePath.IndexOf("sharpdevelop.exe", StringComparison.OrdinalIgnoreCase) > -1);
 			}
 		}
 
