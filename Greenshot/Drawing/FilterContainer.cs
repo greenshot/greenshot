@@ -23,6 +23,7 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -44,41 +45,38 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.SHADOW, false);
 		}
 		
-		public override void Draw(Graphics g, RenderMode rm) {
+		public override void Draw(Graphics graphics, RenderMode rm) {
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
-			if (shadow && lineVisible) {
+			if (lineVisible) {
+				graphics.SmoothingMode = SmoothingMode.HighSpeed;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.None;
 				//draw shadow first
-				int basealpha = 100;
-				int alpha = basealpha;
-				int steps = 5;
-				int currentStep = lineVisible ? 1 : 0;
-				while (currentStep <= steps) {
-					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
-						shadowPen.Width = lineVisible ? lineThickness : 1;
-						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(
-							this.Left + currentStep,
-							this.Top + currentStep,
-							this.Width,
-							this.Height);
-						g.DrawRectangle(shadowPen, shadowRect);
-						currentStep++;
-						alpha = alpha - (basealpha / steps);
+				if (shadow) {
+					int basealpha = 100;
+					int alpha = basealpha;
+					int steps = 5;
+					int currentStep = lineVisible ? 1 : 0;
+					while (currentStep <= steps) {
+						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
+							Rectangle shadowRect = GuiRectangle.GetGuiRectangle(this.Left + currentStep, this.Top + currentStep, this.Width, this.Height);
+							graphics.DrawRectangle(shadowPen, shadowRect);
+							currentStep++;
+							alpha = alpha - (basealpha / steps);
+						}
+					}
+				}
+				Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
+				if (lineThickness > 0) {
+					using (Pen pen = new Pen(lineColor, lineThickness)) {
+						graphics.DrawRectangle(pen, rect);
 					}
 				}
 			}
-			
-			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
-			
-			using (Pen pen = new Pen(lineColor)) {
-				pen.Width = lineThickness;
-				if(pen.Width > 0) {
-					g.DrawRectangle(pen, rect);
-				}
-			}
-			
 		}
 	}
 }

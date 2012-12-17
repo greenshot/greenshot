@@ -272,7 +272,7 @@ namespace Greenshot.Drawing {
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
-			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
 
 			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
@@ -308,12 +308,13 @@ namespace Greenshot.Drawing {
 					}
 				}
 			}
-
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			Rectangle fontRect = rect;
 			if (lineThickness > 0) {
-				fontRect.Inflate(-textOffset,-textOffset);
+				graphics.SmoothingMode = SmoothingMode.HighSpeed;
+				fontRect.Inflate(-textOffset, -textOffset);
 			}
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			using (Brush fontBrush = new SolidBrush(lineColor)) {
 				graphics.DrawString(text, font, fontBrush, fontRect);
 			}

@@ -43,7 +43,7 @@ namespace Greenshot.Drawing {
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
-			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
@@ -66,18 +66,15 @@ namespace Greenshot.Drawing {
 					}
 				}
 			}
-
 			//draw the original shape
 			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
-			if (!Color.Transparent.Equals(fillColor)) {
+			if (Colors.IsVisible(fillColor)) {
 				using (Brush brush = new SolidBrush(fillColor)) {
 					graphics.FillEllipse(brush, rect);
 				}
 			}
-			
-			using (Pen pen = new Pen(lineColor)) {
-				pen.Width = lineThickness;
-				if (pen.Width > 0) {
+			if (lineVisible) {
+				using (Pen pen = new Pen(lineColor, lineThickness)) {
 					graphics.DrawEllipse(pen, rect);
 				}
 			}
@@ -104,8 +101,7 @@ namespace Greenshot.Drawing {
 
 			// check the rest of the lines
 			if (lineThickness > 0) {
-				using (Pen pen = new Pen(Color.White)) {
-					pen.Width = lineThickness;
+				using (Pen pen = new Pen(Color.White, lineThickness)) {
 					using (GraphicsPath path = new GraphicsPath()) {
 						path.AddEllipse(rect);
 						return path.IsOutlineVisible(x, y, pen);

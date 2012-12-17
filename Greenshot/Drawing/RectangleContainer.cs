@@ -74,16 +74,16 @@ namespace Greenshot.Drawing {
 			}
 			
 			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
-			
-			if (!Color.Transparent.Equals(fillColor)) {
+
+			if (Colors.IsVisible(fillColor)) {
 				using (Brush brush = new SolidBrush(fillColor)) {
 					graphics.FillRectangle(brush, rect);
 				}
 			}
-			
-			if (lineThickness > 0) {
-				using (Pen pen = new Pen(lineColor)) {
-					pen.Width = lineThickness;
+
+			graphics.SmoothingMode = SmoothingMode.HighSpeed;
+			if (lineVisible) {
+				using (Pen pen = new Pen(lineColor, lineThickness)) {
 					graphics.DrawRectangle(pen, rect);
 				}
 			}
@@ -103,8 +103,7 @@ namespace Greenshot.Drawing {
 
 			// check the rest of the lines
 			if (lineThickness > 0) {
-				using (Pen pen = new Pen(Color.White)) {
-					pen.Width = lineThickness;
+				using (Pen pen = new Pen(Color.White, lineThickness)) {
 					using (GraphicsPath path = new GraphicsPath()) {
 						path.AddRectangle(rect);
 						return path.IsOutlineVisible(x, y, pen);

@@ -57,39 +57,36 @@ namespace Greenshot.Drawing {
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
-			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
-			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 
-			if ( shadow && lineThickness > 0 ) {
-				//draw shadow first
-				int basealpha = 100;
-				int alpha = basealpha;
-				int steps = 5;
-				int currentStep = 1;
-				while (currentStep <= steps) {
-					using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
-						shadowCapPen.Width = lineThickness;
-	
-						graphics.DrawLine(shadowCapPen,
-							this.Left + currentStep,
-							this.Top + currentStep,
-							this.Left + currentStep + this.Width,
-							this.Top + currentStep + this.Height);
-						
-						currentStep++;
-						alpha = alpha - (basealpha / steps);
+			if (lineThickness > 0) {
+				if (shadow) {
+					//draw shadow first
+					int basealpha = 100;
+					int alpha = basealpha;
+					int steps = 5;
+					int currentStep = 1;
+					while (currentStep <= steps) {
+						using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
+							graphics.DrawLine(shadowCapPen,
+								this.Left + currentStep,
+								this.Top + currentStep,
+								this.Left + currentStep + this.Width,
+								this.Top + currentStep + this.Height);
+
+							currentStep++;
+							alpha = alpha - (basealpha / steps);
+						}
 					}
 				}
-			}
 
-			using (Pen pen = new Pen(lineColor)) {
-				pen.Width = lineThickness;
-				if(pen.Width > 0) {
+				using (Pen pen = new Pen(lineColor, lineThickness)) {
 					graphics.DrawLine(pen, this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
 				}
 			}
