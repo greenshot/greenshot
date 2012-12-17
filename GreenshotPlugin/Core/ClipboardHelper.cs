@@ -385,15 +385,12 @@ EndSelection:<<<<<<<4
 			MemoryStream pngStream = null;
 			try {
 				// Create PNG stream
-				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG) || config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
+				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG)) {
 					pngStream = new MemoryStream();
-					// PNG works for Powerpoint
+					// PNG works for e.g. Powerpoint
 					SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
 					ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
 					pngStream.Seek(0, SeekOrigin.Begin);
-				}
-
-				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG)) {
 					// Set the PNG stream
 					ido.SetData("PNG", false, pngStream);
 				}
@@ -414,11 +411,19 @@ EndSelection:<<<<<<<4
 				
 				// Set the HTML
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
-					string tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png), null);
+					string tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
 					string html = getHTMLString(surface, tmpFile);
 					ido.SetText(html, TextDataFormat.Html);
 				} else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
-					string html = getHTMLDataURLString(surface, pngStream);
+					string html;
+					using (MemoryStream tmpPNGStream = new MemoryStream()) {
+						SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+						// Do not allow to reduce the colors, some applications dislike 256 color images
+						// reported with bug #3594681
+						pngOutputSettings.DisableReduceColors = true;
+						ImageOutput.SaveToStream(surface, tmpPNGStream, pngOutputSettings);
+						html = getHTMLDataURLString(surface, tmpPNGStream);
+					}
 					ido.SetText(html, TextDataFormat.Html);
 				}
 			} finally {

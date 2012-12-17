@@ -147,8 +147,8 @@ namespace GreenshotPlugin.Core {
 						imageToSave = nonAlphaImage;
 					}
 
-					// check for color reduction, forced or automatically
-					if (conf.OutputFileAutoReduceColors || outputSettings.ReduceColors) {
+					// check for color reduction, forced or automatically, only when the DisableReduceColors is false 
+					if (!outputSettings.DisableReduceColors && (conf.OutputFileAutoReduceColors || outputSettings.ReduceColors)) {
 						WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave);
 						int colorCount = quantizer.GetColorCount();
 						LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);

@@ -78,9 +78,11 @@ namespace Greenshot.Plugin {
 	public class SurfaceOutputSettings {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private bool reduceColors;
+		private bool disableReduceColors;
 		private List<IEffect> effects = new List<IEffect>();
 
 		public SurfaceOutputSettings() {
+			disableReduceColors = false;
 			Format = conf.OutputFileFormat;
 			JPGQuality = conf.OutputFileJpegQuality;
 			ReduceColors = conf.OutputFileReduceColors;
@@ -120,15 +122,30 @@ namespace Greenshot.Plugin {
 		}
 
 		public bool ReduceColors {
-			get {
-				// Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
-				if (OutputFormat.gif.Equals(Format)) {
-					return true;
+				get {
+					// Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
+					if (OutputFormat.gif.Equals(Format)) {
+						return true;
+					}
+					return reduceColors;
 				}
-				return reduceColors;
+				set {
+					reduceColors = value;
+				}
+		}
+
+		/// <summary>
+		/// Disable the reduce colors option, this overrules the enabling
+		/// </summary>
+		public bool DisableReduceColors {
+			get {
+				return disableReduceColors;
 			}
 			set {
-				reduceColors = value;
+				// Quantizing os needed when output format is gif as this has only 256 colors!
+				if (!OutputFormat.gif.Equals(Format)) {
+					disableReduceColors = value;
+				}
 			}
 		}
 	}
