@@ -45,7 +45,8 @@ namespace Greenshot.Helpers {
 	public class CaptureHelper {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CaptureHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static ScreenCaptureHelper screenCapture = null;
+		// TODO: when we get the screen capture code working correctly, this needs to be enabled
+		//private static ScreenCaptureHelper screenCapture = null;
 		private List<WindowDetails> windows = new List<WindowDetails>();
 		private WindowDetails selectedCaptureWindow = null;
 		private Rectangle captureRect = Rectangle.Empty;
@@ -173,11 +174,12 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		private void MakeCapture() {
 			// Experimental code
-			if (screenCapture != null) {
-				screenCapture.Stop();
-				screenCapture = null;
-				return;
-			}
+			// TODO: when we get the screen capture code working correctly, this needs to be enabled
+			//if (screenCapture != null) {
+			//	screenCapture.Stop();
+			//	screenCapture = null;
+			//	return;
+			//}
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
 			// forcefully removes the balloon!
 			if (!conf.HideTrayicon) {
@@ -492,22 +494,23 @@ namespace Greenshot.Helpers {
 			return getWindowDetailsThread;
 		}
 		
-		private void AddCaptureElementsForWindow(ICaptureElement parentElement, WindowDetails parentWindow, int level) {
-			foreach(WindowDetails childWindow in parentWindow.Children) {
-				// Make sure the details are retrieved once
-				childWindow.FreezeDetails();
-				Rectangle childRectangle = childWindow.WindowRectangle;
-				Size s1 = childRectangle.Size;
-				childRectangle.Intersect(parentElement.Bounds);
-				if (childRectangle.Width > 0 && childRectangle.Height > 0) {
-					CaptureElement childCaptureElement = new CaptureElement(childRectangle);
-					parentElement.Children.Add(childCaptureElement);
-					if (level > 0) {
-						AddCaptureElementsForWindow(childCaptureElement, childWindow, level -1);
-					}
-				}
-			}
-		}
+		// Code used to get the capture elements, which is not active yet
+		//private void AddCaptureElementsForWindow(ICaptureElement parentElement, WindowDetails parentWindow, int level) {
+		//    foreach(WindowDetails childWindow in parentWindow.Children) {
+		//        // Make sure the details are retrieved once
+		//        childWindow.FreezeDetails();
+		//        Rectangle childRectangle = childWindow.WindowRectangle;
+		//        Size s1 = childRectangle.Size;
+		//        childRectangle.Intersect(parentElement.Bounds);
+		//        if (childRectangle.Width > 0 && childRectangle.Height > 0) {
+		//            CaptureElement childCaptureElement = new CaptureElement(childRectangle);
+		//            parentElement.Children.Add(childCaptureElement);
+		//            if (level > 0) {
+		//                AddCaptureElementsForWindow(childCaptureElement, childWindow, level -1);
+		//            }
+		//        }
+		//    }
+		//}
 
 		private void AddConfiguredDestination() {
 			foreach(string destinationDesignation in conf.OutputDestinations) {
@@ -910,23 +913,24 @@ namespace Greenshot.Helpers {
 						//}
 
 						// Experimental code for Video capture
-						if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
-							if (captureForm.UsedCaptureMode == CaptureMode.Window) {
-								screenCapture = new ScreenCaptureHelper(selectedCaptureWindow);
-							} else if (captureForm.UsedCaptureMode == CaptureMode.Region) {
-								screenCapture = new ScreenCaptureHelper(captureRect);
-							}
-							if (screenCapture != null) {
-								screenCapture.RecordMouse = capture.CursorVisible;
-								if (screenCapture.Start(25)) {
-									return;
-								}
-								// User clicked cancel or a problem occured
-								screenCapture.Stop();
-								screenCapture = null;
-								return;
-							}
-						}
+						// TODO: when we get the screen capture code working correctly, this needs to be enabled
+						//if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
+						//    if (captureForm.UsedCaptureMode == CaptureMode.Window) {
+						//        screenCapture = new ScreenCaptureHelper(selectedCaptureWindow);
+						//    } else if (captureForm.UsedCaptureMode == CaptureMode.Region) {
+						//        screenCapture = new ScreenCaptureHelper(captureRect);
+						//    }
+						//    if (screenCapture != null) {
+						//        screenCapture.RecordMouse = capture.CursorVisible;
+						//        if (screenCapture.Start(25)) {
+						//            return;
+						//        }
+						//        // User clicked cancel or a problem occured
+						//        screenCapture.Stop();
+						//        screenCapture = null;
+						//        return;
+						//    }
+						//}
 						// Take the captureRect, this already is specified as bitmap coordinates
 						capture.Crop(captureRect);
 						

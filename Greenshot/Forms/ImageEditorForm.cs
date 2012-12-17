@@ -1203,13 +1203,19 @@ namespace Greenshot {
 			updateUndoRedoSurfaceDependencies();
 		}
 
+		/// <summary>
+		/// This is used when the dropshadow button is used
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) {
 			DropShadowEffect dropShadowEffect= new DropShadowEffect();
-			DialogResult result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
-			if (result == DialogResult.OK) {
+			// TODO: Use the dropshadow settings form to make it possible to change the default values
+			//DialogResult result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
+			//if (result == DialogResult.OK) {
 				surface.ApplyBitmapEffect(dropShadowEffect);
 				updateUndoRedoSurfaceDependencies();
-			}
+			//}
 		}
 
 		/// <summary>
@@ -1219,20 +1225,27 @@ namespace Greenshot {
 		/// <param name="e"></param>
 		void ResizeToolStripMenuItemClick(object sender, EventArgs e) {
 			ResizeEffect resizeEffect = new ResizeEffect(surface.Image.Width, surface.Image.Height, true);
-			DialogResult result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
-			if (result == DialogResult.OK) {
+			// TODO: Use the Resize SettingsForm to make it possible to change the default values
+			// DialogResult result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
+			// if (result == DialogResult.OK) {
 				surface.ApplyBitmapEffect(resizeEffect);
 				updateUndoRedoSurfaceDependencies();
-			}
+			//}
 		}
 
+		/// <summary>
+		/// Call the torn edge effect
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) {
 			TornEdgeEffect tornEdgeEffect = new TornEdgeEffect();
-			DialogResult result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
-			if (result == DialogResult.OK) {
-			    surface.ApplyBitmapEffect(tornEdgeEffect);
-			    updateUndoRedoSurfaceDependencies();
-			}
+			// TODO: Use the dropshadow settings form to make it possible to change the default values
+			//DialogResult result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
+			//if (result == DialogResult.OK) {
+				surface.ApplyBitmapEffect(tornEdgeEffect);
+				updateUndoRedoSurfaceDependencies();
+			//}
 		}
 
 		void GrayscaleToolStripMenuItemClick(object sender, EventArgs e) {

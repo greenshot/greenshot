@@ -185,10 +185,10 @@ namespace Greenshot.Core {
 	}
 
 	/// <summary>
-	/// GrowEffect
+	/// ResizeCanvasEffect
 	/// </summary>
-	public class GrowEffect : IEffect {
-		public GrowEffect(int left, int right, int top, int bottom) {
+	public class ResizeCanvasEffect : IEffect {
+		public ResizeCanvasEffect(int left, int right, int top, int bottom) {
 			Left = left;
 			Right = right;
 			Top = top;
@@ -218,7 +218,7 @@ namespace Greenshot.Core {
 		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
 			// Make sure the elements move according to the offset the effect made the bitmap move
 			offsetChange = new Point(Left, Top);
-			return ImageHelper.GrowCanvas(sourceBitmap, BackgroundColor, Left, Right, Top, Bottom);
+			return ImageHelper.ResizeCanvas(sourceBitmap, BackgroundColor, Left, Right, Top, Bottom);
 		}
 	}
 }

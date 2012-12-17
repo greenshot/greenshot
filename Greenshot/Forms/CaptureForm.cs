@@ -240,15 +240,16 @@ namespace Greenshot.Forms {
 					capture.CursorVisible = !capture.CursorVisible;
 					Invalidate();
 					break;
-				case Keys.V:
-					// Video
-					if (capture.CaptureDetails.CaptureMode != CaptureMode.Video) {
-						capture.CaptureDetails.CaptureMode = CaptureMode.Video;
-					} else {
-						capture.CaptureDetails.CaptureMode = captureMode;
-					}
-					Invalidate();
-					break;
+				//// TODO: Enable when the screen capture code works reliable
+				//case Keys.V:
+				//	// Video
+				//	if (capture.CaptureDetails.CaptureMode != CaptureMode.Video) {
+				//		capture.CaptureDetails.CaptureMode = CaptureMode.Video;
+				//	} else {
+				//		capture.CaptureDetails.CaptureMode = captureMode;
+				//	}
+				//	Invalidate();
+				//	break;
 				case Keys.Z:
 					if (captureMode == CaptureMode.Region) {
 						// Toggle zoom
@@ -682,11 +683,12 @@ namespace Greenshot.Forms {
 					fixedRect = captureRect;
 				}
 
-				if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
-					graphics.FillRectangle(RedOverlayBrush, fixedRect);
-				} else {
+				// TODO: enable when the screen capture code works reliable
+				//if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
+				//	graphics.FillRectangle(RedOverlayBrush, fixedRect);
+				//} else {
 					graphics.FillRectangle(GreenOverlayBrush, fixedRect);
-				}
+				//}
 				graphics.DrawRectangle(OverlayPen, fixedRect);
 				
 				// rulers

@@ -134,12 +134,12 @@
     <Compile Include="Forms\CaptureForm.Designer.cs">
       <DependentUpon>CaptureForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\DropShadowSettingsForm.cs">
+    <None Include="Forms\DropShadowSettingsForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\DropShadowSettingsForm.Designer.cs">
+    </None>
+    <None Include="Forms\DropShadowSettingsForm.Designer.cs">
       <DependentUpon>DropShadowSettingsForm.cs</DependentUpon>
-    </Compile>
+    </None>
     <Compile Include="Forms\ImageEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -149,18 +149,18 @@
     <Compile Include="Forms\AnimatingBaseForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ResizeSettingsForm.cs">
+    <None Include="Forms\ResizeSettingsForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ResizeSettingsForm.Designer.cs">
+    </None>
+    <None Include="Forms\ResizeSettingsForm.Designer.cs">
       <DependentUpon>ResizeSettingsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\TornEdgeSettingsForm.cs">
+    </None>
+    <None Include="Forms\TornEdgeSettingsForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\TornEdgeSettingsForm.Designer.cs">
+    </None>
+    <None Include="Forms\TornEdgeSettingsForm.Designer.cs">
       <DependentUpon>TornEdgeSettingsForm.cs</DependentUpon>
-    </Compile>
+    </None>
     <Compile Include="Forms\LanguageDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -201,7 +201,7 @@
       <DependentUpon>MovableShowColorForm.cs</DependentUpon>
     </Compile>
     <None Include="App.config" />
-    <Compile Include="Helpers\AviHelper.cs" />
+    <None Include="Helpers\AviHelper.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
     <Compile Include="Helpers\CopyData.cs" />
@@ -224,7 +224,7 @@
     <Compile Include="Memento\IMemento.cs" />
     <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
     <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
-    <Compile Include="Helpers\ScreenCaptureHelper.cs" />
+    <None Include="Helpers\ScreenCaptureHelper.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />
     <Compile Include="Helpers\GuiRectangle.cs" />

@@ -1234,7 +1234,7 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Grow canvas with pixel to the left, right, top and bottom
+		/// Resize canvas with pixel to the left, right, top and bottom
 		/// </summary>
 		/// <param name="sourceBitmap"></param>
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
@@ -1243,7 +1243,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="top"></param>
 		/// <param name="bottom"></param>
 		/// <returns>a new bitmap with the source copied on it</returns>
-		public static Bitmap GrowCanvas(Bitmap sourceBitmap, Color backgroundColor, int left, int right, int top, int bottom) {
+		public static Bitmap ResizeCanvas(Bitmap sourceBitmap, Color backgroundColor, int left, int right, int top, int bottom) {
 			Bitmap newBitmap = CreateEmpty(sourceBitmap.Width + left + right, sourceBitmap.Height + top + bottom, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
 				graphics.DrawImageUnscaled(sourceBitmap, left, top);
