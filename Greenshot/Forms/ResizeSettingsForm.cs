@@ -25,11 +25,14 @@ using Greenshot.Core;
 using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
+	/// <summary>
+	/// A form to set the resize settings
+	/// </summary>
 	public partial class ResizeSettingsForm : BaseForm {
 		private ResizeEffect effect;
 		private string value_pixel;
 		private string value_percent;
-		private int newWidth, newHeight;
+		private double newWidth, newHeight;
 
 		public ResizeSettingsForm(ResizeEffect effect) {
 			this.effect = effect;
@@ -56,8 +59,8 @@ namespace Greenshot.Forms {
 
 		private void buttonOK_Click(object sender, EventArgs e) {
 			if (newWidth != effect.Width || newHeight != effect.Height) {
-				effect.Width = newWidth;
-				effect.Height = newHeight;
+				effect.Width = (int)newWidth;
+				effect.Height = (int)newHeight;
 				effect.MaintainAspectRatio = checkbox_aspectratio.Checked;
 				DialogResult = DialogResult.OK;
 			}
@@ -78,22 +81,23 @@ namespace Greenshot.Forms {
 		}
 
 		private void displayWidth() {
-			int displayValue;
+			double displayValue;
 			if (value_percent.Equals(combobox_width.SelectedItem)) {
-				displayValue = (int)(((double)newWidth / (double)effect.Width) * 100);
+				displayValue = ((double)newWidth / (double)effect.Width) * 100d;
 			} else {
 				displayValue = newWidth;
 			}
-			textbox_width.Text = displayValue.ToString();
+			textbox_width.Text = ((int)displayValue).ToString();
 		}
+
 		private void displayHeight() {
-			int displayValue;
+			double displayValue;
 			if (value_percent.Equals(combobox_height.SelectedItem)) {
-				displayValue = (int)(((double)newHeight / (double)effect.Height) * 100);
+				displayValue = ((double)newHeight / (double)effect.Height) * 100d;
 			} else {
 				displayValue = newHeight;
 			}
-			textbox_height.Text = displayValue.ToString();
+			textbox_height.Text = ((int)displayValue).ToString();
 		}
 
 		private void textbox_KeyUp(object sender, KeyEventArgs e) {
@@ -117,26 +121,26 @@ namespace Greenshot.Forms {
 			double percent;
 			if (isWidth) {
 				if (isPercent) {
-					percent = float.Parse(textbox_width.Text);
-					newWidth  = (int)(((double)effect.Width / 100d) * percent);
+					percent = double.Parse(textbox_width.Text);
+					newWidth  = ((double)effect.Width / 100d) * percent;
 				} else {
-					newWidth = int.Parse(textbox_width.Text);
+					newWidth = double.Parse(textbox_width.Text);
 					percent = ((double)double.Parse(textbox_width.Text) / (double)effect.Width) * 100d;
 				}
 				if (checkbox_aspectratio.Checked) {
-					newHeight = (int)(((double)effect.Height / 100d) * percent);
+					newHeight = ((double)effect.Height / 100d) * percent;
 					displayHeight();
 				}
 			} else {
 				if (isPercent) {
-					percent = int.Parse(textbox_height.Text);
-					newHeight = (int)(((double)effect.Height / 100d) * percent);
+					percent = double.Parse(textbox_height.Text);
+					newHeight = ((double)effect.Height / 100d) * percent;
 				} else {
-					newHeight = int.Parse(textbox_height.Text);
+					newHeight = double.Parse(textbox_height.Text);
 					percent = ((double)double.Parse(textbox_height.Text) / (double)effect.Height) * 100d;
 				}
 				if (checkbox_aspectratio.Checked) {
-					newWidth = (int)(((double)effect.Width / 100d) * percent);
+					newWidth = ((double)effect.Width / 100d) * percent;
 					displayWidth();
 				}
 			}
