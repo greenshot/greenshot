@@ -1,19 +1,22 @@
 Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a part of the screen to a file within a second. Apply text and shapes to the screenshot. Offers capture of window, region or full screenshot. Supports several image formats.
 
-
 CHANGE LOG:
 
 1.1.0 build $WCREV$ unstable
+Unstable means that we didn't go through extensive testing yet. This might give you: features that aren't finished yet, missing translations or new bugs.
 
 Bugs resolved:
-* Bug #3572995: On Windows XP Firefox captures are mainly black. This fix should also work with other OS versions and applications.
-* Bug #3582282: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
+* Bug #3572995, #3593761 & #3592129: On Windows XP Firefox/java captures are mainly black. This fix should also work with other OS versions and applications.
+* Bug #3576125: Fixed issue with opening a screenshow from the clipboard which was created in a remote desktop
+* Bug #3582282, #3590372 & #3590385: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
 * Bug #3582282: Exported captures to Powerpoint were displayed cropped, which needed extra actions to correct.
 * Bug #3582692: Picasa-Web uploads didn't have a filename and the filename was shown as "UNSET" in Picasa-Web.
 * Bug #3582807: The window corners on Windows Vista & Windows 7 weren't cut correctly.
 * While fixing #3582807 we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
 * Bug #3585393: resize issues with some the plugin configuration dialogs.
+* Bug #3588716: Elements in 1.0 are drawn differently as in pre 1.0
 * Bug #3589370: Fixed missing filename in the Editor title
+* Bug #3594681: Pasting captures as HTML-inline in Thunderbird doesn't work when using 256-colors.
 * Not reported: Flickr configuration for the Family, Friend & Public wasn't stored.
 * Not reported: If Greenshot is linked in a Windows startup folder, the "Start with startup" checkbox wasn't checked.
 * Not reported: Some shortcut keys in the editor didn't respond.
