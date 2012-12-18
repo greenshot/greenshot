@@ -551,7 +551,7 @@ namespace Greenshot {
 			}
 
 			if (!success) {
-				MessageBox.Show(Language.GetFormattedString(LangKey.warning_hotkeys, failedKeys.ToString()),Language.GetString(LangKey.warning));
+				MessageBox.Show(MainForm.Instance, Language.GetFormattedString(LangKey.warning_hotkeys, failedKeys.ToString()),Language.GetString(LangKey.warning), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 			}
 		}
 		#endregion
