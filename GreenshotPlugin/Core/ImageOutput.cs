@@ -125,15 +125,18 @@ namespace GreenshotPlugin.Core {
 			try {
 				// The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
 				if (outputSettings.Format != OutputFormat.greenshot) {
-					// apply effects, if there are any
-					Point ignoreOffset;
-					Image tmpImage = ImageHelper.ApplyEffects((Bitmap)imageToSave, outputSettings.Effects, out ignoreOffset);
-					if (tmpImage != null) {
-						if (disposeImage) {
-							imageToSave.Dispose();
+					Image tmpImage;
+					if (outputSettings.Effects != null && outputSettings.Effects.Count > 0) {
+						// apply effects, if there are any
+						Point ignoreOffset;
+						tmpImage = ImageHelper.ApplyEffects((Bitmap)imageToSave, outputSettings.Effects, out ignoreOffset);
+						if (tmpImage != null) {
+							if (disposeImage) {
+								imageToSave.Dispose();
+							}
+							imageToSave = tmpImage;
+							disposeImage = true;
 						}
-						imageToSave = tmpImage;
-						disposeImage = true;
 					}
 
 					// Removing transparency if it's not supported in the output
