@@ -211,6 +211,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		}
 	}
 
+	/// <summary>
+	/// The structure for the WindowInfo
+	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/ms632610%28v=vs.85%29.aspx
+	/// </summary>
 	[StructLayout(LayoutKind.Sequential), Serializable()]
 	public struct WindowInfo {
 		public uint cbSize;
@@ -224,8 +228,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public ushort atomWindowType;
 		public ushort wCreatorVersion;
 		// Allows automatic initialization of "cbSize" with "new WINDOWINFO(null/true/false)".
-		public WindowInfo(Boolean? filler)
-			: this() {
+		public WindowInfo(Boolean? filler) : this() {
 			cbSize = (UInt32)(Marshal.SizeOf(typeof(WindowInfo)));
 		}
 	}
