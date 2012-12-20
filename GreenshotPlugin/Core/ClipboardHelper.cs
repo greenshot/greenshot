@@ -121,7 +121,7 @@ EndSelection:<<<<<<<4
 		}
 
 		/// <summary>
-		/// The SetDataObject that will lock/try/catch clipboard operations making it save and not show exceptions.
+		/// The SetDataObject will lock/try/catch clipboard operations making it save and not show exceptions.
 		/// The bool "copy" is used to decided if the information stays on the clipboard after exit.
 		/// </summary>
 		/// <param name="ido"></param>
@@ -152,137 +152,16 @@ EndSelection:<<<<<<<4
 				}
 			}
 		}
-		
+
 		/// <summary>
-		/// Safe wrapper for Clipboard.ContainsText
-		/// Created for Bug #3432313
+		/// The GetDataObject will lock/try/catch clipboard operations making it save and not show exceptions.
 		/// </summary>
-		/// <returns>boolean if there is text on the clipboard</returns>
-		public static bool ContainsText() {
+		public static IDataObject GetDataObject() {
 			lock (clipboardLockObject) {
 				int retryCount = 2;
 				while (retryCount >= 0) {
 					try {
-						return Clipboard.ContainsText();
-					} catch (Exception ee) {
-						if (retryCount == 0) {
-							string messageText = null;
-							string clipboardOwner = GetClipboardOwner();
-							if (clipboardOwner != null) {
-								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
-							} else {
-								messageText = Language.GetString("clipboard_error");
-							}
-							LOG.Error(messageText, ee);
-						} else {
-							Thread.Sleep(100);
-						}
-					} finally {
-						--retryCount;
-					}
-				}
-			}
-			return false;
-		}
-		
-		/// <summary>
-		/// Safe wrapper for Clipboard.ContainsImage
-		/// Created for Bug #3432313
-		/// </summary>
-		/// <returns>boolean if there is an image on the clipboard</returns>
-		public static bool ContainsImage() {
-			lock (clipboardLockObject) {
-				int retryCount = 2;
-				while (retryCount >= 0) {
-					try {
-						return Clipboard.ContainsImage();
-					} catch (Exception ee) {
-						if (retryCount == 0) {
-							string messageText = null;
-							string clipboardOwner = GetClipboardOwner();
-							if (clipboardOwner != null) {
-								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
-							} else {
-								messageText = Language.GetString("clipboard_error");
-							}
-							LOG.Error(messageText, ee);
-						} else {
-							Thread.Sleep(100);
-						}
-					} finally {
-						--retryCount;
-					}
-				}
-			}
-			return false;
-		}
-		
-		/// <summary>
-		/// Safe wrapper for Clipboard.GetImage
-		/// Created for Bug #3432313
-		/// </summary>
-		/// <returns>Image if there is an image on the clipboard</returns>
-		public static Image GetImage() {
-			lock (clipboardLockObject) {
-				int retryCount = 2;
-				while (retryCount >= 0) {
-					try {
-						// Try to get the best format, currently we support PNG and "others"
-						IList<string> formats = GetFormats();
-						if (formats.Contains("PNG")) {
-							try {
-								Object pngObject = GetClipboardData("PNG");
-								if (pngObject is MemoryStream) {
-									MemoryStream png_stream = pngObject as MemoryStream;
-									if (png_stream != null && png_stream.Length > 0) {
-										using (Image tmpImage = Image.FromStream(png_stream)) {
-											return ImageHelper.Clone(tmpImage);
-										}
-									}
-								}
-							} catch (Exception pngEx) {
-								LOG.Error("Problem retrieving PNG from clipboard.", pngEx);
-							}
-						}
-						// the DIB readed should solve the issue reported here: https://sourceforge.net/projects/greenshot/forums/forum/676083/topic/6354353/index/page/1
-						try {
-							// If the EnableSpecialDIBClipboardReader flag in the config is set, use the code from:
-							// http://www.thomaslevesque.com/2009/02/05/wpf-paste-an-image-from-the-clipboard/
-							// to read the DeviceIndependentBitmap from the clipboard, this might fix bug 3576125
-							if (config.EnableSpecialDIBClipboardReader && formats.Contains(DataFormats.Dib)) {
-								MemoryStream ms = GetClipboardData(DataFormats.Dib) as MemoryStream;
-								if (ms != null && ms.Length > 0) {
-									byte[] dibBuffer = new byte[ms.Length];
-									ms.Read(dibBuffer, 0, dibBuffer.Length);
-									BitmapInfoHeader infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
-									// Only use this code, when the biCommpression != 0 (BI_RGB)
-									if (infoHeader.biCompression != 0) {
-										int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
-										uint infoHeaderSize = infoHeader.biSize;
-										int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
-
-										BitmapFileHeader fileHeader = new BitmapFileHeader();
-										fileHeader.bfType = BitmapFileHeader.BM;
-										fileHeader.bfSize = fileSize;
-										fileHeader.bfReserved1 = 0;
-										fileHeader.bfReserved2 = 0;
-										fileHeader.bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4);
-
-										byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray<BitmapFileHeader>(fileHeader);
-
-										using (MemoryStream msBitmap = new MemoryStream()) {
-											msBitmap.Write(fileHeaderBytes, 0, fileHeaderSize);
-											msBitmap.Write(dibBuffer, 0, dibBuffer.Length);
-											msBitmap.Seek(0, SeekOrigin.Begin);
-											return Image.FromStream(msBitmap);
-										}
-									}
-								}
-							}
-						} catch (Exception dibEx) {
-							LOG.Error("Problem retrieving DIB from clipboard.", dibEx);
-						}
-						return Clipboard.GetImage();
+						return Clipboard.GetDataObject();
 					} catch (Exception ee) {
 						if (retryCount == 0) {
 							string messageText = null;
@@ -305,33 +184,181 @@ EndSelection:<<<<<<<4
 		}
 		
 		/// <summary>
-		/// Safe wrapper for Clipboard.GetText
-		/// Created for Bug #3432313
+		/// Wrapper for Clipboard.ContainsText, Created for Bug #3432313
+		/// </summary>
+		/// <returns>boolean if there is text on the clipboard</returns>
+		public static bool ContainsText() {
+			IDataObject clipboardData = GetDataObject();
+			return ContainsText(clipboardData);
+		}
+
+		/// <summary>
+		/// Test if the IDataObject contains Text
+		/// </summary>
+		/// <param name="dataObject"></param>
+		/// <returns></returns>
+		public static bool ContainsText(IDataObject dataObject) {
+			if (dataObject != null) {
+				if (dataObject.GetDataPresent(DataFormats.Text) || dataObject.GetDataPresent(DataFormats.UnicodeText)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		/// <summary>
+		/// Wrapper for Clipboard.ContainsImage, specialized for Greenshot, Created for Bug #3432313
+		/// </summary>
+		/// <returns>boolean if there is an image on the clipboard</returns>
+		public static bool ContainsImage() {
+			IDataObject clipboardData = GetDataObject();
+			return ContainsImage(clipboardData);
+		}
+
+		/// <summary>
+		/// Check if the IDataObject has an image
+		/// </summary>
+		/// <param name="dataObject"></param>
+		/// <returns>true if an image is there</returns>
+		public static bool ContainsImage(IDataObject dataObject) {
+			if (dataObject != null) {
+				if (dataObject.GetDataPresent(DataFormats.Bitmap)
+					|| dataObject.GetDataPresent(DataFormats.Dib)
+					|| dataObject.GetDataPresent(DataFormats.Tiff)
+					|| dataObject.GetDataPresent(DataFormats.EnhancedMetafile)
+					|| dataObject.GetDataPresent("PNG")
+					|| dataObject.GetDataPresent("JPG")) {
+					return true;
+				}
+				List<string> imageFiles = GetImageFilenames(dataObject);
+				if (imageFiles != null && imageFiles.Count > 0) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Simple helper to check the stream
+		/// </summary>
+		/// <param name="memoryStream"></param>
+		/// <returns></returns>
+		private static bool isValidStream(MemoryStream memoryStream) {
+			return memoryStream != null && memoryStream.Length > 0;
+		}
+
+		/// <summary>
+		/// Wrapper for Clipboard.GetImage, Created for Bug #3432313
+		/// </summary>
+		/// <returns>Image if there is an image on the clipboard</returns>
+		public static Image GetImage() {
+			IDataObject clipboardData = GetDataObject();
+			return GetImage(clipboardData);
+		}
+
+		/// <summary>
+		/// Get an Image from the IDataObject
+		/// </summary>
+		/// <param name="dataObject"></param>
+		/// <returns>Image or null</returns>
+		public static Image GetImage(IDataObject dataObject) {
+			if (dataObject != null) {
+				IList<string> formats = GetFormats(dataObject);
+				try {
+					MemoryStream imageStream = null;
+
+					if (!isValidStream(imageStream) && formats.Contains("PNG")) {
+						imageStream = GetFromDataObject(dataObject, "PNG") as MemoryStream;
+					}
+					if (!isValidStream(imageStream) && formats.Contains("JPG")) {
+						imageStream = GetFromDataObject(dataObject, "JPG") as MemoryStream;
+					}
+					if (!isValidStream(imageStream) && formats.Contains(DataFormats.Tiff)) {
+						imageStream = GetFromDataObject(dataObject, DataFormats.Tiff) as MemoryStream;
+					}
+
+					if (isValidStream(imageStream)) {
+						try {
+							using (Image tmpImage = Image.FromStream(imageStream)) {
+								return ImageHelper.Clone(tmpImage);
+							}
+						} catch (Exception streamImageEx) {
+							LOG.Error("Problem retrieving Image from clipboard.", streamImageEx);
+						}
+					}
+					// the DIB readed should solve the issue reported here: https://sourceforge.net/projects/greenshot/forums/forum/676083/topic/6354353/index/page/1
+					try {
+						// If the EnableSpecialDIBClipboardReader flag in the config is set, use the code from:
+						// http://www.thomaslevesque.com/2009/02/05/wpf-paste-an-image-from-the-clipboard/
+						// to read the DeviceIndependentBitmap from the clipboard, this might fix bug 3576125
+						if (config.EnableSpecialDIBClipboardReader && formats.Contains(DataFormats.Dib)) {
+							MemoryStream dibStream = GetClipboardData(DataFormats.Dib) as MemoryStream;
+							if (isValidStream(dibStream)) {
+								byte[] dibBuffer = new byte[dibStream.Length];
+								dibStream.Read(dibBuffer, 0, dibBuffer.Length);
+								BitmapInfoHeader infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
+								// Only use this code, when the biCommpression != 0 (BI_RGB)
+								if (infoHeader.biCompression != 0) {
+									int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
+									uint infoHeaderSize = infoHeader.biSize;
+									int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
+
+									BitmapFileHeader fileHeader = new BitmapFileHeader();
+									fileHeader.bfType = BitmapFileHeader.BM;
+									fileHeader.bfSize = fileSize;
+									fileHeader.bfReserved1 = 0;
+									fileHeader.bfReserved2 = 0;
+									fileHeader.bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4);
+
+									byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray<BitmapFileHeader>(fileHeader);
+
+									using (MemoryStream bitmapStream = new MemoryStream()) {
+										bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
+										bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
+										bitmapStream.Seek(0, SeekOrigin.Begin);
+										using (Image tmpImage = Image.FromStream(bitmapStream)) {
+											return ImageHelper.Clone(tmpImage);
+										}
+									}
+								}
+							}
+						}
+						List<string> imageFiles = GetImageFilenames(dataObject);
+						if (imageFiles != null) {
+							foreach (string imageFile in imageFiles) {
+								if (File.Exists(imageFile)) {
+									using (Stream imageFileStream = File.OpenRead(imageFile)) {
+										return Image.FromStream(imageFileStream, true, true);
+									}
+								}
+							}
+						}
+					} catch (Exception dibEx) {
+						LOG.Error("Problem retrieving DIB from clipboard.", dibEx);
+					}
+					return Clipboard.GetImage();
+				} catch (Exception ex) {
+					LOG.Error("Problem retrieving Image from clipboard.", ex);
+				}
+			}
+			return null;
+		}
+		
+		/// <summary>
+		/// Wrapper for Clipboard.GetText created for Bug #3432313
 		/// </summary>
 		/// <returns>string if there is text on the clipboard</returns>
 		public static string GetText() {
-			lock (clipboardLockObject) {
-				int retryCount = 2;
-				while (retryCount >= 0) {
-					try {
-						return Clipboard.GetText();
-					} catch (Exception ee) {
-						if (retryCount == 0) {
-							string messageText = null;
-							string clipboardOwner = GetClipboardOwner();
-							if (clipboardOwner != null) {
-								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
-							} else {
-								messageText = Language.GetString("clipboard_error");
-							}
-							LOG.Error(messageText, ee);
-						} else {
-							Thread.Sleep(100);
-						}
-					} finally {
-						--retryCount;
-					}
-				}
+			return GetText(GetDataObject());
+		}
+
+		/// <summary>
+		/// Get Text from the DataObject
+		/// </summary>
+		/// <returns>string if there is text on the clipboard</returns>
+		public static string GetText(IDataObject dataObject) {
+			if (ContainsText(dataObject)) {
+				return (String)dataObject.GetData(DataFormats.Text);
 			}
 			return null;
 		}
@@ -390,34 +417,43 @@ EndSelection:<<<<<<<4
 
 			// This will work for Office and most other applications
 			//ido.SetData(DataFormats.Bitmap, true, image);
-			
-			MemoryStream bmpStream = null;
-			MemoryStream imageStream = null;
+
+			MemoryStream dibStream = null;
 			MemoryStream pngStream = null;
 			try {
-				// Create PNG stream
-				if (config.ClipboardFormats.Contains(ClipboardFormat.PNG)) {
-					pngStream = new MemoryStream();
-					// PNG works for e.g. Powerpoint
-					SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-					ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
-					pngStream.Seek(0, SeekOrigin.Begin);
-					// Set the PNG stream
-					ido.SetData("PNG", false, pngStream);
+				try {
+					// Create PNG stream
+					if (config.ClipboardFormats.Contains(ClipboardFormat.PNG)) {
+						pngStream = new MemoryStream();
+						// PNG works for e.g. Powerpoint
+						SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+						ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
+						pngStream.Seek(0, SeekOrigin.Begin);
+						// Set the PNG stream
+						ido.SetData("PNG", false, pngStream);
+					}
+				} catch (Exception pngEX) {
+					LOG.Error("Error creating PNG for the Clipboard.", pngEX);
 				}
 
-				if (config.ClipboardFormats.Contains(ClipboardFormat.DIB)) {
-					bmpStream = new MemoryStream();
-					// Save image as BMP
-					SurfaceOutputSettings bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
-					ImageOutput.SaveToStream(surface, bmpStream, bmpOutputSettings);
 
-					imageStream = new MemoryStream();
-					// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
-					imageStream.Write(bmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int) bmpStream.Length - BITMAPFILEHEADER_LENGTH);
+				try {
+					if (config.ClipboardFormats.Contains(ClipboardFormat.DIB)) {
+						using (MemoryStream tmpBmpStream = new MemoryStream()) {
+							// Save image as BMP
+							SurfaceOutputSettings bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
+							ImageOutput.SaveToStream(surface, tmpBmpStream, bmpOutputSettings);
 
-					// Set the DIB to the clipboard DataObject
-					ido.SetData(DataFormats.Dib, true, imageStream);
+							dibStream = new MemoryStream();
+							// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
+							dibStream.Write(tmpBmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int)tmpBmpStream.Length - BITMAPFILEHEADER_LENGTH);
+						}
+
+						// Set the DIB to the clipboard DataObject
+						ido.SetData(DataFormats.Dib, true, dibStream);
+					}
+				} catch (Exception dibEx) {
+					LOG.Error("Error creating DIB for the Clipboard.", dibEx);
 				}
 				
 				// Set the HTML
@@ -447,14 +483,9 @@ EndSelection:<<<<<<<4
 					pngStream = null;
 				}
 
-				if (bmpStream != null) {
-					bmpStream.Dispose();
-					bmpStream = null;
-				}
-
-				if (imageStream != null) {
-					imageStream.Dispose();
-					imageStream = null;
+				if (dibStream != null) {
+					dibStream.Dispose();
+					dibStream = null;
 				}
 			}
 		}
@@ -479,33 +510,63 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		/// <returns>List<string> with the current formats</returns>
 		public static List<string> GetFormats() {
+			return GetFormats(GetDataObject());
+		}
+
+		/// <summary>
+		/// Retrieve a list of all formats currently in the IDataObject
+		/// </summary>
+		/// <returns>List<string> with the current formats</returns>
+		public static List<string> GetFormats(IDataObject dataObj) {
 			string[] formats = null;
 
-			lock (clipboardLockObject) {
-				try {
-					IDataObject dataObj = Clipboard.GetDataObject();
-					if (dataObj != null) {
-						formats = dataObj.GetFormats();
-					}
-				} catch (Exception e) {
-					LOG.Error("Error in GetFormats.", e);
-				}
+			if (dataObj != null) {
+				formats = dataObj.GetFormats();
 			}
 			if (formats != null) {
 				return new List<string>(formats);
 			}
 			return new List<string>();
 		}
-		
+
+		/// <summary>
+		/// Check if there is currently something in the dataObject which has the supplied format
+		/// </summary>
+		/// <param name="dataObject">IDataObject</param>
+		/// <param name="format">string with format</param>
+		/// <returns>true if one the format is found</returns>
+		public static bool ContainsFormat(string format) {
+			return ContainsFormat(GetDataObject(), new string[]{format});
+		}
+
+		/// <summary>
+		/// Check if there is currently something on the clipboard which has the supplied format
+		/// </summary>
+		/// <param name="format">string with format</param>
+		/// <returns>true if one the format is found</returns>
+		public static bool ContainsFormat(IDataObject dataObject, string format) {
+			return ContainsFormat(dataObject, new string[] { format });
+		}
+
 		/// <summary>
 		/// Check if there is currently something on the clipboard which has one of the supplied formats
 		/// </summary>
 		/// <param name="formats">string[] with formats</param>
 		/// <returns>true if one of the formats was found</returns>
 		public static bool ContainsFormat(string[] formats) {
+			return ContainsFormat(GetDataObject(), formats);
+		}
+
+		/// <summary>
+		/// Check if there is currently something on the clipboard which has one of the supplied formats
+		/// </summary>
+		/// <param name="dataObject">IDataObject</param>
+		/// <param name="formats">string[] with formats</param>
+		/// <returns>true if one of the formats was found</returns>
+		public static bool ContainsFormat(IDataObject dataObject, string[] formats) {
 			bool formatFound = false;
-			List<string> currentFormats = GetFormats();
-			if (currentFormats == null || currentFormats.Count == 0 ||formats == null || formats.Length == 0) {
+			List<string> currentFormats = GetFormats(dataObject);
+			if (currentFormats == null || currentFormats.Count == 0 || formats == null || formats.Length == 0) {
 				return false;
 			}
 			foreach (string format in formats) {
@@ -528,24 +589,62 @@ EndSelection:<<<<<<<4
 		}
 
 		/// <summary>
+		/// Get Object for format from IDataObject
+		/// </summary>
+		/// <param name="dataObj">IDataObject</param>
+		/// <param name="type">Type to get</param>
+		/// <returns>object from IDataObject</returns>
+		public static Object GetFromDataObject(IDataObject dataObj, Type type) {
+			if (type != null) {
+				return GetFromDataObject(dataObj, type.FullName);
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Get ImageFilenames from the IDataObject
+		/// </summary>
+		/// <param name="dataObject">IDataObject</param>
+		/// <returns></returns>
+		public static List<string> GetImageFilenames(IDataObject dataObject) {
+			List<string> filenames = new List<string>();
+			string[] dropFileNames = (string[])dataObject.GetData(DataFormats.FileDrop);
+			if (dropFileNames != null && dropFileNames.Length > 0) {
+				foreach (string filename in dropFileNames) {
+					LOG.Debug("Found filename: " + filename);
+					string ext = Path.GetExtension(filename).ToLower();
+					if ((ext == ".jpg") || (ext == ".jpeg") || (ext == ".tiff") || (ext == ".gif") || (ext == ".png") || (ext == ".bmp") || (ext == ".ico") || (ext == ".wmf")) {
+						filenames.Add(filename);
+					}
+				}
+			}
+			return filenames;
+		}
+
+		/// <summary>
+		/// Get Object for format from IDataObject
+		/// </summary>
+		/// <param name="dataObj">IDataObject</param>
+		/// <param name="format">format to get</param>
+		/// <returns>object from IDataObject</returns>
+		public static Object GetFromDataObject(IDataObject dataObj, string format) {
+			if (dataObj != null) {
+				try {
+					return dataObj.GetData(format);
+				} catch (Exception e) {
+					LOG.Error("Error in GetClipboardData.", e);
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// Get Object for format from the clipboard
 		/// </summary>
 		/// <param name="format">format to get</param>
 		/// <returns>object from clipboard</returns>
 		public static Object GetClipboardData(string format) {
-			Object obj = null;
-
-			lock (clipboardLockObject) {
-				try {
-					IDataObject dataObj = Clipboard.GetDataObject();
-					if(dataObj != null && dataObj.GetDataPresent(format)) {
-						obj = dataObj.GetData(format);
-					}
-				} catch (Exception e) {
-					LOG.Error("Error in GetClipboardData.", e);
-				}
-			}
-			return obj;
+			return GetFromDataObject(GetDataObject(), format);
 		}
 	}
 }

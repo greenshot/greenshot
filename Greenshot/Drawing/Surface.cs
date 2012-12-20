@@ -724,33 +724,19 @@ namespace Greenshot.Drawing {
 		#endregion
 
 		#region DragDrop
-		private List<string> GetFilenames(DragEventArgs e) {
-			List<string> filenames = new List<string>();
-			string[] dropFileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
-			if (dropFileNames != null && dropFileNames.Length > 0) {
-				foreach(string filename in dropFileNames) {
-					LOG.Debug("Found filename: " + filename);
-					string ext=Path.GetExtension(filename).ToLower();
-					if ((ext==".jpg") || (ext==".jpeg") ||(ext==".tiff") || (ext==".gif") || (ext==".png") || (ext==".bmp") || (ext==".ico") ||(ext==".wmf")) {
-						filenames.Add(filename);
-					}
-				}
-			}
-			return filenames;
-		}
 
 		private void OnDragEnter(object sender, DragEventArgs e) {
 			if(LOG.IsDebugEnabled) {
 				LOG.Debug("DragEnter got following formats: ");
-				foreach(string format in e.Data.GetFormats()) {
+				foreach(string format in ClipboardHelper.GetFormats(e.Data)) {
 					LOG.Debug(format);
 				}
 			}
 			if (draggingInProgress || (e.AllowedEffect & DragDropEffects.Copy) != DragDropEffects.Copy) {
 				e.Effect=DragDropEffects.None;
 			} else {
-				List<string> filenames = GetFilenames(e);
-				if ((filenames != null && filenames.Count > 0) || e.Data.GetDataPresent("DragImageBits") || e.Data.GetDataPresent(DataFormats.Bitmap, true) || e.Data.GetDataPresent(DataFormats.EnhancedMetafile, true)) {
+				List<string> filenames = ClipboardHelper.GetImageFilenames(e.Data);
+				if ((filenames != null && filenames.Count > 0) || ClipboardHelper.ContainsImage(e.Data) || ClipboardHelper.ContainsFormat(e.Data, "DragImageBits")) {
 					e.Effect=DragDropEffects.Copy;
 				} else {
 					e.Effect=DragDropEffects.None;
@@ -764,10 +750,10 @@ namespace Greenshot.Drawing {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void OnDragDrop(object sender, DragEventArgs e) {
-			List<string> filenames = GetFilenames(e);
+			List<string> filenames = ClipboardHelper.GetImageFilenames(e.Data);
 			Point mouse = this.PointToClient(new Point(e.X, e.Y));
 			if (e.Data.GetDataPresent("Text")) {
-				string possibleUrl = (string)e.Data.GetData("Text");
+				string possibleUrl = ClipboardHelper.GetText(e.Data);
 				// Test if it's an url and try to download the image so we have it in the original form
 				if (possibleUrl != null && possibleUrl.StartsWith("http")) {
 					using (Bitmap image = NetworkHelper.DownloadImage(possibleUrl)) {
@@ -1381,7 +1367,9 @@ namespace Greenshot.Drawing {
 		/// Paste all the elements that are on the clipboard
 		/// </summary>
 		public void PasteElementFromClipboard() {
-			List<string> formats = ClipboardHelper.GetFormats();
+			IDataObject clipboard = ClipboardHelper.GetDataObject();
+
+			List<string> formats = ClipboardHelper.GetFormats(clipboard);
 			if (formats == null || formats.Count == 0) {
 				return;
 			}
@@ -1393,7 +1381,7 @@ namespace Greenshot.Drawing {
 			}
 			
 			if (formats.Contains(typeof(DrawableContainerList).FullName)) {
-				DrawableContainerList dcs = (DrawableContainerList)ClipboardHelper.GetClipboardData(typeof(DrawableContainerList));
+				DrawableContainerList dcs = (DrawableContainerList)ClipboardHelper.GetFromDataObject(clipboard, typeof(DrawableContainerList));
 				if (dcs != null) {
 					dcs.Parent = this;
 					dcs.MoveBy(10,10);
@@ -1402,16 +1390,16 @@ namespace Greenshot.Drawing {
 					DeselectAllElements();
 					SelectElements(dcs);
 				}
-			} else if (ClipboardHelper.ContainsImage()) {
-				using (Image clipboardImage = ClipboardHelper.GetImage()) {
+			} else if (ClipboardHelper.ContainsImage(clipboard)) {
+				using (Image clipboardImage = ClipboardHelper.GetImage(clipboard)) {
 					if (clipboardImage != null) {
 						DeselectAllElements();
 						IBitmapContainer bitmapContainer = AddBitmapContainer(clipboardImage as Bitmap, 0, 0);
 						SelectElement(bitmapContainer);
 					}
 				}
-			} else if (ClipboardHelper.ContainsText()) {
-				string text = ClipboardHelper.GetText();
+			} else if (ClipboardHelper.ContainsText(clipboard)) {
+				string text = ClipboardHelper.GetText(clipboard);
 				if (text != null) {
 					DeselectAllElements();
 					ITextContainer textContainer = AddTextContainer(text, HorizontalAlignment.Center, VerticalAlignment.CENTER,
