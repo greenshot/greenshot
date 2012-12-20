@@ -38,6 +38,14 @@ Languages:
 * Installer: Added Serbian
 * General: Fixes for Italian, Serbian, Slovak, Urkainian
 
+Known issues:
+* Greenshot general: a captured I-Beam cursor isn't displayed correctly on the final result.
+* Greenshot general: Not all hotkeys can be changed in the editor. When you want to use e.g. the pause or the Windows key, you will need to be modified the ini directly.
+* Greenshot general: Can't capture 256 color screens
+* Greenshot general: Hotkeys don't function when a UAC (elevated) process is active. This we won't change as it is a Windows security measure.
+* Greenshot editor: Rotate only rotates the screenshot, not the added elements or cursor
+* Still having some dual screen problems with Windows 8, we are working on it.
+
 1.0.6 build 2228 Release
 
 Some features we added since 0.8:
