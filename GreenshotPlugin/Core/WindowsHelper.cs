@@ -771,28 +771,41 @@ namespace GreenshotPlugin.Core  {
 			}
 		}
 
+		/// <summary>
+		/// Get / Set the WindowStyle
+		/// </summary>
 		public WindowStyleFlags WindowStyle {
 			get {
-				return (WindowStyleFlags)User32.GetWindowLongWrapper(this.hWnd, (int)WindowLongIndex.GWL_STYLE);
+				return (WindowStyleFlags)User32.GetWindowLongPtr(this.hWnd, (int)WindowLongIndex.GWL_STYLE);
 			}
 			set {
-				User32.SetWindowLong(this.hWnd, (int)WindowLongIndex.GWL_STYLE, (uint)value);
+				User32.SetWindowLongPtr(this.hWnd, (int)WindowLongIndex.GWL_STYLE, (uint)value);
 			}
 		}
 
-		public WindowPlacement GetWindowPlacement() {
-			WindowPlacement placement = WindowPlacement.Default;
-			User32.GetWindowPlacement(this.Handle, ref placement);
-			return placement;
+		/// <summary>
+		/// Get/Set the WindowPlacement
+		/// </summary>
+		public WindowPlacement WindowPlacement {
+			get {
+				WindowPlacement placement = WindowPlacement.Default;
+				User32.GetWindowPlacement(this.Handle, ref placement);
+				return placement;
+			}
+			set {
+				User32.SetWindowPlacement(this.Handle, ref value);
+			}
 		}
 
-		public void SetWindowPlacement(WindowPlacement placement) {
-			User32.SetWindowPlacement(this.Handle, ref placement);
-		}
-
+		/// <summary>
+		/// Get/Set the Extended WindowStyle
+		/// </summary>
 		public ExtendedWindowStyleFlags ExtendedWindowStyle {
 			get {
-				return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(this.hWnd, (int)WindowLongIndex.GWL_EXSTYLE);
+				return (ExtendedWindowStyleFlags)User32.GetWindowLongPtr(this.hWnd, (int)WindowLongIndex.GWL_EXSTYLE);
+			}
+			set {
+				User32.SetWindowLongPtr(this.hWnd, (int)WindowLongIndex.GWL_EXSTYLE, (uint)value);
 			}
 		}
 

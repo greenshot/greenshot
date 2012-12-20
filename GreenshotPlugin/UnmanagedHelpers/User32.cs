@@ -114,12 +114,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public extern static int SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
 		[DllImport("user32", SetLastError=true, EntryPoint = "SendMessageA")]
 		public static extern bool SendMessage(IntPtr hWnd, uint msg, int wParam, int lParam);
-		[DllImport("user32", SetLastError=true)]
-		public extern static uint GetWindowLong(IntPtr hwnd, int index);
+		// See: http://msdn.microsoft.com/en-us/library/windows/desktop/ms633585%28v=vs.85%29.aspx
 		[DllImport("user32", EntryPoint="GetWindowLongPtr", SetLastError=true)]
 		public extern static uint GetWindowLongPtr(IntPtr hwnd, int nIndex);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int SetWindowLong(IntPtr hWnd, int index, uint styleFlags);
+		// See: http://msdn.microsoft.com/en-us/library/windows/desktop/ms644898%28v=vs.85%29.aspx
+		[DllImport("user32", EntryPoint = "SetWindowLongPtr", SetLastError = true)]
+		public static extern int SetWindowLongPtr(IntPtr hWnd, int index, uint styleFlags);
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
 		[DllImport("user32", SetLastError = true)]
@@ -220,20 +220,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool ReleaseCapture();
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr CreateIconIndirect(ref IconInfo icon);
-
-		/// <summary>
-		/// Wrapper for the GetWindowLong which decides if the system is 64-bit or not and calls the right one.
-		/// </summary>
-		/// <param name="hwnd"></param>
-		/// <param name="nIndex"></param>
-		/// <returns></returns>
-		public static uint GetWindowLongWrapper(IntPtr hwnd, int nIndex) {
-			if (IntPtr.Size == 8) {
-				return GetWindowLongPtr(hwnd, nIndex);
-			} else {
-				return GetWindowLong(hwnd, nIndex);
-			}
-		}
 
 		public static uint GetGuiResourcesGDICount() {
 			return GetGuiResources(Process.GetCurrentProcess().Handle, 0);

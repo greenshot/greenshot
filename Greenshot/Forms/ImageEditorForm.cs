@@ -96,7 +96,7 @@ namespace Greenshot {
 
 			// Make sure the editor is placed on the same location as the last editor was on close
 			WindowDetails thisForm = new WindowDetails(this.Handle);
-			thisForm.SetWindowPlacement(editorConfiguration.GetEditorPlacement());
+			thisForm.WindowPlacement = editorConfiguration.GetEditorPlacement();
 
 			// init surface
 			Surface = iSurface;
@@ -706,7 +706,7 @@ namespace Greenshot {
 				}
 			}
 			// persist our geometry string.
-			editorConfiguration.SetEditorPlacement(new WindowDetails(this.Handle).GetWindowPlacement());
+			editorConfiguration.SetEditorPlacement(new WindowDetails(this.Handle).WindowPlacement);
 			IniConfig.Save();
 			
 			// remove from the editor list
