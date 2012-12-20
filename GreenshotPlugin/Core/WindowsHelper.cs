@@ -776,10 +776,10 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		public WindowStyleFlags WindowStyle {
 			get {
-				return (WindowStyleFlags)User32.GetWindowLongPtr(this.hWnd, (int)WindowLongIndex.GWL_STYLE);
+				return (WindowStyleFlags)User32.GetWindowLongWrapper(this.hWnd, (int)WindowLongIndex.GWL_STYLE);
 			}
 			set {
-				User32.SetWindowLongPtr(this.hWnd, (int)WindowLongIndex.GWL_STYLE, (uint)value);
+				User32.SetWindowLongWrapper(this.hWnd, (int)WindowLongIndex.GWL_STYLE, (uint)value);
 			}
 		}
 
@@ -802,10 +802,10 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		public ExtendedWindowStyleFlags ExtendedWindowStyle {
 			get {
-				return (ExtendedWindowStyleFlags)User32.GetWindowLongPtr(this.hWnd, (int)WindowLongIndex.GWL_EXSTYLE);
+				return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(this.hWnd, (int)WindowLongIndex.GWL_EXSTYLE);
 			}
 			set {
-				User32.SetWindowLongPtr(this.hWnd, (int)WindowLongIndex.GWL_EXSTYLE, (uint)value);
+				User32.SetWindowLongWrapper(this.hWnd, (int)WindowLongIndex.GWL_EXSTYLE, (uint)value);
 			}
 		}
 
