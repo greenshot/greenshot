@@ -193,11 +193,14 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="filename"></param>
 		/// <returns></returns>
-		public static Bitmap LoadBitmap(string filename) {
+		public static Image LoadImage(string filename) {
 			if (string.IsNullOrEmpty(filename)) {
 				return null;
 			}
-			Bitmap fileBitmap = null;
+			if (!File.Exists(filename)) {
+				return null;
+			}
+			Image fileImage = null;
 			LOG.InfoFormat("Loading image from file {0}", filename);
 			// Fixed lock problem Bug #3431881
 			using (Stream imageFileStream = File.OpenRead(filename)) {
@@ -209,20 +212,20 @@ namespace GreenshotPlugin.Core {
 					try {
 						using (Image tmpImage = ExtractVistaIcon(imageFileStream)) {
 							if (tmpImage != null) {
-								fileBitmap = Clone(tmpImage);
+								fileImage = Clone(tmpImage);
 							}
 						}
 					} catch (Exception vistaIconException) {
 						LOG.Warn("Can't read icon from " + filename, vistaIconException);
 					}
-					if (fileBitmap == null) {
+					if (fileImage == null) {
 						try {
 							// No vista icon, try normal icon
 							imageFileStream.Position = 0;
 							// We create a copy of the bitmap, so everything else can be disposed
 							using (Icon tmpIcon = new Icon(imageFileStream, new Size(1024,1024))) {
 								using (Image tmpImage = tmpIcon.ToBitmap()) {
-									fileBitmap = Clone(tmpImage);
+									fileImage = Clone(tmpImage);
 								}
 							}
 						} catch (Exception iconException) {
@@ -230,19 +233,19 @@ namespace GreenshotPlugin.Core {
 						}
 					}
 				}
-				if (fileBitmap == null) {
+				if (fileImage == null) {
 					// We create a copy of the bitmap, so everything else can be disposed
 					imageFileStream.Position = 0;
 					using (Image tmpImage = Image.FromStream(imageFileStream, true, true)) {
 						LOG.DebugFormat("Loaded {0} with Size {1}x{2} and PixelFormat {3}", filename, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-						fileBitmap = Clone(tmpImage);
+						fileImage = Clone(tmpImage);
 					}
 				}
 			}
-			if (fileBitmap != null) {
-				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileBitmap.Width, fileBitmap.Height, fileBitmap.PixelFormat, fileBitmap.HorizontalResolution, fileBitmap.VerticalResolution);
+			if (fileImage != null) {
+				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
-			return fileBitmap;
+			return fileImage;
 		}
 
 
@@ -336,10 +339,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceBitmap">Bitmap</param>
 		/// <param name="effect">IEffect</param>
 		/// <returns>Bitmap</returns>
-		public static Bitmap ApplyEffect(Bitmap sourceBitmap, IEffect effect, out Point offset) {
+		public static Image ApplyEffect(Image sourceImage, IEffect effect, out Point offset) {
 			List<IEffect> effects = new List<IEffect>();
 			effects.Add(effect);
-			return ApplyEffects(sourceBitmap, effects, out offset);
+			return ApplyEffects(sourceImage, effects, out offset);
 		}
 
 		/// <summary>
@@ -348,40 +351,40 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceBitmap">Bitmap</param>
 		/// <param name="effects">List<IEffect></param>
 		/// <returns>Bitmap</returns>
-		public static Bitmap ApplyEffects(Bitmap sourceBitmap, List<IEffect> effects, out Point offset) {
-			Bitmap currentBitmap = sourceBitmap;
+		public static Image ApplyEffects(Image sourceImage, List<IEffect> effects, out Point offset) {
+			Image currentImage = sourceImage;
 			bool disposeImage = false;
 			// Default out value for the offset, will be modified there where needed
 			offset = new Point(0, 0);
 			Point tmpPoint;
-			Bitmap tmpBitmap = null;
+			Image tmpImage = null;
 			foreach (IEffect effect in effects) {
-				tmpBitmap = effect.Apply(currentBitmap, out tmpPoint);
+				tmpImage = effect.Apply(currentImage, out tmpPoint);
 				offset.Offset(tmpPoint);
 				if (disposeImage) {
-					currentBitmap.Dispose();
+					currentImage.Dispose();
 				}
-				currentBitmap = tmpBitmap;
+				currentImage = tmpImage;
 				// Make sure the "new" image is disposed
 				disposeImage = true;
 			}
-			return tmpBitmap;
+			return tmpImage;
 		}
 
 		/// <summary>
 		/// Make the picture look like it's torn
 		/// </summary>
-		/// <param name="sourceBitmap">Bitmap to make torn edge off</param>
+		/// <param name="sourceImage">Bitmap to make torn edge off</param>
 		/// <param name="toothHeight">How large (height) is each tooth</param>
 		/// <param name="horizontalToothRange">How wide is a horizontal tooth</param>
 		/// <param name="verticalToothRange">How wide is a vertical tooth</param>
 		/// <returns>Changed bitmap</returns>
-		public static Bitmap CreateTornEdge(Bitmap sourceBitmap, int toothHeight, int horizontalToothRange, int verticalToothRange) {
-			Bitmap returnImage = CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+		public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange) {
+			Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			using (GraphicsPath path = new GraphicsPath()) {
 				Random random = new Random();
-				int HorizontalRegions = (int)(sourceBitmap.Width / horizontalToothRange);
-				int VerticalRegions = (int)(sourceBitmap.Height / verticalToothRange);
+				int HorizontalRegions = (int)(sourceImage.Width / horizontalToothRange);
+				int VerticalRegions = (int)(sourceImage.Height / verticalToothRange);
 
 				// Start
 				Point previousEndingPoint = new Point(horizontalToothRange, random.Next(1, toothHeight));
@@ -397,7 +400,7 @@ namespace GreenshotPlugin.Core {
 
 				// Right
 				for (int i = 0; i < VerticalRegions; i++) {
-					int x = sourceBitmap.Width - random.Next(1, toothHeight);
+					int x = sourceImage.Width - random.Next(1, toothHeight);
 					int y = (int)previousEndingPoint.Y + verticalToothRange;
 					newEndingPoint = new Point(x, y);
 					path.AddLine(previousEndingPoint, newEndingPoint);
@@ -407,7 +410,7 @@ namespace GreenshotPlugin.Core {
 				// Bottom
 				for (int i = 0; i < HorizontalRegions; i++) {
 					int x = (int)previousEndingPoint.X - horizontalToothRange;
-					int y = sourceBitmap.Height - random.Next(1, toothHeight);
+					int y = sourceImage.Height - random.Next(1, toothHeight);
 					newEndingPoint = new Point(x, y);
 					path.AddLine(previousEndingPoint, newEndingPoint);
 					previousEndingPoint = newEndingPoint;
@@ -429,7 +432,7 @@ namespace GreenshotPlugin.Core {
 					graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 					graphics.CompositingQuality = CompositingQuality.HighQuality;
 					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-					using (Brush brush = new TextureBrush(sourceBitmap)) {
+					using (Brush brush = new TextureBrush(sourceImage)) {
 						// Imporant note: If the target wouldn't be at 0,0 we need to translate-transform!!
 						graphics.FillPath(brush, path);
 					}
@@ -948,10 +951,10 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Return negative of Bitmap
 		/// </summary>
-		/// <param name="sourceBitmap">Bitmap to create a negative off</param>
+		/// <param name="sourceImage">Bitmap to create a negative off</param>
 		/// <returns>Negative bitmap</returns>
-		public static Bitmap CreateNegative(Bitmap sourceBitmap) {
-			using (BitmapBuffer bb = new BitmapBuffer(sourceBitmap, true)) {
+		public static Bitmap CreateNegative(Image sourceImage) {
+			using (BitmapBuffer bb = new BitmapBuffer(sourceImage, true)) {
 				bb.Lock();
 				for (int y = 0; y < bb.Height; y++) {
 					for (int x = 0; x < bb.Width; x++) {
@@ -968,18 +971,18 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Create a new bitmap where the sourceBitmap has a Simple border around it
 		/// </summary>
-		/// <param name="sourceBitmap">Bitmap to make a border on</param>
+		/// <param name="sourceImage">Bitmap to make a border on</param>
 		/// <param name="borderSize">Size of the border</param>
 		/// <param name="borderColor">Color of the border</param>
 		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
 		/// <param name="offset">How many pixels is the original image moved?</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-		public static Bitmap CreateBorder(Bitmap sourceBitmap, int borderSize, Color borderColor, PixelFormat targetPixelformat, out Point offset) {
+		public static Image CreateBorder(Image sourceImage, int borderSize, Color borderColor, PixelFormat targetPixelformat, out Point offset) {
 			// "return" the shifted offset, so the caller can e.g. move elements
 			offset = new Point(borderSize, borderSize);
 
 			// Create a new "clean" image
-			Bitmap newImage = CreateEmpty(sourceBitmap.Width + (borderSize * 2), sourceBitmap.Height + (borderSize * 2), targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			Bitmap newImage = CreateEmpty(sourceImage.Width + (borderSize * 2), sourceImage.Height + (borderSize * 2), targetPixelformat, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			using (Graphics graphics = Graphics.FromImage(newImage)) {
 				// Make sure we draw with the best quality!
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -996,10 +999,10 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 				// draw original with a TextureBrush so we have nice antialiasing!
-				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {
+				using (Brush textureBrush = new TextureBrush(sourceImage, WrapMode.Clamp)) {
 					// We need to do a translate-tranform otherwise the image is wrapped
 					graphics.TranslateTransform(offset.X, offset.Y);
-					graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
+					graphics.FillRectangle(textureBrush, 0, 0, sourceImage.Width, sourceImage.Height);
 				}
 			}
 			return newImage;
@@ -1008,12 +1011,12 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Create a new bitmap where the sourceBitmap is in grayscale
 		/// </summary>
-		/// <param name="sourceBitmap">Original bitmap</param>
+		/// <param name="sourceImage">Original bitmap</param>
 		/// <returns>Bitmap with grayscale</returns>
-		public static Bitmap CreateGrayscale(Bitmap sourceBitmap) {
+		public static Image CreateGrayscale(Image sourceImage) {
 			//create a blank bitmap the same size as original
 			// If using 8bpp than the following exception comes: A Graphics object cannot be created from an image that has an indexed pixel format. 
-			Bitmap newBitmap = CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format24bppRgb, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			Bitmap newBitmap = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format24bppRgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			//ColorPalette imagePalette = newBitmap.Palette;
 			//for (int i = 0; i <= 255; i++) {
 			//    // create greyscale color table
@@ -1040,7 +1043,7 @@ namespace GreenshotPlugin.Core {
 				attributes.SetColorMatrix(colorMatrix);
 
 				//draw the original image on the new image using the grayscale color matrix
-				graphics.DrawImage(sourceBitmap, new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height), 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, attributes);
+				graphics.DrawImage(sourceImage, new Rectangle(0, 0, sourceImage.Width, sourceImage.Height), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, attributes);
 			}
 
 			return newBitmap;
@@ -1049,10 +1052,10 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Checks if the supplied Bitmap has a PixelFormat we support
 		/// </summary>
-		/// <param name="bitmap">bitmap to check</param>
+		/// <param name="image">bitmap to check</param>
 		/// <returns>bool if we support it</returns>
-		public static bool SupportsPixelFormat(Bitmap bitmap) {
-			return SupportsPixelFormat(bitmap.PixelFormat);
+		public static bool SupportsPixelFormat(Image image) {
+			return SupportsPixelFormat(image.PixelFormat);
 		}
 
 		/// <summary>
@@ -1070,11 +1073,15 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Wrapper for just cloning which calls the CloneArea
 		/// </summary>
-		/// <param name="sourceBitmap">Image to clone</param>
+		/// <param name="sourceImage">Image to clone</param>
 		/// <returns>Bitmap with clone image data</returns>
-		public static Bitmap Clone(Image sourceBitmap) {
-			return CloneArea(sourceBitmap, Rectangle.Empty, PixelFormat.DontCare);
+		public static Image Clone(Image sourceImage) {
+			if (sourceImage is Metafile) {
+				return (Image)sourceImage.Clone();
+			}
+			return CloneArea(sourceImage, Rectangle.Empty, PixelFormat.DontCare);
 		}
+
 		/// <summary>
 		/// Wrapper for just cloning & TargetFormat which calls the CloneArea
 		/// </summary>
@@ -1092,24 +1099,24 @@ namespace GreenshotPlugin.Core {
 		///		a quick workaround is using new Bitmap which uses a default of Format32bppArgb
 		///	2) When going from a transparent to a non transparent bitmap, we draw the background white!
 		/// </summary>
-		/// <param name="sourceBitmap">Source bitmap to clone</param>
+		/// <param name="sourceImage">Source bitmap to clone</param>
 		/// <param name="sourceRect">Rectangle to copy from the source, use Rectangle.Empty for all</param>
 		/// <param name="targetFormat">Target Format, use PixelFormat.DontCare if you want the original (or a default if the source PixelFormat is not supported)</param>
 		/// <returns></returns>
-		public static Bitmap CloneArea(Image sourceBitmap, Rectangle sourceRect, PixelFormat targetFormat) {
+		public static Bitmap CloneArea(Image sourceImage, Rectangle sourceRect, PixelFormat targetFormat) {
 			Bitmap newImage = null;
-			Rectangle bitmapRect = new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height);
+			Rectangle bitmapRect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
 
 			// Make sure the source is not Rectangle.Empty
 			if (Rectangle.Empty.Equals(sourceRect)) {
-				sourceRect = new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height);
+				sourceRect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
 			}
 
 			// If no pixelformat is supplied 
 			if (PixelFormat.DontCare == targetFormat || PixelFormat.Undefined == targetFormat) {
-				if (SupportsPixelFormat(sourceBitmap.PixelFormat)) {
-					targetFormat = sourceBitmap.PixelFormat;
-				} else if (Image.IsAlphaPixelFormat(sourceBitmap.PixelFormat)) {
+				if (SupportsPixelFormat(sourceImage.PixelFormat)) {
+					targetFormat = sourceImage.PixelFormat;
+				} else if (Image.IsAlphaPixelFormat(sourceImage.PixelFormat)) {
 					targetFormat = PixelFormat.Format32bppArgb;
 				} else {
 					targetFormat = PixelFormat.Format24bppRgb;
@@ -1126,15 +1133,15 @@ namespace GreenshotPlugin.Core {
 			}
 
 			bool destinationIsTransparent = Image.IsAlphaPixelFormat(targetFormat);
-			bool sourceIsTransparent = Image.IsAlphaPixelFormat(sourceBitmap.PixelFormat);
+			bool sourceIsTransparent = Image.IsAlphaPixelFormat(sourceImage.PixelFormat);
 			bool fromTransparentToNon = !destinationIsTransparent && sourceIsTransparent;
-			bool isBitmap = sourceBitmap is Bitmap;
+			bool isBitmap = sourceImage is Bitmap;
 			bool isAreaEqual = sourceRect.Equals(bitmapRect);
 			if (isAreaEqual || fromTransparentToNon || !isBitmap) {
 				// Rule 1: if the areas are equal, always copy ourselves
 				newImage = new Bitmap(bitmapRect.Width, bitmapRect.Height, targetFormat);
 				// Make sure both images have the same resolution
-				newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+				newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 
 				using (Graphics graphics = Graphics.FromImage(newImage)) {
 					if (fromTransparentToNon) {
@@ -1143,16 +1150,16 @@ namespace GreenshotPlugin.Core {
 					}
 					// decide fastest copy method
 					if (isAreaEqual) {
-						graphics.DrawImageUnscaled(sourceBitmap, 0, 0);
+						graphics.DrawImageUnscaled(sourceImage, 0, 0);
 					} else {
-						graphics.DrawImage(sourceBitmap, 0, 0, sourceRect, GraphicsUnit.Pixel);
+						graphics.DrawImage(sourceImage, 0, 0, sourceRect, GraphicsUnit.Pixel);
 					}
 				}
 			} else {
 				// Let GDI+ decide how to convert, need to test what is quicker...
-				newImage = (sourceBitmap as Bitmap).Clone(sourceRect, targetFormat);
+				newImage = (sourceImage as Bitmap).Clone(sourceRect, targetFormat);
 				// Make sure both images have the same resolution
-				newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+				newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			}
 			return newImage;
 		}
@@ -1160,27 +1167,27 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Rotate the bitmap
 		/// </summary>
-		/// <param name="sourceBitmap"></param>
+		/// <param name="sourceImage"></param>
 		/// <param name="rotateFlipType"></param>
 		/// <returns></returns>
-		public static Bitmap RotateFlip(Bitmap sourceBitmap, RotateFlipType rotateFlipType) {
-			Bitmap returnBitmap = Clone(sourceBitmap);
-			returnBitmap.RotateFlip(rotateFlipType);
-			return returnBitmap;
+		public static Image RotateFlip(Image sourceImage, RotateFlipType rotateFlipType) {
+			Image returnImage = Clone(sourceImage);
+			returnImage.RotateFlip(rotateFlipType);
+			return returnImage;
 		}
 		
 		/// <summary>
 		/// A generic way to create an empty image
 		/// </summary>
-		/// <param name="sourceBitmap">the source bitmap as the specifications for the new bitmap</param>
+		/// <param name="sourceImage">the source bitmap as the specifications for the new bitmap</param>
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
 		/// <returns></returns>
-		public static Bitmap CreateEmptyLike(Bitmap sourceBitmap, Color backgroundColor) {
-			PixelFormat pixelFormat = sourceBitmap.PixelFormat;
+		public static Bitmap CreateEmptyLike(Image sourceImage, Color backgroundColor) {
+			PixelFormat pixelFormat = sourceImage.PixelFormat;
 			if (backgroundColor.A < 255) {
 				pixelFormat = PixelFormat.Format32bppArgb;
 			}
-			return CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, pixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			return CreateEmpty(sourceImage.Width, sourceImage.Height, pixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 		}
 
 		/// <summary>
@@ -1236,17 +1243,17 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Resize canvas with pixel to the left, right, top and bottom
 		/// </summary>
-		/// <param name="sourceBitmap"></param>
+		/// <param name="sourceImage"></param>
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
 		/// <param name="left"></param>
 		/// <param name="right"></param>
 		/// <param name="top"></param>
 		/// <param name="bottom"></param>
 		/// <returns>a new bitmap with the source copied on it</returns>
-		public static Bitmap ResizeCanvas(Bitmap sourceBitmap, Color backgroundColor, int left, int right, int top, int bottom) {
-			Bitmap newBitmap = CreateEmpty(sourceBitmap.Width + left + right, sourceBitmap.Height + top + bottom, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+		public static Image ResizeCanvas(Image sourceImage, Color backgroundColor, int left, int right, int top, int bottom) {
+			Bitmap newBitmap = CreateEmpty(sourceImage.Width + left + right, sourceImage.Height + top + bottom, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
-				graphics.DrawImageUnscaled(sourceBitmap, left, top);
+				graphics.DrawImageUnscaled(sourceImage, left, top);
 			}
 			return newBitmap;
 		}
@@ -1254,30 +1261,30 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Wrapper for the more complex Resize, this resize could be used for e.g. Thumbnails
 		/// </summary>
-		/// <param name="sourceBitmap"></param>
+		/// <param name="sourceImage"></param>
 		/// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
 		/// <param name="newWidth"></param>
 		/// <param name="newHeight"></param>
 		/// <returns></returns>
-		public static Bitmap ResizeBitmap(Bitmap sourceBitmap, bool maintainAspectRatio, int newWidth, int newHeight) {
+		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight) {
 			Point throwAway;
-			return ResizeBitmap(sourceBitmap, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, out throwAway);
+			return ResizeImage(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, out throwAway);
 		}
 
 		/// <summary>
 		/// Count how many times the supplied color exists
 		/// </summary>
-		/// <param name="sourceBitmap">Bitmap to count the pixels of</param>
+		/// <param name="sourceImage">Image to count the pixels of</param>
 		/// <param name="colorToCount">Color to count/param>
 		/// <param name="includeAlpha">true if Alpha needs to be checked</param>
 		/// <returns>int with the number of pixels which have colorToCount</returns>
-		public static int CountColor(Bitmap sourceBitmap, Color colorToCount, bool includeAlpha) {
+		public static int CountColor(Image sourceImage, Color colorToCount, bool includeAlpha) {
 			int colors = 0;
 			int toCount = colorToCount.ToArgb();
 			if (!includeAlpha) {
 				toCount = toCount & 0xffffff;
 			}
-			using (BitmapBuffer bb = new BitmapBuffer(sourceBitmap, true)) {
+			using (BitmapBuffer bb = new BitmapBuffer(sourceImage)) {
 				bb.Lock();
 				for (int y = 0; y < bb.Height; y++) {
 					for (int x = 0; x < bb.Width; x++) {
@@ -1298,57 +1305,57 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Scale the bitmap, keeping aspect ratio, but the canvas will always have the specified size.
 		/// </summary>
-		/// <param name="sourceBitmap">Bitmap to scale</param>
+		/// <param name="sourceImage">Image to scale</param>
 		/// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
 		/// <param name="newWidth">new width</param>
 		/// <param name="newHeight">new height</param>
-		/// <returns>a new bitmap with the specified size, the source-bitmap scaled to fit with aspect ratio locked</returns>
-		public static Bitmap ResizeBitmap(Bitmap sourceBitmap, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, out Point offset) {
+		/// <returns>a new bitmap with the specified size, the source-Image scaled to fit with aspect ratio locked</returns>
+		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, out Point offset) {
 			int destX = 0;
 			int destY = 0;
 			
 			float nPercentW = 0;
 			float nPercentH = 0;
 			
-			nPercentW = ((float)newWidth / (float)sourceBitmap.Width);
-			nPercentH = ((float)newHeight / (float)sourceBitmap.Height);
+			nPercentW = ((float)newWidth / (float)sourceImage.Width);
+			nPercentH = ((float)newHeight / (float)sourceImage.Height);
 			if (maintainAspectRatio) {
 				if (nPercentH != 0 && nPercentH < nPercentW) {
 					nPercentW = nPercentH;
 					if (canvasUseNewSize) {
-						destX =  Math.Max(0, System.Convert.ToInt32((newWidth - (sourceBitmap.Width * nPercentW)) / 2));
+						destX =  Math.Max(0, System.Convert.ToInt32((newWidth - (sourceImage.Width * nPercentW)) / 2));
 					}
 				} else {
 					nPercentH = nPercentW;
 					if (canvasUseNewSize) {
-						destY = Math.Max(0, System.Convert.ToInt32((newHeight - (sourceBitmap.Height * nPercentH)) / 2));
+						destY = Math.Max(0, System.Convert.ToInt32((newHeight - (sourceImage.Height * nPercentH)) / 2));
 					}
 				}
 			}
 			
 			offset = new Point(destX, destY);
 			
-			int destWidth = (int)(sourceBitmap.Width * nPercentW);
-			int destHeight = (int)(sourceBitmap.Height * nPercentH);
+			int destWidth = (int)(sourceImage.Width * nPercentW);
+			int destHeight = (int)(sourceImage.Height * nPercentH);
 			if (newWidth == 0) {
 				newWidth = destWidth;
 			}
 			if (newHeight == 0) {
 				newHeight = destHeight;
 			}
-			Bitmap newBitmap = null;
+			Image newImage = null;
 			if (maintainAspectRatio && canvasUseNewSize) {
-				newBitmap = CreateEmpty(newWidth, newHeight, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+				newImage = CreateEmpty(newWidth, newHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			} else {
-				newBitmap = CreateEmpty(destWidth, destHeight, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+				newImage = CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			}
 
-			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
+			using (Graphics graphics = Graphics.FromImage(newImage)) {
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				graphics.DrawImage(sourceBitmap, new Rectangle(destX, destY, destWidth, destHeight), new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height), GraphicsUnit.Pixel);
+				graphics.DrawImage(sourceImage, new Rectangle(destX, destY, destWidth, destHeight), new Rectangle(0, 0, sourceImage.Width, sourceImage.Height), GraphicsUnit.Pixel);
 			}
-			return newBitmap;
+			return newImage;
 		}
 	}
 }

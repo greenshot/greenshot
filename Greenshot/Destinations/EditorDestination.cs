@@ -125,8 +125,8 @@ namespace Greenshot.Destinations {
 				}
 			} else {
 				try {
-					using (Bitmap image = (Bitmap)surface.GetImageForExport()) {
-						editor.Surface.AddBitmapContainer(image, 10, 10);
+					using (Image image = surface.GetImageForExport()) {
+						editor.Surface.AddImageContainer(image, 10, 10);
 					}
 					exportInformation.ExportMade = true;
 				} catch (Exception e) {

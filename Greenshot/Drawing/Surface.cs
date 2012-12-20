@@ -620,7 +620,7 @@ namespace Greenshot.Drawing {
 					undrawnElement = cropContainer;
 					break;
 				case DrawingModes.Bitmap:
-					undrawnElement = new BitmapContainer(this);
+					undrawnElement = new ImageContainer(this);
 					break;
 				case DrawingModes.Path:
 					undrawnElement = new FreehandContainer(this);
@@ -635,17 +635,17 @@ namespace Greenshot.Drawing {
 		}
 
 		#region Plugin interface implementations
-		public IBitmapContainer AddBitmapContainer(Bitmap bitmap, int x, int y) {
-			BitmapContainer bitmapContainer = new BitmapContainer(this);
-			bitmapContainer.Bitmap = bitmap;
+		public IImageContainer AddImageContainer(Image image, int x, int y) {
+			ImageContainer bitmapContainer = new ImageContainer(this);
+			bitmapContainer.Image = image;
 			bitmapContainer.Left = x;
 			bitmapContainer.Top = y;
 			AddElement(bitmapContainer);
 			return bitmapContainer;
 		}
 
-		public IBitmapContainer AddBitmapContainer(string filename, int x, int y) {
-			BitmapContainer bitmapContainer = new BitmapContainer(this);
+		public IImageContainer AddImageContainer(string filename, int x, int y) {
+			ImageContainer bitmapContainer = new ImageContainer(this);
 			bitmapContainer.Load(filename);
 			bitmapContainer.Left = x;
 			bitmapContainer.Top = y;
@@ -684,22 +684,6 @@ namespace Greenshot.Drawing {
 			AddElement(cursorContainer);
 			return cursorContainer;
 		}
-		public IMetafileContainer AddMetafileContainer(string filename, int x, int y) {
-			MetafileContainer metafileContainer = new MetafileContainer(this);
-			metafileContainer.Load(filename);
-			metafileContainer.Left = x;
-			metafileContainer.Top = y;
-			AddElement(metafileContainer);
-			return metafileContainer;
-		}
-		public IMetafileContainer AddMetafileContainer(Metafile metafile, int x, int y) {
-			MetafileContainer metafileContainer = new MetafileContainer(this);
-			metafileContainer.Metafile = metafile;
-			metafileContainer.Left = x;
-			metafileContainer.Top = y;
-			AddElement(metafileContainer);
-			return metafileContainer;
-		}
 
 		public ITextContainer AddTextContainer(string text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, FontFamily family, float size, bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor) {
 			TextContainer textContainer = new TextContainer(this);
@@ -735,11 +719,10 @@ namespace Greenshot.Drawing {
 			if (draggingInProgress || (e.AllowedEffect & DragDropEffects.Copy) != DragDropEffects.Copy) {
 				e.Effect=DragDropEffects.None;
 			} else {
-				List<string> filenames = ClipboardHelper.GetImageFilenames(e.Data);
-				if ((filenames != null && filenames.Count > 0) || ClipboardHelper.ContainsImage(e.Data) || ClipboardHelper.ContainsFormat(e.Data, "DragImageBits")) {
-					e.Effect=DragDropEffects.Copy;
+				if (ClipboardHelper.ContainsImage(e.Data) || ClipboardHelper.ContainsFormat(e.Data, "DragImageBits")) {
+					e.Effect = DragDropEffects.Copy;
 				} else {
-					e.Effect=DragDropEffects.None;
+					e.Effect = DragDropEffects.None;
 				}
 			}
 		}
@@ -756,31 +739,19 @@ namespace Greenshot.Drawing {
 				string possibleUrl = ClipboardHelper.GetText(e.Data);
 				// Test if it's an url and try to download the image so we have it in the original form
 				if (possibleUrl != null && possibleUrl.StartsWith("http")) {
-					using (Bitmap image = NetworkHelper.DownloadImage(possibleUrl)) {
+					using (Image image = NetworkHelper.DownloadImage(possibleUrl)) {
 						if (image != null) {
-							AddBitmapContainer(image, mouse.X, mouse.Y);
+							AddImageContainer(image, mouse.X, mouse.Y);
 							return;
 						}
 					}
 				}
 			}
 
-			if ((filenames != null && filenames.Count > 0)) {
-				foreach (string filename in filenames) {
-					if (filename != null && filename.Trim().Length > 0) {
-						LOG.Debug("Drop - filename: " + filename);
-						if (filename.ToLower().EndsWith("wmf")) {
-							AddMetafileContainer(filename, mouse.X, mouse.Y);
-						} else {
-							AddBitmapContainer(filename, mouse.X, mouse.Y);
-						}
-						mouse.Offset(10, 10);
-					}
-				}
-			} else if (e.Data.GetDataPresent(DataFormats.Bitmap)) {
-				AddBitmapContainer((Bitmap)e.Data.GetData(DataFormats.Bitmap, true), mouse.X, mouse.Y);
-			} else if (e.Data.GetDataPresent(DataFormats.EnhancedMetafile)) {
-				AddMetafileContainer((Metafile)e.Data.GetData(DataFormats.EnhancedMetafile, true), mouse.X, mouse.Y);
+			foreach (Image image in ClipboardHelper.GetImages(e.Data)) {
+				AddImageContainer(image, mouse.X, mouse.Y);
+				mouse.Offset(10, 10);
+				image.Dispose();
 			}
 		}
 		
@@ -847,7 +818,7 @@ namespace Greenshot.Drawing {
 			try {
 				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
 				Point offset;
-				Bitmap newImage = ImageHelper.ApplyEffect((Bitmap)Image, effect, out offset);
+				Image newImage = ImageHelper.ApplyEffect(Image, effect, out offset);
 				if (newImage != null) {
 					// Make sure the elements move according to the offset the effect made the bitmap move
 					elements.MoveBy(offset.X, offset.Y);
@@ -1149,7 +1120,7 @@ namespace Greenshot.Drawing {
 		/// <returns></returns>
 		private Image GetImage(RenderMode renderMode) {
 			// Generate a copy of the original image with a dpi equal to the default...
-			Bitmap clone = ImageHelper.Clone(image);
+			Bitmap clone = ImageHelper.Clone(image, PixelFormat.DontCare);
 			// otherwise we would have a problem drawing the image to the surface... :(
 			using (Graphics graphics = Graphics.FromImage(clone)) {
 				// Do not set the following, the containers need to decide themselves
@@ -1379,7 +1350,7 @@ namespace Greenshot.Drawing {
 					LOG.Debug("\tgot format: " + format);
 				}
 			}
-			
+
 			if (formats.Contains(typeof(DrawableContainerList).FullName)) {
 				DrawableContainerList dcs = (DrawableContainerList)ClipboardHelper.GetFromDataObject(clipboard, typeof(DrawableContainerList));
 				if (dcs != null) {
@@ -1391,11 +1362,16 @@ namespace Greenshot.Drawing {
 					SelectElements(dcs);
 				}
 			} else if (ClipboardHelper.ContainsImage(clipboard)) {
-				using (Image clipboardImage = ClipboardHelper.GetImage(clipboard)) {
+				int x = 10;
+				int y = 10;
+				foreach (Image clipboardImage in ClipboardHelper.GetImages(clipboard)) {
 					if (clipboardImage != null) {
 						DeselectAllElements();
-						IBitmapContainer bitmapContainer = AddBitmapContainer(clipboardImage as Bitmap, 0, 0);
-						SelectElement(bitmapContainer);
+						IImageContainer container = AddImageContainer(clipboardImage as Bitmap, x, y);
+						SelectElement(container);
+						clipboardImage.Dispose();
+						x += 10;
+						y += 10;
 					}
 				}
 			} else if (ClipboardHelper.ContainsText(clipboard)) {

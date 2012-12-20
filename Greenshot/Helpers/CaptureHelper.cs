@@ -328,7 +328,7 @@ namespace Greenshot.Helpers {
 					}
 					break;
 				case CaptureMode.File:
-					Bitmap fileBitmap = null;
+					Image fileImage = null;
 					string filename = capture.CaptureDetails.Filename;
 
 					if (!string.IsNullOrEmpty(filename)) {
@@ -345,20 +345,20 @@ namespace Greenshot.Helpers {
 							MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
 						}
 						try {
-							fileBitmap = ImageHelper.LoadBitmap(filename);
+							fileImage = ImageHelper.LoadImage(filename);
 						} catch (Exception e) {
 							LOG.Error(e.Message, e);
 							MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
 						}
 					}
-					if (fileBitmap != null) {
+					if (fileImage != null) {
 						capture.CaptureDetails.Title = Path.GetFileNameWithoutExtension(filename);
 						capture.CaptureDetails.AddMetaData("file", filename);
 						capture.CaptureDetails.AddMetaData("source", "file");
 						if (capture != null) {
-							capture.Image = fileBitmap;
+							capture.Image = fileImage;
 						} else {
-							capture = new Capture(fileBitmap);
+							capture = new Capture(fileImage);
 						}
 						// Force Editor, keep picker, this is currently the only usefull destination
 						if (capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION)) {

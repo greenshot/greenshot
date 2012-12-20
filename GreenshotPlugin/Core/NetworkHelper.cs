@@ -86,16 +86,15 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="baseUri"></param>
 		/// <returns>Bitmap</returns>
-		public static Bitmap DownloadImage(string url) {
+		public static Image DownloadImage(string url) {
 			try {
 				HttpWebRequest request = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 				if (request.HaveResponse) {
 					using (Image image = Image.FromStream(response.GetResponseStream())) {
-						return new Bitmap(image);
+						return ImageHelper.Clone(image);
 					}
 				}
-
 			} catch (Exception e) {
 				LOG.Error("Problem downloading the image from: " + url, e);
 			}

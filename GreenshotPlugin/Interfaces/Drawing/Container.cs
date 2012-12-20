@@ -103,8 +103,8 @@ namespace Greenshot.Plugin.Drawing {
 		void FitToText();
 	}
 
-	public interface IBitmapContainer: IDrawableContainer {
-		Bitmap Bitmap {
+	public interface IImageContainer: IDrawableContainer {
+		Image Image {
 			get;
 			set;
 		}

@@ -39,6 +39,9 @@ namespace GreenshotPlugin.Core {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ClipboardHelper));
 		private static readonly Object clipboardLockObject = new Object();
 		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly string FORMAT_FILECONTENTS = "FileContents";
+		private static readonly string FORMAT_JPG = "JPG";
+		private static readonly string FORMAT_PNG = "PNG";
 		private static IntPtr nextClipboardViewer = IntPtr.Zero;
 		// Template for the HTML Text on the clipboard
 		// see: http://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
@@ -108,16 +111,6 @@ EndSelection:<<<<<<<4
 				LOG.Warn("Non critical error: Couldn't get clipboard owner.", e);
 			}
 			return owner;
-		}
-
-		/// <summary>
-		/// Wrapper for the SetDataObject with a bool "copy"
-		/// Default is true, the information on the clipboard will stay even if our application quits
-		/// For our own Types the other SetDataObject should be called with false.
-		/// </summary>
-		/// <param name="ido"></param>
-		private static void SetDataObject(IDataObject ido) {
-			SetDataObject(ido, true);
 		}
 
 		/// <summary>
@@ -226,13 +219,25 @@ EndSelection:<<<<<<<4
 					|| dataObject.GetDataPresent(DataFormats.Dib)
 					|| dataObject.GetDataPresent(DataFormats.Tiff)
 					|| dataObject.GetDataPresent(DataFormats.EnhancedMetafile)
-					|| dataObject.GetDataPresent("PNG")
-					|| dataObject.GetDataPresent("JPG")) {
+					|| dataObject.GetDataPresent(FORMAT_PNG)
+					|| dataObject.GetDataPresent(FORMAT_JPG)) {
 					return true;
 				}
 				List<string> imageFiles = GetImageFilenames(dataObject);
 				if (imageFiles != null && imageFiles.Count > 0) {
 					return true;
+				}
+				if (dataObject.GetDataPresent(FORMAT_FILECONTENTS)) {
+					try {
+						MemoryStream imageStream = dataObject.GetData(FORMAT_FILECONTENTS) as MemoryStream;
+						if (isValidStream(imageStream)) {
+							using (Image tmpImage = Image.FromStream(imageStream)) {
+								// If we get here, there is an image
+								return true;
+							}
+						}
+					} catch (Exception) {
+					}
 				}
 			}
 			return false;
@@ -253,25 +258,64 @@ EndSelection:<<<<<<<4
 		/// <returns>Image if there is an image on the clipboard</returns>
 		public static Image GetImage() {
 			IDataObject clipboardData = GetDataObject();
-			return GetImage(clipboardData);
+			// Return the first image
+			foreach (Image clipboardImage in GetImages(clipboardData)) {
+				return clipboardImage;
+			}
+			return null;
 		}
 
 		/// <summary>
-		/// Get an Image from the IDataObject
+		/// Get all images (multiple if filenames are available) from the dataObject
+		/// Returned images must be disposed by the calling code!
+		/// </summary>
+		/// <param name="dataObject"></param>
+		/// <returns>IEnumerable<Image></returns>
+		public static IEnumerable<Image> GetImages(IDataObject dataObject) {
+			Image tmpImage = null;
+			Image returnImage = null;
+
+			// Get single image, this takes the "best" match
+			tmpImage = GetImage(dataObject);
+			if (tmpImage != null) {
+				returnImage = ImageHelper.Clone(tmpImage);
+				// Clean up.
+				tmpImage.Dispose();
+				yield return returnImage;
+			} else {
+				// check if files are supplied
+				List<string> imageFiles = GetImageFilenames(dataObject);
+				if (imageFiles != null) {
+					foreach (string imageFile in imageFiles) {
+						try {
+							returnImage = ImageHelper.LoadImage(imageFile);
+						} catch (Exception streamImageEx) {
+							LOG.Error("Problem retrieving Image from clipboard.", streamImageEx);
+						}
+						if (returnImage != null) {
+							yield return returnImage;
+						}
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Get an Image from the IDataObject, don't check for FileDrop
 		/// </summary>
 		/// <param name="dataObject"></param>
 		/// <returns>Image or null</returns>
-		public static Image GetImage(IDataObject dataObject) {
+		private static Image GetImage(IDataObject dataObject) {
 			if (dataObject != null) {
 				IList<string> formats = GetFormats(dataObject);
 				try {
 					MemoryStream imageStream = null;
 
-					if (!isValidStream(imageStream) && formats.Contains("PNG")) {
-						imageStream = GetFromDataObject(dataObject, "PNG") as MemoryStream;
+					if (!isValidStream(imageStream) && formats.Contains(FORMAT_PNG)) {
+						imageStream = GetFromDataObject(dataObject, FORMAT_PNG) as MemoryStream;
 					}
-					if (!isValidStream(imageStream) && formats.Contains("JPG")) {
-						imageStream = GetFromDataObject(dataObject, "JPG") as MemoryStream;
+					if (!isValidStream(imageStream) && formats.Contains(FORMAT_JPG)) {
+						imageStream = GetFromDataObject(dataObject, FORMAT_JPG) as MemoryStream;
 					}
 					if (!isValidStream(imageStream) && formats.Contains(DataFormats.Tiff)) {
 						imageStream = GetFromDataObject(dataObject, DataFormats.Tiff) as MemoryStream;
@@ -323,14 +367,16 @@ EndSelection:<<<<<<<4
 								}
 							}
 						}
-						List<string> imageFiles = GetImageFilenames(dataObject);
-						if (imageFiles != null) {
-							foreach (string imageFile in imageFiles) {
-								if (File.Exists(imageFile)) {
-									using (Stream imageFileStream = File.OpenRead(imageFile)) {
-										return Image.FromStream(imageFileStream, true, true);
-									}
+
+						// Support for FileContents
+						imageStream = dataObject.GetData(FORMAT_FILECONTENTS) as MemoryStream;
+						if (isValidStream(imageStream)) {
+							try {
+								using (Image tmpImage = Image.FromStream(imageStream)) {
+									return ImageHelper.Clone(tmpImage);
 								}
+							} catch (Exception streamImageEx) {
+								LOG.Error("Problem retrieving Image from clipboard.", streamImageEx);
 							}
 						}
 					} catch (Exception dibEx) {
@@ -370,7 +416,7 @@ EndSelection:<<<<<<<4
 		public static void SetClipboardData(string text) {
 			IDataObject ido = new DataObject();
 			ido.SetData(DataFormats.Text, true, text);
-			SetDataObject(ido);
+			SetDataObject(ido, true);
 		}
 		
 		private static string getHTMLString(ISurface surface, string filename) {
@@ -404,8 +450,8 @@ EndSelection:<<<<<<<4
 
 		/// <summary>
 		/// Set an Image to the clipboard
-		/// This method will place 2 images to the clipboard, one of type Bitmap which
-		/// works with pretty much everything and one of type Dib for e.g. OpenOffice
+		/// This method will place images to the clipboard depending on the ClipboardFormats setting.
+		/// e.g. Bitmap which works with pretty much everything and type Dib for e.g. OpenOffice
 		/// because OpenOffice has a bug http://qa.openoffice.org/issues/show_bug.cgi?id=85661
 		/// The Dib (Device Indenpendend Bitmap) in 32bpp actually won't work with Powerpoint 2003!
 		/// When pasting a Dib in PP 2003 the Bitmap is somehow shifted left!
@@ -430,7 +476,7 @@ EndSelection:<<<<<<<4
 						ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
 						pngStream.Seek(0, SeekOrigin.Begin);
 						// Set the PNG stream
-						ido.SetData("PNG", false, pngStream);
+						ido.SetData(FORMAT_PNG, false, pngStream);
 					}
 				} catch (Exception pngEX) {
 					LOG.Error("Error creating PNG for the Clipboard.", pngEX);
@@ -475,8 +521,17 @@ EndSelection:<<<<<<<4
 				}
 			} finally {
 				// we need to use the SetDataOject before the streams are closed otherwise the buffer will be gone!
-				// Place the DataObject to the clipboard
-				SetDataObject(ido);
+				// Check if Bitmap is wanted
+				if (config.ClipboardFormats.Contains(ClipboardFormat.BITMAP)) {
+					using (Image tmpImage = surface.GetImageForExport()) {
+						ido.SetImage(tmpImage);
+						// Place the DataObject to the clipboard
+						SetDataObject(ido, true);
+					}
+				} else {
+					// Place the DataObject to the clipboard
+					SetDataObject(ido, true);
+				}
 				
 				if (pngStream != null) {
 					pngStream.Dispose();
@@ -608,15 +663,17 @@ EndSelection:<<<<<<<4
 		/// <returns></returns>
 		public static List<string> GetImageFilenames(IDataObject dataObject) {
 			List<string> filenames = new List<string>();
-			string[] dropFileNames = (string[])dataObject.GetData(DataFormats.FileDrop);
-			if (dropFileNames != null && dropFileNames.Length > 0) {
-				foreach (string filename in dropFileNames) {
-					LOG.Debug("Found filename: " + filename);
-					string ext = Path.GetExtension(filename).ToLower();
-					if ((ext == ".jpg") || (ext == ".jpeg") || (ext == ".tiff") || (ext == ".gif") || (ext == ".png") || (ext == ".bmp") || (ext == ".ico") || (ext == ".wmf")) {
-						filenames.Add(filename);
+			string[] dropFileNames = (string[]) dataObject.GetData(DataFormats.FileDrop);
+			try {
+				if (dropFileNames != null && dropFileNames.Length > 0) {
+					foreach (string filename in dropFileNames) {
+						string ext = Path.GetExtension(filename).ToLower();
+						if ((ext == ".jpg") || (ext == ".jpeg") || (ext == ".tiff") || (ext == ".gif") || (ext == ".png") || (ext == ".bmp") || (ext == ".ico") || (ext == ".wmf")) {
+							filenames.Add(filename);
+						}
 					}
 				}
+			} catch {
 			}
 			return filenames;
 		}

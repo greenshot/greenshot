@@ -36,17 +36,17 @@ namespace Greenshot.Drawing {
 	/// Description of BitmapContainer.
 	/// </summary>
 	[Serializable()] 
-	public class BitmapContainer : DrawableContainer, IBitmapContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapContainer));
+	public class ImageContainer : DrawableContainer, IImageContainer {
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageContainer));
 
-		private Bitmap bitmap;
+		private Image image;
 
 		/// <summary>
 		/// This is the shadow version of the bitmap, rendered once to save performance
 		/// Do not serialize, as the shadow is recreated from the original bitmap if it's not available
 		/// </summary>
 		[NonSerialized]
-		private Bitmap shadowBitmap = null;
+		private Image shadowBitmap = null;
 
 		/// <summary>
 		/// This is the offset for the shadow version of the bitmap
@@ -55,11 +55,11 @@ namespace Greenshot.Drawing {
 		[NonSerialized]
 		private Point shadowOffset = new Point(-1, -1);
 
-		public BitmapContainer(Surface parent, string filename) : this(parent) {
+		public ImageContainer(Surface parent, string filename) : this(parent) {
 			Load(filename);
 		}
 
-		public BitmapContainer(Surface parent) : base(parent) {
+		public ImageContainer(Surface parent) : base(parent) {
 			AddField(GetType(), FieldType.SHADOW, false);
 			FieldChanged += BitmapContainer_OnFieldChanged;
 		}
@@ -81,8 +81,8 @@ namespace Greenshot.Drawing {
 				this.Left = this.Left - this.shadowOffset.X;
 				this.Top = this.Top - this.shadowOffset.Y;
 			} else {
-				this.Width = bitmap.Width;
-				this.Height = bitmap.Height;
+				this.Width = image.Width;
+				this.Height = image.Height;
 				if (shadowBitmap != null) {
 					this.Left = this.Left + this.shadowOffset.X;
 					this.Top = this.Top + this.shadowOffset.Y;
@@ -90,16 +90,16 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public Bitmap Bitmap {
+		public Image Image {
 			set {
 				// Remove all current bitmaps
 				Dispose(true);
-				bitmap = ImageHelper.Clone(value);
+				image = ImageHelper.Clone(value);
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 				CheckShadow(shadow);
 				if (!shadow) {
-					Width = bitmap.Width;
-					Height = bitmap.Height;
+					Width = image.Width;
+					Height = image.Height;
 				} else {
 					Width = shadowBitmap.Width;
 					Height = shadowBitmap.Height;
@@ -107,13 +107,13 @@ namespace Greenshot.Drawing {
 					this.Top = this.Top - this.shadowOffset.Y;
 				}
 			}
-			get { return bitmap; }
+			get { return image; }
 		}
 
 		/// <summary>
 		/// Destructor
 		/// </summary>
-		~BitmapContainer() {
+		~ImageContainer() {
 			Dispose(false);
 		}
 
@@ -135,14 +135,14 @@ namespace Greenshot.Drawing {
 		/// <param name="disposing"></param>
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (bitmap != null) {
-					bitmap.Dispose();
+				if (image != null) {
+					image.Dispose();
 				}
 				if (shadowBitmap != null) {
 					shadowBitmap.Dispose();
 				}
 			}
-			bitmap = null;
+			image = null;
 			shadowBitmap = null;
 		}
 
@@ -154,8 +154,8 @@ namespace Greenshot.Drawing {
 			if (File.Exists(filename)) {
 				// Always make sure ImageHelper.LoadBitmap results are disposed some time,
 				// as we close the bitmap internally, we need to do it afterwards
-				using (Bitmap tmpImage = ImageHelper.LoadBitmap(filename)) {
-					Bitmap = tmpImage;
+				using (Image tmpImage = ImageHelper.LoadImage(filename)) {
+					Image = tmpImage;
 				}
 				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 			}
@@ -166,11 +166,11 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="rotateFlipType"></param>
 		public override void Rotate(RotateFlipType rotateFlipType) {
-			Bitmap newBitmap = ImageHelper.RotateFlip((Bitmap)bitmap, rotateFlipType);
-			if (newBitmap != null) {
+			Image newImage = ImageHelper.RotateFlip((Bitmap)image, rotateFlipType);
+			if (newImage != null) {
 				// Remove all current bitmaps, also the shadow (will be recreated)
 				Dispose(true);
-				bitmap = newBitmap;
+				image = newImage;
 			}
 			base.Rotate(rotateFlipType);
 		}
@@ -181,7 +181,7 @@ namespace Greenshot.Drawing {
 		/// <param name="shadow"></param>
 		private void CheckShadow(bool shadow) {
 			if (shadow && shadowBitmap == null) {
-				shadowBitmap = ImageHelper.ApplyEffect(bitmap, new DropShadowEffect(), out shadowOffset);
+				shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), out shadowOffset);
 			}
 		}
 
@@ -191,7 +191,7 @@ namespace Greenshot.Drawing {
 		/// <param name="graphics"></param>
 		/// <param name="rm"></param>
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (bitmap != null) {
+			if (image != null) {
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -202,7 +202,7 @@ namespace Greenshot.Drawing {
 					CheckShadow(shadow);
 					graphics.DrawImage(shadowBitmap, Bounds);
 				} else {
-					graphics.DrawImage(bitmap, Bounds);
+					graphics.DrawImage(image, Bounds);
 				}
 			}
 		}
@@ -215,7 +215,7 @@ namespace Greenshot.Drawing {
 
 		public override Size DefaultSize {
 			get {
-				return bitmap.Size;
+				return image.Size;
 			}
 		}
 	}

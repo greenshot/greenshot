@@ -1180,7 +1180,7 @@ namespace Greenshot {
 					this.Activate();
 					WindowDetails.ToForeground(this.Handle);
 					if (capture!= null && capture.Image != null) {
-						surface.AddBitmapContainer((Bitmap)capture.Image, 100, 100);
+						surface.AddImageContainer((Bitmap)capture.Image, 100, 100);
 					}
 				}
 

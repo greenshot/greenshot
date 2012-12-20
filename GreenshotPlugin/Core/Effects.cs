@@ -33,7 +33,7 @@ namespace Greenshot.Core {
 	/// Interface to describe an effect
 	/// </summary>
 	public interface IEffect {
-		Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange);
+		Image Apply(Image sourceImage, out Point offsetChange);
 	}
 
 	/// <summary>
@@ -57,8 +57,8 @@ namespace Greenshot.Core {
 			get;
 			set;
 		}
-		public virtual Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
-			return ImageHelper.CreateShadow(sourceBitmap, Darkness, ShadowSize, ShadowOffset, out offsetChange, PixelFormat.Format32bppArgb); //Image.PixelFormat);
+		public virtual Image Apply(Image sourceImage, out Point offsetChange) {
+			return ImageHelper.CreateShadow(sourceImage, Darkness, ShadowSize, ShadowOffset, out offsetChange, PixelFormat.Format32bppArgb); //Image.PixelFormat);
 		}
 	}
 
@@ -84,8 +84,8 @@ namespace Greenshot.Core {
 			get;
 			set;
 		}
-		public override Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
-			using (Bitmap tmpTornImage = ImageHelper.CreateTornEdge(sourceBitmap, ToothHeight, HorizontalToothRange, VerticalToothRange)) {
+		public override Image Apply(Image sourceImage, out Point offsetChange) {
+			using (Image tmpTornImage = ImageHelper.CreateTornEdge(sourceImage, ToothHeight, HorizontalToothRange, VerticalToothRange)) {
 				return ImageHelper.CreateShadow(tmpTornImage, Darkness, ShadowSize, ShadowOffset, out offsetChange, PixelFormat.Format32bppArgb);
 			}
 		}
@@ -95,9 +95,9 @@ namespace Greenshot.Core {
 	/// GrayscaleEffect
 	/// </summary>
 	public class GrayscaleEffect : IEffect {
-		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
+		public Image Apply(Image sourceImage, out Point offsetChange) {
 			offsetChange = Point.Empty;
-			return ImageHelper.CreateGrayscale(sourceBitmap);
+			return ImageHelper.CreateGrayscale(sourceImage);
 		}
 	}
 
@@ -105,9 +105,9 @@ namespace Greenshot.Core {
 	/// InvertEffect
 	/// </summary>
 	public class InvertEffect : IEffect {
-		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
+		public Image Apply(Image sourceImage, out Point offsetChange) {
 			offsetChange = Point.Empty;
-			return ImageHelper.CreateNegative(sourceBitmap);
+			return ImageHelper.CreateNegative(sourceImage);
 		}
 	}
 
@@ -127,8 +127,8 @@ namespace Greenshot.Core {
 			get;
 			set;
 		}
-		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
-			return ImageHelper.CreateBorder(sourceBitmap, Width, Color, sourceBitmap.PixelFormat, out offsetChange);
+		public Image Apply(Image sourceImage, out Point offsetChange) {
+			return ImageHelper.CreateBorder(sourceImage, Width, Color, sourceImage.PixelFormat, out offsetChange);
 		}
 	}
 
@@ -143,7 +143,7 @@ namespace Greenshot.Core {
 			get;
 			set;
 		}
-		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
+		public Image Apply(Image sourceImage, out Point offsetChange) {
 			offsetChange = Point.Empty;
 			RotateFlipType flipType;
 			if (Angle == 90) {
@@ -153,7 +153,7 @@ namespace Greenshot.Core {
 			} else {
 				throw new NotSupportedException("Currently only an angle of 90 or -90 (270) is supported.");
 			}
-			return ImageHelper.RotateFlip(sourceBitmap, flipType);
+			return ImageHelper.RotateFlip(sourceImage, flipType);
 		}
 	}
 
@@ -178,9 +178,9 @@ namespace Greenshot.Core {
 			get;
 			set;
 		}
-		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
+		public Image Apply(Image sourceImage, out Point offsetChange) {
 			offsetChange = Point.Empty;
-			return ImageHelper.ResizeBitmap(sourceBitmap, MaintainAspectRatio, Width, Height);
+			return ImageHelper.ResizeImage(sourceImage, MaintainAspectRatio, Width, Height);
 		}
 	}
 
@@ -215,10 +215,10 @@ namespace Greenshot.Core {
 			get;
 			set;
 		}
-		public Bitmap Apply(Bitmap sourceBitmap, out Point offsetChange) {
+		public Image Apply(Image sourceImage, out Point offsetChange) {
 			// Make sure the elements move according to the offset the effect made the bitmap move
 			offsetChange = new Point(Left, Top);
-			return ImageHelper.ResizeCanvas(sourceBitmap, BackgroundColor, Left, Right, Top, Bottom);
+			return ImageHelper.ResizeCanvas(sourceImage, BackgroundColor, Left, Right, Top, Bottom);
 		}
 	}
 }

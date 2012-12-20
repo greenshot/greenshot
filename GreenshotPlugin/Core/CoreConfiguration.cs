@@ -28,7 +28,7 @@ using Greenshot.Plugin;
 
 namespace GreenshotPlugin.Core {
 	public enum ClipboardFormat {
-		PNG, DIB, HTML, HTMLDATAURL
+		PNG, DIB, HTML, HTMLDATAURL, BITMAP
 	}
 	public enum OutputFormat {
 		bmp, gif, jpg, png, tiff, greenshot

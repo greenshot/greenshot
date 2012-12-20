@@ -108,7 +108,7 @@ namespace GreenshotPlugin.Core {
 		/// Create a BitmapBuffer from a Bitmap
 		/// </summary>
 		/// <param name="sourceBmp">Bitmap</param>
-		public BitmapBuffer(Bitmap bmp) : this(bmp, Rectangle.Empty) {
+		public BitmapBuffer(Image sourceBmp) : this(sourceBmp, Rectangle.Empty) {
 		}
 
 		/// <summary>
@@ -116,7 +116,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="sourceBmp">Bitmap</param>
 		/// <param name="clone">bool specifying if the bitmap needs to be cloned</param>
-		public BitmapBuffer(Bitmap sourceBmp, bool clone) : this(sourceBmp, Rectangle.Empty, clone) {
+		public BitmapBuffer(Image sourceBmp, bool clone) : this(sourceBmp, Rectangle.Empty, clone) {
 		}
 
 		/// <summary>
@@ -124,21 +124,21 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="sourceBmp">Bitmap</param>
 		/// <param name="applyRect">Rectangle</param>
-		public BitmapBuffer(Bitmap sourceBmp, Rectangle applyRect) : this(sourceBmp, applyRect, true) {
+		public BitmapBuffer(Image sourceBmp, Rectangle applyRect) : this(sourceBmp, applyRect, true) {
 		}
 
 		/// <summary>
 		/// Create a BitmapBuffer from a Bitmap, a Rectangle specifying what part from the Bitmap to take and a flag if we need a clone
 		/// </summary>
-		/// <param name="sourceBmp">Bitmap</param>
+		/// <param name="sourceImage">Image, will be cloned if it's not a bitmap!!!</param>
 		/// <param name="applyRect">Rectangle</param>
 		/// <param name="clone">bool specifying if the bitmap needs to be cloned</param>
-		public BitmapBuffer(Bitmap sourceBmp, Rectangle applyRect, bool clone) {
+		public BitmapBuffer(Image sourceImage, Rectangle applyRect, bool clone) {
 			this.clone = clone;
 			Rectangle sourceRect = new Rectangle(applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height);
-			Rectangle bitmapRect = new Rectangle(0,0, sourceBmp.Width, sourceBmp.Height);
+			Rectangle bitmapRect = new Rectangle(0,0, sourceImage.Width, sourceImage.Height);
 			
-			if(sourceRect.IsEmpty) {
+			if (sourceRect.IsEmpty) {
 				sourceRect = bitmapRect;
 			} else {
 				sourceRect.Intersect(bitmapRect);
@@ -148,15 +148,20 @@ namespace GreenshotPlugin.Core {
 				return;
 			}
 
+			if (!(sourceImage is Bitmap) && !clone) {
+				LOG.Warn("Chancing clone to true, as the image is not a bitmap");
+				clone = true;
+			}
+
 			if (clone) {
-				this.bitmap = ImageHelper.CloneArea(sourceBmp, sourceRect, PixelFormat.DontCare);
+				this.bitmap = ImageHelper.CloneArea(sourceImage, sourceRect, PixelFormat.DontCare);
 				// Set "this" rect to location 0,0
 				// as the Cloned Bitmap is only the part we want to work with
 				this.rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-			} else if (!ImageHelper.SupportsPixelFormat(sourceBmp) && PixelFormat.Format8bppIndexed != sourceBmp.PixelFormat) {
-				throw new ArgumentException("Unsupported pixel format: " + sourceBmp.PixelFormat + " set clone to true!");
+			} else if (!ImageHelper.SupportsPixelFormat(sourceImage) && PixelFormat.Format8bppIndexed != sourceImage.PixelFormat) {
+				throw new ArgumentException("Unsupported pixel format: " + sourceImage.PixelFormat + " set clone to true!");
 			} else {
-				this.bitmap = sourceBmp;
+				this.bitmap = sourceImage as Bitmap;
 				this.rect = sourceRect;
 			}
 		}

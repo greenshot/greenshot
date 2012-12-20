@@ -247,7 +247,7 @@ namespace GreenshotPlugin.Core {
 			if (string.IsNullOrEmpty(fullPath)) {
 				return null;
 			}
-			Bitmap fileBitmap = null;
+			Image fileImage = null;
 			LOG.InfoFormat("Loading image from file {0}", fullPath);
 			// Fixed lock problem Bug #3431881
 			using (Stream surfaceFileStream = File.OpenRead(fullPath)) {
@@ -258,7 +258,7 @@ namespace GreenshotPlugin.Core {
 				surfaceFileStream.Position = 0;
 				using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true)) {
 					LOG.DebugFormat("Loaded {0} with Size {1}x{2} and PixelFormat {3}", fullPath, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-					fileBitmap = ImageHelper.Clone(tmpImage);
+					fileImage = ImageHelper.Clone(tmpImage);
 				}
 				// Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
 				const int markerSize = 14;
@@ -280,9 +280,9 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 			}
-			if (fileBitmap != null) {
-				returnSurface.Image = fileBitmap;
-				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, fileBitmap.Width, fileBitmap.Height, fileBitmap.PixelFormat, fileBitmap.HorizontalResolution, fileBitmap.VerticalResolution);
+			if (fileImage != null) {
+				returnSurface.Image = fileImage;
+				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
 			return returnSurface;
 		}

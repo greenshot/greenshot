@@ -110,14 +110,12 @@ namespace Greenshot.Plugin {
 		/// <param name="fillColor">Color of background (e.g. Color.Transparent)</param>
 		ITextContainer AddTextContainer(string text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, FontFamily family, float size, bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor);
 
-		IBitmapContainer AddBitmapContainer(Bitmap bitmap, int x, int y);
+		IImageContainer AddImageContainer(Image image, int x, int y);
 		ICursorContainer AddCursorContainer(Cursor cursor, int x, int y);
 		IIconContainer AddIconContainer(Icon icon, int x, int y);
-		IMetafileContainer AddMetafileContainer(Metafile metafile, int x, int y);
-		IBitmapContainer AddBitmapContainer(string filename, int x, int y);
+		IImageContainer AddImageContainer(string filename, int x, int y);
 		ICursorContainer AddCursorContainer(string filename, int x, int y);
 		IIconContainer AddIconContainer(string filename, int x, int y);
-		IMetafileContainer AddMetafileContainer(string filename, int x, int y);
 		long SaveElementsToStream(Stream stream);
 		void LoadElementsFromStream(Stream stream);
 
