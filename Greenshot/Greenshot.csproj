@@ -75,7 +75,7 @@
     <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Destinations\PrinterDestination.cs" />
     <Compile Include="Drawing\ArrowContainer.cs" />
-    <Compile Include="Drawing\BitmapContainer.cs" />
+    <Compile Include="Drawing\ImageContainer.cs" />
     <Compile Include="Drawing\CropContainer.cs" />
     <Compile Include="Drawing\CursorContainer.cs" />
     <Compile Include="Drawing\DrawableContainer.cs" />
@@ -110,7 +110,6 @@
     <Compile Include="Drawing\Fields\FieldType.cs" />
     <Compile Include="Drawing\Fields\IFieldHolder.cs" />
     <Compile Include="Drawing\Fields\FieldAggregator.cs" />
-    <Compile Include="Drawing\MetafileContainer.cs" />
     <Compile Include="Drawing\ObfuscateContainer.cs" />
     <Compile Include="Drawing\FreehandContainer.cs" />
     <Compile Include="Drawing\RectangleContainer.cs" />
