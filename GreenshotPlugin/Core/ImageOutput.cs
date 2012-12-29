@@ -69,117 +69,65 @@ namespace GreenshotPlugin.Core {
 			return propertyItem;
 		}
 		#region save
+		/// <summary>
+		/// Saves ISurface to stream with specified output settings
+		/// </summary>
+		/// <param name="surface">ISurface to save</param>
+		/// <param name="stream">Stream to save to</param>
+		/// <param name="outputSettings">SurfaceOutputSettings</param>
+		public static void SaveToStream(ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
+			Image imageToSave = null;
+			bool disposeImage = CreateImageFromSurface(surface, outputSettings, out imageToSave);
+			SaveToStream(imageToSave, surface, stream, outputSettings);
+			// cleanup if needed
+			if (disposeImage && imageToSave != null) {
+				imageToSave.Dispose();
+			}
+		}
 
 		/// <summary>
 		/// Saves image to stream with specified quality
 		/// To prevent problems with GDI version of before Windows 7:
 		/// the stream is checked if it's seekable and if needed a MemoryStream as "cache" is used.
 		/// </summary>
-		public static void SaveToStream(ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
+		/// <param name="imageToSave">image to save</param>
+		/// <param name="surface">surface for the elements, if the greenshot format is used</param>
+		/// <param name="stream">Stream to save to</param>
+		/// <param name="outputSettings">SurfaceOutputSettings</param>
+		public static void SaveToStream(Image imageToSave, ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
 			ImageFormat imageFormat = null;
-			bool disposeImage = false;
 			bool useMemoryStream = false;
 			MemoryStream memoryStream = null;
 
-			switch (outputSettings.Format) {
-				case OutputFormat.bmp:
-					imageFormat = ImageFormat.Bmp;
-					break;
-				case OutputFormat.gif:
-					imageFormat = ImageFormat.Gif;
-					break;
-				case OutputFormat.jpg:
-					imageFormat = ImageFormat.Jpeg;
-					break;
-				case OutputFormat.tiff:
-					imageFormat = ImageFormat.Tiff;
-					break;
-				case OutputFormat.greenshot:
-				case OutputFormat.png:
-				default:
-					// Problem with non-seekable streams most likely doesn't happen with Windows 7 (OS Version 6.1 and later)
-					// http://stackoverflow.com/questions/8349260/generic-gdi-error-on-one-machine-but-not-the-other
-					if (!stream.CanSeek) {
-						int majorVersion = Environment.OSVersion.Version.Major;
-						int minorVersion = Environment.OSVersion.Version.Minor;
-						if (majorVersion < 6 || (majorVersion == 6 && minorVersion == 0)) {
-							useMemoryStream = true;
-							LOG.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
-						}
-					}
-					imageFormat = ImageFormat.Png;
-					break;
-			}
-
-			// check what image we want to save
-			Image imageToSave = null;
-			if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly) {
-				// We save the image of the surface, this should not be disposed
-				imageToSave = surface.Image;
-			} else {
-				// We create the export image of the surface to save
-				imageToSave = surface.GetImageForExport();
-				disposeImage = true;
-			}
-
 			try {
-				// The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
-				if (outputSettings.Format != OutputFormat.greenshot) {
-					Image tmpImage;
-					if (outputSettings.Effects != null && outputSettings.Effects.Count > 0) {
-						// apply effects, if there are any
-						Point ignoreOffset;
-						tmpImage = ImageHelper.ApplyEffects((Bitmap)imageToSave, outputSettings.Effects, out ignoreOffset);
-						if (tmpImage != null) {
-							if (disposeImage) {
-								imageToSave.Dispose();
-							}
-							imageToSave = tmpImage;
-							disposeImage = true;
-						}
-					}
-
-					// Removing transparency if it's not supported in the output
-					if (imageFormat != ImageFormat.Png && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
-						Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
-						if (disposeImage) {
-							imageToSave.Dispose();
-						}
-						// Make sure the image is disposed!
-						disposeImage = true;
-						imageToSave = nonAlphaImage;
-					}
-
-					// check for color reduction, forced or automatically, only when the DisableReduceColors is false 
-					if (!outputSettings.DisableReduceColors && (conf.OutputFileAutoReduceColors || outputSettings.ReduceColors)) {
-						WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave);
-						int colorCount = quantizer.GetColorCount();
-						LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
-						if (outputSettings.ReduceColors || colorCount < 256) {
-							try {
-								LOG.Info("Reducing colors on bitmap to 255.");
-								tmpImage = quantizer.GetQuantizedImage(255);
-								if (disposeImage) {
-									imageToSave.Dispose();
-								}
-								imageToSave = tmpImage;
-								// Make sure the "new" image is disposed
-								disposeImage = true;
-							} catch (Exception e) {
-								LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+				switch (outputSettings.Format) {
+					case OutputFormat.bmp:
+						imageFormat = ImageFormat.Bmp;
+						break;
+					case OutputFormat.gif:
+						imageFormat = ImageFormat.Gif;
+						break;
+					case OutputFormat.jpg:
+						imageFormat = ImageFormat.Jpeg;
+						break;
+					case OutputFormat.tiff:
+						imageFormat = ImageFormat.Tiff;
+						break;
+					case OutputFormat.greenshot:
+					case OutputFormat.png:
+					default:
+						// Problem with non-seekable streams most likely doesn't happen with Windows 7 (OS Version 6.1 and later)
+						// http://stackoverflow.com/questions/8349260/generic-gdi-error-on-one-machine-but-not-the-other
+						if (!stream.CanSeek) {
+							int majorVersion = Environment.OSVersion.Version.Major;
+							int minorVersion = Environment.OSVersion.Version.Minor;
+							if (majorVersion < 6 || (majorVersion == 6 && minorVersion == 0)) {
+								useMemoryStream = true;
+								LOG.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
 							}
 						}
-					}
-
-					// Create meta-data
-					PropertyItem softwareUsedPropertyItem = CreatePropertyItem(PROPERTY_TAG_SOFTWARE_USED, "Greenshot");
-					if (softwareUsedPropertyItem != null) {
-						try {
-							imageToSave.SetPropertyItem(softwareUsedPropertyItem);
-						} catch (ArgumentException) {
-							LOG.WarnFormat("Image of type {0} do not support property {1}", imageFormat, softwareUsedPropertyItem.Id);
-						}
-					}
+						imageFormat = ImageFormat.Png;
+						break;
 				}
 				LOG.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
 
@@ -197,7 +145,17 @@ namespace GreenshotPlugin.Core {
 						if (imageCodec.FormatID == imageFormat.Guid) {
 							EncoderParameters parameters = new EncoderParameters(1);
 							parameters.Param[0] = new EncoderParameter(Encoder.Quality, outputSettings.JPGQuality);
-							imageToSave.Save(targetStream, imageCodec, parameters);
+							// Removing transparency if it's not supported in the output
+							if (Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
+								Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
+								AddTag(nonAlphaImage);
+								nonAlphaImage.Save(targetStream, imageCodec, parameters);
+								nonAlphaImage.Dispose();
+								nonAlphaImage = null;
+							} else {
+								AddTag(imageToSave);
+								imageToSave.Save(targetStream, imageCodec, parameters);
+							}
 							foundEncoder = true;
 							break;
 						}
@@ -206,7 +164,17 @@ namespace GreenshotPlugin.Core {
 						throw new ApplicationException("No JPG encoder found, this should not happen.");
 					}
 				} else {
-					imageToSave.Save(targetStream, imageFormat);
+					// Removing transparency if it's not supported in the output
+					if (imageFormat != ImageFormat.Png && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
+						Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
+						AddTag(nonAlphaImage);
+						nonAlphaImage.Save(targetStream, imageFormat);
+						nonAlphaImage.Dispose();
+						nonAlphaImage = null;
+					} else {
+						AddTag(imageToSave);
+						imageToSave.Save(targetStream, imageFormat);
+					}
 				}
 
 				// If we used a memory stream, we need to stream the memory stream to the original stream.
@@ -231,9 +199,100 @@ namespace GreenshotPlugin.Core {
 				if (memoryStream != null) {
 					memoryStream.Dispose();
 				}
-				// cleanup if needed
-				if (disposeImage && imageToSave != null) {
-					imageToSave.Dispose();
+			}
+		}
+		
+		/// <summary>
+		/// Create an image from a surface with the settings from the output settings applied
+		/// </summary>
+		/// <param name="surface"></param>
+		/// <param name="outputSettings"></param>
+		/// <param name="imageToSave"></param>
+		/// <returns>true if the image must be disposed</returns>
+		public static bool CreateImageFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out Image imageToSave) {
+			bool disposeImage = false;
+			ImageFormat imageFormat = null;
+			switch (outputSettings.Format) {
+				case OutputFormat.bmp:
+					imageFormat = ImageFormat.Bmp;
+					break;
+				case OutputFormat.gif:
+					imageFormat = ImageFormat.Gif;
+					break;
+				case OutputFormat.jpg:
+					imageFormat = ImageFormat.Jpeg;
+					break;
+				case OutputFormat.tiff:
+					imageFormat = ImageFormat.Tiff;
+					break;
+				case OutputFormat.greenshot:
+				case OutputFormat.png:
+				default:
+					imageFormat = ImageFormat.Png;
+					break;
+			}
+
+			if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly) {
+				// We save the image of the surface, this should not be disposed
+				imageToSave = surface.Image;
+			} else {
+				// We create the export image of the surface to save
+				imageToSave = surface.GetImageForExport();
+				disposeImage = true;
+			}
+
+			// The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
+			if (outputSettings.Format != OutputFormat.greenshot) {
+				Image tmpImage;
+				if (outputSettings.Effects != null && outputSettings.Effects.Count > 0) {
+					// apply effects, if there are any
+					Point ignoreOffset;
+					tmpImage = ImageHelper.ApplyEffects((Bitmap)imageToSave, outputSettings.Effects, out ignoreOffset);
+					if (tmpImage != null) {
+						if (disposeImage) {
+							imageToSave.Dispose();
+						}
+						imageToSave = tmpImage;
+						disposeImage = true;
+					}
+				}
+
+				// check for color reduction, forced or automatically, only when the DisableReduceColors is false 
+				if (!outputSettings.DisableReduceColors && (conf.OutputFileAutoReduceColors || outputSettings.ReduceColors)) {
+					WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave);
+					int colorCount = quantizer.GetColorCount();
+					LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
+					if (outputSettings.ReduceColors || colorCount < 256) {
+						try {
+							LOG.Info("Reducing colors on bitmap to 255.");
+							tmpImage = quantizer.GetQuantizedImage(255);
+							if (disposeImage) {
+								imageToSave.Dispose();
+							}
+							imageToSave = tmpImage;
+							// Make sure the "new" image is disposed
+							disposeImage = true;
+						} catch (Exception e) {
+							LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+						}
+					}
+				}
+			}
+			return disposeImage;
+		}
+		
+		/// <summary>
+		/// Add the greenshot property!
+		/// </summary>
+		/// <param name="imageToSave"></param>
+		private static void AddTag(Image imageToSave) {
+			// Create meta-data
+			PropertyItem softwareUsedPropertyItem = CreatePropertyItem(PROPERTY_TAG_SOFTWARE_USED, "Greenshot");
+			if (softwareUsedPropertyItem != null) {
+				try {
+					imageToSave.SetPropertyItem(softwareUsedPropertyItem);
+				} catch (Exception) {
+					LOG.WarnFormat("Couldn't set property {0}", softwareUsedPropertyItem.Id);
 				}
 			}
 		}

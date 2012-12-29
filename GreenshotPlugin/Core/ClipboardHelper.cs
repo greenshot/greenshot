@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -311,25 +312,43 @@ EndSelection:<<<<<<<4
 				try {
 					MemoryStream imageStream = null;
 
-					if (!isValidStream(imageStream) && formats.Contains(FORMAT_PNG)) {
+					if (formats.Contains(FORMAT_PNG)) {
 						imageStream = GetFromDataObject(dataObject, FORMAT_PNG) as MemoryStream;
-					}
-					if (!isValidStream(imageStream) && formats.Contains(FORMAT_JPG)) {
-						imageStream = GetFromDataObject(dataObject, FORMAT_JPG) as MemoryStream;
-					}
-					if (!isValidStream(imageStream) && formats.Contains(DataFormats.Tiff)) {
-						imageStream = GetFromDataObject(dataObject, DataFormats.Tiff) as MemoryStream;
-					}
-
-					if (isValidStream(imageStream)) {
-						try {
-							using (Image tmpImage = Image.FromStream(imageStream)) {
-								return ImageHelper.Clone(tmpImage);
+						if (isValidStream(imageStream)) {
+							try {
+								using (Image tmpImage = Image.FromStream(imageStream)) {
+									return ImageHelper.Clone(tmpImage);
+								}
+							} catch (Exception streamImageEx) {
+								LOG.Error("Problem retrieving PNG image from clipboard.", streamImageEx);
 							}
-						} catch (Exception streamImageEx) {
-							LOG.Error("Problem retrieving Image from clipboard.", streamImageEx);
 						}
 					}
+					if (formats.Contains(FORMAT_JPG)) {
+						imageStream = GetFromDataObject(dataObject, FORMAT_JPG) as MemoryStream;
+						if (isValidStream(imageStream)) {
+							try {
+								using (Image tmpImage = Image.FromStream(imageStream)) {
+									return ImageHelper.Clone(tmpImage);
+								}
+							} catch (Exception streamImageEx) {
+								LOG.Error("Problem retrieving JPG image from clipboard.", streamImageEx);
+							}
+						}
+					}
+					if (formats.Contains(DataFormats.Tiff)) {
+						imageStream = GetFromDataObject(dataObject, DataFormats.Tiff) as MemoryStream;
+						if (isValidStream(imageStream)) {
+							try {
+								using (Image tmpImage = Image.FromStream(imageStream)) {
+									return ImageHelper.Clone(tmpImage);
+								}
+							} catch (Exception streamImageEx) {
+								LOG.Error("Problem retrieving TIFF image from clipboard.", streamImageEx);
+							}
+						}
+					}
+
 					// the DIB readed should solve the issue reported here: https://sourceforge.net/projects/greenshot/forums/forum/676083/topic/6354353/index/page/1
 					try {
 						// If the EnableSpecialDIBClipboardReader flag in the config is set, use the code from:
@@ -466,14 +485,19 @@ EndSelection:<<<<<<<4
 
 			MemoryStream dibStream = null;
 			MemoryStream pngStream = null;
+			Image imageToSave = null;
+			bool disposeImage = false;
 			try {
+				SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+				// Create the image which is going to be saved so we don't create it multiple times
+				disposeImage = ImageOutput.CreateImageFromSurface(surface, outputSettings, out imageToSave);
 				try {
 					// Create PNG stream
 					if (config.ClipboardFormats.Contains(ClipboardFormat.PNG)) {
 						pngStream = new MemoryStream();
 						// PNG works for e.g. Powerpoint
 						SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-						ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
+						ImageOutput.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
 						pngStream.Seek(0, SeekOrigin.Begin);
 						// Set the PNG stream
 						ido.SetData(FORMAT_PNG, false, pngStream);
@@ -482,13 +506,12 @@ EndSelection:<<<<<<<4
 					LOG.Error("Error creating PNG for the Clipboard.", pngEX);
 				}
 
-
 				try {
 					if (config.ClipboardFormats.Contains(ClipboardFormat.DIB)) {
 						using (MemoryStream tmpBmpStream = new MemoryStream()) {
 							// Save image as BMP
 							SurfaceOutputSettings bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
-							ImageOutput.SaveToStream(surface, tmpBmpStream, bmpOutputSettings);
+							ImageOutput.SaveToStream(imageToSave, null, tmpBmpStream, bmpOutputSettings);
 
 							dibStream = new MemoryStream();
 							// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
@@ -514,7 +537,12 @@ EndSelection:<<<<<<<4
 						// Do not allow to reduce the colors, some applications dislike 256 color images
 						// reported with bug #3594681
 						pngOutputSettings.DisableReduceColors = true;
-						ImageOutput.SaveToStream(surface, tmpPNGStream, pngOutputSettings);
+						// Check if we can use the previously used image
+						if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed) {
+							ImageOutput.SaveToStream(imageToSave, surface, tmpPNGStream, pngOutputSettings);
+						} else {
+							ImageOutput.SaveToStream(surface, tmpPNGStream, pngOutputSettings);
+						}
 						html = getHTMLDataURLString(surface, tmpPNGStream);
 					}
 					ido.SetText(html, TextDataFormat.Html);
@@ -523,11 +551,9 @@ EndSelection:<<<<<<<4
 				// we need to use the SetDataOject before the streams are closed otherwise the buffer will be gone!
 				// Check if Bitmap is wanted
 				if (config.ClipboardFormats.Contains(ClipboardFormat.BITMAP)) {
-					using (Image tmpImage = surface.GetImageForExport()) {
-						ido.SetImage(tmpImage);
-						// Place the DataObject to the clipboard
-						SetDataObject(ido, true);
-					}
+					ido.SetImage(imageToSave);
+					// Place the DataObject to the clipboard
+					SetDataObject(ido, true);
 				} else {
 					// Place the DataObject to the clipboard
 					SetDataObject(ido, true);
@@ -541,6 +567,10 @@ EndSelection:<<<<<<<4
 				if (dibStream != null) {
 					dibStream.Dispose();
 					dibStream = null;
+				}
+				// cleanup if needed
+				if (disposeImage && imageToSave != null) {
+					imageToSave.Dispose();
 				}
 			}
 		}
