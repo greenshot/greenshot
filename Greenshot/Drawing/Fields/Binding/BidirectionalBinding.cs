@@ -28,14 +28,13 @@ namespace Greenshot.Drawing.Fields.Binding {
 	/// This implementation synchronizes null values, too. If you do not want this
 	/// behavior (e.g. when binding to a 
 	/// </summary>
-	public class BidirectionalBinding
-	{
-		private INotifyPropertyChanged object1;
-		private INotifyPropertyChanged object2;
-		private string property1;
-		private string property2;
-		private bool updatingObject1 = false;
-		private bool updatingObject2 = false;
+	public class BidirectionalBinding {
+		private INotifyPropertyChanged controlObject;
+		private INotifyPropertyChanged fieldObject;
+		private string controlPropertyName;
+		private string fieldPropertyName;
+		private bool updatingControl = false;
+		private bool updatingField = false;
 		private IBindingConverter converter;
 		private IBindingValidator validator;
 		
@@ -51,27 +50,25 @@ namespace Greenshot.Drawing.Fields.Binding {
 		/// <param name="property1">Property of 1st object to bind</param>
 		/// <param name="object2">Object containing 2nd property to bind</param>
 		/// <param name="property2">Property of 2nd object to bind</param>
-		public BidirectionalBinding(INotifyPropertyChanged object1, string property1, INotifyPropertyChanged object2, string property2)
-		{
-			this.object1 = object1;
-			this.object2 = object2;
-			this.property1 = property1;
-			this.property2 = property2;
+		public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName) {
+			this.controlObject = controlObject;
+			this.fieldObject = fieldObject;
+			this.controlPropertyName = controlPropertyName;
+			this.fieldPropertyName = fieldPropertyName;
 			
-			this.object1.PropertyChanged += new PropertyChangedEventHandler(Property1Changed);
-			this.object2.PropertyChanged += new PropertyChangedEventHandler(Property2Changed);
+			this.controlObject.PropertyChanged += new PropertyChangedEventHandler(ControlPropertyChanged);
+			this.fieldObject.PropertyChanged += new PropertyChangedEventHandler(FieldPropertyChanged);
 		}
 		
 		/// <summary>
 		/// Bind properties of two objects bidirectionally, converting the values using a converter
 		/// </summary>
-		/// <param name="object1">Object containing 1st property to bind</param>
-		/// <param name="property1">Property of 1st object to bind</param>
-		/// <param name="object2">Object containing 2nd property to bind</param>
-		/// <param name="property2">Property of 2nd object to bind</param>
+		/// <param name="controlObject">Object containing 1st property to bind</param>
+		/// <param name="controlPropertyName">Property of 1st object to bind</param>
+		/// <param name="fieldObject">Object containing 2nd property to bind</param>
+		/// <param name="fieldPropertyName">Property of 2nd object to bind</param>
 		/// <param name="converter">taking care of converting the synchronzied value to the correct target format and back</param>
-		public BidirectionalBinding(INotifyPropertyChanged object1, string property1, INotifyPropertyChanged object2, string property2, IBindingConverter converter) : this(object1, property1, object2, property2)
-		{
+		public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName, IBindingConverter converter) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName) {
 			this.converter = converter;
 		}
 		
@@ -79,13 +76,12 @@ namespace Greenshot.Drawing.Fields.Binding {
 		/// Bind properties of two objects bidirectionally, converting the values using a converter.
 		/// Synchronization can be intercepted by adding a validator.
 		/// </summary>
-		/// <param name="object1">Object containing 1st property to bind</param>
-		/// <param name="property1">Property of 1st object to bind</param>
-		/// <param name="object2">Object containing 2nd property to bind</param>
-		/// <param name="property2">Property of 2nd object to bind</param>
+		/// <param name="controlObject">Object containing 1st property to bind</param>
+		/// <param name="controlPropertyName">Property of 1st object to bind</param>
+		/// <param name="fieldObject">Object containing 2nd property to bind</param>
+		/// <param name="fieldPropertyName">Property of 2nd object to bind</param>
 		/// <param name="validator">validator to intercept synchronisation if the value does not match certain criteria</param>
-		public BidirectionalBinding(INotifyPropertyChanged object1, string property1, INotifyPropertyChanged object2, string property2, IBindingValidator validator) : this(object1, property1, object2, property2)
-		{
+		public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName, IBindingValidator validator) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName) {
 			this.validator = validator;
 		}
 		
@@ -93,48 +89,43 @@ namespace Greenshot.Drawing.Fields.Binding {
 		/// Bind properties of two objects bidirectionally, converting the values using a converter.
 		/// Synchronization can be intercepted by adding a validator.
 		/// </summary>
-		/// <param name="object1">Object containing 1st property to bind</param>
-		/// <param name="property1">Property of 1st object to bind</param>
-		/// <param name="object2">Object containing 2nd property to bind</param>
-		/// <param name="property2">Property of 2nd object to bind</param>
+		/// <param name="controlObject">Object containing 1st property to bind</param>
+		/// <param name="controlPropertyName">Property of 1st object to bind</param>
+		/// <param name="fieldObject">Object containing 2nd property to bind</param>
+		/// <param name="fieldPropertyName">Property of 2nd object to bind</param>
 		/// <param name="converter">taking care of converting the synchronzied value to the correct target format and back</param>
 		/// <param name="validator">validator to intercept synchronisation if the value does not match certain criteria</param>
-		public BidirectionalBinding(INotifyPropertyChanged object1, string property1, INotifyPropertyChanged object2, string property2, IBindingConverter converter, IBindingValidator validator) : this(object1, property1, object2, property2, converter)
-		{
+		public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName, IBindingConverter converter, IBindingValidator validator) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName, converter) {
 			this.validator = validator;
 		}
 		
-		public void Property1Changed(object sender, PropertyChangedEventArgs e)
-		{
-			if(!updatingObject1 && e.PropertyName.Equals(property1))
-			{
-				updatingObject2 = true;
-				synchronize(object1, property1, object2, property2);
-				updatingObject2 = false;
+		public void ControlPropertyChanged(object sender, PropertyChangedEventArgs e) {
+			if (!updatingControl && e.PropertyName.Equals(controlPropertyName)) {
+				updatingField = true;
+				synchronize(controlObject, controlPropertyName, fieldObject, fieldPropertyName);
+				updatingField = false;
 			}
 		}
 		
-		public void Property2Changed(object sender, PropertyChangedEventArgs e)
-		{
-			if(!updatingObject2 && e.PropertyName.Equals(property2))
-			{
-				updatingObject1 = true;
-				synchronize(object2, property2, object1, property1);
-				updatingObject1 = false;
+		public void FieldPropertyChanged(object sender, PropertyChangedEventArgs e) {
+			if (!updatingField && e.PropertyName.Equals(fieldPropertyName)) {
+				updatingControl = true;
+				synchronize(fieldObject, fieldPropertyName, controlObject, controlPropertyName);
+				updatingControl = false;
 			}
 		}
 		
-		private void synchronize(INotifyPropertyChanged sourceObject, string sourceProperty, INotifyPropertyChanged targetObject, string targetProperty)
-		{
+		private void synchronize(INotifyPropertyChanged sourceObject, string sourceProperty, INotifyPropertyChanged targetObject, string targetProperty) {
 			PropertyInfo targetPropertyInfo = resolvePropertyInfo(targetObject, targetProperty);
 			PropertyInfo sourcePropertyInfo = resolvePropertyInfo(sourceObject, sourceProperty);
 			
-			if(sourcePropertyInfo != null && targetPropertyInfo != null && targetPropertyInfo.CanWrite)
-			{
+			if (sourcePropertyInfo != null && targetPropertyInfo != null && targetPropertyInfo.CanWrite) {
 				object bValue = sourcePropertyInfo.GetValue(sourceObject, null);
-				if(converter != null && bValue != null) bValue = converter.convert(bValue);
+				if (converter != null && bValue != null) {
+					bValue = converter.convert(bValue);
+				}
 				try {
-					if(validator == null || validator.validate(bValue)) {
+					if (validator == null || validator.validate(bValue)) {
 						targetPropertyInfo.SetValue(targetObject, bValue, null);
 					}
 				} catch (Exception e) {
@@ -155,7 +146,6 @@ namespace Greenshot.Drawing.Fields.Binding {
 				}
 			}
 			return ret;
-		
 		}
 		
 		public IBindingConverter Converter {
