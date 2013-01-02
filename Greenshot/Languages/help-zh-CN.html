@@ -1,9 +1,6 @@
 ﻿
 <html>
-	<head>
-	
-		<meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8"/>
-
+	<head><meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8"/>
 		<title>Greenshot帮助</title>
 		
 		<style>
@@ -26,7 +23,7 @@
 	<!-- 
 	Note to translator: uncomment entry below to have your effort honored 
 	-->
-	<small>版本 0.8 简体中文翻译：uralhan</small>
+	<small>版本 1.0 简体中文翻译：uralhan</small>
 	
 	<h2>内容</h2>
 	<ol>
@@ -36,6 +33,7 @@
 			<li><a href="#capture-last-region">抓取上次选择的区域</a></li>
 			<li><a href="#capture-window">抓取窗口</a></li>
 			<li><a href="#capture-fullscreen">抓取全屏</a></li>
+			<li><a href="#capture-ie">抓取Internet Explorer浏览器</a></li>
 		</ol>
 	
 		<li><a href="#editor">使用图片编辑器</a></li>
@@ -44,15 +42,20 @@
 			<li><a href="#editor-text">添加文字</a></li>
 			<li><a href="#editor-highlight">高亮显示</a></li>
 			<li><a href="#editor-obfuscate">模糊效果</a></li>
+			<li><a href="#editor-effects">添加特效</a></li>
 			<li><a href="#editor-crop">裁剪抓图</a></li>
+			<li><a href="#editor-adding-graphics">添加图形到抓图</a></li>
 			<li><a href="#editor-reuse-elements">重复使用物件</a></li>
 			<li><a href="#editor-export">导出抓图</a></li>
 		</ol>
 		<li><a href="#settings">设置对话框</a></li>
 		<ol>
 			<li><a href="#settings-general">常规设置</a></li>
+			<li><a href="#settings-capture">抓图设置</a></li>
 			<li><a href="#settings-output">输出设置</a></li>
+			<li><a href="#settings-destination">保存设置</a></li>
 			<li><a href="#settings-printer">打印机设置</a></li>
+			<li><a href="#settings-expert">专家设置</a></li>
 		</ol>
 		<li><a href="#help">您愿意帮助我们吗？</a></li>
 		<ol>
@@ -98,14 +101,31 @@
 		创建一个抓图来抓取当前正在活动的程序窗口。
 	</p>
 	<p class="hint">
+		对于 Windows 7 或者 Vista 系统，请使用窗口抓取模式设置来控制Greenshot如何对待窗口边框的半透明效果（Aero效果），例如，使用一个自定义的颜色替代透明效果。
+	</p>
+	<p class="hint">
 		<a href="#settings">设置对话框</a>里提供了一个选项，可以允许你不仅仅只能抓取正在活动的程序窗口，还可以用交互式抓图来选择你想要抓的程序的窗口。如果此选项被选中，你可以通过点击来选中一个程序窗口（类似<a href="#capture-region">抓取屏幕的一部分</a>那样，Greenshot会高亮显示会被抓取的区域）。<br>
 		如果你此时还希望仅抓取一个子窗口（例如，一个浏览器的菜单（不包含工具条等）或者是使用了框架结构的web页面的一个独立框架），则移动鼠标到该窗口上，并按下<kbd>PageDown</kbd>按键，然后你就可以选择该程序窗口的子元素，并进行抓图。
+	</p>
+	<p class="hint">
+		抓取下拉菜单与此不同：使用“抓取窗口”方式会导致上下文菜单消失，
+		并且显然使用Greenshot的菜单来抓图也会导致同样情况发生。
+		如果你想抓取程序下拉菜单，你必须使用鼠标右键选中任一东西，
+		并且使用部分抓取模式即点<kbd>Print</kbd>按键，然后点空格键<kbd>Space</kbd>按键。
 	</p>
 	
 	<a name="capture-fullscreen"></a>
 	<h3>抓取全屏 <kbd>Control</kbd> + <kbd>Print</kbd></h3>
 	<p>
 		创建一个全屏幕抓图。
+	</p>
+
+	<a name="capture-ie"></a>
+	<h3>抓取Internet Explorer浏览器 <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
+	<p>
+		可以便捷的创建一个对使用IE浏览器打开的网页的抓图。
+		使用Greenshot的菜单选中Internet Explorer标签来抓取，或者使用快捷键
+		<kbd>Crtl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd>来抓去活动的网页。.
 	</p>
 	
 	<a name="editor"></a>
@@ -136,6 +156,15 @@
 	</p>
 	<p class="hint">
 		你可以同时选择多个物件进行编辑。按下<kbd>Shift</kbd>按键然后点击选中多个物件。
+	</p>
+	<p class="hint">
+		如果你想绘制等边形状（例如：强制转换一个矩形成正方形），可以在绘制时按住<kbd>Shift</kbd>。
+		如果你绘制直线或者箭头，可以按住<kbd>Shift</kbd>来保持角度不变。
+		你也可以在调整任何物件尺寸时按住<kbd>Shift</kbd>以保持原有比例不变。
+	</p>
+	<p class="hint">
+		在绘制或者缩放时，你可以按住<kbd>Ctrl</kbd>来定住物件的几何中心
+		例如：将物件的方向对调。 （当你想在你的抓图周边绘制一个椭圆这会很方便。）
 	</p>
 	
 	<a name="editor-text"></a>
@@ -176,6 +205,13 @@
 		降低<em>模糊半径</em>的数值。<br>
 		如果模糊处理的性能一直都很糟糕，你可能需要考虑使用马赛克效果来代替这一操作。
 	</p>
+	<a name="editor-effects"></a>
+	<h3>添加特效</h3>
+	<p>
+		您可以为您的抓图添加不同的特效。你可能希望添加一个边框，阴影效果，或者边缘撕裂效果，
+		例如：在一个文档中明显的区分你的图片和其它内容。
+		灰度和反色特效主要在打印时使用，例如使用墨粉或墨水打印色彩艳丽或者黑色的图像。
+	</p>
 	
 	<a name="editor-crop"></a>
 	<h3>裁剪抓图</h3>
@@ -184,6 +220,23 @@
 		来裁剪你需要的区域。<br>
 		选中裁剪工具以后，在抓图上你所希望保留的区域绘制一个矩形。你可以调整选择区域的尺寸大小，就像对其它物件操作一样。<br>
 		当你满意选择的区域以后，使用工具栏上的确认按钮或者按下<kbd>Enter</kbd>按键。如果你想取消裁剪，可以点击取消按钮或者按下<kbd>ESC</kbd>按键。
+	</p>
+	<p class="hint">
+		<em>自动裁剪</em>：如果你需要裁减一个纯色背景的边框，
+		只需要在<em>编辑</em>菜单中选中<em>自动裁剪</em>，然后Greenshot将会自动选择需要裁减的区域。
+	</p>
+	
+	<a name="editor-rotate"></a>
+	<p class="hint">
+		使用旋转工具可以将抓图按照顺时针或逆时针方向旋转。
+	</p>
+
+	<a name="editor-adding-graphics"></a>
+	<h3>添加图形到抓图</h3>
+	<p>
+		您可以方便的拖拽一个图像文件到编辑器窗口中，来为你的抓图添加图形或图像。
+		你也可以使用<em>编辑</em>菜单里的<em>插入窗口</em>来将其它窗口里的抓图插入当前窗口。
+		然后会出现一个包含全部窗口的列表，你可以选择一个插入。
 	</p>
 	
 	<a name="editor-reuse-elements"></a>
@@ -228,6 +281,32 @@
 		鼠标箭头在图片编辑器中将会被作为一个独立的物件，所以你可以稍后再移动或者删除它。</li>
 		<li><em>采用交互式抓图</em>：（抓取窗口模式）代替抓取正在活动窗口的方法，交互式抓取模式可以允许你选择需要抓取的程序的窗口。而且可以用来选择抓取程序的子窗口，请查看<a href="#capture-window">抓取窗口</a>。</li>
 	</ul>
+
+	<a name="settings-capture"></a>
+	<h3>抓取设置</h3>
+	<ul>
+		<li><em>捕获鼠标箭头</em>：如果选中，鼠标箭头也将被抓去到。在编辑器中鼠标箭头会作为一个单独的物件对待，所以你可以移动或者稍后去除它。</li>
+		<li><em>播放相机快门声</em>：抓图时能听到快门声音</li>
+		<li><em>抓取等待时间（毫秒）</em>：添加一个自定义的抓图延迟时间。</li>
+		<li><em>使用交互方式抓取模式</em>：替代立刻抓取当前活动窗口模式，交互式模式会允许你选择需要抓取的窗口。同样此模式支持抓取子窗口，
+		请查看<a href="#capture-window">抓取窗口</a>了解。</li>
+		<li>
+			<em>Aero效果抓取（仅支持Windows Vista/7）</em>：如果你在Windows Vista或者Windows 7上使用Greenshot，并且开启了窗口aero样式，你可以在使用窗口抓取模式时选择窗口边框的透明度，
+			使用此设置可以避免抓取到透明边框背景后的元素。
+			<ul>
+				<li><em>自动</em>：让Greenshot决定抓取的透明度。</li>
+				<li><em>实际显示</em>：边框透明度将依据实际的屏幕显示效果。</li>
+				<li><em>使用默认色彩</em>：使用默认的纯色替代透明部分。</li>
+				<li><em>使用自定义色彩</em>： 使用自定义的颜色替代透明部分P。</li>
+				<li><em>保持透明度</em>：抓取的边框将保持原有透明度，背景里可能会显示非抓取目标。
+					（注意：透明区域在编辑器中使用了格子图案显示。在你保存抓图时不会将其导出。
+					请牢记：一定要使用PNG格式来保存图片才有完整的透明效果。）</li>
+			</ul>
+		</li>
+		<li><em>Internet Explorer抓取</em>：便捷的抓取Internet Explorer浏览器打开的网页。</li>
+		<li><em>编辑器窗口适应抓图尺寸</em>：如果选中，编辑器窗口将自动适应抓图的尺寸大小。</li>
+
+	</ul>
 	
 	<a name="settings-output"></a>
 	<h3>输出设置</h3>
@@ -238,13 +317,36 @@
 		<li><em>JPEG 图像质量</em>：保存为JPEG文件时候所使用的图像质量。</li>
 	</ul>
 	
+	<a name="settings-destination"></a>
+	<h3>保存设置</h3>
+	<p>
+		默认情况下，Greenshot会在你创建一个抓图后让你选择要保存到的位置，会显示一个菜单让你选择不同的位置。
+		如果你不想或者希望能立刻切换保存位置，
+		你可以直接在这里配置Greenshot将图片导出到一个或多个不同的位置，而不用显示位置选择窗口。<br/>
+		注意：使用<a href="#editor-export">编辑器窗口导出时，能够显示出的位置选项取决于您安装的Greenshot插件。</a>
+	</p>
+	
 	<a name="settings-printer"></a>
 	<h3>打印机设置</h3>
 	<ul>
 		<li><em>缩小图片以适应纸张大小</em>：如果图像大小超出了纸张的大小，则缩小图片的尺寸来适应纸张的尺寸。</li>
 		<li><em>放大图片以适应纸张大小</em>：如果图像大小远小于纸张的大小，则尽可能的放大图片来适应纸张的尺寸。</li>
 		<li><em>旋转图片</em>：将图片旋转90度然后打印。</li>
+		<li><em>反色打印</em>：将图片颜色反色打印，用处例如：打印一个黑底白字的抓图（使用墨粉/墨水打印）。</li>
+		<li><em>强制灰度打印</em>：将图片色彩转换为灰度图像然后打印。</li>
 	</ul>
+
+	<a name="settings-plugins"></a>
+	<h3>插件设置</h3>
+	<p>
+		显示已安装的Greenshot插件列表。选中一个并且点击<em>配置</em>按钮来对插件进行配置。
+	</p>
+	
+	<a name="settings-expert"></a>
+	<h3>专家设置</h3>
+	<p>
+		强烈建议：如果您不知道自己在做什么，请最好不要作任何修改，因为这些设置可能导致意想不到的结果。
+	</p>
 	
 	
 	<a name="help"></a>
