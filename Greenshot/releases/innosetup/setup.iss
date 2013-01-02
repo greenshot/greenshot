@@ -53,6 +53,7 @@ Source: ..\..\Languages\*pt-PT*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: ..\..\Languages\*ro-RO*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\roRO; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*ru-RU*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ruRU; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*sk-SK*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\skSK; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*sl-SI*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\slSI; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*sr-RS*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\srRS; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*sv-SE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\svSE; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*tr-TR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\trTR; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -305,6 +306,7 @@ Name: "languages\ptPT"; Description: "Português de Portugal"; Types: full custo
 Name: "languages\ruRU"; Description: "Pусский"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
 Name: "languages\roRO"; Description: "Română"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
 Name: "languages\skSK"; Description: "Slovenčina"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\slSI"; Description: "Slovenščina"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
 Name: "languages\srRS"; Description: "Српски"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
 Name: "languages\svSE"; Description: "Svenska"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\trTR"; Description: "Türk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('6')
