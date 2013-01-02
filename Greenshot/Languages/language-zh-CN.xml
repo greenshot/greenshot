@@ -1,269 +1,292 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="简体中文" ietf="zh-CN" version="1.0.5" languagegroup="">
+<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="1.0.6" languagegroup="1">
 	<resources>
-		<resource name="about_bugs">请到以下网址报告错误：</resource>
-		<resource name="about_donations">如果你喜欢Greenshot，欢迎您对我们进行捐助。</resource>
-		<resource name="about_host">Greenshot项目托管在sourceforge.net上，网址为：</resource>
-		<resource name="about_icons">图标来源于Yusuke Kamiyamane的Fugue图标集，基于知识共享许可3.0版本中的署名条款</resource>
-		<resource name="about_license">Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot不对程序做任何保证。这是一个自由软件，欢迎您在遵守GNU通用公共许可的前提下进行传播。
-关于GNU通用公共许可的详细信息，请到：</resource>
-		<resource name="about_title">关于Greenshot</resource>
-		<resource name="about_translation">简体中文界面由hookilah翻译</resource>
-		<resource name="application_title">Greenshot - 革命性的截屏工具</resource>
+		<resource name="about_bugs">如果发现任何错误，请到以下网址报告</resource>
+		<resource name="about_donations">如果您喜欢这个软件，希望您可以捐助我们：</resource>
+		<resource name="about_host">Greenshot 托管在 sourceforge.net</resource>
+		<resource name="about_icons">图标来源：Yusuke Kamiyamane的Fugue图标基于(Creative Commons Attribution 3.0 协议)</resource>
+		<resource name="about_license">版权所有 (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+作者不会对程序进行任何担保。
+此程序为自由软件，您可以在遵守 GNU 通用公共许可协议下任意传播本软件。
+关于 GNU 通用公共许可协议：</resource>
+		<resource name="about_title">关于 Greenshot</resource>
+		<resource name="application_title">Greenshot - 革命性的抓图工具</resource>
 		<resource name="bugreport_cancel">关闭</resource>
-		<resource name="bugreport_info">抱歉，发生了意料之外的错误。
-
-好消息是：您可以通过报告这个错误帮助我们来解决问题。
-请访问以下的网址，创建一个新的错误报告并将文本区的内容复制到页面中的“描述”栏里。
-
-请填写一个容易理解的标题摘要并请提供一些能够帮助开发者重现错误发生的信息。
-另外，我们强烈建议您先查看一下是否有人已经提交过了一样的错误报告（您可以使用搜索功能）。
-非常感谢。：）</resource>
+		<resource name="bugreport_info">很抱歉，坏消息是程序出现了错误。
+		好消息是：您可以填写错误报告来帮助我们纠正错误。
+		请点击下面的链接，新建一个错误报告将文字区域的内容粘贴到描述栏中。
+		
+		并请填写一些你认为可能帮助描述错误产生时的情况的信息。
+		此外，我们强烈建议您在我们的网站检查一下是否已经有人报告过相同的错误（您可以搜索一下）。非常感谢 :)</resource>
 		<resource name="bugreport_title">错误</resource>
 		<resource name="CANCEL">取消</resource>
-		<resource name="clipboard_error">在写入剪贴板时发生了错误。</resource>
-		<resource name="clipboard_inuse">剪贴板已被进程{0}锁定，导致Greenshot无法写入。</resource>
-		<resource name="ClipboardFormat.DIB">设备无关位图(DIB)</resource>
+		<resource name="clipboard_error">写入剪贴板时发生错误。</resource>
+		<resource name="clipboard_inuse">无法将文件写入剪切板， 因为 {0} 已将剪切板锁定。</resource>
+		<resource name="ClipboardFormat.DIB">与设备无关的位图格式(DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML带内联图片</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML内嵌图像</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">透明度</resource>
-		<resource name="colorpicker_apply">应用</resource>
+		<resource name="colorpicker_apply">确定</resource>
 		<resource name="colorpicker_blue">蓝</resource>
 		<resource name="colorpicker_green">绿</resource>
 		<resource name="colorpicker_htmlcolor">HTML颜色</resource>
 		<resource name="colorpicker_recentcolors">最近使用过的颜色</resource>
 		<resource name="colorpicker_red">红</resource>
-		<resource name="colorpicker_title">颜色选择器</resource>
-		<resource name="colorpicker_transparent">透明</resource>
-		<resource name="config_unauthorizedaccess_write">无法保存Greenshot的配置文件，请检查"{0}"的写入权限。</resource>
-		<resource name="contextmenu_about">关于Greenshot</resource>
-		<resource name="contextmenu_capturearea">截取区域</resource>
-		<resource name="contextmenu_captureclipboard">从剪贴板打开图片</resource>
-		<resource name="contextmenu_capturefullscreen">截取全屏</resource>
+		<resource name="colorpicker_title">选择颜色</resource>
+		<resource name="colorpicker_transparent">透明度</resource>
+		<resource name="com_rejected">目标位置{0}拒绝了Greenshot访问，可能已经打开了一个对话框。请关闭它并且重试。</resource>
+		<resource name="com_rejected_title">Greenshot访问被拒</resource>
+		<resource name="config_unauthorizedaccess_write">无法保存 Greenshot 的配置文件，请检查 '{0}' 的存取权限。</resource>
+		<resource name="contextmenu_about">关于 Greenshot</resource>
+		<resource name="contextmenu_capturearea">抓取屏幕的一部分</resource>
+		<resource name="contextmenu_captureclipboard">从剪贴板载入图片</resource>
+		<resource name="contextmenu_capturefullscreen">抓取全屏</resource>
 		<resource name="contextmenu_capturefullscreen_all">全部</resource>
 		<resource name="contextmenu_capturefullscreen_bottom">底部</resource>
-		<resource name="contextmenu_capturefullscreen_left">左</resource>
-		<resource name="contextmenu_capturefullscreen_right">右</resource>
+		<resource name="contextmenu_capturefullscreen_left">左边</resource>
+		<resource name="contextmenu_capturefullscreen_right">右边</resource>
 		<resource name="contextmenu_capturefullscreen_top">顶部</resource>
-		<resource name="contextmenu_captureie">截取IE浏览器</resource>
-		<resource name="contextmenu_captureiefromlist">从列表中选择要截取的IE浏览器页面</resource>
-		<resource name="contextmenu_capturelastregion">截取上一次选取的区域</resource>
-		<resource name="contextmenu_capturewindow">截取窗口</resource>
-		<resource name="contextmenu_capturewindowfromlist">从列表中选择要截取的窗口</resource>
-		<resource name="contextmenu_donate">捐助Greenshot</resource>
+		<resource name="contextmenu_captureie">抓取Internet Explorer页面</resource>
+		<resource name="contextmenu_captureiefromlist">从Internet Explorer列表中选择抓取</resource>
+		<resource name="contextmenu_capturelastregion">抓取上次选择的区域</resource>
+		<resource name="contextmenu_capturewindow">抓取窗口</resource>
+		<resource name="contextmenu_capturewindowfromlist">从窗口列表中选择抓取</resource>
+		<resource name="contextmenu_donate">捐助 Greenshot</resource>
 		<resource name="contextmenu_exit">退出</resource>
 		<resource name="contextmenu_help">帮助</resource>
-		<resource name="contextmenu_openfile">从文件打开图片</resource>
-		<resource name="contextmenu_openrecentcapture">打开最后一次截图的保存位置</resource>
-		<resource name="contextmenu_quicksettings">快捷设置</resource>
-		<resource name="contextmenu_settings">设置</resource>
-		<resource name="destination_exportfailed">在导出到{0}时发生错误，请再试一次。</resource>
-		<resource name="editor_arrange">物件层次调整</resource>
+		<resource name="contextmenu_openfile">从文件载入图片</resource>
+		<resource name="contextmenu_openrecentcapture">打开上次保存位置</resource>
+		<resource name="contextmenu_quicksettings">快速设定</resource>
+		<resource name="contextmenu_settings">设置...</resource>
+		<resource name="destination_exportfailed">导出到{0}出错。请重新尝试。</resource>
+		<resource name="editor_arrange">调整物件</resource>
 		<resource name="editor_arrowheads">箭头方向</resource>
 		<resource name="editor_arrowheads_both">箭头在两端</resource>
 		<resource name="editor_arrowheads_end">箭头在终点</resource>
-		<resource name="editor_arrowheads_none">无箭头</resource>
+		<resource name="editor_arrowheads_none">不显示箭头</resource>
 		<resource name="editor_arrowheads_start">箭头在起点</resource>
-		<resource name="editor_autocrop">自动剪裁</resource>
+		<resource name="editor_autocrop">自动裁剪</resource>
 		<resource name="editor_backcolor">填充颜色</resource>
 		<resource name="editor_blur_radius">模糊半径</resource>
 		<resource name="editor_bold">粗体</resource>
 		<resource name="editor_border">边框</resource>
 		<resource name="editor_brightness">亮度</resource>
 		<resource name="editor_cancel">取消</resource>
-		<resource name="editor_clipboardfailed">在写入剪贴板时发生错误，请再试一次。</resource>
+		<resource name="editor_clipboardfailed">保存到剪切板时发生错误，请重试一次。</resource>
 		<resource name="editor_close">关闭</resource>
-		<resource name="editor_close_on_save">您是否想要保存截图文件？</resource>
-		<resource name="editor_close_on_save_title">保存图片？</resource>
-		<resource name="editor_confirm">确认</resource>
-		<resource name="editor_copyimagetoclipboard">把图片复制到剪贴板</resource>
-		<resource name="editor_copypathtoclipboard">把路径复制到剪贴板</resource>
+		<resource name="editor_close_on_save">还没有保存到文件，您要保存此图片吗？</resource>
+		<resource name="editor_close_on_save_title">保存图片</resource>
+		<resource name="editor_confirm">确定</resource>
+		<resource name="editor_copyimagetoclipboard">复制图片到剪切板</resource>
+		<resource name="editor_copypathtoclipboard">复制路径到剪切板</resource>
 		<resource name="editor_copytoclipboard">复制</resource>
-		<resource name="editor_crop">剪裁 (C)</resource>
+		<resource name="editor_crop">裁剪 (C)</resource>
 		<resource name="editor_cursortool">选择工具 (ESC)</resource>
 		<resource name="editor_cuttoclipboard">剪切</resource>
-		<resource name="editor_deleteelement">删除</resource>
-		<resource name="editor_downonelevel">往下移一层</resource>
-		<resource name="editor_downtobottom">移到最底层</resource>
+		<resource name="editor_deleteelement">刪除物件</resource>
+		<resource name="editor_downonelevel">下移一层</resource>
+		<resource name="editor_downtobottom">移动到最下层</resource>
 		<resource name="editor_drawarrow">绘制箭头 (A)</resource>
-		<resource name="editor_drawellipse">绘制椭圆形 (E)</resource>
-		<resource name="editor_drawfreehand">徒手绘制 (F)</resource>
-		<resource name="editor_drawhighlighter">突出显示 (H)</resource>
+		<resource name="editor_drawellipse">绘制椭圆 (E)</resource>
+		<resource name="editor_drawfreehand">绘制曲线 (F)</resource>
+		<resource name="editor_drawhighlighter">高亮显示 (H)</resource>
 		<resource name="editor_drawline">绘制直线 (L)</resource>
-		<resource name="editor_drawrectangle">绘制矩形 (R)</resource>
+		<resource name="editor_drawrectangle">绘制矩形(R)</resource>
 		<resource name="editor_drawtextbox">添加文字 (T)</resource>
+		<resource name="editor_dropshadow_settings">阴影绘制设置</resource>
+		<resource name="editor_dropshadow_thickness">阴影厚度</resource>
+		<resource name="editor_dropshadow_offset">阴影补偿</resource>
+		<resource name="editor_dropshadow_darkness">阴影暗度</resource>
 		<resource name="editor_duplicate">复制选中的物件</resource>
 		<resource name="editor_edit">编辑</resource>
 		<resource name="editor_effects">特效</resource>
-		<resource name="editor_email">E-Mail</resource>
+		<resource name="editor_email">编辑E-Mail</resource>
 		<resource name="editor_file">文件</resource>
 		<resource name="editor_fontsize">字体大小</resource>
 		<resource name="editor_forecolor">线条颜色</resource>
-		<resource name="editor_grayscale">灰阶</resource>
-		<resource name="editor_highlight_area">四周模糊化</resource>
-		<resource name="editor_highlight_grayscale">四周显示为灰色</resource>
+		<resource name="editor_grayscale">灰度</resource>
+		<resource name="editor_highlight_area">高亮区域</resource>
+		<resource name="editor_highlight_grayscale">灰阶</resource>
 		<resource name="editor_highlight_magnify">放大</resource>
-		<resource name="editor_highlight_mode">突出显示模式</resource>
-		<resource name="editor_highlight_text">高亮彩色笔</resource>
-		<resource name="editor_image_shadow">投影</resource>
-		<resource name="editor_imagesaved">图片保存到{0}</resource>
-		<resource name="editor_insertwindow">插入窗口</resource>
-		<resource name="editor_invert">反色</resource>
+		<resource name="editor_highlight_mode">高亮模式</resource>
+		<resource name="editor_highlight_text">高亮文字</resource>
+		<resource name="editor_image_shadow">阴影</resource>
+		<resource name="editor_imagesaved">图片已保存到 {0}</resource>
+		<resource name="editor_insertwindow">插图窗口</resource>
+		<resource name="editor_invert">反转</resource>
 		<resource name="editor_italic">斜体</resource>
 		<resource name="editor_load_objects">从文件载入物件</resource>
 		<resource name="editor_magnification_factor">放大倍数</resource>
-		<resource name="editor_match_capture_size">匹配截图尺寸</resource>
-		<resource name="editor_obfuscate">模糊 (D)</resource>
+		<resource name="editor_match_capture_size">匹配抓取尺寸</resource>
+		<resource name="editor_obfuscate">模糊 (O)</resource>
 		<resource name="editor_obfuscate_blur">模糊效果</resource>
 		<resource name="editor_obfuscate_mode">模糊模式</resource>
-		<resource name="editor_obfuscate_pixelize">马赛克</resource>
+		<resource name="editor_obfuscate_pixelize">马赛克效果</resource>
 		<resource name="editor_object">物件</resource>
-		<resource name="editor_opendirinexplorer">在Windows资源管理器中打开目录</resource>
+		<resource name="editor_opendirinexplorer">在Windows资源管理器中打开路径</resource>
 		<resource name="editor_pastefromclipboard">粘贴</resource>
 		<resource name="editor_pixel_size">像素大小</resource>
 		<resource name="editor_preview_quality">预览质量</resource>
 		<resource name="editor_print">打印</resource>
-		<resource name="editor_redo">重做</resource>
-		<resource name="editor_resetsize">重设大小</resource>
-		<resource name="editor_rotateccw">逆时针旋转</resource>
-		<resource name="editor_rotatecw">顺时针旋转</resource>
+		<resource name="editor_redo">重作{0}</resource>
+		<resource name="editor_resetsize">重置尺寸</resource>
+		<resource name="editor_rotateccw">逆时针旋转（Ctrl + ,）</resource>
+		<resource name="editor_rotatecw">顺时针旋转（Ctrl + .）</resource>
 		<resource name="editor_save">保存</resource>
-		<resource name="editor_save_objects">将物件保存到文件</resource>
+		<resource name="editor_save_objects">保存物件到文件</resource>
 		<resource name="editor_saveas">另存为...</resource>
-		<resource name="editor_selectall">全部选择</resource>
-		<resource name="editor_senttoprinter">已使用“{0}”进行打印。</resource>
-		<resource name="editor_shadow">投影</resource>
-		<resource name="editor_storedtoclipboard">图片已保存到剪贴板。</resource>
+		<resource name="editor_resize_pixel">像素</resource>
+		<resource name="editor_resize_percent">百分比</resource>
+		<resource name="editor_selectall">全选</resource>
+		<resource name="editor_senttoprinter">已使用 '{0}' 进行打印。</resource>
+		<resource name="editor_shadow">阴影</resource>
+		<resource name="editor_storedtoclipboard">图片已保存到剪切板。</resource>
 		<resource name="editor_thickness">线条粗细</resource>
-		<resource name="editor_title">Greenshot图片编辑器</resource>
-		<resource name="editor_torn_edge">撕边效果</resource>
-		<resource name="editor_undo">重做{0}</resource>
-		<resource name="editor_uponelevel">往下移一层</resource>
-		<resource name="editor_uptotop">移到最上层</resource>
+		<resource name="editor_title">Greenshot 图片编辑器</resource>
+		<resource name="editor_torn_edge">边界撕裂</resource>
+		<resource name="editor_tornedge_settings">边界撕裂设置</resource>
+		<resource name="editor_tornedge_toothsize">锯齿大小</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">横向锯齿范围</resource>
+		<resource name="editor_tornedge_verticaltoothrange">纵向锯齿范围</resource>
+		<resource name="editor_undo">撤销{0}</resource>
+		<resource name="editor_uponelevel">上移一层</resource>
+		<resource name="editor_uptotop">移动到最上层</resource>
 		<resource name="EmailFormat.MAPI">MAPI客户端</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook (HTML)</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook (纯文本)</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook使用HTML格式</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook使用文本格式</resource>
 		<resource name="error">错误</resource>
-		<resource name="error_multipleinstances">已经有一个Greenshot程序正在运行。</resource>
-		<resource name="error_nowriteaccess">无法保存到{0}。
-请检查要保存位置的写入权限。</resource>
-		<resource name="error_openfile">无法打开文件“{0}”。</resource>
-		<resource name="error_openlink">无法打开链接“{0}”。</resource>
-		<resource name="error_save">无法保存截图，请选择一个合适的位置保存。</resource>
-		<resource name="expertsettings">专家</resource>
-		<resource name="expertsettings_autoreducecolors">如果一个图片超过8位色，但是少于256色，则创建为8位色的图片。</resource>
-		<resource name="expertsettings_checkunstableupdates">检查不稳定版本的更新</resource>
+		<resource name="error_multipleinstances">Greenshot 已经运行。</resource>
+		<resource name="error_nowriteaccess">无法保存到文件 {0}，
+请确认文件保存路径是否可用。</resource>
+		<resource name="error_openfile">无法打开 "{0}"</resource>
+		<resource name="error_openlink">无法打开此链接</resource>
+		<resource name="error_save">无法保存图片，请选择其它路径来保存。</resource>
+		<resource name="expertsettings">专家设置</resource>
+		<resource name="expertsettings_autoreducecolors">当色彩小于256大于8位时创建一个8位图像。</resource>
+		<resource name="expertsettings_checkunstableupdates">检查非稳定版本升级</resource>
 		<resource name="expertsettings_clipboardformats">剪贴板格式</resource>
-		<resource name="expertsettings_counter">文件名中${NUM}变量目前的数值</resource>
-		<resource name="expertsettings_enableexpert">我知道正在做什么！</resource>
-		<resource name="expertsettings_footerpattern">打印时页脚信息的样式</resource>
-		<resource name="expertsettings_minimizememoryfootprint">内存占用最小化，但是会牺牲性能（不推荐）。</resource>
-		<resource name="expertsettings_optimizeforrdp">为远程桌面进行一些优化</resource>
-		<resource name="expertsettings_reuseeditorifpossible">如果可能的话，重复使用编辑器</resource>
-		<resource name="expertsettings_suppresssavedialogatclose">关闭编辑器时不提示保存</resource>
-		<resource name="expertsettings_thumbnailpreview">在列表中显示窗口的缩略图 (Vista和Windows 7)</resource>
+		<resource name="expertsettings_counter">文件名格式，使用${NUM}表示数字序号</resource>
+		<resource name="expertsettings_enableexpert">我知道自己在做什么！</resource>
+		<resource name="expertsettings_footerpattern">页脚打印格式</resource>
+		<resource name="expertsettings_minimizememoryfootprint">最小内存占用，但效果会有损失（不建议）。</resource>
+		<resource name="expertsettings_optimizeforrdp">使用远程桌面时进行一些优化</resource>
+		<resource name="expertsettings_reuseeditorifpossible">尽可能重用编辑器</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">关闭编辑器时不显示保存对话框</resource>
+		<resource name="expertsettings_thumbnailpreview">在上下文菜单显示窗口缩略图（在 Vista 和 windows 7里）</resource>
 		<resource name="exported_to">导出到：{0}</resource>
-		<resource name="exported_to_error">导出到{0}时发生错误：</resource>
-		<resource name="help_title">Greenshot帮助</resource>
+		<resource name="exported_to_error">发生了一个错误当导出到{0}：</resource>
+		<resource name="help_title">Greenshot 帮助</resource>
 		<resource name="hotkeys">热键</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">请为您的JPEG格式图片选择压缩质量。</resource>
-		<resource name="OK">确认</resource>
-		<resource name="print_error">打印时发生错误。</resource>
-		<resource name="printoptions_allowcenter">打印到页面正中</resource>
-		<resource name="printoptions_allowenlarge">将图片放大以适应纸张大小</resource>
-		<resource name="printoptions_allowrotate">按纸张的方向对图片进行旋转</resource>
-		<resource name="printoptions_allowshrink">将图片缩小以适应纸张大小</resource>
-		<resource name="printoptions_dontaskagain">保存为默认值并不再询问</resource>
-		<resource name="printoptions_inverted">反色打印</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">请选择您需要的图像质量</resource>
+		<resource name="OK">确定</resource>
+		<resource name="print_error">打印时发生错误</resource>
+		<resource name="printoptions_allowcenter">打印到纸张的正中央</resource>
+		<resource name="printoptions_allowenlarge">放大图片以适合纸张大小</resource>
+		<resource name="printoptions_allowrotate">旋转图片</resource>
+		<resource name="printoptions_allowshrink">缩小图片以适合纸张大小</resource>
+		<resource name="printoptions_dontaskagain">保存打印设置并不再询问</resource>
+		<resource name="printoptions_inverted">反片打印</resource>
 		<resource name="printoptions_printgrayscale">强制灰度打印</resource>
-		<resource name="printoptions_timestamp">在页面底部打印日期/时间</resource>
-		<resource name="printoptions_title">Greenshot打印选项</resource>
-		<resource name="qualitydialog_dontaskagain">保存为默认质量并不再询问</resource>
-		<resource name="qualitydialog_title">Greenshot JPEG图片质量设置</resource>
-		<resource name="quicksettings_destination_file">直接保存（使用已有的输出设置）</resource>
-		<resource name="settings_alwaysshowprintoptionsdialog">每次打印图片时显示打印选项</resource>
-		<resource name="settings_alwaysshowqualitydialog">每次保存图片时显示图片质量设置对话框</resource>
-		<resource name="settings_applicationsettings">程序设置</resource>
-		<resource name="settings_autostartshortcut">让Greenshot随系统一起启动</resource>
-		<resource name="settings_capture">截图</resource>
-		<resource name="settings_capture_mousepointer">截取鼠标箭头</resource>
-		<resource name="settings_capture_windows_interactive">使用交互式窗口截取模式</resource>
-		<resource name="settings_checkperiod">检查更新间隔天数（0表示“不检查”）</resource>
+		<resource name="printoptions_timestamp">在页尾打印日期/时间</resource>
+		<resource name="printoptions_title">打印设定</resource>
+		<resource name="qualitydialog_dontaskagain">使用默认质量保存并且以后不再询问</resource>
+		<resource name="qualitydialog_title">Greenshot质量</resource>
+		<resource name="quicksettings_destination_file">直接保存（使用预先设置的输出路径）</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">每次打印时都显示打印设置窗口</resource>
+		<resource name="settings_alwaysshowqualitydialog">每次保存图片时都显示质量对话框</resource>
+		<resource name="settings_applicationsettings">程序设定</resource>
+		<resource name="settings_autostartshortcut">开机时自动启动 Greenshot</resource>
+		<resource name="settings_capture">抓图</resource>
+		<resource name="settings_capture_mousepointer">抓取鼠标箭头</resource>
+		<resource name="settings_capture_windows_interactive">采用交互式抓图</resource>
+		<resource name="settings_checkperiod">检查更新的间隔天数 (0=不检查)</resource>
 		<resource name="settings_configureplugin">配置</resource>
-		<resource name="settings_copypathtoclipboard">每次保存图片后把路径复制到剪贴板</resource>
-		<resource name="settings_destination">截图后的操作</resource>
-		<resource name="settings_destination_clipboard">复制到剪贴板</resource>
-		<resource name="settings_destination_editor">在图片编辑器中打开</resource>
-		<resource name="settings_destination_email">E-Mail</resource>
-		<resource name="settings_destination_file">直接保存（使用下面的设置）</resource>
-		<resource name="settings_destination_fileas">另存为（显示对话框）</resource>
-		<resource name="settings_destination_picker">每次截图后显示选择对话框</resource>
-		<resource name="settings_destination_printer">发送到打印机</resource>
+		<resource name="settings_copypathtoclipboard">每次保存图片时都将保存路径复制到剪切板</resource>
+		<resource name="settings_destination">抓图后的动作</resource>
+		<resource name="settings_destination_clipboard">复制图片到剪贴板</resource>
+		<resource name="settings_destination_editor">用图片编辑器打开</resource>
+		<resource name="settings_destination_email">使用E-Mail发送</resource>
+		<resource name="settings_destination_file">直接保存而不询问 （使用以下设置）</resource>
+		<resource name="settings_destination_fileas">另存到（显示对话框）</resource>
+		<resource name="settings_destination_picker">动态选择保存位置</resource>
+		<resource name="settings_destination_printer">打印图片</resource>
 		<resource name="settings_editor">编辑器</resource>
 		<resource name="settings_filenamepattern">文件名格式</resource>
 		<resource name="settings_general">常规</resource>
-		<resource name="settings_iecapture">截取IE浏览器</resource>
-		<resource name="settings_jpegquality">JPEG图片质量</resource>
-		<resource name="settings_language">语言(Language)</resource>
-		<resource name="settings_message_filenamepattern">以下的变量将自动被赋予相应的数值：
-${YYYY} 表示“年”，4位数字
-${MM} 表示“月”，2位数字
-${DD} 表示“日”，2位数字
-${hh} 表示“小时”，2位数字
-${mm} 表示“分钟”，2位数字
-${ss} 表示“秒”，2位数字
-${NUM} 为自动编号，6位数字
-${title} 表示Window窗口标题
-${user} 表示Windows用户名
-${domain} 表示Windows网域名
-${hostname} 表示PC名称
+		<resource name="settings_iecapture">抓取 Internet Explorer 网页</resource>
+		<resource name="settings_jpegquality">JPEG 图像质量</resource>
+		<resource name="settings_language">语言</resource>
+		<resource name="settings_message_filenamepattern">您可以使用以下格式来为文件命名，百分号之间代表变量，将会被自动替换：
+${YYYY} 年, 4位数字
+${MM} 月, 2位数字
+${DD} 日, 2位数字
+${hh} 小时, 2位数字
+${mm} 分钟, 2位数字
+${ss} 秒, 2位数字
+${NUM} 自动编号,6位数字
+${title} Window窗口标题
+${user} Windows用户名
+${domain} Windows网域名
+${hostname} PC名称
 
-您也可以使用Greenshot动态创建文件夹，只需在文件夹和文件名之间添加一个“\”符号即可。
+您也可以让 Greenshot 动态创建文件夹，很简单只需要使用斜杠符号 （\） 将文件名和文件夹名分隔开来即可。
 例如： ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-
-以上的例子将建立一个以当前日期命名的文件夹，如2008-06-29，这个文件夹中的截图文件将以当前的时间来命名，如11_58_31（后面再加上扩展名）。</resource>
+使用此格式将在你的默认保存位置生成一个以当前日期命名的文件夹，例如,2008-06-29,而生成的抓图文件的文件名将以当前时间命名，例如，11_58_32（可以在扩展设置里定义）。</resource>
 		<resource name="settings_network">网络和更新</resource>
 		<resource name="settings_output">输出</resource>
-		<resource name="settings_playsound">截图时播放相机快门声</resource>
+		<resource name="settings_playsound">抓屏时播放快门声</resource>
 		<resource name="settings_plugins">插件</resource>
 		<resource name="settings_plugins_createdby">创建者</resource>
-		<resource name="settings_plugins_dllpath">文件路径</resource>
+		<resource name="settings_plugins_dllpath">DLL路径</resource>
 		<resource name="settings_plugins_name">名称</resource>
 		<resource name="settings_plugins_version">版本</resource>
-		<resource name="settings_preferredfilesettings">首选文件输出设置</resource>
-		<resource name="settings_primaryimageformat">图片格式</resource>
+		<resource name="settings_preferredfilesettings">输出格式设定</resource>
+		<resource name="settings_primaryimageformat">图像格式</resource>
 		<resource name="settings_printer">打印机</resource>
-		<resource name="settings_printoptions">打印选项</resource>
-		<resource name="settings_qualitysettings">图片质量设置</resource>
-		<resource name="settings_reducecolors">将颜色总数减少到最多256色</resource>
-		<resource name="settings_registerhotkeys">注册热键</resource>
-		<resource name="settings_showflashlight">截图时闪光</resource>
+		<resource name="settings_printoptions">打印设定</resource>
+		<resource name="settings_qualitysettings">质量设定</resource>
+		<resource name="settings_reducecolors">色彩最大值降到256位</resource>
+		<resource name="settings_registerhotkeys">注册快捷键</resource>
+		<resource name="settings_showflashlight">抓屏时闪光</resource>
 		<resource name="settings_shownotify">显示通知</resource>
-		<resource name="settings_storagelocation">保存位置</resource>
-		<resource name="settings_title">设置</resource>
-		<resource name="settings_tooltip_filenamepattern">在保存截图时自动生成的文件名格式</resource>
-		<resource name="settings_tooltip_language">Greenshot的界面语言</resource>
-		<resource name="settings_tooltip_primaryimageformat">默认使用的图片格式</resource>
-		<resource name="settings_tooltip_registerhotkeys">在启动程序时确认热键Prnt, Ctrl+Prnt, Alt+Prnt是否被保留给Greenshot使用直到程序关闭为止。</resource>
-		<resource name="settings_tooltip_storagelocation">截图的默认保存位置（如果要保存在桌面则此处留空）</resource>
-		<resource name="settings_usedefaultproxy">使用系统默认的代理设置</resource>
+		<resource name="settings_storagelocation">保存路径</resource>
+		<resource name="settings_title">设定</resource>
+		<resource name="settings_tooltip_filenamepattern">设定保存文件的命名格式</resource>
+		<resource name="settings_tooltip_language">设定界面语言</resource>
+		<resource name="settings_tooltip_primaryimageformat">设定默认的图像格式</resource>
+		<resource name="settings_tooltip_registerhotkeys">如果选择该选项，则您可以使用以下三个快捷键来抓图。
+Print	抓取指定的屏幕区域
+Ctrl+Print	抓取全部屏幕
+Alt+Print	抓取程序窗口（如果没有选择交互式抓取方式，将会抓取正在使用的程序的窗口）</resource>
+		<resource name="settings_tooltip_storagelocation">默认保存路径(为空则保存到桌面)</resource>
+		<resource name="settings_usedefaultproxy">使用系统默认的代理服务器</resource>
 		<resource name="settings_visualization">特效</resource>
-		<resource name="settings_waittime">截图延迟时间（毫秒）</resource>
-		<resource name="settings_window_capture_mode">截取窗口模式</resource>
-		<resource name="settings_windowscapture">截取窗口</resource>
-		<resource name="tooltip_firststart">右键单击此处或者按{0}键。</resource>
-		<resource name="update_found">发现新版本的Greenshot！是否要下载Greenshot{0}？</resource>
-		<resource name="wait_ie_capture">请稍候，正在截取IE浏览器页面...</resource>
+		<resource name="settings_waittime">在抓图前等待时间（毫秒）</resource>
+		<resource name="settings_window_capture_mode">抓取窗口模式</resource>
+		<resource name="settings_windowscapture">抓取窗口</resource>
+		<resource name="tooltip_firststart">右键点击这里或者按下Print按键。</resource>
+		<resource name="update_found">发现新版本的 Greenshot ！ 您是否要下载 Greenshot {0}?</resource>
+		<resource name="wait_ie_capture">请稍候，正在抓取 Internet Explorer 的页面...</resource>
 		<resource name="warning">警告</resource>
-		<resource name="warning_hotkeys">无法注册热键“{0}”。这个问题可能是因为其他程序占用了相同的热键引起的！您可以更改本程序的热键设置或者禁用/更改其他程序的热键设置。
-
-在无法使用热键时，您依然可以点击Windows系统托盘里的Greenshot图标来显示菜单选项进行操作。</resource>
-		<resource name="WindowCaptureMode.Aero">使用自定义颜色</resource>
+		<resource name="warning_hotkeys">快捷键“${0}”无法使用，可能与其它程序发生冲突。
+如果您想让 Greenshot 使用快捷键，请关闭占用快捷键的程序。
+您也可以右键点击 Greenshot 的托盘图标来进行抓图操作。</resource>
+		<resource name="WindowCaptureMode.Aero">使用自定义色彩</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">保持透明度</resource>
 		<resource name="WindowCaptureMode.Auto">自动</resource>
-		<resource name="WindowCaptureMode.GDI">使用默认颜色</resource>
-		<resource name="WindowCaptureMode.Screen">所见即所得</resource>
+		<resource name="WindowCaptureMode.GDI">使用默认色彩</resource>
+		<resource name="WindowCaptureMode.Screen">实际显示</resource>
+		<!--lost or deprecated strings-->
+		<resource name="about_translation">简体中文翻译：uralhan，hookilah</resource>
+		<resource name="settings_jpegsettings">JPEG 设置</resource>
+		<resource name="settings_alwaysshowjpegqualitydialog">每次保存时都弹出 JPEG 图像质量设置对话框</resource>
+		<resource name="jpegqualitydialog_title">Greenshot JPEG 图像质量</resource>
+		<resource name="jpegqualitydialog_dontaskagain">不再询问图像质量</resource>
+		<resource name="hotkey_fullscreen">抓取全屏</resource>
+		<resource name="hotkey_ie">抓取 Internet Explorer</resource>
+		<resource name="hotkey_lastregion">抓取上次选择的区域</resource>
+		<resource name="hotkey_region">抓取屏幕的一部分</resource>
+		<resource name="hotkey_window">抓取窗口</resource>
 	</resources>
 </language>
