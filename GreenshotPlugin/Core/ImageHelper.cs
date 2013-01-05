@@ -1321,7 +1321,17 @@ namespace GreenshotPlugin.Core {
 			nPercentW = ((float)newWidth / (float)sourceImage.Width);
 			nPercentH = ((float)newHeight / (float)sourceImage.Height);
 			if (maintainAspectRatio) {
-				if (nPercentH != 0 && nPercentH < nPercentW) {
+				if (nPercentW == 1) {
+					nPercentW = nPercentH;
+					if (canvasUseNewSize) {
+						destX =  Math.Max(0, System.Convert.ToInt32((newWidth - (sourceImage.Width * nPercentW)) / 2));
+					}
+				} else if (nPercentH == 1) {
+					nPercentH = nPercentW;
+					if (canvasUseNewSize) {
+						destY = Math.Max(0, System.Convert.ToInt32((newHeight - (sourceImage.Height * nPercentH)) / 2));
+					}
+				} else if (nPercentH != 0 && nPercentH < nPercentW) {
 					nPercentW = nPercentH;
 					if (canvasUseNewSize) {
 						destX =  Math.Max(0, System.Convert.ToInt32((newWidth - (sourceImage.Width * nPercentW)) / 2));

@@ -147,8 +147,16 @@ namespace GreenshotOCR {
 
 			// Also we need to check the size, resize if needed to 130x130 this is the minimum
 			if (surface.Image.Width < MIN_WIDTH || surface.Image.Height < MIN_HEIGHT) {
-				IEffect resizeEffect = new ResizeEffect(Math.Max(surface.Image.Width, MIN_WIDTH), Math.Max(surface.Image.Height, MIN_HEIGHT), true);
-				outputSettings.Effects.Add(resizeEffect);
+				int addedWidth = MIN_WIDTH - surface.Image.Width;
+				if (addedWidth < 0) {
+					addedWidth = 0;
+				}
+				int addedHeight = MIN_HEIGHT - surface.Image.Height;
+				if (addedHeight < 0) {
+					addedHeight = 0;
+				}
+				IEffect effect = new ResizeCanvasEffect(addedWidth / 2, addedWidth / 2, addedHeight / 2, addedHeight / 2);
+				outputSettings.Effects.Add(effect);
 			}
 			filePath = ImageOutput.SaveToTmpFile(surface, outputSettings, null);
 
