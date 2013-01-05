@@ -90,9 +90,8 @@ namespace Greenshot {
 				var thread = new Thread(delegate() {AddDestinations();});
 				thread.Name = "add destinations";
 				thread.Start();
+				IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
 			};
-			
-			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
 
 			// Make sure the editor is placed on the same location as the last editor was on close
 			WindowDetails thisForm = new WindowDetails(this.Handle);

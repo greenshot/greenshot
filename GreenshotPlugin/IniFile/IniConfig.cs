@@ -229,11 +229,24 @@ namespace Greenshot.IniFile {
 			fixedProperties = Read(CreateIniLocation(configName + FIXED_POSTFIX + INI_EXTENSION));
 
 			foreach (IniSection section in sectionMap.Values) {
-				section.Fill(PropertiesForSection(section));
-				FixProperties(section);
+				try {
+					section.Fill(PropertiesForSection(section));
+					FixProperties(section);
+				} catch (Exception ex) {
+					string sectionName = "unknown";
+					if (section != null && section.IniSectionAttribute != null && section.IniSectionAttribute.Name != null) {
+						sectionName = section.IniSectionAttribute.Name;
+					}
+					LOG.WarnFormat("Problem reading the ini section {0}", sectionName);
+					LOG.Warn("Exception", ex);
+				}
 			}
 		}
 
+		/// <summary>
+		/// This "fixes" the properties of the section, meaning any properties in the fixed file can't be changed.
+		/// </summary>
+		/// <param name="section">IniSection</param>
 		private static void FixProperties(IniSection section) {
 			// Make properties unchangable
 			if (fixedProperties != null) {
@@ -257,7 +270,7 @@ namespace Greenshot.IniFile {
 				LOG.Info("Can't find file: " + iniLocation);
 				return null;
 			}
-			LOG.DebugFormat("Loading ini-file: {0}", iniLocation);
+			LOG.InfoFormat("Loading ini-file: {0}", iniLocation);
 			//LOG.Info("Reading ini-properties from file: " + iniLocation);
 			Dictionary<string, Dictionary<string, string>> newSections = IniReader.read(iniLocation, Encoding.UTF8);
 			// Merge the newly loaded properties to the already available
