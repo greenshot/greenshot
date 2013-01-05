@@ -56,7 +56,7 @@ namespace Greenshot {
 		private Surface surface;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton[] toolbarButtons;
 		
-		private static string[] SUPPORTED_CLIPBOARD_FORMATS = {typeof(string).FullName, "Text", "DeviceIndependentBitmap", "Bitmap", typeof(DrawableContainerList).FullName};
+		private static string[] SUPPORTED_CLIPBOARD_FORMATS = {typeof(string).FullName, "Text", typeof(DrawableContainerList).FullName};
 
 		private bool originalBoldCheckState = false;
 		private bool originalItalicCheckState = false;
@@ -891,7 +891,7 @@ namespace Greenshot {
 			this.duplicateToolStripMenuItem.Enabled = actionAllowedForSelection;
 
 			// check dependencies for the Clipboard
-			bool hasClipboard = ClipboardHelper.ContainsFormat(SUPPORTED_CLIPBOARD_FORMATS);
+			bool hasClipboard = ClipboardHelper.ContainsFormat(SUPPORTED_CLIPBOARD_FORMATS) || ClipboardHelper.ContainsImage();
 			this.btnPaste.Enabled = hasClipboard && !controlsDisabledDueToConfirmable;
 			this.pasteToolStripMenuItem.Enabled = hasClipboard && !controlsDisabledDueToConfirmable;
 		}

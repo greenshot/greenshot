@@ -43,6 +43,7 @@ namespace GreenshotPlugin.Core {
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";
 		private static readonly string FORMAT_JPG = "JPG";
 		private static readonly string FORMAT_PNG = "PNG";
+		private static readonly string FORMAT_GIF = "GIF";
 		private static IntPtr nextClipboardViewer = IntPtr.Zero;
 		// Template for the HTML Text on the clipboard
 		// see: http://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
@@ -221,7 +222,8 @@ EndSelection:<<<<<<<4
 					|| dataObject.GetDataPresent(DataFormats.Tiff)
 					|| dataObject.GetDataPresent(DataFormats.EnhancedMetafile)
 					|| dataObject.GetDataPresent(FORMAT_PNG)
-					|| dataObject.GetDataPresent(FORMAT_JPG)) {
+					|| dataObject.GetDataPresent(FORMAT_JPG)
+					|| dataObject.GetDataPresent(FORMAT_GIF)) {
 					return true;
 				}
 				List<string> imageFiles = GetImageFilenames(dataObject);
@@ -261,7 +263,7 @@ EndSelection:<<<<<<<4
 			IDataObject clipboardData = GetDataObject();
 			// Return the first image
 			foreach (Image clipboardImage in GetImages(clipboardData)) {
-				return clipboardImage;
+				return clipboardImage;					
 			}
 			return null;
 		}
@@ -307,45 +309,26 @@ EndSelection:<<<<<<<4
 		/// <param name="dataObject"></param>
 		/// <returns>Image or null</returns>
 		private static Image GetImage(IDataObject dataObject) {
+			Image returnImage = null;
 			if (dataObject != null) {
 				IList<string> formats = GetFormats(dataObject);
 				try {
-					MemoryStream imageStream = null;
-
 					if (formats.Contains(FORMAT_PNG)) {
-						imageStream = GetFromDataObject(dataObject, FORMAT_PNG) as MemoryStream;
-						if (isValidStream(imageStream)) {
-							try {
-								using (Image tmpImage = Image.FromStream(imageStream)) {
-									return ImageHelper.Clone(tmpImage);
-								}
-							} catch (Exception streamImageEx) {
-								LOG.Error("Problem retrieving PNG image from clipboard.", streamImageEx);
-							}
+					    returnImage = GetImageFormat(FORMAT_PNG, dataObject);
+						if (returnImage != null) {
+							return returnImage;										
 						}
 					}
 					if (formats.Contains(FORMAT_JPG)) {
-						imageStream = GetFromDataObject(dataObject, FORMAT_JPG) as MemoryStream;
-						if (isValidStream(imageStream)) {
-							try {
-								using (Image tmpImage = Image.FromStream(imageStream)) {
-									return ImageHelper.Clone(tmpImage);
-								}
-							} catch (Exception streamImageEx) {
-								LOG.Error("Problem retrieving JPG image from clipboard.", streamImageEx);
-							}
+					    returnImage = GetImageFormat(FORMAT_JPG, dataObject);
+						if (returnImage != null) {
+							return returnImage;										
 						}
 					}
 					if (formats.Contains(DataFormats.Tiff)) {
-						imageStream = GetFromDataObject(dataObject, DataFormats.Tiff) as MemoryStream;
-						if (isValidStream(imageStream)) {
-							try {
-								using (Image tmpImage = Image.FromStream(imageStream)) {
-									return ImageHelper.Clone(tmpImage);
-								}
-							} catch (Exception streamImageEx) {
-								LOG.Error("Problem retrieving TIFF image from clipboard.", streamImageEx);
-							}
+					    returnImage = GetImageFormat(DataFormats.Tiff, dataObject);
+						if (returnImage != null) {
+							return returnImage;										
 						}
 					}
 
@@ -362,6 +345,7 @@ EndSelection:<<<<<<<4
 								BitmapInfoHeader infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
 								// Only use this code, when the biCommpression != 0 (BI_RGB)
 								if (infoHeader.biCompression != 0) {
+									LOG.InfoFormat("Using special DIB format reader for biCompression {0}", infoHeader.biCompression);
 									int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
 									uint infoHeaderSize = infoHeader.biSize;
 									int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
@@ -380,35 +364,63 @@ EndSelection:<<<<<<<4
 										bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
 										bitmapStream.Seek(0, SeekOrigin.Begin);
 										using (Image tmpImage = Image.FromStream(bitmapStream)) {
-											return ImageHelper.Clone(tmpImage);
+											if (tmpImage != null) {
+												return ImageHelper.Clone(tmpImage);										
+											}
 										}
 									}
 								}
 							}
 						}
-
-						// Support for FileContents
-						imageStream = dataObject.GetData(FORMAT_FILECONTENTS) as MemoryStream;
-						if (isValidStream(imageStream)) {
-							try {
-								using (Image tmpImage = Image.FromStream(imageStream)) {
-									return ImageHelper.Clone(tmpImage);
-								}
-							} catch (Exception streamImageEx) {
-								LOG.Error("Problem retrieving Image from clipboard.", streamImageEx);
-							}
-						}
 					} catch (Exception dibEx) {
 						LOG.Error("Problem retrieving DIB from clipboard.", dibEx);
 					}
-					return Clipboard.GetImage();
+
+					// Support for FileContents
+				    returnImage = GetImageFormat(FORMAT_FILECONTENTS, dataObject);
+					if (returnImage != null) {
+						return returnImage;										
+					}
+						
+				    returnImage = Clipboard.GetImage();
+					if (returnImage != null) {
+						return returnImage;										
+					}
 				} catch (Exception ex) {
 					LOG.Error("Problem retrieving Image from clipboard.", ex);
+				}
+				if (formats.Contains(FORMAT_GIF)) {
+				    returnImage = GetImageFormat(FORMAT_GIF, dataObject);
+					if (returnImage != null) {
+						return returnImage;										
+					}
 				}
 			}
 			return null;
 		}
 		
+		/// <summary>
+		/// Helper method to try to get an image in the specified format from the dataObject
+		/// </summary>
+		/// <param name="format">string with the format</param>
+		/// <param name="dataObject">IDataObject</param>
+		/// <returns>Image or null</returns>
+		private static Image GetImageFormat(string format, IDataObject dataObject) {
+			MemoryStream imageStream = GetFromDataObject(dataObject, format) as MemoryStream;
+			if (isValidStream(imageStream)) {
+				try {
+					using (Image tmpImage = Image.FromStream(imageStream)) {
+						if (tmpImage != null) {
+							return ImageHelper.Clone(tmpImage);										
+						}
+					}
+				} catch (Exception streamImageEx) {
+					LOG.Error(string.Format("Problem retrieving {0} from clipboard.", format), streamImageEx);
+				}
+			}
+			return null;
+		}
+
 		/// <summary>
 		/// Wrapper for Clipboard.GetText created for Bug #3432313
 		/// </summary>
