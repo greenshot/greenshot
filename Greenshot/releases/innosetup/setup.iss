@@ -120,7 +120,7 @@ LanguageDetectionMethod=uilanguage
 MinVersion=,5.01.2600
 OutputBaseFilename={#ExeName}-INSTALLER-{#Version}
 OutputDir=..\
-PrivilegesRequired=none
+PrivilegesRequired=poweruser
 SetupIconFile=..\..\icons\applicationIcon\icon.ico
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
@@ -573,10 +573,10 @@ begin
 	Result := true;
 end;
 [Run]
-Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden
-Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden
+Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden runasoriginaluser
+Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden runasoriginaluser
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
-Filename: "http://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runascurrentuser
+Filename: "http://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [InstallDelete]
 Name: {app}; Type: filesandordirs;
