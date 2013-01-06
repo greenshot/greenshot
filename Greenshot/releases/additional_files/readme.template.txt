@@ -17,6 +17,9 @@ Bugs resolved:
 * Bug #3588716: Elements in 1.0 are drawn differently as in pre 1.0
 * Bug #3589370: Fixed missing filename in the Editor title
 * Bug #3594681: Pasting captures as HTML-inline in Thunderbird doesn't work when using 256-colors.
+* Bug #3597535: Fixed a problem with the editor initialization, in some small cases this gave an error as something happend at the same time.
+* Bug #3599278: Added some checks for some configuration values, if they were not set this caused an error
+* Reported in forum: Fixed a problem with the OCR, it sometimes didn't work. See: http://sourceforge.net/projects/greenshot/forums/forum/676082/topic/6510105
 * Not reported: Flickr configuration for the Family, Friend & Public wasn't stored.
 * Not reported: If Greenshot is linked in a Windows startup folder, the "Start with startup" checkbox wasn't checked.
 * Not reported: Some shortcut keys in the editor didn't respond.
