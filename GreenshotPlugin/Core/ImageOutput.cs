@@ -418,7 +418,6 @@ namespace GreenshotPlugin.Core {
 					// TODO: For now we always overwrite, should be changed
 					ImageOutput.Save(surface, fileNameWithExtension, true, outputSettings, conf.OutputFileCopyPathToClipboard);
 					returnValue = fileNameWithExtension;
-					conf.OutputFileAsFullpath = fileNameWithExtension;
 					IniConfig.Save();
 				} catch (System.Runtime.InteropServices.ExternalException) {
 					MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));

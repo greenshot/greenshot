@@ -125,6 +125,7 @@ namespace Greenshot.Destinations {
 				exportInformation.ExportMade = outputMade;
 				exportInformation.Filepath = fullPath;
 				captureDetails.Filename = fullPath;
+				conf.OutputFileAsFullpath = fullPath;
 			}
 
 			ProcessExport(exportInformation, surface);
