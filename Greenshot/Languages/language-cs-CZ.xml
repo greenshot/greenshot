@@ -13,7 +13,6 @@ Podrobnosti o GNU General Public License:</resource>
 		<resource name="application_title">Greenshot - revoluční utilita pro snímání obrazovky</resource>
 		<resource name="bugreport_cancel">Zavřít</resource>
 		<resource name="bugreport_info">Omlouváme se, ale došlo k neočekávané chybě.
-
 Dobrá zpráva: můžete nám pomoci odstranit chybu, když o ní podáte hlášení.
 Prosím, navštivte níže uvedenou adresu, vytvořte nové hlášení o chybě a vložte text hlášení o chybě.
 
@@ -36,14 +35,23 @@ Také bychom velmi ocenili, kdyby jste zkontrolovali, zda položka pro tuto chyb
 		<resource name="colorpicker_red">Červená</resource>
 		<resource name="colorpicker_title">Výběr barvy</resource>
 		<resource name="colorpicker_transparent">Průhlednost</resource>
+		<resource name="com_rejected">Přístup k cíli Greenshot {0} zamítnut, pravděpodobně je otevřené dialogové okno. Zavřete dialogové okno a zkuste to znovu.</resource>
+		<resource name="com_rejected_title">Přístup ke Greenshot zamítnut</resource>
 		<resource name="config_unauthorizedaccess_write">Nelze uložit konfigurační soubor Greenshot. Prosím zkontrolujte oprávnění k přístupu k '{0}'.</resource>
 		<resource name="contextmenu_about">O programu Greenshot</resource>
 		<resource name="contextmenu_capturearea">Oblast snímání</resource>
 		<resource name="contextmenu_captureclipboard">Otevřít obrázek ze schránky</resource>
 		<resource name="contextmenu_capturefullscreen">Zachytit celou obrazovku</resource>
+		<resource name="contextmenu_capturefullscreen_all">vše</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">spodní</resource>
+		<resource name="contextmenu_capturefullscreen_left">vlevo</resource>
+		<resource name="contextmenu_capturefullscreen_right">vpravo</resource>
+		<resource name="contextmenu_capturefullscreen_top">horní</resource>
 		<resource name="contextmenu_captureie">Zachytávání aplikace Internet Explorer</resource>	
+		<resource name="contextmenu_captureiefromlist">Zachytit Internet Explorer ze seznamu</resource>
 		<resource name="contextmenu_capturelastregion">Zachycení poslední oblasti</resource>
 		<resource name="contextmenu_capturewindow">Vybrat okno pro zachycení</resource>
+		<resource name="contextmenu_capturewindowfromlist">Zachytit okno ze seznamu</resource>
 		<resource name="contextmenu_donate">Podpora pro Greenshot</resource>
 		<resource name="contextmenu_exit">Konec</resource>
 		<resource name="contextmenu_help">Nápověda</resource>
@@ -86,7 +94,11 @@ Také bychom velmi ocenili, kdyby jste zkontrolovali, zda položka pro tuto chyb
 		<resource name="editor_drawline">Nakreslit linku (L)</resource>
 		<resource name="editor_drawrectangle">Nakreslit obdélník (R)</resource>
 		<resource name="editor_drawtextbox">Přidat textbox (T)</resource>
-		<resource name="editor_duplicate">Duplikovat vybraný prvek</resource>
+    <resource name="editor_dropshadow_settings">Nastavení vrženého stínu</resource>
+    <resource name="editor_dropshadow_thickness">Tloušťka stínu</resource>
+    <resource name="editor_dropshadow_offset">Vyrovnání stínu</resource>
+    <resource name="editor_dropshadow_darkness">Intenzita stínu</resource>
+	<resource name="editor_duplicate">Duplikovat vybraný prvek</resource>
 		<resource name="editor_edit">Úpravy</resource>
 		<resource name="editor_effects">Efekty</resource>
 		<resource name="editor_email">E-Mail</resource>
@@ -99,6 +111,7 @@ Také bychom velmi ocenili, kdyby jste zkontrolovali, zda položka pro tuto chyb
 		<resource name="editor_highlight_magnify">Zvětšit</resource>
 		<resource name="editor_highlight_mode">Režim Zvýraznit</resource>
 		<resource name="editor_highlight_text">Zvýraznit text</resource>
+		<resource name="editor_image_shadow">Vržený stín</resource>
 		<resource name="editor_imagesaved">Obrázek uložen do {0}.</resource>
 		<resource name="editor_insertwindow">Vložit okno</resource>
 		<resource name="editor_invert">Invertovat</resource>		
@@ -123,14 +136,19 @@ Také bychom velmi ocenili, kdyby jste zkontrolovali, zda položka pro tuto chyb
 		<resource name="editor_save">Uložit</resource>
 		<resource name="editor_save_objects">Uložit objekty do souboru</resource>
 		<resource name="editor_saveas">Uložit jako...</resource>
-		<resource name="editor_selectall">Vybrat vše</resource>
+    <resource name="editor_resize_pixel">Pixelů</resource>
+    <resource name="editor_resize_percent">Procent</resource>
+    <resource name="editor_selectall">Vybrat vše</resource>
 		<resource name="editor_senttoprinter">Tisková úloha byla zaslána na '{0}'.</resource>
-		<resource name="editor_shadow">Stín</resource>
-		<resource name="editor_image_shadow">Stín</resource>
+		<resource name="editor_shadow">Vržený stín</resource>
 		<resource name="editor_storedtoclipboard">Obrázek uložený do schránky.</resource>
 		<resource name="editor_thickness">Tloušťka linky</resource>
 		<resource name="editor_title">Greenshot editor obrázků</resource>
 		<resource name="editor_torn_edge">Potrhané okraje</resource>
+    <resource name="editor_tornedge_settings">Nastavení poškozených okrajů</resource>
+    <resource name="editor_tornedge_toothsize">Velikost zubů</resource>
+    <resource name="editor_tornedge_horizontaltoothrange">Rozsah zubů horizontálně</resource>
+    <resource name="editor_tornedge_verticaltoothrange">Rozsah zubů vertkálně</resource>
 		<resource name="editor_undo">Zpět {0}</resource>		
 		<resource name="editor_uponelevel">Nahoru o jednu úroveň</resource>
 		<resource name="editor_uptotop">Posunout úplně nahoru</resource>
@@ -139,8 +157,8 @@ Také bychom velmi ocenili, kdyby jste zkontrolovali, zda položka pro tuto chyb
 		<resource name="EmailFormat.OUTLOOK_TXT">Aplikace Outlook s textem</resource>
 		<resource name="error">Chyba</resource>
 		<resource name="error_multipleinstances">Program Greenshot je již spuštěn</resource>
-		<resource name="error_nowriteaccess">Nelze uložit soubor do {0}.
-Zkontrolujte prosím dostupnost vybraného umístění.</resource>
+		<resource name="error_nowriteaccess">Nelze uložit soubor do {0}. 
+		Zkontrolujte prosím dostupnost vybraného umístění.</resource>
 		<resource name="error_openfile">Soubor "{0}" nelze otevřít.</resource>
 		<resource name="error_openlink">Nelze otevřít odkaz.</resource>
 		<resource name="error_save">Nelze uložit snímek, prosím, zvolte vhodné místo.</resource>
@@ -153,14 +171,14 @@ Zkontrolujte prosím dostupnost vybraného umístění.</resource>
 		<resource name="expertsettings_footerpattern">Tisk zápatí</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Minimalizace paměti, za cenu snížení výkonu (není doporučeno).</resource>
 		<resource name="expertsettings_optimizeforrdp">Optimalizace pro použití Vzdálené plochy</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Opakované použití editoru, pokud je to možné</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Potlačit dialog Uložit při zavírání editoru.</resource>
 		<resource name="expertsettings_thumbnailpreview">Zobrazovat miniatury oken v kontextové nabídce (pro Vista a Windows 7)</resource>
 		<resource name="exported_to">Exportovat do: {0}</resource>		
+		<resource name="exported_to_error">Došlo k chybě při exportu do{0}:</resource>
 		<resource name="help_title">Nápověda Greenshot</resource>
 		<resource name="hotkeys">Klávesové zkratky</resource>		
-		<resource name="jpegqualitydialog_choosejpegquality">Prosím, vyberte nastavení kvality pro váš obrázek ve formátu JPEG.</resource>
-		<resource name="jpegqualitydialog_dontaskagain">Uložit JPEG ve výchozí kvalitě, nedotazovat se znovu</resource>
-		<resource name="jpegqualitydialog_title">Kvalita Greenshot JPEG</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Vyberte nastavení kvality vašeho obrázku v JPEG</resource>
 		<resource name="OK">Ok</resource>		
 		<resource name="print_error">Nastala chyba při pokusu o tisk.</resource>
 		<resource name="printoptions_allowcenter">Centrovat na stránce</resource>
@@ -172,9 +190,11 @@ Zkontrolujte prosím dostupnost vybraného umístění.</resource>
 		<resource name="printoptions_printgrayscale">Tisk ve stupních šedé</resource>
 		<resource name="printoptions_timestamp">Tisk data/času v dolní části stránky</resource>
 		<resource name="printoptions_title">Možnosti tisku Greenshot</resource>
+		<resource name="qualitydialog_dontaskagain">Uložit jako výchozí kvalitu a neptat se znovu</resource>
+		<resource name="qualitydialog_title">Kvalita Greenshot</resource>
 		<resource name="quicksettings_destination_file">Uložit přímo (pomocí preferovaného nastavení pro výstupní soubor)</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">Zobrazit nastavení kvality JPEG při každém ukládání obrázku</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Zobrazit dialog pro nastavení tisku vždy před tiskem</resource>
+		<resource name="settings_alwaysshowqualitydialog">Zobrazit dialogové okno kvality pokaždé, když je obraz je uložen</resource>
 		<resource name="settings_applicationsettings">Nastavení aplikace</resource>
 		<resource name="settings_autostartshortcut">Spustit Greenshot při startu</resource>
 		<resource name="settings_capture">Zachytit</resource>
@@ -187,16 +207,15 @@ Zkontrolujte prosím dostupnost vybraného umístění.</resource>
 		<resource name="settings_destination_clipboard">Kopírovat do schránky</resource>
 		<resource name="settings_destination_editor">Otevřít v editoru obrázků</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
-		<resource name="settings_destination_file">Uložit přímo (pomocí nastavení viz níže)</resource>
-		<resource name="settings_destination_fileas">Uložit jako (zobrazovat dialog)</resource>
-		<resource name="settings_destination_picker">Vyberte cíl dynamicky</resource>		
+		<resource name="settings_destination_file">Uložit přímo (pomocí nastavení níže)</resource>
+		<resource name="settings_destination_fileas">Uložit jako (zobrazovat dialogo)</resource>
+		<resource name="settings_destination_picker">Vybrat cíl dynamicky</resource>
 		<resource name="settings_destination_printer">Odeslat na tiskárnu</resource>
 		<resource name="settings_editor">Editor</resource>		
 		<resource name="settings_filenamepattern">Vzorové jméno souboru</resource>
 		<resource name="settings_general">Celkový</resource>
 		<resource name="settings_iecapture">Snímek plikace Internet Explorer </resource>		
 		<resource name="settings_jpegquality">Kvalita JPEG</resource>
-		<resource name="settings_jpegsettings">Nastavení JPEG</resource>
 		<resource name="settings_language">Jazyk</resource>
 		<resource name="settings_message_filenamepattern">Následující symboly budou nahrazeny automaticky v definované struktuře:
 ${YYYY} rok, 4 číslice
@@ -209,7 +228,7 @@ ${NUM} zvyšování počtu, 6 číslice
 ${title} titulek okna
 ${user} uživatel Windows
 ${domain} Windows doména
-${hostname} jméno PC 
+${hostname} jméno PC
 
 Můžete také vytvářet adresáře Greenshotu dynamicky, stačí použít zpětné lomítko (symbol \) pro určení složky.
 Například: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} bude vytvářet složky ve výchozím úložišti pro příslušný den, např. 2008-06-29, ty budou obsahovat snímky s názvem souboru tvořeným aktuálním časem PC, např. 11_58_32 (plus rozšíření definováno v nastavení).</resource>
@@ -217,10 +236,15 @@ Například: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} bude vytvářet složky ve v�
 		<resource name="settings_output">Výstup</resource>
 		<resource name="settings_playsound">Přehrát zvuk uzávěrky fotoaparátu</resource>
 		<resource name="settings_plugins">Pluginy</resource>		
+		<resource name="settings_plugins_createdby">Vytvořil</resource>
+		<resource name="settings_plugins_dllpath">Cesta k DLL</resource>
+		<resource name="settings_plugins_name">Jméno</resource>
+		<resource name="settings_plugins_version">Verze</resource>
 		<resource name="settings_preferredfilesettings">Nastavení výstupního souboru</resource>
 		<resource name="settings_primaryimageformat">Formát obrázku</resource>
 		<resource name="settings_printer">Tisk</resource>
 		<resource name="settings_printoptions">Možnosti tisku</resource>
+		<resource name="settings_qualitysettings">Nastavení kvality</resource>
 		<resource name="settings_reducecolors">Snížit množství barev na maximálně 256</resource>		
 		<resource name="settings_registerhotkeys">Registrovat klávesové zkratky</resource>
 		<resource name="settings_showflashlight">Použít záblesk</resource>

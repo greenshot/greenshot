@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Czech" ietf="cs-CZ" version="1.1.0.2411" languagegroup="">
+	<resources>
+		<resource name="CANCEL">Zrušit</resource>
+		<resource name="communication_wait">Komunikace s Photobucket. Prosím čekejte ...</resource>
+		<resource name="configure">Nastavení Photobucket</resource>
+		<resource name="label_upload_format">Formát obrázku</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Nastavení Photobucket</resource>
+		<resource name="upload_failure">Při nahrávání na Photobucket došlo k chybě:</resource>
+		<resource name="upload_menu_item">Nahrát na Photobucket</resource>
+		<resource name="upload_success">Odeslání obrázku na bylo Photobucket úspěšné!</resource>
+		<resource name="use_page_link">Použijte odkaz na stránku namísto odkaz na obrázek do schránky</resource>
+	</resources>
+</language>

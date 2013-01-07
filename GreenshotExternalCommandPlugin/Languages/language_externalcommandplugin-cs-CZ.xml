@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Czech" ietf="cs-CZ" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    Nakonfigurovat externí příkazy
+  </resource>
+  <resource name="settings_title">
+  		Externí příkaz Nastavení
+	</resource>
+	<resource name="settings_detail_title">
+  		Konfigurace příkazu
+	</resource>
+	<resource name="settings_new">
+  		Nový
+	</resource>
+	<resource name="settings_delete">
+  		Odstranit
+	</resource>
+	<resource name="settings_edit">
+  		Úpravy
+	</resource>
+    <resource name="label_name">
+      Jméno
+    </resource>
+    <resource name="label_command">
+      Příkaz
+    </resource>
+    <resource name="label_argument">
+      Argumenty
+    </resource>
+    <resource name="label_information">
+      {0} je název vašeho snímku
+    </resource>
+  </resources>
+</language>
