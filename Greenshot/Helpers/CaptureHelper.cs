@@ -227,12 +227,14 @@ namespace Greenshot.Helpers {
 				conf.CaptureDelay = 0;
 			}
 
-			// Allways capture Mousecursor, only show when needed
-			capture = WindowCapture.CaptureCursor(capture);
-			capture.CursorVisible = false;
-			// Check if needed
-			if (captureMouseCursor && captureMode != CaptureMode.Clipboard && captureMode != CaptureMode.File) {
-				capture.CursorVisible = conf.CaptureMousepointer;
+			// Capture Mousecursor if we are not loading from file or clipboard, only show when needed
+			if (captureMode != CaptureMode.File && captureMode != CaptureMode.Clipboard) {
+				capture = WindowCapture.CaptureCursor(capture);
+				if (captureMouseCursor) {
+					capture.CursorVisible = conf.CaptureMousepointer;
+				} else {
+					capture.CursorVisible = false;					
+				}
 			}
 
 			switch(captureMode) {
@@ -296,22 +298,14 @@ namespace Greenshot.Helpers {
 					HandleCapture();
 					break;
 				case CaptureMode.Clipboard:
-					Image clipboardImage = null;
-					string text = "Clipboard";
-					if (ClipboardHelper.ContainsImage()) {
-						clipboardImage = ClipboardHelper.GetImage();
-					}
+					Image clipboardImage = ClipboardHelper.GetImage();
 					if (clipboardImage != null) {
 						if (capture != null) {
 							capture.Image = clipboardImage;
 						} else {
 							capture = new Capture(clipboardImage);
 						}
-						string title = ClipboardHelper.GetText();
-						if (title == null || title.Trim().Length == 0) {
-							title = "Clipboard";
-						}
-						capture.CaptureDetails.Title = title;
+						capture.CaptureDetails.Title = "Clipboard";
 						capture.CaptureDetails.AddMetaData("source", "Clipboard");
 						// Force Editor, keep picker
 						if (capture.CaptureDetails.HasDestination(Destinations.PickerDestination.DESIGNATION)) {
@@ -324,7 +318,7 @@ namespace Greenshot.Helpers {
 						}
 						HandleCapture();
 					} else {
-						MessageBox.Show("Couldn't create bitmap from : " + text);
+						MessageBox.Show(Language.GetString("clipboard_noimage"));
 					}
 					break;
 				case CaptureMode.File:

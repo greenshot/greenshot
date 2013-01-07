@@ -407,7 +407,7 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="newImage"></param>
 		public Surface(Image newImage) : this() {
-			LOG.Debug("Got image with dimensions " + newImage.Width + "," + newImage.Height + " bpp: " + newImage.PixelFormat);
+			LOG.DebugFormat("Got image with dimensions {0} and format {1}", newImage.Size, newImage.PixelFormat);
 			SetImage(newImage, true);
 		}
 

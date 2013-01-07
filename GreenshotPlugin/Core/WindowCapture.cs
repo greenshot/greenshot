@@ -171,7 +171,7 @@ namespace GreenshotPlugin.Core {
 							value.Dispose();
 						}
 					}
-					LOG.Debug("Image is set with the following specifications: " + image.Width + "," + image.Height + " - " + image.PixelFormat);
+					LOG.DebugFormat("Image is set with the following specifications: {0} - {1}", image.Size, image.PixelFormat);
 				} else {
 					LOG.Debug("Image is removed.");
 				}

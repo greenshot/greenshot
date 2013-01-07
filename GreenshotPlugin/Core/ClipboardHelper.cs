@@ -281,6 +281,7 @@ EndSelection:<<<<<<<4
 			// Get single image, this takes the "best" match
 			tmpImage = GetImage(dataObject);
 			if (tmpImage != null) {
+				LOG.InfoFormat("Got image from clipboard with size {0} and format {1}", tmpImage.Size, tmpImage.PixelFormat);
 				returnImage = ImageHelper.Clone(tmpImage);
 				// Clean up.
 				tmpImage.Dispose();
@@ -296,6 +297,7 @@ EndSelection:<<<<<<<4
 							LOG.Error("Problem retrieving Image from clipboard.", streamImageEx);
 						}
 						if (returnImage != null) {
+							LOG.InfoFormat("Got image from clipboard with size {0} and format {1}", tmpImage.Size, tmpImage.PixelFormat);
 							yield return returnImage;
 						}
 					}
@@ -312,89 +314,89 @@ EndSelection:<<<<<<<4
 			Image returnImage = null;
 			if (dataObject != null) {
 				IList<string> formats = GetFormats(dataObject);
-				try {
-					if (formats.Contains(FORMAT_PNG)) {
-					    returnImage = GetImageFormat(FORMAT_PNG, dataObject);
+				string[] retrieveFormats = {FORMAT_PNG, FORMAT_JPG, DataFormats.Tiff, DataFormats.Dib, FORMAT_FILECONTENTS, "", FORMAT_GIF};
+				foreach(string currentFormat in retrieveFormats) {
+					if (string.IsNullOrEmpty(currentFormat)) {
+						LOG.Info("Using default .NET Clipboard.GetImage()");
+						try {
+							returnImage = Clipboard.GetImage();
+							if (returnImage != null) {
+								return returnImage;
+							} else {
+								LOG.Info("Clipboard.GetImage() didn't return an image.");
+							}
+						} catch (Exception ex) {
+							LOG.Error("Problem retrieving Image via Clipboard.GetImage(): ", ex);
+						}
+					} else if (formats.Contains(currentFormat)) {
+						LOG.InfoFormat("Found {0}, trying to retrieve.", currentFormat);
+						if (currentFormat == DataFormats.Dib) {
+							returnImage = GetDIBImage(dataObject);
+						} else {
+							returnImage = GetImageFormat(currentFormat, dataObject);
+						}
 						if (returnImage != null) {
 							return returnImage;										
 						}
+					} else {
+						LOG.DebugFormat("Couldn't find format {0}.", currentFormat);
 					}
-					if (formats.Contains(FORMAT_JPG)) {
-					    returnImage = GetImageFormat(FORMAT_JPG, dataObject);
-						if (returnImage != null) {
-							return returnImage;										
-						}
-					}
-					if (formats.Contains(DataFormats.Tiff)) {
-					    returnImage = GetImageFormat(DataFormats.Tiff, dataObject);
-						if (returnImage != null) {
-							return returnImage;										
-						}
-					}
+				}
+			}
+			return null;
+		}
+		
+		/// <summary>
+		/// the DIB readed should solve the issue reported here: https://sourceforge.net/projects/greenshot/forums/forum/676083/topic/6354353/index/page/1
+		/// </summary>
+		/// <returns>Image</returns>
+		private static Image GetDIBImage(IDataObject dataObejct) {
+			try {
+				// If the EnableSpecialDIBClipboardReader flag in the config is set, use the code from:
+				// http://www.thomaslevesque.com/2009/02/05/wpf-paste-an-image-from-the-clipboard/
+				// to read the DeviceIndependentBitmap from the clipboard, this might fix bug 3576125
+				if (config.EnableSpecialDIBClipboardReader) {
+					MemoryStream dibStream = GetFromDataObject(dataObejct, DataFormats.Dib) as MemoryStream;
+					if (isValidStream(dibStream)) {
+						LOG.Info("Found valid DIB stream, trying to process it.");
+						byte[] dibBuffer = new byte[dibStream.Length];
+						dibStream.Read(dibBuffer, 0, dibBuffer.Length);
+						BitmapInfoHeader infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
+						// Only use this code, when the biCommpression != 0 (BI_RGB)
+						if (infoHeader.biCompression != 0) {
+							LOG.InfoFormat("Using special DIB format reader for biCompression {0}", infoHeader.biCompression);
+							int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
+							uint infoHeaderSize = infoHeader.biSize;
+							int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
 
-					// the DIB readed should solve the issue reported here: https://sourceforge.net/projects/greenshot/forums/forum/676083/topic/6354353/index/page/1
-					try {
-						// If the EnableSpecialDIBClipboardReader flag in the config is set, use the code from:
-						// http://www.thomaslevesque.com/2009/02/05/wpf-paste-an-image-from-the-clipboard/
-						// to read the DeviceIndependentBitmap from the clipboard, this might fix bug 3576125
-						if (config.EnableSpecialDIBClipboardReader && formats.Contains(DataFormats.Dib)) {
-							MemoryStream dibStream = GetClipboardData(DataFormats.Dib) as MemoryStream;
-							if (isValidStream(dibStream)) {
-								byte[] dibBuffer = new byte[dibStream.Length];
-								dibStream.Read(dibBuffer, 0, dibBuffer.Length);
-								BitmapInfoHeader infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
-								// Only use this code, when the biCommpression != 0 (BI_RGB)
-								if (infoHeader.biCompression != 0) {
-									LOG.InfoFormat("Using special DIB format reader for biCompression {0}", infoHeader.biCompression);
-									int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
-									uint infoHeaderSize = infoHeader.biSize;
-									int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
+							BitmapFileHeader fileHeader = new BitmapFileHeader();
+							fileHeader.bfType = BitmapFileHeader.BM;
+							fileHeader.bfSize = fileSize;
+							fileHeader.bfReserved1 = 0;
+							fileHeader.bfReserved2 = 0;
+							fileHeader.bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4);
 
-									BitmapFileHeader fileHeader = new BitmapFileHeader();
-									fileHeader.bfType = BitmapFileHeader.BM;
-									fileHeader.bfSize = fileSize;
-									fileHeader.bfReserved1 = 0;
-									fileHeader.bfReserved2 = 0;
-									fileHeader.bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4);
+							byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray<BitmapFileHeader>(fileHeader);
 
-									byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray<BitmapFileHeader>(fileHeader);
-
-									using (MemoryStream bitmapStream = new MemoryStream()) {
-										bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
-										bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
-										bitmapStream.Seek(0, SeekOrigin.Begin);
-										using (Image tmpImage = Image.FromStream(bitmapStream)) {
-											if (tmpImage != null) {
-												return ImageHelper.Clone(tmpImage);										
-											}
-										}
+							using (MemoryStream bitmapStream = new MemoryStream()) {
+								bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
+								bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
+								bitmapStream.Seek(0, SeekOrigin.Begin);
+								using (Image tmpImage = Image.FromStream(bitmapStream)) {
+									if (tmpImage != null) {
+										return ImageHelper.Clone(tmpImage);										
 									}
 								}
 							}
+						} else {
+							LOG.InfoFormat("Skipping special DIB format reader for biCompression {0}", infoHeader.biCompression);
 						}
-					} catch (Exception dibEx) {
-						LOG.Error("Problem retrieving DIB from clipboard.", dibEx);
 					}
-
-					// Support for FileContents
-				    returnImage = GetImageFormat(FORMAT_FILECONTENTS, dataObject);
-					if (returnImage != null) {
-						return returnImage;										
-					}
-						
-				    returnImage = Clipboard.GetImage();
-					if (returnImage != null) {
-						return returnImage;										
-					}
-				} catch (Exception ex) {
-					LOG.Error("Problem retrieving Image from clipboard.", ex);
+				} else {
+					LOG.Info("Skipping special DIB format reader as it's disabled in the configuration.");
 				}
-				if (formats.Contains(FORMAT_GIF)) {
-				    returnImage = GetImageFormat(FORMAT_GIF, dataObject);
-					if (returnImage != null) {
-						return returnImage;										
-					}
-				}
+			} catch (Exception dibEx) {
+				LOG.Error("Problem retrieving DIB from clipboard.", dibEx);
 			}
 			return null;
 		}
@@ -411,6 +413,7 @@ EndSelection:<<<<<<<4
 				try {
 					using (Image tmpImage = Image.FromStream(imageStream)) {
 						if (tmpImage != null) {
+							LOG.InfoFormat("Got image with clipboard format {0} from the clipboard.", format);
 							return ImageHelper.Clone(tmpImage);										
 						}
 					}
@@ -621,6 +624,7 @@ EndSelection:<<<<<<<4
 				formats = dataObj.GetFormats();
 			}
 			if (formats != null) {
+				LOG.DebugFormat("Got clipboard formats: {0}", String.Join(",", formats));
 				return new List<string>(formats);
 			}
 			return new List<string>();
@@ -715,7 +719,8 @@ EndSelection:<<<<<<<4
 						}
 					}
 				}
-			} catch {
+			} catch (Exception ex) {
+				LOG.Warn("Ignoring an issue with getting the dropFilenames from the clipboard: ", ex);
 			}
 			return filenames;
 		}
