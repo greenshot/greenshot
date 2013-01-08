@@ -276,6 +276,7 @@ namespace GreenshotPlugin.Core  {
 			}
 		}
 
+
 		/// <summary>
 		/// Get the icon belonging to the process
 		/// </summary>
@@ -289,11 +290,9 @@ namespace GreenshotPlugin.Core  {
 					string filename = ProcessPath;
 					if (!iconCache.ContainsKey(filename)) {
 						Image icon = null;
-						if (File.Exists(filename)) {
-							using (Icon appIcon = Icon.ExtractAssociatedIcon(filename)) {
-								if (appIcon != null) {
-									icon = appIcon.ToBitmap();
-								}
+						using (Icon appIcon = Shell32.ExtractAssociatedIcon(filename)) {
+							if (appIcon != null) {
+								icon = appIcon.ToBitmap();
 							}
 						}
 						iconCache.Add(filename, icon);

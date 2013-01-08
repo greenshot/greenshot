@@ -784,13 +784,15 @@ namespace Greenshot {
 			ToolStripMenuItem captureWindowItem = sender as ToolStripMenuItem;
 			WindowDetails window = captureWindowItem.Tag as WindowDetails;
 			if (thumbnailForm == null) {
-                thumbnailForm = new ThumbnailForm();
+				thumbnailForm = new ThumbnailForm();
 			}
-            thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
+			thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
 		}
 
 		private void HideThumbnailOnLeave(object sender, EventArgs e) {
-            thumbnailForm.Hide();
+			if (thumbnailForm != null) {
+				thumbnailForm.Hide();
+			}
 		}
 		
 		private void cleanupThumbnail() {
