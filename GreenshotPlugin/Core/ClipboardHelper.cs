@@ -297,7 +297,7 @@ EndSelection:<<<<<<<4
 							LOG.Error("Problem retrieving Image from clipboard.", streamImageEx);
 						}
 						if (returnImage != null) {
-							LOG.InfoFormat("Got image from clipboard with size {0} and format {1}", tmpImage.Size, tmpImage.PixelFormat);
+							LOG.InfoFormat("Got image from clipboard with size {0} and format {1}", returnImage.Size, returnImage.PixelFormat);
 							yield return returnImage;
 						}
 					}

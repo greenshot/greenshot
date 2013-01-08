@@ -282,6 +282,16 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		public Image DisplayIcon {
 			get {
+				try {
+					using (Icon appIcon = GetAppIcon(this.Handle)) {
+						if (appIcon != null) {
+							return appIcon.ToBitmap();
+						}
+					}
+				} catch (Exception ex) {
+					LOG.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
+					LOG.Warn(ex);
+				}
 				if (isMetroApp) {
 					// No method yet to get the metro icon
 					return null;
@@ -304,7 +314,38 @@ namespace GreenshotPlugin.Core  {
 				}
 				return null;
 			}
-		}		
+		}
+
+		/// <summary>
+		/// Get the icon for a hWnd
+		/// </summary>
+		/// <param name="hwnd"></param>
+		/// <returns></returns>
+		private static Icon GetAppIcon(IntPtr hwnd) {
+			const int GCL_HICONSM = -34;
+			const int GCL_HICON = -14;
+			const int ICON_SMALL = 0;
+			const int ICON_BIG = 1;
+			const int ICON_SMALL2 = 2;
+
+			IntPtr iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL2, 0);
+			if (iconHandle == IntPtr.Zero)
+				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL, 0);
+			if (iconHandle == IntPtr.Zero)
+				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, 0);
+			if (iconHandle == IntPtr.Zero)
+				iconHandle = User32.GetClassLongWrapper(hwnd, GCL_HICON);
+			if (iconHandle == IntPtr.Zero)
+				iconHandle = User32.GetClassLongWrapper(hwnd, GCL_HICONSM);
+
+			if (iconHandle == IntPtr.Zero)
+				return null;
+
+			Icon icon = Icon.FromHandle(iconHandle);
+
+			return icon;
+		}
+
 		/// <summary>
 		/// Use this to make remove internal windows, like the mainform and the captureforms, invisible
 		/// </summary>

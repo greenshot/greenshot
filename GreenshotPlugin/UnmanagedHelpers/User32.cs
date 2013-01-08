@@ -108,12 +108,16 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", CharSet = CharSet.Auto, SetLastError = true)]
 		public extern static int GetClassName (IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr GetClassLong(IntPtr hWnd, int nIndex);
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
+		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool PrintWindow(IntPtr hwnd, IntPtr hDC, uint nFlags);
 		[DllImport("user32", SetLastError=true)]
 		public extern static int SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
 		[DllImport("user32", SetLastError=true, EntryPoint = "SendMessageA")]
-		public static extern bool SendMessage(IntPtr hWnd, uint msg, int wParam, int lParam);
+		public static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
 		[DllImport("user32", SetLastError = true)]
 		public extern static uint GetWindowLong(IntPtr hwnd, int index);
 		[DllImport("user32", SetLastError = true)]
@@ -222,6 +226,20 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool ReleaseCapture();
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr CreateIconIndirect(ref IconInfo icon);
+
+		/// <summary>
+		/// Wrapper for the GetClassLong which decides if the system is 64-bit or not and calls the right one.
+		/// </summary>
+		/// <param name="hWnd">IntPtr</param>
+		/// <param name="nIndex">int</param>
+		/// <returns>IntPtr</returns>
+		public static IntPtr GetClassLongWrapper(IntPtr hWnd, int nIndex) {
+			if (IntPtr.Size > 4) {
+				return GetClassLongPtr(hWnd, nIndex);
+			}  else {
+				return GetClassLong(hWnd, nIndex);
+			}
+		}
 
 		/// <summary>
 		/// Wrapper for the GetWindowLong which decides if the system is 64-bit or not and calls the right one.
