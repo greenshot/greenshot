@@ -322,8 +322,6 @@ namespace GreenshotPlugin.Core  {
 		/// <param name="hwnd"></param>
 		/// <returns></returns>
 		private static Icon GetAppIcon(IntPtr hwnd) {
-			const int GCL_HICONSM = -34;
-			const int GCL_HICON = -14;
 			const int ICON_SMALL = 0;
 			const int ICON_BIG = 1;
 			const int ICON_SMALL2 = 2;
@@ -333,17 +331,18 @@ namespace GreenshotPlugin.Core  {
 				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL, 0);
 			}
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.GetClassLongWrapper(hwnd, GCL_HICONSM);
+				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICONSM);
 			}
 			if (iconHandle == IntPtr.Zero) {
 				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, 0);
 			}
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.GetClassLongWrapper(hwnd, GCL_HICON);
+				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
 			}
 
-			if (iconHandle == IntPtr.Zero)
+			if (iconHandle == IntPtr.Zero) {
 				return null;
+			}
 
 			Icon icon = Icon.FromHandle(iconHandle);
 
