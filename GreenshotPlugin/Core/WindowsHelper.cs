@@ -329,14 +329,18 @@ namespace GreenshotPlugin.Core  {
 			const int ICON_SMALL2 = 2;
 
 			IntPtr iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL2, 0);
-			if (iconHandle == IntPtr.Zero)
+			if (iconHandle == IntPtr.Zero) {
 				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL, 0);
-			if (iconHandle == IntPtr.Zero)
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, 0);
-			if (iconHandle == IntPtr.Zero)
-				iconHandle = User32.GetClassLongWrapper(hwnd, GCL_HICON);
-			if (iconHandle == IntPtr.Zero)
+			}
+			if (iconHandle == IntPtr.Zero) {
 				iconHandle = User32.GetClassLongWrapper(hwnd, GCL_HICONSM);
+			}
+			if (iconHandle == IntPtr.Zero) {
+				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, 0);
+			}
+			if (iconHandle == IntPtr.Zero) {
+				iconHandle = User32.GetClassLongWrapper(hwnd, GCL_HICON);
+			}
 
 			if (iconHandle == IntPtr.Zero)
 				return null;
