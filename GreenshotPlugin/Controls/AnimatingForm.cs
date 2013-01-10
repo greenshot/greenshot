@@ -29,6 +29,7 @@ namespace GreenshotPlugin.Controls {
 	/// Extend this Form to have the possibility for animations on your form
 	/// </summary>
 	public class AnimatingForm : GreenshotForm {
+		private const int DEFAULT_VREFRESH = 60;
 		private int vRefresh = 0;
 		private Timer timer = null;
 
@@ -50,6 +51,11 @@ namespace GreenshotPlugin.Controls {
 					IntPtr hDCDesktop = User32.GetWindowDC(User32.GetDesktopWindow());
 					vRefresh = GDI32.GetDeviceCaps(hDCDesktop, DeviceCaps.VREFRESH);
 					User32.ReleaseDC(hDCDesktop);
+				}
+				// A vertical refresh rate value of 0 or 1 represents the display hardware's default refresh rate.
+				// As there is currently no know way to get the default, we guess it.
+				if (vRefresh <= 1) {
+					vRefresh = DEFAULT_VREFRESH;
 				}
 				return vRefresh;
 			}
