@@ -33,6 +33,7 @@ namespace GreenshotPhotobucketPlugin {
 	public static class PhotobucketUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketUtils));
 		private static readonly PhotobucketConfiguration config = IniConfig.GetIniSection<PhotobucketConfiguration>();
+		private static List<string> albumsCache = null;
 
 		/// <summary>
 		/// Do the actual upload to Photobucket
@@ -134,6 +135,9 @@ namespace GreenshotPhotobucketPlugin {
 		/// </summary>
 		/// <returns>List<string></returns>
 		public static List<string> RetrievePhotobucketAlbums() {
+			if (albumsCache != null) {
+				return albumsCache;
+			}
 			string responseString;
 
 			OAuthSession oAuth = createSession();
@@ -159,6 +163,7 @@ namespace GreenshotPhotobucketPlugin {
 				List<string> albums = new List<string>();
 				recurseAlbums(albums, null, doc.GetElementsByTagName("content").Item(0).ChildNodes);
 				LOG.DebugFormat("Albums: {0}", string.Join(",", albums.ToArray()));
+				albumsCache = albums;
 				return albums;
 			} catch(Exception e) {
 				LOG.Error("Error while Reading albums: ", e);
