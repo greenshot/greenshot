@@ -213,7 +213,7 @@ namespace Greenshot.Helpers {
 			// Workaround for changed DPI settings in Windows 7
 			using (Graphics graphics = Graphics.FromHwnd(MainForm.Instance.Handle)) {
 				capture.CaptureDetails.DpiX = graphics.DpiX;
-				capture.CaptureDetails.DpiY = graphics.DpiY; 
+				capture.CaptureDetails.DpiY = graphics.DpiY;
 			}
 			if (previouslyActiveWindow != null) {
 				// Set previouslyActiveWindow as foreground window
@@ -525,6 +525,10 @@ namespace Greenshot.Helpers {
 				// Maybe not "made" but the original is still there... somehow
 				outputMade = true;
 			} else {
+				// Make sure the resolution is set correctly!
+				if (capture.CaptureDetails != null && capture.Image != null) {
+					((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
+				}
 				DoCaptureFeedback();
 			}
 
@@ -880,8 +884,10 @@ namespace Greenshot.Helpers {
 				}
 			}
 
-			if (captureForWindow != null && windowToCapture != null) {
-				captureForWindow.CaptureDetails.Title = windowToCapture.Text;
+			if (captureForWindow != null) {
+				if (windowToCapture != null) {
+					captureForWindow.CaptureDetails.Title = windowToCapture.Text;
+				}
 				((Bitmap)captureForWindow.Image).SetResolution(captureForWindow.CaptureDetails.DpiX, captureForWindow.CaptureDetails.DpiY);
 			}
 
