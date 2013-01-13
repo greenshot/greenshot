@@ -21,6 +21,8 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Security;
+using Microsoft.Win32.SafeHandles;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
 	public static class GDIExtensions {
@@ -37,6 +39,25 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			return topLeftVisible && topRightVisible && bottomLeftVisible && bottomRightVisible;
 		}
 	}
+	
+	/// <summary>
+	/// A hbitmap SafeHandle implementation
+	/// </summary>
+	public class SafeHBitmapHandle : SafeHandleZeroOrMinusOneIsInvalid {
+	    [SecurityCritical]
+		private SafeHBitmapHandle(): base(true) {
+	    }
+
+	    [SecurityCritical]
+	    public SafeHBitmapHandle(IntPtr preexistingHandle) : base(true) {
+	        SetHandle(preexistingHandle);
+	    }
+	
+	    protected override bool ReleaseHandle() {
+	        return GDI32.DeleteObject(handle);
+	    }
+	}
+
 	/// <summary>
 	/// GDI32 Helpers
 	/// </summary>
@@ -77,9 +98,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			try {
 				hDCDest = target.GetHdc();
 				hDCSrc = CreateCompatibleDC(hDCDest);
-				IntPtr pOrig = SelectObject(hDCSrc, sourceBitmap.GetHbitmap());
-				StretchBlt(hDCDest, destination.X, destination.Y, destination.Width, destination.Height, hDCSrc, source.Left, source.Top, source.Width, source.Height, CopyPixelOperation.SourceCopy);				
-				IntPtr pNew = SelectObject(hDCDest, pOrig);
+				using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
+					IntPtr pOrig = SelectObject(hDCSrc, hBitmapHandle.DangerousGetHandle());
+					StretchBlt(hDCDest, destination.X, destination.Y, destination.Width, destination.Height, hDCSrc, source.Left, source.Top, source.Width, source.Height, CopyPixelOperation.SourceCopy);				
+					IntPtr pNew = SelectObject(hDCDest, pOrig);
+				}
 			} finally {
 				if (hDCSrc != IntPtr.Zero) {
 					DeleteDC(hDCSrc);
@@ -101,9 +124,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			try {
 				hDCDest = target.GetHdc();
 				hDCSrc = CreateCompatibleDC(hDCDest);
-				IntPtr pOrig = SelectObject(hDCSrc, sourceBitmap.GetHbitmap());
-				BitBlt(hDCDest, destination.X, destination.Y, source.Width, source.Height, hDCSrc, source.Left, source.Top, CopyPixelOperation.SourceCopy);
-				IntPtr pNew = SelectObject(hDCDest, pOrig);
+				using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
+					IntPtr pOrig = SelectObject(hDCSrc, hBitmapHandle.DangerousGetHandle());
+					BitBlt(hDCDest, destination.X, destination.Y, source.Width, source.Height, hDCSrc, source.Left, source.Top, CopyPixelOperation.SourceCopy);
+					IntPtr pNew = SelectObject(hDCDest, pOrig);
+				}
 			} finally {
 				if (hDCSrc != IntPtr.Zero) {
 					DeleteDC(hDCSrc);

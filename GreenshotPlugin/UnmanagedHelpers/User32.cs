@@ -25,6 +25,8 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 
+using Microsoft.Win32.SafeHandles;
+
 namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// Used with EnumWindows or EnumChildWindows
@@ -45,6 +47,22 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <param name="dwEventThread"></param>
 	/// <param name="dwmsEventTime"></param>
 	public delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hwnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+	
+	/// <summary>
+	/// A SafeHandle class implementation for the hIcon
+	/// </summary>
+	public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid {
+	    private SafeIconHandle(): base(true) {
+	    }
+	
+	    public SafeIconHandle(IntPtr hIcon) : base(true) {
+	        this.SetHandle(hIcon);
+	    }
+	
+	    protected override bool ReleaseHandle() {
+	        return User32.DestroyIcon(this.handle);
+	    }
+	}
 
 	/// <summary>
 	/// User32 Wrappers
@@ -210,13 +228,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="hIcon"></param>
 		/// <returns></returns>
 		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr CopyIcon(IntPtr hIcon);
+		public static extern SafeIconHandle CopyIcon(IntPtr hIcon);
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool DestroyIcon(IntPtr hIcon);
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool GetCursorInfo(out CursorInfo cursorInfo);
 		[DllImport("user32", SetLastError = true)]
-		public static extern bool GetIconInfo(IntPtr hIcon, out IconInfo iconInfo);
+		public static extern bool GetIconInfo(SafeIconHandle iconHandle, out IconInfo iconInfo);
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool DrawIcon(IntPtr hDC, int X, int Y, IntPtr hIcon);
 		[DllImport("user32", SetLastError = true)]

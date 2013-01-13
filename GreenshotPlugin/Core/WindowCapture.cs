@@ -498,33 +498,32 @@ namespace GreenshotPlugin.Core {
 				capture = new Capture();
 			}
 			int x,y;
-			IntPtr hicon;
 			CursorInfo cursorInfo = new CursorInfo(); 
 			IconInfo iconInfo;
 			cursorInfo.cbSize = Marshal.SizeOf(cursorInfo);
 			if (User32.GetCursorInfo(out cursorInfo)) {
 				if (cursorInfo.flags == User32.CURSOR_SHOWING) { 
-					hicon = User32.CopyIcon(cursorInfo.hCursor);
-					if (User32.GetIconInfo(hicon, out iconInfo)) {
-						Point cursorLocation = GetCursorLocation();
-						// Allign cursor location to Bitmap coordinates (instead of Screen coordinates)
-						x = cursorLocation.X - iconInfo.xHotspot - capture.ScreenBounds.X;
-						y = cursorLocation.Y - iconInfo.yHotspot - capture.ScreenBounds.Y;
-						// Set the location
-						capture.CursorLocation = new Point(x, y);
-
-						using (Icon icon = Icon.FromHandle(hicon)) {
-							capture.Cursor = icon;
-						}
-
-						if (iconInfo.hbmMask != IntPtr.Zero) {
-							GDI32.DeleteObject(iconInfo.hbmMask);
-						}
-						if (iconInfo.hbmColor != IntPtr.Zero) {
-							GDI32.DeleteObject(iconInfo.hbmColor);
+					using (SafeIconHandle safeIcon = User32.CopyIcon(cursorInfo.hCursor)) {
+						if (User32.GetIconInfo(safeIcon, out iconInfo)) {
+							Point cursorLocation = GetCursorLocation();
+							// Allign cursor location to Bitmap coordinates (instead of Screen coordinates)
+							x = cursorLocation.X - iconInfo.xHotspot - capture.ScreenBounds.X;
+							y = cursorLocation.Y - iconInfo.yHotspot - capture.ScreenBounds.Y;
+							// Set the location
+							capture.CursorLocation = new Point(x, y);
+	
+							using (Icon icon = Icon.FromHandle(safeIcon.DangerousGetHandle())) {
+								capture.Cursor = icon;
+							}
+	
+							if (iconInfo.hbmMask != IntPtr.Zero) {
+								GDI32.DeleteObject(iconInfo.hbmMask);
+							}
+							if (iconInfo.hbmColor != IntPtr.Zero) {
+								GDI32.DeleteObject(iconInfo.hbmColor);
+							}
 						}
 					}
-					User32.DestroyIcon(hicon);
 				}
 			}
 			return capture;

@@ -627,7 +627,11 @@ namespace GreenshotPlugin.Core  {
 				return User32.IsIconic(this.hWnd) || Location.X <= -32000;
 			}
 			set {
-				User32.SendMessage(this.hWnd,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
+				if (value) {
+					User32.SendMessage(this.hWnd,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
+				} else {
+					User32.SendMessage(this.hWnd,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
+				}
 			}
 		}
 			
@@ -660,7 +664,7 @@ namespace GreenshotPlugin.Core  {
 								if (monitor != IntPtr.Zero) {
 									if (appVisibility != null) {
 										MONITOR_APP_VISIBILITY monitorAppVisibility = appVisibility.GetAppVisibilityOnMonitor(monitor);
-										LOG.DebugFormat("App visible: {0}", monitorAppVisibility);
+										LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
 										if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE) {
 											return true;
 										}
@@ -1097,6 +1101,7 @@ namespace GreenshotPlugin.Core  {
 		/// <returns>Bitmap with transparency</returns>
 		private Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap) {
 			Bitmap returnBitmap = new Bitmap(blackBitmap.Width, blackBitmap.Height, PixelFormat.Format32bppArgb);
+			returnBitmap.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
 			using (BitmapBuffer blackBuffer = new BitmapBuffer(blackBitmap, false)) {
 				blackBuffer.Lock();
 				using (BitmapBuffer whiteBuffer = new BitmapBuffer(whiteBitmap, false)) {
