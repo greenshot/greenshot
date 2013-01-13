@@ -45,7 +45,7 @@ namespace GreenshotPhotobucketPlugin {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			yield return new PhotobucketDestination(this);
+			yield return new PhotobucketDestination(this, null);
 		}
 
 		public IEnumerable<IProcessor> Processors() {
@@ -114,7 +114,7 @@ namespace GreenshotPhotobucketPlugin {
 		/// <param name="surfaceToUpload">ISurface</param>
 		/// <param name="uploadURL">out string for the url</param>
 		/// <returns>true if the upload succeeded</returns>
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadURL) {
+		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, string albumPath, out string uploadURL) {
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			try {
 				string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
@@ -123,7 +123,7 @@ namespace GreenshotPhotobucketPlugin {
 				// Run upload in the background
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait), 
 					delegate() {
-						photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, captureDetails.Title, filename);
+						photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename);
 					}
 				);
 				// This causes an exeption if the upload failed :)

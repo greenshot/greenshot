@@ -19,7 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Drawing;
+
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
@@ -32,9 +34,16 @@ namespace GreenshotPhotobucketPlugin  {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
 		private static PhotobucketConfiguration config = IniConfig.GetIniSection<PhotobucketConfiguration>();
 		private PhotobucketPlugin plugin = null;
+		private string albumPath = null;
 
-		public PhotobucketDestination(PhotobucketPlugin plugin) {
+		/// <summary>
+		/// Create a Photobucket destination, which also has the path to the album in it
+		/// </summary>
+		/// <param name="plugin"></param>
+		/// <param name="albumPath">path to the album, null for default</param>
+		public PhotobucketDestination(PhotobucketPlugin plugin, string albumPath) {
 			this.plugin = plugin;
+			this.albumPath = albumPath;
 		}
 		
 		public override string Designation {
@@ -45,6 +54,9 @@ namespace GreenshotPhotobucketPlugin  {
 
 		public override string Description {
 			get {
+				if (albumPath != null) {
+					return albumPath;
+				}
 				return Language.GetString("photobucket", LangKey.upload_menu_item);
 			}
 		}
@@ -55,11 +67,35 @@ namespace GreenshotPhotobucketPlugin  {
 				return (Image)resources.GetObject("Photobucket");
 			}
 		}
+		
+		public override bool isDynamic {
+			get {
+				return true;
+			}
+		}
 
+		public override IEnumerable<IDestination> DynamicDestinations() {
+			List<string> albums = PhotobucketUtils.RetrievePhotobucketAlbums();
+
+			if (albums == null || albums.Count == 0) {
+				yield break;
+			}
+			foreach(string album in albums) {
+				yield return new PhotobucketDestination(plugin, album);
+			}
+		}
+
+		/// <summary>
+		/// Export the capture to Photobucket
+		/// </summary>
+		/// <param name="manuallyInitiated"></param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <returns></returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string uploadURL = null;
-			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
+			bool uploaded = plugin.Upload(captureDetails, surface, albumPath, out uploadURL);
 			if (uploaded) {
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploadURL;

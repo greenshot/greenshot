@@ -26,7 +26,7 @@ namespace GreenshotPhotobucketPlugin
 	/// <summary>
 	/// Description of PhotobucketInfo.
 	/// </summary>
-	public class PhotobucketInfo : IDisposable {
+	public class PhotobucketInfo {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketInfo));
 
 		private string original;
@@ -51,25 +51,11 @@ namespace GreenshotPhotobucketPlugin
 		}
 
 		/// <summary>
-		/// The public accessible Dispose
-		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
+		/// Parse the upload response
 		/// </summary>
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
-		/// This Dispose is called from the Dispose and the Destructor.
-		/// When disposing==true all non-managed resources should be freed too!
-		/// </summary>
-		/// <param name="disposing"></param>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-			}
-		}
-
-		public static PhotobucketInfo ParseResponse(string response) {
+		/// <param name="response">XML</param>
+		/// <returns>PhotobucketInfo object</returns>
+		public static PhotobucketInfo FromUploadResponse(string response) {
 			LOG.Debug(response);
 			PhotobucketInfo PhotobucketInfo = new PhotobucketInfo();
 			try {
