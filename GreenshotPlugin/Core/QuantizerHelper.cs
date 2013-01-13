@@ -141,6 +141,7 @@ namespace GreenshotPlugin.Core {
 
 			// Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
 			resultBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format8bppIndexed);
+			resultBitmap.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
 				bbbSrc.Lock();
 				using (BitmapBuffer bbbDest = new BitmapBuffer(resultBitmap, false)) {
