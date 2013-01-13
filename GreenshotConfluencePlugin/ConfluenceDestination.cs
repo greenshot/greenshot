@@ -108,7 +108,6 @@ namespace GreenshotConfluencePlugin {
 			if (currentPages == null || currentPages.Count == 0) {
 				yield break;
 			}
-			List<IDestination> dynamicDestinations = new List<IDestination>();
 			foreach(Confluence.Page currentPage in currentPages) {
 				yield return new ConfluenceDestination(currentPage);
 			}
