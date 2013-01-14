@@ -48,9 +48,9 @@ namespace GreenshotPlugin.Controls {
 			get {
 				if (vRefresh == 0) {
 					// get te hDC of the desktop to get the VREFRESH
-					IntPtr hDCDesktop = User32.GetWindowDC(User32.GetDesktopWindow());
-					vRefresh = GDI32.GetDeviceCaps(hDCDesktop, DeviceCaps.VREFRESH);
-					User32.ReleaseDC(hDCDesktop);
+					using (SafeWindowDCHandle desktopHandle = SafeWindowDCHandle.fromDesktop()) {
+						vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
+					}
 				}
 				// A vertical refresh rate value of 0 or 1 represents the display hardware's default refresh rate.
 				// As there is currently no know way to get the default, we guess it.

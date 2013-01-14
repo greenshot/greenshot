@@ -26,6 +26,13 @@ using Microsoft.Win32.SafeHandles;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
 	public static class GDIExtensions {
+		/// <summary>
+		/// Check if all the corners of the rectangle are visible in the specified region.
+		/// Not a perfect check, but this currently a workaround for checking if a window is completely visible
+		/// </summary>
+		/// <param name="region"></param>
+		/// <param name="rectangle"></param>
+		/// <returns></returns>
 		public static bool AreRectangleCornersVisisble(this Region region, Rectangle rectangle) {
 			Point topLeft = new Point(rectangle.X, rectangle.Y);
 			Point topRight = new Point(rectangle.X + rectangle.Width, rectangle.Y);
@@ -38,103 +45,210 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 			return topLeftVisible && topRightVisible && bottomLeftVisible && bottomRightVisible;
 		}
+
+		/// <summary>
+		/// Get a SafeHandle for the GetHdc, so one can use using to automatically cleanup the devicecontext
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <returns>SafeDeviceContextHandle</returns>
+		public static SafeDeviceContextHandle getSafeDeviceContext(this Graphics graphics) {
+			return SafeDeviceContextHandle.fromGraphics(graphics);
+		}
 	}
-	
+
+	/// <summary>
+	/// Abstract class SafeObjectHandle which contains all handles that are cleaned with DeleteObject
+	/// </summary>
+	public abstract class SafeObjectHandle : SafeHandleZeroOrMinusOneIsInvalid {
+		[DllImport("gdi32", SetLastError = true)]
+		private static extern bool DeleteObject(IntPtr hObject);
+
+		protected SafeObjectHandle(bool ownsHandle)	: base(ownsHandle) {
+		}
+
+		protected override bool ReleaseHandle() {
+			return DeleteObject(handle);
+		}
+	}
+
 	/// <summary>
 	/// A hbitmap SafeHandle implementation
 	/// </summary>
-	public class SafeHBitmapHandle : SafeHandleZeroOrMinusOneIsInvalid {
-	    [SecurityCritical]
-		private SafeHBitmapHandle(): base(true) {
-	    }
+	public class SafeHBitmapHandle : SafeObjectHandle {
+		[SecurityCritical]
+		private SafeHBitmapHandle() : base(true) {
+		}
 
-	    [SecurityCritical]
-	    public SafeHBitmapHandle(IntPtr preexistingHandle) : base(true) {
-	        SetHandle(preexistingHandle);
-	    }
-	
-	    protected override bool ReleaseHandle() {
-	        return GDI32.DeleteObject(handle);
-	    }
+		[SecurityCritical]
+		public SafeHBitmapHandle(IntPtr preexistingHandle) : base(true) {
+			SetHandle(preexistingHandle);
+		}
 	}
 
+	/// <summary>
+	/// A hRegion SafeHandle implementation
+	/// </summary>
+	public class SafeRegionHandle : SafeObjectHandle {
+		[SecurityCritical]
+		private SafeRegionHandle() : base(true) {
+		}
+
+		[SecurityCritical]
+		public SafeRegionHandle(IntPtr preexistingHandle) : base(true) {
+			SetHandle(preexistingHandle);
+		}
+	}
+
+	/// <summary>
+	/// A dibsection SafeHandle implementation
+	/// </summary>
+	public class SafeDibSectionHandle : SafeObjectHandle {
+		[SecurityCritical]
+		private SafeDibSectionHandle() : base(true) {
+		}
+
+		[SecurityCritical]
+		public SafeDibSectionHandle(IntPtr preexistingHandle) : base(true) {
+			SetHandle(preexistingHandle);
+		}
+	}
+
+	/// <summary>
+	/// A select object safehandle implementation
+	/// This impl will select the passed SafeHandle to the HDC and replace the returned value when disposing
+	/// </summary>
+	public class SafeSelectObjectHandle : SafeHandleZeroOrMinusOneIsInvalid {
+		[DllImport("gdi32", SetLastError = true)]
+		private static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
+
+		private SafeHandle hdc;
+
+		[SecurityCritical]
+		private SafeSelectObjectHandle() : base(true) {
+		}
+
+		[SecurityCritical]
+		public SafeSelectObjectHandle(SafeDCHandle hdc, SafeHandle newHandle) : base(true) {
+			this.hdc = hdc;
+			SetHandle(SelectObject(hdc.DangerousGetHandle(), newHandle.DangerousGetHandle()));
+		}
+
+		protected override bool ReleaseHandle() {
+			SelectObject(hdc.DangerousGetHandle(), handle);
+			return true;
+		}
+	}
+
+	public abstract class SafeDCHandle : SafeHandleZeroOrMinusOneIsInvalid {
+		protected SafeDCHandle(bool ownsHandle) : base(ownsHandle) {
+		}
+	}
+	/// <summary>
+	/// A CompatibleDC SafeHandle implementation
+	/// </summary>
+	public class SafeCompatibleDCHandle : SafeDCHandle {
+		[DllImport("gdi32", SetLastError = true)]
+		private static extern bool DeleteDC(IntPtr hDC);
+
+		[SecurityCritical]
+		private SafeCompatibleDCHandle() : base(true) {
+		}
+
+		[SecurityCritical]
+		public SafeCompatibleDCHandle(IntPtr preexistingHandle) : base(true) {
+			SetHandle(preexistingHandle);
+		}
+
+		public SafeSelectObjectHandle SelectObject(SafeHandle newHandle) {
+			return new SafeSelectObjectHandle(this, newHandle);
+		}
+
+		protected override bool ReleaseHandle() {
+			return DeleteDC(handle);
+		}
+	}
+
+	/// <summary>
+	/// A DeviceContext SafeHandle implementation
+	/// </summary>
+	public class SafeDeviceContextHandle : SafeDCHandle {
+		private Graphics graphics = null;
+		[SecurityCritical]
+		private SafeDeviceContextHandle() : base(true) {
+		}
+
+		[SecurityCritical]
+		public SafeDeviceContextHandle(Graphics graphics, IntPtr preexistingHandle) : base(true) {
+			this.graphics = graphics;
+			SetHandle(preexistingHandle);
+		}
+
+		protected override bool ReleaseHandle() {
+			graphics.ReleaseHdc(handle);
+			return true;
+		}
+
+		public SafeSelectObjectHandle SelectObject(SafeHandle newHandle) {
+			return new SafeSelectObjectHandle(this, newHandle);
+		}
+
+		public static SafeDeviceContextHandle fromGraphics(Graphics graphics) {
+			return new SafeDeviceContextHandle(graphics, graphics.GetHdc());
+		}
+	}
+	
 	/// <summary>
 	/// GDI32 Helpers
 	/// </summary>
 	public static class GDI32 {
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern bool BitBlt(IntPtr hObject,int nXDest,int nYDest, int nWidth,int nHeight,IntPtr hObjectSource, int nXSrc,int nYSrc, CopyPixelOperation dwRop);
+		public static extern bool BitBlt(SafeHandle hObject, int nXDest, int nYDest, int nWidth, int nHeight, SafeHandle hdcSrc, int nXSrc, int nYSrc, CopyPixelOperation dwRop);
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern bool StretchBlt(IntPtr hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, IntPtr hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, CopyPixelOperation dwRop );
+		public static extern bool StretchBlt(SafeHandle hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, SafeHandle hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, CopyPixelOperation dwRop);
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern IntPtr CreateCompatibleDC(IntPtr hDC);
+		public static extern SafeCompatibleDCHandle CreateCompatibleDC(SafeHandle hDC);
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern bool DeleteDC(IntPtr hDC);
+		public static extern IntPtr SelectObject(SafeHandle hDC, SafeHandle hObject);
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern bool DeleteObject(IntPtr hObject);
+		public static extern SafeDibSectionHandle CreateDIBSection(SafeHandle hdc, ref BitmapInfoHeader bmi, uint Usage, out IntPtr bits, IntPtr hSection, uint dwOffset); 
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern IntPtr SelectObject(IntPtr hDC,IntPtr hObject);
+		public static extern SafeRegionHandle CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect);
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern IntPtr CreateDIBSection(IntPtr hdc, ref BitmapInfoHeader bmi, uint Usage, out IntPtr bits, IntPtr hSection, uint dwOffset); 
+		public static extern uint GetPixel(SafeHandle hdc, int nXPos, int nYPos);
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern IntPtr CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect);
-		[DllImport("gdi32", SetLastError=true)]
-		public static extern int GetClipBox(IntPtr hdc, out RECT lprc);
-		[DllImport("gdi32", SetLastError = true)]
-		public static extern uint GetPixel(IntPtr hdc, int nXPos, int nYPos);
-		[DllImport("gdi32", SetLastError = true)]
-		public static extern IntPtr CreateRoundRectRgn(int x1, int y1, int x2, int y2, int cx, int cy);
-		[DllImport("gdi32", SetLastError = true)]
-		public static extern int GetDeviceCaps(IntPtr hdc, DeviceCaps nIndex);
+		public static extern int GetDeviceCaps(SafeHandle hdc, DeviceCaps nIndex);
 		
 		/// <summary>
+		/// StretchBlt extension for the graphics object
 		/// Doesn't work?
 		/// </summary>
 		/// <param name="target"></param>
 		/// <param name="source"></param>
 		public static void StretchBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Rectangle destination) {
-			IntPtr hDCSrc = IntPtr.Zero;
-			IntPtr hDCDest = IntPtr.Zero;
-			try {
-				hDCDest = target.GetHdc();
-				hDCSrc = CreateCompatibleDC(hDCDest);
-				using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
-					IntPtr pOrig = SelectObject(hDCSrc, hBitmapHandle.DangerousGetHandle());
-					StretchBlt(hDCDest, destination.X, destination.Y, destination.Width, destination.Height, hDCSrc, source.Left, source.Top, source.Width, source.Height, CopyPixelOperation.SourceCopy);				
-					IntPtr pNew = SelectObject(hDCDest, pOrig);
-				}
-			} finally {
-				if (hDCSrc != IntPtr.Zero) {
-					DeleteDC(hDCSrc);
-				}
-				if (hDCDest != IntPtr.Zero) {
-					target.ReleaseHdc(hDCDest);
+			using (SafeDeviceContextHandle targetDC = target.getSafeDeviceContext()) {
+				using (SafeCompatibleDCHandle safeCompatibleDCHandle = CreateCompatibleDC(targetDC)) {
+					using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
+						using (SafeSelectObjectHandle selectObject = safeCompatibleDCHandle.SelectObject(hBitmapHandle)) {
+							StretchBlt(targetDC, destination.X, destination.Y, destination.Width, destination.Height, safeCompatibleDCHandle, source.Left, source.Top, source.Width, source.Height, CopyPixelOperation.SourceCopy);
+						}
+					}
 				}
 			}
 		}
 
 		/// <summary>
-		/// 
+		/// Bitblt extension for the graphics object
 		/// </summary>
 		/// <param name="target"></param>
 		/// <param name="source"></param>
 		public static void BitBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Point destination) {
-			IntPtr hDCSrc = IntPtr.Zero;
-			IntPtr hDCDest = IntPtr.Zero;
-			try {
-				hDCDest = target.GetHdc();
-				hDCSrc = CreateCompatibleDC(hDCDest);
-				using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
-					IntPtr pOrig = SelectObject(hDCSrc, hBitmapHandle.DangerousGetHandle());
-					BitBlt(hDCDest, destination.X, destination.Y, source.Width, source.Height, hDCSrc, source.Left, source.Top, CopyPixelOperation.SourceCopy);
-					IntPtr pNew = SelectObject(hDCDest, pOrig);
-				}
-			} finally {
-				if (hDCSrc != IntPtr.Zero) {
-					DeleteDC(hDCSrc);
-				}
-				if (hDCDest != IntPtr.Zero) {
-					target.ReleaseHdc(hDCDest);
+			using (SafeDeviceContextHandle targetDC = target.getSafeDeviceContext()) {
+				using (SafeCompatibleDCHandle safeCompatibleDCHandle = CreateCompatibleDC(targetDC)) {
+					using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
+						using (SafeSelectObjectHandle selectObject = safeCompatibleDCHandle.SelectObject(hBitmapHandle)) {
+							BitBlt(safeCompatibleDCHandle, destination.X, destination.Y, source.Width, source.Height, safeCompatibleDCHandle, source.Left, source.Top, CopyPixelOperation.SourceCopy);
+						}
+					}
 				}
 			}
 		}

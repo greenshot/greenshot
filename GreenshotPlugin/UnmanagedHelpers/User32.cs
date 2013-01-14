@@ -26,6 +26,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 using Microsoft.Win32.SafeHandles;
+using System.Security;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
@@ -37,37 +38,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	public delegate int EnumWindowsProc(IntPtr hwnd, int lParam);
 
 	/// <summary>
-	/// Used with SetWinEventHook
-	/// </summary>
-	/// <param name="hWinEventHook"></param>
-	/// <param name="eventType"></param>
-	/// <param name="hwnd"></param>
-	/// <param name="idObject"></param>
-	/// <param name="idChild"></param>
-	/// <param name="dwEventThread"></param>
-	/// <param name="dwmsEventTime"></param>
-	public delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hwnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
-	
-	/// <summary>
-	/// A SafeHandle class implementation for the hIcon
-	/// </summary>
-	public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid {
-	    private SafeIconHandle(): base(true) {
-	    }
-	
-	    public SafeIconHandle(IntPtr hIcon) : base(true) {
-	        this.SetHandle(hIcon);
-	    }
-	
-	    protected override bool ReleaseHandle() {
-	        return User32.DestroyIcon(this.handle);
-	    }
-	}
-
-	/// <summary>
 	/// User32 Wrappers
 	/// </summary>
-	public class User32 {
+	public static class User32 {
 		public const int SC_RESTORE = 0xF120;
 		public const int SC_CLOSE = 0xF060;
 		public const int SC_MAXIMIZE = 0xF030;
@@ -166,11 +139,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError=true, EntryPoint = "PostMessageA")]
 		public static extern bool PostMessage(IntPtr hWnd, uint msg, int wParam, int lParam);
 		[DllImport("user32", SetLastError = true)]
-		public static extern RegionResult GetWindowRgn(IntPtr hWnd, IntPtr hRgn);
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr GetWindowDC(IntPtr hWnd);
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr ReleaseDC(IntPtr hWnd,IntPtr hDC);
+		public static extern RegionResult GetWindowRgn(IntPtr hWnd, SafeHandle hRgn);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, WindowPos uFlags);
@@ -235,8 +204,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool GetCursorInfo(out CursorInfo cursorInfo);
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool GetIconInfo(SafeIconHandle iconHandle, out IconInfo iconInfo);
-		[DllImport("user32", SetLastError = true)]
-		public static extern bool DrawIcon(IntPtr hDC, int X, int Y, IntPtr hIcon);
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr SetCapture(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
@@ -304,6 +271,66 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			Win32Exception exceptionToThrow = new Win32Exception();
 			exceptionToThrow.Data.Add("Method", method);
 			return exceptionToThrow;
+		}
+	}
+
+	/// <summary>
+	/// Used with SetWinEventHook
+	/// </summary>
+	/// <param name="hWinEventHook"></param>
+	/// <param name="eventType"></param>
+	/// <param name="hwnd"></param>
+	/// <param name="idObject"></param>
+	/// <param name="idChild"></param>
+	/// <param name="dwEventThread"></param>
+	/// <param name="dwmsEventTime"></param>
+	public delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hwnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
+	/// <summary>
+	/// A SafeHandle class implementation for the hIcon
+	/// </summary>
+	public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid {
+		private SafeIconHandle() : base(true) {
+		}
+
+		public SafeIconHandle(IntPtr hIcon) : base(true) {
+			this.SetHandle(hIcon);
+		}
+
+		protected override bool ReleaseHandle() {
+			return User32.DestroyIcon(this.handle);
+		}
+	}
+
+	/// <summary>
+	/// A WindowDC SafeHandle implementation
+	/// </summary>
+	public class SafeWindowDCHandle : SafeHandleZeroOrMinusOneIsInvalid {
+		[DllImport("user32", SetLastError = true)]
+		private static extern IntPtr GetWindowDC(IntPtr hWnd);
+		[DllImport("user32", SetLastError = true)]
+		private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+		private IntPtr hWnd;
+		[SecurityCritical]
+		private SafeWindowDCHandle() : base(true) {
+		}
+
+		[SecurityCritical]
+		public SafeWindowDCHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true) {
+			this.hWnd = hWnd;
+			SetHandle(preexistingHandle);
+		}
+
+		protected override bool ReleaseHandle() {
+			bool returnValue = ReleaseDC(hWnd, handle);
+			return returnValue;
+		}
+
+		public static SafeWindowDCHandle fromDesktop() {
+			IntPtr hWndDesktop = User32.GetDesktopWindow();
+			IntPtr hDCDesktop = GetWindowDC(hWndDesktop);
+			return new SafeWindowDCHandle(hWndDesktop, hDCDesktop);
 		}
 	}
 }

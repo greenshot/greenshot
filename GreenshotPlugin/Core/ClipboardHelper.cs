@@ -493,7 +493,7 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		private const int BITMAPFILEHEADER_LENGTH = 14;
 		public static void SetClipboardData(ISurface surface) {
-			DataObject ido = new DataObject();
+			DataObject dataObject = new DataObject();
 
 			// This will work for Office and most other applications
 			//ido.SetData(DataFormats.Bitmap, true, image);
@@ -515,7 +515,7 @@ EndSelection:<<<<<<<4
 						ImageOutput.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
 						pngStream.Seek(0, SeekOrigin.Begin);
 						// Set the PNG stream
-						ido.SetData(FORMAT_PNG, false, pngStream);
+						dataObject.SetData(FORMAT_PNG, false, pngStream);
 					}
 				} catch (Exception pngEX) {
 					LOG.Error("Error creating PNG for the Clipboard.", pngEX);
@@ -534,7 +534,7 @@ EndSelection:<<<<<<<4
 						}
 
 						// Set the DIB to the clipboard DataObject
-						ido.SetData(DataFormats.Dib, true, dibStream);
+						dataObject.SetData(DataFormats.Dib, true, dibStream);
 					}
 				} catch (Exception dibEx) {
 					LOG.Error("Error creating DIB for the Clipboard.", dibEx);
@@ -544,7 +544,7 @@ EndSelection:<<<<<<<4
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
 					string tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
 					string html = getHTMLString(surface, tmpFile);
-					ido.SetText(html, TextDataFormat.Html);
+					dataObject.SetText(html, TextDataFormat.Html);
 				} else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
 					string html;
 					using (MemoryStream tmpPNGStream = new MemoryStream()) {
@@ -560,18 +560,18 @@ EndSelection:<<<<<<<4
 						}
 						html = getHTMLDataURLString(surface, tmpPNGStream);
 					}
-					ido.SetText(html, TextDataFormat.Html);
+					dataObject.SetText(html, TextDataFormat.Html);
 				}
 			} finally {
 				// we need to use the SetDataOject before the streams are closed otherwise the buffer will be gone!
 				// Check if Bitmap is wanted
 				if (config.ClipboardFormats.Contains(ClipboardFormat.BITMAP)) {
-					ido.SetImage(imageToSave);
+					dataObject.SetImage(imageToSave);
 					// Place the DataObject to the clipboard
-					SetDataObject(ido, true);
+					SetDataObject(dataObject, true);
 				} else {
 					// Place the DataObject to the clipboard
-					SetDataObject(ido, true);
+					SetDataObject(dataObject, true);
 				}
 				
 				if (pngStream != null) {

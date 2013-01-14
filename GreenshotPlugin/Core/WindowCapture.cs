@@ -428,6 +428,14 @@ namespace GreenshotPlugin.Core {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WindowCapture));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
+		/// <summary>
+		/// Used to cleanup the unmanged resource in the iconInfo for the CaptureCursor method
+		/// </summary>
+		/// <param name="hObject"></param>
+		/// <returns></returns>
+		[DllImport("gdi32", SetLastError = true)]
+		private static extern bool DeleteObject(IntPtr hObject);
+
 		private WindowCapture() {
 		}
 
@@ -517,10 +525,10 @@ namespace GreenshotPlugin.Core {
 							}
 	
 							if (iconInfo.hbmMask != IntPtr.Zero) {
-								GDI32.DeleteObject(iconInfo.hbmMask);
+								DeleteObject(iconInfo.hbmMask);
 							}
 							if (iconInfo.hbmColor != IntPtr.Zero) {
-								GDI32.DeleteObject(iconInfo.hbmColor);
+								DeleteObject(iconInfo.hbmColor);
 							}
 						}
 					}
@@ -640,123 +648,109 @@ namespace GreenshotPlugin.Core {
 			// }
 			// capture.Image = capturedBitmap;
 			// capture.Location = captureBounds.Location;
-				
-			// "P/Invoke" Solution for capturing the screen
-			IntPtr hWndDesktop = User32.GetDesktopWindow();
-			// get te hDC of the target window
-			IntPtr hDCDesktop = User32.GetWindowDC(hWndDesktop);
 
-			// Make sure the last error is set to 0
-			Win32.SetLastError(0);
+			using (SafeWindowDCHandle desktopDCHandle = SafeWindowDCHandle.fromDesktop()) {
+				if (desktopDCHandle.IsInvalid) {
+					// Get Exception before the error is lost
+					Exception exceptionToThrow = CreateCaptureException("desktopDCHandle", captureBounds);
+					// throw exception
+					throw exceptionToThrow;
+				}
 
-			// create a device context we can copy to
-			IntPtr hDCDest = GDI32.CreateCompatibleDC(hDCDesktop);
-			// Check if the device context is there, if not throw an error with as much info as possible!
-			if (hDCDest == IntPtr.Zero) {
-				// Get Exception before the error is lost
-				Exception exceptionToThrow = CreateCaptureException("CreateCompatibleDC", captureBounds);
-				// Cleanup
-				User32.ReleaseDC(hWndDesktop, hDCDesktop);
-				// throw exception
-				throw exceptionToThrow;
-			}
+				// create a device context we can copy to
+				using (SafeCompatibleDCHandle safeCompatibleDCHandle = GDI32.CreateCompatibleDC(desktopDCHandle)) {
+					// Check if the device context is there, if not throw an error with as much info as possible!
+					if (safeCompatibleDCHandle.IsInvalid) {
+						// Get Exception before the error is lost
+						Exception exceptionToThrow = CreateCaptureException("CreateCompatibleDC", captureBounds);
+						// throw exception
+						throw exceptionToThrow;
+					}
+					// Create BitmapInfoHeader for CreateDIBSection
+					BitmapInfoHeader bmi = new BitmapInfoHeader(captureBounds.Width, captureBounds.Height, 24);
 
-			// Create BitmapInfoHeader for CreateDIBSection
-			BitmapInfoHeader bmi = new BitmapInfoHeader(captureBounds.Width, captureBounds.Height, 24);
+					// Make sure the last error is set to 0
+					Win32.SetLastError(0);
 
-			// Make sure the last error is set to 0
-			Win32.SetLastError(0);
+					// create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
+					IntPtr bits0; // not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
+					using (SafeDibSectionHandle safeDibSectionHandle = GDI32.CreateDIBSection(desktopDCHandle, ref bmi, BitmapInfoHeader.DIB_RGB_COLORS, out bits0, IntPtr.Zero, 0)) {
+						if (safeDibSectionHandle.IsInvalid) {
+							// Get Exception before the error is lost
+							Exception exceptionToThrow = CreateCaptureException("CreateDIBSection", captureBounds);
+							exceptionToThrow.Data.Add("hdcDest", safeCompatibleDCHandle.DangerousGetHandle().ToInt32());
+							exceptionToThrow.Data.Add("hdcSrc", desktopDCHandle.DangerousGetHandle().ToInt32());
 
-			// create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
-			IntPtr bits0; // not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
-			IntPtr hDIBSection = GDI32.CreateDIBSection(hDCDesktop, ref bmi, BitmapInfoHeader.DIB_RGB_COLORS, out bits0, IntPtr.Zero, 0);
-
-			if (hDIBSection == IntPtr.Zero) {
-				// Get Exception before the error is lost
-				Exception exceptionToThrow = CreateCaptureException("CreateDIBSection", captureBounds);
-				exceptionToThrow.Data.Add("hdcDest", hDCDest.ToInt32());
-				exceptionToThrow.Data.Add("hdcSrc", hDCDesktop.ToInt32());
-				
-				// clean up
-				GDI32.DeleteDC(hDCDest);
-				User32.ReleaseDC(hWndDesktop, hDCDesktop);
-
-				// Throw so people can report the problem
-				throw exceptionToThrow;
-			} else {
-				// select the bitmap object and store the old handle
-				IntPtr hOldObject = GDI32.SelectObject(hDCDest, hDIBSection);
-	
-				// bitblt over (make copy)
-				GDI32.BitBlt(hDCDest, 0, 0, captureBounds.Width, captureBounds.Height, hDCDesktop, captureBounds.X,  captureBounds.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
-
-				// restore selection (old handle)
-				GDI32.SelectObject(hDCDest, hOldObject);
-				// clean up
-				GDI32.DeleteDC(hDCDest);
-				User32.ReleaseDC(hWndDesktop, hDCDesktop);
-
-				// get a .NET image object for it
-				// A suggestion for the "A generic error occurred in GDI+." E_FAIL/0×80004005 error is to re-try...
-				bool success = false;
-				ExternalException exception = null;
-				for (int i = 0; i < 3; i++) {
-					try {
-						// Collect all screens inside this capture
-						List<Screen> screensInsideCapture = new List<Screen>();
-						foreach (Screen screen in Screen.AllScreens) {
-							if (screen.Bounds.IntersectsWith(captureBounds)) {
-								screensInsideCapture.Add(screen);
+							// Throw so people can report the problem
+							throw exceptionToThrow;
+						} else {
+							// select the bitmap object and store the old handle
+							using (SafeSelectObjectHandle selectObject = safeCompatibleDCHandle.SelectObject(safeDibSectionHandle)) {
+								// bitblt over (make copy)
+								GDI32.BitBlt(safeCompatibleDCHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDCHandle, captureBounds.X, captureBounds.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
 							}
-						}
-						// Check all all screens are of an equal size
-						bool offscreenContent = false;
-						using (Region captureRegion = new Region(captureBounds)) {
-							// Exclude every visible part
-							foreach (Screen screen in screensInsideCapture) {
-								captureRegion.Exclude(screen.Bounds);
-							}
-							// If the region is not empty, we have "offscreenContent"
-							using (Graphics screenGraphics = Graphics.FromHwnd(User32.GetDesktopWindow())) {
-								offscreenContent = !captureRegion.IsEmpty(screenGraphics);
-							}
-						}
-						// Check if we need to have a transparent background, needed for offscreen content
-						if (offscreenContent) {
-							using (Bitmap tmpBitmap = Bitmap.FromHbitmap(hDIBSection)) {
-								// Create a new bitmap which has a transparent background
-								returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
-								// Content will be copied here
-								using (Graphics graphics = Graphics.FromImage(returnBitmap)) {
-									// For all screens copy the content to the new bitmap
+
+							// get a .NET image object for it
+							// A suggestion for the "A generic error occurred in GDI+." E_FAIL/0×80004005 error is to re-try...
+							bool success = false;
+							ExternalException exception = null;
+							for (int i = 0; i < 3; i++) {
+								try {
+									// Collect all screens inside this capture
+									List<Screen> screensInsideCapture = new List<Screen>();
 									foreach (Screen screen in Screen.AllScreens) {
-										Rectangle screenBounds = screen.Bounds;
-										// Make sure the bounds are offsetted to the capture bounds
-										screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
-										graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);
+										if (screen.Bounds.IntersectsWith(captureBounds)) {
+											screensInsideCapture.Add(screen);
+										}
 									}
+									// Check all all screens are of an equal size
+									bool offscreenContent = false;
+									using (Region captureRegion = new Region(captureBounds)) {
+										// Exclude every visible part
+										foreach (Screen screen in screensInsideCapture) {
+											captureRegion.Exclude(screen.Bounds);
+										}
+										// If the region is not empty, we have "offscreenContent"
+										using (Graphics screenGraphics = Graphics.FromHwnd(User32.GetDesktopWindow())) {
+											offscreenContent = !captureRegion.IsEmpty(screenGraphics);
+										}
+									}
+									// Check if we need to have a transparent background, needed for offscreen content
+									if (offscreenContent) {
+										using (Bitmap tmpBitmap = Bitmap.FromHbitmap(safeDibSectionHandle.DangerousGetHandle())) {
+											// Create a new bitmap which has a transparent background
+											returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
+											// Content will be copied here
+											using (Graphics graphics = Graphics.FromImage(returnBitmap)) {
+												// For all screens copy the content to the new bitmap
+												foreach (Screen screen in Screen.AllScreens) {
+													Rectangle screenBounds = screen.Bounds;
+													// Make sure the bounds are offsetted to the capture bounds
+													screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
+													graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);
+												}
+											}
+										}
+									} else {
+										// All screens, which are inside the capture, are of equal size
+										// assign image to Capture, the image will be disposed there..
+										returnBitmap = Bitmap.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
+									}
+									// We got through the capture without exception
+									success = true;
+									break;
+								} catch (ExternalException ee) {
+									LOG.Warn("Problem getting bitmap at try " + i + " : ", ee);
+									exception = ee;
 								}
 							}
-						} else {
-							// All screens, which are inside the capture, are of equal size
-							// assign image to Capture, the image will be disposed there..
-							returnBitmap = Bitmap.FromHbitmap(hDIBSection);
+							if (!success) {
+								LOG.Error("Still couldn't create Bitmap!");
+								throw exception;
+							}
 						}
-						// We got through the capture without exception
-						success = true;
-						break;
-					} catch (ExternalException ee) {
-						LOG.Warn("Problem getting bitmap at try " + i + " : ", ee);
-						exception = ee;
 					}
 				}
-				if (!success) {
-					LOG.Error("Still couldn't create Bitmap!");
-					throw exception;
-				}
-				// free up the Bitmap object
-				GDI32.DeleteObject(hDIBSection);
-				
 			}
 			return returnBitmap;
 		}

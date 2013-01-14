@@ -1224,15 +1224,15 @@ namespace GreenshotPlugin.Core  {
 		/// Get the region for a window
 		/// </summary>
 		private Region GetRegion() {
-			IntPtr windowRegionPtr = GDI32.CreateRectRgn(0,0,0,0);
-			RegionResult result = User32.GetWindowRgn(Handle, windowRegionPtr);
-			Region returnRegion = null;
-			if (result != RegionResult.REGION_ERROR && result != RegionResult.REGION_NULLREGION) {
-				returnRegion = Region.FromHrgn(windowRegionPtr);
+			using (SafeRegionHandle region = GDI32.CreateRectRgn(0, 0, 0, 0)) {
+				if (!region.IsInvalid) {
+					RegionResult result = User32.GetWindowRgn(Handle, region);
+					if (result != RegionResult.REGION_ERROR && result != RegionResult.REGION_NULLREGION) {
+						return Region.FromHrgn(region.DangerousGetHandle());
+					}
+				}
 			}
-			// Free the region object
-			GDI32.DeleteObject(windowRegionPtr);
-			return returnRegion;
+			return null;
 		}
 		
 		private bool CanFreezeOrUnfreeze(string titleOrProcessname) {
