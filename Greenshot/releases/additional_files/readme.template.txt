@@ -28,6 +28,7 @@ Bugs resolved:
 * Not reported: Undo while in an Auto-Crop made the editor unusable.
 * Not reported: When first selecting a printer, the main printer destination has been replaced by the selected one, making the Windows printer dialog unavailable for further prints
 * Not reported: Open last capture in explorer doesn't open the right location
+* Not reported: Fixed some issues where the sub-menus of the context menu moved to the next screen.
 
 Features:
 * General: Added zoom when capturing
