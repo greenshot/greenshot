@@ -677,13 +677,21 @@ namespace Greenshot {
 					Dictionary<WindowDetails, int> counter = new Dictionary<WindowDetails, int>();
 					
 					foreach(KeyValuePair<WindowDetails, string> tabData in tabs) {
-						ToolStripMenuItem captureIETabItem = new ToolStripMenuItem(tabData.Value);
+						string title = tabData.Value;
+						if (title == null) {
+							continue;
+						}
+						if (title.Length > conf.MaxMenuItemLength) {
+							title = title.Substring(0, Math.Min(title.Length, conf.MaxMenuItemLength));
+						}
+						ToolStripItem captureIETabItem = contextmenu_captureiefromlist.DropDownItems.Add(title);
 						int index;
 						if (counter.ContainsKey(tabData.Key)) {
 							index = counter[tabData.Key];
 						} else {
 							index = 0;
 						}
+						captureIETabItem.Image = tabData.Key.DisplayIcon;
 						captureIETabItem.Tag = new KeyValuePair<WindowDetails, int>(tabData.Key, index++);
 						captureIETabItem.Click += new System.EventHandler(Contextmenu_captureiefromlist_Click);
 						this.contextmenu_captureiefromlist.DropDownItems.Add(captureIETabItem);
@@ -809,16 +817,22 @@ namespace Greenshot {
 
 			List<WindowDetails> windows = WindowDetails.GetTopLevelWindows();
 			foreach(WindowDetails window in windows) {
-				ToolStripMenuItem captureWindowItem = new ToolStripMenuItem(window.Text);
-				captureWindowItem.Tag = window;
-				captureWindowItem.Image = window.DisplayIcon;
-				captureWindowItem.Click += new System.EventHandler(eventHandler);
-				// Only show preview when enabled
-				if (thumbnailPreview) {
-					captureWindowItem.MouseEnter += new System.EventHandler(ShowThumbnailOnEnter);
-					captureWindowItem.MouseLeave += new System.EventHandler(HideThumbnailOnLeave);
+
+				string title = window.Text;
+				if (title != null) {
+					if (title.Length > conf.MaxMenuItemLength) {
+						title = title.Substring(0, Math.Min(title.Length, conf.MaxMenuItemLength));
+					}
+					ToolStripItem captureWindowItem = menuItem.DropDownItems.Add(title);
+					captureWindowItem.Tag = window;
+					captureWindowItem.Image = window.DisplayIcon;
+					captureWindowItem.Click += new System.EventHandler(eventHandler);
+					// Only show preview when enabled
+					if (thumbnailPreview) {
+						captureWindowItem.MouseEnter += new System.EventHandler(ShowThumbnailOnEnter);
+						captureWindowItem.MouseLeave += new System.EventHandler(HideThumbnailOnLeave);
+					}
 				}
-				menuItem.DropDownItems.Add(captureWindowItem);
 			}
 		}
 

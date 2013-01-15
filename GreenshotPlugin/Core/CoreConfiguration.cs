@@ -219,6 +219,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("ZoomerEnabled", Description = "Sets if the zoomer is enabled", DefaultValue = "True")]
 		public bool ZoomerEnabled;
 
+		[IniProperty("MaxMenuItemLength", Description = "Maximum length of submenu items in the context menu, making this longer might cause context menu issues on dual screen systems.", DefaultValue = "25")]
+		public int MaxMenuItemLength;
+
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.UNSTABLE;
 
