@@ -1150,7 +1150,7 @@ namespace Greenshot {
 				return;
 			}
 			// The right button will automatically be handled with the context menu, here we only check the left.
-			if (conf.DoubleClickAction == ClickActions.NOTHING) {
+			if (conf.DoubleClickAction == ClickActions.DO_NOTHING) {
 				// As there isn't a double-click we can start the Left click
 				NotifyIconClick(conf.LeftClickAction);
 				// ready with the test
@@ -1212,7 +1212,10 @@ namespace Greenshot {
 						CaptureHelper.CaptureFile(conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 					}
 					break;
-				case ClickActions.CONTEXT_MENU:
+				case ClickActions.OPEN_SETTINGS:
+					ShowSetting();
+					break;
+				case ClickActions.SHOW_CONTEXT_MENU:
 					MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
 					oMethodInfo.Invoke(notifyIcon, null);
 					break;

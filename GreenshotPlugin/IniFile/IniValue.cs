@@ -288,9 +288,12 @@ namespace Greenshot.IniFile {
 					newValue = null;
 					if (!defaultUsed) {
 						try {
+							LOG.WarnFormat("Problem '{0}' while converting {1} to type {2} trying fallback...", ex1.Message, propertyValue, valueType.FullName);
 							newValue = ConvertStringToValueType(valueType, defaultValue, attributes.Separator);
+							this.ContainingIniSection.IsDirty = true;
+							LOG.InfoFormat("Used default value {0} for property {1}", defaultValue, propertyName);
 						} catch (Exception ex2) {
-							LOG.Warn("Problem converting " + propertyValue + " to type " + valueType.FullName, ex2);
+							LOG.Warn("Problem converting fallback value " + defaultValue + " to type " + valueType.FullName, ex2);
 						}
 					} else {
 						LOG.Warn("Problem converting " + propertyValue + " to type " + valueType.FullName, ex1);
