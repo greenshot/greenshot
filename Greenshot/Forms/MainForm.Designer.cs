@@ -251,7 +251,7 @@ namespace Greenshot {
 			// 
 			this.notifyIcon.ContextMenuStrip = this.contextMenu;
 			this.notifyIcon.Text = "Greenshot";
-			this.notifyIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.NotifyIconClick);
+			this.notifyIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.NotifyIconClickTest);
 			// 
 			// backgroundWorkerTimer
 			// 

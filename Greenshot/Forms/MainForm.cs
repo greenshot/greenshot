@@ -310,7 +310,9 @@ namespace Greenshot {
 		private SettingsForm settingsForm = null;
 		// Make sure we have only one about form
 		private AboutForm aboutForm = null;
-		
+		// Timer for the double click test
+		private System.Timers.Timer doubleClickTimer = new System.Timers.Timer();
+
 		public NotifyIcon NotifyIcon {
 			get {
 				return notifyIcon;				
@@ -1143,41 +1145,80 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void NotifyIconClick(object sender, MouseEventArgs e) {
+		private void NotifyIconClickTest(object sender, MouseEventArgs e) {
+			if (e.Button != MouseButtons.Left) {
+				return;
+			}
 			// The right button will automatically be handled with the context menu, here we only check the left.
-			if (e.Button == MouseButtons.Left) {
-				switch (conf.LeftClickAction) {
-					case LeftClickActions.OPEN_LAST_IN_EXPLORER:
-						string path = null;
-						string configPath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
-						string lastFilePath = Path.GetDirectoryName(conf.OutputFileAsFullpath);
-						if (Directory.Exists(lastFilePath)) {
-							path = lastFilePath;
-						} else if (Directory.Exists(configPath)) {
-							path = configPath;
-						}
+			if (conf.DoubleClickAction == ClickActions.NOTHING) {
+				// As there isn't a double-click we can start the Left click
+				NotifyIconClick(conf.LeftClickAction);
+				// ready with the test
+				return;
+			}
+			// If the timer is enabled we are waiting for a double click...
+			if (doubleClickTimer.Enabled) {
+				// User clicked a second time before the timer tick: Double-click!
+				doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
+				doubleClickTimer.Stop();
+				NotifyIconClick(conf.DoubleClickAction);
+			} else {
+				// User clicked without a timer, set the timer and if it ticks it was a single click
+				// Create timer, if it ticks before the NotifyIconClickTest is called again we have a single click
+				doubleClickTimer.Elapsed += NotifyIconSingleClickTest;
+				doubleClickTimer.Interval = SystemInformation.DoubleClickTime;
+				doubleClickTimer.Start();
+			}
+		}
 
-						try {
-							System.Diagnostics.Process.Start(path);
-						} catch (Exception ex) {
-							// Make sure we show what we tried to open in the exception
-							ex.Data.Add("path", path);
-							throw ex;
-						}
-						break;
-					case LeftClickActions.OPEN_LAST_IN_EDITOR:
-						if (File.Exists(conf.OutputFileAsFullpath)) {
-							CaptureHelper.CaptureFile(conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));				
-						}
-						break;
-					case LeftClickActions.CONTEXT_MENU:
-						MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-						oMethodInfo.Invoke(notifyIcon, null);
-						break;
-					default:
-						// Do nothing
-						break;
-				}
+		/// <summary>
+		/// Called by the doubleClickTimer, this means a single click was used on the tray icon
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void NotifyIconSingleClickTest(object sender, EventArgs e) {
+			doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
+			doubleClickTimer.Stop();
+			BeginInvoke((MethodInvoker)delegate {
+				NotifyIconClick(conf.LeftClickAction);
+			});
+		}
+
+		/// <summary>
+		/// Handle the notify icon click
+		/// </summary>
+		private void NotifyIconClick(ClickActions clickAction) {
+			switch (clickAction) {
+				case ClickActions.OPEN_LAST_IN_EXPLORER:
+					string path = null;
+					string configPath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
+					string lastFilePath = Path.GetDirectoryName(conf.OutputFileAsFullpath);
+					if (Directory.Exists(lastFilePath)) {
+						path = lastFilePath;
+					} else if (Directory.Exists(configPath)) {
+						path = configPath;
+					}
+
+					try {
+						System.Diagnostics.Process.Start(path);
+					} catch (Exception ex) {
+						// Make sure we show what we tried to open in the exception
+						ex.Data.Add("path", path);
+						throw ex;
+					}
+					break;
+				case ClickActions.OPEN_LAST_IN_EDITOR:
+					if (File.Exists(conf.OutputFileAsFullpath)) {
+						CaptureHelper.CaptureFile(conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+					}
+					break;
+				case ClickActions.CONTEXT_MENU:
+					MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
+					oMethodInfo.Invoke(notifyIcon, null);
+					break;
+				default:
+					// Do nothing
+					break;
 			}
 		}
 
