@@ -43,7 +43,7 @@ namespace GreenshotPlugin.Core {
 		RELEASE
 	}
 	
-	public enum LeftClickActions {
+	public enum ClickActions {
 		NOTHING,
 		OPEN_LAST_IN_EXPLORER,
 		OPEN_LAST_IN_EDITOR,
@@ -213,8 +213,11 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("WindowCornerCutShape", Description = "The cutshape which is used to remove the window corners, is mirrorred for all corners", DefaultValue = "5,3,2,1,1")]
 		public List<int> WindowCornerCutShape;
 		
-		[IniProperty("LeftClickAction", Description = "Specify what action is made if the tray icon is left clicked", DefaultValue = "CONTEXT_MENU")]		
-		public LeftClickActions LeftClickAction;
+		[IniProperty("LeftClickAction", Description = "Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)", DefaultValue = "CONTEXT_MENU")]
+		public ClickActions LeftClickAction;
+
+		[IniProperty("DoubleClickAction", Description = "Specify what action is made if the tray icon is double clicked", DefaultValue = "OPEN_LAST_IN_EXPLORER")]
+		public ClickActions DoubleClickAction;
 
 		[IniProperty("ZoomerEnabled", Description = "Sets if the zoomer is enabled", DefaultValue = "True")]
 		public bool ZoomerEnabled;
