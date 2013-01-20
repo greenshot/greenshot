@@ -36,6 +36,8 @@ namespace Greenshot.Drawing.Fields {
 		public static readonly FieldType FONT_FAMILY = new FieldType("FONT_FAMILY");
 		public static readonly FieldType FONT_ITALIC = new FieldType("FONT_ITALIC");
 		public static readonly FieldType FONT_SIZE = new FieldType("FONT_SIZE");
+		public static readonly FieldType TEXT_HORIZONTAL_ALIGNMENT = new FieldType("TEXT_HORIZONTAL_ALIGNMENT");
+		public static readonly FieldType TEXT_VERTICAL_ALIGNMENT = new FieldType("TEXT_VERTICAL_ALIGNMENT");
 		public static readonly FieldType HIGHLIGHT_COLOR = new FieldType("HIGHLIGHT_COLOR");
 		public static readonly FieldType LINE_COLOR = new FieldType("LINE_COLOR");
 		public static readonly FieldType LINE_THICKNESS = new FieldType("LINE_THICKNESS");
@@ -56,6 +58,8 @@ namespace Greenshot.Drawing.Fields {
 			FONT_FAMILY,
 			FONT_ITALIC,
 			FONT_SIZE,
+			TEXT_HORIZONTAL_ALIGNMENT,
+			TEXT_VERTICAL_ALIGNMENT,
 			HIGHLIGHT_COLOR,
 			LINE_COLOR,
 			LINE_THICKNESS,

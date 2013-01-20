@@ -58,6 +58,14 @@ Dangschee, wassd scho :)</resource>
 		<resource name="contextmenu_quicksettings">Zaggich rumdogdern</resource>
 		<resource name="contextmenu_settings">Rumdogdern...</resource>
 		<resource name="destination_exportfailed">Scheiße, des war nix '{0}'. Brobiers hald nochamal.</resource>
+		<resource name="editor_align_bottom">Undn</resource>
+		<resource name="editor_align_center">Middich</resource>
+		<resource name="editor_align_horizontal">Lings/Rechds ausrichdna</resource>
+		<resource name="editor_align_left">Lings</resource>
+		<resource name="editor_align_middle">Middich</resource>
+		<resource name="editor_align_right">Rechds</resource>
+		<resource name="editor_align_top">Ohm</resource>
+		<resource name="editor_align_vertical">Ohm/Undn ausrichdna</resource>
 		<resource name="editor_arrange">Anordnen</resource>
 		<resource name="editor_arrowheads">Bfeilschbidzn</resource>
 		<resource name="editor_arrowheads_both">Beide</resource>

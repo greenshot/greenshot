@@ -60,6 +60,14 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="contextmenu_quicksettings">Schnelleinstellungen</resource>
 		<resource name="contextmenu_settings">Einstellungen...</resource>
 		<resource name="destination_exportfailed">Fehler beim Exportieren nach '{0}'. Bitte wiederholen Sie den Vorgang.</resource>
+		<resource name="editor_align_bottom">Unten</resource>
+		<resource name="editor_align_center">Mitte</resource>
+		<resource name="editor_align_horizontal">Horizontale Ausrichtung</resource>
+		<resource name="editor_align_left">Links</resource>
+		<resource name="editor_align_middle">Mitte</resource>
+		<resource name="editor_align_right">Rechts</resource>
+		<resource name="editor_align_top">Oben</resource>
+		<resource name="editor_align_vertical">Vertikale Ausrichtung</resource>
 		<resource name="editor_arrange">Anordnen</resource>
 		<resource name="editor_arrowheads">Pfeilspitzen</resource>
 		<resource name="editor_arrowheads_both">Beide</resource>

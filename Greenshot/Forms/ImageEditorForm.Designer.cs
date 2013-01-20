@@ -149,6 +149,10 @@ namespace Greenshot {
 			this.fontSizeUpDown = new Greenshot.Controls.ToolStripNumericUpDown();
 			this.fontBoldButton = new Greenshot.Controls.BindableToolStripButton();
 			this.fontItalicButton = new Greenshot.Controls.BindableToolStripButton();
+			this.textVerticalAlignmentButton = new Greenshot.Controls.BindableToolStripDropDownButton();
+			this.alignTopToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.alignMiddleToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.alignBottomToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.blurRadiusLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
 			this.blurRadiusUpDown = new Greenshot.Controls.ToolStripNumericUpDown();
 			this.brightnessLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
@@ -175,6 +179,10 @@ namespace Greenshot {
 			this.fileSavedStatusContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.copyPathMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.openDirectoryMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.textHorizontalAlignmentButton = new Greenshot.Controls.BindableToolStripDropDownButton();
+			this.alignLeftToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.alignCenterToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.alignRightToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.toolStripContainer1.BottomToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.LeftToolStripPanel.SuspendLayout();
@@ -222,8 +230,8 @@ namespace Greenshot {
 			// 
 			this.statusStrip1.Dock = System.Windows.Forms.DockStyle.None;
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.dimensionsLabel,
-            this.statusLabel});
+									this.dimensionsLabel,
+									this.statusLabel});
 			this.statusStrip1.Location = new System.Drawing.Point(0, 0);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(785, 24);
@@ -232,9 +240,9 @@ namespace Greenshot {
 			// 
 			// dimensionsLabel
 			// 
-			this.dimensionsLabel.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top)
-						| System.Windows.Forms.ToolStripStatusLabelBorderSides.Right)
-						| System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.dimensionsLabel.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+									| System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+									| System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
 			this.dimensionsLabel.BorderStyle = System.Windows.Forms.Border3DStyle.Sunken;
 			this.dimensionsLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.dimensionsLabel.Name = "dimensionsLabel";
@@ -243,9 +251,9 @@ namespace Greenshot {
 			// 
 			// statusLabel
 			// 
-			this.statusLabel.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top)
-						| System.Windows.Forms.ToolStripStatusLabelBorderSides.Right)
-						| System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.statusLabel.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+									| System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+									| System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
 			this.statusLabel.BorderStyle = System.Windows.Forms.Border3DStyle.Sunken;
 			this.statusLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.statusLabel.Name = "statusLabel";
@@ -284,22 +292,22 @@ namespace Greenshot {
 			this.toolStrip2.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStrip2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btnCursor,
-            this.toolStripSeparator1,
-            this.btnRect,
-            this.btnEllipse,
-            this.btnLine,
-            this.btnArrow,
-            this.btnFreehand,
-            this.btnText,
-            this.toolStripSeparator14,
-            this.btnHighlight,
-            this.btnObfuscate,
-            this.toolStripSplitButton1,
-            this.toolStripSeparator13,
-            this.btnCrop,
-            this.rotateCwToolstripButton,
-            this.rotateCcwToolstripButton});
+									this.btnCursor,
+									this.toolStripSeparator1,
+									this.btnRect,
+									this.btnEllipse,
+									this.btnLine,
+									this.btnArrow,
+									this.btnFreehand,
+									this.btnText,
+									this.toolStripSeparator14,
+									this.btnHighlight,
+									this.btnObfuscate,
+									this.toolStripSplitButton1,
+									this.toolStripSeparator13,
+									this.btnCrop,
+									this.rotateCwToolstripButton,
+									this.rotateCcwToolstripButton});
 			this.toolStrip2.Location = new System.Drawing.Point(0, 0);
 			this.toolStrip2.Name = "toolStrip2";
 			this.toolStrip2.Size = new System.Drawing.Size(24, 385);
@@ -418,52 +426,52 @@ namespace Greenshot {
 			// 
 			this.toolStripSplitButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.toolStripSplitButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addBorderToolStripMenuItem,
-            this.addDropshadowToolStripMenuItem,
-            this.tornEdgesToolStripMenuItem,
-            this.grayscaleToolStripMenuItem,
-            this.invertToolStripMenuItem});
+									this.addBorderToolStripMenuItem,
+									this.addDropshadowToolStripMenuItem,
+									this.tornEdgesToolStripMenuItem,
+									this.grayscaleToolStripMenuItem,
+									this.invertToolStripMenuItem});
 			this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
 			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripSplitButton1.LanguageKey = "editor_effects";
 			this.toolStripSplitButton1.Name = "toolStripSplitButton1";
 			this.toolStripSplitButton1.ShowDropDownArrow = false;
 			this.toolStripSplitButton1.Size = new System.Drawing.Size(22, 20);
 			this.toolStripSplitButton1.Text = "toolStripSplitButton1";
-			this.toolStripSplitButton1.LanguageKey = "editor_effects";
 			// 
 			// addBorderToolStripMenuItem
 			// 
-			this.addBorderToolStripMenuItem.Name = "addBorderToolStripMenuItem";
-			this.addBorderToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
 			this.addBorderToolStripMenuItem.LanguageKey = "editor_border";
+			this.addBorderToolStripMenuItem.Name = "addBorderToolStripMenuItem";
+			this.addBorderToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.addBorderToolStripMenuItem.Click += new System.EventHandler(this.AddBorderToolStripMenuItemClick);
 			// 
 			// addDropshadowToolStripMenuItem
 			// 
-			this.addDropshadowToolStripMenuItem.Name = "addDropshadowToolStripMenuItem";
-			this.addDropshadowToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
 			this.addDropshadowToolStripMenuItem.LanguageKey = "editor_image_shadow";
+			this.addDropshadowToolStripMenuItem.Name = "addDropshadowToolStripMenuItem";
+			this.addDropshadowToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.addDropshadowToolStripMenuItem.Click += new System.EventHandler(this.AddDropshadowToolStripMenuItemClick);
 			// 
 			// tornEdgesToolStripMenuItem
 			// 
-			this.tornEdgesToolStripMenuItem.Name = "tornEdgesToolStripMenuItem";
-			this.tornEdgesToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
 			this.tornEdgesToolStripMenuItem.LanguageKey = "editor_torn_edge";
+			this.tornEdgesToolStripMenuItem.Name = "tornEdgesToolStripMenuItem";
+			this.tornEdgesToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.tornEdgesToolStripMenuItem.Click += new System.EventHandler(this.TornEdgesToolStripMenuItemClick);
 			// 
 			// grayscaleToolStripMenuItem
 			// 
-			this.grayscaleToolStripMenuItem.Name = "grayscaleToolStripMenuItem";
-			this.grayscaleToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
 			this.grayscaleToolStripMenuItem.LanguageKey = "editor_grayscale";
+			this.grayscaleToolStripMenuItem.Name = "grayscaleToolStripMenuItem";
+			this.grayscaleToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.grayscaleToolStripMenuItem.Click += new System.EventHandler(this.GrayscaleToolStripMenuItemClick);
 			// 
 			// invertToolStripMenuItem
 			// 
-			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
-			this.invertToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
 			this.invertToolStripMenuItem.LanguageKey = "editor_invert";
+			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
+			this.invertToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.invertToolStripMenuItem.Click += new System.EventHandler(this.InvertToolStripMenuItemClick);
 			// 
 			// toolStripSeparator13
@@ -486,9 +494,9 @@ namespace Greenshot {
 			this.rotateCwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.rotateCwToolstripButton.Image = ((System.Drawing.Image)(resources.GetObject("rotateCwToolstripButton.Image")));
 			this.rotateCwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.rotateCwToolstripButton.LanguageKey = "editor_rotatecw";
 			this.rotateCwToolstripButton.Name = "rotateCwToolstripButton";
 			this.rotateCwToolstripButton.Size = new System.Drawing.Size(22, 20);
-			this.rotateCwToolstripButton.LanguageKey = "editor_rotatecw";
 			this.rotateCwToolstripButton.Click += new System.EventHandler(this.RotateCwToolstripButtonClick);
 			// 
 			// rotateCcwToolstripButton
@@ -496,9 +504,9 @@ namespace Greenshot {
 			this.rotateCcwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.rotateCcwToolstripButton.Image = ((System.Drawing.Image)(resources.GetObject("rotateCcwToolstripButton.Image")));
 			this.rotateCcwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.rotateCcwToolstripButton.LanguageKey = "editor_rotateccw";
 			this.rotateCcwToolstripButton.Name = "rotateCcwToolstripButton";
 			this.rotateCcwToolstripButton.Size = new System.Drawing.Size(22, 20);
-			this.rotateCcwToolstripButton.LanguageKey = "editor_rotateccw";
 			this.rotateCcwToolstripButton.Click += new System.EventHandler(this.RotateCcwToolstripButtonClick);
 			// 
 			// menuStrip1
@@ -506,11 +514,11 @@ namespace Greenshot {
 			this.menuStrip1.ClickThrough = true;
 			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileStripMenuItem,
-            this.editToolStripMenuItem,
-            this.objectToolStripMenuItem,
-            this.pluginToolStripMenuItem,
-            this.helpToolStripMenuItem});
+									this.fileStripMenuItem,
+									this.editToolStripMenuItem,
+									this.objectToolStripMenuItem,
+									this.pluginToolStripMenuItem,
+									this.helpToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(785, 24);
@@ -527,20 +535,20 @@ namespace Greenshot {
 			// editToolStripMenuItem
 			// 
 			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.undoToolStripMenuItem,
-            this.redoToolStripMenuItem,
-            this.toolStripSeparator15,
-            this.cutToolStripMenuItem,
-            this.copyToolStripMenuItem,
-            this.pasteToolStripMenuItem,
-            this.toolStripSeparator4,
-            this.duplicateToolStripMenuItem,
-            this.toolStripSeparator12,
-            this.preferencesToolStripMenuItem,
-            this.toolStripSeparator5,
-            this.autoCropToolStripMenuItem,
-            this.toolStripSeparator17,
-            this.insert_window_toolstripmenuitem});
+									this.undoToolStripMenuItem,
+									this.redoToolStripMenuItem,
+									this.toolStripSeparator15,
+									this.cutToolStripMenuItem,
+									this.copyToolStripMenuItem,
+									this.pasteToolStripMenuItem,
+									this.toolStripSeparator4,
+									this.duplicateToolStripMenuItem,
+									this.toolStripSeparator12,
+									this.preferencesToolStripMenuItem,
+									this.toolStripSeparator5,
+									this.autoCropToolStripMenuItem,
+									this.toolStripSeparator17,
+									this.insert_window_toolstripmenuitem});
 			this.editToolStripMenuItem.LanguageKey = "editor_edit";
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
@@ -553,7 +561,7 @@ namespace Greenshot {
 			this.undoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("undoToolStripMenuItem.Image")));
 			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
 			this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-			this.undoToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+			this.undoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.undoToolStripMenuItem.Text = "Undo";
 			this.undoToolStripMenuItem.Click += new System.EventHandler(this.UndoToolStripMenuItemClick);
 			// 
@@ -563,112 +571,112 @@ namespace Greenshot {
 			this.redoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("redoToolStripMenuItem.Image")));
 			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
 			this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-			this.redoToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+			this.redoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.redoToolStripMenuItem.Text = "Redo";
 			this.redoToolStripMenuItem.Click += new System.EventHandler(this.RedoToolStripMenuItemClick);
 			// 
 			// toolStripSeparator15
 			// 
 			this.toolStripSeparator15.Name = "toolStripSeparator15";
-			this.toolStripSeparator15.Size = new System.Drawing.Size(165, 6);
+			this.toolStripSeparator15.Size = new System.Drawing.Size(141, 6);
 			// 
 			// cutToolStripMenuItem
 			// 
 			this.cutToolStripMenuItem.Enabled = false;
 			this.cutToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("cutToolStripMenuItem.Image")));
+			this.cutToolStripMenuItem.LanguageKey = "editor_cuttoclipboard";
 			this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
 			this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-			this.cutToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
-			this.cutToolStripMenuItem.LanguageKey = "editor_cuttoclipboard";
+			this.cutToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.cutToolStripMenuItem.Click += new System.EventHandler(this.CutToolStripMenuItemClick);
 			// 
 			// copyToolStripMenuItem
 			// 
 			this.copyToolStripMenuItem.Enabled = false;
 			this.copyToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copyToolStripMenuItem.Image")));
+			this.copyToolStripMenuItem.LanguageKey = "editor_copytoclipboard";
 			this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
 			this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-			this.copyToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
-			this.copyToolStripMenuItem.LanguageKey = "editor_copytoclipboard";
+			this.copyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.copyToolStripMenuItem.Click += new System.EventHandler(this.CopyToolStripMenuItemClick);
 			// 
 			// pasteToolStripMenuItem
 			// 
 			this.pasteToolStripMenuItem.Enabled = false;
 			this.pasteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pasteToolStripMenuItem.Image")));
+			this.pasteToolStripMenuItem.LanguageKey = "editor_pastefromclipboard";
 			this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
 			this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-			this.pasteToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
-			this.pasteToolStripMenuItem.LanguageKey = "editor_pastefromclipboard";
+			this.pasteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.pasteToolStripMenuItem.Click += new System.EventHandler(this.PasteToolStripMenuItemClick);
 			// 
 			// toolStripSeparator4
 			// 
 			this.toolStripSeparator4.Name = "toolStripSeparator4";
-			this.toolStripSeparator4.Size = new System.Drawing.Size(165, 6);
+			this.toolStripSeparator4.Size = new System.Drawing.Size(141, 6);
 			// 
 			// duplicateToolStripMenuItem
 			// 
 			this.duplicateToolStripMenuItem.Enabled = false;
+			this.duplicateToolStripMenuItem.LanguageKey = "editor_duplicate";
 			this.duplicateToolStripMenuItem.Name = "duplicateToolStripMenuItem";
 			this.duplicateToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
-			this.duplicateToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
-			this.duplicateToolStripMenuItem.LanguageKey = "editor_duplicate";
+			this.duplicateToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.duplicateToolStripMenuItem.Click += new System.EventHandler(this.DuplicateToolStripMenuItemClick);
 			// 
 			// toolStripSeparator12
 			// 
 			this.toolStripSeparator12.Name = "toolStripSeparator12";
-			this.toolStripSeparator12.Size = new System.Drawing.Size(165, 6);
+			this.toolStripSeparator12.Size = new System.Drawing.Size(141, 6);
 			// 
 			// preferencesToolStripMenuItem
 			// 
 			this.preferencesToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("preferencesToolStripMenuItem.Image")));
-			this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-			this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.preferencesToolStripMenuItem.LanguageKey = "contextmenu_settings";
+			this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
+			this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.preferencesToolStripMenuItem.Click += new System.EventHandler(this.PreferencesToolStripMenuItemClick);
 			// 
 			// toolStripSeparator5
 			// 
 			this.toolStripSeparator5.Name = "toolStripSeparator5";
-			this.toolStripSeparator5.Size = new System.Drawing.Size(165, 6);
+			this.toolStripSeparator5.Size = new System.Drawing.Size(141, 6);
 			// 
 			// autoCropToolStripMenuItem
 			// 
-			this.autoCropToolStripMenuItem.Name = "autoCropToolStripMenuItem";
-			this.autoCropToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.autoCropToolStripMenuItem.LanguageKey = "editor_autocrop";
+			this.autoCropToolStripMenuItem.Name = "autoCropToolStripMenuItem";
+			this.autoCropToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.autoCropToolStripMenuItem.Click += new System.EventHandler(this.AutoCropToolStripMenuItemClick);
 			// 
 			// toolStripSeparator17
 			// 
 			this.toolStripSeparator17.Name = "toolStripSeparator17";
-			this.toolStripSeparator17.Size = new System.Drawing.Size(165, 6);
+			this.toolStripSeparator17.Size = new System.Drawing.Size(141, 6);
 			// 
 			// insert_window_toolstripmenuitem
 			// 
-			this.insert_window_toolstripmenuitem.Name = "insert_window_toolstripmenuitem";
-			this.insert_window_toolstripmenuitem.Size = new System.Drawing.Size(168, 22);
 			this.insert_window_toolstripmenuitem.LanguageKey = "editor_insertwindow";
+			this.insert_window_toolstripmenuitem.Name = "insert_window_toolstripmenuitem";
+			this.insert_window_toolstripmenuitem.Size = new System.Drawing.Size(144, 22);
 			this.insert_window_toolstripmenuitem.MouseEnter += new System.EventHandler(this.Insert_window_toolstripmenuitemMouseEnter);
 			// 
 			// objectToolStripMenuItem
 			// 
 			this.objectToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addRectangleToolStripMenuItem,
-            this.addEllipseToolStripMenuItem,
-            this.drawLineToolStripMenuItem,
-            this.drawArrowToolStripMenuItem,
-            this.drawFreehandToolStripMenuItem,
-            this.addTextBoxToolStripMenuItem,
-            this.toolStripSeparator8,
-            this.selectAllToolStripMenuItem,
-            this.removeObjectToolStripMenuItem,
-            this.toolStripSeparator7,
-            this.arrangeToolStripMenuItem,
-            this.saveElementsToolStripMenuItem,
-            this.loadElementsToolStripMenuItem});
+									this.addRectangleToolStripMenuItem,
+									this.addEllipseToolStripMenuItem,
+									this.drawLineToolStripMenuItem,
+									this.drawArrowToolStripMenuItem,
+									this.drawFreehandToolStripMenuItem,
+									this.addTextBoxToolStripMenuItem,
+									this.toolStripSeparator8,
+									this.selectAllToolStripMenuItem,
+									this.removeObjectToolStripMenuItem,
+									this.toolStripSeparator7,
+									this.arrangeToolStripMenuItem,
+									this.saveElementsToolStripMenuItem,
+									this.loadElementsToolStripMenuItem});
 			this.objectToolStripMenuItem.LanguageKey = "editor_object";
 			this.objectToolStripMenuItem.Name = "objectToolStripMenuItem";
 			this.objectToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
@@ -677,139 +685,139 @@ namespace Greenshot {
 			// addRectangleToolStripMenuItem
 			// 
 			this.addRectangleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addRectangleToolStripMenuItem.Image")));
-			this.addRectangleToolStripMenuItem.Name = "addRectangleToolStripMenuItem";
-			this.addRectangleToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.addRectangleToolStripMenuItem.LanguageKey = "editor_drawrectangle";
+			this.addRectangleToolStripMenuItem.Name = "addRectangleToolStripMenuItem";
+			this.addRectangleToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.addRectangleToolStripMenuItem.Click += new System.EventHandler(this.AddRectangleToolStripMenuItemClick);
 			// 
 			// addEllipseToolStripMenuItem
 			// 
 			this.addEllipseToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addEllipseToolStripMenuItem.Image")));
-			this.addEllipseToolStripMenuItem.Name = "addEllipseToolStripMenuItem";
-			this.addEllipseToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.addEllipseToolStripMenuItem.LanguageKey = "editor_drawellipse";
+			this.addEllipseToolStripMenuItem.Name = "addEllipseToolStripMenuItem";
+			this.addEllipseToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.addEllipseToolStripMenuItem.Click += new System.EventHandler(this.AddEllipseToolStripMenuItemClick);
 			// 
 			// drawLineToolStripMenuItem
 			// 
 			this.drawLineToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawLineToolStripMenuItem.Image")));
-			this.drawLineToolStripMenuItem.Name = "drawLineToolStripMenuItem";
-			this.drawLineToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.drawLineToolStripMenuItem.LanguageKey = "editor_drawline";
+			this.drawLineToolStripMenuItem.Name = "drawLineToolStripMenuItem";
+			this.drawLineToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.drawLineToolStripMenuItem.Click += new System.EventHandler(this.DrawLineToolStripMenuItemClick);
 			// 
 			// drawArrowToolStripMenuItem
 			// 
 			this.drawArrowToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawArrowToolStripMenuItem.Image")));
-			this.drawArrowToolStripMenuItem.Name = "drawArrowToolStripMenuItem";
-			this.drawArrowToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.drawArrowToolStripMenuItem.LanguageKey = "editor_drawarrow";
+			this.drawArrowToolStripMenuItem.Name = "drawArrowToolStripMenuItem";
+			this.drawArrowToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.drawArrowToolStripMenuItem.Click += new System.EventHandler(this.DrawArrowToolStripMenuItemClick);
 			// 
 			// drawFreehandToolStripMenuItem
 			// 
 			this.drawFreehandToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawFreehandToolStripMenuItem.Image")));
-			this.drawFreehandToolStripMenuItem.Name = "drawFreehandToolStripMenuItem";
-			this.drawFreehandToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.drawFreehandToolStripMenuItem.LanguageKey = "editor_drawfreehand";
+			this.drawFreehandToolStripMenuItem.Name = "drawFreehandToolStripMenuItem";
+			this.drawFreehandToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.drawFreehandToolStripMenuItem.Click += new System.EventHandler(this.DrawFreehandToolStripMenuItemClick);
 			// 
 			// addTextBoxToolStripMenuItem
 			// 
 			this.addTextBoxToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addTextBoxToolStripMenuItem.Image")));
-			this.addTextBoxToolStripMenuItem.Name = "addTextBoxToolStripMenuItem";
-			this.addTextBoxToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.addTextBoxToolStripMenuItem.LanguageKey = "editor_drawtextbox";
+			this.addTextBoxToolStripMenuItem.Name = "addTextBoxToolStripMenuItem";
+			this.addTextBoxToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.addTextBoxToolStripMenuItem.Click += new System.EventHandler(this.AddTextBoxToolStripMenuItemClick);
 			// 
 			// toolStripSeparator8
 			// 
 			this.toolStripSeparator8.Name = "toolStripSeparator8";
-			this.toolStripSeparator8.Size = new System.Drawing.Size(186, 6);
+			this.toolStripSeparator8.Size = new System.Drawing.Size(106, 6);
 			// 
 			// selectAllToolStripMenuItem
 			// 
+			this.selectAllToolStripMenuItem.LanguageKey = "editor_selectall";
 			this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
 			this.selectAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
-			this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-			this.selectAllToolStripMenuItem.LanguageKey = "editor_selectall";
+			this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItemClick);
 			// 
 			// removeObjectToolStripMenuItem
 			// 
 			this.removeObjectToolStripMenuItem.Enabled = false;
 			this.removeObjectToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("removeObjectToolStripMenuItem.Image")));
+			this.removeObjectToolStripMenuItem.LanguageKey = "editor_deleteelement";
 			this.removeObjectToolStripMenuItem.Name = "removeObjectToolStripMenuItem";
 			this.removeObjectToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
-			this.removeObjectToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-			this.removeObjectToolStripMenuItem.LanguageKey = "editor_deleteelement";
+			this.removeObjectToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.removeObjectToolStripMenuItem.Click += new System.EventHandler(this.RemoveObjectToolStripMenuItemClick);
 			// 
 			// toolStripSeparator7
 			// 
 			this.toolStripSeparator7.Name = "toolStripSeparator7";
-			this.toolStripSeparator7.Size = new System.Drawing.Size(186, 6);
+			this.toolStripSeparator7.Size = new System.Drawing.Size(106, 6);
 			// 
 			// arrangeToolStripMenuItem
 			// 
 			this.arrangeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.upToTopToolStripMenuItem,
-            this.upOneLevelToolStripMenuItem,
-            this.downOneLevelToolStripMenuItem,
-            this.downToBottomToolStripMenuItem});
+									this.upToTopToolStripMenuItem,
+									this.upOneLevelToolStripMenuItem,
+									this.downOneLevelToolStripMenuItem,
+									this.downToBottomToolStripMenuItem});
 			this.arrangeToolStripMenuItem.Enabled = false;
-			this.arrangeToolStripMenuItem.Name = "arrangeToolStripMenuItem";
-			this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.arrangeToolStripMenuItem.LanguageKey = "editor_arrange";
+			this.arrangeToolStripMenuItem.Name = "arrangeToolStripMenuItem";
+			this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			// 
 			// upToTopToolStripMenuItem
 			// 
 			this.upToTopToolStripMenuItem.Enabled = false;
+			this.upToTopToolStripMenuItem.LanguageKey = "editor_uptotop";
 			this.upToTopToolStripMenuItem.Name = "upToTopToolStripMenuItem";
 			this.upToTopToolStripMenuItem.ShortcutKeyDisplayString = "Home";
-			this.upToTopToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-			this.upToTopToolStripMenuItem.LanguageKey = "editor_uptotop";
+			this.upToTopToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.upToTopToolStripMenuItem.Click += new System.EventHandler(this.UpToTopToolStripMenuItemClick);
 			// 
 			// upOneLevelToolStripMenuItem
 			// 
 			this.upOneLevelToolStripMenuItem.Enabled = false;
+			this.upOneLevelToolStripMenuItem.LanguageKey = "editor_uponelevel";
 			this.upOneLevelToolStripMenuItem.Name = "upOneLevelToolStripMenuItem";
 			this.upOneLevelToolStripMenuItem.ShortcutKeyDisplayString = "PgUp";
-			this.upOneLevelToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-			this.upOneLevelToolStripMenuItem.LanguageKey = "editor_uponelevel";
+			this.upOneLevelToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.upOneLevelToolStripMenuItem.Click += new System.EventHandler(this.UpOneLevelToolStripMenuItemClick);
 			// 
 			// downOneLevelToolStripMenuItem
 			// 
 			this.downOneLevelToolStripMenuItem.Enabled = false;
+			this.downOneLevelToolStripMenuItem.LanguageKey = "editor_downonelevel";
 			this.downOneLevelToolStripMenuItem.Name = "downOneLevelToolStripMenuItem";
 			this.downOneLevelToolStripMenuItem.ShortcutKeyDisplayString = "PgDn";
-			this.downOneLevelToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-			this.downOneLevelToolStripMenuItem.LanguageKey = "editor_downonelevel";
+			this.downOneLevelToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.downOneLevelToolStripMenuItem.Click += new System.EventHandler(this.DownOneLevelToolStripMenuItemClick);
 			// 
 			// downToBottomToolStripMenuItem
 			// 
 			this.downToBottomToolStripMenuItem.Enabled = false;
+			this.downToBottomToolStripMenuItem.LanguageKey = "editor_downtobottom";
 			this.downToBottomToolStripMenuItem.Name = "downToBottomToolStripMenuItem";
 			this.downToBottomToolStripMenuItem.ShortcutKeyDisplayString = "End";
-			this.downToBottomToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-			this.downToBottomToolStripMenuItem.LanguageKey = "editor_downtobottom";
+			this.downToBottomToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.downToBottomToolStripMenuItem.Click += new System.EventHandler(this.DownToBottomToolStripMenuItemClick);
 			// 
 			// saveElementsToolStripMenuItem
 			// 
-			this.saveElementsToolStripMenuItem.Name = "saveElementsToolStripMenuItem";
-			this.saveElementsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.saveElementsToolStripMenuItem.LanguageKey = "editor_save_objects";
+			this.saveElementsToolStripMenuItem.Name = "saveElementsToolStripMenuItem";
+			this.saveElementsToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.saveElementsToolStripMenuItem.Click += new System.EventHandler(this.SaveElementsToolStripMenuItemClick);
 			// 
 			// loadElementsToolStripMenuItem
 			// 
-			this.loadElementsToolStripMenuItem.Name = "loadElementsToolStripMenuItem";
-			this.loadElementsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.loadElementsToolStripMenuItem.LanguageKey = "editor_load_objects";
+			this.loadElementsToolStripMenuItem.Name = "loadElementsToolStripMenuItem";
+			this.loadElementsToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.loadElementsToolStripMenuItem.Click += new System.EventHandler(this.LoadElementsToolStripMenuItemClick);
 			// 
 			// pluginToolStripMenuItem
@@ -823,8 +831,8 @@ namespace Greenshot {
 			// helpToolStripMenuItem
 			// 
 			this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.helpToolStripMenuItem1,
-            this.aboutToolStripMenuItem});
+									this.helpToolStripMenuItem1,
+									this.aboutToolStripMenuItem});
 			this.helpToolStripMenuItem.LanguageKey = "contextmenu_help";
 			this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
 			this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
@@ -833,17 +841,17 @@ namespace Greenshot {
 			// helpToolStripMenuItem1
 			// 
 			this.helpToolStripMenuItem1.Image = ((System.Drawing.Image)(resources.GetObject("helpToolStripMenuItem1.Image")));
+			this.helpToolStripMenuItem1.LanguageKey = "contextmenu_help";
 			this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
 			this.helpToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F1;
-			this.helpToolStripMenuItem1.Size = new System.Drawing.Size(118, 22);
-			this.helpToolStripMenuItem1.LanguageKey = "contextmenu_help";
+			this.helpToolStripMenuItem1.Size = new System.Drawing.Size(86, 22);
 			this.helpToolStripMenuItem1.Click += new System.EventHandler(this.HelpToolStripMenuItem1Click);
 			// 
 			// aboutToolStripMenuItem
 			// 
-			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
 			this.aboutToolStripMenuItem.LanguageKey = "contextmenu_about";
+			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(86, 22);
 			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItemClick);
 			// 
 			// toolStrip1
@@ -852,22 +860,22 @@ namespace Greenshot {
 			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btnSave,
-            this.btnClipboard,
-            this.btnPrint,
-            this.toolStripSeparator2,
-            this.btnDelete,
-            this.toolStripSeparator3,
-            this.btnCut,
-            this.btnCopy,
-            this.btnPaste,
-            this.btnUndo,
-            this.btnRedo,
-            this.toolStripSeparator6,
-            this.btnSettings,
-            this.toolStripSeparator11,
-            this.toolStripSeparator16,
-            this.btnHelp});
+									this.btnSave,
+									this.btnClipboard,
+									this.btnPrint,
+									this.toolStripSeparator2,
+									this.btnDelete,
+									this.toolStripSeparator3,
+									this.btnCut,
+									this.btnCopy,
+									this.btnPaste,
+									this.btnUndo,
+									this.btnRedo,
+									this.toolStripSeparator6,
+									this.btnSettings,
+									this.toolStripSeparator11,
+									this.toolStripSeparator16,
+									this.btnHelp});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 24);
 			this.toolStrip1.Name = "toolStrip1";
 			this.toolStrip1.Size = new System.Drawing.Size(785, 25);
@@ -1021,34 +1029,36 @@ namespace Greenshot {
 			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.propertiesToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.propertiesToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.obfuscateModeButton,
-            this.highlightModeButton,
-            this.btnFillColor,
-            this.btnLineColor,
-            this.lineThicknessLabel,
-            this.lineThicknessUpDown,
-            this.fontFamilyComboBox,
-            this.fontSizeLabel,
-            this.fontSizeUpDown,
-            this.fontBoldButton,
-            this.fontItalicButton,
-            this.blurRadiusLabel,
-            this.blurRadiusUpDown,
-            this.brightnessLabel,
-            this.brightnessUpDown,
-            this.previewQualityLabel,
-            this.previewQualityUpDown,
-            this.magnificationFactorLabel,
-            this.magnificationFactorUpDown,
-            this.pixelSizeLabel,
-            this.pixelSizeUpDown,
-            this.arrowHeadsLabel,
-            this.arrowHeadsDropDownButton,
-            this.shadowButton,
-            this.toolStripSeparator,
-            this.toolStripSeparator10,
-            this.btnConfirm,
-            this.btnCancel});
+									this.obfuscateModeButton,
+									this.highlightModeButton,
+									this.btnFillColor,
+									this.btnLineColor,
+									this.lineThicknessLabel,
+									this.lineThicknessUpDown,
+									this.fontFamilyComboBox,
+									this.fontSizeLabel,
+									this.fontSizeUpDown,
+									this.fontBoldButton,
+									this.fontItalicButton,
+									this.textHorizontalAlignmentButton,
+									this.textVerticalAlignmentButton,
+									this.blurRadiusLabel,
+									this.blurRadiusUpDown,
+									this.brightnessLabel,
+									this.brightnessUpDown,
+									this.previewQualityLabel,
+									this.previewQualityUpDown,
+									this.magnificationFactorLabel,
+									this.magnificationFactorUpDown,
+									this.pixelSizeLabel,
+									this.pixelSizeUpDown,
+									this.arrowHeadsLabel,
+									this.arrowHeadsDropDownButton,
+									this.shadowButton,
+									this.toolStripSeparator,
+									this.toolStripSeparator10,
+									this.btnConfirm,
+									this.btnCancel});
 			this.propertiesToolStrip.Location = new System.Drawing.Point(0, 49);
 			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(0, 27);
 			this.propertiesToolStrip.Name = "propertiesToolStrip";
@@ -1060,8 +1070,8 @@ namespace Greenshot {
 			// 
 			this.obfuscateModeButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.obfuscateModeButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.pixelizeToolStripMenuItem,
-            this.blurToolStripMenuItem});
+									this.pixelizeToolStripMenuItem,
+									this.blurToolStripMenuItem});
 			this.obfuscateModeButton.Image = ((System.Drawing.Image)(resources.GetObject("obfuscateModeButton.Image")));
 			this.obfuscateModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.obfuscateModeButton.LanguageKey = "editor_obfuscate_mode";
@@ -1073,27 +1083,27 @@ namespace Greenshot {
 			// pixelizeToolStripMenuItem
 			// 
 			this.pixelizeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pixelizeToolStripMenuItem.Image")));
-			this.pixelizeToolStripMenuItem.Name = "pixelizeToolStripMenuItem";
-			this.pixelizeToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
-			this.pixelizeToolStripMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.PIXELIZE;
 			this.pixelizeToolStripMenuItem.LanguageKey = "editor_obfuscate_pixelize";
+			this.pixelizeToolStripMenuItem.Name = "pixelizeToolStripMenuItem";
+			this.pixelizeToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.pixelizeToolStripMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.PIXELIZE;
 			// 
 			// blurToolStripMenuItem
 			// 
 			this.blurToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("blurToolStripMenuItem.Image")));
-			this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
-			this.blurToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
-			this.blurToolStripMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.BLUR;
 			this.blurToolStripMenuItem.LanguageKey = "editor_obfuscate_blur";
+			this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
+			this.blurToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.blurToolStripMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.BLUR;
 			// 
 			// highlightModeButton
 			// 
 			this.highlightModeButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.highlightModeButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.textHighlightMenuItem,
-            this.areaHighlightMenuItem,
-            this.grayscaleHighlightMenuItem,
-            this.magnifyMenuItem});
+									this.textHighlightMenuItem,
+									this.areaHighlightMenuItem,
+									this.grayscaleHighlightMenuItem,
+									this.magnifyMenuItem});
 			this.highlightModeButton.Image = ((System.Drawing.Image)(resources.GetObject("highlightModeButton.Image")));
 			this.highlightModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.highlightModeButton.LanguageKey = "editor_highlight_mode";
@@ -1105,34 +1115,34 @@ namespace Greenshot {
 			// textHighlightMenuItem
 			// 
 			this.textHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("textHighlightMenuItem.Image")));
-			this.textHighlightMenuItem.Name = "textHighlightMenuItem";
-			this.textHighlightMenuItem.Size = new System.Drawing.Size(149, 22);
-			this.textHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			this.textHighlightMenuItem.LanguageKey = "editor_highlight_text";
+			this.textHighlightMenuItem.Name = "textHighlightMenuItem";
+			this.textHighlightMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.textHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			// 
 			// areaHighlightMenuItem
 			// 
 			this.areaHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("areaHighlightMenuItem.Image")));
-			this.areaHighlightMenuItem.Name = "areaHighlightMenuItem";
-			this.areaHighlightMenuItem.Size = new System.Drawing.Size(149, 22);
-			this.areaHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.AREA_HIGHLIGHT;
 			this.areaHighlightMenuItem.LanguageKey = "editor_highlight_area";
+			this.areaHighlightMenuItem.Name = "areaHighlightMenuItem";
+			this.areaHighlightMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.areaHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.AREA_HIGHLIGHT;
 			// 
 			// grayscaleHighlightMenuItem
 			// 
 			this.grayscaleHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("grayscaleHighlightMenuItem.Image")));
-			this.grayscaleHighlightMenuItem.Name = "grayscaleHighlightMenuItem";
-			this.grayscaleHighlightMenuItem.Size = new System.Drawing.Size(149, 22);
-			this.grayscaleHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.GRAYSCALE;
 			this.grayscaleHighlightMenuItem.LanguageKey = "editor_highlight_grayscale";
+			this.grayscaleHighlightMenuItem.Name = "grayscaleHighlightMenuItem";
+			this.grayscaleHighlightMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.grayscaleHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.GRAYSCALE;
 			// 
 			// magnifyMenuItem
 			// 
 			this.magnifyMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("magnifyMenuItem.Image")));
-			this.magnifyMenuItem.Name = "magnifyMenuItem";
-			this.magnifyMenuItem.Size = new System.Drawing.Size(149, 22);
-			this.magnifyMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.MAGNIFICATION;
 			this.magnifyMenuItem.LanguageKey = "editor_highlight_magnify";
+			this.magnifyMenuItem.Name = "magnifyMenuItem";
+			this.magnifyMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.magnifyMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.MAGNIFICATION;
 			// 
 			// btnFillColor
 			// 
@@ -1141,9 +1151,9 @@ namespace Greenshot {
 			this.btnFillColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnFillColor.Image = ((System.Drawing.Image)(resources.GetObject("btnFillColor.Image")));
 			this.btnFillColor.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+			this.btnFillColor.LanguageKey = "editor_backcolor";
 			this.btnFillColor.Margin = new System.Windows.Forms.Padding(0);
 			this.btnFillColor.Name = "btnFillColor";
-			this.btnFillColor.LanguageKey = "editor_backcolor";
 			this.btnFillColor.SelectedColor = System.Drawing.Color.Transparent;
 			this.btnFillColor.Size = new System.Drawing.Size(23, 24);
 			// 
@@ -1154,8 +1164,8 @@ namespace Greenshot {
 			this.btnLineColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnLineColor.Image = ((System.Drawing.Image)(resources.GetObject("btnLineColor.Image")));
 			this.btnLineColor.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-			this.btnLineColor.Name = "btnLineColor";
 			this.btnLineColor.LanguageKey = "editor_forecolor";
+			this.btnLineColor.Name = "btnLineColor";
 			this.btnLineColor.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(222)))), ((int)(((byte)(250)))));
 			this.btnLineColor.Size = new System.Drawing.Size(23, 24);
 			// 
@@ -1163,34 +1173,34 @@ namespace Greenshot {
 			// 
 			this.lineThicknessLabel.LanguageKey = "editor_thickness";
 			this.lineThicknessLabel.Name = "lineThicknessLabel";
-			this.lineThicknessLabel.Size = new System.Drawing.Size(81, 24);
+			this.lineThicknessLabel.Size = new System.Drawing.Size(0, 24);
 			// 
 			// lineThicknessUpDown
 			// 
 			this.lineThicknessUpDown.DecimalPlaces = 0;
 			this.lineThicknessUpDown.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+									1,
+									0,
+									0,
+									0});
 			this.lineThicknessUpDown.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
+									100,
+									0,
+									0,
+									0});
 			this.lineThicknessUpDown.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
+									0,
+									0,
+									0,
+									0});
 			this.lineThicknessUpDown.Name = "lineThicknessUpDown";
 			this.lineThicknessUpDown.Size = new System.Drawing.Size(41, 24);
 			this.lineThicknessUpDown.Text = "0";
 			this.lineThicknessUpDown.Value = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
+									0,
+									0,
+									0,
+									0});
 			this.lineThicknessUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.lineThicknessUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
@@ -1201,7 +1211,7 @@ namespace Greenshot {
 			this.fontFamilyComboBox.MaxDropDownItems = 20;
 			this.fontFamilyComboBox.Name = "fontFamilyComboBox";
 			this.fontFamilyComboBox.Size = new System.Drawing.Size(200, 23);
-			this.fontFamilyComboBox.Text = "Agency FB";
+			this.fontFamilyComboBox.Text = "Aharoni";
 			this.fontFamilyComboBox.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.fontFamilyComboBox.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
@@ -1209,34 +1219,34 @@ namespace Greenshot {
 			// 
 			this.fontSizeLabel.LanguageKey = "editor_fontsize";
 			this.fontSizeLabel.Name = "fontSizeLabel";
-			this.fontSizeLabel.Size = new System.Drawing.Size(27, 24);
+			this.fontSizeLabel.Size = new System.Drawing.Size(0, 24);
 			// 
 			// fontSizeUpDown
 			// 
 			this.fontSizeUpDown.DecimalPlaces = 0;
 			this.fontSizeUpDown.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+									1,
+									0,
+									0,
+									0});
 			this.fontSizeUpDown.Maximum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            0});
+									500,
+									0,
+									0,
+									0});
 			this.fontSizeUpDown.Minimum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
+									7,
+									0,
+									0,
+									0});
 			this.fontSizeUpDown.Name = "fontSizeUpDown";
 			this.fontSizeUpDown.Size = new System.Drawing.Size(41, 24);
 			this.fontSizeUpDown.Text = "12";
 			this.fontSizeUpDown.Value = new decimal(new int[] {
-            12,
-            0,
-            0,
-            0});
+									12,
+									0,
+									0,
+									0});
 			this.fontSizeUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.fontSizeUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
@@ -1264,6 +1274,48 @@ namespace Greenshot {
 			this.fontItalicButton.Text = "Italic";
 			this.fontItalicButton.Click += new System.EventHandler(this.FontItalicButtonClick);
 			// 
+			// textVerticalAlignmentButton
+			// 
+			this.textVerticalAlignmentButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.alignTopToolStripMenuItem,
+									this.alignMiddleToolStripMenuItem,
+									this.alignBottomToolStripMenuItem});
+			this.textVerticalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.textVerticalAlignmentButton.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
+			this.textVerticalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.textVerticalAlignmentButton.LanguageKey = "editor_align_vertical";
+			this.textVerticalAlignmentButton.Name = "textVerticalAlignmentButton";
+			this.textVerticalAlignmentButton.SelectedTag = System.Windows.Forms.HorizontalAlignment.Center;
+			this.textVerticalAlignmentButton.Size = new System.Drawing.Size(13, 24);
+			this.textVerticalAlignmentButton.Tag = Greenshot.Plugin.VerticalAlignment.CENTER;
+			// 
+			// alignTopToolStripMenuItem
+			// 
+			this.alignTopToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.alignTopToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignTop.Image")));
+			this.alignTopToolStripMenuItem.LanguageKey = "editor_align_top";
+			this.alignTopToolStripMenuItem.Name = "alignTopToolStripMenuItem";
+			this.alignTopToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.alignTopToolStripMenuItem.Tag = Greenshot.Plugin.VerticalAlignment.TOP;
+			// 
+			// alignMiddleToolStripMenuItem
+			// 
+			this.alignMiddleToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.alignMiddleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
+			this.alignMiddleToolStripMenuItem.LanguageKey = "editor_align_middle";
+			this.alignMiddleToolStripMenuItem.Name = "alignMiddleToolStripMenuItem";
+			this.alignMiddleToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.alignMiddleToolStripMenuItem.Tag = Greenshot.Plugin.VerticalAlignment.CENTER;
+			// 
+			// alignBottomToolStripMenuItem
+			// 
+			this.alignBottomToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.alignBottomToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignBottom.Image")));
+			this.alignBottomToolStripMenuItem.LanguageKey = "editor_align_bottom";
+			this.alignBottomToolStripMenuItem.Name = "alignBottomToolStripMenuItem";
+			this.alignBottomToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.alignBottomToolStripMenuItem.Tag = Greenshot.Plugin.VerticalAlignment.BOTTOM;
+			// 
 			// blurRadiusLabel
 			// 
 			this.blurRadiusLabel.LanguageKey = "editor_blur_radius";
@@ -1275,28 +1327,28 @@ namespace Greenshot {
 			// 
 			this.blurRadiusUpDown.DecimalPlaces = 0;
 			this.blurRadiusUpDown.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+									1,
+									0,
+									0,
+									0});
 			this.blurRadiusUpDown.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
+									100,
+									0,
+									0,
+									0});
 			this.blurRadiusUpDown.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
+									0,
+									0,
+									0,
+									0});
 			this.blurRadiusUpDown.Name = "blurRadiusUpDown";
 			this.blurRadiusUpDown.Size = new System.Drawing.Size(41, 24);
 			this.blurRadiusUpDown.Text = "1";
 			this.blurRadiusUpDown.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+									1,
+									0,
+									0,
+									0});
 			this.blurRadiusUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.blurRadiusUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
@@ -1311,28 +1363,28 @@ namespace Greenshot {
 			// 
 			this.brightnessUpDown.DecimalPlaces = 0;
 			this.brightnessUpDown.Increment = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
+									5,
+									0,
+									0,
+									0});
 			this.brightnessUpDown.Maximum = new decimal(new int[] {
-            200,
-            0,
-            0,
-            0});
+									200,
+									0,
+									0,
+									0});
 			this.brightnessUpDown.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
+									0,
+									0,
+									0,
+									0});
 			this.brightnessUpDown.Name = "brightnessUpDown";
 			this.brightnessUpDown.Size = new System.Drawing.Size(41, 24);
 			this.brightnessUpDown.Text = "100";
 			this.brightnessUpDown.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
+									100,
+									0,
+									0,
+									0});
 			this.brightnessUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.brightnessUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
@@ -1340,35 +1392,35 @@ namespace Greenshot {
 			// 
 			this.previewQualityLabel.LanguageKey = "editor_preview_quality";
 			this.previewQualityLabel.Name = "previewQualityLabel";
-			this.previewQualityLabel.Size = new System.Drawing.Size(87, 15);
+			this.previewQualityLabel.Size = new System.Drawing.Size(87, 24);
 			this.previewQualityLabel.Text = "Preview quality";
 			// 
 			// previewQualityUpDown
 			// 
 			this.previewQualityUpDown.DecimalPlaces = 0;
 			this.previewQualityUpDown.Increment = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
+									10,
+									0,
+									0,
+									0});
 			this.previewQualityUpDown.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
+									100,
+									0,
+									0,
+									0});
 			this.previewQualityUpDown.Minimum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
+									10,
+									0,
+									0,
+									0});
 			this.previewQualityUpDown.Name = "previewQualityUpDown";
 			this.previewQualityUpDown.Size = new System.Drawing.Size(41, 23);
 			this.previewQualityUpDown.Text = "50";
 			this.previewQualityUpDown.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
+									50,
+									0,
+									0,
+									0});
 			this.previewQualityUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.previewQualityUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
@@ -1376,35 +1428,35 @@ namespace Greenshot {
 			// 
 			this.magnificationFactorLabel.LanguageKey = "editor_magnification_factor";
 			this.magnificationFactorLabel.Name = "magnificationFactorLabel";
-			this.magnificationFactorLabel.Size = new System.Drawing.Size(115, 15);
+			this.magnificationFactorLabel.Size = new System.Drawing.Size(0, 0);
 			this.magnificationFactorLabel.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.MAGNIFICATION;
 			// 
 			// magnificationFactorUpDown
 			// 
 			this.magnificationFactorUpDown.DecimalPlaces = 0;
 			this.magnificationFactorUpDown.Increment = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
+									2,
+									0,
+									0,
+									0});
 			this.magnificationFactorUpDown.Maximum = new decimal(new int[] {
-            8,
-            0,
-            0,
-            0});
+									8,
+									0,
+									0,
+									0});
 			this.magnificationFactorUpDown.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
+									2,
+									0,
+									0,
+									0});
 			this.magnificationFactorUpDown.Name = "magnificationFactorUpDown";
 			this.magnificationFactorUpDown.Size = new System.Drawing.Size(29, 23);
 			this.magnificationFactorUpDown.Text = "2";
 			this.magnificationFactorUpDown.Value = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
+									2,
+									0,
+									0,
+									0});
 			this.magnificationFactorUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.magnificationFactorUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
@@ -1412,34 +1464,34 @@ namespace Greenshot {
 			// 
 			this.pixelSizeLabel.LanguageKey = "editor_pixel_size";
 			this.pixelSizeLabel.Name = "pixelSizeLabel";
-			this.pixelSizeLabel.Size = new System.Drawing.Size(53, 15);
+			this.pixelSizeLabel.Size = new System.Drawing.Size(0, 0);
 			// 
 			// pixelSizeUpDown
 			// 
 			this.pixelSizeUpDown.DecimalPlaces = 0;
 			this.pixelSizeUpDown.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+									1,
+									0,
+									0,
+									0});
 			this.pixelSizeUpDown.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
+									100,
+									0,
+									0,
+									0});
 			this.pixelSizeUpDown.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
+									2,
+									0,
+									0,
+									0});
 			this.pixelSizeUpDown.Name = "pixelSizeUpDown";
 			this.pixelSizeUpDown.Size = new System.Drawing.Size(41, 23);
 			this.pixelSizeUpDown.Text = "5";
 			this.pixelSizeUpDown.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
+									5,
+									0,
+									0,
+									0});
 			this.pixelSizeUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.pixelSizeUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
@@ -1447,52 +1499,52 @@ namespace Greenshot {
 			// 
 			this.arrowHeadsLabel.LanguageKey = "editor_pixel_size";
 			this.arrowHeadsLabel.Name = "arrowHeadsLabel";
-			this.arrowHeadsLabel.Size = new System.Drawing.Size(53, 15);
+			this.arrowHeadsLabel.Size = new System.Drawing.Size(0, 0);
 			// 
 			// arrowHeadsDropDownButton
 			// 
 			this.arrowHeadsDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.arrowHeadsDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.arrowHeadStartMenuItem,
-            this.arrowHeadEndMenuItem,
-            this.arrowHeadBothMenuItem,
-            this.arrowHeadNoneMenuItem});
+									this.arrowHeadStartMenuItem,
+									this.arrowHeadEndMenuItem,
+									this.arrowHeadBothMenuItem,
+									this.arrowHeadNoneMenuItem});
 			this.arrowHeadsDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadsDropDownButton.Image")));
 			this.arrowHeadsDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.arrowHeadsDropDownButton.LanguageKey = "editor_arrowheads";
 			this.arrowHeadsDropDownButton.Name = "arrowHeadsDropDownButton";
 			this.arrowHeadsDropDownButton.Size = new System.Drawing.Size(29, 20);
-			this.arrowHeadsDropDownButton.LanguageKey = "editor_arrowheads";
 			// 
 			// arrowHeadStartMenuItem
 			// 
-			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
-			this.arrowHeadStartMenuItem.Size = new System.Drawing.Size(129, 22);
-			this.arrowHeadStartMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.START_POINT;
 			this.arrowHeadStartMenuItem.LanguageKey = "editor_arrowheads_start";
+			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
+			this.arrowHeadStartMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.arrowHeadStartMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.START_POINT;
 			this.arrowHeadStartMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadEndMenuItem
 			// 
-			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
-			this.arrowHeadEndMenuItem.Size = new System.Drawing.Size(129, 22);
-			this.arrowHeadEndMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.END_POINT;
 			this.arrowHeadEndMenuItem.LanguageKey = "editor_arrowheads_end";
+			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
+			this.arrowHeadEndMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.arrowHeadEndMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.END_POINT;
 			this.arrowHeadEndMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadBothMenuItem
 			// 
-			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
-			this.arrowHeadBothMenuItem.Size = new System.Drawing.Size(129, 22);
-			this.arrowHeadBothMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.BOTH;
 			this.arrowHeadBothMenuItem.LanguageKey = "editor_arrowheads_both";
+			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
+			this.arrowHeadBothMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.arrowHeadBothMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.BOTH;
 			this.arrowHeadBothMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadNoneMenuItem
 			// 
-			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
-			this.arrowHeadNoneMenuItem.Size = new System.Drawing.Size(129, 22);
-			this.arrowHeadNoneMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.NONE;
 			this.arrowHeadNoneMenuItem.LanguageKey = "editor_arrowheads_none";
+			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
+			this.arrowHeadNoneMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.arrowHeadNoneMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.NONE;
 			this.arrowHeadNoneMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// shadowButton
@@ -1545,33 +1597,75 @@ namespace Greenshot {
 			// closeToolStripMenuItem
 			// 
 			this.closeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("closeToolStripMenuItem.Image")));
+			this.closeToolStripMenuItem.LanguageKey = "editor_close";
 			this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
 			this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
 			this.closeToolStripMenuItem.Size = new System.Drawing.Size(307, 22);
-			this.closeToolStripMenuItem.LanguageKey = "editor_close";
 			this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItemClick);
 			// 
 			// fileSavedStatusContextMenu
 			// 
 			this.fileSavedStatusContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.copyPathMenuItem,
-            this.openDirectoryMenuItem});
+									this.copyPathMenuItem,
+									this.openDirectoryMenuItem});
 			this.fileSavedStatusContextMenu.Name = "contextMenuStrip1";
 			this.fileSavedStatusContextMenu.Size = new System.Drawing.Size(247, 48);
 			// 
 			// copyPathMenuItem
 			// 
+			this.copyPathMenuItem.LanguageKey = "editor_copypathtoclipboard";
 			this.copyPathMenuItem.Name = "copyPathMenuItem";
 			this.copyPathMenuItem.Size = new System.Drawing.Size(246, 22);
-			this.copyPathMenuItem.LanguageKey = "editor_copypathtoclipboard";
 			this.copyPathMenuItem.Click += new System.EventHandler(this.CopyPathMenuItemClick);
 			// 
 			// openDirectoryMenuItem
 			// 
+			this.openDirectoryMenuItem.LanguageKey = "editor_opendirinexplorer";
 			this.openDirectoryMenuItem.Name = "openDirectoryMenuItem";
 			this.openDirectoryMenuItem.Size = new System.Drawing.Size(246, 22);
-			this.openDirectoryMenuItem.LanguageKey = "editor_opendirinexplorer";
 			this.openDirectoryMenuItem.Click += new System.EventHandler(this.OpenDirectoryMenuItemClick);
+			// 
+			// textHorizontalAlignmentButton
+			// 
+			this.textHorizontalAlignmentButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.alignLeftToolStripMenuItem,
+									this.alignCenterToolStripMenuItem,
+									this.alignRightToolStripMenuItem});
+			this.textHorizontalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.textHorizontalAlignmentButton.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
+			this.textHorizontalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.textHorizontalAlignmentButton.LanguageKey = "editor_align_horizontal";
+			this.textHorizontalAlignmentButton.Name = "textHorizontalAlignmentButton";
+			this.textHorizontalAlignmentButton.SelectedTag = System.Windows.Forms.HorizontalAlignment.Center;
+			this.textHorizontalAlignmentButton.Size = new System.Drawing.Size(13, 24);
+			this.textHorizontalAlignmentButton.Tag = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// alignLeftToolStripMenuItem
+			// 
+			this.alignLeftToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.alignLeftToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignLeft.Image")));
+			this.alignLeftToolStripMenuItem.LanguageKey = "editor_align_left";
+			this.alignLeftToolStripMenuItem.Name = "alignLeftToolStripMenuItem";
+			this.alignLeftToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.alignLeftToolStripMenuItem.Tag = System.Windows.Forms.HorizontalAlignment.Left;
+			// 
+			// alignCenterToolStripMenuItem
+			// 
+			this.alignCenterToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.alignCenterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
+			this.alignCenterToolStripMenuItem.LanguageKey = "editor_align_center";
+			this.alignCenterToolStripMenuItem.Name = "alignCenterToolStripMenuItem";
+			this.alignCenterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.alignCenterToolStripMenuItem.Tag = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// alignRightToolStripMenuItem
+			// 
+			this.alignRightToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.alignRightToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignRight.Image")));
+			this.alignRightToolStripMenuItem.LanguageKey = "editor_align_right";
+			this.alignRightToolStripMenuItem.Name = "alignRightToolStripMenuItem";
+			this.alignRightToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.alignRightToolStripMenuItem.Tag = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// ImageEditorForm
 			// 
@@ -1609,6 +1703,14 @@ namespace Greenshot {
 			this.fileSavedStatusContextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem alignRightToolStripMenuItem;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem alignCenterToolStripMenuItem;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem alignLeftToolStripMenuItem;
+		private Greenshot.Controls.BindableToolStripDropDownButton textHorizontalAlignmentButton;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem alignMiddleToolStripMenuItem;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem alignBottomToolStripMenuItem;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem alignTopToolStripMenuItem;
+		private Greenshot.Controls.BindableToolStripDropDownButton textVerticalAlignmentButton;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem invertToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem grayscaleToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton rotateCcwToolstripButton;
