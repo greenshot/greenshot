@@ -112,7 +112,7 @@ AppVersion={#Version}
 ArchitecturesInstallIn64BitMode=x64
 Compression=lzma2/ultra64
 SolidCompression=yes
-DefaultDirName={pf}\{#ExeName}
+DefaultDirName={code:DefDirRoot}\{#ExeName}
 DefaultGroupName={#ExeName}
 InfoBeforeFile=..\additional_files\readme.txt
 LicenseFile=..\additional_files\license.txt
@@ -120,7 +120,7 @@ LanguageDetectionMethod=uilanguage
 MinVersion=,5.01.2600
 OutputBaseFilename={#ExeName}-INSTALLER-{#Version}
 OutputDir=..\
-PrivilegesRequired=poweruser
+PrivilegesRequired=none
 SetupIconFile=..\..\icons\applicationIcon\icon.ico
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
@@ -140,14 +140,14 @@ Root: HKCU32; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: 
 Root: HKLM32; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror; Check: IsWin64()
 ; Create the startup entries if requested to do so
 ; HKEY_LOCAL_USER - for current user only
-Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue; Tasks: startup; Check: not IsAdminLoggedOn
+Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue; Tasks: startup; Check: not IsRegularUser
 ; HKEY_LOCAL_MACHINE - for all users
-Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue; Tasks: startup; Check: IsAdminLoggedOn
+Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue; Tasks: startup; Check: IsRegularUser
 ; Register our own filetype
-Root: HKCR; Subkey: ".greenshot"; ValueType: string; ValueName: ""; ValueData: "GreenshotFile"; Flags: uninsdeletevalue
-Root: HKCR; Subkey: "GreenshotFile"; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "GreenshotFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"
-Root: HKCR; Subkey: "GreenshotFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""
+Root: HKCR; Subkey: ".greenshot"; ValueType: string; ValueName: ""; ValueData: "GreenshotFile"; Flags: uninsdeletevalue; Check: not IsRegularUser
+Root: HKCR; Subkey: "GreenshotFile"; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletekey; Check: not IsRegularUser
+Root: HKCR; Subkey: "GreenshotFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Check: not IsRegularUser
+Root: HKCR; Subkey: "GreenshotFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Check: not IsRegularUser
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}
 Name: {group}\Uninstall {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app}; AppUserModelID: "{#ExeName}.{#ExeName}"
@@ -315,6 +315,22 @@ Name: "languages\viVN"; Description: "Việt"; Types: full custom; Flags: disabl
 Name: "languages\zhCN"; Description: "简体中文"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('a')
 Name: "languages\zhTW"; Description: "繁體中文"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('9')
 [Code]
+// Do we have a regular user trying to install this?
+function IsRegularUser(): Boolean;
+begin
+	Result := not (IsAdminLoggedOn or IsPowerUserLoggedOn);
+end;
+
+// The following code is used to select the installation path, this is localappdata if non poweruser
+function DefDirRoot(Param: String): String;
+begin
+	if IsRegularUser then
+		Result := ExpandConstant('{localappdata}')
+	else
+		Result := ExpandConstant('{pf}')
+end;
+	
+
 function FullInstall(Param : String) : String;
 begin
 	result := SetupMessage(msgFullInstallation);
