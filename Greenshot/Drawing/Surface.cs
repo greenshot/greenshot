@@ -416,13 +416,19 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="capture"></param>
 		public Surface(ICapture capture) : this(capture.Image) {
+			// check if cursor is captured, and visible
+			if (capture.Cursor != null && capture.CursorVisible) {
+				Rectangle cursorRect = new Rectangle(capture.CursorLocation, capture.Cursor.Size);
+				Rectangle captureRect = new Rectangle(Point.Empty, capture.Image.Size);
+				// check if cursor is on the capture, otherwise we leave it out.
+				if (cursorRect.IntersectsWith(captureRect)) {
+					cursorContainer = AddIconContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
+					SelectElement(cursorContainer);
+				}
+			}
 			// Make sure the image is NOT disposed, we took the reference directly into ourselves
 			((Capture)capture).NullImage();
 
-			if (capture.Cursor != null && capture.CursorVisible) {
-				cursorContainer = AddIconContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
-				SelectElement(cursorContainer);
-			}
 			captureDetails = capture.CaptureDetails;
 		}
 
