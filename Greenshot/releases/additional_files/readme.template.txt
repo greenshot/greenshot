@@ -2,33 +2,8 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.1.0 build $WCREV$ unstable
+1.1.0 build $WCREV$ UNSTABLE
 Unstable means that we didn't go through extensive testing yet. This might give you: features that aren't finished yet, missing translations or new bugs.
-
-Bugs resolved:
-* Bug #3572995, #3593761 & #3592129: On Windows XP Firefox/java captures are mainly black. This fix should also work with other OS versions and applications.
-* Bug #3576125: Fixed issue with opening a screenshow from the clipboard which was created in a remote desktop
-* Bug #3582282, #3590372 & #3590385: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
-* Bug #3582282: Exported captures to Powerpoint were displayed cropped, which needed extra actions to correct.
-* Bug #3582692: Picasa-Web uploads didn't have a filename and the filename was shown as "UNSET" in Picasa-Web.
-* Bug #3582807: The window corners on Windows Vista & Windows 7 weren't cut correctly.
-* While fixing #3582807 we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
-* Bug #3585393: resize issues with some the plugin configuration dialogs.
-* Bug #3588716: Elements in 1.0 are drawn differently as in pre 1.0
-* Bug #3589370: Fixed missing filename in the Editor title
-* Bug #3594681: Pasting captures as HTML-inline in Thunderbird doesn't work when using 256-colors.
-* Bug #3597535: Fixed a problem with the editor initialization, in some small cases this gave an error as something happend at the same time.
-* Bug #3599278: Added some checks for some configuration values, if they were not set this caused an error
-* Reported in forum: Fixed a problem with the OCR, it sometimes didn't work. See: http://sourceforge.net/projects/greenshot/forums/forum/676082/topic/6510105
-* Not reported: Flickr configuration for the Family, Friend & Public wasn't stored.
-* Not reported: If Greenshot is linked in a Windows startup folder, the "Start with startup" checkbox wasn't checked.
-* Not reported: Some shortcut keys in the editor didn't respond.
-* Not reported: Fixed some issues with capturing windows that were larger than the visible screen, logic should now be more reliable.
-* Not reported: Fixed some cases where Dragging & Dropping an image from a browser on the editor lost transparency.
-* Not reported: Undo while in an Auto-Crop made the editor unusable.
-* Not reported: When first selecting a printer, the main printer destination has been replaced by the selected one, making the Windows printer dialog unavailable for further prints
-* Not reported: Open last capture in explorer doesn't open the right location
-* Not reported: Fixed some issues where the sub-menus of the context menu moved to the next screen.
 
 Features:
 * General: Added zoom when capturing
@@ -43,6 +18,31 @@ Languages:
 * Installer: Added Spanish
 * Installer: Added Serbian
 * General: Fixes for Italian, Serbian, Slovak, Urkainian
+
+Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
+* Bug #1327, #1401 & #1410 : On Windows XP Firefox/java captures are mainly black. This fix should also work with other OS versions and applications.
+* Bug #1340: Fixed issue with opening a screenshow from the clipboard which was created in a remote desktop
+* Bug #1375, #1396 & #1397: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
+* Bug #1375: Exported captures to Powerpoint were displayed cropped, which needed extra actions to correct.
+* Bug #1378: Picasa-Web uploads didn't have a filename and the filename was shown as "UNSET" in Picasa-Web.
+* Bug #1380: The window corners on Windows Vista & Windows 7 weren't cut correctly.
+* While fixing #1380 we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
+* Bug #1386: resize issues with some the plugin configuration dialogs.
+* Bug #1390: Elements in 1.0 are drawn differently as in pre 1.0
+* Bug #1391: Fixed missing filename in the Editor title
+* Bug #1414: Pasting captures as HTML-inline in Thunderbird doesn't work when using 256-colors.
+* Bug #1418: Fixed a problem with the editor initialization, in some small cases this gave an error as something happend at the same time.
+* Bug #1426: Added some checks for some configuration values, if they were not set this caused an error
+* Reported in forum: Fixed a problem with the OCR, it sometimes didn't work. See: http://sourceforge.net/p/greenshot/discussion/676082/thread/31a08c8c
+* Not reported: Flickr configuration for the Family, Friend & Public wasn't stored.
+* Not reported: If Greenshot is linked in a Windows startup folder, the "Start with startup" checkbox wasn't checked.
+* Not reported: Some shortcut keys in the editor didn't respond.
+* Not reported: Fixed some issues with capturing windows that were larger than the visible screen, logic should now be more reliable.
+* Not reported: Fixed some cases where Dragging & Dropping an image from a browser on the editor lost transparency.
+* Not reported: Undo while in an Auto-Crop made the editor unusable.
+* Not reported: When first selecting a printer, the main printer destination has been replaced by the selected one, making the Windows printer dialog unavailable for further prints
+* Not reported: Open last capture in explorer doesn't open the right location
+* Not reported: Fixed some issues where the sub-menus of the context menu moved to the next screen.
 
 Known issues:
 * Greenshot general: a captured I-Beam cursor isn't displayed correctly on the final result.
