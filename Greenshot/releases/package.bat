@@ -1,20 +1,5 @@
 @echo off
 cd ..
-echo Getting current Version
-tools\TortoiseSVN\SubWCRev.exe ..\ releases\additional_files\readme.template.txt releases\additional_files\readme.txt
-tools\TortoiseSVN\SubWCRev.exe ..\ releases\innosetup\setup.iss releases\innosetup\setup-SVN.iss
-cd bin\Release
-del *.log
-echo Making MD5
-..\..\tools\FileVerifier++\fvc.exe -c -a MD5 -r -o checksum.MD5 Greenshot.exe GreenshotPlugin.dll
-cd ..\..
-echo Building installer after key press
-pause
-
-tools\innosetup\ISCC.exe releases\innosetup\setup-SVN.iss
-echo Building ZIP after key press
-pause
-
 del releases\Greenshot-NO-INSTALLER.zip
 mkdir releases\NO-INSTALLER
 echo ;dummy config, used to make greenshot store the configuration in this directory  > releases\NO-INSTALLER\greenshot.ini
@@ -38,11 +23,6 @@ del /s *.bak
 del /s *installer*.xml
 del /s *website*.xml
 del /s *template.txt
-..\..\tools\7zip\7za.exe a -x!.SVN -r ..\Greenshot-NO-INSTALLER.zip *
-cd ..\..
-echo Cleanup after key press
-pause
-
-rmdir /s /q releases\NO-INSTALLER
-echo Finshed
-pause
+..\..\tools\7zip\7za.exe a -x!.SVN -r ..\Greenshot-NO-INSTALLER-1.1.0.$WCREV$-UNSTABLE.zip *
+cd ..
+rmdir /s /q NO-INSTALLER

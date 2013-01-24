@@ -6,6 +6,22 @@ echo An error occured, please check the build log!
 pause
 exit -1
 )
-echo Installer preparation start after key press
+echo File preparations
+cd ..
+echo Getting current Version
+tools\TortoiseSVN\SubWCRev.exe ..\ releases\additional_files\readme.template.txt releases\additional_files\readme.txt
+tools\TortoiseSVN\SubWCRev.exe ..\ releases\innosetup\setup.iss releases\innosetup\setup-SVN.iss
+tools\TortoiseSVN\SubWCRev.exe ..\ releases\package.bat releases\package-SVN.bat
+cd bin\Release
+del *.log
+echo Making MD5
+..\..\tools\FileVerifier++\fvc.exe -c -a MD5 -r -o checksum.MD5 Greenshot.exe GreenshotPlugin.dll
+cd ..\..\releases
+echo Building installer after key press
 pause
-package.bat
+call build_installer.bat
+echo Building zip after key press
+pause
+call package-SVN.bat
+echo Finshed
+pause
