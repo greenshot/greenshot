@@ -150,7 +150,7 @@ namespace Greenshot.Forms {
 			//
 			InitializeComponent();
 			// Only double-buffer when we are not in a TerminalServerSession
-			this.DoubleBuffered = !OptimizeForTerminalServer;
+			this.DoubleBuffered = !isTerminalServerSession;
 			this.Text = "Greenshot capture form";
 
 			// Make sure we never capture the captureform
@@ -170,7 +170,7 @@ namespace Greenshot.Forms {
 
 			// Initialize the animations, the window capture zooms out from the cursor to the window under the cursor 
 			if (captureMode == CaptureMode.Window) {
-				windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, CalculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
+				windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, FramesForMillis(700), EasingType.Quintic, EasingMode.EaseOut);
 			}
 
 			// Set the zoomer animation
@@ -191,10 +191,10 @@ namespace Greenshot.Forms {
 		void InitializeZoomer(bool isOn) {
 			if (isOn) {
 				// Initialize the zoom with a invalid position
-				zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), CalculateFrames(1000), EasingType.Quintic, EasingMode.EaseOut);
+				zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
 				VerifyZoomAnimation(cursorPos, false);
 			} else if (zoomAnimator != null) {
-				zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), CalculateFrames(1000));
+				zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), FramesForMillis(1000));
 			}
 		}
 
@@ -267,7 +267,7 @@ namespace Greenshot.Forms {
 							// "Fade out" Zoom
 							InitializeZoomer(false);
 							// "Fade in" window
-							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, CalculateFrames(700), EasingType.Quintic, EasingMode.EaseOut);
+							windowAnimator = new RectangleAnimator(new Rectangle(cursorPos, Size.Empty), captureRect, FramesForMillis(700), EasingType.Quintic, EasingMode.EaseOut);
 							captureRect = Rectangle.Empty;
 							Invalidate();
 							break;
@@ -275,7 +275,7 @@ namespace Greenshot.Forms {
 							// Set the region capture mode
 							captureMode = CaptureMode.Region;
 							// "Fade out" window
-							windowAnimator.ChangeDestination(new Rectangle(cursorPos, Size.Empty), CalculateFrames(700));
+							windowAnimator.ChangeDestination(new Rectangle(cursorPos, Size.Empty), FramesForMillis(700));
 							// Fade in zoom
 							InitializeZoomer(conf.ZoomerEnabled);
 							captureRect = Rectangle.Empty;
@@ -469,7 +469,7 @@ namespace Greenshot.Forms {
 				invalidateRectangle = new Rectangle(x1,y1, x2-x1, y2-y1);
 				Invalidate(invalidateRectangle);
 			} else if (captureMode != CaptureMode.Window) {
-				if (!OptimizeForTerminalServer) {
+				if (!isTerminalServerSession) {
 					Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
 					allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
 					if (verticalMove) {
@@ -492,7 +492,7 @@ namespace Greenshot.Forms {
 			} else {
 				if (selectedCaptureWindow != null && !selectedCaptureWindow.Equals(lastWindow)) {
 					// Window changes, make new animation from current to target
-					windowAnimator.ChangeDestination(captureRect, CalculateFrames(700));
+					windowAnimator.ChangeDestination(captureRect, FramesForMillis(700));
 				}
 			}
 			// always animate the Window area through to the last frame, so we see the fade-in/out untill the end
@@ -784,7 +784,7 @@ namespace Greenshot.Forms {
 					}
 				}
 			} else {
-				if (!OptimizeForTerminalServer) {
+				if (!isTerminalServerSession) {
 					using (Pen pen = new Pen(Color.LightSeaGreen)) {
 						pen.DashStyle = DashStyle.Dot;
 						Rectangle screenBounds = capture.ScreenBounds;

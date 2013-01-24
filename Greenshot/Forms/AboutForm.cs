@@ -40,12 +40,11 @@ namespace Greenshot {
 	/// </summary>
 	public partial class AboutForm : AnimatingBaseForm {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AboutForm));
-		private Bitmap gBitmap = new Bitmap(90, 90, PixelFormat.Format32bppRgb);
+		private Bitmap gBitmap;
 		private ColorAnimator backgroundAnimation;
 		private List<RectangleAnimator> pixels = new List<RectangleAnimator>();
 		private List<Color> colorFlow = new List<Color>();
 		private List<Color> pixelColors = new List<Color>();
-		//private IntAnimator angleAnimator;
 		private Random rand = new Random();
 		private readonly Color backColor = Color.FromArgb(61, 61, 61);
 		private readonly Color pixelColor = Color.FromArgb(138, 255, 0);
@@ -121,17 +120,21 @@ namespace Greenshot {
 		/// Constructor
 		/// </summary>
 		public AboutForm() {
+			// Enable animation for this form, when we don't set this the timer doesn't start as soon as the form is loaded.
 			EnableAnimation = true;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			DoubleBuffered = !OptimizeForTerminalServer;
+
+			// Only use double-buffering when we are NOT in a Terminal Server session
+			DoubleBuffered = !isTerminalServerSession;
 
 			// Not needed for a Tool Window, but still for the task manager it's important
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
-			// Use the self drawn image
+			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
+			gBitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, this.BackColor, 96, 96);
 			this.pictureBox1.Image = gBitmap;
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 
@@ -140,13 +143,13 @@ namespace Greenshot {
 
 			//Random rand = new Random();
 
-			// Number of frames the "fade-in" takes
-			int frames = CalculateFrames(2000);
+			// Number of frames the pixel animation takes
+			int frames = FramesForMillis(2000);
 			// The number of frames the color-cycle waits before it starts
-			waitFrames = CalculateFrames(6000);
+			waitFrames = FramesForMillis(6000);
 
 			// Every pixel is created after pixelWaitFrames frames, which is increased in the loop.
-			int pixelWaitFrames = 0;
+			int pixelWaitFrames = FramesForMillis(2000);
 			// Create pixels
 			for (int index = 0; index < gSpots.Count; index++) {
 				// Read the pixels in the order of the flow
@@ -158,7 +161,7 @@ namespace Greenshot {
 				int offset = (w - 2) / 2;
 
 				// If the optimize for Terminal Server is set we make the animation without much ado
-				if (OptimizeForTerminalServer) {
+				if (isTerminalServerSession) {
 					// No animation
 					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), 1, EasingType.Cubic, EasingMode.EaseIn);
 				} else {
@@ -169,7 +172,7 @@ namespace Greenshot {
 					pixelAnimation.QueueDestinationLeg(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), frames);
 				}
 				// Increase the wait frames
-				pixelWaitFrames += CalculateFrames(100);
+				pixelWaitFrames += FramesForMillis(100);
 				// Add to the list of to be animated pixels
 				pixels.Add(pixelAnimation);
 				// Add a color to the list for this pixel.
@@ -187,9 +190,7 @@ namespace Greenshot {
 			} while (pixelColorAnimator.hasNext);
 
 			// color animation for the background
-			backgroundAnimation = new ColorAnimator(this.BackColor, backColor, frames, EasingType.Linear, EasingMode.EaseIn);
-			// Angle animation
-			// angleAnimator = new IntAnimator(-30, 20, frames, EasingType.Sine, EasingMode.EaseIn);
+			backgroundAnimation = new ColorAnimator(this.BackColor, backColor, FramesForMillis(5000), EasingType.Linear, EasingMode.EaseIn);
 		}
 
 		/// <summary>
@@ -213,7 +214,7 @@ namespace Greenshot {
 		/// Called from the AnimatingForm, for every frame
 		/// </summary>
 		protected override void Animate() {
-			if (!OptimizeForTerminalServer) {
+			if (!isTerminalServerSession) {
 				// Color cycle
 				if (waitFrames != 0) {
 					waitFrames--;
@@ -233,7 +234,7 @@ namespace Greenshot {
 					scrollCount++;
 				} else {
 					// Reset values, wait X time for the next one
-					waitFrames = CalculateFrames(3000 + rand.Next(35000));
+					waitFrames = FramesForMillis(3000 + rand.Next(35000));
 					colorIndex = 0;
 					scrollCount = 0;
 					// Check if there is something else to do, if not we return so we don't occupy the CPU
@@ -255,7 +256,6 @@ namespace Greenshot {
 				graphics.Clear(backgroundAnimation.Next());
 
 				graphics.TranslateTransform(2, -2);
-				//graphics.RotateTransform(angleAnimator.Next());
 				graphics.RotateTransform(20);
 
 				using (SolidBrush brush = new SolidBrush(pixelColor)) {

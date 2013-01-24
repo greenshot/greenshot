@@ -62,9 +62,9 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		/// <summary>
-		/// Check if we need to optimize for RDP / Terminal Server sessions
+		/// Check if we are in a Terminal Server session OR need to optimize for RDP / remote desktop connections
 		/// </summary>
-		protected bool OptimizeForTerminalServer {
+		protected bool isTerminalServerSession {
 			get {
 				return coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession;
 			}
@@ -75,9 +75,9 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="milliseconds"></param>
 		/// <returns>Number of frames, 1 if in Terminal Server Session</returns>
-		protected int CalculateFrames(int milliseconds) {
+		protected int FramesForMillis(int milliseconds) {
 			// If we are in a Terminal Server Session we return 1
-			if (OptimizeForTerminalServer) {
+			if (isTerminalServerSession) {
 				return 1;
 			}
 			return milliseconds / VRefresh;
