@@ -140,14 +140,19 @@ Root: HKCU32; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: 
 Root: HKLM32; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror; Check: IsWin64()
 ; Create the startup entries if requested to do so
 ; HKEY_LOCAL_USER - for current user only
-Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue; Tasks: startup; Check: not IsRegularUser
+Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: IsRegularUser
 ; HKEY_LOCAL_MACHINE - for all users
-Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue; Tasks: startup; Check: IsRegularUser
-; Register our own filetype
-Root: HKCR; Subkey: ".greenshot"; ValueType: string; ValueName: ""; ValueData: "GreenshotFile"; Flags: uninsdeletevalue; Check: not IsRegularUser
-Root: HKCR; Subkey: "GreenshotFile"; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletekey; Check: not IsRegularUser
-Root: HKCR; Subkey: "GreenshotFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Check: not IsRegularUser
-Root: HKCR; Subkey: "GreenshotFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: not IsRegularUser
+; Register our own filetype for admin
+Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "GreenshotFile"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Classes\GreenshotFile; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Classes\GreenshotFile\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Classes\GreenshotFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+; Register our own filetype for normal user
+Root: HKCU; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "GreenshotFile"; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+Root: HKCU; Subkey: Software\Classes\GreenshotFile; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+Root: HKCU; Subkey: Software\Classes\GreenshotFile\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+Root: HKCU; Subkey: Software\Classes\GreenshotFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror; Check: IsRegularUser
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}
 Name: {group}\Uninstall {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app}; AppUserModelID: "{#ExeName}.{#ExeName}"
