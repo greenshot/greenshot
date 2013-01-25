@@ -142,12 +142,12 @@ namespace GreenshotOfficePlugin {
 					}
 				}
 				try {
-					WordExporter.InsertIntoNewDocument(tmpFile);
+					WordExporter.InsertIntoNewDocument(tmpFile, null);
 					exportInformation.ExportMade = true;
 				} catch(Exception) {
 					// Retry once, just in case
 					try {
-						WordExporter.InsertIntoNewDocument(tmpFile);
+						WordExporter.InsertIntoNewDocument(tmpFile, null);
 						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
 						LOG.Error(ex);

@@ -186,7 +186,7 @@ namespace GreenshotOfficePlugin {
 						return ShowPickerMenu(false, surface, captureDetails, destinations);
 					}
 				} else {
-					exportInformation.ExportMade = OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC);
+					exportInformation.ExportMade = OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC, null);
 				}
 			}
 			ProcessExport(exportInformation, surface);

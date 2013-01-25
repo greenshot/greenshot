@@ -289,7 +289,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="outlookApplication"></param>
 		/// <param name="tmpFile"></param>
 		/// <param name="captureDetails"></param>
-		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC) {
+		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC, string url) {
 			Item newItem = outlookApplication.CreateItem(OlItemType.olMailItem);
 			if (newItem == null) {
 				return;
@@ -342,7 +342,13 @@ namespace Greenshot.Interop.Office {
 					}
 
 					newMail.BodyFormat = OlBodyFormat.olFormatHTML;
-					string htmlImgEmbedded = "<BR/><IMG border=0 hspace=0 alt=\"" + attachmentName + "\" align=baseline src=\"cid:" + contentID + "\"><BR/>";
+					string href = "";
+					string hrefEnd = "";
+					if (!string.IsNullOrEmpty(url)) {
+						href = string.Format("<A HREF=\"{0}\">", url);
+						hrefEnd = "</A>";
+					}
+					string htmlImgEmbedded = string.Format("<BR/>{0}<IMG border=0 hspace=0 alt=\"{1}\" align=baseline src=\"cid:{2}\"><BR/>", href, attachmentName, contentID, hrefEnd);
 					string fallbackBody = "<HTML><BODY>" + htmlImgEmbedded + "</BODY></HTML>";
 					if (bodyString == null) {
 						bodyString = fallbackBody;
@@ -376,12 +382,12 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="tmpfile">The file to send, do not delete the file right away!</param>
 		/// <returns>true if it worked, false if not</returns>
-		public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC) {
+		public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC, string url) {
 			bool exported = false;
 			try {
 				using (IOutlookApplication outlookApplication = GetOrCreateOutlookApplication()) {
 					if (outlookApplication != null) {
-						ExportToNewEmail(outlookApplication, format, tmpFile, subject, attachmentName, to, CC, BCC);
+						ExportToNewEmail(outlookApplication, format, tmpFile, subject, attachmentName, to, CC, BCC, url);
 						exported = true;
 					}
 				}

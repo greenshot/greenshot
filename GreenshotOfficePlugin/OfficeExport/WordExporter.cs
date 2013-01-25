@@ -62,10 +62,25 @@ namespace Greenshot.Interop.Office {
 		/// <param name="wordApplication"></param>
 		/// <param name="wordDocument"></param>
 		/// <param name="tmpFile"></param>
+		/// <param name="adress">link for the image</param>
+		/// <param name="tooltip">tooltip of the image</param>
 		/// <returns></returns>
-		internal static bool InsertIntoExistingDocument(IWordApplication wordApplication, IWordDocument wordDocument, string tmpFile) {
+		internal static bool InsertIntoExistingDocument(IWordApplication wordApplication, IWordDocument wordDocument, string tmpFile, string address, string tooltip) {
 			if (wordApplication.Selection != null) {
-				AddPictureToSelection(wordApplication.Selection, tmpFile);
+				// Add Picture
+				using (IInlineShape shape = AddPictureToSelection(wordApplication.Selection, tmpFile)) {
+					if (!string.IsNullOrEmpty(address)) {
+						object screentip = Type.Missing;
+						if (!string.IsNullOrEmpty(tooltip)) {
+							screentip = tooltip;
+						}
+						try {
+							wordDocument.Hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
+						} catch (Exception e) {
+							LOG.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+						}
+					}
+				}
 				try {
 					wordDocument.ActiveWindow.ActivePane.View.Zoom.Percentage = 100;
 				} catch (Exception e) {
@@ -89,12 +104,13 @@ namespace Greenshot.Interop.Office {
 			return false;
 		}
 
-		private static void AddPictureToSelection(ISelection selection, string tmpFile) {
-			selection.InlineShapes.AddPicture(tmpFile, false, true, Type.Missing);
+		private static IInlineShape AddPictureToSelection(ISelection selection, string tmpFile) {
+			IInlineShape shape = selection.InlineShapes.AddPicture(tmpFile, false, true, Type.Missing);
 			selection.InsertAfter("\r\n");
+			return shape;
 		}
 
-		public static void InsertIntoNewDocument(string tmpFile) {
+		public static void InsertIntoNewDocument(string tmpFile, string address, string tooltip) {
 			using (IWordApplication wordApplication = COMWrapper.GetOrCreateInstance<IWordApplication>()) {
 				if (wordApplication != null) {
 					wordApplication.Visible = true;
@@ -106,7 +122,19 @@ namespace Greenshot.Interop.Office {
 					object documentVisible = true;
 					IWordDocument wordDocument = wordApplication.Documents.Add(ref template, ref newTemplate, ref documentType, ref documentVisible);
 					// Add Picture
-					AddPictureToSelection(wordApplication.Selection, tmpFile);
+					using (IInlineShape shape = AddPictureToSelection(wordApplication.Selection, tmpFile)) {
+						if (!string.IsNullOrEmpty(address)) {
+							object screentip = Type.Missing;
+							if (!string.IsNullOrEmpty(tooltip)) {
+								screentip = tooltip;
+							}
+							try {
+								wordDocument.Hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
+							} catch (Exception e) {
+								LOG.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+							}
+						}
+					}
 					wordDocument.Activate();
 					wordDocument.ActiveWindow.Activate();
 				}

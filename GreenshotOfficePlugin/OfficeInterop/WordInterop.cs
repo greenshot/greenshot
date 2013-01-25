@@ -37,18 +37,23 @@ namespace Greenshot.Interop.Office {
 		IWordDocument item(int index);
 	}
 
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.document.aspx
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.document%28v=office.14%29.aspx 
+	/// </summary>
 	public interface IWordDocument : Common {
 		void Activate();
 		IWordApplication Application { get; }
 		IWordWindow ActiveWindow { get; }
 		bool ReadOnly { get; }
+		IHyperlinks Hyperlinks { get; }
 
 		// Only 2007 and later!
 		bool Final { get; set; }
 	}
 
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.window_members.aspx
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.window_members.aspx
+	/// </summary>
 	public interface IWordWindow : Common {
 		IPane ActivePane { get; }
 		void Activate();
@@ -57,12 +62,16 @@ namespace Greenshot.Interop.Office {
 		}
 	}
 
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.pane_members.aspx
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.pane_members.aspx
+	/// </summary>
 	public interface IPane : Common {
 		IWordView View { get; }
 	}
 
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.view_members.aspx
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.view_members.aspx
+	/// </summary>
 	public interface IWordView : Common {
 		IZoom Zoom { get; }
 	}
@@ -72,13 +81,42 @@ namespace Greenshot.Interop.Office {
 		int Percentage { get; set; }
 	}
 
-	// See: http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.selection_members(v=office.11).aspx
+	/// <summary>
+	/// See: http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.selection_members(v=office.11).aspx 
+	/// </summary>
 	public interface ISelection : Common {
 		IInlineShapes InlineShapes { get; }
 		void InsertAfter(string text);
 	}
 
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/ms263866%28v=office.14%29.aspx
+	/// </summary>
 	public interface IInlineShapes : Common {
-		object AddPicture(string FileName, object LinkToFile, object SaveWithDocument, object Range);
+		IInlineShape AddPicture(string FileName, object LinkToFile, object SaveWithDocument, object Range);
+	}
+
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.inlineshape_members%28v=office.14%29.aspx
+	/// </summary>
+	public interface IInlineShape : Common {
+		IHyperlink Hyperlink { get; }
+	}
+
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.hyperlink_members%28v=office.14%29.aspx
+	/// </summary>
+	public interface IHyperlink : Common {
+		string Address {
+			get;
+			set;
+		}
+	}
+
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.hyperlinks%28v=office.14%29.aspx
+	/// </summary>
+	public interface IHyperlinks : Common, Collection {
+		IHyperlink Add(object Anchor, object Address, object SubAddress, object ScreenTip, object TextToDisplay, object Target);
 	}
 }
