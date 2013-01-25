@@ -47,7 +47,7 @@ namespace Greenshot.Interop.Office {
 					for (int i = 1; i <= wordApplication.Documents.Count; i++) {
 						using (IWordDocument wordDocument = wordApplication.Documents.item(i)) {
 							if (wordDocument.ActiveWindow.Caption.StartsWith(wordCaption)) {
-								return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile);
+								return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile, null, null);
 							}
 						}
 					}

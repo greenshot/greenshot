@@ -199,7 +199,7 @@ namespace Greenshot.Interop.Office {
 					// Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
 					if (inspector.IsWordMail() && inspector.WordEditor != null) {
 						try {
-							if (WordExporter.InsertIntoExistingDocument(inspector.WordEditor.Application, inspector.WordEditor, tmpFile)) {
+							if (WordExporter.InsertIntoExistingDocument(inspector.WordEditor.Application, inspector.WordEditor, tmpFile, null, null)) {
 								LOG.Info("Inserted into Wordmail");
 
 								// check the format afterwards, otherwise we lose the selection
