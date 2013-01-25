@@ -349,7 +349,7 @@ namespace Greenshot.Interop.Office {
 						hrefEnd = "</A>";
 					}
 					string htmlImgEmbedded = string.Format("<BR/>{0}<IMG border=0 hspace=0 alt=\"{1}\" align=baseline src=\"cid:{2}\"><BR/>", href, attachmentName, contentID, hrefEnd);
-					string fallbackBody = "<HTML><BODY>" + htmlImgEmbedded + "</BODY></HTML>";
+					string fallbackBody = string.Format("<HTML><BODY>{0}</BODY></HTML>", htmlImgEmbedded);
 					if (bodyString == null) {
 						bodyString = fallbackBody;
 					} else {
