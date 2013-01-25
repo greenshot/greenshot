@@ -27,6 +27,7 @@ using log4net;
 using log4net.Appender;
 using log4net.Config;
 using log4net.Repository.Hierarchy;
+using System;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -35,7 +36,7 @@ namespace GreenshotPlugin.Core {
 	public class LogHelper {
 		private const string LOG4NET_FILE = "log4net.xml";
 		private static bool isLog4NetConfigured = false;
-
+		private const string INIT_MESSAGE = "Greenshot initialization of log system failed";
 		public static bool isInitialized {
 			get {
 				return isLog4NetConfigured;
@@ -52,12 +53,16 @@ namespace GreenshotPlugin.Core {
 				try {
 					XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
 					isLog4NetConfigured = true;
-				} catch {}
+				} catch (Exception ex) {
+					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				}
 			} else if (File.Exists(pafLog4NetFilename)) {
 				try {
 					XmlConfigurator.Configure(new FileInfo(pafLog4NetFilename)); 
 					isLog4NetConfigured = true;
-				} catch { }
+				} catch (Exception ex) {
+					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				}
 			}
 
 			if (!isLog4NetConfigured) {
@@ -68,7 +73,9 @@ namespace GreenshotPlugin.Core {
 						isLog4NetConfigured = true;
 						IniConfig.ForceIniInStartupPath();
 					}
-				} catch {}
+				} catch (Exception ex){
+					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				}
 			}
 
 			if (isLog4NetConfigured) {
@@ -84,6 +91,16 @@ namespace GreenshotPlugin.Core {
 				} catch {}
 			}
 			return null;
+		}
+	}
+
+	/// <summary>
+	/// A simple helper class to support the logging to the AppData location
+	/// </summary>
+	public class SpecialFolderPatternConverter : log4net.Util.PatternConverter {
+		override protected void Convert(System.IO.TextWriter writer, object state) {
+			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), base.Option, true);
+			writer.Write(Environment.GetFolderPath(specialFolder));
 		}
 	}
 }

@@ -6,7 +6,7 @@
 			<file type="log4net.Util.PatternString">
 				<converter>
 					<name value="folder" />
-    				<type value="Greenshot.Helpers.SpecialFolderPatternConverter" />
+    				<type value="GreenshotPlugin.Core.SpecialFolderPatternConverter" />
   				</converter>
 				<conversionPattern value="%folder{LocalApplicationData}\Greenshot\Greenshot.log" />
 			</file>
