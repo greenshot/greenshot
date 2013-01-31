@@ -23,11 +23,14 @@ using System.Collections.Generic;
 using System.Text;
 
 using Greenshot.Interop;
+using GreenshotOfficePlugin;
+using Greenshot.IniFile;
 
 namespace Greenshot.Interop.Office {
 	public class WordExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
 		private static string version = null;
+		private static OfficeConfiguration config = IniConfig.GetIniSection<OfficeConfiguration>();
 
 		public static bool isAfter2003() {
 			if (version != null) {
@@ -106,6 +109,10 @@ namespace Greenshot.Interop.Office {
 
 		private static IInlineShape AddPictureToSelection(ISelection selection, string tmpFile) {
 			IInlineShape shape = selection.InlineShapes.AddPicture(tmpFile, false, true, Type.Missing);
+			// Lock aspect ratio
+			if (config.WordLockAspectRatio) {
+				shape.LockAspectRatio = MsoTriState.msoTrue;
+			}
 			selection.InsertAfter("\r\n");
 			return shape;
 		}

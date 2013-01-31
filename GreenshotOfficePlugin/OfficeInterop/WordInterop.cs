@@ -101,6 +101,10 @@ namespace Greenshot.Interop.Office {
 	/// </summary>
 	public interface IInlineShape : Common {
 		IHyperlink Hyperlink { get; }
+		MsoTriState LockAspectRatio {
+			get;
+			set;
+		}
 	}
 
 	/// <summary>

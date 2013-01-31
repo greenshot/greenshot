@@ -40,5 +40,7 @@ namespace GreenshotOfficePlugin {
 		public string EmailBCC;
 		[IniProperty("OutlookAllowExportInMeetings", Description = "Allow export in meeting items", DefaultValue = "False")]
 		public bool OutlookAllowExportInMeetings;
+		[IniProperty("WordLockAspectRatio", Description = "For Word: Lock the aspect ratio of the image", DefaultValue = "True")]
+		public bool WordLockAspectRatio;
 	}
 }
