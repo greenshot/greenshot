@@ -1545,9 +1545,14 @@ namespace GreenshotPlugin.Core  {
 				if ((window.ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) != 0) {
 					continue;
 				}
+				// Skip preview windows, like the one from Firefox
+				if ((window.WindowStyle & WindowStyleFlags.WS_VISIBLE) == 0) {
+					continue;
+				}
 				if (!window.Visible && !window.Iconic) {
 					continue;
 				}
+				LOG.DebugFormat("Text {0}", window.Text);
 				windows.Add(window);
 			}
 			return windows;
