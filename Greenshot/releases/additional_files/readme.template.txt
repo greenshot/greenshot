@@ -33,6 +33,7 @@ Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and
 * Bug #1414: Pasting captures as HTML-inline in Thunderbird doesn't work when using 256-colors.
 * Bug #1418: Fixed a problem with the editor initialization, in some small cases this gave an error as something happend at the same time.
 * Bug #1426: Added some checks for some configuration values, if they were not set this caused an error
+* Bug #1444: Colors were disappearing when "Create an 8-bit image if colors are less than 256 while having a > 8 bits image" was turned on
 * Reported in forum: Fixed a problem with the OCR, it sometimes didn't work. See: http://sourceforge.net/p/greenshot/discussion/676082/thread/31a08c8c
 * Not reported: Flickr configuration for the Family, Friend & Public wasn't stored.
 * Not reported: If Greenshot is linked in a Windows startup folder, the "Start with startup" checkbox wasn't checked.

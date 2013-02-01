@@ -1118,7 +1118,7 @@ namespace Greenshot {
 			this.checkbox_autoreducecolors.Location = new System.Drawing.Point(10, 111);
 			this.checkbox_autoreducecolors.Name = "checkbox_autoreducecolors";
 			this.checkbox_autoreducecolors.PropertyName = "OutputFileAutoReduceColors";
-			this.checkbox_autoreducecolors.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_autoreducecolors.Size = new System.Drawing.Size(408, 24);
 			this.checkbox_autoreducecolors.TabIndex = 21;
 			this.checkbox_autoreducecolors.UseVisualStyleBackColor = true;
 			// 
