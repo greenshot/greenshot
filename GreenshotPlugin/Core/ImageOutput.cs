@@ -259,21 +259,22 @@ namespace GreenshotPlugin.Core {
 
 				// check for color reduction, forced or automatically, only when the DisableReduceColors is false 
 				if (!outputSettings.DisableReduceColors && (conf.OutputFileAutoReduceColors || outputSettings.ReduceColors)) {
-					WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave);
-					int colorCount = quantizer.GetColorCount();
-					LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
-					if (outputSettings.ReduceColors || colorCount < 256) {
-						try {
-							LOG.Info("Reducing colors on bitmap to 256.");
-							tmpImage = quantizer.GetQuantizedImage(256);
-							if (disposeImage) {
-								imageToSave.Dispose();
+					using (WuQuantizer quantizer = new WuQuantizer((Bitmap)imageToSave)) {
+						int colorCount = quantizer.GetColorCount();
+						LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
+						if (outputSettings.ReduceColors || colorCount < 256) {
+							try {
+								LOG.Info("Reducing colors on bitmap to 256.");
+								tmpImage = quantizer.GetQuantizedImage(256);
+								if (disposeImage) {
+									imageToSave.Dispose();
+								}
+								imageToSave = tmpImage;
+								// Make sure the "new" image is disposed
+								disposeImage = true;
+							} catch (Exception e) {
+								LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 							}
-							imageToSave = tmpImage;
-							// Make sure the "new" image is disposed
-							disposeImage = true;
-						} catch (Exception e) {
-							LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 						}
 					}
 				}

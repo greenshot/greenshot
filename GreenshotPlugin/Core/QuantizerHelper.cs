@@ -69,7 +69,7 @@ namespace GreenshotPlugin.Core {
 		public Int32 Volume { get; set; }
 	}
 
-	public class WuQuantizer {
+	public class WuQuantizer : IDisposable {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WuQuantizer));
 
 		private const Int32 MAXCOLOR = 512;
@@ -99,6 +99,13 @@ namespace GreenshotPlugin.Core {
 		private WuColorCube[] cubes;
 		private Bitmap sourceBitmap;
 		private Bitmap resultBitmap;
+
+		public void Dispose() {
+			if (resultBitmap != null) {
+				resultBitmap.Dispose();
+				resultBitmap = null;
+			}
+		}
 
 		/// <summary>
 		/// See <see cref="IColorQuantizer.Prepare"/> for more details.
@@ -222,7 +229,11 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 			resultBitmap.Palette = imagePalette;
-			return resultBitmap;
+
+			// Make sure the bitmap is not disposed, as we return it.
+			Bitmap tmpBitmap = resultBitmap;
+			resultBitmap = null;
+			return tmpBitmap;
 		}
 
 		/// <summary>
@@ -361,7 +372,11 @@ namespace GreenshotPlugin.Core {
 				imagePalette.Entries[paletteIndex] = Color.FromArgb(255, reds[paletteIndex], greens[paletteIndex], blues[paletteIndex]);
 			}
 			resultBitmap.Palette = imagePalette;
-			return resultBitmap;
+
+			// Make sure the bitmap is not disposed, as we return it.
+			Bitmap tmpBitmap = resultBitmap;
+			resultBitmap = null;
+			return tmpBitmap;
 		}
 
 		/// <summary>
@@ -632,5 +647,5 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
-	}
+    }
 }
