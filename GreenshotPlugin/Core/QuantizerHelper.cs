@@ -214,8 +214,12 @@ namespace GreenshotPlugin.Core {
 
 			// generates palette
 			ColorPalette imagePalette = resultBitmap.Palette;
-			for (Int32 paletteIndex = 0; paletteIndex < colorCount; paletteIndex++) {
-				imagePalette.Entries[paletteIndex] = colors[paletteIndex];
+			for (Int32 paletteIndex = 0; paletteIndex < 256; paletteIndex++) {
+				if (paletteIndex < colorCount) {
+					imagePalette.Entries[paletteIndex] = colors[paletteIndex];
+				} else {
+					imagePalette.Entries[paletteIndex] = Color.Black;
+				}
 			}
 			resultBitmap.Palette = imagePalette;
 			return resultBitmap;
