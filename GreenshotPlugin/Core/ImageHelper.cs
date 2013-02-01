@@ -1199,20 +1199,21 @@ namespace GreenshotPlugin.Core {
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
 		/// <param name="horizontalResolution"></param>
 		/// <param name="verticalResolution"></param>
-		/// <returns></returns>
+		/// <returns>Bitmap</returns>
 		public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution, float verticalResolution) {
 			// Create a new "clean" image
 			Bitmap newImage = new Bitmap(width, height, format);
 			newImage.SetResolution(horizontalResolution, verticalResolution);
-
-			using (Graphics graphics = Graphics.FromImage(newImage)) {
-				// Make sure the background color is what we want (transparent or white, depending on the pixel format)
-				if (!Color.Empty.Equals(backgroundColor)) {
-					graphics.Clear(backgroundColor);
-				} else if (Image.IsAlphaPixelFormat(format)) {
-					graphics.Clear(Color.Transparent);
-				} else {
-					graphics.Clear(Color.White);
+			if (format != PixelFormat.Format8bppIndexed) {
+				using (Graphics graphics = Graphics.FromImage(newImage)) {
+					// Make sure the background color is what we want (transparent or white, depending on the pixel format)
+					if (!Color.Empty.Equals(backgroundColor)) {
+						graphics.Clear(backgroundColor);
+					} else if (Image.IsAlphaPixelFormat(format)) {
+						graphics.Clear(Color.Transparent);
+					} else {
+						graphics.Clear(Color.White);
+					}
 				}
 			}
 			return newImage;

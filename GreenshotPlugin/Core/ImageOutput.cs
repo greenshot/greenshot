@@ -264,8 +264,8 @@ namespace GreenshotPlugin.Core {
 					LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
 					if (outputSettings.ReduceColors || colorCount < 256) {
 						try {
-							LOG.Info("Reducing colors on bitmap to 255.");
-							tmpImage = quantizer.GetQuantizedImage(255);
+							LOG.Info("Reducing colors on bitmap to 256.");
+							tmpImage = quantizer.GetQuantizedImage(256);
 							if (disposeImage) {
 								imageToSave.Dispose();
 							}

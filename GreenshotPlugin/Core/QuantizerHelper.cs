@@ -185,9 +185,51 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Reindex the 24/32 BPP (A)RGB image to a 8BPP
+		/// </summary>
+		/// <returns>Bitmap</returns>
+		public Bitmap SimpleReindex() {
+			List<Color> colors = new List<Color>();
+			Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
+			using (BitmapBuffer bbbDest = new BitmapBuffer(resultBitmap, false)) {
+				bbbDest.Lock();
+				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
+					bbbSrc.Lock();
+					byte index;
+					for (int y = 0; y < bbbSrc.Height; y++) {
+						for (int x = 0; x < bbbSrc.Width; x++) {
+							Color color = bbbSrc.GetColorAt(x, y);
+							if (lookup.ContainsKey(color)) {
+								index = lookup[color];
+							} else {
+								colors.Add(color);
+								index = (byte)(colors.Count - 1);
+								lookup.Add(color, index);
+							}
+							bbbDest.SetColorIndexAt(x, y, index);
+						}
+					}
+				}
+			}
+
+			// generates palette
+			ColorPalette imagePalette = resultBitmap.Palette;
+			for (Int32 paletteIndex = 0; paletteIndex < colorCount; paletteIndex++) {
+				imagePalette.Entries[paletteIndex] = colors[paletteIndex];
+			}
+			resultBitmap.Palette = imagePalette;
+			return resultBitmap;
+		}
+
+		/// <summary>
 		/// Get the image
 		/// </summary>
 		public Bitmap GetQuantizedImage(int allowedColorCount) {
+			if (colorCount < 256) {
+				// Simple logic to reduce to 8 bit
+				LOG.Info("Using simple copy, no quantizing needed!");
+				return SimpleReindex();
+			}
 			// preprocess the colors
 			CalculateMoments();
 			LOG.Info("Calculated the moments...");
@@ -302,9 +344,9 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 
-			ColorPalette imagePalette = resultBitmap.Palette;
 
 			// generates palette
+			ColorPalette imagePalette = resultBitmap.Palette;
 			for (Int32 paletteIndex = 0; paletteIndex < allowedColorCount; paletteIndex++) {
 				if (sums[paletteIndex] > 0) {
 					reds[paletteIndex] /= sums[paletteIndex];

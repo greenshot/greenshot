@@ -533,7 +533,7 @@ namespace Greenshot.Drawing {
 		/// <param name="memento">The memento implementing the undo</param>
 		public void MakeUndoable(IMemento memento, bool allowMerge) {
 			if (inUndoRedo) {
-				throw new InvalidOperationException("Involking do within an undo/redo action.");
+				throw new InvalidOperationException("Invoking do within an undo/redo action.");
 			}
 			if (memento != null) {
 				bool allowPush = true;
