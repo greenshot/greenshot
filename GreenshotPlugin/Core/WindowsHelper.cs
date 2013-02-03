@@ -162,6 +162,8 @@ namespace GreenshotPlugin.Core  {
 	public class WindowDetails : IEquatable<WindowDetails>{
 		private const string METRO_WINDOWS_CLASS = "Windows.UI.Core.CoreWindow";
 		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
+		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
+		
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WindowDetails));
 		private static Dictionary<string, List<string>> classnameTree = new Dictionary<string, List<string>>();
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
@@ -198,6 +200,13 @@ namespace GreenshotPlugin.Core  {
 		public bool isApp {
 			get {
 				return METRO_WINDOWS_CLASS.Equals(ClassName);
+			}
+		}
+		
+		
+		public bool isGutter {
+			get {
+				return METRO_GUTTER_CLASS.Equals(ClassName);
 			}
 		}
 		
@@ -641,22 +650,12 @@ namespace GreenshotPlugin.Core  {
 		public bool Maximised {
 			get {
 				if (isApp) {
-					Rectangle windowRectangle = WindowRectangle;
-					foreach (Screen screen in Screen.AllScreens) {
-						if (screen.Bounds.Contains(windowRectangle)) {
-							if (windowRectangle.Equals(screen.Bounds)) {
-								// Fullscreen, it's "visible" when AppVisibilityOnMonitor says yes
-								// Although it might be the other App, this is not "very" important
-								RECT rect = new RECT(screen.Bounds);
-								IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
-								if (monitor != IntPtr.Zero) {
-									if (appVisibility != null) {
-										MONITOR_APP_VISIBILITY monitorAppVisibility = appVisibility.GetAppVisibilityOnMonitor(monitor);
-										LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
-										if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE) {
-											return true;
-										}
-									}
+					if (Visible) {
+						Rectangle windowRectangle = WindowRectangle;
+						foreach (Screen screen in Screen.AllScreens) {
+							if (screen.Bounds.Contains(windowRectangle)) {
+								if (windowRectangle.Equals(screen.Bounds)) {
+									return true;
 								}
 							}
 						}
@@ -690,9 +689,31 @@ namespace GreenshotPlugin.Core  {
 					Rectangle windowRectangle = WindowRectangle;
 					foreach (Screen screen in Screen.AllScreens) {
 						if (screen.Bounds.Contains(windowRectangle)) {
-							return true;
+							if (windowRectangle.Equals(screen.Bounds)) {
+								// Fullscreen, it's "visible" when AppVisibilityOnMonitor says yes
+								// Although it might be the other App, this is not "very" important
+								RECT rect = new RECT(screen.Bounds);
+								IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
+								if (monitor != IntPtr.Zero) {
+									if (appVisibility != null) {
+										MONITOR_APP_VISIBILITY monitorAppVisibility = appVisibility.GetAppVisibilityOnMonitor(monitor);
+										//LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
+										if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE) {
+											return true;
+										}
+									}
+								}
+							} else {
+								// Is only partly on the screen, when this happens the app is allways visible!
+								return true;
+							}
 						}
 					}
+					return false;
+				}
+				if (isGutter) {
+					// gutter is only made available when it's visible
+					return true;
 				}
 				if (isAppLauncher) {
 					return IsAppLauncherVisible;
@@ -760,7 +781,8 @@ namespace GreenshotPlugin.Core  {
 							GetWindowRect(out windowRect);
 						}
 	
-						if (!HasParent && (!isApp && Maximised)) {
+						// Correction for maximized windows, only if it's not an app
+						if (!HasParent && !isApp && Maximised) {
 							Size size = Size.Empty;
 							GetBorderSize(out size);
 							windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width), windowRect.Height - (2 * size.Height));
@@ -1522,11 +1544,30 @@ namespace GreenshotPlugin.Core  {
 		/// <returns>List<WindowDetails> with visible metro apps</returns>
 		public static List<WindowDetails> GetMetroApps() {
 			List<WindowDetails> metroApps = new List<WindowDetails>();
+			//string[] wcs = {"ImmersiveGutter", "Snapped Desktop", "ImmersiveBackgroundWindow","ImmersiveLauncher","Windows.UI.Core.CoreWindow","ApplicationManager_ImmersiveShellWindow","SearchPane","MetroGhostWindow","EdgeUiInputWndClass", "NativeHWNDHost", "Shell_CharmWindow"};
+			//List<WindowDetails> specials = new List<WindowDetails>();
+			//foreach(string wc in wcs) {
+			//	IntPtr wcHandle = User32.FindWindow(null, null);
+			//	while (wcHandle != IntPtr.Zero) {
+			//		WindowDetails special = new WindowDetails(wcHandle);
+			//		if (special.WindowRectangle.Left >= 1920 && special.WindowRectangle.Size != Size.Empty) {
+			//			specials.Add(special);
+			//			LOG.DebugFormat("Found special {0} : {1} at {2} visible: {3} {4} {5}", special.ClassName, special.Text, special.WindowRectangle, special.Visible, special.ExtendedWindowStyle, special.WindowStyle);
+			//		}
+			//		wcHandle = User32.FindWindowEx(IntPtr.Zero, wcHandle, null, null);
+			//	};
+			//}
 			IntPtr nextHandle = User32.FindWindow(METRO_WINDOWS_CLASS, null);
 			while (nextHandle != IntPtr.Zero) {
 				WindowDetails metroApp = new WindowDetails(nextHandle);
 				metroApps.Add(metroApp);
-				LOG.DebugFormat("Found metro app {0}", metroApp.Text);
+				// Check if we have a gutter!
+				if (metroApp.Visible && !metroApp.Maximised) {
+					IntPtr gutterHandle = User32.FindWindow(METRO_GUTTER_CLASS, null);
+					if (gutterHandle != IntPtr.Zero) {
+						metroApps.Add(new WindowDetails(gutterHandle));
+					}
+				}
 				nextHandle = User32.FindWindowEx(IntPtr.Zero, nextHandle, METRO_WINDOWS_CLASS, null);
 			};
 			
@@ -1568,7 +1609,6 @@ namespace GreenshotPlugin.Core  {
 				if (!window.Visible && !window.Iconic) {
 					continue;
 				}
-				LOG.DebugFormat("Text {0}", window.Text);
 				windows.Add(window);
 			}
 			return windows;
@@ -1610,49 +1650,7 @@ namespace GreenshotPlugin.Core  {
 			}
 			return null;
 		}
-		
-		/// <summary>
-		/// Sort the list of WindowDetails according Z-Order, all not found "windows" come at the end
-		/// </summary>
-		/// <param name="hWndParent">IntPtr of the parent</param>
-		/// <param name="windows">List of windows to sort</param>
-		/// <returns></returns>
-		public static List<WindowDetails> SortByZOrder(IntPtr hWndParent, List<WindowDetails> windows) {
-			List<WindowDetails> sortedWindows = new List<WindowDetails>();
-			Dictionary<IntPtr, WindowDetails> allWindows = new Dictionary<IntPtr, WindowDetails>();
-			foreach(WindowDetails window in windows) {
-				if (!allWindows.ContainsKey(window.Handle)) {
-					allWindows.Add(window.Handle, window);
-				}
-			}
-			// Sort by Z-Order, from top to bottom
-			for(IntPtr hWnd = User32.GetTopWindow(hWndParent); hWnd!=IntPtr.Zero; hWnd = User32.GetWindow(hWnd, GetWindowCommand.GW_HWNDNEXT)) {
-				if (allWindows.ContainsKey(hWnd)) {
-					WindowDetails childWindow = allWindows[hWnd];
-					// Force getting the clientRectangle, used for caching
-					Rectangle rect = childWindow.WindowRectangle;
-					sortedWindows.Add(childWindow);
-					// Remove so we can add the ones that were left over
-					allWindows.Remove(hWnd);
-				}
-			}
-			// Add missing children, those that didn't show up in the GetWindow enumeration
-			if (allWindows.Count > 0) {
-				Rectangle screenBounds = WindowCapture.GetScreenBounds();
-				// Copy not copied windows to the back, but only if visible
-				foreach(IntPtr hWnd in allWindows.Keys) {
-					WindowDetails notAddedChild = allWindows[hWnd];
-					Rectangle windowRect = notAddedChild.WindowRectangle;
-					if (windowRect.Width * windowRect.Height > 0 && screenBounds.Contains(windowRect)) {
-						sortedWindows.Add(notAddedChild);
-					} else {
-						LOG.DebugFormat("Skipping {0}", notAddedChild.ClassName);
-					}
-				}
-			}
-			return sortedWindows;
-		}
-		
+
 		/// <summary>
 		/// Helper method to "active" all windows that are not in the supplied list.
 		/// One should preferably call "GetVisibleWindows" for the oldWindows.
