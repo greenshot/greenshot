@@ -897,6 +897,13 @@ namespace Greenshot.Helpers {
 		#region capture with feedback
 		private void CaptureWithFeedback() {
 			using (CaptureForm captureForm = new CaptureForm(capture, windows)) {
+				// Added check for metro (Modern UI) apps, which might be maximized and cover the screen.
+				// as they don't want to 
+				foreach(WindowDetails app in WindowDetails.GetMetroApps()) {
+					if (app.Maximised) {
+						app.HideApp();
+					}
+				}
 				DialogResult result = captureForm.ShowDialog();
 				if (result == DialogResult.OK) {
 					selectedCaptureWindow = captureForm.SelectedCaptureWindow;

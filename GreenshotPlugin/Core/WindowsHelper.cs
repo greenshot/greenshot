@@ -640,18 +640,6 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		public bool Maximised {
 			get {
-				return User32.IsZoomed(this.hWnd);
-			}
-			set {
-				User32.SendMessage(this.hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MAXIMIZE, IntPtr.Zero);
-			}
-		}
-
-		/// <summary>
-		/// Gets whether the window is visible.
-		/// </summary>
-		public bool Visible {
-			get {
 				if (isApp) {
 					Rectangle windowRectangle = WindowRectangle;
 					foreach (Screen screen in Screen.AllScreens) {
@@ -670,13 +658,41 @@ namespace GreenshotPlugin.Core  {
 										}
 									}
 								}
-							} else {
-								// Not Fullscreen -> Than it's visible!
-								return true;
 							}
 						}
 					}
 					return false;
+				}
+				return User32.IsZoomed(this.hWnd);
+			}
+			set {
+				if (value) {
+					User32.SendMessage(this.hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MAXIMIZE, IntPtr.Zero);
+				} else {
+					User32.SendMessage(this.hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// This doesn't work as good as is should, but does move the App out of the way...
+		/// </summary>
+		public void HideApp() {
+			User32.ShowWindow(Handle, ShowWindowCommand.Hide);
+		}
+		
+		/// <summary>
+		/// Gets whether the window is visible.
+		/// </summary>
+		public bool Visible {
+			get {
+				if (isApp) {
+					Rectangle windowRectangle = WindowRectangle;
+					foreach (Screen screen in Screen.AllScreens) {
+						if (screen.Bounds.Contains(windowRectangle)) {
+							return true;
+						}
+					}
 				}
 				if (isAppLauncher) {
 					return IsAppLauncherVisible;
@@ -744,7 +760,7 @@ namespace GreenshotPlugin.Core  {
 							GetWindowRect(out windowRect);
 						}
 	
-						if (!HasParent && this.Maximised) {
+						if (!HasParent && (!isApp && Maximised)) {
 							Size size = Size.Empty;
 							GetBorderSize(out size);
 							windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width), windowRect.Height - (2 * size.Height));
@@ -1656,7 +1672,7 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		/// <returns></returns>
 		public static WindowDetails GetAppLauncher() {
-			IntPtr appLauncher = User32.FindWindow("ImmersiveLauncher", null);
+			IntPtr appLauncher = User32.FindWindow(METRO_APPLAUNCHER_CLASS, null);
 			if (appLauncher != IntPtr.Zero) {
 				return new WindowDetails (appLauncher);
 			}
