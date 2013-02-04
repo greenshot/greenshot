@@ -1544,6 +1544,10 @@ namespace GreenshotPlugin.Core  {
 		/// <returns>List<WindowDetails> with visible metro apps</returns>
 		public static List<WindowDetails> GetMetroApps() {
 			List<WindowDetails> metroApps = new List<WindowDetails>();
+			// if the appVisibility != null we have Windows 8.
+			if (appVisibility == null) {
+				return metroApps;
+			}
 			//string[] wcs = {"ImmersiveGutter", "Snapped Desktop", "ImmersiveBackgroundWindow","ImmersiveLauncher","Windows.UI.Core.CoreWindow","ApplicationManager_ImmersiveShellWindow","SearchPane","MetroGhostWindow","EdgeUiInputWndClass", "NativeHWNDHost", "Shell_CharmWindow"};
 			//List<WindowDetails> specials = new List<WindowDetails>();
 			//foreach(string wc in wcs) {
@@ -1636,7 +1640,7 @@ namespace GreenshotPlugin.Core  {
 				if (window.Iconic) {
 					continue;
 				}
-				    
+				
 				// Windows without size
 				Size windowSize = window.WindowRectangle.Size;
 				if (windowSize.Width == 0 ||  windowSize.Height == 0) {
@@ -1670,6 +1674,10 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		/// <returns></returns>
 		public static WindowDetails GetAppLauncher() {
+			// Only if Windows 8 (or higher)
+			if (appVisibility == null) {
+				return null;
+			}
 			IntPtr appLauncher = User32.FindWindow(METRO_APPLAUNCHER_CLASS, null);
 			if (appLauncher != IntPtr.Zero) {
 				return new WindowDetails (appLauncher);
