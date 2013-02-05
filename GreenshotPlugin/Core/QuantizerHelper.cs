@@ -286,7 +286,7 @@ namespace GreenshotPlugin.Core {
 			tag = new byte[MAXVOLUME];
 
 			// precalculates lookup tables
-			for (byte k = 0; k < allowedColorCount; ++k) {
+			for (int k = 0; k < allowedColorCount; ++k) {
 				Mark(cubes[k], k, tag);
 
 				long weight = Volume(cubes[k], weights);
@@ -327,7 +327,7 @@ namespace GreenshotPlugin.Core {
 								bestMatch = tag[bestMatch];
 
 								Int32 bestDistance = 100000000;
-								for (byte lookupIndex = 0; lookupIndex < allowedColorCount; lookupIndex++) {
+								for (int lookupIndex = 0; lookupIndex < allowedColorCount; lookupIndex++) {
 									Int32 foundRed = lookupRed[lookupIndex];
 									Int32 foundGreen = lookupGreen[lookupIndex];
 									Int32 foundBlue = lookupBlue[lookupIndex];
@@ -339,7 +339,7 @@ namespace GreenshotPlugin.Core {
 
 									if (distance < bestDistance) {
 										bestDistance = distance;
-										bestMatch = lookupIndex;
+										bestMatch = (byte)lookupIndex;
 									}
 								}
 								lookup.Add(color, bestMatch);
