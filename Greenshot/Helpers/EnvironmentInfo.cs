@@ -48,6 +48,11 @@ namespace Greenshot.Helpers {
 			}
 		}
 
+		public static bool IsNet45OrNewer() {
+			// Class "ReflectionContext" exists from .NET 4.5 onwards.
+			return Type.GetType("System.Reflection.ReflectionContext", false) != null;
+		}
+
 		public static string EnvironmentToString(bool newline) {
 			StringBuilder environment = new StringBuilder();
 			environment.Append("Software version: " + Application.ProductVersion);
@@ -62,6 +67,10 @@ namespace Greenshot.Helpers {
 				environment.Append(", ");
 			}
 			environment.Append(".NET runtime version: " + Environment.Version);
+			if (IsNet45OrNewer()) {
+				environment.Append("+");
+
+			}
 			if (newline) {
 				environment.AppendLine();
 			} else {
