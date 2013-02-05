@@ -31,6 +31,8 @@ using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using Greenshot.Memento;
 using System.Drawing.Drawing2D;
+using Greenshot.Configuration;
+using Greenshot.IniFile;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -42,7 +44,7 @@ namespace Greenshot.Drawing {
 	[Serializable()]
 	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, INotifyPropertyChanged, IDrawableContainer {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DrawableContainer));
-
+		protected static readonly EditorConfiguration editorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 		private bool isMadeUndoable = false;
 		
 		[NonSerialized]
