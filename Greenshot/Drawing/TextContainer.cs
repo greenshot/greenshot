@@ -35,14 +35,19 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// Represents a textbox (extends RectangleContainer for border/background support
 	/// </summary>
-	[Serializable()] 
+	[Serializable] 
 	public class TextContainer : RectangleContainer, ITextContainer {
 		private bool fontInvalidated = true;
 		// If makeUndoable is true the next text-change will make the change undoable.
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
 		private bool makeUndoable = false;
 		private Font font;
-		StringFormat stringFormat = new StringFormat();
+
+		/// <summary>
+		/// The StringFormat object is not serializable!!
+		/// </summary>
+		[NonSerialized]
+		StringFormat stringFormat;
 		
 		private string text;
 		// there is a binding on the following property!
@@ -79,12 +84,13 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.FONT_SIZE, 11f);
 			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, HorizontalAlignment.Center);
 			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
-			
+			stringFormat = new StringFormat();
 			stringFormat.Trimming = StringTrimming.EllipsisWord;
 		}
 		
-		[OnDeserializedAttribute()]
+		[OnDeserializedAttribute]
 		private void OnDeserialized(StreamingContext context) {
+			stringFormat = new StringFormat();
 			Init();
 			UpdateFormat();
 		}
