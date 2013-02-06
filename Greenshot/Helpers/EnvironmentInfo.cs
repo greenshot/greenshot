@@ -130,7 +130,7 @@ namespace Greenshot.Helpers {
 				foreach (object key in ex.Data.Keys) {
 					object data = ex.Data[key];
 					if (data != null) {
-						report.AppendLine(key + " = " + data);
+						report.AppendLine(key + " : " + data);
 					}
 				}
 			}

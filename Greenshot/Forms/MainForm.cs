@@ -325,7 +325,13 @@ namespace Greenshot {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
-			InitializeComponent();
+			try {
+				InitializeComponent();
+			} catch (ArgumentException ex) {
+				// Added for Bug #1420, this doesn't solve the issue but maybe the user can do something with it.
+				ex.Data.Add("more information here", "http://support.microsoft.com/kb/943140");
+				throw ex;
+			}
 			this.notifyIcon.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 
