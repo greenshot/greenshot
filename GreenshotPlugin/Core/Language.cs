@@ -56,7 +56,7 @@ namespace GreenshotPlugin.Core {
 		/// Static initializer for the language code
 		/// </summary>
 		static Language() {
-			if (!IniConfig.IsInited) {
+			if (!IniConfig.isInitialized) {
 				LOG.Warn("IniConfig hasn't been initialized yet! (Design mode?)");
 				IniConfig.Init("greenshot", "greenshot");
 			}

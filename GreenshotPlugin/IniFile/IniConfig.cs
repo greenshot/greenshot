@@ -25,6 +25,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace Greenshot.IniFile {
 	public class IniConfig {
@@ -33,17 +34,54 @@ namespace Greenshot.IniFile {
 		private const string DEFAULTS_POSTFIX = "-defaults";
 		private const string FIXED_POSTFIX = "-fixed";
 
+		/// <summary>
+		/// A lock object for the ini file saving
+		/// </summary>
+		private static object iniLock = new object();
+
+		/// <summary>
+		/// This is used to monitor the greenshot.ini changes
+		/// </summary>
 		private static FileSystemWatcher watcher;
+
+		/// <summary>
+		/// As the ini implementation is kept someone generic, for reusing, this holds the name of the application
+		/// </summary>
 		private static string applicationName = null;
+
+		/// <summary>
+		/// As the ini implementation is kept someone generic, for reusing, this holds the name of the configuration
+		/// </summary>
 		private static string configName = null;
 
+		/// <summary>
+		/// A Dictionary with all the sections stored by section name
+		/// </summary>
 		private static Dictionary<string, IniSection> sectionMap = new Dictionary<string, IniSection>();
+
+		/// <summary>
+		/// A Dictionary with the properties for a section stored by section name
+		/// </summary>
 		private static Dictionary<string, Dictionary<string, string>> sections = new Dictionary<string, Dictionary<string, string>>();
+
+		/// <summary>
+		/// A Dictionary with the fixed-properties for a section stored by section name
+		/// </summary>
 		private static Dictionary<string, Dictionary<string, string>> fixedProperties = null;
-			
+		
+		/// <summary>
+		/// The IniChanged event, which can be registed
+		/// </summary>
 		public static event FileSystemEventHandler IniChanged;
+
+		/// <summary>
+		/// Stores if we checked for portable
+		/// </summary>
 		private static bool portableCheckMade = false;
 
+		/// <summary>
+		/// Is the configuration portable (meaning we don't store it in the AppData directory)
+		/// </summary>
 		private static bool portable = false;
 		public static bool IsPortable {
 			get {
@@ -63,12 +101,18 @@ namespace Greenshot.IniFile {
 			WatchConfigFile(true);
 		}
 
-		public static bool IsInited {
+		/// <summary>
+		/// Checks if we initialized the ini
+		/// </summary>
+		public static bool isInitialized {
 			get {
 				return applicationName != null && configName != null;
 			}
 		}
 
+		/// <summary>
+		/// This forces the ini to be stored in the startup path, used for portable applications
+		/// </summary>
 		public static void ForceIniInStartupPath() {
 			if (portableCheckMade) {
 				throw new Exception("ForceLocal should be called before any file is read");
@@ -336,6 +380,11 @@ namespace Greenshot.IniFile {
 			return section;
 		}
 
+		/// <summary>
+		/// Get the raw properties for a section
+		/// </summary>
+		/// <param name="section"></param>
+		/// <returns></returns>
 		public static Dictionary<string, string> PropertiesForSection(IniSection section) {
 			Type iniSectionType = section.GetType();
 			string sectionName = section.IniSectionAttribute.Name;
@@ -350,49 +399,76 @@ namespace Greenshot.IniFile {
 			return properties;
 		}
 
+		/// <summary>
+		/// Save the ini file
+		/// </summary>
 		public static void Save() {
-			string iniLocation = CreateIniLocation(configName + INI_EXTENSION);
+			bool acquiredLock = false;
 			try {
-				SaveInternally(iniLocation);
-			} catch (Exception ex) {
-				LOG.Error("A problem occured while writing the configuration file to: " + iniLocation);
-				LOG.Error(ex);
-			}
-		}
-		
-		private static void SaveInternally(string iniLocation) {
-			WatchConfigFile(false);
-
-			LOG.Info("Saving configuration to: " + iniLocation);
-			if (!Directory.Exists(Path.GetDirectoryName(iniLocation))) {
-				Directory.CreateDirectory(Path.GetDirectoryName(iniLocation));
-			}
-			TextWriter writer = new StreamWriter(iniLocation, false, Encoding.UTF8);
-			foreach (IniSection section in sectionMap.Values) {
-				section.Write(writer, false);
-				// Add empty line after section
-				writer.WriteLine();
-				section.IsDirty = false;
-			}
-			writer.WriteLine();
-			// Write left over properties
-			foreach (string sectionName in sections.Keys) {
-				// Check if the section is one that is "registered", if so skip it!
-				if (!sectionMap.ContainsKey(sectionName)) {
-					writer.WriteLine("; The section {0} hasn't been 'claimed' since the last start of Greenshot, therefor it doesn't have additional information here!", sectionName);
-					writer.WriteLine("; The reason could be that the section {0} just hasn't been used, a plugin has an error and can't claim it or maybe the whole section {0} is obsolete.", sectionName);
-					// Write section name
-					writer.WriteLine("[{0}]", sectionName);
-					Dictionary<string, string> properties = sections[sectionName];
-					// Loop and write properties
-					foreach (string propertyName in properties.Keys) {
-						writer.WriteLine("{0}={1}", propertyName, properties[propertyName]);
+				acquiredLock = Monitor.TryEnter(iniLock, TimeSpan.FromMilliseconds(200));
+				if (acquiredLock) {
+					// Code that accesses resources that are protected by the lock.
+					string iniLocation = CreateIniLocation(configName + INI_EXTENSION);
+					try {
+						SaveInternally(iniLocation);
+					} catch (Exception ex) {
+						LOG.Error("A problem occured while writing the configuration file to: " + iniLocation);
+						LOG.Error(ex);
 					}
-					writer.WriteLine();
+				} else {
+					// Code to deal with the fact that the lock was not acquired.
+					LOG.Warn("A second thread tried to save the ini-file, we blocked as the first took too long.");
+				}
+			} finally {
+				if (acquiredLock) {
+					Monitor.Exit(iniLock);
 				}
 			}
-			writer.Close();
-			WatchConfigFile(true);
+		}
+
+		/// <summary>
+		/// The real save implementation, this first disables the watch otherwise we would be informed of our own changes.
+		/// </summary>
+		/// <param name="iniLocation"></param>
+		private static void SaveInternally(string iniLocation) {
+			WatchConfigFile(false);
+			try {
+				LOG.Info("Saving configuration to: " + iniLocation);
+				if (!Directory.Exists(Path.GetDirectoryName(iniLocation))) {
+					Directory.CreateDirectory(Path.GetDirectoryName(iniLocation));
+				}
+				using (TextWriter writer = new StreamWriter(iniLocation, false, Encoding.UTF8)) {
+					foreach (IniSection section in sectionMap.Values) {
+						section.Write(writer, false);
+						// Add empty line after section
+						writer.WriteLine();
+						section.IsDirty = false;
+					}
+					writer.WriteLine();
+					// Write left over properties
+					foreach (string sectionName in sections.Keys) {
+						// Check if the section is one that is "registered", if so skip it!
+						if (!sectionMap.ContainsKey(sectionName)) {
+							writer.WriteLine("; The section {0} hasn't been 'claimed' since the last start of Greenshot, therefor it doesn't have additional information here!", sectionName);
+							writer.WriteLine("; The reason could be that the section {0} just hasn't been used, a plugin has an error and can't claim it or maybe the whole section {0} is obsolete.", sectionName);
+							// Write section name
+							writer.WriteLine("[{0}]", sectionName);
+							Dictionary<string, string> properties = sections[sectionName];
+							// Loop and write properties
+							foreach (string propertyName in properties.Keys) {
+								writer.WriteLine("{0}={1}", propertyName, properties[propertyName]);
+							}
+							writer.WriteLine();
+						}
+					}
+				}
+			} finally {
+				try {
+					WatchConfigFile(true);
+				} catch (Exception ex) {
+					LOG.Error("A problem occured while enabling the WatchConfigFile: ", ex);
+				}
+			}
 		}
 	}
 }
