@@ -967,6 +967,27 @@ namespace GreenshotPlugin.Core {
 				return bb.Bitmap;
 			}
 		}
+		
+		/// <summary>
+		/// Returns a b/w of Bitmap
+		/// </summary>
+		/// <param name="sourceImage">Bitmap to create a b/w off</param>
+		/// <returns>b/w bitmap</returns>
+		public static Bitmap CreateMonochrome(Image sourceImage) {
+			using (BitmapBuffer bb = new BitmapBuffer(sourceImage, true)) {
+				bb.Lock();
+				for (int y = 0; y < bb.Height; y++) {
+					for (int x = 0; x < bb.Width; x++) {
+						Color color = bb.GetColorAt(x, y);
+						int colorBrightness = (color.R+color.G+color.B > 382) ? 255 : 0;
+						Color monoColor = Color.FromArgb(color.A, colorBrightness, colorBrightness, colorBrightness);
+						bb.SetColorAt(x, y, monoColor);
+					}
+				}
+				bb.Unlock();
+				return bb.Bitmap;
+			}
+		}
 
 		/// <summary>
 		/// Create a new bitmap where the sourceBitmap has a Simple border around it
