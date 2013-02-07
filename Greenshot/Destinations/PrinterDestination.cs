@@ -30,6 +30,7 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
 using Greenshot.IniFile;
+using Greenshot.Core;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -87,26 +88,54 @@ namespace Greenshot.Destinations {
 			}
 		}
 
+		/// <summary>
+		/// Create destinations for all the installed printers
+		/// </summary>
+		/// <returns>IEnumerable<IDestination></returns>
 		public override IEnumerable<IDestination> DynamicDestinations() {
 			foreach (string printer in PrinterSettings.InstalledPrinters) {
 				yield return new PrinterDestination(printer);
 			}
 		}
 
+		/// <summary>
+		/// Export the capture to the printer
+		/// </summary>
+		/// <param name="manuallyInitiated"></param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <returns>ExportInformation</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			PrinterSettings printerSettings = null;
-			using (Image image = surface.GetImageForExport()) {
+
+			// Create the output settins
+			SurfaceOutputSettings printOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+
+			// TODO:
+			// add effects here, e.g. Monochrome
+			// printOutputSettings.Effects.Add(new MonochromeEffect());
+			// Set the color reducing if needed, this should change the 24/32-> 8 (or later even 1) bpp
+			// printOutputSettings.ReduceColors = true;
+
+			Image imageToPrint;
+			Boolean disposeImage = ImageOutput.CreateImageFromSurface(surface, printOutputSettings, out imageToPrint);
+			try {
 				if (!string.IsNullOrEmpty(printerName)) {
-					printerSettings = new PrintHelper(image, captureDetails).PrintTo(printerName);
+					printerSettings = new PrintHelper(imageToPrint, captureDetails).PrintTo(printerName);
 				} else if (!manuallyInitiated) {
 					PrinterSettings settings = new PrinterSettings();
-					printerSettings = new PrintHelper(image, captureDetails).PrintTo(settings.PrinterName);
+					printerSettings = new PrintHelper(imageToPrint, captureDetails).PrintTo(settings.PrinterName);
 				} else {
-					printerSettings = new PrintHelper(image, captureDetails).PrintWithDialog();
+					printerSettings = new PrintHelper(imageToPrint, captureDetails).PrintWithDialog();
 				}
 				if (printerSettings != null) {
 					exportInformation.ExportMade = true;
+				}
+			} finally {
+				if (disposeImage && imageToPrint != null) {
+					imageToPrint.Dispose();
+					imageToPrint = null;
 				}
 			}
 

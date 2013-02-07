@@ -102,6 +102,16 @@ namespace Greenshot.Core {
 	}
 
 	/// <summary>
+	/// MonochromeEffect
+	/// </summary>
+	public class MonochromeEffect : IEffect {
+		public Image Apply(Image sourceImage, out Point offsetChange) {
+			offsetChange = Point.Empty;
+			return ImageHelper.CreateMonochrome(sourceImage);
+		}
+	}
+
+	/// <summary>
 	/// InvertEffect
 	/// </summary>
 	public class InvertEffect : IEffect {
