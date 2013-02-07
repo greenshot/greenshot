@@ -1054,9 +1054,9 @@ namespace GreenshotPlugin.Core {
 
 				//create some image attributes
 				ImageAttributes attributes = new ImageAttributes();
-
-				//set the color matrix attribute
-				attributes.SetColorMatrix(colorMatrix);
+				attributes.ClearColorMatrix();
+				attributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+				attributes.SetGamma(gamma, ColorAdjustType.Bitmap);
 
 				//draw the original image on the new image using the grayscale color matrix
 				graphics.DrawImage(sourceImage, new Rectangle(0, 0, sourceImage.Width, sourceImage.Height), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, attributes);
