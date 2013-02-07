@@ -1030,6 +1030,42 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Adjust the brightness, contract or gamma of an image.
+		/// Use the value "1.0f" for no changes.
+		/// </summary>
+		/// <param name="sourceImage">Original bitmap</param>
+		/// <returns>Bitmap with grayscale</returns>
+		public static Image Adjust(Image sourceImage, float brightness, float contrast, float gamma) {
+			//create a blank bitmap the same size as original
+			// If using 8bpp than the following exception comes: A Graphics object cannot be created from an image that has an indexed pixel format. 
+			Bitmap newBitmap = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format24bppRgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+			float adjustedBrightness = brightness - 1.0f;
+			// get a graphics object from the new image
+			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
+				// create the grayscale ColorMatrix
+				ColorMatrix colorMatrix = new ColorMatrix(
+					new float[][] {
+						new float[] {contrast, 0, 0, 0, 0}, // scale red
+						new float[] {0, contrast, 0, 0, 0}, // scale green
+						new float[] {0, 0, contrast, 0, 0}, // scale blue
+						new float[] {0, 0, 0, 1.0f, 0}, // don't scale alpha
+						new float[] {adjustedBrightness, adjustedBrightness, adjustedBrightness, 0, 1}
+					});
+
+				//create some image attributes
+				ImageAttributes attributes = new ImageAttributes();
+
+				//set the color matrix attribute
+				attributes.SetColorMatrix(colorMatrix);
+
+				//draw the original image on the new image using the grayscale color matrix
+				graphics.DrawImage(sourceImage, new Rectangle(0, 0, sourceImage.Width, sourceImage.Height), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, attributes);
+			}
+
+			return newBitmap;
+		}
+
+		/// <summary>
 		/// Create a new bitmap where the sourceBitmap is in grayscale
 		/// </summary>
 		/// <param name="sourceImage">Original bitmap</param>

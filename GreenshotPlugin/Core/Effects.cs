@@ -112,6 +112,33 @@ namespace Greenshot.Core {
 	}
 
 	/// <summary>
+	/// AdjustEffect
+	/// </summary>
+	public class AdjustEffect : IEffect {
+		public AdjustEffect() : base() {
+			Contrast = 1f;
+			Brightness = 1f;
+			Gamma = 1f;
+		}
+		public float Contrast {
+			get;
+			set;
+		}
+		public float Brightness {
+			get;
+			set;
+		}
+		public float Gamma {
+			get;
+			set;
+		}
+		public Image Apply(Image sourceImage, out Point offsetChange) {
+			offsetChange = Point.Empty;
+			return ImageHelper.Adjust(sourceImage, Brightness, Contrast, Gamma);
+		}
+	}
+
+	/// <summary>
 	/// InvertEffect
 	/// </summary>
 	public class InvertEffect : IEffect {
