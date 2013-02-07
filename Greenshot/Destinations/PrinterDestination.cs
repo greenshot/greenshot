@@ -118,6 +118,11 @@ namespace Greenshot.Destinations {
 			// Set the color reducing if needed, this should change the 24/32-> 8 (or later even 1) bpp
 			// printOutputSettings.ReduceColors = true;
 
+			// Moved this from the PrintHelper, the invert effect should probably be the last!
+			if (conf.OutputPrintInverted) {
+				printOutputSettings.Effects.Add(new InvertEffect());
+			}
+
 			Image imageToPrint;
 			Boolean disposeImage = ImageOutput.CreateImageFromSurface(surface, printOutputSettings, out imageToPrint);
 			try {

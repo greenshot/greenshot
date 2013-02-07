@@ -213,13 +213,7 @@ namespace Greenshot.Helpers {
 					e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - (footerStringWidth / 2), pageRect.Height);
 				}
 			}
-			if (conf.OutputPrintInverted) {
-				using (Bitmap negativeBitmap = ImageHelper.CreateNegative((Bitmap)image)) {
-					e.Graphics.DrawImage(negativeBitmap, printRect, imageRect, GraphicsUnit.Pixel);
-				}
-			} else {
-				e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);
-			}
+			e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);
 		}
 	}
 }
