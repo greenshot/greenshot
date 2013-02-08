@@ -357,18 +357,20 @@ namespace GreenshotPlugin.Core {
 			// Default out value for the offset, will be modified there where needed
 			offset = new Point(0, 0);
 			Point tmpPoint;
-			Image tmpImage = null;
 			foreach (IEffect effect in effects) {
-				tmpImage = effect.Apply(currentImage, out tmpPoint);
-				offset.Offset(tmpPoint);
-				if (disposeImage) {
-					currentImage.Dispose();
+				Image tmpImage = effect.Apply(currentImage, out tmpPoint);
+				if (tmpImage != null) {
+					offset.Offset(tmpPoint);
+					if (disposeImage) {
+						currentImage.Dispose();
+					}
+					currentImage = tmpImage;
+					tmpImage = null;
+					// Make sure the "new" image is disposed
+					disposeImage = true;
 				}
-				currentImage = tmpImage;
-				// Make sure the "new" image is disposed
-				disposeImage = true;
 			}
-			return tmpImage;
+			return currentImage;
 		}
 
 		/// <summary>

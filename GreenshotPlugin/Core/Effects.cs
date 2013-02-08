@@ -139,6 +139,34 @@ namespace Greenshot.Core {
 	}
 
 	/// <summary>
+	/// ReduceColorsEffect
+	/// </summary>
+	public class ReduceColorsEffect : IEffect {
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ReduceColorsEffect));
+		public ReduceColorsEffect() : base() {
+			Colors = 256;
+		}
+		public int Colors {
+			get;
+			set;
+		}
+		public Image Apply(Image sourceImage, out Point offsetChange) {
+			offsetChange = Point.Empty;
+			using (WuQuantizer quantizer = new WuQuantizer((Bitmap)sourceImage)) {
+				int colorCount = quantizer.GetColorCount();
+				if (colorCount > Colors) {
+					try {
+						return quantizer.GetQuantizedImage(Colors);
+					} catch (Exception e) {
+						LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+					}
+				}
+			}
+			return null;
+		}
+	}
+
+	/// <summary>
 	/// InvertEffect
 	/// </summary>
 	public class InvertEffect : IEffect {
