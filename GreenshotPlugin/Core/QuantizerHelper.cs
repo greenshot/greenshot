@@ -149,13 +149,19 @@ namespace GreenshotPlugin.Core {
 			// Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
 			resultBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format8bppIndexed);
 			resultBitmap.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			bool is8Bit = sourceBitmap.PixelFormat == PixelFormat.Format8bppIndexed;
 			using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
 				bbbSrc.Lock();
 				using (BitmapBuffer bbbDest = new BitmapBuffer(resultBitmap, false)) {
 					bbbDest.Lock();
 					for (int y = 0; y < bbbSrc.Height; y++) {
 						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color = bbbSrc.GetColorAtWithoutAlpha(x, y);
+							Color color;
+							if (is8Bit) {
+								color = bbbSrc.GetColor(x, y);
+							} else {
+								color = bbbSrc.GetColorAtWithoutAlpha(x, y);
+							}
 							// To count the colors
 							int index = color.ToArgb() & 0x00ffffff;
 							// Check if we already have this color
@@ -203,9 +209,15 @@ namespace GreenshotPlugin.Core {
 				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
 					bbbSrc.Lock();
 					byte index;
+					bool is8Bit = sourceBitmap.PixelFormat == PixelFormat.Format8bppIndexed;
 					for (int y = 0; y < bbbSrc.Height; y++) {
 						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color = bbbSrc.GetColorAt(x, y);
+							Color color;
+							if (is8Bit) {
+								color = bbbSrc.GetColor(x, y);
+							} else {
+								color = bbbSrc.GetColorAt(x, y);
+							}
 							if (lookup.ContainsKey(color)) {
 								index = lookup[color];
 							} else {
@@ -240,9 +252,12 @@ namespace GreenshotPlugin.Core {
 		/// Get the image
 		/// </summary>
 		public Bitmap GetQuantizedImage(int allowedColorCount) {
-			if (colorCount < 256) {
+			if (allowedColorCount > 256) {
+				throw new ArgumentOutOfRangeException("Quantizing muss be done to get less than 256 colors");
+			}
+			if (colorCount < allowedColorCount) {
 				// Simple logic to reduce to 8 bit
-				LOG.Info("Using simple copy, no quantizing needed!");
+				LOG.Info("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
 				return SimpleReindex();
 			}
 			// preprocess the colors
@@ -315,9 +330,18 @@ namespace GreenshotPlugin.Core {
 					bbbSrc.Lock();
 					Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
 					byte bestMatch;
+					bool is8Bit = sourceBitmap.PixelFormat == PixelFormat.Format8bppIndexed;
 					for (int y = 0; y < bbbSrc.Height; y++) {
 						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color = bbbSrc.GetColorAtWithoutAlpha(x, y);
+							Color color;
+							if (is8Bit) {
+								color = bbbSrc.GetColor(x, y);
+							} else {
+								color = bbbSrc.GetColorAtWithoutAlpha(x, y);
+							}
+
+							// No need to a strip the alpha as before
+
 							// Check if we already matched the color
 							if (!lookup.ContainsKey(color)) {
 								// If not we need to find the best match

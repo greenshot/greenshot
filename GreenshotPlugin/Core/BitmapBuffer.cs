@@ -33,6 +33,8 @@ namespace GreenshotPlugin.Core {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapBuffer));
 		private bool clone;
 		private Bitmap bitmap;
+		// Used for indexed images
+		private Color[] colorEntries;
 
 		public static Color BackgroundBlendColor {
 			get;
@@ -163,6 +165,9 @@ namespace GreenshotPlugin.Core {
 			} else {
 				this.bitmap = sourceImage as Bitmap;
 				this.rect = sourceRect;
+			}
+			if (bitmap.PixelFormat == PixelFormat.Format8bppIndexed) {
+				colorEntries = bitmap.Palette.Entries;
 			}
 		}
 
@@ -297,10 +302,22 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="x">X coordinate</param>
 		/// <param name="y">Y Coordinate</param>
-		/// <returns>index</returns>
+		/// <returns>color index</returns>
 		public byte GetColorIndexAt(int x, int y) {
 			int offset = x*bytesPerPixel+y*stride;
 			return pointer[offset];
+		}
+
+		/// <summary>
+		/// Get the color for an 8-bit image
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns>Color from the palette</returns>
+		public Color GetColor(int x, int y) {
+			int offset = x * bytesPerPixel + y * stride;
+			byte colorIndex = pointer[offset];
+			return colorEntries[colorIndex];
 		}
 
 		/// <summary>
@@ -309,9 +326,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="x">X coordinate</param>
 		/// <param name="y">Y Coordinate</param>
 		/// <param name="color">Color index to set</param>
-		public void SetColorIndexAt(int x, int y, byte color) {
+		public void SetColorIndexAt(int x, int y, byte colorIndex) {
 			int offset = x * bytesPerPixel + y * stride;
-			pointer[offset] = color;
+			pointer[offset] = colorIndex;
 		}
 
 		/// <summary>
@@ -369,6 +386,7 @@ namespace GreenshotPlugin.Core {
 				int blue = pointer[bIndex + offset];
 
 				if (a < 255) {
+					// As the request is to get without alpha, we blend.
 					int rem = 255 - a;
 					red = (red * a + BackgroundBlendColor.R * rem) / 255;
 					green = (green * a + BackgroundBlendColor.G * rem) / 255;
