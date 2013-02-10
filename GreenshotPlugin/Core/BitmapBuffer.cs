@@ -28,13 +28,13 @@ namespace GreenshotPlugin.Core {
 	/// The BitmapBuffer is exactly what it says, it buffers a Bitmap.
 	/// And it is possible to Draw on the Bitmap with direct memory access for better performance
 	/// </summary>
-	[Serializable()] 
 	public unsafe class BitmapBuffer : IDisposable {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BitmapBuffer));
 		private bool clone;
 		private Bitmap bitmap;
 		// Used for indexed images
 		private Color[] colorEntries;
+
 
 		public static Color BackgroundBlendColor {
 			get;
@@ -70,34 +70,20 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		[NonSerialized]
 		private BitmapData bmData;
-		[NonSerialized]
 		private Rectangle rect;
-		[NonSerialized]
 		private byte* pointer;
-		[NonSerialized]
 		private int* intPointer;
-		[NonSerialized]
 		private int stride; /* bytes per pixel row */
-		[NonSerialized]
 		private int aIndex = -1;
-		[NonSerialized]
 		private int rIndex = -1;
-		[NonSerialized]
 		private int gIndex = -1;
-		[NonSerialized]
 		private int bIndex = -1;
-		[NonSerialized]
 		private int bytesPerPixel;
-		[NonSerialized]
 		private bool bitsLocked = false;
 		
 		public Size Size {
 			get {return rect.Size;}
-		}
-		public int Length {
-			get {return rect.Width*rect.Height;}
 		}
 		public int Width {
 			get {return rect.Width;}
@@ -204,29 +190,6 @@ namespace GreenshotPlugin.Core {
 			bmData = null;
 			pointer = null;
 		}
-		
-		/**
-		 * This is called when deserializing the object
-		 */
-		public BitmapBuffer(SerializationInfo info, StreamingContext ctxt) {
-			this.bitmap = (Bitmap)info.GetValue("bitmap", typeof(Bitmap));
-			this.rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-			// The rest will be set when Lock is called
-		}
-
-		/**
-		 * This is called when serializing the object
-		 */
-		public void GetObjectData(SerializationInfo info, StreamingContext ctxt) {
-			bool isLocked = bitsLocked;
-			if (isLocked) {
-				Unlock();
-			}
-			info.AddValue("bitmap", this.bitmap);
-			if (isLocked) {
-				Lock();
-			}
-		}
 
 		/**
 		 * Lock the bitmap so we have direct access to the memory
@@ -298,51 +261,6 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Retrieve the color index, for 8BPP, at location x,y
-		/// </summary>
-		/// <param name="x">X coordinate</param>
-		/// <param name="y">Y Coordinate</param>
-		/// <returns>color index</returns>
-		public byte GetColorIndexAt(int x, int y) {
-			int offset = x*bytesPerPixel+y*stride;
-			return pointer[offset];
-		}
-
-		/// <summary>
-		/// Get the color for an 8-bit image
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns>Color from the palette</returns>
-		public Color GetColor(int x, int y) {
-			int offset = x * bytesPerPixel + y * stride;
-			byte colorIndex = pointer[offset];
-			return colorEntries[colorIndex];
-		}
-
-		/// <summary>
-		/// Set the color index, for 8BPP, at location x,y
-		/// </summary>
-		/// <param name="x">X coordinate</param>
-		/// <param name="y">Y Coordinate</param>
-		/// <param name="color">Color index to set</param>
-		public void SetColorIndexAt(int x, int y, byte colorIndex) {
-			int offset = x * bytesPerPixel + y * stride;
-			pointer[offset] = colorIndex;
-		}
-
-		/// <summary>
-		/// Use only when 32-bit bitmap!
-		/// </summary>
-		/// <param name="x">x</param>
-		/// <param name="y">y</param>
-		/// <returns>int with argb value</returns>
-		public int GetARGB(int x, int y) {
-			int offset = (y * (stride >> 2)) + x;
-			return intPointer[offset];
-		}
-
-		/// <summary>
 		/// Use only when 32-bit bitmap!
 		/// </summary>
 		/// <param name="x">x</param>
@@ -370,34 +288,6 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/// <summary>
-		/// Retrieve the color, without alpha (is blended), at location x,y
-		/// Before the first time this is called the Lock() should be called once!
-		/// </summary>
-		/// <param name="x">X coordinate</param>
-		/// <param name="y">Y Coordinate</param>
-		/// <returns>Color</returns>
-		public Color GetColorAtWithoutAlpha(int x, int y) {
-			if (x >= 0 && y >= 0 && x < rect.Width && y < rect.Height) {
-				int offset = x * bytesPerPixel + y * stride;
-				int a = (aIndex == -1) ? (byte)255 : pointer[aIndex + offset];
-				int red = pointer[rIndex + offset];
-				int green = pointer[gIndex + offset];
-				int blue = pointer[bIndex + offset];
-
-				if (a < 255) {
-					// As the request is to get without alpha, we blend.
-					int rem = 255 - a;
-					red = (red * a + BackgroundBlendColor.R * rem) / 255;
-					green = (green * a + BackgroundBlendColor.G * rem) / 255;
-					blue = (blue * a + BackgroundBlendColor.B * rem) / 255;
-				}
-				return Color.FromArgb(255, red, green, blue);
-			} else {
-				return Color.Empty;
-			}
-		}
-
 		/**
 		 * Set the color at location x,y
 		 * Before the first time this is called the Lock() should be called once!
@@ -409,20 +299,6 @@ namespace GreenshotPlugin.Core {
 				pointer[rIndex+offset] = color.R;
 				pointer[gIndex+offset] = color.G;
 				pointer[bIndex+offset] = color.B;
-			}
-		}
-
-		/**
-		 * Retrieve the color at location x,y as an array
-		 * Before the first time this is called the Lock() should be called once!
-		 */
-		public byte[] GetColorArrayAt(int x, int y) {
-			if(x>=0 && y>=0 && x<rect.Width && y<rect.Height) {
-				int offset = x*bytesPerPixel+y*stride;
-				byte a = (aIndex==-1) ? (byte)255 : (byte)pointer[aIndex+offset];
-				return new byte[] { a, pointer[rIndex + offset], pointer[gIndex + offset], pointer[bIndex + offset] };
-			} else {
-				return new byte[] { 0, 0, 0, 0 };
 			}
 		}
 

@@ -111,19 +111,19 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Private helper method for the FindAutoCropRectangle
 		/// </summary>
-		/// <param name="buffer"></param>
+		/// <param name="fastBitmap"></param>
 		/// <param name="colorPoint"></param>
 		/// <returns>Rectangle</returns>
-		private static Rectangle FindAutoCropRectangle(BitmapBuffer buffer, Point colorPoint, int cropDifference) {
+		private static Rectangle FindAutoCropRectangle(IFastBitmap fastBitmap, Point colorPoint, int cropDifference) {
 			Rectangle cropRectangle = Rectangle.Empty;
-			Color referenceColor = buffer.GetColorAtWithoutAlpha(colorPoint.X,colorPoint.Y);
+			Color referenceColor = fastBitmap.GetColorAt(colorPoint.X, colorPoint.Y);
 			Point min = new Point(int.MaxValue, int.MaxValue);
 			Point max = new Point(int.MinValue, int.MinValue);
 
 			if (cropDifference > 0) {
-				for(int y = 0; y < buffer.Height; y++) {
-					for(int x = 0; x < buffer.Width; x++) {
-						Color currentColor = buffer.GetColorAt(x, y);
+				for (int y = 0; y < fastBitmap.Height; y++) {
+					for (int x = 0; x < fastBitmap.Width; x++) {
+						Color currentColor = fastBitmap.GetColorAt(x, y);
 						int diffR = Math.Abs(currentColor.R - referenceColor.R);
 						int diffG = Math.Abs(currentColor.G - referenceColor.G);
 						int diffB = Math.Abs(currentColor.B - referenceColor.B);
@@ -136,9 +136,9 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 			} else {
-				for(int y = 0; y < buffer.Height; y++) {
-					for(int x = 0; x < buffer.Width; x++) {
-						Color currentColor = buffer.GetColorAtWithoutAlpha(x, y);
+				for (int y = 0; y < fastBitmap.Height; y++) {
+					for (int x = 0; x < fastBitmap.Width; x++) {
+						Color currentColor = fastBitmap.GetColorAt(x, y);
 						if (referenceColor.Equals(currentColor)) {
 							if (x < min.X) min.X = x;
 							if (y < min.Y) min.Y = y;
@@ -149,7 +149,7 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 
-			if (!(Point.Empty.Equals(min) && max.Equals(new Point(buffer.Width-1, buffer.Height-1)))) {
+			if (!(Point.Empty.Equals(min) && max.Equals(new Point(fastBitmap.Width - 1, fastBitmap.Height - 1)))) {
 				if (!(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue)) {
 					cropRectangle = new Rectangle(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
 				}
@@ -164,22 +164,22 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Rectangle</returns>
 		public static Rectangle FindAutoCropRectangle(Image image, int cropDifference) {
 			Rectangle cropRectangle = Rectangle.Empty;
-			using (BitmapBuffer buffer = new BitmapBuffer((Bitmap)image, false)) {
-				buffer.Lock();
-				Rectangle currentRectangle = Rectangle.Empty;
-				List<Point> checkPoints = new List<Point>();
-				// Top Left
-				checkPoints.Add(new Point(0, 0));
-				// Bottom Left
-				checkPoints.Add(new Point(0, image.Height-1));
-				// Top Right
-				checkPoints.Add(new Point(image.Width-1, 0));
-				// Bottom Right
-				checkPoints.Add( new Point(image.Width-1, image.Height-1));
+			Rectangle currentRectangle = Rectangle.Empty;
+			List<Point> checkPoints = new List<Point>();
+			// Top Left
+			checkPoints.Add(new Point(0, 0));
+			// Bottom Left
+			checkPoints.Add(new Point(0, image.Height - 1));
+			// Top Right
+			checkPoints.Add(new Point(image.Width - 1, 0));
+			// Bottom Right
+			checkPoints.Add(new Point(image.Width - 1, image.Height - 1));
+			using (IFastBitmap fastBitmap = FastBitmap.Create((Bitmap)image)) {
+				fastBitmap.Lock();
 
 				// find biggest area
 				foreach(Point checkPoint in checkPoints) {
-					currentRectangle = FindAutoCropRectangle(buffer, checkPoint, cropDifference);
+					currentRectangle = FindAutoCropRectangle(fastBitmap, checkPoint, cropDifference);
 					if (currentRectangle.Width * currentRectangle.Height > cropRectangle.Width * cropRectangle.Height) {
 						cropRectangle = currentRectangle;
 					}
@@ -1344,7 +1344,7 @@ namespace GreenshotPlugin.Core {
 			if (!includeAlpha) {
 				toCount = toCount & 0xffffff;
 			}
-			using (BitmapBuffer bb = new BitmapBuffer(sourceImage)) {
+			using (BitmapBuffer bb = new BitmapBuffer(sourceImage, false)) {
 				bb.Lock();
 				for (int y = 0; y < bb.Height; y++) {
 					for (int x = 0; x < bb.Width; x++) {

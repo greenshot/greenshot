@@ -47,7 +47,9 @@ namespace Greenshot.Drawing.Filters {
 			get { return invert; }
 			set { invert=value; OnPropertyChanged("Invert"); }
 		}
+		[NonSerialized]
 		protected BitmapBuffer bbb;
+
 		protected Rectangle applyRect;
 		protected DrawableContainer parent;
 		public DrawableContainer Parent {

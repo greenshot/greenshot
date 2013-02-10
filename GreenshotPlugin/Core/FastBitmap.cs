@@ -33,9 +33,7 @@ namespace GreenshotPlugin.Core {
 		void SetColorAt(int x, int y, Color color);
 		void Lock();
 		void Unlock();
-		Bitmap Bitmap {
-			get;
-		}
+		Bitmap UnlockAndReturnBitmap();
 		Size Size {
 			get;
 		}
@@ -47,6 +45,7 @@ namespace GreenshotPlugin.Core {
 		}
 		bool NeedsDispose {
 			get;
+			set;
 		}
 	}
 
@@ -61,7 +60,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public bool NeedsDispose {
 			get;
-			protected set;
+			set;
 		}
 
 		/// <summary>
@@ -116,7 +115,7 @@ namespace GreenshotPlugin.Core {
 		public static IFastBitmap CreateEmpty(Size newSize, PixelFormat pixelFormat, Color backgroundColor) {
 			Bitmap destination = ImageHelper.CreateEmpty(newSize.Width, newSize.Height, pixelFormat, backgroundColor, 96f, 96f);
 			IFastBitmap fastBitmap = Create(destination);
-			((FastBitmap)fastBitmap).NeedsDispose = true;
+			fastBitmap.NeedsDispose = true;
 			return fastBitmap;
 		}
 
@@ -152,15 +151,15 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Returns the underlying bitmap, do not dispose... if it's created for the FastBitmap it will be disposed!
+		/// Returns the underlying bitmap, unlocks it and prevents that it will be disposed
 		/// </summary>
-		public Bitmap Bitmap {
-			get {
-				if (bitsLocked) {
-					throw new NotSupportedException("Can't get a locked bitmap!");
-				}
-				return bitmap;
+		public Bitmap UnlockAndReturnBitmap() {
+			if (bitsLocked) {
+				LOG.Warn("Unlocking the bitmap");
+				Unlock();
 			}
+			NeedsDispose = false;
+			return bitmap;
 		}
 
 		/// <summary>

@@ -147,21 +147,13 @@ namespace GreenshotPlugin.Core {
 			}
 
 			// Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
-			resultBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format8bppIndexed);
-			resultBitmap.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
-			bool is8Bit = sourceBitmap.PixelFormat == PixelFormat.Format8bppIndexed;
-			using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
-				bbbSrc.Lock();
-				using (BitmapBuffer bbbDest = new BitmapBuffer(resultBitmap, false)) {
-					bbbDest.Lock();
-					for (int y = 0; y < bbbSrc.Height; y++) {
-						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color;
-							if (is8Bit) {
-								color = bbbSrc.GetColor(x, y);
-							} else {
-								color = bbbSrc.GetColorAtWithoutAlpha(x, y);
-							}
+			using (IFastBitmap sourceFastBitmap = FastBitmap.Create(sourceBitmap)) {
+				sourceFastBitmap.Lock();
+				using (FastChunkyBitmap destinationFastBitmap = FastBitmap.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap) {
+					destinationFastBitmap.Lock();
+					for (int y = 0; y < sourceFastBitmap.Height; y++) {
+						for (int x = 0; x < sourceFastBitmap.Width; x++) {
+							Color color = sourceFastBitmap.GetColorAt(x, y);
 							// To count the colors
 							int index = color.ToArgb() & 0x00ffffff;
 							// Check if we already have this color
@@ -183,9 +175,10 @@ namespace GreenshotPlugin.Core {
 
 							// Store the initial "match"
 							Int32 paletteIndex = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
-							bbbDest.SetColorIndexAt(x, y, (byte)(paletteIndex & 0xff));
+							destinationFastBitmap.SetColorIndexAt(x, y, (byte)(paletteIndex & 0xff));
 						}
 					}
+					resultBitmap = destinationFastBitmap.UnlockAndReturnBitmap();
 				}
 			}
 		}
@@ -204,20 +197,14 @@ namespace GreenshotPlugin.Core {
 		public Bitmap SimpleReindex() {
 			List<Color> colors = new List<Color>();
 			Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
-			using (BitmapBuffer bbbDest = new BitmapBuffer(resultBitmap, false)) {
+			using (FastChunkyBitmap bbbDest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap) {
 				bbbDest.Lock();
-				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
+				using (IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap)) {
 					bbbSrc.Lock();
 					byte index;
-					bool is8Bit = sourceBitmap.PixelFormat == PixelFormat.Format8bppIndexed;
 					for (int y = 0; y < bbbSrc.Height; y++) {
 						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color;
-							if (is8Bit) {
-								color = bbbSrc.GetColor(x, y);
-							} else {
-								color = bbbSrc.GetColorAt(x, y);
-							}
+							Color color = bbbSrc.GetColorAt(x, y);
 							if (lookup.ContainsKey(color)) {
 								index = lookup[color];
 							} else {
@@ -233,11 +220,12 @@ namespace GreenshotPlugin.Core {
 
 			// generates palette
 			ColorPalette imagePalette = resultBitmap.Palette;
+			Color[] entries = imagePalette.Entries;
 			for (Int32 paletteIndex = 0; paletteIndex < 256; paletteIndex++) {
 				if (paletteIndex < colorCount) {
-					imagePalette.Entries[paletteIndex] = colors[paletteIndex];
+					entries[paletteIndex] = colors[paletteIndex];
 				} else {
-					imagePalette.Entries[paletteIndex] = Color.Black;
+					entries[paletteIndex] = Color.Black;
 				}
 			}
 			resultBitmap.Palette = imagePalette;
@@ -324,22 +312,16 @@ namespace GreenshotPlugin.Core {
 
 			LOG.Info("Starting bitmap reconstruction...");
 
-			using (BitmapBuffer bbbDest = new BitmapBuffer(resultBitmap, false)) {
+			using (FastChunkyBitmap bbbDest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap) {
 				bbbDest.Lock();
-				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
+				using (IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap)) {
 					bbbSrc.Lock();
 					Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
 					byte bestMatch;
-					bool is8Bit = sourceBitmap.PixelFormat == PixelFormat.Format8bppIndexed;
 					for (int y = 0; y < bbbSrc.Height; y++) {
 						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color;
-							if (is8Bit) {
-								color = bbbSrc.GetColor(x, y);
-							} else {
-								color = bbbSrc.GetColorAtWithoutAlpha(x, y);
-							}
-
+							// Consider WithoutAlpha
+							Color color = bbbSrc.GetColorAt(x, y);
 							// No need to a strip the alpha as before
 
 							// Check if we already matched the color
@@ -386,6 +368,7 @@ namespace GreenshotPlugin.Core {
 
 			// generates palette
 			ColorPalette imagePalette = resultBitmap.Palette;
+			Color[] entries = imagePalette.Entries;
 			for (Int32 paletteIndex = 0; paletteIndex < allowedColorCount; paletteIndex++) {
 				if (sums[paletteIndex] > 0) {
 					reds[paletteIndex] /= sums[paletteIndex];
@@ -393,7 +376,7 @@ namespace GreenshotPlugin.Core {
 					blues[paletteIndex] /= sums[paletteIndex];
 				}
 
-				imagePalette.Entries[paletteIndex] = Color.FromArgb(255, reds[paletteIndex], greens[paletteIndex], blues[paletteIndex]);
+				entries[paletteIndex] = Color.FromArgb(255, reds[paletteIndex], greens[paletteIndex], blues[paletteIndex]);
 			}
 			resultBitmap.Palette = imagePalette;
 
