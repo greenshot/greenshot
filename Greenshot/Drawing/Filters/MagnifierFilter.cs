@@ -25,9 +25,10 @@ using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 
 namespace Greenshot.Drawing.Filters {
-	[Serializable()] 
+	[Serializable] 
 	public class MagnifierFilter : AbstractFilter {
 		
+		[NonSerialized]
 		private BitmapBuffer bbbSrc;
 		private int magnificationFactor;
 				
@@ -38,15 +39,12 @@ namespace Greenshot.Drawing.Filters {
 		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
 			magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
 			applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-			
-			bbbSrc = new BitmapBuffer(applyBitmap, applyRect);
-			try {
+
+			using (bbbSrc = new BitmapBuffer(applyBitmap, applyRect)) {
 				bbbSrc.Lock();
 				base.Apply(graphics, applyBitmap, applyRect, renderMode);
-			} finally {
-				bbbSrc.Dispose();
-				bbbSrc = null;
 			}
+			bbbSrc = null;
 		}
 		
 		protected override void IteratePixel(int x, int y) {
