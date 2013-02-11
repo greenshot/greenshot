@@ -61,8 +61,7 @@ namespace GreenshotPlugin.Controls {
 		/// <returns></returns>
 		protected static bool IsInDesignMode {
 			get {
-				return (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1)
-					|| (Application.ExecutablePath.IndexOf("sharpdevelop.exe", StringComparison.OrdinalIgnoreCase) > -1);
+				return (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1) || (Application.ExecutablePath.IndexOf("sharpdevelop.exe", StringComparison.OrdinalIgnoreCase) > -1 || (Application.ExecutablePath.IndexOf("wdexpress.exe", StringComparison.OrdinalIgnoreCase) > -1));
 			}
 		}
 
@@ -107,7 +106,8 @@ namespace GreenshotPlugin.Controls {
 					if (!Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\"))) {
 						Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
 					}
-				} catch (Exception) {
+				} catch (Exception ex) {
+					MessageBox.Show(ex.Message);
 				}
 			}
 		}
