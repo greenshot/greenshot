@@ -41,9 +41,14 @@ namespace GreenshotPlugin.Core {
 		private static readonly Object clipboardLockObject = new Object();
 		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";
-		private static readonly string FORMAT_JPG = "JPG";
 		private static readonly string FORMAT_PNG = "PNG";
+		private static readonly string FORMAT_PNG_OFFICEART = "PNG+Office Art";
+		private static readonly string FORMAT_JPG = "JPG";
+		private static readonly string FORMAT_JFIF = "JFIF";
+		private static readonly string FORMAT_JFIF_OFFICEART = "JFIF+Office Art";
 		private static readonly string FORMAT_GIF = "GIF";
+		private static readonly string FORMAT_BITMAP_PLACEHOLDER = "_BITMAP_";
+		
 		private static IntPtr nextClipboardViewer = IntPtr.Zero;
 		// Template for the HTML Text on the clipboard
 		// see: http://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
@@ -275,22 +280,17 @@ EndSelection:<<<<<<<4
 		/// <param name="dataObject"></param>
 		/// <returns>IEnumerable<Image></returns>
 		public static IEnumerable<Image> GetImages(IDataObject dataObject) {
-			Image tmpImage = null;
-			Image returnImage = null;
-
 			// Get single image, this takes the "best" match
-			tmpImage = GetImage(dataObject);
-			if (tmpImage != null) {
-				LOG.InfoFormat("Got image from clipboard with size {0} and format {1}", tmpImage.Size, tmpImage.PixelFormat);
-				returnImage = ImageHelper.Clone(tmpImage);
-				// Clean up.
-				tmpImage.Dispose();
-				yield return returnImage;
+			Image singleImage = GetImage(dataObject);
+			if (singleImage != null) {
+				LOG.InfoFormat("Got image from clipboard with size {0} and format {1}", singleImage.Size, singleImage.PixelFormat);
+				yield return singleImage;
 			} else {
 				// check if files are supplied
 				List<string> imageFiles = GetImageFilenames(dataObject);
 				if (imageFiles != null) {
 					foreach (string imageFile in imageFiles) {
+						Image returnImage = null;
 						try {
 							returnImage = ImageHelper.LoadImage(imageFile);
 						} catch (Exception streamImageEx) {
@@ -314,9 +314,19 @@ EndSelection:<<<<<<<4
 			Image returnImage = null;
 			if (dataObject != null) {
 				IList<string> formats = GetFormats(dataObject);
-				string[] retrieveFormats = {FORMAT_PNG, FORMAT_JPG, DataFormats.Tiff, DataFormats.Dib, FORMAT_FILECONTENTS, "", FORMAT_GIF};
+				string[] retrieveFormats;
+
+				// Found a weird bug, where PNG's from Outlook 2010 are clipped
+				// So I build some special logik to get the best format:
+				if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib)) {
+					// Outlook ??
+					LOG.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
+					retrieveFormats = new string[] { DataFormats.Dib, FORMAT_BITMAP_PLACEHOLDER, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF };
+				} else {
+					retrieveFormats = new string[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP_PLACEHOLDER, FORMAT_FILECONTENTS, FORMAT_GIF };
+				}
 				foreach(string currentFormat in retrieveFormats) {
-					if (string.IsNullOrEmpty(currentFormat)) {
+					if (FORMAT_BITMAP_PLACEHOLDER.Equals(currentFormat)) {
 						LOG.Info("Using default .NET Clipboard.GetImage()");
 						try {
 							returnImage = Clipboard.GetImage();
@@ -411,7 +421,11 @@ EndSelection:<<<<<<<4
 			MemoryStream imageStream = GetFromDataObject(dataObject, format) as MemoryStream;
 			if (isValidStream(imageStream)) {
 				try {
-					using (Image tmpImage = Image.FromStream(imageStream)) {
+					using (FileStream fs = new FileStream(@"C:\Localdata\test.png", FileMode.OpenOrCreate)) {
+						imageStream.WriteTo(fs);
+					}
+					imageStream.Seek(0, SeekOrigin.Begin);
+					using (Image tmpImage = Image.FromStream(imageStream, true, true)) {
 						if (tmpImage != null) {
 							LOG.InfoFormat("Got image with clipboard format {0} from the clipboard.", format);
 							return ImageHelper.Clone(tmpImage);										
