@@ -79,7 +79,7 @@ copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)bin\$
 mkdir "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
 copy "$(ProjectDir)Languages\*.xml" "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
 </PostBuildEvent>
-    <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"
+    <PreBuildEvent>"$(SolutionDir)tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)" "$(ProjectDir)Properties\AssemblyInfo.cs.template" "$(ProjectDir)Properties\AssemblyInfo.cs"
 
 if exist "$(ProjectDir)PicasaCredentials.private.cs" (
    rename "$(ProjectDir)PicasaCredentials.cs" "PicasaCredentials.orig.cs"
