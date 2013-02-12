@@ -69,13 +69,6 @@ namespace Greenshot.Controls {
 		}
 
 		/// <summary>
-		/// Destructor
-		/// </summary>
-		~Pipette() {
-			Dispose(false);
-		}
-
-		/// <summary>
 		/// The bulk of the clean-up code is implemented in Dispose(bool)
 		/// </summary>
 		public new void Dispose() {

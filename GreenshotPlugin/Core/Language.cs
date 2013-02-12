@@ -28,7 +28,7 @@ using Greenshot.IniFile;
 using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core {
-	public delegate void LanguageChangedHandler();
+	public delegate void LanguageChangedHandler(object sender, EventArgs e);
 	/// <summary>
 	/// This class supplies the GUI with translations, based upon keys.
 	/// The language resources are loaded from the language files found on fixed or supplied paths
@@ -202,7 +202,7 @@ namespace GreenshotPlugin.Core {
 						Reload();
 						if (LanguageChanged != null) {
 							try {
-								LanguageChanged();
+								LanguageChanged(null, null);
 							} catch {
 							}
 						}

@@ -225,7 +225,7 @@ namespace Greenshot.Plugin {
 		ICapture GetCapture(Image imageToCapture);
 	}
 
-	public interface IGreenshotPlugin {
+	public interface IGreenshotPlugin : IDisposable {
 		/// <summary>
 		/// Is called after the plugin is instanciated, the Plugin should keep a copy of the host and pluginAttribute.
 		/// </summary>

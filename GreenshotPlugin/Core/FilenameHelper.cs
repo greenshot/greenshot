@@ -435,7 +435,7 @@ namespace GreenshotPlugin.Core {
 				// adding additional data for bug tracking
 				e.Data.Add("title", captureDetails.Title);
 				e.Data.Add("pattern", pattern);
-				throw e;
+				throw;
 			}
 		}
 	}

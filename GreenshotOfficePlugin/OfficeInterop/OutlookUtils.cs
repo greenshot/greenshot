@@ -607,56 +607,6 @@ namespace Greenshot.Interop.Office {
 		}
 
 		/// <summary>
-		/// Use MAPI32.DLL "HrGetOneProp" from managed code
-		/// </summary>
-		/// <param name="attachment"></param>
-		/// <param name="proptag"></param>
-		/// <returns></returns>
-		public static string GetMAPIProperty(Attachment attachment, PropTags proptag) {
-			object mapiObject = attachment.MAPIOBJECT;
-			if (mapiObject == null) {
-				return "";
-			}
-
-			string sProperty = "";
-			IntPtr pPropValue = IntPtr.Zero;
-
-			IntPtr IUnknown = IntPtr.Zero;
-			IntPtr IMAPIProperty = IntPtr.Zero;
-
-			try {
-				MAPIInitialize(IntPtr.Zero);
-				IUnknown = Marshal.GetIUnknownForObject(mapiObject);
-				Guid guidMAPIProp = new Guid(IID_IMAPIProp);
-				if (Marshal.QueryInterface(IUnknown, ref guidMAPIProp, out IMAPIProperty) != 0) {
-					return "";
-				}
-				try {
-					HrGetOneProp(IMAPIProperty, (uint)proptag, out pPropValue);
-					if (pPropValue == IntPtr.Zero) {
-						return "";
-					}
-					SPropValue propValue = (SPropValue)Marshal.PtrToStructure(pPropValue, typeof(SPropValue));
-					sProperty = Marshal.PtrToStringUni(propValue.Value);
-				} catch (System.Exception ex) {
-					throw ex;
-				}
-			} finally {
-				if (pPropValue != IntPtr.Zero) {
-					MAPIFreeBuffer(pPropValue);
-				}
-				if (IMAPIProperty != IntPtr.Zero) {
-					Marshal.Release(IMAPIProperty);
-				}
-				if (IUnknown != IntPtr.Zero) {
-					Marshal.Release(IUnknown);
-				}
-				MAPIUninitialize();
-			}
-			return sProperty;
-		}
-
-		/// <summary>
 		/// Tries to save the changes we just made
 		/// </summary>
 		/// <param name="mailItem"></param>

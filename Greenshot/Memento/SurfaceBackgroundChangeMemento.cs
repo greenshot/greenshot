@@ -40,9 +40,17 @@ namespace Greenshot.Memento {
 		}
 		
 		public void Dispose() {
-			if (image != null) {
-				image.Dispose();
-				image = null;
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (image != null) {
+					image.Dispose();
+					image = null;
+				}
+				surface = null;
 			}
 		}
 

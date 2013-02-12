@@ -56,11 +56,25 @@ namespace Greenshot.Plugin {
 			set;
 		}
 	}
+
+	public class SurfaceElementEventArgs : EventArgs {
+		public IList<IDrawableContainer> Elements {
+			get;
+			set;
+		}
+	}
+
+	public class SurfaceDrawingModeEventArgs : EventArgs {
+		public DrawingModes DrawingMode {
+			get;
+			set;
+		}
+	}
 	
-	public delegate void SurfaceSizeChangeEventHandler(object source);
-	public delegate void SurfaceMessageEventHandler(object source, SurfaceMessageEventArgs eventArgs);
-	public delegate void SurfaceElementEventHandler(object source, IList<IDrawableContainer> element);
-	public delegate void SurfaceDrawingModeEventHandler(object source, DrawingModes drawingMode);
+	public delegate void SurfaceSizeChangeEventHandler(object sender, EventArgs eventArgs);
+	public delegate void SurfaceMessageEventHandler(object sender, SurfaceMessageEventArgs eventArgs);
+	public delegate void SurfaceElementEventHandler(object sender, SurfaceElementEventArgs eventArgs);
+	public delegate void SurfaceDrawingModeEventHandler(object sender, SurfaceDrawingModeEventArgs eventArgs);
 	public enum DrawingModes { None, Rect, Ellipse, Text, Line, Arrow, Crop, Highlight, Obfuscate, Bitmap, Path }
 
 	/// <summary>

@@ -37,9 +37,16 @@ namespace Greenshot.Memento {
 		}
 
 		public void Dispose() {
-			if (drawableContainer != null) {
-				drawableContainer.Dispose();
-				drawableContainer = null;
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (drawableContainer != null) {
+					drawableContainer.Dispose();
+					drawableContainer = null;
+				}
 			}
 		}
 

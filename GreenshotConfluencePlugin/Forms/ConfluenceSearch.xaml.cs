@@ -31,7 +31,6 @@ namespace GreenshotConfluencePlugin {
 	public partial class ConfluenceSearch : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceSearch));
 		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-		private ConfluenceConnector confluenceConnector;
 		private ConfluenceUpload confluenceUpload;
 		
 		public List<Confluence.Space> Spaces {
@@ -48,7 +47,6 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		public ConfluenceSearch(ConfluenceUpload confluenceUpload) {
-			this.confluenceConnector = ConfluencePlugin.ConfluenceConnector;
 			this.confluenceUpload = confluenceUpload;
 			this.DataContext = this;
 			InitializeComponent();
@@ -81,7 +79,7 @@ namespace GreenshotConfluencePlugin {
 		void doSearch() {
 			string spaceKey = (string)SpaceComboBox.SelectedValue;
 			config.SearchSpaceKey = spaceKey;
-			List<Confluence.Page> searchResult = confluenceConnector.searchPages(searchText.Text, spaceKey);
+			List<Confluence.Page> searchResult = ConfluencePlugin.ConfluenceConnector.searchPages(searchText.Text, spaceKey);
 			pages.Clear();
 			foreach(Confluence.Page page in searchResult) {
 				pages.Add(page);

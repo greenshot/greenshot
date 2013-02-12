@@ -94,7 +94,7 @@ namespace GreenshotPlugin.Controls {
 				LOG.DebugFormat("Finished {0}", title);
 			} catch (Exception ex) {
 				LOG.Error(ex);
-				throw ex;
+				throw;
 			} finally {
 				Close();
 			}

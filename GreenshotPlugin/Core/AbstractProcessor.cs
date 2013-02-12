@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+using System;
 
 using Greenshot.Plugin;
 
@@ -52,8 +52,14 @@ namespace GreenshotPlugin.Core {
 				return 10;
 			}
 		}
-		
-		public virtual void Dispose() {
+
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			//if (disposing) {}
 		}
 
 		public virtual bool isActive {

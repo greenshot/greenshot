@@ -101,9 +101,16 @@ namespace GreenshotPlugin.Core {
 		private Bitmap resultBitmap;
 
 		public void Dispose() {
-			if (resultBitmap != null) {
-				resultBitmap.Dispose();
-				resultBitmap = null;
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (resultBitmap != null) {
+					resultBitmap.Dispose();
+					resultBitmap = null;
+				}
 			}
 		}
 

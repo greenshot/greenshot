@@ -56,35 +56,17 @@ namespace Greenshot.Drawing {
 		}
 
 		/**
-		 * Destructor
-		 */
-		~IconContainer() {
-			Dispose(false);
-		}
-
-		/**
-		 * The public accessible Dispose
-		 * Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
-		 */
-		public new void Dispose() {
-			Dispose(true);
-			base.Dispose();
-			GC.SuppressFinalize(this);
-		}
-
-		// The bulk of the clean-up code is implemented in Dispose(bool)
-
-		/**
 		 * This Dispose is called from the Dispose and the Destructor.
 		 * When disposing==true all non-managed resources should be freed too!
 		 */
-		protected virtual void Dispose(bool disposing) {
+		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				if (icon != null) {
 					icon.Dispose();
 				}
 			}
 			icon = null;
+			base.Dispose(disposing);
 		}
 
 		public void Load(string filename) {

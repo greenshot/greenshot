@@ -764,10 +764,10 @@ namespace Greenshot.Interop {
 		/// </summary>
 		public string TypeName {
 			get {
-				throw new NotImplementedException();
+				throw new NotSupportedException();
 			}
 			set {
-				throw new NotImplementedException();
+				throw new NotSupportedException();
 			}
 		}
 	}

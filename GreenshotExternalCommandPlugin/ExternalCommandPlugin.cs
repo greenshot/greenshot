@@ -37,6 +37,20 @@ namespace ExternalCommand {
 		private PluginAttribute myAttributes;
 		private ToolStripMenuItem itemPlugInRoot;
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (itemPlugInRoot != null) {
+					itemPlugInRoot.Dispose();
+					itemPlugInRoot = null;
+				}
+			}
+		}
+
 		public ExternalCommandPlugin() {
 		}
 
@@ -83,7 +97,7 @@ namespace ExternalCommand {
 			return true;
 		}
 
-		public void OnLanguageChanged() {
+		public void OnLanguageChanged(object sender, EventArgs e) {
 			if (itemPlugInRoot != null) {
 				itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
 			}

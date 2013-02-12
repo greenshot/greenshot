@@ -69,6 +69,20 @@ namespace GreenshotOCR {
 		private PluginAttribute myAttributes;
 		private ToolStripMenuItem ocrMenuItem = new ToolStripMenuItem();
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (ocrMenuItem != null) {
+					ocrMenuItem.Dispose();
+					ocrMenuItem = null;
+				}
+			}
+		}
+
 		public OcrPlugin() { }
 
 		public IEnumerable<IDestination> Destinations() {

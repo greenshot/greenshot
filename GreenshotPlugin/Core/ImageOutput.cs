@@ -406,22 +406,23 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Path to filename</returns>
 		public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails) {
 			string returnValue = null;
-			SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails);
-			DialogResult dialogResult = saveImageFileDialog.ShowDialog();
-			if (dialogResult.Equals(DialogResult.OK)) {
-				try {
-					string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-					SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
-					if (conf.OutputFilePromptQuality) {
-						QualityDialog qualityDialog = new QualityDialog(outputSettings);
-						qualityDialog.ShowDialog();
+			using (SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails)) {
+				DialogResult dialogResult = saveImageFileDialog.ShowDialog();
+				if (dialogResult.Equals(DialogResult.OK)) {
+					try {
+						string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
+						SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
+						if (conf.OutputFilePromptQuality) {
+							QualityDialog qualityDialog = new QualityDialog(outputSettings);
+							qualityDialog.ShowDialog();
+						}
+						// TODO: For now we always overwrite, should be changed
+						ImageOutput.Save(surface, fileNameWithExtension, true, outputSettings, conf.OutputFileCopyPathToClipboard);
+						returnValue = fileNameWithExtension;
+						IniConfig.Save();
+					} catch (System.Runtime.InteropServices.ExternalException) {
+						MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
 					}
-					// TODO: For now we always overwrite, should be changed
-					ImageOutput.Save(surface, fileNameWithExtension, true, outputSettings, conf.OutputFileCopyPathToClipboard);
-					returnValue = fileNameWithExtension;
-					IniConfig.Save();
-				} catch (System.Runtime.InteropServices.ExternalException) {
-					MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
 				}
 			}
 			return returnValue;

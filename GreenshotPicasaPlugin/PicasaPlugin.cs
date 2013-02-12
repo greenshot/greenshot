@@ -40,6 +40,20 @@ namespace GreenshotPicasaPlugin {
 		private ComponentResourceManager resources;
 		private ToolStripMenuItem itemPlugInRoot;
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (itemPlugInRoot != null) {
+					itemPlugInRoot.Dispose();
+					itemPlugInRoot = null;
+				}
+			}
+		}
+
 		public PicasaPlugin() {
 		}
 
@@ -76,7 +90,7 @@ namespace GreenshotPicasaPlugin {
 			return true;
 		}
 
-		public void OnLanguageChanged() {
+		public void OnLanguageChanged(object sender, EventArgs e) {
 			if (itemPlugInRoot != null) {
 				itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
 			}

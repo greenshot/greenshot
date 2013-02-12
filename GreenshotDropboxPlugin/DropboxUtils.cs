@@ -53,7 +53,7 @@ namespace GreenshotDropboxPlugin {
 				LOG.DebugFormat("Upload response: {0}", uploadResponse);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
-				throw ex;
+				throw;
 			} finally {
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
 					config.DropboxToken = oAuth.Token;

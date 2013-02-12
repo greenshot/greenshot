@@ -405,7 +405,7 @@ namespace GreenshotPlugin.Core {
 				return getAccessToken() != null;
 			} catch (Exception ex) {
 				LOG.Error(ex);
-				throw ex;
+				throw;
 			}
 		}
 
@@ -518,7 +518,7 @@ namespace GreenshotPlugin.Core {
 							continue;
 						}
 					}
-					throw wEx;
+					throw;
 				}
 			}
 			if (lastException != null) {

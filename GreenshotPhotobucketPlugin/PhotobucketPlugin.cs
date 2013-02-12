@@ -41,6 +41,20 @@ namespace GreenshotPhotobucketPlugin {
 		private ComponentResourceManager resources;
 		private ToolStripMenuItem itemPlugInConfig;
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (itemPlugInConfig != null) {
+					itemPlugInConfig.Dispose();
+					itemPlugInConfig = null;
+				}
+			}
+		}
+
 		public PhotobucketPlugin() {
 		}
 
@@ -79,7 +93,7 @@ namespace GreenshotPhotobucketPlugin {
 			return true;
 		}
 
-		public void OnLanguageChanged() {
+		public void OnLanguageChanged(object sender, EventArgs e) {
 			if (itemPlugInConfig != null) {
 				itemPlugInConfig.Text = Language.GetString("photobucket", LangKey.configure);
 			}

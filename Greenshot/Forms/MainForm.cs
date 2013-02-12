@@ -330,7 +330,7 @@ namespace Greenshot {
 			} catch (ArgumentException ex) {
 				// Added for Bug #1420, this doesn't solve the issue but maybe the user can do something with it.
 				ex.Data.Add("more information here", "http://support.microsoft.com/kb/943140");
-				throw ex;
+				throw;
 			}
 			this.notifyIcon.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
@@ -1210,7 +1210,7 @@ namespace Greenshot {
 					} catch (Exception ex) {
 						// Make sure we show what we tried to open in the exception
 						ex.Data.Add("path", path);
-						throw ex;
+						throw;
 					}
 					break;
 				case ClickActions.OPEN_LAST_IN_EDITOR:
@@ -1252,7 +1252,7 @@ namespace Greenshot {
 			} catch (Exception e) {
 				// Make sure we show what we tried to open in the exception
 				e.Data.Add("path", path);
-				throw e;
+				throw;
 			}
 		}
 		

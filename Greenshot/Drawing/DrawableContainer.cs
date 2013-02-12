@@ -46,7 +46,28 @@ namespace Greenshot.Drawing {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DrawableContainer));
 		protected static readonly EditorConfiguration editorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 		private bool isMadeUndoable = false;
-		
+
+		public virtual void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				for (int i = 0; i < grippers.Length; i++) {
+					grippers[i].Dispose();
+					grippers[i] = null;
+				}
+
+				FieldAggregator aggProps = parent.FieldAggregator;
+				aggProps.UnbindElement(this);
+			}
+		}
+
+		~DrawableContainer() {
+			Dispose(false);
+		}
+
 		[NonSerialized]
 		private PropertyChangedEventHandler propertyChanged;
 		public event PropertyChangedEventHandler PropertyChanged {
@@ -333,15 +354,6 @@ namespace Greenshot.Drawing {
 					grippers[Gripper.POSITION_BOTTOM_RIGHT].Cursor = Cursors.SizeWE;
 				}
 			}
-		}
-		
-		public virtual void Dispose() {
-			for(int i=0; i<grippers.Length; i++) {
-				grippers[i].Dispose();
-			}
-			
-			FieldAggregator aggProps = parent.FieldAggregator;
-			aggProps.UnbindElement(this);
 		}
 		
 		int mx;

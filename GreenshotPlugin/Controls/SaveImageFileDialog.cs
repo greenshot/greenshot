@@ -31,13 +31,27 @@ namespace GreenshotPlugin.Controls {
 	/// Custom dialog for saving images, wraps SaveFileDialog.
 	/// For some reason SFD is sealed :(
 	/// </summary>
-	public class SaveImageFileDialog {
+	public class SaveImageFileDialog : IDisposable {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SaveImageFileDialog));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		protected SaveFileDialog saveFileDialog;
 		private FilterOption[] filterOptions;
 		private DirectoryInfo eagerlyCreatedDirectory;
 		private ICaptureDetails captureDetails = null;
+
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (saveFileDialog != null) {
+					saveFileDialog.Dispose();
+					saveFileDialog = null;
+				}
+			}
+		}
 
 		public SaveImageFileDialog() {
 			init();

@@ -43,6 +43,24 @@ namespace GreenshotImgurPlugin {
 		private ToolStripMenuItem historyMenuItem = null;
 		private ToolStripMenuItem itemPlugInConfig;
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (historyMenuItem != null) {
+					historyMenuItem.Dispose();
+					historyMenuItem = null;
+				}
+				if (itemPlugInConfig != null) {
+					itemPlugInConfig.Dispose();
+					itemPlugInConfig = null;
+				}
+			}
+		}
+
 		public ImgurPlugin() {
 		}
 
@@ -98,7 +116,7 @@ namespace GreenshotImgurPlugin {
 			return true;
 		}
 
-		public void OnLanguageChanged() {
+		public void OnLanguageChanged(object sender, EventArgs e) {
 			if (itemPlugInConfig != null) {
 				itemPlugInConfig.Text = Language.GetString("imgur", LangKey.configure);
 			}

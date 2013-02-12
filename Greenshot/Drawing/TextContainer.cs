@@ -94,39 +94,23 @@ namespace Greenshot.Drawing {
 			Init();
 			UpdateFormat();
 		}
-		
-		/**
-		 * Destructor
-		 */
-		~TextContainer() {
-			Dispose(false);
-		}
 
-		/**
-		 * The public accessible Dispose
-		 * Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
-		 */
-		public override void Dispose() {
-			Dispose(true);
-			base.Dispose();
-			GC.SuppressFinalize(this);
-		}
-
-		/**
-		 * This Dispose is called from the Dispose and the Destructor.
-		 * When disposing==true all non-managed resources should be freed too!
-		 */
-		protected virtual void Dispose(bool disposing) {
+		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				if (textBox != null) {
-					textBox.Dispose();
-				}
 				if (font != null) {
 					font.Dispose();
+					font = null;
+				}
+				if (stringFormat != null) {
+					stringFormat.Dispose();
+					stringFormat = null;
+				}
+				if (textBox != null) {
+					textBox.Dispose();
+					textBox = null;
 				}
 			}
-			textBox = null;
-			font = null;
+			base.Dispose(disposing);
 		}
 		
 		private void Init() {

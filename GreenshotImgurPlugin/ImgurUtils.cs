@@ -131,7 +131,7 @@ namespace GreenshotImgurPlugin {
 					}
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
-					throw ex;
+					throw;
 				}
 			} else {
 				OAuthSession oAuth = new OAuthSession(ImgurCredentials.CONSUMER_KEY, ImgurCredentials.CONSUMER_SECRET);
@@ -160,7 +160,7 @@ namespace GreenshotImgurPlugin {
 					responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.imgur.com/2/account/images.xml", uploadParameters, otherParameters, null);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
-					throw ex;
+					throw;
 				} finally {
 					if (oAuth.Token != null) {
 						config.ImgurToken = oAuth.Token;
@@ -212,7 +212,7 @@ namespace GreenshotImgurPlugin {
 						return null;
 					}
 				}
-				throw wE;
+				throw;
 			}
 			LOG.Debug(responseString);
 			ImgurInfo imgurInfo = ImgurInfo.ParseResponse(responseString);
@@ -243,7 +243,7 @@ namespace GreenshotImgurPlugin {
 				// Allow "Bad request" this means we already deleted it
 				if (wE.Status == WebExceptionStatus.ProtocolError) {
 					if (((HttpWebResponse)wE.Response).StatusCode != HttpStatusCode.BadRequest) {
-						throw wE;
+						throw ;
 					}
 				}
 			}

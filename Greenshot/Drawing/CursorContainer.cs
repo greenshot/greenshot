@@ -56,21 +56,8 @@ namespace Greenshot.Drawing {
 			get { return cursor; }
 		}
 
-		/**
-		 * Destructor
-		 */
-		~CursorContainer() {
-			Dispose(false);
-		}
-
-		/**
-		 * The public accessible Dispose
-		 * Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
-		 */
-		public new void Dispose() {
-			Dispose(true);
+		public override void Dispose() {
 			base.Dispose();
-			GC.SuppressFinalize(this);
 		}
 
 		// The bulk of the clean-up code is implemented in Dispose(bool)
@@ -79,13 +66,14 @@ namespace Greenshot.Drawing {
 		 * This Dispose is called from the Dispose and the Destructor.
 		 * When disposing==true all non-managed resources should be freed too!
 		 */
-		protected virtual void Dispose(bool disposing) {
+		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				if (cursor != null) {
 					cursor.Dispose();
 				}
 			}
 			cursor = null;
+			base.Dispose(disposing);
 		}
 
 		public void Load(string filename) {

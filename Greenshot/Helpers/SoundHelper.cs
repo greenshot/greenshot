@@ -43,24 +43,26 @@ namespace Greenshot.Helpers {
 	    private static byte[] soundBuffer = null;
 		
 		public static void Initialize() {
-	    	try {
-                ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
-                soundBuffer = (byte[])resources.GetObject("camera");
+			if (gcHandle == null) {
+				try {
+					ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
+					soundBuffer = (byte[])resources.GetObject("camera");
 
-                if (conf.NotificationSound != null && conf.NotificationSound.EndsWith(".wav")) {
-                    try {
-                        if (File.Exists(conf.NotificationSound)) {
-                            soundBuffer = File.ReadAllBytes(conf.NotificationSound);
-                        }
-                    } catch (Exception ex) {
-                        LOG.WarnFormat("couldn't load {0}: {1}", conf.NotificationSound, ex.Message);
-                    }
-                }
-                // Pin sound so it can't be moved by the Garbage Collector, this was the cause for the bad sound
-                gcHandle = GCHandle.Alloc(soundBuffer, GCHandleType.Pinned);
-	    	} catch (Exception e) {
-	    		LOG.Error("Error initializing.", e);
-	    	}
+					if (conf.NotificationSound != null && conf.NotificationSound.EndsWith(".wav")) {
+						try {
+							if (File.Exists(conf.NotificationSound)) {
+								soundBuffer = File.ReadAllBytes(conf.NotificationSound);
+							}
+						} catch (Exception ex) {
+							LOG.WarnFormat("couldn't load {0}: {1}", conf.NotificationSound, ex.Message);
+						}
+					}
+					// Pin sound so it can't be moved by the Garbage Collector, this was the cause for the bad sound
+					gcHandle = GCHandle.Alloc(soundBuffer, GCHandleType.Pinned);
+				} catch (Exception e) {
+					LOG.Error("Error initializing.", e);
+				}
+			}
 		}
 		
 		public static void Play() {

@@ -39,6 +39,15 @@ namespace GreenshotConfluencePlugin {
 		private static ConfluenceConfiguration config = null;
 		private static IGreenshotHost host;
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			//if (disposing) {}
+		}
+
 		private static void CreateConfluenceConntector() {
 			if (confluenceConnector == null) {
 				if (config.Url.Contains("soap-axis")) {

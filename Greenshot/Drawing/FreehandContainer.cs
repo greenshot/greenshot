@@ -73,33 +73,17 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
-		/// Destructor
-		/// </summary>
-		~FreehandContainer() {
-			Dispose(false);
-		}
-
-		/// <summary>
-		/// The public accessible Dispose
-		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
-		/// </summary>
-		public new void Dispose() {
-			Dispose(true);
-			base.Dispose();
-			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
 		/// This Dispose is called from the Dispose and the Destructor.
 		/// </summary>
 		/// <param name="disposing">When disposing==true all non-managed resources should be freed too!</param>
-		protected virtual void Dispose(bool disposing) {
+		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				if (freehandPath != null) {
 					freehandPath.Dispose();
 				}
 			}
 			freehandPath = null;
+			base.Dispose(disposing);
 		}
 		
 		/// <summary>

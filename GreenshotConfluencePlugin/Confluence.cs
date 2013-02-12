@@ -91,7 +91,7 @@ namespace Confluence {
 	}
 	#endregion
 
-	public class ConfluenceConnector {
+	public class ConfluenceConnector : IDisposable {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.confluence.rpc.AuthenticationFailedException";
         private const string V2_FAILED = "AXIS";
@@ -103,6 +103,23 @@ namespace Confluence {
 		private int timeout;
 		private string url;
 		private Cache<string, RemotePage> pageCache = new Cache<string, RemotePage>(60 * config.Timeout);
+
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (confluence != null) {
+				logout();
+			}
+			if (disposing) {
+				if (confluence != null) {
+					confluence.Dispose();
+					confluence = null;
+				}
+			}
+		}
 
 		public ConfluenceConnector(string url, int timeout) {
 			this.timeout = timeout;
@@ -117,7 +134,7 @@ namespace Confluence {
         }
 
 		~ConfluenceConnector() {
-			logout();
+			Dispose(false);
 		}
 
 		/// <summary>

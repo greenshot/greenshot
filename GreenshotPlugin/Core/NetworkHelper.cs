@@ -309,7 +309,7 @@ namespace GreenshotPlugin.Core {
 				using (Stream responseStream = response.GetResponseStream()) {
 					LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, new StreamReader(responseStream, true).ReadToEnd());
 				}
-				throw e;
+				throw;
 			}
 
 			return responseData;

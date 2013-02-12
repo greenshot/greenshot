@@ -72,7 +72,7 @@ namespace Greenshot.Helpers {
 		 * This Dispose is called from the Dispose and the Destructor.
 		 * When disposing==true all non-managed resources should be freed too!
 		 */
-		protected void Dispose(bool disposing) {
+		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
 				if (image != null) {
 					image.Dispose();

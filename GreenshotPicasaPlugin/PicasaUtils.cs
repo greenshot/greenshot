@@ -71,7 +71,7 @@ namespace GreenshotPicasaPlugin {
 				return ParseResponse(response);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
-				throw ex;
+				throw;
 			} finally {
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
 					config.PicasaToken = oAuth.Token;

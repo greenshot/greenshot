@@ -136,8 +136,14 @@ namespace GreenshotPlugin.Core {
 		public virtual IEnumerable<IDestination> DynamicDestinations() {
 			yield break;
 		}
-		
-		public virtual void Dispose() {
+
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			//if (disposing) {}
 		}
 
 		public virtual bool isDynamic {

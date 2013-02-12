@@ -320,7 +320,9 @@ namespace Greenshot.Drawing {
 			set {
 				drawingMode = value;
 				if (drawingModeChanged != null) {
-					drawingModeChanged.Invoke(this, drawingMode);
+					SurfaceDrawingModeEventArgs eventArgs = new SurfaceDrawingModeEventArgs();
+					eventArgs.DrawingMode = drawingMode;
+					drawingModeChanged.Invoke(this, eventArgs);
 				}
 				DeselectAllElements();
 				CreateUndrawnElement();
@@ -437,26 +439,33 @@ namespace Greenshot.Drawing {
 		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice 		
 		/// </summary>
 		public new void Dispose() {
-			Count--;
-			LOG.Debug("Disposing surface!");
-			if (buffer != null) {
-				buffer.Dispose();
-				buffer = null;
-			}
-			if (transparencyBackgroundBrush != null) {
-				transparencyBackgroundBrush.Dispose();
-				transparencyBackgroundBrush = null;
-			}
-
-			// Cleanup undo/redo stacks
-			while (undoStack != null && undoStack.Count > 0) {
-				undoStack.Pop().Dispose();
-			}
-			while (redoStack != null && redoStack.Count > 0) {
-				redoStack.Pop().Dispose();
-			}
+			Dispose(true);
 			base.Dispose();
 			GC.SuppressFinalize(this);
+		}
+
+		protected override void Dispose(bool disposing) {
+			if (disposing) {
+				Count--;
+				LOG.Debug("Disposing surface!");
+				if (buffer != null) {
+					buffer.Dispose();
+					buffer = null;
+				}
+				if (transparencyBackgroundBrush != null) {
+					transparencyBackgroundBrush.Dispose();
+					transparencyBackgroundBrush = null;
+				}
+
+				// Cleanup undo/redo stacks
+				while (undoStack != null && undoStack.Count > 0) {
+					undoStack.Pop().Dispose();
+				}
+				while (redoStack != null && redoStack.Count > 0) {
+					redoStack.Pop().Dispose();
+				}
+			}
+			base.Dispose(disposing);
 		}
 
 		/// <summary>
@@ -833,7 +842,7 @@ namespace Greenshot.Drawing {
 					SetImage(newImage, false);
 					Invalidate();
 					if (surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
-						surfaceSizeChanged(this);
+						surfaceSizeChanged(this, null);
 					}
 				}
 			} finally {
@@ -911,7 +920,7 @@ namespace Greenshot.Drawing {
 				SetImage(tmpImage, false);
 				elements.MoveBy(offset.X, offset.Y);
 				if (surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size))) {
-					surfaceSizeChanged(this);
+					surfaceSizeChanged(this, null);
 				}
 				Invalidate();
 				return true;
@@ -929,7 +938,7 @@ namespace Greenshot.Drawing {
 			SetImage(previous, false);
 			elements.MoveBy(offset.X, offset.Y);
 			if (surfaceSizeChanged != null) {
-				surfaceSizeChanged(this);
+				surfaceSizeChanged(this, null);
 			}
 			Invalidate();
 		}
@@ -1295,7 +1304,9 @@ namespace Greenshot.Drawing {
 				}
 				selectedElements.Clear();
 				if (movingElementChanged != null) {
-					movingElementChanged(this, selectedElements);
+					SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
+					eventArgs.Elements = selectedElements;
+					movingElementChanged(this, eventArgs);
 				}
 			}
 		}
@@ -1414,7 +1425,9 @@ namespace Greenshot.Drawing {
 			selectedElements.Remove(container);
 			FieldAggregator.UnbindElement(container);
 			if (movingElementChanged != null) {
-				movingElementChanged(this, selectedElements);
+				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
+				eventArgs.Elements = selectedElements;
+				movingElementChanged(this, eventArgs);
 			}
 		}
 
@@ -1432,7 +1445,9 @@ namespace Greenshot.Drawing {
 					FieldAggregator.UnbindElement(element);
 				}
 				if (movingElementChanged != null) {
-					movingElementChanged(this, selectedElements);
+					SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
+					eventArgs.Elements = selectedElements;
+					movingElementChanged(this, eventArgs);
 				}
 			}
 		}
@@ -1448,7 +1463,9 @@ namespace Greenshot.Drawing {
 				container.Selected = true;
 				FieldAggregator.BindElement(container);
 				if (movingElementChanged != null) {
-					movingElementChanged(this, selectedElements);
+					SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
+					eventArgs.Elements = selectedElements;
+					movingElementChanged(this, eventArgs);
 				}
 				container.Invalidate();
 			}

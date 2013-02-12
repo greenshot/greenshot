@@ -74,7 +74,7 @@ namespace GreenshotPhotobucketPlugin {
 				responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, unsignedParameters, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
-				throw ex;
+				throw;
 			} finally {
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
 					config.Token = oAuth.Token;
@@ -148,7 +148,7 @@ namespace GreenshotPhotobucketPlugin {
 				responseString = oAuth.MakeOAuthRequest(HTTPMethod.GET, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, null, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
-				throw ex;
+				throw;
 			} finally {
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
 					config.Token = oAuth.Token;

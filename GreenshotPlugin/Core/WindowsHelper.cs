@@ -196,7 +196,6 @@ namespace GreenshotPlugin.Core  {
 		private WindowDetails parent = null;
 		private bool frozen = false;
 
-
 		public bool isApp {
 			get {
 				return METRO_WINDOWS_CLASS.Equals(ClassName);
@@ -1105,6 +1104,7 @@ namespace GreenshotPlugin.Core  {
 						tempForm.Close();
 					}
 					tempForm.Dispose();
+					tempForm = null;
 				}
 			}
 

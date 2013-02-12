@@ -144,7 +144,7 @@ namespace Greenshot {
 			surface.SurfaceSizeChanged += new SurfaceSizeChangeEventHandler(SurfaceSizeChanged);
 			surface.SurfaceMessage += new SurfaceMessageEventHandler(SurfaceMessageReceived);
 			surface.FieldAggregator.FieldChanged += new FieldChangedEventHandler(FieldAggregatorFieldChanged);
-			SurfaceSizeChanged(this.Surface);
+			SurfaceSizeChanged(this.Surface, null);
 
 			bindFieldControls();
 			refreshEditorControls();
@@ -340,7 +340,7 @@ namespace Greenshot {
 		/// This is called when the size of the surface chances, used for resizing and displaying the size information
 		/// </summary>
 		/// <param name="source"></param>
-		private void SurfaceSizeChanged(object source) {
+		private void SurfaceSizeChanged(object sender, EventArgs e) {
 			if (editorConfiguration.MatchSizeToCapture) {
 				// Set editor's initial size to the size of the surface plus the size of the chrome
 				Size imageSize = this.Surface.Image.Size;
@@ -353,7 +353,7 @@ namespace Greenshot {
 				this.Size = new Size(newWidth, newHeight);
 			}
 			dimensionsLabel.Text = this.Surface.Image.Width + "x" + this.Surface.Image.Height;
-			ImageEditorFormResize(source, new EventArgs());
+			ImageEditorFormResize(sender, new EventArgs());
 		}
 
 		private void ReloadConfiguration(object source, FileSystemEventArgs e) {
@@ -391,8 +391,8 @@ namespace Greenshot {
 			this.Text = Path.GetFileName(fullpath) + " - " + Language.GetString(LangKey.editor_title);
 		}
 		
-		void surface_DrawingModeChanged(object source, DrawingModes drawingMode) {
-			switch (drawingMode) {
+		void surface_DrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs) {
+			switch (eventArgs.DrawingMode) {
 				case DrawingModes.None:
 					SetButtonChecked(btnCursor);
 					break;

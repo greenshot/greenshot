@@ -95,7 +95,7 @@ namespace Jira {
 	}
 	#endregion
 
-	public class JiraConnector {
+	public class JiraConnector : IDisposable {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.jira.rpc.exception.RemoteAuthenticationException";
 		private static JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
@@ -109,6 +109,24 @@ namespace Jira {
 		private Cache<string, JiraIssue> jiraCache = new Cache<string, JiraIssue>(60 * config.Timeout);
 		private Cache<string, RemoteUser> userCache = new Cache<string, RemoteUser>(60 * config.Timeout);
 		private bool suppressBackgroundForm = false;
+
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (jira != null) {
+				logout();
+			}
+
+			if (disposing) {
+				if (jira != null) {
+					jira.Dispose();
+					jira = null;
+				}
+			}
+		}
 
 		public JiraConnector() : this(false) {
 		}
@@ -138,7 +156,7 @@ namespace Jira {
 		}
 
 		~JiraConnector() {
-			logout();
+			Dispose(false);
 		}
 		
 		/// <summary>
@@ -152,7 +170,7 @@ namespace Jira {
 				LOG.DebugFormat("Loggin in");
 				try {
 					this.credentials = jira.login(user, password);
-				} catch(Exception ex) {
+				} catch (Exception) {
 					if (!url.EndsWith("wsdl")) {
 						url = url + "/rpc/soap/jirasoapservice-v2?wsdl";
 						// recreate the service with the new url
@@ -162,7 +180,7 @@ namespace Jira {
 						config.Url = url;
 						IniConfig.Save();
 					} else {
-						throw ex;
+						throw;
 					}
 				}
 				
@@ -324,7 +342,7 @@ namespace Jira {
 					jira.addAttachmentsToIssue(credentials, issueKey, new string[] { filename }, (sbyte[])(Array)attachment.ToByteArray());
 				} catch (Exception ex2) {
 					LOG.WarnFormat("Failed to use alternative method, error was: {0}", ex2.Message);
-					throw ex2;
+					throw;
 				}
 			}
 		}

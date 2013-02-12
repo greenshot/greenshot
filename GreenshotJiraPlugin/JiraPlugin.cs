@@ -24,6 +24,7 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using Jira;
+using System;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
@@ -37,7 +38,21 @@ namespace GreenshotJiraPlugin {
 		private JiraConfiguration config = null;
 		private ComponentResourceManager resources;
 		private static JiraPlugin instance = null;
-		
+
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (jiraConnector != null) {
+					jiraConnector.Dispose();
+					jiraConnector = null;
+				}
+			}
+		}
+
 		public static JiraPlugin Instance {
 			get {
 				return instance;

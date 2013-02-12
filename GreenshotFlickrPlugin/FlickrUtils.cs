@@ -87,7 +87,7 @@ namespace GreenshotFlickrPlugin {
 				return GetUrl(photoInfo);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
-				throw ex;
+				throw;
 			} finally {
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
 					config.FlickrToken = oAuth.Token;

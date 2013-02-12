@@ -33,6 +33,7 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
+using System.Security.Permissions;
 
 namespace Greenshot {
 	/// <summary>
@@ -281,6 +282,7 @@ namespace Greenshot {
 		/// <param name="msg"></param>
 		/// <param name="keyData"></param>
 		/// <returns></returns>
+		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
 			try {
 				switch (keyData) {

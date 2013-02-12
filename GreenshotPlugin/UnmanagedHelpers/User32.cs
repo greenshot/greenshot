@@ -27,6 +27,7 @@ using System.Text;
 
 using Microsoft.Win32.SafeHandles;
 using System.Security;
+using System.Security.Permissions;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
@@ -297,6 +298,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			this.SetHandle(hIcon);
 		}
 
+		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
 		protected override bool ReleaseHandle() {
 			return User32.DestroyIcon(this.handle);
 		}
@@ -322,6 +324,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			SetHandle(preexistingHandle);
 		}
 
+		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode=true)]
 		protected override bool ReleaseHandle() {
 			bool returnValue = ReleaseDC(hWnd, handle);
 			return returnValue;

@@ -42,6 +42,19 @@ namespace GreenshotFlickrPlugin
 		private ComponentResourceManager resources;
 		private ToolStripMenuItem itemPlugInConfig;
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (itemPlugInConfig != null) {
+					itemPlugInConfig.Dispose();
+					itemPlugInConfig = null;
+				}
+			}
+		}
 		public FlickrPlugin() {
 		}
 
@@ -79,7 +92,7 @@ namespace GreenshotFlickrPlugin
 			return true;
 		}
 
-		public void OnLanguageChanged() {
+		public void OnLanguageChanged(object sender, EventArgs e) {
 			if (itemPlugInConfig != null) {
 				itemPlugInConfig.Text = Language.GetString("flickr", LangKey.Configure);
 			}

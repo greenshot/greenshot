@@ -91,7 +91,6 @@ namespace Greenshot.Helpers {
 
 		#region Member Variables
 		private CopyDataChannels channels = null;
-		private bool disposed = false;
 		#endregion
 
 		/// <summary>
@@ -156,15 +155,18 @@ namespace Greenshot.Helpers {
 			}
 		}
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
 		/// <summary>
 		/// Clears up any resources associated with this object.
 		/// </summary>
-		public void Dispose() {
-			if (!disposed) {
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
 				channels.Clear();
 				channels = null;
-				disposed = true;
-				GC.SuppressFinalize(this);
 			}
 		}
 
@@ -360,15 +362,15 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public class CopyDataChannel : IDisposable {
 		#region Unmanaged Code
-		[DllImport("user32", CharSet=CharSet.Auto, SetLastError = true)]
-		private extern static int GetProp(IntPtr hwnd, string lpString);
-		[DllImport("user32", CharSet=CharSet.Auto, SetLastError = true)]
-		private extern static int SetProp(IntPtr hwnd, string lpString, int hData);
-		[DllImport("user32", CharSet=CharSet.Auto, SetLastError = true)]
-		private extern static int RemoveProp(IntPtr hwnd, string lpString);
-		
-		[DllImport("user32", CharSet=CharSet.Auto, SetLastError = true)]
-		private extern static int SendMessage(IntPtr hwnd, int wMsg, int wParam, ref COPYDATASTRUCT lParam);
+		[DllImport("user32", CharSet=CharSet.Unicode, SetLastError = true)]
+		private extern static IntPtr GetProp(IntPtr hwnd, string lpString);
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+		private extern static IntPtr SetProp(IntPtr hwnd, string lpString, int hData);
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+		private extern static IntPtr RemoveProp(IntPtr hwnd, string lpString);
+
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+		private extern static IntPtr SendMessage(IntPtr hwnd, int wMsg, int wParam, ref COPYDATASTRUCT lParam);
 
 		[StructLayout(LayoutKind.Sequential)]
 		private struct COPYDATASTRUCT {
@@ -382,7 +384,6 @@ namespace Greenshot.Helpers {
 
 		#region Member Variables
 		private string channelName = "";
-		private bool disposed = false;
 		private NativeWindow owner = null;
 		private bool recreateChannel = false;
 		#endregion
@@ -405,10 +406,6 @@ namespace Greenshot.Helpers {
 		/// <returns>The number of recipients</returns>
 		public int Send(object obj) {
 			int recipients = 0;
-
-			if (disposed) {
-				throw new InvalidOperationException("Object has been disposed");
-			}
 
 			if (recreateChannel) {
 				// handle has changed 
@@ -446,12 +443,12 @@ namespace Greenshot.Helpers {
 				// the channel:
 				foreach(WindowDetails window in WindowDetails.GetAllWindows()) {
 					if (!window.Handle.Equals(this.owner.Handle)) {
-						if (GetProp(window.Handle, this.channelName) != 0) {
+						if (GetProp(window.Handle, this.channelName) != IntPtr.Zero) {
 							COPYDATASTRUCT cds = new COPYDATASTRUCT();
 							cds.cbData = dataSize;
 							cds.dwData = IntPtr.Zero;
 							cds.lpData = ptrData;
-							int res = SendMessage(window.Handle, WM_COPYDATA, (int)owner.Handle, ref cds);
+							SendMessage(window.Handle, WM_COPYDATA, (int)owner.Handle, ref cds);
 							recipients += (Marshal.GetLastWin32Error() == 0 ? 1 : 0);
 						}
 					}
@@ -487,17 +484,20 @@ namespace Greenshot.Helpers {
 			recreateChannel = true;
 		}
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
 		/// <summary>
 		/// Clears up any resources associated with this channel.
 		/// </summary>
-		public void Dispose() {
-			if (!disposed) {
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
 				if (channelName.Length > 0) {
 					removeChannel();
 				}
 				channelName = "";
-				disposed = true;
-				GC.SuppressFinalize(this);
 			}
 		}
 

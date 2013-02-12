@@ -111,29 +111,12 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
-		/// Destructor
-		/// </summary>
-		~ImageContainer() {
-			Dispose(false);
-		}
-
-		/// <summary>
-		/// The public accessible Dispose
-		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
-		/// </summary>
-		public new void Dispose() {
-			Dispose(true);
-			base.Dispose();
-			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
 		/// The bulk of the clean-up code is implemented in Dispose(bool)
 		/// This Dispose is called from the Dispose and the Destructor.
 		/// When disposing==true all non-managed resources should be freed too!
 		/// </summary>
 		/// <param name="disposing"></param>
-		protected virtual void Dispose(bool disposing) {
+		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				if (image != null) {
 					image.Dispose();
@@ -144,6 +127,7 @@ namespace Greenshot.Drawing {
 			}
 			image = null;
 			shadowBitmap = null;
+			base.Dispose(disposing);
 		}
 
 		/// <summary>

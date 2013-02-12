@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -31,6 +32,15 @@ namespace GreenshotOfficePlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
 		public static PluginAttribute Attributes;
 		private IGreenshotHost host;
+
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			//if (disposing) {}
+		}
 
 		public OfficePlugin() {
 		}

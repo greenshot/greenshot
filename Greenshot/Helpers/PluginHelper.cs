@@ -73,6 +73,7 @@ namespace Greenshot.Helpers {
 		public void Shutdown() {
 			foreach(IGreenshotPlugin plugin in plugins.Values) {
 				plugin.Shutdown();
+				plugin.Dispose();
 			}
 			plugins.Clear();
 		}

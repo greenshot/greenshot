@@ -457,20 +457,8 @@ namespace Greenshot.Helpers {
 			}
 	
 			#endregion Constructors
-	
-			#region Constants
-	
-			public const int MAPI_LOGON_UI = 0x1;
-	
-			#endregion Constants
-	
-			#region APIs
-	
-			[DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, SetLastError = true)]
-			public static extern int MAPILogon(IntPtr hwnd, string prf, string pw, int flg, int rsv, ref IntPtr sess);
-	
-			#endregion APIs
-	
+
+
 			#region Structs
 	
 			[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]

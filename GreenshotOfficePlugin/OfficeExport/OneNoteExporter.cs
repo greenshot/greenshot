@@ -70,8 +70,11 @@ namespace Greenshot.Interop.Office {
 						oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
 						if (!string.IsNullOrEmpty(notebookXml)) {
 							LOG.Debug(notebookXml);
-							using (StringReader reader = new StringReader(notebookXml)) {
+							StringReader reader = null;
+							try {
+								reader = new StringReader(notebookXml);
 								using (XmlTextReader xmlReader = new XmlTextReader(reader)) {
+									reader = null;
 									while (xmlReader.Read()) {
 										if ("one:Page".Equals(xmlReader.Name)) {
 											if ("true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"))) {
@@ -86,6 +89,10 @@ namespace Greenshot.Interop.Office {
 											}
 										}
 									}
+								}
+							} finally {
+								if (reader != null) {
+									reader.Dispose();
 								}
 							}
 						}

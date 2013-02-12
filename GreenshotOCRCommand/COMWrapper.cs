@@ -228,7 +228,6 @@ namespace Greenshot.Interop {
 		/// sure that the COM object is still cleaned up.
 		/// </summary>
 		~COMWrapper() {
-			//LOG.DebugFormat("Finalize {0}", this._InterceptType.ToString());
 			this.Dispose(false);
 		}
 
@@ -248,12 +247,10 @@ namespace Greenshot.Interop {
 		/// <see cref="IDisposable"/> interface.
 		/// </param>
 		private void Dispose(bool disposing) {
-			if (null != this._COMObject) {
-				//LOG.DebugFormat("Disposing {0}", this._InterceptType.ToString());
+			if (disposing &&  null != this._COMObject) {
 				if (Marshal.IsComObject(this._COMObject)) {
 					try {
-						while (Marshal.ReleaseComObject(this._COMObject) > 0)
-							;
+						while (Marshal.ReleaseComObject(this._COMObject) > 0);
 					} catch (Exception) {
 						//LOG.WarnFormat("Problem releasing {0}", _COMType);
 						//LOG.Warn("Error: ", ex);
@@ -638,10 +635,10 @@ namespace Greenshot.Interop {
 		/// </summary>
 		public string TypeName {
 			get {
-				throw new NotImplementedException();
+				throw new NotSupportedException();
 			}
 			set {
-				throw new NotImplementedException();
+				throw new NotSupportedException();
 			}
 		}
 	}

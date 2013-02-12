@@ -372,7 +372,7 @@ namespace Greenshot.IniFile {
 				if (valueString.Length > 0) {
 					try {
 						return Enum.Parse(valueType, valueString);
-					} catch (ArgumentException ae) {
+					} catch (ArgumentException) {
 						//LOG.InfoFormat("Couldn't match {0} to {1}, trying case-insentive match", valueString, fieldType);
 						foreach (Enum enumValue in Enum.GetValues(valueType)) {
 							if (enumValue.ToString().Equals(valueString, StringComparison.InvariantCultureIgnoreCase)) {
@@ -380,7 +380,7 @@ namespace Greenshot.IniFile {
 								return enumValue;
 							}
 						}
-						throw ae;
+						throw;
 					}
 				}
 			}

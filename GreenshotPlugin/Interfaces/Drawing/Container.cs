@@ -28,7 +28,7 @@ namespace Greenshot.Plugin.Drawing {
 	public enum RenderMode {EDIT, EXPORT};
 	public enum EditStatus {UNDRAWN, DRAWING, MOVING, RESIZING, IDLE};
 
-	public interface IDrawableContainer : INotifyPropertyChanged {
+	public interface IDrawableContainer : INotifyPropertyChanged, IDisposable {
 		ISurface Parent {
 			get;
 		}
@@ -83,7 +83,6 @@ namespace Greenshot.Plugin.Drawing {
 		}
 		void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment);
 		void Invalidate();
-		void Dispose();
 		bool ClickableAt(int x, int y);
 		void HideGrippers();
 		void ShowGrippers();
