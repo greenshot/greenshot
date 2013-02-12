@@ -29,20 +29,79 @@ namespace GreenshotPlugin.Core {
 	/// The interface for the FastBitmap
 	/// </summary>
 	public interface IFastBitmap : IDisposable {
+		/// <summary>
+		/// Get the color at x,y
+		/// The returned Color object depends on the underlying pixel format
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <returns>Color</returns>
 		Color GetColorAt(int x, int y);
+
+		/// <summary>
+		/// Set the color at the specified location
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <param name="color">Color</param>
 		void SetColorAt(int x, int y, Color color);
+
+		/// <summary>
+		/// Get the color at x,y
+		/// The returned byte[] color depends on the underlying pixel format
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</par
+		void GetColorAt(int x, int y, byte[] color);
+
+		/// <summary>
+		/// Set the color at the specified location
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <param name="color">byte[] color</param>
+		void SetColorAt(int x, int y, byte[] color);
+
+		/// <summary>
+		/// Lock the bitmap
+		/// </summary>
 		void Lock();
+
+		/// <summary>
+		/// Unlock the bitmap
+		/// </summary>
 		void Unlock();
+
+		/// <summary>
+		/// Unlock the bitmap and get the underlying bitmap in one call
+		/// </summary>
+		/// <returns></returns>
 		Bitmap UnlockAndReturnBitmap();
+
+		/// <summary>
+		/// Size of the underlying image
+		/// </summary>
 		Size Size {
 			get;
 		}
+
+		/// <summary>
+		/// Height of the underlying image
+		/// </summary>
 		int Height {
 			get;
 		}
+
+		/// <summary>
+		/// Width of the underlying image
+		/// </summary>
 		int Width {
 			get;
 		}
+
+		/// <summary>
+		/// Does the underlying image need to be disposed
+		/// </summary>
 		bool NeedsDispose {
 			get;
 			set;
@@ -55,6 +114,10 @@ namespace GreenshotPlugin.Core {
 	public unsafe abstract class FastBitmap : IFastBitmap {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FastBitmap));
 
+		protected const int AINDEX = 3;
+		protected const int RINDEX = 2;
+		protected const int GINDEX = 1;
+		protected const int BINDEX = 0;
 		/// <summary>
 		/// If this is set to true, the bitmap will be disposed when disposing the IFastBitmap
 		/// </summary>
@@ -86,6 +149,7 @@ namespace GreenshotPlugin.Core {
 				case PixelFormat.Format32bppRgb:
 					return new Fast32RGBBitmap(source);
 				case PixelFormat.Format32bppArgb:
+				case PixelFormat.Format32bppPArgb:
 					return new Fast32ARGBBitmap(source);
 				default:
 					throw new NotSupportedException(string.Format("Not supported Pixelformat {0}", source.PixelFormat));
@@ -97,7 +161,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="source">Bitmap to access</param>
 		/// <returns>IFastBitmap</returns>
-		public static IFastBitmap CreateDestinationFor(Bitmap source, PixelFormat pixelFormat) {
+		public static IFastBitmap CreateCloneOf(Image source, PixelFormat pixelFormat) {
 			Bitmap destination = ImageHelper.CloneArea(source, Rectangle.Empty, pixelFormat);
 			IFastBitmap fastBitmap = Create(destination);
 			((FastBitmap)fastBitmap).NeedsDispose = true;
@@ -119,8 +183,13 @@ namespace GreenshotPlugin.Core {
 			return fastBitmap;
 		}
 
+		/// <summary>
+		/// Constructor which stores the image and locks it when called
+		/// </summary>
+		/// <param name="bitmap"></param>
 		protected FastBitmap(Bitmap bitmap) {
 			this.bitmap = bitmap;
+			Lock();
 		}
 
 		/// <summary>
@@ -272,8 +341,13 @@ namespace GreenshotPlugin.Core {
 
 		public abstract Color GetColorAt(int x, int y);
 		public abstract void SetColorAt(int x, int y, Color color);
+		public abstract void GetColorAt(int x, int y, byte[] color);
+		public abstract void SetColorAt(int x, int y, byte[] color);
 	}
 
+	/// <summary>
+	/// This is the implementation of the FastBitmat for the 8BPP pixelformat
+	/// </summary>
 	public unsafe class FastChunkyBitmap : FastBitmap {
 		// Used for indexed images
 		private Color[] colorEntries;
@@ -293,6 +367,26 @@ namespace GreenshotPlugin.Core {
 			int offset = x + (y * stride);
 			byte colorIndex = pointer[offset];
 			return colorEntries[colorIndex];
+		}
+
+		/// <summary>
+		/// Get the color from the specified location into the specified array
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color">byte[4] as reference</param>
+		public override void GetColorAt(int x, int y, byte[] color) {
+			throw new NotImplementedException("No performance gain!");
+		}
+
+		/// <summary>
+		/// Set the color at the specified location from the specified array
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color">byte[4] as reference</param>
+		public override void SetColorAt(int x, int y, byte[] color) {
+			throw new NotImplementedException("No performance gain!");
 		}
 
 		/// <summary>
@@ -361,7 +455,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Color</returns>
 		public override Color GetColorAt(int x, int y) {
 			int offset = (x * 3) + (y * stride);
-			return Color.FromArgb(255, pointer[2 + offset], pointer[1 + offset], pointer[offset]);
+			return Color.FromArgb(255, pointer[RINDEX + offset], pointer[GINDEX + offset], pointer[BINDEX + offset]);
 		}
 
 		/// <summary>
@@ -373,10 +467,38 @@ namespace GreenshotPlugin.Core {
 		/// <param name="color"></param>
 		public override void SetColorAt(int x, int y, Color color) {
 			int offset = (x * 3) + (y * stride);
-			pointer[2 + offset] = color.R;
-			pointer[1 + offset] = color.G;
-			pointer[offset] = color.B;
+			pointer[RINDEX + offset] = color.R;
+			pointer[GINDEX + offset] = color.G;
+			pointer[BINDEX + offset] = color.B;
 		}
+
+		/// <summary>
+		/// Get the color from the specified location into the specified array
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color">byte[4] as reference (a,r,g,b)</param>
+		public override void GetColorAt(int x, int y, byte[] color) {
+			int offset = (x * 3) + (y * stride);
+			color[0] = 255;
+			color[1] = pointer[RINDEX + offset];
+			color[2] = pointer[GINDEX + offset];
+			color[3] = pointer[BINDEX + offset];
+		}
+
+		/// <summary>
+		/// Set the color at the specified location from the specified array
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color">byte[4] as reference (a,r,g,b)</param>
+		public override void SetColorAt(int x, int y, byte[] color) {
+			int offset = (x * 3) + (y * stride);
+			pointer[RINDEX + offset] = color[1];
+			pointer[GINDEX + offset] = color[2];
+			pointer[BINDEX + offset] = color[3];
+		}
+
 	}
 
 	/// <summary>
@@ -396,7 +518,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Color</returns>
 		public override Color GetColorAt(int x, int y) {
 			int offset = (x * 4) + (y * stride);
-			return Color.FromArgb(255, pointer[2 + offset], pointer[1 + offset], pointer[offset]);
+			return Color.FromArgb(255, pointer[RINDEX + offset], pointer[GINDEX + offset], pointer[BINDEX + offset]);
 		}
 
 		/// <summary>
@@ -408,9 +530,36 @@ namespace GreenshotPlugin.Core {
 		/// <param name="color"></param>
 		public override void SetColorAt(int x, int y, Color color) {
 			int offset = (x * 4) + (y * stride);
-			pointer[2 + offset] = color.R;
-			pointer[1 + offset] = color.G;
-			pointer[offset] = color.B;
+			pointer[RINDEX + offset] = color.R;
+			pointer[GINDEX + offset] = color.G;
+			pointer[BINDEX + offset] = color.B;
+		}
+
+		/// <summary>
+		/// Get the color from the specified location into the specified array
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color">byte[4] as reference (a,r,g,b)</param>
+		public override void GetColorAt(int x, int y, byte[] color) {
+			int offset = (x * 4) + (y * stride);
+			color[0] = 255;
+			color[1] = pointer[RINDEX + offset];
+			color[2] = pointer[GINDEX + offset];
+			color[3] = pointer[BINDEX + offset];
+		}
+
+		/// <summary>
+		/// Set the color at the specified location from the specified array
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color">byte[4] as reference (a,r,g,b)</param>
+		public override void SetColorAt(int x, int y, byte[] color) {
+			int offset = (x * 4) + (y * stride);
+			pointer[RINDEX + offset] = color[1];	// R
+			pointer[GINDEX + offset] = color[2];
+			pointer[BINDEX + offset] = color[3];
 		}
 	}
 
@@ -434,7 +583,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Color</returns>
 		public override Color GetColorAt(int x, int y) {
 			int offset = (x * 4) + (y * stride);
-			return Color.FromArgb(pointer[3 + offset], pointer[2 + offset], pointer[1 + offset], pointer[offset]);
+			return Color.FromArgb(pointer[AINDEX + offset], pointer[RINDEX + offset], pointer[GINDEX + offset], pointer[BINDEX + offset]);
 		}
 
 		/// <summary>
@@ -446,10 +595,38 @@ namespace GreenshotPlugin.Core {
 		/// <param name="color"></param>
 		public override void SetColorAt(int x, int y, Color color) {
 			int offset = (x * 4) + (y * stride);
-			pointer[3 + offset] = color.A;
-			pointer[2 + offset] = color.R;
-			pointer[1 + offset] = color.G;
-			pointer[offset] = color.B;
+			pointer[AINDEX + offset] = color.A;
+			pointer[RINDEX + offset] = color.R;
+			pointer[GINDEX + offset] = color.G;
+			pointer[BINDEX + offset] = color.B;
+		}
+
+		/// <summary>
+		/// Get the color from the specified location into the specified array
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color">byte[4] as reference (a,r,g,b)</param>
+		public override void GetColorAt(int x, int y, byte[] color) {
+			int offset = (x * 4) + (y * stride);
+			color[0] = pointer[AINDEX + offset];
+			color[1] = pointer[RINDEX + offset];
+			color[2] = pointer[GINDEX + offset];
+			color[3] = pointer[BINDEX + offset];
+		}
+
+		/// <summary>
+		/// Set the color at the specified location from the specified array
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color">byte[4] as reference (a,r,g,b)</param>
+		public override void SetColorAt(int x, int y, byte[] color) {
+			int offset = (x * 4) + (y * stride);
+			pointer[AINDEX + offset] = color[0];
+			pointer[RINDEX + offset] = color[1];	// R
+			pointer[GINDEX + offset] = color[2];
+			pointer[BINDEX + offset] = color[3];
 		}
 
 		/// <summary>
@@ -459,12 +636,12 @@ namespace GreenshotPlugin.Core {
 		/// <param name="x">X coordinate</param>
 		/// <param name="y">Y Coordinate</param>
 		/// <returns>Color</returns>
-		public Color GetColorAtWithoutAlpha(int x, int y) {
+		public Color GetBlendedColorAt(int x, int y) {
 			int offset = (x * 4) + (y * stride);
-			int a = pointer[3 + offset];
-			int red = pointer[2 + offset];
-			int green = pointer[1 + offset];
-			int blue = pointer[offset];
+			int a = pointer[AINDEX + offset];
+			int red = pointer[RINDEX + offset];
+			int green = pointer[GINDEX + offset];
+			int blue = pointer[BINDEX + offset];
 
 			if (a < 255) {
 				// As the request is to get without alpha, we blend.

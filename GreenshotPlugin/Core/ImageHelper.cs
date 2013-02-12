@@ -487,10 +487,12 @@ namespace GreenshotPlugin.Core {
 			byte[] settingColor = new byte[4];
 			byte[] readingColor = new byte[4];
 
-			using (BitmapBuffer bbbDest = new BitmapBuffer(sourceBitmap, applyRect, true)) {
-				bbbDest.Lock();
-				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, applyRect, false)) {
-					bbbSrc.Lock();
+			using (BitmapBuffer dst = new BitmapBuffer(sourceBitmap, applyRect, true)) {
+			//using (IFastBitmap dst = FastBitmap.CreateEmpty(sourceBitmap.Size, sourceBitmap.PixelFormat, Color.Empty)) {
+				dst.Lock();
+				using (BitmapBuffer src = new BitmapBuffer(sourceBitmap, applyRect, false)) {
+				//using (IFastBitmap src = FastBitmap.Create(sourceBitmap)) {
+					src.Lock();
 					Random rand = new Random();
 					unchecked {
 						int r = blurRadius;
@@ -519,12 +521,12 @@ namespace GreenshotPlugin.Core {
 								gSums[wx] = 0;
 								bSums[wx] = 0;
 
-								if (srcX >= 0 && srcX < bbbDest.Width) {
+								if (srcX >= 0 && srcX < src.Width) {
 									for (int wy = 0; wy < wlen; ++wy) {
 										int srcY = y + wy - r;
 
-										if (srcY >= 0 && srcY < bbbDest.Height) {
-											bbbSrc.GetColorIn(srcX, srcY, readingColor);
+										if (srcY >= 0 && srcY < src.Height) {
+											src.GetColorAt(srcX, srcY, readingColor);
 											int wp = w[wy];
 
 											waSums[wx] += wp;
@@ -553,13 +555,13 @@ namespace GreenshotPlugin.Core {
 
 							if (parentBounds.Contains(applyRect.Left, applyRect.Top + y) ^ invert) {
 								if (waSum == 0 || wcSum == 0) {
-									bbbDest.SetUncheckedColorArrayAt(0, y, nullColor);
+									dst.SetColorAt(0, y, nullColor);
 								} else {
 									settingColor[0] = (byte)(aSum / waSum);
 									settingColor[1] = (byte)(rSum / wcSum);
 									settingColor[2] = (byte)(gSum / wcSum);
 									settingColor[3] = (byte)(bSum / wcSum);
-									bbbDest.SetUncheckedColorArrayAt(0, y, settingColor);
+									dst.SetColorAt(0, y, settingColor);
 								}
 							}
 
@@ -609,7 +611,7 @@ namespace GreenshotPlugin.Core {
 										if ((useExportQuality || rand.NextDouble() < previewQuality) && srcY >= 0 && srcY < applyRect.Height) {
 											int wp = w[wy];
 											waSums[wx] += wp;
-											bbbSrc.GetColorIn(srcX, srcY, readingColor);
+											src.GetColorAt(srcX, srcY, readingColor);
 											wp *= readingColor[0] + (readingColor[0] >> 7);
 											wcSums[wx] += wp;
 											wp >>= 8;
@@ -633,21 +635,20 @@ namespace GreenshotPlugin.Core {
 								wcSum >>= 8;
 								if (parentBounds.Contains(applyRect.Left + x, applyRect.Top + y) ^ invert) {
 									if (waSum == 0 || wcSum == 0) {
-										bbbDest.SetUncheckedColorArrayAt(x, y, nullColor);
+										dst.SetColorAt(x, y, nullColor);
 									} else {
 										settingColor[0] = (byte)(aSum / waSum);
 										settingColor[1] = (byte)(rSum / wcSum);
 										settingColor[2] = (byte)(gSum / wcSum);
 										settingColor[3] = (byte)(bSum / wcSum);
-										bbbDest.SetUncheckedColorArrayAt(x, y, settingColor);
+										dst.SetColorAt(x, y, settingColor);
 									}
 								}
 							}
 						}
 					}
 				}
-				bbbDest.Unlock();
-				return bbbDest.Bitmap;
+				return dst.UnlockAndReturnBitmap();
 			}
 		}
 
@@ -659,17 +660,15 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Bitmap</returns>
 		public static Bitmap BoxBlur(Bitmap sourceBitmap, int range) {
 			if ((range & 1) == 0) {
-				throw new InvalidOperationException("Range must be odd!");
+				range++;
+				//throw new InvalidOperationException("Range must be odd!");
 			}
-			using (BitmapBuffer bbbDest = new BitmapBuffer(sourceBitmap, true)) {
-				bbbDest.Lock();
-				using (BitmapBuffer bbbSrc = new BitmapBuffer(sourceBitmap, false)) {
-					bbbSrc.Lock();
-					BoxBlurHorizontal(bbbSrc, bbbDest, range);
-				}
+			using (IFastBitmap bbbDest = FastBitmap.CreateCloneOf(sourceBitmap, PixelFormat.Format32bppArgb)) {
+				BoxBlurHorizontal(bbbDest, range);
 				BoxBlurVertical(bbbDest, range);
-				bbbDest.Unlock();
-				return bbbDest.Bitmap;
+				BoxBlurHorizontal(bbbDest, range + 1);
+				BoxBlurVertical(bbbDest, range + 1);
+				return bbbDest.UnlockAndReturnBitmap();
 			}
 		}
 
@@ -679,11 +678,11 @@ namespace GreenshotPlugin.Core {
 		/// <param name="bbbSrc">Source BitmapBuffer</param>
 		/// <param name="bbbDest">Target BitmapBuffer</param>
 		/// <param name="range">Range must be odd!</param>
-		private static void BoxBlurHorizontal(BitmapBuffer bbbSrc, BitmapBuffer bbbDest, int range) {
-			int w = bbbSrc.Width;
-			int h = bbbSrc.Height;
+		private static void BoxBlurHorizontal(IFastBitmap bbbDest, int range) {
+			int w = bbbDest.Width;
+			int h = bbbDest.Height;
 			int halfRange = range / 2;
-			int[] newColors = new int[w];
+			Color[] newColors = new Color[w];
 			byte[] tmpColor = new byte[4];
 			for (int y = 0; y < h; y++) {
 				int hits = 0;
@@ -694,7 +693,7 @@ namespace GreenshotPlugin.Core {
 				for (int x = -halfRange; x < w; x++) {
 					int oldPixel = x - halfRange - 1;
 					if (oldPixel >= 0) {
-						bbbSrc.GetUncheckedColorIn(oldPixel, y, tmpColor);
+						bbbDest.GetColorAt(oldPixel, y, tmpColor);
 						a -= tmpColor[0];
 						r -= tmpColor[1];
 						g -= tmpColor[2];
@@ -704,7 +703,7 @@ namespace GreenshotPlugin.Core {
 
 					int newPixel = x + halfRange;
 					if (newPixel < w) {
-						bbbSrc.GetUncheckedColorIn(newPixel, y, tmpColor);
+						bbbDest.GetColorAt(newPixel, y, tmpColor);
 						a += tmpColor[0];
 						r += tmpColor[1];
 						g += tmpColor[2];
@@ -713,11 +712,11 @@ namespace GreenshotPlugin.Core {
 					}
 
 					if (x >= 0) {
-						newColors[x] = ((byte)(a / hits)) << 24 | ((byte)(r / hits) << 16) | ((byte)(g / hits) << 8 ) | ((byte)(b / hits));
+						newColors[x] = Color.FromArgb((byte)(a / hits), (byte)(r / hits), (byte)(g / hits), (byte)(b / hits));
 					}
 				}
 				for (int x = 0; x < w; x++) {
-					bbbDest.SetARGB(x, y, newColors[x]);
+					bbbDest.SetColorAt(x, y, newColors[x]);
 				}
 			}
 		}
@@ -727,11 +726,11 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="bbbDest">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
 		/// <param name="range">Range must be odd!</param>
-		private static void BoxBlurVertical(BitmapBuffer bbbDest, int range) {
+		private static void BoxBlurVertical(IFastBitmap bbbDest, int range) {
 			int w = bbbDest.Width;
 			int h = bbbDest.Height;
 			int halfRange = range / 2;
-			int[] newColors = new int[h];
+			Color[] newColors = new Color[h];
 			int oldPixelOffset = -(halfRange + 1) * w;
 			int newPixelOffset = (halfRange) * w;
 			byte[] tmpColor = new byte[4];
@@ -745,7 +744,7 @@ namespace GreenshotPlugin.Core {
 					int oldPixel = y - halfRange - 1;
 					if (oldPixel >= 0) {
 						//int colorg = pixels[index + oldPixelOffset];
-						bbbDest.GetUncheckedColorIn(x, oldPixel, tmpColor);
+						bbbDest.GetColorAt(x, oldPixel, tmpColor);
 						a -= tmpColor[0];
 						r -= tmpColor[1];
 						g -= tmpColor[2];
@@ -756,7 +755,7 @@ namespace GreenshotPlugin.Core {
 					int newPixel = y + halfRange;
 					if (newPixel < h) {
 						//int colorg = pixels[index + newPixelOffset];
-						bbbDest.GetUncheckedColorIn(x, newPixel, tmpColor);
+						bbbDest.GetColorAt(x, newPixel, tmpColor);
 						a += tmpColor[0];
 						r += tmpColor[1];
 						g += tmpColor[2];
@@ -765,121 +764,26 @@ namespace GreenshotPlugin.Core {
 					}
 
 					if (y >= 0) {
-						newColors[y] = ((byte)(a / hits)) << 24 | ((byte)(r / hits) << 16) | ((byte)(g / hits) << 8) | ((byte)(b / hits));
+						newColors[y] = Color.FromArgb((byte)(a / hits), (byte)(r / hits), (byte)(g / hits), (byte)(b / hits));
 					}
 				}
 
 				for (int y = 0; y < h; y++) {
-					bbbDest.SetARGB(x, y, newColors[y]);
+					bbbDest.SetColorAt(x, y, newColors[y]);
 				}
 			}
 		}
 
-		public static Bitmap FastBlur(Bitmap sourceBitmap, int radius) {
-			if (radius < 1) return null;
-			
-			var rct = new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height);
-			var dest = new int[rct.Width * rct.Height];
-			var source = new int[rct.Width * rct.Height];
-			var bits = sourceBitmap.LockBits(rct, ImageLockMode.ReadWrite, sourceBitmap.PixelFormat);
-			Marshal.Copy(bits.Scan0, source, 0, source.Length);
-			sourceBitmap.UnlockBits(bits);
 
-
-			int w = rct.Width;
-			int h = rct.Height;
-			int wm = w - 1;
-			int hm = h - 1;
-			int wh = w * h;
-			int div = radius + radius + 1;
-			var r = new int[wh];
-			var g = new int[wh];
-			var b = new int[wh];
-			int rsum, gsum, bsum, x, y, i, p1, p2, yi;
-			var vmin = new int[max(w, h)];
-			var vmax = new int[max(w, h)];
-
-			var dv = new int[256 * div];
-			for (i = 0; i < 256 * div; i++) {
-				dv[i] = (i / div);
-			}
-
-			int yw = yi = 0;
-
-			for (y = 0; y < h; y++) { // blur horizontal
-				rsum = gsum = bsum = 0;
-				for (i = -radius; i <= radius; i++) {
-					int p = source[yi + min(wm, max(i, 0))];
-					rsum += (p & 0xff0000) >> 16;
-					gsum += (p & 0x00ff00) >> 8;
-					bsum += p & 0x0000ff;
-				}
-				for (x = 0; x < w; x++) {
-
-					r[yi] = dv[rsum];
-					g[yi] = dv[gsum];
-					b[yi] = dv[bsum];
-
-					if (y == 0) {
-						vmin[x] = min(x + radius + 1, wm);
-						vmax[x] = max(x - radius, 0);
-					}
-					p1 = source[yw + vmin[x]];
-					p2 = source[yw + vmax[x]];
-
-					rsum += ((p1 & 0xff0000) - (p2 & 0xff0000)) >> 16;
-					gsum += ((p1 & 0x00ff00) - (p2 & 0x00ff00)) >> 8;
-					bsum += (p1 & 0x0000ff) - (p2 & 0x0000ff);
-					yi++;
-				}
-				yw += w;
-			}
-
-			for (x = 0; x < w; x++) { // blur vertical
-				rsum = gsum = bsum = 0;
-				int yp = -radius * w;
-				for (i = -radius; i <= radius; i++) {
-					yi = max(0, yp) + x;
-					rsum += r[yi];
-					gsum += g[yi];
-					bsum += b[yi];
-					yp += w;
-				}
-				yi = x;
-				for (y = 0; y < h; y++) {
-					dest[yi] = unchecked((int)(0xff000000u | (uint)(dv[rsum] << 16) | (uint)(dv[gsum] << 8) | (uint)dv[bsum]));
-					if (x == 0) {
-						vmin[y] = min(y + radius + 1, hm) * w;
-						vmax[y] = max(y - radius, 0) * w;
-					}
-					p1 = x + vmin[y];
-					p2 = x + vmax[y];
-
-					rsum += r[p1] - r[p2];
-					gsum += g[p1] - g[p2];
-					bsum += b[p1] - b[p2];
-
-					yi += w;
-				}
-			}
-
-			// copy back to image
-			Bitmap newImage = CreateEmptyLike(sourceBitmap, Color.Empty);
-			var bits2 = newImage.LockBits(rct, ImageLockMode.ReadWrite, newImage.PixelFormat);
-			Marshal.Copy(dest, 0, bits2.Scan0, dest.Length);
-			newImage.UnlockBits(bits);
-			return newImage;
-
-		}
-
-		private static int min(int a, int b) { return Math.Min(a, b); }
-		private static int max(int a, int b) { return Math.Max(a, b); }
-
-		/**
-		 * This method fixes the problem that we can't apply a filter outside the target bitmap,
-		 * therefor the filtered-bitmap will be shifted if we try to draw it outside the target bitmap.
-		 * It will also account for the Invert flag.
-		 */
+		/// <summary>
+		/// This method fixes the problem that we can't apply a filter outside the target bitmap,
+		/// therefor the filtered-bitmap will be shifted if we try to draw it outside the target bitmap.
+		/// It will also account for the Invert flag.
+		/// </summary>
+		/// <param name="applySize"></param>
+		/// <param name="rect"></param>
+		/// <param name="invert"></param>
+		/// <returns></returns>
 		public static Rectangle CreateIntersectRectangle(Size applySize, Rectangle rect, bool invert) {
 			Rectangle myRect;
 			if (invert) {
@@ -927,10 +831,16 @@ namespace GreenshotPlugin.Core {
 					graphics.DrawImage(sourceBitmap, shadowRectangle, 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
 				}
 				// blur "shadow", apply to whole new image
-				Rectangle newImageRectangle = new Rectangle(0, 0, tmpImage.Width, tmpImage.Height);
 				//using (Bitmap blurImage = FastBlur(newImage, shadowSize-1)) {
+
+				// Gaussian
+				Rectangle newImageRectangle = new Rectangle(0, 0, tmpImage.Width, tmpImage.Height);
 				returnImage = CreateBlur(tmpImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
+
+				// Box
 				//returnImage = BoxBlur(tmpImage, shadowSize);
+				
+				//returnImage = FastBlur(tmpImage, shadowSize - 1);
 			}
 			if (returnImage != null) {
 				using (Graphics graphics = Graphics.FromImage(returnImage)) {
@@ -976,18 +886,17 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceImage">Bitmap to create a b/w off</param>
 		/// <returns>b/w bitmap</returns>
 		public static Bitmap CreateMonochrome(Image sourceImage) {
-			using (BitmapBuffer bb = new BitmapBuffer(sourceImage, true)) {
-				bb.Lock();
-				for (int y = 0; y < bb.Height; y++) {
-					for (int x = 0; x < bb.Width; x++) {
-						Color color = bb.GetColorAt(x, y);
-						int colorBrightness = (color.R+color.G+color.B > 382) ? 255 : 0;
+			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(sourceImage, sourceImage.PixelFormat)) {
+				fastBitmap.Lock();
+				for (int y = 0; y < fastBitmap.Height; y++) {
+					for (int x = 0; x < fastBitmap.Width; x++) {
+						Color color = fastBitmap.GetColorAt(x, y);
+						int colorBrightness = (color.R + color.G + color.B > 382) ? 255 : 0;
 						Color monoColor = Color.FromArgb(color.A, colorBrightness, colorBrightness, colorBrightness);
-						bb.SetColorAt(x, y, monoColor);
+						fastBitmap.SetColorAt(x, y, monoColor);
 					}
 				}
-				bb.Unlock();
-				return bb.Bitmap;
+				return fastBitmap.UnlockAndReturnBitmap();
 			}
 		}
 

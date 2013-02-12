@@ -64,6 +64,11 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
+		public Bitmap UnlockAndReturnBitmap() {
+			Unlock();
+			return Bitmap;
+		}
+
 		public PixelFormat PixelFormat {
 			get {
 				return bitmap.PixelFormat;
@@ -208,9 +213,9 @@ namespace GreenshotPlugin.Core {
 			} 
 		}
 
-		/**
-		 * Unlock the System Memory
-		 */
+		/// <summary>
+		/// Unlock the System Memory
+		/// </summary>
 		public void Unlock() {
 			if (bitsLocked) {
 				bitmap.UnlockBits(bmData); 
@@ -218,24 +223,31 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 		
-		/**
-		 * Draw the stored bitmap to the destionation bitmap at the supplied point
-		 */
+		/// <summary>
+		/// Draw the stored bitmap to the destionation bitmap at the supplied point
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="destination"></param>
 		public void DrawTo(Graphics graphics, Point destination) {
 			DrawTo(graphics, null, destination);
 		}
 		
-		/**
-		 * Draw the stored Bitmap on the Destination bitmap with the specified rectangle
-		 * Be aware that the stored bitmap will be resized to the specified rectangle!!
-		 */
+		/// <summary>
+		/// Draw the stored Bitmap on the Destination bitmap with the specified rectangle
+		/// Be aware that the stored bitmap will be resized to the specified rectangle!!
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="destinationRect"></param>
 		public void DrawTo(Graphics graphics, Rectangle destinationRect) {
 			DrawTo(graphics, destinationRect, null);
 		}
 
-		/**
-		 * private helper to draw the bitmap
-		 */
+		/// <summary>
+		/// private helper to draw the bitmap
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="destinationRect"></param>
+		/// <param name="destination"></param>
 		private void DrawTo(Graphics graphics, Rectangle? destinationRect, Point? destination) {
 			if (destinationRect.HasValue) {
 				// Does the rect have any pixels?
@@ -288,10 +300,13 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/**
-		 * Set the color at location x,y
-		 * Before the first time this is called the Lock() should be called once!
-		 */				
+		/// <summary>
+		/// Set the color at location x,y
+		/// Before the first time this is called the Lock() should be called once!
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color"></param>
 		public void SetColorAt(int x, int y, Color color) {
 			if(x>=0 && y>=0 && x<rect.Width && y<rect.Height) {
 				int offset = x*bytesPerPixel+y*stride;
@@ -302,10 +317,13 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/**
-		 * Retrieve the color at location x,y to a byte[]
-		 * Before the first time this is called the Lock() should be called once!
-		 */
+		/// <summary>
+		/// Retrieve the color at location x,y to a byte[]
+		/// Before the first time this is called the Lock() should be called once!
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color"></param>
 		public void GetUncheckedColorIn(int x, int y, byte[] color) {
 			int offset = x * bytesPerPixel + y * stride;
 			color[0] = (aIndex == -1) ? (byte)255 : (byte)pointer[aIndex + offset];
@@ -314,11 +332,14 @@ namespace GreenshotPlugin.Core {
 			color[3] = pointer[bIndex + offset];
 		}
 
-		/**
-		 * Retrieve the color at location x,y to a byte[]
-		 * Before the first time this is called the Lock() should be called once!
-		 */
-		public void GetColorIn(int x, int y, byte[] color) {
+		/// <summary>
+		/// Retrieve the color at location x,y to a byte[]
+		/// Before the first time this is called the Lock() should be called once!
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="color"></param>
+		public void GetColorAt(int x, int y, byte[] color) {
 			if (x >= 0 && y >= 0 && x < rect.Width && y < rect.Height) {
 				int offset = x * bytesPerPixel + y * stride;
 				color[0] = (aIndex == -1) ? (byte)255 : (byte)pointer[aIndex + offset];
@@ -333,11 +354,14 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/**
-		 * Set the color at location x,y as an array
-		 * Before the first time this is called the Lock() should be called once!
-		 */
-		public void SetColorArrayAt(int x, int y, byte[] colors) {
+		/// <summary>
+		/// Set the color at location x,y as an array
+		/// Before the first time this is called the Lock() should be called once!
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="colors"></param>
+		public void SetColorAt(int x, int y, byte[] colors) {
 			if(x>=0 && y>=0 && x<rect.Width && y<rect.Height) {
 				int offset = x*bytesPerPixel+y*stride;
 				if(aIndex!=-1) pointer[aIndex+offset] = (byte)colors[0];
@@ -346,20 +370,10 @@ namespace GreenshotPlugin.Core {
 				pointer[bIndex+offset] = (byte)colors[3];
 			}
 		}
-		/**
-		 * Set the color at location x,y as an array
-		 * Before the first time this is called the Lock() should be called once!
-		 */
-		public void SetUncheckedColorArrayAt(int x, int y, byte[] colors) {
-			int offset = x * bytesPerPixel + y * stride;
-			if (aIndex != -1) pointer[aIndex + offset] = (byte)colors[0];
-			pointer[rIndex + offset] = (byte)colors[1];
-			pointer[gIndex + offset] = (byte)colors[2];
-			pointer[bIndex + offset] = (byte)colors[3];
-		}
-		/**
-		 * Set some internal values for accessing the bitmap according to the PixelFormat
-		 */
+
+		/// <summary>
+		/// Set some internal values for accessing the bitmap according to the PixelFormat
+		/// </summary>
 		private void PrepareForPixelFormat() {
 			// aIndex is only set if the pixel format supports "A".
 			aIndex = -1;
