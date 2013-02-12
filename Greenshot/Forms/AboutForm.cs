@@ -118,9 +118,22 @@ namespace Greenshot {
 		List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
 		/// <summary>
+		/// Cleanup all the allocated resources
+		/// </summary>
+		private void Cleanup() {
+			if (gBitmap != null) {
+				gBitmap.Dispose();
+				gBitmap = null;
+			}
+		}
+
+		/// <summary>
 		/// Constructor
 		/// </summary>
 		public AboutForm() {
+			// Make sure our resources are removed again.
+			this.Disposed += delegate { Cleanup(); };
+
 			// Enable animation for this form, when we don't set this the timer doesn't start as soon as the form is loaded.
 			EnableAnimation = true;
 			//
