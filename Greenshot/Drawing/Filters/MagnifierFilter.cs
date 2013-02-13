@@ -27,34 +27,37 @@ using GreenshotPlugin.Core;
 namespace Greenshot.Drawing.Filters {
 	[Serializable] 
 	public class MagnifierFilter : AbstractFilter {
-		
-		[NonSerialized]
-		private BitmapBuffer bbbSrc;
-		private int magnificationFactor;
-				
 		public MagnifierFilter(DrawableContainer parent) : base(parent) {
 			AddField(GetType(), FieldType.MAGNIFICATION_FACTOR, 2);
 		}
-		
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
-			applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
-			using (bbbSrc = new BitmapBuffer(applyBitmap, applyRect)) {
-				bbbSrc.Lock();
-				base.Apply(graphics, applyBitmap, applyRect, renderMode);
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+
+			if (applyRect.Width == 0 || applyRect.Height == 0) {
+				// nothing to do
+				return;
 			}
-			bbbSrc = null;
-		}
-		
-		protected override void IteratePixel(int x, int y) {
-			int halfWidth = bbb.Size.Width/2;
-			int halfHeight = bbb.Size.Height/2;
-			int yDistanceFromCenter = halfHeight-y;
-			int xDistanceFromCenter = halfWidth-x;
-			Color color = bbbSrc.GetColorAt(halfWidth-xDistanceFromCenter/magnificationFactor,halfHeight-yDistanceFromCenter/magnificationFactor);
-			bbb.SetColorAt(x, y, color);
+			int magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
+
+			using (BitmapBuffer bbb = new BitmapBuffer(applyBitmap, applyRect)) {
+				int halfWidth = bbb.Size.Width / 2;
+				int halfHeight = bbb.Size.Height / 2;
+				bbb.Lock();
+				using (BitmapBuffer bbbSrc = new BitmapBuffer(applyBitmap, applyRect)) {
+					for (int y = 0; y < bbb.Height; y++) {
+						int yDistanceFromCenter = halfHeight - y;
+						for (int x = 0; x < bbb.Width; x++) {
+							int xDistanceFromCenter = halfWidth - x;
+							if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
+								Color color = bbbSrc.GetColorAt(halfWidth - xDistanceFromCenter / magnificationFactor, halfHeight - yDistanceFromCenter / magnificationFactor);
+								bbb.SetColorAt(x, y, color);
+							}
+						}
+					}
+				}
+				bbb.DrawTo(graphics, applyRect.Location);
+			}
 		}
 	}
-	
 }

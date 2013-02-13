@@ -159,6 +159,7 @@ namespace GreenshotPlugin.Core  {
 	/// Provides details about a Window returned by the 
 	/// enumeration
 	/// </summary>
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1049:TypesThatOwnNativeResourcesShouldBeDisposable")]
 	public class WindowDetails : IEquatable<WindowDetails>{
 		private const string METRO_WINDOWS_CLASS = "Windows.UI.Core.CoreWindow";
 		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";

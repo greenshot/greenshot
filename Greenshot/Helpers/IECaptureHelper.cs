@@ -582,7 +582,9 @@ namespace Greenshot.Helpers {
 				if (element.attributes.ContainsKey("greenshot") && element.attributes["greenshot"] != null) {
 					string greenshotAction = element.attributes["greenshot"];
 					if ("hide".Equals(greenshotAction)) {
-						PixelizationFilter.Apply(graphicsTarget, returnBitmap, element.rectangle, 4);
+						using (Brush brush = new SolidBrush(Color.Black)) {
+							graphicsTarget.FillRectangle(brush, element.rectangle);
+						}
 					} else if ("red".Equals(greenshotAction)) {
 						using (Brush brush = new SolidBrush(Color.Red)) {
 							graphicsTarget.FillRectangle(brush, element.rectangle);

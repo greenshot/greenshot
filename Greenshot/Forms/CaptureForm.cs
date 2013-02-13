@@ -35,6 +35,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
+using System.Security.Permissions;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -106,6 +107,7 @@ namespace Greenshot.Forms {
 		/// This should prevent childs to draw backgrounds
 		/// </summary>
 		protected override CreateParams CreateParams {
+			[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
 			get {
 				CreateParams cp = base.CreateParams;
 				cp.ExStyle |= 0x02000000;

@@ -434,16 +434,6 @@ namespace Greenshot.Drawing {
 			captureDetails = capture.CaptureDetails;
 		}
 
-		/// <summary>
-		/// The public accessible Dispose
-		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice 		
-		/// </summary>
-		public new void Dispose() {
-			Dispose(true);
-			base.Dispose();
-			GC.SuppressFinalize(this);
-		}
-
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				Count--;
@@ -463,6 +453,17 @@ namespace Greenshot.Drawing {
 				}
 				while (redoStack != null && redoStack.Count > 0) {
 					redoStack.Pop().Dispose();
+				}
+				foreach (IDrawableContainer container in elements) {
+					container.Dispose();
+				}
+				if (undrawnElement != null) {
+					undrawnElement.Dispose();
+					undrawnElement = null;
+				}
+				if (cropContainer != null) {
+					cropContainer.Dispose();
+					cropContainer = null;
 				}
 			}
 			base.Dispose(disposing);
@@ -909,7 +910,7 @@ namespace Greenshot.Drawing {
 					ex.Data.Add("Width", Image.Width);
 					ex.Data.Add("Height", Image.Height);
 					ex.Data.Add("Pixelformat", Image.PixelFormat);
-					throw ex;
+					throw;
 				}
 
 				Point offset = new Point(-cropRectangle.Left, -cropRectangle.Top);

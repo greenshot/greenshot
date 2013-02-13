@@ -35,35 +35,40 @@ namespace Greenshot.Drawing.Filters {
 			AddField(GetType(), FieldType.PIXEL_SIZE, 5);
 		}
 		
-		public static void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, int pixelSize) {
-
-			if(pixelSize <= 1 || rect.Width == 0 || rect.Height == 0) {
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+			int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
+			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+			if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0) {
 				// Nothing to do
 				return;
 			}
-			if(rect.Width < pixelSize) pixelSize = rect.Width;
-			if(rect.Height < pixelSize) pixelSize = rect.Height;
-		
+			if (rect.Width < pixelSize) {
+				pixelSize = rect.Width;
+			}
+			if (rect.Height < pixelSize) {
+				pixelSize = rect.Height;
+			}
+
 			using (BitmapBuffer bbbDest = new BitmapBuffer(applyBitmap, rect)) {
 				bbbDest.Lock();
-				using(BitmapBuffer bbbSrc = new BitmapBuffer(applyBitmap, rect)) {
+				using (BitmapBuffer bbbSrc = new BitmapBuffer(applyBitmap, rect)) {
 					bbbSrc.Lock();
 					List<Color> colors = new List<Color>();
-					int halbPixelSize = pixelSize/2;
-					for(int y=-halbPixelSize;y<bbbSrc.Height+halbPixelSize; y=y+pixelSize) {
-						for(int x=-halbPixelSize;x<=bbbSrc.Width+halbPixelSize; x=x+pixelSize) {
+					int halbPixelSize = pixelSize / 2;
+					for (int y = -halbPixelSize; y < bbbSrc.Height + halbPixelSize; y = y + pixelSize) {
+						for (int x = -halbPixelSize; x <= bbbSrc.Width + halbPixelSize; x = x + pixelSize) {
 							colors.Clear();
-							for(int yy=y;yy<y+pixelSize;yy++) {
-								if (yy >=0 && yy < bbbSrc.Height) {
-									for(int xx=x;xx<x+pixelSize;xx++) {
-										colors.Add(bbbSrc.GetColorAt(xx,yy));
+							for (int yy = y; yy < y + pixelSize; yy++) {
+								if (yy >= 0 && yy < bbbSrc.Height) {
+									for (int xx = x; xx < x + pixelSize; xx++) {
+										colors.Add(bbbSrc.GetColorAt(xx, yy));
 									}
 								}
 							}
 							Color currentAvgColor = Colors.Mix(colors);
-							for(int yy=y;yy<=y+pixelSize;yy++) {
-								if (yy >=0 && yy < bbbSrc.Height) {
-									for(int xx=x;xx<=x+pixelSize;xx++) {
+							for (int yy = y; yy <= y + pixelSize; yy++) {
+								if (yy >= 0 && yy < bbbSrc.Height) {
+									for (int xx = x; xx <= x + pixelSize; xx++) {
 										bbbDest.SetColorAt(xx, yy, currentAvgColor);
 									}
 								}
@@ -73,13 +78,6 @@ namespace Greenshot.Drawing.Filters {
 				}
 				bbbDest.DrawTo(graphics, rect.Location);
 			}
-		}
-		
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
-			applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-
-			Apply(graphics, applyBitmap, applyRect, pixelSize);
 		}
 	}
 }

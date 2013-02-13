@@ -657,7 +657,7 @@ namespace Greenshot {
 		}
 
 		void AboutToolStripMenuItemClick(object sender, System.EventArgs e) {
-			new AboutForm().ShowDialog(this);
+			MainForm.Instance.ShowAbout();
 		}
 
 		void PreferencesToolStripMenuItemClick(object sender, System.EventArgs e) {

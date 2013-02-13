@@ -20,6 +20,8 @@
  */
 using System;
 using System.Drawing;
+using GreenshotPlugin.Core;
+using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing.Filters {
 	/// <summary>
@@ -29,12 +31,29 @@ namespace Greenshot.Drawing.Filters {
 	public class GrayscaleFilter : AbstractFilter {
 		public GrayscaleFilter(DrawableContainer parent) : base(parent) {
 		}
-		
-		protected override void IteratePixel(int x, int y) {
-			Color color = bbb.GetColorAt(x, y);
-			int luma  = (int)((0.3*color.R) + (0.59*color.G) + (0.11*color.B));
-			color = Color.FromArgb(luma, luma, luma);
-			bbb.SetColorAt(x, y, color);
+
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+
+			if (applyRect.Width == 0 || applyRect.Height == 0) {
+				// nothing to do
+				return;
+			}
+
+			using (BitmapBuffer bbb = new BitmapBuffer(applyBitmap, applyRect)) {
+				bbb.Lock();
+				for (int y = 0; y < bbb.Height; y++) {
+					for (int x = 0; x < bbb.Width; x++) {
+						if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
+							Color color = bbb.GetColorAt(x, y);
+							int luma = (int)((0.3 * color.R) + (0.59 * color.G) + (0.11 * color.B));
+							color = Color.FromArgb(luma, luma, luma);
+							bbb.SetColorAt(x, y, color);
+						}
+					}
+				}
+				bbb.DrawTo(graphics, applyRect.Location);
+			}
 		}
 	}
 }

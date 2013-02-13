@@ -22,26 +22,44 @@ using System;
 using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 
 	public class HighlightFilter : AbstractFilter {
-		[NonSerialized]
-		private Color highlightColor;
-		
 		public HighlightFilter(DrawableContainer parent) : base(parent) {
 			AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
 		}
-		
-		protected override void IteratePixel(int x, int y) {
-			Color color = bbb.GetColorAt(x, y);
-			color = Color.FromArgb(color.A, Math.Min(highlightColor.R,color.R), Math.Min(highlightColor.G,color.G), Math.Min(highlightColor.B,color.B));
-			bbb.SetColorAt(x, y, color);
-		}
 
-		public override void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode) {
-			highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			base.Apply(graphics, bmp, rect, renderMode);
+		/// <summary>
+		/// Implements the Apply code for the Brightness Filet
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="applyBitmap"></param>
+		/// <param name="rect"></param>
+		/// <param name="renderMode"></param>
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+
+			if (applyRect.Width == 0 || applyRect.Height == 0) {
+				// nothing to do
+				return;
+			}
+
+			using (BitmapBuffer bbb = new BitmapBuffer(applyBitmap, applyRect)) {
+				bbb.Lock();
+				Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+				for (int y = 0; y < bbb.Height; y++) {
+					for (int x = 0; x < bbb.Width; x++) {
+						if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
+							Color color = bbb.GetColorAt(x, y);
+							color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
+							bbb.SetColorAt(x, y, color);
+						}
+					}
+				}
+				bbb.DrawTo(graphics, applyRect.Location);
+			}
 		}
 	}
 }

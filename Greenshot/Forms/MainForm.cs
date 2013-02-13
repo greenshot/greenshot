@@ -968,6 +968,10 @@ namespace Greenshot {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void Contextmenu_aboutClick(object sender, EventArgs e) {
+			ShowAbout();
+		}
+
+		public void ShowAbout() {
 			if (aboutForm != null) {
 				WindowDetails.ToForeground(aboutForm.Handle);
 			} else {

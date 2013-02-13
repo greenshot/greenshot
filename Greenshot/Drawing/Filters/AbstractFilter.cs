@@ -44,17 +44,23 @@ namespace Greenshot.Drawing.Filters {
 		
 		private bool invert = false;
 		public bool Invert {
-			get { return invert; }
-			set { invert=value; OnPropertyChanged("Invert"); }
+			get {
+				return invert;
+			}
+			set {
+				invert = value;
+				OnPropertyChanged("Invert");
+			}
 		}
-		[NonSerialized]
-		protected BitmapBuffer bbb;
 
-		protected Rectangle applyRect;
 		protected DrawableContainer parent;
 		public DrawableContainer Parent {
-			get {return parent;}
-			set {parent = value;}
+			get {
+				return parent;
+			}
+			set {
+				parent = value;
+			}
 		}
 		
 		public AbstractFilter(DrawableContainer parent) {
@@ -65,36 +71,12 @@ namespace Greenshot.Drawing.Filters {
 			return parent;
 		}
 
-		public virtual void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-
-			if (applyRect.Width == 0 || applyRect.Height == 0) {
-				// nothing to do
-				return;
-			}
-
-			bbb = new BitmapBuffer(applyBitmap, applyRect);
-			try {
-				bbb.Lock();
-				for(int y=0;y<bbb.Height; y++) {
-					for(int x=0;x<bbb.Width; x++) {
-						if(parent.Contains(applyRect.Left+x, applyRect.Top+y) ^ Invert) {
-							IteratePixel(x, y);
-						} 
-					}
-				}
-			} finally {
-				bbb.DrawTo(graphics, applyRect.Location);
-				bbb.Dispose();
-				bbb = null;
-			}
-		}
-		
-		protected virtual void IteratePixel(int x, int y) {}
+		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode);
 		
 		protected void OnPropertyChanged(string propertyName) {
-			if(propertyChanged != null) propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			if (propertyChanged != null) {
+				propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
 		}
-		
 	}
 }

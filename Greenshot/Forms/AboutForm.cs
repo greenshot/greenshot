@@ -132,7 +132,12 @@ namespace Greenshot {
 		/// </summary>
 		public AboutForm() {
 			// Make sure our resources are removed again.
-			this.Disposed += delegate { Cleanup(); };
+			this.Disposed += delegate {
+				Cleanup();
+			};
+			this.FormClosing += delegate {
+				Cleanup();
+			};
 
 			// Enable animation for this form, when we don't set this the timer doesn't start as soon as the form is loaded.
 			EnableAnimation = true;
@@ -228,6 +233,9 @@ namespace Greenshot {
 		/// Called from the AnimatingForm, for every frame
 		/// </summary>
 		protected override void Animate() {
+			if (gBitmap == null) {
+				return;
+			}
 			if (!isTerminalServerSession) {
 				// Color cycle
 				if (waitFrames != 0) {

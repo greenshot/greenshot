@@ -69,7 +69,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr GetWindow(IntPtr hWnd, GetWindowCommand uCmd);
 		[DllImport("user32", SetLastError = true)]
 		public static extern int ShowWindow(IntPtr hWnd, ShowWindowCommand nCmdShow);
-		[DllImport("user32", CharSet = CharSet.Auto, SetLastError = true)]
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public extern static int GetWindowText(IntPtr hWnd, StringBuilder lpString, int cch);
 		[DllImport("user32", CharSet = CharSet.Auto, SetLastError = true)]
 		public extern static int GetWindowTextLength(IntPtr hWnd);
@@ -97,7 +97,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public extern static bool IsZoomed(IntPtr hwnd);
-		[DllImport("user32", CharSet = CharSet.Auto, SetLastError = true)]
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public extern static int GetClassName (IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetClassLong(IntPtr hWnd, int nIndex);

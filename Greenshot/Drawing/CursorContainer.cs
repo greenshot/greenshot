@@ -56,10 +56,6 @@ namespace Greenshot.Drawing {
 			get { return cursor; }
 		}
 
-		public override void Dispose() {
-			base.Dispose();
-		}
-
 		// The bulk of the clean-up code is implemented in Dispose(bool)
 
 		/**

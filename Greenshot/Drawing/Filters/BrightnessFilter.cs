@@ -22,31 +22,50 @@ using System;
 using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 
 	public class BrightnessFilter : AbstractFilter {
 		
-		private double brightness;
-		
 		public BrightnessFilter(DrawableContainer parent) : base(parent) {
 			AddField(GetType(), FieldType.BRIGHTNESS, 0.9d);
 		}
-		
-		protected override void IteratePixel(int x, int y) {
-			Color color = bbb.GetColorAt(x, y);
-			int r = Convert.ToInt16(color.R*brightness);
-			int g = Convert.ToInt16(color.G*brightness);
-			int b = Convert.ToInt16(color.B*brightness);
-			r = (r>255) ? 255 : r;
-			g = (g>255) ? 255 : g;
-			b = (b>255) ? 255 : b;
-			bbb.SetColorAt(x, y, Color.FromArgb(color.A, r, g, b));
-		}
-		
-		public override void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode) {
-			brightness = GetFieldValueAsDouble(FieldType.BRIGHTNESS);
-			base.Apply(graphics, bmp, rect, renderMode);
+
+		/// <summary>
+		/// Implements the Apply code for the Brightness Filet
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="applyBitmap"></param>
+		/// <param name="rect"></param>
+		/// <param name="renderMode"></param>
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+
+			if (applyRect.Width == 0 || applyRect.Height == 0) {
+				// nothing to do
+				return;
+			}
+
+			using (BitmapBuffer bbb = new BitmapBuffer(applyBitmap, applyRect)) {
+				bbb.Lock();
+				double brightness = GetFieldValueAsDouble(FieldType.BRIGHTNESS);
+				for (int y = 0; y < bbb.Height; y++) {
+					for (int x = 0; x < bbb.Width; x++) {
+						if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
+							Color color = bbb.GetColorAt(x, y);
+							int r = Convert.ToInt16(color.R * brightness);
+							int g = Convert.ToInt16(color.G * brightness);
+							int b = Convert.ToInt16(color.B * brightness);
+							r = (r > 255) ? 255 : r;
+							g = (g > 255) ? 255 : g;
+							b = (b > 255) ? 255 : b;
+							bbb.SetColorAt(x, y, Color.FromArgb(color.A, r, g, b));
+						}
+					}
+				}
+				bbb.DrawTo(graphics, applyRect.Location);
+			}
 		}
 	}
 }
