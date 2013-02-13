@@ -226,6 +226,13 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("MaxMenuItemLength", Description = "Maximum length of submenu items in the context menu, making this longer might cause context menu issues on dual screen systems.", DefaultValue = "25")]
 		public int MaxMenuItemLength;
 
+		[IniProperty("MailApiTo", Description = "The 'to' field for the email destination (settings for Outlook can be found under the Office section)", DefaultValue = "")]
+		public string MailApiTo;
+		[IniProperty("MailApiCC", Description = "The 'CC' field for the email destination (settings for Outlook can be found under the Office section)", DefaultValue = "")]
+		public string MailApiCC;
+		[IniProperty("MailApiBCC", Description = "The 'BCC' field for the email destination (settings for Outlook can be found under the Office section)", DefaultValue = "")]
+		public string MailApiBCC;
+
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.UNSTABLE;
 

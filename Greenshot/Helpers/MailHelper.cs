@@ -55,7 +55,10 @@ namespace Greenshot.Helpers {
 		public static void SendImage(string fullPath, string title) {
 			MapiMailMessage message = new MapiMailMessage(title, null);
 			message.Files.Add(fullPath);
-			message.ShowDialog();
+            message._recipientCollection.Add(new Recipient(conf.MailApiTo, RecipientType.To));
+            message._recipientCollection.Add(new Recipient(conf.MailApiCC, RecipientType.CC));
+            message._recipientCollection.Add(new Recipient(conf.MailApiBCC, RecipientType.BCC));
+            message.ShowDialog();
 		}
 		
 
