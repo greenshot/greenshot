@@ -23,6 +23,7 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using System.Drawing.Imaging;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable] 
@@ -40,23 +41,22 @@ namespace Greenshot.Drawing.Filters {
 			}
 			int magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
 
-			using (BitmapBuffer bbb = new BitmapBuffer(applyBitmap, applyRect)) {
-				int halfWidth = bbb.Size.Width / 2;
-				int halfHeight = bbb.Size.Height / 2;
-				bbb.Lock();
-				using (BitmapBuffer bbbSrc = new BitmapBuffer(applyBitmap, applyRect)) {
-					for (int y = 0; y < bbb.Height; y++) {
+			using (IFastBitmap destFastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
+				int halfWidth = destFastBitmap.Size.Width / 2;
+				int halfHeight = destFastBitmap.Size.Height / 2;
+				using (IFastBitmap sourceFastBitmap = FastBitmap.Create(applyBitmap, applyRect)) {
+					for (int y = 0; y < destFastBitmap.Height; y++) {
 						int yDistanceFromCenter = halfHeight - y;
-						for (int x = 0; x < bbb.Width; x++) {
+						for (int x = 0; x < destFastBitmap.Width; x++) {
 							int xDistanceFromCenter = halfWidth - x;
 							if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
-								Color color = bbbSrc.GetColorAt(halfWidth - xDistanceFromCenter / magnificationFactor, halfHeight - yDistanceFromCenter / magnificationFactor);
-								bbb.SetColorAt(x, y, color);
+								Color color = sourceFastBitmap.GetColorAt(halfWidth - xDistanceFromCenter / magnificationFactor, halfHeight - yDistanceFromCenter / magnificationFactor);
+								destFastBitmap.SetColorAt(x, y, color);
 							}
 						}
 					}
 				}
-				bbb.DrawTo(graphics, applyRect.Location);
+				destFastBitmap.DrawTo(graphics, applyRect.Location);
 			}
 		}
 	}

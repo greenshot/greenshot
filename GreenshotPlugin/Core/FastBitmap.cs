@@ -106,6 +106,21 @@ namespace GreenshotPlugin.Core {
 			get;
 			set;
 		}
+
+		/// <summary>
+		/// Draw the stored bitmap to the destionation bitmap at the supplied point
+		/// </summary>
+		/// <param name="graphics">Graphics</param>
+		/// <param name="destination">Point with location</param>
+		void DrawTo(Graphics graphics, Point destination);
+
+		/// <summary>
+		/// Draw the stored Bitmap on the Destination bitmap with the specified rectangle
+		/// Be aware that the stored bitmap will be resized to the specified rectangle!!
+		/// </summary>
+		/// <param name="graphics">Graphics</param>
+		/// <param name="destinationRect">Rectangle with destination</param>
+		void DrawTo(Graphics graphics, Rectangle destinationRect);
 	}
 
 	/// <summary>
@@ -118,6 +133,7 @@ namespace GreenshotPlugin.Core {
 		protected const int RINDEX = 2;
 		protected const int GINDEX = 1;
 		protected const int BINDEX = 0;
+		protected Rectangle area = Rectangle.Empty;
 		/// <summary>
 		/// If this is set to true, the bitmap will be disposed when disposing the IFastBitmap
 		/// </summary>
@@ -130,27 +146,33 @@ namespace GreenshotPlugin.Core {
 		/// The bitmap for which the FastBitmap is creating access
 		/// </summary>
 		protected Bitmap bitmap;
+
 		protected BitmapData bmData;
 		protected int stride; /* bytes per pixel row */
 		protected bool bitsLocked = false;
 		protected byte* pointer;
 
+		public static IFastBitmap Create(Bitmap source) {
+			return Create(source, Rectangle.Empty);
+		}
 		/// <summary>
 		/// Factory for creating a FastBitmap depending on the pixelformat of the source
+		/// The supplied rectangle specifies the area for which the FastBitmap does its thing
 		/// </summary>
 		/// <param name="source">Bitmap to access</param>
+		/// <param name="area">Rectangle which specifies the area to have access to, can be Rectangle.Empty for the whole image</param>
 		/// <returns>IFastBitmap</returns>
-		public static IFastBitmap Create(Bitmap source) {
+		public static IFastBitmap Create(Bitmap source, Rectangle area) {
 			switch (source.PixelFormat) {
 				case PixelFormat.Format8bppIndexed:
-					return new FastChunkyBitmap(source);
+					return new FastChunkyBitmap(source, area);
 				case PixelFormat.Format24bppRgb:
-					return new Fast24RGBBitmap(source);
+					return new Fast24RGBBitmap(source, area);
 				case PixelFormat.Format32bppRgb:
-					return new Fast32RGBBitmap(source);
+					return new Fast32RGBBitmap(source, area);
 				case PixelFormat.Format32bppArgb:
 				case PixelFormat.Format32bppPArgb:
-					return new Fast32ARGBBitmap(source);
+					return new Fast32ARGBBitmap(source, area);
 				default:
 					throw new NotSupportedException(string.Format("Not supported Pixelformat {0}", source.PixelFormat));
 			}
@@ -162,7 +184,27 @@ namespace GreenshotPlugin.Core {
 		/// <param name="source">Bitmap to access</param>
 		/// <returns>IFastBitmap</returns>
 		public static IFastBitmap CreateCloneOf(Image source, PixelFormat pixelFormat) {
-			Bitmap destination = ImageHelper.CloneArea(source, Rectangle.Empty, pixelFormat);
+			return CreateCloneOf(source, pixelFormat, Rectangle.Empty);
+		}
+		/// <summary>
+		/// Factory for creating a FastBitmap as a destination for the source
+		/// </summary>
+		/// <param name="source">Bitmap to access</param>
+		/// <param name="area">Area of the bitmap to access, can be Rectangle.Empty for the whole</param>
+		/// <returns>IFastBitmap</returns>
+		public static IFastBitmap CreateCloneOf(Image source, Rectangle area) {
+			return CreateCloneOf(source, PixelFormat.DontCare, area);
+		}
+
+		/// <summary>
+		/// Factory for creating a FastBitmap as a destination for the source
+		/// </summary>
+		/// <param name="source">Bitmap to access</param>
+		/// <param name="pixelFormat">Pixelformat of the cloned bitmap</param>
+		/// <param name="area">Area of the bitmap to access, can be Rectangle.Empty for the whole</param>
+		/// <returns>IFastBitmap</returns>
+		public static IFastBitmap CreateCloneOf(Image source, PixelFormat pixelFormat, Rectangle area) {
+			Bitmap destination = ImageHelper.CloneArea(source, area, pixelFormat);
 			IFastBitmap fastBitmap = Create(destination);
 			((FastBitmap)fastBitmap).NeedsDispose = true;
 			return fastBitmap;
@@ -187,8 +229,15 @@ namespace GreenshotPlugin.Core {
 		/// Constructor which stores the image and locks it when called
 		/// </summary>
 		/// <param name="bitmap"></param>
-		protected FastBitmap(Bitmap bitmap) {
+		protected FastBitmap(Bitmap bitmap, Rectangle area) {
 			this.bitmap = bitmap;
+			Rectangle bitmapArea = new Rectangle(Point.Empty, bitmap.Size);
+			if (area != Rectangle.Empty) {
+				area.Intersect(bitmapArea);
+				this.area = area;
+			} else {
+				this.area = bitmapArea;
+			}
 			Lock();
 		}
 
@@ -197,7 +246,10 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public Size Size {
 			get {
-				return bitmap.Size;
+				if (area == Rectangle.Empty) {
+					return bitmap.Size;
+				}
+				return area.Size;
 			}
 		}
 
@@ -206,7 +258,10 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public int Width {
 			get {
-				return bitmap.Width;
+				if (area == Rectangle.Empty) {
+					return bitmap.Width;
+				}
+				return area.Width;
 			}
 		}
 
@@ -215,7 +270,10 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public int Height {
 			get {
-				return bitmap.Height;
+				if (area == Rectangle.Empty) {
+					return bitmap.Height;
+				}
+				return area.Height;
 			}
 		}
 
@@ -271,7 +329,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public void Lock() {
 			if (Width > 0 && Height > 0 && !bitsLocked) {
-				bmData = bitmap.LockBits(new Rectangle(Point.Empty, Size), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+				bmData = bitmap.LockBits(area, ImageLockMode.ReadWrite, bitmap.PixelFormat);
 				bitsLocked = true;
 
 				IntPtr Scan0 = bmData.Scan0;
@@ -353,7 +411,7 @@ namespace GreenshotPlugin.Core {
 		private Color[] colorEntries;
 		private Dictionary<Color, byte> colorCache = new Dictionary<Color, byte>();
 
-		public FastChunkyBitmap(Bitmap source) : base(source) {
+		public FastChunkyBitmap(Bitmap source, Rectangle area) : base(source, area) {
 			colorEntries = bitmap.Palette.Entries;
 		}
 
@@ -443,7 +501,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public unsafe class Fast24RGBBitmap : FastBitmap {
 
-		public Fast24RGBBitmap(Bitmap source) : base(source) {
+		public Fast24RGBBitmap(Bitmap source, Rectangle area) : base(source, area) {
 		}
 
 		/// <summary>
@@ -505,7 +563,7 @@ namespace GreenshotPlugin.Core {
 	/// This is the implementation of the IFastBitmap for 32 bit images (no Alpha)
 	/// </summary>
 	public unsafe class Fast32RGBBitmap : FastBitmap {
-		public Fast32RGBBitmap(Bitmap source) : base(source) {
+		public Fast32RGBBitmap(Bitmap source, Rectangle area) : base(source, area) {
 
 		}
 
@@ -571,7 +629,7 @@ namespace GreenshotPlugin.Core {
 			get;
 			set;
 		}
-		public Fast32ARGBBitmap(Bitmap source) : base(source) {
+		public Fast32ARGBBitmap(Bitmap source, Rectangle area) : base(source, area) {
 			BackgroundBlendColor = Color.White;
 		}
 

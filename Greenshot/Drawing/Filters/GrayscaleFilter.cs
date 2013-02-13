@@ -40,19 +40,18 @@ namespace Greenshot.Drawing.Filters {
 				return;
 			}
 
-			using (BitmapBuffer bbb = new BitmapBuffer(applyBitmap, applyRect)) {
-				bbb.Lock();
-				for (int y = 0; y < bbb.Height; y++) {
-					for (int x = 0; x < bbb.Width; x++) {
+			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
+				for (int y = 0; y < fastBitmap.Height; y++) {
+					for (int x = 0; x < fastBitmap.Width; x++) {
 						if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
-							Color color = bbb.GetColorAt(x, y);
+							Color color = fastBitmap.GetColorAt(x, y);
 							int luma = (int)((0.3 * color.R) + (0.59 * color.G) + (0.11 * color.B));
 							color = Color.FromArgb(luma, luma, luma);
-							bbb.SetColorAt(x, y, color);
+							fastBitmap.SetColorAt(x, y, color);
 						}
 					}
 				}
-				bbb.DrawTo(graphics, applyRect.Location);
+				fastBitmap.DrawTo(graphics, applyRect.Location);
 			}
 		}
 	}

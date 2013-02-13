@@ -23,6 +23,7 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using System.Drawing.Imaging;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 
@@ -46,19 +47,18 @@ namespace Greenshot.Drawing.Filters {
 				return;
 			}
 
-			using (BitmapBuffer bbb = new BitmapBuffer(applyBitmap, applyRect)) {
-				bbb.Lock();
+			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
 				Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-				for (int y = 0; y < bbb.Height; y++) {
-					for (int x = 0; x < bbb.Width; x++) {
+				for (int y = 0; y < fastBitmap.Height; y++) {
+					for (int x = 0; x < fastBitmap.Width; x++) {
 						if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
-							Color color = bbb.GetColorAt(x, y);
+							Color color = fastBitmap.GetColorAt(x, y);
 							color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
-							bbb.SetColorAt(x, y, color);
+							fastBitmap.SetColorAt(x, y, color);
 						}
 					}
 				}
-				bbb.DrawTo(graphics, applyRect.Location);
+				fastBitmap.DrawTo(graphics, applyRect.Location);
 			}
 		}
 	}

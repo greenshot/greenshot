@@ -23,6 +23,7 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using System.Drawing.Imaging;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 
@@ -47,24 +48,23 @@ namespace Greenshot.Drawing.Filters {
 				return;
 			}
 
-			using (BitmapBuffer bbb = new BitmapBuffer(applyBitmap, applyRect)) {
-				bbb.Lock();
+			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
 				double brightness = GetFieldValueAsDouble(FieldType.BRIGHTNESS);
-				for (int y = 0; y < bbb.Height; y++) {
-					for (int x = 0; x < bbb.Width; x++) {
+				for (int y = 0; y < fastBitmap.Height; y++) {
+					for (int x = 0; x < fastBitmap.Width; x++) {
 						if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
-							Color color = bbb.GetColorAt(x, y);
+							Color color = fastBitmap.GetColorAt(x, y);
 							int r = Convert.ToInt16(color.R * brightness);
 							int g = Convert.ToInt16(color.G * brightness);
 							int b = Convert.ToInt16(color.B * brightness);
 							r = (r > 255) ? 255 : r;
 							g = (g > 255) ? 255 : g;
 							b = (b > 255) ? 255 : b;
-							bbb.SetColorAt(x, y, Color.FromArgb(color.A, r, g, b));
+							fastBitmap.SetColorAt(x, y, Color.FromArgb(color.A, r, g, b));
 						}
 					}
 				}
-				bbb.DrawTo(graphics, applyRect.Location);
+				fastBitmap.DrawTo(graphics, applyRect.Location);
 			}
 		}
 	}
