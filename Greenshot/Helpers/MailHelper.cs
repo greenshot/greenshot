@@ -260,6 +260,11 @@ namespace Greenshot.Helpers {
 					string errorText = GetMapiError(errorCode);
 					LOG.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
 					MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					// Recover from bad settings, show again
+					if (errorCode == MAPI_CODES.INVALID_RECIPS) {
+						_recipientCollection = new RecipientCollection();
+						_ShowMail();
+					}
 				}
 			}
 		}
