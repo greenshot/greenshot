@@ -44,6 +44,7 @@ Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and
 * Not reported: When first selecting a printer, the main printer destination has been replaced by the selected one, making the Windows printer dialog unavailable for further prints
 * Not reported: Open last capture in explorer doesn't open the right location
 * Not reported: Fixed some issues where the sub-menus of the context menu moved to the next screen.
+* Not reported: When having Outlook installed but not the Office plugin there was no EMail destination.
 
 Known issues:
 * Greenshot general: a captured I-Beam cursor isn't displayed correctly on the final result.
