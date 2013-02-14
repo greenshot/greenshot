@@ -49,9 +49,8 @@ namespace Greenshot.Destinations {
 				isActiveFlag = true;
 				mapiClient = EmailConfigHelper.GetMapiClient();
 				if (!string.IsNullOrEmpty(mapiClient)) {
-					if (mapiClient.ToLower().Contains("microsoft outlook")) {
-						isActiveFlag = false;
-					}
+					// Active as we have a mapi client, can be disabled later
+					isActiveFlag = true;
 				}
 			}
 		}
@@ -84,6 +83,15 @@ namespace Greenshot.Destinations {
 
 		public override bool isActive {
 			get {
+				if (isActiveFlag) {
+					// Disable if the office plugin is installed and the client is outlook
+					Type outlookdestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin");
+					if (outlookdestination != null) {
+						if (mapiClient.ToLower().Contains("microsoft outlook")) {
+							isActiveFlag = false;
+						}
+					}
+				}
 				return base.isActive && isActiveFlag;
 			}
 		}

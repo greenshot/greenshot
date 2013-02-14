@@ -55,10 +55,16 @@ namespace Greenshot.Helpers {
 		public static void SendImage(string fullPath, string title) {
 			MapiMailMessage message = new MapiMailMessage(title, null);
 			message.Files.Add(fullPath);
-            message._recipientCollection.Add(new Recipient(conf.MailApiTo, RecipientType.To));
-            message._recipientCollection.Add(new Recipient(conf.MailApiCC, RecipientType.CC));
-            message._recipientCollection.Add(new Recipient(conf.MailApiBCC, RecipientType.BCC));
-            message.ShowDialog();
+			if (!string.IsNullOrEmpty(conf.MailApiTo)) {
+				message._recipientCollection.Add(new Recipient(conf.MailApiTo, RecipientType.To));
+			}
+			if (!string.IsNullOrEmpty(conf.MailApiCC)) {
+				message._recipientCollection.Add(new Recipient(conf.MailApiCC, RecipientType.CC));
+			}
+			if (!string.IsNullOrEmpty(conf.MailApiTo)) {
+				message._recipientCollection.Add(new Recipient(conf.MailApiBCC, RecipientType.BCC));
+			}
+			message.ShowDialog();
 		}
 		
 
@@ -251,7 +257,9 @@ namespace Greenshot.Helpers {
 
 				// Check for error
 				if (errorCode != MAPI_CODES.SUCCESS && errorCode != MAPI_CODES.USER_ABORT) {
-					_LogErrorMapi(errorCode);
+					string errorText = GetMapiError(errorCode);
+					LOG.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
+					MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
 		}
@@ -350,7 +358,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Logs any Mapi errors.
 		/// </summary>
-		private void _LogErrorMapi(MAPI_CODES errorCode) {
+		private string GetMapiError(MAPI_CODES errorCode) {
 	
 			string error = string.Empty;
 			
@@ -437,8 +445,7 @@ namespace Greenshot.Helpers {
 					error = "MAPI Invalid parameter.";
 					break;
 			}
-	
-			LOG.Error("Error sending MAPI Email. Error: " + error + " (code = " + errorCode + ").");
+			return error;
 		}
 		#endregion Private Methods
 	
