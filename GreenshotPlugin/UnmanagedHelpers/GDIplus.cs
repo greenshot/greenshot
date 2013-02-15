@@ -51,6 +51,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// GDIplus Helpers
 	/// </summary>
 	public static class GDIplus {
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(GDIplus));
+
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
 		private static extern int GdipBitmapApplyEffect(IntPtr bitmap, IntPtr effect, ref RECT rectOfInterest, bool useAuxData, IntPtr auxData, int auxDataSize);
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
@@ -61,17 +63,16 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern int GdipDeleteEffect(IntPtr effect);
 		private static Guid BlurEffectGuid = new Guid("{633C80A4-1843-482B-9EF2-BE2834C5FDD4}");
 
-		internal static TResult GetPrivateField<TResult>(object obj, string fieldName) {
-			if (obj == null) {
-				return default(TResult);
-			}
-			Type ltType = obj.GetType();
-			FieldInfo lfiFieldInfo = ltType.GetField( fieldName,System.Reflection.BindingFlags.GetField |System.Reflection.BindingFlags.Instance |System.Reflection.BindingFlags.NonPublic);
-			if (lfiFieldInfo != null) {
-				return (TResult)lfiFieldInfo.GetValue(obj);
-			} else {
-				throw new InvalidOperationException(string.Format("Instance field '{0}' could not be located in object of type '{1}'.",fieldName, obj.GetType().FullName));
-			}
+		// Constant "FieldInfo" for getting the nativeImage from the image
+		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGE = typeof(Bitmap).GetField("nativeImage", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
+
+		/// <summary>
+		/// Get the nativeImage field from the bitmap
+		/// </summary>
+		/// <param name="bitmap"></param>
+		/// <returns></returns>
+		private static IntPtr GetNativeImage(Bitmap bitmap) {
+			return (IntPtr)FIELD_INFO_NATIVE_IMAGE.GetValue(bitmap);
 		}
 
 		/// <summary>
@@ -85,29 +86,49 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			if (Environment.OSVersion.Version.Major < 6) {
 				return false;
 			}
+			IntPtr hBlurParams = IntPtr.Zero;
+			IntPtr hEffect = IntPtr.Zero;
+
 			try {
+				// Create a BlurParams struct and set the values
 				BlurParams blurParams = new BlurParams();
 				blurParams.Radius = radius;
 				blurParams.ExpandEdges = false;
-				IntPtr hBlurParams = Marshal.AllocHGlobal(Marshal.SizeOf(blurParams));
+
+				// Allocate space in unmanaged memory
+				hBlurParams = Marshal.AllocHGlobal(Marshal.SizeOf(blurParams));
+				// Copy the structure to the unmanaged memory
 				Marshal.StructureToPtr(blurParams, hBlurParams, true);
 
-				uint paramsSize = (uint)Marshal.SizeOf(blurParams);
-
-				IntPtr hEffect = IntPtr.Zero;
-
+				// Create the GDI+ BlurEffect, using the Guid
 				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
-				GdipSetEffectParameters(hEffect, hBlurParams, paramsSize);
 
-				//IntPtr hBitmap = destinationBitmap.GetHbitmap();
-				IntPtr hBitmap = GetPrivateField<IntPtr>(destinationBitmap, "nativeImage");
+				// Set the blurParams to the effect
+				GdipSetEffectParameters(hEffect, hBlurParams, (uint)Marshal.SizeOf(blurParams));
+
+				// Somewhere it said we can use destinationBitmap.GetHbitmap(), this doesn't work!!
+				// Get the private nativeImage property from the Bitmap
+				IntPtr hBitmap = GetNativeImage(destinationBitmap);
+
+				// Create a RECT from the Rectangle
 				RECT rec = new RECT(area);
+				// Apply the effect to the bitmap in the specified area
 				GdipBitmapApplyEffect(hBitmap, hEffect, ref rec, false, IntPtr.Zero, 0);
-				GdipDeleteEffect(hEffect);
-				Marshal.FreeHGlobal(hBlurParams);
+
+				// Everything worked, return true
 				return true;
 			} catch (Exception ex) {
+				LOG.Error("Problem using GdipBitmapApplyEffect: ", ex);
 				return false;
+			} finally {
+				if (hEffect != null) {
+					// Delete the effect
+					GdipDeleteEffect(hEffect);
+				}
+				if (hBlurParams != IntPtr.Zero) {
+					// Free the memory
+					Marshal.FreeHGlobal(hBlurParams);
+				}
 			}
 		}
 	}
