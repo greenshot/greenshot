@@ -187,6 +187,7 @@
     <Compile Include="UnmanagedHelpers\DWM.cs" />
     <Compile Include="UnmanagedHelpers\Enumerations.cs" />
     <Compile Include="UnmanagedHelpers\GDI32.cs" />
+    <Compile Include="UnmanagedHelpers\GDIplus.cs" />
     <Compile Include="UnmanagedHelpers\Kernel32.cs" />
     <Compile Include="UnmanagedHelpers\PsAPI.cs" />
     <Compile Include="UnmanagedHelpers\Shell32.cs" />
