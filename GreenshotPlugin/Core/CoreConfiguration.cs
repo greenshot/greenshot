@@ -127,9 +127,9 @@ namespace GreenshotPlugin.Core {
 		
 		[IniProperty("OutputPrintPromptOptions", LanguageKey="settings_alwaysshowprintoptionsdialog", Description="Ask for print options when printing?", DefaultValue="true")]
 		public bool OutputPrintPromptOptions;
-		[IniProperty("OutputPrintAllowRotate", LanguageKey="printoptions_allowrotate", Description="Allow rotating the picture for fitting on paper?", DefaultValue="true")]
+		[IniProperty("OutputPrintAllowRotate", LanguageKey="printoptions_allowrotate", Description="Allow rotating the picture for fitting on paper?", DefaultValue="false")]
 		public bool OutputPrintAllowRotate;
-		[IniProperty("OutputPrintAllowEnlarge", LanguageKey="printoptions_allowenlarge", Description="Allow growing the picture for fitting on paper?", DefaultValue="true")]
+		[IniProperty("OutputPrintAllowEnlarge", LanguageKey="printoptions_allowenlarge", Description="Allow growing the picture for fitting on paper?", DefaultValue="false")]
 		public bool OutputPrintAllowEnlarge;
 		[IniProperty("OutputPrintAllowShrink", LanguageKey="printoptions_allowshrink", Description="Allow shrinking the picture for fitting on paper?", DefaultValue="true")]
 		public bool OutputPrintAllowShrink;
