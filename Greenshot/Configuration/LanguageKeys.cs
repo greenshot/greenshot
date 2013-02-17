@@ -168,6 +168,7 @@ namespace Greenshot.Configuration {
 		printoptions_allowrotate,
 		printoptions_allowshrink,
 		printoptions_dontaskagain,
+        printoptions_printmonochrome,
 		printoptions_timestamp,
 		printoptions_inverted,
 		printoptions_title,

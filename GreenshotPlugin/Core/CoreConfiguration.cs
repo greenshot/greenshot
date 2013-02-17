@@ -137,9 +137,13 @@ namespace GreenshotPlugin.Core {
 		public bool OutputPrintCenter;
 		[IniProperty("OutputPrintInverted", LanguageKey="printoptions_inverted", Description="Print image inverted (use e.g. for console captures)", DefaultValue="false")]
 		public bool OutputPrintInverted;
-		[IniProperty("OutputPrintGrayscale", LanguageKey = "printoptions_printgrayscale", Description = "Force grayscale printing", DefaultValue = "false")]
-		public bool OutputPrintGrayscale;
-		[IniProperty("OutputPrintFooter", LanguageKey = "printoptions_timestamp", Description = "Print footer on print?", DefaultValue = "true")]
+        [IniProperty("OutputPrintGrayscale", LanguageKey = "printoptions_printgrayscale", Description = "Force grayscale printing", DefaultValue = "false")]
+        public bool OutputPrintGrayscale;
+        [IniProperty("OutputPrintMonochrome", LanguageKey = "printoptions_printmonochrome", Description = "Force monorchrome printing", DefaultValue = "false")]
+        public bool OutputPrintMonochrome;
+        [IniProperty("OutputPrintMonochromeThreshold", Description = "Threshold for monochrome filter (0 - 255), lower value means less black", DefaultValue = "127")]
+        public byte OutputPrintMonochromeThreshold;
+        [IniProperty("OutputPrintFooter", LanguageKey = "printoptions_timestamp", Description = "Print footer on print?", DefaultValue = "true")]
 		public bool OutputPrintFooter;
 		[IniProperty("OutputPrintFooterPattern", Description = "Footer pattern", DefaultValue = "${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
 		public string OutputPrintFooterPattern;

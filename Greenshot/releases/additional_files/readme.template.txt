@@ -11,6 +11,7 @@ Features:
 * General: Added Special-Folder support for the OutputPath/Filenames, now one can use the following values: MyPictures, MyMusic, MyDocuments, Personal, Desktop, ApplicationData, LocalApplicationData. Meaning one can now set the output path to e.g. ${MyPictures}
 * Editor: The capture is now displayed in the center of the editor, the code for this was supplied by Viktar Karpach.
 * Editor: Added horizontal and vertical alignment for text boxes.
+* Printing: Added option to force monochrome (black/white) print
 * Plug-in: Added Photobucket plugin
 * Plug-in: Removed unneeded code from the Confluence Plug-in, this makes the Greenshot installer / .zip a bit smaller.
 

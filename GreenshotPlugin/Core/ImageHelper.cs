@@ -883,15 +883,16 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Returns a b/w of Bitmap
 		/// </summary>
-		/// <param name="sourceImage">Bitmap to create a b/w off</param>
+		/// <param name="sourceImage">Bitmap to create a b/w of</param>
+        /// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
 		/// <returns>b/w bitmap</returns>
-		public static Bitmap CreateMonochrome(Image sourceImage) {
+		public static Bitmap CreateMonochrome(Image sourceImage, byte threshold) {
 			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(sourceImage, sourceImage.PixelFormat)) {
 				fastBitmap.Lock();
 				for (int y = 0; y < fastBitmap.Height; y++) {
 					for (int x = 0; x < fastBitmap.Width; x++) {
 						Color color = fastBitmap.GetColorAt(x, y);
-						int colorBrightness = (color.R + color.G + color.B > 382) ? 255 : 0;
+						int colorBrightness = ((color.R + color.G + color.B) / 3 > threshold) ? 255 : 0;
 						Color monoColor = Color.FromArgb(color.A, colorBrightness, colorBrightness, colorBrightness);
 						fastBitmap.SetColorAt(x, y, monoColor);
 					}

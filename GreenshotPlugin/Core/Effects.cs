@@ -105,9 +105,14 @@ namespace Greenshot.Core {
 	/// MonochromeEffect
 	/// </summary>
 	public class MonochromeEffect : IEffect {
+        private byte threshold;
+        /// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
+        public MonochromeEffect(byte threshold) {
+            this.threshold = threshold;
+        }
 		public Image Apply(Image sourceImage, out Point offsetChange) {
 			offsetChange = Point.Empty;
-			return ImageHelper.CreateMonochrome(sourceImage);
+			return ImageHelper.CreateMonochrome(sourceImage, threshold);
 		}
 	}
 

@@ -198,7 +198,8 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="printoptions_dontaskagain">Save options as default and do not ask again</resource>
 		<resource name="printoptions_inverted">Print with inverted colors</resource>
 		<resource name="printoptions_printgrayscale">Force grayscale printing</resource>
-		<resource name="printoptions_timestamp">Print date / time at bottom of page</resource>
+    <resource name="printoptions_printmonochrome">Force black/white printing</resource>
+    <resource name="printoptions_timestamp">Print date / time at bottom of page</resource>
 		<resource name="printoptions_title">Greenshot print options</resource>
 		<resource name="qualitydialog_dontaskagain">Save as default quality and do not ask again</resource>
 		<resource name="qualitydialog_title">Greenshot quality</resource>

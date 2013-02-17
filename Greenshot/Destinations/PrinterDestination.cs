@@ -106,42 +106,18 @@ namespace Greenshot.Destinations {
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			PrinterSettings printerSettings = null;
-
-			// Create the output settins
-			SurfaceOutputSettings printOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-
-			// TODO:
-			// add effects here, e.g. Monochrome
-			// printOutputSettings.Effects.Add(new MonochromeEffect());
-			// Set the color reducing if needed, this should change the 24/32-> 8 (or later even 1) bpp
-			// printOutputSettings.ReduceColors = true;
-
-			// Moved this from the PrintHelper, the invert effect should probably be the last!
-			if (conf.OutputPrintInverted) {
-				printOutputSettings.Effects.Add(new InvertEffect());
+            ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+            PrinterSettings printerSettings = null;
+			if (!string.IsNullOrEmpty(printerName)) {
+                printerSettings = new PrintHelper(surface, captureDetails).PrintTo(printerName);
+			} else if (!manuallyInitiated) {
+				PrinterSettings settings = new PrinterSettings();
+                printerSettings = new PrintHelper(surface, captureDetails).PrintTo(settings.PrinterName);
+			} else {
+                printerSettings = new PrintHelper(surface, captureDetails).PrintWithDialog();
 			}
-
-			Image imageToPrint;
-			Boolean disposeImage = ImageOutput.CreateImageFromSurface(surface, printOutputSettings, out imageToPrint);
-			try {
-				if (!string.IsNullOrEmpty(printerName)) {
-					printerSettings = new PrintHelper(imageToPrint, captureDetails).PrintTo(printerName);
-				} else if (!manuallyInitiated) {
-					PrinterSettings settings = new PrinterSettings();
-					printerSettings = new PrintHelper(imageToPrint, captureDetails).PrintTo(settings.PrinterName);
-				} else {
-					printerSettings = new PrintHelper(imageToPrint, captureDetails).PrintWithDialog();
-				}
-				if (printerSettings != null) {
-					exportInformation.ExportMade = true;
-				}
-			} finally {
-				if (disposeImage && imageToPrint != null) {
-					imageToPrint.Dispose();
-					imageToPrint = null;
-				}
+			if (printerSettings != null) {
+				exportInformation.ExportMade = true;
 			}
 
 			ProcessExport(exportInformation, surface);
