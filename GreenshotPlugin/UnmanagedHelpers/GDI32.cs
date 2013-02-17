@@ -202,9 +202,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public static class GDI32 {
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern bool BitBlt(SafeHandle hObject, int nXDest, int nYDest, int nWidth, int nHeight, SafeHandle hdcSrc, int nXSrc, int nYSrc, CopyPixelOperation dwRop);
+		public static extern bool BitBlt(SafeHandle hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, SafeHandle hdcSrc, int nXSrc, int nYSrc, CopyPixelOperation dwRop);
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern bool StretchBlt(SafeHandle hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, SafeHandle hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, CopyPixelOperation dwRop);
+		private static extern bool StretchBlt(SafeHandle hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, SafeHandle hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, CopyPixelOperation dwRop);
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern SafeCompatibleDCHandle CreateCompatibleDC(SafeHandle hDC);
 		[DllImport("gdi32", SetLastError=true)]
@@ -241,12 +241,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="target"></param>
 		/// <param name="source"></param>
-		public static void BitBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Point destination) {
+		public static void BitBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Point destination, CopyPixelOperation rop) {
 			using (SafeDeviceContextHandle targetDC = target.getSafeDeviceContext()) {
 				using (SafeCompatibleDCHandle safeCompatibleDCHandle = CreateCompatibleDC(targetDC)) {
 					using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
 						using (SafeSelectObjectHandle selectObject = safeCompatibleDCHandle.SelectObject(hBitmapHandle)) {
-							BitBlt(safeCompatibleDCHandle, destination.X, destination.Y, source.Width, source.Height, safeCompatibleDCHandle, source.Left, source.Top, CopyPixelOperation.SourceCopy);
+							BitBlt(targetDC, destination.X, destination.Y, source.Width, source.Height, safeCompatibleDCHandle, source.Left, source.Top, rop);
 						}
 					}
 				}
