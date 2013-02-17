@@ -422,6 +422,12 @@ namespace GreenshotPlugin.Controls {
 							checkBox.Enabled = !iniValue.IsFixed;
 							continue;
 						}
+                        RadioButton radíoButton = controlObject as RadioButton;
+						if (radíoButton != null) {
+							radíoButton.Checked = (bool)iniValue.Value;
+							radíoButton.Enabled = !iniValue.IsFixed;
+							continue;
+						}
 
 						TextBox textBox = controlObject as TextBox;
 						if (textBox != null) {
@@ -449,7 +455,11 @@ namespace GreenshotPlugin.Controls {
 					}
 				}
 			}
+            OnFieldsFilled();
 		}
+
+        protected virtual void OnFieldsFilled() {
+        }
 
 		/// <summary>
 		/// Store all GreenshotControl values to the configuration
@@ -476,6 +486,12 @@ namespace GreenshotPlugin.Controls {
 						CheckBox checkBox = controlObject as CheckBox;
 						if (checkBox != null) {
 							iniValue.Value = checkBox.Checked;
+							iniDirty = true;
+							continue;
+						}
+                        RadioButton radioButton = controlObject as RadioButton;
+						if (radioButton != null) {
+							iniValue.Value = radioButton.Checked;
 							iniDirty = true;
 							continue;
 						}

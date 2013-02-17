@@ -31,6 +31,9 @@
     <Compile Include="Controls\AnimatingForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Controls\GreenshotRadioButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="IEInterop\IHTMLBodyElement.cs" />
     <Compile Include="IEInterop\IHTMLCurrentStyle.cs" />
