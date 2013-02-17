@@ -59,6 +59,10 @@ namespace Greenshot.Forms
             this.checkboxPrintInverted = new GreenshotPlugin.Controls.GreenshotCheckBox();
             this.checkbox_grayscale = new GreenshotPlugin.Controls.GreenshotCheckBox();
             this.checkbox_monochrome = new GreenshotPlugin.Controls.GreenshotCheckBox();
+            this.groupBoxPrintLayout = new GreenshotPlugin.Controls.GreenshotGroupBox();
+            this.groupBoxColors = new GreenshotPlugin.Controls.GreenshotGroupBox();
+            this.groupBoxPrintLayout.SuspendLayout();
+            this.groupBoxColors.SuspendLayout();
             this.SuspendLayout();
             // 
             // checkbox_dontaskagain
@@ -67,7 +71,7 @@ namespace Greenshot.Forms
             this.checkbox_dontaskagain.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkbox_dontaskagain.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkbox_dontaskagain.LanguageKey = "printoptions_dontaskagain";
-            this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 214);
+            this.checkbox_dontaskagain.Location = new System.Drawing.Point(25, 276);
             this.checkbox_dontaskagain.Name = "checkbox_dontaskagain";
             this.checkbox_dontaskagain.Size = new System.Drawing.Size(240, 17);
             this.checkbox_dontaskagain.TabIndex = 19;
@@ -81,7 +85,7 @@ namespace Greenshot.Forms
             this.checkboxAllowShrink.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxAllowShrink.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
-            this.checkboxAllowShrink.Location = new System.Drawing.Point(12, 20);
+            this.checkboxAllowShrink.Location = new System.Drawing.Point(13, 23);
             this.checkboxAllowShrink.Name = "checkboxAllowShrink";
             this.checkboxAllowShrink.PropertyName = "OutputPrintAllowShrink";
             this.checkboxAllowShrink.Size = new System.Drawing.Size(168, 17);
@@ -96,7 +100,7 @@ namespace Greenshot.Forms
             this.checkboxAllowEnlarge.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxAllowEnlarge.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
-            this.checkboxAllowEnlarge.Location = new System.Drawing.Point(12, 43);
+            this.checkboxAllowEnlarge.Location = new System.Drawing.Point(13, 46);
             this.checkboxAllowEnlarge.Name = "checkboxAllowEnlarge";
             this.checkboxAllowEnlarge.PropertyName = "OutputPrintAllowEnlarge";
             this.checkboxAllowEnlarge.Size = new System.Drawing.Size(174, 17);
@@ -111,7 +115,7 @@ namespace Greenshot.Forms
             this.checkboxAllowCenter.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxAllowCenter.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
-            this.checkboxAllowCenter.Location = new System.Drawing.Point(12, 89);
+            this.checkboxAllowCenter.Location = new System.Drawing.Point(13, 92);
             this.checkboxAllowCenter.Name = "checkboxAllowCenter";
             this.checkboxAllowCenter.PropertyName = "OutputPrintCenter";
             this.checkboxAllowCenter.Size = new System.Drawing.Size(137, 17);
@@ -126,7 +130,7 @@ namespace Greenshot.Forms
             this.checkboxAllowRotate.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxAllowRotate.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
-            this.checkboxAllowRotate.Location = new System.Drawing.Point(12, 66);
+            this.checkboxAllowRotate.Location = new System.Drawing.Point(13, 69);
             this.checkboxAllowRotate.Name = "checkboxAllowRotate";
             this.checkboxAllowRotate.PropertyName = "OutputPrintAllowRotate";
             this.checkboxAllowRotate.Size = new System.Drawing.Size(187, 17);
@@ -140,7 +144,7 @@ namespace Greenshot.Forms
             this.button_ok.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_ok.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.button_ok.LanguageKey = "OK";
-            this.button_ok.Location = new System.Drawing.Point(187, 267);
+            this.button_ok.Location = new System.Drawing.Point(187, 333);
             this.button_ok.Name = "button_ok";
             this.button_ok.Size = new System.Drawing.Size(75, 23);
             this.button_ok.TabIndex = 25;
@@ -154,7 +158,7 @@ namespace Greenshot.Forms
             this.checkboxDateTime.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxDateTime.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxDateTime.LanguageKey = "printoptions_timestamp";
-            this.checkboxDateTime.Location = new System.Drawing.Point(12, 112);
+            this.checkboxDateTime.Location = new System.Drawing.Point(13, 115);
             this.checkboxDateTime.Name = "checkboxDateTime";
             this.checkboxDateTime.PropertyName = "OutputPrintFooter";
             this.checkboxDateTime.Size = new System.Drawing.Size(187, 17);
@@ -168,7 +172,7 @@ namespace Greenshot.Forms
             this.button_cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.button_cancel.LanguageKey = "CANCEL";
-            this.button_cancel.Location = new System.Drawing.Point(268, 267);
+            this.button_cancel.Location = new System.Drawing.Point(268, 333);
             this.button_cancel.Name = "button_cancel";
             this.button_cancel.Size = new System.Drawing.Size(75, 23);
             this.button_cancel.TabIndex = 27;
@@ -181,7 +185,7 @@ namespace Greenshot.Forms
             this.checkboxPrintInverted.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxPrintInverted.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkboxPrintInverted.LanguageKey = "printoptions_inverted";
-            this.checkboxPrintInverted.Location = new System.Drawing.Point(12, 135);
+            this.checkboxPrintInverted.Location = new System.Drawing.Point(13, 19);
             this.checkboxPrintInverted.Name = "checkboxPrintInverted";
             this.checkboxPrintInverted.PropertyName = "OutputPrintInverted";
             this.checkboxPrintInverted.Size = new System.Drawing.Size(141, 17);
@@ -196,7 +200,7 @@ namespace Greenshot.Forms
             this.checkbox_grayscale.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkbox_grayscale.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkbox_grayscale.LanguageKey = "printoptions_printgrayscale";
-            this.checkbox_grayscale.Location = new System.Drawing.Point(12, 158);
+            this.checkbox_grayscale.Location = new System.Drawing.Point(13, 42);
             this.checkbox_grayscale.Name = "checkbox_grayscale";
             this.checkbox_grayscale.PropertyName = "OutputPrintGrayscale";
             this.checkbox_grayscale.Size = new System.Drawing.Size(138, 17);
@@ -211,7 +215,7 @@ namespace Greenshot.Forms
             this.checkbox_monochrome.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkbox_monochrome.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkbox_monochrome.LanguageKey = "printoptions_printmonochrome";
-            this.checkbox_monochrome.Location = new System.Drawing.Point(12, 181);
+            this.checkbox_monochrome.Location = new System.Drawing.Point(13, 65);
             this.checkbox_monochrome.Name = "checkbox_monochrome";
             this.checkbox_monochrome.PropertyName = "OutputPrintMonochrome";
             this.checkbox_monochrome.Size = new System.Drawing.Size(149, 17);
@@ -220,28 +224,57 @@ namespace Greenshot.Forms
             this.checkbox_monochrome.TextAlign = System.Drawing.ContentAlignment.TopLeft;
             this.checkbox_monochrome.UseVisualStyleBackColor = true;
             // 
+            // groupBoxPrintLayout
+            // 
+            this.groupBoxPrintLayout.AutoSize = true;
+            this.groupBoxPrintLayout.Controls.Add(this.checkboxDateTime);
+            this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowShrink);
+            this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowEnlarge);
+            this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowRotate);
+            this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowCenter);
+            this.groupBoxPrintLayout.LanguageKey = "printoptions_layout";
+            this.groupBoxPrintLayout.Location = new System.Drawing.Point(12, 12);
+            this.groupBoxPrintLayout.Name = "groupBoxPrintLayout";
+            this.groupBoxPrintLayout.Size = new System.Drawing.Size(331, 151);
+            this.groupBoxPrintLayout.TabIndex = 31;
+            this.groupBoxPrintLayout.TabStop = false;
+            this.groupBoxPrintLayout.Text = "printoptions_layout";
+            // 
+            // groupBoxColors
+            // 
+            this.groupBoxColors.AutoSize = true;
+            this.groupBoxColors.Controls.Add(this.checkboxPrintInverted);
+            this.groupBoxColors.Controls.Add(this.checkbox_grayscale);
+            this.groupBoxColors.Controls.Add(this.checkbox_monochrome);
+            this.groupBoxColors.LanguageKey = "printoptions_colors";
+            this.groupBoxColors.Location = new System.Drawing.Point(12, 169);
+            this.groupBoxColors.Name = "groupBoxColors";
+            this.groupBoxColors.Size = new System.Drawing.Size(331, 101);
+            this.groupBoxColors.TabIndex = 32;
+            this.groupBoxColors.TabStop = false;
+            this.groupBoxColors.Text = "printoptions_colors";
+            // 
             // PrintOptionsDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(355, 302);
-            this.Controls.Add(this.checkbox_monochrome);
-            this.Controls.Add(this.checkbox_grayscale);
-            this.Controls.Add(this.checkboxPrintInverted);
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(355, 368);
+            this.Controls.Add(this.groupBoxColors);
+            this.Controls.Add(this.groupBoxPrintLayout);
             this.Controls.Add(this.button_cancel);
-            this.Controls.Add(this.checkboxDateTime);
             this.Controls.Add(this.button_ok);
             this.Controls.Add(this.checkbox_dontaskagain);
-            this.Controls.Add(this.checkboxAllowCenter);
-            this.Controls.Add(this.checkboxAllowRotate);
-            this.Controls.Add(this.checkboxAllowEnlarge);
-            this.Controls.Add(this.checkboxAllowShrink);
             this.LanguageKey = "printoptions_title";
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "PrintOptionsDialog";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Greenshot print options";
+            this.groupBoxPrintLayout.ResumeLayout(false);
+            this.groupBoxPrintLayout.PerformLayout();
+            this.groupBoxColors.ResumeLayout(false);
+            this.groupBoxColors.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -257,5 +290,7 @@ namespace Greenshot.Forms
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowShrink;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_dontaskagain;
         private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_monochrome;
+        private GreenshotPlugin.Controls.GreenshotGroupBox groupBoxPrintLayout;
+        private GreenshotPlugin.Controls.GreenshotGroupBox groupBoxColors;
 	}
 }
