@@ -45,5 +45,12 @@ namespace Greenshot.Forms {
 			IniConfig.Save();
 			DialogResult = DialogResult.OK;
 		}
+
+        protected override void OnFieldsFilled() {
+            // the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
+            if(!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked) {
+                radioBtnColorPrint.Checked = true;
+            }
+        }
 	}
 }
