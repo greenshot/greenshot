@@ -291,10 +291,10 @@ namespace Greenshot.Helpers {
 				int fsize = Marshal.SizeOf(fileDescType);
 
 				// Get the ptr to the files
-				int runptr = (int)message.Files;
+				IntPtr runptr = message.Files.Clone();
 				// Release each file
 				for (int i = 0; i < message.FileCount; i++) {
-					Marshal.DestroyStructure((IntPtr)runptr, fileDescType);
+					Marshal.DestroyStructure(runptr, fileDescType);
 					runptr += fsize;
 				}
 				// Release the file
@@ -322,12 +322,12 @@ namespace Greenshot.Helpers {
 
 			MapiFileDescriptor mfd = new MapiFileDescriptor();
 			mfd.position = -1;
-			int runptr = (int)ptra;
+			IntPtr runptr = ptra.Clone();
 			for (int i = 0; i < _files.Count; i++) {
 				string path = _files[i] as string;
 				mfd.name = Path.GetFileName(path);
 				mfd.path = path;
-				Marshal.StructureToPtr(mfd, (IntPtr)runptr, false);
+				Marshal.StructureToPtr(mfd, runptr, false);
 				runptr += asize;
 			}
 
@@ -687,12 +687,12 @@ namespace Greenshot.Helpers {
 				_handle = Marshal.AllocHGlobal(_count * size);
 
 				// place all interop recipients into the memory just allocated
-				int ptr = (int)_handle;
+				IntPtr ptr = _handle.Clone();
 				foreach (Recipient native in outer) {
 					MapiMailMessage.MAPIHelperInterop.MapiRecipDesc interop = native.GetInteropRepresentation();
 
 					// stick it in the memory block
-					Marshal.StructureToPtr(interop, (IntPtr)ptr, false);
+					Marshal.StructureToPtr(interop, ptr, false);
 					ptr += size;
 				}
 			}
@@ -720,9 +720,9 @@ namespace Greenshot.Helpers {
 					int size = Marshal.SizeOf(type);
 
 					// destroy all the structures in the memory area
-					int ptr = (int)_handle;
+					IntPtr ptr = _handle.Clone();
 					for (int i = 0; i < _count; i++) {
-						Marshal.DestroyStructure((IntPtr)ptr, type);
+						Marshal.DestroyStructure(ptr, type);
 						ptr += size;
 					}
 
