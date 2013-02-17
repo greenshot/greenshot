@@ -55,8 +55,10 @@ namespace Greenshot.Drawing {
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
 				for (int i = 0; i < grippers.Length; i++) {
-					grippers[i].Dispose();
-					grippers[i] = null;
+                    if(grippers[i] != null) {
+					    grippers[i].Dispose();
+					    grippers[i] = null;
+                    }
 				}
 
 				FieldAggregator aggProps = parent.FieldAggregator;
