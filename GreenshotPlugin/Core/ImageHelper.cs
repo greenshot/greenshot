@@ -658,29 +658,94 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceBitmap">Bitmap to blur</param>
 		/// <param name="range">Must be ODD!</param>
 		/// <returns>Bitmap</returns>
-		public static Bitmap BoxBlur(Bitmap sourceBitmap, int range) {
+		public static Bitmap ApplyBoxBlur(Bitmap destinationBitmap, int range) {
 			if ((range & 1) == 0) {
 				range++;
 				//throw new InvalidOperationException("Range must be odd!");
 			}
-			using (IFastBitmap bbbDest = FastBitmap.CreateCloneOf(sourceBitmap, PixelFormat.Format32bppArgb)) {
-				BoxBlurHorizontal(bbbDest, range);
-				BoxBlurVertical(bbbDest, range);
-				BoxBlurHorizontal(bbbDest, range + 1);
-				BoxBlurVertical(bbbDest, range + 1);
-				return bbbDest.UnlockAndReturnBitmap();
+			using (IFastBitmap fastBitmap = FastBitmap.Create(destinationBitmap)) {
+				// Box blurs are frequently used to approximate a Gaussian blur.
+				// By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
+				if (fastBitmap.hasAlphaChannel) {
+					BoxBlurHorizontalAlpha(fastBitmap, range);
+					BoxBlurVerticalAlpha(fastBitmap, range);
+					BoxBlurHorizontalAlpha(fastBitmap, range);
+					BoxBlurVerticalAlpha(fastBitmap, range);
+					BoxBlurHorizontalAlpha(fastBitmap, range);
+					BoxBlurVerticalAlpha(fastBitmap, range);
+				} else {
+					BoxBlurHorizontal(fastBitmap, range);
+					BoxBlurVertical(fastBitmap, range);
+					BoxBlurHorizontal(fastBitmap, range);
+					BoxBlurVertical(fastBitmap, range);
+					BoxBlurHorizontal(fastBitmap, range);
+					BoxBlurVertical(fastBitmap, range);
+				}
+
+
+				return fastBitmap.UnlockAndReturnBitmap();
 			}
 		}
 
 		/// <summary>
 		/// BoxBlurHorizontal is a private helper method for the BoxBlur
 		/// </summary>
-		/// <param name="bbbSrc">Source BitmapBuffer</param>
-		/// <param name="bbbDest">Target BitmapBuffer</param>
+		/// <param name="targetFastBitmap">Target BitmapBuffer</param>
 		/// <param name="range">Range must be odd!</param>
-		private static void BoxBlurHorizontal(IFastBitmap bbbDest, int range) {
-			int w = bbbDest.Width;
-			int h = bbbDest.Height;
+		public static void BoxBlurHorizontal(IFastBitmap targetFastBitmap, int range) {
+			if (targetFastBitmap.hasAlphaChannel) {
+				throw new NotSupportedException("BoxBlurHorizontal should NOT be called for bitmaps with alpha channel");
+			}
+			int w = targetFastBitmap.Width;
+			int h = targetFastBitmap.Height;
+			int halfRange = range / 2;
+			Color[] newColors = new Color[w];
+			byte[] tmpColor = new byte[3];
+			for (int y = 0; y < h; y++) {
+				int hits = 0;
+				int r = 0;
+				int g = 0;
+				int b = 0;
+				for (int x = -halfRange; x < w; x++) {
+					int oldPixel = x - halfRange - 1;
+					if (oldPixel >= 0) {
+						targetFastBitmap.GetColorAt(oldPixel, y, tmpColor);
+						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
+						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
+						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						hits--;
+					}
+
+					int newPixel = x + halfRange;
+					if (newPixel < w) {
+						targetFastBitmap.GetColorAt(newPixel, y, tmpColor);
+						r += tmpColor[FastBitmap.COLOR_INDEX_R];
+						g += tmpColor[FastBitmap.COLOR_INDEX_G];
+						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						hits++;
+					}
+
+					if (x >= 0) {
+						newColors[x] = Color.FromArgb(255, (byte)(r / hits), (byte)(g / hits), (byte)(b / hits));
+					}
+				}
+				for (int x = 0; x < w; x++) {
+					targetFastBitmap.SetColorAt(x, y, newColors[x]);
+				}
+			}
+		}
+		/// <summary>
+		/// BoxBlurHorizontal is a private helper method for the BoxBlur, only for IFastBitmaps with alpha channel
+		/// </summary>
+		/// <param name="bbbSrc">Source BitmapBuffer</param>
+		/// <param name="targetFastBitmap">Target BitmapBuffer</param>
+		/// <param name="range">Range must be odd!</param>
+		public static void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range) {
+			if (!targetFastBitmap.hasAlphaChannel) {
+				throw new NotSupportedException("BoxBlurHorizontalAlpha should be called for bitmaps with alpha channel");
+			}
+			int w = targetFastBitmap.Width;
+			int h = targetFastBitmap.Height;
 			int halfRange = range / 2;
 			Color[] newColors = new Color[w];
 			byte[] tmpColor = new byte[4];
@@ -693,21 +758,21 @@ namespace GreenshotPlugin.Core {
 				for (int x = -halfRange; x < w; x++) {
 					int oldPixel = x - halfRange - 1;
 					if (oldPixel >= 0) {
-						bbbDest.GetColorAt(oldPixel, y, tmpColor);
-						a -= tmpColor[0];
-						r -= tmpColor[1];
-						g -= tmpColor[2];
-						b -= tmpColor[3];
+						targetFastBitmap.GetColorAt(oldPixel, y, tmpColor);
+						a -= tmpColor[FastBitmap.COLOR_INDEX_A];
+						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
+						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
+						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
 						hits--;
 					}
 
 					int newPixel = x + halfRange;
 					if (newPixel < w) {
-						bbbDest.GetColorAt(newPixel, y, tmpColor);
-						a += tmpColor[0];
-						r += tmpColor[1];
-						g += tmpColor[2];
-						b += tmpColor[3];
+						targetFastBitmap.GetColorAt(newPixel, y, tmpColor);
+						a += tmpColor[FastBitmap.COLOR_INDEX_A];
+						r += tmpColor[FastBitmap.COLOR_INDEX_R];
+						g += tmpColor[FastBitmap.COLOR_INDEX_G];
+						b += tmpColor[FastBitmap.COLOR_INDEX_B];
 						hits++;
 					}
 
@@ -716,7 +781,7 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 				for (int x = 0; x < w; x++) {
-					bbbDest.SetColorAt(x, y, newColors[x]);
+					targetFastBitmap.SetColorAt(x, y, newColors[x]);
 				}
 			}
 		}
@@ -724,11 +789,66 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// BoxBlurVertical is a private helper method for the BoxBlur
 		/// </summary>
-		/// <param name="bbbDest">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
+		/// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
 		/// <param name="range">Range must be odd!</param>
-		private static void BoxBlurVertical(IFastBitmap bbbDest, int range) {
-			int w = bbbDest.Width;
-			int h = bbbDest.Height;
+		public static void BoxBlurVertical(IFastBitmap targetFastBitmap, int range) {
+			if (targetFastBitmap.hasAlphaChannel) {
+				throw new NotSupportedException("BoxBlurVertical should NOT be called for bitmaps with alpha channel");
+			}
+			int w = targetFastBitmap.Width;
+			int h = targetFastBitmap.Height;
+			int halfRange = range / 2;
+			Color[] newColors = new Color[h];
+			int oldPixelOffset = -(halfRange + 1) * w;
+			int newPixelOffset = (halfRange) * w;
+			byte[] tmpColor = new byte[4];
+			for (int x = 0; x < w; x++) {
+				int hits = 0;
+				int r = 0;
+				int g = 0;
+				int b = 0;
+				for (int y = -halfRange; y < h; y++) {
+					int oldPixel = y - halfRange - 1;
+					if (oldPixel >= 0) {
+						targetFastBitmap.GetColorAt(x, oldPixel, tmpColor);
+						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
+						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
+						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						hits--;
+					}
+
+					int newPixel = y + halfRange;
+					if (newPixel < h) {
+						targetFastBitmap.GetColorAt(x, newPixel, tmpColor);
+						r += tmpColor[FastBitmap.COLOR_INDEX_R];
+						g += tmpColor[FastBitmap.COLOR_INDEX_G];
+						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						hits++;
+					}
+
+					if (y >= 0) {
+						newColors[y] = Color.FromArgb(255, (byte)(r / hits), (byte)(g / hits), (byte)(b / hits));
+					}
+				}
+
+				for (int y = 0; y < h; y++) {
+					targetFastBitmap.SetColorAt(x, y, newColors[y]);
+				}
+			}
+		}
+
+		/// <summary>
+		/// BoxBlurVertical is a private helper method for the BoxBlur
+		/// </summary>
+		/// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
+		/// <param name="range">Range must be odd!</param>
+		public static void BoxBlurVerticalAlpha(IFastBitmap targetFastBitmap, int range) {
+			if (!targetFastBitmap.hasAlphaChannel) {
+				throw new NotSupportedException("BoxBlurVerticalAlpha should be called for bitmaps with alpha channel");
+			}
+
+			int w = targetFastBitmap.Width;
+			int h = targetFastBitmap.Height;
 			int halfRange = range / 2;
 			Color[] newColors = new Color[h];
 			int oldPixelOffset = -(halfRange + 1) * w;
@@ -744,22 +864,22 @@ namespace GreenshotPlugin.Core {
 					int oldPixel = y - halfRange - 1;
 					if (oldPixel >= 0) {
 						//int colorg = pixels[index + oldPixelOffset];
-						bbbDest.GetColorAt(x, oldPixel, tmpColor);
-						a -= tmpColor[0];
-						r -= tmpColor[1];
-						g -= tmpColor[2];
-						b -= tmpColor[3];
+						targetFastBitmap.GetColorAt(x, oldPixel, tmpColor);
+						a -= tmpColor[FastBitmap.COLOR_INDEX_A];
+						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
+						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
+						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
 						hits--;
 					}
 
 					int newPixel = y + halfRange;
 					if (newPixel < h) {
 						//int colorg = pixels[index + newPixelOffset];
-						bbbDest.GetColorAt(x, newPixel, tmpColor);
-						a += tmpColor[0];
-						r += tmpColor[1];
-						g += tmpColor[2];
-						b += tmpColor[3];
+						targetFastBitmap.GetColorAt(x, newPixel, tmpColor);
+						a += tmpColor[FastBitmap.COLOR_INDEX_A];
+						r += tmpColor[FastBitmap.COLOR_INDEX_R];
+						g += tmpColor[FastBitmap.COLOR_INDEX_G];
+						b += tmpColor[FastBitmap.COLOR_INDEX_B];
 						hits++;
 					}
 
@@ -769,11 +889,10 @@ namespace GreenshotPlugin.Core {
 				}
 
 				for (int y = 0; y < h; y++) {
-					bbbDest.SetColorAt(x, y, newColors[y]);
+					targetFastBitmap.SetColorAt(x, y, newColors[y]);
 				}
 			}
 		}
-
 
 		/// <summary>
 		/// This method fixes the problem that we can't apply a filter outside the target bitmap,
@@ -807,41 +926,40 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
 		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, Point shadowOffset, out Point offset, PixelFormat targetPixelformat) {
 			// Create a new "clean" image
-			Bitmap returnImage = null;
 			offset = shadowOffset;
 			offset.X += shadowSize - 1;
 			offset.Y += shadowSize - 1;
-			using (Bitmap tmpImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution)) {
-				using (Graphics graphics = Graphics.FromImage(tmpImage)) {
-					// Make sure we draw with the best quality!
-					graphics.SmoothingMode = SmoothingMode.HighQuality;
-					graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-					graphics.CompositingQuality = CompositingQuality.HighQuality;
-					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			Bitmap returnImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			using (Graphics graphics = Graphics.FromImage(returnImage)) {
+				// Make sure we draw with the best quality!
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-					// Draw "shadow" offsetted
-					ImageAttributes ia = new ImageAttributes();
-					ColorMatrix cm = new ColorMatrix();
-					cm.Matrix00 = 0;
-					cm.Matrix11 = 0;
-					cm.Matrix22 = 0;
-					cm.Matrix33 = darkness;
-					ia.SetColorMatrix(cm);
-					Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
-					graphics.DrawImage(sourceBitmap, shadowRectangle, 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
-				}
-				// blur "shadow", apply to whole new image
-				//using (Bitmap blurImage = FastBlur(newImage, shadowSize-1)) {
+				// Draw "shadow" offsetted
+				ImageAttributes ia = new ImageAttributes();
+				ColorMatrix cm = new ColorMatrix();
+				cm.Matrix00 = 0;
+				cm.Matrix11 = 0;
+				cm.Matrix22 = 0;
+				cm.Matrix33 = darkness;
+				ia.SetColorMatrix(cm);
+				Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
+				graphics.DrawImage(sourceBitmap, shadowRectangle, 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
+			}
+			// blur "shadow", apply to whole new image
 
-				// Gaussian
-				Rectangle newImageRectangle = new Rectangle(0, 0, tmpImage.Width, tmpImage.Height);
-				returnImage = CreateBlur(tmpImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
+			// Gaussian
+			Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
+			if (!GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize, false)) {
+				// something went wrong, try normal software blur
+				//returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
+				ApplyBoxBlur(returnImage, shadowSize);
 
-				// Box
-				//returnImage = BoxBlur(tmpImage, shadowSize);
-				
 				//returnImage = FastBlur(tmpImage, shadowSize - 1);
 			}
+
 			if (returnImage != null) {
 				using (Graphics graphics = Graphics.FromImage(returnImage)) {
 					// Make sure we draw with the best quality!
