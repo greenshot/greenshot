@@ -295,7 +295,7 @@ namespace Greenshot.Helpers {
 				// Release each file
 				for (int i = 0; i < message.FileCount; i++) {
 					Marshal.DestroyStructure(runptr, fileDescType);
-					runptr += fsize;
+					runptr = new IntPtr(runptr.ToInt64() + fsize);
 				}
 				// Release the file
 				Marshal.FreeHGlobal(message.Files);
@@ -328,7 +328,7 @@ namespace Greenshot.Helpers {
 				mfd.name = Path.GetFileName(path);
 				mfd.path = path;
 				Marshal.StructureToPtr(mfd, runptr, false);
-				runptr += asize;
+				runptr = new IntPtr(runptr.ToInt64() + asize);
 			}
 
 			fileCount = _files.Count;
@@ -693,7 +693,7 @@ namespace Greenshot.Helpers {
 
 					// stick it in the memory block
 					Marshal.StructureToPtr(interop, ptr, false);
-					ptr += size;
+					ptr = new IntPtr(ptr.ToInt64() + size);
 				}
 			}
 
@@ -723,7 +723,7 @@ namespace Greenshot.Helpers {
 					IntPtr ptr = _handle.Clone();
 					for (int i = 0; i < _count; i++) {
 						Marshal.DestroyStructure(ptr, type);
-						ptr += size;
+						ptr = new IntPtr(ptr.ToInt64() + size);
 					}
 
 					// free the memory
