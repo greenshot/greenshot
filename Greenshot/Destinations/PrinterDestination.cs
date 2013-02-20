@@ -106,15 +106,21 @@ namespace Greenshot.Destinations {
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-            ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-            PrinterSettings printerSettings = null;
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			PrinterSettings printerSettings = null;
 			if (!string.IsNullOrEmpty(printerName)) {
-                printerSettings = new PrintHelper(surface, captureDetails).PrintTo(printerName);
+				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
+					printerSettings = printHelper.PrintTo(printerName);
+				}
 			} else if (!manuallyInitiated) {
 				PrinterSettings settings = new PrinterSettings();
-                printerSettings = new PrintHelper(surface, captureDetails).PrintTo(settings.PrinterName);
+				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
+					printerSettings = printHelper.PrintTo(settings.PrinterName);
+				}
 			} else {
-                printerSettings = new PrintHelper(surface, captureDetails).PrintWithDialog();
+				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
+					printerSettings = printHelper.PrintWithDialog();
+				}
 			}
 			if (printerSettings != null) {
 				exportInformation.ExportMade = true;
