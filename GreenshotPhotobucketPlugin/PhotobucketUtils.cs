@@ -47,8 +47,10 @@ namespace GreenshotPhotobucketPlugin {
 				albumPath = "!";
 			}
 
-			OAuthSession oAuth = createSession();
-
+			OAuthSession oAuth = createSession(true);
+			if (oAuth == null) {
+				return null;
+			}
 			IDictionary<string, object> signedParameters = new Dictionary<string, object>();
 			// add album
 			if (albumPath == null) {
@@ -83,6 +85,9 @@ namespace GreenshotPhotobucketPlugin {
 					config.TokenSecret = oAuth.TokenSecret;
 				}
 			}
+			if (responseString == null) {
+				return null;
+			}
 			LOG.Info(responseString);
 			PhotobucketInfo PhotobucketInfo = PhotobucketInfo.FromUploadResponse(responseString);
 			LOG.Debug("Upload to Photobucket was finished");
@@ -93,8 +98,9 @@ namespace GreenshotPhotobucketPlugin {
 		/// Helper method to create an OAuth session object for contacting the Photobucket API
 		/// </summary>
 		/// <returns>OAuthSession</returns>
-		private static OAuthSession createSession() {
+		private static OAuthSession createSession(bool autoLogin) {
 			OAuthSession oAuth = new OAuthSession(PhotobucketCredentials.ConsumerKey, PhotobucketCredentials.ConsumerSecret);
+			oAuth.AutoLogin = autoLogin;
 			oAuth.CheckVerifier = false;
 			// This url is configured in the Photobucket API settings in the Photobucket site!!
 			oAuth.CallbackUrl = "http://getgreenshot.org";
@@ -108,6 +114,9 @@ namespace GreenshotPhotobucketPlugin {
 
 			oAuth.LoginTitle = "Photobucket authorization";
 			if (string.IsNullOrEmpty(config.SubDomain) || string.IsNullOrEmpty(config.Token) || string.IsNullOrEmpty(config.Username)) {
+				if (!autoLogin) {
+					return null;
+				}
 				if (!oAuth.Authorize()) {
 					return null;
 				}
@@ -140,8 +149,10 @@ namespace GreenshotPhotobucketPlugin {
 			}
 			string responseString;
 
-			OAuthSession oAuth = createSession();
-
+			OAuthSession oAuth = createSession(false);
+			if (oAuth == null) {
+				return null;
+			}
 			IDictionary<string, object> signedParameters = new Dictionary<string, object>();
 			try {
 				string apiUrl = string.Format("http://api.photobucket.com/album/{0}", config.Username);
@@ -156,6 +167,9 @@ namespace GreenshotPhotobucketPlugin {
 				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
 					config.TokenSecret = oAuth.TokenSecret;
 				}
+			}
+			if (responseString == null) {
+				return null;
 			}
 			try {
 				XmlDocument doc = new XmlDocument();

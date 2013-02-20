@@ -191,6 +191,11 @@ namespace GreenshotPlugin.Core {
 				useHTTPHeadersForAuthorization = value;
 			}
 		}
+
+		public bool AutoLogin {
+			get;
+			set;
+		}
 		
 		#endregion
 
@@ -206,6 +211,7 @@ namespace GreenshotPlugin.Core {
 			this.RequestTokenMethod = HTTPMethod.GET;
 			this.AccessTokenMethod = HTTPMethod.GET;
 			this.SignatureType = OAuthSignatureTypes.HMACSHA1;
+			this.AutoLogin = true;
 		}
 
 		/// <summary>
@@ -307,7 +313,7 @@ namespace GreenshotPlugin.Core {
 			}
 			Sign(RequestTokenMethod, RequestTokenUrl, parameters);
 			string response = MakeRequest(RequestTokenMethod, RequestTokenUrl, null, parameters, null);
-			if (response.Length > 0) {
+			if (response != null && response.Length > 0) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Request token response: {0}", response);
 				requestTokenResponseParameters = NetworkHelper.ParseQueryString(response);
@@ -317,7 +323,7 @@ namespace GreenshotPlugin.Core {
 					ret = this.Token;
 				}
 			}
-			return ret;		
+			return ret;
 		}
 
 		/// <summary>
@@ -366,7 +372,7 @@ namespace GreenshotPlugin.Core {
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
 			Sign(AccessTokenMethod, AccessTokenUrl, parameters);
 			string response = MakeRequest(AccessTokenMethod, AccessTokenUrl, null, parameters, null);
-			if (response.Length > 0) {
+			if (response != null && response.Length > 0) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Access token response: {0}", response);
 				accessTokenResponseParameters = NetworkHelper.ParseQueryString(response);
@@ -378,7 +384,7 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 
-			return Token;		
+			return Token;
 		}
 
 		/// <summary>
@@ -480,7 +486,7 @@ namespace GreenshotPlugin.Core {
 			while (retries-- > 0) {
 				// If we are not trying to get a Authorization or Accestoken, and we don't have a token, create one
 				if (string.IsNullOrEmpty(Token)) {
-					if (!Authorize()) {
+					if (!AutoLogin || !Authorize()) {
 						throw new Exception("Not authorized");
 					}
 				}
@@ -709,10 +715,16 @@ namespace GreenshotPlugin.Core {
 				webRequest.ContentLength = 0;
 			}
 
-			string responseData = NetworkHelper.GetResponse(webRequest);
-			LOG.DebugFormat("Response: {0}", responseData);
-
-			webRequest = null;
+			string responseData = null;
+			try {
+				responseData = NetworkHelper.GetResponse(webRequest);
+				LOG.DebugFormat("Response: {0}", responseData);
+			} catch (Exception ex) {
+				LOG.Error("Couldn't retrieve response: ", ex);
+				throw;
+			} finally {
+				webRequest = null;
+			}
 
 			return responseData;
 		}

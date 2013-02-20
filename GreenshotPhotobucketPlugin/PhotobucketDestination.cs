@@ -75,12 +75,16 @@ namespace GreenshotPhotobucketPlugin  {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			List<string> albums = PhotobucketUtils.RetrievePhotobucketAlbums();
+			List<string> albums = null;
+			try {
+				albums = PhotobucketUtils.RetrievePhotobucketAlbums();
+			} catch {
+			}
 
 			if (albums == null || albums.Count == 0) {
 				yield break;
 			}
-			foreach(string album in albums) {
+			foreach (string album in albums) {
 				yield return new PhotobucketDestination(plugin, album);
 			}
 		}
