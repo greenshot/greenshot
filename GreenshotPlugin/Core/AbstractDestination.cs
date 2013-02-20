@@ -71,68 +71,6 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/// <summary>
-		/// Return a menu item
-		/// </summary>
-		/// <param name="destinationClickHandler"></param>
-		/// <returns>ToolStripMenuItem</returns>
-		public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, EventHandler destinationClickHandler) {
-			ToolStripMenuItem basisMenuItem;
-			basisMenuItem = new ToolStripMenuItem(Description);
-			basisMenuItem.Image = DisplayIcon;
-			basisMenuItem.Tag = this;
-			basisMenuItem.Text = Description;
-			if (isDynamic && addDynamics) {
-				basisMenuItem.DropDownOpening += delegate (object source, EventArgs eventArgs) {
-					if (basisMenuItem.DropDownItems.Count == 0) {
-						List<IDestination> subDestinations = new List<IDestination>();
-						// Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
-						try {
-							subDestinations.AddRange(DynamicDestinations());
-						} catch(Exception ex) {
-							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
-						}
-						if (subDestinations.Count > 0) {
-							subDestinations.Sort();
-
-							ToolStripMenuItem destinationMenuItem = null;
-							if (!useDynamicsOnly) {
-								destinationMenuItem = new ToolStripMenuItem(Description);
-								destinationMenuItem.Tag = this;
-								destinationMenuItem.Image = DisplayIcon;
-								destinationMenuItem.Click += destinationClickHandler;
-								basisMenuItem.DropDownItems.Add(destinationMenuItem);
-							}
-							if (useDynamicsOnly && subDestinations.Count == 1) {
-								basisMenuItem.Tag = subDestinations[0];
-								basisMenuItem.Text = subDestinations[0].Description;
-								basisMenuItem.Click -= destinationClickHandler;
-								basisMenuItem.Click += destinationClickHandler;
-							} else {
-								foreach (IDestination subDestination in subDestinations) {
-									destinationMenuItem = new ToolStripMenuItem(subDestination.Description);
-									destinationMenuItem.Tag = subDestination;
-									destinationMenuItem.Image = subDestination.DisplayIcon;
-									destinationMenuItem.Click += destinationClickHandler;
-									basisMenuItem.DropDownItems.Add(destinationMenuItem);
-								}
-							}
-						} else {
-							// Setting base "click" only if there are no sub-destinations
-
-							// Make sure any previous handler is removed, otherwise it would be added multiple times!
-							basisMenuItem.Click -= destinationClickHandler;
-							basisMenuItem.Click += destinationClickHandler;
-						}
-					}
-				};
-			} else {
-				basisMenuItem.Click += destinationClickHandler;
-			}
-
-			return basisMenuItem;
-		}
-		
 		public virtual IEnumerable<IDestination> DynamicDestinations() {
 			yield break;
 		}
@@ -202,6 +140,25 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Helper method to add events which set the tag, this way we can see why there might be a close.
+		/// </summary>
+		/// <param name="menuItem">Item to add the events to</param>
+		/// <param name="menu">Menu to set the tag</param>
+		/// <param name="tagValue">Value for the tag</param>
+		private void AddTagEvents(ToolStripMenuItem menuItem, ContextMenuStrip menu, string tagValue) {
+			if (menuItem != null && menu != null) {
+				menuItem.MouseDown += delegate(object source, MouseEventArgs eventArgs) {
+					LOG.DebugFormat("Setting tag to '{0}'", tagValue);
+					menu.Tag = tagValue;
+				};
+				menuItem.MouseUp += delegate(object source, MouseEventArgs eventArgs) {
+					LOG.Debug("Deleting tag");
+					menu.Tag = null;
+				};
+			}
+		}
+
+		/// <summary>
 		/// This method will create and show the destination picker menu
 		/// </summary>
 		/// <param name="addDynamics">Boolean if the dynamic values also need to be added</param>
@@ -213,11 +170,22 @@ namespace GreenshotPlugin.Core {
 			// Generate an empty ExportInformation object, for when nothing was selected.
 			ExportInformation exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
 			ContextMenuStrip menu = new ContextMenuStrip();
+			menu.Tag = null;
+
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
 				LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
 				switch (eventArgs.CloseReason) {
+					case ToolStripDropDownCloseReason.AppFocusChange:
+						if (menu.Tag == null) {
+							// Do not allow the close if the tag is not set, this means the user clicked somewhere else.
+							eventArgs.Cancel = true;
+						} else {
+							LOG.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
+						}
+						break;
 					case ToolStripDropDownCloseReason.ItemClicked:
 					case ToolStripDropDownCloseReason.CloseCalled:
+						// The ContextMenuStrip can be "closed" for these reasons.
 						break;
 					case ToolStripDropDownCloseReason.Keyboard:
 						// Dispose as the close is clicked
@@ -231,7 +199,7 @@ namespace GreenshotPlugin.Core {
 			};
 			foreach (IDestination destination in destinations) {
 				// Fix foreach loop variable for the delegate
-				ToolStripMenuItem item = destination.GetMenuItem(addDynamics,
+				ToolStripMenuItem item = destination.GetMenuItem(addDynamics, menu,
 					delegate(object sender, EventArgs e) {
 						ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
 						if (toolStripMenuItem == null) {
@@ -242,9 +210,7 @@ namespace GreenshotPlugin.Core {
 							return;
 						}
 						bool isEditor = "Editor".Equals(clickedDestination.Designation);
-						// Make sure the menu is invisible, don't close it
-						menu.Hide();
-
+						menu.Tag = clickedDestination.Designation;
 						// Export
 						exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
 						if (exportInformation != null && exportInformation.ExportMade) {
@@ -259,6 +225,10 @@ namespace GreenshotPlugin.Core {
 							}
 						} else {
 							LOG.Info("Export cancelled or failed, showing menu again");
+
+							// Make sure a click besides the menu don't close it.
+							menu.Tag = null;
+
 							// This prevents the problem that the context menu shows in the task-bar
 							ShowMenuAtCursor(menu);
 						}
@@ -316,5 +286,73 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
+
+		/// <summary>
+		/// Return a menu item
+		/// </summary>
+		/// <param name="destinationClickHandler"></param>
+		/// <returns>ToolStripMenuItem</returns>
+		public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler) {
+			ToolStripMenuItem basisMenuItem;
+			basisMenuItem = new ToolStripMenuItem(Description);
+			basisMenuItem.Image = DisplayIcon;
+			basisMenuItem.Tag = this;
+			basisMenuItem.Text = Description;
+			AddTagEvents(basisMenuItem, menu, Description);
+			if (isDynamic && addDynamics) {
+				basisMenuItem.DropDownOpening += delegate(object source, EventArgs eventArgs) {
+					if (basisMenuItem.DropDownItems.Count == 0) {
+						List<IDestination> subDestinations = new List<IDestination>();
+						// Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
+						try {
+							subDestinations.AddRange(DynamicDestinations());
+						} catch (Exception ex) {
+							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
+						}
+						if (subDestinations.Count > 0) {
+							subDestinations.Sort();
+
+							ToolStripMenuItem destinationMenuItem = null;
+
+							if (!useDynamicsOnly) {
+								destinationMenuItem = new ToolStripMenuItem(Description);
+								destinationMenuItem.Tag = this;
+								destinationMenuItem.Image = DisplayIcon;
+								destinationMenuItem.Click += destinationClickHandler;
+								AddTagEvents(destinationMenuItem, menu, Description);
+
+								basisMenuItem.DropDownItems.Add(destinationMenuItem);
+							}
+							if (useDynamicsOnly && subDestinations.Count == 1) {
+								basisMenuItem.Tag = subDestinations[0];
+								basisMenuItem.Text = subDestinations[0].Description;
+								basisMenuItem.Click -= destinationClickHandler;
+								basisMenuItem.Click += destinationClickHandler;
+							} else {
+								foreach (IDestination subDestination in subDestinations) {
+									destinationMenuItem = new ToolStripMenuItem(subDestination.Description);
+									destinationMenuItem.Tag = subDestination;
+									destinationMenuItem.Image = subDestination.DisplayIcon;
+									destinationMenuItem.Click += destinationClickHandler;
+									AddTagEvents(destinationMenuItem, menu, subDestination.Description);
+									basisMenuItem.DropDownItems.Add(destinationMenuItem);
+								}
+							}
+						} else {
+							// Setting base "click" only if there are no sub-destinations
+
+							// Make sure any previous handler is removed, otherwise it would be added multiple times!
+							basisMenuItem.Click -= destinationClickHandler;
+							basisMenuItem.Click += destinationClickHandler;
+						}
+					}
+				};
+			} else {
+				basisMenuItem.Click += destinationClickHandler;
+			}
+
+			return basisMenuItem;
+		}
+		
 	}
 }
