@@ -56,12 +56,11 @@ namespace Greenshot.Drawing {
 			get { return cursor; }
 		}
 
-		// The bulk of the clean-up code is implemented in Dispose(bool)
-
-		/**
-		 * This Dispose is called from the Dispose and the Destructor.
-		 * When disposing==true all non-managed resources should be freed too!
-		 */
+		/// <summary>
+		/// This Dispose is called from the Dispose and the Destructor.
+		/// When disposing==true all non-managed resources should be freed too!
+		/// </summary>
+		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				if (cursor != null) {

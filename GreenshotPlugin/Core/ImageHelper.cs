@@ -1197,6 +1197,8 @@ namespace GreenshotPlugin.Core {
 			// Make sure the source is not Rectangle.Empty
 			if (Rectangle.Empty.Equals(sourceRect)) {
 				sourceRect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
+			} else {
+				sourceRect.Intersect(bitmapRect);
 			}
 
 			// If no pixelformat is supplied 

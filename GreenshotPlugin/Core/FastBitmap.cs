@@ -128,6 +128,14 @@ namespace GreenshotPlugin.Core {
 		/// <param name="graphics">Graphics</param>
 		/// <param name="destinationRect">Rectangle with destination</param>
 		void DrawTo(Graphics graphics, Rectangle destinationRect);
+
+		/// <summary>
+		/// Return true if the coordinates are inside the FastBitmap
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		bool Contains(int x, int y);
 	}
 
 	/// <summary>
@@ -414,6 +422,16 @@ namespace GreenshotPlugin.Core {
 			if (isLocked) {
 				Lock();
 			}
+		}
+
+		/// <summary>
+		/// returns true if x & y are inside the FastBitmap
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns>true if x & y are inside the FastBitmap</returns>
+		public bool Contains(int x, int y) {
+			return x >= 0 && x < Width && y >= 0 && y < Height;
 		}
 
 		public abstract Color GetColorAt(int x, int y);
