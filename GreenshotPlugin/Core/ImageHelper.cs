@@ -682,7 +682,6 @@ namespace GreenshotPlugin.Core {
 					BoxBlurVertical(fastBitmap, range);
 				}
 
-
 				return fastBitmap.UnlockAndReturnBitmap();
 			}
 		}
@@ -936,6 +935,7 @@ namespace GreenshotPlugin.Core {
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.CompositingMode = CompositingMode.SourceCopy;
 
 				// Draw "shadow" offsetted
 				ImageAttributes ia = new ImageAttributes();
@@ -955,9 +955,7 @@ namespace GreenshotPlugin.Core {
 			if (!GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize, false)) {
 				// something went wrong, try normal software blur
 				//returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
-				ApplyBoxBlur(returnImage, shadowSize);
-
-				//returnImage = FastBlur(tmpImage, shadowSize - 1);
+				ApplyBoxBlur(returnImage, shadowSize-2);
 			}
 
 			if (returnImage != null) {

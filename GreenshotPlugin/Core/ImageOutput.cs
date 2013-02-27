@@ -280,7 +280,7 @@ namespace GreenshotPlugin.Core {
 							}
 						}
 					} else if (isAlpha && !outputSettings.ReduceColors) {
-						LOG.Info("Skipping color reduction as the image has alpha");
+						LOG.Info("Skipping 'optional' color reduction as the image has alpha");
 					}
 				}
 			}
