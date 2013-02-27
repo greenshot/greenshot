@@ -41,7 +41,7 @@ namespace Greenshot.Core {
 	/// </summary>
 	public class DropShadowEffect : IEffect {
 		public DropShadowEffect() {
-			Darkness = 1f;
+			Darkness = 0.6f;
 			ShadowSize = 9;
 			ShadowOffset = new Point(-1, -1);
 		}
@@ -58,7 +58,7 @@ namespace Greenshot.Core {
 			set;
 		}
 		public virtual Image Apply(Image sourceImage, out Point offsetChange) {
-			return ImageHelper.CreateShadow(sourceImage, Darkness, ShadowSize, ShadowOffset, out offsetChange, PixelFormat.Format32bppArgb); //Image.PixelFormat);
+			return ImageHelper.CreateShadow(sourceImage, Darkness, ShadowSize, ShadowOffset, out offsetChange, PixelFormat.Format32bppArgb);
 		}
 	}
 
