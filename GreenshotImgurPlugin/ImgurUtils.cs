@@ -103,11 +103,11 @@ namespace GreenshotImgurPlugin {
 			IDictionary<string, object> uploadParameters = new Dictionary<string, object>();
 			IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 			// add title
-			if (title != null) {
+			if (title != null && config.AddTitle) {
 				otherParameters.Add("title", title);
 			}
 			// add filename
-			if (filename != null) {
+			if (filename != null && config.AddFilename) {
 				otherParameters.Add("name", filename);
 			}
 			string responseString = null;
