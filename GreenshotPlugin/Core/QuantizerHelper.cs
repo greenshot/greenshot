@@ -155,12 +155,18 @@ namespace GreenshotPlugin.Core {
 
 			// Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
 			using (IFastBitmap sourceFastBitmap = FastBitmap.Create(sourceBitmap)) {
+				IFastBitmapWithBlend sourceFastBitmapWithBlend = sourceFastBitmap as IFastBitmapWithBlend;
 				sourceFastBitmap.Lock();
 				using (FastChunkyBitmap destinationFastBitmap = FastBitmap.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap) {
 					destinationFastBitmap.Lock();
 					for (int y = 0; y < sourceFastBitmap.Height; y++) {
 						for (int x = 0; x < sourceFastBitmap.Width; x++) {
-							Color color = sourceFastBitmap.GetColorAt(x, y);
+							Color color;
+							if (sourceFastBitmapWithBlend == null) {
+								color = sourceFastBitmap.GetColorAt(x, y);
+							} else {
+								color = sourceFastBitmapWithBlend.GetBlendedColorAt(x, y);
+							}
 							// To count the colors
 							int index = color.ToArgb() & 0x00ffffff;
 							// Check if we already have this color
@@ -207,11 +213,18 @@ namespace GreenshotPlugin.Core {
 			using (FastChunkyBitmap bbbDest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap) {
 				bbbDest.Lock();
 				using (IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap)) {
+					IFastBitmapWithBlend bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
+
 					bbbSrc.Lock();
 					byte index;
 					for (int y = 0; y < bbbSrc.Height; y++) {
 						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color = bbbSrc.GetColorAt(x, y);
+							Color color;
+							if (bbbSrcBlend != null) {
+								color = bbbSrcBlend.GetBlendedColorAt(x, y);
+							} else {
+								color = bbbSrc.GetColorAt(x, y);
+							}
 							if (lookup.ContainsKey(color)) {
 								index = lookup[color];
 							} else {
@@ -322,14 +335,19 @@ namespace GreenshotPlugin.Core {
 			using (FastChunkyBitmap bbbDest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap) {
 				bbbDest.Lock();
 				using (IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap)) {
+					IFastBitmapWithBlend bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
 					bbbSrc.Lock();
 					Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
 					byte bestMatch;
 					for (int y = 0; y < bbbSrc.Height; y++) {
 						for (int x = 0; x < bbbSrc.Width; x++) {
-							// Consider WithoutAlpha
-							Color color = bbbSrc.GetColorAt(x, y);
-							// No need to a strip the alpha as before
+							Color color;
+							if (bbbSrcBlend != null) {
+								// WithoutAlpha, this makes it possible to ignore the alpha
+								color = bbbSrcBlend.GetBlendedColorAt(x, y);
+							} else {
+								color = bbbSrc.GetColorAt(x, y);
+							}
 
 							// Check if we already matched the color
 							if (!lookup.ContainsKey(color)) {

@@ -139,6 +139,17 @@ namespace GreenshotPlugin.Core {
 	}
 
 	/// <summary>
+	/// This interface is implemented when there is a alpha-blending possibility
+	/// </summary>
+	public interface IFastBitmapWithBlend : IFastBitmap {
+		Color BackgroundBlendColor {
+			get;
+			set;
+		}
+		Color GetBlendedColorAt(int x, int y);
+	}
+
+	/// <summary>
 	/// The base class for the fast bitmap implementation
 	/// </summary>
 	public unsafe abstract class FastBitmap : IFastBitmap {
@@ -659,7 +670,7 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// This is the implementation of the IFastBitmap for 32 bit images with Alpha
 	/// </summary>
-	public unsafe class Fast32ARGBBitmap : FastBitmap {
+	public unsafe class Fast32ARGBBitmap : FastBitmap, IFastBitmapWithBlend {
 		public override bool hasAlphaChannel {
 			get {
 				return true;
