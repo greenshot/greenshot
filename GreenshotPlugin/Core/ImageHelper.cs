@@ -653,35 +653,41 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Create a new Bitmap with the BoxBlur result of the sourceBitmap
+		/// Apply BoxBlur to the destinationBitmap
 		/// </summary>
-		/// <param name="sourceBitmap">Bitmap to blur</param>
+		/// <param name="destinationBitmap">Bitmap to blur</param>
 		/// <param name="range">Must be ODD!</param>
-		/// <returns>Bitmap</returns>
-		public static Bitmap ApplyBoxBlur(Bitmap destinationBitmap, int range) {
+		public static void ApplyBoxBlur(Bitmap destinationBitmap, int range) {
+			// We only need one fastbitmap as we use it as source and target (the reading is done for one line H/V, writing after "parsing" one line H/V)
+			using (IFastBitmap fastBitmap = FastBitmap.Create(destinationBitmap)) {
+				ApplyBoxBlur(fastBitmap, range);
+			}
+		}
+
+		/// <summary>
+		/// Apply BoxBlur to the fastBitmap
+		/// </summary>
+		/// <param name="fastBitmap">IFastBitmap to blur</param>
+		/// <param name="range">Must be ODD!</param>
+		public static void ApplyBoxBlur(IFastBitmap fastBitmap, int range) {
 			// Range must be odd!
 			if ((range & 1) == 0) {
 				range++;
 			}
-			// We only need one fastbitmap as we use it as source and target (the reading is done for one line H/V, writing after "parsing" one line H/V)
-			using (IFastBitmap fastBitmap = FastBitmap.Create(destinationBitmap)) {
-				// Box blurs are frequently used to approximate a Gaussian blur.
-				// By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
-				// This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more simular and we only make 2x Box-Blur.
-				// (Might also be a mistake in our blur, but for now it looks great)
-				if (fastBitmap.hasAlphaChannel) {
-					BoxBlurHorizontalAlpha(fastBitmap, range);
-					BoxBlurVerticalAlpha(fastBitmap, range);
-					BoxBlurHorizontalAlpha(fastBitmap, range);
-					BoxBlurVerticalAlpha(fastBitmap, range);
-				} else {
-					BoxBlurHorizontal(fastBitmap, range);
-					BoxBlurVertical(fastBitmap, range);
-					BoxBlurHorizontal(fastBitmap, range);
-					BoxBlurVertical(fastBitmap, range);
-				}
-
-				return fastBitmap.UnlockAndReturnBitmap();
+			// Box blurs are frequently used to approximate a Gaussian blur.
+			// By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
+			// This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more simular and we only make 2x Box-Blur.
+			// (Might also be a mistake in our blur, but for now it looks great)
+			if (fastBitmap.hasAlphaChannel) {
+				BoxBlurHorizontalAlpha(fastBitmap, range);
+				BoxBlurVerticalAlpha(fastBitmap, range);
+				BoxBlurHorizontalAlpha(fastBitmap, range);
+				BoxBlurVerticalAlpha(fastBitmap, range);
+			} else {
+				BoxBlurHorizontal(fastBitmap, range);
+				BoxBlurVertical(fastBitmap, range);
+				BoxBlurHorizontal(fastBitmap, range);
+				BoxBlurVertical(fastBitmap, range);
 			}
 		}
 
