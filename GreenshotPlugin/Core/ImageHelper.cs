@@ -659,23 +659,22 @@ namespace GreenshotPlugin.Core {
 		/// <param name="range">Must be ODD!</param>
 		/// <returns>Bitmap</returns>
 		public static Bitmap ApplyBoxBlur(Bitmap destinationBitmap, int range) {
+			// Range must be odd!
 			if ((range & 1) == 0) {
 				range++;
-				//throw new InvalidOperationException("Range must be odd!");
 			}
+			// We only need one fastbitmap as we use it as source and target (the reading is done for one line H/V, writing after "parsing" one line H/V)
 			using (IFastBitmap fastBitmap = FastBitmap.Create(destinationBitmap)) {
 				// Box blurs are frequently used to approximate a Gaussian blur.
 				// By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
+				// This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more simular and we only make 2x Box-Blur.
+				// (Might also be a mistake in our blur, but for now it looks great)
 				if (fastBitmap.hasAlphaChannel) {
 					BoxBlurHorizontalAlpha(fastBitmap, range);
 					BoxBlurVerticalAlpha(fastBitmap, range);
 					BoxBlurHorizontalAlpha(fastBitmap, range);
 					BoxBlurVerticalAlpha(fastBitmap, range);
-					BoxBlurHorizontalAlpha(fastBitmap, range);
-					BoxBlurVerticalAlpha(fastBitmap, range);
 				} else {
-					BoxBlurHorizontal(fastBitmap, range);
-					BoxBlurVertical(fastBitmap, range);
 					BoxBlurHorizontal(fastBitmap, range);
 					BoxBlurVertical(fastBitmap, range);
 					BoxBlurHorizontal(fastBitmap, range);
@@ -691,7 +690,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="targetFastBitmap">Target BitmapBuffer</param>
 		/// <param name="range">Range must be odd!</param>
-		public static void BoxBlurHorizontal(IFastBitmap targetFastBitmap, int range) {
+		private static void BoxBlurHorizontal(IFastBitmap targetFastBitmap, int range) {
 			if (targetFastBitmap.hasAlphaChannel) {
 				throw new NotSupportedException("BoxBlurHorizontal should NOT be called for bitmaps with alpha channel");
 			}
@@ -739,7 +738,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="bbbSrc">Source BitmapBuffer</param>
 		/// <param name="targetFastBitmap">Target BitmapBuffer</param>
 		/// <param name="range">Range must be odd!</param>
-		public static void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range) {
+		private static void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range) {
 			if (!targetFastBitmap.hasAlphaChannel) {
 				throw new NotSupportedException("BoxBlurHorizontalAlpha should be called for bitmaps with alpha channel");
 			}
@@ -790,7 +789,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
 		/// <param name="range">Range must be odd!</param>
-		public static void BoxBlurVertical(IFastBitmap targetFastBitmap, int range) {
+		private static void BoxBlurVertical(IFastBitmap targetFastBitmap, int range) {
 			if (targetFastBitmap.hasAlphaChannel) {
 				throw new NotSupportedException("BoxBlurVertical should NOT be called for bitmaps with alpha channel");
 			}
@@ -841,7 +840,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
 		/// <param name="range">Range must be odd!</param>
-		public static void BoxBlurVerticalAlpha(IFastBitmap targetFastBitmap, int range) {
+		private static void BoxBlurVerticalAlpha(IFastBitmap targetFastBitmap, int range) {
 			if (!targetFastBitmap.hasAlphaChannel) {
 				throw new NotSupportedException("BoxBlurVerticalAlpha should be called for bitmaps with alpha channel");
 			}
@@ -929,6 +928,11 @@ namespace GreenshotPlugin.Core {
 			offset.X += shadowSize - 1;
 			offset.Y += shadowSize - 1;
 			Bitmap returnImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			// Make sure the shadow is odd, there is no reason for an even blur!
+			if ((shadowSize & 1) == 0) {
+				shadowSize++;
+			}
+			bool canUseGDIBlur = GDIplus.isBlurPossible(shadowSize);
 			using (Graphics graphics = Graphics.FromImage(returnImage)) {
 				// Make sure we draw with the best quality!
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -943,7 +947,11 @@ namespace GreenshotPlugin.Core {
 				cm.Matrix00 = 0;
 				cm.Matrix11 = 0;
 				cm.Matrix22 = 0;
-				cm.Matrix33 = darkness;
+				if (canUseGDIBlur) {
+					cm.Matrix33 = darkness + 0.1f;
+				} else {
+					cm.Matrix33 = darkness;
+				}
 				ia.SetColorMatrix(cm);
 				Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
 				graphics.DrawImage(sourceBitmap, shadowRectangle, 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
@@ -951,11 +959,14 @@ namespace GreenshotPlugin.Core {
 			// blur "shadow", apply to whole new image
 
 			// Gaussian
-			Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
-			if (!GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize, false)) {
-				// something went wrong, try normal software blur
+			if (canUseGDIBlur) {
+				// Use GDI Blur
+				Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
+				GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize, false);
+			} else {
+				// try normal software blur
 				//returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
-				ApplyBoxBlur(returnImage, shadowSize-2);
+				ApplyBoxBlur(returnImage, shadowSize);
 			}
 
 			if (returnImage != null) {

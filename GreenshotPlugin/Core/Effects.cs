@@ -42,7 +42,7 @@ namespace Greenshot.Core {
 	public class DropShadowEffect : IEffect {
 		public DropShadowEffect() {
 			Darkness = 0.6f;
-			ShadowSize = 9;
+			ShadowSize = 7;
 			ShadowOffset = new Point(-1, -1);
 		}
 		public float Darkness {
