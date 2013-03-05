@@ -939,32 +939,20 @@ namespace GreenshotPlugin.Core {
 				shadowSize++;
 			}
 			bool canUseGDIBlur = GDIplus.isBlurPossible(shadowSize);
-			using (Graphics graphics = Graphics.FromImage(returnImage)) {
-				// Make sure we draw with the best quality!
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				graphics.CompositingMode = CompositingMode.SourceCopy;
-
-				// Draw "shadow" offsetted
-				ImageAttributes ia = new ImageAttributes();
-				ColorMatrix cm = new ColorMatrix();
-				cm.Matrix00 = 0;
-				cm.Matrix11 = 0;
-				cm.Matrix22 = 0;
-				if (canUseGDIBlur) {
-					cm.Matrix33 = darkness + 0.1f;
-				} else {
-					cm.Matrix33 = darkness;
-				}
-				ia.SetColorMatrix(cm);
-				Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
-				graphics.DrawImage(sourceBitmap, shadowRectangle, 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, ia);
+			// Create "mask" for the shadow
+			ColorMatrix maskMatrix = new ColorMatrix();
+			maskMatrix.Matrix00 = 0;
+			maskMatrix.Matrix11 = 0;
+			maskMatrix.Matrix22 = 0;
+			if (canUseGDIBlur) {
+				maskMatrix.Matrix33 = darkness + 0.1f;
+			} else {
+				maskMatrix.Matrix33 = darkness;
 			}
-			// blur "shadow", apply to whole new image
+			Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
+			ApplyColorMatrix((Bitmap)sourceBitmap, Rectangle.Empty, returnImage, shadowRectangle, maskMatrix);
 
-			// Gaussian
+			// blur "shadow", apply to whole new image
 			if (canUseGDIBlur) {
 				// Use GDI Blur
 				Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
@@ -975,19 +963,18 @@ namespace GreenshotPlugin.Core {
 				ApplyBoxBlur(returnImage, shadowSize);
 			}
 
-			if (returnImage != null) {
-				using (Graphics graphics = Graphics.FromImage(returnImage)) {
-					// Make sure we draw with the best quality!
-					graphics.SmoothingMode = SmoothingMode.HighQuality;
-					graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-					graphics.CompositingQuality = CompositingQuality.HighQuality;
-					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-					// draw original with a TextureBrush so we have nice antialiasing!
-					using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {
-						// We need to do a translate-tranform otherwise the image is wrapped
-						graphics.TranslateTransform(offset.X, offset.Y);
-						graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
-					}
+			// Draw the original image over the shadow
+			using (Graphics graphics = Graphics.FromImage(returnImage)) {
+				// Make sure we draw with the best quality!
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				// draw original with a TextureBrush so we have nice antialiasing!
+				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {
+					// We need to do a translate-tranform otherwise the image is wrapped
+					graphics.TranslateTransform(offset.X, offset.Y);
+					graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
 				}
 			}
 			return returnImage;
@@ -999,17 +986,77 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceImage">Bitmap to create a negative off</param>
 		/// <returns>Negative bitmap</returns>
 		public static Bitmap CreateNegative(Image sourceImage) {
-			using (BitmapBuffer bb = new BitmapBuffer(sourceImage, true)) {
-				bb.Lock();
-				for (int y = 0; y < bb.Height; y++) {
-					for (int x = 0; x < bb.Width; x++) {
-						Color color = bb.GetColorAt(x, y);
-						Color invertedColor = Color.FromArgb(color.A, color.R ^ 255, color.G ^ 255, color.B ^ 255);
-						bb.SetColorAt(x, y, invertedColor);
-					}
-				}
-				bb.Unlock();
-				return bb.Bitmap;
+			Bitmap clone = (Bitmap)ImageHelper.Clone(sourceImage);
+			ColorMatrix invertMatrix = new ColorMatrix(new float[][] { 
+				new float[] {-1, 0, 0, 0, 0}, 
+				new float[] {0, -1, 0, 0, 0}, 
+				new float[] {0, 0, -1, 0, 0}, 
+				new float[] {0, 0, 0, 1, 0}, 
+				new float[] {1, 1, 1, 1, 1} 
+			});
+			ApplyColorMatrix(clone, invertMatrix);
+			return clone;
+		}
+		/// <summary>
+		/// Apply a color matrix to the image
+		/// </summary>
+		/// <param name="source">Image to apply matrix to</param>
+		/// <param name="colorMatrix">ColorMatrix to apply</param>
+		public static void ApplyColorMatrix(Bitmap source, ColorMatrix colorMatrix) {
+			ApplyColorMatrix(source, Rectangle.Empty, source, Rectangle.Empty, colorMatrix);
+		}
+
+		/// <summary>
+		/// Apply a color matrix by copying from the source to the destination
+		/// </summary>
+		/// <param name="source">Image to copy from</param>
+		/// <param name="sourceRect">Rectangle to copy from</param>
+		/// <param name="destRect">Rectangle to copy to</param>
+		/// <param name="dest">Image to copy to</param>
+		/// <param name="colorMatrix">ColorMatrix to apply</param>
+		public static void ApplyColorMatrix(Bitmap source, Rectangle sourceRect, Bitmap dest, Rectangle destRect, ColorMatrix colorMatrix) {
+			ImageAttributes imageAttributes = new ImageAttributes();
+			imageAttributes.ClearColorMatrix();
+			imageAttributes.SetColorMatrix(colorMatrix);
+			ApplyImageAttributes(source, sourceRect, dest, destRect, imageAttributes);
+		}
+
+		/// <summary>
+		/// Apply image attributes to the image
+		/// </summary>
+		/// <param name="source">Image to apply matrix to</param>
+		/// <param name="imageAttributes">ImageAttributes to apply</param>
+		public static void ApplyColorMatrix(Bitmap source, ImageAttributes imageAttributes) {
+			ApplyImageAttributes(source, Rectangle.Empty, source, Rectangle.Empty, imageAttributes);
+		}
+
+		/// <summary>
+		/// Apply a color matrix by copying from the source to the destination
+		/// </summary>
+		/// <param name="source">Image to copy from</param>
+		/// <param name="sourceRect">Rectangle to copy from</param>
+		/// <param name="destRect">Rectangle to copy to</param>
+		/// <param name="dest">Image to copy to</param>
+		/// <param name="imageAttributes">ImageAttributes to apply</param>
+		public static void ApplyImageAttributes(Bitmap source, Rectangle sourceRect, Bitmap dest, Rectangle destRect, ImageAttributes imageAttributes) {
+			if (sourceRect == Rectangle.Empty) {
+				sourceRect = new Rectangle(0, 0, source.Width, source.Height);
+			}
+			if (dest == null) {
+				dest = source;
+			}
+			if (destRect == Rectangle.Empty) {
+				destRect = new Rectangle(0, 0, dest.Width, dest.Height);
+			}
+			using (Graphics graphics = Graphics.FromImage(dest)) {
+				// Make sure we draw with the best quality!
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.CompositingMode = CompositingMode.SourceCopy;
+
+				graphics.DrawImage(source, destRect, sourceRect.X, sourceRect.Y, sourceRect.Width, sourceRect.Height, GraphicsUnit.Pixel, imageAttributes);
 			}
 		}
 		
@@ -1017,7 +1064,7 @@ namespace GreenshotPlugin.Core {
 		/// Returns a b/w of Bitmap
 		/// </summary>
 		/// <param name="sourceImage">Bitmap to create a b/w of</param>
-        /// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
+		/// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
 		/// <returns>b/w bitmap</returns>
 		public static Bitmap CreateMonochrome(Image sourceImage, byte threshold) {
 			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(sourceImage, sourceImage.PixelFormat)) {
@@ -1085,10 +1132,7 @@ namespace GreenshotPlugin.Core {
 			// If using 8bpp than the following exception comes: A Graphics object cannot be created from an image that has an indexed pixel format. 
 			Bitmap newBitmap = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format24bppRgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			float adjustedBrightness = brightness - 1.0f;
-			// get a graphics object from the new image
-			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
-				// create the grayscale ColorMatrix
-				ColorMatrix colorMatrix = new ColorMatrix(
+			ColorMatrix applyColorMatrix = new ColorMatrix(
 					new float[][] {
 						new float[] {contrast, 0, 0, 0, 0}, // scale red
 						new float[] {0, contrast, 0, 0, 0}, // scale green
@@ -1097,15 +1141,12 @@ namespace GreenshotPlugin.Core {
 						new float[] {adjustedBrightness, adjustedBrightness, adjustedBrightness, 0, 1}
 					});
 
-				//create some image attributes
-				ImageAttributes attributes = new ImageAttributes();
-				attributes.ClearColorMatrix();
-				attributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-				attributes.SetGamma(gamma, ColorAdjustType.Bitmap);
-
-				//draw the original image on the new image using the grayscale color matrix
-				graphics.DrawImage(sourceImage, new Rectangle(0, 0, sourceImage.Width, sourceImage.Height), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, attributes);
-			}
+			//create some image attributes
+			ImageAttributes attributes = new ImageAttributes();
+			attributes.ClearColorMatrix();
+			attributes.SetColorMatrix(applyColorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+			attributes.SetGamma(gamma, ColorAdjustType.Bitmap);
+			ApplyImageAttributes((Bitmap)sourceImage, Rectangle.Empty, newBitmap, Rectangle.Empty, attributes);
 
 			return newBitmap;
 		}
@@ -1116,39 +1157,16 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceImage">Original bitmap</param>
 		/// <returns>Bitmap with grayscale</returns>
 		public static Image CreateGrayscale(Image sourceImage) {
-			//create a blank bitmap the same size as original
-			// If using 8bpp than the following exception comes: A Graphics object cannot be created from an image that has an indexed pixel format. 
-			Bitmap newBitmap = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format24bppRgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-			//ColorPalette imagePalette = newBitmap.Palette;
-			//for (int i = 0; i <= 255; i++) {
-			//    // create greyscale color table
-			//    imagePalette.Entries[i] = Color.FromArgb(i, i, i);
-			//}
-			//newBitmap.Palette = imagePalette;
-
-			// get a graphics object from the new image
-			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
-				// create the grayscale ColorMatrix
-				ColorMatrix colorMatrix = new ColorMatrix(
-				   new float[][] {
-					   new float[] {.3f, .3f, .3f, 0, 0},
-						new float[] {.59f, .59f, .59f, 0, 0},
-						new float[] {.11f, .11f, .11f, 0, 0},
-						new float[] {0, 0, 0, 1, 0},
-						new float[] {0, 0, 0, 0, 1}
-					});
-
-				//create some image attributes
-				ImageAttributes attributes = new ImageAttributes();
-
-				//set the color matrix attribute
-				attributes.SetColorMatrix(colorMatrix);
-
-				//draw the original image on the new image using the grayscale color matrix
-				graphics.DrawImage(sourceImage, new Rectangle(0, 0, sourceImage.Width, sourceImage.Height), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, attributes);
-			}
-
-			return newBitmap;
+			Bitmap clone = (Bitmap)ImageHelper.Clone(sourceImage);
+			ColorMatrix grayscaleMatrix = new ColorMatrix( new float[][] {
+				new float[] {.3f, .3f, .3f, 0, 0},
+				new float[] {.59f, .59f, .59f, 0, 0},
+				new float[] {.11f, .11f, .11f, 0, 0},
+				new float[] {0, 0, 0, 1, 0},
+				new float[] {0, 0, 0, 0, 1}
+			});
+			ApplyColorMatrix(clone, grayscaleMatrix);
+			return clone;
 		}
 
 		/// <summary>

@@ -213,7 +213,17 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Factory for creating a FastBitmap as a destination for the source
 		/// </summary>
-		/// <param name="source">Bitmap to access</param>
+		/// <param name="source">Bitmap to clone</param>
+		/// <returns>IFastBitmap</returns>
+		public static IFastBitmap CreateCloneOf(Image source) {
+			return CreateCloneOf(source, source.PixelFormat, Rectangle.Empty);
+		}
+
+		/// <summary>
+		/// Factory for creating a FastBitmap as a destination for the source
+		/// </summary>
+		/// <param name="source">Bitmap to clone</param>
+		/// <param name="pixelFormat">new Pixelformat</param>
 		/// <returns>IFastBitmap</returns>
 		public static IFastBitmap CreateCloneOf(Image source, PixelFormat pixelFormat) {
 			return CreateCloneOf(source, pixelFormat, Rectangle.Empty);
@@ -221,7 +231,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Factory for creating a FastBitmap as a destination for the source
 		/// </summary>
-		/// <param name="source">Bitmap to access</param>
+		/// <param name="source">Bitmap to clone</param>
 		/// <param name="area">Area of the bitmap to access, can be Rectangle.Empty for the whole</param>
 		/// <returns>IFastBitmap</returns>
 		public static IFastBitmap CreateCloneOf(Image source, Rectangle area) {
@@ -231,7 +241,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Factory for creating a FastBitmap as a destination for the source
 		/// </summary>
-		/// <param name="source">Bitmap to access</param>
+		/// <param name="source">Bitmap to clone</param>
 		/// <param name="pixelFormat">Pixelformat of the cloned bitmap</param>
 		/// <param name="area">Area of the bitmap to access, can be Rectangle.Empty for the whole</param>
 		/// <returns>IFastBitmap</returns>
@@ -241,7 +251,6 @@ namespace GreenshotPlugin.Core {
 			((FastBitmap)fastBitmap).NeedsDispose = true;
 			return fastBitmap;
 		}
-
 
 		/// <summary>
 		/// Factory for creating a FastBitmap as a destination
