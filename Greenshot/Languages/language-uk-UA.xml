@@ -5,7 +5,7 @@
 		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
 		<resource name="about_host">Greenshot is розташовується на sourceforge.net</resource>
 		<resource name="about_icons">Набір іконок Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Авторство © 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Авторство © 2007-2013 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
 Подробиці Загальної Публічної Ліцензії GNU:</resource>
 		<resource name="about_title">Про Greenshot</resource>
@@ -22,6 +22,8 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="CANCEL">Скасувати</resource>
 		<resource name="clipboard_error">При записі в буфер обміну відбулась несподівана помилка.</resource>
 		<resource name="clipboard_inuse">Greenshot не зміг записати дані у буфер обміну, доступ до якого заблокований процесом {0}.</resource>
+		<resource name="clipboard_noimage">Неможливо знайти зображення у буфері обміну.</resource>
+		<resource name="ClipboardFormat.BITMAP">Растрове зображення Windows</resource>
 		<resource name="ClipboardFormat.DIB">Растрове зображення (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML з вбудованими зображеннями</resource>
@@ -35,6 +37,8 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="colorpicker_red">Червоний</resource>
 		<resource name="colorpicker_title">Вибір кольору</resource>
 		<resource name="colorpicker_transparent">Прозорий</resource>
+		<resource name="com_rejected">Призначення {0} відхилило доступ Greenshot, можливо через відкрите діалогове вікно. Зайкрийте діалогове вікно та спробуйте знову.</resource>
+		<resource name="com_rejected_title">Доступ Greenshot відхилено</resource>
 		<resource name="config_unauthorizedaccess_write">Неможливо зберегти файл налаштувань Greenshot. Будь ласка, перевірте доступ до „{0}“.</resource>
 		<resource name="contextmenu_about">Про Greenshot</resource>
 		<resource name="contextmenu_capturearea">Захоплення області</resource>
@@ -58,6 +62,14 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="contextmenu_quicksettings">Швидкі параметри</resource>
 		<resource name="contextmenu_settings">Параметри...</resource>
 		<resource name="destination_exportfailed">Помилка експорту {0}. Будь ласка, спробуйте ще.</resource>
+		<resource name="editor_align_bottom">Знизу</resource>
+		<resource name="editor_align_center">По центру</resource>
+		<resource name="editor_align_horizontal">Горизонтальне вирівнювання</resource>
+		<resource name="editor_align_left">По лівому краю</resource>
+		<resource name="editor_align_middle">По середині</resource>
+		<resource name="editor_align_right">По правому краю</resource>
+		<resource name="editor_align_top">Вгорі</resource>
+		<resource name="editor_align_vertical">Вертикальне вирівнювання</resource>
 		<resource name="editor_arrange">Впорядкувати</resource>
 		<resource name="editor_arrowheads">Кінці стрілки</resource>
 		<resource name="editor_arrowheads_both">З обох сторін</resource>
@@ -92,6 +104,10 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_drawline">Лінія (Д)</resource>
 		<resource name="editor_drawrectangle">Прямокутник (К)</resource>
 		<resource name="editor_drawtextbox">Додати текст (Е)</resource>
+		<resource name="editor_dropshadow_darkness">Тьмяність тіні</resource>
+		<resource name="editor_dropshadow_offset">Зсув тіні</resource>
+		<resource name="editor_dropshadow_settings">Параметри тіні</resource>
+		<resource name="editor_dropshadow_thickness">Товщина тіні</resource>
 		<resource name="editor_duplicate">Дублювати вибраний елемент</resource>
 		<resource name="editor_edit">Змінити</resource>
 		<resource name="editor_effects">Ефекти</resource>
@@ -125,8 +141,10 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_print">Роздрукувати</resource>
 		<resource name="editor_redo">Повторити {0}</resource>
 		<resource name="editor_resetsize">Скинути розмір</resource>
-		<resource name="editor_rotateccw">Оберт проти годинникової стрілки</resource>
-		<resource name="editor_rotatecw">Оберт за годинниковою стрілкою</resource>
+		<resource name="editor_resize_percent">відсотків</resource>
+		<resource name="editor_resize_pixel">пікселів</resource>
+		<resource name="editor_rotateccw">Оберт проти годинникової стрілки (Ctrl + Б)</resource>
+		<resource name="editor_rotatecw">Оберт за годинниковою стрілкою (Ctrl + Ю)</resource>
 		<resource name="editor_save">Зберегти</resource>
 		<resource name="editor_save_objects">Зберегти об’єкти в файл</resource>
 		<resource name="editor_saveas">Зберегти як...</resource>
@@ -137,6 +155,10 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_thickness">Товщина лінії</resource>
 		<resource name="editor_title">Редактор зображень Greenshot</resource>
 		<resource name="editor_torn_edge">Розірваний край</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Горизонтальна частота зубців</resource>
+		<resource name="editor_tornedge_settings">Параметри розірваного краю</resource>
+		<resource name="editor_tornedge_toothsize">Розмір зубця</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Вертикальна частота зубців</resource>
 		<resource name="editor_undo">Скасувати {0}</resource>
 		<resource name="editor_uponelevel">Вгору на один рівень</resource>
 		<resource name="editor_uptotop">На передній план</resource>
