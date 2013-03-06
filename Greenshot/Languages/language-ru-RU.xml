@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Pусский" ietf="ru-RU" version="1.0.5" languagegroup="5">
+<language description="Pусский" ietf="ru-RU" version="1.0.4" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Просьба сообщать об ошибках на</resource>
 		<resource name="about_donations">Если вам нравится Greenshot, вы можете поддержать нас:</resource>
 		<resource name="about_host">Greenshot размещается на sourceforge.net</resource>
 		<resource name="about_icons">Набор иконок Yusuke Kamiyamane's Fugue (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2013 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.Это бесплатная программа и вы можете распространять её на определённых условиях.
 Подробно о GNU General Public License:</resource>
 		<resource name="about_title">О программе Greenshot</resource>
@@ -14,7 +14,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="bugreport_cancel">Закрыть</resource>
 		<resource name="bugreport_info">Извините, произошла непредвиденная ошибка.
 
-Это хорошая новость: Вы можете помочь нам избавиться от неё, подав сообщение об ошибке.
+Это хорошая новость: Вы можете помочь нам избавиться от неё, отправив сообщение об ошибке.
 Посетите URL ниже, создайте новый отчёт об ошибке и вставьте содержимое в текстовое поле.
 
 Пожалуйста, добавьте значимое резюме и приложите любую информацию, которую вы считаете полезной для воспроизведения проблемы.
@@ -23,6 +23,8 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="CANCEL">Отмена</resource>
 		<resource name="clipboard_error">Произошла непредвиденная ошибка при записи в буфер обмена.</resource>
 		<resource name="clipboard_inuse">Greenshot не смог записать в буфер обмена, доступ заблокирован процессом {0}.</resource>
+		<resource name="clipboard_noimage">Изображение в буфере обмена не найдено.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
 		<resource name="ClipboardFormat.DIB">Устройство Independend Bitmap (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML со встроенными изображениями</resource>
@@ -36,6 +38,8 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="colorpicker_red">Красный</resource>
 		<resource name="colorpicker_title">Палитра цветов</resource>
 		<resource name="colorpicker_transparent">Прозрачный</resource>
+		<resource name="com_rejected">Назначение {0} отклонил доступ к Greenshot, вероятно, отрыто окно. Закройте диалоговое окно и попробуйте ещё раз.</resource>
+		<resource name="com_rejected_title">Доступ к Greenshot отклонён</resource>
 		<resource name="config_unauthorizedaccess_write">Не удалось сохранить файл конфигурации Greenshot's. Пожалуйста, проверьте права доступа для '{0}'.</resource>
 		<resource name="contextmenu_about">О программе Greenshot</resource>
 		<resource name="contextmenu_capturearea">Захват области</resource>
@@ -59,6 +63,14 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="contextmenu_quicksettings">Быстрые настройки</resource>
 		<resource name="contextmenu_settings">Предпочтения...</resource>
 		<resource name="destination_exportfailed">Ошибка при экспорте {0}. Пожалуйста, попробуйте ещё раз.</resource>
+                <resource name="editor_align_bottom">Внизу</resource>
+		<resource name="editor_align_center">По центру</resource>
+		<resource name="editor_align_horizontal">Горизонтальное выравнивание</resource>
+		<resource name="editor_align_left">Слева</resource>
+		<resource name="editor_align_middle">По середине</resource>
+		<resource name="editor_align_right">Справа</resource>
+		<resource name="editor_align_top">Вверху</resource>
+		<resource name="editor_align_vertical">Вертикальное выравнивание</resource>
 		<resource name="editor_arrange">Упорядочить</resource>
 		<resource name="editor_arrowheads">Наконечник стрелки</resource>
 		<resource name="editor_arrowheads_both">Обе точки</resource>
@@ -93,7 +105,11 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_drawline">Нарисовать линию (L)</resource>
 		<resource name="editor_drawrectangle">Нарисовать прямоугольник (R)</resource>
 		<resource name="editor_drawtextbox">Добавить текстовое поле (T)</resource>
-		<resource name="editor_duplicate">Дубликат выбранного элемента</resource>
+                <resource name="editor_dropshadow_settings">Настройки падающей тени</resource>
+                <resource name="editor_dropshadow_thickness">Толщина тени</resource>
+                <resource name="editor_dropshadow_offset">Смещение тени</resource>
+                <resource name="editor_dropshadow_darkness">Плотность тени</resource>
+                <resource name="editor_duplicate">Дубликат выбранного элемента</resource>
 		<resource name="editor_edit">Изменить</resource>
 		<resource name="editor_effects">Эффекты</resource>
 		<resource name="editor_email">E-Mail</resource>
@@ -126,19 +142,25 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_print">Печать</resource>
 		<resource name="editor_redo">Повторить {0}</resource>
 		<resource name="editor_resetsize">Сброс размера</resource>
-		<resource name="editor_rotateccw">Повернуть против часовой стрелки</resource>
-		<resource name="editor_rotatecw">Поворот по часовой стрелке</resource>
+		<resource name="editor_resize_percent">Процент</resource>
+		<resource name="editor_resize_pixel">Пиксели</resource>
+		<resource name="editor_rotateccw">Повернуть против часовой стрелки (Управление + ,)</resource>
+		<resource name="editor_rotatecw">Поворот по часовой стрелке (Управление + .)</resource>
 		<resource name="editor_save">Сохранить</resource>
 		<resource name="editor_save_objects">Сохранение объектов в файл</resource>
 		<resource name="editor_saveas">Сохранить как...</resource>
-		<resource name="editor_selectall">Выбрать все</resource>
+                <resource name="editor_selectall">Выбрать все</resource>
 		<resource name="editor_senttoprinter">Задание печати было направлено на '{0}'.</resource>
 		<resource name="editor_shadow">Тень</resource>
 		<resource name="editor_storedtoclipboard">Изображения, хранящиеся в буфере обмена.</resource>
 		<resource name="editor_thickness">Толщина линии</resource>
 		<resource name="editor_title">Графический редактор Greenshot</resource>
 		<resource name="editor_torn_edge">Рваные края</resource>
-		<resource name="editor_undo">Отменить {0}</resource>
+                <resource name="editor_tornedge_horizontaltoothrange">Горизонтальная частота зубцов</resource>
+                <resource name="editor_tornedge_settings">Параметры рваных краёв</resource>
+                <resource name="editor_tornedge_toothsize">Размер зубцов</resource>
+                <resource name="editor_tornedge_verticaltoothrange">Вертикальная частота зубцов</resource>
+                <resource name="editor_undo">Отменить {0}</resource>
 		<resource name="editor_uponelevel">На один уровень вверх</resource>
 		<resource name="editor_uptotop">На самый верх</resource>
 		<resource name="EmailFormat.MAPI">MAPI клиент</resource>

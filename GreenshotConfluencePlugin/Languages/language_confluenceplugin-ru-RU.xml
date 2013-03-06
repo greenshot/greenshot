@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Русский" ietf="ru-RU" version="0.8.0" languagegroup="">
-	<resources>
+<language description="Русский" ietf="ru-RU" version="0.8.0">
+ <resources>
 	<resource name="plugin_settings">
 		Параметры Confluence
 	</resource>

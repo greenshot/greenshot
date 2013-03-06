@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Русский" ietf="ru-RU" version="1.0.5">
+<language description="Русский" ietf="ru-RU" version="1.0.0">
   <resources>
 	<resource name="label_AfterUploadLinkToClipBoard">
-	  Ссылки в буфер обмена
+	  Ссылка в буфер обмена
 	</resource>
 	<resource name="label_AfterUpload">
 	  После загрузки
@@ -24,7 +24,7 @@
 	</resource>
 	<resource name="label_upload_format">
 	  Формат изображения
-  	</resource>
+	</resource>
 	<resource name="communication_wait">
 	  Обмен данными с Picasa. Подождите...
 	</resource>

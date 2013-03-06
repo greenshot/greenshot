@@ -1,17 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Русский" ietf="ru-RU" version="1.0.5">
+<language description="Русский" ietf="ru-RU" version="1.0.0">
 	<resources>
 	 <resource name="label_HiddenFromSearch">
-			Поиск скрытых форм		</resource>
+                         Поиск скрытых форм
+		</resource>
 		<resource name="label_SafetyLevel">
-			Уровень безопасности		</resource>
-    <resource name="label_AfterUploadLinkToClipBoard">
-     Ссылка в буфер обмена    </resource>
+			Уровень безопасности
+		</resource>
+        <resource name="label_AfterUploadLinkToClipBoard">
+           Ссылка в буфер обмена
+        </resource>
 		<resource name="label_AfterUpload">
-		После загрузки		</resource>
-    <resource name="Configure">
+		После загрузки
+		</resource>
+        <resource name="Configure">
 			Настройка Flickr
-	</resource>
+	         </resource>
 		<resource name="upload_menu_item">
 		Загрузить на Flickr
 	</resource>
@@ -25,17 +29,19 @@
 		Произошла ошибка при загрузке на Flickr:
 	</resource>
 		<resource name="label_upload_format">
-			Формат изображения	</resource>
+                 Формат изображения
+	</resource>
 		<resource name="communication_wait">
-			Общение с Flickr. Подождите...
+			Обмен данными с Flickr. Подождите...
 	</resource>
 	  <resource name="public">
           Общество
 	  </resource>
-    <resource name="family">
-      Семья    </resource>
-    <resource name="friend">
-      Друг
-    </resource>
+         <resource name="family">
+           Семья
+         </resource>
+         <resource name="friend">
+            Друг
+         </resource>
   </resources>
 </language>

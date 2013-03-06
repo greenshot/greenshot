@@ -12,21 +12,21 @@
 		</resource>
 		<resource name="upload_menu_item">
 		Загрузить на Box
-		</resource>
-		<resource name="settings_title">
+	</resource>
+	<resource name="settings_title">
 		Параметры Box
-		</resource>
+	</resource>
 		<resource name="upload_success">
 		Изображение успешно загружено на Box!
-		</resource>
+	</resource>
 		<resource name="upload_failure">
 		Произошла ошибка при загрузке на Box:
-		</resource>
+	</resource>
 		<resource name="label_upload_format">
 			Формат изображения
-		</resource>
+	</resource>
 		<resource name="communication_wait">
 			Обмен данными с Box. Подождите...
-		</resource>
+	</resource>
 	</resources>
 </language>
