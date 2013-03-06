@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Français" ietf="fr-FR" version="1.1.0.2400" languagegroup="1">
+<language description="Français" ietf="fr-FR" version="1.1.0.2437" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Veuillez rapporter les bogues à</resource>
 		<resource name="about_donations">Si vous aimez Greenshot, vous pouvez nous soutenir :</resource>
@@ -22,6 +22,8 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="CANCEL">Annuler</resource>
 		<resource name="clipboard_error">Une erreur inattendue a eu lieu lors de l'écriture vers le presse-papier.</resource>
 		<resource name="clipboard_inuse">Greenshot n'a pu écrire dans le presse-papier car le processus {0} en a bloqué l'accès.</resource>
+		<resource name="clipboard_noimage">Impossible de trouver une image dans le presse-papiers.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
 		<resource name="ClipboardFormat.DIB">Format d'image indépendante du périphérique (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML avec images en ligne</resource>
@@ -60,6 +62,14 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="contextmenu_quicksettings">Préférences rapides</resource>
 		<resource name="contextmenu_settings">Préférences...</resource>
 		<resource name="destination_exportfailed">Erreur lors de l'exportation vers {0}. Veuillez réessayer de nouveau.</resource>
+		<resource name="editor_align_bottom">En bas</resource>
+		<resource name="editor_align_center">Centré</resource>
+		<resource name="editor_align_horizontal">Alignement horizontal</resource>
+		<resource name="editor_align_left">Aligner à gauche</resource>
+		<resource name="editor_align_middle">Au centre</resource>
+		<resource name="editor_align_right">Aligner à droite</resource>
+		<resource name="editor_align_top">En haut</resource>
+		<resource name="editor_align_vertical">Alignement vertical</resource>
 		<resource name="editor_arrange">Organiser</resource>
 		<resource name="editor_arrowheads">Pointes de flèche</resource>
 		<resource name="editor_arrowheads_both">Les deux</resource>
@@ -119,7 +129,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_load_objects">Charger les objets depuis un fichier</resource>
 		<resource name="editor_magnification_factor">Facteur de grossissement</resource>
 		<resource name="editor_match_capture_size">Adapter le format de capture</resource>
-		<resource name="editor_obfuscate">Occulter (O)</resource>
+		<resource name="editor_obfuscate">Brouiller (O)</resource>
 		<resource name="editor_obfuscate_blur">Flouter</resource>
 		<resource name="editor_obfuscate_mode">Mode de brouillage</resource>
 		<resource name="editor_obfuscate_pixelize">Pixéliser</resource>
