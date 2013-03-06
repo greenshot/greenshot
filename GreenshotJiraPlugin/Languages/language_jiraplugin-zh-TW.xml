@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
+	<resources>
+		<resource name="CANCEL">取消</resource>
+		<resource name="column_assignee">指派</resource>
+		<resource name="column_created">建立日期</resource>
+		<resource name="column_id">ID</resource>
+		<resource name="column_reporter">報導</resource>
+		<resource name="column_summary">摘要</resource>
+		<resource name="communication_wait">正在傳輸資料到 JIRA，請稍候...</resource>
+		<resource name="label_comment">註解</resource>
+		<resource name="label_filename">檔案名稱</resource>
+		<resource name="label_jira">JIRA</resource>
+		<resource name="label_jirafilter">JIRA 篩選</resource>
+		<resource name="label_upload_format">圖片格式</resource>
+		<resource name="label_url">URL</resource>
+		<resource name="login_error">登入期間發生問題: {0}</resource>
+		<resource name="login_title">請輸入您的 JIRA 登入資料</resource>
+		<resource name="OK">確定</resource>
+		<resource name="settings_title">JIRA 設定</resource>
+		<resource name="upload_failure">上傳到 JIRA 時發生錯誤:</resource>
+		<resource name="upload_menu_item">上傳到</resource>
+		<resource name="upload_success">上傳圖片到 JIRA 成功!</resource>
+	</resources>
+</language>

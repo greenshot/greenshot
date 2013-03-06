@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
+	<resources>
+		<resource name="language">OCR 語言</resource>
+		<resource name="orient_image">定向圖片</resource>
+		<resource name="straighten_image">拉直圖片</resource>
+	</resources>
+</language>

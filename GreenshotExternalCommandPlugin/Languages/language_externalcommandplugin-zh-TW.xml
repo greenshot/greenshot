@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
+	<resources>
+		<resource name="contextmenu_configure">組態外部命令</resource>
+		<resource name="label_argument">引數</resource>
+		<resource name="label_command">命令</resource>
+		<resource name="label_information">{0} 是螢幕擷圖的檔案名稱</resource>
+		<resource name="label_name">名稱</resource>
+		<resource name="settings_delete">刪除</resource>
+		<resource name="settings_detail_title">組態命令</resource>
+		<resource name="settings_edit">編輯</resource>
+		<resource name="settings_new">新增</resource>
+		<resource name="settings_title">外部命令設定</resource>
+	</resources>
+</language>
