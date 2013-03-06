@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Français" ietf="fr-FR" version="1.1.0.2437" languagegroup="1">
+<language description="Français" ietf="fr-FR" version="1.1.0.2515" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Veuillez rapporter les bogues à</resource>
 		<resource name="about_donations">Si vous aimez Greenshot, vous pouvez nous soutenir :</resource>
@@ -195,9 +195,13 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="printoptions_allowenlarge">Élargir aux dimensions de la page</resource>
 		<resource name="printoptions_allowrotate">Tourner l'impression selon l'orientation de la page</resource>
 		<resource name="printoptions_allowshrink">Réduire aux dimensions de la page</resource>
-		<resource name="printoptions_dontaskagain">Enregistrer ces options comme valeurs par défaut et ne plus le demander.</resource>
+		<resource name="printoptions_colors">Paramètres d'impression couleur</resource>
+    <resource name="printoptions_dontaskagain">Enregistrer ces options comme valeurs par défaut et ne plus le demander.</resource>
 		<resource name="printoptions_inverted">Imprimer en couleurs inversées</resource>
+		<resource name="printoptions_layout">Paramètres de mise en page</resource>
+    <resource name="printoptions_printcolor">Impression en couleur</resource>
 		<resource name="printoptions_printgrayscale">Forcer l'impression en niveaux de gris</resource>
+		<resource name="printoptions_printmonochrome">Forcer l'impression en noir/blanc</resource>
 		<resource name="printoptions_timestamp">Imprimer la date et l'heure dans le pied de page</resource>
 		<resource name="printoptions_title">Greenshot - Options d'impression</resource>
 		<resource name="qualitydialog_dontaskagain">Enregistrer en tant que qualité par défaut et ne plus le demander</resource>
