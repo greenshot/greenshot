@@ -323,6 +323,9 @@ namespace Greenshot.Drawing {
 		}
 		
 		protected virtual void DoLayout() {
+			if (grippers == null) {
+				return;
+			}
 			if (!layoutSuspended) {
 				int[] xChoords = new int[]{this.Left-2,this.Left+this.Width/2-2,this.Left+this.Width-2};
 				int[] yChoords = new int[]{this.Top-2,this.Top+this.Height/2-2,this.Top+this.Height-2};
@@ -471,17 +474,24 @@ namespace Greenshot.Drawing {
 		}
 		
 		public virtual void ShowGrippers() {
-			for (int i=0; i<grippers.Length; i++) {
-				if(grippers[i].Enabled) grippers[i].Show();
-				else grippers[i].Hide();
+			if (grippers != null) {
+				for (int i = 0; i < grippers.Length; i++) {
+					if (grippers[i].Enabled) {
+						grippers[i].Show();
+					} else {
+						grippers[i].Hide();
+					}
+				}
 			}
 			this.ResumeLayout();
 		}
 		
 		public void HideGrippers() {
 			this.SuspendLayout();
-			for (int i=0; i<grippers.Length; i++) {
-				grippers[i].Hide();
+			if (grippers != null) {
+				for (int i = 0; i < grippers.Length; i++) {
+					grippers[i].Hide();
+				}
 			}
 		}
 		
@@ -554,11 +564,11 @@ namespace Greenshot.Drawing {
 		}
 		
 		private void SwitchParent(Surface newParent) {
-			if (parent != null) {
+			if (parent != null && grippers != null) {
 				for (int i=0; i<grippers.Length; i++) {
 					parent.Controls.Remove(grippers[i]);
 				}
-			} else if(grippers == null) {
+			} else if (grippers == null) {
 				InitControls();
 			}
 			parent = newParent;

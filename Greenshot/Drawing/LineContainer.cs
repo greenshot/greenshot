@@ -50,8 +50,10 @@ namespace Greenshot.Drawing {
 		}
 
 		protected void Init() {
-			foreach(int index in new int[]{1,2,3,5,6,7}) {
-				grippers[index].Enabled = false;
+			if (grippers != null) {
+				foreach (int index in new int[] { 1, 2, 3, 5, 6, 7 }) {
+					grippers[index].Enabled = false;
+				}
 			}
 		}
 		

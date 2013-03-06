@@ -58,9 +58,11 @@ namespace Greenshot.Drawing {
 		}
 		
 		protected void Init() {
-			for(int i=0; i<grippers.Length; i++) {
-				grippers[i].Enabled = false;
-				grippers[i].Visible = false;
+			if (grippers != null) {
+				for (int i = 0; i < grippers.Length; i++) {
+					grippers[i].Enabled = false;
+					grippers[i].Visible = false;
+				}
 			}
 		}
 		
