@@ -1260,7 +1260,7 @@ namespace Greenshot {
 				ex.Data.Add("path", path);
 				LOG.Warn("Couldn't open the path to the last exported file", ex);
 				// No reason to create a bug-form, we just display the error.
-				MessageBox.Show(ex.Message, "Greenshot", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show(this, ex.Message, "Opening " + path, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 		
