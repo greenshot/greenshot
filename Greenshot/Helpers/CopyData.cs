@@ -183,7 +183,7 @@ namespace Greenshot.Helpers {
 		/// after the form it is associated with.
 		/// </summary>
 		~CopyData() {
-			Dispose();
+			Dispose(false);
 		}
 	}
 

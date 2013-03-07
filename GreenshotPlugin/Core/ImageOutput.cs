@@ -91,13 +91,16 @@ namespace GreenshotPlugin.Core {
 		/// the stream is checked if it's seekable and if needed a MemoryStream as "cache" is used.
 		/// </summary>
 		/// <param name="imageToSave">image to save</param>
-		/// <param name="surface">surface for the elements, if the greenshot format is used</param>
+		/// <param name="surface">surface for the elements, needed if the greenshot format is used</param>
 		/// <param name="stream">Stream to save to</param>
 		/// <param name="outputSettings">SurfaceOutputSettings</param>
 		public static void SaveToStream(Image imageToSave, ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
 			ImageFormat imageFormat = null;
 			bool useMemoryStream = false;
 			MemoryStream memoryStream = null;
+			if (outputSettings.Format == OutputFormat.greenshot && surface == null) {
+				throw new ArgumentException("Surface needs to be se when using OutputFormat.Greenshot");
+			}
 
 			try {
 				switch (outputSettings.Format) {

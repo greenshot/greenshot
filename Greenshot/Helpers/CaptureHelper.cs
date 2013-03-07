@@ -55,7 +55,32 @@ namespace Greenshot.Helpers {
 		private CaptureMode captureMode;
 		private ScreenCaptureMode screenCaptureMode = ScreenCaptureMode.Auto;
 		private Thread windowDetailsThread = null;
-		
+
+		/// <summary>
+		/// The public accessible Dispose
+		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
+		/// </summary>
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		// The bulk of the clean-up code is implemented in Dispose(bool)
+
+		/// <summary>
+		/// This Dispose is called from the Dispose and the Destructor.
+		/// When disposing==true all non-managed resources should be freed too!
+		/// </summary>
+		/// <param name="disposing"></param>
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				// Cleanup
+			}
+			windows = null;
+			selectedCaptureWindow = null;
+			windowDetailsThread = null;
+			capture = null;
+		}
 		public static void CaptureClipboard() {
 			new CaptureHelper(CaptureMode.Clipboard).MakeCapture();
 		}

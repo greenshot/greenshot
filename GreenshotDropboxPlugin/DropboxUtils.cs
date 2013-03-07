@@ -66,10 +66,12 @@ namespace GreenshotDropboxPlugin {
 			// Try to get a URL to the uploaded image
 			try {
 				string responseString = oAuth.MakeOAuthRequest(HTTPMethod.GET, "https://api.dropbox.com/1/shares/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, null);
-				LOG.DebugFormat("Parsing output: {0}", responseString);
-				IDictionary<string, object> returnValues = JSONHelper.JsonDecode(responseString);
-				if (returnValues.ContainsKey("url")) {
-					return returnValues["url"] as string;
+				if (responseString != null) {
+					LOG.DebugFormat("Parsing output: {0}", responseString);
+					IDictionary<string, object> returnValues = JSONHelper.JsonDecode(responseString);
+					if (returnValues.ContainsKey("url")) {
+						return returnValues["url"] as string;
+					}
 				}
 			} catch (Exception ex) {
 				LOG.Error("Can't parse response.", ex);

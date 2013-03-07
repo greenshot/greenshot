@@ -83,6 +83,9 @@ namespace GreenshotPicasaPlugin {
 		}
 		
 		public static string ParseResponse(string response) {
+			if (response == null) {
+				return null;
+			}
 			try {
 				XmlDocument doc = new XmlDocument();
 				doc.LoadXml(response);

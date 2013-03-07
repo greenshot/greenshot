@@ -1020,7 +1020,7 @@ namespace GreenshotPlugin.Core {
 			imageAttributes.SetColorMatrix(colorMatrix);
 			ApplyImageAttributes(source, sourceRect, dest, destRect, imageAttributes);
 		}
-
+ 
 		/// <summary>
 		/// Apply image attributes to the image
 		/// </summary>
