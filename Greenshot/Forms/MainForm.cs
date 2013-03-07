@@ -1239,24 +1239,28 @@ namespace Greenshot {
 		/// The Contextmenu_OpenRecent currently opens the last know save location
 		/// </summary>
 		private void Contextmenu_OpenRecent(object sender, EventArgs eventArgs) {
-			string path;
-			string configPath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
-			string lastFilePath = Path.GetDirectoryName(conf.OutputFileAsFullpath);
-			if (Directory.Exists(lastFilePath)) {
-				path = lastFilePath;
-			} else if (Directory.Exists(configPath)) {
-				path = configPath;
-			} else {
-				// What do I open when nothing can be found? Right, nothing...
-				return;
+			string path = FilenameHelper.FillVariables(conf.OutputFilePath, false);
+			// Fix for #1470, problems with a drive which is no longer available
+			try {
+				string lastFilePath = Path.GetDirectoryName(conf.OutputFileAsFullpath);
+				if (Directory.Exists(lastFilePath)) {
+					path = lastFilePath;
+				} else if (!Directory.Exists(path)) {
+					// What do I open when nothing can be found? Right, nothing...
+					return;
+				}
+			} catch (Exception ex) {
+				LOG.Warn("Couldn't open the path to the last exported file, taking default.", ex);
 			}
 			LOG.Debug("DoubleClick was called! Starting: " + path);
 			try {
 				System.Diagnostics.Process.Start(path);
-			} catch (Exception e) {
+			} catch (Exception ex) {
 				// Make sure we show what we tried to open in the exception
-				e.Data.Add("path", path);
-				throw;
+				ex.Data.Add("path", path);
+				LOG.Warn("Couldn't open the path to the last exported file", ex);
+				// No reason to create a bug-form, we just display the error.
+				MessageBox.Show(ex.Message, "Greenshot", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 		
