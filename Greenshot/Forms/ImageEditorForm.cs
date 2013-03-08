@@ -1281,24 +1281,23 @@ namespace Greenshot {
 				return;
 			}
 			Size imageSize = this.Surface.Image.Size;
-			Size currentImageClientSize = this.panel1.ClientSize;
+			Size currentClientSize = this.panel1.ClientSize;
 			var canvas = this.Surface as Control;
-			if (currentImageClientSize.Width > imageSize.Width) {
-				if (canvas != null) {
-					canvas.Left = (currentImageClientSize.Width - imageSize.Width) / 2;
-				}
-			} else {
-				if (canvas != null) {
-					canvas.Left = 0;
+			Panel panel = (Panel)canvas.Parent;
+			int offsetX = -panel.HorizontalScroll.Value;
+			int offsetY = -panel.VerticalScroll.Value;
+			if (canvas != null) {
+				if (currentClientSize.Width > imageSize.Width) {
+					canvas.Left = offsetX + ((currentClientSize.Width - imageSize.Width) / 2);
+				} else {
+					canvas.Left = offsetX + 0;
 				}
 			}
-			if (currentImageClientSize.Height > imageSize.Height) {
-				if (canvas != null) {
-					canvas.Top = (currentImageClientSize.Height - imageSize.Height) / 2;
-				}
-			} else {
-				if (canvas != null) {
-					canvas.Top = 0;
+			if (canvas != null) {
+				if (currentClientSize.Height > imageSize.Height) {
+					canvas.Top = offsetY + ((currentClientSize.Height - imageSize.Height) / 2);
+				} else {
+					canvas.Top = offsetY + 0;
 				}
 			}
 		}
