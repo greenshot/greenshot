@@ -1348,6 +1348,7 @@ namespace Greenshot.Drawing {
 						ApplyCrop(cropContainer.Bounds);
 					}
 					cropContainer.Dispose();
+					cropContainer = null;
 				}
 			}
 		}
