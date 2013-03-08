@@ -175,10 +175,7 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="sfd">a SaveFileDialog instance</param>
 		private void ApplySuggestedValues() {
 			// build the full path and set dialog properties
-			string filenameFromPattern = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, captureDetails);
-			
-			FileName = Path.GetFileNameWithoutExtension(filenameFromPattern);
-			Extension = Path.GetExtension(filenameFromPattern);
+			FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, captureDetails);
 		}
 		
 		private string GetRootDirFromConfig() {
