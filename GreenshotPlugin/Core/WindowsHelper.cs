@@ -1117,14 +1117,13 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		/// <param name="image">The bitmap to remove the corners from.</param>
 		private void RemoveCorners(Bitmap image) {
-			using (BitmapBuffer buffer = new BitmapBuffer((Bitmap)image, false)) {
-				buffer.Lock();
+			using (IFastBitmap fastBitmap = FastBitmap.Create(image)) {
 				for (int y = 0; y < conf.WindowCornerCutShape.Count; y++) {
 					for (int x = 0; x < conf.WindowCornerCutShape[y]; x++) {
-						buffer.SetColorAt(x, y, Color.Transparent);
-						buffer.SetColorAt(image.Width-1-x, y, Color.Transparent);
-						buffer.SetColorAt(image.Width-1-x, image.Height-1-y, Color.Transparent);
-						buffer.SetColorAt(x, image.Height-1-y, Color.Transparent);
+						fastBitmap.SetColorAt(x, y, Color.Transparent);
+						fastBitmap.SetColorAt(image.Width-1-x, y, Color.Transparent);
+						fastBitmap.SetColorAt(image.Width-1-x, image.Height-1-y, Color.Transparent);
+						fastBitmap.SetColorAt(x, image.Height-1-y, Color.Transparent);
 					}
 				}
 			}
@@ -1139,23 +1138,19 @@ namespace GreenshotPlugin.Core  {
 		/// <param name="whiteBitmap">Bitmap with the black image</param>
 		/// <returns>Bitmap with transparency</returns>
 		private Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap) {
-			Bitmap returnBitmap = new Bitmap(blackBitmap.Width, blackBitmap.Height, PixelFormat.Format32bppArgb);
-			returnBitmap.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
-			using (BitmapBuffer blackBuffer = new BitmapBuffer(blackBitmap, false)) {
-				blackBuffer.Lock();
-				using (BitmapBuffer whiteBuffer = new BitmapBuffer(whiteBitmap, false)) {
-					whiteBuffer.Lock();
-					using (BitmapBuffer targetBuffer = new BitmapBuffer(returnBitmap, false)) {
-						targetBuffer.Lock();
-						for(int y=0; y<blackBuffer.Height;y++) {
-							for(int x=0; x<blackBuffer.Width;x++) {
-								Color c0 = blackBuffer.GetColorAt(x,y);
-								Color c1 = whiteBuffer.GetColorAt(x,y);
+			using (IFastBitmap targetBuffer = FastBitmap.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent)) {
+				targetBuffer.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
+				using (IFastBitmap blackBuffer = FastBitmap.Create(blackBitmap)) {
+					using (IFastBitmap whiteBuffer = FastBitmap.Create(whiteBitmap)) {
+						for (int y = 0; y < blackBuffer.Height; y++) {
+							for (int x = 0; x < blackBuffer.Width; x++) {
+								Color c0 = blackBuffer.GetColorAt(x, y);
+								Color c1 = whiteBuffer.GetColorAt(x, y);
 								// Calculate alpha as double in range 0-1
 								double alpha = (c0.R - c1.R + 255) / 255d;
 								if (alpha == 1) {
 									// Alpha == 1 means no change!
-									targetBuffer.SetColorAt(x, y, c0); 
+									targetBuffer.SetColorAt(x, y, c0);
 								} else if (alpha == 0) {
 									// Complete transparency, use transparent pixel
 									targetBuffer.SetColorAt(x, y, Color.Transparent);
@@ -1168,14 +1163,14 @@ namespace GreenshotPlugin.Core  {
 									byte originalBlue = (byte)Math.Min(255, c0.B / alpha);
 									Color originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
 									//Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
-									targetBuffer.SetColorAt(x, y, originalColor); 
+									targetBuffer.SetColorAt(x, y, originalColor);
 								}
 							}
 						}
 					}
 				}
+				return targetBuffer.UnlockAndReturnBitmap();
 			}
-			return returnBitmap;
 		}
 		
 		/// <summary>

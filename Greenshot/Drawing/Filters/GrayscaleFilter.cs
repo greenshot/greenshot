@@ -22,6 +22,8 @@ using System;
 using System.Drawing;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace Greenshot.Drawing.Filters {
 	/// <summary>
@@ -39,20 +41,23 @@ namespace Greenshot.Drawing.Filters {
 				// nothing to do
 				return;
 			}
-
-			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
-				for (int y = 0; y < fastBitmap.Height; y++) {
-					for (int x = 0; x < fastBitmap.Width; x++) {
-						if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
-							Color color = fastBitmap.GetColorAt(x, y);
-							int luma = (int)((0.3 * color.R) + (0.59 * color.G) + (0.11 * color.B));
-							color = Color.FromArgb(luma, luma, luma);
-							fastBitmap.SetColorAt(x, y, color);
-						}
-					}
-				}
-				fastBitmap.DrawTo(graphics, applyRect.Location);
+			GraphicsState state = graphics.Save();
+			if (Invert) {
+				graphics.SetClip(applyRect);
+				graphics.ExcludeClip(rect);
 			}
+			ColorMatrix grayscaleMatrix = new ColorMatrix(new float[][] {
+				new float[] {.3f, .3f, .3f, 0, 0},
+				new float[] {.59f, .59f, .59f, 0, 0},
+				new float[] {.11f, .11f, .11f, 0, 0},
+				new float[] {0, 0, 0, 1, 0},
+				new float[] {0, 0, 0, 0, 1}
+			});
+			ImageAttributes ia = new ImageAttributes();
+			ia.SetColorMatrix(grayscaleMatrix);
+			graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
+			graphics.Restore(state);
+
 		}
 	}
 }

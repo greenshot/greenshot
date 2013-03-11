@@ -332,21 +332,19 @@ namespace GreenshotPlugin.Core {
 
 			LOG.Info("Starting bitmap reconstruction...");
 
-			using (FastChunkyBitmap bbbDest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap) {
-				bbbDest.Lock();
-				using (IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap)) {
-					IFastBitmapWithBlend bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
-					bbbSrc.Lock();
+			using (FastChunkyBitmap dest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap) {
+				using (IFastBitmap src = FastBitmap.Create(sourceBitmap)) {
+					IFastBitmapWithBlend srcBlend = src as IFastBitmapWithBlend;
 					Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
 					byte bestMatch;
-					for (int y = 0; y < bbbSrc.Height; y++) {
-						for (int x = 0; x < bbbSrc.Width; x++) {
+					for (int y = 0; y < src.Height; y++) {
+						for (int x = 0; x < src.Width; x++) {
 							Color color;
-							if (bbbSrcBlend != null) {
+							if (srcBlend != null) {
 								// WithoutAlpha, this makes it possible to ignore the alpha
-								color = bbbSrcBlend.GetBlendedColorAt(x, y);
+								color = srcBlend.GetBlendedColorAt(x, y);
 							} else {
-								color = bbbSrc.GetColorAt(x, y);
+								color = src.GetColorAt(x, y);
 							}
 
 							// Check if we already matched the color
@@ -354,7 +352,7 @@ namespace GreenshotPlugin.Core {
 								// If not we need to find the best match
 
 								// First get initial match
-								bestMatch = bbbDest.GetColorIndexAt(x, y);
+								bestMatch = dest.GetColorIndexAt(x, y);
 								bestMatch = tag[bestMatch];
 
 								Int32 bestDistance = 100000000;
@@ -384,7 +382,7 @@ namespace GreenshotPlugin.Core {
 							blues[bestMatch] += color.B;
 							sums[bestMatch]++;
 
-							bbbDest.SetColorIndexAt(x, y, bestMatch);
+							dest.SetColorIndexAt(x, y, bestMatch);
 						}
 					}
 				}

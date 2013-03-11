@@ -86,16 +86,44 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Height of the underlying image
+		/// Height of the image area that this fastbitmap covers
 		/// </summary>
 		int Height {
 			get;
 		}
 
 		/// <summary>
-		/// Width of the underlying image
+		/// Width of the image area that this fastbitmap covers
 		/// </summary>
 		int Width {
+			get;
+		}
+
+		/// <summary>
+		/// Top of the image area that this fastbitmap covers
+		/// </summary>
+		int Top {
+			get;
+		}
+
+		/// <summary>
+		/// Left of the image area that this fastbitmap covers
+		/// </summary>
+		int Left {
+			get;
+		}
+
+		/// <summary>
+		/// Right of the image area that this fastbitmap covers
+		/// </summary>
+		int Right {
+			get;
+		}
+
+		/// <summary>
+		/// Bottom of the image area that this fastbitmap covers
+		/// </summary>
+		int Bottom {
 			get;
 		}
 
@@ -136,6 +164,108 @@ namespace GreenshotPlugin.Core {
 		/// <param name="y"></param>
 		/// <returns></returns>
 		bool Contains(int x, int y);
+
+		/// <summary>
+		/// Set the bitmap resolution
+		/// </summary>
+		/// <param name="horizontal"></param>
+		/// <param name="vertical"></param>
+		void SetResolution(float horizontal, float vertical);
+	}
+
+	/// <summary>
+	/// This interface can be used for when offsetting is needed
+	/// </summary>
+	public interface IFastBitmapWithOffset : IFastBitmap {
+		/// <summary>
+		/// Return true if the coordinates are inside the FastBitmap
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		bool Contains(int x, int y);
+
+		/// <summary>
+		/// Set the color at the specified location, using offsetting so the original coordinates can be used
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <param name="color">Color color</param>
+		new void SetColorAt(int x, int y, Color color);
+
+		/// <summary>
+		/// Set the color at the specified location, using offsetting so the original coordinates can be used
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <param name="color">byte[] color</param>
+		new void SetColorAt(int x, int y, byte[] color);
+
+		/// <summary>
+		/// Get the color at x,y
+		/// The returned Color object depends on the underlying pixel format
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <returns>Color</returns>
+		new Color GetColorAt(int x, int y);
+
+		/// <summary>
+		/// Get the color at x,y, using offsetting so the original coordinates can be used
+		/// The returned byte[] color depends on the underlying pixel format
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</par
+		new void GetColorAt(int x, int y, byte[] color);
+
+		new int Left {
+			get;
+			set;
+		}
+
+		new int Top {
+			get;
+			set;
+		}
+	}
+
+	/// <summary>
+	/// This interface can be used for when clipping is needed
+	/// </summary>
+	public interface IFastBitmapWithClip : IFastBitmap {
+		Rectangle Clip {
+			get;
+			set;
+		}
+
+		bool InvertClip {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Set the color at the specified location, this doesn't do anything if the location is excluded due to clipping
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <param name="color">Color color</param>
+		new void SetColorAt(int x, int y, Color color);
+
+		/// <summary>
+		/// Set the color at the specified location, this doesn't do anything if the location is excluded due to clipping
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <param name="color">byte[] color</param>
+		new void SetColorAt(int x, int y, byte[] color);
+
+		/// <summary>
+		/// Return true if the coordinates are inside the FastBitmap and not clipped
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		new bool Contains(int x, int y);
 	}
 
 	/// <summary>
@@ -152,7 +282,7 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// The base class for the fast bitmap implementation
 	/// </summary>
-	public unsafe abstract class FastBitmap : IFastBitmap {
+	public unsafe abstract class FastBitmap : IFastBitmap, IFastBitmapWithClip, IFastBitmapWithOffset {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FastBitmap));
 
 		protected const int PIXELFORMAT_INDEX_A = 3;
@@ -174,6 +304,16 @@ namespace GreenshotPlugin.Core {
 			set;
 		}
 
+		public Rectangle Clip {
+			get;
+			set;
+		}
+
+		public bool InvertClip {
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// The bitmap for which the FastBitmap is creating access
 		/// </summary>
@@ -187,6 +327,11 @@ namespace GreenshotPlugin.Core {
 		public static IFastBitmap Create(Bitmap source) {
 			return Create(source, Rectangle.Empty);
 		}
+
+		public void SetResolution(float horizontal, float vertical) {
+			bitmap.SetResolution(horizontal, vertical);
+		}
+
 		/// <summary>
 		/// Factory for creating a FastBitmap depending on the pixelformat of the source
 		/// The supplied rectangle specifies the area for which the FastBitmap does its thing
@@ -247,8 +392,10 @@ namespace GreenshotPlugin.Core {
 		/// <returns>IFastBitmap</returns>
 		public static IFastBitmap CreateCloneOf(Image source, PixelFormat pixelFormat, Rectangle area) {
 			Bitmap destination = ImageHelper.CloneArea(source, area, pixelFormat);
-			IFastBitmap fastBitmap = Create(destination);
-			((FastBitmap)fastBitmap).NeedsDispose = true;
+			FastBitmap fastBitmap = Create(destination) as FastBitmap;
+			fastBitmap.NeedsDispose = true;
+			fastBitmap.Left = area.Left;
+			fastBitmap.Top = area.Top;
 			return fastBitmap;
 		}
 
@@ -279,6 +426,13 @@ namespace GreenshotPlugin.Core {
 			} else {
 				this.area = bitmapArea;
 			}
+			// As the lock takes care that only the specified area is made available we need to calculate the offset
+			this.Left = area.Left;
+			this.Top = area.Top;
+			// Default cliping is done to the area without invert
+			this.Clip = this.area;
+			this.InvertClip = false;
+			// Always lock, so we don't need to do this ourselves
 			Lock();
 		}
 
@@ -318,12 +472,79 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
+		private int left;
+		/// <summary>
+		/// Return the left of the fastbitmap, this is also used as an offset
+		/// </summary>
+		public int Left {
+			get {
+				return 0;
+			}
+			set {
+				left = value;
+			}
+		}
+
+		/// <summary>
+		/// Return the left of the fastbitmap, this is also used as an offset
+		/// </summary>
+		int IFastBitmapWithOffset.Left {
+			get {
+				return left;
+			}
+			set {
+				left = value;
+			}
+		}
+
+		private int top;
+		/// <summary>
+		/// Return the top of the fastbitmap, this is also used as an offset
+		/// </summary>
+		public int Top {
+			get {
+				return 0;
+			}
+			set {
+				top = value;
+			}
+		}
+
+		/// <summary>
+		/// Return the top of the fastbitmap, this is also used as an offset
+		/// </summary>
+		int IFastBitmapWithOffset.Top {
+			get {
+				return top;
+			}
+			set {
+				top = value;
+			}
+		}
+
+		/// <summary>
+		/// Return the right of the fastbitmap
+		/// </summary>
+		public int Right {
+			get {
+				return Left + Width;
+			}
+		}
+
+		/// <summary>
+		/// Return the bottom of the fastbitmap
+		/// </summary>
+		public int Bottom {
+			get {
+				return Top + Height;
+			}
+		}
+
 		/// <summary>
 		/// Returns the underlying bitmap, unlocks it and prevents that it will be disposed
 		/// </summary>
 		public Bitmap UnlockAndReturnBitmap() {
 			if (bitsLocked) {
-				LOG.Warn("Unlocking the bitmap");
 				Unlock();
 			}
 			NeedsDispose = false;
@@ -401,7 +622,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="graphics"></param>
 		/// <param name="destination"></param>
 		public void DrawTo(Graphics graphics, Point destination) {
-			DrawTo(graphics, null, destination);
+			DrawTo(graphics, new Rectangle(destination, area.Size));
 		}
 
 		/// <summary>
@@ -410,38 +631,15 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <param name="destinationRect"></param>
-		public void DrawTo(Graphics graphics, Rectangle destinationRect) {
-			DrawTo(graphics, destinationRect, null);
-		}
-
-		/// <summary>
-		/// private helper to draw the bitmap
-		/// </summary>
-		/// <param name="graphics"></param>
-		/// <param name="destinationRect"></param>
 		/// <param name="destination"></param>
-		private void DrawTo(Graphics graphics, Rectangle? destinationRect, Point? destination) {
-			if (destinationRect.HasValue) {
-				// Does the rect have any pixels?
-				if (destinationRect.Value.Height <= 0 || destinationRect.Value.Width <= 0) {
-					return;
-				}
-			}
+		public void DrawTo(Graphics graphics, Rectangle destinationRect) {
 			// Make sure this.bitmap is unlocked, if it was locked
 			bool isLocked = bitsLocked;
 			if (isLocked) {
 				Unlock();
 			}
 
-			if (destinationRect.HasValue) {
-				graphics.DrawImage(this.bitmap, destinationRect.Value);
-			} else if (destination.HasValue) {
-				graphics.DrawImageUnscaled(this.bitmap, destination.Value);
-			}
-			// If it was locked, lock it again
-			if (isLocked) {
-				Lock();
-			}
+			graphics.DrawImage(this.bitmap, destinationRect, area, GraphicsUnit.Pixel);
 		}
 
 		/// <summary>
@@ -451,13 +649,75 @@ namespace GreenshotPlugin.Core {
 		/// <param name="y"></param>
 		/// <returns>true if x & y are inside the FastBitmap</returns>
 		public bool Contains(int x, int y) {
-			return x >= 0 && x < Width && y >= 0 && y < Height;
+			return area.Contains(x - Left, y - Top);
 		}
 
 		public abstract Color GetColorAt(int x, int y);
 		public abstract void SetColorAt(int x, int y, Color color);
 		public abstract void GetColorAt(int x, int y, byte[] color);
 		public abstract void SetColorAt(int x, int y, byte[] color);
+
+		#region IFastBitmapWithClip
+		bool IFastBitmapWithClip.Contains(int x, int y) {
+			bool contains = Clip.Contains(x, y);
+			if (InvertClip) {
+				return !contains;
+			} else {
+				return contains;
+			}
+		}
+
+		void IFastBitmapWithClip.SetColorAt(int x, int y, byte[] color) {
+			bool contains = Clip.Contains(x, y);
+			if ((InvertClip && contains) || (!InvertClip && !contains)) {
+				return;
+			}
+			SetColorAt(x, y, color);
+		}
+
+		void IFastBitmapWithClip.SetColorAt(int x, int y, Color color) {
+			bool contains = Clip.Contains(x, y);
+			if ((InvertClip && contains) || (!InvertClip && !contains)) {
+				return;
+			}
+			SetColorAt(x, y, color);
+		}
+		#endregion
+
+		#region IFastBitmapWithOffset
+		/// <summary>
+		/// returns true if x & y are inside the FastBitmap
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns>true if x & y are inside the FastBitmap</returns>
+		bool IFastBitmapWithOffset.Contains(int x, int y) {
+			return area.Contains(x - Left, y - Top);
+		}
+
+		Color IFastBitmapWithOffset.GetColorAt(int x, int y) {
+			x -= left;
+			y -= top;
+			return GetColorAt(x, y);
+		}
+		void IFastBitmapWithOffset.GetColorAt(int x, int y, byte[] color) {
+			x -= left;
+			y -= top;
+			GetColorAt(x, y, color);
+		}
+
+		void IFastBitmapWithOffset.SetColorAt(int x, int y, byte[] color) {
+			x -= left;
+			y -= top;
+			SetColorAt(x, y, color);
+		}
+
+		void IFastBitmapWithOffset.SetColorAt(int x, int y, Color color) {
+			x -= left;
+			y -= top;
+			SetColorAt(x, y, color);
+		}
+		#endregion
 	}
 
 	/// <summary>
@@ -771,6 +1031,5 @@ namespace GreenshotPlugin.Core {
 			}
 			return Color.FromArgb(255, red, green, blue);
 		}
-
 	}
 }

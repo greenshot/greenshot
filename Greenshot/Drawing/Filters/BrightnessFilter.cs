@@ -24,6 +24,7 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 
@@ -48,24 +49,14 @@ namespace Greenshot.Drawing.Filters {
 				return;
 			}
 
-			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
-				double brightness = GetFieldValueAsDouble(FieldType.BRIGHTNESS);
-				for (int y = 0; y < fastBitmap.Height; y++) {
-					for (int x = 0; x < fastBitmap.Width; x++) {
-						if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
-							Color color = fastBitmap.GetColorAt(x, y);
-							int r = Convert.ToInt16(color.R * brightness);
-							int g = Convert.ToInt16(color.G * brightness);
-							int b = Convert.ToInt16(color.B * brightness);
-							r = (r > 255) ? 255 : r;
-							g = (g > 255) ? 255 : g;
-							b = (b > 255) ? 255 : b;
-							fastBitmap.SetColorAt(x, y, Color.FromArgb(color.A, r, g, b));
-						}
-					}
-				}
-				fastBitmap.DrawTo(graphics, applyRect.Location);
+			GraphicsState state =  graphics.Save();
+			if (Invert) {
+				graphics.SetClip(applyRect);
+				graphics.ExcludeClip(rect);
 			}
+			ImageAttributes ia = ImageHelper.CreateAdjustAttributes(0.9f, 1f, 1f);
+			graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
+			graphics.Restore(state);
 		}
 	}
 }

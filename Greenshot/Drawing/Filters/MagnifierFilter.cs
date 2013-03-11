@@ -24,6 +24,7 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable] 
@@ -40,24 +41,22 @@ namespace Greenshot.Drawing.Filters {
 				return;
 			}
 			int magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
-
-			using (IFastBitmap destFastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
-				int halfWidth = destFastBitmap.Size.Width / 2;
-				int halfHeight = destFastBitmap.Size.Height / 2;
-				using (IFastBitmap sourceFastBitmap = FastBitmap.Create(applyBitmap, applyRect)) {
-					for (int y = 0; y < destFastBitmap.Height; y++) {
-						int yDistanceFromCenter = halfHeight - y;
-						for (int x = 0; x < destFastBitmap.Width; x++) {
-							int xDistanceFromCenter = halfWidth - x;
-							if (parent.Contains(applyRect.Left + x, applyRect.Top + y) ^ Invert) {
-								Color color = sourceFastBitmap.GetColorAt(halfWidth - xDistanceFromCenter / magnificationFactor, halfHeight - yDistanceFromCenter / magnificationFactor);
-								destFastBitmap.SetColorAt(x, y, color);
-							}
-						}
-					}
-				}
-				destFastBitmap.DrawTo(graphics, applyRect.Location);
+			GraphicsState state =  graphics.Save();
+			if (Invert) {
+				graphics.SetClip(applyRect);
+				graphics.ExcludeClip(rect);
 			}
+			graphics.SmoothingMode = SmoothingMode.None;
+			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+			graphics.CompositingQuality = CompositingQuality.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			int halfWidth = rect.Width / 2;
+			int halfHeight = rect.Height / 2;
+			int newWidth = rect.Width / magnificationFactor;
+			int newHeight = rect.Width / magnificationFactor;
+			Rectangle source = new Rectangle(rect.X + halfWidth - (newWidth / 2), rect.Y + halfHeight - (newHeight / 2), newWidth, newHeight);
+			graphics.DrawImage(applyBitmap, rect, source, GraphicsUnit.Pixel);
+			graphics.Restore(state);
 		}
 	}
 }

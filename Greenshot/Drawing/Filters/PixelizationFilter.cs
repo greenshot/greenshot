@@ -48,35 +48,36 @@ namespace Greenshot.Drawing.Filters {
 			if (rect.Height < pixelSize) {
 				pixelSize = rect.Height;
 			}
-
-			using (BitmapBuffer bbbDest = new BitmapBuffer(applyBitmap, rect)) {
-				bbbDest.Lock();
-				using (BitmapBuffer bbbSrc = new BitmapBuffer(applyBitmap, rect, false)) {
-					bbbSrc.Lock();
+			using (IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, rect)) {
+				using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect)) {
 					List<Color> colors = new List<Color>();
 					int halbPixelSize = pixelSize / 2;
-					for (int y = -halbPixelSize; y < bbbSrc.Height + halbPixelSize; y = y + pixelSize) {
-						for (int x = -halbPixelSize; x <= bbbSrc.Width + halbPixelSize; x = x + pixelSize) {
+					for (int y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y = y + pixelSize) {
+						for (int x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x = x + pixelSize) {
 							colors.Clear();
 							for (int yy = y; yy < y + pixelSize; yy++) {
-								if (yy >= 0 && yy < bbbSrc.Height) {
+								if (yy >= src.Top && yy < src.Bottom) {
 									for (int xx = x; xx < x + pixelSize; xx++) {
-										colors.Add(bbbSrc.GetColorAt(xx, yy));
+										if (xx >= src.Left && xx < src.Right) {
+											colors.Add(src.GetColorAt(xx, yy));
+										}
 									}
 								}
 							}
 							Color currentAvgColor = Colors.Mix(colors);
 							for (int yy = y; yy <= y + pixelSize; yy++) {
-								if (yy >= 0 && yy < bbbSrc.Height) {
+								if (yy >= src.Top && yy < src.Bottom) {
 									for (int xx = x; xx <= x + pixelSize; xx++) {
-										bbbDest.SetColorAt(xx, yy, currentAvgColor);
+										if (xx >= src.Left && xx < src.Right) {
+											dest.SetColorAt(xx, yy, currentAvgColor);
+										}
 									}
 								}
 							}
 						}
 					}
 				}
-				bbbDest.DrawTo(graphics, rect.Location);
+				dest.DrawTo(graphics, rect.Location);
 			}
 		}
 	}
