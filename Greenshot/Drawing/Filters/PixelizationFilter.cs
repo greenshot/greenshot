@@ -51,7 +51,7 @@ namespace Greenshot.Drawing.Filters {
 
 			using (BitmapBuffer bbbDest = new BitmapBuffer(applyBitmap, rect)) {
 				bbbDest.Lock();
-				using (BitmapBuffer bbbSrc = new BitmapBuffer(applyBitmap, rect)) {
+				using (BitmapBuffer bbbSrc = new BitmapBuffer(applyBitmap, rect, false)) {
 					bbbSrc.Lock();
 					List<Color> colors = new List<Color>();
 					int halbPixelSize = pixelSize / 2;
