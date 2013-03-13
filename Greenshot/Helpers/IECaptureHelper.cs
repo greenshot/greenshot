@@ -357,12 +357,14 @@ namespace Greenshot.Helpers {
 					LOG.Debug("Nothing to capture found");
 					return null;
 				}
-				LOG.DebugFormat("Window class {0}", documentContainer.ContentWindow.ClassName);
-				LOG.DebugFormat("Window location {0}", documentContainer.ContentWindow.Location);
 
-				// The URL is available unter "document2.url" and can be used to enhance the meta-data etc.
-				capture.CaptureDetails.AddMetaData("url", documentContainer.Url);
-	
+				try {
+					LOG.DebugFormat("Window class {0}", documentContainer.ContentWindow.ClassName);
+					LOG.DebugFormat("Window location {0}", documentContainer.ContentWindow.Location);
+				} catch (Exception ex) {
+					LOG.Warn("Error while logging information.", ex);
+				}
+
 				// bitmap to return
 				Bitmap returnBitmap = null;
 				Size pageSize = Size.Empty;
@@ -405,14 +407,20 @@ namespace Greenshot.Helpers {
 	
 				// Store the bitmap for further processing
 				capture.Image = returnBitmap;
-				// Store the location of the window
-				capture.Location = documentContainer.ContentWindow.Location;
+				try {
+					// Store the location of the window
+					capture.Location = documentContainer.ContentWindow.Location;
 
-				// Store the title of the page
-				if (documentContainer.Name != null) {
-					capture.CaptureDetails.Title = documentContainer.Name;
-				} else {
-					capture.CaptureDetails.Title = windowToCapture.Text;
+					// The URL is available unter "document2.url" and can be used to enhance the meta-data etc.
+					capture.CaptureDetails.AddMetaData("url", documentContainer.Url);
+					// Store the title of the page
+					if (documentContainer.Name != null) {
+						capture.CaptureDetails.Title = documentContainer.Name;
+					} else {
+						capture.CaptureDetails.Title = windowToCapture.Text;
+					}
+				} catch (Exception ex) {
+					LOG.Warn("Problems getting some attributes...", ex);
 				}
 
 				// Store the URL of the page
@@ -441,10 +449,13 @@ namespace Greenshot.Helpers {
 						LOG.Warn("Exception when trying to use url in metadata "+documentContainer.Url,e);
 					}
 				}
-
-				// Only move the mouse to correct for the capture offset
-				capture.MoveMouseLocation(-documentContainer.ViewportRectangle.X, -documentContainer.ViewportRectangle.Y);
-				// Used to be: capture.MoveMouseLocation(-(capture.Location.X + documentContainer.CaptureOffset.X), -(capture.Location.Y + documentContainer.CaptureOffset.Y));
+				try {
+					// Only move the mouse to correct for the capture offset
+					capture.MoveMouseLocation(-documentContainer.ViewportRectangle.X, -documentContainer.ViewportRectangle.Y);
+					// Used to be: capture.MoveMouseLocation(-(capture.Location.X + documentContainer.CaptureOffset.X), -(capture.Location.Y + documentContainer.CaptureOffset.Y));
+				} catch (Exception ex) {
+					LOG.Warn("Error while correcting the mouse offset.", ex);
+				}
 			} finally {
 				// Always close the background form
 				backgroundForm.CloseDialog();
