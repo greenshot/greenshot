@@ -79,13 +79,13 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="disposing">When disposing==true all non-managed resources should be freed too!</param>
 		protected override void Dispose(bool disposing) {
+			base.Dispose(disposing);
 			if (disposing) {
 				if (freehandPath != null) {
 					freehandPath.Dispose();
 				}
 			}
 			freehandPath = null;
-			base.Dispose(disposing);
 		}
 		
 		/// <summary>
