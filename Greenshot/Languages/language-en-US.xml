@@ -179,7 +179,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="expertsettings_counter">The number for the ${NUM} in the filename pattern</resource>
 		<resource name="expertsettings_enableexpert">I know what I am doing!</resource>
 		<resource name="expertsettings_footerpattern">Printer footer pattern</resource>
-		<resource name="expertsettings_minimizememoryfootprint">Minimize memory footprint, but with a performance penalty (not adviced).</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Minimize memory footprint, but with a performance penalty (not advised).</resource>
 		<resource name="expertsettings_optimizeforrdp">Make some optimizations for usage with remote desktop</resource>
 		<resource name="expertsettings_reuseeditorifpossible">Reuse editor if possible</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Suppress the save dialog when closing the editor</resource>
