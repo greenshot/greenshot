@@ -237,6 +237,11 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("MailApiBCC", Description = "The 'BCC' field for the email destination (settings for Outlook can be found under the Office section)", DefaultValue = "")]
 		public string MailApiBCC;
 
+		[IniProperty("OptimizePNGCommand", Description = "Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!", DefaultValue = "")]
+		public string OptimizePNGCommand;
+		[IniProperty("OptimizePNGCommandArguments", Description = "Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot.", DefaultValue = "\"{0}\"")]
+		public string OptimizePNGCommandArguments;
+
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.UNSTABLE;
 
