@@ -93,7 +93,7 @@ namespace Greenshot.Drawing {
 		public Image Image {
 			set {
 				// Remove all current bitmaps
-				Dispose(true);
+				disposeImages();
 				image = ImageHelper.Clone(value);
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 				CheckShadow(shadow);
@@ -118,16 +118,22 @@ namespace Greenshot.Drawing {
 		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				if (image != null) {
-					image.Dispose();
-				}
-				if (shadowBitmap != null) {
-					shadowBitmap.Dispose();
-				}
+				disposeImages();
 			}
 			image = null;
 			shadowBitmap = null;
 			base.Dispose(disposing);
+		}
+
+		private void disposeImages() {
+			if (image != null) {
+				image.Dispose();
+			}
+			if (shadowBitmap != null) {
+				shadowBitmap.Dispose();
+			}
+			image = null;
+			shadowBitmap = null;
 		}
 
 		/// <summary>
@@ -153,7 +159,7 @@ namespace Greenshot.Drawing {
 			Image newImage = ImageHelper.RotateFlip((Bitmap)image, rotateFlipType);
 			if (newImage != null) {
 				// Remove all current bitmaps, also the shadow (will be recreated)
-				Dispose(true);
+				disposeImages();
 				image = newImage;
 			}
 			base.Rotate(rotateFlipType);

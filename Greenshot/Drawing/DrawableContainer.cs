@@ -61,6 +61,7 @@ namespace Greenshot.Drawing {
 							grippers[i] = null;
 						}
 					}
+					grippers = null;
 				}
 
 				FieldAggregator aggProps = parent.FieldAggregator;

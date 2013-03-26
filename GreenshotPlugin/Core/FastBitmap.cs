@@ -183,7 +183,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <returns></returns>
-		bool Contains(int x, int y);
+		new bool Contains(int x, int y);
 
 		/// <summary>
 		/// Set the color at the specified location, using offsetting so the original coordinates can be used
