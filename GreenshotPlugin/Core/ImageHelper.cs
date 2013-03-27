@@ -38,6 +38,10 @@ namespace GreenshotPlugin.Core {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
+		// This delegate makes it possible that a plug-in delivers a quicker Blur implementation
+		public delegate void BlurDelegate(Bitmap bitmap, int radius);
+		public static BlurDelegate BlurReplacement;
+
 		/// <summary>
 		/// Create a thumbnail from an image
 		/// </summary>
@@ -741,13 +745,14 @@ namespace GreenshotPlugin.Core {
 			if ((shadowSize & 1) == 0) {
 				shadowSize++;
 			}
-			bool canUseGDIBlur = GDIplus.isBlurPossible(shadowSize);
+			bool useGDIBlur = GDIplus.isBlurPossible(shadowSize);
+			bool useBlurDelegate = BlurReplacement != null;
 			// Create "mask" for the shadow
 			ColorMatrix maskMatrix = new ColorMatrix();
 			maskMatrix.Matrix00 = 0;
 			maskMatrix.Matrix11 = 0;
 			maskMatrix.Matrix22 = 0;
-			if (canUseGDIBlur) {
+			if (useGDIBlur || useBlurDelegate) {
 				maskMatrix.Matrix33 = darkness + 0.1f;
 			} else {
 				maskMatrix.Matrix33 = darkness;
@@ -756,10 +761,12 @@ namespace GreenshotPlugin.Core {
 			ApplyColorMatrix((Bitmap)sourceBitmap, Rectangle.Empty, returnImage, shadowRectangle, maskMatrix);
 
 			// blur "shadow", apply to whole new image
-			if (canUseGDIBlur) {
+			if (useBlurDelegate) {
+				BlurReplacement(returnImage, shadowSize+1);
+			} else if (useGDIBlur) {
 				// Use GDI Blur
 				Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
-				GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize, false);
+				GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize+1, false);
 			} else {
 				// try normal software blur
 				//returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
