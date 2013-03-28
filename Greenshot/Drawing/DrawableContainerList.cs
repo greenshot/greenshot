@@ -40,7 +40,16 @@ namespace Greenshot.Drawing {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static System.ComponentModel.ComponentResourceManager editorFormResources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
 
+		public Guid ParentID {
+			get;
+			private set;
+		}
+
 		public DrawableContainerList() {
+		}
+
+		public DrawableContainerList(Guid parentID) {
+			ParentID = parentID;
 		}
 		
 		public EditStatus Status {
@@ -87,12 +96,13 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		public ISurface Parent {
 			get {
-				if(Count > 0) {
+				if (Count > 0) {
 					return this[Count-1].Parent;
 				}
 				return null;
 			}
-			set { 
+			set {
+				ParentID = value.ID;
 				foreach(DrawableContainer dc in this) {
 					dc.Parent = value;
 				}

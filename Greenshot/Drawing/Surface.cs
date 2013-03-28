@@ -49,6 +49,21 @@ namespace Greenshot.Drawing {
 		public static int Count = 0;
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
+		// Property to identify the Surface ID
+		private Guid uniqueID = Guid.NewGuid();
+
+		/// <summary>
+		/// The GUID of the surface
+		/// </summary>
+		public Guid ID {
+			get {
+				return uniqueID;
+			}
+			set {
+				uniqueID = value;
+			}
+		}
+
 		/// <summary>
 		/// Event handlers (do not serialize!)
 		/// </summary>
@@ -159,7 +174,7 @@ namespace Greenshot.Drawing {
 		/// all selected elements, do not serialize
 		/// </summary>
 		[NonSerialized]
-		private DrawableContainerList selectedElements = new DrawableContainerList();
+		private DrawableContainerList selectedElements;
 
 		/// <summary>
 		/// the element we are drawing with, do not serialize
@@ -198,7 +213,7 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// all elements on the surface, needed with serialization
 		/// </summary>
-		private DrawableContainerList elements = new DrawableContainerList();
+		private DrawableContainerList elements;
 
 		/// <summary>
 		/// all elements on the surface, needed with serialization
@@ -366,6 +381,8 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		public Surface() : base(){
 			Count++;
+			elements = new DrawableContainerList(uniqueID);
+			selectedElements = new DrawableContainerList(uniqueID);
 			LOG.Debug("Creating surface!");
 			this.MouseDown += new MouseEventHandler(SurfaceMouseDown);
 			this.MouseUp += new MouseEventHandler(SurfaceMouseUp);
@@ -961,7 +978,7 @@ namespace Greenshot.Drawing {
 					// Single element
 					IDrawableContainer rightClickedContainer = elements.ClickableElementAt(mouseStart.X, mouseStart.Y);
 					if (rightClickedContainer != null) {
-						selectedList = new DrawableContainerList();
+						selectedList = new DrawableContainerList(ID);
 						selectedList.Add(rightClickedContainer);
 					}
 				}
@@ -1373,8 +1390,61 @@ namespace Greenshot.Drawing {
 			if (formats.Contains(typeof(DrawableContainerList).FullName)) {
 				DrawableContainerList dcs = (DrawableContainerList)ClipboardHelper.GetFromDataObject(clipboard, typeof(DrawableContainerList));
 				if (dcs != null) {
+					// Make element(s) only move 10,10 if the surface is the same
+					Point moveOffset;
+					bool isSameSurface = (dcs.ParentID == this.uniqueID);
 					dcs.Parent = this;
-					dcs.MoveBy(10,10);
+					if (isSameSurface) {
+						moveOffset = new Point(10, 10);
+					} else {
+						moveOffset = Point.Empty;
+					}
+					// Here a fix for bug #1475, first calculate the bounds of the complete DrawableContainerList
+					Rectangle drawableContainerListBounds = Rectangle.Empty;
+					foreach (IDrawableContainer element in dcs) {
+						if (drawableContainerListBounds == Rectangle.Empty) {
+							drawableContainerListBounds = element.DrawingBounds;
+						} else {
+							drawableContainerListBounds = Rectangle.Union(drawableContainerListBounds, element.DrawingBounds);
+						}
+					}
+					// And find a location inside the target surface to paste to
+					bool containersCanFit = drawableContainerListBounds.Width < Bounds.Width && drawableContainerListBounds.Height < Bounds.Height;
+					if (!containersCanFit) {
+						Point containersLocation = drawableContainerListBounds.Location;
+						containersLocation.Offset(moveOffset);
+						if (!Bounds.Contains(containersLocation)) {
+							// Easy fix for same surface
+							if (isSameSurface) {
+								moveOffset = new Point(-10, -10);
+							} else {
+								// For different surface, which is most likely smaller, we move to "10,10"
+								moveOffset = new Point(-drawableContainerListBounds.Location.X + 10, -drawableContainerListBounds.Location.Y + 10);
+							}
+						}
+					} else {
+						Rectangle moveContainerListBounds = drawableContainerListBounds;
+						moveContainerListBounds.Offset(moveOffset);
+						// check if the element is inside
+						if (!Bounds.Contains(moveContainerListBounds)) {
+							// Easy fix for same surface
+							if (isSameSurface) {
+								moveOffset = new Point(-10, -10);
+							} else {
+								// For different surface, which is most likely smaller
+								int offsetX = 0;
+								int offsetY = 0;
+								if (drawableContainerListBounds.Right > Bounds.Right) {
+									offsetX = Bounds.Right - drawableContainerListBounds.Right;
+								}
+								if (drawableContainerListBounds.Bottom > Bounds.Bottom) {
+									offsetY = Bounds.Bottom - drawableContainerListBounds.Bottom;
+								}
+								moveOffset = new Point(offsetX, offsetY);
+							}
+						}
+					}
+					dcs.MoveBy(moveOffset.X, moveOffset.Y);
 					AddElements(dcs);
 					FieldAggregator.BindElements(dcs);
 					DeselectAllElements();

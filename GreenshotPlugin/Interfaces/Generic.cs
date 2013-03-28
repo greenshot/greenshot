@@ -87,6 +87,14 @@ namespace Greenshot.Plugin {
 		event SurfaceElementEventHandler MovingElementChanged;
 
 		/// <summary>
+		/// Unique ID of the Surface
+		/// </summary>
+		Guid ID {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Get/Set the image to the Surface
 		/// get will give the image as is currently visible
 		/// set will overwrite both the visible image as the underlying image 
