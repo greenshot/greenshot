@@ -1436,9 +1436,17 @@ namespace Greenshot.Drawing {
 								int offsetY = 0;
 								if (drawableContainerListBounds.Right > Bounds.Right) {
 									offsetX = Bounds.Right - drawableContainerListBounds.Right;
+									// Correction for the correction
+									if (drawableContainerListBounds.Left + offsetX < 0) {
+										offsetX += Math.Abs(drawableContainerListBounds.Left + offsetX);
+									}
 								}
 								if (drawableContainerListBounds.Bottom > Bounds.Bottom) {
 									offsetY = Bounds.Bottom - drawableContainerListBounds.Bottom;
+									// Correction for the correction
+									if (drawableContainerListBounds.Top + offsetY < 0) {
+										offsetY += Math.Abs(drawableContainerListBounds.Top + offsetY);
+									}
 								}
 								moveOffset = new Point(offsetX, offsetY);
 							}
