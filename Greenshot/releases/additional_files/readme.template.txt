@@ -35,6 +35,7 @@ Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and
 * Bug #1418: Fixed a problem with the editor initialization, in some small cases this gave an error as something happend at the same time.
 * Bug #1426: Added some checks for some configuration values, if they were not set this caused an error
 * Bug #1442: If copying an image from Outlook via the clipboard the image was cropped
+* Bug #1443: Image exports to Microsoft Word didn't have the "Lock aspect ratio" set
 * Bug #1444: Colors were disappearing when "Create an 8-bit image if colors are less than 256 while having a > 8 bits image" was turned on
 * Bug #1462: Auto-filename generation cropping title text after period 
 * Bug #1481: when pasting elements from one editor into another the element could end up outside the visible area 
