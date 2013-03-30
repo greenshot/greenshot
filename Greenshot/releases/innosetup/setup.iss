@@ -163,6 +163,7 @@ Name: en; MessagesFile: compiler:Default.isl
 Name: cn; MessagesFile: compiler:Languages\ChineseSimplified.isl
 Name: de; MessagesFile: compiler:Languages\German.isl
 Name: es; MessagesFile: compiler:Languages\Spanish.isl
+Name: fi; MessagesFile: compiler:Languages\Finnish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: nn; MessagesFile: compiler:Languages\NorwegianNynorsk.isl
@@ -207,6 +208,18 @@ es.ocr=Extensión para OCR (necesita Microsoft Office Document Imaging (MODI))
 es.optimize=Optimizando rendimiento; por favor, espera.
 es.startgreenshot=Lanzar {#ExeName}
 es.startup=Lanzar {#ExeName} al iniciarse Windows
+
+fi.confluence=Confluence-liitännäinen
+fi.default=${default}
+fi.office=Microsoft-Office-liitännäinen
+fi.externalcommand=Avaa Ulkoinen komento-liitännäisellä
+fi.imgur=Imgur-liitännäinen (Katso: http://imgur.com)
+fi.jira=Jira-liitännäinen
+fi.language=Lisäkielet
+fi.ocr=OCR-liitännäinen (Tarvitaan: Microsoft Office Document Imaging (MODI))
+fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
+fi.startgreenshot=Käynnistä {#ExeName}
+fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
 
 fr.confluence=Greffon Confluence
 fr.default=${default}
