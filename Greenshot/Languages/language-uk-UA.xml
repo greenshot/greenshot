@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="1.0.4" languagegroup="5">
+<language description="Українська" ietf="uk-UA" version="1.1.0.2529" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
 		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
@@ -195,9 +195,13 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="printoptions_allowenlarge">Збільшити до розмірів сторінки</resource>
 		<resource name="printoptions_allowrotate">Повернути відповідно до орієнтації сторінки</resource>
 		<resource name="printoptions_allowshrink">Зменшити до розмірів сторінки</resource>
+		<resource name="printoptions_colors">Параметри кольору</resource>
 		<resource name="printoptions_dontaskagain">Зберегти ці параметри і не запитувати знову</resource>
 		<resource name="printoptions_inverted">Друк з інвертованими кольорами</resource>
+		<resource name="printoptions_layout">Параметри макета сторінки</resource>
+		<resource name="printoptions_printcolor">Повноколірний друк</resource>
 		<resource name="printoptions_printgrayscale">Примусовий друк у відтінках сірого</resource>
+		<resource name="printoptions_printmonochrome">Примусовий чорно-білий друк</resource>
 		<resource name="printoptions_timestamp">Друкувати дату та час внизу сторінки</resource>
 		<resource name="printoptions_title">Параметри друку Greenshot</resource>
 		<resource name="qualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
