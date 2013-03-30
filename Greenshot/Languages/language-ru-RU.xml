@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Pусский" ietf="ru-RU" version="1.0.4" languagegroup="5">
+<language description="Pусский" ietf="ru-RU" version="1.1.0.2515" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Просьба сообщать об ошибках на</resource>
 		<resource name="about_donations">Если вам нравится Greenshot, вы можете поддержать нас:</resource>
@@ -63,7 +63,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="contextmenu_quicksettings">Быстрые настройки</resource>
 		<resource name="contextmenu_settings">Предпочтения...</resource>
 		<resource name="destination_exportfailed">Ошибка при экспорте {0}. Пожалуйста, попробуйте ещё раз.</resource>
-                <resource name="editor_align_bottom">Внизу</resource>
+		<resource name="editor_align_bottom">Внизу</resource>
 		<resource name="editor_align_center">По центру</resource>
 		<resource name="editor_align_horizontal">Горизонтальное выравнивание</resource>
 		<resource name="editor_align_left">Слева</resource>
@@ -105,11 +105,11 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_drawline">Нарисовать линию (L)</resource>
 		<resource name="editor_drawrectangle">Нарисовать прямоугольник (R)</resource>
 		<resource name="editor_drawtextbox">Добавить текстовое поле (T)</resource>
-                <resource name="editor_dropshadow_settings">Настройки падающей тени</resource>
-                <resource name="editor_dropshadow_thickness">Толщина тени</resource>
-                <resource name="editor_dropshadow_offset">Смещение тени</resource>
-                <resource name="editor_dropshadow_darkness">Плотность тени</resource>
-                <resource name="editor_duplicate">Дубликат выбранного элемента</resource>
+		<resource name="editor_dropshadow_darkness">Плотность тени</resource>
+		<resource name="editor_dropshadow_offset">Смещение тени</resource>
+		<resource name="editor_dropshadow_settings">Настройки падающей тени</resource>
+		<resource name="editor_dropshadow_thickness">Толщина тени</resource>
+		<resource name="editor_duplicate">Дубликат выбранного элемента</resource>
 		<resource name="editor_edit">Изменить</resource>
 		<resource name="editor_effects">Эффекты</resource>
 		<resource name="editor_email">E-Mail</resource>
@@ -149,18 +149,18 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_save">Сохранить</resource>
 		<resource name="editor_save_objects">Сохранение объектов в файл</resource>
 		<resource name="editor_saveas">Сохранить как...</resource>
-                <resource name="editor_selectall">Выбрать все</resource>
+		<resource name="editor_selectall">Выбрать все</resource>
 		<resource name="editor_senttoprinter">Задание печати было направлено на '{0}'.</resource>
 		<resource name="editor_shadow">Тень</resource>
 		<resource name="editor_storedtoclipboard">Изображения, хранящиеся в буфере обмена.</resource>
 		<resource name="editor_thickness">Толщина линии</resource>
 		<resource name="editor_title">Графический редактор Greenshot</resource>
 		<resource name="editor_torn_edge">Рваные края</resource>
-                <resource name="editor_tornedge_horizontaltoothrange">Горизонтальная частота зубцов</resource>
-                <resource name="editor_tornedge_settings">Параметры рваных краёв</resource>
-                <resource name="editor_tornedge_toothsize">Размер зубцов</resource>
-                <resource name="editor_tornedge_verticaltoothrange">Вертикальная частота зубцов</resource>
-                <resource name="editor_undo">Отменить {0}</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Горизонтальная частота зубцов</resource>
+		<resource name="editor_tornedge_settings">Параметры рваных краёв</resource>
+		<resource name="editor_tornedge_toothsize">Размер зубцов</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Вертикальная частота зубцов</resource>
+		<resource name="editor_undo">Отменить {0}</resource>
 		<resource name="editor_uponelevel">На один уровень вверх</resource>
 		<resource name="editor_uptotop">На самый верх</resource>
 		<resource name="EmailFormat.MAPI">MAPI клиент</resource>
@@ -184,7 +184,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="expertsettings_optimizeforrdp">Сделать несколько оптимизаций для использования с удалённым рабочим столом</resource>
 		<resource name="expertsettings_reuseeditorifpossible">Повторное редактирование, если возможно</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Не выводить диалог сохранения при закрытии редактора</resource>
-		<resource name="expertsettings_thumbnailpreview">Показывать окно эскизов в контекстном меню (для Vista и windows 7)</resource>
+		<resource name="expertsettings_thumbnailpreview">Показывать окно эскизов в контекстном меню (для Vista и Windows 7)</resource>
 		<resource name="exported_to">Экспортировать в: {0}</resource>
 		<resource name="exported_to_error">Произошла ошибка при экспорте в {0}:</resource>
 		<resource name="help_title">Greenshot справка</resource>
@@ -196,9 +196,13 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="printoptions_allowenlarge">Растянуть на всю страницу</resource>
 		<resource name="printoptions_allowrotate">Повернуть согласно ориентации страницы</resource>
 		<resource name="printoptions_allowshrink">Подогнать, чтобы вместить на страницу</resource>
+		<resource name="printoptions_colors">Настройки цвета</resource>
 		<resource name="printoptions_dontaskagain">Сохранить параметры по умолчанию и больше не спрашивать</resource>
 		<resource name="printoptions_inverted">Печать с инверсией цветов</resource>
+		<resource name="printoptions_layout">Параметры макета страницы</resource>
+		<resource name="printoptions_printcolor">Полноцветная печать</resource>
 		<resource name="printoptions_printgrayscale">Печать в оттенках серого</resource>
+		<resource name="printoptions_printmonochrome">Чёрно-белая печать</resource>
 		<resource name="printoptions_timestamp">Печать даты / времени в нижней части страницы</resource>
 		<resource name="printoptions_title">Параметры печати Greenshot</resource>
 		<resource name="qualitydialog_dontaskagain">Сохранять с качеством по умолчанию и не спрашивать</resource>
@@ -277,14 +281,14 @@ ${hostname} Имя ПК
 		<resource name="tooltip_firststart">Щёлкните здесь правой кнопкой мыши или нажмите клавишу {0}.</resource>
 		<resource name="update_found">Доступна новая версия Greenshot! Вы хотите скачать Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Пожалуйста, подождите, пока страница в Internet Explorer захватывается...</resource>
-		<resource name="warning">Предупреждение</resource>
+		<resource name="warning">Внимание</resource>
 		<resource name="warning_hotkeys">Горячие клавиши "{0}" не могут быть зарегистрированы. Эта проблема может быть связана с ещё одним инструментом, использующим те же клавиши! Нужно либо изменить настройки клавиш или деактивировать/изменить программное обеспечение, использующее горячие клавиши.
 
 Все функции Greenshot по-прежнему работают прямо из контекстного меню через значок  в трее.</resource>
 		<resource name="WindowCaptureMode.Aero">Использовать другой цвет</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Сохранить прозрачность</resource>
 		<resource name="WindowCaptureMode.Auto">Автоматически</resource>
-		<resource name="WindowCaptureMode.GDI">Использовать цвет по умолч.</resource>
+		<resource name="WindowCaptureMode.GDI">Использ. цвет по умолчанию</resource>
 		<resource name="WindowCaptureMode.Screen">Как отображается</resource>
 	</resources>
 </language>
