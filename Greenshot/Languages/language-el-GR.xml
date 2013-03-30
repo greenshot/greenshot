@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Ελληνικά" ietf="el-GR" version="1.0.4" languagegroup="4">
+<language description="Ελληνικά" ietf="el-GR" version="1.1.0" languagegroup="4">
 	<resources>
 		<resource name="about_bugs">Αναφορά προβλημάτων:</resource>
 		<resource name="about_donations">Αν σας αρέσει το Greenshot, είστε ευπρόσδεκτοι να μας υποστηρίξετε:</resource>
@@ -23,19 +23,23 @@
 		<resource name="CANCEL">Άκυρο</resource>
 		<resource name="clipboard_error">Παρουσιάστηκε ένα απροσδόκητο σφάλμα κατά την εγγραφή στο πρόχειρο.</resource>
 		<resource name="clipboard_inuse">Το Greenshot δεν ήταν σε θέση να εγγράψει στο πρόχειρο καθώς η διαδικασία {0} παρεμποδίζει την πρόσβαση.</resource>
-		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="clipboard_noimage">Δεν ήταν δυνατή η εύρεση εικόνας στο πρόχειρο.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windows Bitmap (Ψηφιογραφικό)</resource>
+		<resource name="ClipboardFormat.DIB">Device Independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML with inline images</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML με ενσωματωμένες εικόνες</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
-		<resource name="colorpicker_alpha">Άλφα</resource>
+		<resource name="colorpicker_alpha">Διαφάνεια/Αδιαφάνεια</resource>
 		<resource name="colorpicker_apply">Εφαρμογή</resource>
 		<resource name="colorpicker_blue">Μπλε</resource>
 		<resource name="colorpicker_green">Πράσινο</resource>
 		<resource name="colorpicker_htmlcolor">Χρώμα HTML</resource>
-		<resource name="colorpicker_recentcolors">Προσφάτως χρησιμοποιημένα</resource>
+		<resource name="colorpicker_recentcolors">Πρόσφατα</resource>
 		<resource name="colorpicker_red">Κόκκινο</resource>
 		<resource name="colorpicker_title">Επιλογή χρώματος</resource>
 		<resource name="colorpicker_transparent">Διαφάνεια</resource>
+		<resource name="com_rejected">Ο προορισμός {0} απέρριψε την πρόσβαση στο Greenshot, πιθανώς ένα παράθυρο είναι ανοιχτό. Κλείστε το παράθυρο και προσπαθήστε ξανά.</resource>
+		<resource name="com_rejected_title">Απορρίφθηκε η πρόσβαση στο Greenshot</resource>
 		<resource name="config_unauthorizedaccess_write">Δεν ήταν δυνατή η αποθήκευση του αρχείου διαμόρφωσης του Greenshot. Παρακαλώ ελέγξτε τα δικαιώματα πρόσβασης για '{0}'.</resource>
 		<resource name="contextmenu_about">Πληροφορίες για το Greenshot</resource>
 		<resource name="contextmenu_capturearea">Περιοχή καταγραφής</resource>
@@ -59,6 +63,14 @@
 		<resource name="contextmenu_quicksettings">Γρήγορες Προτιμήσεις</resource>
 		<resource name="contextmenu_settings">Προτιμήσεις...</resource>
 		<resource name="destination_exportfailed">Σφάλμα κατά την εξαγωγή στο {0}. Παρακαλώ προσπαθήστε και πάλι.</resource>
+		<resource name="editor_align_bottom">Στοίχιση κάτω</resource>
+		<resource name="editor_align_center">Στοίχιση στο κέντρο</resource>
+		<resource name="editor_align_horizontal">Οριζόντια στοίχιση</resource>
+		<resource name="editor_align_left">Στοίχιση αριστερά</resource>
+		<resource name="editor_align_middle">Στοίχιση στο μέσο</resource>
+		<resource name="editor_align_right">Στοίχιση δεξιά</resource>
+		<resource name="editor_align_top">Στοίχιση επάνω</resource>
+		<resource name="editor_align_vertical">Κατακόρυφη στοίχιση</resource>
 		<resource name="editor_arrange">Διάταξη</resource>
 		<resource name="editor_arrowheads">Αιχμή Βέλους</resource>
 		<resource name="editor_arrowheads_both">Αμφότερα</resource>
@@ -85,7 +97,7 @@
 		<resource name="editor_cuttoclipboard">Αποκοπή</resource>
 		<resource name="editor_deleteelement">Διαγραφή</resource>
 		<resource name="editor_downonelevel">Μεταφορά ένα επίπεδο πίσω</resource>
-		<resource name="editor_downtobottom">Μεταφορά ένα επίπεδο πίσω</resource>
+		<resource name="editor_downtobottom">Μεταφορά στο φόντο</resource>
 		<resource name="editor_drawarrow">Δημιουργία βέλους (A)</resource>
 		<resource name="editor_drawellipse">Δημιουργία έλλειψης (E)</resource>
 		<resource name="editor_drawfreehand">Ελεύθερη σχεδίαση (F)</resource>
@@ -93,6 +105,10 @@
 		<resource name="editor_drawline">Δημιουργία γραμμής (L)</resource>
 		<resource name="editor_drawrectangle">Δημιουργία ορθογωνίου (R)</resource>
 		<resource name="editor_drawtextbox">Προσθήκη πλαισίου κειμένου (T)</resource>
+		<resource name="editor_dropshadow_darkness">Διαφάνεια σκιάς</resource>
+		<resource name="editor_dropshadow_offset">Μετατόπιση σκιάς</resource>
+		<resource name="editor_dropshadow_settings">Ρυθμίσεις σκιάς</resource>
+		<resource name="editor_dropshadow_thickness">Πάχος σκιάς</resource>
 		<resource name="editor_duplicate">Διπλασιασμός επιλεγμένου στοιχείου</resource>
 		<resource name="editor_edit">Επεξεργασία</resource>
 		<resource name="editor_effects">Εφέ</resource>
@@ -117,15 +133,17 @@
 		<resource name="editor_obfuscate">Απόκρυψη (O)</resource>
 		<resource name="editor_obfuscate_blur">Θόλωμα</resource>
 		<resource name="editor_obfuscate_mode">Λειτουργία απόκρυψης</resource>
-		<resource name="editor_obfuscate_pixelize">Παραμόρφωση με χρήση pixel</resource>
+		<resource name="editor_obfuscate_pixelize">Παραμόρφωση με χρήση εικονοστοιχείων</resource>
 		<resource name="editor_object">Αντικείμενο</resource>
 		<resource name="editor_opendirinexplorer">Άνοιγμα καταλόγου στην Εξερεύνηση των Windows</resource>
 		<resource name="editor_pastefromclipboard">Επικόλληση</resource>
-		<resource name="editor_pixel_size">Μέγεθος Pixel</resource>
+		<resource name="editor_pixel_size">Μέγεθος εικονοστοιχείων</resource>
 		<resource name="editor_preview_quality">Ποιότητα προεπισκόπησης</resource>
 		<resource name="editor_print">Εκτύπωση</resource>
 		<resource name="editor_redo">Ακύρωση Αναίρεσης {0}</resource>
 		<resource name="editor_resetsize">Επαναφορά μεγέθους</resource>
+		<resource name="editor_resize_percent">Επί τοις εκατό</resource>
+		<resource name="editor_resize_pixel">Εικονοστοιχεία</resource>
 		<resource name="editor_rotateccw">Περιστροφή αριστερόστροφα</resource>
 		<resource name="editor_rotatecw">Περιστροφή δεξιόστροφα</resource>
 		<resource name="editor_save">Αποθήκευση</resource>
@@ -137,13 +155,17 @@
 		<resource name="editor_storedtoclipboard">Η εικόνα αποθηκεύτηκε στο πρόχειρο.</resource>
 		<resource name="editor_thickness">Πάχος γραμμής</resource>
 		<resource name="editor_title">Επεξεργαστής εικόνας του Greenshot</resource>
-		<resource name="editor_torn_edge">Ακανόνιστο σχίσιμο</resource>
+		<resource name="editor_torn_edge">Ακανόνιστο ξάκρισμα</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Οριζόντιο εύρος ξακρίσματος</resource>
+		<resource name="editor_tornedge_settings">Ρυθμίσεις ακανόνιστου ξακρίσματος</resource>
+		<resource name="editor_tornedge_toothsize">Μέγεθος οδοντωτού ορίου ξακρίσματος</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Κάθετο εύρος ξακρίσματος</resource>
 		<resource name="editor_undo">Αναίρεση {0}</resource>
 		<resource name="editor_uponelevel">Μεταφορά ένα επίπεδο εμπρός</resource>
 		<resource name="editor_uptotop">Μεταφορά σε πρώτο πλάνο</resource>
 		<resource name="EmailFormat.MAPI">MAPI client</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook with HTML</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook with text</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook με HTML</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook με κείμενο</resource>
 		<resource name="error">Σφάλμα</resource>
 		<resource name="error_multipleinstances">Ένα στιγμιότυπο του Greenshot εκτελείται ήδη.</resource>
 		<resource name="error_nowriteaccess">Το αρχείο δεν μπορεί να αποθηκευτεί στο {0}.
@@ -174,16 +196,20 @@
 		<resource name="printoptions_allowenlarge">Μεγέθυνση στο μέγεθος της σελίδας</resource>
 		<resource name="printoptions_allowrotate">Περιστροφή στο προσανατολισμό της σελίδας</resource>
 		<resource name="printoptions_allowshrink">Συρρίκνωση στο μέγεθος της σελίδας</resource>
+		<resource name="printoptions_colors">Ρυθμίσεις Χρωμάτων</resource>
 		<resource name="printoptions_dontaskagain">Αποθήκευση των επιλογών ως προεπιλογή και να μην ξαναρωτηθώ</resource>
 		<resource name="printoptions_inverted">Εκτύπωση με ανεστραμμένα χρώματα</resource>
+		<resource name="printoptions_layout">Ρυθμίσεις διάταξης σελίδας</resource>
+        <resource name="printoptions_printcolor">Έγχρωμη εκτύπωση</resource>
 		<resource name="printoptions_printgrayscale">Εκτύπωση σε κλίμακα του γκρι</resource>
+		<resource name="printoptions_printmonochrome">Ασπρόμαυρη εκτύπωση</resource>
 		<resource name="printoptions_timestamp">Εκτύπωση ημέρας / ώρας στο κάτω μέρος της σελίδας</resource>
 		<resource name="printoptions_title">Ρυθμίσεις εκτύπωσης του Greenshot</resource>
 		<resource name="qualitydialog_dontaskagain">Αποθήκευση των επιλογών ως προεπιλογή και να μην ξαναρωτηθώ</resource>
 		<resource name="qualitydialog_title">Παράθυρο διαλόγου επιλογής ποιότητας του Greenshot</resource>
 		<resource name="quicksettings_destination_file">Άμεση αποθήκευση (με χρήση των προτιμώμενων ρυθμίσεων)</resource>
-		<resource name="settings_alwaysshowprintoptionsdialog">Εμφάνιση του παραθύρου διαλόγου επιλογών εκτύπωσης κατά την εκτύπωση</resource>
-		<resource name="settings_alwaysshowqualitydialog">Εμφάνιση του παραθύρου διαλόγου επιλογών της ποιότητας πάντα κατά την αποθήκευση μιας εικόνας</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Εμφάνιση των επιλογών εκτύπωσης κατά την εκτύπωση</resource>
+		<resource name="settings_alwaysshowqualitydialog">Εμφάνιση των επιλογών ποιότητας κατά την αποθήκευση</resource>
 		<resource name="settings_applicationsettings">Ρυθμίσεις εφαρμογής</resource>
 		<resource name="settings_autostartshortcut">Έναρξη του Greenshot κατά την εκκίνηση</resource>
 		<resource name="settings_capture">Καταγραφή</resource>
@@ -217,7 +243,7 @@ ${NUM} αυξανόμενος αριθμός, 6 ψηφία
 ${title} Τίτλος Παραθύρου
 ${user} Χρήστης Windows
 ${domain} Κυριότητα Windows
-${hostname} Όναμα Υπολογιστή
+${hostname} Όνομα Υπολογιστή
 
 Μπορείτε επίσης να δημιουργήσετε με το Greenshot καταλόγους δυναμικά, χρησιμοποιώντας το σύμβολο backslash, ανάποδη κάθετο (\) για το διαχωρισμό του ονόματος φακέλων και του ονόματος των αρχείων.
 Παράδειγμα: το πρότυπο ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
