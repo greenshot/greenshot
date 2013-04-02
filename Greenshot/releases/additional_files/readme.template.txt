@@ -2,7 +2,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.1.0 build $WCREV$ Release Candidate 1
+1.1.1 build $WCREV$ Release Candidate 1
 
 Features:
 * General: Added zoom when capturing
