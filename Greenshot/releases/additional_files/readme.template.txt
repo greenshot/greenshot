@@ -2,8 +2,7 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.1.0 build $WCREV$ UNSTABLE
-Unstable means that we didn't go through extensive testing yet. This might give you: features that aren't finished yet, missing translations or new bugs.
+1.1.0 build $WCREV$ Release Candidate 1
 
 Features:
 * General: Added zoom when capturing
@@ -13,12 +12,12 @@ Features:
 * Editor: Added horizontal and vertical alignment for text boxes.
 * Printing: Added option to force monochrome (black/white) print
 * Plug-in: Added Photobucket plugin
-* Plug-in: Removed unneeded code from the Confluence Plug-in, this makes the Greenshot installer / .zip a bit smaller.
 
 Languages:
 * Installer: Added Spanish
 * Installer: Added Serbian
-* General: Fixes for Italian, Serbian, Slovak, Urkainian
+* Installer: Added Finnish
+* General: Fixes for many languages
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
 * Bug #1327, #1401 & #1410 : On Windows XP Firefox/java captures are mainly black. This fix should also work with other OS versions and applications.
@@ -26,9 +25,8 @@ Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and
 * Bug #1375, #1396 & #1397: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
 * Bug #1375: Exported captures to Powerpoint were displayed cropped, which needed extra actions to correct.
 * Bug #1378: Picasa-Web uploads didn't have a filename and the filename was shown as "UNSET" in Picasa-Web.
-* Bug #1380: The window corners on Windows Vista & Windows 7 weren't cut correctly.
-* While fixing #1380 we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
-* Bug #1386: resize issues with some the plugin configuration dialogs.
+* Bug #1380: The window corners on Windows Vista & Windows 7 weren't cut correctly. While fixing this issue, we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
+* Bug #1386: Resize issues with some the plugin configuration dialogs.
 * Bug #1390: Elements in 1.0 are drawn differently as in pre 1.0
 * Bug #1391: Fixed missing filename in the Editor title
 * Bug #1414: Pasting captures as HTML-inline in Thunderbird doesn't work when using 256-colors.
@@ -56,8 +54,8 @@ Known issues:
 * Greenshot general: Not all hotkeys can be changed in the editor. When you want to use e.g. the pause or the Windows key, you will need to be modified the ini directly.
 * Greenshot general: Can't capture 256 color screens
 * Greenshot general: Hotkeys don't function when a UAC (elevated) process is active. This we won't change as it is a Windows security measure.
+* Greenshot general: Capturing apps on Windows 8 when having more than one screen still causes some issues.
 * Greenshot editor: Rotate only rotates the screenshot, not the added elements or cursor
-* Still having some dual screen problems with Windows 8, we are working on it.
 
 1.0.6 build 2228 Release
 
