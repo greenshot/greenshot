@@ -11,20 +11,20 @@ namespace ExternalCommand {
 		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
 
-		public static Image IconForExe(string exepath) {
-			if (exepath != null) {
-				if (!iconCache.ContainsKey(exepath)) {
+		public static Image IconForCommand(string commandName) {
+			if (commandName != null) {
+				if (!iconCache.ContainsKey(commandName)) {
 					Image icon = null;
-					if (File.Exists(config.commandlines[exepath])) {
+					if (File.Exists(config.commandlines[commandName])) {
 						try {
-							icon = PluginUtils.GetExeIcon(config.commandlines[exepath], 0);
+							icon = PluginUtils.GetExeIcon(config.commandlines[commandName], 0);
 						} catch (Exception ex) {
-							LOG.Warn("Problem loading icon for " + config.commandlines[exepath], ex);
+							LOG.Warn("Problem loading icon for " + config.commandlines[commandName], ex);
 						}
 					}
-					iconCache.Add(exepath, icon);
+					iconCache.Add(commandName, icon);
 				}
-				return iconCache[exepath];
+				return iconCache[commandName];
 			} else {
 				return null;
 			}

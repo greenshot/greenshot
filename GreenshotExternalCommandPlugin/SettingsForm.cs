@@ -76,7 +76,7 @@ namespace ExternalCommand {
 				int imageNr = 0;
 				foreach (string commando in config.commands) {
 					ListViewItem item = null;
-					Image iconForExe = IconCache.IconForExe(commando);
+					Image iconForExe = IconCache.IconForCommand(commando);
 					if (iconForExe != null) {
 						imageList.Images.Add(iconForExe);
 						item = new ListViewItem(commando, imageNr++);
@@ -87,6 +87,8 @@ namespace ExternalCommand {
 					listView1.Items.Add(item);
 				}
 			}
+			// Fix for bug #1484, getting an ArgumentOutOfRangeException as there is nothing selected but the edit button was still active.
+			button_edit.Enabled = listView1.SelectedItems.Count > 0;
 		}
 
 		void ListView1ItemSelectionChanged(object sender, EventArgs e) {
@@ -98,6 +100,12 @@ namespace ExternalCommand {
 		}
 		
 		void ListView1DoubleClick(object sender, EventArgs e) {
+			// Safety check for bug #1484
+			bool selectionActive = listView1.SelectedItems.Count > 0;
+			if (!selectionActive) {
+				button_edit.Enabled = false;
+				return;
+			}
 			string commando = listView1.SelectedItems[0].Tag as string;
 			
 			SettingsFormDetail form = new SettingsFormDetail(commando);

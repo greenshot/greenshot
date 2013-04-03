@@ -58,7 +58,7 @@ namespace ExternalCommand {
 
 		public override Image DisplayIcon {
 			get {
-				return IconCache.IconForExe(presetCommand);
+				return IconCache.IconForCommand(presetCommand);
 			}
 		}
 
