@@ -107,9 +107,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool PrintWindow(IntPtr hwnd, IntPtr hDC, uint nFlags);
 		[DllImport("user32", SetLastError=true)]
-		public extern static int SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
-		[DllImport("user32", SetLastError=true, EntryPoint = "SendMessageA")]
-		public static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
+		[DllImport("user32", SetLastError = true)]
+		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 		[DllImport("user32", SetLastError = true)]
 		public extern static uint GetWindowLong(IntPtr hwnd, int index);
 		[DllImport("user32", SetLastError = true)]

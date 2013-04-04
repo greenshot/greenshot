@@ -331,19 +331,19 @@ namespace GreenshotPlugin.Core  {
 		/// <param name="hwnd"></param>
 		/// <returns></returns>
 		private static Icon GetAppIcon(IntPtr hwnd) {
-			const int ICON_SMALL = 0;
-			const int ICON_BIG = 1;
-			const int ICON_SMALL2 = 2;
+			IntPtr ICON_SMALL = IntPtr.Zero;
+			IntPtr ICON_BIG = new IntPtr(1);
+			IntPtr ICON_SMALL2 = new IntPtr(2);
 
-			IntPtr iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL2, 0);
+			IntPtr iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL2, IntPtr.Zero);
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL, 0);
+				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero) {
 				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICONSM);
 			}
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, 0);
+				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero) {
 				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
