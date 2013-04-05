@@ -111,36 +111,32 @@ namespace GreenshotConfluencePlugin {
 			HashSet<string> urls = new HashSet<string>();
 
 			// FireFox
-			foreach(Process firefox in Process.GetProcessesByName("firefox")) {
-				LOG.DebugFormat("Checking process {0}", firefox.Id);
-				foreach(AutomationElement rootElement in AutomationElement.RootElement.FindAll(TreeScope.Children, new PropertyCondition(AutomationElement.ProcessIdProperty, firefox.Id))) {
-					Condition condCustomControl = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Custom);
-					//AutomationElement rootElement = AutomationElement.FromHandle(firefox.MainWindowHandle);
-					var collection = rootElement.FindAll(TreeScope.Children, condCustomControl);
-					if (collection == null || collection.Count == 0) {
+			foreach (WindowDetails window in WindowDetails.GetAllWindows("MozillaWindowClass")) {
+				if (window.Text.Length == 0) {
+					continue;
+				}
+				AutomationElement currentElement = AutomationElement.FromHandle(window.Handle);
+				Condition conditionCustom = new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Custom), new PropertyCondition(AutomationElement.IsOffscreenProperty, false));
+				for (int i = 5; i > 0 && currentElement != null; i--) {
+					currentElement = currentElement.FindFirst(TreeScope.Children, conditionCustom);
+				}
+				if (currentElement == null) {
+					continue;
+				}
+
+				Condition conditionDocument = new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Document), new PropertyCondition(AutomationElement.IsOffscreenProperty, false));
+				AutomationElement docElement = currentElement.FindFirst(TreeScope.Children, conditionDocument);
+				if (docElement == null) {
+					continue;
+				}
+				foreach (AutomationPattern pattern in docElement.GetSupportedPatterns()) {
+					if (pattern.ProgrammaticName != "ValuePatternIdentifiers.Pattern") {
 						continue;
 					}
-					AutomationElement firstCustomControl = collection[collection.Count - 1];
-					if (firstCustomControl == null) {
-						continue;
-					}
-					AutomationElement secondCustomControl = firstCustomControl.FindFirst(TreeScope.Children, condCustomControl);
-					if (secondCustomControl == null) {
-						continue;
-					}
-					foreach (AutomationElement thirdElement in secondCustomControl.FindAll(TreeScope.Children, condCustomControl)) {
-						foreach (AutomationElement fourthElement in thirdElement.FindAll(TreeScope.Children, condCustomControl)) {
-							Condition condDocument = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Document);
-							AutomationElement docElement = fourthElement.FindFirst(TreeScope.Children, condDocument);
-							if (docElement != null) {
-								foreach (AutomationPattern pattern in docElement.GetSupportedPatterns()) {
-									if (docElement.GetCurrentPattern(pattern) is ValuePattern) {
-										string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value.ToString();
-										urls.Add(url);
-									}
-								}
-							}
-						}
+					string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value.ToString();
+					if (!string.IsNullOrEmpty(url)) {
+						urls.Add(url);
+						break;
 					}
 				}
 			}
