@@ -2,9 +2,19 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.1.1 build $WCREV$ Release Candidate 1
+1.1.2 build $WCREV$ Release Candidate 2
 
-Features:
+Features added since 1.0.6:
+* Editor: Added a new image format "Greenshot" which allows the user to save the current state and continue editing later. (was already in the 1.1.1.2550)
+
+Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
+* Bug #1484: when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occured.
+
+
+
+1.1.1 build 2550 Release Candidate 1
+
+Features added since 1.0.6:
 * General: Added zoom when capturing
 * General: Better Windows 8 integration: Capture window from list now has the apps and the interactive window capture is not confused by apps or the app launcher.
 * General: Added Special-Folder support for the OutputPath/Filenames, now one can use the following values: MyPictures, MyMusic, MyDocuments, Personal, Desktop, ApplicationData, LocalApplicationData. Meaning one can now set the output path to e.g. ${MyPictures}
