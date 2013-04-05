@@ -1,16 +1,5 @@
 ﻿#define ExeName "Greenshot"
-#define Version "1.1.1.$WCREV$"
-
-; Include the scripts to install .NET Framework 2.0
-; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
-#include "scripts\products.iss"
-#include "scripts\products\winversion.iss"
-#include "scripts\products\fileversion.iss"
-#include "scripts\products\msi20.iss"
-#include "scripts\products\msi31.iss"
-#include "scripts\products\dotnetfx20.iss"
-#include "scripts\products\dotnetfx20sp1.iss"
-#include "scripts\products\dotnetfx20sp2.iss"
+#define Version "1.1.2.$WCREV$"
 
 [Files]
 Source: ..\..\bin\Release\Greenshot.exe; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
@@ -292,7 +281,7 @@ Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Fl
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 
-Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
+Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning 
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
 Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning
@@ -510,61 +499,6 @@ begin
 	Result := returnValue;
 end;
 
-function hasDotNet(version: string; service: cardinal): Boolean;
-// Indicates whether the specified version and service pack of the .NET Framework is installed.
-//
-// version -- Specify one of these strings for the required .NET Framework version:
-//    'v1.1.4322'     .NET Framework 1.1
-//    'v2.0.50727'    .NET Framework 2.0
-//    'v3.0'          .NET Framework 3.0
-//    'v3.5'          .NET Framework 3.5
-//    'v4\Client'     .NET Framework 4.0 Client Profile
-//    'v4\Full'       .NET Framework 4.0 Full Installation
-//
-// service -- Specify any non-negative integer for the required service pack level:
-//    0               No service packs required
-//    1, 2, etc.      Service pack 1, 2, etc. required
-var
-    key: string;
-    install, serviceCount: cardinal;
-    success: boolean;
-begin
-    key := 'SOFTWARE\Microsoft\NET Framework Setup\NDP\' + version;
-    // .NET 3.0 uses value InstallSuccess in subkey Setup
-    if Pos('v3.0', version) = 1 then begin
-        success := RegQueryDWordValue(HKLM, key + '\Setup', 'InstallSuccess', install);
-    end else begin
-        success := RegQueryDWordValue(HKLM, key, 'Install', install);
-    end;
-    // .NET 4.0 uses value Servicing instead of SP
-    if Pos('v4', version) = 1 then begin
-        success := success and RegQueryDWordValue(HKLM, key, 'Servicing', serviceCount);
-    end else begin
-        success := success and RegQueryDWordValue(HKLM, key, 'SP', serviceCount);
-    end;
-    result := success and (install = 1) and (serviceCount >= service);
-end;
-
-function hasDotNet20() : boolean;
-begin
-	Result := hasDotNet('v2.0.50727',0);
-end;
-
-function hasDotNet40() : boolean;
-begin
-	Result := hasDotNet('v4\Client',0) or hasDotNet('v4\Full',0);
-end;
-
-function hasDotNet35FullOrHigher() : boolean;
-begin
-	Result := hasDotNet('v3.5',0) or hasDotNet('v4\Full',0) or hasDotNet('4.5\Full',0);
-end;
-
-function hasDotNet35OrHigher() : boolean;
-begin
-	Result := hasDotNet('v3.5',0) or hasDotNet('v4\Client',0) or hasDotNet('v4\Full',0) or hasDotNet('4.5\Client',0) or hasDotNet('4.5\Full',0);
-end;
-
 function getNGENPath(argument: String) : String;
 var
 	installPath: string;
@@ -582,30 +516,6 @@ begin
 	Result := installPath;
 end;
 
-// Initialize the setup
-function InitializeSetup(): Boolean;
-begin
-	// Only check for 2.0 and install if we don't have .net 3.5 or higher
-	if not hasDotNet35OrHigher() then
-	begin
-		// Enhance installer otherwise .NET installations won't work
-		msi20('2.0');
-		msi31('3.0');
-		
-		//install .netfx 2.0 sp2 if possible; if not sp1 if possible; if not .netfx 2.0
-		if minwinversion(5, 1) then begin
-			dotnetfx20sp2();
-		end else begin
-			if minwinversion(5, 0) and minwinspversion(5, 0, 4) then begin
-				// kb835732();
-				dotnetfx20sp1();
-			end else begin
-				dotnetfx20();
-			end;
-		end;
-	end;
-	Result := true;
-end;
 [Run]
 Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden runasoriginaluser
 Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden runasoriginaluser
