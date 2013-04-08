@@ -265,6 +265,7 @@ time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="settings_registerhotkeys">Register Hotkeys</resource>
 		<resource name="settings_showflashlight">Show flashlight</resource>
 		<resource name="settings_shownotify">Show notifications</resource>
+		<resource name="settings_zoom">Show zoom</resource>
 		<resource name="settings_storagelocation">Storage location</resource>
 		<resource name="settings_title">Settings</resource>
 		<resource name="settings_tooltip_filenamepattern">Pattern used for generating filenames when saving screenshots</resource>

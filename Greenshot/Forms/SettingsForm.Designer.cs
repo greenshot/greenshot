@@ -62,6 +62,7 @@ namespace Greenshot {
             this.groupbox_preferredfilesettings = new GreenshotPlugin.Controls.GreenshotGroupBox();
             this.btnPatternHelp = new System.Windows.Forms.Button();
             this.checkbox_copypathtoclipboard = new GreenshotPlugin.Controls.GreenshotCheckBox();
+            this.checkbox_zoomer = new GreenshotPlugin.Controls.GreenshotCheckBox();
             this.groupbox_applicationsettings = new GreenshotPlugin.Controls.GreenshotGroupBox();
             this.checkbox_autostartshortcut = new GreenshotPlugin.Controls.GreenshotCheckBox();
             this.groupbox_qualitysettings = new GreenshotPlugin.Controls.GreenshotGroupBox();
@@ -533,7 +534,7 @@ namespace Greenshot {
             this.groupbox_hotkeys.Controls.Add(this.window_hotkeyControl);
             this.groupbox_hotkeys.Controls.Add(this.fullscreen_hotkeyControl);
             this.groupbox_hotkeys.LanguageKey = "hotkeys";
-            this.groupbox_hotkeys.Location = new System.Drawing.Point(2, 76);
+            this.groupbox_hotkeys.Location = new System.Drawing.Point(2, 77);
             this.groupbox_hotkeys.Name = "groupbox_hotkeys";
             this.groupbox_hotkeys.Size = new System.Drawing.Size(412, 152);
             this.groupbox_hotkeys.TabIndex = 15;
@@ -653,7 +654,7 @@ namespace Greenshot {
             // 
             this.groupbox_editor.Controls.Add(this.checkbox_editor_match_capture_size);
             this.groupbox_editor.LanguageKey = "settings_editor";
-            this.groupbox_editor.Location = new System.Drawing.Point(4, 267);
+            this.groupbox_editor.Location = new System.Drawing.Point(4, 277);
             this.groupbox_editor.Name = "groupbox_editor";
             this.groupbox_editor.Size = new System.Drawing.Size(416, 50);
             this.groupbox_editor.TabIndex = 27;
@@ -676,7 +677,7 @@ namespace Greenshot {
             // 
             this.groupbox_iecapture.Controls.Add(this.checkbox_ie_capture);
             this.groupbox_iecapture.LanguageKey = "settings_iecapture";
-            this.groupbox_iecapture.Location = new System.Drawing.Point(4, 211);
+            this.groupbox_iecapture.Location = new System.Drawing.Point(4, 224);
             this.groupbox_iecapture.Name = "groupbox_iecapture";
             this.groupbox_iecapture.Size = new System.Drawing.Size(416, 50);
             this.groupbox_iecapture.TabIndex = 2;
@@ -701,7 +702,7 @@ namespace Greenshot {
             this.groupbox_windowscapture.Controls.Add(this.checkbox_capture_windows_interactive);
             this.groupbox_windowscapture.Controls.Add(this.combobox_window_capture_mode);
             this.groupbox_windowscapture.LanguageKey = "settings_windowscapture";
-            this.groupbox_windowscapture.Location = new System.Drawing.Point(4, 125);
+            this.groupbox_windowscapture.Location = new System.Drawing.Point(4, 141);
             this.groupbox_windowscapture.Name = "groupbox_windowscapture";
             this.groupbox_windowscapture.Size = new System.Drawing.Size(416, 80);
             this.groupbox_windowscapture.TabIndex = 1;
@@ -757,13 +758,23 @@ namespace Greenshot {
             this.groupbox_capture.Controls.Add(this.checkbox_capture_mousepointer);
             this.groupbox_capture.Controls.Add(this.numericUpDownWaitTime);
             this.groupbox_capture.Controls.Add(this.label_waittime);
+            this.groupbox_capture.Controls.Add(this.checkbox_zoomer);
             this.groupbox_capture.LanguageKey = "settings_capture";
             this.groupbox_capture.Location = new System.Drawing.Point(4, 4);
             this.groupbox_capture.Name = "groupbox_capture";
-            this.groupbox_capture.Size = new System.Drawing.Size(416, 115);
+            this.groupbox_capture.Size = new System.Drawing.Size(416, 134);
             this.groupbox_capture.TabIndex = 0;
             this.groupbox_capture.TabStop = false;
-            this.groupbox_capture.Text = "Capture";
+            // 
+            // checkbox_zoomer
+            // 
+            this.checkbox_zoomer.LanguageKey = "settings_zoom";
+            this.checkbox_zoomer.Location = new System.Drawing.Point(11, 79);
+            this.checkbox_zoomer.Name = "checkbox_zoomer";
+            this.checkbox_zoomer.PropertyName = "ZoomerEnabled";
+            this.checkbox_zoomer.Size = new System.Drawing.Size(399, 24);
+            this.checkbox_zoomer.TabIndex = 27;
+            this.checkbox_zoomer.UseVisualStyleBackColor = true;
             // 
             // checkbox_notifications
             // 
@@ -805,7 +816,7 @@ namespace Greenshot {
             0,
             0,
             0});
-            this.numericUpDownWaitTime.Location = new System.Drawing.Point(9, 84);
+            this.numericUpDownWaitTime.Location = new System.Drawing.Point(9, 103);
             this.numericUpDownWaitTime.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -819,7 +830,7 @@ namespace Greenshot {
             // label_waittime
             // 
             this.label_waittime.LanguageKey = "settings_waittime";
-            this.label_waittime.Location = new System.Drawing.Point(72, 86);
+            this.label_waittime.Location = new System.Drawing.Point(72, 106);
             this.label_waittime.Name = "label_waittime";
             this.label_waittime.Size = new System.Drawing.Size(331, 16);
             this.label_waittime.TabIndex = 25;
@@ -1438,5 +1449,6 @@ namespace Greenshot {
         private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowEnlarge;
         private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowRotate;
         private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowCenter;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_zoomer;
 	}
 }
