@@ -250,6 +250,7 @@ z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_registerhotkeys">Globale Tastenkombinationen aktivieren</resource>
 		<resource name="settings_showflashlight">Blitzlicht anzeigen</resource>
 		<resource name="settings_shownotify">Benachrichtigungen anzeigen</resource>
+		<resource name="settings_zoom">Lupe anzeigen</resource>
 		<resource name="settings_storagelocation">Speicherort</resource>
 		<resource name="settings_title">Einstellungen</resource>
 		<resource name="settings_tooltip_filenamepattern">Muster, das beim Speichern von Screenshots zum Generieren von Dateinamen verwendet wird</resource>

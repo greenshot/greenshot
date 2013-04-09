@@ -231,6 +231,7 @@ genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v
 		<resource name="settings_registerhotkeys">Registreer Hotkeys</resource>
 		<resource name="settings_showflashlight">Toon flits</resource>
 		<resource name="settings_shownotify">Toon notificaties</resource>
+		<resource name="settings_zoom">Toon vergrootglas</resource>
 		<resource name="settings_storagelocation">Opslag locatie</resource>
 		<resource name="settings_title">Voorkeursinstellingen</resource>
 		<resource name="settings_tooltip_filenamepattern">Patroon voor het produceren van bestandsnamen van opgeslagen screenshots</resource>
