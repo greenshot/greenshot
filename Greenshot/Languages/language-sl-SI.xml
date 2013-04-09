@@ -218,6 +218,7 @@ Prosim preverite pravice pisanja v ta direktorij.</resource>
 		<resource name="settings_registerhotkeys">Registriraj bližnjice</resource>
 		<resource name="settings_showflashlight">Pokaži svetilko</resource>
 		<resource name="settings_shownotify">Pokaži obvestila</resource>
+		<resource name="settings_zoom">Pokaži lupe</resource>
 		<resource name="settings_storagelocation">Mesto shranjevanja</resource>
 		<resource name="settings_title">Nastavitve</resource>
 		<resource name="settings_tooltip_filenamepattern">Maska vzorca imena datoteke pri shranjevanju</resource>

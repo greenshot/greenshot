@@ -265,6 +265,7 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="settings_registerhotkeys">Enregistrer les raccourcis clavier</resource>
 		<resource name="settings_showflashlight">Faire flasher l'écran</resource>
 		<resource name="settings_shownotify">Afficher les notifications</resource>
+		<resource name="settings_zoom">Afficher la loupe</resource>
 		<resource name="settings_storagelocation">Rép. de sauvegarde</resource>
 		<resource name="settings_title">Paramètres</resource>
 		<resource name="settings_tooltip_filenamepattern">Modèle utilisé pour générer les noms de fichier lors de la sauvegarde des captures d'écran</resource>
