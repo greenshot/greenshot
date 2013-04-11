@@ -325,7 +325,7 @@ EndSelection:<<<<<<<4
 				} else {
 					retrieveFormats = new string[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP_PLACEHOLDER, FORMAT_FILECONTENTS, FORMAT_GIF };
 				}
-				foreach(string currentFormat in retrieveFormats) {
+				foreach (string currentFormat in retrieveFormats) {
 					if (FORMAT_BITMAP_PLACEHOLDER.Equals(currentFormat)) {
 						LOG.Info("Using default .NET Clipboard.GetImage()");
 						try {
@@ -372,34 +372,29 @@ EndSelection:<<<<<<<4
 						byte[] dibBuffer = new byte[dibStream.Length];
 						dibStream.Read(dibBuffer, 0, dibBuffer.Length);
 						BitmapInfoHeader infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
-						// Only use this code, when the biCommpression != 0 (BI_RGB)
-						if (infoHeader.biCompression != 0) {
-							LOG.InfoFormat("Using special DIB format reader for biCompression {0}", infoHeader.biCompression);
-							int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
-							uint infoHeaderSize = infoHeader.biSize;
-							int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
+						LOG.InfoFormat("Using special DIB format reader for biCompression {0}", infoHeader.biCompression);
+						int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
+						uint infoHeaderSize = infoHeader.biSize;
+						int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
 
-							BitmapFileHeader fileHeader = new BitmapFileHeader();
-							fileHeader.bfType = BitmapFileHeader.BM;
-							fileHeader.bfSize = fileSize;
-							fileHeader.bfReserved1 = 0;
-							fileHeader.bfReserved2 = 0;
-							fileHeader.bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4);
+						BitmapFileHeader fileHeader = new BitmapFileHeader();
+						fileHeader.bfType = BitmapFileHeader.BM;
+						fileHeader.bfSize = fileSize;
+						fileHeader.bfReserved1 = 0;
+						fileHeader.bfReserved2 = 0;
+						fileHeader.bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4);
 
-							byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray<BitmapFileHeader>(fileHeader);
+						byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray<BitmapFileHeader>(fileHeader);
 
-							using (MemoryStream bitmapStream = new MemoryStream()) {
-								bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
-								bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
-								bitmapStream.Seek(0, SeekOrigin.Begin);
-								using (Image tmpImage = Image.FromStream(bitmapStream)) {
-									if (tmpImage != null) {
-										return ImageHelper.Clone(tmpImage);										
-									}
+						using (MemoryStream bitmapStream = new MemoryStream()) {
+							bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
+							bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
+							bitmapStream.Seek(0, SeekOrigin.Begin);
+							using (Image tmpImage = Image.FromStream(bitmapStream)) {
+								if (tmpImage != null) {
+									return ImageHelper.Clone(tmpImage);										
 								}
 							}
-						} else {
-							LOG.InfoFormat("Skipping special DIB format reader for biCompression {0}", infoHeader.biCompression);
 						}
 					}
 				} else {
