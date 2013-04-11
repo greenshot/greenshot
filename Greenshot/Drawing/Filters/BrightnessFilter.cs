@@ -54,7 +54,8 @@ namespace Greenshot.Drawing.Filters {
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			ImageAttributes ia = ImageHelper.CreateAdjustAttributes(0.9f, 1f, 1f);
+			float brightness = GetFieldValueAsFloat(FieldType.BRIGHTNESS);
+			ImageAttributes ia = ImageHelper.CreateAdjustAttributes(brightness, 1f, 1f);
 			graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
 			graphics.Restore(state);
 		}
