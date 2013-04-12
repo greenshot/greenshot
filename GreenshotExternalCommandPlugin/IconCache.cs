@@ -15,19 +15,21 @@ namespace ExternalCommand {
 			if (commandName != null) {
 				if (!iconCache.ContainsKey(commandName)) {
 					Image icon = null;
-					if (File.Exists(config.commandlines[commandName])) {
+					if (config.commandlines.ContainsKey(commandName) && File.Exists(config.commandlines[commandName])) {
 						try {
 							icon = PluginUtils.GetExeIcon(config.commandlines[commandName], 0);
 						} catch (Exception ex) {
 							LOG.Warn("Problem loading icon for " + config.commandlines[commandName], ex);
 						}
 					}
+					// Also add null to the cache if nothing is found
 					iconCache.Add(commandName, icon);
 				}
-				return iconCache[commandName];
-			} else {
-				return null;
+				if (iconCache.ContainsKey(commandName)) {
+					return iconCache[commandName];
+				}
 			}
+			return null;
 		}
 	}
 }
