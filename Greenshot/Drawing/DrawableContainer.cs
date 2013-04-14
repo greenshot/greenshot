@@ -448,7 +448,13 @@ namespace Greenshot.Drawing {
 							} else {
 								Rectangle drawingRect = new Rectangle(Bounds.Location, Bounds.Size);
 								drawingRect.Intersect(clipRectangle);
-								filter.Apply(graphics, bmp, drawingRect, renderMode);
+								if(filter is MagnifierFilter) {
+                                    // quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
+                                    // what we should actually do to resolve this is add a better magnifier which is not that special
+                                    filter.Apply(graphics, bmp, this.Bounds, renderMode);
+                                } else {
+                                    filter.Apply(graphics, bmp, drawingRect, renderMode);
+                                }
 							}
 						}
 					}
