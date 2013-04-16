@@ -594,12 +594,16 @@ namespace Greenshot.Helpers {
 							balloonTipClickedHandler = delegate(object sender, EventArgs e) {
 								if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved) {
 									if (!string.IsNullOrEmpty(surface.LastSaveFullPath)) {
-										ProcessStartInfo psi = new ProcessStartInfo("explorer");
-										psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
-										psi.UseShellExecute = false;
-										Process p = new Process();
-										p.StartInfo = psi;
-										p.Start();
+										try {
+											ProcessStartInfo psi = new ProcessStartInfo("explorer.exe");
+											psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
+											psi.UseShellExecute = false;
+											Process p = new Process();
+											p.StartInfo = psi;
+											p.Start();
+										} catch (Exception ex) {
+											MessageBox.Show(string.Format("{0}\r\nexplorer.exe {1}", ex.Message, surface.LastSaveFullPath), "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
+										}
 									}
 								} else {
 									if (!string.IsNullOrEmpty(surface.UploadURL)) {
