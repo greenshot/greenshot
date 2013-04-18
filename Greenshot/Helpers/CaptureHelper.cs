@@ -594,6 +594,8 @@ namespace Greenshot.Helpers {
 							balloonTipClickedHandler = delegate(object sender, EventArgs e) {
 								if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved) {
 									if (!string.IsNullOrEmpty(surface.LastSaveFullPath)) {
+										string errorMessage = null;
+
 										try {
 											ProcessStartInfo psi = new ProcessStartInfo("explorer.exe");
 											psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
@@ -602,7 +604,27 @@ namespace Greenshot.Helpers {
 											p.StartInfo = psi;
 											p.Start();
 										} catch (Exception ex) {
-											MessageBox.Show(string.Format("{0}\r\nexplorer.exe {1}", ex.Message, surface.LastSaveFullPath), "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
+											errorMessage = ex.Message;
+										}
+										// Added fallback for when the explorer can't be found
+										if (errorMessage != null) {
+											try {
+												string windowsPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+												string explorerPath = Path.Combine(windowsPath, "explorer.exe");
+												if (File.Exists(explorerPath)) {
+													ProcessStartInfo psi = new ProcessStartInfo(explorerPath);
+													psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
+													psi.UseShellExecute = false;
+													Process p = new Process();
+													p.StartInfo = psi;
+													p.Start();
+													errorMessage = null;
+												}
+											} catch {
+											}
+										}
+										if (errorMessage != null) {
+											MessageBox.Show(string.Format("{0}\r\nexplorer.exe {1}", errorMessage, surface.LastSaveFullPath), "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
 										}
 									}
 								} else {
