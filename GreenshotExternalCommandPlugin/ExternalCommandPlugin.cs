@@ -65,20 +65,56 @@ namespace ExternalCommand {
 		}
 
 		/// <summary>
+		/// Check and eventually fix the command settings
+		/// </summary>
+		/// <param name="command"></param>
+		/// <returns>false if the command is not correctly configured</returns>
+		private bool isCommandValid(string command) {
+			if (!config.runInbackground.ContainsKey(command)) {
+				LOG.WarnFormat("Found missing runInbackground for {0}", command);
+				// Fix it
+				config.runInbackground.Add(command, true);
+			}
+			if (!config.arguments.ContainsKey(command)) {
+				LOG.WarnFormat("Found missing argument for {0}", command);
+				// Fix it
+				config.arguments.Add(command, "{0}");
+			}
+			if (!config.commandlines.ContainsKey(command)) {
+				LOG.WarnFormat("Found missing commandline for {0}", command);
+				return false;
+			}
+			if (!File.Exists(config.commandlines[command])) {
+				LOG.WarnFormat("Found 'invalid' commandline {0} for command {1}", config.commandlines[command], command);
+				return false;
+			}
+			return true;
+		}
+		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			LOG.Debug("Initialize called of " + myAttributes.Name);
+			LOG.DebugFormat("Initialize called of {0}", myAttributes.Name);
 
-			// Cleanup configuration
-			foreach(string command in config.commandlines.Keys) {
-				if (!File.Exists(config.commandlines[command])) {
-					config.commands.Remove(command);
+			List<string> commandsToDelete = new List<string>();
+			// Check configuration
+			foreach(string command in config.commands) {
+				if (!isCommandValid(command)) {
+					commandsToDelete.Add(command);
 				}
 			}
+
+			// cleanup
+			foreach (string command in commandsToDelete) {
+				config.runInbackground.Remove(command);
+				config.commandlines.Remove(command);
+				config.arguments.Remove(command);
+				config.commands.Remove(command);
+			}
+
 			this.host = pluginHost;
 			this.myAttributes = myAttributes;
 
