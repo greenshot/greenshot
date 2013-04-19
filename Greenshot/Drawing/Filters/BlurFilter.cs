@@ -47,6 +47,9 @@ namespace Greenshot.Drawing.Filters {
 			int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
 			double previewQuality = GetFieldValueAsDouble(FieldType.PREVIEW_QUALITY);
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+			if (applyRect.Width == 0 || applyRect.Height == 0) {
+				return;
+			}
 			GraphicsState state = graphics.Save();
 			if (Invert) {
 				graphics.SetClip(applyRect);
