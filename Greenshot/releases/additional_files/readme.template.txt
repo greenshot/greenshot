@@ -4,13 +4,15 @@ CHANGE LOG:
 
 1.1.2 build $WCREV$ Release Candidate 2
 
-Features added since 1.0.6:
+Features added since 1.1.1:
 * Editor: Added a new image format "Greenshot" which allows the user to save the current state and continue editing later. (was already in the 1.1.1.2550)
+* Capture: Added an option to the settings to disable the zoom. (P.S. this can also be done via the "z" key while capturing.)
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
-* Bug #1484: when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occured.
-
-
+* Bug #1484, #1494: External Command plug-in issues. e.g. when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occured.
+* Bug #1499: Stability improvements for when Greenshot tries to open the explorer.exe
+* Bug #1500: Error while dragging an obfuscation
+* Fixed some additional unreported issues
 
 1.1.1 build 2550 Release Candidate 1
 
