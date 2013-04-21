@@ -609,7 +609,7 @@ namespace Greenshot.Helpers {
 										// Added fallback for when the explorer can't be found
 										if (errorMessage != null) {
 											try {
-												string windowsPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+												string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
 												string explorerPath = Path.Combine(windowsPath, "explorer.exe");
 												if (File.Exists(explorerPath)) {
 													ProcessStartInfo psi = new ProcessStartInfo(explorerPath);
