@@ -28,8 +28,6 @@ namespace Greenshot {
 	/// Description of Main.
 	/// </summary>
 	public class GreenshotMain {
-		private const string PAF_PATH = @"App\Greenshot";
-
 		static GreenshotMain() {
 			AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
 		}
@@ -49,8 +47,6 @@ namespace Greenshot {
 
 		[STAThread]
 		public static void Main(string[] args) {
-			// Needed to make Greenshot portable, the path should be appended before the DLL's are loaded!!
-			AppDomain.CurrentDomain.AppendPrivatePath(PAF_PATH);
 			MainForm.Start(args);
 		}
 	}
