@@ -42,6 +42,7 @@ Source: ..\..\Languages\*fr-FR*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: ..\..\Languages\*fr-QC*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\frQC; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*he-IL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\heIL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*hu-HU*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\huHU; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*id-ID*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\idID; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*it-IT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\itIT; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*ja-JP*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*ko-KR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -313,6 +314,7 @@ Name: "languages\frFR"; Description: "Français"; Types: full custom; Flags: dis
 Name: "languages\frQC"; Description: "Français - Québec"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\heIL"; Description: "עִבְרִית"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('c')
 Name: "languages\huHU"; Description: "Magyar"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\idID"; Description: "Bahasa Indonesia"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\itIT"; Description: "Italiano"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\jaJP"; Description: "日本語"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('7')
 Name: "languages\koKR"; Description: "한국의"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
