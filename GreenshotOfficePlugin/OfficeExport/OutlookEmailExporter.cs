@@ -283,6 +283,12 @@ namespace Greenshot.Interop.Office {
 				LOG.WarnFormat("Problem while trying to add attachment to Item '{0}' : {1}", inspector.Caption, ex);
 				return false;
 			}
+			try {
+				inspector.Activate();
+			} catch (Exception ex) {
+				LOG.Warn("Problem activating inspector: ", ex);
+				return false;
+			}
 			LOG.Debug("Finished!");
 			return true;
 		}

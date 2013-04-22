@@ -142,8 +142,18 @@ namespace Greenshot.Interop.Office {
 							}
 						}
 					}
-					wordDocument.Activate();
-					wordDocument.ActiveWindow.Activate();
+					try {
+						wordApplication.Activate();
+					} catch {
+					}
+					try {
+						wordDocument.Activate();
+					} catch {
+					}
+					try {
+						wordDocument.ActiveWindow.Activate();
+					} catch {
+					}
 				}
 			}
 		}
