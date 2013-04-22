@@ -112,27 +112,27 @@ namespace Greenshot.Drawing.Fields {
 		
 		#region convenience methods to save us some casts outside
 		public string GetFieldValueAsString(FieldType fieldType) {
-			return (string)GetFieldValue(fieldType);
+			return Convert.ToString(GetFieldValue(fieldType));
 		}
 		
 		public int GetFieldValueAsInt(FieldType fieldType) {
-			return (int)GetFieldValue(fieldType);
+			return Convert.ToInt32(GetFieldValue(fieldType));
 		}
 		
 		public decimal GetFieldValueAsDecimal(FieldType fieldType) {
-			return (decimal)GetFieldValue(fieldType);
+			return Convert.ToDecimal(GetFieldValue(fieldType));
 		}
 		
 		public double GetFieldValueAsDouble(FieldType fieldType) {
-			return (double)GetFieldValue(fieldType);
+			return Convert.ToDouble(GetFieldValue(fieldType));
 		}
 		
 		public float GetFieldValueAsFloat(FieldType fieldType) {
-			return (float)GetFieldValue(fieldType);
+			return Convert.ToSingle(GetFieldValue(fieldType));
 		}
 		
 		public bool GetFieldValueAsBool(FieldType fieldType) {
-			return (bool)GetFieldValue(fieldType);
+			return Convert.ToBoolean(GetFieldValue(fieldType));
 		}
 		
 		public Color GetFieldValueAsColor(FieldType fieldType) {
