@@ -35,6 +35,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class LogHelper {
 		private const string LOG4NET_FILE = "log4net.xml";
+		private const string LOG4NET_PORTABLE_FILE = "log4net-portable.xml";
 		private static bool isLog4NetConfigured = false;
 		private const string INIT_MESSAGE = "Greenshot initialization of log system failed";
 		public static bool isInitialized {
@@ -46,7 +47,7 @@ namespace GreenshotPlugin.Core {
 		// Initialize Log4J
 		public static string InitializeLog4NET() {
 			// Setup log4j, currently the file is called log4net.xml
-			string pafLog4NetFilename =  Path.Combine(Application.StartupPath, @"App\Greenshot\" + LOG4NET_FILE);
+			string pafLog4NetFilename = Path.Combine(Application.StartupPath, @"App\Greenshot\" + LOG4NET_PORTABLE_FILE);
 			string log4netFilename = Path.Combine(Application.StartupPath, LOG4NET_FILE);
 			
 			if (File.Exists(log4netFilename)) {
