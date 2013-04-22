@@ -192,7 +192,10 @@ namespace Greenshot.Interop.Office {
 				// Make sure the inspector is activated, only this way the word editor is active!
 				// This also ensures that the window is visible!
 				inspector.Activate();
-				bool isTextFormat = OlBodyFormat.olFormatPlain.Equals(mailItem.BodyFormat);
+				bool isTextFormat = false;
+				if (isMail) {
+					isTextFormat = OlBodyFormat.olFormatPlain.Equals(mailItem.BodyFormat);
+				}
 				if (isAppointment || !isTextFormat) {
 					// Check for wordmail, if so use the wordexporter
 					// http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
