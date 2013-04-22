@@ -2,7 +2,16 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.1.2 build $WCREV$ Release Candidate 2
+1.1.3 build $WCREV$ Release Candidate 3
+
+Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
+* Bug #XXXX: InvalidCastException when using the brightness-filter
+
+Languages:
+* Added Indonesian
+
+
+1.1.2 build 2572 Release Candidate 2
 
 Features added since 1.1.1:
 * Editor: Added a new image format "Greenshot" which allows the user to save the current state and continue editing later. (was already in the 1.1.1.2550)
@@ -13,6 +22,7 @@ Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and
 * Bug #1499: Stability improvements for when Greenshot tries to open the explorer.exe
 * Bug #1500: Error while dragging an obfuscation
 * Fixed some additional unreported issues
+
 
 1.1.1 build 2550 Release Candidate 1
 
