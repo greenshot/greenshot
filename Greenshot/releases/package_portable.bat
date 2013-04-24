@@ -2,7 +2,7 @@
 cd ..
 
 del /q releases\GreenshotPortable*.paf.exe
-del /s /q releases\portable\App\Greenshot\*
+del /q releases\portable\App\Greenshot\*
 rmdir /s /q releases\portable\App\Greenshot\Languages
 rmdir /s /q releases\portable\App\Greenshot\Plugins
 del /q releases\portable\*.*

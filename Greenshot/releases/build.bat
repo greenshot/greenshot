@@ -24,5 +24,8 @@ call build_installer.bat
 echo Building zip after key press
 pause
 call package_zip-SVN.bat
+echo Building portable
+pause
+call package_portable.bat
 echo Finshed
 pause
