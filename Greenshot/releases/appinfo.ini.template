@@ -1,0 +1,36 @@
+[Format]
+Type=PortableApps.comFormat
+Version=2.0
+
+[Details]
+Name=Greenshot Portable
+AppID=GreenshotPortable
+Publisher=Greenshot
+Homepage=getgreenshot.org
+Category=Graphics & Pictures
+Description=The great Greenshot tool
+Language=Multilingual
+Trademarks=
+InstallType=
+
+[License]
+Shareable=true
+OpenSource=true
+Freeware=true
+CommercialUse=true
+EULAVersion=true
+
+[Version]
+PackageVersion=1.1.3.$WCREV$
+DisplayVersion=1.1.3.$WCREV$
+
+[SpecialPaths]
+Plugins=NONE
+
+[Dependencies]
+UsesJava=false
+UsesDotNetVersion=2.0
+
+[Control]
+Icons=1
+Start=Greenshot.exe

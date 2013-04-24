@@ -11,7 +11,8 @@ cd ..
 echo Getting current Version
 tools\TortoiseSVN\SubWCRev.exe ..\ releases\additional_files\readme.template.txt releases\additional_files\readme.txt
 tools\TortoiseSVN\SubWCRev.exe ..\ releases\innosetup\setup.iss releases\innosetup\setup-SVN.iss
-tools\TortoiseSVN\SubWCRev.exe ..\ releases\package.bat releases\package-SVN.bat
+tools\TortoiseSVN\SubWCRev.exe ..\ releases\package_zip.bat releases\package_zip-SVN.bat
+tools\TortoiseSVN\SubWCRev.exe ..\ releases\appinfo.ini.template releases\portable\App\AppInfo\appinfo.ini
 cd bin\Release
 del *.log
 echo Making MD5
@@ -22,6 +23,6 @@ pause
 call build_installer.bat
 echo Building zip after key press
 pause
-call package-SVN.bat
+call package_zip-SVN.bat
 echo Finshed
 pause
