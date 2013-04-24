@@ -23,5 +23,8 @@ copy /B log4net-portable.xml releases\portable\App\Greenshot
 copy /B bin\Release\Greenshot.exe releases\portable\
 copy /B bin\Release\Greenshot.exe.config releases\portable\
 xcopy /S releases\additional_files\*.txt releases\portable\App\Greenshot
-del releases\portable\App\Greenshot\*.template
+del releases\portable\App\Greenshot\readme.template.txt
+
+pause
+tools\PortableApps.comInstaller\PortableApps.comInstaller.exe %CD%\releases\portable
 pause
