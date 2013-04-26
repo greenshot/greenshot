@@ -25,6 +25,7 @@ using System.IO;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using System.Reflection;
 
 namespace GreenshotPlugin.Core {
 	public enum ClipboardFormat {
@@ -102,15 +103,15 @@ namespace GreenshotPlugin.Core {
 		
 		[IniProperty("OutputFilePath", Description="Output file path.")]
 		public string OutputFilePath;
-        [IniProperty("OutputFileAllowOverwrite", Description = "If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.", DefaultValue = "true")]
-        public bool OutputFileAllowOverwrite;
-        [IniProperty("OutputFileFilenamePattern", Description = "Filename pattern for screenshot.", DefaultValue = "${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
+		[IniProperty("OutputFileAllowOverwrite", Description = "If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.", DefaultValue = "true")]
+		public bool OutputFileAllowOverwrite;
+		[IniProperty("OutputFileFilenamePattern", Description = "Filename pattern for screenshot.", DefaultValue = "${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
 		public string OutputFileFilenamePattern;
 		[IniProperty("OutputFileFormat", Description="Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)", DefaultValue="png")]
 		public OutputFormat OutputFileFormat = OutputFormat.png;
 		[IniProperty("OutputFileReduceColors", Description="If set to true, than the colors of the output file are reduced to 256 (8-bit) colors", DefaultValue="false")]
 		public bool OutputFileReduceColors;
-		[IniProperty("OutputFileAutoReduceColors", Description = "If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used.", DefaultValue = "true")]
+		[IniProperty("OutputFileAutoReduceColors", Description = "If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used.", DefaultValue = "false")]
 		public bool OutputFileAutoReduceColors;
 
 		[IniProperty("OutputFileCopyPathToClipboard", Description="When saving a screenshot, copy the path to the clipboard?", DefaultValue="true")]
@@ -137,18 +138,18 @@ namespace GreenshotPlugin.Core {
 		public bool OutputPrintCenter;
 		[IniProperty("OutputPrintInverted", LanguageKey="printoptions_inverted", Description="Print image inverted (use e.g. for console captures)", DefaultValue="false")]
 		public bool OutputPrintInverted;
-        [IniProperty("OutputPrintGrayscale", LanguageKey = "printoptions_printgrayscale", Description = "Force grayscale printing", DefaultValue = "false")]
-        public bool OutputPrintGrayscale;
-        [IniProperty("OutputPrintMonochrome", LanguageKey = "printoptions_printmonochrome", Description = "Force monorchrome printing", DefaultValue = "false")]
-        public bool OutputPrintMonochrome;
-        [IniProperty("OutputPrintMonochromeThreshold", Description = "Threshold for monochrome filter (0 - 255), lower value means less black", DefaultValue = "127")]
-        public byte OutputPrintMonochromeThreshold;
-        [IniProperty("OutputPrintFooter", LanguageKey = "printoptions_timestamp", Description = "Print footer on print?", DefaultValue = "true")]
+		[IniProperty("OutputPrintGrayscale", LanguageKey = "printoptions_printgrayscale", Description = "Force grayscale printing", DefaultValue = "false")]
+		public bool OutputPrintGrayscale;
+		[IniProperty("OutputPrintMonochrome", LanguageKey = "printoptions_printmonochrome", Description = "Force monorchrome printing", DefaultValue = "false")]
+		public bool OutputPrintMonochrome;
+		[IniProperty("OutputPrintMonochromeThreshold", Description = "Threshold for monochrome filter (0 - 255), lower value means less black", DefaultValue = "127")]
+		public byte OutputPrintMonochromeThreshold;
+		[IniProperty("OutputPrintFooter", LanguageKey = "printoptions_timestamp", Description = "Print footer on print?", DefaultValue = "true")]
 		public bool OutputPrintFooter;
 		[IniProperty("OutputPrintFooterPattern", Description = "Footer pattern", DefaultValue = "${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
 		public string OutputPrintFooterPattern;
-        [IniProperty("NotificationSound", Description = "The wav-file to play when a capture is taken, loaded only once at the Greenshot startup", DefaultValue="default")]
-        public string NotificationSound;
+		[IniProperty("NotificationSound", Description = "The wav-file to play when a capture is taken, loaded only once at the Greenshot startup", DefaultValue="default")]
+		public string NotificationSound;
 		[IniProperty("UseProxy", Description="Use your global proxy?", DefaultValue="True")]
 		public bool UseProxy;
 		[IniProperty("IECapture", Description="Enable/disable IE capture", DefaultValue="True")]
@@ -174,12 +175,12 @@ namespace GreenshotPlugin.Core {
 
 		[IniProperty("DisableSettings", Description = "Enable/disable the access to the settings, can only be changed manually in this .ini", DefaultValue = "False")]
 		public bool DisableSettings;
-        [IniProperty("DisableQuickSettings", Description = "Enable/disable the access to the quick settings, can only be changed manually in this .ini", DefaultValue = "False")]
-        public bool DisableQuickSettings;
-        [IniProperty("DisableTrayicon", Description = "Disable the trayicon, can only be changed manually in this .ini", DefaultValue = "False")]
+		[IniProperty("DisableQuickSettings", Description = "Enable/disable the access to the quick settings, can only be changed manually in this .ini", DefaultValue = "False")]
+		public bool DisableQuickSettings;
+		[IniProperty("DisableTrayicon", Description = "Disable the trayicon, can only be changed manually in this .ini", DefaultValue = "False")]
 		public bool HideTrayicon;
-        [IniProperty("HideExpertSettings", Description = "Hide expert tab in the settings, can only be changed manually in this .ini", DefaultValue = "False")]
-        public bool HideExpertSettings;
+		[IniProperty("HideExpertSettings", Description = "Hide expert tab in the settings, can only be changed manually in this .ini", DefaultValue = "False")]
+		public bool HideExpertSettings;
 
 		[IniProperty("ThumnailPreview", Description="Enable/disable thumbnail previews", DefaultValue="True")]
 		public bool ThumnailPreview;
@@ -241,6 +242,9 @@ namespace GreenshotPlugin.Core {
 		public string OptimizePNGCommand;
 		[IniProperty("OptimizePNGCommandArguments", Description = "Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot.", DefaultValue = "\"{0}\"")]
 		public string OptimizePNGCommandArguments;
+
+		[IniProperty("LastSaveWithVersion", Description = "Version of Greenshot which created this .ini")]
+		public string LastSaveWithVersion;
 
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.RELEASE_CANDIDATE;
@@ -338,7 +342,14 @@ namespace GreenshotPlugin.Core {
 		public override void AfterLoad() {
 			// Comment with releases
 			// CheckForUnstable = true;
-			
+
+			if (string.IsNullOrEmpty(LastSaveWithVersion)) {
+				// Store version, this can be used later to fix settings after an update
+				LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+				// Disable the AutoReduceColors as it causes issues with Mozzila applications and some others
+				OutputFileAutoReduceColors = false;
+			}
+
 			if (OutputDestinations == null) {
 				OutputDestinations = new List<string>();
 			}
