@@ -4,8 +4,11 @@ CHANGE LOG:
 
 1.1.3 build $WCREV$ Release Candidate 3
 
+Features added since 1.1.2:
+* Created a PortableApps version of Greenshot, this now will be released just like the other files (installer & .zip)
+
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
-* Bug #XXXX: InvalidCastException when using the brightness-filter
+* Bug #1504: InvalidCastException when using the brightness-filter
 
 Languages:
 * Added Indonesian
