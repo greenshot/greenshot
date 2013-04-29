@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<language description="简体中文" ietf="zh-CN" version="1.1.0.2529" languagegroup="1">
+<language description="简体中文" ietf="zh-CN" version="1.1.2.2572" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">如果发现任何错误，请到以下网址报告</resource>
 		<resource name="about_donations">如果您喜欢这个软件，希望您可以捐助我们：</resource>
@@ -256,6 +256,7 @@ ${hostname} PC名称
 		<resource name="settings_registerhotkeys">注册快捷键</resource>
 		<resource name="settings_showflashlight">抓屏时闪光</resource>
 		<resource name="settings_shownotify">显示通知</resource>
+		<resource name="settings_zoom">显示放大镜</resource>
 		<resource name="settings_storagelocation">保存路径</resource>
 		<resource name="settings_title">设定</resource>
 		<resource name="settings_tooltip_filenamepattern">设定保存文件的命名格式</resource>
