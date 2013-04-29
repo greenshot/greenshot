@@ -26,6 +26,7 @@ using System.Threading;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using System.ComponentModel;
 
 namespace ExternalCommand {
 	/// <summary>
@@ -103,8 +104,20 @@ namespace ExternalCommand {
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
-		
+
 		private int CallExternalCommand(string commando, string fullPath, out string output) {
+			try {
+				return CallExternalCommand(commando, fullPath, null, out output);
+			} catch (Win32Exception ex) {
+				try {
+					return CallExternalCommand(commando, fullPath, "runas", out output);
+				} catch {
+					throw ex;
+				}
+			}
+		}
+
+		private int CallExternalCommand(string commando, string fullPath, string verb, out string output) {
 			string commandline = config.commandlines[commando];
 			string arguments = config.arguments[commando];
 			output = null;
@@ -114,6 +127,9 @@ namespace ExternalCommand {
 				p.StartInfo.Arguments = String.Format(arguments, fullPath);
 				p.StartInfo.UseShellExecute = false;
 				p.StartInfo.RedirectStandardOutput = true;
+				if (verb != null) {
+					p.StartInfo.Verb = verb;
+				}
 				LOG.Info("Starting : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
 				p.Start();
 				p.WaitForExit();
