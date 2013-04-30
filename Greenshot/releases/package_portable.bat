@@ -21,7 +21,7 @@ copy /B bin\Release\GreenshotPlugin.dll releases\portable\App\Greenshot
 copy /B bin\Release\log4net.dll releases\portable\App\Greenshot
 copy /B log4net-portable.xml releases\portable\App\Greenshot
 copy /B bin\Release\Greenshot.exe releases\portable\
-copy /B bin\Release\Greenshot.exe.config releases\portable\
+copy /B bin\Release\Greenshot.exe.config releases\portable\App\Greenshot
 xcopy /S releases\additional_files\*.txt releases\portable\App\Greenshot
 del releases\portable\App\Greenshot\readme.template.txt
 
