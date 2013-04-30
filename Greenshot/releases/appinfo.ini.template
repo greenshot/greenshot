@@ -4,7 +4,7 @@ Version=2.0
 
 [Details]
 Name=Greenshot Portable
-AppID=GreenshotPortable
+AppID=Greenshot_for_PortableApps
 Publisher=Greenshot
 Homepage=getgreenshot.org
 Category=Graphics & Pictures
@@ -22,7 +22,7 @@ EULAVersion=true
 
 [Version]
 PackageVersion=1.1.3.$WCREV$
-DisplayVersion=1.1.3.$WCREV$
+DisplayVersion=1.1.3.$WCREV$-RC3
 
 [SpecialPaths]
 Plugins=NONE
