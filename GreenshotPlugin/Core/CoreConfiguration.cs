@@ -247,7 +247,7 @@ namespace GreenshotPlugin.Core {
 		public string LastSaveWithVersion;
 
 		// Specifies what THIS build is
-		public BuildStates BuildState = BuildStates.RELEASE_CANDIDATE;
+		public BuildStates BuildState = BuildStates.RELEASE;
 
 		/// <summary>
 		/// A helper method which returns true if the supplied experimental feature is enabled
