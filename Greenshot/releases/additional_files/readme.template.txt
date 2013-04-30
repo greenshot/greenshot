@@ -2,49 +2,25 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.1.3 build $WCREV$ Release Candidate 3
+1.1.4 build $WCREV$ Release
 
-Features added since 1.1.2:
-* Created a PortableApps version of Greenshot, this now will be released just like the other files (installer & .zip)
-
-Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
-* Bug #1504: InvalidCastException when using the brightness-filter
-
-Languages:
-* Added Indonesian
-
-
-1.1.2 build 2572 Release Candidate 2
-
-Features added since 1.1.1:
+Features added:
+* General: Added zoom when capturing with a option in the settings for disabling the zoom. (this can also be done via the "z" key while capturing.)
+* General: Better Windows 8 integration: Capture window from list now has the apps and the interactive window capture is not confused by apps or the app launcher.
+* General: Added Special-Folder support for the OutputPath/Filenames, now one can use the following values: MyPictures, MyMusic, MyDocuments, Personal, Desktop, ApplicationData, LocalApplicationData. Meaning one can now set the output path to e.g. ${MyPictures}
+* General: Greenshot now also comes as a "for PortableApps" download, this now will be released just like the other files (installer & .zip)
 * Editor: Added a new image format "Greenshot" which allows the user to save the current state and continue editing later. (was already in the 1.1.1.2550)
-* Capture: Added an option to the settings for disabling the zoom. (this can also be done via the "z" key while capturing.)
+* Editor: The capture is now displayed in the center of the editor, the code for this was supplied by Viktar Karpach.
+* Editor: Added horizontal and vertical alignment for text boxes.
+* Printing: Added option to force monochrome (black/white) print
+* Plug-in: Added Photobucket plugin
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
 * Bug #1484, #1494: External Command plug-in issues. e.g. when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occured.
 * Bug #1499: Stability improvements for when Greenshot tries to open the explorer.exe
 * Bug #1500: Error while dragging an obfuscation
 * Fixed some additional unreported issues
-
-
-1.1.1 build 2550 Release Candidate 1
-
-Features added since 1.0.6:
-* General: Added zoom when capturing
-* General: Better Windows 8 integration: Capture window from list now has the apps and the interactive window capture is not confused by apps or the app launcher.
-* General: Added Special-Folder support for the OutputPath/Filenames, now one can use the following values: MyPictures, MyMusic, MyDocuments, Personal, Desktop, ApplicationData, LocalApplicationData. Meaning one can now set the output path to e.g. ${MyPictures}
-* Editor: The capture is now displayed in the center of the editor, the code for this was supplied by Viktar Karpach.
-* Editor: Added horizontal and vertical alignment for text boxes.
-* Printing: Added option to force monochrome (black/white) print
-* Plug-in: Added Photobucket plugin
-
-Languages:
-* Installer: Added Spanish
-* Installer: Added Serbian
-* Installer: Added Finnish
-* General: Fixes for many languages
-
-Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
+* Bug #1504: InvalidCastException when using the brightness-filter
 * Bug #1327, #1401 & #1410 : On Windows XP Firefox/java captures are mainly black. This fix should also work with other OS versions and applications.
 * Bug #1340: Fixed issue with opening a screenshow from the clipboard which was created in a remote desktop
 * Bug #1375, #1396 & #1397: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
@@ -73,6 +49,14 @@ Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and
 * Not reported: Open last capture in explorer doesn't open the right location
 * Not reported: Fixed some issues where the sub-menus of the context menu moved to the next screen.
 * Not reported: When having Outlook installed but not the Office plugin there was no EMail destination.
+... and more
+
+Languages:
+* Added Indonesian
+* Installer: Added Spanish
+* Installer: Added Serbian
+* Installer: Added Finnish
+* General: Fixes for many languages
 
 Known issues:
 * Greenshot general: a captured I-Beam cursor isn't displayed correctly on the final result.
@@ -81,6 +65,7 @@ Known issues:
 * Greenshot general: Hotkeys don't function when a UAC (elevated) process is active. This we won't change as it is a Windows security measure.
 * Greenshot general: Capturing apps on Windows 8 when having more than one screen still causes some issues.
 * Greenshot editor: Rotate only rotates the screenshot, not the added elements or cursor
+
 
 1.0.6 build 2228 Release
 
