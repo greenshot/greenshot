@@ -122,9 +122,13 @@ namespace ExternalCommand {
 			itemPlugInRoot = new ToolStripMenuItem();
 			itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
 			itemPlugInRoot.Tag = host;
-			string exePath = PluginUtils.GetExePath("cmd.exe");
-			if (exePath != null && File.Exists(exePath)) {
-				itemPlugInRoot.Image = PluginUtils.GetExeIcon(exePath, 0);
+			try {
+				string exePath = PluginUtils.GetExePath("cmd.exe");
+				if (exePath != null && File.Exists(exePath)) {
+					itemPlugInRoot.Image = PluginUtils.GetExeIcon(exePath, 0);
+				}
+			} catch (Exception ex) {
+				LOG.Warn("Couldn't get the cmd.exe image", ex);
 			}
 			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
 

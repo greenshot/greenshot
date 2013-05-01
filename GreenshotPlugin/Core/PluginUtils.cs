@@ -53,10 +53,14 @@ namespace GreenshotPlugin.Core {
 					return (string)key.GetValue("");
 				}
 			}
-			foreach (string test in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';')) {
-				string path = test.Trim();
-				if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exeName))) {
-					return Path.GetFullPath(path);
+			foreach (string pathEntry in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';')) {
+				try {
+					string path = pathEntry.Trim();
+					if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exeName))) {
+						return Path.GetFullPath(path);
+					}
+				} catch (Exception) {
+					LOG.WarnFormat("Problem with path entry '{0}'.", pathEntry);
 				}
 			}
 			return null;
