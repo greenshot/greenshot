@@ -28,7 +28,7 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="ClipboardFormat.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML dengan gambar inline</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
-		<resource name="colorpicker_alpha">Alpha</resource>
+		<resource name="colorpicker_alpha">Alfa</resource>
 		<resource name="colorpicker_apply">Lakukan</resource>
 		<resource name="colorpicker_blue">Biru</resource>
 		<resource name="colorpicker_green">Hijau</resource>
@@ -223,7 +223,7 @@ Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Simpan cepat (menggunakan pengaturan berikut)</resource>
 		<resource name="settings_destination_fileas">Simpan sebagai (tampilkan dialog)</resource>
-		<resource name="settings_destination_picker">Pilih dsetinasi secara dinamis</resource>
+		<resource name="settings_destination_picker">Pilih destinasi secara dinamis</resource>
 		<resource name="settings_destination_printer">Kirim ke printer</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Pola nama berkas</resource>
@@ -277,6 +277,7 @@ cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
 		<resource name="settings_waittime">Milisekon untuk menunggu sebelum menagkap</resource>
 		<resource name="settings_window_capture_mode">Moda penangkap jendela</resource>
 		<resource name="settings_windowscapture">Tangkap jendela</resource>
+		<resource name="settings_zoom">Tampilkan Pembesar</resource>
 		<resource name="tooltip_firststart">Klik kanan disini atau tekan tombol {0}.</resource>
 		<resource name="update_found">Versi baru Greenshot telah tersedia! Apakah anda ingin mengunduh Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Harap tunggu ketika halaman Internet Explorer sedang ditangkap</resource>

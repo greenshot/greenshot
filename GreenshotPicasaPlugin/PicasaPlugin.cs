@@ -141,7 +141,8 @@ namespace GreenshotPicasaPlugin {
 				}
 				return true;
 			} catch (Exception e) {
-				MessageBox.Show(Language.GetString("picasa", LangKey.upload_failure) + " " + e.ToString());
+				LOG.Error("Error uploading.", e);
+				MessageBox.Show(Language.GetString("picasa", LangKey.upload_failure) + " " + e.Message);
 			}
 			uploadUrl = null;
 			return false;

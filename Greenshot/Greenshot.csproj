@@ -213,9 +213,6 @@
     <Compile Include="Helpers\ProcessorHelper.cs" />
     <Compile Include="Help\HelpFileLoader.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
-    <None Include="Greenshot.exe.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <Compile Include="Helpers\WindowWrapper.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
@@ -400,7 +397,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(MSBuildProjectDirectory)\tools\TortoiseSVN\SubWCRev.exe" "$(MSBuildProjectDirectory)\.." "$(MSBuildProjectDirectory)\AssemblyInfo.cs.template" "$(MSBuildProjectDirectory)\AssemblyInfo.cs"
+    <PreBuildEvent>
 copy "$(ProjectDir)log4net-debug.xml" "$(SolutionDir)bin\$(Configuration)\log4net.xml"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">

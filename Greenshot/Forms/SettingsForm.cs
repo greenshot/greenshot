@@ -342,7 +342,8 @@ namespace Greenshot {
 
 			SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
 			// Disable editing when the value is fixed
-			combobox_window_capture_mode.Enabled = !coreConfiguration.Values["WindowCaptureMode"].IsFixed;
+			combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.Values["WindowCaptureMode"].IsFixed;
+			radiobuttonWindowCapture.Checked = !coreConfiguration.CaptureWindowsInteractive;
 
 			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
 			trackBarJpegQuality.Enabled = !coreConfiguration.Values["OutputFileJpegQuality"].IsFixed;
@@ -352,19 +353,24 @@ namespace Greenshot {
 
 			numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >=0?coreConfiguration.CaptureDelay:0;
 			numericUpDownWaitTime.Enabled = !coreConfiguration.Values["CaptureDelay"].IsFixed;
-			// Autostart checkbox logic.
-			if (StartupHelper.hasRunAll()) {
-				// Remove runUser if we already have a run under all
-				StartupHelper.deleteRunUser();
-				checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunAll();
-				checkbox_autostartshortcut.Checked = true; // We already checked this
-			} else if (StartupHelper.IsInStartupFolder()) {
-				checkbox_autostartshortcut.Enabled = false;
-				checkbox_autostartshortcut.Checked = true; // We already checked this
+			if (IniConfig.IsPortable) {
+				checkbox_autostartshortcut.Visible = false;
+				checkbox_autostartshortcut.Checked = false;
 			} else {
-				// No run for all, enable the checkbox and set it to true if the current user has a key
-				checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunUser();
-				checkbox_autostartshortcut.Checked = StartupHelper.hasRunUser();
+				// Autostart checkbox logic.
+				if (StartupHelper.hasRunAll()) {
+					// Remove runUser if we already have a run under all
+					StartupHelper.deleteRunUser();
+					checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunAll();
+					checkbox_autostartshortcut.Checked = true; // We already checked this
+				} else if (StartupHelper.IsInStartupFolder()) {
+					checkbox_autostartshortcut.Enabled = false;
+					checkbox_autostartshortcut.Checked = true; // We already checked this
+				} else {
+					// No run for all, enable the checkbox and set it to true if the current user has a key
+					checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunUser();
+					checkbox_autostartshortcut.Checked = StartupHelper.hasRunUser();
+				}
 			}
 			
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
@@ -590,6 +596,10 @@ namespace Greenshot {
 		private void checkbox_enableexpert_CheckedChanged(object sender, EventArgs e) {
 			CheckBox checkBox = sender as CheckBox;
 			ExpertSettingsEnableState(checkBox.Checked);
+		}
+
+		private void radiobutton_CheckedChanged(object sender, EventArgs e) {
+			combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
 		}
 	}
 

@@ -56,6 +56,9 @@ namespace GreenshotFlickrPlugin {
 
 		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send flickr link to clipboard.", DefaultValue = "true")]
 		public bool AfterUploadLinkToClipBoard;
+
+		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
+		public bool UsePageLink;
 		
 		[IniProperty("FlickrToken", Description = "The Flickr token", Encrypted = true, ExcludeIfNull = true)]
 		public string FlickrToken;

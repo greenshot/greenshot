@@ -145,6 +145,7 @@ namespace Greenshot.Helpers {
 							try {
 								IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
 								string title = document2.title;
+								System.Runtime.InteropServices.Marshal.ReleaseComObject(document2);
 								if (string.IsNullOrEmpty(title)) {
 									singleWindowText.Add(ieWindow.Text);
 								} else {
@@ -580,29 +581,6 @@ namespace Greenshot.Helpers {
 				}
 			}
 			return returnBitmap;
-		}
-		
-		/// <summary>
-		/// Used as an example
-		/// </summary>
-		/// <param name="documentContainer"></param>
-		/// <param name="graphicsTarget"></param>
-		/// <param name="returnBitmap"></param>
-		private static void ParseElements(DocumentContainer documentContainer, Graphics graphicsTarget, Bitmap returnBitmap) {
-			foreach(ElementContainer element in documentContainer.GetElementsByTagName("input", new string[]{"greenshot"})) {
-				if (element.attributes.ContainsKey("greenshot") && element.attributes["greenshot"] != null) {
-					string greenshotAction = element.attributes["greenshot"];
-					if ("hide".Equals(greenshotAction)) {
-						using (Brush brush = new SolidBrush(Color.Black)) {
-							graphicsTarget.FillRectangle(brush, element.rectangle);
-						}
-					} else if ("red".Equals(greenshotAction)) {
-						using (Brush brush = new SolidBrush(Color.Red)) {
-							graphicsTarget.FillRectangle(brush, element.rectangle);
-						}
-					}
-				}
-			}
 		}
 
 		/// <summary>

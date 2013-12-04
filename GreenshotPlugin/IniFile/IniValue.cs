@@ -65,6 +65,42 @@ namespace Greenshot.IniFile {
 			}
 		}
 
+		/// <summary>
+		/// Return true when the value is for experts
+		/// </summary>
+		public bool IsExpert {
+			get {
+				if (attributes != null) {
+					return attributes.Expert;
+				}
+				return false;
+			}
+			set {
+				if (attributes != null) {
+					attributes.Expert = value;
+				}
+			}
+		}
+
+
+		/// <summary>
+		/// Return true when the value is can be changed by the GUI
+		/// </summary>
+		public bool IsEditable {
+			get {
+				return !IsFixed;
+			}
+		}
+
+		/// <summary>
+		/// Return true when the value is visible in the GUI
+		/// </summary>
+		public bool IsVisible {
+			get {
+				return !IsExpert;
+			}
+		}
+
 		public MemberInfo MemberInfo {
 			get {
 				if (propertyInfo == null) {
@@ -195,14 +231,6 @@ namespace Greenshot.IniFile {
 		public void SetValueFromProperties(Dictionary<string, string> properties) {
 			string propertyName = attributes.Name;
 			string defaultValue = attributes.DefaultValue;
-
-			// Get the value from the ini file, if there is none take the default
-			if (!properties.ContainsKey(propertyName) && defaultValue != null) {
-				// Mark as dirty, we didn't use properties from the file (even defaults from the default file are allowed)
-				containingIniSection.IsDirty = true;
-				//LOG.Debug("Passing default: " + propertyName + "=" + propertyDefaultValue);
-			}
-
 			string propertyValue = null;
 			if (properties.ContainsKey(propertyName) && properties[propertyName] != null) {
 				propertyValue = containingIniSection.PreCheckValue(propertyName, properties[propertyName]);
@@ -308,10 +336,14 @@ namespace Greenshot.IniFile {
 				Value = defaultValueFromConfig;
 				return;
 			}
-			try {
-				Value = Activator.CreateInstance(ValueType);
-			} catch (Exception) {
-				LOG.WarnFormat("Couldn't create instance of {0} for {1}, using default value.", ValueType.FullName, attributes.Name);
+			if (ValueType != typeof(string)) {
+				try {
+					Value = Activator.CreateInstance(ValueType);
+				} catch (Exception) {
+					LOG.WarnFormat("Couldn't create instance of {0} for {1}, using default value.", ValueType.FullName, attributes.Name);
+					Value = default(ValueType);
+				}
+			} else {
 				Value = default(ValueType);
 			}
 		}
@@ -328,6 +360,9 @@ namespace Greenshot.IniFile {
 			}
 			if (valueType == typeof(string)) {
 				return valueString;
+			}
+			if (string.IsNullOrEmpty(valueString)) {
+				return null;
 			}
 
 			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>)) {

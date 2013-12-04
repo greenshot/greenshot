@@ -23,6 +23,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -30,6 +31,7 @@
     <Compile Include="BoxConfiguration.cs" />
     <Compile Include="BoxCredentials.cs" />
     <Compile Include="BoxDestination.cs" />
+    <Compile Include="BoxEntities.cs" />
     <Compile Include="BoxPlugin.cs" />
     <Compile Include="BoxUtils.cs" />
     <Compile Include="Forms\BoxForm.cs">
@@ -73,8 +75,7 @@ copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)bin\$
 mkdir "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
 copy "$(ProjectDir)Languages\*.xml" "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
 </PostBuildEvent>
-    <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"
-
+    <PreBuildEvent>
 if exist "$(ProjectDir)BoxCredentials.private.cs" (
    rename "$(ProjectDir)BoxCredentials.cs" "BoxCredentials.orig.cs"
    rename "$(ProjectDir)BoxCredentials.private.cs" "BoxCredentials.cs"

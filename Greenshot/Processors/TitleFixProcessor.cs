@@ -53,9 +53,6 @@ namespace Greenshot.Processors  {
 				}
 				config.IsDirty = true;
 			}
-			if(config.IsDirty) {
-				IniConfig.Save();
-			}
 		}
 		
 		public override string Designation {

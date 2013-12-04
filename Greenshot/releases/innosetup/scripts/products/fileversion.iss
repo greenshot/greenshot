@@ -5,10 +5,10 @@ var
 begin
 	version := IntToStr(word(VersionMS shr 16));
 	version := version + '.' + IntToStr(word(VersionMS and not $ffff0000));
-	
+
 	version := version + '.' + IntToStr(word(VersionLS shr 16));
 	version := version + '.' + IntToStr(word(VersionLS and not $ffff0000));
-	
+
 	Result := version;
 end;
 

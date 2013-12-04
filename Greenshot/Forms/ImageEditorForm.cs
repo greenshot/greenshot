@@ -90,7 +90,6 @@ namespace Greenshot {
 				var thread = new Thread(delegate() {AddDestinations();});
 				thread.Name = "add destinations";
 				thread.Start();
-				IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
 			};
 
 			// Make sure the editor is placed on the same location as the last editor was on close
@@ -356,18 +355,6 @@ namespace Greenshot {
 			ImageEditorFormResize(sender, new EventArgs());
 		}
 
-		private void ReloadConfiguration(object source, FileSystemEventArgs e) {
-			this.Invoke((MethodInvoker) delegate {
-				// Even update language when needed
-				ApplyLanguage();
-
-				// Fix title
-				if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
-					this.Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
-				}
-			});
-		}
-		
 		public ISurface Surface {
 			get {
 				return surface;
@@ -680,7 +667,6 @@ namespace Greenshot {
 		}
 
 		void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e) {
-			IniConfig.IniChanged -= new FileSystemEventHandler(ReloadConfiguration);
 			if (surface.Modified && !editorConfiguration.SuppressSaveDialogAtClose) {
 				// Make sure the editor is visible
 				WindowDetails.ToForeground(this.Handle);
@@ -1277,13 +1263,16 @@ namespace Greenshot {
 		}
 
 		private void ImageEditorFormResize(object sender, EventArgs e) {
-			if (this.Surface == null) {
+			if (this.Surface == null || this.Surface.Image == null || this.panel1 == null) {
 				return;
 			}
 			Size imageSize = this.Surface.Image.Size;
 			Size currentClientSize = this.panel1.ClientSize;
 			var canvas = this.Surface as Control;
 			Panel panel = (Panel)canvas.Parent;
+			if (panel == null) {
+				return;
+			}
 			int offsetX = -panel.HorizontalScroll.Value;
 			int offsetY = -panel.VerticalScroll.Value;
 			if (canvas != null) {

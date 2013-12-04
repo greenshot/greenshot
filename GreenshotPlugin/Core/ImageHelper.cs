@@ -31,16 +31,78 @@ using Greenshot.Plugin;
 using Greenshot.Core;
 
 namespace GreenshotPlugin.Core {
+	internal enum ExifOrientations : byte {
+		Unknown = 0,
+		TopLeft = 1,
+		TopRight = 2,
+		BottomRight = 3,
+		BottomLeft = 4,
+		LeftTop = 5,
+		RightTop = 6,
+		RightBottom = 7,
+		LeftBottom = 8,
+	}
+
 	/// <summary>
 	/// Description of ImageHelper.
 	/// </summary>
 	public static class ImageHelper {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private const int EXIF_ORIENTATION_ID = 0x0112;
 
-		// This delegate makes it possible that a plug-in delivers a quicker Blur implementation
-		public delegate void BlurDelegate(Bitmap bitmap, int radius);
-		public static BlurDelegate BlurReplacement;
+		/// <summary>
+		/// Make sure the image is orientated correctly
+		/// </summary>
+		/// <param name="image"></param>
+		public static void Orientate(Image image) {
+			if (!conf.ProcessEXIFOrientation) {
+				return;
+			}
+			try {
+				// Get the index of the orientation property.
+				int orientation_index = Array.IndexOf(image.PropertyIdList, EXIF_ORIENTATION_ID);
+				// If there is no such property, return Unknown.
+				if (orientation_index < 0) {
+					return;
+				}
+				PropertyItem item = image.GetPropertyItem(EXIF_ORIENTATION_ID);
+
+				ExifOrientations orientation = (ExifOrientations)item.Value[0];
+				// Orient the image.
+				switch (orientation) {
+					case ExifOrientations.Unknown:
+					case ExifOrientations.TopLeft:
+						break;
+					case ExifOrientations.TopRight:
+						image.RotateFlip(RotateFlipType.RotateNoneFlipX);
+						break;
+					case ExifOrientations.BottomRight:
+						image.RotateFlip(RotateFlipType.Rotate180FlipNone);
+						break;
+					case ExifOrientations.BottomLeft:
+						image.RotateFlip(RotateFlipType.RotateNoneFlipY);
+						break;
+					case ExifOrientations.LeftTop:
+						image.RotateFlip(RotateFlipType.Rotate90FlipX);
+						break;
+					case ExifOrientations.RightTop:
+						image.RotateFlip(RotateFlipType.Rotate90FlipNone);
+						break;
+					case ExifOrientations.RightBottom:
+						image.RotateFlip(RotateFlipType.Rotate90FlipY);
+						break;
+					case ExifOrientations.LeftBottom:
+						image.RotateFlip(RotateFlipType.Rotate270FlipNone);
+						break;
+				}
+				// Set the orientation to be normal, as we rotated the image.
+				item.Value[0] = (byte)ExifOrientations.TopLeft;
+				image.SetPropertyItem(item);
+			} catch (Exception orientEx) {
+				LOG.Warn("Problem orientating the image: ", orientEx);
+			}
+		}
 
 		/// <summary>
 		/// Create a thumbnail from an image
@@ -247,6 +309,8 @@ namespace GreenshotPlugin.Core {
 			if (fileImage != null) {
 				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
+			// Make sure the orientation is set correctly so Greenshot can process the image correctly
+			ImageHelper.Orientate(fileImage);
 			return fileImage;
 		}
 
@@ -746,13 +810,12 @@ namespace GreenshotPlugin.Core {
 				shadowSize++;
 			}
 			bool useGDIBlur = GDIplus.isBlurPossible(shadowSize);
-			bool useBlurDelegate = BlurReplacement != null;
 			// Create "mask" for the shadow
 			ColorMatrix maskMatrix = new ColorMatrix();
 			maskMatrix.Matrix00 = 0;
 			maskMatrix.Matrix11 = 0;
 			maskMatrix.Matrix22 = 0;
-			if (useGDIBlur || useBlurDelegate) {
+			if (useGDIBlur) {
 				maskMatrix.Matrix33 = darkness + 0.1f;
 			} else {
 				maskMatrix.Matrix33 = darkness;
@@ -761,9 +824,7 @@ namespace GreenshotPlugin.Core {
 			ApplyColorMatrix((Bitmap)sourceBitmap, Rectangle.Empty, returnImage, shadowRectangle, maskMatrix);
 
 			// blur "shadow", apply to whole new image
-			if (useBlurDelegate) {
-				BlurReplacement(returnImage, shadowSize+1);
-			} else if (useGDIBlur) {
+			if (useGDIBlur) {
 				// Use GDI Blur
 				Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
 				GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize+1, false);

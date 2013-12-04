@@ -86,7 +86,6 @@ namespace Greenshot.Experimental {
 						MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, "'" + latestGreenshot.File + "'"), ToolTipIcon.Info);
 					}
 					conf.LastUpdateCheck = DateTime.Now;
-					IniConfig.Save();
 				} catch (Exception e) {
 					LOG.Error("An error occured while checking for updates, the error will be ignored: ", e);
 				}
@@ -107,7 +106,7 @@ namespace Greenshot.Experimental {
 					Process.Start(downloadLink);
 				}
 			} catch (Exception) {
-				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, latestGreenshot.Link), Language.GetString(LangKey.error));
+				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, downloadLink), Language.GetString(LangKey.error));
 			} finally {
 				MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
 				MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;

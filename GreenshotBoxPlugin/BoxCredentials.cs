@@ -26,6 +26,7 @@ namespace GreenshotBoxPlugin {
 	/// Copy this file to BoxCredentials.private.cs and fill in valid credentials. (Or empty strings, but of course you won't be able to use the plugin then.)
 	/// </summary>
 	public static class BoxCredentials {
-		public static string API_KEY = empty;
+		public static string ClientId = string.Empty;
+		public static string ClientSecret = string.Empty;
 	}
 }

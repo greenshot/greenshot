@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
+	<resources>
+		<resource name="anonymous_access">Używaj jako niezalogowany</resource>
+		<resource name="CANCEL">Anuluj</resource>
+		<resource name="clear_question">Na pewno chcesz usunąć historię lokalną Imgur?</resource>
+		<resource name="communication_wait">Trwa komunikacja z Imgur. Proszę czekać...</resource>
+		<resource name="configure">Konfiguruj</resource>
+		<resource name="delete_question">Na pewno chcesz usunąć obraz {0} z Imgur?</resource>
+		<resource name="delete_title">Usuń z Imgur {0}</resource>
+		<resource name="history">Historia</resource>
+		<resource name="label_upload_format">Format obrazów</resource>
+		<resource name="label_url">URL</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Ustawienia Imgur</resource>
+		<resource name="upload_failure">Wystąpił błąd przy wysyłaniu do Imgur:</resource>
+		<resource name="upload_menu_item">Wyślij do Imgur</resource>
+		<resource name="upload_success">Wysyłanie obrazu do Imgur powiodło się!</resource>
+		<resource name="use_page_link">Kopiuj do schowka link do strony zamiast link do obrazu</resource>
+	</resources>
+</language>

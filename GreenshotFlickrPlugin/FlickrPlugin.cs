@@ -123,8 +123,9 @@ namespace GreenshotFlickrPlugin
 			config.ShowConfigDialog();
 		}
 
-		public void Upload(ICaptureDetails captureDetails, ISurface surface, ExportInformation exportInformation) {
+		public bool Upload(ICaptureDetails captureDetails, ISurface surface, out String uploadUrl) {
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
+			uploadUrl = null;
 			try {
 				string flickrUrl = null;
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("flickr", LangKey.communication_wait), 
@@ -135,18 +136,19 @@ namespace GreenshotFlickrPlugin
 				);
 					
 				if (flickrUrl == null) {
-					exportInformation.ExportMade = false;
-					return;
+					return false;
 				}
-				exportInformation.ExportMade = true;
-				exportInformation.Uri = flickrUrl;
+				uploadUrl = flickrUrl;
 
 				if (config.AfterUploadLinkToClipBoard) {
 					ClipboardHelper.SetClipboardData(flickrUrl);
 				}
+				return true;
 			} catch (Exception e) {
+				LOG.Error("Error uploading.", e);
 				MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
 			}
+			return false;
 		}
 	}
 }

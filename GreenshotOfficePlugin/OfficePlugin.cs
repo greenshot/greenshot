@@ -46,10 +46,51 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			yield return new ExcelDestination();
-			yield return new PowerpointDestination();
-			yield return new WordDestination();
-			yield return new OutlookDestination();
+			IDestination destination = null;
+			try {
+				destination = new ExcelDestination();
+			} catch {
+				destination = null;
+			}
+			if (destination != null) {
+				yield return destination;
+			}
+
+			try {
+				destination = new PowerpointDestination();
+			} catch {
+				destination = null;
+			}
+			if (destination != null) {
+				yield return destination;
+			}
+
+			try {
+				destination = new WordDestination();
+			} catch {
+				destination = null;
+			}
+			if (destination != null) {
+				yield return destination;
+			}
+
+			try {
+				destination = new OutlookDestination();
+			} catch {
+				destination = null;
+			}
+			if (destination != null) {
+				yield return destination;
+			}
+
+			try {
+				destination = new OneNoteDestination();
+			} catch {
+				destination = null;
+			}
+			if (destination != null) {
+				yield return destination;
+			}
 		}
 
 		public IEnumerable<IProcessor> Processors() {

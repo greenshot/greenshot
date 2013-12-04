@@ -49,9 +49,6 @@
     <None Include="Languages\language_externalcommandplugin-en-US.xml" />
     <None Include="Properties\AssemblyInfo.cs.template" />
   </ItemGroup>
-  <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"</PreBuildEvent>
-  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>

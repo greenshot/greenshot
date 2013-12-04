@@ -144,7 +144,7 @@ namespace GreenshotBoxPlugin {
 				return url;
 			} catch (Exception ex) {
 				LOG.Error("Error uploading.", ex);
-				MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.ToString());
+				MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
 				return null;
 			}
 		}

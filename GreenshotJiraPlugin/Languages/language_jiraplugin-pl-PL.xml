@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
+	<resources>
+		<resource name="CANCEL">Anuluj</resource>
+		<resource name="column_assignee">Przypisane do</resource>
+		<resource name="column_created">Utworzone</resource>
+		<resource name="column_id">ID</resource>
+		<resource name="column_reporter">Zgłaszający</resource>
+		<resource name="column_summary">Podsumowanie</resource>
+		<resource name="communication_wait">Trwa komunikacja z JIRA. Proszę czekać...</resource>
+		<resource name="label_comment">Komentarz</resource>
+		<resource name="label_filename">Nazwa pliku</resource>
+		<resource name="label_jira">JIRA</resource>
+		<resource name="label_jirafilter">Filtr JIRA</resource>
+		<resource name="label_upload_format">Format obrazu</resource>
+		<resource name="label_url">URL</resource>
+		<resource name="login_error">Wystąpił problem podczas logowania: {0}</resource>
+		<resource name="login_title">Wprowadź swoje dane logowania</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Ustawienia JIRA</resource>
+		<resource name="upload_failure">Wystąpił błąd przy wysyłaniu do JIRA:</resource>
+		<resource name="upload_menu_item">Wyślij do JIRA</resource>
+		<resource name="upload_success">Wysyłanie obrazu do JIRA powiodło się!</resource>
+	</resources>
+</language>

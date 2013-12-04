@@ -3,7 +3,9 @@
 [CustomMessages]
 jet4sp8_title=Jet 4
 
-jet4sp8_size=3.7 MB
+en.jet4sp8_size=3.7 MB
+de.jet4sp8_size=3,7 MB
+
 
 [Code]
 const
@@ -12,10 +14,11 @@ const
 procedure jet4sp8(MinVersion: string);
 begin
 	//check for Jet4 Service Pack 8 installation
-	if fileversion(ExpandConstant('{sys}{\}msjet40.dll')) < MinVersion then
+	if (compareversion(fileversion(ExpandConstant('{sys}{\}msjet40.dll')), MinVersion) < 0) then
 		AddProduct('jet4sp8.exe',
 			'/q:a /c:"install /qb /l"',
 			CustomMessage('jet4sp8_title'),
 			CustomMessage('jet4sp8_size'),
-			jet4sp8_url);
+			jet4sp8_url,
+			false, false);
 end;

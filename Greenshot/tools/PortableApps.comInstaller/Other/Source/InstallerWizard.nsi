@@ -1,4 +1,4 @@
-﻿;Copyright (C) 2006-2012 John T. Haller
+﻿;Copyright (C) 2006-2013 John T. Haller
 
 ;Website: http://PortableApps.com/Installer
 
@@ -20,9 +20,9 @@
 ;Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 !define APPNAME "PortableApps.com Installer"
-!define VER "3.0.5.0"
+!define VER "3.0.6.0"
 !define WEBSITE "PortableApps.com/Installer"
-!define FRIENDLYVER "3.0.5"
+!define FRIENDLYVER "3.0.6"
 !define PORTABLEAPPS.COMFORMATVERSION "3.0"
 
 ;=== Program Details

@@ -104,7 +104,6 @@ namespace GreenshotPlugin.Core {
 				CurrentLanguage = coreConfig.Language;
 				if (CurrentLanguage != null && CurrentLanguage != coreConfig.Language) {
 					coreConfig.Language = CurrentLanguage;
-					IniConfig.Save();
 				}
 			}
 
@@ -113,7 +112,6 @@ namespace GreenshotPlugin.Core {
 				CurrentLanguage = DEFAULT_LANGUAGE;
 				if (CurrentLanguage != null) {
 					coreConfig.Language = CurrentLanguage;
-					IniConfig.Save();
 				}
 			}
 

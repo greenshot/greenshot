@@ -1,7 +1,9 @@
 [CustomMessages]
 msi31_title=Windows Installer 3.1
 
-msi31_size=2.5 MB
+en.msi31_size=2.5 MB
+de.msi31_size=2,5 MB
+
 
 [Code]
 const
@@ -10,10 +12,11 @@ const
 procedure msi31(MinVersion: string);
 begin
 	// Check for required Windows Installer 3.0 on Windows 2000 or higher
-	if minwinversion(5, 0) and (fileversion(ExpandConstant('{sys}{\}msi.dll')) < MinVersion) then
+	if (IsX86() and minwinversion(5, 0) and (compareversion(fileversion(ExpandConstant('{sys}{\}msi.dll')), MinVersion) < 0)) then
 		AddProduct('msi31.exe',
-			'/qb /norestart',
+			'/passive /norestart',
 			CustomMessage('msi31_title'),
 			CustomMessage('msi31_size'),
-			msi31_url);
+			msi31_url,
+			false, false);
 end;

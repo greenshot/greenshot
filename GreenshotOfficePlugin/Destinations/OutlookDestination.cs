@@ -152,8 +152,8 @@ namespace GreenshotOfficePlugin {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			// Outlook logic
 			string tmpFile = captureDetails.Filename;
-			if (tmpFile == null || surface.Modified) {
-				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings());
+			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
+				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			} else {
 				LOG.InfoFormat("Using already available file: {0}", tmpFile);
 			}

@@ -5,7 +5,9 @@
 [CustomMessages]
 ie6_title=Internet Explorer 6
 
-ie6_size=1 MB - 77.5 MB
+en.ie6_size=1 MB - 77.5 MB
+de.ie6_size=1 MB - 77,5 MB
+
 
 [Code]
 const
@@ -16,10 +18,11 @@ var
 	version: string;
 begin
 	RegQueryStringValue(HKLM, 'Software\Microsoft\Internet Explorer', 'Version', version);
-	if version < MinVersion then
+	if (compareversion(version, MinVersion) < 0) then
 		AddProduct('ie6.exe',
 			'/q:a /C:"setup /QNT"',
 			CustomMessage('ie6_title'),
 			CustomMessage('ie6_size'),
-			ie6_url);
+			ie6_url,
+			false, false);
 end;

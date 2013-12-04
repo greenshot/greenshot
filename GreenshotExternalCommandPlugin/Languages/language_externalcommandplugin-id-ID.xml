@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Bahasa Indonesia" ietf="id-ID" version="1.0.0.0" languagegroup="">
+	<resources>
+		<resource name="contextmenu_configure">Konfigurasi perintah eksternal</resource>
+		<resource name="label_argument">Argumen</resource>
+		<resource name="label_command">Perintah</resource>
+		<resource name="label_information">{0} adalah nama berkas dari tangkapan anda</resource>
+		<resource name="label_name">Nama</resource>
+		<resource name="settings_delete">Hapus</resource>
+		<resource name="settings_detail_title">Konfigursi perintah</resource>
+		<resource name="settings_edit">Edit</resource>
+		<resource name="settings_new">Baru</resource>
+		<resource name="settings_title">Setelan perintah eksternal</resource>
+	</resources>
+</language>

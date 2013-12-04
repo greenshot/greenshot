@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
+	<resources>
+		<resource name="language">Język dla OCR</resource>
+		<resource name="orient_image">Orientacja obrazu</resource>
+		<resource name="straighten_image">Wyprostowanie obrazów</resource>
+	</resources>
+</language>

@@ -1,4 +1,4 @@
-﻿;Copyright 2007-2012 John T. Haller of PortableApps.com
+﻿;Copyright 2007-2013 John T. Haller of PortableApps.com
 ;Website: http://PortableApps.com/
 
 ;This software is OSI Certified Open Source Software.
@@ -24,8 +24,8 @@
 ;as published at PortableApps.com/development. It may also be used with commercial
 ;software by contacting PortableApps.com.
 
-!define PORTABLEAPPSINSTALLERVERSION "3.0.5.0"
-!define PORTABLEAPPS.COMFORMATVERSION "3.0.5"
+!define PORTABLEAPPSINSTALLERVERSION "3.0.6.0"
+!define PORTABLEAPPS.COMFORMATVERSION "3.0.6"
 
 !if ${__FILE__} == "PortableApps.comInstallerPlugin.nsi"
 	!include PortableApps.comInstallerPluginConfig.nsh
@@ -279,6 +279,7 @@ Var MINIMIZEINSTALLER
 	Var DOWNLOADEDFILE
 	Var DOWNLOADALREADYEXISTED
 	Var SECONDDOWNLOADATTEMPT
+	Var DownloadURLActual
 !endif
 Var INTERNALEULAVERSION
 Var InstallingStatusString
@@ -908,6 +909,7 @@ FunctionEnd
 	${If} $DOWNLOADALREADYEXISTED == "true"
 		StrCpy $DOWNLOADEDFILE "$EXEDIR\${DownloadFileName}"
 	${Else}
+		StrCpy $DownloadURLActual ${DownloadURL}
 		DownloadTheFile:
 		CreateDirectory `$PLUGINSDIR\Downloaded`
 		SetDetailsPrint both
@@ -922,9 +924,9 @@ FunctionEnd
 		Delete "$PLUGINSDIR\Downloaded\${DownloadFilename}"
 		
 		${If} $(downloading) != ""
-			inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE $(downloading) $(downloadconnecting) $(downloadsecond) $(downloadminute) $(downloadhour) $(downloadplural) "%dkB (%d%%) of %dkB @ %d.%01dkB/s" " (%d %s%s $(downloadremaining))" "${DownloadURL}" "$PLUGINSDIR\Downloaded\${DownloadName}" /END
+			inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE $(downloading) $(downloadconnecting) $(downloadsecond) $(downloadminute) $(downloadhour) $(downloadplural) "%dkB (%d%%) of %dkB @ %d.%01dkB/s" " (%d %s%s $(downloadremaining))" "$DownloadURLActual" "$PLUGINSDIR\Downloaded\${DownloadName}" /END
 		${Else}
-			inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE "Downloading %s..." "Connecting..." second minute hour s "%dkB (%d%%) of %dkB @ %d.%01dkB/s" " (%d %s%s remaining)" "${DownloadURL}" "$PLUGINSDIR\Downloaded\${DownloadName}" /END
+			inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE "Downloading %s..." "Connecting..." second minute hour s "%dkB (%d%%) of %dkB @ %d.%01dkB/s" " (%d %s%s remaining)" "$DownloadURLActual" "$PLUGINSDIR\Downloaded\${DownloadName}" /END
 		${EndIf}
 		SetDetailsPrint both
 		DetailPrint $InstallingStatusString
@@ -961,13 +963,22 @@ FunctionEnd
 				${EndIf}
 			!endif
 		${Else}
+			Delete "$INTERNET_CACHE\${DownloadFileName}"
+			Delete "$PLUGINSDIR\Downloaded\${DownloadFilename}"
+			StrCpy $0 $DownloadURLActual 
+			
+			;Use backup PA.c download server if necessary
+			${WordFind} "$DownloadURLActual" "http://download2.portableapps.com" "#" $R0
+			${If} $R0 == 1
+				${WordReplace} "$DownloadURLActual" "http://download2.portableapps.com" "http://download.portableapps.com" "+" $DownloadURLActual
+				Goto DownloadTheFile
+			${EndIf}
+			
 			${If} $SECONDDOWNLOADATTEMPT != true
 			${AndIf} $DOWNLOADRESULT != "Cancelled"
 				StrCpy $SECONDDOWNLOADATTEMPT true
 				Goto DownloadTheFile
 			${EndIf}
-			Delete "$INTERNET_CACHE\${DownloadFileName}"
-			Delete "$PLUGINSDIR\Downloaded\${DownloadFilename}"
 			SetDetailsPrint textonly
 				DetailPrint ""
 			SetDetailsPrint listonly

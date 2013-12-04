@@ -47,6 +47,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <Compile Include="ComProgIdAttribute.cs" />
     <Compile Include="COMWrapper.cs" />
     <Compile Include="IDispatch.cs" />
@@ -56,8 +57,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
-copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)bin\$(Configuration)\Plugins\GreenshotOCRPlugin"</PostBuildEvent>
+    <PostBuildEvent>
+mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName).config" "$(SolutionDir)bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
+</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>

@@ -1,16 +1,16 @@
 ﻿#define ExeName "Greenshot"
-#define Version "1.1.4.$WCREV$"
+#define Version "1.1.6.$WCREV$"
 
-; Include the scripts to install .NET Framework 2.0
+; Include the scripts to install .NET Framework
 ; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
 #include "scripts\products.iss"
+#include "scripts\products\stringversion.iss"
 #include "scripts\products\winversion.iss"
 #include "scripts\products\fileversion.iss"
 #include "scripts\products\msi20.iss"
 #include "scripts\products\msi31.iss"
-#include "scripts\products\dotnetfx20.iss"
-#include "scripts\products\dotnetfx20sp1.iss"
-#include "scripts\products\dotnetfx20sp2.iss"
+#include "scripts\products\dotnetfxversion.iss"
+#include "scripts\products\dotnetfx35sp1.iss"
 
 [Files]
 Source: ..\..\bin\Release\Greenshot.exe; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
@@ -36,6 +36,7 @@ Source: ..\..\Languages\*da-DK*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: ..\..\Languages\*de-x-franconia*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\dexfranconia; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*el-GR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\elGR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*es-ES*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\esES; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*et-EE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\etEE; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*fa-IR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\faIR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*fi-FI*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\fiFI; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*fr-FR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\frFR; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -68,6 +69,7 @@ Source: ..\..\bin\Release\Plugins\GreenshotOfficePlugin\GreenshotOfficePlugin.gs
 ;OCR Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotOCRPlugin\GreenshotOCRPlugin.gsp; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Plugins\GreenshotOCRPlugin\GreenshotOCRCommand.exe; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Plugins\GreenshotOCRPlugin\GreenshotOCRCommand.exe.config; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotOCRPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly ignoreversion replacesameversion;
 ;JIRA Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotJiraPlugin\GreenshotJiraPlugin.gsp; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
@@ -149,11 +151,7 @@ Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: "
 Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 Root: HKLM; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-; Register our own filetype for normal user
-Root: HKCU; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}
 Name: {group}\Uninstall {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app}; AppUserModelID: "{#ExeName}.{#ExeName}"
@@ -169,6 +167,7 @@ Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: nn; MessagesFile: compiler:Languages\NorwegianNynorsk.isl
 Name: sr; MessagesFile: compiler:Languages\SerbianCyrillic.isl
+Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 
 [Tasks]
 Name: startup; Description: {cm:startup}
@@ -269,6 +268,17 @@ sr.optimize=Оптимизујем перформансе…
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
 
+uk.confluence=Плагін Confluence
+uk.default=${default}
+uk.externalcommand=Відкрити з плагіном зовнішніх команд
+uk.imgur=Плагін Imgur (див.: http://imgur.com)
+uk.jira=Плагін Jira
+uk.language=Додаткові мови
+uk.ocr=Плагін OCR (потребує Microsoft Office Document Imaging (MODI))
+uk.optimize=Оптимізація продуктивності, це може забрати час.
+uk.startgreenshot=Запустити {#ExeName}
+uk.startup=Запускати {#ExeName} під час запуску Windows
+
 cn.confluence=Confluence插件
 cn.default=${default}
 cn.externalcommand=使用外部命令打开插件
@@ -308,6 +318,7 @@ Name: "languages\daDK"; Description: "Dansk"; Types: full custom; Flags: disable
 Name: "languages\dexfranconia"; Description: "Frängisch (Deutsch)"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\elGR"; Description: "ελληνικά"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('4')
 Name: "languages\esES"; Description: "Español"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\etEE"; Description: "Eesti"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
 Name: "languages\faIR"; Description: "پارسی"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\fiFI"; Description: "Suomi"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\frFR"; Description: "Français"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
@@ -512,73 +523,25 @@ begin
 	Result := returnValue;
 end;
 
-function hasDotNet(version: string; service: cardinal): Boolean;
-// Indicates whether the specified version and service pack of the .NET Framework is installed.
-//
-// version -- Specify one of these strings for the required .NET Framework version:
-//    'v1.1.4322'     .NET Framework 1.1
-//    'v2.0.50727'    .NET Framework 2.0
-//    'v3.0'          .NET Framework 3.0
-//    'v3.5'          .NET Framework 3.5
-//    'v4\Client'     .NET Framework 4.0 Client Profile
-//    'v4\Full'       .NET Framework 4.0 Full Installation
-//
-// service -- Specify any non-negative integer for the required service pack level:
-//    0               No service packs required
-//    1, 2, etc.      Service pack 1, 2, etc. required
-var
-    key: string;
-    install, serviceCount: cardinal;
-    success: boolean;
+function hasDotNet() : boolean;
 begin
-    key := 'SOFTWARE\Microsoft\NET Framework Setup\NDP\' + version;
-    // .NET 3.0 uses value InstallSuccess in subkey Setup
-    if Pos('v3.0', version) = 1 then begin
-        success := RegQueryDWordValue(HKLM, key + '\Setup', 'InstallSuccess', install);
-    end else begin
-        success := RegQueryDWordValue(HKLM, key, 'Install', install);
-    end;
-    // .NET 4.0 uses value Servicing instead of SP
-    if Pos('v4', version) = 1 then begin
-        success := success and RegQueryDWordValue(HKLM, key, 'Servicing', serviceCount);
-    end else begin
-        success := success and RegQueryDWordValue(HKLM, key, 'SP', serviceCount);
-    end;
-    result := success and (install = 1) and (serviceCount >= service);
-end;
-
-function hasDotNet20() : boolean;
-begin
-	Result := hasDotNet('v2.0.50727',0);
-end;
-
-function hasDotNet40() : boolean;
-begin
-	Result := hasDotNet('v4\Client',0) or hasDotNet('v4\Full',0);
+	// .NET 4.5 = 4.0 full (with a "Release" key, but this is not interresting!)
+	Result := netfxinstalled(NetFX20, '') or netfxinstalled(NetFX30, '') or netfxinstalled(NetFX35, '') or netfxinstalled(NetFX40Client, '') or netfxinstalled(NetFX40Full, '');
 end;
 
 function hasDotNet35FullOrHigher() : boolean;
 begin
-	Result := hasDotNet('v3.5',0) or hasDotNet('v4\Full',0) or hasDotNet('4.5\Full',0);
-end;
-
-function hasDotNet35OrHigher() : boolean;
-begin
-	Result := hasDotNet('v3.5',0) or hasDotNet('v4\Client',0) or hasDotNet('v4\Full',0) or hasDotNet('4.5\Client',0) or hasDotNet('4.5\Full',0);
+	Result := netfxinstalled(NetFX35, '') or netfxinstalled(NetFX40Full, '');
 end;
 
 function getNGENPath(argument: String) : String;
 var
 	installPath: string;
 begin
-	if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4.5\Client', 'InstallPath', installPath) then begin
-		if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4.5\Full', 'InstallPath', installPath) then begin
-			if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client', 'InstallPath', installPath) then begin
-				if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'InstallPath', installPath) then begin
-					// 3.5 doesn't have NGEN and is using the .net 2.0 installation
-					installPath := ExpandConstant('{dotnet20}');
-				end;
-			end;
+	if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'InstallPath', installPath) then begin
+		if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client', 'InstallPath', installPath) then begin
+			// 3.5 doesn't have NGEN and is using the .net 2.0 installation
+			installPath := ExpandConstant('{dotnet20}');
 		end;
 	end;
 	Result := installPath;
@@ -587,24 +550,15 @@ end;
 // Initialize the setup
 function InitializeSetup(): Boolean;
 begin
-	// Only check for 2.0 and install if we don't have .net 3.5 or higher
-	if not hasDotNet35OrHigher() then
+	// Check for .NET and install 3.5 if we don't have it
+	if not hasDotNet() then
 	begin
-		// Enhance installer otherwise .NET installations won't work
+		// Enhance installer, if needed, otherwise .NET installations won't work
 		msi20('2.0');
 		msi31('3.0');
 		
-		//install .netfx 2.0 sp2 if possible; if not sp1 if possible; if not .netfx 2.0
-		if minwinversion(5, 1) then begin
-			dotnetfx20sp2();
-		end else begin
-			if minwinversion(5, 0) and minwinspversion(5, 0, 4) then begin
-				// kb835732();
-				dotnetfx20sp1();
-			end else begin
-				dotnetfx20();
-			end;
-		end;
+		//install .net 3.5
+		dotnetfx35sp1();
 	end;
 	Result := true;
 end;

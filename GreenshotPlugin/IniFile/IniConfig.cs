@@ -20,12 +20,10 @@
  */
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Runtime.CompilerServices;
 
 namespace Greenshot.IniFile {
 	public class IniConfig {
@@ -38,11 +36,6 @@ namespace Greenshot.IniFile {
 		/// A lock object for the ini file saving
 		/// </summary>
 		private static object iniLock = new object();
-
-		/// <summary>
-		/// This is used to monitor the greenshot.ini changes
-		/// </summary>
-		private static FileSystemWatcher watcher;
 
 		/// <summary>
 		/// As the ini implementation is kept someone generic, for reusing, this holds the name of the application
@@ -70,11 +63,6 @@ namespace Greenshot.IniFile {
 		private static Dictionary<string, Dictionary<string, string>> fixedProperties = null;
 		
 		/// <summary>
-		/// The IniChanged event, which can be registed
-		/// </summary>
-		public static event FileSystemEventHandler IniChanged;
-
-		/// <summary>
 		/// Stores if we checked for portable
 		/// </summary>
 		private static bool portableCheckMade = false;
@@ -90,6 +78,14 @@ namespace Greenshot.IniFile {
 		}
 
 		/// <summary>
+		/// Config directory when set from external
+		/// </summary>
+		public static string IniDirectory {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Initialize the ini config
 		/// </summary>
 		/// <param name="applicationName"></param>
@@ -98,7 +94,6 @@ namespace Greenshot.IniFile {
 			applicationName = appName;
 			configName = confName;
 			Reload();
-			WatchConfigFile(true);
 		}
 
 		/// <summary>
@@ -106,7 +101,7 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		public static bool isInitialized {
 			get {
-				return applicationName != null && configName != null;
+				return applicationName != null && configName != null && sectionMap.Count > 0;
 			}
 		}
 
@@ -144,74 +139,43 @@ namespace Greenshot.IniFile {
 		}
 
 		/// <summary>
-		/// Enable watching the configuration
-		/// </summary>
-		/// <param name="sendEvents"></param>
-		private static void WatchConfigFile(bool sendEvents) {
-			string iniLocation = CreateIniLocation(configName + INI_EXTENSION);
-			// Wait with watching until the file is there
-			if (Directory.Exists(Path.GetDirectoryName(iniLocation))) {
-				if (watcher == null) {
-					//LOG.DebugFormat("Starting FileSystemWatcher for {0}", iniLocation);
-					// Monitor the ini file
-					watcher = new FileSystemWatcher();
-					watcher.Path = Path.GetDirectoryName(iniLocation);
-					watcher.Filter = "greenshot.ini";
-					watcher.NotifyFilter = NotifyFilters.LastWrite;
-					watcher.Changed += new FileSystemEventHandler(ConfigFileChanged);
-				}
-			}
-			if (watcher != null) {
-				watcher.EnableRaisingEvents = sendEvents;
-			}
-		}
-
-		/// <summary>
 		/// Get the location of the configuration
 		/// </summary>
 		public static string ConfigLocation {
 			get {
-				return CreateIniLocation(configName + INI_EXTENSION);
+				if (isInitialized) {
+					return CreateIniLocation(configName + INI_EXTENSION, false);
+				}
+				throw new InvalidOperationException("Ini configuration was not initialized!");
 			}
 		}
 
-		/// <summary>
-		/// Called by the filesystem watcher when a file is changed.
-		/// </summary>
-		/// <param name="source"></param>
-		/// <param name="e"></param>
-		private static void ConfigFileChanged(object source, FileSystemEventArgs e) {
-			string iniLocation = CreateIniLocation(configName + INI_EXTENSION);
-			if (iniLocation.Equals(e.FullPath)) {
-				LOG.InfoFormat("Config file {0} was changed, reloading", e.FullPath);
-
-				// Try to reread the configuration
-				int retries = 10;
-				bool configRead = false;
-				while (!configRead && retries != 0) {
-					try {
-						IniConfig.Reload();
-						configRead = true;
-					} catch (IOException) {
-						retries--;
-						Thread.Sleep(100);
-					}
-				}
-
-				if (configRead && IniChanged != null) {
-					IniChanged.Invoke(source, e);
-				}
-			}
-		}
-	
 		/// <summary>
 		/// Create the location of the configuration file
 		/// </summary>
-		private static string CreateIniLocation(string configFilename) {
+		private static string CreateIniLocation(string configFilename, bool isReadOnly) {
 			if (applicationName == null || configName == null) {
 				throw new InvalidOperationException("IniConfig.Init not called!");
 			}
 			string iniFilePath = null;
+
+			// Check if a Ini-Directory was supplied, and it's valid, use this before any others.
+			try {
+				if (IniDirectory != null && Directory.Exists(IniDirectory)) {
+					// If the greenshot.ini is requested, use the supplied directory even if empty
+					if (!isReadOnly) {
+						return Path.Combine(IniDirectory, configFilename);
+					}
+					iniFilePath = Path.Combine(IniDirectory, configFilename);
+					if (File.Exists(iniFilePath)) {
+						return iniFilePath;
+					}
+					iniFilePath = null;
+				}
+			} catch (Exception exception) {
+				LOG.WarnFormat("The ini-directory {0} can't be used due to: {1}", IniDirectory, exception.Message);
+			}
+
 			string applicationStartupPath = "";
 			try {
 				applicationStartupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
@@ -266,11 +230,11 @@ namespace Greenshot.IniFile {
 			// Clear the current properties
 			sections = new Dictionary<string, Dictionary<string, string>>();
 			// Load the defaults
-			Read(CreateIniLocation(configName + DEFAULTS_POSTFIX + INI_EXTENSION));
+			Read(CreateIniLocation(configName + DEFAULTS_POSTFIX + INI_EXTENSION, true));
 			// Load the normal
-			Read(CreateIniLocation(configName + INI_EXTENSION));
+			Read(CreateIniLocation(configName + INI_EXTENSION, false));
 			// Load the fixed settings
-			fixedProperties = Read(CreateIniLocation(configName + FIXED_POSTFIX + INI_EXTENSION));
+			fixedProperties = Read(CreateIniLocation(configName + FIXED_POSTFIX + INI_EXTENSION, true));
 
 			foreach (IniSection section in sectionMap.Values) {
 				try {
@@ -341,6 +305,14 @@ namespace Greenshot.IniFile {
 			return newSections;
 		}
 
+		public static IEnumerable<string> IniSectionNames {
+			get {
+				foreach (string sectionName in sectionMap.Keys) {
+					yield return sectionName;
+				}
+			}
+		}
+
 		/// <summary>
 		/// Method used for internal tricks...
 		/// </summary>
@@ -355,8 +327,19 @@ namespace Greenshot.IniFile {
 		/// <summary>
 		/// A generic method which returns an instance of the supplied type, filled with it's configuration
 		/// </summary>
+		/// <typeparam name="T">IniSection Type to get the configuration for</typeparam>
 		/// <returns>Filled instance of IniSection type which was supplied</returns>
 		public static T GetIniSection<T>() where T : IniSection {
+			return GetIniSection<T>(true);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T">IniSection Type to get the configuration for</typeparam>
+		/// <param name="allowSave">false to skip saving</param>
+		/// <returns>IniSection</returns>
+		public static T GetIniSection<T>(bool allowSave) where T : IniSection {
 			T section;
 
 			Type iniSectionType = typeof(T);
@@ -373,7 +356,7 @@ namespace Greenshot.IniFile {
 				section.Fill(PropertiesForSection(section));
 				FixProperties(section);
 			}
-			if (section.IsDirty) {
+			if (allowSave && section.IsDirty) {
 				LOG.DebugFormat("Section {0} is marked dirty, saving!", sectionName);
 				IniConfig.Save();
 			}
@@ -408,7 +391,7 @@ namespace Greenshot.IniFile {
 				acquiredLock = Monitor.TryEnter(iniLock, TimeSpan.FromMilliseconds(200));
 				if (acquiredLock) {
 					// Code that accesses resources that are protected by the lock.
-					string iniLocation = CreateIniLocation(configName + INI_EXTENSION);
+					string iniLocation = CreateIniLocation(configName + INI_EXTENSION, false);
 					try {
 						SaveInternally(iniLocation);
 					} catch (Exception ex) {
@@ -427,17 +410,16 @@ namespace Greenshot.IniFile {
 		}
 
 		/// <summary>
-		/// The real save implementation, this first disables the watch otherwise we would be informed of our own changes.
+		/// The real save implementation
 		/// </summary>
 		/// <param name="iniLocation"></param>
 		private static void SaveInternally(string iniLocation) {
-			WatchConfigFile(false);
-			try {
-				LOG.Info("Saving configuration to: " + iniLocation);
-				if (!Directory.Exists(Path.GetDirectoryName(iniLocation))) {
-					Directory.CreateDirectory(Path.GetDirectoryName(iniLocation));
-				}
-				using (TextWriter writer = new StreamWriter(iniLocation, false, Encoding.UTF8)) {
+			LOG.Info("Saving configuration to: " + iniLocation);
+			if (!Directory.Exists(Path.GetDirectoryName(iniLocation))) {
+				Directory.CreateDirectory(Path.GetDirectoryName(iniLocation));
+			}
+			using (MemoryStream memoryStream = new MemoryStream()) {
+				using (TextWriter writer = new StreamWriter(memoryStream, Encoding.UTF8)) {
 					foreach (IniSection section in sectionMap.Values) {
 						section.Write(writer, false);
 						// Add empty line after section
@@ -461,12 +443,12 @@ namespace Greenshot.IniFile {
 							writer.WriteLine();
 						}
 					}
-				}
-			} finally {
-				try {
-					WatchConfigFile(true);
-				} catch (Exception ex) {
-					LOG.Error("A problem occured while enabling the WatchConfigFile: ", ex);
+					// Don't forget to flush the buffer
+					writer.Flush();
+					// Now write the created .ini string to the real file
+					using (FileStream fileStream = new FileStream(iniLocation, FileMode.Create, FileAccess.Write)) {
+						memoryStream.WriteTo(fileStream);
+					}
 				}
 			}
 		}

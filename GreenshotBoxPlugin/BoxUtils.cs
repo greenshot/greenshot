@@ -22,67 +22,114 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Net;
-using System.Xml;
+using System.Text;
 using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using System.Runtime.Serialization.Json;
+using System.IO;
 
 namespace GreenshotBoxPlugin {
+
 	/// <summary>
 	/// Description of ImgurUtils.
 	/// </summary>
-	public class BoxUtils {
+	public static class BoxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxUtils));
-		private static BoxConfiguration config = IniConfig.GetIniSection<BoxConfiguration>();
-
-		private BoxUtils() {
-		}
-		
-		private static string ParseTicket(string response) {
-			try {
-				XmlDocument doc = new XmlDocument();
-				doc.LoadXml(response);
-				XmlNodeList nodes = doc.GetElementsByTagName("ticket");
-				if(nodes.Count > 0) {
-					return nodes.Item(0).InnerText;
-				}
-			} catch (Exception ex) {
-				LOG.Error("Error parsing Box Response.", ex);
-			}
-			return null;
-		}		
+		private static readonly BoxConfiguration Config = IniConfig.GetIniSection<BoxConfiguration>();
+		private const string RedirectUri = "https://app.box.com/home/";
+		private const string UploadFileUri = "https://upload.box.com/api/2.0/files/content";
+		private const string AuthorizeUri = "https://www.box.com/api/oauth2/authorize";
+		private const string TokenUri = "https://www.box.com/api/oauth2/token";
+		private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
 
 		private static bool Authorize() {
-			string ticketUrl = string.Format("https://www.box.com/api/1.0/rest?action=get_ticket&api_key={0}", BoxCredentials.API_KEY);
-			string ticketXML = NetworkHelper.GetAsString(new Uri(ticketUrl));
-			string ticket = ParseTicket(ticketXML);
-			string authorizeUrl = string.Format("https://www.box.com/api/1.0/auth/{0}", ticket);
-			OAuthLoginForm loginForm = new OAuthLoginForm("Box Authorize", new Size(1060,600), authorizeUrl, "http://getgreenshot.org");
+			string authorizeUrl = string.Format("{0}?client_id={1}&response_type=code&state=dropboxplugin&redirect_uri={2}", AuthorizeUri, BoxCredentials.ClientId, RedirectUri);
+
+			OAuthLoginForm loginForm = new OAuthLoginForm("Box Authorize", new Size(1060, 600), authorizeUrl, RedirectUri);
 			loginForm.ShowDialog();
-			if (loginForm.isOk) {
-				if (loginForm.CallbackParameters != null && loginForm.CallbackParameters.ContainsKey("auth_token")) {
-					config.BoxToken = loginForm.CallbackParameters["auth_token"];
-					IniConfig.Save();
-					return true;
-				}
+			if (!loginForm.isOk) {
+				return false;
 			}
-			return false;
+			var callbackParameters = loginForm.CallbackParameters;
+			if (callbackParameters == null || !callbackParameters.ContainsKey("code")) {
+				return false;
+			}
+
+			string authorizationResponse = PostAndReturn(new Uri(TokenUri), string.Format("grant_type=authorization_code&code={0}&client_id={1}&client_secret={2}", callbackParameters["code"], BoxCredentials.ClientId, BoxCredentials.ClientSecret));
+			var authorization = JSONSerializer.Deserialize<Authorization>(authorizationResponse);
+
+			Config.BoxToken = authorization.AccessToken;
+			IniConfig.Save();
+			return true;
 		}
-	
 
 		/// <summary>
-		/// Upload file by post
+		/// Download a url response as string
 		/// </summary>
-		/// <param name="url"></param>
-		/// <param name="parameters"></param>
-		/// <returns>response</returns>
-		public static string HttpUploadFile(string url, Dictionary<string, object> parameters) {
+		/// <param name=url">An Uri to specify the download location</param>
+		/// <returns>string with the file content</returns>
+		public static string PostAndReturn(Uri url, string postMessage) {
 			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 			webRequest.Method = "POST";
 			webRequest.KeepAlive = true;
 			webRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			webRequest.ContentType = "application/x-www-form-urlencoded";
+			byte[] data = Encoding.UTF8.GetBytes(postMessage.ToString());
+			using (var requestStream = webRequest.GetRequestStream()) {
+				requestStream.Write(data, 0, data.Length);
+			}
+			return NetworkHelper.GetResponse(webRequest);
+		}
+
+		/// <summary>
+		/// Upload parameters by post
+		/// </summary>
+		/// <param name="url"></param>
+		/// <param name="parameters"></param>
+		/// <returns>response</returns>
+		public static string HttpPost(string url, IDictionary<string, object> parameters) {
+			var webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+			webRequest.Method = "POST";
+			webRequest.KeepAlive = true;
+			webRequest.Credentials = CredentialCache.DefaultCredentials;
+			webRequest.Headers.Add("Authorization", "Bearer " + Config.BoxToken);
 			NetworkHelper.WriteMultipartFormData(webRequest, parameters);
-			
+
+			return NetworkHelper.GetResponse(webRequest);
+		}
+
+		/// <summary>
+		/// Upload file by PUT
+		/// </summary>
+		/// <param name="url"></param>
+		/// <param name="content"></param>
+		/// <returns>response</returns>
+		public static string HttpPut(string url, string content) {
+			var webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+			webRequest.Method = "PUT";
+			webRequest.KeepAlive = true;
+			webRequest.Credentials = CredentialCache.DefaultCredentials;
+			webRequest.Headers.Add("Authorization", "Bearer " + Config.BoxToken);
+			byte[] data = Encoding.UTF8.GetBytes(content);
+			using (var requestStream = webRequest.GetRequestStream()) {
+				requestStream.Write(data, 0, data.Length);
+			}
+			return NetworkHelper.GetResponse(webRequest);
+		}
+
+
+		/// <summary>
+		/// Get REST request
+		/// </summary>
+		/// <param name="url"></param>
+		/// <returns>response</returns>
+		public static string HttpGet(string url) {
+			var webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+			webRequest.Method = "GET";
+			webRequest.KeepAlive = true;
+			webRequest.Credentials = CredentialCache.DefaultCredentials;
+			webRequest.Headers.Add("Authorization", "Bearer " + Config.BoxToken);
 			return NetworkHelper.GetResponse(webRequest);
 		}
 
@@ -90,43 +137,102 @@ namespace GreenshotBoxPlugin {
 		/// Do the actual upload to Box
 		/// For more details on the available parameters, see: http://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
 		/// </summary>
-		/// <param name="imageData">byte[] with image data</param>
+		/// <param name="image">Image for box upload</param>
+		/// <param name="title">Title of box upload</param>
+		/// <param name="filename">Filename of box upload</param>
 		/// <returns>url to uploaded image</returns>
 		public static string UploadToBox(SurfaceContainer image, string title, string filename) {
-			string folderId = "0";
-			if (string.IsNullOrEmpty(config.BoxToken)) {
-				if (!Authorize()) {
-					return null;
-				}
-			}
-
-			string strUrl = string.Format("https://upload.box.net/api/1.0/upload/{0}/{1}?file_name={2}&new_copy=1", config.BoxToken, folderId, filename);
-
-			Dictionary<string, object> parameters = new Dictionary<string, object>();
-			parameters.Add("share", "1");
-			parameters.Add("new_file", image);
-			
-			string response = HttpUploadFile(strUrl, parameters);
-			// Check if the token is wrong
-			if ("wrong auth token".Equals(response)) {
-				config.BoxToken = null;
-				IniConfig.Save();
-				return UploadToBox(image, title, filename);
-			}
-			LOG.DebugFormat("Box response: {0}", response);
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(response);
-			XmlNodeList nodes = doc.GetElementsByTagName("status");
-			if(nodes.Count > 0) {
-				if ("upload_ok".Equals(nodes.Item(0).InnerText)) {
-					nodes = doc.GetElementsByTagName("file");
-					if (nodes.Count > 0) {
-						long id = long.Parse(nodes.Item(0).Attributes["id"].Value);
-						return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", id);
+			while (true) {
+				const string folderId = "0";
+				if (string.IsNullOrEmpty(Config.BoxToken)) {
+					if (!Authorize()) {
+						return null;
 					}
 				}
+
+				IDictionary<string, object> parameters = new Dictionary<string, object>();
+				parameters.Add("filename", image);
+				parameters.Add("parent_id", folderId);
+
+				var response = "";
+				try {
+					response = HttpPost(UploadFileUri, parameters);
+				} catch (WebException ex) {
+					if (ex.Status == WebExceptionStatus.ProtocolError) {
+						Config.BoxToken = null;
+						continue;
+					}
+				}
+
+				LOG.DebugFormat("Box response: {0}", response);
+
+				// Check if the token is wrong
+				if ("wrong auth token".Equals(response)) {
+					Config.BoxToken = null;
+					IniConfig.Save();
+					continue;
+				}
+				var upload = JSONSerializer.Deserialize<Upload>(response);
+				if (upload == null || upload.Entries == null || upload.Entries.Count == 0) return null;
+
+				if (Config.UseSharedLink) {
+					string filesResponse = HttpPut(string.Format(FilesUri, upload.Entries[0].Id), "{\"shared_link\": {\"access\": \"open\"}}");
+					var file = JSONSerializer.Deserialize<FileEntry>(filesResponse);
+					return file.SharedLink.Url;
+				}
+				return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", upload.Entries[0].Id);
 			}
-			return null;
+		}
+	}
+	/// <summary>
+	/// A simple helper class for the DataContractJsonSerializer
+	/// </summary>
+	public static class JSONSerializer {
+		/// <summary>
+		/// Helper method to serialize object to JSON
+		/// </summary>
+		/// <param name="jsonObject">JSON object</param>
+		/// <returns>string</returns>
+		public static string Serialize(object jsonObject) {
+			var serializer = new DataContractJsonSerializer(jsonObject.GetType());
+			using (MemoryStream stream = new MemoryStream()) {
+				serializer.WriteObject(stream, jsonObject);
+				return Encoding.UTF8.GetString(stream.ToArray());
+			}
+		}
+
+		/// <summary>
+		/// Helper method to parse JSON to object
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="jsonString"></param>
+		/// <returns></returns>
+		public static T Deserialize<T>(string jsonString) {
+			var deserializer = new DataContractJsonSerializer(typeof(T));
+			using (MemoryStream stream = new MemoryStream()) {
+				byte[] content = Encoding.UTF8.GetBytes(jsonString);
+				stream.Write(content, 0, content.Length);
+				stream.Seek(0, SeekOrigin.Begin);
+				return (T)deserializer.ReadObject(stream);
+			}
+		}
+
+		/// <summary>
+		/// Helper method to parse JSON to object
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="jsonString"></param>
+		/// <returns></returns>
+		public static T DeserializeWithDirectory<T>(string jsonString) {
+			DataContractJsonSerializerSettings settings = new DataContractJsonSerializerSettings();
+			settings.UseSimpleDictionaryFormat = true;
+			var deserializer = new DataContractJsonSerializer(typeof(T), settings);
+			using (MemoryStream stream = new MemoryStream()) {
+				byte[] content = Encoding.UTF8.GetBytes(jsonString);
+				stream.Write(content, 0, content.Length);
+				stream.Seek(0, SeekOrigin.Begin);
+				return (T)deserializer.ReadObject(stream);
+			}
 		}
 	}
 }

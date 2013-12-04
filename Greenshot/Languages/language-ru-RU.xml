@@ -266,6 +266,7 @@ ${hostname} Имя ПК
 		<resource name="settings_registerhotkeys">Регистрация горячих клавиш</resource>
 		<resource name="settings_showflashlight">Показывать вспышку</resource>
 		<resource name="settings_shownotify">Показывать уведомления</resource>
+		<resource name="settings_zoom">Показать лупу</resource>
 		<resource name="settings_storagelocation">Место хранения</resource>
 		<resource name="settings_title">Настройки</resource>
 		<resource name="settings_tooltip_filenamepattern">Шаблон, используемый для создания имён файлов при сохранении скриншотов</resource>

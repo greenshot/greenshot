@@ -108,12 +108,18 @@ namespace ExternalCommand {
 		private int CallExternalCommand(string commando, string fullPath, out string output) {
 			try {
 				return CallExternalCommand(commando, fullPath, null, out output);
-			} catch (Win32Exception ex) {
+			} catch (Win32Exception w32ex) {
 				try {
 					return CallExternalCommand(commando, fullPath, "runas", out output);
 				} catch {
-					throw ex;
+					w32ex.Data.Add("commandline", config.commandlines[presetCommand]);
+					w32ex.Data.Add("arguments", config.arguments[presetCommand]);
+					throw w32ex;
 				}
+			} catch (Exception ex) {
+				ex.Data.Add("commandline", config.commandlines[presetCommand]);
+				ex.Data.Add("arguments", config.arguments[presetCommand]);
+				throw;
 			}
 		}
 

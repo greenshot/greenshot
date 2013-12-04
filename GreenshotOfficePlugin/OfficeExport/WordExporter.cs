@@ -69,6 +69,12 @@ namespace Greenshot.Interop.Office {
 		/// <param name="tooltip">tooltip of the image</param>
 		/// <returns></returns>
 		internal static bool InsertIntoExistingDocument(IWordApplication wordApplication, IWordDocument wordDocument, string tmpFile, string address, string tooltip) {
+			// Bug #1517: image will be inserted into that document, where the focus was last. It will not inserted into the chosen one.
+			// Solution: Make sure the selected document is active, otherwise the insert will be made in a different document!
+			try {
+				wordApplication.Activate();
+			} catch {
+			}
 			if (wordApplication.Selection != null) {
 				// Add Picture
 				using (IInlineShape shape = AddPictureToSelection(wordApplication.Selection, tmpFile)) {

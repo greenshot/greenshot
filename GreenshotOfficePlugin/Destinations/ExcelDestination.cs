@@ -28,6 +28,7 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Interop.Office;
 using Greenshot.IniFile;
+using System.Text.RegularExpressions;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -109,17 +110,23 @@ namespace GreenshotOfficePlugin {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string tmpFile = captureDetails.Filename;
-			if (tmpFile == null || surface.Modified) {
-				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings(OutputFormat.png));
+			bool createdFile = false;
+			string imageFile = captureDetails.Filename;
+			if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
+				imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+				createdFile = true;
 			}
 			if (workbookName != null) {
-				ExcelExporter.InsertIntoExistingWorkbook(workbookName, tmpFile);
+				ExcelExporter.InsertIntoExistingWorkbook(workbookName, imageFile, surface.Image.Size);
 			} else {
-				ExcelExporter.InsertIntoNewWorkbook(tmpFile);
+				ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
 			}
 			exportInformation.ExportMade = true;
 			ProcessExport(exportInformation, surface);
+			// Cleanup imageFile if we created it here, so less tmp-files are generated and left
+			if (createdFile && File.Exists(imageFile)) {
+				File.Delete(imageFile);
+			}
 			return exportInformation;
 		}
 	}

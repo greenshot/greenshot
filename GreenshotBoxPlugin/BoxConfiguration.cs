@@ -37,6 +37,9 @@ namespace GreenshotBoxPlugin {
 		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Box link to clipboard.", DefaultValue = "true")]
 		public bool AfterUploadLinkToClipBoard;
 
+		[IniProperty("UseSharedLink", Description = "Use the shared link, instead of the private, on the clipboard", DefaultValue = "True")]
+		public bool UseSharedLink;
+
 		[IniProperty("BoxToken", Description = "Token.", DefaultValue = "")]
 		public string BoxToken;
 

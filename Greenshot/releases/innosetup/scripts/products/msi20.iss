@@ -1,7 +1,8 @@
 [CustomMessages]
 msi20_title=Windows Installer 2.0
 
-msi20_size=1.7 MB
+en.msi20_size=1.7 MB
+de.msi20_size=1,7 MB
 
 
 [Code]
@@ -11,10 +12,11 @@ const
 procedure msi20(MinVersion: string);
 begin
 	// Check for required Windows Installer 2.0 on Windows 98 and ME
-	if maxwinversion(4, 9) and (fileversion(ExpandConstant('{sys}{\}msi.dll')) < MinVersion) then
+	if (IsX86() and maxwinversion(4, 9) and (compareversion(fileversion(ExpandConstant('{sys}{\}msi.dll')), MinVersion) < 0)) then
 		AddProduct('msi20.exe',
 			'/q:a /c:"msiinst /delayrebootq"',
 			CustomMessage('msi20_title'),
 			CustomMessage('msi20_size'),
-			msi20_url);
+			msi20_url,
+			false, false);
 end;

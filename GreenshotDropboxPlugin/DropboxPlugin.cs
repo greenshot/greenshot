@@ -143,7 +143,7 @@ namespace GreenshotDropboxPlugin {
 				return true;
 			} catch (Exception e) {
 				LOG.Error(e);
-				MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.ToString());
+				MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
 				return false;
 			}
 		}

@@ -57,6 +57,13 @@ namespace Greenshot.Configuration {
 
 		[IniProperty("SuppressSaveDialogAtClose", Description="Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue="False")]
 		public bool SuppressSaveDialogAtClose;
+
+		public override void AfterLoad() {
+			base.AfterLoad();
+			if (RecentColors == null) {
+				RecentColors = new List<Color>();
+			}
+		}
 		/// <param name="requestingType">Type of the class for which to create the field</param>
 		/// <param name="fieldType">FieldType of the field to construct</param>
 		/// <param name="scope">FieldType of the field to construct</param>

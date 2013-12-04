@@ -246,6 +246,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("LastSaveWithVersion", Description = "Version of Greenshot which created this .ini")]
 		public string LastSaveWithVersion;
 
+		[IniProperty("ProcessEXIFOrientation", Description = "When reading images from files or clipboard, use the EXIF information to correct the orientation", DefaultValue = "True")]
+		public bool ProcessEXIFOrientation;
+
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.RELEASE;
 

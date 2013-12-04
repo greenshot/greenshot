@@ -47,7 +47,7 @@ namespace Greenshot.Drawing {
 		/// The StringFormat object is not serializable!!
 		/// </summary>
 		[NonSerialized]
-		StringFormat stringFormat;
+		StringFormat stringFormat = new StringFormat();
 		
 		private string text;
 		// there is a binding on the following property!
@@ -192,39 +192,46 @@ namespace Greenshot.Drawing {
 			bool fontBold = GetFieldValueAsBool(FieldType.FONT_BOLD);
 			bool fontItalic = GetFieldValueAsBool(FieldType.FONT_ITALIC);
 			float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
-			
-			if (fontInvalidated && fontFamily != null && fontSize != 0) {
-				FontStyle fs = FontStyle.Regular;
-				
-				bool hasStyle = false;
-				using(FontFamily fam = new FontFamily(fontFamily)) {
-					bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
-					if (fontBold && boldAvailable) {
-						fs |= FontStyle.Bold;
-						hasStyle = true;
-					}
+			try {
+				if (fontInvalidated && fontFamily != null && fontSize != 0) {
+					FontStyle fs = FontStyle.Regular;
+					
+					bool hasStyle = false;
+					using(FontFamily fam = new FontFamily(fontFamily)) {
+						bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
+						if (fontBold && boldAvailable) {
+							fs |= FontStyle.Bold;
+							hasStyle = true;
+						}
 
-					bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
-					if (fontItalic && italicAvailable) {
-						fs |= FontStyle.Italic;
-						hasStyle = true;
-					}
+						bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
+						if (fontItalic && italicAvailable) {
+							fs |= FontStyle.Italic;
+							hasStyle = true;
+						}
 
-					if (!hasStyle) {
-						bool regularAvailable = fam.IsStyleAvailable(FontStyle.Regular);
-						if (regularAvailable) {
-							fs = FontStyle.Regular;
-						} else {
-							if (boldAvailable) {
-								fs = FontStyle.Bold;
-							} else if(italicAvailable) {
-								fs = FontStyle.Italic;
+						if (!hasStyle) {
+							bool regularAvailable = fam.IsStyleAvailable(FontStyle.Regular);
+							if (regularAvailable) {
+								fs = FontStyle.Regular;
+							} else {
+								if (boldAvailable) {
+									fs = FontStyle.Bold;
+								} else if(italicAvailable) {
+									fs = FontStyle.Italic;
+								}
 							}
 						}
+						font = new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
 					}
-					font = new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
+					fontInvalidated = false;
 				}
-				fontInvalidated = false;
+			} catch (Exception ex) {
+				ex.Data.Add("fontFamily", fontFamily);
+				ex.Data.Add("fontBold", fontBold);
+				ex.Data.Add("fontItalic", fontItalic);
+				ex.Data.Add("fontSize", fontSize);
+				throw;
 			}
 			
 			stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);

@@ -23,6 +23,6 @@ del /s *.bak
 del /s *installer*.xml
 del /s *website*.xml
 del /s *template.txt
-..\..\tools\7zip\7za.exe a -x!.SVN -r ..\Greenshot-NO-INSTALLER-1.1.4.$WCREV$.zip *
+..\..\tools\7zip\7za.exe a -x!.SVN -r ..\Greenshot-NO-INSTALLER-1.1.6.$WCREV$.zip *
 cd ..
 rmdir /s /q NO-INSTALLER

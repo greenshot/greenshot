@@ -1,7 +1,7 @@
 [Code]
 var
 	WindowsVersion: TWindowsVersion;
-	
+
 procedure initwinversion();
 begin
 	GetWindowsVersionEx(WindowsVersion);

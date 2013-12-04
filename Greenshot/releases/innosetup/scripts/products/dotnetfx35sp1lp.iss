@@ -11,17 +11,14 @@ de.dotnetfx35sp1lp_url=http://download.microsoft.com/download/d/7/2/d728b7b9-454
 
 [Code]
 procedure dotnetfx35sp1lp();
-var
-	version: cardinal;
 begin
-	if ActiveLanguage() <> 'en' then begin
-		RegQueryDWordValue(HKLM, 'Software\Microsoft\NET Framework Setup\NDP\v3.5\' + CustomMessage('dotnetfx35sp1lp_lcid'), 'SP', version);
-		
-		if version < 1 then
-			AddProduct('dotnetfx35sp1_langpack.exe',
-				'/lang:enu /qb /norestart',
+	if (ActiveLanguage() <> 'en') then begin
+		if (netfxspversion(NetFx35, CustomMessage('dotnetfx35sp1lp_lcid')) < 1) then
+			AddProduct('dotnetfx35sp1' + GetArchitectureString() + '_' + ActiveLanguage() + '.exe',
+				'/lang:enu /passive /norestart',
 				CustomMessage('dotnetfx35sp1lp_title'),
 				CustomMessage('dotnetfx35sp1lp_size'),
-				CustomMessage('dotnetfx35sp1lp_url'));
+				CustomMessage('dotnetfx35sp1lp_url'),
+				false, false);
 	end;
 end;

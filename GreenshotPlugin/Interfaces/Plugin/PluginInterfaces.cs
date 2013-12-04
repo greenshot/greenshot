@@ -100,6 +100,13 @@ namespace Greenshot.Plugin {
 			ReduceColors = reduceColors;
 		}
 
+		public SurfaceOutputSettings PreventGreenshotFormat() {
+			if (Format == OutputFormat.greenshot) {
+				Format = OutputFormat.png;
+			}
+			return this;
+		}
+
 		public OutputFormat Format {
 			get;
 			set;

@@ -74,7 +74,6 @@ if exist "$(ProjectDir)PhotobucketCredentials.private.cs" (
    rename "$(ProjectDir)PhotobucketCredentials.cs" "PhotobucketCredentials.orig.cs"
    rename "$(ProjectDir)PhotobucketCredentials.private.cs" "PhotobucketCredentials.cs"
 )
-"$(SolutionDir)\tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)\" "$(ProjectDir)\Properties\AssemblyInfo.cs.template" "$(ProjectDir)\Properties\AssemblyInfo.cs"
 	</PreBuildEvent>
     <PostBuildEvent>
 if exist "$(ProjectDir)PhotobucketCredentials.orig.cs" (

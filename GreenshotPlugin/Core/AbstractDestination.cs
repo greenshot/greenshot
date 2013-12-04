@@ -189,8 +189,10 @@ namespace GreenshotPlugin.Core {
 						break;
 					case ToolStripDropDownCloseReason.Keyboard:
 						// Dispose as the close is clicked
-						surface.Dispose();
-						surface = null;
+						if (!captureDetails.HasDestination("Editor")) {
+							surface.Dispose();
+							surface = null;
+						}
 						break;
 					default:
 						eventArgs.Cancel = true;
@@ -209,7 +211,6 @@ namespace GreenshotPlugin.Core {
 						if (clickedDestination == null) {
 							return;
 						}
-						bool isEditor = "Editor".Equals(clickedDestination.Designation);
 						menu.Tag = clickedDestination.Designation;
 						// Export
 						exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
@@ -218,8 +219,8 @@ namespace GreenshotPlugin.Core {
 							// close menu if the destination wasn't the editor
 							menu.Close();
 
-							// Cleanup surface, only if the destination wasn't the editor
-							if (!isEditor) {
+							// Cleanup surface, only if there is no editor in the destinations and we didn't export to the editor
+							if (!captureDetails.HasDestination("Editor") && !"Editor".Equals(clickedDestination.Designation)) {
 								surface.Dispose();
 								surface = null;
 							}
@@ -245,9 +246,10 @@ namespace GreenshotPlugin.Core {
 			closeItem.Click += delegate {
 				// This menu entry is the close itself, we can dispose the surface
 				menu.Close();
-				// Dispose as the close is clicked
-				surface.Dispose();
-				surface = null;
+				if (!captureDetails.HasDestination("Editor")) {
+					surface.Dispose();
+					surface = null;
+				}
 			};
 			menu.Items.Add(closeItem);
 

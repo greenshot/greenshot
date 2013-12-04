@@ -42,22 +42,49 @@ namespace Greenshot.IniFile {
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field|AttributeTargets.Property, AllowMultiple = false)]
 	public class IniPropertyAttribute : Attribute {
-		private string name;
-		public IniPropertyAttribute(string name) {
-			this.name = name;
+		public IniPropertyAttribute() {
+			Separator = ",";
 		}
-		public string Description;
-		public string Separator = ",";
-		public string DefaultValue;
-		public string LanguageKey;
+		public IniPropertyAttribute(string name) : this() {
+			this.Name = name;
+		}
+		public string Description {
+			get;
+			set;
+		}
+		public string Separator {
+			get;
+			set;
+		}
+		public string DefaultValue {
+			get;
+			set;
+		}
+		public string LanguageKey {
+			get;
+			set;
+		}
 		// If Encrypted is set to true, the value will be decrypted on load and encrypted on save
-		public bool Encrypted = false;
-		public bool FixedValue = false;
-		public bool ExcludeIfNull=false;
-		
+		public bool Encrypted {
+			get;
+			set;
+		}
+		public bool FixedValue {
+			get;
+			set;
+		}
+		public bool Expert {
+			get;
+			set;
+		}
+		public bool ExcludeIfNull {
+			get;
+			set;
+		}
+
 		public string Name {
-			get { return name; }
-			set { name = value; }
+			get;
+			set;
 		}
 	}
 }

@@ -116,7 +116,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static readonly FieldInfo FIELD_INFO_NATIVE_MATRIX = typeof(Matrix).GetField("nativeMatrix", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
 		// Constant "FieldInfo" for getting the nativeImageAttributes from the ImageAttributes
 		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGEATTRIBUTES = typeof(ImageAttributes).GetField("nativeImageAttributes", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
-		
+
+		private static bool isBlurEnabled = Environment.OSVersion.Version.Major >= 6;
 		/// <summary>
 		/// Get the nativeImage field from the bitmap
 		/// </summary>
@@ -172,9 +173,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="radius"></param>
 		/// <returns></returns>
 		public static bool isBlurPossible(int radius) {
-			if (Environment.OSVersion.Version.Major < 6) {
+			if (!isBlurEnabled) {
 				return false;
-			} else if ((Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 2) && radius < 20) {
+			} else if (Environment.OSVersion.Version.Minor >= 2 && radius < 20) {
 				return false;
 			}
 			return true;
@@ -224,16 +225,22 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				// Everything worked, return true
 				return true;
 			} catch (Exception ex) {
+				isBlurEnabled = false;
 				LOG.Error("Problem using GdipBitmapApplyEffect: ", ex);
 				return false;
 			} finally {
-				if (hEffect != null) {
-					// Delete the effect
-					GdipDeleteEffect(hEffect);
-				}
-				if (hBlurParams != IntPtr.Zero) {
-					// Free the memory
-					Marshal.FreeHGlobal(hBlurParams);
+				try {
+					if (hEffect != IntPtr.Zero) {
+						// Delete the effect
+						GdipDeleteEffect(hEffect);
+					}
+					if (hBlurParams != IntPtr.Zero) {
+						// Free the memory
+						Marshal.FreeHGlobal(hBlurParams);
+					}
+				} catch (Exception ex) {
+					isBlurEnabled = false;
+					LOG.Error("Problem cleaning up ApplyBlur: ", ex);
 				}
 			}
 		}
@@ -283,16 +290,22 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				// Everything worked, return true
 				return true;
 			} catch (Exception ex) {
+				isBlurEnabled = false;
 				LOG.Error("Problem using GdipDrawImageFX: ", ex);
 				return false;
 			} finally {
-				if (hEffect != null) {
-					// Delete the effect
-					GdipDeleteEffect(hEffect);
-				}
-				if (hBlurParams != IntPtr.Zero) {
-					// Free the memory
-					Marshal.FreeHGlobal(hBlurParams);
+				try {
+					if (hEffect != IntPtr.Zero) {
+						// Delete the effect
+						GdipDeleteEffect(hEffect);
+					}
+					if (hBlurParams != IntPtr.Zero) {
+						// Free the memory
+						Marshal.FreeHGlobal(hBlurParams);
+					}
+				} catch (Exception ex) {
+					isBlurEnabled = false;
+					LOG.Error("Problem cleaning up DrawWithBlur: ", ex);
 				}
 			}
 		}

@@ -346,6 +346,7 @@ EndSelection:<<<<<<<4
 							returnImage = GetImageFormat(currentFormat, dataObject);
 						}
 						if (returnImage != null) {
+							ImageHelper.Orientate(returnImage);
 							return returnImage;										
 						}
 					} else {
@@ -416,9 +417,6 @@ EndSelection:<<<<<<<4
 			MemoryStream imageStream = GetFromDataObject(dataObject, format) as MemoryStream;
 			if (isValidStream(imageStream)) {
 				try {
-					using (FileStream fs = new FileStream(@"C:\Localdata\test.png", FileMode.OpenOrCreate)) {
-						imageStream.WriteTo(fs);
-					}
 					imageStream.Seek(0, SeekOrigin.Begin);
 					using (Image tmpImage = Image.FromStream(imageStream, true, true)) {
 						if (tmpImage != null) {

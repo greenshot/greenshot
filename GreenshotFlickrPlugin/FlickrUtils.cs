@@ -68,21 +68,20 @@ namespace GreenshotFlickrPlugin {
 			}
 			try {
 				IDictionary<string, object> signedParameters = new Dictionary<string, object>();
-				signedParameters.Add("content_type","2");	// Screenshot
-				signedParameters.Add("tags","Greenshot");
-				signedParameters.Add("is_public", config.IsPublic?"1":"0");
-				signedParameters.Add("is_friend", config.IsFriend?"1":"0");
-				signedParameters.Add("is_family", config.IsFamily?"1":"0");
+				signedParameters.Add("content_type", "2");	// Screenshot
+				signedParameters.Add("tags", "Greenshot");
+				signedParameters.Add("is_public", config.IsPublic ? "1" : "0");
+				signedParameters.Add("is_friend", config.IsFriend ? "1" : "0");
+				signedParameters.Add("is_family", config.IsFamily ? "1" : "0");
 				signedParameters.Add("safety_level", string.Format("{0}", (int)config.SafetyLevel));
-				signedParameters.Add("hidden", config.HiddenFromSearch?"1":"2");
+				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
 				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.flickr.com/services/upload/", signedParameters, otherParameters, null);
 				string photoId = GetPhotoId(response);
 
 				// Get Photo Info
-				signedParameters = new Dictionary<string, object>();
-				signedParameters.Add("photo_id", photoId);
+				signedParameters = new Dictionary<string, object> { { "photo_id", photoId } };
 				string photoInfo = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.flickr.com/services/rest/?method=flickr.photos.getInfo", signedParameters, null, null);
 				return GetUrl(photoInfo);
 			} catch (Exception ex) {
@@ -102,9 +101,26 @@ namespace GreenshotFlickrPlugin {
 			try {
 				XmlDocument doc = new XmlDocument();
 				doc.LoadXml(response);
-				XmlNodeList nodes = doc.GetElementsByTagName("url");
-				if(nodes.Count > 0) {
-					return nodes.Item(0).InnerText;
+				if (config.UsePageLink) {
+					XmlNodeList nodes = doc.GetElementsByTagName("url");
+					if (nodes.Count > 0) {
+						return nodes.Item(0).InnerText;
+					}
+				} else {
+					XmlNodeList nodes = doc.GetElementsByTagName("photo");
+					if (nodes.Count > 0) {
+						var item = nodes.Item(0);
+						if (item != null) {
+							if (item.Attributes != null) {
+								string farmId = item.Attributes["farm"].Value;
+								string serverId = item.Attributes["server"].Value;
+								string photoId = item.Attributes["id"].Value;
+								string secret = item.Attributes["secret"].Value;
+								return string.Format("http://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg", farmId, serverId, photoId, secret);
+							}
+						}
+
+					}
 				}
 			} catch (Exception ex) {
 				LOG.Error("Error parsing Flickr Response.", ex);
@@ -117,7 +133,7 @@ namespace GreenshotFlickrPlugin {
 				XmlDocument doc = new XmlDocument();
 				doc.LoadXml(response);
 				XmlNodeList nodes = doc.GetElementsByTagName("photoid");
-				if(nodes.Count > 0) {
+				if (nodes.Count > 0) {
 					return nodes.Item(0).InnerText;
 				}
 			} catch (Exception ex) {

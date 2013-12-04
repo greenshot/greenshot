@@ -153,6 +153,10 @@ namespace Greenshot {
 						helpOutput.AppendLine("\t\tSet the language of Greenshot, e.g. greenshot /language en-US.");
 						helpOutput.AppendLine();
 						helpOutput.AppendLine();
+						helpOutput.AppendLine("\t/inidirectory [directory]");
+						helpOutput.AppendLine("\t\tSet the directory where the greenshot.ini should be stored & read.");
+						helpOutput.AppendLine();
+						helpOutput.AppendLine();
 						helpOutput.AppendLine("\t[filename]");
 						helpOutput.AppendLine("\t\tOpen the bitmap files in the running Greenshot instance or start a new instance");
 						Console.WriteLine(helpOutput.ToString());
@@ -201,7 +205,13 @@ namespace Greenshot {
 						IniConfig.Save();
 						continue;
 					}
-					
+
+					// Setting the INI-directory
+					if (argument.ToLower().Equals("/inidirectory")) {
+						IniConfig.IniDirectory = args[++argumentNr];
+						continue;
+					}
+
 					// Files to open
 					filesToOpen.Add(argument);
 				}
@@ -338,8 +348,6 @@ namespace Greenshot {
 			// Disable access to the settings, for feature #3521446
 			contextmenu_settings.Visible = !conf.DisableSettings;
 
-			IniConfig.IniChanged += new FileSystemEventHandler(ReloadConfiguration);
-			
 			// Make sure all hotkeys pass this window!
 			HotkeyControl.RegisterHotkeyHWND(this.Handle);
 			RegisterHotkeys();
@@ -441,7 +449,14 @@ namespace Greenshot {
 						LOG.Info("Reload requested");
 						try {
 							IniConfig.Reload();
-							ReloadConfiguration(null, null);
+							this.Invoke((MethodInvoker)delegate {
+								// Even update language when needed
+								UpdateUI();
+								// Update the hotkey
+								// Make sure the current hotkeys are disabled
+								HotkeyControl.UnregisterHotkeys();
+								RegisterHotkeys();
+							});
 						} catch {}
 						break;
 					case CommandEnum.OpenFile:
@@ -462,23 +477,6 @@ namespace Greenshot {
 			}
 		}
 		
-		/// <summary>
-		/// This is called when the ini-file changes
-		/// </summary>
-		/// <param name="source"></param>
-		/// <param name="e"></param>
-		private void ReloadConfiguration(object source, FileSystemEventArgs e) {
-			Language.CurrentLanguage = null;	// Reload
-			this.Invoke((MethodInvoker) delegate {
-				// Even update language when needed
-				UpdateUI();
-				// Update the hotkey
-				// Make sure the current hotkeys are disabled
-				HotkeyControl.UnregisterHotkeys();
-				RegisterHotkeys();
-			});
-		}
-
 		public ContextMenuStrip MainMenu {
 			get {return contextMenu;}
 		}

@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.Destinations;
+using Greenshot.IniFile;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -32,6 +33,7 @@ namespace Greenshot.Helpers {
 	public static class DestinationHelper {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DestinationHelper));
 		private static Dictionary<string, IDestination> RegisteredDestinations = new Dictionary<string, IDestination>();
+		private static CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		/// Initialize the destinations		
 		static DestinationHelper() {
@@ -64,8 +66,10 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="destination"></param>
 		public static void RegisterDestination(IDestination destination) {
-			// don't test the key, an exception should happen wenn it's not unique
-			RegisteredDestinations.Add(destination.Designation, destination);
+			if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation)) {
+				// don't test the key, an exception should happen wenn it's not unique
+				RegisteredDestinations.Add(destination.Designation, destination);
+			}
 		}
 
 		/// <summary>
@@ -77,9 +81,10 @@ namespace Greenshot.Helpers {
 			foreach (PluginAttribute pluginAttribute in PluginHelper.Instance.Plugins.Keys) {
 				IGreenshotPlugin plugin = PluginHelper.Instance.Plugins[pluginAttribute];
 				try {
-					var dests = plugin.Destinations();
-					if (dests != null) {
-						destinations.AddRange(dests);
+					foreach (IDestination destination in plugin.Destinations()) {
+						if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation)) {
+							destinations.Add(destination);
+						}
 					}
 				} catch (Exception ex) {
 					LOG.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginAttribute.Name);

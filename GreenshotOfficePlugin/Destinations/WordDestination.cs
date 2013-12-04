@@ -29,6 +29,7 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Interop.Office;
 using Greenshot.IniFile;
+using System.Text.RegularExpressions;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -111,8 +112,8 @@ namespace GreenshotOfficePlugin {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
-			if (tmpFile == null || surface.Modified) {
-				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings(OutputFormat.png));
+			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
+				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
 			if (documentCaption != null) {
 				try {

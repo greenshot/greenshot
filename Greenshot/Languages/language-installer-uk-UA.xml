@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0" languagegroup="5">
+	<resources>
+		<resource name="confluence">Плагін Confluence</resource>
+		<resource name="externalcommand">Відкрити з плагіном зовнішніх команд</resource>
+		<resource name="imgur">Плагін Imgur (див.: http://imgur.com)</resource>
+		<resource name="jira">Плагін Jira</resource>
+		<resource name="language">Додаткові мови</resource>
+		<resource name="ocr">Плагін OCR (потребує Microsoft Office Document Imaging (MODI))</resource>
+		<resource name="optimize">Оптимізація продуктивності, це може забрати час.</resource>
+		<resource name="startgreenshot">Запустити {#ExeName}</resource>
+		<resource name="startup">Запускати {#ExeName} під час запуску Windows</resource>
+	</resources>
+</language>

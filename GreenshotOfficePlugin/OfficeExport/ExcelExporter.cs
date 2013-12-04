@@ -24,10 +24,14 @@ using System.Text;
 using System.Reflection;
 
 using Greenshot.Interop;
+using System.Drawing;
+using GreenshotOfficePlugin;
+using Greenshot.IniFile;
 
 namespace Greenshot.Interop.Office {
 	public class ExcelExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
+		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
 
 		public static List<string> GetWorkbooks() {
 			List<string> currentWorkbooks = new List<string>();
@@ -49,37 +53,42 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="workbookName"></param>
 		/// <param name="tmpFile"></param>
-		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile) {
+		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize) {
 			using (IExcelApplication excelApplication = COMWrapper.GetInstance<IExcelApplication>()) {
 				if (excelApplication != null) {
 					for (int i = 1; i <= excelApplication.Workbooks.Count; i++) {
 						IWorkbook workbook = excelApplication.Workbooks[i];
 						if (workbook != null && workbook.Name.StartsWith(workbookName)) {
-							InsertIntoExistingWorkbook(workbook, tmpFile);
+							InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
 						}
 					}
 				}
 			}
 		}
 
-		private static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile) {
-			IWorksheet sheet = workbook.ActiveSheet;
-			if (sheet != null) {
-				if (sheet.Pictures != null) {
-					sheet.Pictures.Insert(tmpFile);
+		private static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile, Size imageSize) {
+			IWorksheet workSheet = workbook.ActiveSheet;
+			if (workSheet != null) {
+				if (workSheet.Shapes != null) {
+					IShape shape = workSheet.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height);
+					if (shape != null) {
+						shape.Top = 40;
+						shape.Left = 40;
+						shape.LockAspectRatio = MsoTriState.msoTrue;
+						shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+						shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+					}
 				}
-			} else {
-				LOG.Error("No pictures found");
 			}
 		}
 
-		public static void InsertIntoNewWorkbook(string tmpFile) {
+		public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize) {
 			using (IExcelApplication excelApplication = COMWrapper.GetOrCreateInstance<IExcelApplication>()) {
 				if (excelApplication != null) {
 					excelApplication.Visible = true;
 					object template = Missing.Value;
 					IWorkbook workbook = excelApplication.Workbooks.Add(template);
-					InsertIntoExistingWorkbook(workbook, tmpFile);
+					InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
 				}
 			}
 		}

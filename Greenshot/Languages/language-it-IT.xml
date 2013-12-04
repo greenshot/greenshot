@@ -180,6 +180,7 @@ Verifica l'accesso in scrittura sulla destinazione di salvataggio.</resource>
 	<resource name="printoptions_dontaskagain">Salva le opzioni come default, e non chiedere più</resource>
 	<resource name="printoptions_inverted">Stampa con colori invertiti (negativo)</resource>
 	<resource name="printoptions_printgrayscale">Forza stampa in scala di grigi</resource>
+    <resource name="printoptions_printmonochrome">Forza stampa in bianco e nero</resource>
 	<resource name="printoptions_timestamp">Stampa data / ora sul piede della pagina</resource>
 	<resource name="printoptions_title">Opzioni di stampa di Greenshot</resource>
 	<resource name="qualitydialog_dontaskagain">Save come qualità di default, e non chiedere più</resource>
@@ -244,6 +245,7 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)</resource
 	<resource name="settings_registerhotkeys">Registra scorciatoie di tastiera</resource>
 	<resource name="settings_showflashlight">Mostra torcia elettrica</resource>
 	<resource name="settings_shownotify">Mostra le notifiche</resource>
+	<resource name="settings_zoom">Mostra lente ingrandimento</resource>	
 	<resource name="settings_storagelocation">Destinaz. salvataggio</resource>
 	<resource name="settings_title">Impostazioni</resource>
 	<resource name="settings_tooltip_filenamepattern">Modello usato per generare il nome file in fase di salvataggio delle immagini</resource>

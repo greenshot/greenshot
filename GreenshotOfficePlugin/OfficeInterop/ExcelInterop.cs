@@ -47,6 +47,7 @@ namespace Greenshot.Interop.Office {
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel._worksheet_members.aspx
 	public interface IWorksheet : Common {
 		IPictures Pictures { get; }
+		IShapes Shapes {get; }
 		string Name { get; }
 	}
 

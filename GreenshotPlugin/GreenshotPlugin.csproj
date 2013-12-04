@@ -206,7 +206,4 @@
   <ItemGroup>
     <Folder Include="Interfaces\Drawing\Filters\" />
   </ItemGroup>
-  <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)tools\TortoiseSVN\SubWCRev.exe" "$(ProjectDir)." "$(ProjectDir)Properties\AssemblyInfo.cs.template" "$(ProjectDir)Properties\AssemblyInfo.cs"</PreBuildEvent>
-  </PropertyGroup>
 </Project>

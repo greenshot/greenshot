@@ -2,7 +2,41 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
-1.1.4 build $WCREV$ Release
+1.1.6 build $WCREV$ Bugfix Release
+
+Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
+* Bug #1515: Changed the settings GUI to clearly show that the interactive Window capture mode doesn't use the windows capture mode settings.
+* Bug #1517: export to Microsoft Word always goes to the last active Word instance.
+* Bug #1525/#1486: Greenshot looses configuration settings. (At least we hope this is resolved)
+* Bug #1528: export to Microsoft Excel isn't stored in file, which results in a "red cross" when opening on a different or MUCH later on the same computer.
+* Bug #1544: EntryPointNotFoundException when using higlight area or blur
+* Bug #1546: Exception in the editor when using multiple destination, among which the editor, and a picker (e.g. Word) is shown.
+* Not reported: Canceling Imgur authorization or upload caused an NullPointerReference
+
+Features:
+* Added EXIF orientation support when copying images from the clipboard
+* Feature #596: Added commandline option "/inidirectory <directory>" to specify the location of the greenshot.ini, this can e.g. be used for multi-profiles...
+* Removed reading the greenshot.ini if it was changed manually outside of Greenshot while it is running, this should increase stability. People should now exit Greenshot before modifying this file manually.
+
+Improvements:
+* Printouts are now rotated counter-clockwise instead of clockwise, for most people this should be preferable (#1552)
+
+1.1.5 build 2643 Bugfix Release
+
+Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
+* Bug #1510: Under Windows Vista when trying to apply a drop-shadow or a torn-edge effect a GDIPlus error occurs.
+* Bug #1512/#1514: Will not print color
+* Not reported: Annotations where not visible when exporting to Office destinations after writing in the Greenshot format.
+* Not reported: Removed the update check in Greenshot for PortableApps
+
+Languages:
+* New translation: Estonian
+* Updated translations: Russian, Polish and Italian
+* New installer translation: Ukrainian
+* New plugin translations: Polish
+
+
+1.1.4 build 2622 Release
 
 Features added:
 * General: Added zoom when capturing with a option in the settings for disabling the zoom. (this can also be done via the "z" key while capturing.)
@@ -16,11 +50,6 @@ Features added:
 * Plug-in: Added Photobucket plugin
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
-* Bug #1484, #1494: External Command plug-in issues. e.g. when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occured.
-* Bug #1499: Stability improvements for when Greenshot tries to open the explorer.exe
-* Bug #1500: Error while dragging an obfuscation
-* Fixed some additional unreported issues
-* Bug #1504: InvalidCastException when using the brightness-filter
 * Bug #1327, #1401 & #1410 : On Windows XP Firefox/java captures are mainly black. This fix should also work with other OS versions and applications.
 * Bug #1340: Fixed issue with opening a screenshow from the clipboard which was created in a remote desktop
 * Bug #1375, #1396 & #1397: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
@@ -38,6 +67,10 @@ Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and
 * Bug #1444: Colors were disappearing when "Create an 8-bit image if colors are less than 256 while having a > 8 bits image" was turned on
 * Bug #1462: Auto-filename generation cropping title text after period 
 * Bug #1481: when pasting elements from one editor into another the element could end up outside the visible area 
+* Bug #1484, #1494: External Command plug-in issues. e.g. when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occured.
+* Bug #1499: Stability improvements for when Greenshot tries to open the explorer.exe
+* Bug #1500: Error while dragging an obfuscation
+* Bug #1504: InvalidCastException when using the brightness-filter
 * Reported in forum: Fixed a problem with the OCR, it sometimes didn't work. See: http://sourceforge.net/p/greenshot/discussion/676082/thread/31a08c8c
 * Not reported: Flickr configuration for the Family, Friend & Public wasn't stored.
 * Not reported: If Greenshot is linked in a Windows startup folder, the "Start with startup" checkbox wasn't checked.

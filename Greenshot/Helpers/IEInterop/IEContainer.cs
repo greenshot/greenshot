@@ -31,18 +31,11 @@ using Greenshot.Interop.IE;
 using Greenshot.IniFile;
 
 namespace Greenshot.Helpers.IEInterop {
-	public class ElementContainer {
-		public Rectangle rectangle;
-		public string id;
-		public Dictionary<string, string> attributes = new Dictionary<string, string>();
-	}
-
 	public class DocumentContainer {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DocumentContainer));
 		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
-		private static readonly List<string> CAPTURE_TAGS = new List<string>();
-        private const int  E_ACCESSDENIED = unchecked((int)0x80070005L);
-        private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
+		private const int  E_ACCESSDENIED = unchecked((int)0x80070005L);
+		private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
 		private static readonly Guid IID_IWebBrowser2 = new Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E");
 		private static int counter = 0;
 		private int id = counter++;
@@ -60,30 +53,6 @@ namespace Greenshot.Helpers.IEInterop {
 		private double zoomLevelX = 1;
 		private double zoomLevelY = 1;
 		private List<DocumentContainer> frames = new List<DocumentContainer>();
-		
-		static DocumentContainer() {
-			CAPTURE_TAGS.Add("LABEL");
-			CAPTURE_TAGS.Add("DIV");
-			CAPTURE_TAGS.Add("IMG");
-			CAPTURE_TAGS.Add("INPUT");
-			CAPTURE_TAGS.Add("BUTTON");
-			CAPTURE_TAGS.Add("TD");
-			CAPTURE_TAGS.Add("TR");
-			CAPTURE_TAGS.Add("TH");
-			CAPTURE_TAGS.Add("TABLE");
-			CAPTURE_TAGS.Add("TBODY");
-			CAPTURE_TAGS.Add("SPAN");
-			CAPTURE_TAGS.Add("A");
-			CAPTURE_TAGS.Add("UL");
-			CAPTURE_TAGS.Add("LI");
-			CAPTURE_TAGS.Add("H1");
-			CAPTURE_TAGS.Add("H2");
-			CAPTURE_TAGS.Add("H3");
-			CAPTURE_TAGS.Add("H4");
-			CAPTURE_TAGS.Add("H5");
-			CAPTURE_TAGS.Add("FORM");
-			CAPTURE_TAGS.Add("FIELDSET");
-		}
 
 		private DocumentContainer(IHTMLWindow2 frameWindow, WindowDetails contentWindow, DocumentContainer parent) {
 			//IWebBrowser2 webBrowser2 = frame as IWebBrowser2;
@@ -108,19 +77,16 @@ namespace Greenshot.Helpers.IEInterop {
 
 			this.parent = parent;
 			// Calculate startLocation for the frames
-			IHTMLWindow3 window3 = (IHTMLWindow3)document2.parentWindow;
-//			IHTMLElement element = window2.document.body;
-//			long x = 0;
-//			long y = 0;
-//			do {
-//				x += element.offsetLeft;
-//				y += element.offsetTop;
-//				element = element.offsetParent;
-//			} while (element != null);
-//			startLocation = new Point((int)x, (int)y);
+			IHTMLWindow2 window2 = document2.parentWindow;
+			IHTMLWindow3 window3 = (IHTMLWindow3)window2;
 			Point contentWindowLocation = contentWindow.WindowRectangle.Location;
 			int x = window3.screenLeft - contentWindowLocation.X;
 			int y = window3.screenTop - contentWindowLocation.Y;
+
+			// Release IHTMLWindow 2+3 com objects
+			releaseCom(window2);
+			releaseCom(window3);
+
 			startLocation = new Point(x, y);
 			Init(document2, contentWindow);
 		}
@@ -129,7 +95,17 @@ namespace Greenshot.Helpers.IEInterop {
 			Init(document2, contentWindow);
 			LOG.DebugFormat("Creating DocumentContainer for Document {0} found in window with rectangle {1}", name, SourceRectangle);
 		}
-		
+
+		/// <summary>
+		/// Helper method to release com objects
+		/// </summary>
+		/// <param name="comObject"></param>
+		private void releaseCom(object comObject) {
+			if (comObject != null) {
+				Marshal.ReleaseComObject(comObject);
+			}
+		}
+
 		/// <summary>
 		/// Private helper method for the constructors
 		/// </summary>
@@ -152,12 +128,15 @@ namespace Greenshot.Helpers.IEInterop {
 				LOG.Error("Error checking the compatibility mode:");
 				LOG.Error(ex);
 			}
+			// Do not release IHTMLDocument5 com object, as this also gives problems with the document2!
+			//Marshal.ReleaseComObject(document5);
+
 			Rectangle clientRectangle = contentWindow.WindowRectangle;
 			try {
 				IHTMLWindow2 window2 = (IHTMLWindow2)document2.parentWindow;
 				//IHTMLWindow3 window3 = (IHTMLWindow3)document2.parentWindow;
-				IHTMLScreen2 screen2 = (IHTMLScreen2)window2.screen;
 				IHTMLScreen screen = window2.screen;
+				IHTMLScreen2 screen2 = (IHTMLScreen2)screen;
 				if (parent != null) {
 					// Copy parent values
 					zoomLevelX = parent.zoomLevelX;
@@ -188,6 +167,10 @@ namespace Greenshot.Helpers.IEInterop {
 					}
 				}
 				LOG.DebugFormat("Zoomlevel {0}, {1}", zoomLevelX, zoomLevelY);
+				// Release com objects
+				releaseCom(window2);
+				releaseCom(screen);
+				releaseCom(screen2);
 			} catch (Exception e) {
 				LOG.Warn("Can't get certain properties for documents, using default. Due to: ", e);
 			}
@@ -226,10 +209,14 @@ namespace Greenshot.Helpers.IEInterop {
 						} else {
 							LOG.DebugFormat("Skipping frame {0}", frameData.Name);
 						}
+						// Clean up frameWindow
+						releaseCom(frameWindow);
 					} catch (Exception e) {
 						LOG.Warn("Problem while trying to get information from a frame, skipping the frame!", e);
 					}
 				}
+				// Clean up collection
+				releaseCom(frameCollection);
 			} catch (Exception ex) {
 				LOG.Warn("Problem while trying to get the frames, skipping!", ex);
 			}
@@ -239,6 +226,8 @@ namespace Greenshot.Helpers.IEInterop {
 				foreach (IHTMLElement frameElement in document3.getElementsByTagName("IFRAME")) {
 					try {
 						CorrectFrameLocations(frameElement);
+						// Clean up frameElement
+						releaseCom(frameElement);
 					} catch (Exception e) {
 						LOG.Warn("Problem while trying to get information from an iframe, skipping the frame!", e);
 					}
@@ -248,30 +237,32 @@ namespace Greenshot.Helpers.IEInterop {
 			}
 		}
 		
-		private void DisableScrollbars(IHTMLDocument2 document2) {
-			try {
-				setAttribute("scroll","no");
-				IHTMLBodyElement body = (IHTMLBodyElement)document2.body;
-				body.scroll="no";
-				document2.body.style.borderStyle = "none";
-			} catch (Exception ex) {
-				LOG.Warn("Can't disable scroll", ex);
-			}
-		}
-		
+		/// <summary>
+		/// Corrent the frame locations with the information
+		/// </summary>
+		/// <param name="frameElement"></param>
 		private void CorrectFrameLocations(IHTMLElement frameElement) {
 			long x = 0;
 			long y = 0;
 			IHTMLElement element = frameElement;
+			IHTMLElement oldElement = null;
 			do {
 				x += element.offsetLeft;
 				y += element.offsetTop;
 				element = element.offsetParent;
+				// Release element, but prevent the frameElement to be released
+				if (oldElement != null) {
+					releaseCom(oldElement);
+				}
+				oldElement = element;
 			} while (element != null);
+
 			Point elementLocation = new Point((int)x, (int)y);
 			IHTMLElement2 element2 = (IHTMLElement2)frameElement;
 			IHTMLRect rec = element2.getBoundingClientRect();
 			Point elementBoundingLocation = new Point(rec.left, rec.top);
+			// Release IHTMLRect
+			releaseCom(rec);
 			LOG.DebugFormat("Looking for iframe to correct at {0}", elementBoundingLocation);
 			foreach(DocumentContainer foundFrame in frames) {
 				Point frameLocation = foundFrame.SourceLocation;
@@ -320,7 +311,7 @@ namespace Greenshot.Helpers.IEInterop {
 			try {
 				// Convert IHTMLWindow2 to IWebBrowser2 using IServiceProvider.
 				Interop.IServiceProvider sp = (Interop.IServiceProvider)htmlWindow;
-				
+
 				// Use IServiceProvider.QueryService to get IWebBrowser2 object.
 				Object brws = null;
 				Guid webBrowserApp = IID_IWebBrowserApp.Clone();
@@ -335,128 +326,6 @@ namespace Greenshot.Helpers.IEInterop {
 				LOG.Warn("another error: ", ex2);
 			}
 			return null;
-		}
-
-		/// <summary>
-		/// Wrapper around getElementsByTagName
-		/// </summary>
-		/// <param name="tagName">tagName is the name of the tag to look for, e.g. "input"</param>
-		/// <param name="retrieveAttributes">If true then all attributes are retrieved. This is slow!</param>
-		/// <returns></returns>
-		public List<ElementContainer> GetElementsByTagName(string tagName, string[] attributes) {
-			List<ElementContainer> elements = new List<ElementContainer>();
-			foreach(IHTMLElement element in document3.getElementsByTagName(tagName)) {
-				if (element.offsetWidth <= 0 || element.offsetHeight <= 0) {
-					// not visisble
-					continue;
-				}
-				ElementContainer elementContainer = new ElementContainer();
-				elementContainer.id = element.id;
-				
-				if (attributes != null) {
-					foreach(string attributeName in attributes) {
-						object attributeValue = element.getAttribute(attributeName, 0);
-						if (attributeValue != null && attributeValue != DBNull.Value && !elementContainer.attributes.ContainsKey(attributeName)) {
-							elementContainer.attributes.Add(attributeName, attributeValue.ToString());
-						}
-					}
-				}
-				
-				Point elementLocation = new Point((int)element.offsetLeft, (int)element.offsetTop);
-				elementLocation.Offset(this.DestinationLocation);
-				IHTMLElement parent = element.offsetParent;
-				while (parent != null) {
-					elementLocation.Offset((int)parent.offsetLeft, (int)parent.offsetTop);
-					parent = parent.offsetParent;
-				}
-				Rectangle elementRectangle = new Rectangle(elementLocation, new Size((int)element.offsetWidth, (int)element.offsetHeight));
-				elementContainer.rectangle = elementRectangle;
-				elements.Add(elementContainer);
-			}
-			return elements;
-		}
-
-		/// <summary>
-		/// Create a CaptureElement for every element on the page, which can be used by the editor.
-		/// </summary>
-		/// <returns></returns>
-		public CaptureElement CreateCaptureElements(Size documentSize) {
-			LOG.DebugFormat("CreateCaptureElements for {0}", Name);
-			IHTMLElement baseElement;
-			if (!isDTD) {
-				baseElement = document2.body;
-			} else {
-				baseElement = document3.documentElement;
-			}
-			IHTMLElement2 baseElement2 = baseElement as IHTMLElement2;
-			IHTMLRect htmlRect = baseElement2.getBoundingClientRect();
-			if (Size.Empty.Equals(documentSize)) {
-				documentSize = new Size(ScrollWidth, ScrollHeight);
-			}
-			Rectangle baseElementBounds = new Rectangle(DestinationLocation.X + htmlRect.left, DestinationLocation.Y + htmlRect.top, documentSize.Width, documentSize.Height);
-			if (baseElementBounds.Width <= 0 || baseElementBounds.Height <= 0) {
-				// not visisble
-				return null;
-			}
-
-			CaptureElement captureBaseElement = new CaptureElement(name, baseElementBounds);
-		
-			foreach(IHTMLElement bodyElement in baseElement.children) {
-				if ("BODY".Equals(bodyElement.tagName)) {
-					captureBaseElement.Children.AddRange(RecurseElements(bodyElement));
-				}
-			}
-			return captureBaseElement;
-		}
-		
-		/// <summary>
-		/// Recurse into the document tree
-		/// </summary>
-		/// <param name="parentElement">IHTMLElement we want to recurse into</param>
-		/// <returns>List of ICaptureElements with child elements</returns>
-		private List<ICaptureElement> RecurseElements(IHTMLElement parentElement) {
-			List<ICaptureElement> childElements = new List<ICaptureElement>();
-			foreach(IHTMLElement element in parentElement.children) {
-				string tagName = element.tagName;
-
-				// Skip elements we aren't interested in
-				if (!CAPTURE_TAGS.Contains(tagName)) {
-					continue;
-				}
-
-				ICaptureElement captureElement = new CaptureElement(tagName);
-				captureElement.Children.AddRange(RecurseElements(element));
-
-				// Get Bounds
-				IHTMLElement2 element2 = element as IHTMLElement2;
-				IHTMLRect htmlRect = element2.getBoundingClientRect();
-				
-				int left = htmlRect.left;
-				int top = htmlRect.top;
-				int right = htmlRect.right;
-				int bottom = htmlRect.bottom;
-				
-				// Offset
-				left += DestinationLocation.X;
-				top += DestinationLocation.Y;
-				right += DestinationLocation.X;
-				bottom += DestinationLocation.Y;
-
-				// Fit to floating children
-				foreach(ICaptureElement childElement in captureElement.Children) {
-					//left = Math.Min(left, childElement.Bounds.Left);
-					//top = Math.Min(top, childElement.Bounds.Top);
-					right = Math.Max(right, childElement.Bounds.Right);
-					bottom = Math.Max(bottom, childElement.Bounds.Bottom);
-				}
-				Rectangle bounds = new Rectangle(left, top, right-left, bottom-top);
-
-				if (bounds.Width > 0 && bounds.Height > 0) {
-					captureElement.Bounds = bounds;
-					childElements.Add(captureElement);
-				}
-			}
-			return childElements;
 		}
 		
 		public Color BackgroundColor {
@@ -523,11 +392,15 @@ namespace Greenshot.Helpers.IEInterop {
 		/// <param name="document2">The IHTMLDocument2</param>
 		/// <param name="document3">The IHTMLDocument3</param>
 		public void setAttribute(string attribute, string value) {
+			IHTMLElement element = null;
 			if (!isDTD) {
-				document2.body.setAttribute(attribute, value, 1);
+				element = document2.body;
 			} else {
-				document3.documentElement.setAttribute(attribute, value, 1);
+				element = document3.documentElement;
 			}
+			element.setAttribute(attribute, value, 1);
+			// Release IHTMLElement com object
+			releaseCom(element);
 		}
 
 		/// <summary>
@@ -538,12 +411,16 @@ namespace Greenshot.Helpers.IEInterop {
 		/// <param name="document3">The IHTMLDocument3</param>
 		/// <returns>object with the attribute value</returns>
 		public object getAttribute(string attribute) {
+			IHTMLElement element = null;
 			object retVal = 0;
 			if (!isDTD) {
-				retVal = document2.body.getAttribute(attribute, 1);
+				element = document2.body;
 			} else {
-				retVal = document3.documentElement.getAttribute(attribute, 1);
+				element = document3.documentElement;
 			}
+			retVal = element.getAttribute(attribute, 1);
+			// Release IHTMLElement com object
+			releaseCom(element);
 			return retVal;
 		}
 		

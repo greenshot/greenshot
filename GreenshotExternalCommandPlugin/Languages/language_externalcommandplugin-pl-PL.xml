@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
+	<resources>
+		<resource name="contextmenu_configure">Konfiguruj zewnętrzne komendy</resource>
+		<resource name="label_argument">Parametry</resource>
+		<resource name="label_command">Komenda</resource>
+		<resource name="label_information">{0} oznacza nazwę pliku zrzutu ekranu</resource>
+		<resource name="label_name">Nazwa</resource>
+		<resource name="settings_delete">Usuń</resource>
+		<resource name="settings_detail_title">Ustawienia komendy</resource>
+		<resource name="settings_edit">Edytuj</resource>
+		<resource name="settings_new">Nowy</resource>
+		<resource name="settings_title">Ustawienia zewnętrznych komend</resource>
+	</resources>
+</language>

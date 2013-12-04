@@ -122,7 +122,7 @@ namespace Greenshot.Helpers {
 				DialogResult? printOptionsResult = ShowPrintOptionsDialog();
 				try {
 					if (printOptionsResult == null || printOptionsResult == DialogResult.OK) {
-						if (IsColorPrint()) {
+						if (!IsColorPrint()) {
 							printDocument.DefaultPageSettings.Color = false;
 						}
 						printDocument.Print();
@@ -196,7 +196,7 @@ namespace Greenshot.Helpers {
 				// rotate the image if it fits the page better
 				if (conf.OutputPrintAllowRotate) {
 					if ((pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height) || (pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)) {
-						image.RotateFlip(RotateFlipType.Rotate90FlipNone);
+						image.RotateFlip(RotateFlipType.Rotate270FlipNone);
 						imageRect = image.GetBounds(ref gu);
 						if (alignment.Equals(ContentAlignment.TopLeft)) {
 							alignment = ContentAlignment.TopRight;

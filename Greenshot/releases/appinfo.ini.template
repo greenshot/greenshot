@@ -21,8 +21,8 @@ CommercialUse=true
 EULAVersion=true
 
 [Version]
-PackageVersion=1.1.4.$WCREV$
-DisplayVersion=1.1.4.$WCREV$
+PackageVersion=1.1.6.$WCREV$
+DisplayVersion=1.1.6.$WCREV$
 
 [SpecialPaths]
 Plugins=NONE

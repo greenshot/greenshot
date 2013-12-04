@@ -1,0 +1,294 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Eesti" ietf="et-EE" version="1.1.4" languagegroup="2">
+	<resources>
+		<resource name="about_bugs">Palun saatke veateated</resource>
+		<resource name="about_donations">Greenshoti kasutamismugavust ja arendust saate toetada siin:</resource>
+		<resource name="about_host">Greenshot asub portaalis sourceforge.net</resource>
+		<resource name="about_icons">Yusuke Kamiyamane on ikoonide tegija Fugue ikooni paketist (Creative Commons Attribution 3.0 litsents)</resource>
+		<resource name="about_license">Copyright (C) 2007-2013 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot ei paku GARANTIID. See on vabaravaline programm ja Te võite seda levitava vabalt teatud tingimuste alusel.
+Lisainfo GNU Põhilise Avaliku Litsentsi kohta:</resource>
+		<resource name="about_title">Info Greenshoti kohta</resource>
+		<resource name="application_title">Greenshot - revolutsiooniline kuvatõmmise tööriist</resource>
+		<resource name="bugreport_cancel">Sulge</resource>
+		<resource name="bugreport_info">Vabandust aga ilmnes tundmatu viga.
+
+Hea uudis on: saate meil aidata seda eemaldada saates meile veateate.
+Uue veateate  teavitamiseks, palun külastage kõrvalolevat URLi ja tekstialalt asetage sisu kirjeldusse. 
+
+Vea paremaks parandamiseks lisage palun arusaadav kokkuvõte veast ja lisage ka pisidetailid.
+Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole juba teavitatud. (Postituse kiiresti leidmiseks kasutage otsingut.) Aitäh :)</resource>
+		<resource name="bugreport_title">Viga</resource>
+		<resource name="CANCEL">Loobu</resource>
+		<resource name="clipboard_error">Lõikelauale kirjutamisel ilmnes ootamatu viga.</resource>
+		<resource name="clipboard_inuse">Greenshot ei suutnud lõikelauale kirjutada, sest {0} protsess blokeeris ligipääsu.</resource>
+		<resource name="clipboard_noimage">Lõikelaua pilti ei leitud.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windowsi pisipilt</resource>
+		<resource name="ClipboardFormat.DIB">Seadme isesesev pisipilt (DIB)</resource>
+		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML koos tekstisisese pildiga</resource>
+		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="colorpicker_alpha">Alpha</resource>
+		<resource name="colorpicker_apply">Kinnita</resource>
+		<resource name="colorpicker_blue">Sinine</resource>
+		<resource name="colorpicker_green">Roheline</resource>
+		<resource name="colorpicker_htmlcolor">HTMLi värv</resource>
+		<resource name="colorpicker_recentcolors">Viimati kasutatud värvid</resource>
+		<resource name="colorpicker_red">Punane</resource>
+		<resource name="colorpicker_title">Värvivalik</resource>
+		<resource name="colorpicker_transparent">Läbipaistvus</resource>
+		<resource name="com_rejected">Greenshotile keelas ligipääsu sihtkoht {0}, arvatavasti on dialoog avatud. Sulgege dialoog ja proovige uuesti.</resource>
+		<resource name="com_rejected_title">Greenshotile keelati ligipääs</resource>
+		<resource name="config_unauthorizedaccess_write">Greenshoti seadistusfaili ei suudetud salvestada. Palun kontrollige '{0}' ligipääsu seadmeid.</resource>
+		<resource name="contextmenu_about">Info Greenshoti kohta</resource>
+		<resource name="contextmenu_capturearea">Haarake teatud regioon</resource>
+		<resource name="contextmenu_captureclipboard">Avage pilt lõikelaualt</resource>
+		<resource name="contextmenu_capturefullscreen">Haarake kogu ekraan</resource>
+		<resource name="contextmenu_capturefullscreen_all">kõik</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">alt</resource>
+		<resource name="contextmenu_capturefullscreen_left">vasakult</resource>
+		<resource name="contextmenu_capturefullscreen_right">paremalt</resource>
+		<resource name="contextmenu_capturefullscreen_top">ülevalt</resource>
+		<resource name="contextmenu_captureie">Haarake Internet Explorer</resource>
+		<resource name="contextmenu_captureiefromlist">Haarake Internet Explorer loendist</resource>
+		<resource name="contextmenu_capturelastregion">Haarake hiljutine regioon</resource>
+		<resource name="contextmenu_capturewindow">Haarake aken</resource>
+		<resource name="contextmenu_capturewindowfromlist">Haarake aken loendist</resource>
+		<resource name="contextmenu_donate">Toetage Greenshoti</resource>
+		<resource name="contextmenu_exit">Välju</resource>
+		<resource name="contextmenu_help">Abi</resource>
+		<resource name="contextmenu_openfile">Avage pilt failist</resource>
+		<resource name="contextmenu_openrecentcapture">Avage viimane haaratud asukoht</resource>
+		<resource name="contextmenu_quicksettings">Kiirsätted</resource>
+		<resource name="contextmenu_settings">Eelistused...</resource>
+		<resource name="destination_exportfailed">{0}-le saatmisel ilmnes viga. Palun proovige uuesti.</resource>
+		<resource name="editor_align_bottom">All</resource>
+		<resource name="editor_align_center">Keskel</resource>
+		<resource name="editor_align_horizontal">Horisontaalne joondus</resource>
+		<resource name="editor_align_left">Vasak</resource>
+		<resource name="editor_align_middle">Keskel</resource>
+		<resource name="editor_align_right">Parem</resource>
+		<resource name="editor_align_top">Üleval</resource>
+		<resource name="editor_align_vertical">Vertikaaljoondus</resource>
+		<resource name="editor_arrange">Korrasta</resource>
+		<resource name="editor_arrowheads">Noolepead</resource>
+		<resource name="editor_arrowheads_both">Mõlemad</resource>
+		<resource name="editor_arrowheads_end">Lõpppunkt</resource>
+		<resource name="editor_arrowheads_none">Tühi</resource>
+		<resource name="editor_arrowheads_start">Alguspunkt</resource>
+		<resource name="editor_autocrop">Automaatne lõikus</resource>
+		<resource name="editor_backcolor">Täitke värviga</resource>
+		<resource name="editor_blur_radius">Uduse ala raadius</resource>
+		<resource name="editor_bold">Paks</resource>
+		<resource name="editor_border">Äär</resource>
+		<resource name="editor_brightness">Heledus</resource>
+		<resource name="editor_cancel">Loobu</resource>
+		<resource name="editor_clipboardfailed">Lõikelaua kasutamisel ilmnes viga. Palun proovi uuesti.</resource>
+		<resource name="editor_close">Sulge</resource>
+		<resource name="editor_close_on_save">Kas te tahate salvestada kuvatõmmist?</resource>
+		<resource name="editor_close_on_save_title">Salvestage pilt?</resource>
+		<resource name="editor_confirm">Kinnitan</resource>
+		<resource name="editor_copyimagetoclipboard">Kopeerige pilt lõikelauale</resource>
+		<resource name="editor_copypathtoclipboard">Kopeerige asukoht lõikelauale</resource>
+		<resource name="editor_copytoclipboard">Kopeeri</resource>
+		<resource name="editor_crop">Lõika (C)</resource>
+		<resource name="editor_cursortool">Valiku tööriist (ESC)</resource>
+		<resource name="editor_cuttoclipboard">Lõika</resource>
+		<resource name="editor_deleteelement">Kustuta</resource>
+		<resource name="editor_downonelevel">Samm allapoole</resource>
+		<resource name="editor_downtobottom">Samm lõppu</resource>
+		<resource name="editor_drawarrow">Joonista nool (A)</resource>
+		<resource name="editor_drawellipse">Joonistage ellip (E)</resource>
+		<resource name="editor_drawfreehand">Joonistage vaba käega (F)</resource>
+		<resource name="editor_drawhighlighter">Tooge esile (H)</resource>
+		<resource name="editor_drawline">Joonistage joon (L)</resource>
+		<resource name="editor_drawrectangle">Joonistage ristkülik (R)</resource>
+		<resource name="editor_drawtextbox">Lisage tekstikast (T)</resource>
+		<resource name="editor_dropshadow_darkness">Varjutav tugevus</resource>
+		<resource name="editor_dropshadow_offset">Varju tasakaalustamine</resource>
+		<resource name="editor_dropshadow_settings">Langeva varju seaded</resource>
+		<resource name="editor_dropshadow_thickness">Varju paksus</resource>
+		<resource name="editor_duplicate">Tehke valitud elemendist koopia</resource>
+		<resource name="editor_edit">Muutke</resource>
+		<resource name="editor_effects">Efektid</resource>
+		<resource name="editor_email">E-post</resource>
+		<resource name="editor_file">Fail</resource>
+		<resource name="editor_fontsize">Suurus</resource>
+		<resource name="editor_forecolor">Joone värv</resource>
+		<resource name="editor_grayscale">Halli skaala</resource>
+		<resource name="editor_highlight_area">Tooge esiplaanile</resource>
+		<resource name="editor_highlight_grayscale">Hall skaala</resource>
+		<resource name="editor_highlight_magnify">Suurendamine</resource>
+		<resource name="editor_highlight_mode">Tõstke esile</resource>
+		<resource name="editor_highlight_text">Tõstke esile teksti</resource>
+		<resource name="editor_image_shadow">Langev vari</resource>
+		<resource name="editor_imagesaved">Pilt salvestati {0}.</resource>
+		<resource name="editor_insertwindow">Sisestage aken</resource>
+		<resource name="editor_invert">Võtke tegevus tagasi</resource>
+		<resource name="editor_italic">Kaldkiri</resource>
+		<resource name="editor_load_objects">Laadige objektid failist</resource>
+		<resource name="editor_magnification_factor">Suurendusfaktor</resource>
+		<resource name="editor_match_capture_size">Katke haaratava ala suurus</resource>
+		<resource name="editor_obfuscate">Varjutage (O)</resource>
+		<resource name="editor_obfuscate_blur">Udune ala</resource>
+		<resource name="editor_obfuscate_mode">Varjus olev ala</resource>
+		<resource name="editor_obfuscate_pixelize">Mosaiik</resource>
+		<resource name="editor_object">Objekt</resource>
+		<resource name="editor_opendirinexplorer">Avage asukoht Windows Exploreriga</resource>
+		<resource name="editor_pastefromclipboard">Asetage</resource>
+		<resource name="editor_pixel_size">Piksli suurus</resource>
+		<resource name="editor_preview_quality">Eelvaate kvaliteet</resource>
+		<resource name="editor_print">Printige</resource>
+		<resource name="editor_redo">Tehke uuesti {0}</resource>
+		<resource name="editor_resetsize">Taastage normaalne suurus</resource>
+		<resource name="editor_resize_percent">Protsent</resource>
+		<resource name="editor_resize_pixel">Pikslid</resource>
+		<resource name="editor_rotateccw">Pöörake loendurit päripäeva (Control + ,)</resource>
+		<resource name="editor_rotatecw">Pöörake päripäeva (Control + .)</resource>
+		<resource name="editor_save">Salvesta</resource>
+		<resource name="editor_save_objects">Salvestage objektid faili</resource>
+		<resource name="editor_saveas">Salvestage nimega...</resource>
+		<resource name="editor_selectall">Valige kõik</resource>
+		<resource name="editor_senttoprinter">Printimiskäsklus saadeti '{0}'.</resource>
+		<resource name="editor_shadow">Langev vari</resource>
+		<resource name="editor_storedtoclipboard">Pilt taastati lõikelauale.</resource>
+		<resource name="editor_thickness">Joone paksus</resource>
+		<resource name="editor_title">Greenshoti pildihaldur</resource>
+		<resource name="editor_torn_edge">Rebenev äär</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Horisontaalne hammasvahemik</resource>
+		<resource name="editor_tornedge_settings">Rebeneva ääre seaded</resource>
+		<resource name="editor_tornedge_toothsize">Rebenemise suurus</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Vertikaalne hambavahemik</resource>
+		<resource name="editor_undo">Võtke tagasi {0}</resource>
+		<resource name="editor_uponelevel">Aste ülespoole</resource>
+		<resource name="editor_uptotop">Kuni ülesse äärde</resource>
+		<resource name="EmailFormat.MAPI">MAPI klient</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook koos HTML-iga</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook koos tekstiga</resource>
+		<resource name="error">Viga</resource>
+		<resource name="error_multipleinstances">Greenshot on juba käivitatud.</resource>
+		<resource name="error_nowriteaccess">Faili ei suudetud salvestada {0}.
+Palun kontrollige valitud hoiuala kirjutamisõigust.</resource>
+		<resource name="error_openfile">"{0}" ei suudetud avada.</resource>
+		<resource name="error_openlink">Ei suudetud avada '{0}'.</resource>
+		<resource name="error_save">Ei suudetud salvestada kuvatõmmist, palun valige sobivam asukoht.</resource>
+		<resource name="expertsettings">Ekspert</resource>
+		<resource name="expertsettings_autoreducecolors">Looge 8-bitine pilt, kui värvid on väiksemad kui 256 ja 8 bitisel pildil</resource>
+		<resource name="expertsettings_checkunstableupdates">Kontrollige testimisel olevaid uuendusi</resource>
+		<resource name="expertsettings_clipboardformats">Lõikelaua formaadid</resource>
+		<resource name="expertsettings_counter">${NUM} number failinime atribuutides</resource>
+		<resource name="expertsettings_enableexpert">Ma tean, mida ma teen!</resource>
+		<resource name="expertsettings_footerpattern">Printeri alumine muster</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Vähendage mälu alumist mustrit aga koos jõudluse langusega (ei soovitata).</resource>
+		<resource name="expertsettings_optimizeforrdp">Väliste töölaudade kasutamiseks tehke vajalikud optimiseeringud</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Kui võimalik, taaskasutage kohandajat</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Kohandaja sulgemisel pressige kokku salvestatud dialoog</resource>
+		<resource name="expertsettings_thumbnailpreview">Kuvage kontekstimenüüs pisipildid aknast (Vista ja windows 7 jaoks)</resource>
+		<resource name="exported_to">Eksporditud: {0}</resource>
+		<resource name="exported_to_error">Eksportimisel {0} tekkis viga:</resource>
+		<resource name="help_title">Greenshoti abi</resource>
+		<resource name="hotkeys">Kiirklahvid</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Palun valige oma pildile JPEG kvaliteet.</resource>
+		<resource name="OK">Ok</resource>
+		<resource name="print_error">Printimisel tekkis viga.</resource>
+		<resource name="printoptions_allowcenter">Printige lehe keskele</resource>
+		<resource name="printoptions_allowenlarge">Suurendage printimise ala, et pilt kattuks paberi suurusega</resource>
+		<resource name="printoptions_allowrotate">Pöörake pilti paberi suuna järgi</resource>
+		<resource name="printoptions_allowshrink">Vähendage pilti, et see mahuks paberile</resource>
+		<resource name="printoptions_colors">Värvi seaded</resource>
+		<resource name="printoptions_dontaskagain">Salvestage need valikud tavaseadetena ja ärge enam küsige</resource>
+		<resource name="printoptions_inverted">Printige ümberpööratud värvidega</resource>
+		<resource name="printoptions_layout">Lehekülje välimuse seaded</resource>
+		<resource name="printoptions_printcolor">Täielik värviline printimine</resource>
+		<resource name="printoptions_printgrayscale">Sundige printimist hallil skaalal</resource>
+		<resource name="printoptions_printmonochrome">Sundige must/valget printimist</resource>
+		<resource name="printoptions_timestamp">Printige kuupäev / aeg lehekülje alla</resource>
+		<resource name="printoptions_title">Greenshoti printimisvalikud</resource>
+		<resource name="qualitydialog_dontaskagain">Salvestage need valikud tavaseadetena ja ärge enam küsige</resource>
+		<resource name="qualitydialog_title">Greenshoti kvaliteet</resource>
+		<resource name="quicksettings_destination_file">Salvestage otse (kasutades selleks eelistatud faili väljundi seadeid)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Igal printimiskorral kuvage printimise valikute dialoog</resource>
+		<resource name="settings_alwaysshowqualitydialog">Igal pildi salvestamise korral kuvage kvaliteedi dialoog</resource>
+		<resource name="settings_applicationsettings">Rakenduse seaded</resource>
+		<resource name="settings_autostartshortcut">Käivitage Greenshot koos Windowsiga</resource>
+		<resource name="settings_capture">Haarake</resource>
+		<resource name="settings_capture_mousepointer">Haarake hiirenool</resource>
+		<resource name="settings_capture_windows_interactive">Kasutage interaktiivset akna haaramismeetodit</resource>
+		<resource name="settings_checkperiod">Uuendamise intervall (0=uuendamist ei toimu)</resource>
+		<resource name="settings_configureplugin">Seadistage</resource>
+		<resource name="settings_copypathtoclipboard">Iga pildi salvestamisega kopeerige faili asukoht lõikelauale</resource>
+		<resource name="settings_destination">Asukoht</resource>
+		<resource name="settings_destination_clipboard">Kopeerige lõikelauale</resource>
+		<resource name="settings_destination_editor">Avage pildihalduris</resource>
+		<resource name="settings_destination_email">E-post</resource>
+		<resource name="settings_destination_file">Salvestage otse (kasutades kõrvalolevaid seadeid)</resource>
+		<resource name="settings_destination_fileas">Salvestega nimega (dialoogi kuvamin)</resource>
+		<resource name="settings_destination_picker">Valige asukoht dünaamiliselt</resource>
+		<resource name="settings_destination_printer">Saatke printerisse</resource>
+		<resource name="settings_editor">Kohandaja</resource>
+		<resource name="settings_filenamepattern">Faili nime atribuudid</resource>
+		<resource name="settings_general">Põhiline</resource>
+		<resource name="settings_iecapture">Internet Exploreri haaramine</resource>
+		<resource name="settings_jpegquality">JPEG kvaliteet</resource>
+		<resource name="settings_language">Keel</resource>
+		<resource name="settings_message_filenamepattern">See kohatäitja täidetakse automaatselt defineeritud mustris:
+${YYYY} aasta, 4 numbrit
+${MM} kuu, 2 numbrit
+${DD} päev, 2 numbrit
+${hh} tund, 2 numbrit
+${mm} minut, 2 numbrit
+${ss} sekund, 2 numbrit
+${NUM} suurenev number, 6 numbrit
+${title} Akna pealkiri
+${user} Windowsi kasutaja
+${domain} Windowsi domeen
+${hostname} Arvuti nimi
+
+Greenshotiga on võimalik asukohti salvestada dünaamiliselt, selleks kasutage kaldkriipsu (\), et kaustad ja faili nimi oleks eraldatud.
+Näiteks: Kohatäitja ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+loob praeguse päeva jaoks kausta Teie sihtkausta, nt 2008-06-29, kuvatõmmise faili nimi on tuletatud praegusest
+kellaajast, nt 11_58_32 (lisaks seadetes määratud laiend)</resource>
+		<resource name="settings_network">Võrk ja uuendused</resource>
+		<resource name="settings_output">Väljund</resource>
+		<resource name="settings_playsound">Esitage kaamera heli</resource>
+		<resource name="settings_plugins">Laiendid</resource>
+		<resource name="settings_plugins_createdby">Laiendi omanik</resource>
+		<resource name="settings_plugins_dllpath">DLLi asukoht</resource>
+		<resource name="settings_plugins_name">Nimi</resource>
+		<resource name="settings_plugins_version">Versioon</resource>
+		<resource name="settings_preferredfilesettings">Eelistatud väljundi seade</resource>
+		<resource name="settings_primaryimageformat">Pildi formaat</resource>
+		<resource name="settings_printer">Printer</resource>
+		<resource name="settings_printoptions">Printimisvalikud</resource>
+		<resource name="settings_qualitysettings">Kvaliteedi seaded</resource>
+		<resource name="settings_reducecolors">Vähendage värvide arvu 256ni</resource>
+		<resource name="settings_registerhotkeys">Registreerige kiirklahvid</resource>
+		<resource name="settings_showflashlight">Kuvage välklamp</resource>
+		<resource name="settings_shownotify">Kuvage teateid</resource>
+		<resource name="settings_storagelocation">Hoiuse asukoht</resource>
+		<resource name="settings_title">Seaded</resource>
+		<resource name="settings_tooltip_filenamepattern">Kuvatõmmiste salvestamise ajal kasutatav atribuut</resource>
+		<resource name="settings_tooltip_language">Greenshoti kasutajaliidese keel</resource>
+		<resource name="settings_tooltip_primaryimageformat">Kasutatav pildiformaat</resource>
+		<resource name="settings_tooltip_registerhotkeys">Määrab, kas kiirklahvid Prnt, Ctrl + Print, Alt + Prnt on jäetud Greenshoti programmi käivitumise ajast kuni programmist väljumiseni.</resource>
+		<resource name="settings_tooltip_storagelocation">Kuvatõmmiste asukoht (töölauale salvestamise soovil jätke see tühjaks)</resource>
+		<resource name="settings_usedefaultproxy">Kasutage süsteemi proksit</resource>
+		<resource name="settings_visualization">Efektid</resource>
+		<resource name="settings_waittime">Pildi tegemise ooteaeg millisekundites</resource>
+		<resource name="settings_window_capture_mode">Akna haaramise meetod</resource>
+		<resource name="settings_windowscapture">Akna pildistamine</resource>
+		<resource name="settings_zoom">Kuvage suurendaja</resource>
+		<resource name="tooltip_firststart">Tehke parem-klõps siia või vajutage klahvi {0}.</resource>
+		<resource name="update_found">reenshoti uuem versioon on saadaval! Kas te soovite alla laadida Greenshot {0}?</resource>
+		<resource name="wait_ie_capture">Palun oodake, kui pilti Internet Exploreris tehakse...</resource>
+		<resource name="warning">Hoiatus</resource>
+		<resource name="warning_hotkeys">Kiirklahv(e) "{0}" ei suudetud registreerida. Teine tööriist väidab kasutavat sama(u) kiirklahvi(e)! Muutke või deaktiviseerige kiirklahv(id).
+
+Kõik Greenshoti lisad töötavad süsteemisalvest ilma kiirklahvide olemasoluta.</resource>
+		<resource name="WindowCaptureMode.Aero">Kasutage kohandatud värvi</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Säilitage läbipaistvus</resource>
+		<resource name="WindowCaptureMode.Auto">Automaatselt</resource>
+		<resource name="WindowCaptureMode.GDI">Kasutage tavalist värvi</resource>
+		<resource name="WindowCaptureMode.Screen">Nagu kuvatud</resource>
+	</resources>
+</language>
