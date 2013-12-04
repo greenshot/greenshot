@@ -2,6 +2,12 @@ Greenshot: A screenshot tool optimized for productivity. Save a screenshot or a 
 
 CHANGE LOG:
 
+@GITDETAILVERSION@ Bugfix Release
+
+Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
+* Bug #xxxx: 
+
+
 1.1.6 build $WCREV$ Bugfix Release
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
