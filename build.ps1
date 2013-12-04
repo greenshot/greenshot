@@ -26,7 +26,7 @@ Add-Type -Assembly System.ServiceModel.Web,System.Runtime.Serialization
 
 # Collect GIT information
 $gitversion = git describe --long
-$gittag = git tag
+$gittag = $gitversion -replace '-.*',''
 $commitversion = $gitversion -replace ($gittag + '-'),'' -replace '-.*',''
 $githash = $gitversion -replace '.*-',''
 $version = $gittag + '.' + $commitversion
@@ -104,7 +104,7 @@ Function Build {
 	echo "Calling: $msBuild $parameters"
 	$buildResult = Start-Process -wait -PassThru "$msBuild" -ArgumentList $parameters -NoNewWindow -RedirectStandardOutput $buildOutput
 	if ($buildResult.ExitCode -ne 0) {
-		echo "An error $buildResult.ExitCode occured, please check $BuildOutput for errors!"
+		echo "An error occured, please check $BuildOutput for errors!"
 		exit -1
 	}
 	return
@@ -224,16 +224,16 @@ Function PackageInstaller {
 	return
 }
 
-#FillTemplates
+FillTemplates
 
-#Build
+Build
 
 echo "Generating MD5"
 
 MD5Checksums | Set-Content "$(get-location)\Greenshot\bin\Release\checksum.MD5" -encoding UTF8
 
 echo "Generating Installer"
-#PackageInstaller
+PackageInstaller
 
 echo "Generating ZIP"
 PackageZip
@@ -246,8 +246,8 @@ WaitForKey
 # SIG # Begin signature block
 # MIIEtAYJKoZIhvcNAQcCoIIEpTCCBKECAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUkHhpRh3CT0RiOR4phCji2NnF
-# TtigggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUlbFVweNW7YraUhh7CNud8cS4
+# HCugggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMzExMjYxOTMxMTVaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA0SEsL7kNLoYA
@@ -265,9 +265,9 @@ WaitForKey
 # QDAsMSowKAYDVQQDEyFQb3dlclNoZWxsIExvY2FsIENlcnRpZmljYXRlIFJvb3QC
 # EMqESRzCQ1WzRZpnzm7fmOAwCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAI
 # oAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIB
-# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFOPTgMEk9FdY4P83OTmY
-# 5wIFXxa+MA0GCSqGSIb3DQEBAQUABIGAQbJbhHOMNsEnPWIXIaNpG9IDjOCjpPss
-# nqWKeCZ6BqHSG5NeQSwlxfEtnTVAuEotQ0Z5+Tt+5lPC+oCyebDWZjObmdFUB09d
-# aa3WU+1qRCxwfZgVOzopeSuGFx4jUVpc9s4WttxFBAhflFBuRy0iHzC75RpH5P5H
-# co7UFSx74Gw=
+# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFPa00iSnYtAOO8lKmzlv
+# dosV3T21MA0GCSqGSIb3DQEBAQUABIGARi5Xcf6HDxqHyidGg+cwOnTtowXJnAln
+# 1VkPnlkxXETkm/FTC3gVNWoOY+Tu0FIZT1CY9pRKxiQE6kLx/1PYxjdWVg5CyEFa
+# B0ZQN3EOMn8r0UpY0LRnIg6hS/d7ucGR+yOXZ8yoLj7ehUwT39AQgSZ8d0SRqS1A
+# DpRjRHpB9Yk=
 # SIG # End signature block
