@@ -17,3 +17,9 @@ upgradeLog.XML
 /*.error
 
 /Greenshot/releases/innosetup/setup.iss
+
+/Greenshot/tools/PortableApps.comInstaller/Data
+/Greenshot/releases/portable/Greenshot.exe
+/Greenshot/releases/portable/help.html
+
+/Greenshot/releases/portable/App/AppInfo
