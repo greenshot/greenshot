@@ -23,7 +23,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-
+using System.Windows.Markup;
 #endregion
 
 // General Information about an assembly is controlled through the following 
@@ -48,4 +48,12 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can use the default the Revision and 
 // Build Numbers by using the '*' as shown below:
-[assembly: AssemblyVersion("1.1.6.$WCREV$")]
+[assembly: AssemblyVersion("@GITVERSION@")]
+[assembly: AssemblyInformationalVersion("@GITDETAILVERSION@")]
+
+// Definitions for XAML namespaces
+[assembly: XmlnsPrefix("http://schemas.getgreenshot.net/plugin/", "greenshotplugin")]
+[assembly: XmlnsDefinition("http://schemas.getgreenshot.net/plugin/", "GreenshotPlugin")]
+[assembly: XmlnsDefinition("http://schemas.getgreenshot.net/plugin/", "GreenshotPlugin.Core")]
+[assembly: XmlnsDefinition("http://schemas.getgreenshot.net/plugin/", "GreenshotPlugin.Core.Settings")]
+[assembly: XmlnsDefinition("http://schemas.getgreenshot.net/plugin/", "GreenshotPlugin.WPF")]
