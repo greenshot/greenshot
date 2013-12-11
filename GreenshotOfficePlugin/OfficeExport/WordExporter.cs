@@ -72,7 +72,7 @@ namespace Greenshot.Interop.Office {
 			// Bug #1517: image will be inserted into that document, where the focus was last. It will not inserted into the chosen one.
 			// Solution: Make sure the selected document is active, otherwise the insert will be made in a different document!
 			try {
-				wordApplication.Activate();
+				wordDocument.Activate();
 			} catch {
 			}
 			if (wordApplication.Selection != null) {
