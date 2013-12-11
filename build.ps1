@@ -167,7 +167,8 @@ Function PackagePortable {
 		echo "An error occured, please check $portableOutput.log and $portableOutput.error for errors!"
 		exit -1
 	}
-	Remove-Item "$destbase\portabletmp" -recurse -Confirm:$false
+	Start-Sleep -m 1000
+	Remove-Item "$destbase\portabletmp" -Recurse -Confirm:$false
 	return
 }
 
@@ -220,7 +221,8 @@ Function PackageZip {
 		echo "An error occured, please check $zipOutput.log and $zipOutput.error for errors!"
 		exit -1
 	}
-	Remove-Item "$destinstaller" -recurse -Confirm:$false
+	Start-Sleep -m 1000
+	Remove-Item "$destinstaller" -Recurse -Confirm:$false
 	return
 }
 
@@ -262,8 +264,8 @@ WaitForKey
 # SIG # Begin signature block
 # MIIEtAYJKoZIhvcNAQcCoIIEpTCCBKECAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUlmS1LJgo97UtV5POMlFuE9iS
-# yWegggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUOo5Wxn5LIY+1LynthZmQSrtx
+# 7SigggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMzExMjYxOTMxMTVaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA0SEsL7kNLoYA
@@ -281,9 +283,9 @@ WaitForKey
 # QDAsMSowKAYDVQQDEyFQb3dlclNoZWxsIExvY2FsIENlcnRpZmljYXRlIFJvb3QC
 # EMqESRzCQ1WzRZpnzm7fmOAwCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAI
 # oAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIB
-# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFPy89grwAkqkUfIWJQR1
-# N5zo3qVVMA0GCSqGSIb3DQEBAQUABIGAsOLH02OKRs6Sq8JtHFX2BzwE79LnqP5h
-# 106pDkybKDKsI/dX9VXsKFwxiScAOueKWWL+QAnb3kDp6Ozd4m1XTACjKZ2UVwKI
-# UmXZQP8nUzbtgmafwgrJngZ24gRON5dVO4RayeXXUu9tWiQg9F6kzo5linh6K0iC
-# Z+9uQPBDOYs=
+# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFFJFG4yaTw7L/jaQHY6B
+# kRWbD1tYMA0GCSqGSIb3DQEBAQUABIGAnS5Sjop7/Jwq8EncF4MApvyfRtw1mBPB
+# M53xkvHWFQIbdTlt7Ve0Ggnu36pdXY5jWFP1geghDwKRbJgDb5EycRp5bwq7KiHc
+# Sv1bBpsmV9zeM12vCmo4X8LX4JJxMKnj+RPRWjfp/aQXQoXRCScw6YrIubIwScul
+# Xg1DJFZ+R88=
 # SIG # End signature block

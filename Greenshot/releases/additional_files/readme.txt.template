@@ -4,11 +4,17 @@ CHANGE LOG:
 
 @GITDETAILVERSION@ Bugfix Release
 
+Changes:
+* We moved our repository to BitBucket (GIT), this forced us to change the build script and the version
+
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
 * Bug #xxxx: 
 
+Features:
+* Changed the Box plug-in to use the new V2 API, which is mandatory from 13.12.2013. The Box plug-in now needs the .NET 3.5 Full Framework.
 
-1.1.6 build $WCREV$ Bugfix Release
+
+1.1.6 build 2779 Bugfix Release
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
 * Bug #1515: Changed the settings GUI to clearly show that the interactive Window capture mode doesn't use the windows capture mode settings.
