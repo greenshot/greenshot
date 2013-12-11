@@ -216,23 +216,5 @@ namespace GreenshotBoxPlugin {
 				return (T)deserializer.ReadObject(stream);
 			}
 		}
-
-		/// <summary>
-		/// Helper method to parse JSON to object
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="jsonString"></param>
-		/// <returns></returns>
-		public static T DeserializeWithDirectory<T>(string jsonString) {
-			DataContractJsonSerializerSettings settings = new DataContractJsonSerializerSettings();
-			settings.UseSimpleDictionaryFormat = true;
-			var deserializer = new DataContractJsonSerializer(typeof(T), settings);
-			using (MemoryStream stream = new MemoryStream()) {
-				byte[] content = Encoding.UTF8.GetBytes(jsonString);
-				stream.Write(content, 0, content.Length);
-				stream.Seek(0, SeekOrigin.Begin);
-				return (T)deserializer.ReadObject(stream);
-			}
-		}
 	}
 }

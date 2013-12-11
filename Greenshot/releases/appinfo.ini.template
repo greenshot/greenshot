@@ -1,6 +1,6 @@
 [Format]
 Type=PortableApps.comFormat
-Version=2.0
+Version=@GITVERSION@
 
 [Details]
 Name=Greenshot Portable
@@ -8,7 +8,7 @@ AppID=Greenshot_for_PortableApps
 Publisher=Greenshot
 Homepage=getgreenshot.org
 Category=Graphics & Pictures
-Description=The great Greenshot tool
+Description=Greenshot tool
 Language=Multilingual
 Trademarks=
 InstallType=
@@ -21,15 +21,15 @@ CommercialUse=true
 EULAVersion=true
 
 [Version]
-PackageVersion=1.1.6.$WCREV$
-DisplayVersion=1.1.6.$WCREV$
+PackageVersion=@GITDETAILVERSION@
+DisplayVersion=@GITVERSION@
 
 [SpecialPaths]
 Plugins=NONE
 
 [Dependencies]
 UsesJava=false
-UsesDotNetVersion=2.0
+UsesDotNetVersion=4.5
 
 [Control]
 Icons=1

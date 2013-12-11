@@ -150,7 +150,6 @@ Function PackagePortable {
 	@( "$sourcebase\checksum.MD5",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
-		"$sourcebase\GreenshotEditor.dll",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
 
 	Copy-Item -Path "$sourcebase\Languages\help-en-US.html" -Destination "$destbase\portabletmp\help.html"
@@ -210,7 +209,6 @@ Function PackageZip {
 		"$sourcebase\Greenshot.exe",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
-		"$sourcebase\GreenshotEditor.dll",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destinstaller\" }
 
 	$zipOutput = "$(get-location)\zip"
@@ -264,8 +262,8 @@ WaitForKey
 # SIG # Begin signature block
 # MIIEtAYJKoZIhvcNAQcCoIIEpTCCBKECAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUrj4gCFRpu7VRoh4bzyfOF1yt
-# w+6gggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUlmS1LJgo97UtV5POMlFuE9iS
+# yWegggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMzExMjYxOTMxMTVaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA0SEsL7kNLoYA
@@ -283,9 +281,9 @@ WaitForKey
 # QDAsMSowKAYDVQQDEyFQb3dlclNoZWxsIExvY2FsIENlcnRpZmljYXRlIFJvb3QC
 # EMqESRzCQ1WzRZpnzm7fmOAwCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAI
 # oAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIB
-# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFH5N3rkoNAqfwfm9+NWz
-# e956GSjEMA0GCSqGSIb3DQEBAQUABIGAnNDXqL2r7NpwSzqCO8ceO9mhf1b3hlG7
-# OaavA85n73okZ/+V0xrCh9no3HZGOiQop8ER+QqKcOaoePwMkEySt2lhBkCB8hyr
-# kH3qaJdksld5E/m1LXm/b0A/6dmDahcn1LMDKndisayPup43K2SNCv4iewnp6hhB
-# uI1p0ciFDRc=
+# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFPy89grwAkqkUfIWJQR1
+# N5zo3qVVMA0GCSqGSIb3DQEBAQUABIGAsOLH02OKRs6Sq8JtHFX2BzwE79LnqP5h
+# 106pDkybKDKsI/dX9VXsKFwxiScAOueKWWL+QAnb3kDp6Ozd4m1XTACjKZ2UVwKI
+# UmXZQP8nUzbtgmafwgrJngZ24gRON5dVO4RayeXXUu9tWiQg9F6kzo5linh6K0iC
+# Z+9uQPBDOYs=
 # SIG # End signature block

@@ -6,7 +6,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>GreenshotBoxPlugin</RootNamespace>
     <AssemblyName>GreenshotBoxPlugin</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
@@ -26,6 +26,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.ServiceModel.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoxConfiguration.cs" />
