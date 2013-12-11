@@ -8,7 +8,9 @@ Changes:
 * We moved our repository to BitBucket (GIT), this forced us to change the build script and the version
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
-* Bug #xxxx: 
+* Bug #1517: (now it is really fixed) export to Microsoft Word always goes to the last active Word instance.
+* Bug #1589/#1584 System.NullReferenceException
+* Bug #1574: AccessException when loading plugins
 
 Features:
 * Changed the Box plug-in to use the new V2 API, which is mandatory from 13.12.2013. The Box plug-in now needs the .NET 3.5 Full Framework.
