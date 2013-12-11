@@ -215,7 +215,7 @@ namespace Greenshot.Helpers {
 		/// <param name="pluginFiles"></param>
 		/// <param name="path"></param>
 		private void findPluginsOnPath(List<string> pluginFiles, String path) {
-			if (Directory.Exists(pafPath)) {
+			if (Directory.Exists(path)) {
 				try {
 					foreach (string pluginFile in Directory.GetFiles(path, "*.gsp", SearchOption.AllDirectories)) {
 						pluginFiles.Add(pluginFile);
