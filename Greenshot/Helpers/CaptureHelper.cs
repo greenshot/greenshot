@@ -571,7 +571,7 @@ namespace Greenshot.Helpers {
 			// Register notify events if this is wanted			
 			if (conf.ShowTrayNotification && !conf.HideTrayicon) {
 				surface.SurfaceMessage += delegate(object source, SurfaceMessageEventArgs eventArgs) {
-					if (string.IsNullOrEmpty(eventArgs.Message)) {
+                   if (eventArgs == null || string.IsNullOrEmpty(eventArgs.Message)) {
 						return;
 					}
 					switch (eventArgs.MessageType) {
