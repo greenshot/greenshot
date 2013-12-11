@@ -209,25 +209,36 @@ namespace Greenshot.Helpers {
 			return false;
 		}
 
+		/// <summary>
+		/// Private helper to find the plugins in the path
+		/// </summary>
+		/// <param name="pluginFiles"></param>
+		/// <param name="path"></param>
+		private void findPluginsOnPath(List<string> pluginFiles, String path) {
+			if (Directory.Exists(pafPath)) {
+				try {
+					foreach (string pluginFile in Directory.GetFiles(path, "*.gsp", SearchOption.AllDirectories)) {
+						pluginFiles.Add(pluginFile);
+					}
+				} catch (System.UnauthorizedAccessException) {
+					return;
+				} catch (Exception ex) {
+					LOG.Error("Error loading plugin: ", ex);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Load the plugins
+		/// </summary>
 		public void LoadPlugins() {
 			List<string> pluginFiles = new List<string>();
 
-			if (IniConfig.IsPortable && Directory.Exists(pafPath)) {
-				foreach(string pluginFile in Directory.GetFiles(pafPath, "*.gsp", SearchOption.AllDirectories)) {
-					pluginFiles.Add(pluginFile);
-				}
+			if (IniConfig.IsPortable) {
+				findPluginsOnPath(pluginFiles, pafPath);
 			} else {
-				if (Directory.Exists(pluginPath)) {
-					foreach(string pluginFile in Directory.GetFiles(pluginPath, "*.gsp", SearchOption.AllDirectories)) {
-						pluginFiles.Add(pluginFile);
-					}
-				}
-	
-				if (Directory.Exists(applicationPath)) {
-					foreach(string pluginFile in Directory.GetFiles(applicationPath, "*.gsp", SearchOption.AllDirectories)) {
-						pluginFiles.Add(pluginFile);
-					}
-				}
+				findPluginsOnPath(pluginFiles, pluginPath);
+				findPluginsOnPath(pluginFiles, applicationPath);
 			}
 
 			Dictionary<string, PluginAttribute> tmpAttributes = new Dictionary<string, PluginAttribute>();
