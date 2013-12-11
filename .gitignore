@@ -1,11 +1,11 @@
 .svn/
 *.gsp
 *.bak
-*INSTALLER*.exe
-*INSTALLER*.zip
+Greenshot*INSTALLER*.exe
+Greenshot*INSTALLER*.zip
 *.paf.exe
 *-SVN.*
-bin/
+/Greenshot*/bin/
 obj/
 fugue/
 *Credentials.private.cs
@@ -16,9 +16,7 @@ upgradeLog.XML
 /Greenshot/releases/additional_files/readme.txt
 /*.error
 /Greenshot/releases/innosetup/setup.iss
-/Greenshot/tools/PortableApps.comInstaller/Data
-/Greenshot/releases/portable/Greenshot.exe
-/Greenshot/releases/portable/help.html
-/Greenshot/releases/portable/App/AppInfo
 /Greenshot/packages
 /Greenshot/releases/appinfo.ini
+
+/Greenshot/tools/PortableApps.comInstaller/Data/PortableApps.comInstallerLog.txt

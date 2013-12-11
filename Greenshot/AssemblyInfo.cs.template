@@ -20,7 +20,6 @@
  */
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Windows.Markup;
 // Information about this assembly is defined by the following
 // attributes.
 //

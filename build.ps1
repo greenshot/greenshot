@@ -95,9 +95,9 @@ Function FillTemplates {
 }
 
 Function Build {
-	$msBuild = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild"
+	$msBuild = "C:\Windows\Microsoft.NET\Framework64\v3.5\MSBuild"
 	if (-not (Test-Path("$msBuild"))) {
-		$msBuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild"
+		$msBuild = "C:\Windows\Microsoft.NET\Framework\v3.5\MSBuild"
 	}
 	$parameters = @('Greenshot\Greenshot.sln', '/t:Clean;Build', '/p:Configuration="Release"', '/p:Platform="Any CPU"')
 	$buildOutput = "$(get-location)\build.log"
@@ -119,42 +119,56 @@ Function MD5Checksums {
 }
 
 Function PackagePortable {
-#del /q releases\GreenshotPortable*.paf.exe
-#del /q releases\portable\App\Greenshot\*
-#rmdir /s /q releases\portable\App\Greenshot\Languages
-#rmdir /s /q releases\portable\App\Greenshot\Plugins
-#del /q releases\portable\*.*
-
-#pause
-#mkdir releases\portable\App\Greenshot\Plugins
-#xcopy /S bin\Release\Plugins\* releases\portable\App\Greenshot\Plugins\
-#mkdir releases\portable\App\Greenshot\Languages
-#xcopy /S Languages\language*.xml releases\portable\App\Greenshot\Languages
-#xcopy /S Languages\help*.html releases\portable\App\Greenshot\Languages
-#copy Languages\help-en-US.html releases\portable\help.html
-#xcopy /S bin\Release\Languages\Plugins\* releases\portable\App\Greenshot\Languages\Plugins\
-
-#copy /B bin\Release\checksum.MD5 releases\portable\App\Greenshot
-#copy /B bin\Release\GreenshotPlugin.dll releases\portable\App\Greenshot
-#copy /B bin\Release\Greenshot.exe releases\portable\
-#copy /B bin\Release\Greenshot.exe.config releases\portable\App\Greenshot
-#xcopy /S releases\additional_files\*.txt releases\portable\App\Greenshot
-#del releases\portable\App\Greenshot\readme.template.txt
-
-#pause
-#tools\PortableApps.comInstaller\PortableApps.comInstaller.exe %CD%\releases\portable
-#pause
+	$sourcebase = "$(get-location)\Greenshot\bin\Release"
 	$destbase = "$(get-location)\Greenshot\releases"
 
+	# Only remove the paf we are going to create, to prevent adding but keeping the history
+	if (Test-Path  ("$destbase\GreenshotPortable-$version.paf.exe")) {
+		Remove-Item "$destbase\GreenshotPortable-$version.paf.exe" -Confirm:$false
+	}
+	# Remove the directory to create the files in
+	if (Test-Path  ("$destbase\portabletmp")) {
+		Remove-Item "$destbase\portabletmp" -recurse -Confirm:$false
+	}
+	Copy-Item -Path "$destbase\portable" -Destination "$destbase\portabletmp" -Recurse
+
+	$INCLUDE=@("*.gsp", "*.dll", "*.exe")
+	Get-ChildItem -Path "$sourcebase\Plugins\" -Recurse -Include $INCLUDE | foreach {
+		$path = $_.fullname -replace ".*\\Plugins\\", "$destbase\portabletmp\App\Greenshot\Plugins\"
+		New-Item -ItemType File -Path "$path" -Force | Out-Null
+		Copy-Item -Path $_ -Destination "$path" -Force
+	}
+	
+	$INCLUDE=@("help-*.html","language-*.xml")
+	Get-ChildItem -Path "$sourcebase\Languages\" -Recurse -Include $INCLUDE | foreach {
+		$path = $_.fullname -replace ".*\\Languages\\", "$destbase\portabletmp\App\Greenshot\Languages\"
+		New-Item -ItemType File -Path "$path" -Force | Out-Null
+		Copy-Item -Path $_ -Destination "$path" -Force
+	}
+	Copy-Item -Path "$sourcebase\Languages\Plugins\" -Destination "$destbase\portabletmp\App\Greenshot\Languages\Plugins\" -Recurse
+	
+	@( "$sourcebase\checksum.MD5",
+		"$sourcebase\Greenshot.exe.config",
+		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\GreenshotEditor.dll",
+		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
+
+	Copy-Item -Path "$sourcebase\Languages\help-en-US.html" -Destination "$destbase\portabletmp\help.html"
+
+	Copy-Item -Path "$sourcebase\Greenshot.exe" -Destination "$destbase\portabletmp"
+
+	Copy-Item -Path "$destbase\appinfo.ini" -Destination "$destbase\portabletmp\App\AppInfo\appinfo.ini"
+		
 	$portableOutput = "$(get-location)\portable"
 	$portableInstaller = "$(get-location)\greenshot\tools\PortableApps.comInstaller\PortableApps.comInstaller.exe"
-	$arguments = @("$destbase\portable")
+	$arguments = @("$destbase\portabletmp")
 	echo "Starting $portableInstaller $arguments"
 	$portableResult = Start-Process -wait -PassThru "$portableInstaller" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$portableOutput.log" -RedirectStandardError "$portableOutput.error"
 	if ($portableResult.ExitCode -ne 0) {
 		echo "An error occured, please check $portableOutput.log and $portableOutput.error for errors!"
 		exit -1
 	}
+	Remove-Item "$destbase\portabletmp" -recurse -Confirm:$false
 	return
 }
 
@@ -177,7 +191,7 @@ Function PackageZip {
 	echo ";In this file you should add your default settings" | Set-Content "$destinstaller\greenshot-defaults.ini" -encoding UTF8
 	echo ";In this file you should add your fixed settings" | Set-Content "$destinstaller\greenshot-fixed.ini" -encoding UTF8
 
-	$INCLUDE=@("*.gsp","*.dll")
+	$INCLUDE=@("*.gsp", "*.dll", "*.exe")
 	Get-ChildItem -Path "$sourcebase\Plugins\" -Recurse -Include $INCLUDE | foreach {
 		$path = $_.fullname -replace ".*\\Plugins\\", "$destinstaller\Plugins\"
 		New-Item -ItemType File -Path "$path" -Force | Out-Null
@@ -190,6 +204,7 @@ Function PackageZip {
 		New-Item -ItemType File -Path "$path" -Force | Out-Null
 		Copy-Item -Path $_ -Destination "$path" -Force
 	}
+	Copy-Item -Path "$sourcebase\Languages\Plugins\" -Destination "$destinstaller\Languages\Plugins\" -Recurse
 	
 	@( "$sourcebase\checksum.MD5",
 		"$sourcebase\Greenshot.exe",
@@ -207,7 +222,7 @@ Function PackageZip {
 		echo "An error occured, please check $zipOutput.log and $zipOutput.error for errors!"
 		exit -1
 	}
-	#Remove-Item "$destinstaller" -recurse -Confirm:$false
+	Remove-Item "$destinstaller" -recurse -Confirm:$false
 	return
 }
 
@@ -238,6 +253,9 @@ PackageInstaller
 echo "Generating ZIP"
 PackageZip
 
+echo "Generating Portable"
+PackagePortable
+
 echo "Ready, press any key to continue!"
 
 WaitForKey
@@ -246,8 +264,8 @@ WaitForKey
 # SIG # Begin signature block
 # MIIEtAYJKoZIhvcNAQcCoIIEpTCCBKECAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUlbFVweNW7YraUhh7CNud8cS4
-# HCugggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUrj4gCFRpu7VRoh4bzyfOF1yt
+# w+6gggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMzExMjYxOTMxMTVaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA0SEsL7kNLoYA
@@ -265,9 +283,9 @@ WaitForKey
 # QDAsMSowKAYDVQQDEyFQb3dlclNoZWxsIExvY2FsIENlcnRpZmljYXRlIFJvb3QC
 # EMqESRzCQ1WzRZpnzm7fmOAwCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAI
 # oAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIB
-# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFPa00iSnYtAOO8lKmzlv
-# dosV3T21MA0GCSqGSIb3DQEBAQUABIGARi5Xcf6HDxqHyidGg+cwOnTtowXJnAln
-# 1VkPnlkxXETkm/FTC3gVNWoOY+Tu0FIZT1CY9pRKxiQE6kLx/1PYxjdWVg5CyEFa
-# B0ZQN3EOMn8r0UpY0LRnIg6hS/d7ucGR+yOXZ8yoLj7ehUwT39AQgSZ8d0SRqS1A
-# DpRjRHpB9Yk=
+# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFH5N3rkoNAqfwfm9+NWz
+# e956GSjEMA0GCSqGSIb3DQEBAQUABIGAnNDXqL2r7NpwSzqCO8ceO9mhf1b3hlG7
+# OaavA85n73okZ/+V0xrCh9no3HZGOiQop8ER+QqKcOaoePwMkEySt2lhBkCB8hyr
+# kH3qaJdksld5E/m1LXm/b0A/6dmDahcn1LMDKndisayPup43K2SNCv4iewnp6hhB
+# uI1p0ciFDRc=
 # SIG # End signature block
