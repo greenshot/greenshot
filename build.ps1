@@ -140,7 +140,7 @@ Function PackagePortable {
 	}
 	
 	$INCLUDE=@("help-*.html","language-*.xml")
-	Get-ChildItem -Path "$sourcebase\Languages\" -Recurse -Include $INCLUDE | foreach {
+	Get-ChildItem -Path "$(get-location)\Greenshot\Languages\" -Recurse -Include $INCLUDE -Exclude "*installer*","*website*" | foreach {
 		$path = $_.fullname -replace ".*\\Languages\\", "$destbase\portabletmp\App\Greenshot\Languages\"
 		New-Item -ItemType File -Path "$path" -Force | Out-Null
 		Copy-Item -Path $_ -Destination "$path" -Force
@@ -150,6 +150,8 @@ Function PackagePortable {
 	@( "$sourcebase\checksum.MD5",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\log4net.dll",
+		"$sourcebase\log4net.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
 
 	Copy-Item -Path "$sourcebase\Languages\help-en-US.html" -Destination "$destbase\portabletmp\help.html"
@@ -167,7 +169,7 @@ Function PackagePortable {
 		echo "An error occured, please check $portableOutput.log and $portableOutput.error for errors!"
 		exit -1
 	}
-	Start-Sleep -m 1000
+	Start-Sleep -m 1500
 	Remove-Item "$destbase\portabletmp" -Recurse -Confirm:$false
 	return
 }
@@ -199,7 +201,7 @@ Function PackageZip {
 	}
 	
 	$INCLUDE=@("help-*.html","language-*.xml")
-	Get-ChildItem -Path "$sourcebase\Languages\" -Recurse -Include $INCLUDE | foreach {
+	Get-ChildItem -Path "$(get-location)\Greenshot\Languages\" -Recurse -Include $INCLUDE -Exclude "*installer*","*website*" | foreach {
 		$path = $_.fullname -replace ".*\\Languages\\", "$destinstaller\Languages\"
 		New-Item -ItemType File -Path "$path" -Force | Out-Null
 		Copy-Item -Path $_ -Destination "$path" -Force
@@ -210,6 +212,8 @@ Function PackageZip {
 		"$sourcebase\Greenshot.exe",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\log4net.dll",
+		"$sourcebase\log4net.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destinstaller\" }
 
 	$zipOutput = "$(get-location)\zip"
@@ -221,7 +225,7 @@ Function PackageZip {
 		echo "An error occured, please check $zipOutput.log and $zipOutput.error for errors!"
 		exit -1
 	}
-	Start-Sleep -m 1000
+	Start-Sleep -m 1500
 	Remove-Item "$destinstaller" -Recurse -Confirm:$false
 	return
 }
@@ -264,8 +268,8 @@ WaitForKey
 # SIG # Begin signature block
 # MIIEtAYJKoZIhvcNAQcCoIIEpTCCBKECAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUOo5Wxn5LIY+1LynthZmQSrtx
-# 7SigggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU0W6uhdtrv/MidV9mM9Xxfl84
+# NhGgggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMzExMjYxOTMxMTVaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA0SEsL7kNLoYA
@@ -283,9 +287,9 @@ WaitForKey
 # QDAsMSowKAYDVQQDEyFQb3dlclNoZWxsIExvY2FsIENlcnRpZmljYXRlIFJvb3QC
 # EMqESRzCQ1WzRZpnzm7fmOAwCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAI
 # oAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIB
-# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFFJFG4yaTw7L/jaQHY6B
-# kRWbD1tYMA0GCSqGSIb3DQEBAQUABIGAnS5Sjop7/Jwq8EncF4MApvyfRtw1mBPB
-# M53xkvHWFQIbdTlt7Ve0Ggnu36pdXY5jWFP1geghDwKRbJgDb5EycRp5bwq7KiHc
-# Sv1bBpsmV9zeM12vCmo4X8LX4JJxMKnj+RPRWjfp/aQXQoXRCScw6YrIubIwScul
-# Xg1DJFZ+R88=
+# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFIOVHIn8kNBn9cMvRnwI
+# 4jCHsMgMMA0GCSqGSIb3DQEBAQUABIGAxFpm0p0Yk6EsWDfkDnwQ+QPwVVk9Uli2
+# uTU/KrfkXngVVFd2zSlXpVQ/pQCafrdO4fg6jY066/UErgKCfofZHIbh0d2Sm48d
+# 8bvnbX7zf7Xph0WwZynqUKF/EiUgAoXP0i2zMosWV9e9VuIFiP5r/a9okBCG0T56
+# LrBmHwAi92g=
 # SIG # End signature block
