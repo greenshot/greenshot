@@ -32,14 +32,14 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="colorpicker_apply">Übernehmen</resource>
 		<resource name="colorpicker_blue">Blau</resource>
 		<resource name="colorpicker_green">Grün</resource>
-		<resource name="colorpicker_htmlcolor">HTML Farbe</resource>
+		<resource name="colorpicker_htmlcolor">HTML-Farbe</resource>
 		<resource name="colorpicker_recentcolors">Zuletzt verwendete Farben</resource>
 		<resource name="colorpicker_red">Rot</resource>
 		<resource name="colorpicker_title">Farbauswahl</resource>
 		<resource name="colorpicker_transparent">Transparent</resource>
 		<resource name="com_rejected">Das Ziel {0} hat Greenshot abgewiesen, vermutlich ist ein Dialogfeld geöffnet. Schließen Sie das Dialogfeld und versuchen Sie es erneut.</resource>
-		<resource name="com_rejected_title">Greenshot Zugriff abgewiesen</resource>
-		<resource name="config_unauthorizedaccess_write">Die Greenshot Einstellungen konnten nicht gespeichert werden. Bitte prüfen Sie die Berechtigungen auf '{0}'.</resource>
+		<resource name="com_rejected_title">Greenshot-Zugriff abgewiesen</resource>
+		<resource name="config_unauthorizedaccess_write">Die Greenshot-Einstellungen konnten nicht gespeichert werden. Bitte prüfen Sie die Berechtigungen auf '{0}'.</resource>
 		<resource name="contextmenu_about">Über Greenshot</resource>
 		<resource name="contextmenu_capturearea">Bereich abfotografieren</resource>
 		<resource name="contextmenu_captureclipboard">Bild aus Zwischenablage öffnen</resource>
@@ -158,7 +158,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_undo">Rückgängig {0}</resource>
 		<resource name="editor_uponelevel">Eine Ebene nach vorne</resource>
 		<resource name="editor_uptotop">In den Vordergrund</resource>
-		<resource name="EmailFormat.MAPI">MAPI Client</resource>
+		<resource name="EmailFormat.MAPI">MAPI-Client</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook mit HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook mit Text</resource>
 		<resource name="error">Fehler</resource>
@@ -173,18 +173,18 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="expertsettings_checkunstableupdates">Auch instabile Updates anbieten</resource>
 		<resource name="expertsettings_clipboardformats">Zwischenablage-Formate</resource>
 		<resource name="expertsettings_counter">Wert für ${NUM} im Dateiname-Muster</resource>
-		<resource name="expertsettings_enableexpert">Ich weiß was ich tue!</resource>
+		<resource name="expertsettings_enableexpert">Ich weiß, was ich tue!</resource>
 		<resource name="expertsettings_footerpattern">Fußzeile für Druck</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Speicherverbrauch reduzieren (auf Kosten der Performance - nicht empfohlen)</resource>
-		<resource name="expertsettings_optimizeforrdp">Für Benutzung mit Remote Desktop optimieren</resource>
+		<resource name="expertsettings_optimizeforrdp">Für Benutzung mit Remotedesktop optimieren</resource>
 		<resource name="expertsettings_reuseeditorifpossible">Editor wiederverwenden, falls möglich</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Speichern-Dialog beim Schließen des Editors unterdrücken</resource>
 		<resource name="expertsettings_thumbnailpreview">Fenster-Vorschau im Kontextmenü anzeigen (für Vista und Windows 7)</resource>
 		<resource name="exported_to">Exportiert nach: {0}</resource>
 		<resource name="exported_to_error">Beim Export zu {0} ist ein Fehler aufgetreten:</resource>
-		<resource name="help_title">Greenshot Hilfe</resource>
+		<resource name="help_title">Greenshot - Hilfe</resource>
 		<resource name="hotkeys">Tastenkombinationen</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">Bitte wählen Sie die Qualität Ihres JPEG Bilds.</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Bitte wählen Sie die Qualität Ihres JPEG-Bildes.</resource>
 		<resource name="OK">OK</resource>
 		<resource name="print_error">Beim Versuch zu drucken ist ein Fehler aufgetreten.</resource>
 		<resource name="printoptions_allowcenter">Ausdruck auf der Seite zentrieren</resource>
@@ -199,9 +199,9 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="printoptions_printgrayscale">Nur in Graustufen ausdrucken</resource>
 		<resource name="printoptions_printmonochrome">Schwarzweiß-Druck erzwingen</resource>
 		<resource name="printoptions_timestamp">Datum und Uhrzeit am Ende der Seite einfügen</resource>
-		<resource name="printoptions_title">Greenshot Druckeinstellungen</resource>
+		<resource name="printoptions_title">Greenshot - Druckeinstellungen</resource>
 		<resource name="qualitydialog_dontaskagain">Als Standardqualität speichern und nicht wieder fragen</resource>
-		<resource name="qualitydialog_title">Greenshot Qualität</resource>
+		<resource name="qualitydialog_title">Greenshot - Qualität</resource>
 		<resource name="quicksettings_destination_file">Sofort speichern (mit bevorzugten Ausgabedatei-Einstellungen)</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Druckeinstellungen vor jedem Ausdruck anzeigen</resource>
 		<resource name="settings_alwaysshowqualitydialog">Qualitätseinstellungen vor jedem Speichern anzeigen</resource>
@@ -266,8 +266,8 @@ z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_title">Einstellungen</resource>
 		<resource name="settings_tooltip_filenamepattern">Muster, das beim Speichern von Screenshots zum Generieren von Dateinamen verwendet wird</resource>
 		<resource name="settings_tooltip_language">Sprache der Benutzeroberfläche</resource>
-		<resource name="settings_tooltip_primaryimageformat">Standard Bildformat</resource>
-		<resource name="settings_tooltip_registerhotkeys">Legt fest ob beim Programmstart die Tastenkombinationen Drucken, Strg + Drucken, Alt + Drucken beim Betriebssystem zur globalen
+		<resource name="settings_tooltip_primaryimageformat">Standard-Bildformat</resource>
+		<resource name="settings_tooltip_registerhotkeys">Legt fest, ob beim Programmstart die Tastenkombinationen Drucken, Strg + Drucken, Alt + Drucken beim Betriebssystem zur globalen
 Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.</resource>
 		<resource name="settings_tooltip_storagelocation">Standardpfad für Bildschirmausdrucke. Leer lassen für Desktop.</resource>
 		<resource name="settings_usedefaultproxy">Standard-Proxyserver des Betriebssystems verwenden</resource>
@@ -278,11 +278,11 @@ Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.
 		<resource name="settings_zoom">Lupe anzeigen</resource>
 		<resource name="tooltip_firststart">Klicken Sie hier mit der rechten Maustaste oder drücken Sie die {0} Taste.</resource>
 		<resource name="update_found">Eine neuere Greenshot Version steht zur Verfügung. Wollen Sie Greenshot {0} herunterladen?</resource>
-		<resource name="wait_ie_capture">Bitte warten Sie während die Seite im Internet Explorer abfotografiert wird...</resource>
+		<resource name="wait_ie_capture">Bitte warten Sie, während die Seite im Internet Explorer abfotografiert wird...</resource>
 		<resource name="warning">Hinweis</resource>
-		<resource name="warning_hotkeys">Die globale Tastenkombination "{0}" konnten nicht aktiviert werden. 
+		<resource name="warning_hotkeys">Die globale Tastenkombination "{0}" konnte nicht aktiviert werden.
 Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm reserviert. 
-Sie können die Tastenkombinationen für Greenshot ändern, oder das Programm das die Tastenkombination verwendet deaktivieren.
+Sie können die Tastenkombinationen für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
 
 Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Greenshot-Icons im Infobereich verwenden.</resource>
 		<resource name="WindowCaptureMode.Aero">Benutzerdefinierte Farbe verwenden</resource>
