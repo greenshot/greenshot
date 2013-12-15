@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="0.8.0">
+ <resources>
+	<resource name="plugin_settings">
+		Confluence-inställningar
+	</resource>
+	<resource name="login_error">
+		Ett fel uppstod vid inloggning: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="label_timeout">
+		Timeout
+	</resource>
+	<resource name="label_user">
+		Användarnamn
+	</resource>
+	<resource name="label_password">
+		Lösenord
+	</resource>
+	<resource name="login_title">
+		Logga in i Confluence
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Avbryt
+	</resource>
+	<resource name="upload_menu_item">
+		Ladda upp till Confluence
+	</resource>
+	<resource name="upload_success">
+		Skärmdumpen laddades upp till Confluence!
+	</resource>
+	<resource name="upload_failure">
+		Ett fel uppstod vid uppladdning till Confluence:
+	</resource>
+	<resource name="open_page_after_upload">
+		Öppna sidan efter uppladdning
+	</resource>
+	<resource name="upload_format">
+		Uppladdningsformat
+	</resource>
+	<resource name="copy_wikimarkup">
+		Kopiera Wikimarkup till urklipp
+	</resource>
+	<resource name="filename">
+		Filnamn
+	</resource>
+  <resource name="upload">
+		Ladda upp
+	</resource>
+  <resource name="open_pages">
+		Öppna sidor
+	</resource>
+  <resource name="search_pages">
+		Sök sidor
+	</resource>
+  <resource name="browse_pages">
+		Bläddra bland sidor
+	</resource>
+  <resource name="search_text">
+		Sök text
+	</resource>
+  <resource name="search">
+		Sök
+	</resource>
+  <resource name="loading">
+		Confluence-data laddas, vänta...
+	</resource>
+  <resource name="include_person_spaces">
+    Inkludera personligt utrymme i sök och bläddring
+  </resource>
+   <resource name="communication_wait">
+     Överför data till Confluence, vänta...
+   </resource>
+ </resources>
+</language>

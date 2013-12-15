@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Ladda upp till Jira
+	</resource>
+	<resource name="column_assignee">
+		Tilldelad
+	</resource>
+	<resource name="column_created">
+		Skapad datum
+	</resource>
+	<resource name="column_id">
+		ID
+	</resource>
+	<resource name="column_reporter">
+		Rapportör
+	</resource>
+	<resource name="column_summary">
+		Sammanfattning
+	</resource>
+	<resource name="label_comment">
+		Kommentar
+	</resource>
+	<resource name="label_filename">
+		Filnamn
+	</resource>
+	<resource name="label_jira">
+		JIRA
+	</resource>
+	<resource name="label_jirafilter">
+		JIRA-filter
+	</resource>
+	<resource name="login_error">
+		Ett fel uppstod vid inloggning: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+  	<resource name="login_title">
+		Logga in i Jira
+	</resource>
+	<resource name="settings_title">
+		Jira-inställningar
+	</resource>
+  	<resource name="OK">
+		OK
+	</resource>
+  	<resource name="CANCEL">
+		Avbryt
+	</resource>
+  	<resource name="upload_success">
+		Skärmdumpen laddades upp till Jira!
+	</resource>
+  	<resource name="upload_failure">
+		Ett fel uppstod vid uppladdning till Jira:
+	</resource>
+  	<resource name="label_upload_format">
+  		Bildformat
+	</resource>
+  	<resource name="communication_wait">
+  		Överför data till JIRA, vänta...
+	</resource>
+  </resources>
+</language>

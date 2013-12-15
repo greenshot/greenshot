@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">
+		 Länk till urklipp
+		</resource>
+		<resource name="label_AfterUpload">
+		Vid uppladdning
+		</resource>
+		<resource name="Configure">
+			Konfigurera Box
+		</resource>
+		<resource name="upload_menu_item">
+		Ladda upp till Box
+	</resource>
+	<resource name="settings_title">
+		Boxinställningar
+	</resource>
+		<resource name="upload_success">
+		Skärmdumpen laddades upp till Box!
+	</resource>
+		<resource name="upload_failure">
+		Ett fel uppstod vid uppladdning till Box:
+	</resource>
+		<resource name="label_upload_format">
+			Bildformat
+	</resource>
+		<resource name="communication_wait">
+			Kommunicerar med Box. Vänta...
+	</resource>
+	</resources>
+</language>

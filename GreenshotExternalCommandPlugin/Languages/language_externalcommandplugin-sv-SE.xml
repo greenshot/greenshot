@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    Konfigurera externa kommandon
+  </resource>
+  <resource name="settings_title">
+  		Externa kommandoinställningar
+	</resource>
+	<resource name="settings_detail_title">
+  		Konfigurera kommandon
+	</resource>
+	<resource name="settings_new">
+  		Nytt
+	</resource>
+	<resource name="settings_delete">
+  		Ta bort
+	</resource>
+	<resource name="settings_edit">
+  		Redigera
+	</resource>
+    <resource name="label_name">
+      Namn
+    </resource>
+    <resource name="label_command">
+      Kommando
+    </resource>
+    <resource name="label_argument">
+      Variablar
+    </resource>
+    <resource name="label_information">
+      {0} är din skärmdumps filnamn
+    </resource>
+  </resources>
+</language>

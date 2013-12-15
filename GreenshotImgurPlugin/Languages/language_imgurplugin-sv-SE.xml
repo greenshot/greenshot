@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Ladda upp till Imgur
+	</resource>
+	<resource name="settings_title">
+		Imgur-inställningar
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Avbryt
+	</resource>
+	<resource name="upload_success">
+		Skärmdumpen laddades upp till Imgur!
+	</resource>
+	<resource name="upload_failure">
+		Ett fel uppstod vid uppladdning till Imgur:
+	</resource>
+	<resource name="label_upload_format">
+		Bildformat
+	</resource>
+	<resource name="communication_wait">
+		Kommunicerar med Imgur. Vänta...
+	</resource>
+	<resource name="delete_question">
+		Är du säker på att du vill ta bort bilden {0} från Imgur?
+	</resource>
+	<resource name="clear_question">
+		Är du säker på att du vill ta bort den lokala Imgur-historiken?
+	</resource>
+	<resource name="delete_title">
+		Ta bort Imgur {0}
+	</resource>
+	<resource name="anonymous_access">
+		Använd anonym åtkomst
+	</resource>
+	<resource name="use_page_link">
+		Använd sidolänk istället för bildlänk i urklipp
+	</resource>
+	<resource name="history">
+		Historik
+	</resource>
+	<resource name="configure">
+		Konfigurera
+	</resource>
+  </resources>
+</language>

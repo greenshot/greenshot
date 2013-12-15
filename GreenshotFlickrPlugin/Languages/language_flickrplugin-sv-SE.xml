@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0">
+	<resources>
+	 <resource name="label_HiddenFromSearch">
+			Dolt från sök
+		</resource>
+		<resource name="label_SafetyLevel">
+			Säkerhetsnivå
+		</resource>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	 Länk till urklipp
+	</resource>
+		<resource name="label_AfterUpload">
+		Vid uppladdning
+		</resource>
+	<resource name="Configure">
+			Konfigurera Flickr
+		</resource>
+		<resource name="upload_menu_item">
+		Ladda upp till Flickr
+	</resource>
+	<resource name="settings_title">
+		Flickr-inställningar
+	</resource>
+		<resource name="upload_success">
+		Skärmdumpen laddades upp till Flickr!
+	</resource>
+		<resource name="upload_failure">
+		Ett fel uppstod vid uppladdning till Flickr:
+	</resource>
+		<resource name="label_upload_format">
+			Bildformat
+	</resource>
+		<resource name="communication_wait">
+			Kommunicerar med Flickr. Vänta...
+	</resource>
+	  <resource name="public">
+	  Publik
+	  </resource>
+	<resource name="family">
+	  Familj
+	</resource>
+	<resource name="friend">
+	  Vän
+	</resource>
+  </resources>
+</language>
