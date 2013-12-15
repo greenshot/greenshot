@@ -4,6 +4,11 @@ CHANGE LOG:
 
 @GITDETAILVERSION@ Bugfix Release
 
+Features:
+* Feature #663: dark background for textbox input when editing bright-colored text
+
+1.1.7 build 17 Bugfix Release
+
 Changes:
 * We moved our repository to BitBucket (GIT), this forced us to change the build script and the version
 

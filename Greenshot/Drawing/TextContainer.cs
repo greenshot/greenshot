@@ -162,6 +162,7 @@ namespace Greenshot.Drawing {
 		
 		private void CreateTextBox() {
 			textBox = new TextBox();
+            
 			textBox.ImeMode = ImeMode.On;
 			textBox.Multiline = true;
 			textBox.AcceptsTab = true;
@@ -176,9 +177,22 @@ namespace Greenshot.Drawing {
 		private void ShowTextBox() {
 			parent.KeysLocked = true;
 			parent.Controls.Add(textBox);
+            EnsureTextBoxContrast();
 			textBox.Show();
 			textBox.Focus();
 		}
+
+        /// <summary>
+        /// Makes textbox background dark if text color is very bright
+        /// </summary>
+        private void EnsureTextBoxContrast() {
+            Color lc = this.GetFieldValueAsColor(FieldType.LINE_COLOR);
+            if (lc.R > 203 && lc.G > 203 && lc.B > 203) {
+                textBox.BackColor = Color.FromArgb(51, 51, 51);
+            } else {
+                textBox.BackColor = Color.White;
+            }
+        }
 		
 		private void HideTextBox() {
 			parent.Focus();
