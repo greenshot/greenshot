@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Polski" ietf="pl-PL" version="0.8.0" languagegroup="">
+<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
 	<resources>
 		<resource name="browse_pages">Przeglądaj strony</resource>
 		<resource name="CANCEL">Anuluj</resource>
@@ -17,8 +17,7 @@
 		<resource name="OK">OK</resource>
 		<resource name="open_page_after_upload">Otwórz stronę po wysłaniu</resource>
 		<resource name="open_pages">Otwórz strony</resource>
-		<resource name="plugin_settings">Ustawienia Confluence
-</resource>
+		<resource name="plugin_settings">Ustawienia Confluence</resource>
 		<resource name="search">Szukaj</resource>
 		<resource name="search_pages">Szukaj strony</resource>
 		<resource name="search_text">Szukaj tekst</resource>
