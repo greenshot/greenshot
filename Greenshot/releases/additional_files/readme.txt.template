@@ -4,8 +4,15 @@ CHANGE LOG:
 
 @GITDETAILVERSION@ Bugfix Release
 
+Bugs resolved:
+* Bug #1580: removed device names for capture fullscreen submenu in multi-monitor setups, which sometimes delivered inconsistent results or even garbage characters. Sticking to descriptive text like "bottom left", which is more useful anyway.
+
 Features:
 * Feature #663: dark background for textbox input when editing bright-colored text
+
+Languages:
+* Updates for Swedish translation and help, new Swedish translations for plugins
+* Improvements for German translation and help
 
 1.1.7 build 17 Bugfix Release
 

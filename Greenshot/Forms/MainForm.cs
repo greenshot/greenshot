@@ -727,15 +727,8 @@ namespace Greenshot {
 			if (Screen.AllScreens.Length > 1) {
 				ToolStripMenuItem captureScreenItem;
 				Rectangle allScreensBounds = WindowCapture.GetScreenBounds();
-				string allDeviceName = "";
-				foreach (Screen screen in Screen.AllScreens) {
-					string deviceName = screen.DeviceName;
-					if (allDeviceName.Length > 0) {
-						allDeviceName += " + ";
-					}
-					allDeviceName += deviceName.Substring(deviceName.Length - 1);
-				}
-				captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all) + " (" + allDeviceName + ")");
+
+				captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
 				captureScreenItem.Click += delegate {
 					BeginInvoke((MethodInvoker)delegate {
 						CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
@@ -744,9 +737,7 @@ namespace Greenshot {
 				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 				foreach (Screen screen in Screen.AllScreens) {
 					Screen screenToCapture = screen;
-					string deviceName = screenToCapture.DeviceName;
 					string deviceAlignment = "";
-					deviceName = deviceName.Substring(deviceName.Length - 1);
 					if(screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom) {
 						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
 					} else if(screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom) {
@@ -757,8 +748,7 @@ namespace Greenshot {
 					} else if(screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right) {
 						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
 					}
-					deviceName = deviceAlignment + " ("+ deviceName +")";
-					captureScreenItem = new ToolStripMenuItem(deviceName);
+                    captureScreenItem = new ToolStripMenuItem(deviceAlignment);
 					captureScreenItem.Click += delegate {
 						BeginInvoke((MethodInvoker)delegate {
 							CaptureHelper.CaptureRegion(false, screenToCapture.Bounds);
