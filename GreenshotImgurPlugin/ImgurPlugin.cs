@@ -172,7 +172,7 @@ namespace GreenshotImgurPlugin {
 		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadURL) {
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			try {
-				string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
+				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 				ImgurInfo imgurInfo = null;
 
 				// Run upload in the background

@@ -51,7 +51,9 @@ namespace GreenshotImgurPlugin {
 		public bool AddTitle;
 		[IniProperty("AddFilename", Description = "Is the filename passed on to Imgur", DefaultValue = "True")]
 		public bool AddFilename;
-		
+		[IniProperty("FilenamePattern", Description = "Filename for the Imgur upload", DefaultValue = "${capturetime:d\"yyyyMMdd-HHmm\"}")]
+		public string FilenamePattern;
+
 		[IniProperty("ImgurUploadHistory", Description="Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
 		public Dictionary<string, string> ImgurUploadHistory;
 		
