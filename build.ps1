@@ -73,9 +73,13 @@ Function ReleaseNotes {
 	$jiras | foreach {
 		$jira = $_
 		#echo "https://greenshot.atlassian.net/browse/$_"
-		$jiraJson = $wc.DownloadString("https://greenshot.atlassian.net/rest/api/2/issue/$jira")
-		$xml = Convert-JsonToXml $jiraJson
-		$summary = $xml.root.fields.summary."#text"
+		try {
+			$jiraJson = $wc.DownloadString("https://greenshot.atlassian.net/rest/api/2/issue/$jira")
+			$xml = Convert-JsonToXml $jiraJson
+			$summary = $xml.root.fields.summary."#text"
+		} catch {
+			$summary = "no connection to JIRA available"
+		}
 		echo "$jira : $summary"
 	}
 }
@@ -132,7 +136,7 @@ Function PackagePortable {
 	}
 	Copy-Item -Path "$destbase\portable" -Destination "$destbase\portabletmp" -Recurse
 
-	$INCLUDE=@("*.gsp", "*.dll", "*.exe")
+	$INCLUDE=@("*.gsp", "*.dll", "*.exe", "*.config")
 	Get-ChildItem -Path "$sourcebase\Plugins\" -Recurse -Include $INCLUDE | foreach {
 		$path = $_.fullname -replace ".*\\Plugins\\", "$destbase\portabletmp\App\Greenshot\Plugins\"
 		New-Item -ItemType File -Path "$path" -Force | Out-Null
@@ -193,7 +197,7 @@ Function PackageZip {
 	echo ";In this file you should add your default settings" | Set-Content "$destinstaller\greenshot-defaults.ini" -encoding UTF8
 	echo ";In this file you should add your fixed settings" | Set-Content "$destinstaller\greenshot-fixed.ini" -encoding UTF8
 
-	$INCLUDE=@("*.gsp", "*.dll", "*.exe")
+	$INCLUDE=@("*.gsp", "*.dll", "*.exe", "*.config")
 	Get-ChildItem -Path "$sourcebase\Plugins\" -Recurse -Include $INCLUDE | foreach {
 		$path = $_.fullname -replace ".*\\Plugins\\", "$destinstaller\Plugins\"
 		New-Item -ItemType File -Path "$path" -Force | Out-Null
@@ -245,6 +249,12 @@ Function PackageInstaller {
 
 FillTemplates
 
+$continue = Read-Host 'Preperations are ready, continue with the build? (y/n)'
+
+if ($continue -ne "y") {
+	echo "skipped build."
+	exit 0
+}
 Build
 
 echo "Generating MD5"
