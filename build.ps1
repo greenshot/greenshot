@@ -31,8 +31,8 @@ $commitversion = $gitversion -replace ($gittag + '-'),'' -replace '-.*',''
 $githash = $gitversion -replace '.*-',''
 $version = $gittag + '.' + $commitversion
 $detailversion = $version + '-' + $githash
+$readableversion = $gittag + ' build ' + $commitversion + " (" + $githash + ")"
 
-	
 Function WaitForKey {
 	$x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 	return
@@ -46,6 +46,7 @@ Function MD5($filename) {
 	return [System.BitConverter]::ToString($hash) -replace "-", ""
 }
 
+# Convert a JSON string to XML, this is a workaround for not having a JSON parser
 Function Convert-JsonToXml([string]$json) {
 	$bytes = [byte[]][char[]]$json
 	$quotas = [System.Xml.XmlDictionaryReaderQuotas]::Max
@@ -59,34 +60,70 @@ Function Convert-JsonToXml([string]$json) {
 	}
 }
 
-# Create releasenotes for the commits
-Function ReleaseNotes {
-	$gitlog = (git shortlog "$gittag..HEAD")
-	$jiras = $gitlog | foreach { [regex]::match($_,'[a-zA-Z0-9]+-[0-9]{1,5}').value } | Where {$_ -match '\S'} | sort-object| select-object $_ -unique
-	
+# Create a WebClient
+Function CreateWebClient {
 	$proxy = [System.Net.WebRequest]::GetSystemWebProxy()
 	$proxy.Credentials = [System.Net.CredentialCache]::DefaultCredentials
 
 	$wc = new-object system.net.WebClient
 	$wc.proxy = $proxy
+	return $wc
+}
 
-	$jiras | foreach {
-		$jira = $_
-		#echo "https://greenshot.atlassian.net/browse/$_"
-		try {
-			$jiraJson = $wc.DownloadString("https://greenshot.atlassian.net/rest/api/2/issue/$jira")
-			$xml = Convert-JsonToXml $jiraJson
-			$summary = $xml.root.fields.summary."#text"
-		} catch {
-			$summary = "no connection to JIRA available"
+# Create releasenotes for the commits
+Function ReleaseNotes {
+	# Get the git-log from tag to now
+	$gitlog = (git shortlog "$gittag..HEAD")
+
+	# The webclient can be used to get information from the internet, like a JIRA description.
+	$wc = CreateWebClient
+
+	# Array to store the descriptions
+	$releaseNotes = @()
+
+	# Find the jira's that are in the commits and place them in the release notes
+	$jiras = $gitlog | foreach { [regex]::match($_,'[a-zA-Z0-9]+-[0-9]{1,5}').value -replace " ",""} | Where {$_ -match '\S'} | sort-object| select-object $_ -unique
+	if ($null -ne $jiras) {
+		$jiras | foreach {
+			$jira = $_
+			
+			Write-Host "Checking JIRA for [$jira]"
+			try {
+				$jiraJson = $wc.DownloadString("https://greenshot.atlassian.net/rest/api/2/issue/$jira")
+				$xml = Convert-JsonToXml $jiraJson
+				$summary = $xml.root.fields.summary."#text"
+				$releaseNotes += "* Bug $jira : $summary"
+			} catch {
+				Write-Host "Error reading JIRA [$jira] : $_"
+			}
 		}
-		echo "$jira : $summary"
 	}
+
+	# Find the sourceforge bugs's that are in the commits and place them in the release notes
+	$bugs = $gitlog | foreach { [regex]::match($_,'\#[0-9]+').value -replace "\#","" -replace "\^","" -replace " ",""} | Where {$_ -match '\S'} | sort-object | select-object $_ -unique
+	if ($null -ne $bugs) {
+		$bugs | foreach {
+			$bug = $_
+			if ($bug -eq "") {
+				continue
+			}
+			Write-Host "Checking Sourceforge for [#$bug]"
+			try {
+				$bugJson = $wc.DownloadString("https://sourceforge.net/rest/p/greenshot/bugs/$bug")
+				$xml = Convert-JsonToXml $bugJson
+				$summary = $xml.root.ticket.summary."#text"
+				$releaseNotes +="* Bug #$bug : $summary"
+			} catch {
+				Write-Host "Error reading Bug [#$bug] : $_"
+			}
+		}
+	}
+	return $releaseNotes
 }
 
 # Fill the templates
 Function FillTemplates {
-	echo "Git $gittag - $githash commit $commitversion"
+	echo "Filling templates for Git version $readableversion`n`n"
 	
 	$releaseNotes = ReleaseNotes
 	Get-ChildItem . -recurse *.template | 
@@ -94,10 +131,24 @@ Function FillTemplates {
 			$oldfile = $_.FullName
 			$newfile = $_.FullName -replace '\.template',''
 			echo "Modifying file : $oldfile to $newfile"
-			(Get-Content $oldfile) -replace "\@GITVERSION\@", $version -replace "\@GITDETAILVERSION\@", $detailversion -replace "\@RELEASENOTES\@", $releaseNotes | Set-Content $newfile -encoding UTF8
+			# Read the file
+			$template = Get-Content $oldfile
+			# Create an empty array, this will contain the replaced lines
+			$newtext = @()
+			foreach ($line in $template) {
+				# Special case, if we find "@RELEASENOTES@" we replace that line with the release notes
+				if ($line -match "\@RELEASENOTES\@") {
+					$newtext += $releaseNotes
+				} else {
+					$newtext += $line -replace "\@GITVERSION\@", $version -replace "\@GITDETAILVERSION\@", $detailversion -replace "\@READABLEVERSION\@", $readableversion
+				}
+			}
+			# Write the new information to the file
+			$newtext | Set-Content $newfile -encoding UTF8
 		}
 }
 
+# This function calls the Greenshot build
 Function Build {
 	$msBuild = "C:\Windows\Microsoft.NET\Framework64\v3.5\MSBuild"
 	if (-not (Test-Path("$msBuild"))) {
@@ -114,6 +165,7 @@ Function Build {
 	return
 }
 
+# Create the MD5 checksum file
 Function MD5Checksums {
 	echo "MD5 Checksums:"
 	$currentMD5 = MD5("$(get-location)\Greenshot\bin\Release\Greenshot.exe")
@@ -122,6 +174,7 @@ Function MD5Checksums {
 	echo "GreenshotPlugin.dll : $currentMD5"
 }
 
+# This function creates the paf.exe
 Function PackagePortable {
 	$sourcebase = "$(get-location)\Greenshot\bin\Release"
 	$destbase = "$(get-location)\Greenshot\releases"
@@ -178,6 +231,7 @@ Function PackagePortable {
 	return
 }
 
+# This function creates the .zip
 Function PackageZip {
 	$sourcebase = "$(get-location)\Greenshot\bin\Release"
 	$destbase = "$(get-location)\Greenshot\releases"
@@ -234,6 +288,7 @@ Function PackageZip {
 	return
 }
 
+# This function creates the installer
 Function PackageInstaller {
 	$setupOutput = "$(get-location)\setup"
 	$innoSetup = "$(get-location)\greenshot\tools\innosetup\ISCC.exe"
@@ -249,7 +304,7 @@ Function PackageInstaller {
 
 FillTemplates
 
-$continue = Read-Host 'Preperations are ready, continue with the build? (y/n)'
+$continue = Read-Host "`n`nPreperations are ready.`nIf you are generating a release you can now change the readme.txt to your desire and use 'y' afterwards to continue building.`nContinue with the build? (y/n)"
 
 if ($continue -ne "y") {
 	echo "skipped build."
@@ -273,33 +328,3 @@ PackagePortable
 echo "Ready, press any key to continue!"
 
 WaitForKey
-
-
-# SIG # Begin signature block
-# MIIEtAYJKoZIhvcNAQcCoIIEpTCCBKECAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
-# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU0W6uhdtrv/MidV9mM9Xxfl84
-# NhGgggK+MIICujCCAaagAwIBAgIQyoRJHMJDVbNFmmfObt+Y4DAJBgUrDgMCHQUA
-# MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
-# Fw0xMzExMjYxOTMxMTVaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
-# U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA0SEsL7kNLoYA
-# rMLe99Tf1SFA6beQsB+fPSpNrL+DtmsZpAs/TeQH+PVary/DaBNoIqarcdXjGVQL
-# Qti2kBijaUtEyyz/knVXWBqgHrgWg5eVjMpH8qZMANdEvrQLGNFq6WR8MOGN6RsA
-# jbaNU21u5Jc1CfYlJBYeIAB4q2oTyskCAwEAAaN2MHQwEwYDVR0lBAwwCgYIKwYB
-# BQUHAwMwXQYDVR0BBFYwVIAQbri48VHBMqk4a9t3MsaQeqEuMCwxKjAoBgNVBAMT
-# IVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdIIQczTeDT/eHolM3f6j
-# E3BklzAJBgUrDgMCHQUAA4IBAQCVP9YdhOKo4sKWtXNJcMPHjXdkDkykDWhxgcyy
-# J1Hnol7b38EF//6RxN59cecywzD4IuZGnwLyIzcDMGiLfjq88EwzsiCOkehNbZPW
-# ZICftFPIqUISGJMNmY743IVSHslx+gx8ESgMjTFnXbbRDvic7+9/G8Wa6uKPi/1S
-# GJH4DqHGCuPWYZzufElHBztSSt6QprjJp3oaJEHkLy3luZIvZ0Fe53ZO1tjyX/TZ
-# SArUpzoFWLG1SqiFqI1oSAhHsn10u/ZtvBIQgM19jXKS5/ER8/FAvJz+D5aB4k4I
-# DBoedHwxDT9Sdres42t+pjP86nS00FMSLWBlsNErcxxTV7hFMYIBYDCCAVwCAQEw
-# QDAsMSowKAYDVQQDEyFQb3dlclNoZWxsIExvY2FsIENlcnRpZmljYXRlIFJvb3QC
-# EMqESRzCQ1WzRZpnzm7fmOAwCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAI
-# oAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIB
-# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFIOVHIn8kNBn9cMvRnwI
-# 4jCHsMgMMA0GCSqGSIb3DQEBAQUABIGAxFpm0p0Yk6EsWDfkDnwQ+QPwVVk9Uli2
-# uTU/KrfkXngVVFd2zSlXpVQ/pQCafrdO4fg6jY066/UErgKCfofZHIbh0d2Sm48d
-# 8bvnbX7zf7Xph0WwZynqUKF/EiUgAoXP0i2zMosWV9e9VuIFiP5r/a9okBCG0T56
-# LrBmHwAi92g=
-# SIG # End signature block
