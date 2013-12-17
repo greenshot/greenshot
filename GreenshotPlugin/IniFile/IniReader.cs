@@ -35,7 +35,7 @@ namespace Greenshot.IniFile {
 		 */
 		public static Dictionary<string, Dictionary<string, string>> read(string path, Encoding encoding) {
 			Dictionary<string, Dictionary<string, string>> ini = new Dictionary<string, Dictionary<string, string>>();
-			using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 1024)) {
+			using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1024)) {
 				using (StreamReader reader = new StreamReader(fileStream, encoding)) {
 					Dictionary<string, string> nameValues = new Dictionary<string, string>();
 					while (!reader.EndOfStream) {
