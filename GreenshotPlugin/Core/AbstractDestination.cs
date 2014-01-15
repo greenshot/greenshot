@@ -199,6 +199,10 @@ namespace GreenshotPlugin.Core {
 						break;
 				}
 			};
+			menu.MouseEnter += delegate(object source, EventArgs eventArgs) {
+				// in case the menu has been unfocused, focus again so that dropdown menus will still open on mouseenter
+				if(!menu.ContainsFocus) menu.Focus();
+			};
 			foreach (IDestination destination in destinations) {
 				// Fix foreach loop variable for the delegate
 				ToolStripMenuItem item = destination.GetMenuItem(addDynamics, menu,
@@ -324,6 +328,9 @@ namespace GreenshotPlugin.Core {
 								AddTagEvents(destinationMenuItem, menu, Description);
 
 								basisMenuItem.DropDownItems.Add(destinationMenuItem);
+								// invoke the "main" subdestination when clicking its parent
+								basisMenuItem.Click -= destinationClickHandler;
+								basisMenuItem.Click += destinationClickHandler;								
 							}
 							if (useDynamicsOnly && subDestinations.Count == 1) {
 								basisMenuItem.Tag = subDestinations[0];
