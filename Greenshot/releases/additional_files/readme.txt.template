@@ -9,6 +9,7 @@ Bugs resolved:
 
 Features:
 * Feature #663: dark background for textbox input when editing bright-colored text
+* Feature #667: destinations with subdestinations can now be clicked to invoke the "main" subdestination
 
 Languages:
 * Updates for Swedish translation and help, new Swedish translations for plugins
