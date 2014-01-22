@@ -464,7 +464,7 @@ EndSelection:<<<<<<<4
 			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_STRING));
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", surface.Image.Width.ToString());
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", surface.Image.Height.ToString());
-			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${file}", filename);
+			utf8EncodedHTMLString= utf8EncodedHTMLString.Replace("${file}", filename.Replace("\\","/"));
 			StringBuilder sb=new StringBuilder();
 			sb.Append(utf8EncodedHTMLString);
 			sb.Replace("<<<<<<<1", (utf8EncodedHTMLString.IndexOf("<HTML>") + "<HTML>".Length).ToString("D8"));
