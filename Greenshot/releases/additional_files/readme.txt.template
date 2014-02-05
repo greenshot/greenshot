@@ -5,7 +5,11 @@ CHANGE LOG:
 @GITDETAILVERSION@ Bugfix Release
 
 Bugs resolved:
+* Bug #1578: Changed the behavior of creating filenames for Imgur to be configurable, default will be the date/time.
 * Bug #1580: removed device names for capture fullscreen submenu in multi-monitor setups, which sometimes delivered inconsistent results or even garbage characters. Sticking to descriptive text like "bottom left", which is more useful anyway.
+* Bug #1581: Ini-file reading is now done without locking the file, this should help a bit in cases where other applications have this file open.
+* Bug #1600: Found that Greenshot uses a wrong URL format on the clipboard, this fix might solve some issues
+* Bug: When capturing client windows on a DWM enabled system (Vista & Windows 7) with "auto" set, sometimes the capture had a blurred/transparent effect.
 
 Features:
 * Feature #663: dark background for textbox input when editing bright-colored text
