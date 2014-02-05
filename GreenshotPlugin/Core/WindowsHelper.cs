@@ -773,7 +773,7 @@ namespace GreenshotPlugin.Core  {
 				if (previousWindowRectangle.IsEmpty || !frozen) {
 					if (previousWindowRectangle.IsEmpty || now - lastWindowRectangleRetrieveTime > CACHE_TIME) {
 						Rectangle windowRect = Rectangle.Empty;
-						if (!HasParent && DWM.isDWMEnabled()) {
+						if (DWM.isDWMEnabled()) {
 							GetExtendedFrameBounds(out windowRect);
 						}
 
