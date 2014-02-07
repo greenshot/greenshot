@@ -37,7 +37,8 @@ namespace GreenshotConfluencePlugin {
 	/// </summary>
 	public class ConfluenceDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
-		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+		private static readonly ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+		private static readonly CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static Image confluenceIcon = null;
 		private Confluence.Page page;
 		public static bool IsInitialized {
@@ -122,7 +123,7 @@ namespace GreenshotConfluencePlugin {
 
 			Page selectedPage = page;
 			bool openPage = (page == null) && config.OpenPageAfterUpload;
-			string filename = FilenameHelper.GetFilename(config.UploadFormat, captureDetails);
+			string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfig.OutputFileFilenamePattern, captureDetails);
 			if (selectedPage == null) {
 				ConfluenceUpload confluenceUpload = new ConfluenceUpload(filename);
 				Nullable<bool> dialogResult = confluenceUpload.ShowDialog();
@@ -133,6 +134,10 @@ namespace GreenshotConfluencePlugin {
 					}
 					filename = confluenceUpload.Filename;
 				}
+			}
+			string extension = "." + config.UploadFormat;
+			if (!filename.ToLower().EndsWith(extension)) {
+				filename = filename + extension;
 			}
 			if (selectedPage != null) {
 				string errorMessage;
