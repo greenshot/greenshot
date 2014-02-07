@@ -542,6 +542,25 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Remove a tmpfile which was created by SaveNamedTmpFile
+		/// Used e.g. by the email export
+		/// </summary>
+		/// <param name="tmpfile"></param>
+		/// <returns>true if it worked</returns>
+		public static bool DeleteNamedTmpFile(string tmpfile) {
+			LOG.Debug("Deleting TMP File: " + tmpfile);
+			try {
+				if (File.Exists(tmpfile)) {
+					File.Delete(tmpfile);
+					tmpFileCache.Remove(tmpfile);
+				}
+				return true;
+			} catch (Exception e) {
+			}
+			return false;
+		}
+
+		/// <summary>
 		/// Helper method to create a temp image file
 		/// </summary>
 		/// <param name="image"></param>

@@ -124,8 +124,8 @@ namespace GreenshotOfficePlugin {
 			exportInformation.ExportMade = true;
 			ProcessExport(exportInformation, surface);
 			// Cleanup imageFile if we created it here, so less tmp-files are generated and left
-			if (createdFile && File.Exists(imageFile)) {
-				File.Delete(imageFile);
+			if (createdFile) {
+				ImageOutput.DeleteNamedTmpFile(imageFile);
 			}
 			return exportInformation;
 		}
