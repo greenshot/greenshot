@@ -330,9 +330,7 @@ EndSelection:<<<<<<<4
 						LOG.Info("Using default .NET Clipboard.GetImage()");
 						try {
 							returnImage = Clipboard.GetImage();
-							if (returnImage != null) {
-								return returnImage;
-							} else {
+							if (returnImage == null) {
 								LOG.Info("Clipboard.GetImage() didn't return an image.");
 							}
 						} catch (Exception ex) {
@@ -345,12 +343,12 @@ EndSelection:<<<<<<<4
 						} else {
 							returnImage = GetImageFormat(currentFormat, dataObject);
 						}
-						if (returnImage != null) {
-							ImageHelper.Orientate(returnImage);
-							return returnImage;										
-						}
 					} else {
 						LOG.DebugFormat("Couldn't find format {0}.", currentFormat);
+					}
+					if (returnImage != null) {
+						ImageHelper.Orientate(returnImage);
+						return returnImage;
 					}
 				}
 			}

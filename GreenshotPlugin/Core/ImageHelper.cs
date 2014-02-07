@@ -1143,7 +1143,7 @@ namespace GreenshotPlugin.Core {
 				newImage = new Bitmap(bitmapRect.Width, bitmapRect.Height, targetFormat);
 				// Make sure both images have the same resolution
 				newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-
+				
 				using (Graphics graphics = Graphics.FromImage(newImage)) {
 					if (fromTransparentToNon) {
 						// Rule 2: Make sure the background color is white
@@ -1161,6 +1161,16 @@ namespace GreenshotPlugin.Core {
 				newImage = (sourceImage as Bitmap).Clone(sourceRect, targetFormat);
 				// Make sure both images have the same resolution
 				newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+			}
+			// Clone property items (EXIF information etc)
+			if (sourceImage.PropertyItems != null) {
+				foreach (var propertyItem in sourceImage.PropertyItems) {
+					try {
+						newImage.SetPropertyItem(propertyItem);
+					} catch (Exception ex) {
+						LOG.Warn("Problem cloning a propertyItem.", ex);
+					}
+				}
 			}
 			return newImage;
 		}
