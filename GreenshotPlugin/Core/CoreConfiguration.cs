@@ -227,6 +227,8 @@ namespace GreenshotPlugin.Core {
 
 		[IniProperty("ZoomerEnabled", Description = "Sets if the zoomer is enabled", DefaultValue = "True")]
 		public bool ZoomerEnabled;
+		[IniProperty("ZoomerOpacity", Description = "Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)", DefaultValue = "1")]
+		public float ZoomerOpacity;
 
 		[IniProperty("MaxMenuItemLength", Description = "Maximum length of submenu items in the context menu, making this longer might cause context menu issues on dual screen systems.", DefaultValue = "25")]
 		public int MaxMenuItemLength;

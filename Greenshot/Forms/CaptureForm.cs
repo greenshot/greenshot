@@ -75,7 +75,7 @@ namespace Greenshot.Forms {
 		private FixMode fixMode = FixMode.None;
 		private RectangleAnimator windowAnimator = null;
 		private RectangleAnimator zoomAnimator = null;
-
+		private bool isZoomerTransparent = conf.ZoomerOpacity < 1;
 		/// <summary>
 		/// Property to access the selected capture rectangle
 		/// </summary>
@@ -594,7 +594,18 @@ namespace Greenshot.Forms {
 			if (capturedImage == null) {
 				return;
 			}
-			
+			ImageAttributes attributes;
+
+			if (isZoomerTransparent) {
+				//create a color matrix object to change the opacy
+				ColorMatrix opacyMatrix = new ColorMatrix();
+				opacyMatrix.Matrix33 = conf.ZoomerOpacity;
+				attributes = new ImageAttributes();
+				attributes.SetColorMatrix(opacyMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+			} else {
+				attributes = null;
+			}
+
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.HighSpeed;
@@ -603,12 +614,19 @@ namespace Greenshot.Forms {
 			using (GraphicsPath path = new GraphicsPath()) {
 				path.AddEllipse(destinationRectangle);
 				graphics.SetClip(path);
-				graphics.FillRectangle(backgroundBrush, destinationRectangle);
-				graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
+				if (!isZoomerTransparent) {
+					graphics.FillRectangle(backgroundBrush, destinationRectangle);
+					graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
+				} else {
+					graphics.DrawImage(capturedImage, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height, GraphicsUnit.Pixel, attributes);
+				}
 			}
+			int alpha = (int)(255 * conf.ZoomerOpacity);
+			Color opacyWhite = Color.FromArgb(alpha, 255, 255, 255);
+			Color opacyBlack = Color.FromArgb(alpha, 0, 0, 0);
 
 			// Draw the circle around the zoomer
-			using (Pen pen = new Pen(Color.White, 2)) {
+			using (Pen pen = new Pen(opacyWhite, 2)) {
 				graphics.DrawEllipse(pen, destinationRectangle);
 			}
 
@@ -628,7 +646,7 @@ namespace Greenshot.Forms {
 			int padding = pixelThickness;
 
 			// Pen to draw
-			using (Pen pen = new Pen(Color.Black, pixelThickness)) {
+			using (Pen pen = new Pen(opacyBlack, pixelThickness)) {
 				// Draw the croshair-lines
 				// Vertical top to middle
 				graphics.DrawLine(pen, drawAtWidth, destinationRectangle.Y + padding, drawAtWidth, destinationRectangle.Y + halfHeightEnd - padding);
@@ -645,7 +663,7 @@ namespace Greenshot.Forms {
 				// Fix off by one error with the DrawRectangle
 				pixelThickness -= 1;
 				// Change the color and the pen width
-				pen.Color = Color.White;
+				pen.Color = opacyWhite;
 				pen.Width = 1;
 				// Vertical top to middle
 				graphics.DrawRectangle(pen, drawAtWidth, destinationRectangle.Y + padding, pixelThickness, halfHeightEnd - 2 * padding - 1);
