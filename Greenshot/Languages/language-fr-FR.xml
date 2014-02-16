@@ -153,7 +153,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_shadow">Ombre portée</resource>
 		<resource name="editor_storedtoclipboard">L'image a été placée dans le presse-papier.</resource>
 		<resource name="editor_thickness">Épaisseur de ligne</resource>
-		<resource name="editor_title">Greenshot Êditeur d'Image</resource>
+		<resource name="editor_title">Greenshot Éditeur d'Image</resource>
 		<resource name="editor_torn_edge">Bord déchiré</resource>
 		<resource name="editor_tornedge_horizontaltoothrange">Gamme de dents horizontale</resource>
 		<resource name="editor_tornedge_settings">Paramètres</resource>
