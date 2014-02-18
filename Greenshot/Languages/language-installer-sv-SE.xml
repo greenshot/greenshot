@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="startup">Starta {#ExeName} med Windows</resource>
+		<resource name="startgreenshot">Starta {#ExeName}</resource>
+		<resource name="jira">Jira-insticksprogram</resource>
+		<resource name="confluence">Confluence-insticksprogram</resource>
+		<resource name="externalcommand">Öppna med externt kommando-insticksprogram</resource>
+		<resource name="ocr">OCR-insticksprogram (kräver Microsoft Office Document Imaging (MODI))</resource>
+		<resource name="imgur">Imgur-insticksprogram (Se: http://imgur.com)</resource>
+		<resource name="language">Ytterligare språk</resource>
+		<resource name="optimize">Optimerar prestanda, detta kan ta en stund.</resource>
+	</resources>
+</language>

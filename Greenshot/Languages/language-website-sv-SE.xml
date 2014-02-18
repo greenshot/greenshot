@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="home_downloads">Ladda ner</resource>
+		<resource name="home_headline">Greenshot - ett gratis verktyg för skärmdumpar optimerat för produktivitet</resource>
+		<resource name="home_opensource">Greenshot är gratis och med öppen källkod</resource>
+		<resource name="home_opensource_donate">Om du tycker att Greenshot sparar dig en massa tid och pengar, är du välkommen att &lt;a href="/support/"&gt;stödja utvecklingen&lt;/a&gt; av detta skärmdumpprogram.</resource>
+		<resource name="home_opensource_gpl">Greenshot publiceras under &lt;a href="http://sv.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;, d.v.s. att denna mjukvara kan laddas ner och användas kostnadsfritt, även kommersiellt.</resource>
+		<resource name="home_seemore">Vill du se mer?</resource>
+		<resource name="home_seemore_screenshots">Självklart finns det mer Greenshot kan göra för dig. Ta en titt på några &lt;a title="Skärmdumpar av Greenshot i praktiken" href="/screenshots/"&gt;skärmdumpar&lt;/a&gt; av Greenshot i praktiken eller testa den &lt;a title="Ladda ner den senaste stabila versionen av Greenshot" href="/downloads/"&gt;senaste versionen&lt;/a&gt;.</resource>
+		<resource name="home_whatis">Vad är Greenshot????</resource>
+		<resource name="home_whatis_create">Skapa snabbt skärmdumpar av valda ytor, fönster eller fullskärm; du kan till och med ta skärmdumpar på hela (skrollande) webbsidor från Internet Explorer.</resource>
+		<resource name="home_whatis_edit">Du kan enkelt kommentera, framhäva eller censurera delar av skärmdumpen.</resource>
+		<resource name="home_whatis_intro">Greenshot är ett litet skärmdumpsverktyg för Windows med följande huvudfunktioner:</resource>
+		<resource name="home_whatis_more">...och många fler möjligheter som förenklar sättet att skapa och ändra skärmdumpar varje dag.</resource>
+		<resource name="home_whatis_send">Exportera skärmdumpen på olika sätt: spara till fil, skicka till skrivare, kopiera till urklippet, bifoga i e-post, skicka till Office-program eller ladda upp till fotosidor som Flickr, Picasa m.m.</resource>
+		<resource name="home_whatis_usage">Genom att vara lätt att förstå och konfigurera, är Greenshot ett effektivt verktyg för projektledare, mjukvaruutvecklare, tekniska skribenter, testare och alla andra som skapar skärmdumpar.</resource>
+	</resources>
+</language>
