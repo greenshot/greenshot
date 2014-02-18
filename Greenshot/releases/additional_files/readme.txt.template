@@ -16,7 +16,7 @@ Features:
 * Feature #667: destinations with subdestinations can now be clicked to invoke the "main" subdestination
 
 Languages:
-* Updates for Swedish translation and help, new Swedish translations for plugins
+* Updates for Swedish translation and help, new Swedish translations for plugins and installer
 * Improvements for German translation and help
 * Bug #1608: Fixed typo in French translation
 

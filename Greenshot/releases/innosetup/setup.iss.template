@@ -167,6 +167,7 @@ Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: nn; MessagesFile: compiler:Languages\NorwegianNynorsk.isl
 Name: sr; MessagesFile: compiler:Languages\SerbianCyrillic.isl
+Name: sv; MessagesFile: compiler:Languages\Swedish.isl
 Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 
 [Tasks]
@@ -267,6 +268,16 @@ sr.ocr=OCR прикључак (захтева Microsoft Office Document Imaging 
 sr.optimize=Оптимизујем перформансе…
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
+
+sv.startup=Starta {#ExeName} med Windows
+sv.startgreenshot=Starta {#ExeName}
+sv.jira=Jira-insticksprogram
+sv.confluence=Confluence-insticksprogram
+sv.externalcommand=Öppna med externt kommando-insticksprogram
+sv.ocr=OCR-insticksprogram (kräver Microsoft Office Document Imaging (MODI))
+sv.imgur=Imgur-insticksprogram (Se: http://imgur.com)
+sv.language=Ytterligare språk
+sv.optimize=Optimerar prestanda, detta kan ta en stund.
 
 uk.confluence=Плагін Confluence
 uk.default=${default}
