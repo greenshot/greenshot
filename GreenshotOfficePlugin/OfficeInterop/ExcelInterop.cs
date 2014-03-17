@@ -22,7 +22,7 @@
 namespace Greenshot.Interop.Office {
 	// See http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.application.aspx
 	[ComProgId("Excel.Application")]
-	public interface IExcelApplication : Common {
+	public interface IExcelApplication : ICommon {
 		IWorkbook ActiveWorkbook { get; }
 		//ISelection Selection {get;}
 		IWorkbooks Workbooks { get; }
@@ -30,14 +30,14 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbooks.aspx
-	public interface IWorkbooks : Common, Collection {
+	public interface IWorkbooks : ICommon, ICollection {
 		IWorkbook Add(object template);
 		// Use index + 1!!
 		IWorkbook this[object Index] { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbook.aspx
-	public interface IWorkbook : Common {
+	public interface IWorkbook : ICommon {
 		IWorksheet ActiveSheet { get; }
 		string Name { get; }
 		void Activate();
@@ -45,19 +45,19 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel._worksheet_members.aspx
-	public interface IWorksheet : Common {
+	public interface IWorksheet : ICommon {
 		IPictures Pictures { get; }
 		IShapes Shapes {get; }
 		string Name { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.iworksheets_members.aspx
-	public interface IWorksheets : Common, Collection {
+	public interface IWorksheets : ICommon, ICollection {
 		// Use index + 1!!
 		IWorksheet this[object Index] { get; }
 	}
 
-	public interface IPictures : Common, Collection {
+	public interface IPictures : ICommon, ICollection {
 		// Use index + 1!!
 		//IPicture this[object Index] { get; }
 		void Insert(string file);

@@ -25,7 +25,7 @@ namespace Greenshot.Interop.Office {
 
 	// See http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.applicationclass_members%28v=Office.11%29.aspx
 	[ComProgId("OneNote.Application")]
-	public interface IOneNoteApplication : Common {
+	public interface IOneNoteApplication : ICommon {
 		/// <summary>
 		/// Make sure that the notebookXml is of type string, e.g. "", otherwise a type error occurs.
 		/// For more info on the methods: http://msdn.microsoft.com/en-us/library/gg649853.aspx

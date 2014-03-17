@@ -24,7 +24,7 @@ namespace Greenshot.Interop.Office {
 	/// <summary>
 	/// If the "type" this[object index] { get; } is implemented, use index + 1!!! (starts at 1)
 	/// </summary>
-	public interface Collection : Common, IEnumerable {
+	public interface ICollection : ICommon, IEnumerable {
 		int Count { get; }
 		void Remove(int index);
 	}

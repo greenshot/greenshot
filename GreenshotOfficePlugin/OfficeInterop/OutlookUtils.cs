@@ -652,7 +652,7 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="attachment"></param>
 		/// <param name="contentId"></param>
-		public static void SetContentID(Attachment attachment, string contentId) {
+		public static void SetContentID(IAttachment attachment, string contentId) {
 			// Pointer to IUnknown Interface
 			IntPtr IUnknown = IntPtr.Zero;
 			// Pointer to IMAPIProp Interface
@@ -715,7 +715,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="proptag"></param>
 		/// <param name="propertyValue"></param>
 		/// <returns></returns>
-		public static bool SetMAPIProperty(Attachment attachment, PropTags proptag, string propertyValue) {
+		public static bool SetMAPIProperty(IAttachment attachment, PropTags proptag, string propertyValue) {
 			// Pointer to IUnknown Interface
 			IntPtr IUnknown = IntPtr.Zero;
 			// Pointer to IMAPIProp Interface

@@ -22,7 +22,7 @@
 namespace Greenshot.Interop.Office {
 	// See http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.applicationclass_members%28v=Office.11%29.aspx
 	[ComProgId("Word.Application")]
-	public interface IWordApplication : Common {
+	public interface IWordApplication : ICommon {
 		IWordDocument ActiveDocument { get; }
 		ISelection Selection { get; }
 		IDocuments Documents { get; }
@@ -32,7 +32,7 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.documents_members(v=office.11).aspx
-	public interface IDocuments : Common, Collection {
+	public interface IDocuments : ICommon, ICollection {
 		IWordDocument Add(ref object Template, ref object NewTemplate, ref object DocumentType, ref object Visible);
 		IWordDocument item(int index);
 	}
@@ -40,7 +40,7 @@ namespace Greenshot.Interop.Office {
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.document%28v=office.14%29.aspx 
 	/// </summary>
-	public interface IWordDocument : Common {
+	public interface IWordDocument : ICommon {
 		void Activate();
 		IWordApplication Application { get; }
 		IWordWindow ActiveWindow { get; }
@@ -54,7 +54,7 @@ namespace Greenshot.Interop.Office {
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.window_members.aspx
 	/// </summary>
-	public interface IWordWindow : Common {
+	public interface IWordWindow : ICommon {
 		IPane ActivePane { get; }
 		void Activate();
 		string Caption {
@@ -65,26 +65,26 @@ namespace Greenshot.Interop.Office {
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.pane_members.aspx
 	/// </summary>
-	public interface IPane : Common {
+	public interface IPane : ICommon {
 		IWordView View { get; }
 	}
 
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.view_members.aspx
 	/// </summary>
-	public interface IWordView : Common {
+	public interface IWordView : ICommon {
 		IZoom Zoom { get; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.zoom_members.aspx
-	public interface IZoom : Common {
+	public interface IZoom : ICommon {
 		int Percentage { get; set; }
 	}
 
 	/// <summary>
 	/// See: http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.selection_members(v=office.11).aspx 
 	/// </summary>
-	public interface ISelection : Common {
+	public interface ISelection : ICommon {
 		IInlineShapes InlineShapes { get; }
 		void InsertAfter(string text);
 	}
@@ -92,14 +92,14 @@ namespace Greenshot.Interop.Office {
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/ms263866%28v=office.14%29.aspx
 	/// </summary>
-	public interface IInlineShapes : Common {
+	public interface IInlineShapes : ICommon {
 		IInlineShape AddPicture(string FileName, object LinkToFile, object SaveWithDocument, object Range);
 	}
 
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.inlineshape_members%28v=office.14%29.aspx
 	/// </summary>
-	public interface IInlineShape : Common {
+	public interface IInlineShape : ICommon {
 		IHyperlink Hyperlink { get; }
 		MsoTriState LockAspectRatio {
 			get;
@@ -110,7 +110,7 @@ namespace Greenshot.Interop.Office {
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.hyperlink_members%28v=office.14%29.aspx
 	/// </summary>
-	public interface IHyperlink : Common {
+	public interface IHyperlink : ICommon {
 		string Address {
 			get;
 			set;
@@ -120,7 +120,7 @@ namespace Greenshot.Interop.Office {
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.word.hyperlinks%28v=office.14%29.aspx
 	/// </summary>
-	public interface IHyperlinks : Common, Collection {
+	public interface IHyperlinks : ICommon, ICollection {
 		IHyperlink Add(object Anchor, object Address, object SubAddress, object ScreenTip, object TextToDisplay, object Target);
 	}
 }

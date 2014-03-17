@@ -44,6 +44,7 @@ namespace Greenshot.Interop.Office {
 		private const int OUTLOOK_2003 = 11;
 		private const int OUTLOOK_2007 = 12;
 		private const int OUTLOOK_2010 = 14;
+		private const int OUTLOOK_2013 = 15;
 
 		// The signature key can be found at:
 		// HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\<DefaultProfile>\9375CFF0413111d3B88A00104B2A6676\<xxxx> [New Signature]
@@ -65,12 +66,26 @@ namespace Greenshot.Interop.Office {
 						return null;
 					}
 
-					using (Inspectors inspectors = outlookApplication.Inspectors) {
+					if (outlookVersion.Major >= OUTLOOK_2013) {
+						// Check inline "panel" for Outlook 2013
+						using (var activeExplorer = outlookApplication.ActiveExplorer()) {
+							if (activeExplorer != null) {
+								using (var inlineResponse = activeExplorer.ActiveInlineResponse) {
+									if (canExportToInspector(inlineResponse, allowMeetingAsTarget)) {
+										OlObjectClass currentItemClass = inlineResponse.Class;
+										inspectorCaptions.Add(activeExplorer.Caption, currentItemClass);
+									}
+								}
+							}
+						}
+					}
+
+					using (IInspectors inspectors = outlookApplication.Inspectors) {
 						if (inspectors != null && inspectors.Count > 0) {
 							for (int i = 1; i <= inspectors.Count; i++) {
-								using (Inspector inspector = outlookApplication.Inspectors[i]) {
+								using (IInspector inspector = outlookApplication.Inspectors[i]) {
 									string inspectorCaption = inspector.Caption;
-									using (Item currentItem = inspector.CurrentItem) {
+									using (IItem currentItem = inspector.CurrentItem) {
 										if (canExportToInspector(currentItem, allowMeetingAsTarget)) {
 											OlObjectClass currentItemClass = currentItem.Class;
 											inspectorCaptions.Add(inspector.Caption, currentItemClass);
@@ -93,7 +108,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="currentItem">the Item to check</param>
 		/// <param name="allowMeetingAsTarget">bool true if also exporting to meetings</param>
 		/// <returns></returns>
-		private static bool canExportToInspector(Item currentItem, bool allowMeetingAsTarget) {
+		private static bool canExportToInspector(IItem currentItem, bool allowMeetingAsTarget) {
 			try {
 				if (currentItem != null) {
 					OlObjectClass currentItemClass = currentItem.Class;
@@ -133,14 +148,37 @@ namespace Greenshot.Interop.Office {
 			bool allowMeetingAsTarget = true;
 			using (IOutlookApplication outlookApplication = GetOrCreateOutlookApplication()) {
 				if (outlookApplication != null) {
-					Inspectors inspectors = outlookApplication.Inspectors;
+
+					if (outlookVersion.Major >= OUTLOOK_2013) {
+						// Check inline "panel" for Outlook 2013
+						using (var activeExplorer = outlookApplication.ActiveExplorer()) {
+							if (activeExplorer != null) {
+								var currentCaption = activeExplorer.Caption;
+								if (currentCaption.StartsWith(inspectorCaption)) {
+									using (var inlineResponse = activeExplorer.ActiveInlineResponse) {
+										using (IItem currentItem = activeExplorer.ActiveInlineResponse) {
+											if (canExportToInspector(inlineResponse, allowMeetingAsTarget)) {
+												try {
+													return ExportToInspector(activeExplorer, currentItem, tmpFile, attachmentName);
+												} catch (Exception exExport) {
+													LOG.Error("Export to " + currentCaption + " failed.", exExport);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+
+					IInspectors inspectors = outlookApplication.Inspectors;
 					if (inspectors != null && inspectors.Count > 0) {
 						LOG.DebugFormat("Got {0} inspectors to check", inspectors.Count);
 						for (int i = 1; i <= inspectors.Count; i++) {
-							using (Inspector inspector = outlookApplication.Inspectors[i]) {
+							using (IInspector inspector = outlookApplication.Inspectors[i]) {
 								string currentCaption = inspector.Caption;
 								if (currentCaption.StartsWith(inspectorCaption)) {
-									using (Item currentItem = inspector.CurrentItem) {
+									using (IItem currentItem = inspector.CurrentItem) {
 										if (canExportToInspector(currentItem, allowMeetingAsTarget)) {
 											try {
 												return ExportToInspector(inspector, currentItem, tmpFile, attachmentName);
@@ -166,7 +204,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="tmpFile"></param>
 		/// <param name="attachmentName"></param>
 		/// <returns></returns>
-		private static bool ExportToInspector(Inspector inspector, Item currentItem, string tmpFile, string attachmentName) {
+		private static bool ExportToInspector(ICommonExplorer inspectorOrExplorer, IItem currentItem, string tmpFile, string attachmentName) {
 			if (currentItem == null) {
 				LOG.Warn("No current item.");
 				return false;
@@ -191,7 +229,7 @@ namespace Greenshot.Interop.Office {
 
 				// Make sure the inspector is activated, only this way the word editor is active!
 				// This also ensures that the window is visible!
-				inspector.Activate();
+				inspectorOrExplorer.Activate();
 				bool isTextFormat = false;
 				if (isMail) {
 					isTextFormat = OlBodyFormat.olFormatPlain.Equals(mailItem.BodyFormat);
@@ -200,9 +238,19 @@ namespace Greenshot.Interop.Office {
 					// Check for wordmail, if so use the wordexporter
 					// http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
 					// Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
-					if (inspector.IsWordMail() && inspector.WordEditor != null) {
+					IWordDocument wordDocument = null;
+					if (inspectorOrExplorer is IExplorer) {
+						var explorer = inspectorOrExplorer as IExplorer;
+						wordDocument = explorer.ActiveInlineResponseWordEditor;
+					} else if (inspectorOrExplorer is IInspector) {
+						var inspector = inspectorOrExplorer as IInspector;
+						if (inspector.IsWordMail()) {
+							wordDocument = inspector.WordEditor;
+						}
+					}
+					if (wordDocument != null) {
 						try {
-							if (WordExporter.InsertIntoExistingDocument(inspector.WordEditor.Application, inspector.WordEditor, tmpFile, null, null)) {
+							if (WordExporter.InsertIntoExistingDocument(wordDocument.Application, wordDocument, tmpFile, null, null)) {
 								LOG.Info("Inserted into Wordmail");
 
 								// check the format afterwards, otherwise we lose the selection
@@ -240,11 +288,11 @@ namespace Greenshot.Interop.Office {
 				//}
 
 				bool inlinePossible = false;
-				if (OlBodyFormat.olFormatHTML.Equals(mailItem.BodyFormat)) {
+				if (inspectorOrExplorer is IInspector && OlBodyFormat.olFormatHTML.Equals(mailItem.BodyFormat)) {
 					// if html we can try to inline it
 					// The following might cause a security popup... can't ignore it.
 					try {
-						IHTMLDocument2 document2 = inspector.HTMLEditor as IHTMLDocument2;
+						IHTMLDocument2 document2 = (inspectorOrExplorer as IInspector).HTMLEditor as IHTMLDocument2;
 						if (document2 != null) {
 							IHTMLSelectionObject selection = document2.selection;
 							if (selection != null) {
@@ -254,13 +302,13 @@ namespace Greenshot.Interop.Office {
 									range.pasteHTML("<BR/><IMG border=0 hspace=0 alt=\"" + attachmentName + "\" align=baseline src=\"cid:" + contentID + "\"><BR/>");
 									inlinePossible = true;
 								} else {
-									LOG.DebugFormat("No range for '{0}'", inspector.Caption);
+									LOG.DebugFormat("No range for '{0}'", inspectorOrExplorer.Caption);
 								}
 							} else {
-								LOG.DebugFormat("No selection for '{0}'", inspector.Caption);
+								LOG.DebugFormat("No selection for '{0}'", inspectorOrExplorer.Caption);
 							}
 						} else {
-							LOG.DebugFormat("No HTML editor for '{0}'", inspector.Caption);
+							LOG.DebugFormat("No HTML editor for '{0}'", inspectorOrExplorer.Caption);
 						}
 					} catch (Exception e) {
 						// Continue with non inline image
@@ -269,24 +317,24 @@ namespace Greenshot.Interop.Office {
 				}
 
 				// Create the attachment (if inlined the attachment isn't visible as attachment!)
-				using (Attachment attachment = mailItem.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName)) {
+				using (IAttachment attachment = mailItem.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName)) {
 					if (outlookVersion.Major >= OUTLOOK_2007) {
 						// Add the content id to the attachment, this only works for Outlook >= 2007
 						try {
-							PropertyAccessor propertyAccessor = attachment.PropertyAccessor;
+							IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
 							propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentID);
 						} catch {
 						}
 					}
 				}
 			} catch (Exception ex) {
-				LOG.WarnFormat("Problem while trying to add attachment to Item '{0}' : {1}", inspector.Caption, ex);
+				LOG.WarnFormat("Problem while trying to add attachment to Item '{0}' : {1}", inspectorOrExplorer.Caption, ex);
 				return false;
 			}
 			try {
-				inspector.Activate();
+				inspectorOrExplorer.Activate();
 			} catch (Exception ex) {
-				LOG.Warn("Problem activating inspector: ", ex);
+				LOG.Warn("Problem activating inspector/explorer: ", ex);
 				return false;
 			}
 			LOG.Debug("Finished!");
@@ -299,7 +347,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="tmpFile"></param>
 		/// <param name="captureDetails"></param>
 		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC, string url) {
-			Item newItem = outlookApplication.CreateItem(OlItemType.olMailItem);
+			IItem newItem = outlookApplication.CreateItem(OlItemType.olMailItem);
 			if (newItem == null) {
 				return;
 			}
@@ -336,12 +384,12 @@ namespace Greenshot.Interop.Office {
 				default:
 					string contentID = Path.GetFileName(tmpFile);
 					// Create the attachment
-					using (Attachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName)) {
+					using (IAttachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName)) {
 						// add content ID to the attachment
 						if (outlookVersion.Major >= OUTLOOK_2007) {
 							try {
 								contentID = Guid.NewGuid().ToString();
-								PropertyAccessor propertyAccessor = attachment.PropertyAccessor;
+								IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
 								propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentID);
 							} catch {
 								LOG.Info("Error working with the PropertyAccessor, using filename as contentid");

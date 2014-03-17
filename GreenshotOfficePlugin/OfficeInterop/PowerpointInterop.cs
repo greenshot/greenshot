@@ -23,7 +23,7 @@ using System.Collections;
 namespace Greenshot.Interop.Office {
 	// See http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.application_members.aspx
 	[ComProgId("Powerpoint.Application")]
-	public interface IPowerpointApplication : Common {
+	public interface IPowerpointApplication : ICommon {
 		IPresentation ActivePresentation { get; }
 		IPresentations Presentations { get; }
 		bool Visible { get; set; }
@@ -33,24 +33,24 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.slides_members.aspx
-	public interface ISlides : Common {
+	public interface ISlides : ICommon {
 		int Count { get; }
 		ISlide Add(int Index, int layout);
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.documentwindow.view.aspx
-	public interface IPowerpointWindow : Common {
+	public interface IPowerpointWindow : ICommon {
 		void Activate();
 		IPowerpointView View { get; }
 	}
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.view_members.aspx
-	public interface IPowerpointView : Common {
+	public interface IPowerpointView : ICommon {
 		IZoom Zoom { get; }
 		void GotoSlide(int index);
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.presentation_members.aspx
-	public interface IPresentation : Common {
+	public interface IPresentation : ICommon {
 		string Name { get; }
 		ISlides Slides { get; }
 		IPowerpointApplication Application { get; }
@@ -60,19 +60,19 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.presentations_members.aspx
-	public interface IPresentations : Common, Collection {
+	public interface IPresentations : ICommon, ICollection {
 		IPresentation Add(MsoTriState WithWindow);
 		IPresentation item(int index);
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.pagesetup_members.aspx
-	public interface IPageSetup : Common, Collection {
+	public interface IPageSetup : ICommon, ICollection {
 		float SlideWidth { get; set; }
 		float SlideHeight { get; set; }
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.slide_members.aspx
-	public interface ISlide : Common {
+	public interface ISlide : ICommon {
 		IShapes Shapes { get; }
 		void Select();
 		int SlideNumber { get; }
@@ -80,14 +80,14 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.shapes_members.aspx
-	public interface IShapes : Common, IEnumerable {
+	public interface IShapes : ICommon, IEnumerable {
 		int Count { get; }
 		IShape item(int index);
 		IShape AddPicture(string FileName, MsoTriState LinkToFile, MsoTriState SaveWithDocument, float Left, float Top, float Width, float Height);
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.shape_members.aspx
-	public interface IShape : Common {
+	public interface IShape : ICommon {
 		float Left { get; set; }
 		float Top { get; set; }
 		float Width { get; set; }
@@ -99,11 +99,11 @@ namespace Greenshot.Interop.Office {
 		MsoTriState LockAspectRatio { get; set; }
 	}
 
-	public interface ITextFrame : Common {
+	public interface ITextFrame : ICommon {
 		ITextRange TextRange { get; }
 		MsoTriState HasText { get; }
 	}
-	public interface ITextRange : Common {
+	public interface ITextRange : ICommon {
 		string Text { get; set; }
 	}
 

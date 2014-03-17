@@ -21,27 +21,52 @@
 using System;
 using System.Collections;
 
-/// <summary>
-/// This utils class should help setting the content-id on the attachment for Outlook < 2007
-/// But this somehow doesn't work yet
-/// </summary>
 namespace Greenshot.Interop.Office {
+	/// <summary>
+	/// Wrapper for Outlook.Application, see: http://msdn.microsoft.com/en-us/library/aa210897%28v=office.11%29.aspx
+	/// This is the initial COM-Object which is created/retrieved
+	/// </summary>
+	[ComProgId("Outlook.Application")]
+	public interface IOutlookApplication : ICommon {
+		string Name {
+			get;
+		}
+		string Version {
+			get;
+		}
+		IItem CreateItem(OlItemType ItemType);
+		object CreateItemFromTemplate(string TemplatePath, object InFolder);
+		object CreateObject(string ObjectName);
+		IInspector ActiveInspector();
+		IInspectors Inspectors {
+			get;
+		}
+		INameSpace GetNameSpace(string type);
+		IExplorer ActiveExplorer();
+		IExplorers Explorers {
+			get;
+		}
+	}
+
+
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/bb208387%28v=office.12%29.aspx
 	/// </summary>
-	public interface Items : Collection, IEnumerable {
-		Item this[object index] { get; }
-		Item GetFirst();
-		Item GetNext();
-		Item GetLast();
-		Item GetPrevious();
+	public interface IItems : ICollection, IEnumerable {
+		IItem this[object index] {
+			get;
+		}
+		IItem GetFirst();
+		IItem GetNext();
+		IItem GetLast();
+		IItem GetPrevious();
 
 		bool IncludeRecurrences {
 			get;
 			set;
 		}
 
-		Items Restrict(string filter);
+		IItems Restrict(string filter);
 		void Sort(string property, object descending);
 
 		// Actual definition is "object Add( object )", just making it convenient
@@ -50,58 +75,137 @@ namespace Greenshot.Interop.Office {
 
 	// Common attributes of all the Items (MailItem, AppointmentItem)
 	// See: http://msdn.microsoft.com/en-us/library/ff861252.aspx
-	public interface Item : Common {
-		Attachments Attachments { get; }
-		string Body { get; set; }
-		OlObjectClass Class { get; }
-		DateTime CreationTime { get; }
-		string EntryID { get; }
-		DateTime LastModificationTime { get; }
-		string MessageClass { get; set; }
-		bool NoAging { get; set; }
-		int OutlookInternalVersion { get; }
-		string OutlookVersion { get; }
-		bool Saved { get; }
-		OlSensitivity Sensitivity { get; set; }
-		int Size { get; }
-		string Subject { get; set; }
-		bool UnRead { get; set; }
+	public interface IItem : ICommon {
+		IAttachments Attachments {
+			get;
+		}
+		string Body {
+			get;
+			set;
+		}
+		OlObjectClass Class {
+			get;
+		}
+		DateTime CreationTime {
+			get;
+		}
+		string EntryID {
+			get;
+		}
+		DateTime LastModificationTime {
+			get;
+		}
+		string MessageClass {
+			get;
+			set;
+		}
+		bool NoAging {
+			get;
+			set;
+		}
+		int OutlookInternalVersion {
+			get;
+		}
+		string OutlookVersion {
+			get;
+		}
+		bool Saved {
+			get;
+		}
+		OlSensitivity Sensitivity {
+			get;
+			set;
+		}
+		int Size {
+			get;
+		}
+		string Subject {
+			get;
+			set;
+		}
+		bool UnRead {
+			get;
+			set;
+		}
 		object Copy();
 		void Display(bool Modal);
 		void Save();
-		PropertyAccessor PropertyAccessor { get; }
-		Inspector GetInspector();
+		IPropertyAccessor PropertyAccessor {
+			get;
+		}
+		IInspector GetInspector();
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/ff861252.aspx
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.mailitem.aspx
-	public interface MailItem : Item, Common {
-		bool Sent { get; }
-		object MAPIOBJECT { get; }
-		string HTMLBody { get; set; }
-		DateTime ExpiryTime { get; set; }
-		DateTime ReceivedTime { get; }
-		string SenderName { get; }
-		DateTime SentOn { get; }
-		OlBodyFormat BodyFormat { get; set; }
-		string To { get; set; }
-		string CC { get; set; }
-		string BCC { get; set; }
+	public interface MailItem : IItem, ICommon {
+		bool Sent {
+			get;
+		}
+		object MAPIOBJECT {
+			get;
+		}
+		string HTMLBody {
+			get;
+			set;
+		}
+		DateTime ExpiryTime {
+			get;
+			set;
+		}
+		DateTime ReceivedTime {
+			get;
+		}
+		string SenderName {
+			get;
+		}
+		DateTime SentOn {
+			get;
+		}
+		OlBodyFormat BodyFormat {
+			get;
+			set;
+		}
+		string To {
+			get;
+			set;
+		}
+		string CC {
+			get;
+			set;
+		}
+		string BCC {
+			get;
+			set;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/ff869026.aspx
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.appointmentitem.aspx
-	public interface AppointmentItem : Item, Common {
-		string Organizer { get; set; }
-		string SendUsingAccount { get; }
-		string Categories { get; }
-		DateTime Start { get; }
-		DateTime End { get; }
-		OlReoccurenceState RecurrenceState { get; }
+	public interface AppointmentItem : IItem, ICommon {
+		string Organizer {
+			get;
+			set;
+		}
+		string SendUsingAccount {
+			get;
+		}
+		string Categories {
+			get;
+		}
+		DateTime Start {
+			get;
+		}
+		DateTime End {
+			get;
+		}
+		OlReoccurenceState RecurrenceState {
+			get;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.contactitem.aspx
-	public interface ContactItem : Item, Common {
+	public interface IContactItem : IItem, ICommon {
 		bool HasPicture {
 			get;
 		}
@@ -118,24 +222,37 @@ namespace Greenshot.Interop.Office {
 		}
 	}
 
-	public interface Attachments : Collection {
-		Attachment Add(object source, object type, object position, object displayName);
+	public interface IAttachments : ICollection {
+		IAttachment Add(object source, object type, object position, object displayName);
 		// Use index+1!!!!
-		Attachment this[object index] { get; }
+		IAttachment this[object index] {
+			get;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.attachment_members.aspx
-	public interface Attachment : Common {
-		string DisplayName { get; set; }
-		string FileName { get; }
-		OlAttachmentType Type { get; }
-		PropertyAccessor PropertyAccessor { get; }
-		object MAPIOBJECT { get; }
+	public interface IAttachment : ICommon {
+		string DisplayName {
+			get;
+			set;
+		}
+		string FileName {
+			get;
+		}
+		OlAttachmentType Type {
+			get;
+		}
+		IPropertyAccessor PropertyAccessor {
+			get;
+		}
+		object MAPIOBJECT {
+			get;
+		}
 		void SaveAsFile(string path);
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.propertyaccessor_members.aspx
-	public interface PropertyAccessor : Common {
+	public interface IPropertyAccessor : ICommon {
 		void SetProperty(string SchemaName, Object Value);
 		Object GetProperty(string SchemaName);
 	}
@@ -146,74 +263,128 @@ namespace Greenshot.Interop.Office {
 	public static class PropTag {
 		public const string ATTACHMENT_CONTENT_ID = @"http://schemas.microsoft.com/mapi/proptag/0x3712001E";
 	}
-	/// <summary>
-	/// Wrapper for Outlook.Application, see: http://msdn.microsoft.com/en-us/library/aa210897%28v=office.11%29.aspx
-	/// </summary>
-	[ComProgId("Outlook.Application")]
-	public interface IOutlookApplication : Common {
-		string Name { get; }
-		string Version { get; }
-		Item CreateItem(OlItemType ItemType);
-		object CreateItemFromTemplate(string TemplatePath, object InFolder);
-		object CreateObject(string ObjectName);
-		Inspector ActiveInspector();
-		Inspectors Inspectors { get; }
-		INameSpace GetNameSpace(string type);
-	}
 
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/bb176693%28v=office.12%29.aspx
 	/// </summary>
-	public interface INameSpace : Common {
-		IRecipient CurrentUser { get; }
+	public interface INameSpace : ICommon {
+		IRecipient CurrentUser {
+			get;
+		}
 		IFolder GetDefaultFolder(OlDefaultFolders defaultFolder);
 	}
 
 	/// <summary>
 	/// See: http://msdn.microsoft.com/en-us/library/bb176362%28v=office.12%29.aspx
 	/// </summary>
-	public interface IFolder : Common {
-		Items Items {get;}
+	public interface IFolder : ICommon {
+		IItems Items {
+			get;
+		}
 	}
 
-	public interface IRecipient : Common {
-		string Name { get; }
+	public interface IRecipient : ICommon {
+		string Name {
+			get;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.inspector_members.aspx
-	public interface Inspector : Common {
-		Item CurrentItem { get; }
-		OlEditorType EditorType { get; }
-		object ModifiedFormPages { get; }
+	public interface IInspector : ICommonExplorer {
+		IItem CurrentItem {
+			get;
+		}
+		OlEditorType EditorType {
+			get;
+		}
+		object ModifiedFormPages {
+			get;
+		}
 		void Close(OlInspectorClose SaveMode);
 		void Display(object Modal);
 		void HideFormPage(string PageName);
 		bool IsWordMail();
 		void SetCurrentFormPage(string PageName);
 		void ShowFormPage(string PageName);
-		object HTMLEditor { get; }
-		IWordDocument WordEditor { get; }
-		string Caption { get; }
-		int Height { get; set; }
-		int Left { get; set; }
-		int Top { get; set; }
-		int Width { get; set; }
-		OlWindowState WindowState { get; set; }
-		void Activate();
+		object HTMLEditor {
+			get;
+		}
+		IWordDocument WordEditor {
+			get;
+		}
 		void SetControlItemProperty(object Control, string PropertyName);
 	}
 
+	/// <summary>
+	/// Is a joined interface of the Explorer an Inspector
+	/// </summary>
+	public interface ICommonExplorer : ICommon {
+		void Activate();
+		string Caption {
+			get;
+		}
+		int Height {
+			get;
+			set;
+		}
+		int Left {
+			get;
+			set;
+		}
+		int Top {
+			get;
+			set;
+		}
+		int Width {
+			get;
+			set;
+		}
+		OlWindowState WindowState {
+			get;
+			set;
+		}
+	}
+
+	/// <summary>
+	/// Since Outlook 2010, but since 2013 one can edit inside an explorer
+	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.explorer_members(v=office.15).aspx
+	/// 
+	/// </summary>
+	public interface IExplorer : ICommonExplorer {
+		IItem ActiveInlineResponse {
+			get;
+		}
+		IWordDocument ActiveInlineResponseWordEditor {
+			get;
+		}
+	}
+
+
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook._application.inspectors.aspx
-	public interface Inspectors : Common, Collection, IEnumerable {
+	public interface IInspectors : ICommon, ICollection, IEnumerable {
 		// Use index + 1!!
-		Inspector this[Object Index] { get; }
+		IInspector this[Object Index] {
+			get;
+		}
+	}
+
+	/// <summary>
+	/// Since Outlook 2010, but since 2013 one can edit inside an explorer
+	/// See: http://msdn.microsoft.com/en-us/library/office/ff867227(v=office.15).aspx
+	/// </summary>
+	public interface IExplorers : ICommon, ICollection, IEnumerable {
+		// Use index + 1!!
+		IExplorer this[Object Index] {
+			get;
+		}
 	}
 
 	/// <summary>
 	/// Specifies which EmailFormat the email needs to use
 	/// </summary>
 	public enum EmailFormat {
-		Text, HTML
+		Text,
+		HTML
 	}
 	public enum OlBodyFormat {
 		// Fields
