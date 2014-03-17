@@ -555,7 +555,7 @@ namespace GreenshotPlugin.Core {
 					tmpFileCache.Remove(tmpfile);
 				}
 				return true;
-			} catch (Exception e) {
+			} catch (Exception) {
 			}
 			return false;
 		}

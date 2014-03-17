@@ -133,7 +133,7 @@ namespace GreenshotOfficePlugin {
 		}
 		
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets(conf.OutlookAllowExportInMeetings);
+			Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
 			if (inspectorCaptions != null) {
 				foreach (string inspectorCaption in inspectorCaptions.Keys) {
 					yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
@@ -175,7 +175,7 @@ namespace GreenshotOfficePlugin {
 				exportInformation.ExportMade = true;
 			} else {
 				if (!manuallyInitiated) {
-					Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets(conf.OutlookAllowExportInMeetings);
+					Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
 					if (inspectorCaptions != null && inspectorCaptions.Count > 0) {
 						List<IDestination> destinations = new List<IDestination>();
 						destinations.Add(new OutlookDestination());

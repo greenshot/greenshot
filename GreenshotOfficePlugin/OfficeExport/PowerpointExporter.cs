@@ -40,24 +40,32 @@ namespace Greenshot.Interop.Office {
 		/// Get the captions of all the open powerpoint presentations
 		/// </summary>
 		/// <returns></returns>
-		public static System.Collections.Generic.List<string> GetPowerpointPresentations() {
-			System.Collections.Generic.List<string> presentations = new System.Collections.Generic.List<string>();
+		public static List<string> GetPowerpointPresentations() {
+			List<string> foundPresentations = new System.Collections.Generic.List<string>();
 			try {
 				using (IPowerpointApplication powerpointApplication = COMWrapper.GetInstance<IPowerpointApplication>()) {
-					if (powerpointApplication != null) {
-						if (version == null) {
-							version = powerpointApplication.Version;
-						}
-						LOG.DebugFormat("Open Presentations: {0}", powerpointApplication.Presentations.Count);
-						for (int i = 1; i <= powerpointApplication.Presentations.Count; i++) {
-							IPresentation presentation = powerpointApplication.Presentations.item(i);
-							if (presentation != null && presentation.ReadOnly != MsoTriState.msoTrue) {
+					if (powerpointApplication == null) {
+						return foundPresentations;
+					}
+					if (version == null) {
+						version = powerpointApplication.Version;
+					}
+					using (IPresentations presentations = powerpointApplication.Presentations) {
+						LOG.DebugFormat("Open Presentations: {0}", presentations.Count);
+						for (int i = 1; i <= presentations.Count; i++) {
+							using (IPresentation presentation = presentations.item(i)) {
+								if (presentation == null) {
+									continue;
+								}
+								if (presentation.ReadOnly == MsoTriState.msoTrue) {
+									continue;
+								}
 								if (isAfter2003()) {
 									if (presentation.Final) {
 										continue;
 									}
 								}
-								presentations.Add(presentation.Name);
+								foundPresentations.Add(presentation.Name);
 							}
 						}
 					}
@@ -66,7 +74,7 @@ namespace Greenshot.Interop.Office {
 				LOG.Warn("Problem retrieving word destinations, ignoring: ", ex);
 			}
 
-			return presentations;
+			return foundPresentations;
 		}
 
 		/// <summary>
@@ -79,11 +87,19 @@ namespace Greenshot.Interop.Office {
 		/// <returns></returns>
 		public static bool ExportToPresentation(string presentationName, string tmpFile, Size imageSize, string title) {
 			using (IPowerpointApplication powerpointApplication = COMWrapper.GetInstance<IPowerpointApplication>()) {
-				if (powerpointApplication != null) {
-					LOG.DebugFormat("Open Presentations: {0}", powerpointApplication.Presentations.Count);
-					for (int i = 1; i <= powerpointApplication.Presentations.Count; i++) {
-						IPresentation presentation = powerpointApplication.Presentations.item(i);
-						if (presentation != null && presentation.Name.StartsWith(presentationName)) {
+				if (powerpointApplication == null) {
+					return false;
+				}
+				using (IPresentations presentations = powerpointApplication.Presentations) {
+					LOG.DebugFormat("Open Presentations: {0}", presentations.Count);
+					for (int i = 1; i <= presentations.Count; i++) {
+						using (IPresentation presentation = presentations.item(i)) {
+							if (presentation == null) {
+								continue;
+							}
+							if (!presentation.Name.StartsWith(presentationName)) {
+								continue;
+							}
 							try {
 								AddPictureToPresentation(presentation, tmpFile, imageSize, title);
 								return true;
@@ -97,47 +113,62 @@ namespace Greenshot.Interop.Office {
 			return false;
 		}
 
+		/// <summary>
+		/// Internal method to add a picture to a presentation
+		/// </summary>
+		/// <param name="presentation"></param>
+		/// <param name="tmpFile"></param>
+		/// <param name="imageSize"></param>
+		/// <param name="title"></param>
 		private static void AddPictureToPresentation(IPresentation presentation, string tmpFile, Size imageSize, string title) {
-			if (presentation != null) {
-				//ISlide slide = presentation.Slides.AddSlide( presentation.Slides.Count + 1, PPSlideLayout.ppLayoutPictureWithCaption);
-				ISlide slide;
-				float left = (presentation.PageSetup.SlideWidth / 2) - (imageSize.Width / 2) ;
-				float top = (presentation.PageSetup.SlideHeight / 2) - (imageSize.Height / 2);
-				float width = imageSize.Width;
-				float height = imageSize.Height;
-				bool isLayoutPictureWithCaption = false;
-				IShape shapeForCaption = null;
-				bool hasScaledWidth = false;
-				bool hasScaledHeight = false;
+			if (presentation == null) {
+				return;
+			}
+			ISlide slide;
+			float left = (presentation.PageSetup.SlideWidth / 2) - (imageSize.Width / 2) ;
+			float top = (presentation.PageSetup.SlideHeight / 2) - (imageSize.Height / 2);
+			float width = imageSize.Width;
+			float height = imageSize.Height;
+			bool isLayoutPictureWithCaption = false;
+			IShape shapeForCaption = null;
+			bool hasScaledWidth = false;
+			bool hasScaledHeight = false;
+
+			// Try to create the slide
+			using (ISlides slides = presentation.Slides) {
 				try {
-					slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int)PPSlideLayout.ppLayoutPictureWithCaption);
+					slide = slides.Add(slides.Count + 1, (int)PPSlideLayout.ppLayoutPictureWithCaption);
 					isLayoutPictureWithCaption = true;
 					// Shapes[2] is the image shape on this layout.
 					shapeForCaption = slide.Shapes.item(1);
-					IShape shapeForLocation = slide.Shapes.item(2);
+					using (IShape shapeForLocation = slide.Shapes.item(2)) {
+						if (width > shapeForLocation.Width) {
+							width = shapeForLocation.Width;
+							left = shapeForLocation.Left;
+							hasScaledWidth = true;
+						} else {
+							shapeForLocation.Left = left;
+						}
+						shapeForLocation.Width = imageSize.Width;
 
-					if (width > shapeForLocation.Width) {
-						width = shapeForLocation.Width;
-						left = shapeForLocation.Left;
-						hasScaledWidth = true;
-					} else {
-						shapeForLocation.Left = left;
+						if (height > shapeForLocation.Height) {
+							height = shapeForLocation.Height;
+							top = shapeForLocation.Top;
+							hasScaledHeight = true;
+						} else {
+							top = (shapeForLocation.Top + (shapeForLocation.Height / 2)) - (imageSize.Height / 2);
+						}
+						shapeForLocation.Height = imageSize.Height;
 					}
-					shapeForLocation.Width = imageSize.Width;
-
-					if (height > shapeForLocation.Height) {
-						height = shapeForLocation.Height;
-						top = shapeForLocation.Top;
-						hasScaledHeight = true;
-					} else {
-						top = (shapeForLocation.Top + (shapeForLocation.Height / 2)) - (imageSize.Height / 2);
-					}
-					shapeForLocation.Height = imageSize.Height;
 				} catch (Exception e) {
 					LOG.Error(e);
-					slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int)PPSlideLayout.ppLayoutBlank);
+					// didn't work. Use simple slide layout
+					slide = slides.Add(slides.Count + 1, (int)PPSlideLayout.ppLayoutBlank);
 				}
-				IShape shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height);
+			}
+
+			// Make sure the picture is added and correctly scaled
+			using (IShape shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height)) {
 				shape.LockAspectRatio = MsoTriState.msoTrue;
 				shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
 				shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
@@ -145,37 +176,64 @@ namespace Greenshot.Interop.Office {
 					shape.Width = width;
 				}
 				if (hasScaledHeight) {
-					shape.Height = height;	
+					shape.Height = height;
 				}
 				shape.Left = left;
 				shape.Top = top;
 				shape.AlternativeText = title;
-				if (isLayoutPictureWithCaption && shapeForCaption != null) {
+			}
+
+			// Try settings the caption
+			if (shapeForCaption != null) {
+				if (isLayoutPictureWithCaption) {
 					try {
 						// Using try/catch to make sure problems with the text range don't give an exception.
-						ITextFrame textFrame = shapeForCaption.TextFrame;
-						textFrame.TextRange.Text = title;
+						using (ITextFrame textFrame = shapeForCaption.TextFrame) {
+							textFrame.TextRange.Text = title;
+						}
 					} catch (Exception ex) {
 						LOG.Warn("Problem setting the title to a text-range", ex);
 					}
 				}
-				presentation.Application.ActiveWindow.View.GotoSlide(slide.SlideNumber);
-				presentation.Application.Activate();
+				shapeForCaption.Dispose();
+			}
+
+			// Show the window, and show the new slide
+			using (IPowerpointApplication application = presentation.Application) {
+				using (IPowerpointWindow activeWindow = application.ActiveWindow) {
+					using (IPowerpointView view = activeWindow.View) {
+						view.GotoSlide(slide.SlideNumber);
+					}
+				}
+				application.Activate();
+			}
+			if (slide != null) {
+				slide.Dispose();
 			}
 		}
 
+		/// <summary>
+		/// Insert a capture into a new presentation
+		/// </summary>
+		/// <param name="tmpFile"></param>
+		/// <param name="imageSize"></param>
+		/// <param name="title"></param>
+		/// <returns></returns>
 		public static bool InsertIntoNewPresentation(string tmpFile, Size imageSize, string title) {
 			bool isPictureAdded = false;
 			using (IPowerpointApplication powerpointApplication = COMWrapper.GetOrCreateInstance<IPowerpointApplication>()) {
-				if (powerpointApplication != null) {
-					powerpointApplication.Visible = true;
-					IPresentation presentation = powerpointApplication.Presentations.Add(MsoTriState.msoTrue);
-					try {
-						AddPictureToPresentation(presentation, tmpFile, imageSize, title);
-						isPictureAdded = true;
-						presentation.Application.Activate();
-					} catch (Exception e) {
-						LOG.Error(e);
+				if (powerpointApplication == null) {
+					return isPictureAdded;
+				}
+				powerpointApplication.Visible = true;
+				using (IPresentations presentations = powerpointApplication.Presentations) {
+					using (IPresentation presentation = presentations.Add(MsoTriState.msoTrue)) {
+						try {
+							AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+							isPictureAdded = true;
+						} catch (Exception e) {
+							LOG.Error(e);
+						}
 					}
 				}
 			}
