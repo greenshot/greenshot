@@ -28,14 +28,12 @@ using Greenshot.Interop;
 namespace Greenshot.Interop.Office {
 	public class PowerpointExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointExporter));
-		private static string version = null;
+		private static Version powerpointVersion;
 
 		public static bool isAfter2003() {
-			if (version != null) {
-				return !version.StartsWith("11");
-			}
-			return false;
+			return powerpointVersion.Major > (int)OfficeVersion.OFFICE_2003;
 		}
+
 		/// <summary>
 		/// Get the captions of all the open powerpoint presentations
 		/// </summary>
@@ -43,13 +41,11 @@ namespace Greenshot.Interop.Office {
 		public static List<string> GetPowerpointPresentations() {
 			List<string> foundPresentations = new System.Collections.Generic.List<string>();
 			try {
-				using (IPowerpointApplication powerpointApplication = COMWrapper.GetInstance<IPowerpointApplication>()) {
+				using (IPowerpointApplication powerpointApplication = GetPowerpointApplication()) {
 					if (powerpointApplication == null) {
 						return foundPresentations;
 					}
-					if (version == null) {
-						version = powerpointApplication.Version;
-					}
+
 					using (IPresentations presentations = powerpointApplication.Presentations) {
 						LOG.DebugFormat("Open Presentations: {0}", presentations.Count);
 						for (int i = 1; i <= presentations.Count; i++) {
@@ -86,7 +82,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="title">A string with the image title</param>
 		/// <returns></returns>
 		public static bool ExportToPresentation(string presentationName, string tmpFile, Size imageSize, string title) {
-			using (IPowerpointApplication powerpointApplication = COMWrapper.GetInstance<IPowerpointApplication>()) {
+			using (IPowerpointApplication powerpointApplication = GetPowerpointApplication()) {
 				if (powerpointApplication == null) {
 					return false;
 				}
@@ -221,7 +217,7 @@ namespace Greenshot.Interop.Office {
 		/// <returns></returns>
 		public static bool InsertIntoNewPresentation(string tmpFile, Size imageSize, string title) {
 			bool isPictureAdded = false;
-			using (IPowerpointApplication powerpointApplication = COMWrapper.GetOrCreateInstance<IPowerpointApplication>()) {
+			using (IPowerpointApplication powerpointApplication = GetOrCreatePowerpointApplication()) {
 				if (powerpointApplication == null) {
 					return isPictureAdded;
 				}
@@ -239,5 +235,44 @@ namespace Greenshot.Interop.Office {
 			}
 			return isPictureAdded;
 		}
+
+		/// <summary>
+		/// Call this to get the running powerpoint application, returns null if there isn't any.
+		/// </summary>
+		/// <returns>IPowerpointApplication or null</returns>
+		private static IPowerpointApplication GetPowerpointApplication() {
+			IPowerpointApplication powerpointApplication = COMWrapper.GetInstance<IPowerpointApplication>();
+			InitializeVariables(powerpointApplication);
+			return powerpointApplication;
+		}
+
+		/// <summary>
+		/// Call this to get the running powerpoint application, or create a new instance
+		/// </summary>
+		/// <returns>IPowerpointApplication</returns>
+		private static IPowerpointApplication GetOrCreatePowerpointApplication() {
+			IPowerpointApplication powerpointApplication = COMWrapper.GetOrCreateInstance<IPowerpointApplication>();
+			InitializeVariables(powerpointApplication);
+			return powerpointApplication;
+		}
+
+		/// <summary>
+		/// Initialize static outlook variables like version and currentuser
+		/// </summary>
+		/// <param name="powerpointApplication">IPowerpointApplication</param>
+		private static void InitializeVariables(IPowerpointApplication powerpointApplication) {
+			if (powerpointApplication == null || powerpointVersion != null) {
+				return;
+			}
+			try {
+				powerpointVersion = new Version(powerpointApplication.Version);
+				LOG.InfoFormat("Using Powerpoint {0}", powerpointVersion);
+			} catch (Exception exVersion) {
+				LOG.Error(exVersion);
+				LOG.Warn("Assuming Powerpoint version 1997.");
+				powerpointVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+			}
+		}
+
 	}
 }

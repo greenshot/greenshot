@@ -44,10 +44,6 @@ namespace Greenshot.Interop.Office {
 		private static readonly string SIGNATURE_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
 		private static Version outlookVersion = null;
 		private static string currentUser = null;
-		private const int OUTLOOK_2003 = 11;
-		private const int OUTLOOK_2007 = 12;
-		private const int OUTLOOK_2010 = 14;
-		private const int OUTLOOK_2013 = 15;
 
 		// The signature key can be found at:
 		// HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\<DefaultProfile>\9375CFF0413111d3B88A00104B2A6676\<xxxx> [New Signature]
@@ -68,7 +64,7 @@ namespace Greenshot.Interop.Office {
 						return null;
 					}
 
-					if (outlookVersion.Major >= OUTLOOK_2013) {
+					if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013) {
 						// Check inline "panel" for Outlook 2013
 						using (var activeExplorer = outlookApplication.ActiveExplorer()) {
 							if (activeExplorer != null) {
@@ -120,7 +116,7 @@ namespace Greenshot.Interop.Office {
 						if (!mailItem.Sent) {
 							return true;
 						}
-					} else if (outlookVersion.Major >= OUTLOOK_2010 && conf.OutlookAllowExportInMeetings && OlObjectClass.olAppointment.Equals(currentItemClass)) {
+					} else if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2010 && conf.OutlookAllowExportInMeetings && OlObjectClass.olAppointment.Equals(currentItemClass)) {
 						//AppointmentItem appointmentItem = COMWrapper.Cast<AppointmentItem>(currentItem);
 						AppointmentItem appointmentItem = (AppointmentItem)currentItem;
 						if (string.IsNullOrEmpty(appointmentItem.Organizer) || (currentUser != null && currentUser.Equals(appointmentItem.Organizer))) {
@@ -149,7 +145,7 @@ namespace Greenshot.Interop.Office {
 				if (outlookApplication == null) {
 					return false;
 				}
-				if (outlookVersion.Major >= OUTLOOK_2013) {
+				if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013) {
 					// Check inline "panel" for Outlook 2013
 					using (var activeExplorer = outlookApplication.ActiveExplorer()) {
 						if (activeExplorer == null) {
@@ -271,7 +267,7 @@ namespace Greenshot.Interop.Office {
 				LOG.InfoFormat("Item '{0}' has format: {1}", mailItem.Subject, mailItem.BodyFormat);
 
 				string contentID;
-				if (outlookVersion.Major >= OUTLOOK_2007) {
+				if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 					contentID = Guid.NewGuid().ToString();
 				} else {
 					LOG.Info("Older Outlook (<2007) found, using filename as contentid.");
@@ -315,7 +311,7 @@ namespace Greenshot.Interop.Office {
 
 				// Create the attachment (if inlined the attachment isn't visible as attachment!)
 				using (IAttachment attachment = mailItem.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName)) {
-					if (outlookVersion.Major >= OUTLOOK_2007) {
+					if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 						// Add the content id to the attachment, this only works for Outlook >= 2007
 						try {
 							IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
@@ -386,7 +382,7 @@ namespace Greenshot.Interop.Office {
 						// Create the attachment (and dispose the COM object after using)
 						using (IAttachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName)) {
 							// add content ID to the attachment
-							if (outlookVersion.Major >= OUTLOOK_2007) {
+							if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 								try {
 									contentID = Guid.NewGuid().ToString();
 									IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
@@ -526,11 +522,11 @@ namespace Greenshot.Interop.Office {
 				LOG.InfoFormat("Using Outlook {0}", outlookVersion);
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
-				LOG.Warn("Assuming outlook version 1.");
-				outlookVersion = new Version(1, 1, 1, 1);
+				LOG.Warn("Assuming outlook version 1997.");
+				outlookVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 			// Preventing retrieval of currentUser if Outlook is older than 2007
-			if (outlookVersion.Major >= OUTLOOK_2007) {
+			if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 				try {
 					INameSpace mapiNamespace = outlookApplication.GetNameSpace("MAPI");
 					currentUser = mapiNamespace.CurrentUser.Name;

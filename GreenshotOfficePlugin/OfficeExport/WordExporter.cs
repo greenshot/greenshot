@@ -29,15 +29,17 @@ using Greenshot.IniFile;
 namespace Greenshot.Interop.Office {
 	public class WordExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
-		private static string version = null;
+		private static Version wordVersion = null;
 		private static OfficeConfiguration config = IniConfig.GetIniSection<OfficeConfiguration>();
 
-		public static bool isAfter2003() {
-			if (version != null) {
-				return !version.StartsWith("11");
-			}
-			return false;
+		/// <summary>
+		/// Check if the used version is higher than Office 2003
+		/// </summary>
+		/// <returns></returns>
+		private static bool isAfter2003() {
+			return wordVersion.Major > (int)OfficeVersion.OFFICE_2003;
 		}
+
 		/// <summary>
 		/// Insert the bitmap stored under the tempfile path into the word document with the supplied caption
 		/// </summary>
@@ -45,12 +47,17 @@ namespace Greenshot.Interop.Office {
 		/// <param name="tmpFile"></param>
 		/// <returns></returns>
 		public static bool InsertIntoExistingDocument(string wordCaption, string tmpFile) {
-			using (IWordApplication wordApplication = COMWrapper.GetInstance<IWordApplication>()) {
-				if (wordApplication != null) {
-					for (int i = 1; i <= wordApplication.Documents.Count; i++) {
-						using (IWordDocument wordDocument = wordApplication.Documents.item(i)) {
-							if (wordDocument.ActiveWindow.Caption.StartsWith(wordCaption)) {
-								return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile, null, null);
+			using (IWordApplication wordApplication = GetWordApplication()) {
+				if (wordApplication == null) {
+					return false;
+				}
+				using (IDocuments documents = wordApplication.Documents) {
+					for (int i = 1; i <= documents.Count; i++) {
+						using (IWordDocument wordDocument = documents.item(i)) {
+							using (IWordWindow activeWindow = wordDocument.ActiveWindow) {
+								if (activeWindow.Caption.StartsWith(wordCaption)) {
+									return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile, null, null);
+								}
 							}
 						}
 					}
@@ -75,23 +82,36 @@ namespace Greenshot.Interop.Office {
 				wordDocument.Activate();
 			} catch {
 			}
-			if (wordApplication.Selection != null) {
+			using (ISelection selection = wordApplication.Selection) {
+				if (selection == null) {
+					LOG.InfoFormat("No selection to insert {0} into found.", tmpFile);
+					return false;
+				}
 				// Add Picture
-				using (IInlineShape shape = AddPictureToSelection(wordApplication.Selection, tmpFile)) {
+				using (IInlineShape shape = AddPictureToSelection(selection, tmpFile)) {
 					if (!string.IsNullOrEmpty(address)) {
 						object screentip = Type.Missing;
 						if (!string.IsNullOrEmpty(tooltip)) {
 							screentip = tooltip;
 						}
 						try {
-							wordDocument.Hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
+							using (IHyperlinks hyperlinks = wordDocument.Hyperlinks) {
+								hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
+							}
 						} catch (Exception e) {
 							LOG.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
 						}
 					}
 				}
 				try {
-					wordDocument.ActiveWindow.ActivePane.View.Zoom.Percentage = 100;
+					using (IWordWindow activeWindow = wordDocument.ActiveWindow) {
+						activeWindow.Activate();
+						using (IPane activePane = activeWindow.ActivePane) {
+							using (IWordView view = activePane.View) {
+								view.Zoom.Percentage = 100;
+							}
+						}
+					}
 				} catch (Exception e) {
 					if (e.InnerException != null) {
 						LOG.WarnFormat("Couldn't set zoom to 100, error: {0}", e.InnerException.Message);
@@ -101,64 +121,74 @@ namespace Greenshot.Interop.Office {
 				}
 				try {
 					wordApplication.Activate();
-				} catch {}
+				} catch {
+				}
 				try {
 					wordDocument.Activate();
-				} catch {}
-				try {
-					wordDocument.ActiveWindow.Activate();
-				} catch {}
+				} catch {
+				}
 				return true;
 			}
-			return false;
 		}
 
+		/// <summary>
+		/// Helper method to add the file as image to the selection
+		/// </summary>
+		/// <param name="selection"></param>
+		/// <param name="tmpFile"></param>
+		/// <returns></returns>
 		private static IInlineShape AddPictureToSelection(ISelection selection, string tmpFile) {
-			IInlineShape shape = selection.InlineShapes.AddPicture(tmpFile, false, true, Type.Missing);
-			// Lock aspect ratio
-			if (config.WordLockAspectRatio) {
-				shape.LockAspectRatio = MsoTriState.msoTrue;
+			using (IInlineShapes shapes = selection.InlineShapes) {
+				IInlineShape shape = shapes.AddPicture(tmpFile, false, true, Type.Missing);
+				// Lock aspect ratio
+				if (config.WordLockAspectRatio) {
+					shape.LockAspectRatio = MsoTriState.msoTrue;
+				}
+				selection.InsertAfter("\r\n");
+				return shape;
 			}
-			selection.InsertAfter("\r\n");
-			return shape;
 		}
 
 		public static void InsertIntoNewDocument(string tmpFile, string address, string tooltip) {
-			using (IWordApplication wordApplication = COMWrapper.GetOrCreateInstance<IWordApplication>()) {
-				if (wordApplication != null) {
-					wordApplication.Visible = true;
-					wordApplication.Activate();
-					// Create new Document
-					object template = string.Empty;
-					object newTemplate = false;
-					object documentType = 0;
-					object documentVisible = true;
-					IWordDocument wordDocument = wordApplication.Documents.Add(ref template, ref newTemplate, ref documentType, ref documentVisible);
-					// Add Picture
-					using (IInlineShape shape = AddPictureToSelection(wordApplication.Selection, tmpFile)) {
-						if (!string.IsNullOrEmpty(address)) {
-							object screentip = Type.Missing;
-							if (!string.IsNullOrEmpty(tooltip)) {
-								screentip = tooltip;
-							}
-							try {
-								wordDocument.Hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
-							} catch (Exception e) {
-								LOG.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+			using (IWordApplication wordApplication = GetOrCreateWordApplication()) {
+				if (wordApplication == null) {
+					return;
+				}
+				wordApplication.Visible = true;
+				wordApplication.Activate();
+				// Create new Document
+				object template = string.Empty;
+				object newTemplate = false;
+				object documentType = 0;
+				object documentVisible = true;
+				using (IDocuments documents = wordApplication.Documents) {
+					using (IWordDocument wordDocument = documents.Add(ref template, ref newTemplate, ref documentType, ref documentVisible)) {
+						using (ISelection selection = wordApplication.Selection) {
+							// Add Picture
+							using (IInlineShape shape = AddPictureToSelection(selection, tmpFile)) {
+								if (!string.IsNullOrEmpty(address)) {
+									object screentip = Type.Missing;
+									if (!string.IsNullOrEmpty(tooltip)) {
+										screentip = tooltip;
+									}
+									try {
+										using (IHyperlinks hyperlinks = wordDocument.Hyperlinks) {
+											hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
+										}
+									} catch (Exception e) {
+										LOG.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+									}
+								}
 							}
 						}
-					}
-					try {
-						wordApplication.Activate();
-					} catch {
-					}
-					try {
-						wordDocument.Activate();
-					} catch {
-					}
-					try {
-						wordDocument.ActiveWindow.Activate();
-					} catch {
+						try {
+							wordDocument.Activate();
+						} catch {
+						}
+						try {
+							wordDocument.ActiveWindow.Activate();
+						} catch {
+						}
 					}
 				}
 			}
@@ -169,31 +199,72 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <returns></returns>
 		public static List<string> GetWordDocuments() {
-			List<string> documents = new List<string>();
+			List<string> openDocuments = new List<string>();
 			try {
-				using (IWordApplication wordApplication = COMWrapper.GetInstance<IWordApplication>()) {
-					if (wordApplication != null) {
-						if (version == null) {
-							version = wordApplication.Version;
-						}
-						for (int i = 1; i <= wordApplication.Documents.Count; i++) {
-							IWordDocument document = wordApplication.Documents.item(i);
-							if (document.ReadOnly) {
-								continue;
-							}
-							if (isAfter2003()) {
-								if (document.Final) {
+				using (IWordApplication wordApplication = GetWordApplication()) {
+					if (wordApplication == null) {
+						return openDocuments;
+					}
+					using (IDocuments documents = wordApplication.Documents) {
+						for (int i = 1; i <= documents.Count; i++) {
+							using (IWordDocument document = documents.item(i)) {
+								if (document.ReadOnly) {
 									continue;
 								}
+								if (isAfter2003()) {
+									if (document.Final) {
+										continue;
+									}
+								}
+								using (IWordWindow activeWindow = document.ActiveWindow) {
+									openDocuments.Add(activeWindow.Caption);
+								}
 							}
-							documents.Add(document.ActiveWindow.Caption);
 						}
 					}
 				}
 			} catch (Exception ex) {
 				LOG.Warn("Problem retrieving word destinations, ignoring: ", ex);
 			}
-			return documents;
+			return openDocuments;
+		}
+
+		/// <summary>
+		/// Call this to get the running outlook application, returns null if there isn't any.
+		/// </summary>
+		/// <returns>IWordApplication or null</returns>
+		private static IWordApplication GetWordApplication() {
+			IWordApplication wordApplication = COMWrapper.GetInstance<IWordApplication>();
+			InitializeVariables(wordApplication);
+			return wordApplication;
+		}
+
+		/// <summary>
+		/// Call this to get the running word application, or create a new instance
+		/// </summary>
+		/// <returns>IWordApplication</returns>
+		private static IWordApplication GetOrCreateWordApplication() {
+			IWordApplication wordApplication = COMWrapper.GetOrCreateInstance<IWordApplication>();
+			InitializeVariables(wordApplication);
+			return wordApplication;
+		}
+
+		/// <summary>
+		/// Initialize static outlook variables like version and currentuser
+		/// </summary>
+		/// <param name="wordApplication"></param>
+		private static void InitializeVariables(IWordApplication wordApplication) {
+			if (wordApplication == null || wordVersion != null) {
+				return;
+			}
+			try {
+				wordVersion = new Version(wordApplication.Version);
+				LOG.InfoFormat("Using Word {0}", wordVersion);
+			} catch (Exception exVersion) {
+				LOG.Error(exVersion);
+				LOG.Warn("Assuming Word version 1997.");
+				wordVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+			}
 		}
 	}
 }

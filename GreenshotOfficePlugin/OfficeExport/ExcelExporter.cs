@@ -32,15 +32,24 @@ namespace Greenshot.Interop.Office {
 	public class ExcelExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
 		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static Version excelVersion;
 
+		/// <summary>
+		/// Get all currently opened workbooks
+		/// </summary>
+		/// <returns>List<string> with names of the workbooks</returns>
 		public static List<string> GetWorkbooks() {
 			List<string> currentWorkbooks = new List<string>();
-			using (IExcelApplication excelApplication = COMWrapper.GetInstance<IExcelApplication>()) {
-				if (excelApplication != null) {
-					for (int i = 1; i <= excelApplication.Workbooks.Count; i++) {
-						IWorkbook workbook = excelApplication.Workbooks[i];
-						if (workbook != null) {
-							currentWorkbooks.Add(workbook.Name);
+			using (IExcelApplication excelApplication = GetExcelApplication()) {
+				if (excelApplication == null) {
+					return currentWorkbooks;
+				}
+				using (IWorkbooks workbooks = excelApplication.Workbooks) {
+					for (int i = 1; i <= workbooks.Count; i++) {
+						using (IWorkbook workbook = workbooks[i]) {
+							if (workbook != null) {
+								currentWorkbooks.Add(workbook.Name);
+							}
 						}
 					}
 				}
@@ -54,44 +63,103 @@ namespace Greenshot.Interop.Office {
 		/// <param name="workbookName"></param>
 		/// <param name="tmpFile"></param>
 		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize) {
-			using (IExcelApplication excelApplication = COMWrapper.GetInstance<IExcelApplication>()) {
-				if (excelApplication != null) {
-					for (int i = 1; i <= excelApplication.Workbooks.Count; i++) {
-						IWorkbook workbook = excelApplication.Workbooks[i];
-						if (workbook != null && workbook.Name.StartsWith(workbookName)) {
-							InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+			using (IExcelApplication excelApplication = GetExcelApplication()) {
+				if (excelApplication == null) {
+					return;
+				}
+				using (IWorkbooks workbooks = excelApplication.Workbooks) {
+					for (int i = 1; i <= workbooks.Count; i++) {
+						using (IWorkbook workbook = workbooks[i]) {
+							if (workbook != null && workbook.Name.StartsWith(workbookName)) {
+								InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+							}
 						}
 					}
 				}
 			}
 		}
 
+		/// <summary>
+		/// Insert a file into an already created workbook
+		/// </summary>
+		/// <param name="workbook"></param>
+		/// <param name="tmpFile"></param>
+		/// <param name="imageSize"></param>
 		private static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile, Size imageSize) {
 			IWorksheet workSheet = workbook.ActiveSheet;
-			if (workSheet != null) {
-				if (workSheet.Shapes != null) {
-					IShape shape = workSheet.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height);
-					if (shape != null) {
-						shape.Top = 40;
-						shape.Left = 40;
-						shape.LockAspectRatio = MsoTriState.msoTrue;
-						shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-						shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+			if (workSheet == null) {
+				return;
+			}
+			using (IShapes shapes = workSheet.Shapes) {
+				if (shapes != null) {
+					using (IShape shape = shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height)) {
+						if (shape != null) {
+							shape.Top = 40;
+							shape.Left = 40;
+							shape.LockAspectRatio = MsoTriState.msoTrue;
+							shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+							shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+						}
 					}
 				}
 			}
 		}
 
+		/// <summary>
+		/// Add an image-file to a newly created workbook
+		/// </summary>
+		/// <param name="tmpFile"></param>
+		/// <param name="imageSize"></param>
 		public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize) {
-			using (IExcelApplication excelApplication = COMWrapper.GetOrCreateInstance<IExcelApplication>()) {
+			using (IExcelApplication excelApplication = GetOrCreateExcelApplication()) {
 				if (excelApplication != null) {
 					excelApplication.Visible = true;
 					object template = Missing.Value;
-					IWorkbook workbook = excelApplication.Workbooks.Add(template);
-					InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+					using (IWorkbooks workbooks = excelApplication.Workbooks) {
+						IWorkbook workbook = workbooks.Add(template);
+						InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+					}
 				}
 			}
 		}
-	}
 
+
+		/// <summary>
+		/// Call this to get the running Excel application, returns null if there isn't any.
+		/// </summary>
+		/// <returns>IExcelApplication or null</returns>
+		private static IExcelApplication GetExcelApplication() {
+			IExcelApplication excelApplication = COMWrapper.GetInstance<IExcelApplication>();
+			InitializeVariables(excelApplication);
+			return excelApplication;
+		}
+
+		/// <summary>
+		/// Call this to get the running Excel application, or create a new instance
+		/// </summary>
+		/// <returns>IExcelApplication</returns>
+		private static IExcelApplication GetOrCreateExcelApplication() {
+			IExcelApplication excelApplication = COMWrapper.GetOrCreateInstance<IExcelApplication>();
+			InitializeVariables(excelApplication);
+			return excelApplication;
+		}
+
+		/// <summary>
+		/// Initialize static outlook variables like version and currentuser
+		/// </summary>
+		/// <param name="excelApplication"></param>
+		private static void InitializeVariables(IExcelApplication excelApplication) {
+			if (excelApplication == null || excelVersion != null) {
+				return;
+			}
+			try {
+				excelVersion = new Version(excelApplication.Version);
+				LOG.InfoFormat("Using Excel {0}", excelVersion);
+			} catch (Exception exVersion) {
+				LOG.Error(exVersion);
+				LOG.Warn("Assuming Excel version 1997.");
+				excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+			}
+		}
+	}
 }

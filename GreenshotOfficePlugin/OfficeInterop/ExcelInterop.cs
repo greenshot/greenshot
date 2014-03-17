@@ -23,38 +23,64 @@ namespace Greenshot.Interop.Office {
 	// See http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.application.aspx
 	[ComProgId("Excel.Application")]
 	public interface IExcelApplication : ICommon {
-		IWorkbook ActiveWorkbook { get; }
+		IWorkbook ActiveWorkbook {
+			get;
+		}
 		//ISelection Selection {get;}
-		IWorkbooks Workbooks { get; }
-		bool Visible { get; set; }
+		IWorkbooks Workbooks {
+			get;
+		}
+		bool Visible {
+			get;
+			set;
+		}
+		string Version {
+			get;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbooks.aspx
 	public interface IWorkbooks : ICommon, ICollection {
 		IWorkbook Add(object template);
 		// Use index + 1!!
-		IWorkbook this[object Index] { get; }
+		IWorkbook this[object Index] {
+			get;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbook.aspx
 	public interface IWorkbook : ICommon {
-		IWorksheet ActiveSheet { get; }
-		string Name { get; }
+		IWorksheet ActiveSheet {
+			get;
+		}
+		string Name {
+			get;
+		}
 		void Activate();
-		IWorksheets Worksheets { get; }
+		IWorksheets Worksheets {
+			get;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel._worksheet_members.aspx
 	public interface IWorksheet : ICommon {
-		IPictures Pictures { get; }
-		IShapes Shapes {get; }
-		string Name { get; }
+		IPictures Pictures {
+			get;
+		}
+		IShapes Shapes {
+			get;
+		}
+		string Name {
+			get;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.iworksheets_members.aspx
 	public interface IWorksheets : ICommon, ICollection {
 		// Use index + 1!!
-		IWorksheet this[object Index] { get; }
+		IWorksheet this[object Index] {
+			get;
+		}
 	}
 
 	public interface IPictures : ICommon, ICollection {
