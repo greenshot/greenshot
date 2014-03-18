@@ -517,13 +517,19 @@ namespace Greenshot {
 			return true;
 		}
 
-		private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, HotKeyHandler handler) {
+		private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, HotKeyHandler handler, bool ignoreFailedRegistration) {
 			IniValue hotkeyValue = conf.Values[configurationKey];
 			try {
-				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+				bool success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+				if (!success && ignoreFailedRegistration) {
+					LOG.DebugFormat("Ignoring failed hotkey registration, resetting to 'None'.", functionName, hotkeyValue);
+					conf.Values[configurationKey].Value = Keys.None.ToString();
+					conf.IsDirty = true;
+				}
+				return success;
 			} catch (Exception ex) {
 				LOG.Warn(ex);
-				LOG.WarnFormat("Repairing the hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyValue.Value, hotkeyValue.Attributes.DefaultValue);
+				LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyValue.Value, hotkeyValue.Attributes.DefaultValue);
 				// when getting an exception the key wasn't found: reset the hotkey value
 				hotkeyValue.UseValueOrDefault(null);
 				hotkeyValue.ContainingIniSection.IsDirty = true;
@@ -531,34 +537,76 @@ namespace Greenshot {
 			}
 		}
 
-		public static void RegisterHotkeys() {
+		/// <summary>
+		/// Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
+		/// </summary>
+		/// <returns>Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the user decides to ignore these (i.e. not to register the conflicting hotkey).</returns>
+		public static bool RegisterHotkeys() {
+			return RegisterHotkeys(false);
+		}
+
+		/// <summary>
+		/// Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
+		/// </summary>
+		/// <param name="ignoreFailedRegistration">if true, a failed hotkey registration will not be reported to the user - the hotkey will simply not be registered</param>
+		/// <returns>Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the user decides to ignore these (i.e. not to register the conflicting hotkey).</returns>
+		private static bool RegisterHotkeys(bool ignoreFailedRegistration) {
 			if (instance == null) {
-				return;
+				return false;
 			}
 			bool success = true;
 			StringBuilder failedKeys = new StringBuilder();
 
-			if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", new HotKeyHandler(instance.CaptureRegion))) {
+			if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", new HotKeyHandler(instance.CaptureRegion), ignoreFailedRegistration)) {
 				success = false;
 			}
-			if (!RegisterWrapper(failedKeys, "CaptureWindow", "WindowHotkey", new HotKeyHandler(instance.CaptureWindow))) {
+			if (!RegisterWrapper(failedKeys, "CaptureWindow", "WindowHotkey", new HotKeyHandler(instance.CaptureWindow), ignoreFailedRegistration)) {
 				success = false;
 			}
-			if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", new HotKeyHandler(instance.CaptureFullScreen))) {
+			if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", new HotKeyHandler(instance.CaptureFullScreen), ignoreFailedRegistration)) {
 				success = false;
 			}
-			if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", new HotKeyHandler(instance.CaptureLastRegion))) {
+			if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", new HotKeyHandler(instance.CaptureLastRegion), ignoreFailedRegistration)) {
 				success = false;
 			}
 			if (conf.IECapture) {
-				if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", new HotKeyHandler(instance.CaptureIE))) {
+				if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", new HotKeyHandler(instance.CaptureIE), ignoreFailedRegistration)) {
 					success = false;
 				}
 			}
 
 			if (!success) {
-				MessageBox.Show(MainForm.Instance, Language.GetFormattedString(LangKey.warning_hotkeys, failedKeys.ToString()),Language.GetString(LangKey.warning), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				if (!ignoreFailedRegistration) {
+					success = HandleFailedHotkeyRegistration(failedKeys.ToString());
+				} else {
+					// if failures have been ignored, the config has probably been updated
+					if (conf.IsDirty) IniConfig.Save();
+				}
 			}
+			return success || ignoreFailedRegistration;
+		}
+
+		/// <summary>
+		/// Displays a dialog for the user to choose how to handle hotkey registration failures: 
+		/// retry (allowing to shut down the conflicting application before),
+		/// ignore (not registering the conflicting hotkey and resetting the respective config to "None", i.e. not trying to register it again on next startup)
+		/// abort (do nothing about it)
+		/// </summary>
+		/// <param name="failedKeys">comma separated list of the hotkeys that could not be registered, for display in dialog text</param>
+		/// <returns></returns>
+		private static bool HandleFailedHotkeyRegistration(string failedKeys) {
+			bool success = false;
+			DialogResult dr = MessageBox.Show(MainForm.Instance, Language.GetFormattedString(LangKey.warning_hotkeys, failedKeys), Language.GetString(LangKey.warning), MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
+			if (dr == DialogResult.Retry) {
+				LOG.DebugFormat("Re-trying to register hotkeys");
+				HotkeyControl.UnregisterHotkeys();
+				success = RegisterHotkeys(false);
+			} else if (dr == DialogResult.Ignore)  {
+				LOG.DebugFormat("Ignoring failed hotkey registration");
+				HotkeyControl.UnregisterHotkeys();
+				success = RegisterHotkeys(true);
+			}
+			return success;
 		}
 		#endregion
 		
