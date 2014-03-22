@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="Français" ietf="fr-FR" version="1.1.0.2515" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Veuillez rapporter les bogues à</resource>
@@ -8,7 +8,7 @@
 		<resource name="about_license">Copyright © 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
 Détails de la GNU General Public License :</resource>
-		<resource name="about_title">A propos de Greenshot</resource>
+		<resource name="about_title">À propos de Greenshot</resource>
 		<resource name="application_title">Greenshot - l'utilitaire révolutionnaire de capture d'écran</resource>
 		<resource name="bugreport_cancel">Fermer</resource>
 		<resource name="bugreport_info">Désolé, une erreur inattendue s'est produite.
@@ -16,7 +16,7 @@ Détails de la GNU General Public License :</resource>
 La bonne nouvelle, c'est que vous pouvez nous aider à nous en débarrasser en remplissant un rapport de bogue.
 Veuillez visiter l'URL ci-dessous, créer un nouveau rapport de bogue et coller le contenu de cette zone de texte.
 
-Ajoutez un résumé compréhensible des informations que vous jugez utiles à la reproduction du problème.
+Ajoutez un résumé compréhensible et des informations que vous jugez utiles à la reproduction du problème.
 De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si un rapport concernant ce problème existe déjà. (Vous pouvez utiliser l'outil de recherche pour les trouver rapidement.) Merci :)</resource>
 		<resource name="bugreport_title">Erreur</resource>
 		<resource name="CANCEL">Annuler</resource>
@@ -37,10 +37,10 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="colorpicker_red">Rouge</resource>
 		<resource name="colorpicker_title">Sélectionner une couleur</resource>
 		<resource name="colorpicker_transparent">Transparent</resource>
-		<resource name="com_rejected">La destination {0} a refusé l'accès de Greenshot, probablement une boîte de dialogue est ouverte. Fermez la boîte de dialogue et essayez à nouveau.</resource>
+		<resource name="com_rejected">La destination {0} a refusé l'accès de Greenshot, une boîte de dialogue est probablement ouverte. Fermez la boîte de dialogue et essayez à nouveau.</resource>
 		<resource name="com_rejected_title">Accès de Greenshot refusé</resource>
 		<resource name="config_unauthorizedaccess_write">Impossible d'enregistrer le fichier de configuration de Greenshot. Veuillez vérifier les droits pour '{0}'.</resource>
-		<resource name="contextmenu_about">à propos de Greenshot</resource>
+		<resource name="contextmenu_about">À propos de Greenshot</resource>
 		<resource name="contextmenu_capturearea">Capturer une région</resource>
 		<resource name="contextmenu_captureclipboard">Ouvrir l'image du presse-papier</resource>
 		<resource name="contextmenu_capturefullscreen">Capturer tout l'écran</resource>
@@ -61,7 +61,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="contextmenu_openrecentcapture">Ouvrir le dernier emplacement de sauvegarde</resource>
 		<resource name="contextmenu_quicksettings">Préférences rapides</resource>
 		<resource name="contextmenu_settings">Préférences...</resource>
-		<resource name="destination_exportfailed">Erreur lors de l'exportation vers {0}. Veuillez réessayer de nouveau.</resource>
+		<resource name="destination_exportfailed">Erreur lors de l'exportation vers {0}. Veuillez réessayer.</resource>
 		<resource name="editor_align_bottom">En bas</resource>
 		<resource name="editor_align_center">Centré</resource>
 		<resource name="editor_align_horizontal">Alignement horizontal</resource>
@@ -106,7 +106,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_drawtextbox">Ajouter une boîte de texte (T)</resource>
 		<resource name="editor_dropshadow_darkness">Intensité de l'ombre</resource>
 		<resource name="editor_dropshadow_offset">Décalage de l'ombre</resource>
-		<resource name="editor_dropshadow_settings">Paramètres Ombre portée</resource>
+		<resource name="editor_dropshadow_settings">Paramètres de l'ombre portée</resource>
 		<resource name="editor_dropshadow_thickness">Épaisseur de l'ombre</resource>
 		<resource name="editor_duplicate">Dupliquer l'élément sélectionné</resource>
 		<resource name="editor_edit">Édition</resource>
@@ -167,11 +167,11 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook avec texte</resource>
 		<resource name="error">Erreur</resource>
 		<resource name="error_multipleinstances">Une instance de Greenshot est déjà en cours d'exécution.</resource>
-		<resource name="error_nowriteaccess">Impossible d'entregistrer le fichier vers {0}.
+		<resource name="error_nowriteaccess">Impossible d'enregistrer le fichier vers {0}.
 Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="error_openfile">Le fichier "{0}" n'a pu être ouvert.</resource>
 		<resource name="error_openlink">Ne peut ouvrir le lien '{0}'.</resource>
-		<resource name="error_save">Impossible d'entregistrer la capture d'écran. Veuillez trouver un répertoire adéquat !</resource>
+		<resource name="error_save">Impossible d'enregistrer la capture d'écran. Veuillez trouver un répertoire adéquat !</resource>
 		<resource name="expertsettings">Expert</resource>
 		<resource name="expertsettings_autoreducecolors">Image en 8 bits si le nombre de couleurs est &lt; à 256 pour une image &gt; 8 bits</resource>
 		<resource name="expertsettings_checkunstableupdates">Vérifier les mises à jour instables</resource>
@@ -182,10 +182,10 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Empreinte mémoire minimisée, mais performances dégradées (non conseillé).</resource>
 		<resource name="expertsettings_optimizeforrdp">Optimisations pour l'utilisation avec le bureau à distance</resource>
 		<resource name="expertsettings_reuseeditorifpossible">Réutiliser l'éditeur si possible</resource>
-		<resource name="expertsettings_suppresssavedialogatclose">Supprimer boîte de dialogue de sauvegarde lors de la fermeture de l'éditeur</resource>
-		<resource name="expertsettings_thumbnailpreview">Fenêtre de miniatures dans le menu contextuel (pour Vista et Windows 7)</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Supprimer la boîte de dialogue de sauvegarde lors de la fermeture de l'éditeur</resource>
+		<resource name="expertsettings_thumbnailpreview">Fenêtre de miniatures dans le menu contextuel (pour Windows Vista et Windows 7)</resource>
 		<resource name="exported_to">Exporter vers : {0}</resource>
-		<resource name="exported_to_error">Une erreur s'est produite lors de l'exportation de {0}:</resource>
+		<resource name="exported_to_error">Une erreur s'est produite lors de l'exportation de {0} :</resource>
 		<resource name="help_title">Aide de Greenshot</resource>
 		<resource name="hotkeys">Raccourcis clavier</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Veuillez choisir la qualité de l'image JPEG.</resource>
@@ -196,10 +196,10 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="printoptions_allowrotate">Tourner l'impression selon l'orientation de la page</resource>
 		<resource name="printoptions_allowshrink">Réduire aux dimensions de la page</resource>
 		<resource name="printoptions_colors">Paramètres d'impression couleur</resource>
-    <resource name="printoptions_dontaskagain">Enregistrer ces options comme valeurs par défaut et ne plus le demander.</resource>
+		<resource name="printoptions_dontaskagain">Enregistrer ces options comme valeurs par défaut et ne plus le demander.</resource>
 		<resource name="printoptions_inverted">Imprimer en couleurs inversées</resource>
 		<resource name="printoptions_layout">Paramètres de mise en page</resource>
-    <resource name="printoptions_printcolor">Impression en couleur</resource>
+		<resource name="printoptions_printcolor">Impression en couleur</resource>
 		<resource name="printoptions_printgrayscale">Forcer l'impression en niveaux de gris</resource>
 		<resource name="printoptions_printmonochrome">Forcer l'impression en noir/blanc</resource>
 		<resource name="printoptions_timestamp">Imprimer la date et l'heure dans le pied de page</resource>
@@ -214,7 +214,7 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="settings_capture">Capture</resource>
 		<resource name="settings_capture_mousepointer">Capturer le pointeur de la souris</resource>
 		<resource name="settings_capture_windows_interactive">Utiliser le mode interactif de capture de fenêtre</resource>
-		<resource name="settings_checkperiod">Intervalle de vérification des m.a.j en jours (0=pas de vérification)</resource>
+		<resource name="settings_checkperiod">Intervalle de vérification des m.à.j en jours (0=pas de vérification)</resource>
 		<resource name="settings_configureplugin">Configurer</resource>
 		<resource name="settings_copypathtoclipboard">Copier le chemin vers le fichier dans le presse-papier à chaque sauvegarde</resource>
 		<resource name="settings_destination">Destination de la capture d'écran</resource>
@@ -225,7 +225,7 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="settings_destination_fileas">Enregistrer sous (afficher la boîte de dialogue)</resource>
 		<resource name="settings_destination_picker">Sélectionner la destination dynamiquement</resource>
 		<resource name="settings_destination_printer">Vers l'imprimante</resource>
-		<resource name="settings_editor">Editeur</resource>
+		<resource name="settings_editor">Éditeur</resource>
 		<resource name="settings_filenamepattern">Modèle du nom de fichier</resource>
 		<resource name="settings_general">Général</resource>
 		<resource name="settings_iecapture">Capture d'Internet Explorer</resource>
