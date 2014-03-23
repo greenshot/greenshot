@@ -10,6 +10,7 @@ Bugs resolved:
 * Bug #1581: Ini-file reading is now done without locking the file, this should help a bit in cases where other applications have this file open.
 * Bug #1600: Found that Greenshot uses a wrong URL format on the clipboard, this fix might solve some issues
 * Bug: When capturing client windows on a DWM enabled system (Vista & Windows 7) with "auto" set, sometimes the capture had a blurred/transparent effect.
+* Bug: Couldn't export to an Outlook 2013 reply which is being edited in the preview pane
 
 Features:
 * Feature #663: dark background for textbox input when editing bright-colored text
