@@ -37,7 +37,7 @@ namespace GreenshotBoxPlugin {
 	public static class BoxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxUtils));
 		private static readonly BoxConfiguration Config = IniConfig.GetIniSection<BoxConfiguration>();
-		private const string RedirectUri = "https://app.box.com/home/";
+		private const string RedirectUri = "https://www.box.com/home/";
 		private const string UploadFileUri = "https://upload.box.com/api/2.0/files/content";
 		private const string AuthorizeUri = "https://www.box.com/api/oauth2/authorize";
 		private const string TokenUri = "https://www.box.com/api/oauth2/token";
