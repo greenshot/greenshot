@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="French" ietf="fr-FR" version="1.0.0">
+  <resources>
+    <resource name="settings_title">
+      Paramètres Office
+    </resource>
+    <resource name="word_lockaspect">
+      Verrouiller les proportions de l'image dans les exportations de Word
+    </resource>
+    <resource name="outlook_allowmeetings">
+      Autoriser les exportations à des réunions
+    </resource>
+    <resource name="outlook_subject_pattern">
+      Modèle pour le sujet d'Outlook
+    </resource>
+    <resource name="outlook_email_format">
+      Format du courriel pour les courriels nouvellement créés
+    </resource>
+    <resource name="outlook_email_include_signature">
+      Insérer une signature par défaut pour les nouveaux courriels
+    </resource>
+    <resource name="outlook_emailto">
+      Défaut envoyer par courriel à l'adresse
+    </resource>
+    <resource name="outlook_emailcc">
+      Défaut envoyer par courriel CC à l'adresse
+    </resource>
+    <resource name="outlook_emailbcc">
+      Défaut envoyer par courriel CCI à l'adresse
+    </resource>
+    <resource name="powerpoint_slide_layout">
+      Mise en page utilisée pour l'exportation
+    </resource>
+    <resource name="powerpoint_lockaspect">
+      Verrouiller les proportions de l'image dans les exportations de PowerPoint
+    </resource>
+  </resources>
+</language>
