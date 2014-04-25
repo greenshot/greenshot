@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using Greenshot.Drawing;
 using Greenshot.Plugin.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Configuration;
@@ -36,7 +35,7 @@ namespace Greenshot.Memento {
 		public ChangeFieldHolderMemento(IDrawableContainer drawableContainer, Field fieldToBeChanged) {
 			this.drawableContainer = drawableContainer;
 			this.fieldToBeChanged = fieldToBeChanged;
-			this.oldValue = fieldToBeChanged.Value;
+			oldValue = fieldToBeChanged.Value;
 		}
 
 		public void Dispose() {

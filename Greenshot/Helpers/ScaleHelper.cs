@@ -22,6 +22,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Drawing;
+using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -45,7 +46,7 @@ namespace Greenshot.Helpers {
 			Rational = 0x02
 		}
 		
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ScaleHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ScaleHelper));
 		
 		/// <summary>
 		/// calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio
@@ -289,10 +290,10 @@ namespace Greenshot.Helpers {
 			
 		public static void Scale(Rectangle boundsBeforeResize, int gripperPosition, int cursorX, int cursorY, ref RectangleF boundsAfterResize, IDoubleProcessor angleRoundBehavior) {
 		
-			ScaleHelper.ScaleOptions opts = ScaleHelper.GetScaleOptions();
+			ScaleOptions opts = GetScaleOptions();
 			
-			bool rationalScale = (opts & ScaleHelper.ScaleOptions.Rational) == ScaleHelper.ScaleOptions.Rational;
-			bool centeredScale = (opts & ScaleHelper.ScaleOptions.Centered) == ScaleHelper.ScaleOptions.Centered;
+			bool rationalScale = (opts & ScaleOptions.Rational) == ScaleOptions.Rational;
+			bool centeredScale = (opts & ScaleOptions.Centered) == ScaleOptions.Centered;
 			
 			if(rationalScale) {
 				double angle = GeometryHelper.Angle2D(boundsBeforeResize.X, boundsBeforeResize.Y, cursorX, cursorY);
@@ -320,7 +321,7 @@ namespace Greenshot.Helpers {
 		}
 		
 		/// <returns>the current ScaleOptions depending on modifier keys held down</returns>
-		public static ScaleHelper.ScaleOptions GetScaleOptions() {
+		public static ScaleOptions GetScaleOptions() {
 			bool anchorAtCenter = (Control.ModifierKeys & Keys.Control) != 0;
 			bool maintainAspectRatio = ((Control.ModifierKeys & Keys.Shift) != 0);
 			ScaleOptions opts = ScaleOptions.Default;
@@ -353,7 +354,7 @@ namespace Greenshot.Helpers {
 				this.fixedAngle = fixedAngle;
 			}
 			public double Process(double angle) {
-				return this.fixedAngle;
+				return fixedAngle;
 			}
 		}
 		

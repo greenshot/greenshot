@@ -21,11 +21,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
+using Greenshot.Controls;
 using Greenshot.IniFile;
 
 namespace Greenshot {
@@ -37,12 +38,12 @@ namespace Greenshot {
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 
 		private ColorDialog() {
-			this.SuspendLayout();
+			SuspendLayout();
 			InitializeComponent();
-			this.SuspendLayout();
-			this.createColorPalette(5,5,15,15);
-			this.createLastUsedColorButtonRow(5,190,15,15);
-			this.ResumeLayout();
+			SuspendLayout();
+			createColorPalette(5,5,15,15);
+			createLastUsedColorButtonRow(5,190,15,15);
+			ResumeLayout();
 			updateRecentColorsButtonRow();
 		}
 
@@ -65,33 +66,33 @@ namespace Greenshot {
 		
 		#region user interface generation
 		private void createColorPalette(int x, int y, int w, int h) {
-			this.createColorButtonColumn(255,0,0, x, y, w, h, 11);
+			createColorButtonColumn(255,0,0, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(255,255/2,0, x, y, w, h, 11);
+			createColorButtonColumn(255,255/2,0, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(255,255,0, x, y, w, h, 11);
+			createColorButtonColumn(255,255,0, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(255/2,255,0, x, y, w, h, 11);
+			createColorButtonColumn(255/2,255,0, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(0,255,0, x, y, w, h, 11);
+			createColorButtonColumn(0,255,0, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(0,255,255/2, x, y, w, h, 11);
+			createColorButtonColumn(0,255,255/2, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(0,255,255, x, y, w, h, 11);
+			createColorButtonColumn(0,255,255, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(0,255/2,255, x, y, w, h, 11);
+			createColorButtonColumn(0,255/2,255, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(0,0,255, x, y, w, h, 11);
+			createColorButtonColumn(0,0,255, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(255/2,0,255, x, y, w, h, 11);
+			createColorButtonColumn(255/2,0,255, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(255,0,255, x, y, w, h, 11);
+			createColorButtonColumn(255,0,255, x, y, w, h, 11);
 			x += w;
-			this.createColorButtonColumn(255,0,255/2, x, y, w, h, 11);
+			createColorButtonColumn(255,0,255/2, x, y, w, h, 11);
 			x += w + 5;
-			this.createColorButtonColumn(255/2,255/2,255/2, x, y, w, h, 11);
+			createColorButtonColumn(255/2,255/2,255/2, x, y, w, h, 11);
 			
-			this.Controls.AddRange(this.colorButtons.ToArray());
+			Controls.AddRange(colorButtons.ToArray());
 		}
 		private void createColorButtonColumn(int red, int green, int blue, int x, int y, int w, int h, int shades) {
 			int shadedColorsNum = (shades - 1) / 2;
@@ -111,18 +112,18 @@ namespace Greenshot {
 			b.Location = new Point(x,y);
 			b.Size = new Size(w,h);
 			b.TabStop = false;
-			b.Click += new System.EventHandler(colorButtonClick);
+			b.Click += colorButtonClick;
 			toolTip.SetToolTip(b,ColorTranslator.ToHtml(color)+" | R:"+color.R +", G:"+color.G+", B:"+color.B);
 			return b;
 		}
 		private void createLastUsedColorButtonRow(int x, int y, int w, int h) {
 			for(int i=0; i<12; i++) {
-				Button b = this.createColorButton(Color.Transparent, x, y, w, h);
+				Button b = createColorButton(Color.Transparent, x, y, w, h);
 				b.Enabled = false;
 				recentColorButtons.Add(b);
 				x += w;
 			}
-			this.Controls.AddRange(this.recentColorButtons.ToArray());
+			Controls.AddRange(recentColorButtons.ToArray());
 		}
 		#endregion
 		
@@ -136,22 +137,22 @@ namespace Greenshot {
 
 		private void previewColor(Color c, Control trigger) {
 			updateInProgress = true;
-			this.colorPanel.BackColor = c;
-			if(trigger != this.textBoxHtmlColor) {
-				this.textBoxHtmlColor.Text = System.Drawing.ColorTranslator.ToHtml(c);
+			colorPanel.BackColor = c;
+			if(trigger != textBoxHtmlColor) {
+				textBoxHtmlColor.Text = ColorTranslator.ToHtml(c);
 			} else {
-				if(!this.textBoxHtmlColor.Text.StartsWith("#")) {
-					int selStart = this.textBoxHtmlColor.SelectionStart;
-					int selLength = this.textBoxHtmlColor.SelectionLength;
-					this.textBoxHtmlColor.Text = "#" +this.textBoxHtmlColor.Text;
-					this.textBoxHtmlColor.Select(selStart+1, selLength+1);
+				if(!textBoxHtmlColor.Text.StartsWith("#")) {
+					int selStart = textBoxHtmlColor.SelectionStart;
+					int selLength = textBoxHtmlColor.SelectionLength;
+					textBoxHtmlColor.Text = "#" +textBoxHtmlColor.Text;
+					textBoxHtmlColor.Select(selStart+1, selLength+1);
 				}
 			}
-			if(trigger != this.textBoxRed && trigger != this.textBoxGreen && trigger != this.textBoxBlue && trigger != this.textBoxAlpha) {
-				this.textBoxRed.Text = c.R.ToString();
-				this.textBoxGreen.Text = c.G.ToString();
-				this.textBoxBlue.Text = c.B.ToString();
-				this.textBoxAlpha.Text = c.A.ToString();
+			if(trigger != textBoxRed && trigger != textBoxGreen && trigger != textBoxBlue && trigger != textBoxAlpha) {
+				textBoxRed.Text = c.R.ToString();
+				textBoxGreen.Text = c.G.ToString();
+				textBoxBlue.Text = c.B.ToString();
+				textBoxAlpha.Text = c.A.ToString();
 			}
 			updateInProgress = false;
 		}
@@ -165,25 +166,25 @@ namespace Greenshot {
 		#endregion
 		
 		#region textbox event handlers
-		void TextBoxHexadecimalTextChanged(object sender, System.EventArgs e)
+		void TextBoxHexadecimalTextChanged(object sender, EventArgs e)
 		{
 			if(updateInProgress) return;
 			TextBox tb = (TextBox) sender;
 			string t = tb.Text.Replace("#","");
 			int i = 0;
-			Int32.TryParse(t, System.Globalization.NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i);
+			Int32.TryParse(t, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i);
 			Color c = Color.FromArgb(i);
 			Color opaqueColor = Color.FromArgb(255, c.R, c.G, c.B);
 			previewColor(opaqueColor, tb);
 		}
-		void TextBoxRGBTextChanged(object sender, System.EventArgs e)
+		void TextBoxRGBTextChanged(object sender, EventArgs e)
 		{
 			if(updateInProgress) return;
 			TextBox tb = (TextBox) sender;
 			previewColor(Color.FromArgb(getColorPartIntFromString(textBoxAlpha.Text),getColorPartIntFromString(textBoxRed.Text),getColorPartIntFromString(textBoxGreen.Text),getColorPartIntFromString(textBoxBlue.Text)), tb);
 		}
-		void TextBoxGotFocus(object sender, System.EventArgs e) {
-			this.textBoxHtmlColor.SelectAll();
+		void TextBoxGotFocus(object sender, EventArgs e) {
+			textBoxHtmlColor.SelectAll();
 		}
 		void TextBoxKeyDown(object sender, KeyEventArgs e) {
 			if(e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) {
@@ -193,19 +194,19 @@ namespace Greenshot {
 		#endregion
 		
 		#region button event handlers
-		void colorButtonClick(object sender, System.EventArgs e) {
+		void colorButtonClick(object sender, EventArgs e) {
 			Button b = (Button) sender;
 			previewColor(b.BackColor, b);
 		}
 
-		void btnTransparentClick(object sender, System.EventArgs e)
+		void btnTransparentClick(object sender, EventArgs e)
 		{
 			colorButtonClick(sender, e);
 		}
-		void BtnApplyClick(object sender, System.EventArgs e)
+		void BtnApplyClick(object sender, EventArgs e)
 		{
-			this.DialogResult = DialogResult.OK;
-			this.Hide();
+			DialogResult = DialogResult.OK;
+			Hide();
 			addToRecentColors(colorPanel.BackColor);
 		}
 		#endregion
@@ -221,8 +222,8 @@ namespace Greenshot {
 		
 		#endregion	
 
-		private void pipetteUsed(object sender, Greenshot.Controls.PipetteUsedArgs e) {
-			this.Color = e.color;
+		private void pipetteUsed(object sender, PipetteUsedArgs e) {
+			Color = e.color;
 		}
 	}
 }

@@ -34,10 +34,9 @@ using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using Greenshot.Memento;
 using Greenshot.IniFile;
-using Greenshot.Drawing.Filters;
-using System.Drawing.Drawing2D;
 using GreenshotPlugin.Controls;
 using Greenshot.Core;
+using log4net;
 
 namespace Greenshot.Drawing {
 
@@ -45,7 +44,7 @@ namespace Greenshot.Drawing {
 	/// Description of Surface.
 	/// </summary>
 	public class Surface : Control, ISurface {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Surface));
+		private static ILog LOG = LogManager.GetLogger(typeof(Surface));
 		public static int Count = 0;
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
@@ -384,23 +383,23 @@ namespace Greenshot.Drawing {
 			elements = new DrawableContainerList(uniqueID);
 			selectedElements = new DrawableContainerList(uniqueID);
 			LOG.Debug("Creating surface!");
-			this.MouseDown += new MouseEventHandler(SurfaceMouseDown);
-			this.MouseUp += new MouseEventHandler(SurfaceMouseUp);
-			this.MouseMove += new MouseEventHandler(SurfaceMouseMove);
-			this.MouseDoubleClick += new MouseEventHandler(SurfaceDoubleClick);
-			this.Paint += new PaintEventHandler(SurfacePaint);
-			this.AllowDrop = true;
-			this.DragDrop += new DragEventHandler(OnDragDrop);
-			this.DragEnter += new DragEventHandler(OnDragEnter);
+			MouseDown += SurfaceMouseDown;
+			MouseUp += SurfaceMouseUp;
+			MouseMove += SurfaceMouseMove;
+			MouseDoubleClick += SurfaceDoubleClick;
+			Paint += SurfacePaint;
+			AllowDrop = true;
+			DragDrop += OnDragDrop;
+			DragEnter += OnDragEnter;
 			// bind selected & elements to this, otherwise they can't inform of modifications
-			this.selectedElements.Parent = this;
-			this.elements.Parent = this;
+			selectedElements.Parent = this;
+			elements.Parent = this;
 			// Make sure we are visible
-			this.Visible = true;
-			this.TabStop = false;
+			Visible = true;
+			TabStop = false;
 			// Enable double buffering
-			this.DoubleBuffered = true;
-			this.SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.ContainerControl | ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
+			DoubleBuffered = true;
+			SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.ContainerControl | ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
 		}
 		
 		/// <summary>
@@ -767,7 +766,7 @@ namespace Greenshot.Drawing {
 		/// <param name="e"></param>
 		private void OnDragDrop(object sender, DragEventArgs e) {
 			List<string> filenames = ClipboardHelper.GetImageFilenames(e.Data);
-			Point mouse = this.PointToClient(new Point(e.X, e.Y));
+			Point mouse = PointToClient(new Point(e.X, e.Y));
 			if (e.Data.GetDataPresent("Text")) {
 				string possibleUrl = ClipboardHelper.GetText(e.Data);
 				// Test if it's an url and try to download the image so we have it in the original form
@@ -875,7 +874,7 @@ namespace Greenshot.Drawing {
 		/// <param name="cropRectangle"></param>
 		/// <returns>true if this is possible</returns>
 		public bool isCropPossible(ref Rectangle cropRectangle) {
-			cropRectangle = Helpers.GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
+			cropRectangle = GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
 			if (cropRectangle.Left < 0) {
 				cropRectangle = new Rectangle(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
 			}
@@ -1046,7 +1045,7 @@ namespace Greenshot.Drawing {
 			if (DrawingMode == DrawingModes.None) {
 				// check whether an existing element was clicked
 				IDrawableContainer element = elements.ClickableElementAt(currentMouse.X, currentMouse.Y);
-				bool shiftModifier = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
+				bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
 				if (element != null) {
 					element.Invalidate();
 					bool alreadySelected = selectedElements.Contains(element);
@@ -1228,7 +1227,7 @@ namespace Greenshot.Drawing {
 				targetGraphics.FillRectangle(transparencyBackgroundBrush, clipRectangle);
 			} else {
 				Graphics targetGraphics = e.Graphics;
-				targetGraphics.Clear(this.BackColor);
+				targetGraphics.Clear(BackColor);
 				//base.OnPaintBackground(e);
 			}
 		} 
@@ -1392,7 +1391,7 @@ namespace Greenshot.Drawing {
 				if (dcs != null) {
 					// Make element(s) only move 10,10 if the surface is the same
 					Point moveOffset;
-					bool isSameSurface = (dcs.ParentID == this.uniqueID);
+					bool isSameSurface = (dcs.ParentID == uniqueID);
 					dcs.Parent = this;
 					if (isSameSurface) {
 						moveOffset = new Point(10, 10);
@@ -1575,7 +1574,7 @@ namespace Greenshot.Drawing {
 		/// <returns>false if no keys were processed</returns>
 		public bool ProcessCmdKey(Keys k) {
 			if (selectedElements.Count > 0) {
-				bool shiftModifier = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
+				bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
 				int px = shiftModifier ? 10 : 1;
 				Point moveBy = Point.Empty;
 				

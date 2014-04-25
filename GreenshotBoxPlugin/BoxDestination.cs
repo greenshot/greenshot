@@ -20,18 +20,17 @@
  */
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using log4net;
 
 namespace GreenshotBoxPlugin {
 	public class BoxDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxDestination));
-		private static BoxConfiguration config = IniConfig.GetIniSection<BoxConfiguration>();
+		private static ILog LOG = LogManager.GetLogger(typeof(BoxDestination));
 
-		private BoxPlugin plugin = null;
+		private readonly BoxPlugin _plugin;
 		public BoxDestination(BoxPlugin plugin) {
-			this.plugin = plugin;
+			_plugin = plugin;
 		}
 		
 		public override string Designation {
@@ -54,8 +53,8 @@ namespace GreenshotBoxPlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadUrl = plugin.Upload(captureDetails, surface);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+			string uploadUrl = _plugin.Upload(captureDetails, surface);
 			if (uploadUrl != null) {
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploadUrl;

@@ -22,9 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using System.Runtime.InteropServices;
 using Greenshot.Configuration;
-using Greenshot.Drawing.Filters;
 using Greenshot.Helpers.IEInterop;
 using Greenshot.Interop;
 using Greenshot.Interop.IE;
@@ -33,6 +32,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -42,7 +42,7 @@ namespace Greenshot.Helpers {
 	/// Many thanks to all the people who contributed here!
 	/// </summary>
 	public static class IECaptureHelper {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IECaptureHelper));
+		private static ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
 		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 
 		// Helper method to activate a certain IE Tab
@@ -145,7 +145,7 @@ namespace Greenshot.Helpers {
 							try {
 								IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
 								string title = document2.title;
-								System.Runtime.InteropServices.Marshal.ReleaseComObject(document2);
+								Marshal.ReleaseComObject(document2);
 								if (string.IsNullOrEmpty(title)) {
 									singleWindowText.Add(ieWindow.Text);
 								} else {

@@ -18,11 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
-using System.IO;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
@@ -30,14 +29,14 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
 using Greenshot.IniFile;
-using Greenshot.Core;
+using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of PrinterDestination.
 	/// </summary>
 	public class PrinterDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PrinterDestination));
+		private static ILog LOG = LogManager.GetLogger(typeof(PrinterDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Printer";
 		public string printerName = null;
@@ -78,7 +77,7 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				return GreenshotPlugin.Core.GreenshotResources.getImage("Printer.Image");
+				return GreenshotResources.getImage("Printer.Image");
 			}
 		}
 
@@ -106,7 +105,7 @@ namespace Greenshot.Destinations {
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			PrinterSettings printerSettings = null;
 			if (!string.IsNullOrEmpty(printerName)) {
 				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {

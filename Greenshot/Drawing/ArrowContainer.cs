@@ -23,7 +23,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 
 using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Drawing {
@@ -41,7 +40,7 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
 			AddField(GetType(), FieldType.SHADOW, true);
-			AddField(GetType(), FieldType.ARROWHEADS, Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.END_POINT);
+			AddField(GetType(), FieldType.ARROWHEADS, ArrowHeadCombination.END_POINT);
 		}
 
 		public override void Draw(Graphics graphics, RenderMode rm) {
@@ -67,10 +66,10 @@ namespace Greenshot.Drawing {
 								SetArrowHeads(heads, shadowCapPen);
 
 								graphics.DrawLine(shadowCapPen,
-									this.Left + currentStep,
-									this.Top + currentStep,
-									this.Left + currentStep + this.Width,
-									this.Top + currentStep + this.Height);
+									Left + currentStep,
+									Top + currentStep,
+									Left + currentStep + Width,
+									Top + currentStep + Height);
 
 								currentStep++;
 								alpha = alpha - (basealpha / steps);
@@ -80,7 +79,7 @@ namespace Greenshot.Drawing {
 					}
 					using (Pen pen = new Pen(lineColor, lineThickness)) {
 						SetArrowHeads(heads, pen);
-						graphics.DrawLine(pen, this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+						graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
 					}
 				}
 			}
@@ -103,7 +102,7 @@ namespace Greenshot.Drawing {
 						pen.Width = lineThickness;
 						SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
 						using (GraphicsPath path = new GraphicsPath()) {
-							path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+							path.AddLine(Left, Top, Left + Width, Top + Height);
 							Rectangle drawingBounds = Rectangle.Round(path.GetBounds(new Matrix(), pen));
 							drawingBounds.Inflate(2, 2);
 							return drawingBounds;
@@ -122,7 +121,7 @@ namespace Greenshot.Drawing {
 					pen.Width = lineThickness;
 					SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
 					using (GraphicsPath path = new GraphicsPath()) {
-						path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+						path.AddLine(Left, Top, Left + Width, Top + Height);
 						return path.IsOutlineVisible(x, y, pen);
 					}
 				}

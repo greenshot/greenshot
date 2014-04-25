@@ -38,7 +38,7 @@ namespace Greenshot.Controls {
 		private Color selectedColor = Color.Transparent;
 		
 		public ToolStripColorButton() {
-			Click+= new EventHandler(ColorButtonClick);
+			Click+= ColorButtonClick;
 		}
 
 		public Color SelectedColor {
@@ -69,7 +69,7 @@ namespace Greenshot.Controls {
 			ColorDialog colorDialog = ColorDialog.GetInstance();
 			colorDialog.Color = SelectedColor;
 			// Using the parent to make sure the dialog doesn't show on another window
-			colorDialog.ShowDialog(this.Parent.Parent);
+			colorDialog.ShowDialog(Parent.Parent);
 			if (colorDialog.DialogResult != DialogResult.Cancel) {
 				if (!colorDialog.Color.Equals(SelectedColor)) {
 					SelectedColor = colorDialog.Color;

@@ -20,16 +20,13 @@
  */
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Windows.Forms;
-
 using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
 using Greenshot.Core;
+using log4net;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -37,7 +34,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class ImageContainer : DrawableContainer, IImageContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageContainer));
+		private static ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
 
 		private Image image;
 
@@ -76,16 +73,16 @@ namespace Greenshot.Drawing {
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			if (shadow) {
 				CheckShadow(shadow);
-				this.Width = shadowBitmap.Width;
-				this.Height = shadowBitmap.Height;
-				this.Left = this.Left - this.shadowOffset.X;
-				this.Top = this.Top - this.shadowOffset.Y;
+				Width = shadowBitmap.Width;
+				Height = shadowBitmap.Height;
+				Left = Left - shadowOffset.X;
+				Top = Top - shadowOffset.Y;
 			} else {
-				this.Width = image.Width;
-				this.Height = image.Height;
+				Width = image.Width;
+				Height = image.Height;
 				if (shadowBitmap != null) {
-					this.Left = this.Left + this.shadowOffset.X;
-					this.Top = this.Top + this.shadowOffset.Y;
+					Left = Left + shadowOffset.X;
+					Top = Top + shadowOffset.Y;
 				}
 			}
 		}
@@ -103,8 +100,8 @@ namespace Greenshot.Drawing {
 				} else {
 					Width = shadowBitmap.Width;
 					Height = shadowBitmap.Height;
-					this.Left = this.Left - this.shadowOffset.X;
-					this.Top = this.Top - this.shadowOffset.Y;
+					Left = Left - shadowOffset.X;
+					Top = Top - shadowOffset.Y;
 				}
 			}
 			get { return image; }

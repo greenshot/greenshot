@@ -24,6 +24,7 @@ using System.Drawing.Drawing2D;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using log4net;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -31,7 +32,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class RectangleContainer : DrawableContainer {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RectangleContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(RectangleContainer));
 
 		public RectangleContainer(Surface parent) : base(parent) {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
@@ -62,10 +63,10 @@ namespace Greenshot.Drawing {
 					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
 						shadowPen.Width = lineVisible ? lineThickness : 1;
 						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(
-							this.Left + currentStep,
-							this.Top + currentStep,
-							this.Width,
-							this.Height);
+							Left + currentStep,
+							Top + currentStep,
+							Width,
+							Height);
 						graphics.DrawRectangle(shadowPen, shadowRect);
 						currentStep++;
 						alpha = alpha - (basealpha / steps);
@@ -73,7 +74,7 @@ namespace Greenshot.Drawing {
 				}
 			}
 			
-			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
+			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
 			if (Colors.IsVisible(fillColor)) {
 				using (Brush brush = new SolidBrush(fillColor)) {
@@ -90,7 +91,7 @@ namespace Greenshot.Drawing {
 		}
 		
 		public override bool ClickableAt(int x, int y) {
-			Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
+			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 

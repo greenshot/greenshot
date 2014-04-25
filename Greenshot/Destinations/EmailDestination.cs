@@ -19,10 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
@@ -30,15 +27,16 @@ using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of EmailDestination.
 	/// </summary>
 	public class EmailDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EmailDestination));
+		private static ILog LOG = LogManager.GetLogger(typeof(EmailDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static Image mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
+		private static Image mailIcon = GreenshotResources.getImage("Email.Image");
 		private static bool isActiveFlag = false;
 		private static string mapiClient = null;
 		public const string DESIGNATION = "EMail";
@@ -109,7 +107,7 @@ namespace Greenshot.Destinations {
 		}
 		
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			MapiMailMessage.SendImage(surface, captureDetails);
 			exportInformation.ExportMade = true;
 			ProcessExport(exportInformation, surface);

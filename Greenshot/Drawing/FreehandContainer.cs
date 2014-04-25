@@ -21,12 +21,12 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.ComponentModel;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using log4net;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -34,7 +34,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class FreehandContainer : DrawableContainer {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FreehandContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FreehandContainer));
 		private static readonly float [] POINT_OFFSET = new float[]{0.5f, 0.25f, 0.75f};
 
 		[NonSerialized]
@@ -66,7 +66,7 @@ namespace Greenshot.Drawing {
 			}
 		}
 		
-		[OnDeserializedAttribute()]
+		[OnDeserialized()]
 		private void OnDeserialized(StreamingContext context) {
 			InitGrippers();
 			DoLayout();
@@ -258,7 +258,7 @@ namespace Greenshot.Drawing {
 		}
 
 		public override void ShowGrippers() {
-			this.ResumeLayout();
+			ResumeLayout();
 		}
 
 		public override bool ClickableAt(int x, int y) {

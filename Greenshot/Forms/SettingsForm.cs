@@ -19,8 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 
@@ -33,19 +35,18 @@ using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
 using System.Text.RegularExpressions;
-using Greenshot.Controls;
+using log4net;
 
 namespace Greenshot {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : BaseForm {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-		private ToolTip toolTip = new ToolTip();
-		private bool inHotkey = false;
+		private static ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
+		private readonly ToolTip _toolTip = new ToolTip();
+		private bool _inHotkey;
 
-		public SettingsForm() : base() {
+		public SettingsForm() {
 			InitializeComponent();
 			
 			// Make sure the store isn't called to early, that's why we do it manually
@@ -54,26 +55,26 @@ namespace Greenshot {
 
 		protected override void OnLoad(EventArgs e) {
 			base.OnLoad(e);
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.getGreenshotIcon();
 
 			// Fix for Vista/XP differences
 			if (Environment.OSVersion.Version.Major >= 6) {
-				this.trackBarJpegQuality.BackColor = System.Drawing.SystemColors.Window;
+				trackBarJpegQuality.BackColor = SystemColors.Window;
 			} else {
-				this.trackBarJpegQuality.BackColor = System.Drawing.SystemColors.Control;
+				trackBarJpegQuality.BackColor = SystemColors.Control;
 			}
 
 			// This makes it possible to still capture the settings screen
-			this.fullscreen_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			this.fullscreen_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-			this.window_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			this.window_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-			this.region_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			this.region_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-			this.ie_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			this.ie_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-			this.lastregion_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			this.lastregion_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			fullscreen_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			fullscreen_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			window_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			window_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			region_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			region_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			ie_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			ie_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			lastregion_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
+			lastregion_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
 
 			DisplayPluginTab();
 			UpdateUI();
@@ -83,19 +84,19 @@ namespace Greenshot {
 		}
 
 		private void EnterHotkeyControl() {
-			GreenshotPlugin.Controls.HotkeyControl.UnregisterHotkeys();
-			inHotkey = true;
+			HotkeyControl.UnregisterHotkeys();
+			_inHotkey = true;
 		}
 
 		private void LeaveHotkeyControl() {
 			MainForm.RegisterHotkeys();
-			inHotkey = false;
+			_inHotkey = false;
 		}
 
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
 			switch (keyData) {
 				case Keys.Escape:
-					if (!inHotkey) {
+					if (!_inHotkey) {
 						DialogResult = DialogResult.Cancel;
 					} else {
 						return base.ProcessCmdKey(ref msg, keyData);
@@ -113,20 +114,8 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="comboBox">ComboBox to populate</param>
 		/// <param name="enumeration">Enum to populate with</param>
-		private void PopulateComboBox<ET>(ComboBox comboBox) where ET : struct {
-			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
-			PopulateComboBox<ET>(comboBox, availableValues, availableValues[0]);
-		}
-
-		/// <summary>
-		/// This is a method to popululate the ComboBox
-		/// with the items from the enumeration
-		/// </summary>
-		/// <param name="comboBox">ComboBox to populate</param>
-		/// <param name="enumeration">Enum to populate with</param>
 		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) where ET : struct {
 			comboBox.Items.Clear();
-			string enumTypeName = typeof(ET).Name;
 			foreach(ET enumValue in availableValues) {
 				comboBox.Items.Add(Language.Translate(enumValue));
 			}
@@ -161,16 +150,16 @@ namespace Greenshot {
 				if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent) {
 					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;
 				}
-				availableModes = new WindowCaptureMode[]{WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI};
+				availableModes = new[]{WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI};
 			} else {
-				availableModes = new WindowCaptureMode[]{WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI, WindowCaptureMode.Aero, WindowCaptureMode.AeroTransparent};
+				availableModes = new[]{WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI, WindowCaptureMode.Aero, WindowCaptureMode.AeroTransparent};
 			}
-			PopulateComboBox<WindowCaptureMode>(combobox_window_capture_mode, availableModes, selectedWindowCaptureMode);
+			PopulateComboBox(combobox_window_capture_mode, availableModes, selectedWindowCaptureMode);
 		}
 		
 		private void DisplayPluginTab() {
 			if (!PluginHelper.Instance.HasPlugins()) {
-				this.tabcontrol.TabPages.Remove(tab_plugins);
+				tabcontrol.TabPages.Remove(tab_plugins);
 			} else {
 				// Draw the Plugin listview
 				listview_plugins.BeginUpdate();
@@ -184,7 +173,7 @@ namespace Greenshot {
 				foreach (string column in columns) {
 					listview_plugins.Columns.Add(column);
 				}
-				PluginHelper.Instance.FillListview(this.listview_plugins);
+				PluginHelper.Instance.FillListview(listview_plugins);
 				// Maximize Column size!
 				for (int i = 0; i < listview_plugins.Columns.Count; i++) {
 					listview_plugins.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.ColumnContent);
@@ -209,26 +198,26 @@ namespace Greenshot {
 			if (coreConfiguration.HideExpertSettings) {
 				tabcontrol.Controls.Remove(tab_expert);
 			}
-			toolTip.SetToolTip(label_language, Language.GetString(LangKey.settings_tooltip_language));
-			toolTip.SetToolTip(label_storagelocation, Language.GetString(LangKey.settings_tooltip_storagelocation));
-			toolTip.SetToolTip(label_screenshotname, Language.GetString(LangKey.settings_tooltip_filenamepattern));
-			toolTip.SetToolTip(label_primaryimageformat, Language.GetString(LangKey.settings_tooltip_primaryimageformat));
+			_toolTip.SetToolTip(label_language, Language.GetString(LangKey.settings_tooltip_language));
+			_toolTip.SetToolTip(label_storagelocation, Language.GetString(LangKey.settings_tooltip_storagelocation));
+			_toolTip.SetToolTip(label_screenshotname, Language.GetString(LangKey.settings_tooltip_filenamepattern));
+			_toolTip.SetToolTip(label_primaryimageformat, Language.GetString(LangKey.settings_tooltip_primaryimageformat));
 
 			// Removing, otherwise we keep getting the event multiple times!
-			this.combobox_language.SelectedIndexChanged -= new System.EventHandler(this.Combobox_languageSelectedIndexChanged);
+			combobox_language.SelectedIndexChanged -= Combobox_languageSelectedIndexChanged;
 
 			// Initialize the Language ComboBox
-			this.combobox_language.DisplayMember = "Description";
-			this.combobox_language.ValueMember = "Ietf";
+			combobox_language.DisplayMember = "Description";
+			combobox_language.ValueMember = "Ietf";
 			// Set datasource last to prevent problems
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-			this.combobox_language.DataSource = Language.SupportedLanguages;
+			combobox_language.DataSource = Language.SupportedLanguages;
 			if (Language.CurrentLanguage != null) {
-				this.combobox_language.SelectedValue = Language.CurrentLanguage;
+				combobox_language.SelectedValue = Language.CurrentLanguage;
 			}
 
 			// Delaying the SelectedIndexChanged events untill all is initiated
-			this.combobox_language.SelectedIndexChanged += new System.EventHandler(this.Combobox_languageSelectedIndexChanged);
+			combobox_language.SelectedIndexChanged += Combobox_languageSelectedIndexChanged;
 			UpdateDestinationDescriptions();
 			UpdateClipboardFormatDescriptions();
 		}
@@ -242,15 +231,15 @@ namespace Greenshot {
 			} else {
 				// "Added" feature #3547158
 				if (Environment.OSVersion.Version.Major >= 6) {
-					this.textbox_storagelocation.BackColor = System.Drawing.SystemColors.Window;
+					textbox_storagelocation.BackColor = SystemColors.Window;
 				} else {
-					this.textbox_storagelocation.BackColor = System.Drawing.SystemColors.Control;
+					textbox_storagelocation.BackColor = SystemColors.Control;
 				}
 			}
 			return settingsOk;
 		}
 
-		private void StorageLocationChanged(object sender, System.EventArgs e) {
+		private void StorageLocationChanged(object sender, EventArgs e) {
 			CheckSettings();
 		}
 
@@ -259,8 +248,10 @@ namespace Greenshot {
 		/// </summary>
 		private void UpdateDestinationDescriptions() {
 			foreach (ListViewItem item in listview_destinations.Items) {
-				IDestination destination = item.Tag as IDestination;
-				item.Text = destination.Description;
+				IDestination destinationFromTag = item.Tag as IDestination;
+				if (destinationFromTag != null) {
+					item.Text = destinationFromTag.Description;
+				}
 			}
 		}
 
@@ -289,24 +280,24 @@ namespace Greenshot {
 			ImageList imageList = new ImageList();
 			listview_destinations.SmallImageList = imageList;
 			int imageNr = -1;
-			foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
-				Image destinationImage = destination.DisplayIcon;
+			foreach (IDestination currentDestination in DestinationHelper.GetAllDestinations()) {
+				Image destinationImage = currentDestination.DisplayIcon;
 				if (destinationImage != null) {
-					imageList.Images.Add(destination.DisplayIcon);
+					imageList.Images.Add(currentDestination.DisplayIcon);
 					imageNr++;
 				}
-				if (PickerDestination.DESIGNATION.Equals(destination.Designation)) {
-					checkbox_picker.Checked = coreConfiguration.OutputDestinations.Contains(destination.Designation);
-					checkbox_picker.Text = destination.Description;
+				if (PickerDestination.DESIGNATION.Equals(currentDestination.Designation)) {
+					checkbox_picker.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
+					checkbox_picker.Text = currentDestination.Description;
 				} else {
 					ListViewItem item;
 					if (destinationImage != null) {
-						item = listview_destinations.Items.Add(destination.Description, imageNr);
+						item = listview_destinations.Items.Add(currentDestination.Description, imageNr);
 					} else {
-						item = listview_destinations.Items.Add(destination.Description);
+						item = listview_destinations.Items.Add(currentDestination.Description);
 					}
-					item.Tag = destination;
-					item.Checked = coreConfiguration.OutputDestinations.Contains(destination.Designation);
+					item.Tag = currentDestination;
+					item.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
 				}
 			}
 			if (checkbox_picker.Checked) {
@@ -358,18 +349,18 @@ namespace Greenshot {
 				checkbox_autostartshortcut.Checked = false;
 			} else {
 				// Autostart checkbox logic.
-				if (StartupHelper.hasRunAll()) {
+				if (StartupHelper.HasRunAll()) {
 					// Remove runUser if we already have a run under all
-					StartupHelper.deleteRunUser();
-					checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunAll();
+					StartupHelper.DeleteRunUser();
+					checkbox_autostartshortcut.Enabled = StartupHelper.CanWriteRunAll();
 					checkbox_autostartshortcut.Checked = true; // We already checked this
 				} else if (StartupHelper.IsInStartupFolder()) {
 					checkbox_autostartshortcut.Enabled = false;
 					checkbox_autostartshortcut.Checked = true; // We already checked this
 				} else {
 					// No run for all, enable the checkbox and set it to true if the current user has a key
-					checkbox_autostartshortcut.Enabled = StartupHelper.canWriteRunUser();
-					checkbox_autostartshortcut.Checked = StartupHelper.hasRunUser();
+					checkbox_autostartshortcut.Enabled = StartupHelper.CanWriteRunUser();
+					checkbox_autostartshortcut.Checked = StartupHelper.HasRunUser();
 				}
 			}
 			
@@ -409,9 +400,9 @@ namespace Greenshot {
 			foreach(int index in listview_destinations.CheckedIndices) {
 				ListViewItem item = listview_destinations.Items[index];
 				
-				IDestination destination = item.Tag as IDestination;
-				if (item.Checked) {
-					destinations.Add(destination.Designation);
+				IDestination destinationFromTag = item.Tag as IDestination;
+				if (item.Checked && destinationFromTag != null) {
+					destinations.Add(destinationFromTag.Designation);
 				}
 			}
 			coreConfiguration.OutputDestinations = destinations;
@@ -423,16 +414,16 @@ namespace Greenshot {
 				if (checkbox_autostartshortcut.Checked) {
 					// It's checked, so we set the RunUser if the RunAll isn't set.
 					// Do this every time, so the executable is correct.
-					if (!StartupHelper.hasRunAll()) {
-						StartupHelper.setRunUser();
+					if (!StartupHelper.HasRunAll()) {
+						StartupHelper.SetRunUser();
 					}
 				} else {
 					// Delete both settings if it's unchecked
-					if (StartupHelper.hasRunAll()) {
-						StartupHelper.deleteRunAll();
+					if (StartupHelper.HasRunAll()) {
+						StartupHelper.DeleteRunAll();
 					}
-					if (StartupHelper.hasRunUser()) {
-						StartupHelper.deleteRunUser();
+					if (StartupHelper.HasRunUser()) {
+						StartupHelper.DeleteRunUser();
 					}
 				}
 			} catch (Exception e) {
@@ -440,13 +431,13 @@ namespace Greenshot {
 			}
 		}
 		
-		void Settings_cancelClick(object sender, System.EventArgs e) {
+		void Settings_cancelClick(object sender, EventArgs e) {
 			DialogResult = DialogResult.Cancel;
 		}
 		
-		void Settings_okayClick(object sender, System.EventArgs e) {
+		void Settings_okayClick(object sender, EventArgs e) {
 			if (CheckSettings()) {
-				GreenshotPlugin.Controls.HotkeyControl.UnregisterHotkeys();
+				HotkeyControl.UnregisterHotkeys();
 				SaveSettings();
 				StoreFields();
 				MainForm.RegisterHotkeys();
@@ -455,23 +446,23 @@ namespace Greenshot {
 				MainForm.Instance.UpdateUI();
 				DialogResult = DialogResult.OK;
 			} else {
-				this.tabcontrol.SelectTab(this.tab_output);
+				tabcontrol.SelectTab(tab_output);
 			}
 		}
 		
-		void BrowseClick(object sender, System.EventArgs e) {
+		void BrowseClick(object sender, EventArgs e) {
 			// Get the storage location and replace the environment variables
-			this.folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(this.textbox_storagelocation.Text, false);
-			if (this.folderBrowserDialog1.ShowDialog() == DialogResult.OK) {
+			folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
+			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK) {
 				// Only change if there is a change, otherwise we might overwrite the environment variables
-				if (this.folderBrowserDialog1.SelectedPath != null && !this.folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(this.textbox_storagelocation.Text, false))) {
-					this.textbox_storagelocation.Text = this.folderBrowserDialog1.SelectedPath;
+				if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false))) {
+					textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
 				}
 			}
 		}
 		
-		void TrackBarJpegQualityScroll(object sender, System.EventArgs e) {
-			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString();
+		void TrackBarJpegQualityScroll(object sender, EventArgs e) {
+			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString(CultureInfo.InvariantCulture);
 		}
 
 		
@@ -536,8 +527,8 @@ namespace Greenshot {
 			
 			foreach(int index in listview_destinations.CheckedIndices) {
 				ListViewItem item = listview_destinations.Items[index];
-				IDestination destination = item.Tag as IDestination;
-				if (destination.Designation.Equals(ClipboardDestination.DESIGNATION)) {
+				IDestination destinationFromTag = item.Tag as IDestination;
+				if (destinationFromTag != null && destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION)) {
 					clipboardDestinationChecked = true;
 					break;
 				}
@@ -595,7 +586,9 @@ namespace Greenshot {
 		/// <param name="e"></param>
 		private void checkbox_enableexpert_CheckedChanged(object sender, EventArgs e) {
 			CheckBox checkBox = sender as CheckBox;
-			ExpertSettingsEnableState(checkBox.Checked);
+			if (checkBox != null) {
+				ExpertSettingsEnableState(checkBox.Checked);
+			}
 		}
 
 		private void radiobutton_CheckedChanged(object sender, EventArgs e) {
@@ -603,13 +596,13 @@ namespace Greenshot {
 		}
 	}
 
-	public class ListviewWithDestinationComparer : System.Collections.IComparer {
+	public class ListviewWithDestinationComparer : IComparer {
 		public int Compare(object x, object y) {
 			if (!(x is ListViewItem)) {
-				return (0);
+				return 0;
 			}
 			if (!(y is ListViewItem)) {
-				return (0);
+				return 0;
 			}
 
 			ListViewItem l1 = (ListViewItem)x;
@@ -621,10 +614,13 @@ namespace Greenshot {
 			if (secondDestination == null) {
 				return 1;
 			}
-			if (firstDestination.Priority == secondDestination.Priority) {
+			if (firstDestination != null && firstDestination.Priority == secondDestination.Priority) {
 				return firstDestination.Description.CompareTo(secondDestination.Description);
 			}
-			return firstDestination.Priority - secondDestination.Priority;
+			if (firstDestination != null) {
+				return firstDestination.Priority - secondDestination.Priority;
+			}
+			return 0;
 		}
 	}
 }

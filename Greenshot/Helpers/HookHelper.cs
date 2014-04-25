@@ -20,9 +20,7 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Text;
 using GreenshotPlugin.UnmanagedHelpers;
-using System.Diagnostics;
 using GreenshotPlugin.Core;
 
 namespace Greenshot.Helpers {

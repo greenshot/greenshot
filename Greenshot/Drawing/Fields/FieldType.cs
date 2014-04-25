@@ -84,7 +84,7 @@ namespace Greenshot.Drawing.Fields {
 			Name = name;
 		}
 		public override string ToString() {
-			return this.Name;
+			return Name;
 		}
 		public override int GetHashCode()
 		{
@@ -101,15 +101,15 @@ namespace Greenshot.Drawing.Fields {
 			FieldType other = obj as FieldType;
 			if (other == null)
 				return false;
-			return object.Equals(this.Name,other.Name);
+			return Equals(Name,other.Name);
 		}
 		
 		public static bool operator ==(FieldType a, FieldType b) {
-			return object.Equals(a,b);
+			return Equals(a,b);
 		}
 		
 		public static bool operator !=(FieldType a, FieldType b) {
-			return !object.Equals(a,b);
+			return !Equals(a,b);
 		}
 		
 	}

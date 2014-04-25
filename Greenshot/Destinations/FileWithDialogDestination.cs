@@ -18,24 +18,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
+
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
-using Greenshot.Helpers;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of FileWithDialog.
 	/// </summary>
 	public class FileWithDialogDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FileWithDialogDestination));
+		private static ILog LOG = LogManager.GetLogger(typeof(FileWithDialogDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "FileDialog";
 
@@ -65,12 +63,12 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				return GreenshotPlugin.Core.GreenshotResources.getImage("Save.Image");
+				return GreenshotResources.getImage("Save.Image");
 			}
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string savedTo = null;
 			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
 			savedTo = ImageOutput.SaveWithDialog(surface, captureDetails);

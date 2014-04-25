@@ -21,22 +21,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
-
 /// <summary>
 /// Author: Andrew Baker
 /// Datum: 10.03.2006
 /// Available from: http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1
 /// </summary>
+using log4net;
+
 namespace Greenshot.Helpers {
 	#region Public MapiMailMessage Class
 
@@ -44,7 +43,7 @@ namespace Greenshot.Helpers {
 	/// Represents an email message to be sent through MAPI.
 	/// </summary>
 	public class MapiMailMessage {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(MapiMailMessage));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(MapiMailMessage));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		/// <summary>
@@ -220,7 +219,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public void ShowDialog() {
 			// Create the mail message in an STA thread
-			Thread t = new Thread(new ThreadStart(_ShowMail));
+			Thread t = new Thread(_ShowMail);
 			t.IsBackground = true;
 			t.Name = "Create MAPI mail";
 			t.SetApartmentState(ApartmentState.STA);
@@ -291,7 +290,7 @@ namespace Greenshot.Helpers {
 				int fsize = Marshal.SizeOf(fileDescType);
 
 				// Get the ptr to the files
-				IntPtr runptr = message.Files.Clone();
+				IntPtr runptr = message.Files;
 				// Release each file
 				for (int i = 0; i < message.FileCount; i++) {
 					Marshal.DestroyStructure(runptr, fileDescType);
@@ -322,7 +321,7 @@ namespace Greenshot.Helpers {
 
 			MapiFileDescriptor mfd = new MapiFileDescriptor();
 			mfd.position = -1;
-			IntPtr runptr = ptra.Clone();
+			IntPtr runptr = ptra;
 			for (int i = 0; i < _files.Count; i++) {
 				string path = _files[i] as string;
 				mfd.name = Path.GetFileName(path);
@@ -620,28 +619,28 @@ namespace Greenshot.Helpers {
 		/// Adds a new recipient with the specified address to this collection.
 		/// </summary>
 		public void Add(string address) {
-			this.Add(new Recipient(address));
+			Add(new Recipient(address));
 		}
 
 		/// <summary>
 		/// Adds a new recipient with the specified address and display name to this collection.
 		/// </summary>
 		public void Add(string address, string displayName) {
-			this.Add(new Recipient(address, displayName));
+			Add(new Recipient(address, displayName));
 		}
 
 		/// <summary>
 		/// Adds a new recipient with the specified address and recipient type to this collection.
 		/// </summary>
 		public void Add(string address, MapiMailMessage.RecipientType recipientType) {
-			this.Add(new Recipient(address, recipientType));
+			Add(new Recipient(address, recipientType));
 		}
 
 		/// <summary>
 		/// Adds a new recipient with the specified address, display name and recipient type to this collection.
 		/// </summary>
 		public void Add(string address, string displayName, MapiMailMessage.RecipientType recipientType) {
-			this.Add(new Recipient(address, displayName, recipientType));
+			Add(new Recipient(address, displayName, recipientType));
 		}
 
 		/// <summary>
@@ -687,7 +686,7 @@ namespace Greenshot.Helpers {
 				_handle = Marshal.AllocHGlobal(_count * size);
 
 				// place all interop recipients into the memory just allocated
-				IntPtr ptr = _handle.Clone();
+				IntPtr ptr = _handle;
 				foreach (Recipient native in outer) {
 					MapiMailMessage.MAPIHelperInterop.MapiRecipDesc interop = native.GetInteropRepresentation();
 
@@ -720,7 +719,7 @@ namespace Greenshot.Helpers {
 					int size = Marshal.SizeOf(type);
 
 					// destroy all the structures in the memory area
-					IntPtr ptr = _handle.Clone();
+					IntPtr ptr = _handle;
 					for (int i = 0; i < _count; i++) {
 						Marshal.DestroyStructure(ptr, type);
 						ptr = new IntPtr(ptr.ToInt64() + size);

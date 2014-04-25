@@ -20,9 +20,8 @@
  */
 using System;
 using System.Windows.Forms;
-using Greenshot.Configuration;
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -34,14 +33,14 @@ namespace Greenshot.Forms {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			this.checkbox_dontaskagain.Checked = false;
+			Icon = GreenshotResources.getGreenshotIcon();
+			checkbox_dontaskagain.Checked = false;
 		}
 		
 		
 		void Button_okClick(object sender, EventArgs e) {
 			// update config
-			coreConfiguration.OutputPrintPromptOptions = !this.checkbox_dontaskagain.Checked;
+			coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
 			IniConfig.Save();
 			DialogResult = DialogResult.OK;
 		}

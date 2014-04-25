@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 using Greenshot.Configuration;
-using Greenshot.Helpers;
 using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
@@ -31,22 +31,22 @@ namespace Greenshot.Forms {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			WindowDetails.ToForeground(this.Handle);
+			Icon = GreenshotResources.getGreenshotIcon();
+			WindowDetails.ToForeground(Handle);
 		}
 
 		public BugReportForm(string bugText) : this() {
-			this.textBoxDescription.Text = bugText;
+			textBoxDescription.Text = bugText;
 		}
 		
-		void LinkLblBugsLinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {
+		void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
 			openLink((LinkLabel)sender);
 		}
 
 		private void openLink(LinkLabel link) {
 			try {
 				link.LinkVisited = true;
-				System.Diagnostics.Process.Start(link.Text);
+				Process.Start(link.Text);
 			} catch (Exception) {
 				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link.Text), Language.GetString(LangKey.error));
 			}

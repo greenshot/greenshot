@@ -23,14 +23,14 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
-using System.Drawing.Imaging;
 using GreenshotPlugin.UnmanagedHelpers;
 using System.Drawing.Drawing2D;
+using log4net;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 
 	public class BlurFilter : AbstractFilter {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BlurFilter));
+		private static ILog LOG = LogManager.GetLogger(typeof(BlurFilter));
 
 		public double previewQuality;
 		public double PreviewQuality {

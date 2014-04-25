@@ -25,14 +25,14 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 
 using GreenshotPlugin.Core;
-using Greenshot.Plugin;
-using Greenshot.Interop;
 using Greenshot.Interop.IE;
 using Greenshot.IniFile;
+using log4net;
+using IServiceProvider = Greenshot.Interop.IServiceProvider;
 
 namespace Greenshot.Helpers.IEInterop {
 	public class DocumentContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DocumentContainer));
+		private static ILog LOG = LogManager.GetLogger(typeof(DocumentContainer));
 		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 		private const int  E_ACCESSDENIED = unchecked((int)0x80070005L);
 		private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
@@ -114,7 +114,7 @@ namespace Greenshot.Helpers.IEInterop {
 		private void Init(IHTMLDocument2 document2, WindowDetails contentWindow) {
 			this.document2 = document2;
 			this.contentWindow = contentWindow;
-			this.document3 = document2 as IHTMLDocument3;
+			document3 = document2 as IHTMLDocument3;
 			// Check what access method is needed for the document
 			IHTMLDocument5 document5 = (IHTMLDocument5)document2;
 
@@ -298,7 +298,7 @@ namespace Greenshot.Helpers.IEInterop {
 					LOG.Warn("comEx.ErrorCode != E_ACCESSDENIED but", comEx);
 					return null;
 				}
-			} catch (System.UnauthorizedAccessException) {
+			} catch (UnauthorizedAccessException) {
 				// This error is okay, ignoring it
 			} catch (Exception ex1) {
 				LOG.Warn("Some error: ", ex1);
@@ -310,12 +310,12 @@ namespace Greenshot.Helpers.IEInterop {
 			// IE tries to prevent a cross frame scripting security issue.
 			try {
 				// Convert IHTMLWindow2 to IWebBrowser2 using IServiceProvider.
-				Interop.IServiceProvider sp = (Interop.IServiceProvider)htmlWindow;
+				IServiceProvider sp = (IServiceProvider)htmlWindow;
 
 				// Use IServiceProvider.QueryService to get IWebBrowser2 object.
 				Object brws = null;
-				Guid webBrowserApp = IID_IWebBrowserApp.Clone();
-				Guid webBrowser2 = IID_IWebBrowser2.Clone();
+				Guid webBrowserApp = IID_IWebBrowserApp;
+				Guid webBrowser2 = IID_IWebBrowser2;
 				sp.QueryService(ref webBrowserApp, ref webBrowser2, out brws);
 				
 				// Get the document from IWebBrowser2.
@@ -543,7 +543,7 @@ namespace Greenshot.Helpers.IEInterop {
 		
 		public Rectangle DestinationRectangle {
 			get {
-				return new Rectangle(this.DestinationLocation, this.DestinationSize);
+				return new Rectangle(DestinationLocation, DestinationSize);
 			}
 		}
 

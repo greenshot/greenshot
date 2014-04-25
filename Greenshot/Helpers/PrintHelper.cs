@@ -24,19 +24,19 @@ using System.Drawing.Printing;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
-using Greenshot.Drawing;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Core;
+using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of PrintHelper.
 	/// </summary>
 	public class PrintHelper : IDisposable {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PrintHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PrintHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		private ISurface surface;

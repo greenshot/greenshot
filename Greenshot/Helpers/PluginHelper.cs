@@ -24,11 +24,10 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
-
-using Greenshot.Configuration;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -36,7 +35,7 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	[Serializable]
 	public class PluginHelper : IGreenshotHost {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PluginHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		private static string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
@@ -118,7 +117,7 @@ namespace Greenshot.Helpers {
 		/// <param name="image">Image of which we need a Thumbnail</param>
 		/// <returns>Image with Thumbnail</returns>
 		public Image GetThumbnail(Image image, int width, int height) {
-			return image.GetThumbnailImage(width, height,  new Image.GetThumbnailImageAbort(ThumbnailCallback), IntPtr.Zero);
+			return image.GetThumbnailImage(width, height,  ThumbnailCallback, IntPtr.Zero);
 		}
 
 		///  <summary>
@@ -220,7 +219,7 @@ namespace Greenshot.Helpers {
 					foreach (string pluginFile in Directory.GetFiles(path, "*.gsp", SearchOption.AllDirectories)) {
 						pluginFiles.Add(pluginFile);
 					}
-				} catch (System.UnauthorizedAccessException) {
+				} catch (UnauthorizedAccessException) {
 					return;
 				} catch (Exception ex) {
 					LOG.Error("Error loading plugin: ", ex);

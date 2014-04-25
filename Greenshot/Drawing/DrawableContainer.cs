@@ -33,6 +33,7 @@ using Greenshot.Memento;
 using System.Drawing.Drawing2D;
 using Greenshot.Configuration;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -43,7 +44,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()]
 	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, INotifyPropertyChanged, IDrawableContainer {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DrawableContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
 		protected static readonly EditorConfiguration editorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 		private bool isMadeUndoable = false;
 
@@ -269,20 +270,20 @@ namespace Greenshot.Drawing {
 				Left = lineThickness/2;
 			}
 			if (horizontalAlignment == HorizontalAlignment.Right) {
-				Left = parent.Width - this.Width - lineThickness/2;
+				Left = parent.Width - Width - lineThickness/2;
 			}
 			if (horizontalAlignment == HorizontalAlignment.Center) {
-				Left = (parent.Width / 2) - (this.Width / 2) - lineThickness/2;
+				Left = (parent.Width / 2) - (Width / 2) - lineThickness/2;
 			}
 
 			if (verticalAlignment == VerticalAlignment.TOP) {
 				Top = lineThickness/2;
 			}
 			if (verticalAlignment == VerticalAlignment.BOTTOM) {
-				Top = parent.Height - this.Height - lineThickness/2;
+				Top = parent.Height - Height - lineThickness/2;
 			}
 			if (verticalAlignment == VerticalAlignment.CENTER) {
-				Top = (parent.Height / 2) - (this.Height / 2) - lineThickness/2;
+				Top = (parent.Height / 2) - (Height / 2) - lineThickness/2;
 			}
 		}
 		
@@ -301,9 +302,9 @@ namespace Greenshot.Drawing {
 			for(int i=0; i<grippers.Length; i++) {
 				grippers[i] = new Gripper();
 				grippers[i].Position = i;
-				grippers[i].MouseDown += new MouseEventHandler(gripperMouseDown);
-				grippers[i].MouseUp += new MouseEventHandler(gripperMouseUp);
-				grippers[i].MouseMove += new MouseEventHandler(gripperMouseMove);
+				grippers[i].MouseDown += gripperMouseDown;
+				grippers[i].MouseUp += gripperMouseUp;
+				grippers[i].MouseMove += gripperMouseMove;
 				grippers[i].Visible = false;
 				grippers[i].Parent = parent;
 			}
@@ -330,8 +331,8 @@ namespace Greenshot.Drawing {
 				return;
 			}
 			if (!layoutSuspended) {
-				int[] xChoords = new int[]{this.Left-2,this.Left+this.Width/2-2,this.Left+this.Width-2};
-				int[] yChoords = new int[]{this.Top-2,this.Top+this.Height/2-2,this.Top+this.Height-2};
+				int[] xChoords = new int[]{Left-2,Left+Width/2-2,Left+Width-2};
+				int[] yChoords = new int[]{Top-2,Top+Height/2-2,Top+Height-2};
 
 				grippers[Gripper.POSITION_TOP_LEFT].Left = xChoords[0]; grippers[Gripper.POSITION_TOP_LEFT].Top = yChoords[0];
 				grippers[Gripper.POSITION_TOP_CENTER].Left = xChoords[1]; grippers[Gripper.POSITION_TOP_CENTER].Top = yChoords[0];
@@ -421,8 +422,8 @@ namespace Greenshot.Drawing {
 			if (Status.Equals(EditStatus.RESIZING)) {
 				Invalidate();
 				SuspendLayout();
-				this.Left += e.X - mx;
-				this.Top += e.Y - my;
+				Left += e.X - mx;
+				Top += e.Y - my;
 				ResumeLayout();
 				Invalidate();
 			}
@@ -451,7 +452,7 @@ namespace Greenshot.Drawing {
 								if(filter is MagnifierFilter) {
                                     // quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
                                     // what we should actually do to resolve this is add a better magnifier which is not that special
-                                    filter.Apply(graphics, bmp, this.Bounds, renderMode);
+                                    filter.Apply(graphics, bmp, Bounds, renderMode);
                                 } else {
                                     filter.Apply(graphics, bmp, drawingRect, renderMode);
                                 }
@@ -492,11 +493,11 @@ namespace Greenshot.Drawing {
 					}
 				}
 			}
-			this.ResumeLayout();
+			ResumeLayout();
 		}
 		
 		public void HideGrippers() {
-			this.SuspendLayout();
+			SuspendLayout();
 			if (grippers != null) {
 				for (int i = 0; i < grippers.Length; i++) {
 					grippers[i].Hide();
@@ -505,10 +506,10 @@ namespace Greenshot.Drawing {
 		}
 		
 		public void ResizeTo(int width, int height, int anchorPosition) {
-			this.SuspendLayout();
+			SuspendLayout();
 			Width = width;
 			Height = height;
-			this.ResumeLayout();
+			ResumeLayout();
 		}
 
 		/// <summary>
@@ -516,14 +517,14 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="allowMerge">true means allow the moves to be merged</param>
 		public void MakeBoundsChangeUndoable(bool allowMerge) {
-			this.parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
+			parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
 		}
 		
 		public void MoveBy(int dx, int dy) {
-			this.SuspendLayout();
-			this.Left += dx;
-			this.Top += dy;
-			this.ResumeLayout();
+			SuspendLayout();
+			Left += dx;
+			Top += dy;
+			ResumeLayout();
 		}
 		
 		/// <summary>

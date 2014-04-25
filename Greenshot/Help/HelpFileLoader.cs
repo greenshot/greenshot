@@ -6,12 +6,11 @@
  * 
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
-using Greenshot.Configuration;
+
 using GreenshotPlugin.Core;
-using System;
 using System.Diagnostics;
 using System.Net;
-using System.Windows.Forms;
+using log4net;
 
 namespace Greenshot.Help
 {
@@ -21,7 +20,7 @@ namespace Greenshot.Help
 	public sealed class HelpFileLoader
 	{
 		
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(HelpFileLoader));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(HelpFileLoader));
 		
 		private const string EXT_HELP_URL = @"http://getgreenshot.org/help/";
 		

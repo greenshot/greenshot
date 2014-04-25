@@ -21,27 +21,22 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Drawing.Printing;
-using System.IO;
-using System.Windows.Forms;
-
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
-using Greenshot.Helpers;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of EditorDestination.
 	/// </summary>
 	public class EditorDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EditorDestination));
+		private static ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		public const string DESIGNATION = "Editor";
 		private IImageEditor editor = null;
-		private static Image greenshotIcon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon().ToBitmap();
+		private static Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();
 
 		public EditorDestination() {
 		}
@@ -91,7 +86,7 @@ namespace Greenshot.Destinations {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			// Make sure we collect the garbage before opening the screenshot
 			GC.Collect();
 			GC.WaitForPendingFinalizers();

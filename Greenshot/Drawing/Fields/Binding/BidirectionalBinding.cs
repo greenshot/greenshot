@@ -56,8 +56,8 @@ namespace Greenshot.Drawing.Fields.Binding {
 			this.controlPropertyName = controlPropertyName;
 			this.fieldPropertyName = fieldPropertyName;
 			
-			this.controlObject.PropertyChanged += new PropertyChangedEventHandler(ControlPropertyChanged);
-			this.fieldObject.PropertyChanged += new PropertyChangedEventHandler(FieldPropertyChanged);
+			this.controlObject.PropertyChanged += ControlPropertyChanged;
+			this.fieldObject.PropertyChanged += FieldPropertyChanged;
 		}
 		
 		/// <summary>

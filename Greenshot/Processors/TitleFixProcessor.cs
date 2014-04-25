@@ -18,20 +18,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Processors  {
 	/// <summary>
 	/// Description of TitleFixProcessor.
 	/// </summary>
 	public class TitleFixProcessor : AbstractProcessor {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(TitleFixProcessor));
+		private static ILog LOG = LogManager.GetLogger(typeof(TitleFixProcessor));
 		private static CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public TitleFixProcessor() {

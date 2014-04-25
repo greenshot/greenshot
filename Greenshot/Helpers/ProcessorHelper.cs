@@ -23,13 +23,14 @@ using System.Collections.Generic;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of ProcessorHelper.
 	/// </summary>
 	public static class ProcessorHelper {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ProcessorHelper));
+		private static ILog LOG = LogManager.GetLogger(typeof(ProcessorHelper));
 		private static Dictionary<string, IProcessor> RegisteredProcessors = new Dictionary<string, IProcessor>();
 
 		/// Initialize the Processors		

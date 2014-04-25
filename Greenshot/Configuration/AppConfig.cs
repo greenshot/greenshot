@@ -28,8 +28,8 @@ using System.Windows.Forms;
 
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
-using Greenshot.Plugin;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Configuration {
 	public enum ScreenshotDestinations {Editor=1, FileDefault=2, FileWithDialog=4, Clipboard=8, Printer=16, EMail=32}
@@ -42,7 +42,7 @@ namespace Greenshot.Configuration {
 	/// </summary>
 	[Serializable]
 	public class AppConfig {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AppConfig));
+		private static ILog LOG = LogManager.GetLogger(typeof(AppConfig));
 		private static readonly Regex FIXOLD_REGEXP = new Regex(@"%(?<variable>[\w]+)%", RegexOptions.Compiled);
 		private const string VAR_PREFIX = "${";
 		private const string VAR_POSTFIX = "}";
@@ -112,7 +112,7 @@ namespace Greenshot.Configuration {
 		/// <param name="oldPattern">String with old syntax %VAR%</param>
 		/// <returns>The fixed pattern</returns>
 		private static string FixFallback(string oldPattern) {
-				return FIXOLD_REGEXP.Replace(oldPattern, new MatchEvaluator(delegate(Match m) { return VAR_PREFIX + m.Groups["variable"].Value + VAR_POSTFIX;}));
+				return FIXOLD_REGEXP.Replace(oldPattern, delegate(Match m) { return VAR_PREFIX + m.Groups["variable"].Value + VAR_POSTFIX;});
 		}
 
 		/// <summary>

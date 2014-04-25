@@ -25,6 +25,7 @@ using System.Runtime.Serialization;
 
 using Greenshot.Configuration;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>
@@ -32,7 +33,7 @@ namespace Greenshot.Drawing.Fields {
 	/// </summary>
 	[Serializable()]
 	public abstract class AbstractFieldHolder : IFieldHolder {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AbstractFieldHolder));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 
 		/// <summary>
@@ -53,7 +54,7 @@ namespace Greenshot.Drawing.Fields {
 		
 		public AbstractFieldHolder() {}
 		
-		[OnDeserializedAttribute()]
+		[OnDeserialized()]
 		private void OnDeserialized(StreamingContext context) {
 			fieldsByType  = new Dictionary<FieldType, Field>();
 			// listen to changing properties

@@ -35,7 +35,7 @@ namespace Greenshot.Memento {
 		
 		public SurfaceBackgroundChangeMemento(Surface surface, Point offset) {
 			this.surface = surface;
-			this.image = surface.Image;
+			image = surface.Image;
 			this.offset = new Point(-offset.X, -offset.Y);
 		}
 		

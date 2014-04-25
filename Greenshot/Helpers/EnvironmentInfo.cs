@@ -29,13 +29,14 @@ using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Drawing;
+using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of EnvironmentInfo.
 	/// </summary>
 	public static class EnvironmentInfo {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EnvironmentInfo));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(EnvironmentInfo));
 		private static bool? isWindows = null;
 
 		public static bool IsWindows {
@@ -157,8 +158,8 @@ namespace Greenshot.Helpers {
 
 		public static string BuildReport(Exception exception) {
 			StringBuilder exceptionText = new StringBuilder();
-			exceptionText.AppendLine(EnvironmentInfo.EnvironmentToString(true));
-			exceptionText.AppendLine(EnvironmentInfo.ExceptionToString(exception));
+			exceptionText.AppendLine(EnvironmentToString(true));
+			exceptionText.AppendLine(ExceptionToString(exception));
 			exceptionText.AppendLine("Configuration dump:");
 			using (TextWriter writer = new StringWriter(exceptionText)) {
 				IniConfig.GetIniSection<CoreConfiguration>().Write(writer, true);

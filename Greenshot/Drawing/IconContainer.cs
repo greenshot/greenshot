@@ -21,10 +21,9 @@
 using System;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
-
 using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
+using log4net;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -32,7 +31,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()] 
 	public class IconContainer : DrawableContainer, IIconContainer {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconContainer));
+		private static ILog LOG = LogManager.GetLogger(typeof(IconContainer));
 
 		protected Icon icon;
 

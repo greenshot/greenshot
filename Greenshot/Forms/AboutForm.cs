@@ -20,6 +20,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
 using System.IO;
@@ -32,15 +33,15 @@ using Greenshot.Helpers;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
-using GreenshotPlugin.Controls;
 using System.Security.Permissions;
+using log4net;
 
 namespace Greenshot {
 	/// <summary>
 	/// The about form
 	/// </summary>
 	public partial class AboutForm : AnimatingBaseForm {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AboutForm));
+		private static ILog LOG = LogManager.GetLogger(typeof(AboutForm));
 		private Bitmap gBitmap;
 		private ColorAnimator backgroundAnimation;
 		private List<RectangleAnimator> pixels = new List<RectangleAnimator>();
@@ -132,10 +133,10 @@ namespace Greenshot {
 		/// </summary>
 		public AboutForm() {
 			// Make sure our resources are removed again.
-			this.Disposed += delegate {
+			Disposed += delegate {
 				Cleanup();
 			};
-			this.FormClosing += delegate {
+			FormClosing += delegate {
 				Cleanup();
 			};
 
@@ -150,11 +151,11 @@ namespace Greenshot {
 			DoubleBuffered = !isTerminalServerSession;
 
 			// Not needed for a Tool Window, but still for the task manager it's important
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.getGreenshotIcon();
 
 			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
-			gBitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, this.BackColor, 96, 96);
-			this.pictureBox1.Image = gBitmap;
+			gBitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
+			pictureBox1.Image = gBitmap;
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
@@ -209,7 +210,7 @@ namespace Greenshot {
 			} while (pixelColorAnimator.hasNext);
 
 			// color animation for the background
-			backgroundAnimation = new ColorAnimator(this.BackColor, backColor, FramesForMillis(5000), EasingType.Linear, EasingMode.EaseIn);
+			backgroundAnimation = new ColorAnimator(BackColor, backColor, FramesForMillis(5000), EasingType.Linear, EasingMode.EaseIn);
 		}
 
 		/// <summary>
@@ -217,12 +218,12 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void LinkLabelClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e) {
+		void LinkLabelClicked(object sender, LinkLabelLinkClickedEventArgs e) {
 			LinkLabel linkLabel = sender as LinkLabel;
 			if (linkLabel != null) {
 				try {
 					linkLabel.LinkVisited = true;
-					System.Diagnostics.Process.Start(linkLabel.Text);
+					Process.Start(linkLabel.Text);
 				} catch (Exception) {
 					MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
 				}
@@ -316,7 +317,7 @@ namespace Greenshot {
 					case Keys.L:
 						try {
 							if (File.Exists(MainForm.LogFileLocation)) {
-								System.Diagnostics.Process.Start("\"" + MainForm.LogFileLocation + "\"");
+								Process.Start("\"" + MainForm.LogFileLocation + "\"");
 							} else {
 								MessageBox.Show("Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
 							}
@@ -326,9 +327,9 @@ namespace Greenshot {
 						break;
 					case Keys.I:
 						try {
-							System.Diagnostics.Process.Start("\"" + IniFile.IniConfig.ConfigLocation + "\"");
+							Process.Start("\"" + IniConfig.ConfigLocation + "\"");
 						} catch (Exception) {
-							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniFile.IniConfig.ConfigLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 						}
 						break;
 					default:

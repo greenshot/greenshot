@@ -45,17 +45,17 @@ namespace Greenshot.Controls {
 		/// </remarks>
 		public bool ClickThrough {
 			get {
-				return this.clickThrough;
+				return clickThrough;
 			}
 
 			set {
-				this.clickThrough = value;
+				clickThrough = value;
 			}
 		}
 
 		protected override void WndProc(ref Message m) {
 			base.WndProc(ref m);
-			if (this.clickThrough && m.Msg == WM_MOUSEACTIVATE && m.Result == (IntPtr)NativeConstants.MA_ACTIVATEANDEAT) {
+			if (clickThrough && m.Msg == WM_MOUSEACTIVATE && m.Result == (IntPtr)NativeConstants.MA_ACTIVATEANDEAT) {
 				m.Result = (IntPtr)NativeConstants.MA_ACTIVATE;
 			}
 		}

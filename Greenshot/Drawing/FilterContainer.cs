@@ -63,14 +63,14 @@ namespace Greenshot.Drawing {
 					int currentStep = lineVisible ? 1 : 0;
 					while (currentStep <= steps) {
 						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
-							Rectangle shadowRect = GuiRectangle.GetGuiRectangle(this.Left + currentStep, this.Top + currentStep, this.Width, this.Height);
+							Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + currentStep, Top + currentStep, Width, Height);
 							graphics.DrawRectangle(shadowPen, shadowRect);
 							currentStep++;
 							alpha = alpha - (basealpha / steps);
 						}
 					}
 				}
-				Rectangle rect = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
+				Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 				if (lineThickness > 0) {
 					using (Pen pen = new Pen(lineColor, lineThickness)) {
 						graphics.DrawRectangle(pen, rect);

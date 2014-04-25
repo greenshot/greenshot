@@ -23,7 +23,6 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
-using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing.Filters {

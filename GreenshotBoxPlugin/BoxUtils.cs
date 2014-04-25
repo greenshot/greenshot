@@ -57,7 +57,7 @@ namespace GreenshotBoxPlugin {
 			}
 
 			string authorizationResponse = PostAndReturn(new Uri(TokenUri), string.Format("grant_type=authorization_code&code={0}&client_id={1}&client_secret={2}", callbackParameters["code"], BoxCredentials.ClientId, BoxCredentials.ClientSecret));
-			var authorization = JSONSerializer.Deserialize<Authorization>(authorizationResponse);
+			var authorization = JsonSerializer.Deserialize<Authorization>(authorizationResponse);
 
 			Config.BoxToken = authorization.AccessToken;
 			IniConfig.Save();
@@ -67,15 +67,16 @@ namespace GreenshotBoxPlugin {
 		/// <summary>
 		/// Download a url response as string
 		/// </summary>
-		/// <param name=url">An Uri to specify the download location</param>
+		/// <param name="url">An Uri to specify the download location</param>
+		/// <param name="postMessage"></param>
 		/// <returns>string with the file content</returns>
 		public static string PostAndReturn(Uri url, string postMessage) {
 			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 			webRequest.Method = "POST";
 			webRequest.KeepAlive = true;
-			webRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			webRequest.Credentials = CredentialCache.DefaultCredentials;
 			webRequest.ContentType = "application/x-www-form-urlencoded";
-			byte[] data = Encoding.UTF8.GetBytes(postMessage.ToString());
+			byte[] data = Encoding.UTF8.GetBytes(postMessage);
 			using (var requestStream = webRequest.GetRequestStream()) {
 				requestStream.Write(data, 0, data.Length);
 			}
@@ -172,12 +173,12 @@ namespace GreenshotBoxPlugin {
 					IniConfig.Save();
 					continue;
 				}
-				var upload = JSONSerializer.Deserialize<Upload>(response);
+				var upload = JsonSerializer.Deserialize<Upload>(response);
 				if (upload == null || upload.Entries == null || upload.Entries.Count == 0) return null;
 
 				if (Config.UseSharedLink) {
 					string filesResponse = HttpPut(string.Format(FilesUri, upload.Entries[0].Id), "{\"shared_link\": {\"access\": \"open\"}}");
-					var file = JSONSerializer.Deserialize<FileEntry>(filesResponse);
+					var file = JsonSerializer.Deserialize<FileEntry>(filesResponse);
 					return file.SharedLink.Url;
 				}
 				return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", upload.Entries[0].Id);
@@ -187,7 +188,7 @@ namespace GreenshotBoxPlugin {
 	/// <summary>
 	/// A simple helper class for the DataContractJsonSerializer
 	/// </summary>
-	public static class JSONSerializer {
+	internal static class JsonSerializer {
 		/// <summary>
 		/// Helper method to serialize object to JSON
 		/// </summary>

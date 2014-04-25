@@ -19,9 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Windows.Forms;
 
 namespace Greenshot.Helpers {
-	public class WindowWrapper : System.Windows.Forms.IWin32Window {
+	public class WindowWrapper : IWin32Window {
 		public WindowWrapper(IntPtr handle) {
 			_hwnd = handle;
 		}

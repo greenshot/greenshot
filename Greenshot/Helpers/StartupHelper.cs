@@ -20,6 +20,7 @@
  */
 using System;
 using System.Windows.Forms;
+using log4net;
 using Microsoft.Win32;
 using System.IO;
 
@@ -28,14 +29,14 @@ namespace Greenshot.Helpers {
 	/// A helper class for the startup registry
 	/// </summary>
 	public static class StartupHelper {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(StartupHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(StartupHelper));
 
 		private const string RUNKEY6432 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
 		private const string RUNKEY = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
 		private const string APPLICATIONNAME = "Greenshot";
 
-		private static string getExecutablePath() {
+		private static string GetExecutablePath() {
 			return "\"" + Application.ExecutablePath + "\"";
 		}
 
@@ -43,7 +44,7 @@ namespace Greenshot.Helpers {
 		/// Return true if the current user can write the RUN key of the local machine.
 		/// </summary>
 		/// <returns>true if Greenshot can write key</returns>
-		public static bool canWriteRunAll() {
+		public static bool CanWriteRunAll() {
 			try {
 				using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY, true)) {
 				}
@@ -57,7 +58,7 @@ namespace Greenshot.Helpers {
 		/// Return true if the current user can write the RUN key of the current user.
 		/// </summary>
 		/// <returns>true if Greenshot can write key</returns>
-		public static bool canWriteRunUser() {
+		public static bool CanWriteRunUser() {
 			try {
 				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, true)) {
 				}
@@ -71,7 +72,7 @@ namespace Greenshot.Helpers {
 		/// Return the RUN key value of the local machine
 		/// </summary>
 		/// <returns>the RUN key value of the local machine</returns>
-		public static Object getRunAllValue() {
+		public static Object GetRunAllValue() {
 			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY, false)) {
 				if (key != null) {
 					object runValue = key.GetValue(APPLICATIONNAME);
@@ -98,7 +99,7 @@ namespace Greenshot.Helpers {
 		/// Return the RUN key value of the current user
 		/// </summary>
 		/// <returns>the RUN key value of the current user</returns>
-		public static Object getRunUserValue() {
+		public static Object GetRunUserValue() {
 			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, false)) {
 				if (key != null) {
 					object runValue = key.GetValue(APPLICATIONNAME);
@@ -125,9 +126,9 @@ namespace Greenshot.Helpers {
 		/// Return true if the local machine has a RUN entry for Greenshot
 		/// </summary>
 		/// <returns>true if there is a run key</returns>
-		public static bool hasRunAll() {
+		public static bool HasRunAll() {
 			try {
-				return getRunAllValue() != null;
+				return GetRunAllValue() != null;
 			} catch (Exception e) {
 				LOG.Error("Error retrieving RunAllValue", e);
 			}
@@ -138,10 +139,10 @@ namespace Greenshot.Helpers {
 		/// Return true if the current user has a RUN entry for Greenshot
 		/// </summary>
 		/// <returns>true if there is a run key</returns>
-		public static bool hasRunUser() {
+		public static bool HasRunUser() {
 			Object runValue = null;
 			try {
-				runValue = getRunUserValue();
+				runValue = GetRunUserValue();
 			} catch (Exception e) {
 				LOG.Error("Error retrieving RunUserValue", e);
 			}
@@ -151,8 +152,8 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Delete the RUN key for the localmachine ("ALL")
 		/// </summary>
-		public static void deleteRunAll() {
-			if (hasRunAll()) {
+		public static void DeleteRunAll() {
+			if (HasRunAll()) {
 				try {
 					using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY, true)) {
 						key.DeleteValue(APPLICATIONNAME);
@@ -176,8 +177,8 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Delete the RUN key for the current user
 		/// </summary>
-		public static void deleteRunUser() {
-			if (hasRunUser()) {
+		public static void DeleteRunUser() {
+			if (HasRunUser()) {
 				try {
 					using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, true)) {
 						key.DeleteValue(APPLICATIONNAME);
@@ -201,10 +202,10 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Set the RUN key for the current user
 		/// </summary>
-		public static void setRunUser() {
+		public static void SetRunUser() {
 			try {
 				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, true)) {
-					key.SetValue(APPLICATIONNAME, getExecutablePath());
+					key.SetValue(APPLICATIONNAME, GetExecutablePath());
 				}
 			} catch (Exception e) {
 				LOG.Error("Error in setRunUser.", e);

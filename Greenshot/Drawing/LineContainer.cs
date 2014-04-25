@@ -42,7 +42,7 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.SHADOW, true);
 		}
 		
-		[OnDeserializedAttribute()]
+		[OnDeserialized()]
 		private void OnDeserialized(StreamingContext context) {
 			InitGrippers();
 			DoLayout();
@@ -51,7 +51,7 @@ namespace Greenshot.Drawing {
 
 		protected void Init() {
 			if (grippers != null) {
-				foreach (int index in new int[] { 1, 2, 3, 5, 6, 7 }) {
+				foreach (int index in new[] { 1, 2, 3, 5, 6, 7 }) {
 					grippers[index].Enabled = false;
 				}
 			}
@@ -77,10 +77,10 @@ namespace Greenshot.Drawing {
 					while (currentStep <= steps) {
 						using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
 							graphics.DrawLine(shadowCapPen,
-								this.Left + currentStep,
-								this.Top + currentStep,
-								this.Left + currentStep + this.Width,
-								this.Top + currentStep + this.Height);
+								Left + currentStep,
+								Top + currentStep,
+								Left + currentStep + Width,
+								Top + currentStep + Height);
 
 							currentStep++;
 							alpha = alpha - (basealpha / steps);
@@ -89,7 +89,7 @@ namespace Greenshot.Drawing {
 				}
 
 				using (Pen pen = new Pen(lineColor, lineThickness)) {
-					graphics.DrawLine(pen, this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+					graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
 				}
 			}
 		}
@@ -100,7 +100,7 @@ namespace Greenshot.Drawing {
 				using (Pen pen = new Pen(Color.White)) {
 					pen.Width = lineThickness;
 					using (GraphicsPath path = new GraphicsPath()) {
-						path.AddLine(this.Left, this.Top, this.Left + this.Width, this.Top + this.Height);
+						path.AddLine(Left, Top, Left + Width, Top + Height);
 						return path.IsOutlineVisible(x, y, pen);
 					}
 				}

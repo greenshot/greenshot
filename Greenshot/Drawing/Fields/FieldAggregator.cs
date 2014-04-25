@@ -18,13 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Collections.Generic;
 using System.ComponentModel;
 
 using Greenshot.Configuration;
 using Greenshot.IniFile;
 using Greenshot.Plugin.Drawing;
+using log4net;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>
@@ -45,7 +46,7 @@ namespace Greenshot.Drawing.Fields {
 		
 		enum Status {IDLE, BINDING, UPDATING};
 		
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FieldAggregator));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FieldAggregator));
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 
 		public FieldAggregator() {
@@ -58,7 +59,7 @@ namespace Greenshot.Drawing.Fields {
 		
 		public override void AddField(Field field) {
 			base.AddField(field);
-			field.PropertyChanged += new PropertyChangedEventHandler(OwnPropertyChanged);
+			field.PropertyChanged += OwnPropertyChanged;
 		}
 		
 		public void BindElements(DrawableContainerList dcs) {

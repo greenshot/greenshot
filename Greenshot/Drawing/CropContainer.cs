@@ -18,10 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Drawing;
-using System.Windows.Forms;
 
+using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
@@ -51,7 +49,7 @@ namespace Greenshot.Drawing {
 
 		public override void Draw(Graphics g, RenderMode rm) {
 			using (Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100))) {
-				Rectangle cropRectangle = GuiRectangle.GetGuiRectangle(this.Left, this.Top, this.Width, this.Height);
+				Rectangle cropRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 				Rectangle selectionRect = new Rectangle(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
 
 				DrawSelectionBorder(g, selectionRect);

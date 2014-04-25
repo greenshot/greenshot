@@ -18,43 +18,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Printing;
-using System.IO;
-using System.Threading;
-using System.Windows.Forms;
+
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Forms;
-using Greenshot.Helpers;
+using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.IniFile;
-using Greenshot.Interop;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Threading;
+using System.Windows.Forms;
+using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// CaptureHelper contains all the capture logic 
 	/// </summary>
 	public class CaptureHelper {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(CaptureHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
-		private List<WindowDetails> windows = new List<WindowDetails>();
-		private WindowDetails selectedCaptureWindow = null;
-		private Rectangle captureRect = Rectangle.Empty;
-		private bool captureMouseCursor = false;
-		private ICapture capture = null;
-		private CaptureMode captureMode;
-		private ScreenCaptureMode screenCaptureMode = ScreenCaptureMode.Auto;
-		private Thread windowDetailsThread = null;
+		private List<WindowDetails> _windows = new List<WindowDetails>();
+		private WindowDetails _selectedCaptureWindow;
+		private Rectangle _captureRect = Rectangle.Empty;
+		private readonly bool _captureMouseCursor;
+		private ICapture _capture;
+		private CaptureMode _captureMode;
+		private ScreenCaptureMode _screenCaptureMode = ScreenCaptureMode.Auto;
 
 		/// <summary>
 		/// The public accessible Dispose
@@ -76,10 +73,9 @@ namespace Greenshot.Helpers {
 			if (disposing) {
 				// Cleanup
 			}
-			windows = null;
-			selectedCaptureWindow = null;
-			windowDetailsThread = null;
-			capture = null;
+			_windows = null;
+			_selectedCaptureWindow = null;
+			_capture = null;
 		}
 		public static void CaptureClipboard() {
 			new CaptureHelper(CaptureMode.Clipboard).MakeCapture();
@@ -96,7 +92,7 @@ namespace Greenshot.Helpers {
 		}
 		public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode) {
 			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse);
-			captureHelper.screenCaptureMode = screenCaptureMode;
+			captureHelper._screenCaptureMode = screenCaptureMode;
 			captureHelper.MakeCapture();
 		}
 		public static void CaptureLastRegion(bool captureMouse) {
@@ -133,39 +129,39 @@ namespace Greenshot.Helpers {
 
 		public static void ImportCapture(ICapture captureToImport) {
 			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File);
-			captureHelper.capture = captureToImport;
+			captureHelper._capture = captureToImport;
 			captureHelper.HandleCapture();
 		}
 
 		public CaptureHelper AddDestination(IDestination destination) {
-			capture.CaptureDetails.AddDestination(destination);
+			_capture.CaptureDetails.AddDestination(destination);
 			return this;
 		}
 
 		public CaptureHelper(CaptureMode captureMode) {
-			this.captureMode = captureMode;
-			capture = new Capture();			
+			_captureMode = captureMode;
+			_capture = new Capture();			
 		}
 
 		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor) : this(captureMode) {
-			this.captureMouseCursor = captureMouseCursor;
+			_captureMouseCursor = captureMouseCursor;
 		}
 
 		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, ScreenCaptureMode screenCaptureMode) : this(captureMode) {
-			this.captureMouseCursor = captureMouseCursor;
-			this.screenCaptureMode = screenCaptureMode;
+			_captureMouseCursor = captureMouseCursor;
+			_screenCaptureMode = screenCaptureMode;
 		}
 
 		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor) {
-			capture.CaptureDetails.AddDestination(destination);
+			_capture.CaptureDetails.AddDestination(destination);
 		}
 		
 		public WindowDetails SelectedCaptureWindow {
 			get {
-				return selectedCaptureWindow;
+				return _selectedCaptureWindow;
 			}
 			set {
-				selectedCaptureWindow = value;
+				_selectedCaptureWindow = value;
 			}
 		}
 		
@@ -180,7 +176,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="filename">filename</param>
 		private void MakeCapture(string filename) {
-			capture.CaptureDetails.Filename = filename;
+			_capture.CaptureDetails.Filename = filename;
 			MakeCapture();
 		}
 
@@ -189,7 +185,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="filename">filename</param>
 		private void MakeCapture(Rectangle region) {
-			captureRect = region;
+			_captureRect = region;
 			MakeCapture();
 		}
 
@@ -211,25 +207,25 @@ namespace Greenshot.Helpers {
 				MainForm.Instance.NotifyIcon.Visible = false;
 				MainForm.Instance.NotifyIcon.Visible = true;
 			}
-			LOG.Debug(String.Format("Capturing with mode {0} and using Cursor {1}", captureMode, captureMouseCursor));
-			capture.CaptureDetails.CaptureMode = captureMode;
+			LOG.Debug(String.Format("Capturing with mode {0} and using Cursor {1}", _captureMode, _captureMouseCursor));
+			_capture.CaptureDetails.CaptureMode = _captureMode;
 
 			// Get the windows details in a seperate thread, only for those captures that have a Feedback
 			// As currently the "elements" aren't used, we don't need them yet
-			switch (captureMode) {
+			switch (_captureMode) {
 				case CaptureMode.Region:
 					// Check if a region is pre-supplied!
-					if (Rectangle.Empty.Equals(captureRect)) {
-						windowDetailsThread = PrepareForCaptureWithFeedback();
+					if (Rectangle.Empty.Equals(_captureRect)) {
+						PrepareForCaptureWithFeedback();
 					}
 					break;
 				case CaptureMode.Window:
-					windowDetailsThread = PrepareForCaptureWithFeedback();
+					PrepareForCaptureWithFeedback();
 					break;
 			}
 
 			// Add destinations if no-one passed a handler
-			if (capture.CaptureDetails.CaptureDestinations == null || capture.CaptureDetails.CaptureDestinations.Count == 0) {
+			if (_capture.CaptureDetails.CaptureDestinations == null || _capture.CaptureDetails.CaptureDestinations.Count == 0) {
 				AddConfiguredDestination();
 			}
 
@@ -237,8 +233,8 @@ namespace Greenshot.Helpers {
 			WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
 			// Workaround for changed DPI settings in Windows 7
 			using (Graphics graphics = Graphics.FromHwnd(MainForm.Instance.Handle)) {
-				capture.CaptureDetails.DpiX = graphics.DpiX;
-				capture.CaptureDetails.DpiY = graphics.DpiY;
+				_capture.CaptureDetails.DpiX = graphics.DpiX;
+				_capture.CaptureDetails.DpiY = graphics.DpiY;
 			}
 			if (previouslyActiveWindow != null) {
 				// Set previouslyActiveWindow as foreground window
@@ -247,25 +243,25 @@ namespace Greenshot.Helpers {
 
 			// Delay for the Context menu
 			if (conf.CaptureDelay > 0) {
-				System.Threading.Thread.Sleep(conf.CaptureDelay);
+				Thread.Sleep(conf.CaptureDelay);
 			} else {
 				conf.CaptureDelay = 0;
 			}
 
 			// Capture Mousecursor if we are not loading from file or clipboard, only show when needed
-			if (captureMode != CaptureMode.File && captureMode != CaptureMode.Clipboard) {
-				capture = WindowCapture.CaptureCursor(capture);
-				if (captureMouseCursor) {
-					capture.CursorVisible = conf.CaptureMousepointer;
+			if (_captureMode != CaptureMode.File && _captureMode != CaptureMode.Clipboard) {
+				_capture = WindowCapture.CaptureCursor(_capture);
+				if (_captureMouseCursor) {
+					_capture.CursorVisible = conf.CaptureMousepointer;
 				} else {
-					capture.CursorVisible = false;					
+					_capture.CursorVisible = false;					
 				}
 			}
 
-			switch(captureMode) {
+			switch(_captureMode) {
 				case CaptureMode.Window:
-					capture = WindowCapture.CaptureScreen(capture);
-					capture.CaptureDetails.AddMetaData("source", "Screen");
+					_capture = WindowCapture.CaptureScreen(_capture);
+					_capture.CaptureDetails.AddMetaData("source", "Screen");
 					CaptureWithFeedback();
 					break;
 				case CaptureMode.ActiveWindow:
@@ -277,31 +273,31 @@ namespace Greenshot.Helpers {
 						//capture.MoveElements(capture.ScreenBounds.Location.X-capture.Location.X, capture.ScreenBounds.Location.Y-capture.Location.Y);
 
 						// Capture worked, offset mouse according to screen bounds and capture location
-						capture.MoveMouseLocation(capture.ScreenBounds.Location.X-capture.Location.X, capture.ScreenBounds.Location.Y-capture.Location.Y);
-						capture.CaptureDetails.AddMetaData("source", "Window");
+						_capture.MoveMouseLocation(_capture.ScreenBounds.Location.X-_capture.Location.X, _capture.ScreenBounds.Location.Y-_capture.Location.Y);
+						_capture.CaptureDetails.AddMetaData("source", "Window");
 					} else {
-						captureMode = CaptureMode.FullScreen;
-						capture = WindowCapture.CaptureScreen(capture);
-						capture.CaptureDetails.AddMetaData("source", "Screen");
-						capture.CaptureDetails.Title = "Screen";
+						_captureMode = CaptureMode.FullScreen;
+						_capture = WindowCapture.CaptureScreen(_capture);
+						_capture.CaptureDetails.AddMetaData("source", "Screen");
+						_capture.CaptureDetails.Title = "Screen";
 					}
 					HandleCapture();
 					break;
 				case CaptureMode.IE:
-					if (IECaptureHelper.CaptureIE(capture, SelectedCaptureWindow) != null) {
-						capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
+					if (IECaptureHelper.CaptureIE(_capture, SelectedCaptureWindow) != null) {
+						_capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
 						HandleCapture();
 					}
 					break;
 				case CaptureMode.FullScreen:
 					// Check how we need to capture the screen
 					bool captureTaken = false;
-					switch (screenCaptureMode) {
+					switch (_screenCaptureMode) {
 						case ScreenCaptureMode.Auto:
 							Point mouseLocation = WindowCapture.GetCursorLocation();
 							foreach (Screen screen in Screen.AllScreens) {
 								if (screen.Bounds.Contains(mouseLocation)) {
-									capture = WindowCapture.CaptureRectangle(capture, screen.Bounds);
+									_capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
 									captureTaken = true;
 									break;
 								}
@@ -309,7 +305,7 @@ namespace Greenshot.Helpers {
 							break;
 						case ScreenCaptureMode.Fixed:
 							if (conf.ScreenToCapture > 0 && conf.ScreenToCapture <= Screen.AllScreens.Length) {
-								capture = WindowCapture.CaptureRectangle(capture, Screen.AllScreens[conf.ScreenToCapture].Bounds);
+								_capture = WindowCapture.CaptureRectangle(_capture, Screen.AllScreens[conf.ScreenToCapture].Bounds);
 								captureTaken = true;
 							}
 							break;
@@ -318,28 +314,28 @@ namespace Greenshot.Helpers {
 							break;
 					}
 					if (!captureTaken) {
-						capture = WindowCapture.CaptureScreen(capture);
+						_capture = WindowCapture.CaptureScreen(_capture);
 					}
 					HandleCapture();
 					break;
 				case CaptureMode.Clipboard:
 					Image clipboardImage = ClipboardHelper.GetImage();
 					if (clipboardImage != null) {
-						if (capture != null) {
-							capture.Image = clipboardImage;
+						if (_capture != null) {
+							_capture.Image = clipboardImage;
 						} else {
-							capture = new Capture(clipboardImage);
+							_capture = new Capture(clipboardImage);
 						}
-						capture.CaptureDetails.Title = "Clipboard";
-						capture.CaptureDetails.AddMetaData("source", "Clipboard");
+						_capture.CaptureDetails.Title = "Clipboard";
+						_capture.CaptureDetails.AddMetaData("source", "Clipboard");
 						// Force Editor, keep picker
-						if (capture.CaptureDetails.HasDestination(Destinations.PickerDestination.DESIGNATION)) {
-							capture.CaptureDetails.ClearDestinations();
-							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(Destinations.EditorDestination.DESIGNATION));
-							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(Destinations.PickerDestination.DESIGNATION));
+						if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION)) {
+							_capture.CaptureDetails.ClearDestinations();
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
 						} else {
-							capture.CaptureDetails.ClearDestinations();
-							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(Destinations.EditorDestination.DESIGNATION));
+							_capture.CaptureDetails.ClearDestinations();
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 						}
 						HandleCapture();
 					} else {
@@ -348,15 +344,15 @@ namespace Greenshot.Helpers {
 					break;
 				case CaptureMode.File:
 					Image fileImage = null;
-					string filename = capture.CaptureDetails.Filename;
+					string filename = _capture.CaptureDetails.Filename;
 
 					if (!string.IsNullOrEmpty(filename)) {
 						try {
 							if (filename.ToLower().EndsWith("." + OutputFormat.greenshot)) {
 								ISurface surface = new Surface();
 								surface = ImageOutput.LoadGreenshotSurface(filename, surface);
-								surface.CaptureDetails = capture.CaptureDetails;
-								DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, capture.CaptureDetails);
+								surface.CaptureDetails = _capture.CaptureDetails;
+								DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, _capture.CaptureDetails);
 								break;
 							}
 						} catch (Exception e) {
@@ -371,29 +367,29 @@ namespace Greenshot.Helpers {
 						}
 					}
 					if (fileImage != null) {
-						capture.CaptureDetails.Title = Path.GetFileNameWithoutExtension(filename);
-						capture.CaptureDetails.AddMetaData("file", filename);
-						capture.CaptureDetails.AddMetaData("source", "file");
-						if (capture != null) {
-							capture.Image = fileImage;
+						_capture.CaptureDetails.Title = Path.GetFileNameWithoutExtension(filename);
+						_capture.CaptureDetails.AddMetaData("file", filename);
+						_capture.CaptureDetails.AddMetaData("source", "file");
+						if (_capture != null) {
+							_capture.Image = fileImage;
 						} else {
-							capture = new Capture(fileImage);
+							_capture = new Capture(fileImage);
 						}
 						// Force Editor, keep picker, this is currently the only usefull destination
-						if (capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION)) {
-							capture.CaptureDetails.ClearDestinations();
-							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
+						if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION)) {
+							_capture.CaptureDetails.ClearDestinations();
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
 						} else {
-							capture.CaptureDetails.ClearDestinations();
-							capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+							_capture.CaptureDetails.ClearDestinations();
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 						}
 						HandleCapture();
 					}
 					break;
 				case CaptureMode.LastRegion:
 					if (!RuntimeConfig.LastCapturedRegion.IsEmpty) {
-						capture = WindowCapture.CaptureRectangle(capture, RuntimeConfig.LastCapturedRegion);
+						_capture = WindowCapture.CaptureRectangle(_capture, RuntimeConfig.LastCapturedRegion);
 						// TODO: Reactive / check if the elements code is activated
 						//if (windowDetailsThread != null) {
 						//	windowDetailsThread.Join();
@@ -403,42 +399,42 @@ namespace Greenshot.Helpers {
 						foreach (WindowDetails window in WindowDetails.GetVisibleWindows()) {
 							Point estimatedLocation = new Point(RuntimeConfig.LastCapturedRegion.X + (RuntimeConfig.LastCapturedRegion.Width / 2), RuntimeConfig.LastCapturedRegion.Y + (RuntimeConfig.LastCapturedRegion.Height / 2));
 							if (window.Contains(estimatedLocation)) {
-								selectedCaptureWindow = window;
-								capture.CaptureDetails.Title = selectedCaptureWindow.Text;
+								_selectedCaptureWindow = window;
+								_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
 								break;
 							}
 						}
 						// Move cursor, fixing bug #3569703
-						capture.MoveMouseLocation(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
+						_capture.MoveMouseLocation(_capture.ScreenBounds.Location.X - _capture.Location.X, _capture.ScreenBounds.Location.Y - _capture.Location.Y);
 						//capture.MoveElements(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
 
-						capture.CaptureDetails.AddMetaData("source", "screen");
+						_capture.CaptureDetails.AddMetaData("source", "screen");
 						HandleCapture();
 					}
 					break;
 				case CaptureMode.Region:
 					// Check if a region is pre-supplied!
-					if (Rectangle.Empty.Equals(captureRect)) {
-						capture = WindowCapture.CaptureScreen(capture);
-						capture.CaptureDetails.AddMetaData("source", "screen");
+					if (Rectangle.Empty.Equals(_captureRect)) {
+						_capture = WindowCapture.CaptureScreen(_capture);
+						_capture.CaptureDetails.AddMetaData("source", "screen");
 						CaptureWithFeedback();
 					} else {
-						capture = WindowCapture.CaptureRectangle(capture, captureRect);
-						capture.CaptureDetails.AddMetaData("source", "screen");
+						_capture = WindowCapture.CaptureRectangle(_capture, _captureRect);
+						_capture.CaptureDetails.AddMetaData("source", "screen");
 						HandleCapture();
 					}
 					break;
 				default:
-					LOG.Warn("Unknown capture mode: " + captureMode);
+					LOG.Warn("Unknown capture mode: " + _captureMode);
 					break;
 			}
 			// TODO: Reactive / check if the elements code is activated
 			//if (windowDetailsThread != null) {
 			//	windowDetailsThread.Join();
 			//}
-			if (capture != null) {
+			if (_capture != null) {
 				LOG.Debug("Disposing capture");
-				capture.Dispose();
+				_capture.Dispose();
 			}
 		}
 				
@@ -446,12 +442,12 @@ namespace Greenshot.Helpers {
 		/// Pre-Initialization for CaptureWithFeedback, this will get all the windows before we change anything
 		/// </summary>
 		private Thread PrepareForCaptureWithFeedback() {
-			windows = new List<WindowDetails>();
+			_windows = new List<WindowDetails>();
 			
 			// If the App Launcher is visisble, no other windows are active
 			WindowDetails appLauncherWindow = WindowDetails.GetAppLauncher();
 			if (appLauncherWindow != null && appLauncherWindow.Visible) {
-				windows.Add(appLauncherWindow);
+				_windows.Add(appLauncherWindow);
 				return null;
 			}
 			
@@ -481,8 +477,8 @@ namespace Greenshot.Helpers {
 						goLevelDeep = 20;
 					}
 					window.GetChildren(goLevelDeep);
-					lock (windows) {
-						windows.Add(window);
+					lock (_windows) {
+						_windows.Add(window);
 					}
 
 					// TODO: Following code should be enabled & checked if the editor can support "elements"
@@ -535,7 +531,7 @@ namespace Greenshot.Helpers {
 			foreach(string destinationDesignation in conf.OutputDestinations) {
 				IDestination destination = DestinationHelper.GetDestination(destinationDesignation);
 				if (destination != null) {
-					capture.CaptureDetails.AddDestination(destination);
+					_capture.CaptureDetails.AddDestination(destination);
 				}
 			}
 		}
@@ -546,26 +542,26 @@ namespace Greenshot.Helpers {
 			bool outputMade = false;
 
 			// Make sure the user sees that the capture is made
-			if (capture.CaptureDetails.CaptureMode == CaptureMode.File || capture.CaptureDetails.CaptureMode == CaptureMode.Clipboard) {
+			if (_capture.CaptureDetails.CaptureMode == CaptureMode.File || _capture.CaptureDetails.CaptureMode == CaptureMode.Clipboard) {
 				// Maybe not "made" but the original is still there... somehow
 				outputMade = true;
 			} else {
 				// Make sure the resolution is set correctly!
-				if (capture.CaptureDetails != null && capture.Image != null) {
-					((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
+				if (_capture.CaptureDetails != null && _capture.Image != null) {
+					((Bitmap)_capture.Image).SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
 				}
 				DoCaptureFeedback();
 			}
 
-			LOG.Debug("A capture of: " + capture.CaptureDetails.Title);
+			LOG.Debug("A capture of: " + _capture.CaptureDetails.Title);
 
 			// check if someone has passed a destination
-			if (capture.CaptureDetails.CaptureDestinations == null || capture.CaptureDetails.CaptureDestinations.Count == 0) {
+			if (_capture.CaptureDetails.CaptureDestinations == null || _capture.CaptureDetails.CaptureDestinations.Count == 0) {
 				AddConfiguredDestination();
 			}
 
 			// Create Surface with capture, this way elements can be added automatically (like the mouse cursor)
-			Surface surface = new Surface(capture);
+			Surface surface = new Surface(_capture);
 			surface.Modified = !outputMade;
 
 			// Register notify events if this is wanted			
@@ -629,7 +625,7 @@ namespace Greenshot.Helpers {
 									}
 								} else {
 									if (!string.IsNullOrEmpty(surface.UploadURL)) {
-										System.Diagnostics.Process.Start(surface.UploadURL);
+										Process.Start(surface.UploadURL);
 									}
 								}
 								LOG.DebugFormat("Deregistering the BalloonTipClicked");
@@ -648,28 +644,28 @@ namespace Greenshot.Helpers {
 			foreach(IProcessor processor in ProcessorHelper.GetAllProcessors()) {
 				if (processor.isActive) {
 					LOG.InfoFormat("Calling processor {0}", processor.Description);
-					processor.ProcessCapture(surface, capture.CaptureDetails);
+					processor.ProcessCapture(surface, _capture.CaptureDetails);
 				}
 			}
 			
 			// As the surfaces copies the reference to the image, make sure the image is not being disposed (a trick to save memory)
-			capture.Image = null;
+			_capture.Image = null;
 
 			// Get CaptureDetails as we need it even after the capture is disposed
-			ICaptureDetails captureDetails = capture.CaptureDetails;
+			ICaptureDetails captureDetails = _capture.CaptureDetails;
 			bool canDisposeSurface = true;
 
-			if (captureDetails.HasDestination(Destinations.PickerDestination.DESIGNATION)) {
-				DestinationHelper.ExportCapture(false, Destinations.PickerDestination.DESIGNATION, surface, captureDetails);
+			if (captureDetails.HasDestination(PickerDestination.DESIGNATION)) {
+				DestinationHelper.ExportCapture(false, PickerDestination.DESIGNATION, surface, captureDetails);
 				captureDetails.CaptureDestinations.Clear();
 				canDisposeSurface = false;
 			}
 
 			// Disable capturing
-			captureMode = CaptureMode.None;
+			_captureMode = CaptureMode.None;
 			// Dispose the capture, we don't need it anymore (the surface copied all information and we got the title (if any)).
-			capture.Dispose();
-			capture = null;
+			_capture.Dispose();
+			_capture = null;
 
 			int destinationCount = captureDetails.CaptureDestinations.Count;
 			if (destinationCount > 0) {
@@ -682,7 +678,7 @@ namespace Greenshot.Helpers {
 					LOG.InfoFormat("Calling destination {0}", destination.Description);
 
 					ExportInformation exportInformation = destination.ExportCapture(false, surface, captureDetails);
-					if (Destinations.EditorDestination.DESIGNATION.Equals(destination.Designation) && exportInformation.ExportMade) {
+					if (EditorDestination.DESIGNATION.Equals(destination.Designation) && exportInformation.ExportMade) {
 						canDisposeSurface = false;
 					}
 				}
@@ -695,34 +691,34 @@ namespace Greenshot.Helpers {
 		private bool CaptureActiveWindow() {
 			bool presupplied = false;
 			LOG.Debug("CaptureActiveWindow");
-			if (selectedCaptureWindow != null) {
+			if (_selectedCaptureWindow != null) {
 				LOG.Debug("Using supplied window");
 				presupplied = true;
 			} else {
-				selectedCaptureWindow = WindowDetails.GetActiveWindow();
-				if (selectedCaptureWindow != null) {
-					LOG.DebugFormat("Capturing window: {0} with {1}", selectedCaptureWindow.Text, selectedCaptureWindow.WindowRectangle);
+				_selectedCaptureWindow = WindowDetails.GetActiveWindow();
+				if (_selectedCaptureWindow != null) {
+					LOG.DebugFormat("Capturing window: {0} with {1}", _selectedCaptureWindow.Text, _selectedCaptureWindow.WindowRectangle);
 				}
 			}
-			if (selectedCaptureWindow == null || (!presupplied && selectedCaptureWindow.Iconic)) {
+			if (_selectedCaptureWindow == null || (!presupplied && _selectedCaptureWindow.Iconic)) {
 				LOG.Warn("No window to capture!");
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
-			if (!presupplied && selectedCaptureWindow != null && selectedCaptureWindow.Iconic) {
+			if (!presupplied && _selectedCaptureWindow != null && _selectedCaptureWindow.Iconic) {
 				// Restore the window making sure it's visible!
 				// This is done mainly for a screen capture, but some applications like Excel and TOAD have weird behaviour!
-				selectedCaptureWindow.Restore();
+				_selectedCaptureWindow.Restore();
 			}
-			selectedCaptureWindow = SelectCaptureWindow(selectedCaptureWindow);
-			if (selectedCaptureWindow == null) {
+			_selectedCaptureWindow = SelectCaptureWindow(_selectedCaptureWindow);
+			if (_selectedCaptureWindow == null) {
 				LOG.Warn("No window to capture, after SelectCaptureWindow!");
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
 			// Fix for Bug #3430560 
-			RuntimeConfig.LastCapturedRegion = selectedCaptureWindow.WindowRectangle;
-			bool returnValue = CaptureWindow(selectedCaptureWindow, capture, conf.WindowCaptureMode) != null;
+			RuntimeConfig.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
+			bool returnValue = CaptureWindow(_selectedCaptureWindow, _capture, conf.WindowCaptureMode) != null;
 			return returnValue;
 		}
 
@@ -954,17 +950,17 @@ namespace Greenshot.Helpers {
 					app.HideApp();
 				}
 			}
-			using (CaptureForm captureForm = new CaptureForm(capture, windows)) {
+			using (CaptureForm captureForm = new CaptureForm(_capture, _windows)) {
 				DialogResult result = captureForm.ShowDialog();
 				if (result == DialogResult.OK) {
-					selectedCaptureWindow = captureForm.SelectedCaptureWindow;
-					captureRect = captureForm.CaptureRectangle;
+					_selectedCaptureWindow = captureForm.SelectedCaptureWindow;
+					_captureRect = captureForm.CaptureRectangle;
 					// Get title
-					if (selectedCaptureWindow != null) {
-						capture.CaptureDetails.Title = selectedCaptureWindow.Text;
+					if (_selectedCaptureWindow != null) {
+						_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
 					}
 					
-					if (captureRect.Height > 0 && captureRect.Width > 0) {
+					if (_captureRect.Height > 0 && _captureRect.Width > 0) {
 						// TODO: Reactive / check if the elements code is activated
 						//if (windowDetailsThread != null) {
 						//	windowDetailsThread.Join();
@@ -990,12 +986,12 @@ namespace Greenshot.Helpers {
 						//    }
 						//}
 						// Take the captureRect, this already is specified as bitmap coordinates
-						capture.Crop(captureRect);
+						_capture.Crop(_captureRect);
 						
 						// save for re-capturing later and show recapture context menu option
 						// Important here is that the location needs to be offsetted back to screen coordinates!
-						Rectangle tmpRectangle = captureRect.Clone();
-						tmpRectangle.Offset(capture.ScreenBounds.Location.X, capture.ScreenBounds.Location.Y);
+						Rectangle tmpRectangle = _captureRect;
+						tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
 						RuntimeConfig.LastCapturedRegion = tmpRectangle;
 						HandleCapture();
 					}

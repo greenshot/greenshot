@@ -23,15 +23,15 @@ using System.Collections.Generic;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.Destinations;
 using Greenshot.IniFile;
+using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of DestinationHelper.
 	/// </summary>
 	public static class DestinationHelper {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DestinationHelper));
+		private static ILog LOG = LogManager.GetLogger(typeof(DestinationHelper));
 		private static Dictionary<string, IDestination> RegisteredDestinations = new Dictionary<string, IDestination>();
 		private static CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 

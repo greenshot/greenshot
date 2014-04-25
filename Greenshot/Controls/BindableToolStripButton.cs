@@ -37,7 +37,7 @@ namespace Greenshot.Controls {
 		}
 
 		public BindableToolStripButton() :base() {
-			this.CheckedChanged += new EventHandler(BindableToolStripButton_CheckedChanged);
+			CheckedChanged += BindableToolStripButton_CheckedChanged;
 		}
 
 		void BindableToolStripButton_CheckedChanged(object sender, EventArgs e) {

@@ -42,7 +42,7 @@ namespace Greenshot.Helpers {
 			get {return commands;}
 		}
 		public CopyDataTransport() {
-			this.commands = new List<KeyValuePair<CommandEnum, string>>();
+			commands = new List<KeyValuePair<CommandEnum, string>>();
 		}
 		
 		public CopyDataTransport(CommandEnum command) : this() {
@@ -53,10 +53,10 @@ namespace Greenshot.Helpers {
 			AddCommand(command, commandData);
 		}
 		public void AddCommand(CommandEnum command) {
-			this.commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
+			commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
 		}
 		public void AddCommand(CommandEnum command, string commandData) {
-			this.commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
+			commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
 		}
 		
 	}
@@ -98,7 +98,7 @@ namespace Greenshot.Helpers {
 		/// messages sent by other instances of this class.
 		/// </summary>
 		/// <param name="m">The Windows Message information.</param>
-		protected override void WndProc (ref System.Windows.Forms.Message m ) {
+		protected override void WndProc (ref Message m ) {
 			if (m.Msg == WM_COPYDATA) {
 				COPYDATASTRUCT cds = new COPYDATASTRUCT();
 				cds = (COPYDATASTRUCT) Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
@@ -151,7 +151,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public CopyDataChannels Channels {
 			get {
-				return this.channels;
+				return channels;
 			}
 		}
 
@@ -202,7 +202,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public string ChannelName {
 			get {
-				return this.channelName;
+				return channelName;
 			}
 		}
 		/// <summary>
@@ -210,7 +210,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public Object Data {
 			get {
-				return this.data;
+				return data;
 			}
 		}
 		/// <summary>
@@ -219,7 +219,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public DateTime Sent {
 			get {
-				return this.sent;
+				return sent;
 			}
 		}
 		/// <summary>
@@ -228,7 +228,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public DateTime Received {
 			get {
-				return this.received;
+				return received;
 			}
 		}
 		/// <summary>
@@ -241,7 +241,7 @@ namespace Greenshot.Helpers {
 			this.channelName = channelName;
 			this.data = data;
 			this.sent = sent;
-			this.received = DateTime.Now;
+			received = DateTime.Now;
 		}
 	}
 
@@ -258,8 +258,8 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <returns>An enumerator for each of the CopyDataChannel objects
 		/// within this collection.</returns>
-		public new System.Collections.IEnumerator GetEnumerator (  ) {
-			return this.Dictionary.Values.GetEnumerator();
+		public new IEnumerator GetEnumerator (  ) {
+			return Dictionary.Values.GetEnumerator();
 		}
 
 		/// <summary>
@@ -269,7 +269,7 @@ namespace Greenshot.Helpers {
 			get {
 				CopyDataChannel ret = null;
 				int i = 0;
-				foreach (CopyDataChannel cdc in this.Dictionary.Values) {
+				foreach (CopyDataChannel cdc in Dictionary.Values) {
 					i++;
 					if (i == index) {
 						ret = cdc;
@@ -284,7 +284,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public CopyDataChannel this[string channelName] {
 			get {
-				return (CopyDataChannel) this.Dictionary[channelName];
+				return (CopyDataChannel) Dictionary[channelName];
 			}
 		}
 		/// <summary>
@@ -293,21 +293,21 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public void Add(string channelName) {
 			CopyDataChannel cdc = new CopyDataChannel(owner, channelName);
-			this.Dictionary.Add(channelName , cdc);
+			Dictionary.Add(channelName , cdc);
 		}
 		/// <summary>
 		/// Removes an existing channel.
 		/// </summary>
 		/// <param name="channelName">The channel to remove</param>
 		public void Remove(string channelName) {
-			this.Dictionary.Remove(channelName);
+			Dictionary.Remove(channelName);
 		}
 		/// <summary>
 		/// Gets/sets whether this channel contains a CopyDataChannel
 		/// for the specified channelName.
 		/// </summary>
 		public bool Contains(string channelName) {
-			return this.Dictionary.Contains(channelName);
+			return Dictionary.Contains(channelName);
 		}
 
 		/// <summary>
@@ -315,7 +315,7 @@ namespace Greenshot.Helpers {
 		/// object collected by this class are cleared up.
 		/// </summary>
 		protected override void OnClear() {
-			foreach (CopyDataChannel cdc in this.Dictionary.Values) {
+			foreach (CopyDataChannel cdc in Dictionary.Values) {
 				cdc.Dispose();
 			}
 			base.OnClear();
@@ -328,7 +328,7 @@ namespace Greenshot.Helpers {
 		/// <param name="key">The channelName</param>
 		/// <param name="data">The CopyDataChannel object which has
 		/// just been removed</param>
-		protected override void OnRemoveComplete ( Object key , System.Object data ) {
+		protected override void OnRemoveComplete ( Object key , Object data ) {
 			( (CopyDataChannel) data).Dispose();
 			base.OnRemove(key, data);
 		}
@@ -341,7 +341,7 @@ namespace Greenshot.Helpers {
 		/// the new handle has been assigned.
 		/// </summary>
 		public void OnHandleChange() {
-			foreach (CopyDataChannel cdc in this.Dictionary.Values) {
+			foreach (CopyDataChannel cdc in Dictionary.Values) {
 				cdc.OnHandleChange();
 			}
 		}
@@ -393,7 +393,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public string ChannelName {
 			get {
-				return this.channelName;
+				return channelName;
 			}
 		}
 
@@ -442,8 +442,8 @@ namespace Greenshot.Helpers {
 				// Send the data to each window identified on
 				// the channel:
 				foreach(WindowDetails window in WindowDetails.GetAllWindows()) {
-					if (!window.Handle.Equals(this.owner.Handle)) {
-						if (GetProp(window.Handle, this.channelName) != IntPtr.Zero) {
+					if (!window.Handle.Equals(owner.Handle)) {
+						if (GetProp(window.Handle, channelName) != IntPtr.Zero) {
 							COPYDATASTRUCT cds = new COPYDATASTRUCT();
 							cds.cbData = dataSize;
 							cds.dwData = IntPtr.Zero;
@@ -464,12 +464,12 @@ namespace Greenshot.Helpers {
 
 		private void addChannel() {
 			// Tag this window with property "channelName"
-			SetProp(owner.Handle, this.channelName, (int)owner.Handle);
+			SetProp(owner.Handle, channelName, (int)owner.Handle);
 		}
 
 		private void removeChannel() {
 			// Remove the "channelName" property from this window
-			RemoveProp(owner.Handle, this.channelName);
+			RemoveProp(owner.Handle, channelName);
 		}
 
 		/// <summary>
