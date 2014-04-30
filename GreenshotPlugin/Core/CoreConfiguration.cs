@@ -185,9 +185,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("ThumnailPreview", Description="Enable/disable thumbnail previews", DefaultValue="True")]
 		public bool ThumnailPreview;
 		
-		[IniProperty("NoGDICaptureForProduct", Description="List of products for which GDI capturing doesn't work.", DefaultValue="IntelliJ,IDEA")]
+		[IniProperty("NoGDICaptureForProduct", Description = "List of productnames for which GDI capturing is skipped (using fallback).", DefaultValue = "IntelliJ IDEA")]
 		public List<string> NoGDICaptureForProduct;
-		[IniProperty("NoDWMCaptureForProduct", Description="List of products for which DWM capturing doesn't work.", DefaultValue="Citrix,ICA,Client")]
+		[IniProperty("NoDWMCaptureForProduct", Description = "List of productnames for which DWM capturing is skipped (using fallback).", DefaultValue = "Citrix ICA Client")]
 		public List<string> NoDWMCaptureForProduct;
 
 		[IniProperty("OptimizeForRDP", Description="Make some optimizations for usage with remote desktop", DefaultValue="False")]
@@ -380,10 +380,11 @@ namespace GreenshotPlugin.Core {
 			// Make sure the lists are lowercase, to speedup the check
 			if (NoGDICaptureForProduct != null) {
 				// Fix error in configuration
-				if (NoGDICaptureForProduct.Count == 1) {
-					if ("intellij idea".Equals(NoGDICaptureForProduct[0])) {
-						NoGDICaptureForProduct[0] = "intellij,idea";
-						this.IsDirty = true;
+				if (NoGDICaptureForProduct.Count >= 2) {
+					if ("intellij".Equals(NoGDICaptureForProduct[0]) && "idea".Equals(NoGDICaptureForProduct[1])) {
+						NoGDICaptureForProduct.RemoveRange(0, 2);
+						NoGDICaptureForProduct.Add("Intellij Idea");
+						IsDirty = true;
 					}
 				}
 				for (int i = 0; i < NoGDICaptureForProduct.Count; i++) {
@@ -392,13 +393,14 @@ namespace GreenshotPlugin.Core {
 			}
 			if (NoDWMCaptureForProduct != null) {
 				// Fix error in configuration
-				if (NoDWMCaptureForProduct.Count == 1) {
-					if ("citrix ica client".Equals(NoDWMCaptureForProduct[0])) {
-						NoDWMCaptureForProduct[0] = "citrix,ica,client";
-						this.IsDirty = true;
+				if (NoDWMCaptureForProduct.Count >= 3) {
+					if ("citrix".Equals(NoDWMCaptureForProduct[0]) && "ica".Equals(NoDWMCaptureForProduct[1]) && "client".Equals(NoDWMCaptureForProduct[2])) {
+						NoDWMCaptureForProduct.RemoveRange(0, 3);
+						NoDWMCaptureForProduct.Add("Citrix ICA Client");
+						IsDirty = true;
 					}
 				}
-				for(int i=0; i< NoDWMCaptureForProduct.Count; i++) {
+				for (int i = 0; i < NoDWMCaptureForProduct.Count; i++) {
 					NoDWMCaptureForProduct[i] = NoDWMCaptureForProduct[i].ToLower();
 				}
 			}
