@@ -4,6 +4,11 @@ CHANGE LOG:
 
 @GITDETAILVERSION@ Bugfix Release
 
+@RELEASENOTES@
+
+
+1.1.8.35-g8f5559c Bugfix Release
+
 Bugs resolved:
 * Bug #1578: Changed the behavior of creating filenames for Imgur to be configurable, default will be the date/time.
 * Bug #1580: removed device names for capture fullscreen submenu in multi-monitor setups, which sometimes delivered inconsistent results or even garbage characters. Sticking to descriptive text like "bottom left", which is more useful anyway.
