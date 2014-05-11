@@ -37,15 +37,15 @@ namespace GreenshotFlickrPlugin {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.getGreenshotIcon();
 		}
 				
 		void ButtonOKClick(object sender, EventArgs e) {
-			this.DialogResult = DialogResult.OK;
+			DialogResult = DialogResult.OK;
 		}
 		
-		void ButtonCancelClick(object sender, System.EventArgs e) {
-			this.DialogResult = DialogResult.Cancel;
+		void ButtonCancelClick(object sender, EventArgs e) {
+			DialogResult = DialogResult.Cancel;
 		}
 	}
 }

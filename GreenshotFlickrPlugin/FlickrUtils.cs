@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,32 +26,43 @@ using System.Xml;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using log4net;
 
 namespace GreenshotFlickrPlugin {
 	/// <summary>
 	/// Description of FlickrUtils.
 	/// </summary>
 	public class FlickrUtils {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FlickrUtils));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrUtils));
 		private static FlickrConfiguration config = IniConfig.GetIniSection<FlickrConfiguration>();
-
-		private FlickrUtils() {
-		}
-
+		private const string FLICKR_API_BASE_URL = "https://api.flickr.com/services/";
+		private const string FLICKR_UPLOAD_URL = FLICKR_API_BASE_URL + "upload/";
+		// OAUTH
+		private const string FLICKR_OAUTH_BASE_URL = FLICKR_API_BASE_URL + "oauth/";
+		private const string FLICKR_ACCESS_TOKEN_URL = FLICKR_OAUTH_BASE_URL + "access_token";
+		private const string FLICKR_AUTHORIZE_URL = FLICKR_OAUTH_BASE_URL + "authorize";
+		private const string FLICKR_REQUEST_TOKEN_URL = FLICKR_OAUTH_BASE_URL + "request_token";
+		private const string FLICKR_FARM_URL = "https://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg";
+		// REST
+		private const string FLICKR_REST_URL = FLICKR_API_BASE_URL + "rest/";
+		private const string FLICKR_GET_INFO_URL = FLICKR_REST_URL + "?method=flickr.photos.getInfo";
 
 		/// <summary>
 		/// Do the actual upload to Flickr
 		/// For more details on the available parameters, see: http://flickrnet.codeplex.com
 		/// </summary>
-		/// <param name="imageData">byte[] with image data</param>
+		/// <param name="surfaceToUpload"></param>
+		/// <param name="outputSettings"></param>
+		/// <param name="title"></param>
+		/// <param name="filename"></param>
 		/// <returns>url to image</returns>
 		public static string UploadToFlickr(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
 			OAuthSession oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret);
 			oAuth.BrowserSize = new Size(520, 800);
 			oAuth.CheckVerifier = false;
-			oAuth.AccessTokenUrl = "http://api.flickr.com/services/oauth/access_token";
-			oAuth.AuthorizeUrl = "http://api.flickr.com/services/oauth/authorize";
-			oAuth.RequestTokenUrl = "http://api.flickr.com/services/oauth/request_token";
+			oAuth.AccessTokenUrl = FLICKR_ACCESS_TOKEN_URL;
+			oAuth.AuthorizeUrl = FLICKR_AUTHORIZE_URL;
+			oAuth.RequestTokenUrl = FLICKR_REQUEST_TOKEN_URL;
 			oAuth.LoginTitle = "Flickr authorization";
 			oAuth.Token = config.FlickrToken;
 			oAuth.TokenSecret = config.FlickrTokenSecret;
@@ -77,12 +89,12 @@ namespace GreenshotFlickrPlugin {
 				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
 				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.flickr.com/services/upload/", signedParameters, otherParameters, null);
+				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, FLICKR_UPLOAD_URL, signedParameters, otherParameters, null);
 				string photoId = GetPhotoId(response);
 
 				// Get Photo Info
 				signedParameters = new Dictionary<string, object> { { "photo_id", photoId } };
-				string photoInfo = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.flickr.com/services/rest/?method=flickr.photos.getInfo", signedParameters, null, null);
+				string photoInfo = oAuth.MakeOAuthRequest(HTTPMethod.POST, FLICKR_GET_INFO_URL, signedParameters, null, null);
 				return GetUrl(photoInfo);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
@@ -104,7 +116,10 @@ namespace GreenshotFlickrPlugin {
 				if (config.UsePageLink) {
 					XmlNodeList nodes = doc.GetElementsByTagName("url");
 					if (nodes.Count > 0) {
-						return nodes.Item(0).InnerText;
+						var xmlNode = nodes.Item(0);
+						if (xmlNode != null) {
+							return xmlNode.InnerText;
+						}
 					}
 				} else {
 					XmlNodeList nodes = doc.GetElementsByTagName("photo");
@@ -116,7 +131,7 @@ namespace GreenshotFlickrPlugin {
 								string serverId = item.Attributes["server"].Value;
 								string photoId = item.Attributes["id"].Value;
 								string secret = item.Attributes["secret"].Value;
-								return string.Format("http://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg", farmId, serverId, photoId, secret);
+								return string.Format(FLICKR_FARM_URL, farmId, serverId, photoId, secret);
 							}
 						}
 
@@ -134,7 +149,10 @@ namespace GreenshotFlickrPlugin {
 				doc.LoadXml(response);
 				XmlNodeList nodes = doc.GetElementsByTagName("photoid");
 				if (nodes.Count > 0) {
-					return nodes.Item(0).InnerText;
+					var xmlNode = nodes.Item(0);
+					if (xmlNode != null) {
+						return xmlNode.InnerText;
+					}
 				}
 			} catch (Exception ex) {
 				LOG.Error("Error parsing Flickr Response.", ex);

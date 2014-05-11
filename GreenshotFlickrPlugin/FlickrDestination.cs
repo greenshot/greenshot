@@ -20,15 +20,14 @@
  */
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using log4net;
 
 namespace GreenshotFlickrPlugin {
 	public class FlickrDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FlickrDestination));
-		private static FlickrConfiguration config = IniConfig.GetIniSection<FlickrConfiguration>();
-		private FlickrPlugin plugin = null;
+		private static ILog LOG = LogManager.GetLogger(typeof(FlickrDestination));
+		private FlickrPlugin plugin;
 		public FlickrDestination(FlickrPlugin plugin) {
 			this.plugin = plugin;
 		}
@@ -53,8 +52,8 @@ namespace GreenshotFlickrPlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = null;
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+			string uploadURL;
 			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
 			if (uploaded) {
 				exportInformation.ExportMade = true;
