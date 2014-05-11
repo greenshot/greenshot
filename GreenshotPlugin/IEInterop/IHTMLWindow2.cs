@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 namespace Greenshot.Interop.IE {
 	[ComVisible(true), ComImport(), Guid("332c4427-26cb-11d0-b483-00c04fd90119"),
 	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
 	public interface IHTMLWindow2 {
 		[DispId(1156)]
 		IHTMLScreen screen {

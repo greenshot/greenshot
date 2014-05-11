@@ -26,7 +26,7 @@ namespace Greenshot.Interop.IE {
 	[Guid("332C4425-26CB-11D0-B483-00C04FD90119")]
 	[ComImport]
 	[TypeLibType(TypeLibTypeFlags.FDual)]
-	[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+	[InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
 	public interface IHTMLDocument2 {
 		IHTMLElement body {
 			[DispId(1004)]

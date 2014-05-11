@@ -23,13 +23,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using Greenshot.Plugin;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Description of InterfaceUtils.
 	/// </summary>
 	public static class InterfaceUtils {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(InterfaceUtils));
+		private static ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
 
 		public static List<Type> GetSubclassesOf(Type type, bool excludeSystemTypes) {
 			List<Type> list = new List<Type>();

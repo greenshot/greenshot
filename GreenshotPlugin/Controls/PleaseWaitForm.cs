@@ -23,13 +23,14 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Threading;
 using GreenshotPlugin.Core;
+using log4net;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// Description of PleaseWaitForm.
 	/// </summary>
 	public partial class PleaseWaitForm : Form {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PleaseWaitForm));
+		private static ILog LOG = LogManager.GetLogger(typeof(PleaseWaitForm));
 		private Thread waitFor = null;
 		private string title;
 		public PleaseWaitForm() {
@@ -37,7 +38,7 @@ namespace GreenshotPlugin.Controls {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.getGreenshotIcon();
 		}
 		
 		/// <summary>
@@ -61,9 +62,9 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="waitDelegate">delegate { with your code }</param>
 		public void ShowAndWait(string title, string text, ThreadStart waitDelegate) {
 			this.title = title;
-			this.Text = title;
-			this.label_pleasewait.Text = text;
-			this.cancelButton.Text = Language.GetString("CANCEL");
+			Text = title;
+			label_pleasewait.Text = text;
+			cancelButton.Text = Language.GetString("CANCEL");
 
 			// Make sure the form is shown.
 			Show();

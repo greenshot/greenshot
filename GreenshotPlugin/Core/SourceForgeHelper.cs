@@ -24,6 +24,7 @@ using System.Globalization;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	public class SourceforgeFile {
@@ -94,7 +95,7 @@ namespace GreenshotPlugin.Core {
 	/// Description of SourceForgeHelper.
 	/// </summary>
 	public class SourceForgeHelper {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SourceForgeHelper));
+		private static ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
 		private const String RSSFEED = "http://getgreenshot.org/project-feed/";
 
 		/// <summary>

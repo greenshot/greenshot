@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 
@@ -283,7 +284,7 @@ namespace GreenshotPlugin.Core {
 	/// The base class for the fast bitmap implementation
 	/// </summary>
 	public unsafe abstract class FastBitmap : IFastBitmap, IFastBitmapWithClip, IFastBitmapWithOffset {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FastBitmap));
+		private static ILog LOG = LogManager.GetLogger(typeof(FastBitmap));
 
 		protected const int PIXELFORMAT_INDEX_A = 3;
 		protected const int PIXELFORMAT_INDEX_R = 2;
@@ -427,11 +428,11 @@ namespace GreenshotPlugin.Core {
 				this.area = bitmapArea;
 			}
 			// As the lock takes care that only the specified area is made available we need to calculate the offset
-			this.Left = area.Left;
-			this.Top = area.Top;
+			Left = area.Left;
+			Top = area.Top;
 			// Default cliping is done to the area without invert
-			this.Clip = this.area;
-			this.InvertClip = false;
+			Clip = this.area;
+			InvertClip = false;
 			// Always lock, so we don't need to do this ourselves
 			Lock();
 		}
@@ -639,7 +640,7 @@ namespace GreenshotPlugin.Core {
 				Unlock();
 			}
 
-			graphics.DrawImage(this.bitmap, destinationRect, area, GraphicsUnit.Pixel);
+			graphics.DrawImage(bitmap, destinationRect, area, GraphicsUnit.Pixel);
 		}
 
 		/// <summary>

@@ -25,7 +25,7 @@ namespace Greenshot.Interop.IE {
 	// See: http://msdn.microsoft.com/en-us/library/aa741548%28v=vs.85%29.aspx
 	[ComImport, Guid("3050F220-98B5-11CF-BB82-00AA00BDCE0B"),
 	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
 	public interface IHTMLTxtRange {
 		[DispId(1006)]
 		IHTMLElement parentElement();

@@ -22,10 +22,11 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	public static class EncryptionHelper {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EncryptionHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(EncryptionHelper));
 		private const string RGBIV = "dlgjowejgogkklwj";
 		private const string KEY = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 

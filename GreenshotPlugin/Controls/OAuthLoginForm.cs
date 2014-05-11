@@ -27,13 +27,14 @@ using System.Windows.Forms;
 using System.Web;
 using System.Collections.Specialized;
 using GreenshotPlugin.Core;
+using log4net;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// The OAuthLoginForm is used to allow the user to authorize Greenshot with an "Oauth" application
 	/// </summary>
 	public partial class OAuthLoginForm : Form {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OAuthLoginForm));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
 		private string callbackUrl = null;
 		private IDictionary<string, string> callbackParameters = null;
 		
@@ -50,17 +51,17 @@ namespace GreenshotPlugin.Controls {
 		public OAuthLoginForm(string browserTitle, Size size, string authorizationLink, string callbackUrl) {
 			this.callbackUrl = callbackUrl;
 			InitializeComponent();
-			this.ClientSize = size;
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-			this.Text = browserTitle;
-			this.addressTextBox.Text = authorizationLink;
+			ClientSize = size;
+			Icon = GreenshotResources.getGreenshotIcon();
+			Text = browserTitle;
+			addressTextBox.Text = authorizationLink;
 
 			// The script errors are suppressed by using the ExtendedWebBrowser
 			browser.ScriptErrorsSuppressed = false;
 			browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(browser_DocumentCompleted);
 			browser.Navigate(new Uri(authorizationLink));
 
-			WindowDetails.ToForeground(this.Handle);
+			WindowDetails.ToForeground(Handle);
 		}
 
 		private void browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
@@ -69,7 +70,7 @@ namespace GreenshotPlugin.Controls {
 		}
 		private void webBrowser1_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
 			LOG.DebugFormat("Navigating to url: {0}", browser.Url);
-			this.addressTextBox.Text = e.Url.ToString();
+			addressTextBox.Text = e.Url.ToString();
 		}
 
 		private void browser_Navigated(object sender, WebBrowserNavigatedEventArgs e) {

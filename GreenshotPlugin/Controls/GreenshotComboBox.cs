@@ -45,7 +45,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		public GreenshotComboBox() {
-			this.SelectedIndexChanged += delegate {
+			SelectedIndexChanged += delegate {
 				StoreSelectedEnum();
 			};
 		}
@@ -53,7 +53,7 @@ namespace GreenshotPlugin.Controls {
 		public void SetValue(Enum currentValue) {
 			if (currentValue != null) {
 				selectedEnum = currentValue;
-				this.SelectedItem = Language.Translate(currentValue);
+				SelectedItem = Language.Translate(currentValue);
 			}
 		}
 
@@ -67,10 +67,10 @@ namespace GreenshotPlugin.Controls {
 			this.enumType = enumType;
 
 			var availableValues = Enum.GetValues(enumType);
-			this.Items.Clear();
+			Items.Clear();
 			string enumTypeName = enumType.Name;
 			foreach (var enumValue in availableValues) {
-				this.Items.Add(Language.Translate((Enum)enumValue));
+				Items.Add(Language.Translate((Enum)enumValue));
 			}
 		}
 
@@ -79,7 +79,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		private void StoreSelectedEnum() {
 			string enumTypeName = enumType.Name;
-			string selectedValue = this.SelectedItem as string;
+			string selectedValue = SelectedItem as string;
 			var availableValues = Enum.GetValues(enumType);
 			object returnValue = null;
 

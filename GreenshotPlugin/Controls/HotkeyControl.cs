@@ -26,6 +26,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using Greenshot.Plugin;
+using log4net;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -34,7 +35,7 @@ namespace GreenshotPlugin.Controls {
 	/// But is modified to fit in Greenshot, and have localized support
 	/// </summary>
 	public class HotkeyControl : GreenshotTextBox {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(HotkeyControl));
+		private static ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
 
 		// Holds the list of hotkeys
 		private static Dictionary<int, HotKeyHandler> keyHandlers = new Dictionary<int, HotKeyHandler>();
@@ -120,13 +121,13 @@ namespace GreenshotPlugin.Controls {
 		/// Creates a new HotkeyControl
 		/// </summary>
 		public HotkeyControl() {
-			this.ContextMenu = dummy; // Disable right-clicking
-			this.Text = "None";
+			ContextMenu = dummy; // Disable right-clicking
+			Text = "None";
 
 			// Handle events that occurs when keys are pressed
-			this.KeyPress += new KeyPressEventHandler(HotkeyControl_KeyPress);
-			this.KeyUp += new KeyEventHandler(HotkeyControl_KeyUp);
-			this.KeyDown += new KeyEventHandler(HotkeyControl_KeyDown);
+			KeyPress += new KeyPressEventHandler(HotkeyControl_KeyPress);
+			KeyUp += new KeyEventHandler(HotkeyControl_KeyUp);
+			KeyDown += new KeyEventHandler(HotkeyControl_KeyDown);
 
 			// Fill the ArrayLists that contain all invalid hotkey combinations
 			needNonShiftModifier = new ArrayList();
@@ -183,8 +184,8 @@ namespace GreenshotPlugin.Controls {
 		/// Resets this hotkey control to None
 		/// </summary>
 		public new void Clear() {
-			this.Hotkey = Keys.None;
-			this.HotkeyModifiers = Keys.None;
+			Hotkey = Keys.None;
+			HotkeyModifiers = Keys.None;
 		}
 
 		/// <summary>
@@ -197,8 +198,8 @@ namespace GreenshotPlugin.Controls {
 				ResetHotkey();
 				return;
 			} else {
-				this._modifiers = e.Modifiers;
-				this._hotkey = e.KeyCode;
+				_modifiers = e.Modifiers;
+				_hotkey = e.KeyCode;
 				Redraw();
 			}
 		}
@@ -210,12 +211,12 @@ namespace GreenshotPlugin.Controls {
 		void HotkeyControl_KeyUp(object sender, KeyEventArgs e) {
 			// Somehow the PrintScreen only comes as a keyup, therefore we handle it here.
 			if (e.KeyCode == Keys.PrintScreen) {
-				this._modifiers = e.Modifiers;
-				this._hotkey = e.KeyCode;
+				_modifiers = e.Modifiers;
+				_hotkey = e.KeyCode;
 				Redraw();
 			}
 
-			if (this._hotkey == Keys.None && Control.ModifierKeys == Keys.None) {
+			if (_hotkey == Keys.None && ModifierKeys == Keys.None) {
 				ResetHotkey();
 				return;
 			}
@@ -251,8 +252,8 @@ namespace GreenshotPlugin.Controls {
 		/// Clears the current hotkey and resets the TextBox
 		/// </summary>
 		public void ResetHotkey() {
-			this._hotkey = Keys.None;
-			this._modifiers = Keys.None;
+			_hotkey = Keys.None;
+			_modifiers = Keys.None;
 			Redraw();
 		}
 
@@ -261,10 +262,10 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		public Keys Hotkey {
 			get {
-				return this._hotkey;
+				return _hotkey;
 			}
 			set {
-				this._hotkey = value;
+				_hotkey = value;
 				Redraw(true);
 			}
 		}
@@ -273,8 +274,8 @@ namespace GreenshotPlugin.Controls {
 		/// Used to get/set the hotkey (e.g. Keys.A)
 		/// </summary>
 		public void SetHotkey(string hotkey) {
-			this._hotkey = HotkeyFromString(hotkey);
-			this._modifiers = HotkeyModifiersFromString(hotkey);
+			_hotkey = HotkeyFromString(hotkey);
+			_modifiers = HotkeyModifiersFromString(hotkey);
 			Redraw(true);
 		}
 
@@ -283,10 +284,10 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		public Keys HotkeyModifiers {
 			get {
-				return this._modifiers;
+				return _modifiers;
 			}
 			set {
-				this._modifiers = value;
+				_modifiers = value;
 				Redraw(true);
 			}
 		}
@@ -304,52 +305,52 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="bCalledProgramatically">Specifies whether this function was called by the Hotkey/HotkeyModifiers properties or by the user.</param>
 		private void Redraw(bool bCalledProgramatically) {
 			// No hotkey set
-			if (this._hotkey == Keys.None) {
-				this.Text = "";
+			if (_hotkey == Keys.None) {
+				Text = "";
 				return;
 			}
 
 			// LWin/RWin doesn't work as hotkeys (neither do they work as modifier keys in .NET 2.0)
-			if (this._hotkey == Keys.LWin || this._hotkey == Keys.RWin) {
-				this.Text = "";
+			if (_hotkey == Keys.LWin || _hotkey == Keys.RWin) {
+				Text = "";
 				return;
 			}
 
 			// Only validate input if it comes from the user
 			if (bCalledProgramatically == false) {
 				// No modifier or shift only, AND a hotkey that needs another modifier
-				if ((this._modifiers == Keys.Shift || this._modifiers == Keys.None) && this.needNonShiftModifier.Contains((int)this._hotkey)) {
-					if (this._modifiers == Keys.None) {
+				if ((_modifiers == Keys.Shift || _modifiers == Keys.None) && needNonShiftModifier.Contains((int)_hotkey)) {
+					if (_modifiers == Keys.None) {
 						// Set Ctrl+Alt as the modifier unless Ctrl+Alt+<key> won't work...
-						if (needNonAltGrModifier.Contains((int)this._hotkey) == false) {
-							this._modifiers = Keys.Alt | Keys.Control;
+						if (needNonAltGrModifier.Contains((int)_hotkey) == false) {
+							_modifiers = Keys.Alt | Keys.Control;
 						} else {
 							// ... in that case, use Shift+Alt instead.
-							this._modifiers = Keys.Alt | Keys.Shift;
+							_modifiers = Keys.Alt | Keys.Shift;
 						}
 					} else {
 						// User pressed Shift and an invalid key (e.g. a letter or a number),
 						// that needs another set of modifier keys
-						this._hotkey = Keys.None;
-						this.Text = "";
+						_hotkey = Keys.None;
+						Text = "";
 						return;
 					}
 				}
 				// Check all Ctrl+Alt keys
-				if ((this._modifiers == (Keys.Alt | Keys.Control)) && this.needNonAltGrModifier.Contains((int)this._hotkey)) {
+				if ((_modifiers == (Keys.Alt | Keys.Control)) && needNonAltGrModifier.Contains((int)_hotkey)) {
 					// Ctrl+Alt+4 etc won't work; reset hotkey and tell the user
-					this._hotkey = Keys.None;
-					this.Text = "";
+					_hotkey = Keys.None;
+					Text = "";
 					return;
 				}
 			}
 
 			// I have no idea why this is needed, but it is. Without this code, pressing only Ctrl
 			// will show up as "Control + ControlKey", etc.
-			if (this._hotkey == Keys.Menu /* Alt */ || this._hotkey == Keys.ShiftKey || this._hotkey == Keys.ControlKey) {
-				this._hotkey = Keys.None;
+			if (_hotkey == Keys.Menu /* Alt */ || _hotkey == Keys.ShiftKey || _hotkey == Keys.ControlKey) {
+				_hotkey = Keys.None;
 			}
-			this.Text = HotkeyToLocalizedString(this._modifiers, this._hotkey);
+			Text = HotkeyToLocalizedString(_modifiers, _hotkey);
 		}
 
 		public override string ToString() {

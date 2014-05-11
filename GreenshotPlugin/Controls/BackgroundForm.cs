@@ -22,6 +22,7 @@ using System;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -31,7 +32,7 @@ namespace GreenshotPlugin.Controls {
 		private volatile bool shouldClose = false;
 				
 		private void BackgroundShowDialog() {
-			this.ShowDialog();
+			ShowDialog();
 		}
 
 		public static BackgroundForm ShowAndWait(string title, string text) {
@@ -50,11 +51,11 @@ namespace GreenshotPlugin.Controls {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.getGreenshotIcon();
 			shouldClose = false;
-			this.Text = title;
-			this.label_pleasewait.Text = text;
-			this.FormClosing += PreventFormClose;
+			Text = title;
+			label_pleasewait.Text = text;
+			FormClosing += PreventFormClose;
 			timer_checkforclose.Start();
 		}
 		
@@ -65,12 +66,12 @@ namespace GreenshotPlugin.Controls {
 			foreach(Screen screen in Screen.AllScreens) {
 				if (screen.Bounds.Contains(Cursor.Position)) {
 					positioned = true;
-					this.Location = new Point(screen.Bounds.X + (screen.Bounds.Width / 2) - (this.Width / 2), screen.Bounds.Y + (screen.Bounds.Height / 2) - (this.Height / 2));
+					Location = new Point(screen.Bounds.X + (screen.Bounds.Width / 2) - (Width / 2), screen.Bounds.Y + (screen.Bounds.Height / 2) - (Height / 2));
 					break;
 				}
 			}
 			if (!positioned) {
-				this.Location = new Point(Cursor.Position.X - this.Width / 2, Cursor.Position.Y - this.Height / 2);
+				Location = new Point(Cursor.Position.X - Width / 2, Cursor.Position.Y - Height / 2);
 			}
 		}
 
@@ -83,7 +84,7 @@ namespace GreenshotPlugin.Controls {
 		private void Timer_checkforcloseTick(object sender, EventArgs e) {
 			if (shouldClose) {
 				timer_checkforclose.Stop();
-				this.BeginInvoke(new EventHandler( delegate {this.Close();}));
+				BeginInvoke(new EventHandler( delegate {Close();}));
 			}
 		}
 		

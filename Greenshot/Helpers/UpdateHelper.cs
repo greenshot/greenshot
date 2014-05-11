@@ -58,9 +58,8 @@ namespace Greenshot.Experimental {
 					if (DateTime.Now.CompareTo(checkTime) < 0) {
 						LOG.DebugFormat("No need to check RSS feed for updates, feed check will be after {0}", checkTime);
 						return false;
-					} else {
-						LOG.DebugFormat("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
 					}
+					LOG.DebugFormat("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
 				}
 			}
 			return true;

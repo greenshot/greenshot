@@ -75,7 +75,7 @@ namespace Greenshot.Help
 				return res.StatusCode;
 			} catch(WebException e) {
 				if(e.Response != null) return ((HttpWebResponse)e.Response).StatusCode;
-				else return null;
+				return null;
 			}
 		}
 	}

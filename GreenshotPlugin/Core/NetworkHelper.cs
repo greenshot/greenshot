@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Security;
@@ -29,18 +30,19 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Description of NetworkHelper.
 	/// </summary>
 	public static class NetworkHelper {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(NetworkHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(NetworkHelper));
 		private static CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 
 		static NetworkHelper() {
 			// Disable certificate checking
-			System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+			ServicePointManager.ServerCertificateValidationCallback +=
 			delegate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslError) {
 				bool validationResult = true;
 				return validationResult;
@@ -52,10 +54,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name=url">An Uri to specify the download location</param>
 		/// <returns>string with the file content</returns>
 		public static string GetAsString(Uri url) {
-			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+			HttpWebRequest webRequest = (HttpWebRequest)CreateWebRequest(url);
 			webRequest.Method = "GET";
 			webRequest.KeepAlive = true;
-			webRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			webRequest.Credentials = CredentialCache.DefaultCredentials;
 			return GetResponse(webRequest);				
 		}
 
@@ -67,7 +69,7 @@ namespace GreenshotPlugin.Core {
 		public static Bitmap DownloadFavIcon(Uri baseUri) {
 			Uri url = new Uri(baseUri, new Uri("favicon.ico"));
 			try {
-				HttpWebRequest request = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+				HttpWebRequest request = (HttpWebRequest)CreateWebRequest(url);
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 				if (request.HaveResponse) {
 					using (Image image = Image.FromStream(response.GetResponseStream())) {
@@ -88,7 +90,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Bitmap</returns>
 		public static Image DownloadImage(string url) {
 			try {
-				HttpWebRequest request = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+				HttpWebRequest request = (HttpWebRequest)CreateWebRequest(url);
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 				if (request.HaveResponse) {
 					using (Image image = Image.FromStream(response.GetResponseStream())) {
@@ -118,7 +120,7 @@ namespace GreenshotPlugin.Core {
 		public static WebRequest CreateWebRequest(Uri uri) {
 			WebRequest webRequest = WebRequest.Create(uri);
 			if (config.UseProxy) {
-				webRequest.Proxy = GreenshotPlugin.Core.NetworkHelper.CreateProxy(uri);
+				webRequest.Proxy = CreateProxy(uri);
 				//webRequest.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			}
 			return webRequest;
@@ -166,7 +168,7 @@ namespace GreenshotPlugin.Core {
 		public static string UrlEncode(string text) {
 			if (!string.IsNullOrEmpty(text)) {
 				// Sytem.Uri provides reliable parsing, but doesn't encode spaces.
-				return System.Uri.EscapeDataString(text).Replace("%20", "+");
+				return Uri.EscapeDataString(text).Replace("%20", "+");
 			}
 			return null;
 		}
@@ -200,7 +202,7 @@ namespace GreenshotPlugin.Core {
 			// pre-process for + sign space formatting since System.Uri doesn't handle it
 			// plus literals are encoded as %2b normally so this should be safe
 			text = text.Replace("+", " ");
-			return System.Uri.UnescapeDataString(text);
+			return Uri.UnescapeDataString(text);
 		}
 
 		/// <summary>
@@ -246,7 +248,7 @@ namespace GreenshotPlugin.Core {
 
 			StringBuilder sb = new StringBuilder();
 			foreach(string key in queryParameters.Keys) {
-				sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode(string.Format("{0}",queryParameters[key])));
+				sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode(string.Format("{0}",queryParameters[key])));
 			}
 			sb.Remove(sb.Length-1,1);
 
@@ -363,12 +365,12 @@ namespace GreenshotPlugin.Core {
 		}
 		public ByteContainer(byte[] file, string filename, string contenttype, int filesize) {
 			this.file = file;
-			this.fileName = filename;
-			this.contentType = contenttype;
+			fileName = filename;
+			contentType = contenttype;
 			if (filesize == 0) {
-				this.fileSize = file.Length;
+				fileSize = file.Length;
 			} else {
-				this.fileSize = filesize;
+				fileSize = filesize;
 			}
 		}
 
@@ -377,7 +379,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <returns>string</returns>
 		public string ToBase64String(Base64FormattingOptions formattingOptions) {
-			return System.Convert.ToBase64String(file, 0, fileSize, formattingOptions);
+			return Convert.ToBase64String(file, 0, fileSize, formattingOptions);
 		}
 
 		/// <summary>
@@ -440,7 +442,7 @@ namespace GreenshotPlugin.Core {
 		public BitmapContainer(Bitmap bitmap, SurfaceOutputSettings outputSettings, string filename) {
 			this.bitmap = bitmap;
 			this.outputSettings = outputSettings;
-			this.fileName = filename;
+			fileName = filename;
 		}
 
 		/// <summary>
@@ -451,7 +453,7 @@ namespace GreenshotPlugin.Core {
 		public string ToBase64String(Base64FormattingOptions formattingOptions) {
 			using (MemoryStream stream = new MemoryStream()) {
 				ImageOutput.SaveToStream(bitmap, null, stream, outputSettings);
-				return System.Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
+				return Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
 			}
 		}
 
@@ -516,7 +518,7 @@ namespace GreenshotPlugin.Core {
 		public SurfaceContainer(ISurface surface, SurfaceOutputSettings outputSettings, string filename) {
 			this.surface = surface;
 			this.outputSettings = outputSettings;
-			this.fileName = filename;
+			fileName = filename;
 		}
 
 		/// <summary>
@@ -527,7 +529,7 @@ namespace GreenshotPlugin.Core {
 		public string ToBase64String(Base64FormattingOptions formattingOptions) {
 			using (MemoryStream stream = new MemoryStream()) {
 				ImageOutput.SaveToStream(surface, stream, outputSettings);
-				return System.Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
+				return Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
 			}
 		}
 

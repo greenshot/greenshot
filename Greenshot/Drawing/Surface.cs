@@ -534,9 +534,8 @@ namespace Greenshot.Drawing {
 			get {
 				if (CanUndo) {
 					return undoStack.Peek().ActionLanguageKey;
-				} else {
-					return LangKey.none;
 				}
+				return LangKey.none;
 			}
 		}
 
@@ -547,9 +546,8 @@ namespace Greenshot.Drawing {
 			get {
 				if (CanRedo) {
 					return redoStack.Peek().ActionLanguageKey;
-				} else {
-					return LangKey.none;
 				}
+				return LangKey.none;
 			}
 		}
 
@@ -1186,7 +1184,7 @@ namespace Greenshot.Drawing {
 				return;
 			}
 
-			if (elements.hasIntersectingFilters(clipRectangle)) {
+			if (elements.HasIntersectingFilters(clipRectangle)) {
 				if (buffer != null) {
 					if (buffer.Width != Image.Width || buffer.Height != Image.Height || buffer.PixelFormat != Image.PixelFormat) {
 						buffer.Dispose();

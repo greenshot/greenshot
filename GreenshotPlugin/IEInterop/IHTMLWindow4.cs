@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 namespace Greenshot.Interop.IE {
 	[ComVisible(true), ComImport(), Guid("3050f6cf-98b5-11cf-bb82-00aa00bdce0b"),
 	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
 	public interface IHTMLWindow4 {
         [DispId(1181)]
         IHTMLFrameBase frameElement {

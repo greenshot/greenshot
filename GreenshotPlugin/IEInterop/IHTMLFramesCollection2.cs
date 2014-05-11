@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 namespace Greenshot.Interop.IE {
 	[ComImport(), ComVisible(true),
 	 Guid("332C4426-26CB-11D0-B483-00C04FD90119"),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch),
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch),
 	 TypeLibType(TypeLibTypeFlags.FDispatchable)]
 	public interface IHTMLFramesCollection2 {
 		[DispId(0)]

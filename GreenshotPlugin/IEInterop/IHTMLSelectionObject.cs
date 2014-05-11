@@ -25,7 +25,7 @@ namespace Greenshot.Interop.IE {
 	// See: http://msdn.microsoft.com/en-us/library/aa768849%28v=vs.85%29.aspx
 	[ComImport, Guid("3050f25A-98b5-11cf-bb82-00aa00bdce0b"),
 	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
 	public interface IHTMLSelectionObject {
 		[return: MarshalAs(UnmanagedType.IDispatch)]
 		[DispId(1001)]

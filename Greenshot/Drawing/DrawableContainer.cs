@@ -225,14 +225,14 @@ namespace Greenshot.Drawing {
 		
 		private int round(float f) {
 			if(float.IsPositiveInfinity(f) || f>int.MaxValue/2) return int.MaxValue/2;
-			else if (float.IsNegativeInfinity(f) || f<int.MinValue/2) return int.MinValue/2;
+			if (float.IsNegativeInfinity(f) || f<int.MinValue/2) return int.MinValue/2;
 			return (int)Math.Round(f);
 		}
 		
 		private int round(double d) {
 			if(Double.IsPositiveInfinity(d) || d>int.MaxValue/2) return int.MaxValue/2;
-			else if (Double.IsNegativeInfinity(d) || d<int.MinValue/2) return int.MinValue/2;
-			else return (int)Math.Round(d);
+			if (Double.IsNegativeInfinity(d) || d<int.MinValue/2) return int.MinValue/2;
+			return (int)Math.Round(d);
 		}
 
 		private bool accountForShadowChange = false;

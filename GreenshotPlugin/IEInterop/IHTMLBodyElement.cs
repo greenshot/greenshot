@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 namespace Greenshot.Interop.IE {
 	[ComImport, Guid("3050F1D8-98B5-11CF-BB82-00AA00BDCE0B"),
 	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
 	public interface IHTMLBodyElement {
 		string scroll {
 			set;

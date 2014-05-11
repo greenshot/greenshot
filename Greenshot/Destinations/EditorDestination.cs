@@ -55,9 +55,8 @@ namespace Greenshot.Destinations {
 			get {
 				if (editor == null) {
 					return Language.GetString(LangKey.settings_destination_editor);
-				} else {
-					return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title;
 				}
+				return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title;
 			}
 		}
 

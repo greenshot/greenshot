@@ -77,7 +77,11 @@ namespace Greenshot {
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 
 			// Upgrade if needed
-			AppConfig.UpgradeToIni();
+			try {
+				AppConfig.UpgradeToIni();
+			} catch {
+				LOG.Warn("Couldn't upgrade the config.dat to geenshot.ini.");
+			}
 
 			// Read configuration
 			_conf = IniConfig.GetIniSection<CoreConfiguration>();
@@ -274,7 +278,7 @@ namespace Greenshot {
 					transport.AddCommand(CommandEnum.FirstLaunch);
 				}
 
-				new MainForm(transport);
+				_instance = new MainForm(transport);
 				Application.Run();
 			} catch(Exception ex) {
 				LOG.Error("Exception in startup.", ex);
@@ -443,13 +447,15 @@ namespace Greenshot {
 							notifyIcon.BalloonTipClicked += balloonTipClickedHandler;
 							notifyIcon.BalloonTipClosed += balloonTipClosedHandler;
 							notifyIcon.ShowBalloonTip(2000, "Greenshot", Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), ToolTipIcon.Info);
-						} catch {}
+						} catch (Exception ex) {
+							LOG.Warn("Exception while showing first launch: ", ex);
+						}
 						break;
 					case CommandEnum.ReloadConfig:
 						LOG.Info("Reload requested");
 						try {
 							IniConfig.Reload();
-							Invoke((MethodInvoker)delegate {
+							Invoke((MethodInvoker) delegate {
 								// Even update language when needed
 								UpdateUI();
 								// Update the hotkey
@@ -457,7 +463,9 @@ namespace Greenshot {
 								HotkeyControl.UnregisterHotkeys();
 								RegisterHotkeys();
 							});
-						} catch {}
+						} catch (Exception ex) {
+							LOG.Warn("Exception while reloading configuration: ", ex);
+						}
 						break;
 					case CommandEnum.OpenFile:
 						string filename = command.Value;
@@ -508,9 +516,8 @@ namespace Greenshot {
 					}
 					failedKeys.Append(hotkeyString);
 					return false;
-				} else {
-					LOG.DebugFormat("Registered {0} to hotkey: {1}", functionName, hotkeyString);
 				}
+				LOG.DebugFormat("Registered {0} to hotkey: {1}", functionName, hotkeyString);
 			} else {
 				LOG.InfoFormat("Skipping hotkey registration for {0}, no hotkey set!", functionName);
 			}
@@ -522,7 +529,7 @@ namespace Greenshot {
 			try {
 				bool success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
 				if (!success && ignoreFailedRegistration) {
-					LOG.DebugFormat("Ignoring failed hotkey registration, resetting to 'None'.", functionName, hotkeyValue);
+					LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue);
 					_conf.Values[configurationKey].Value = Keys.None.ToString();
 					_conf.IsDirty = true;
 				}
@@ -580,7 +587,9 @@ namespace Greenshot {
 					success = HandleFailedHotkeyRegistration(failedKeys.ToString());
 				} else {
 					// if failures have been ignored, the config has probably been updated
-					if (_conf.IsDirty) IniConfig.Save();
+					if (_conf.IsDirty) {
+						IniConfig.Save();
+					}
 				}
 			}
 			return success || ignoreFailedRegistration;
@@ -641,12 +650,8 @@ namespace Greenshot {
 			CaptureHelper.CaptureRegion(true);
 		}
 
-		void CaptureClipboard() {
-			CaptureHelper.CaptureClipboard();
-		}
-
 		void CaptureFile() {
-			OpenFileDialog openFileDialog = new OpenFileDialog();
+			var openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf";
 			if (openFileDialog.ShowDialog() == DialogResult.OK) {
 				if (File.Exists(openFileDialog.FileName)) {
@@ -739,12 +744,7 @@ namespace Greenshot {
 							title = title.Substring(0, Math.Min(title.Length, _conf.MaxMenuItemLength));
 						}
 						ToolStripItem captureIETabItem = contextmenu_captureiefromlist.DropDownItems.Add(title);
-						int index;
-						if (counter.ContainsKey(tabData.Key)) {
-							index = counter[tabData.Key];
-						} else {
-							index = 0;
-						}
+						int index = counter.ContainsKey(tabData.Key) ? counter[tabData.Key] : 0;
 						captureIETabItem.Image = tabData.Key.DisplayIcon;
 						captureIETabItem.Tag = new KeyValuePair<WindowDetails, int>(tabData.Key, index++);
 						captureIETabItem.Click += Contextmenu_captureiefromlist_Click;

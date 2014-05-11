@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Timers;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -29,7 +30,7 @@ namespace GreenshotPlugin.Core {
 	/// <typeparam name="TK">Type of key</typeparam>
 	/// <typeparam name="TV">Type of value</typeparam>
 	public class Cache<TK, TV> {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Cache<TK, TV>));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(Cache<TK, TV>));
 		private IDictionary<TK, TV> internalCache = new Dictionary<TK, TV>();
 		private object lockObject = new object();
 		private int secondsToExpire = 10;

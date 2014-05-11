@@ -22,6 +22,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Collections.Generic;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 
@@ -99,9 +100,9 @@ namespace GreenshotPlugin.Core {
 			this.first = first;
 			this.last = last;
 			this.frames = frames;
-			this.current = first;
-			this.EasingType = easingType;
-			this.EasingMode = easingMode;
+			current = first;
+			EasingType = easingType;
+			EasingMode = easingMode;
 		}
 
 		/// <summary>
@@ -159,10 +160,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="frames"></param>
 		public void ChangeDestination(T newDestination, int frames) {
 			queue.Clear();
-			this.first = current;
-			this.currentFrameNr = 0;
+			first = current;
+			currentFrameNr = 0;
 			this.frames = frames;
-			this.last = newDestination;
+			last = newDestination;
 		}
 
 		/// <summary>
@@ -261,13 +262,13 @@ namespace GreenshotPlugin.Core {
 					return true;
 				}
 				if (queue.Count > 0) {
-					this.first = current;
-					this.currentFrameNr = 0;
+					first = current;
+					currentFrameNr = 0;
 					AnimationLeg<T> nextLeg = queue.Dequeue();
-					this.last = nextLeg.Destination;
-					this.frames = nextLeg.Frames;
-					this.EasingType = nextLeg.EasingType;
-					this.EasingMode = nextLeg.EasingMode;
+					last = nextLeg.Destination;
+					frames = nextLeg.Frames;
+					EasingType = nextLeg.EasingType;
+					EasingMode = nextLeg.EasingMode;
 					return true;
 				}
 				return false;
@@ -297,7 +298,7 @@ namespace GreenshotPlugin.Core {
 	/// Implementation of the RectangleAnimator
 	/// </summary>
 	public class RectangleAnimator : AnimatorBase<Rectangle> {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(RectangleAnimator));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(RectangleAnimator));
 
 		public RectangleAnimator(Rectangle first, Rectangle last, int frames)
 			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
@@ -336,7 +337,7 @@ namespace GreenshotPlugin.Core {
 	/// Implementation of the PointAnimator
 	/// </summary>
 	public class PointAnimator : AnimatorBase<Point> {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PointAnimator));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PointAnimator));
 		public PointAnimator(Point first, Point last, int frames)
 			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
 		}
@@ -369,7 +370,7 @@ namespace GreenshotPlugin.Core {
 	/// Implementation of the SizeAnimator
 	/// </summary>
 	public class SizeAnimator : AnimatorBase<Size> {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SizeAnimator));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(SizeAnimator));
 		public SizeAnimator(Size first, Size last, int frames)
 			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
 		}
@@ -401,7 +402,7 @@ namespace GreenshotPlugin.Core {
 	/// Implementation of the ColorAnimator
 	/// </summary>
 	public class ColorAnimator : AnimatorBase<Color> {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ColorAnimator));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ColorAnimator));
 		public ColorAnimator(Color first, Color last, int frames)
 			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
 		}
@@ -437,7 +438,7 @@ namespace GreenshotPlugin.Core {
 	/// Implementation of the IntAnimator
 	/// </summary>
 	public class IntAnimator : AnimatorBase<int> {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IntAnimator));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(IntAnimator));
 		public IntAnimator(int first, int last, int frames)
 			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
 		}

@@ -26,13 +26,14 @@ using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
+using log4net;
 
 namespace Greenshot.Interop {
 	/// <summary>
 	/// Wraps a late-bound COM server.
 	/// </summary>
 	public sealed class COMWrapper : RealProxy, IDisposable, IRemotingTypeInfo {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(COMWrapper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(COMWrapper));
 		private const int MK_E_UNAVAILABLE = -2147221021;
 		private const int CO_E_CLASSSTRING = -2147221005;
 		public const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
@@ -317,10 +318,10 @@ namespace Greenshot.Interop {
 		/// The interface type to impersonate.
 		/// </param>
 		private COMWrapper(object comObject, Type type, string targetName) : base(type) {
-			this._COMObject = comObject;
-			this._COMType = comObject.GetType();
-			this._InterceptType = type;
-			this._TargetName = targetName;
+			_COMObject = comObject;
+			_COMType = comObject.GetType();
+			_InterceptType = type;
+			_TargetName = targetName;
 		}
 
 		#endregion
@@ -332,15 +333,15 @@ namespace Greenshot.Interop {
 		/// sure that the COM object is still cleaned up.
 		/// </summary>
 		~COMWrapper() {
-			LOG.DebugFormat("Finalize {0}", this._InterceptType.ToString());
-			this.Dispose(false);
+			LOG.DebugFormat("Finalize {0}", _InterceptType.ToString());
+			Dispose(false);
 		}
 
 		/// <summary>
 		/// Cleans up the COM object.
 		/// </summary>
 		public void Dispose() {
-			this.Dispose(true);
+			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
@@ -352,18 +353,18 @@ namespace Greenshot.Interop {
 		/// <see cref="IDisposable"/> interface.
 		/// </param>
 		private void Dispose(bool disposing) {
-			if (null != this._COMObject) {
-				LOG.DebugFormat("Disposing {0}", this._InterceptType.ToString());
-				if (Marshal.IsComObject(this._COMObject)) {
+			if (null != _COMObject) {
+				LOG.DebugFormat("Disposing {0}", _InterceptType.ToString());
+				if (Marshal.IsComObject(_COMObject)) {
 					try {
-						while (Marshal.ReleaseComObject(this._COMObject) > 0) ;
+						while (Marshal.ReleaseComObject(_COMObject) > 0) ;
 					} catch (Exception ex) {
 						LOG.WarnFormat("Problem releasing {0}", _COMType);
 						LOG.Warn("Error: ", ex);
 					}
 				}
 
-				this._COMObject = null;
+				_COMObject = null;
 			}
 		}
 
@@ -378,7 +379,7 @@ namespace Greenshot.Interop {
 		/// The full name of the intercepted type.
 		/// </returns>
 		public override string ToString() {
-			return this._InterceptType.FullName;
+			return _InterceptType.FullName;
 		}
 
 		/// <summary>
@@ -388,7 +389,7 @@ namespace Greenshot.Interop {
 		/// The hash code of the wrapped object.
 		/// </returns>
 		public override int GetHashCode() {
-			return this._COMObject.GetHashCode();
+			return _COMObject.GetHashCode();
 		}
 
 		/// <summary>
@@ -404,7 +405,7 @@ namespace Greenshot.Interop {
 			if (null != value && RemotingServices.IsTransparentProxy(value)) {
 				COMWrapper wrapper = RemotingServices.GetRealProxy(value) as COMWrapper;
 				if (null != wrapper) {
-					return this._COMObject == wrapper._COMObject;
+					return _COMObject == wrapper._COMObject;
 				}
 			}
 
@@ -575,15 +576,15 @@ namespace Greenshot.Interop {
 			ParameterInfo parameter;
 
 			if ("Dispose" == methodName && 0 == argCount && typeof(void) == returnType) {
-				this.Dispose();
+				Dispose();
 			} else if ("ToString" == methodName && 0 == argCount && typeof(string) == returnType) {
-				returnValue = this.ToString();
-			} else if ("GetType" == methodName && 0 == argCount && typeof(System.Type) == returnType) {
-				returnValue = this._InterceptType;
+				returnValue = ToString();
+			} else if ("GetType" == methodName && 0 == argCount && typeof(Type) == returnType) {
+				returnValue = _InterceptType;
 			} else if ("GetHashCode" == methodName && 0 == argCount && typeof(int) == returnType) {
-				returnValue = this.GetHashCode();
+				returnValue = GetHashCode();
 			} else if ("Equals" == methodName && 1 == argCount && typeof(bool) == returnType) {
-				returnValue = this.Equals(callMessage.Args[0]);
+				returnValue = Equals(callMessage.Args[0]);
 			} else if (1 == argCount && typeof(void) == returnType && (methodName.StartsWith("add_") || methodName.StartsWith("remove_"))) {
 				bool removeHandler = methodName.StartsWith("remove_");
 				methodName = methodName.Substring(removeHandler ? 7 : 4);
@@ -593,8 +594,8 @@ namespace Greenshot.Interop {
 					return new ReturnMessage(new ArgumentNullException("handler"), callMessage);
 				}
 			} else {
-				invokeObject = this._COMObject;
-				invokeType = this._COMType;
+				invokeObject = _COMObject;
+				invokeType = _COMType;
 
 				if (methodName.StartsWith("get_")) {
 					// Property Get
@@ -670,7 +671,7 @@ namespace Greenshot.Interop {
 						if (comEx == null) {
 							comEx = ex.InnerException as COMException;
 						}
-						if (comEx != null && (comEx.ErrorCode == RPC_E_CALL_REJECTED || comEx.ErrorCode == COMWrapper.RPC_E_FAIL)) {
+						if (comEx != null && (comEx.ErrorCode == RPC_E_CALL_REJECTED || comEx.ErrorCode == RPC_E_FAIL)) {
 							string destinationName = _TargetName;
 							// Try to find a "catchy" name for the rejecting application
 							if (destinationName != null && destinationName.Contains(".")) {
@@ -694,7 +695,7 @@ namespace Greenshot.Interop {
 					if (returnType.IsInterface) {
 						// Wrap the returned value in an intercepting COM wrapper
 						if (Marshal.IsComObject(returnValue)) {
-							returnValue = COMWrapper.Wrap(returnValue, returnType, _TargetName);
+							returnValue = Wrap(returnValue, returnType, _TargetName);
 						}
 					} else if (returnType.IsEnum) {
 						// Convert to proper Enum type

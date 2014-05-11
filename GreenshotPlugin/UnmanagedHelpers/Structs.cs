@@ -44,19 +44,19 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public int Y;
 
 		public POINT(int x, int y) {
-			this.X = x;
-			this.Y = y;
+			X = x;
+			Y = y;
 		}
 		public POINT(Point point) {
-			this.X = point.X;
-			this.Y = point.Y;
+			X = point.X;
+			Y = point.Y;
 		}
 
-		public static implicit operator System.Drawing.Point(POINT p) {
-			return new System.Drawing.Point(p.X, p.Y);
+		public static implicit operator Point(POINT p) {
+			return new Point(p.X, p.Y);
 		}
 
-		public static implicit operator POINT(System.Drawing.Point p) {
+		public static implicit operator POINT(Point p) {
 			return new POINT(p.X, p.Y);
 		}
 

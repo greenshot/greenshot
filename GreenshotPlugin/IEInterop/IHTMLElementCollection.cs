@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 namespace Greenshot.Interop.IE {
 	[ComImport(), ComVisible(true),
 	 Guid("3050F21F-98B5-11CF-BB82-00AA00BDCE0B"),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch),
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch),
 	 TypeLibType(TypeLibTypeFlags.FDispatchable)]
 	public interface IHTMLElementCollection : IEnumerable {
 		new IEnumerator GetEnumerator();

@@ -57,7 +57,7 @@ namespace GreenshotPlugin.Core {
 			}
 			WindowDetails tmpWD = browserWindowDetails;
 			// Since IE 9 the TabBandClass is less deep!
-			if (IEHelper.IEVersion() < 9) {
+			if (IEVersion() < 9) {
 				tmpWD = tmpWD.GetChild("CommandBarClass");
 				if (tmpWD != null) {
 					tmpWD = tmpWD.GetChild("ReBarWindow32");

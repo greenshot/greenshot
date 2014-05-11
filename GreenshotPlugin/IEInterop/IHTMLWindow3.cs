@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 namespace Greenshot.Interop.IE {
 	[ComVisible(true), ComImport(), Guid("3050f4ae-98b5-11cf-bb82-00aa00bdce0b"),
 	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
 	public interface IHTMLWindow3 {
 		[DispId(1170)]
 		int screenLeft { get;}

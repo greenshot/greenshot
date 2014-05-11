@@ -31,7 +31,7 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// Description of CursorContainer.
 	/// </summary>
-	[Serializable()] 
+	[Serializable] 
 	public class CursorContainer : DrawableContainer, ICursorContainer {
 		private static ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
 
@@ -73,22 +73,24 @@ namespace Greenshot.Drawing {
 		}
 
 		public void Load(string filename) {
-			if (File.Exists(filename)) {
-				using (Cursor fileCursor = new Cursor(filename)) {
-					Cursor = fileCursor;
-					LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
-				}
+			if (!File.Exists(filename)) {
+				return;
+			}
+			using (Cursor fileCursor = new Cursor(filename)) {
+				Cursor = fileCursor;
+				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 			}
 		}
 
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (cursor != null) {
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-				graphics.CompositingQuality = CompositingQuality.Default;
-				graphics.PixelOffsetMode = PixelOffsetMode.None;
-				cursor.DrawStretched(graphics, Bounds);
+			if (cursor == null) {
+				return;
 			}
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+			graphics.CompositingQuality = CompositingQuality.Default;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			cursor.DrawStretched(graphics, Bounds);
 		}
 
 		public override Size DefaultSize {

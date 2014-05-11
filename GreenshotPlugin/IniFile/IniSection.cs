@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.IO;
 using GreenshotPlugin.Core;
+using log4net;
 
 namespace Greenshot.IniFile {
 	/// <summary>
@@ -30,7 +31,7 @@ namespace Greenshot.IniFile {
 	/// </summary>
 	[Serializable]
 	public abstract class IniSection {
-		protected static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IniSection));
+		protected static ILog LOG = LogManager.GetLogger(typeof(IniSection));
 
 		[NonSerialized]
 		private IDictionary<string, IniValue> values = new Dictionary<string, IniValue>();
@@ -39,7 +40,7 @@ namespace Greenshot.IniFile {
 		public IniSectionAttribute IniSectionAttribute {
 			get {
 				if (iniSectionAttribute == null) {
-					iniSectionAttribute = GetIniSectionAttribute(this.GetType());
+					iniSectionAttribute = GetIniSectionAttribute(GetType());
 				}
 				return iniSectionAttribute;
 			}
@@ -117,7 +118,7 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		/// <param name="properties"></param>
 		public void Fill(Dictionary<string, string> properties) {
-			Type iniSectionType = this.GetType();
+			Type iniSectionType = GetType();
 
 			// Iterate over the members and create IniValueContainers
 			foreach (FieldInfo fieldInfo in iniSectionType.GetFields()) {

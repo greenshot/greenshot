@@ -46,7 +46,7 @@ namespace Greenshot.IniFile {
 			Separator = ",";
 		}
 		public IniPropertyAttribute(string name) : this() {
-			this.Name = name;
+			Name = name;
 		}
 		public string Description {
 			get;

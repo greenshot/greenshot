@@ -278,7 +278,8 @@ namespace Greenshot.Helpers {
 								returnDocument2 = document2;
 								returnWindow = new WindowDetails(contentWindowHandle);
 								break;
-							} else if (ieAccessible != null && returnWindow == null && document2.title.Equals(ieAccessible.IEActiveTabCaption) ) {
+							}
+							if (ieAccessible != null && returnWindow == null && document2.title.Equals(ieAccessible.IEActiveTabCaption) ) {
 								LOG.DebugFormat("Title: {0}", document2.title);
 								returnDocument2 = document2;
 								returnWindow = new WindowDetails(contentWindowHandle);

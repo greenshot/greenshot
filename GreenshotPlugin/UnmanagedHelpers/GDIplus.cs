@@ -22,6 +22,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
+using log4net;
 using Microsoft.Win32.SafeHandles;
 using System.Reflection;
 using System.Drawing.Drawing2D;
@@ -93,7 +94,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// GDIplus Helpers
 	/// </summary>
 	public static class GDIplus {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(GDIplus));
+		private static ILog LOG = LogManager.GetLogger(typeof(GDIplus));
 
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
 		private static extern int GdipBitmapApplyEffect(IntPtr bitmap, IntPtr effect, ref RECT rectOfInterest, bool useAuxData, IntPtr auxData, int auxDataSize);

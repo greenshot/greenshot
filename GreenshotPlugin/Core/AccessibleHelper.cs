@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using Accessibility;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 
@@ -32,7 +33,7 @@ namespace GreenshotPlugin.Core {
 	/// Maybe move the basic Accessible functions to WindowDetails!?
 	/// </summary>
 	public class Accessible {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Accessible));
+		private static ILog LOG = LogManager.GetLogger(typeof(Accessible));
 
 		#region Interop
 		private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc) {

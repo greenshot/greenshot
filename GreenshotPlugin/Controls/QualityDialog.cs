@@ -41,20 +41,20 @@ namespace GreenshotPlugin.Controls {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.getGreenshotIcon();
 
-			this.checkBox_reduceColors.Checked = Settings.ReduceColors;
-			this.trackBarJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
-			this.trackBarJpegQuality.Value = Settings.JPGQuality;
-			this.textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
-			this.textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
+			checkBox_reduceColors.Checked = Settings.ReduceColors;
+			trackBarJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+			trackBarJpegQuality.Value = Settings.JPGQuality;
+			textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+			textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
 			WindowDetails.ToForeground(Handle);
 		}
 		
-		void Button_okClick(object sender, System.EventArgs e) {
-			Settings.JPGQuality = this.trackBarJpegQuality.Value;
+		void Button_okClick(object sender, EventArgs e) {
+			Settings.JPGQuality = trackBarJpegQuality.Value;
 			Settings.ReduceColors = checkBox_reduceColors.Checked;
-			if (this.checkbox_dontaskagain.Checked) {
+			if (checkbox_dontaskagain.Checked) {
 				conf.OutputFileJpegQuality = Settings.JPGQuality;
 				conf.OutputFilePromptQuality = false;
 				conf.OutputFileReduceColors = Settings.ReduceColors;
@@ -62,7 +62,7 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 		
-		void TrackBarJpegQualityScroll(object sender, System.EventArgs e) {
+		void TrackBarJpegQualityScroll(object sender, EventArgs e) {
 			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString();
 		}
 	}

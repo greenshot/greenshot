@@ -40,7 +40,7 @@ namespace Greenshot.Drawing {
 		private bool fontInvalidated = true;
 		// If makeUndoable is true the next text-change will make the change undoable.
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
-		private bool makeUndoable = false;
+		private bool makeUndoable;
 		private Font font;
 
 		/// <summary>

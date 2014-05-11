@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Greenshot.IniFile;
+using log4net;
 using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core {
@@ -34,7 +35,7 @@ namespace GreenshotPlugin.Core {
 	/// The language resources are loaded from the language files found on fixed or supplied paths
 	/// </summary>
 	public class Language {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Language));
+		private static ILog LOG = LogManager.GetLogger(typeof(Language));
 		private static List<string> languagePaths = new List<string>();
 		private static IDictionary<string, List<LanguageFile>> languageFiles = new Dictionary<string, List<LanguageFile>>();
 		private static IDictionary<string, string> helpFiles = new Dictionary<string, string>();
@@ -534,8 +535,8 @@ namespace GreenshotPlugin.Core {
 		public static string Translate(object key) {
 			string typename = key.GetType().Name;
 			string enumKey = typename + "." + key.ToString();
-			if (Language.hasKey(enumKey)) {
-				return Language.GetString(enumKey);
+			if (hasKey(enumKey)) {
+				return GetString(enumKey);
 			}
 			return key.ToString();
 		}

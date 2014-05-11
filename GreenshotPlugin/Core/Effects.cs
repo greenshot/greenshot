@@ -27,6 +27,7 @@ using Greenshot.Plugin.Drawing;
 using System.IO;
 using System.Collections.Generic;
 using GreenshotPlugin.Core;
+using log4net;
 
 namespace Greenshot.Core {
 	/// <summary>
@@ -147,7 +148,7 @@ namespace Greenshot.Core {
 	/// ReduceColorsEffect
 	/// </summary>
 	public class ReduceColorsEffect : IEffect {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ReduceColorsEffect));
+		private static ILog LOG = LogManager.GetLogger(typeof(ReduceColorsEffect));
 		public ReduceColorsEffect() : base() {
 			Colors = 256;
 		}

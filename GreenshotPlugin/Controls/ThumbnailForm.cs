@@ -48,7 +48,7 @@ namespace GreenshotPlugin.Controls {
 			}
 
 			// cleanup at close
-			this.FormClosing += delegate {
+			FormClosing += delegate {
 				UnregisterThumbnail();
 			};
 		}

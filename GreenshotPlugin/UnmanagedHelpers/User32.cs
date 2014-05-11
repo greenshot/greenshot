@@ -24,7 +24,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
-
+using System.Windows.Forms;
 using Microsoft.Win32.SafeHandles;
 using System.Security;
 using System.Security.Permissions;
@@ -136,7 +136,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool ShowScrollBar(IntPtr hwnd, ScrollBarDirection scrollBar, bool show);
 		[DllImport("user32", SetLastError = true)]
-		public static extern int SetScrollPos(IntPtr hWnd, System.Windows.Forms.Orientation nBar, int nPos, bool bRedraw);
+		public static extern int SetScrollPos(IntPtr hWnd, Orientation nBar, int nPos, bool bRedraw);
 		[DllImport("user32", SetLastError=true, EntryPoint = "PostMessageA")]
 		public static extern bool PostMessage(IntPtr hWnd, uint msg, int wParam, int lParam);
 		[DllImport("user32", SetLastError = true)]
@@ -295,12 +295,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		}
 
 		public SafeIconHandle(IntPtr hIcon) : base(true) {
-			this.SetHandle(hIcon);
+			SetHandle(hIcon);
 		}
 
 		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
 		protected override bool ReleaseHandle() {
-			return User32.DestroyIcon(this.handle);
+			return User32.DestroyIcon(handle);
 		}
 	}
 

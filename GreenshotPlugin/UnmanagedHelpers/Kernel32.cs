@@ -76,23 +76,23 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			// Try the GetModuleFileName method first since it's the fastest. 
 			// May return ACCESS_DENIED (due to VM_READ flag) if the process is not owned by the current user.
 			// Will fail if we are compiled as x86 and we're trying to open a 64 bit process...not allowed.
-			IntPtr hprocess = Kernel32.OpenProcess(ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMRead, false, processid);
+			IntPtr hprocess = OpenProcess(ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMRead, false, processid);
 			if (hprocess != IntPtr.Zero) {
 				try {
 					if (PsAPI.GetModuleFileNameEx(hprocess, IntPtr.Zero, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
 						return _PathBuffer.ToString();
 					}
 				} finally {
-					Kernel32.CloseHandle(hprocess);
+					CloseHandle(hprocess);
 				}
 			}
 
-			hprocess = Kernel32.OpenProcess(ProcessAccessFlags.QueryInformation, false, processid);
+			hprocess = OpenProcess(ProcessAccessFlags.QueryInformation, false, processid);
 			if (hprocess != IntPtr.Zero) {
 				try {
 					// Try this method for Vista or higher operating systems
 					uint size = (uint)_PathBuffer.Capacity;
-					if ((Environment.OSVersion.Version.Major >= 6) && (Kernel32.QueryFullProcessImageName(hprocess, 0, _PathBuffer, ref size) && (size > 0))) {
+					if ((Environment.OSVersion.Version.Major >= 6) && (QueryFullProcessImageName(hprocess, 0, _PathBuffer, ref size) && (size > 0))) {
 						return _PathBuffer.ToString();
 					}
 
@@ -100,7 +100,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 					if (PsAPI.GetProcessImageFileName(hprocess, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
 						string dospath = _PathBuffer.ToString();
 						foreach (string drive in Environment.GetLogicalDrives()) {
-							if (Kernel32.QueryDosDevice(drive.TrimEnd('\\'), _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+							if (QueryDosDevice(drive.TrimEnd('\\'), _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
 								if (dospath.StartsWith(_PathBuffer.ToString())) {
 									return drive + dospath.Remove(0, _PathBuffer.Length);
 								}
@@ -108,7 +108,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 						}
 					}
 				} finally {
-					Kernel32.CloseHandle(hprocess);
+					CloseHandle(hprocess);
 				}
 			}
 

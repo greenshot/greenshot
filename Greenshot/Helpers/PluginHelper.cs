@@ -287,22 +287,21 @@ namespace Greenshot.Helpers {
 								LOG.InfoFormat("Skipping (as the duplicate is newer or same version) the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							}
 							continue;
-						} else {
-							if (conf.ExcludePlugins != null && conf.ExcludePlugins.Contains(pluginAttribute.Name)) {
-								LOG.WarnFormat("Exclude list: {0}", conf.ExcludePlugins.ToArray());
-								LOG.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-								continue;
-							}
-							if (conf.IncludePlugins != null && conf.IncludePlugins.Count > 0 && !conf.IncludePlugins.Contains(pluginAttribute.Name)) {
-								// Whitelist is set
-								LOG.WarnFormat("Include list: {0}", conf.IncludePlugins.ToArray());
-								LOG.WarnFormat("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-								continue;
-							}
-							LOG.InfoFormat("Loading the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-							tmpAttributes[pluginAttribute.Name] = pluginAttribute;
-							tmpAssemblies[pluginAttribute.Name] = assembly;
 						}
+						if (conf.ExcludePlugins != null && conf.ExcludePlugins.Contains(pluginAttribute.Name)) {
+							LOG.WarnFormat("Exclude list: {0}", conf.ExcludePlugins.ToArray());
+							LOG.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+							continue;
+						}
+						if (conf.IncludePlugins != null && conf.IncludePlugins.Count > 0 && !conf.IncludePlugins.Contains(pluginAttribute.Name)) {
+							// Whitelist is set
+							LOG.WarnFormat("Include list: {0}", conf.IncludePlugins.ToArray());
+							LOG.WarnFormat("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+							continue;
+						}
+						LOG.InfoFormat("Loading the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+						tmpAttributes[pluginAttribute.Name] = pluginAttribute;
+						tmpAssemblies[pluginAttribute.Name] = assembly;
 					} else {
 						LOG.ErrorFormat("Can't find the needed Plugin Attribute ({0}) in the assembly of the file \"{1}\", skipping this file.", typeof(PluginAttribute), pluginFile);
 					}

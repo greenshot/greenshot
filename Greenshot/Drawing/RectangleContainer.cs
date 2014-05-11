@@ -110,9 +110,8 @@ namespace Greenshot.Drawing {
 						return path.IsOutlineVisible(x, y, pen);
 					}
 				}
-			} else {
-				return false;
 			}
+			return false;
 		}
 	}
 }

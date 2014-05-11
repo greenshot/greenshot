@@ -108,9 +108,8 @@ namespace Greenshot.Drawing {
 							return drawingBounds;
 						}
 					}
-				} else {
-					return Rectangle.Empty;
 				}
+				return Rectangle.Empty;
 			}
 		}
 		
@@ -125,9 +124,8 @@ namespace Greenshot.Drawing {
 						return path.IsOutlineVisible(x, y, pen);
 					}
 				}
-			} else {
-				return false;
 			}
+			return false;
 		}
 	}
 }

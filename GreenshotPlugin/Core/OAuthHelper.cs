@@ -21,11 +21,14 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using GreenshotPlugin.Controls;
 using System.Security.Cryptography.X509Certificates;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -40,7 +43,7 @@ namespace GreenshotPlugin.Core {
 	public enum HTTPMethod { GET, POST, PUT, DELETE };
 
 	public class OAuthSession {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OAuthSession));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthSession));
 		protected const string OAUTH_VERSION = "1.0";
 		protected const string OAUTH_PARAMETER_PREFIX = "oauth_";
 
@@ -207,11 +210,11 @@ namespace GreenshotPlugin.Core {
 		public OAuthSession(string consumerKey, string consumerSecret) {
 			this.consumerKey = consumerKey;
 			this.consumerSecret = consumerSecret;
-			this.UseMultipartFormData = true;
-			this.RequestTokenMethod = HTTPMethod.GET;
-			this.AccessTokenMethod = HTTPMethod.GET;
-			this.SignatureType = OAuthSignatureTypes.HMACSHA1;
-			this.AutoLogin = true;
+			UseMultipartFormData = true;
+			RequestTokenMethod = HTTPMethod.GET;
+			AccessTokenMethod = HTTPMethod.GET;
+			SignatureType = OAuthSignatureTypes.HMACSHA1;
+			AutoLogin = true;
 		}
 
 		/// <summary>
@@ -250,7 +253,7 @@ namespace GreenshotPlugin.Core {
 			StringBuilder sb = new StringBuilder();
 			foreach (string key in queryParameters.Keys) {
 				if (queryParameters[key] is string) {
-					sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode3986(string.Format("{0}",queryParameters[key])));
+					sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode3986(string.Format("{0}",queryParameters[key])));
 				}
 			}
 			sb.Remove(sb.Length - 1, 1);
@@ -318,9 +321,9 @@ namespace GreenshotPlugin.Core {
 				LOG.DebugFormat("Request token response: {0}", response);
 				requestTokenResponseParameters = NetworkHelper.ParseQueryString(response);
 				if (requestTokenResponseParameters.ContainsKey(OAUTH_TOKEN_KEY)) {
-					this.Token = requestTokenResponseParameters[OAUTH_TOKEN_KEY];
-					this.TokenSecret = requestTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
-					ret = this.Token;
+					Token = requestTokenResponseParameters[OAUTH_TOKEN_KEY];
+					TokenSecret = requestTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
+					ret = Token;
 				}
 			}
 			return ret;
@@ -377,10 +380,10 @@ namespace GreenshotPlugin.Core {
 				LOG.DebugFormat("Access token response: {0}", response);
 				accessTokenResponseParameters = NetworkHelper.ParseQueryString(response);
 				if (accessTokenResponseParameters.ContainsKey(OAUTH_TOKEN_KEY) && accessTokenResponseParameters[OAUTH_TOKEN_KEY] != null) {
-					this.Token = accessTokenResponseParameters[OAUTH_TOKEN_KEY];
+					Token = accessTokenResponseParameters[OAUTH_TOKEN_KEY];
 				}
 				if (accessTokenResponseParameters.ContainsKey(OAUTH_TOKEN_SECRET_KEY) && accessTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY] != null) {
-					this.TokenSecret = accessTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
+					TokenSecret = accessTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
 				}
 			}
 
@@ -392,9 +395,9 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <returns>true if the process is completed</returns>
 		public bool Authorize() {
-			this.Token = null;
-			this.TokenSecret = null;
-			this.Verifier = null;
+			Token = null;
+			TokenSecret = null;
+			Verifier = null;
 			LOG.Debug("Creating Token");
 			try {
 				getRequestToken();
@@ -407,7 +410,7 @@ namespace GreenshotPlugin.Core {
 				return false;
 			}
 			try {
-				System.Threading.Thread.Sleep(1000);
+				Thread.Sleep(1000);
 				return getAccessToken() != null;
 			} catch (Exception ex) {
 				LOG.Error(ex);
@@ -421,7 +424,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>The url with a valid request token, or a null string.</returns>
 		private string authorizationLink {
 			get {
-				return AuthorizeUrl + "?" + OAUTH_TOKEN_KEY + "=" + this.Token + "&" + OAUTH_CALLBACK_KEY + "=" + UrlEncode3986(CallbackUrl);
+				return AuthorizeUrl + "?" + OAUTH_TOKEN_KEY + "=" + Token + "&" + OAUTH_CALLBACK_KEY + "=" + UrlEncode3986(CallbackUrl);
 			}
 		}
 
@@ -552,7 +555,7 @@ namespace GreenshotPlugin.Core {
 
 			// Add normalized URL
 			Uri url = new Uri(requestURL);
-			string normalizedUrl = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}://{1}", url.Scheme, url.Host);
+			string normalizedUrl = string.Format(CultureInfo.InvariantCulture, "{0}://{1}", url.Scheme, url.Host);
 			if (!((url.Scheme == "http" && url.Port == 80) || (url.Scheme == "https" && url.Port == 443))) {
 				normalizedUrl += ":" + url.Port;
 			}
@@ -587,7 +590,7 @@ namespace GreenshotPlugin.Core {
 			}
 			signatureBase.Append(UrlEncode3986(GenerateNormalizedParametersString(parameters)));
 			LOG.DebugFormat("Signature base: {0}", signatureBase);
-			string key = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret));
+			string key = string.Format(CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret));
 			switch (SignatureType) {
 				case OAuthSignatureTypes.RSASHA1:
 					// Code comes from here: http://www.dotnetfunda.com/articles/article1932-rest-service-call-using-oauth-10-authorization-with-rsa-sha1.aspx
@@ -601,7 +604,7 @@ namespace GreenshotPlugin.Core {
 					// Create a RSA-SHA1 Hash object
 					using (SHA1Managed shaHASHObject = new SHA1Managed()) {
 						// Create Byte Array of Signature base string
-						byte[] data = System.Text.Encoding.ASCII.GetBytes(signatureBase.ToString());
+						byte[] data = Encoding.ASCII.GetBytes(signatureBase.ToString());
 						// Create Hashmap of Signature base string
 						byte[] hash = shaHASHObject.ComputeHash(data);
 						// Create Sign Hash of base string
@@ -649,7 +652,7 @@ namespace GreenshotPlugin.Core {
 				requestParameters = new Dictionary<string, object>();
 				foreach (string parameterKey in parameters.Keys) {
 					if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
-						authHeader.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}=\"{1}\", ", parameterKey, UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
+						authHeader.AppendFormat(CultureInfo.InvariantCulture, "{0}=\"{1}\", ", parameterKey, UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
 					} else if (!requestParameters.ContainsKey(parameterKey)) {
 						requestParameters.Add(parameterKey, parameters[parameterKey]);
 					}
@@ -694,9 +697,9 @@ namespace GreenshotPlugin.Core {
 					foreach (string parameterKey in requestParameters.Keys) {
 						if (parameters[parameterKey] is IBinaryContainer) {
 							IBinaryContainer binaryParameter = parameters[parameterKey] as IBinaryContainer;
-							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(binaryParameter.ToBase64String(Base64FormattingOptions.None)));
+							form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(binaryParameter.ToBase64String(Base64FormattingOptions.None)));
 						} else {
-							form.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
+							form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
 						}
 					}
 					// Remove trailing &

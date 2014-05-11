@@ -23,7 +23,7 @@ using System.Runtime.InteropServices;
 
 namespace Greenshot.Interop.IE {
 	[ComImport, ComVisible(true), Guid("3050f80c-98b5-11cf-bb82-00aa00bdce0b"),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch),
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch),
 	 TypeLibType(TypeLibTypeFlags.FDual)]
 	public interface IHTMLDocument5 {
 		[DispId(1102)]

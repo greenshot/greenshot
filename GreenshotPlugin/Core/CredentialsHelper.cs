@@ -95,10 +95,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="message">The message of the dialog (null will cause a system default message to be used).</param>
 		/// <param name="banner">The image to display on the dialog (null will cause a system default image to be used).</param>
 		public CredentialsDialog(string target, string caption, string message, Image banner) {
-			this.Target = target;
-			this.Caption = caption;
-			this.Message = message;
-			this.Banner = banner;
+			Target = target;
+			Caption = caption;
+			Message = message;
+			Banner = banner;
 		}
 
 		private bool _alwaysDisplay = false;
@@ -307,21 +307,21 @@ namespace GreenshotPlugin.Core {
 		/// <summary>Shows the credentials dialog.</summary>
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show() {
-			return Show(null, this.Name, this.Password, this.SaveChecked);
+			return Show(null, Name, Password, SaveChecked);
 		}
 
 		/// <summary>Shows the credentials dialog with the specified save checkbox status.</summary>
 		/// <param name="saveChecked">True if the save checkbox is checked.</param>
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show(bool saveChecked) {
-			return Show(null, this.Name, this.Password, saveChecked);
+			return Show(null, Name, Password, saveChecked);
 		}
 
 		/// <summary>Shows the credentials dialog with the specified name.</summary>
 		/// <param name="name">The name for the credentials.</param>
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show(string name) {
-			return Show(null, name, this.Password, this.SaveChecked);
+			return Show(null, name, Password, SaveChecked);
 		}
 
 		/// <summary>Shows the credentials dialog with the specified name and password.</summary>
@@ -329,7 +329,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="password">The password for the credentials.</param>
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show(string name, string password) {
-			return Show(null, name, password, this.SaveChecked);
+			return Show(null, name, password, SaveChecked);
 		}
 
 		/// <summary>Shows the credentials dialog with the specified name, password and save checkbox status.</summary>
@@ -345,7 +345,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show(IWin32Window owner) {
-			return Show(owner, this.Name, this.Password, this.SaveChecked);
+			return Show(owner, Name, Password, SaveChecked);
 		}
 
 		/// <summary>Shows the credentials dialog with the specified owner and save checkbox status.</summary>
@@ -353,7 +353,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="saveChecked">True if the save checkbox is checked.</param>
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show(IWin32Window owner, bool saveChecked) {
-			return Show(owner, this.Name, this.Password, saveChecked);
+			return Show(owner, Name, Password, saveChecked);
 		}
 
 		/// <summary>Shows the credentials dialog with the specified owner, name and password.</summary>
@@ -362,7 +362,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="password">The password for the credentials.</param>
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show(IWin32Window owner, string name, string password) {
-			return Show(owner, name, password, this.SaveChecked);
+			return Show(owner, name, password, SaveChecked);
 		}
 
 		/// <summary>Shows the credentials dialog with the specified owner, name, password and save checkbox status.</summary>
@@ -375,9 +375,9 @@ namespace GreenshotPlugin.Core {
 			if ((Environment.OSVersion.Version.Major < 5) || ((Environment.OSVersion.Version.Major == 5) && (Environment.OSVersion.Version.Minor < 1))) {
 				throw new ApplicationException("The Credential Management API requires Windows XP / Windows Server 2003 or later.");
 			}
-			this.Name = name;
-			this.Password = password;
-			this.SaveChecked = saveChecked;
+			Name = name;
+			Password = password;
+			SaveChecked = saveChecked;
 		   
 			return ShowDialog(owner);
 		}
@@ -385,7 +385,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>Confirmation action to be applied.</summary>
 		/// <param name="value">True if the credentials should be persisted.</param>
 		public void Confirm(bool value) {
-			switch (CREDUI.ConfirmCredentials(this.Target, value)) {
+			switch (CREDUI.ConfirmCredentials(Target, value)) {
 				case CREDUI.ReturnCodes.NO_ERROR:
 					break;
 			   
@@ -406,12 +406,12 @@ namespace GreenshotPlugin.Core {
 		private DialogResult ShowDialog(IWin32Window owner) {
 			// set the api call parameters
 			StringBuilder name = new StringBuilder(CREDUI.MAX_USERNAME_LENGTH);
-			name.Append(this.Name);
+			name.Append(Name);
 
 			StringBuilder password = new StringBuilder(CREDUI.MAX_PASSWORD_LENGTH);
-			password.Append(this.Password);
+			password.Append(Password);
 
-			int saveChecked = Convert.ToInt32(this.SaveChecked);
+			int saveChecked = Convert.ToInt32(SaveChecked);
 
 			CREDUI.INFO info = GetInfo(owner);
 			CREDUI.FLAGS flags = GetFlags();
@@ -419,7 +419,7 @@ namespace GreenshotPlugin.Core {
 			// make the api call
 			CREDUI.ReturnCodes code = CREDUI.PromptForCredentials(
 				ref info,
-				this.Target,
+				Target,
 				IntPtr.Zero, 0,
 				name, CREDUI.MAX_USERNAME_LENGTH,
 				password, CREDUI.MAX_PASSWORD_LENGTH,
@@ -428,14 +428,14 @@ namespace GreenshotPlugin.Core {
 			);
 
 			// clean up resources
-			if (this.Banner != null) {
+			if (Banner != null) {
 				DeleteObject(info.hbmBanner);
 			}
 
 			// set the accessors from the api call parameters
-			this.Name = name.ToString();
-			this.Password = password.ToString();
-			this.SaveChecked = Convert.ToBoolean(saveChecked);
+			Name = name.ToString();
+			Password = password.ToString();
+			SaveChecked = Convert.ToBoolean(saveChecked);
 
 			return GetDialogResult(code);
 		}
@@ -445,10 +445,10 @@ namespace GreenshotPlugin.Core {
 		private CREDUI.INFO GetInfo(IWin32Window owner) {
 			CREDUI.INFO info = new CREDUI.INFO();
 			if (owner != null) info.hwndParent = owner.Handle;
-			info.pszCaptionText = this.Caption;
-			info.pszMessageText = this.Message;
-			if (this.Banner != null) {
-				info.hbmBanner = new Bitmap(this.Banner, ValidBannerWidth, ValidBannerHeight).GetHbitmap();
+			info.pszCaptionText = Caption;
+			info.pszMessageText = Message;
+			if (Banner != null) {
+				info.hbmBanner = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight).GetHbitmap();
 			}
 			info.cbSize = Marshal.SizeOf(info);
 			return info;
@@ -458,21 +458,21 @@ namespace GreenshotPlugin.Core {
 		private CREDUI.FLAGS GetFlags() {
 			CREDUI.FLAGS flags = CREDUI.FLAGS.GENERIC_CREDENTIALS;
 
-			if (this.IncorrectPassword) {
+			if (IncorrectPassword) {
 				flags = flags | CREDUI.FLAGS.INCORRECT_PASSWORD;
 			}
 
-			if (this.AlwaysDisplay) {
+			if (AlwaysDisplay) {
 				flags = flags | CREDUI.FLAGS.ALWAYS_SHOW_UI;
 			}
 
-			if (this.ExcludeCertificates) {
+			if (ExcludeCertificates) {
 				flags = flags | CREDUI.FLAGS.EXCLUDE_CERTIFICATES;
 			}
 
-			if (this.Persist) {
+			if (Persist) {
 				flags = flags | CREDUI.FLAGS.EXPECT_CONFIRMATION;
-				if (this.SaveDisplayed) {
+				if (SaveDisplayed) {
 					flags = flags | CREDUI.FLAGS.SHOW_SAVE_CHECK_BOX;
 				} else {
 					flags = flags | CREDUI.FLAGS.PERSIST;
@@ -481,7 +481,7 @@ namespace GreenshotPlugin.Core {
 				flags = flags | CREDUI.FLAGS.DO_NOT_PERSIST;
 			}
 
-			if (this.KeepName) {
+			if (KeepName) {
 				flags = flags | CREDUI.FLAGS.KEEP_USERNAME;
 			}
 

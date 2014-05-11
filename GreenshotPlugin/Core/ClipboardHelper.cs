@@ -31,13 +31,14 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using System.Runtime.InteropServices;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Description of ClipboardHelper.
 	/// </summary>
 	public static class ClipboardHelper {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ClipboardHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ClipboardHelper));
 		private static readonly Object clipboardLockObject = new Object();
 		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";

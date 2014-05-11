@@ -25,10 +25,11 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	public static class FilenameHelper {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(FilenameHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FilenameHelper));
 		private static readonly Regex VAR_REGEXP = new Regex(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
 		private const int MAX_TITLE_LENGTH = 80;
@@ -104,7 +105,7 @@ namespace GreenshotPlugin.Core {
 			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
 				pattern = "greenshot ${capturetime}";
 			}
-			return FilenameHelper.GetFilenameFromPattern(pattern, format, captureDetails);
+			return GetFilenameFromPattern(pattern, format, captureDetails);
 		}
 		
 

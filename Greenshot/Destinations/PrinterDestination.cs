@@ -57,9 +57,8 @@ namespace Greenshot.Destinations {
 			get {
 				if (printerName != null) {
 					return Language.GetString(LangKey.settings_destination_printer) + " - " + printerName;
-				} else {
-					return Language.GetString(LangKey.settings_destination_printer);
 				}
+				return Language.GetString(LangKey.settings_destination_printer);
 			}
 		}
 

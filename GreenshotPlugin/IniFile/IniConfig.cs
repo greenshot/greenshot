@@ -24,10 +24,11 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using log4net;
 
 namespace Greenshot.IniFile {
 	public class IniConfig {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IniConfig));
+		private static ILog LOG = LogManager.GetLogger(typeof(IniConfig));
 		private const string INI_EXTENSION = ".ini";
 		private const string DEFAULTS_POSTFIX = "-defaults";
 		private const string FIXED_POSTFIX = "-fixed";
@@ -358,7 +359,7 @@ namespace Greenshot.IniFile {
 			}
 			if (allowSave && section.IsDirty) {
 				LOG.DebugFormat("Section {0} is marked dirty, saving!", sectionName);
-				IniConfig.Save();
+				Save();
 			}
 			return section;
 		}

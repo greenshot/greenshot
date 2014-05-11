@@ -23,6 +23,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	internal class WuColorCube {
@@ -70,7 +71,7 @@ namespace GreenshotPlugin.Core {
 	}
 
 	public class WuQuantizer : IDisposable {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WuQuantizer));
+		private static ILog LOG = LogManager.GetLogger(typeof(WuQuantizer));
 
 		private const Int32 MAXCOLOR = 512;
 		private const Int32 RED = 2;

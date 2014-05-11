@@ -25,6 +25,7 @@ using System.Windows.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using log4net;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -32,7 +33,7 @@ namespace GreenshotPlugin.Controls {
 	/// For some reason SFD is sealed :(
 	/// </summary>
 	public class SaveImageFileDialog : IDisposable {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SaveImageFileDialog));
+		private static ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		protected SaveFileDialog saveFileDialog;
 		private FilterOption[] filterOptions;
@@ -137,7 +138,7 @@ namespace GreenshotPlugin.Controls {
 			get {
 				string fn = saveFileDialog.FileName;
 				// if the filename contains a valid extension, which is the same like the selected filter item's extension, the filename is okay
-				if(fn.EndsWith(Extension,System.StringComparison.CurrentCultureIgnoreCase)) return fn;
+				if(fn.EndsWith(Extension,StringComparison.CurrentCultureIgnoreCase)) return fn;
 				// otherwise we just add the selected filter item's extension
 				else return fn + "." + Extension;
 			}
@@ -156,7 +157,7 @@ namespace GreenshotPlugin.Controls {
 			}
 			set {
 				for(int i=0; i<filterOptions.Length; i++) {
-					if(value.Equals(filterOptions[i].Extension, System.StringComparison.CurrentCultureIgnoreCase)) {
+					if(value.Equals(filterOptions[i].Extension, StringComparison.CurrentCultureIgnoreCase)) {
 						saveFileDialog.FilterIndex = i + 1;
 					}
 				}

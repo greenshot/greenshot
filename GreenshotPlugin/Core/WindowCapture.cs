@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -132,7 +133,7 @@ namespace GreenshotPlugin.Core {
 	/// Having the Bitmap, eventually the Windows Title and cursor all together.
 	/// </summary>
 	public class Capture : IDisposable, ICapture {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(Capture));
+		private static ILog LOG = LogManager.GetLogger(typeof(Capture));
 		private List<ICaptureElement> elements = new List<ICaptureElement>();
 
 		private Rectangle screenBounds;
@@ -165,7 +166,7 @@ namespace GreenshotPlugin.Core {
 						LOG.Debug("Converting Bitmap to PixelFormat.Format32bppArgb as we don't support: " + value.PixelFormat);
 						try {
 							// Default Bitmap PixelFormat is Format32bppArgb
-							this.image = new Bitmap(value);
+							image = new Bitmap(value);
 						} finally {
 							// Always dispose, even when a exception occured
 							value.Dispose();
@@ -246,7 +247,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="newImage">Image</param>
 		public Capture(Image newImage) : this() {
-			this.Image = newImage;
+			Image = newImage;
 		}
 
 		/// <summary>
@@ -425,7 +426,7 @@ namespace GreenshotPlugin.Core {
 	/// The Window Capture code
 	/// </summary>
 	public class WindowCapture {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WindowCapture));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(WindowCapture));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		/// <summary>

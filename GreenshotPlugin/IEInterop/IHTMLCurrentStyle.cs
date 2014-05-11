@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 namespace Greenshot.Interop.IE {
 	[ComImport, Guid("3050f3db-98b5-11cf-bb82-00aa00bdce0b"),
 	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
     public interface IHTMLCurrentStyle {
         /// <summary><para><c>styleFloat</c> property of <c>IHTMLStyle</c> interface.</para></summary>
         string styleFloat {

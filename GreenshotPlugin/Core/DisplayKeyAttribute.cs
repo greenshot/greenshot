@@ -29,7 +29,7 @@ namespace GreenshotPlugin.Core {
 		}
 		
 		public DisplayKeyAttribute(string v) {
-		  this.value = v;
+		  value = v;
 		}
 		
 		public DisplayKeyAttribute() {

@@ -29,6 +29,7 @@ using Greenshot.IniFile;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using Greenshot.Core;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	internal enum ExifOrientations : byte {
@@ -47,7 +48,7 @@ namespace GreenshotPlugin.Core {
 	/// Description of ImageHelper.
 	/// </summary>
 	public static class ImageHelper {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImageHelper));
+		private static ILog LOG = LogManager.GetLogger(typeof(ImageHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const int EXIF_ORIENTATION_ID = 0x0112;
 
@@ -143,7 +144,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			Bitmap bmp = new Bitmap(thumbWidth, thumbHeight);
-			using (Graphics graphics = System.Drawing.Graphics.FromImage(bmp)) {
+			using (Graphics graphics = Graphics.FromImage(bmp)) {
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
@@ -310,7 +311,7 @@ namespace GreenshotPlugin.Core {
 				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
 			// Make sure the orientation is set correctly so Greenshot can process the image correctly
-			ImageHelper.Orientate(fileImage);
+			Orientate(fileImage);
 			return fileImage;
 		}
 
@@ -338,7 +339,7 @@ namespace GreenshotPlugin.Core {
 						int iImageOffset = BitConverter.ToInt32(srcBuf, SizeICONDIR + SizeICONDIRENTRY * iIndex + 12);
 						using (MemoryStream destStream = new MemoryStream()) {
 							destStream.Write(srcBuf, iImageOffset, iImageSize);
-							destStream.Seek(0, System.IO.SeekOrigin.Begin);
+							destStream.Seek(0, SeekOrigin.Begin);
 							bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
 						}
 						break;
@@ -857,7 +858,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceImage">Bitmap to create a negative off</param>
 		/// <returns>Negative bitmap</returns>
 		public static Bitmap CreateNegative(Image sourceImage) {
-			Bitmap clone = (Bitmap)ImageHelper.Clone(sourceImage);
+			Bitmap clone = (Bitmap)Clone(sourceImage);
 			ColorMatrix invertMatrix = new ColorMatrix(new float[][] { 
 				new float[] {-1, 0, 0, 0, 0}, 
 				new float[] {0, -1, 0, 0, 0}, 
@@ -1036,7 +1037,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceImage">Original bitmap</param>
 		/// <returns>Bitmap with grayscale</returns>
 		public static Image CreateGrayscale(Image sourceImage) {
-			Bitmap clone = (Bitmap)ImageHelper.Clone(sourceImage);
+			Bitmap clone = (Bitmap)Clone(sourceImage);
 			ColorMatrix grayscaleMatrix = new ColorMatrix( new float[][] {
 				new float[] {.3f, .3f, .3f, 0, 0},
 				new float[] {.59f, .59f, .59f, 0, 0},
@@ -1334,22 +1335,22 @@ namespace GreenshotPlugin.Core {
 				if (nPercentW == 1) {
 					nPercentW = nPercentH;
 					if (canvasUseNewSize) {
-						destX =  Math.Max(0, System.Convert.ToInt32((newWidth - (sourceImage.Width * nPercentW)) / 2));
+						destX =  Math.Max(0, Convert.ToInt32((newWidth - (sourceImage.Width * nPercentW)) / 2));
 					}
 				} else if (nPercentH == 1) {
 					nPercentH = nPercentW;
 					if (canvasUseNewSize) {
-						destY = Math.Max(0, System.Convert.ToInt32((newHeight - (sourceImage.Height * nPercentH)) / 2));
+						destY = Math.Max(0, Convert.ToInt32((newHeight - (sourceImage.Height * nPercentH)) / 2));
 					}
 				} else if (nPercentH != 0 && nPercentH < nPercentW) {
 					nPercentW = nPercentH;
 					if (canvasUseNewSize) {
-						destX =  Math.Max(0, System.Convert.ToInt32((newWidth - (sourceImage.Width * nPercentW)) / 2));
+						destX =  Math.Max(0, Convert.ToInt32((newWidth - (sourceImage.Width * nPercentW)) / 2));
 					}
 				} else {
 					nPercentH = nPercentW;
 					if (canvasUseNewSize) {
-						destY = Math.Max(0, System.Convert.ToInt32((newHeight - (sourceImage.Height * nPercentH)) / 2));
+						destY = Math.Max(0, Convert.ToInt32((newHeight - (sourceImage.Height * nPercentH)) / 2));
 					}
 				}
 			}

@@ -28,6 +28,7 @@ using log4net.Appender;
 using log4net.Config;
 using log4net.Repository.Hierarchy;
 using System;
+using log4net.Util;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -98,8 +99,8 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// A simple helper class to support the logging to the AppData location
 	/// </summary>
-	public class SpecialFolderPatternConverter : log4net.Util.PatternConverter {
-		override protected void Convert(System.IO.TextWriter writer, object state) {
+	public class SpecialFolderPatternConverter : PatternConverter {
+		override protected void Convert(TextWriter writer, object state) {
 			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), base.Option, true);
 			writer.Write(Environment.GetFolderPath(specialFolder));
 		}

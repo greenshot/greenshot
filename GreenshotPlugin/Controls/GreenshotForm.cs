@@ -27,13 +27,14 @@ using Greenshot.IniFile;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
+using log4net;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// This form is used for automatically binding the elements of the form to the language
 	/// </summary>
 	public class GreenshotForm : Form, IGreenshotLanguageBindable {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(GreenshotForm));
+		private static ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
 		protected static CoreConfiguration coreConfiguration;
 		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
@@ -87,7 +88,7 @@ namespace GreenshotPlugin.Controls {
 		/// Code to initialize the language etc during design time
 		/// </summary>
 		protected void InitializeForDesigner() {
-			if (this.DesignMode) {
+			if (DesignMode) {
 				designTimeControls = new Dictionary<string, Control>();
 				designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
 				try {
@@ -97,7 +98,7 @@ namespace GreenshotPlugin.Controls {
 					// Language.AddLanguageFilePath(@"C:\Greenshot\Greenshot\Languages");
 					
 					// this "type"
-					Assembly currentAssembly = this.GetType().Assembly;
+					Assembly currentAssembly = GetType().Assembly;
 					string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
 					string assemblyDirectory = Path.GetDirectoryName(assemblyPath);
 					if (!Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Greenshot\Languages\"))) {
@@ -117,7 +118,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="e"></param>
 		protected override void OnPaint(PaintEventArgs e) {
-			if (this.DesignMode) {
+			if (DesignMode) {
 				if (!isDesignModeLanguageSet) {
 					isDesignModeLanguageSet = true;
 					try {
@@ -130,7 +131,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		protected override void OnLoad(EventArgs e) {
-			if (!this.DesignMode) {
+			if (!DesignMode) {
 				if (!applyLanguageManually) {
 					ApplyLanguage();
 				}
@@ -149,7 +150,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="e"></param>
 		protected override void OnClosed(EventArgs e) {
-			if (!this.DesignMode && !storeFieldsManually) {
+			if (!DesignMode && !storeFieldsManually) {
 				if (DialogResult == DialogResult.OK) {
 					LOG.Info("Form was closed with OK: storing field values.");
 					StoreFields();
@@ -267,7 +268,7 @@ namespace GreenshotPlugin.Controls {
 					applyTo.Text = langString;
 					return;
 				}
-				if (!this.DesignMode) {
+				if (!DesignMode) {
 					LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
 				}
 			}
@@ -331,15 +332,15 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected void ApplyLanguage() {
 			string langString = null;
-			this.SuspendLayout();
+			SuspendLayout();
 			try {
 				// Set title of the form
 				if (!string.IsNullOrEmpty(LanguageKey) && Language.TryGetString(LanguageKey, out langString)) {
-					this.Text = langString;
+					Text = langString;
 				}
 
 				// Reset the text values for all GreenshotControls
-				foreach (FieldInfo field in GetCachedFields(this.GetType())) {
+				foreach (FieldInfo field in GetCachedFields(GetType())) {
 					Object controlObject = field.GetValue(this);
 					if (controlObject == null) {
 						LOG.DebugFormat("No value: {0}", field.Name);
@@ -367,7 +368,7 @@ namespace GreenshotPlugin.Controls {
 					}
 				}
 			} finally {
-				this.ResumeLayout();
+				ResumeLayout();
 			}
 		}
 
@@ -388,7 +389,7 @@ namespace GreenshotPlugin.Controls {
 					applyTo.Text = langString;
 					return;
 				}
-				if (!this.DesignMode) {
+				if (!DesignMode) {
 					LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
 				}
 			}
@@ -398,7 +399,7 @@ namespace GreenshotPlugin.Controls {
 		/// Fill all GreenshotControls with the values from the configuration
 		/// </summary>
 		protected void FillFields() {
-			foreach (FieldInfo field in GetCachedFields(this.GetType())) {
+			foreach (FieldInfo field in GetCachedFields(GetType())) {
 				Object controlObject = field.GetValue(this);
 				if (controlObject == null) {
 					continue;
@@ -466,7 +467,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected void StoreFields() {
 			bool iniDirty = false;
-			foreach (FieldInfo field in GetCachedFields(this.GetType())) {
+			foreach (FieldInfo field in GetCachedFields(GetType())) {
 				Object controlObject = field.GetValue(this);
 				if (controlObject == null) {
 					continue;

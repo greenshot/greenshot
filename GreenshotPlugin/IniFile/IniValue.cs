@@ -24,13 +24,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
+using log4net;
 
 namespace Greenshot.IniFile {
 	/// <summary>
 	/// A container to be able to pass the value from a IniSection around.
 	/// </summary>
 	public class IniValue {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IniValue));
+		private static ILog LOG = LogManager.GetLogger(typeof(IniValue));
 		private PropertyInfo propertyInfo;
 		private FieldInfo fieldInfo;
 		private IniSection containingIniSection;
@@ -39,13 +40,13 @@ namespace Greenshot.IniFile {
 		public IniValue(IniSection containingIniSection, PropertyInfo propertyInfo, IniPropertyAttribute iniPropertyAttribute) {
 			this.containingIniSection = containingIniSection;
 			this.propertyInfo = propertyInfo;
-			this.attributes = iniPropertyAttribute;
+			attributes = iniPropertyAttribute;
 		}
 
 		public IniValue(IniSection containingIniSection, FieldInfo fieldInfo, IniPropertyAttribute iniPropertyAttribute) {
 			this.containingIniSection = containingIniSection;
 			this.fieldInfo = fieldInfo;
-			this.attributes = iniPropertyAttribute;
+			attributes = iniPropertyAttribute;
 		}
 		
 		/// <summary>
@@ -318,7 +319,7 @@ namespace Greenshot.IniFile {
 						try {
 							LOG.WarnFormat("Problem '{0}' while converting {1} to type {2} trying fallback...", ex1.Message, propertyValue, valueType.FullName);
 							newValue = ConvertStringToValueType(valueType, defaultValue, attributes.Separator);
-							this.ContainingIniSection.IsDirty = true;
+							ContainingIniSection.IsDirty = true;
 							LOG.InfoFormat("Used default value {0} for property {1}", defaultValue, propertyName);
 						} catch (Exception ex2) {
 							LOG.Warn("Problem converting fallback value " + defaultValue + " to type " + valueType.FullName, ex2);

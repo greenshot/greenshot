@@ -29,34 +29,35 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// Description of ObfuscateContainer.
 	/// </summary>
-	[Serializable()] 
+	[Serializable] 
 	public class HighlightContainer : FilterContainer {
 		public HighlightContainer(Surface parent) : base(parent) {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 			AddField(GetType(), FieldType.SHADOW, false);
 			AddField(GetType(), FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
-			init();
+			Init();
 		}
 		
-		[OnDeserialized()]
+		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
-			init();
+			Init();
 		}
 		
-		private void init() {
+		private void Init() {
 			FieldChanged += HighlightContainer_OnFieldChanged;
 			ConfigurePreparedFilters();
 		}		
 		
 		protected void HighlightContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
-			if(sender.Equals(this)) {
-				if (e.Field.FieldType == FieldType.PREPARED_FILTER_HIGHLIGHT) {
-					ConfigurePreparedFilters();
-				}
+			if (!sender.Equals(this)) {
+				return;
+			}
+			if (e.Field.FieldType == FieldType.PREPARED_FILTER_HIGHLIGHT) {
+				ConfigurePreparedFilters();
 			}
 		}
-		
+
 		private void ConfigurePreparedFilters() {
 			PreparedFilter preset = (PreparedFilter)GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
 			while(Filters.Count>0) {

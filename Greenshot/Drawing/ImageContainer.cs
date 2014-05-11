@@ -32,7 +32,7 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// Description of BitmapContainer.
 	/// </summary>
-	[Serializable()] 
+	[Serializable] 
 	public class ImageContainer : DrawableContainer, IImageContainer {
 		private static ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
 
@@ -43,14 +43,14 @@ namespace Greenshot.Drawing {
 		/// Do not serialize, as the shadow is recreated from the original bitmap if it's not available
 		/// </summary>
 		[NonSerialized]
-		private Image shadowBitmap = null;
+		private Image _shadowBitmap;
 
 		/// <summary>
 		/// This is the offset for the shadow version of the bitmap
 		/// Do not serialize, as the offset is recreated
 		/// </summary>
 		[NonSerialized]
-		private Point shadowOffset = new Point(-1, -1);
+		private Point _shadowOffset = new Point(-1, -1);
 
 		public ImageContainer(Surface parent, string filename) : this(parent) {
 			Load(filename);
@@ -72,17 +72,17 @@ namespace Greenshot.Drawing {
 		public void ChangeShadowField() {
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			if (shadow) {
-				CheckShadow(shadow);
-				Width = shadowBitmap.Width;
-				Height = shadowBitmap.Height;
-				Left = Left - shadowOffset.X;
-				Top = Top - shadowOffset.Y;
+				CheckShadow(true);
+				Width = _shadowBitmap.Width;
+				Height = _shadowBitmap.Height;
+				Left = Left - _shadowOffset.X;
+				Top = Top - _shadowOffset.Y;
 			} else {
 				Width = image.Width;
 				Height = image.Height;
-				if (shadowBitmap != null) {
-					Left = Left + shadowOffset.X;
-					Top = Top + shadowOffset.Y;
+				if (_shadowBitmap != null) {
+					Left = Left + _shadowOffset.X;
+					Top = Top + _shadowOffset.Y;
 				}
 			}
 		}
@@ -90,7 +90,7 @@ namespace Greenshot.Drawing {
 		public Image Image {
 			set {
 				// Remove all current bitmaps
-				disposeImages();
+				DisposeImages();
 				image = ImageHelper.Clone(value);
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 				CheckShadow(shadow);
@@ -98,10 +98,10 @@ namespace Greenshot.Drawing {
 					Width = image.Width;
 					Height = image.Height;
 				} else {
-					Width = shadowBitmap.Width;
-					Height = shadowBitmap.Height;
-					Left = Left - shadowOffset.X;
-					Top = Top - shadowOffset.Y;
+					Width = _shadowBitmap.Width;
+					Height = _shadowBitmap.Height;
+					Left = Left - _shadowOffset.X;
+					Top = Top - _shadowOffset.Y;
 				}
 			}
 			get { return image; }
@@ -115,22 +115,22 @@ namespace Greenshot.Drawing {
 		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				disposeImages();
+				DisposeImages();
 			}
 			image = null;
-			shadowBitmap = null;
+			_shadowBitmap = null;
 			base.Dispose(disposing);
 		}
 
-		private void disposeImages() {
+		private void DisposeImages() {
 			if (image != null) {
 				image.Dispose();
 			}
-			if (shadowBitmap != null) {
-				shadowBitmap.Dispose();
+			if (_shadowBitmap != null) {
+				_shadowBitmap.Dispose();
 			}
 			image = null;
-			shadowBitmap = null;
+			_shadowBitmap = null;
 		}
 
 		/// <summary>
@@ -153,10 +153,10 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="rotateFlipType"></param>
 		public override void Rotate(RotateFlipType rotateFlipType) {
-			Image newImage = ImageHelper.RotateFlip((Bitmap)image, rotateFlipType);
+			Image newImage = ImageHelper.RotateFlip(image, rotateFlipType);
 			if (newImage != null) {
 				// Remove all current bitmaps, also the shadow (will be recreated)
-				disposeImages();
+				DisposeImages();
 				image = newImage;
 			}
 			base.Rotate(rotateFlipType);
@@ -167,8 +167,8 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="shadow"></param>
 		private void CheckShadow(bool shadow) {
-			if (shadow && shadowBitmap == null) {
-				shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), out shadowOffset);
+			if (shadow && _shadowBitmap == null) {
+				_shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), out _shadowOffset);
 			}
 		}
 
@@ -186,8 +186,8 @@ namespace Greenshot.Drawing {
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
 				if (shadow) {
-					CheckShadow(shadow);
-					graphics.DrawImage(shadowBitmap, Bounds);
+					CheckShadow(true);
+					graphics.DrawImage(_shadowBitmap, Bounds);
 				} else {
 					graphics.DrawImage(image, Bounds);
 				}

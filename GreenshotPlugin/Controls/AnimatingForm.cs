@@ -87,7 +87,7 @@ namespace GreenshotPlugin.Controls {
 		/// Initialize the animation
 		/// </summary>
 		protected AnimatingForm() {
-			this.Load += delegate {
+			Load += delegate {
 				if (EnableAnimation) {
 					timer = new Timer();
 					timer.Interval = 1000 / VRefresh;
@@ -97,7 +97,7 @@ namespace GreenshotPlugin.Controls {
 			};
 
 			// Unregister at close
-			this.FormClosing += delegate {
+			FormClosing += delegate {
 				if (timer != null) {
 					timer.Stop();
 				}

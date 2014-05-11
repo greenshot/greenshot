@@ -26,7 +26,7 @@ namespace Greenshot.Interop.IE {
 	[Guid("626FC520-A41E-11CF-A731-00A0C9082637")]
 	[ComImport]
 	[TypeLibType(TypeLibTypeFlags.FDual)]
-	[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+	[InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
 	public interface IHTMLDocument {
 		object Script {
 			[return: MarshalAs(UnmanagedType.IDispatch)]

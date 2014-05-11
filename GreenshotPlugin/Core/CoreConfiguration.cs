@@ -113,6 +113,8 @@ namespace GreenshotPlugin.Core {
 		public bool OutputFileReduceColors;
 		[IniProperty("OutputFileAutoReduceColors", Description = "If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used.", DefaultValue = "false")]
 		public bool OutputFileAutoReduceColors;
+		[IniProperty("OutputFileReduceColorsTo", Description = "Amount of colors to reduce to, when reducing", DefaultValue = "256")]
+		public int OutputFileReduceColorsTo;
 
 		[IniProperty("OutputFileCopyPathToClipboard", Description="When saving a screenshot, copy the path to the clipboard?", DefaultValue="true")]
 		public bool OutputFileCopyPathToClipboard;

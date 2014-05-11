@@ -23,6 +23,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Plugin;
+using log4net;
 using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core {
@@ -30,7 +31,7 @@ namespace GreenshotPlugin.Core {
 	/// Description of PluginUtils.
 	/// </summary>
 	public static class PluginUtils {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PluginUtils));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginUtils));
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 
 		/// <summary>
@@ -96,8 +97,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="tag">The TAG value</param>
 		/// <param name="shortcutKeys">Keys which can be used as shortcut</param>
 		/// <param name="handler">The onclick handler</param>
-		public static void AddToFileMenu(IImageEditor imageEditor, Image image, string text, object tag, Keys? shortcutKeys, System.EventHandler handler) {
-			System.Windows.Forms.ToolStripMenuItem item = new System.Windows.Forms.ToolStripMenuItem();
+		public static void AddToFileMenu(IImageEditor imageEditor, Image image, string text, object tag, Keys? shortcutKeys, EventHandler handler) {
+			ToolStripMenuItem item = new ToolStripMenuItem();
 			item.Image = image;
 			item.Text = text;
 			item.Tag = tag;

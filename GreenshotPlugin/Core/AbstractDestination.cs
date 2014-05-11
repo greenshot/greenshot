@@ -21,17 +21,19 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Description of AbstractDestination.
 	/// </summary>
 	public abstract class AbstractDestination : IDestination {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(AbstractDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
 		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public virtual int CompareTo(object obj) {
@@ -246,7 +248,7 @@ namespace GreenshotPlugin.Core {
 			// Close
 			menu.Items.Add(new ToolStripSeparator());
 			ToolStripMenuItem closeItem = new ToolStripMenuItem(Language.GetString("editor_close"));
-			closeItem.Image = GreenshotPlugin.Core.GreenshotResources.getImage("Close.Image");
+			closeItem.Image = GreenshotResources.getImage("Close.Image");
 			closeItem.Click += delegate {
 				// This menu entry is the close itself, we can dispose the surface
 				menu.Close();
@@ -285,7 +287,7 @@ namespace GreenshotPlugin.Core {
 			while (true) {
 				if (menu.Visible) {
 					Application.DoEvents();
-					System.Threading.Thread.Sleep(100);
+					Thread.Sleep(100);
 				} else {
 					menu.Dispose();
 					break;

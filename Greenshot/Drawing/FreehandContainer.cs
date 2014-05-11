@@ -228,9 +228,8 @@ namespace Greenshot.Drawing {
 					int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldType.LINE_THICKNESS));
 					int safetymargin = 10;
 					return new Rectangle((myBounds.Left + Left) - (safetymargin+lineThickness), (myBounds.Top + Top) - (safetymargin+lineThickness), myBounds.Width + (2*(lineThickness+safetymargin)), myBounds.Height + (2*(lineThickness+safetymargin)));
-				} else {
-					return new Rectangle(0, 0, parent.Width, parent.Height);
 				}
+				return new Rectangle(0, 0, parent.Width, parent.Height);
 			}
 		}
 

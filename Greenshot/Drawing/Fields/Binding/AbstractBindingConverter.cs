@@ -31,15 +31,16 @@ namespace Greenshot.Drawing.Fields.Binding {
 		public object convert(object o) {
 			if(o == null) {
 				return null;
-			} else if(o is T1) {
-				return convert((T1)o);
-			} else if(o is T2) {
-				return convert((T2)o);
-			} else {
-				throw new ArgumentException("Cannot handle argument of type "+o.GetType());
 			}
+			if(o is T1) {
+				return convert((T1)o);
+			}
+			if(o is T2) {
+				return convert((T2)o);
+			}
+			throw new ArgumentException("Cannot handle argument of type "+o.GetType());
 		}
-		
+
 		protected abstract T2 convert(T1 o);
 		protected abstract T1 convert(T2 o);
 		
