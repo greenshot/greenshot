@@ -145,6 +145,7 @@ namespace Greenshot.Interop.Office {
 					shape.LockAspectRatio = MsoTriState.msoTrue;
 				}
 				selection.InsertAfter("\r\n");
+				selection.MoveDown(WdUnits.wdLine, 1, Type.Missing);
 				return shape;
 			}
 		}

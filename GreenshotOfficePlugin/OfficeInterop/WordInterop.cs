@@ -87,6 +87,7 @@ namespace Greenshot.Interop.Office {
 	public interface ISelection : ICommon {
 		IInlineShapes InlineShapes { get; }
 		void InsertAfter(string text);
+		int MoveDown(object Unit, object Count, object Extend);
 	}
 
 	/// <summary>
