@@ -5,7 +5,7 @@ Apply text and shapes to the screenshot. Offers capture of window, region or ful
 
 CHANGE LOG:
 
-@GITDETAILVERSION@ Windows 8.1, Box bug-fix Release
+@GITDETAILVERSION@ Windows 8.1 & Box bug-fix Release
 
 Bugs resolved:
 * Bug #1604,#1631,#1634: Capture problems since update to Windows 8.1 with multiple displays
@@ -14,14 +14,14 @@ Bugs resolved:
 
 Features:
 * Feature #697: Added the possibility to replace characters/strings when a pattern is used, to have more control over the resulting filename. E.G. ${title:r ,_} will cause all the spaces to be replaced by underscores.
-* Feature #712: The amount of colour which images are reduce to, if the setting is active, has be made configurable in the greenshot.ini property OutputFileReduceColorsTo. Default stays at 256,
+* Feature #712: The amount of colour which images are reduce to, if the setting is active, has been made configurable in the greenshot.ini property OutputFileReduceColorsTo. Default stays at 256,
 * Feature #723: Adding a newline when exporting to Word or an open Outlook email, this makes it possible to repeat exports.
 
 Changes:
 * Flickr plug-in: from June 27th, 2014 Flickr will only accept uploads via HTTPS! As the switch is already possible Greenshot has been changed accordingly.
 
 Languages:
-* Update the French translation for the Microsoft Office plug-in
+* Updated the French translation for the Microsoft Office plug-in
 
 
 1.1.8.35-g8f5559c Bugfix Release
