@@ -413,6 +413,12 @@ namespace GreenshotPlugin.Core {
 			if (AutoCropDifference > 255) {
 				AutoCropDifference = 255;
 			}
+			if (OutputFileReduceColorsTo < 0) {
+				OutputFileReduceColorsTo = 0;
+			}
+			if (OutputFileReduceColorsTo > 256) {
+				OutputFileReduceColorsTo = 256;
+			}
 		}
 	}
 }
