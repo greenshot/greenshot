@@ -26,11 +26,19 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using log4net;
+using System.Collections.Generic;
 
 namespace GreenshotPlugin.Core {
 	public static class FilenameHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FilenameHelper));
+		// Specify the regular expression for the filename formatting:
+		// Starting with ${
+		// than the varname, which ends with a : or }
+		// If a parameters needs to be supplied, than a ":" should follow the name... everything from the : until the } is considered to be part of the parameters.
+		// The parameter format is a single alpha followed by the value belonging to the parameter, e.g. :
+		// ${capturetime:d"yyyy-MM-dd HH_mm_ss"}
 		private static readonly Regex VAR_REGEXP = new Regex(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
+
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
 		private const int MAX_TITLE_LENGTH = 80;
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
@@ -140,7 +148,7 @@ namespace GreenshotPlugin.Core {
 			int endIndex = 0;
 			char padChar = ' ';
 			string dateFormat = "yyyy-MM-dd HH-mm-ss";
-
+			IDictionary<string, string> replacements = new Dictionary<string, string>();
 			string replaceValue = "";
 			string variable = match.Groups["variable"].Value;
 			string parameters = match.Groups["parameters"].Value;
@@ -149,6 +157,7 @@ namespace GreenshotPlugin.Core {
 				string[] parms = SPLIT_REGEXP.Split(parameters);
 				foreach (string parameter in parms) {
 					switch (parameter.Substring(0, 1)) {
+						// Padding p<width>[,pad-character]
 						case "p":
 							string[] padParams = parameter.Substring(1).Split(new char[] { ',' });
 							try {
@@ -159,6 +168,16 @@ namespace GreenshotPlugin.Core {
 								padChar = padParams[1][0];
 							}
 							break;
+						// replace
+						// r<old string>,<new string>
+						case "r":
+							string[] replaceParameters = parameter.Substring(1).Split(new char[] { ',' });
+							if (replaceParameters != null && replaceParameters.Length == 2) {
+								replacements.Add(replaceParameters[0], replaceParameters[1]);
+							}
+							break;
+						// Dateformat d<format>
+						// Format can be anything that is used in C# date formatting
 						case "d":
 							dateFormat = parameter.Substring(1);
 							if (dateFormat.StartsWith("\"")) {
@@ -168,6 +187,8 @@ namespace GreenshotPlugin.Core {
 								dateFormat = dateFormat.Substring(0, dateFormat.Length - 1);
 							}
 							break;
+						// Substring:
+						// s<start>[,length]
 						case "s":
 							string range = parameter.Substring(1);
 							string[] rangelist = range.Split(new char[] { ',' });
@@ -359,6 +380,12 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 
+			// new for feature #697
+			if (replacements.Count > 0) {
+				foreach (string oldValue in replacements.Keys) {
+					replaceValue = replaceValue.Replace(oldValue, replacements[oldValue]);
+				}
+			}
 			return replaceValue;
 		}
 
