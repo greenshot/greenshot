@@ -92,6 +92,9 @@ namespace Greenshot.Plugin.Drawing {
 		bool HandleMouseMove(int x, int y);
 		bool InitContent();
 		void MakeBoundsChangeUndoable(bool allowMerge);
+		EditStatus DefaultEditMode {
+			get;
+		}
 	}
 
 	public interface ITextContainer: IDrawableContainer {

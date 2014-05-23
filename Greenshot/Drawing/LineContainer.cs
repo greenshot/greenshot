@@ -37,6 +37,9 @@ namespace Greenshot.Drawing {
 		
 		public LineContainer(Surface parent) : base(parent) {
 			Init();
+		}
+
+		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 			AddField(GetType(), FieldType.SHADOW, true);
@@ -50,9 +53,9 @@ namespace Greenshot.Drawing {
 		}
 
 		protected void Init() {
-			if (grippers != null) {
+			if (_grippers != null) {
 				foreach (int index in new[] { 1, 2, 3, 5, 6, 7 }) {
-					grippers[index].Enabled = false;
+					_grippers[index].Enabled = false;
 				}
 			}
 		}

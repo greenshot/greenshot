@@ -32,13 +32,17 @@ namespace Greenshot.Drawing {
 	[Serializable] 
 	public class HighlightContainer : FilterContainer {
 		public HighlightContainer(Surface parent) : base(parent) {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.SHADOW, false);
-			AddField(GetType(), FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
 			Init();
 		}
-		
+
+		/// <summary>
+		/// Use settings from base, extend with our own field
+		/// </summary>
+		protected override void InitializeFields() {
+			base.InitializeFields();
+			AddField(GetType(), FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
+		}
+
 		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
 			Init();

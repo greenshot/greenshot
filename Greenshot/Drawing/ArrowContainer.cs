@@ -36,6 +36,12 @@ namespace Greenshot.Drawing {
 		private static readonly AdjustableArrowCap ARROW_CAP = new AdjustableArrowCap(4, 6);
 
 		public ArrowContainer(Surface parent) : base(parent) {
+		}
+
+		/// <summary>
+		/// Do not use the base, just override so we have our own defaults
+		/// </summary>
+		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.ARROWHEADS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);

@@ -62,6 +62,8 @@ namespace Greenshot {
 			this.btnArrow = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.btnFreehand = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.btnText = new GreenshotPlugin.Controls.GreenshotToolStripButton();
+			this.btnSpeechBubble = new GreenshotPlugin.Controls.GreenshotToolStripButton();
+			this.btnStepLabel = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnHighlight = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.btnObfuscate = new GreenshotPlugin.Controls.GreenshotToolStripButton();
@@ -300,6 +302,8 @@ namespace Greenshot {
 									this.btnArrow,
 									this.btnFreehand,
 									this.btnText,
+									this.btnSpeechBubble,
+									this.btnStepLabel,
 									this.toolStripSeparator14,
 									this.btnHighlight,
 									this.btnObfuscate,
@@ -396,6 +400,28 @@ namespace Greenshot {
 			this.btnText.Name = "btnText";
 			this.btnText.Size = new System.Drawing.Size(22, 20);
 			this.btnText.Click += new System.EventHandler(this.BtnTextClick);
+			// 
+			// btnSpeechBubble
+			// 
+			this.btnSpeechBubble.CheckOnClick = true;
+			this.btnSpeechBubble.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnSpeechBubble.Image = ((System.Drawing.Image)(resources.GetObject("btnText.Image")));
+			this.btnSpeechBubble.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnSpeechBubble.LanguageKey = "editor_drawtextbox";
+			this.btnSpeechBubble.Name = "btnSpeechBubble";
+			this.btnSpeechBubble.Size = new System.Drawing.Size(22, 20);
+			this.btnSpeechBubble.Click += new System.EventHandler(this.BtnSpeechBubbleClick);
+			// 
+			// btnStepLabel
+			// 
+			this.btnStepLabel.CheckOnClick = true;
+			this.btnStepLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnStepLabel.Image = ((System.Drawing.Image)(resources.GetObject("btnText.Image")));
+			this.btnStepLabel.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnStepLabel.LanguageKey = "editor_drawtextbox";
+			this.btnStepLabel.Name = "btnStepLabel";
+			this.btnStepLabel.Size = new System.Drawing.Size(22, 20);
+			this.btnStepLabel.Click += new System.EventHandler(this.BtnStepLabelClick);
 			// 
 			// toolStripSeparator14
 			// 
@@ -1785,6 +1811,8 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem drawArrowToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem drawFreehandToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnText;
+		private GreenshotPlugin.Controls.GreenshotToolStripButton btnSpeechBubble;
+		private GreenshotPlugin.Controls.GreenshotToolStripButton btnStepLabel;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem drawLineToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnLine;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnSettings;

@@ -210,6 +210,17 @@ namespace Greenshot.Drawing {
 		private Bitmap buffer = null;
 
 		/// <summary>
+		/// all stepcontainers for the surface, needed with serialization
+		/// </summary>
+		private readonly LinkedList<IDrawableContainer> _stepContainers = new LinkedList<IDrawableContainer>();
+
+		public LinkedList<IDrawableContainer> StepContainers {
+			get {
+				return _stepContainers;
+			}
+		}
+
+		/// <summary>
 		/// all elements on the surface, needed with serialization
 		/// </summary>
 		private DrawableContainerList elements;
@@ -633,6 +644,12 @@ namespace Greenshot.Drawing {
 				case DrawingModes.Text:
 					undrawnElement = new TextContainer(this);
 					break;
+				case DrawingModes.SpeechBubble:
+					undrawnElement = new SpeechbubbleContainer(this);
+					break;
+				case DrawingModes.StepLabel:
+					undrawnElement = new StepLabelContainer(this);
+					break;
 				case DrawingModes.Line:
 					undrawnElement = new LineContainer(this);
 					break;
@@ -1002,7 +1019,7 @@ namespace Greenshot.Drawing {
 					}
 				}
 				drawingElement = undrawnElement;
-				drawingElement.Status = EditStatus.DRAWING;
+				drawingElement.Status = undrawnElement.DefaultEditMode;
 				undrawnElement = null;
 				// if a new element has been drawn, set location and register it
 				if (drawingElement != null) {
@@ -1274,7 +1291,7 @@ namespace Greenshot.Drawing {
 			}
 			elementToRemove.PropertyChanged -= ElementPropertyChanged;
 			// Do not dispose, the memento should!! element.Dispose();
-			elementToRemove.Invalidate();
+			Invalidate();
 			if (makeUndoable) {
 				MakeUndoable(new DeleteElementMemento(this, elementToRemove), false);
 			}
@@ -1689,6 +1706,10 @@ namespace Greenshot.Drawing {
 		
 		public void element_FieldChanged(object sender, FieldChangedEventArgs e) {
 			selectedElements.HandleFieldChangedEvent(sender, e);
+		}
+
+		public bool IsOnSurface(IDrawableContainer container) {
+			return elements.Contains(container);
 		}
 	}
 }

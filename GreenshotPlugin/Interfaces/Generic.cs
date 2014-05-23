@@ -75,7 +75,21 @@ namespace Greenshot.Plugin {
 	public delegate void SurfaceMessageEventHandler(object sender, SurfaceMessageEventArgs eventArgs);
 	public delegate void SurfaceElementEventHandler(object sender, SurfaceElementEventArgs eventArgs);
 	public delegate void SurfaceDrawingModeEventHandler(object sender, SurfaceDrawingModeEventArgs eventArgs);
-	public enum DrawingModes { None, Rect, Ellipse, Text, Line, Arrow, Crop, Highlight, Obfuscate, Bitmap, Path }
+	public enum DrawingModes {
+		None,
+		Rect,
+		Ellipse,
+		Text,
+		Line,
+		Arrow,
+		Crop,
+		Highlight,
+		Obfuscate,
+		Bitmap,
+		Path,
+		SpeechBubble,
+		StepLabel
+	}
 
 	/// <summary>
 	/// The interface to the Surface object, so Plugins can use it.
@@ -152,6 +166,12 @@ namespace Greenshot.Plugin {
 		void DeselectElement(IDrawableContainer container);
 		void DeselectAllElements();
 		void SelectElement(IDrawableContainer container);
+		/// <summary>
+		/// Is the supplied container "on" the surface?
+		/// </summary>
+		/// <param name="container"></param>
+		/// <returns>This returns false if the container is deleted but still in the undo stack</returns>
+		bool IsOnSurface(IDrawableContainer container);
 		void Invalidate(Rectangle rectangleToInvalidate);
 		void Invalidate();
 		bool Modified {
@@ -177,6 +197,10 @@ namespace Greenshot.Plugin {
 		ICaptureDetails CaptureDetails {
 			get;
 			set;
+		}
+
+		LinkedList<IDrawableContainer> StepContainers {
+			get;
 		}
 	}
 }

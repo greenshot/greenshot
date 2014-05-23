@@ -18,18 +18,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Drawing.Fields;
+using Greenshot.Helpers;
+using Greenshot.Memento;
+using Greenshot.Plugin;
+using Greenshot.Plugin.Drawing;
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.Serialization;
-using System.Windows.Forms;
-using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
-using Greenshot.Memento;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Runtime.Serialization;
+using System.Windows.Forms;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -41,7 +42,7 @@ namespace Greenshot.Drawing {
 		// If makeUndoable is true the next text-change will make the change undoable.
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
 		private bool makeUndoable;
-		private Font font;
+		private Font _font;
 
 		/// <summary>
 		/// The StringFormat object is not serializable!!
@@ -49,22 +50,22 @@ namespace Greenshot.Drawing {
 		[NonSerialized]
 		StringFormat stringFormat = new StringFormat();
 		
-		private string text;
+		private string _text;
 		// there is a binding on the following property!
 		public string Text {
-			get { return text; }
+			get { return _text; }
 			set { 
 				ChangeText(value, true);
 			}
 		}
 		
 		internal void ChangeText(string newText, bool allowUndoable) {
-			if ((text == null && newText != null)  || !text.Equals(newText)) {
+			if ((_text == null && newText != null)  || !_text.Equals(newText)) {
 				if (makeUndoable && allowUndoable) {
 					makeUndoable = false;
-					parent.MakeUndoable(new TextChangeMemento(this), false);
+					_parent.MakeUndoable(new TextChangeMemento(this), false);
 				}
-				text = newText; 
+				_text = newText; 
 				OnPropertyChanged("Text"); 
 			}
 		}
@@ -74,6 +75,11 @@ namespace Greenshot.Drawing {
 		
 		public TextContainer(Surface parent) : base(parent) {
 			Init();
+			stringFormat = new StringFormat();
+			stringFormat.Trimming = StringTrimming.EllipsisWord;
+		}
+
+		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 			AddField(GetType(), FieldType.SHADOW, true);
@@ -84,8 +90,6 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.FONT_SIZE, 11f);
 			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, HorizontalAlignment.Center);
 			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
-			stringFormat = new StringFormat();
-			stringFormat.Trimming = StringTrimming.EllipsisWord;
 		}
 		
 		[OnDeserialized]
@@ -97,9 +101,9 @@ namespace Greenshot.Drawing {
 
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				if (font != null) {
-					font.Dispose();
-					font = null;
+				if (_font != null) {
+					_font.Dispose();
+					_font = null;
 				}
 				if (stringFormat != null) {
 					stringFormat.Dispose();
@@ -121,7 +125,7 @@ namespace Greenshot.Drawing {
 		
 		public void FitToText() {
 			UpdateFormat();
-			Size textSize = TextRenderer.MeasureText(text, font);
+			Size textSize = TextRenderer.MeasureText(_text, _font);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Width = textSize.Width + lineThickness;
 			Height = textSize.Height + lineThickness;
@@ -150,8 +154,8 @@ namespace Greenshot.Drawing {
 				UpdateFormat();
 				//Invalidate();
 			}
-			font.Dispose();
-			font = null;
+			_font.Dispose();
+			_font = null;
 			fontInvalidated = true;
 		}
 		
@@ -175,8 +179,8 @@ namespace Greenshot.Drawing {
 		}
 
 		private void ShowTextBox() {
-			parent.KeysLocked = true;
-			parent.Controls.Add(textBox);
+			_parent.KeysLocked = true;
+			_parent.Controls.Add(textBox);
             EnsureTextBoxContrast();
 			textBox.Show();
 			textBox.Focus();
@@ -195,10 +199,10 @@ namespace Greenshot.Drawing {
         }
 		
 		private void HideTextBox() {
-			parent.Focus();
+			_parent.Focus();
 			textBox.Hide();
-			parent.KeysLocked = false;
-			parent.Controls.Remove(textBox);
+			_parent.KeysLocked = false;
+			_parent.Controls.Remove(textBox);
 		}
 		
 		private void UpdateFormat() {
@@ -236,7 +240,7 @@ namespace Greenshot.Drawing {
 								}
 							}
 						}
-						font = new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
+						_font = new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
 					}
 					fontInvalidated = false;
 				}
@@ -268,7 +272,7 @@ namespace Greenshot.Drawing {
 			UpdateFormat();
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			textBox.ForeColor = lineColor;
-			textBox.Font = font;
+			textBox.Font = _font;
 		}
 		
 		void textBox_KeyDown(object sender, KeyEventArgs e) {
@@ -299,7 +303,7 @@ namespace Greenshot.Drawing {
 				DrawSelectionBorder(graphics, rect);
 			}
 			
-			if (text == null || text.Length == 0 ) {
+			if (_text == null || _text.Length == 0 ) {
 				return;
 			}
 
@@ -321,24 +325,37 @@ namespace Greenshot.Drawing {
 						shadowRect.Inflate(-textOffset, -textOffset);
 					}
 					using (Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100))) {
-						graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
+						graphics.DrawString(_text, _font, fontBrush, shadowRect, stringFormat);
 						currentStep++;
 						alpha = alpha - basealpha / steps;
 					}
 				}
 			}
+			DrawText(graphics, rect, null);
+		}
+
+		protected void DrawText(Graphics graphics, Rectangle drawingRectange, StringFormat stringFormat) {
+			UpdateFormat();
+			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			Rectangle fontRect = rect;
+			Rectangle fontRect = drawingRectange;
+			int textOffset = (lineThickness > 0) ? (int)Math.Ceiling(lineThickness / 2d) : 0;
 			if (lineThickness > 0) {
 				graphics.SmoothingMode = SmoothingMode.HighSpeed;
 				fontRect.Inflate(-textOffset, -textOffset);
 			}
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			using (Brush fontBrush = new SolidBrush(lineColor)) {
-				graphics.DrawString(text, font, fontBrush, fontRect, stringFormat);
+				graphics.DrawString(_text, _font, fontBrush, fontRect);
+				if (stringFormat != null) {
+					graphics.DrawString(_text, _font, fontBrush, fontRect, stringFormat);
+				} else {
+					graphics.DrawString(_text, _font, fontBrush, fontRect);
+				}
 			}
 		}
-		
+
 		public override bool ClickableAt(int x, int y) {
 			Rectangle r = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			r.Inflate(5, 5);

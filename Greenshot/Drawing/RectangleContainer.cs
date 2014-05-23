@@ -35,12 +35,14 @@ namespace Greenshot.Drawing {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(RectangleContainer));
 
 		public RectangleContainer(Surface parent) : base(parent) {
+		}
+
+		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
 			AddField(GetType(), FieldType.SHADOW, true);
 		}
-		
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			graphics.SmoothingMode = SmoothingMode.HighQuality;

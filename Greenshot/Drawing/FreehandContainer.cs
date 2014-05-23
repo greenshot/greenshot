@@ -49,19 +49,22 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		public FreehandContainer(Surface parent) : base(parent) {
 			Init();
-			AddField(GetType(), FieldType.LINE_THICKNESS, 3);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 			Width = parent.Width;
 			Height = parent.Height;
 			Top = 0;
 			Left = 0;
 		}
+
+		protected override void InitializeFields() {
+			AddField(GetType(), FieldType.LINE_THICKNESS, 3);
+			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
+		}
 		
 		protected void Init() {
-			if (grippers != null) {
-				for (int i = 0; i < grippers.Length; i++) {
-					grippers[i].Enabled = false;
-					grippers[i].Visible = false;
+			if (_grippers != null) {
+				for (int i = 0; i < _grippers.Length; i++) {
+					_grippers[i].Enabled = false;
+					_grippers[i].Visible = false;
 				}
 			}
 		}
@@ -229,7 +232,7 @@ namespace Greenshot.Drawing {
 					int safetymargin = 10;
 					return new Rectangle((myBounds.Left + Left) - (safetymargin+lineThickness), (myBounds.Top + Top) - (safetymargin+lineThickness), myBounds.Width + (2*(lineThickness+safetymargin)), myBounds.Height + (2*(lineThickness+safetymargin)));
 				}
-				return new Rectangle(0, 0, parent.Width, parent.Height);
+				return new Rectangle(0, 0, _parent.Width, _parent.Height);
 			}
 		}
 

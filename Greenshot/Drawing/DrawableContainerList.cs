@@ -118,7 +118,7 @@ namespace Greenshot.Drawing {
 			Surface surface = null;
 			foreach(DrawableContainer dc in this) {
 				movingList.Add(dc);
-				surface = dc.parent;
+				surface = dc._parent;
 			}
 			if (movingList.Count > 0 && surface != null) {
 				surface.MakeUndoable(new DrawableContainerBoundsChangeMemento(movingList), allowMerge);

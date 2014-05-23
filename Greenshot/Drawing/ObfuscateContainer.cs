@@ -30,8 +30,12 @@ namespace Greenshot.Drawing {
 	[Serializable] 
 	public class ObfuscateContainer : FilterContainer {
 		public ObfuscateContainer(Surface parent) : base(parent) {
-			AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
 			Init();
+		}
+
+		protected override void InitializeFields() {
+			base.InitializeFields();
+			AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
 		}
 		
 		[OnDeserialized]

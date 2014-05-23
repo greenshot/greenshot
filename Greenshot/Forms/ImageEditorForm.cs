@@ -391,6 +391,12 @@ namespace Greenshot {
 				case DrawingModes.Text:
 					SetButtonChecked(btnText);
 					break;
+				case DrawingModes.SpeechBubble:
+					SetButtonChecked(btnSpeechBubble);
+					break;
+				case DrawingModes.StepLabel:
+					SetButtonChecked(btnStepLabel);
+					break;
 				case DrawingModes.Line:
 					SetButtonChecked(btnLine);
 					break;
@@ -480,7 +486,16 @@ namespace Greenshot {
 			surface.DrawingMode = DrawingModes.Text;
 			refreshFieldControls();
 		}
-		
+
+		void BtnSpeechBubbleClick(object sender, EventArgs e) {
+			surface.DrawingMode = DrawingModes.SpeechBubble;
+			refreshFieldControls();
+		}
+		void BtnStepLabelClick(object sender, EventArgs e) {
+			surface.DrawingMode = DrawingModes.StepLabel;
+			refreshFieldControls();
+		}
+	
 		void BtnLineClick(object sender, EventArgs e) {
 			surface.DrawingMode = DrawingModes.Line;
 			refreshFieldControls();

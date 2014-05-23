@@ -57,8 +57,11 @@ namespace Greenshot.Drawing {
 		}
 
 		public ImageContainer(Surface parent) : base(parent) {
-			AddField(GetType(), FieldType.SHADOW, false);
 			FieldChanged += BitmapContainer_OnFieldChanged;
+		}
+
+		protected override void InitializeFields() {
+			AddField(GetType(), FieldType.SHADOW, false);
 		}
 
 		protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {

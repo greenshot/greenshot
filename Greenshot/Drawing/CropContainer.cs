@@ -30,11 +30,14 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	public class CropContainer : DrawableContainer {
 		public CropContainer(Surface parent) : base(parent) {
+		}
+
+		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.FLAGS, FieldType.Flag.CONFIRMABLE);
 		}
 
 		public override void Invalidate() {
-			parent.Invalidate();
+			_parent.Invalidate();
 		}
 
 		/// <summary>
@@ -43,7 +46,7 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		public override Rectangle DrawingBounds {
 			get {
-				return new Rectangle(0,0,parent.Width, parent.Height);
+				return new Rectangle(0,0,_parent.Width, _parent.Height);
 			}
 		}
 
@@ -55,13 +58,13 @@ namespace Greenshot.Drawing {
 				DrawSelectionBorder(g, selectionRect);
 				
 				// top
-				g.FillRectangle(cropBrush, new Rectangle(0, 0, parent.Width, cropRectangle.Top));
+				g.FillRectangle(cropBrush, new Rectangle(0, 0, _parent.Width, cropRectangle.Top));
 				// left
 				g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top, cropRectangle.Left, cropRectangle.Height));
 				// right
-				g.FillRectangle(cropBrush, new Rectangle(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, parent.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
+				g.FillRectangle(cropBrush, new Rectangle(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, _parent.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
 				// bottom
-				g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, parent.Width, parent.Height - (cropRectangle.Top + cropRectangle.Height)));
+				g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, _parent.Width, _parent.Height - (cropRectangle.Top + cropRectangle.Height)));
 			}
 		}
 		
