@@ -26,6 +26,7 @@ using Greenshot.Plugin.Drawing;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Windows.Forms;
 
 namespace Greenshot.Drawing {
@@ -43,11 +44,11 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
+			AddField(GetType(), FieldType.LINE_COLOR, Color.Blue);
 			AddField(GetType(), FieldType.SHADOW, false);
 			AddField(GetType(), FieldType.FONT_ITALIC, false);
 			AddField(GetType(), FieldType.FONT_BOLD, true);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.LightBlue);
+			AddField(GetType(), FieldType.FILL_COLOR, Color.White);
 			AddField(GetType(), FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
 			AddField(GetType(), FieldType.FONT_SIZE, 20f);
 			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, HorizontalAlignment.Center);
@@ -96,7 +97,16 @@ namespace Greenshot.Drawing {
 			int tailWidth = (Math.Abs(Width) + Math.Abs(Height)) / 20;
 
 			GraphicsPath bubble = new GraphicsPath();
-			bubble.AddEllipse(0, 0, Math.Abs(rect.Width), Math.Abs(rect.Height));
+			int CornerRadius = 30;
+			Rectangle bubbleRect = GuiRectangle.GetGuiRectangle(0, 0, rect.Width, rect.Height);
+			bubbleRect = Rectangle.Inflate(bubbleRect, -lineThickness, -lineThickness);
+			bubble.AddArc(bubbleRect.X, bubbleRect.Y, CornerRadius, CornerRadius, 180, 90);
+			bubble.AddArc(bubbleRect.X + bubbleRect.Width - CornerRadius, bubbleRect.Y, CornerRadius, CornerRadius, 270, 90);
+			bubble.AddArc(bubbleRect.X + bubbleRect.Width - CornerRadius, bubbleRect.Y + bubbleRect.Height - CornerRadius, CornerRadius, CornerRadius, 0, 90);
+			bubble.AddArc(bubbleRect.X, bubbleRect.Y + bubbleRect.Height - CornerRadius, CornerRadius, CornerRadius, 90, 90);
+
+			//bubble.AddRectangle(GuiRectangle.GetGuiRectangle(0, 0, rect.Width, rect.Height));
+			//bubble.AddEllipse(0, 0, Math.Abs(rect.Width), Math.Abs(rect.Height));
 			bubble.CloseAllFigures();
 
 			GraphicsPath tail = new GraphicsPath();
@@ -140,6 +150,7 @@ namespace Greenshot.Drawing {
 					graphics.SetClip(clipRegion, CombineMode.Exclude);
 					graphics.TranslateTransform(Left, Top);
 					using (Pen pen = new Pen(lineColor, lineThickness)) {
+						pen.EndCap = pen.StartCap = LineCap.Round;
 						graphics.DrawPath(pen, bubble);
 					}
 				}
@@ -163,9 +174,12 @@ namespace Greenshot.Drawing {
 
 			// Draw the text
 			UpdateFormat();
-			DrawText(graphics, rect, lineThickness, lineColor, false, StringFormat, Text, Font);
-
-
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			graphics.CompositingQuality = CompositingQuality.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+			DrawText(graphics, rect, lineThickness, ControlPaint.Dark(lineColor, 0.25f ), false, StringFormat, Text, Font);
 		}
 
 		public override bool Contains(int x, int y) {
