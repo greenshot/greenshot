@@ -73,6 +73,7 @@ namespace Greenshot {
 			this.tornEdgesToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.grayscaleToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.invertToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.resizeToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnCrop = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.rotateCwToolstripButton = new GreenshotPlugin.Controls.GreenshotToolStripButton();
@@ -456,7 +457,8 @@ namespace Greenshot {
 									this.addDropshadowToolStripMenuItem,
 									this.tornEdgesToolStripMenuItem,
 									this.grayscaleToolStripMenuItem,
-									this.invertToolStripMenuItem});
+									this.invertToolStripMenuItem,
+									this.resizeToolStripMenuItem});
 			this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
 			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripSplitButton1.LanguageKey = "editor_effects";
@@ -499,6 +501,13 @@ namespace Greenshot {
 			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
 			this.invertToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.invertToolStripMenuItem.Click += new System.EventHandler(this.InvertToolStripMenuItemClick);
+			// 
+			// resizeToolStripMenuItem
+			// 
+			this.resizeToolStripMenuItem.Text = "Resize";
+			this.resizeToolStripMenuItem.Name = "resizeToolStripMenuItem";
+			this.resizeToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
+			this.resizeToolStripMenuItem.Click += new System.EventHandler(this.ResizeToolStripMenuItemClick);
 			// 
 			// toolStripSeparator13
 			// 
@@ -1738,6 +1747,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem alignTopToolStripMenuItem;
 		private Greenshot.Controls.BindableToolStripDropDownButton textVerticalAlignmentButton;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem invertToolStripMenuItem;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem resizeToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem grayscaleToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton rotateCcwToolstripButton;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton rotateCwToolstripButton;

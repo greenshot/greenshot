@@ -41,6 +41,7 @@ using Greenshot.IniFile;
 using System.Threading;
 using Greenshot.Core;
 using log4net;
+using Greenshot.Forms;
 
 namespace Greenshot {
 	/// <summary>
@@ -1214,11 +1215,11 @@ namespace Greenshot {
 		void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) {
 			DropShadowEffect dropShadowEffect= new DropShadowEffect();
 			// TODO: Use the dropshadow settings form to make it possible to change the default values
-			//DialogResult result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
-			//if (result == DialogResult.OK) {
+			DialogResult result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
+			if (result == DialogResult.OK) {
 				surface.ApplyBitmapEffect(dropShadowEffect);
 				updateUndoRedoSurfaceDependencies();
-			//}
+			}
 		}
 
 		/// <summary>
@@ -1229,11 +1230,11 @@ namespace Greenshot {
 		void ResizeToolStripMenuItemClick(object sender, EventArgs e) {
 			ResizeEffect resizeEffect = new ResizeEffect(surface.Image.Width, surface.Image.Height, true);
 			// TODO: Use the Resize SettingsForm to make it possible to change the default values
-			// DialogResult result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
-			// if (result == DialogResult.OK) {
+			DialogResult result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
+			if (result == DialogResult.OK) {
 				surface.ApplyBitmapEffect(resizeEffect);
 				updateUndoRedoSurfaceDependencies();
-			//}
+			}
 		}
 
 		/// <summary>
@@ -1244,11 +1245,11 @@ namespace Greenshot {
 		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) {
 			TornEdgeEffect tornEdgeEffect = new TornEdgeEffect();
 			// TODO: Use the dropshadow settings form to make it possible to change the default values
-			//DialogResult result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
-			//if (result == DialogResult.OK) {
+			DialogResult result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
+			if (result == DialogResult.OK) {
 				surface.ApplyBitmapEffect(tornEdgeEffect);
 				updateUndoRedoSurfaceDependencies();
-			//}
+			}
 		}
 
 		void GrayscaleToolStripMenuItemClick(object sender, EventArgs e) {

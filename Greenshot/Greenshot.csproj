@@ -136,12 +136,12 @@
     <Compile Include="Forms\CaptureForm.Designer.cs">
       <DependentUpon>CaptureForm.cs</DependentUpon>
     </Compile>
-    <None Include="Forms\DropShadowSettingsForm.cs">
+    <Compile Include="Forms\DropShadowSettingsForm.cs">
       <SubType>Form</SubType>
-    </None>
-    <None Include="Forms\DropShadowSettingsForm.Designer.cs">
+    </Compile>
+    <Compile Include="Forms\DropShadowSettingsForm.Designer.cs">
       <DependentUpon>DropShadowSettingsForm.cs</DependentUpon>
-    </None>
+    </Compile>
     <Compile Include="Forms\ImageEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -151,18 +151,18 @@
     <Compile Include="Forms\AnimatingBaseForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <None Include="Forms\ResizeSettingsForm.cs">
+    <Compile Include="Forms\ResizeSettingsForm.cs">
       <SubType>Form</SubType>
-    </None>
-    <None Include="Forms\ResizeSettingsForm.Designer.cs">
+    </Compile>
+    <Compile Include="Forms\ResizeSettingsForm.Designer.cs">
       <DependentUpon>ResizeSettingsForm.cs</DependentUpon>
-    </None>
-    <None Include="Forms\TornEdgeSettingsForm.cs">
+    </Compile>
+    <Compile Include="Forms\TornEdgeSettingsForm.cs">
       <SubType>Form</SubType>
-    </None>
-    <None Include="Forms\TornEdgeSettingsForm.Designer.cs">
+    </Compile>
+    <Compile Include="Forms\TornEdgeSettingsForm.Designer.cs">
       <DependentUpon>TornEdgeSettingsForm.cs</DependentUpon>
-    </None>
+    </Compile>
     <Compile Include="Forms\LanguageDialog.cs">
       <SubType>Form</SubType>
     </Compile>
