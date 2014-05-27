@@ -42,12 +42,12 @@ namespace Greenshot.Drawing {
 		/// We set our own field values
 		/// </summary>
 		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 4);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Blue);
-			AddField(GetType(), FieldType.SHADOW, true);
+			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
+			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
+			AddField(GetType(), FieldType.SHADOW, false);
 			AddField(GetType(), FieldType.FONT_ITALIC, false);
-			AddField(GetType(), FieldType.FONT_BOLD, false);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
+			AddField(GetType(), FieldType.FONT_BOLD, true);
+			AddField(GetType(), FieldType.FILL_COLOR, Color.LightBlue);
 			AddField(GetType(), FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
 			AddField(GetType(), FieldType.FONT_SIZE, 20f);
 			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, HorizontalAlignment.Center);
@@ -58,6 +58,7 @@ namespace Greenshot.Drawing {
 			base.TargetGripperMove(absX, absY);
 			Invalidate();
 		}
+
 		/// <summary>
 		/// Called from Surface (the _parent) when the drawing begins (mouse-down)
 		/// </summary>
@@ -156,15 +157,15 @@ namespace Greenshot.Drawing {
 				graphics.Restore(state);
 			}
 
-			// Draw the text
-			StringFormat format = new StringFormat();
-			format.Alignment = StringAlignment.Center;
-			format.LineAlignment = StringAlignment.Center;
-			DrawText(graphics, GuiRectangle.GetGuiRectangle(Left, Top, Width, Height), format);
-
-			// cleanup
+			// cleanup the paths
 			bubble.Dispose();
 			tail.Dispose();
+
+			// Draw the text
+			UpdateFormat();
+			DrawText(graphics, rect, lineThickness, lineColor, false, StringFormat, Text, Font);
+
+
 		}
 
 		public override bool Contains(int x, int y) {

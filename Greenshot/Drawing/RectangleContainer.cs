@@ -30,7 +30,7 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// Represents a rectangular shape on the Surface
 	/// </summary>
-	[Serializable()] 
+	[Serializable] 
 	public class RectangleContainer : DrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(RectangleContainer));
 
@@ -45,15 +45,31 @@ namespace Greenshot.Drawing {
 		}
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {
+			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+
+			DrawRectangle(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
+		}
+
+		/// <summary>
+		/// This method can also be used from other containers, if the right values are passed!
+		/// </summary>
+		/// <param name="rect"></param>
+		/// <param name="graphics"></param>
+		/// <param name="rm"></param>
+		/// <param name="lineThickness"></param>
+		/// <param name="lineColor"></param>
+		/// <param name="fillColor"></param>
+		/// <param name="shadow"></param>
+		public static void DrawRectangle(Rectangle rect, Graphics graphics, RenderMode rm, int lineThickness, Color lineColor, Color fillColor, bool shadow) {
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
 			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
 				//draw shadow first
@@ -65,18 +81,17 @@ namespace Greenshot.Drawing {
 					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
 						shadowPen.Width = lineVisible ? lineThickness : 1;
 						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(
-							Left + currentStep,
-							Top + currentStep,
-							Width,
-							Height);
+							rect.Left + currentStep,
+							rect.Top + currentStep,
+							rect.Width,
+							rect.Height);
 						graphics.DrawRectangle(shadowPen, shadowRect);
 						currentStep++;
 						alpha = alpha - (basealpha / steps);
 					}
 				}
 			}
-			
-			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+
 
 			if (Colors.IsVisible(fillColor)) {
 				using (Brush brush = new SolidBrush(fillColor)) {
@@ -90,12 +105,18 @@ namespace Greenshot.Drawing {
 					graphics.DrawRectangle(pen, rect);
 				}
 			}
+
 		}
-		
 		public override bool ClickableAt(int x, int y) {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+
+			return RectangleClickableAt(rect, lineThickness, fillColor, x, y);
+		}
+
+
+		public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y) {
 
 			// If we clicked inside the rectangle and it's visible we are clickable at.
 			if (!Color.Transparent.Equals(fillColor)) {

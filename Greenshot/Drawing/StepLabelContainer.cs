@@ -33,31 +33,49 @@ namespace Greenshot.Drawing {
 	/// This is an enumerated label, every single StepLabelContainer shows the number of the order it was created.
 	/// To make sure that deleting recalculates, we check the location before every draw.
 	/// </summary>
-	[Serializable()]
-	public class StepLabelContainer : TextContainer {
+	[Serializable]
+	public class StepLabelContainer : DrawableContainer {
+		[NonSerialized]
+		private StringFormat _stringFormat = new StringFormat();
+		[NonSerialized]
+		private Font _font;
+		private bool drawAsRectangle = false;
+
 		public StepLabelContainer(Surface parent) : base(parent) {
-			_defaultEditMode = EditStatus.IDLE;
 			parent.StepContainers.AddLast(this);
+			InitContent();
+		}
+
+		public override bool InitContent() {
+			_defaultEditMode = EditStatus.IDLE;
+			_stringFormat.Alignment = StringAlignment.Center;
+			_stringFormat.LineAlignment = StringAlignment.Center;
+
 			// Set defaults
 			Width = 40;
 			Height = 40;
-		}
-
-		public override void Dispose() {
-			Parent.StepContainers.Remove(this);
-			base.Dispose();
+			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
+				_font = new Font(fam, 18, FontStyle.Regular, GraphicsUnit.Pixel);
+			}
+			return true;
 		}
 
 		/// <summary>
 		/// We set our own field values
 		/// </summary>
 		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
 			AddField(GetType(), FieldType.FILL_COLOR, Color.DarkRed);
-			AddField(GetType(), FieldType.FONT_SIZE, 21f);
-			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
-			base.InitializeFields();
+			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
 		}
+
+		/// <summary>
+		/// Make sure this element is no longer referenced from the surface
+		/// </summary>
+		public override void Dispose() {
+			Parent.StepContainers.Remove(this);
+			base.Dispose();
+		}
+
 
 		/// <summary>
 		/// Override the parent, calculate the label number, than draw
@@ -74,8 +92,26 @@ namespace Greenshot.Drawing {
 					number++;
 				}
 			}
-			this.Text = number.ToString();
-			base.Draw(graphics, rm);
+			string text = number.ToString();
+			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			if (drawAsRectangle) {
+				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+			} else {
+				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+			}
+			TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
+		}
+
+		public override bool ClickableAt(int x, int y) {
+			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			if (drawAsRectangle) {
+				return RectangleContainer.RectangleClickableAt(rect, 0, fillColor, x, y);
+			} else {
+				return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
+			}
 		}
 	}
 }

@@ -43,13 +43,21 @@ namespace Greenshot.Drawing {
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
 		private bool makeUndoable;
 		private Font _font;
-
+		public Font Font {
+			get {
+				return _font;
+			}
+		}
 		/// <summary>
 		/// The StringFormat object is not serializable!!
 		/// </summary>
 		[NonSerialized]
-		StringFormat stringFormat = new StringFormat();
-		
+		StringFormat _stringFormat = new StringFormat();
+		public StringFormat StringFormat {
+			get {
+				return _stringFormat;
+			}
+		}
 		private string _text;
 		// there is a binding on the following property!
 		public string Text {
@@ -75,8 +83,8 @@ namespace Greenshot.Drawing {
 		
 		public TextContainer(Surface parent) : base(parent) {
 			Init();
-			stringFormat = new StringFormat();
-			stringFormat.Trimming = StringTrimming.EllipsisWord;
+			_stringFormat = new StringFormat();
+			_stringFormat.Trimming = StringTrimming.EllipsisWord;
 		}
 
 		protected override void InitializeFields() {
@@ -94,7 +102,7 @@ namespace Greenshot.Drawing {
 		
 		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
-			stringFormat = new StringFormat();
+			_stringFormat = new StringFormat();
 			Init();
 			UpdateFormat();
 		}
@@ -105,9 +113,9 @@ namespace Greenshot.Drawing {
 					_font.Dispose();
 					_font = null;
 				}
-				if (stringFormat != null) {
-					stringFormat.Dispose();
-					stringFormat = null;
+				if (_stringFormat != null) {
+					_stringFormat.Dispose();
+					_stringFormat = null;
 				}
 				if (textBox != null) {
 					textBox.Dispose();
@@ -205,7 +213,7 @@ namespace Greenshot.Drawing {
 			_parent.Controls.Remove(textBox);
 		}
 		
-		private void UpdateFormat() {
+		protected void UpdateFormat() {
 			string fontFamily = GetFieldValueAsString(FieldType.FONT_FAMILY);
 			bool fontBold = GetFieldValueAsBool(FieldType.FONT_BOLD);
 			bool fontItalic = GetFieldValueAsBool(FieldType.FONT_ITALIC);
@@ -252,8 +260,8 @@ namespace Greenshot.Drawing {
 				throw;
 			}
 			
-			stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
-			stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
+			_stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+			_stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
 		}
 		
 		private void UpdateTextBoxPosition() {
@@ -311,47 +319,53 @@ namespace Greenshot.Drawing {
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			int textOffset = (lineThickness>0) ? (int)Math.Ceiling(lineThickness/2d) : 0;
+			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			bool drawShadow = shadow && (fillColor == Color.Transparent || fillColor == Color.Empty);
+
+			DrawText(graphics, rect, lineThickness, lineColor, drawShadow, _stringFormat, _text, _font);
+		}
+
+		/// <summary>
+		/// This method can be used from other containers
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="drawingRectange"></param>
+		/// <param name="lineThickness"></param>
+		/// <param name="fontColor"></param>
+		/// <param name="stringFormat"></param>
+		/// <param name="text"></param>
+		/// <param name="font"></param>
+		public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text, Font font) {
+			int textOffset = (lineThickness > 0) ? (int)Math.Ceiling(lineThickness / 2d) : 0;
 			// draw shadow before anything else
-			if (shadow && (fillColor == Color.Transparent || fillColor == Color.Empty)) {
+			if (drawShadow) {
 				int basealpha = 100;
 				int alpha = basealpha;
 				int steps = 5;
 				int currentStep = 1;
 				while (currentStep <= steps) {
 					int offset = currentStep;
-					Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + offset, Top + offset, Width, Height);
+					Rectangle shadowRect = GuiRectangle.GetGuiRectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
 					if (lineThickness > 0) {
 						shadowRect.Inflate(-textOffset, -textOffset);
 					}
 					using (Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100))) {
-						graphics.DrawString(_text, _font, fontBrush, shadowRect, stringFormat);
+						graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
 						currentStep++;
 						alpha = alpha - basealpha / steps;
 					}
 				}
 			}
-			DrawText(graphics, rect, null);
-		}
 
-		protected void DrawText(Graphics graphics, Rectangle drawingRectange, StringFormat stringFormat) {
-			UpdateFormat();
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			Rectangle fontRect = drawingRectange;
-			int textOffset = (lineThickness > 0) ? (int)Math.Ceiling(lineThickness / 2d) : 0;
 			if (lineThickness > 0) {
-				graphics.SmoothingMode = SmoothingMode.HighSpeed;
-				fontRect.Inflate(-textOffset, -textOffset);
+				drawingRectange.Inflate(-textOffset, -textOffset);
 			}
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
-			using (Brush fontBrush = new SolidBrush(lineColor)) {
-				graphics.DrawString(_text, _font, fontBrush, fontRect);
+			using (Brush fontBrush = new SolidBrush(fontColor)) {
 				if (stringFormat != null) {
-					graphics.DrawString(_text, _font, fontBrush, fontRect, stringFormat);
+					graphics.DrawString(text, font, fontBrush, drawingRectange, stringFormat);
 				} else {
-					graphics.DrawString(_text, _font, fontBrush, fontRect);
+					graphics.DrawString(text, font, fontBrush, drawingRectange);
 				}
 			}
 		}

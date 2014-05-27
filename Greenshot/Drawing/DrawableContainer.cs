@@ -46,7 +46,7 @@ namespace Greenshot.Drawing {
 	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, INotifyPropertyChanged, IDrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
 		protected static readonly EditorConfiguration editorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-		private bool isMadeUndoable = false;
+		private bool _isMadeUndoable = false;
 
 		protected EditStatus _defaultEditMode = EditStatus.DRAWING;
 		public EditStatus DefaultEditMode {
@@ -141,45 +141,45 @@ namespace Greenshot.Drawing {
 		}
 
 		
-		private int left = 0;
+		private int _left = 0;
 		public int Left {
-			get { return left; }
+			get { return _left; }
 			set {
-				if(value != left) {
-					left = value;
+				if(value != _left) {
+					_left = value;
 					DoLayout();
 				}
 			}
 		}
 		
-		private int top = 0;
+		private int _top = 0;
 		public int Top {
-			get { return top; }
+			get { return _top; }
 			set {
-				if(value != top) {
-					top = value;
+				if(value != _top) {
+					_top = value;
 					DoLayout();
 				}
 			}
 		}
 		
-		private int width = 0;
+		private int _width = 0;
 		public int Width {
-			get { return width; }
+			get { return _width; }
 			set {
-				if(value != width) {
-					width = value;
+				if(value != _width) {
+					_width = value;
 					DoLayout();
 				}
 			}
 		}
 		
-		private int height = 0;
+		private int _height = 0;
 		public int Height {
-			get { return height; }
+			get { return _height; }
 			set {
-				if(value != height) {
-					height = value;
+				if(value != _height) {
+					_height = value;
 					DoLayout();
 				}
 			}
@@ -187,13 +187,13 @@ namespace Greenshot.Drawing {
 		
 		public Point Location {
 			get {
-				return new Point(left, top);
+				return new Point(_left, _top);
 			}
 		}
 
 		public Size Size {
 			get {
-				return new Size(width, height);
+				return new Size(_width, _height);
 			}
 		}
 
@@ -201,13 +201,13 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// will store current bounds of this DrawableContainer before starting a resize
 		/// </summary>
-		private Rectangle boundsBeforeResize = Rectangle.Empty;
+		private Rectangle _boundsBeforeResize = Rectangle.Empty;
 		
 		[NonSerialized]
 		/// <summary>
 		/// "workbench" rectangle - used for calculatoing bounds during resizing (to be applied to this DrawableContainer afterwards)
 		/// </summary>
-		private RectangleF boundsAfterResize = RectangleF.Empty;
+		private RectangleF _boundsAfterResize = RectangleF.Empty;
 		
 		public Rectangle Bounds {
 			get { return GuiRectangle.GetGuiRectangle(Left, Top, Width, Height); }
@@ -417,17 +417,25 @@ namespace Greenshot.Drawing {
 		private void gripperMouseDown(object sender, MouseEventArgs e) {
 			mx = e.X;
 			my = e.Y;
-			Status = EditStatus.RESIZING;
-			boundsBeforeResize = new Rectangle(left, top, width, height);
-			boundsAfterResize = new RectangleF(boundsBeforeResize.Left, boundsBeforeResize.Top, boundsBeforeResize.Width, boundsBeforeResize.Height);
-			isMadeUndoable = false;
+			Gripper originatingGripper = (Gripper)sender;
+			if (originatingGripper != _targetGripper) {
+				Status = EditStatus.RESIZING;
+				_boundsBeforeResize = new Rectangle(_left, _top, _width, _height);
+				_boundsAfterResize = new RectangleF(_boundsBeforeResize.Left, _boundsBeforeResize.Top, _boundsBeforeResize.Width, _boundsBeforeResize.Height);
+			} else {
+				Status = EditStatus.MOVING;
+			}
+			_isMadeUndoable = false;
 		}
 
 		private void gripperMouseUp(object sender, MouseEventArgs e) {
+			Gripper originatingGripper = (Gripper)sender;
+			if (originatingGripper != _targetGripper) {
+				_boundsBeforeResize = Rectangle.Empty;
+				_boundsAfterResize = RectangleF.Empty;
+				_isMadeUndoable = false;
+			}
 			Status = EditStatus.IDLE;
-			boundsBeforeResize = Rectangle.Empty;
-			boundsAfterResize = RectangleF.Empty;
-			isMadeUndoable = false;
 			Invalidate();
 		}
 		
@@ -439,9 +447,9 @@ namespace Greenshot.Drawing {
 				TargetGripperMove(absX, absY);
 			} else if (Status.Equals(EditStatus.RESIZING)) {
 				// check if we already made this undoable
-				if (!isMadeUndoable) {
+				if (!_isMadeUndoable) {
 					// don't allow another undo until we are finished with this move
-					isMadeUndoable = true;
+					_isMadeUndoable = true;
 					// Make undo-able
 					MakeBoundsChangeUndoable(false);
 				}
@@ -450,16 +458,16 @@ namespace Greenshot.Drawing {
 				SuspendLayout();
 				
 				// reset "workbench" rectangle to current bounds
-				boundsAfterResize.X = boundsBeforeResize.X;
-				boundsAfterResize.Y = boundsBeforeResize.Y;
-				boundsAfterResize.Width = boundsBeforeResize.Width;
-				boundsAfterResize.Height = boundsBeforeResize.Height;
+				_boundsAfterResize.X = _boundsBeforeResize.X;
+				_boundsAfterResize.Y = _boundsBeforeResize.Y;
+				_boundsAfterResize.Width = _boundsBeforeResize.Width;
+				_boundsAfterResize.Height = _boundsBeforeResize.Height;
 
 				// calculate scaled rectangle
-				ScaleHelper.Scale(ref boundsAfterResize, originatingGripper.Position, new PointF(absX, absY), ScaleHelper.GetScaleOptions());
+				ScaleHelper.Scale(ref _boundsAfterResize, originatingGripper.Position, new PointF(absX, absY), ScaleHelper.GetScaleOptions());
 
 				// apply scaled bounds to this DrawableContainer
-				ApplyBounds(boundsAfterResize);
+				ApplyBounds(_boundsAfterResize);
 	            
 				ResumeLayout();
 				Invalidate();
@@ -541,6 +549,13 @@ namespace Greenshot.Drawing {
 					}
 				}
 			}
+			if (_targetGripper != null) {
+				if (_targetGripper.Enabled) {
+					_targetGripper.Show();
+				} else {
+					_targetGripper.Hide();
+				}
+			}
 			ResumeLayout();
 		}
 		
@@ -550,6 +565,9 @@ namespace Greenshot.Drawing {
 				for (int i = 0; i < _grippers.Length; i++) {
 					_grippers[i].Hide();
 				}
+			}
+			if (_targetGripper != null) {
+				_targetGripper.Hide();
 			}
 		}
 		
@@ -582,8 +600,8 @@ namespace Greenshot.Drawing {
 		/// <param name="y">current mouse y</param>
 		/// <returns>true if the event is handled, false if the surface needs to handle it</returns>
 		public virtual bool HandleMouseDown(int x, int y) {
-			Left = boundsBeforeResize.X = x;
-			Top = boundsBeforeResize.Y = y;
+			Left = _boundsBeforeResize.X = x;
+			Top = _boundsBeforeResize.Y = y;
 			return true;
 		}
 
@@ -598,15 +616,15 @@ namespace Greenshot.Drawing {
 			SuspendLayout();
 			
 			// reset "workrbench" rectangle to current bounds
-			boundsAfterResize.X = boundsBeforeResize.Left;
-			boundsAfterResize.Y = boundsBeforeResize.Top;
-			boundsAfterResize.Width = x - boundsAfterResize.Left;
-			boundsAfterResize.Height = y - boundsAfterResize.Top;
+			_boundsAfterResize.X = _boundsBeforeResize.Left;
+			_boundsAfterResize.Y = _boundsBeforeResize.Top;
+			_boundsAfterResize.Width = x - _boundsAfterResize.Left;
+			_boundsAfterResize.Height = y - _boundsAfterResize.Top;
 			
-			ScaleHelper.Scale(boundsBeforeResize, x, y, ref boundsAfterResize, GetAngleRoundProcessor());
+			ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
 			
 			// apply scaled bounds to this DrawableContainer
-			ApplyBounds(boundsAfterResize);
+			ApplyBounds(_boundsAfterResize);
 			
 			ResumeLayout();
 			Invalidate();
@@ -641,7 +659,7 @@ namespace Greenshot.Drawing {
 			bool ret = false;
 			if (obj != null && GetType().Equals(obj.GetType())) {
 				DrawableContainer other = obj as DrawableContainer;
-				if (left==other.left && top==other.top && width==other.width && height==other.height) {
+				if (_left==other._left && _top==other._top && _width==other._width && _height==other._height) {
 					ret = true;
 				}
 			}
@@ -649,7 +667,7 @@ namespace Greenshot.Drawing {
 		}
 		
 		public override int GetHashCode() {
-			return left.GetHashCode() ^ top.GetHashCode() ^ width.GetHashCode() ^ height.GetHashCode() ^ GetFields().GetHashCode();
+			return _left.GetHashCode() ^ _top.GetHashCode() ^ _width.GetHashCode() ^ _height.GetHashCode() ^ GetFields().GetHashCode();
 		}
 		
 		protected void OnPropertyChanged(string propertyName) {
