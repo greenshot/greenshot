@@ -24,7 +24,8 @@ namespace Greenshot {
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
-		
+		private System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
+
 		/// <summary>
 		/// Disposes resources used by the form.
 		/// </summary>
@@ -46,7 +47,6 @@ namespace Greenshot {
 		/// </summary>
 		private void InitializeComponent() {
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.dimensionsLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -406,7 +406,7 @@ namespace Greenshot {
 			// 
 			this.btnSpeechBubble.CheckOnClick = true;
 			this.btnSpeechBubble.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnSpeechBubble.Image = ((System.Drawing.Image)(resources.GetObject("btnText.Image")));
+			this.btnSpeechBubble.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
 			this.btnSpeechBubble.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSpeechBubble.LanguageKey = "editor_drawtextbox";
 			this.btnSpeechBubble.Name = "btnSpeechBubble";
@@ -417,7 +417,7 @@ namespace Greenshot {
 			// 
 			this.btnStepLabel.CheckOnClick = true;
 			this.btnStepLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnStepLabel.Image = ((System.Drawing.Image)(resources.GetObject("btnText.Image")));
+			this.btnStepLabel.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
 			this.btnStepLabel.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnStepLabel.LanguageKey = "editor_drawtextbox";
 			this.btnStepLabel.Name = "btnStepLabel";

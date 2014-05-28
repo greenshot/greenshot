@@ -21,11 +21,13 @@
 
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
+using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -42,7 +44,7 @@ namespace Greenshot.Drawing {
 		private bool drawAsRectangle = false;
 
 		public StepLabelContainer(Surface parent) : base(parent) {
-			parent.StepContainers.AddLast(this);
+			parent.AddStepLabel(this);
 			InitContent();
 		}
 
@@ -72,10 +74,9 @@ namespace Greenshot.Drawing {
 		/// Make sure this element is no longer referenced from the surface
 		/// </summary>
 		public override void Dispose() {
-			Parent.StepContainers.Remove(this);
+			Parent.RemoveStepLabel(this);
 			base.Dispose();
 		}
-
 
 		/// <summary>
 		/// Override the parent, calculate the label number, than draw
@@ -83,16 +84,12 @@ namespace Greenshot.Drawing {
 		/// <param name="graphics"></param>
 		/// <param name="rm"></param>
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			int number = 1;
-			foreach (StepLabelContainer possibleThis in Parent.StepContainers) {
-				if (possibleThis == this) {
-					break;
-				}
-				if (Parent.IsOnSurface(possibleThis)) {
-					number++;
-				}
-			}
-			string text = number.ToString();
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			graphics.CompositingQuality = CompositingQuality.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+			string text = Parent.CountStepLabels(this).ToString();
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
@@ -101,6 +98,7 @@ namespace Greenshot.Drawing {
 			} else {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
+
 			TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
 		}
 

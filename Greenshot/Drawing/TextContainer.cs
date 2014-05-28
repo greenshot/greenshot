@@ -360,7 +360,6 @@ namespace Greenshot.Drawing {
 			if (lineThickness > 0) {
 				drawingRectange.Inflate(-textOffset, -textOffset);
 			}
-			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			using (Brush fontBrush = new SolidBrush(fontColor)) {
 				if (stringFormat != null) {
 					graphics.DrawString(text, font, fontBrush, drawingRectange, stringFormat);

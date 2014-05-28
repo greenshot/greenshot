@@ -210,14 +210,33 @@ namespace Greenshot.Drawing {
 		private Bitmap buffer = null;
 
 		/// <summary>
-		/// all stepcontainers for the surface, needed with serialization
+		/// all stepLabels for the surface, needed with serialization
 		/// </summary>
-		private readonly LinkedList<IDrawableContainer> _stepContainers = new LinkedList<IDrawableContainer>();
+		private readonly LinkedList<IDrawableContainer> _stepLabels = new LinkedList<IDrawableContainer>();
 
-		public LinkedList<IDrawableContainer> StepContainers {
-			get {
-				return _stepContainers;
+		public void AddStepLabel(IDrawableContainer stepLabel) {
+			_stepLabels.AddLast(stepLabel);
+		}
+		public void RemoveStepLabel(IDrawableContainer stepLabel) {
+			_stepLabels.Remove(stepLabel);
+		}
+
+		/// <summary>
+		/// Count all the steplabels in the surface, up to the supplied one
+		/// </summary>
+		/// <param name="stopAtContainer">can be null, if not the counting stops here</param>
+		/// <returns>number of steplabels before the supplied container</returns>
+		public int CountStepLabels(IDrawableContainer stopAtContainer) {
+			int number = 1;
+			foreach (StepLabelContainer possibleThis in _stepLabels) {
+				if (possibleThis == stopAtContainer) {
+					break;
+				}
+				if (IsOnSurface(possibleThis)) {
+					number++;
+				}
 			}
+			return number;
 		}
 
 		/// <summary>

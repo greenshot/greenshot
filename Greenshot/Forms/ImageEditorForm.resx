@@ -203,6 +203,18 @@
         8QbiaSCaKD+iKQIAuEYmAAjjsCcAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="btnStepLabel.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAFZSURBVDhPY2CgBjAu2+NqVLYrihQM0gO326xqd9Lrj98u
+        vvz4/RQxGKQWpAdugG31zuwX776f3Hn++Rq3hl31MAwSA2FkMZAakBhID9wAx9pdJa8/fj/nVL+zDCYI
+        Yj99//04CKOLg9SC9MANcG/YFetav7PGpX6XBUwQZMPT11+OgjCybSA1ILUgPXjD37xqZ8KdF1/2XXv4
+        aRuITXJkmZbujj504+XSQ9deLgGxSTbApHRX7OHrb5aBMIhNsgHmlbtSD117vRKEQWySDbCt2lFw+Mbr
+        NSAMYpNkgHn+egWnmh3Vh6+92XAUiEFskBhRhiilrw1UTl+T07TiYvvuiy9W7r78YiWIDRIDyWEYIpe4
+        wkUheUUriAZJKqQuz7/x9PPxCw8+7Dt2/c0WED5378NekBhIDsMAydiFff///z8DoiVjFpWRgsGGiUTM
+        8QbiaSCaKD+iKQIAuEYmAAjjsCcAAAAASUVORK5CYII=
+</value>
+  </data>
   <data name="btnHighlight.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
@@ -926,6 +938,69 @@
         WQvC/0E0QRfANIJoLmF9BnXPHTD8H8QmyQD9wBMMSPg/iE20ATK6uQwWUTeR8X8Qn2gDHJOfM6Dh/yA+
         igHkZijqZSZyXQAA4IG1TpHFZ2gAAAAASUVORK5CYII=
 </value>
+  </data>
+  <data name="btnStepLabel01.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-01.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel02.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-02.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel03.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-03.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel04.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-04.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel05.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-05.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel06.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-06.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel07.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-07.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel08.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-08.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel09.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-09.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel10.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-10.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel11.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-11.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel12.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-12.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel13.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-13.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel14.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-14.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel15.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-15.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel16.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel17.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-17.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel18.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-18.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel19.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-19.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel20+.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-20-plus.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="btnStepLabel20.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\notification-counter-20.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>551, 17</value>

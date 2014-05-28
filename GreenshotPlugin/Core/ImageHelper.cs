@@ -447,8 +447,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="toothHeight">How large (height) is each tooth</param>
 		/// <param name="horizontalToothRange">How wide is a horizontal tooth</param>
 		/// <param name="verticalToothRange">How wide is a vertical tooth</param>
+		/// <param name="edges">bool[] with information on if the edge needs torn or not. Order is clockwise: 0=top,1=right,2=bottom,3=left</param>
 		/// <returns>Changed bitmap</returns>
-		public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange) {
+		public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges) {
 			Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			using (GraphicsPath path = new GraphicsPath()) {
 				Random random = new Random();
@@ -456,43 +457,66 @@ namespace GreenshotPlugin.Core {
 				int VerticalRegions = (int)(sourceImage.Height / verticalToothRange);
 
 				// Start
-				Point previousEndingPoint = new Point(horizontalToothRange, random.Next(1, toothHeight));
+				Point previousEndingPoint = new Point(0,0);
 				Point newEndingPoint;
-				// Top
-				for (int i = 0; i < HorizontalRegions; i++) {
-					int x = (int)previousEndingPoint.X + horizontalToothRange;
-					int y = random.Next(1, toothHeight);
-					newEndingPoint = new Point(x, y);
+				if (edges[0]) {
+					previousEndingPoint = new Point(horizontalToothRange, random.Next(1, toothHeight));
+					// Top
+					for (int i = 0; i < HorizontalRegions; i++) {
+						int x = (int)previousEndingPoint.X + horizontalToothRange;
+						int y = random.Next(1, toothHeight);
+						newEndingPoint = new Point(x, y);
+						path.AddLine(previousEndingPoint, newEndingPoint);
+						previousEndingPoint = newEndingPoint;
+					}
+				} else {
+					newEndingPoint = new Point(sourceImage.Width, 0);
+					path.AddLine(previousEndingPoint, newEndingPoint);
+					previousEndingPoint = newEndingPoint;
+				}
+				if (edges[1]) {
+					// Right
+					for (int i = 0; i < VerticalRegions; i++) {
+						int x = sourceImage.Width - random.Next(1, toothHeight);
+						int y = (int)previousEndingPoint.Y + verticalToothRange;
+						newEndingPoint = new Point(x, y);
+						path.AddLine(previousEndingPoint, newEndingPoint);
+						previousEndingPoint = newEndingPoint;
+					}
+				} else {
+					newEndingPoint = new Point(sourceImage.Width, sourceImage.Height);
+					path.AddLine(previousEndingPoint, newEndingPoint);
+					previousEndingPoint = newEndingPoint;
+				}
+				if (edges[2]) {
+					// Bottom
+					for (int i = 0; i < HorizontalRegions; i++) {
+						int x = (int)previousEndingPoint.X - horizontalToothRange;
+						int y = sourceImage.Height - random.Next(1, toothHeight);
+						newEndingPoint = new Point(x, y);
+						path.AddLine(previousEndingPoint, newEndingPoint);
+						previousEndingPoint = newEndingPoint;
+					}
+				} else {
+					newEndingPoint = new Point(0, sourceImage.Height);
+					path.AddLine(previousEndingPoint, newEndingPoint);
+					previousEndingPoint = newEndingPoint;
+				}
+				if (edges[3]) {
+					// Left
+					for (int i = 0; i < VerticalRegions; i++) {
+						int x = random.Next(1, toothHeight);
+						int y = (int)previousEndingPoint.Y - verticalToothRange;
+						newEndingPoint = new Point(x, y);
+						path.AddLine(previousEndingPoint, newEndingPoint);
+						previousEndingPoint = newEndingPoint;
+					}
+				} else {
+					newEndingPoint = new Point(0, 0);
 					path.AddLine(previousEndingPoint, newEndingPoint);
 					previousEndingPoint = newEndingPoint;
 				}
 
-				// Right
-				for (int i = 0; i < VerticalRegions; i++) {
-					int x = sourceImage.Width - random.Next(1, toothHeight);
-					int y = (int)previousEndingPoint.Y + verticalToothRange;
-					newEndingPoint = new Point(x, y);
-					path.AddLine(previousEndingPoint, newEndingPoint);
-					previousEndingPoint = newEndingPoint;
-				}
-
-				// Bottom
-				for (int i = 0; i < HorizontalRegions; i++) {
-					int x = (int)previousEndingPoint.X - horizontalToothRange;
-					int y = sourceImage.Height - random.Next(1, toothHeight);
-					newEndingPoint = new Point(x, y);
-					path.AddLine(previousEndingPoint, newEndingPoint);
-					previousEndingPoint = newEndingPoint;
-				}
-
-				// Left
-				for (int i = 0; i < VerticalRegions; i++) {
-					int x = random.Next(1, toothHeight);
-					int y = (int)previousEndingPoint.Y - verticalToothRange;
-					newEndingPoint = new Point(x, y);
-					path.AddLine(previousEndingPoint, newEndingPoint);
-					previousEndingPoint = newEndingPoint;
-				}
 				path.CloseFigure();
 
 				// Draw the created figure with the original image by using a TextureBrush so we have anti-aliasing

@@ -84,6 +84,7 @@ namespace Greenshot.Drawing {
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
@@ -174,11 +175,6 @@ namespace Greenshot.Drawing {
 
 			// Draw the text
 			UpdateFormat();
-			graphics.SmoothingMode = SmoothingMode.HighQuality;
-			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-			graphics.CompositingQuality = CompositingQuality.HighQuality;
-			graphics.PixelOffsetMode = PixelOffsetMode.None;
-			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 			DrawText(graphics, rect, lineThickness, ControlPaint.Dark(lineColor, 0.25f ), false, StringFormat, Text, Font);
 		}
 
