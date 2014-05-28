@@ -408,7 +408,7 @@ namespace Greenshot {
 			this.btnSpeechBubble.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnSpeechBubble.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
 			this.btnSpeechBubble.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnSpeechBubble.LanguageKey = "editor_drawtextbox";
+			this.btnSpeechBubble.Text = "Add speech bubble";
 			this.btnSpeechBubble.Name = "btnSpeechBubble";
 			this.btnSpeechBubble.Size = new System.Drawing.Size(22, 20);
 			this.btnSpeechBubble.Click += new System.EventHandler(this.BtnSpeechBubbleClick);
@@ -419,7 +419,7 @@ namespace Greenshot {
 			this.btnStepLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnStepLabel.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
 			this.btnStepLabel.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnStepLabel.LanguageKey = "editor_drawtextbox";
+			this.btnStepLabel.Text = "Add counter";
 			this.btnStepLabel.Name = "btnStepLabel";
 			this.btnStepLabel.Size = new System.Drawing.Size(22, 20);
 			this.btnStepLabel.Click += new System.EventHandler(this.BtnStepLabelClick);

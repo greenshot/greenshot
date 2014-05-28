@@ -5,7 +5,16 @@ Apply text and shapes to the screenshot. Offers capture of window, region or ful
 
 CHANGE LOG:
 
-@GITDETAILVERSION@ Windows 8.1 & Box bug-fix Release
+@READABLEVERSION@
+
+Features:
+* Added a speech bubble to the editor.
+* Added automaticly numbered labels to the editor.
+* Added a resize effect with settings window to the editor.
+* Added a settings window for the torn-edge effect in the editor.
+* Added a settings window for the drop shadow effect in the editor.
+
+1.1.9.13-g01ce82d Windows 8.1 & Box bug-fix Release
 
 Bugs resolved:
 * Bug #1604,#1631,#1634: Capture problems since update to Windows 8.1 with multiple displays

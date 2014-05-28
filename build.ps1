@@ -30,8 +30,9 @@ $gittag = $gitversion -replace '-.*',''
 $commitversion = $gitversion -replace ($gittag + '-'),'' -replace '-.*',''
 $githash = $gitversion -replace '.*-',''
 $version = $gittag + '.' + $commitversion
-$detailversion = $version + '-' + $githash
-$readableversion = $gittag + ' build ' + $commitversion + " (" + $githash + ")"
+$detailversion = $gittag + '.' + $commitversion + '-' + $githash
+$readableversion = $gittag + ' build ' + $commitversion + " (" + $githash + ")" + '-UNSTABLE'
+$fileversion = $gittag + '.' + $commitversion + '-UNSTABLE'
 
 Function WaitForKey {
 	$x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -238,8 +239,8 @@ Function PackageZip {
 	$destinstaller = "$destbase\NO-INSTALLER"
 
 	# Only remove the zip we are going to create, to prevent adding but keeping the history
-	if (Test-Path  ("$destbase\Greenshot-NO-INSTALLER-$version.zip")) {
-		Remove-Item "$destbase\Greenshot-NO-INSTALLER-$version.zip" -Confirm:$false
+	if (Test-Path  ("$destbase\Greenshot-NO-INSTALLER-$fileversion.zip")) {
+		Remove-Item "$destbase\Greenshot-NO-INSTALLER-$fileversion.zip" -Confirm:$false
 	}
 	# Remove the directory to create the files in
 	if (Test-Path  ("$destinstaller")) {
@@ -276,7 +277,7 @@ Function PackageZip {
 
 	$zipOutput = "$(get-location)\zip"
 	$zip7 = "$(get-location)\greenshot\tools\7zip\7za.exe"
-	$arguments = @('a', '-mx9', '-tzip', '-r', "$destbase\Greenshot-NO-INSTALLER-$version.zip", "$destinstaller\*")
+	$arguments = @('a', '-mx9', '-tzip', '-r', "$destbase\Greenshot-NO-INSTALLER-$fileversion.zip", "$destinstaller\*")
 	echo "Starting $zip7 $arguments"
 	$zipResult = Start-Process -wait -PassThru "$zip7" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$zipOutput.log" -RedirectStandardError "$zipOutput.error"
 	if ($zipResult.ExitCode -ne 0) {
