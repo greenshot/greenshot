@@ -37,6 +37,10 @@ namespace Greenshot.Forms {
 			toothsize.Value = effect.ToothHeight;
 			verticaltoothrange.Value = effect.VerticalToothRange;
 			horizontaltoothrange.Value = effect.HorizontalToothRange;
+			top.Checked = effect.Edges[0];
+			right.Checked = effect.Edges[1];
+			bottom.Checked = effect.Edges[2];
+			left.Checked = effect.Edges[3];
 		}
 
 		private void buttonOK_Click(object sender, EventArgs e) {
@@ -46,6 +50,7 @@ namespace Greenshot.Forms {
 			effect.ToothHeight = (int)toothsize.Value;
 			effect.VerticalToothRange = (int)verticaltoothrange.Value;
 			effect.HorizontalToothRange = (int)horizontaltoothrange.Value;
+			effect.Edges = new bool[] { top.Checked, right.Checked, bottom.Checked, left.Checked };
 			DialogResult = DialogResult.OK;
 		}
 	}

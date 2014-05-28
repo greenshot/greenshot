@@ -59,6 +59,10 @@ namespace Greenshot.Forms {
 			this.horizontaltoothrange = new System.Windows.Forms.NumericUpDown();
 			this.labelVerticaltoothrange = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.verticaltoothrange = new System.Windows.Forms.NumericUpDown();
+			this.top = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.right = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.bottom = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.left = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.thickness)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetX)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetY)).BeginInit();
@@ -156,7 +160,7 @@ namespace Greenshot.Forms {
 			// buttonOK
 			// 
 			this.buttonOK.LanguageKey = "OK";
-			this.buttonOK.Location = new System.Drawing.Point(62, 206);
+			this.buttonOK.Location = new System.Drawing.Point(62, 292);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 11;
@@ -168,7 +172,7 @@ namespace Greenshot.Forms {
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.buttonCancel.LanguageKey = "CANCEL";
-			this.buttonCancel.Location = new System.Drawing.Point(143, 206);
+			this.buttonCancel.Location = new System.Drawing.Point(143, 292);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 12;
@@ -301,14 +305,58 @@ namespace Greenshot.Forms {
             0,
             0});
 			// 
+			// top
+			// 
+			this.top.AutoSize = true;
+			this.top.Location = new System.Drawing.Point(15, 194);
+			this.top.Name = "top";
+			this.top.Size = new System.Drawing.Size(88, 17);
+			this.top.TabIndex = 22;
+			this.top.Text = "Tear top side";
+			this.top.UseVisualStyleBackColor = true;
+			// 
+			// right
+			// 
+			this.right.AutoSize = true;
+			this.right.Location = new System.Drawing.Point(15, 217);
+			this.right.Name = "right";
+			this.right.Size = new System.Drawing.Size(93, 17);
+			this.right.TabIndex = 23;
+			this.right.Text = "Tear right side";
+			this.right.UseVisualStyleBackColor = true;
+			// 
+			// bottom
+			// 
+			this.bottom.AutoSize = true;
+			this.bottom.Location = new System.Drawing.Point(15, 240);
+			this.bottom.Name = "bottom";
+			this.bottom.Size = new System.Drawing.Size(105, 17);
+			this.bottom.TabIndex = 24;
+			this.bottom.Text = "Tear bottom side";
+			this.bottom.UseVisualStyleBackColor = true;
+			// 
+			// left
+			// 
+			this.left.AutoSize = true;
+			this.left.Location = new System.Drawing.Point(15, 263);
+			this.left.Name = "left";
+			this.left.Size = new System.Drawing.Size(87, 17);
+			this.left.TabIndex = 25;
+			this.left.Text = "Tear left side";
+			this.left.UseVisualStyleBackColor = true;
+			// 
 			// TornEdgeSettingsForm
 			// 
 			this.AcceptButton = this.buttonOK;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
-			this.ClientSize = new System.Drawing.Size(230, 241);
+			this.ClientSize = new System.Drawing.Size(230, 324);
 			this.ControlBox = false;
+			this.Controls.Add(this.left);
+			this.Controls.Add(this.bottom);
+			this.Controls.Add(this.right);
+			this.Controls.Add(this.top);
 			this.Controls.Add(this.labelVerticaltoothrange);
 			this.Controls.Add(this.verticaltoothrange);
 			this.Controls.Add(this.label_horizontaltoothrange);
@@ -362,5 +410,9 @@ namespace Greenshot.Forms {
 		private System.Windows.Forms.NumericUpDown horizontaltoothrange;
 		private GreenshotPlugin.Controls.GreenshotLabel labelVerticaltoothrange;
 		private System.Windows.Forms.NumericUpDown verticaltoothrange;
+		private GreenshotPlugin.Controls.GreenshotCheckBox top;
+		private GreenshotPlugin.Controls.GreenshotCheckBox right;
+		private GreenshotPlugin.Controls.GreenshotCheckBox bottom;
+		private GreenshotPlugin.Controls.GreenshotCheckBox left;
 	}
 }

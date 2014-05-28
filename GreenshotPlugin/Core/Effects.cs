@@ -72,7 +72,7 @@ namespace Greenshot.Core {
 			ToothHeight = 12;
 			HorizontalToothRange = 20;
 			VerticalToothRange = 20;
-			Edges = new bool[] {true, false, true, true};
+			Edges = new bool[] {true, true, true, true};
 		}
 		public int ToothHeight {
 			get;
