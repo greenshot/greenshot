@@ -10,8 +10,9 @@ obj/
 fugue/
 *Credentials.private.cs
 *Credentials.orig.cs
-upgradeLog*.htm
-upgradeLog*.XML
+/Greenshot/UpgradeLog*.htm
+/Greenshot/UpgradeLog*.XML
+/Greenshot/_UpgradeReport_Files/*
 *.log
 /Greenshot/releases/additional_files/readme.txt
 /*.error
