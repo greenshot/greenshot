@@ -559,7 +559,7 @@ namespace Greenshot.Drawing {
 			ResumeLayout();
 		}
 		
-		public void HideGrippers() {
+		public virtual void HideGrippers() {
 			SuspendLayout();
 			if (_grippers != null) {
 				for (int i = 0; i < _grippers.Length; i++) {

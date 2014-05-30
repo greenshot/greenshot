@@ -43,7 +43,7 @@ namespace Greenshot.Drawing {
 		/// We set our own field values
 		/// </summary>
 		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
+			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Blue);
 			AddField(GetType(), FieldType.SHADOW, false);
 			AddField(GetType(), FieldType.FONT_ITALIC, false);
@@ -68,7 +68,7 @@ namespace Greenshot.Drawing {
 			if (TargetGripper == null) {
 				InitTargetGripper(Color.Green, new Point(mouseX, mouseY));
 			}
-			return base.HandleMouseDown(mouseX, mouseY);
+			return base.HandleMouseDown(mouseX + 20, mouseY + 20);
 		}
 
 		public override Rectangle DrawingBounds {
@@ -93,9 +93,9 @@ namespace Greenshot.Drawing {
 			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
-			int tailAngle = 90 + (int)GeometryHelper.Angle2D(Left + (Width / 2), Top + (Height / 2), TargetGripper.Left, TargetGripper.Top);
-			int tailLength = GeometryHelper.Distance2D(Left + (Width / 2), Top + (Height / 2), TargetGripper.Left, TargetGripper.Top);
-			int tailWidth = (Math.Abs(Width) + Math.Abs(Height)) / 20;
+			int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Left, TargetGripper.Top);
+			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Left, TargetGripper.Top);
+			int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
 
 			GraphicsPath bubble = new GraphicsPath();
 			int CornerRadius = 30;
@@ -118,9 +118,9 @@ namespace Greenshot.Drawing {
 			GraphicsState state = graphics.Save();
 			// draw the tail border where the bubble is not visible
 			using (Region clipRegion = new Region(bubble)) {
-				clipRegion.Translate(Left, Top);
+				clipRegion.Translate(rect.Left, rect.Top);
 				graphics.SetClip(clipRegion, CombineMode.Exclude);
-				graphics.TranslateTransform(Left + (Width / 2), Top + (Height / 2));
+				graphics.TranslateTransform(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2));
 				graphics.RotateTransform(tailAngle);
 				using (Pen pen = new Pen(lineColor, lineThickness)) {
 					graphics.DrawPath(pen, tail);
@@ -132,7 +132,7 @@ namespace Greenshot.Drawing {
 			if (Colors.IsVisible(fillColor)) {
 				//draw the bubbleshape
 				state = graphics.Save();
-				graphics.TranslateTransform(Left, Top);
+				graphics.TranslateTransform(rect.Left, rect.Top);
 				using (Brush brush = new SolidBrush(fillColor)) {
 					graphics.FillPath(brush, bubble);
 				}
@@ -147,11 +147,11 @@ namespace Greenshot.Drawing {
 					Matrix transformMatrix = new Matrix();
 					transformMatrix.Rotate(tailAngle);
 					clipRegion.Transform(transformMatrix);
-					clipRegion.Translate(Left + (Width / 2), Top + (Height / 2));
+					clipRegion.Translate(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2));
 					graphics.SetClip(clipRegion, CombineMode.Exclude);
-					graphics.TranslateTransform(Left, Top);
+					graphics.TranslateTransform(rect.Left, rect.Top);
 					using (Pen pen = new Pen(lineColor, lineThickness)) {
-						pen.EndCap = pen.StartCap = LineCap.Round;
+						//pen.EndCap = pen.StartCap = LineCap.Round;
 						graphics.DrawPath(pen, bubble);
 					}
 				}
@@ -161,7 +161,7 @@ namespace Greenshot.Drawing {
 			if (Colors.IsVisible(fillColor)) {
 				// Draw the tail border
 				state = graphics.Save();
-				graphics.TranslateTransform(Left + (Width / 2), Top + (Height / 2));
+				graphics.TranslateTransform(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2));
 				graphics.RotateTransform(tailAngle);
 				using (Brush brush = new SolidBrush(fillColor)) {
 					graphics.FillPath(brush, tail);

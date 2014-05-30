@@ -48,18 +48,31 @@ namespace Greenshot.Drawing {
 			InitContent();
 		}
 
+		public override void ShowGrippers() {
+		}
+
+		public override void HideGrippers() {
+		}
+
 		public override bool InitContent() {
 			_defaultEditMode = EditStatus.IDLE;
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;
 
 			// Set defaults
-			Width = 40;
-			Height = 40;
+			Width = 30;
+			Height = 30;
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				_font = new Font(fam, 18, FontStyle.Regular, GraphicsUnit.Pixel);
+				_font = new Font(fam, 14, FontStyle.Regular, GraphicsUnit.Pixel);
 			}
 			return true;
+		}
+
+		/// <summary>
+		/// This makes it possible for the label to be placed exactly in the middle of the pointer.
+		/// </summary>
+		public override bool HandleMouseDown(int mouseX, int mouseY) {
+			return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
 		}
 
 		/// <summary>
