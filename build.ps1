@@ -122,6 +122,29 @@ Function ReleaseNotes {
 	return $releaseNotes
 }
 
+# Set the assembly versions
+Function ReplaceAssemblyVersion {
+	echo "Setting the assembly verions to the  Git version $readableversion`n`n"
+	Get-ChildItem . -recurse AssemblyInfo.cs | 
+		foreach {
+			$content = Get-Content $_.FullName
+			$newcontent = @()
+			foreach ($line in $content) {
+				# Special case, if we find "@RELEASENOTES@" we replace that line with the release notes
+				if ($line -match "\[assembly: AssemblyInformationalVersion.*") {
+					# skip, it will be added automatically
+				} elseif ($line -match "\[assembly: AssemblyVersion.*") {
+					$newcontent += "[assembly: AssemblyVersion(""$version"")]"
+					$newcontent += "[assembly: AssemblyInformationalVersion(""$detailversion"")]"
+				} else {
+					$newcontent += $line
+				}
+			}
+			# Write the new information back the file
+			$newcontent | Set-Content $_.FullName -encoding UTF8
+		}
+}
+
 # Fill the templates
 Function FillTemplates {
 	echo "Filling templates for Git version $readableversion`n`n"
@@ -302,6 +325,8 @@ Function PackageInstaller {
 	}
 	return
 }
+
+ReplaceAssemblyVersion
 
 FillTemplates
 
