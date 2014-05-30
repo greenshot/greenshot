@@ -30,6 +30,7 @@ using Greenshot.Plugin.Drawing;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using Greenshot.Configuration;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -122,6 +123,34 @@ namespace Greenshot.Drawing {
 			}
 			if (movingList.Count > 0 && surface != null) {
 				surface.MakeUndoable(new DrawableContainerBoundsChangeMemento(movingList), allowMerge);
+			}
+		}
+
+		/// <summary>
+		/// Apply matrix to all elements
+		/// </summary>
+		public void Transform(Matrix matrix) {
+			// Track modifications
+			bool modified = false;
+			Invalidate();
+			foreach (var dc in this) {
+				//Point[] points = new Point[] { new Point(rectangle.Left, rectangle.Top), new Point(rectangle.Right, rectangle.Bottom) };
+				//matrix.TransformPoints(points);
+				// Return that as a rectangle
+				//new Rectangle(points[0], new Size(points[0].X - points[1].X, points[0].Y - points[1].Y));
+
+				Point[] location = new Point[] { dc.Location };
+				matrix.TransformPoints(location);
+
+				dc.Left = location[0].X;
+				dc.Top = location[0].Y;
+				modified = true;
+			}
+			// Invalidate after
+			Invalidate();
+			// If we moved something, tell the surface it's modified!
+			if (modified) {
+				Parent.Modified = true;
 			}
 		}
 

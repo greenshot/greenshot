@@ -37,6 +37,7 @@ using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using Greenshot.Core;
 using log4net;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing {
 
@@ -867,7 +868,7 @@ namespace Greenshot.Drawing {
 			Bitmap newBitmap = ImageHelper.CreateEmptyLike((Bitmap)Image, Color.Empty);
 			if (newBitmap != null) {
 				// Make undoable
-				MakeUndoable(new SurfaceBackgroundChangeMemento(this, Point.Empty), false);
+				MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
 				SetImage(newBitmap, false);
 				Invalidate();
 			}
@@ -883,13 +884,13 @@ namespace Greenshot.Drawing {
 			Application.DoEvents();
 			try {
 				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-				Point offset;
-				Image newImage = ImageHelper.ApplyEffect(Image, effect, out offset);
+				Matrix matrix = new Matrix();
+				Image newImage = ImageHelper.ApplyEffect(Image, effect, matrix);
 				if (newImage != null) {
 					// Make sure the elements move according to the offset the effect made the bitmap move
-					elements.MoveBy(offset.X, offset.Y);
+					elements.Transform(matrix);
 					// Make undoable
-					MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
+					MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
 					SetImage(newImage, false);
 					Invalidate();
 					if (surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
@@ -963,13 +964,14 @@ namespace Greenshot.Drawing {
 					throw;
 				}
 
-				Point offset = new Point(-cropRectangle.Left, -cropRectangle.Top);
+				Matrix matrix = new Matrix();
+				matrix.Translate(-cropRectangle.Left, -cropRectangle.Top);
 				// Make undoable
-				MakeUndoable(new SurfaceBackgroundChangeMemento(this, offset), false);
+				MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
 
 				// Do not dispose otherwise we can't undo the image!
 				SetImage(tmpImage, false);
-				elements.MoveBy(offset.X, offset.Y);
+				elements.Transform(matrix);
 				if (surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size))) {
 					surfaceSizeChanged(this, null);
 				}
@@ -985,9 +987,11 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="previous"></param>
 		/// <param name="offset"></param>
-		public void UndoBackgroundChange(Image previous, Point offset) {
+		public void UndoBackgroundChange(Image previous, Matrix matrix) {
 			SetImage(previous, false);
-			elements.MoveBy(offset.X, offset.Y);
+			if (matrix != null) {
+				elements.Transform(matrix);
+			}
 			if (surfaceSizeChanged != null) {
 				surfaceSizeChanged(this, null);
 			}
@@ -1162,7 +1166,7 @@ namespace Greenshot.Drawing {
 					mouseStart = currentMouse;
 					mouseDownElement.Invalidate();
 					modified = true;
-				} else if(drawingElement != null) {
+				} else if (drawingElement != null) {
 					drawingElement.HandleMouseMove(currentMouse.X, currentMouse.Y);
 					modified = true;
 				}

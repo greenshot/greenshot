@@ -406,10 +406,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceBitmap">Bitmap</param>
 		/// <param name="effect">IEffect</param>
 		/// <returns>Bitmap</returns>
-		public static Image ApplyEffect(Image sourceImage, IEffect effect, out Point offset) {
+		public static Image ApplyEffect(Image sourceImage, IEffect effect, Matrix matrix) {
 			List<IEffect> effects = new List<IEffect>();
 			effects.Add(effect);
-			return ApplyEffects(sourceImage, effects, out offset);
+			return ApplyEffects(sourceImage, effects, matrix);
 		}
 
 		/// <summary>
@@ -418,16 +418,12 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sourceBitmap">Bitmap</param>
 		/// <param name="effects">List<IEffect></param>
 		/// <returns>Bitmap</returns>
-		public static Image ApplyEffects(Image sourceImage, List<IEffect> effects, out Point offset) {
+		public static Image ApplyEffects(Image sourceImage, List<IEffect> effects, Matrix matrix) {
 			Image currentImage = sourceImage;
 			bool disposeImage = false;
-			// Default out value for the offset, will be modified there where needed
-			offset = new Point(0, 0);
-			Point tmpPoint;
 			foreach (IEffect effect in effects) {
-				Image tmpImage = effect.Apply(currentImage, out tmpPoint);
+				Image tmpImage = effect.Apply(currentImage, matrix);
 				if (tmpImage != null) {
-					offset.Offset(tmpPoint);
 					if (disposeImage) {
 						currentImage.Dispose();
 					}
@@ -824,11 +820,12 @@ namespace GreenshotPlugin.Core {
 		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
 		/// <param name="offset">How many pixels is the original image moved?</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, Point shadowOffset, out Point offset, PixelFormat targetPixelformat) {
-			// Create a new "clean" image
-			offset = shadowOffset;
+		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, Point shadowOffset, Matrix matrix, PixelFormat targetPixelformat) {
+			Point offset = shadowOffset;
 			offset.X += shadowSize - 1;
 			offset.Y += shadowSize - 1;
+			matrix.Translate(offset.X, offset.Y);
+			// Create a new "clean" image
 			Bitmap returnImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			// Make sure the shadow is odd, there is no reason for an even blur!
 			if ((shadowSize & 1) == 0) {
@@ -985,9 +982,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
 		/// <param name="offset">How many pixels is the original image moved?</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-		public static Image CreateBorder(Image sourceImage, int borderSize, Color borderColor, PixelFormat targetPixelformat, out Point offset) {
+		public static Image CreateBorder(Image sourceImage, int borderSize, Color borderColor, PixelFormat targetPixelformat, Matrix matrix) {
 			// "return" the shifted offset, so the caller can e.g. move elements
-			offset = new Point(borderSize, borderSize);
+			Point offset = new Point(borderSize, borderSize);
+			matrix.Translate(offset.X, offset.Y);
 
 			// Create a new "clean" image
 			Bitmap newImage = CreateEmpty(sourceImage.Width + (borderSize * 2), sourceImage.Height + (borderSize * 2), targetPixelformat, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
@@ -1287,7 +1285,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="top"></param>
 		/// <param name="bottom"></param>
 		/// <returns>a new bitmap with the source copied on it</returns>
-		public static Image ResizeCanvas(Image sourceImage, Color backgroundColor, int left, int right, int top, int bottom) {
+		public static Image ResizeCanvas(Image sourceImage, Color backgroundColor, int left, int right, int top, int bottom, Matrix matrix) {
+			matrix.Translate(left, top);
 			Bitmap newBitmap = CreateEmpty(sourceImage.Width + left + right, sourceImage.Height + top + bottom, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
 				graphics.DrawImageUnscaled(sourceImage, left, top);
@@ -1303,9 +1302,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="newWidth"></param>
 		/// <param name="newHeight"></param>
 		/// <returns></returns>
-		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight) {
-			Point throwAway;
-			return ResizeImage(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, out throwAway);
+		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix) {
+			return ResizeImage(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix);
 		}
 
 		/// <summary>
@@ -1346,7 +1344,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="newWidth">new width</param>
 		/// <param name="newHeight">new height</param>
 		/// <returns>a new bitmap with the specified size, the source-Image scaled to fit with aspect ratio locked</returns>
-		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, out Point offset) {
+		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, Matrix matrix) {
 			int destX = 0;
 			int destY = 0;
 			
@@ -1379,8 +1377,6 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 			
-			offset = new Point(destX, destY);
-			
 			int destWidth = (int)(sourceImage.Width * nPercentW);
 			int destHeight = (int)(sourceImage.Height * nPercentH);
 			if (newWidth == 0) {
@@ -1392,8 +1388,10 @@ namespace GreenshotPlugin.Core {
 			Image newImage = null;
 			if (maintainAspectRatio && canvasUseNewSize) {
 				newImage = CreateEmpty(newWidth, newHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+				matrix.Scale(sourceImage.Width / newWidth, sourceImage.Height / newHeight);
 			} else {
 				newImage = CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+				matrix.Scale(sourceImage.Width / destWidth, sourceImage.Height / destHeight);
 			}
 
 			using (Graphics graphics = Graphics.FromImage(newImage)) {

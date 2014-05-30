@@ -26,6 +26,7 @@ using log4net;
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
@@ -302,8 +303,7 @@ namespace GreenshotPlugin.Core {
 			Image tmpImage;
 			if (outputSettings.Effects != null && outputSettings.Effects.Count > 0) {
 				// apply effects, if there are any
-				Point ignoreOffset;
-				tmpImage = ImageHelper.ApplyEffects(imageToSave, outputSettings.Effects, out ignoreOffset);
+				tmpImage = ImageHelper.ApplyEffects(imageToSave, outputSettings.Effects, new Matrix());
 				if (tmpImage != null) {
 					if (disposeImage) {
 						imageToSave.Dispose();

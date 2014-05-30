@@ -171,7 +171,7 @@ namespace Greenshot.Drawing {
 		/// <param name="shadow"></param>
 		private void CheckShadow(bool shadow) {
 			if (shadow && _shadowBitmap == null) {
-				_shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), out _shadowOffset);
+				_shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), new Matrix());
 			}
 		}
 
