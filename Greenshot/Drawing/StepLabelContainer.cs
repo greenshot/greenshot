@@ -63,7 +63,7 @@ namespace Greenshot.Drawing {
 			Width = 30;
 			Height = 30;
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				_font = new Font(fam, 14, FontStyle.Regular, GraphicsUnit.Pixel);
+				_font = new Font(fam, 12, FontStyle.Bold, GraphicsUnit.Pixel);
 			}
 			return true;
 		}
@@ -89,6 +89,14 @@ namespace Greenshot.Drawing {
 		public override void Dispose() {
 			Parent.RemoveStepLabel(this);
 			base.Dispose();
+		}
+
+		public override bool HandleMouseMove(int x, int y) {
+			Invalidate();
+			Left = x - (Width / 2);
+			Top = y - (Height / 2);
+			Invalidate();
+			return true;
 		}
 
 		/// <summary>
