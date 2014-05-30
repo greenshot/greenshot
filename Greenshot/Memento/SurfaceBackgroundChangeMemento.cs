@@ -23,6 +23,7 @@ using System.Drawing;
 
 using Greenshot.Drawing;
 using Greenshot.Configuration;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Memento {
 	/// <summary>
@@ -31,12 +32,14 @@ namespace Greenshot.Memento {
 	public class SurfaceBackgroundChangeMemento : IMemento {
 		private Image image;
 		private Surface surface;
-		private Point offset;
+		private Matrix matrix;
 		
-		public SurfaceBackgroundChangeMemento(Surface surface, Point offset) {
+		public SurfaceBackgroundChangeMemento(Surface surface, Matrix matrix) {
 			this.surface = surface;
 			image = surface.Image;
-			this.offset = new Point(-offset.X, -offset.Y);
+			this.matrix = (Matrix)matrix.Clone();
+			// Make sure the reverse is applied
+			this.matrix.Invert();
 		}
 		
 		public void Dispose() {
@@ -66,8 +69,9 @@ namespace Greenshot.Memento {
 		}
 
 		public IMemento Restore() {
-			SurfaceBackgroundChangeMemento oldState = new SurfaceBackgroundChangeMemento(surface, offset);
-			surface.UndoBackgroundChange(image, offset);
+			SurfaceBackgroundChangeMemento oldState = new SurfaceBackgroundChangeMemento(surface, matrix);
+
+			surface.UndoBackgroundChange(image, matrix);
 			surface.Invalidate();
 			return oldState;
 		}
