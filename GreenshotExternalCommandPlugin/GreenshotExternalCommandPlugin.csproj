@@ -47,7 +47,6 @@
       <DependentUpon>SettingsFormDetail.cs</DependentUpon>
     </Compile>
     <None Include="Languages\language_externalcommandplugin-en-US.xml" />
-    <None Include="Properties\AssemblyInfo.cs.template" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">

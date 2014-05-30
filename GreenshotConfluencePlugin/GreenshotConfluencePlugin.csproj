@@ -92,7 +92,6 @@
     <None Include="Languages\language_confluenceplugin-nl-NL.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Properties\AssemblyInfo.cs.template" />
     <None Include="Web References\confluence\confluenceservice-v1.wsdl" />
     <None Include="Web References\confluence\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>

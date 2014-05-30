@@ -56,7 +56,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Languages\language_Photobucketplugin-zh-CN.xml" />
-    <None Include="Properties\AssemblyInfo.cs.template" />
     <EmbeddedResource Include="PhotobucketPlugin.resx">
       <DependentUpon>PhotobucketPlugin.cs</DependentUpon>
       <SubType>Designer</SubType>

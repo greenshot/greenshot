@@ -69,7 +69,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\language_jiraplugin-zh-CN.xml" />
-    <None Include="Properties\AssemblyInfo.cs.template" />
     <None Include="Web References\JiraSoap\jirasoapservice-v2.wsdl" />
     <None Include="Web References\JiraSoap\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>

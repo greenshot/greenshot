@@ -249,7 +249,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Sounds.resx" />
     <None Include="greenshot.manifest" />
-    <None Include="AssemblyInfo.cs.template" />
     <None Include="Languages\help-en-US.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
