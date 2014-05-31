@@ -215,14 +215,12 @@ namespace Greenshot.Core {
 			RotateFlipType flipType;
 			if (Angle == 90) {
 				matrix.Rotate(90);
-				matrix.Translate(-sourceImage.Height, 0);
-				//matrix.RotateAt(90, new Point(sourceImage.Width / 2, sourceImage.Height / 2));
+				matrix.Translate(0, -sourceImage.Height);
 				flipType = RotateFlipType.Rotate90FlipNone;
 			} else if (Angle == -90 || Angle == 270) {
 				flipType = RotateFlipType.Rotate270FlipNone;
 				matrix.Rotate(-90);
-				//matrix.RotateAt(-90, new Point(sourceImage.Width / 2, sourceImage.Height / 2));
-				matrix.Translate(0, -sourceImage.Width);
+				matrix.Translate(-sourceImage.Width, 0);
 			} else {
 				throw new NotSupportedException("Currently only an angle of 90 or -90 (270) is supported.");
 			}

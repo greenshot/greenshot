@@ -18,19 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Threading;
+
+using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
-using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using Greenshot.Configuration;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -134,12 +135,7 @@ namespace Greenshot.Drawing {
 			bool modified = false;
 			Invalidate();
 			foreach (var dc in this) {
-				//Point[] points = new Point[] { new Point(rectangle.Left, rectangle.Top), new Point(rectangle.Right, rectangle.Bottom) };
-				//matrix.TransformPoints(points);
-				// Return that as a rectangle
-				//new Rectangle(points[0], new Size(points[0].X - points[1].X, points[0].Y - points[1].Y));
-
-				Point[] location = new Point[] { dc.Location };
+				Point[] location = { dc.Location };
 				matrix.TransformPoints(location);
 
 				dc.Left = location[0].X;
