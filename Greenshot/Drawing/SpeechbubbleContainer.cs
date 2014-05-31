@@ -98,15 +98,19 @@ namespace Greenshot.Drawing {
 			int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
 
 			GraphicsPath bubble = new GraphicsPath();
-			int CornerRadius = 30;
-			Rectangle bubbleRect = GuiRectangle.GetGuiRectangle(0, 0, rect.Width, rect.Height);
-			bubbleRect = Rectangle.Inflate(bubbleRect, -lineThickness, -lineThickness);
-			bubble.AddArc(bubbleRect.X, bubbleRect.Y, CornerRadius, CornerRadius, 180, 90);
-			bubble.AddArc(bubbleRect.X + bubbleRect.Width - CornerRadius, bubbleRect.Y, CornerRadius, CornerRadius, 270, 90);
-			bubble.AddArc(bubbleRect.X + bubbleRect.Width - CornerRadius, bubbleRect.Y + bubbleRect.Height - CornerRadius, CornerRadius, CornerRadius, 0, 90);
-			bubble.AddArc(bubbleRect.X, bubbleRect.Y + bubbleRect.Height - CornerRadius, CornerRadius, CornerRadius, 90, 90);
+            // adapt corner radius to small rectangle dimensions
+		    int smallerSideLength = Math.Min(rect.Width, rect.Height);
+            int cornerRadius = smallerSideLength>60 ? 30 : smallerSideLength/2;
+		    if (cornerRadius > 5) {
+		        Rectangle bubbleRect = GuiRectangle.GetGuiRectangle(0, 0, rect.Width, rect.Height);
+		        bubbleRect = Rectangle.Inflate(bubbleRect, -lineThickness, -lineThickness);
+		        bubble.AddArc(bubbleRect.X, bubbleRect.Y, cornerRadius, cornerRadius, 180, 90);
+		        bubble.AddArc(bubbleRect.X + bubbleRect.Width - cornerRadius, bubbleRect.Y, cornerRadius, cornerRadius, 270, 90);
+		        bubble.AddArc(bubbleRect.X + bubbleRect.Width - cornerRadius, bubbleRect.Y + bubbleRect.Height - cornerRadius, cornerRadius, cornerRadius, 0, 90);
+		        bubble.AddArc(bubbleRect.X, bubbleRect.Y + bubbleRect.Height - cornerRadius, cornerRadius, cornerRadius, 90, 90);
+		    }
 
-			//bubble.AddRectangle(GuiRectangle.GetGuiRectangle(0, 0, rect.Width, rect.Height));
+		    //bubble.AddRectangle(GuiRectangle.GetGuiRectangle(0, 0, rect.Width, rect.Height));
 			//bubble.AddEllipse(0, 0, Math.Abs(rect.Width), Math.Abs(rect.Height));
 			bubble.CloseAllFigures();
 
