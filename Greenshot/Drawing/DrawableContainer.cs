@@ -707,6 +707,18 @@ namespace Greenshot.Drawing {
 			}
 		}
 
+		public virtual void Transform(Matrix matrix) {
+			if (matrix == null) {
+				return;
+			}
+			Point center = new Point(Left + (Width/2), Top + (Height/2));
+			Point[] points = { center };
+			matrix.TransformPoints(points);
+
+			Left = points[0].X - (Width / 2);
+			Top = points[0].Y - (Height / 2);
+		}
+
 		public virtual void Rotate(RotateFlipType rotateFlipType) {
 			// somehow the rotation is the wrong way?
 			int angle = 90;

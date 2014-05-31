@@ -20,6 +20,7 @@
  */
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.ComponentModel;
@@ -87,6 +88,7 @@ namespace Greenshot.Plugin.Drawing {
 		void HideGrippers();
 		void ShowGrippers();
 		void MoveBy(int x, int y);
+		void Transform(Matrix matrix);
 		bool HandleMouseDown(int x, int y);
 		void HandleMouseUp(int x, int y);
 		bool HandleMouseMove(int x, int y);

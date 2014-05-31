@@ -135,11 +135,7 @@ namespace Greenshot.Drawing {
 			bool modified = false;
 			Invalidate();
 			foreach (var dc in this) {
-				Point[] location = { dc.Location };
-				matrix.TransformPoints(location);
-
-				dc.Left = location[0].X;
-				dc.Top = location[0].Y;
+				dc.Transform(matrix);
 				modified = true;
 			}
 			// Invalidate after
