@@ -702,19 +702,23 @@ namespace Greenshot.Drawing {
 			if (matrix == null) {
 				return;
 			}
-			Point center = new Point(Left + (Width/2), Top + (Height/2));
+			Point topLeft = new Point(Left, Top);
+			Point bottomRight = new Point(Left + Width, Top + Height);
 			Point[] points;
 			if (TargetGripper != null) {
-				points = new[] {center, TargetGripper.Location};
+				points = new[] {topLeft, bottomRight, TargetGripper.Location};
 
 			} else {
-				points = new[] { center};
+				points = new[] { topLeft, bottomRight };
 			}
 			matrix.TransformPoints(points);
 
-			Location = new Point(points[0].X - (Width/2), points[0].Y - (Height/2));
+			Left = points[0].X;
+			Top = points[0].Y;
+			Width = points[1].X - points[0].X;
+			Height = points[1].Y - points[0].Y;
 			if (TargetGripper != null) {
-				TargetGripper.Location = points[1];
+				TargetGripper.Location = points[points.Length-1];
 			}
 		}
 
