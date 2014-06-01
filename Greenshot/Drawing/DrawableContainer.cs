@@ -43,10 +43,10 @@ namespace Greenshot.Drawing {
 	/// OnPropertyChanged whenever a public property has been changed.
 	/// </summary>
 	[Serializable]
-	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, INotifyPropertyChanged, IDrawableContainer {
+	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
-		protected static readonly EditorConfiguration editorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-		private bool _isMadeUndoable = false;
+		protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+		private bool _isMadeUndoable;
 
 		protected EditStatus _defaultEditMode = EditStatus.DRAWING;
 		public EditStatus DefaultEditMode {
@@ -61,20 +61,22 @@ namespace Greenshot.Drawing {
 		}
 
 		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (_grippers != null) {
-					for (int i = 0; i < _grippers.Length; i++) {
-						if (_grippers[i] != null) {
-							_grippers[i].Dispose();
-							_grippers[i] = null;
-						}
-					}
-					_grippers = null;
-				}
-
-				FieldAggregator aggProps = _parent.FieldAggregator;
-				aggProps.UnbindElement(this);
+			if (!disposing) {
+				return;
 			}
+			if (_grippers != null) {
+				for (int i = 0; i < _grippers.Length; i++) {
+					if (_grippers[i] == null) {
+						continue;
+					}
+					_grippers[i].Dispose();
+					_grippers[i] = null;
+				}
+				_grippers = null;
+			}
+
+			FieldAggregator aggProps = _parent.FieldAggregator;
+			aggProps.UnbindElement(this);
 		}
 
 		~DrawableContainer() {
@@ -82,10 +84,10 @@ namespace Greenshot.Drawing {
 		}
 
 		[NonSerialized]
-		private PropertyChangedEventHandler propertyChanged;
+		private PropertyChangedEventHandler _propertyChanged;
 		public event PropertyChangedEventHandler PropertyChanged {
-			add { propertyChanged += value; }
-			remove{ propertyChanged -= value; }
+			add { _propertyChanged += value; }
+			remove{ _propertyChanged -= value; }
 		}
 		
 		public List<IFilter> Filters {
@@ -108,7 +110,7 @@ namespace Greenshot.Drawing {
 		}
 		[NonSerialized]
 		protected Gripper[] _grippers;
-		private bool layoutSuspended = false;
+		private bool _layoutSuspended;
 
 		[NonSerialized]
 		private Gripper _targetGripper;
@@ -120,7 +122,7 @@ namespace Greenshot.Drawing {
 		}
 
 		[NonSerialized]
-		private bool _selected = false;
+		private bool _selected;
 		public bool Selected {
 			get {return _selected;}
 			set {
@@ -141,47 +143,51 @@ namespace Greenshot.Drawing {
 		}
 
 		
-		private int _left = 0;
+		private int _left;
 		public int Left {
 			get { return _left; }
 			set {
-				if(value != _left) {
-					_left = value;
-					DoLayout();
+				if (value == _left) {
+					return;
 				}
+				_left = value;
+				DoLayout();
 			}
 		}
 		
-		private int _top = 0;
+		private int _top;
 		public int Top {
 			get { return _top; }
 			set {
-				if(value != _top) {
-					_top = value;
-					DoLayout();
+				if (value == _top) {
+					return;
 				}
+				_top = value;
+				DoLayout();
 			}
 		}
 		
-		private int _width = 0;
+		private int _width;
 		public int Width {
 			get { return _width; }
 			set {
-				if(value != _width) {
-					_width = value;
-					DoLayout();
+				if (value == _width) {
+					return;
 				}
+				_width = value;
+				DoLayout();
 			}
 		}
 		
-		private int _height = 0;
+		private int _height;
 		public int Height {
 			get { return _height; }
 			set {
-				if(value != _height) {
-					_height = value;
-					DoLayout();
+				if (value == _height) {
+					return;
 				}
+				_height = value;
+				DoLayout();
 			}
 		}
 		
@@ -189,46 +195,50 @@ namespace Greenshot.Drawing {
 			get {
 				return new Point(_left, _top);
 			}
+			set {
+				_left = value.X;
+				_top = value.Y;
+			}
 		}
 
 		public Size Size {
 			get {
 				return new Size(_width, _height);
 			}
+			set {
+				_width = value.Width;
+				_height = value.Height;
+			}
 		}
 
 		[NonSerialized]
-		/// <summary>
-		/// will store current bounds of this DrawableContainer before starting a resize
-		/// </summary>
+		// will store current bounds of this DrawableContainer before starting a resize
 		private Rectangle _boundsBeforeResize = Rectangle.Empty;
 		
 		[NonSerialized]
-		/// <summary>
-		/// "workbench" rectangle - used for calculatoing bounds during resizing (to be applied to this DrawableContainer afterwards)
-		/// </summary>
+		// "workbench" rectangle - used for calculatoing bounds during resizing (to be applied to this DrawableContainer afterwards)
 		private RectangleF _boundsAfterResize = RectangleF.Empty;
 		
 		public Rectangle Bounds {
 			get { return GuiRectangle.GetGuiRectangle(Left, Top, Width, Height); }
 			set {
-				Left = round(value.Left);
-				Top = round(value.Top);
-				Width = round(value.Width);
-				Height = round(value.Height);
+				Left = Round(value.Left);
+				Top = Round(value.Top);
+				Width = Round(value.Width);
+				Height = Round(value.Height);
 			}
 		}
 		
 		public virtual void ApplyBounds(RectangleF newBounds) {
-			Left = round(newBounds.Left);
-			Top = round(newBounds.Top);
-			Width = round(newBounds.Width);
-			Height = round(newBounds.Height);
+			Left = Round(newBounds.Left);
+			Top = Round(newBounds.Top);
+			Width = Round(newBounds.Width);
+			Height = Round(newBounds.Height);
 		}
 		
 		public DrawableContainer(Surface parent) {
 			InitializeFields();
-			this._parent = parent;
+			_parent = parent;
 			InitControls();
 		}
 
@@ -240,19 +250,13 @@ namespace Greenshot.Drawing {
 			RemoveChild(filter);
 		}
 		
-		private int round(float f) {
+		private static int Round(float f) {
 			if(float.IsPositiveInfinity(f) || f>int.MaxValue/2) return int.MaxValue/2;
 			if (float.IsNegativeInfinity(f) || f<int.MinValue/2) return int.MinValue/2;
 			return (int)Math.Round(f);
 		}
 		
-		private int round(double d) {
-			if(Double.IsPositiveInfinity(d) || d>int.MaxValue/2) return int.MaxValue/2;
-			if (Double.IsNegativeInfinity(d) || d<int.MinValue/2) return int.MinValue/2;
-			return (int)Math.Round(d);
-		}
-
-		private bool accountForShadowChange = false;
+		private bool _accountForShadowChange;
 		public virtual Rectangle DrawingBounds {
 			get {
 				foreach(IFilter filter in Filters) {
@@ -268,8 +272,8 @@ namespace Greenshot.Drawing {
 				int offset = lineThickness/2;
 
 				int shadow = 0;
-				if (accountForShadowChange || (HasField(FieldType.SHADOW) && GetFieldValueAsBool(FieldType.SHADOW))){
-					accountForShadowChange = false;
+				if (_accountForShadowChange || (HasField(FieldType.SHADOW) && GetFieldValueAsBool(FieldType.SHADOW))){
+					_accountForShadowChange = false;
 					shadow += 10;
 				}
 				return new Rectangle(Bounds.Left-offset, Bounds.Top-offset, Bounds.Width+lineThickness+shadow, Bounds.Height+lineThickness+shadow);
@@ -335,9 +339,9 @@ namespace Greenshot.Drawing {
 				Parent = _parent,
 				Location = location
 			};
-			_targetGripper.MouseDown += gripperMouseDown;
-			_targetGripper.MouseUp += gripperMouseUp;
-			_targetGripper.MouseMove += gripperMouseMove;
+			_targetGripper.MouseDown += GripperMouseDown;
+			_targetGripper.MouseUp += GripperMouseUp;
+			_targetGripper.MouseMove += GripperMouseMove;
 			if (_parent != null) {
 				_parent.Controls.Add(_targetGripper); // otherwise we'll attach them in switchParent
 			}
@@ -349,9 +353,9 @@ namespace Greenshot.Drawing {
 			for(int i=0; i<_grippers.Length; i++) {
 				_grippers[i] = new Gripper();
 				_grippers[i].Position = i;
-				_grippers[i].MouseDown += gripperMouseDown;
-				_grippers[i].MouseUp += gripperMouseUp;
-				_grippers[i].MouseMove += gripperMouseMove;
+				_grippers[i].MouseDown += GripperMouseDown;
+				_grippers[i].MouseUp += GripperMouseUp;
+				_grippers[i].MouseMove += GripperMouseMove;
 				_grippers[i].Visible = false;
 				_grippers[i].Parent = _parent;
 			}
@@ -365,11 +369,11 @@ namespace Greenshot.Drawing {
 		}
 		
 		public void SuspendLayout() {
-			layoutSuspended = true;
+			_layoutSuspended = true;
 		}
 		
 		public void ResumeLayout() {
-			layoutSuspended = false;
+			_layoutSuspended = false;
 			DoLayout();
 		}
 		
@@ -377,9 +381,9 @@ namespace Greenshot.Drawing {
 			if (_grippers == null) {
 				return;
 			}
-			if (!layoutSuspended) {
-				int[] xChoords = new int[]{Left-2,Left+Width/2-2,Left+Width-2};
-				int[] yChoords = new int[]{Top-2,Top+Height/2-2,Top+Height-2};
+			if (!_layoutSuspended) {
+				int[] xChoords = {Left-2,Left+Width/2-2,Left+Width-2};
+				int[] yChoords = {Top-2,Top+Height/2-2,Top+Height-2};
 
 				_grippers[Gripper.POSITION_TOP_LEFT].Left = xChoords[0]; _grippers[Gripper.POSITION_TOP_LEFT].Top = yChoords[0];
 				_grippers[Gripper.POSITION_TOP_CENTER].Left = xChoords[1]; _grippers[Gripper.POSITION_TOP_CENTER].Top = yChoords[0];
@@ -412,11 +416,7 @@ namespace Greenshot.Drawing {
 			}
 		}
 		
-		int mx;
-		int my;
-		private void gripperMouseDown(object sender, MouseEventArgs e) {
-			mx = e.X;
-			my = e.Y;
+		private void GripperMouseDown(object sender, MouseEventArgs e) {
 			Gripper originatingGripper = (Gripper)sender;
 			if (originatingGripper != _targetGripper) {
 				Status = EditStatus.RESIZING;
@@ -428,7 +428,7 @@ namespace Greenshot.Drawing {
 			_isMadeUndoable = false;
 		}
 
-		private void gripperMouseUp(object sender, MouseEventArgs e) {
+		private void GripperMouseUp(object sender, MouseEventArgs e) {
 			Gripper originatingGripper = (Gripper)sender;
 			if (originatingGripper != _targetGripper) {
 				_boundsBeforeResize = Rectangle.Empty;
@@ -439,7 +439,7 @@ namespace Greenshot.Drawing {
 			Invalidate();
 		}
 		
-		private void gripperMouseMove(object sender, MouseEventArgs e) {
+		private void GripperMouseMove(object sender, MouseEventArgs e) {
 			Gripper originatingGripper = (Gripper)sender;
 			int absX = originatingGripper.Left + e.X;
 			int absY = originatingGripper.Top + e.Y;
@@ -473,18 +473,7 @@ namespace Greenshot.Drawing {
 				Invalidate();
 			}
 		}
-		
-		private void childLabelMouseMove(object sender, MouseEventArgs e) {
-			if (Status.Equals(EditStatus.RESIZING)) {
-				Invalidate();
-				SuspendLayout();
-				Left += e.X - mx;
-				Top += e.Y - my;
-				ResumeLayout();
-				Invalidate();
-			}
-		}
-		
+				
 		public bool hasFilters {
 			get {
 				return Filters.Count > 0;
@@ -648,7 +637,9 @@ namespace Greenshot.Drawing {
 				InitControls();
 			}
 			_parent = newParent;
-			_parent.Controls.AddRange(_grippers);
+			if (_grippers != null) {
+				_parent.Controls.AddRange(_grippers);				
+			}
 			foreach(IFilter filter in Filters) {
 				filter.Parent = this;
 			}
@@ -657,9 +648,9 @@ namespace Greenshot.Drawing {
 		// drawablecontainers are regarded equal if they are of the same type and their bounds are equal. this should be sufficient.
 		public override bool Equals(object obj) {
 			bool ret = false;
-			if (obj != null && GetType().Equals(obj.GetType())) {
+			if (obj != null && GetType() == obj.GetType()) {
 				DrawableContainer other = obj as DrawableContainer;
-				if (_left==other._left && _top==other._top && _width==other._width && _height==other._height) {
+				if (other != null && _left==other._left && _top==other._top && _width==other._width && _height==other._height) {
 					ret = true;
 				}
 			}
@@ -671,8 +662,8 @@ namespace Greenshot.Drawing {
 		}
 		
 		protected void OnPropertyChanged(string propertyName) {
-			if (propertyChanged != null) {
-				propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			if (_propertyChanged != null) {
+				_propertyChanged(this, new PropertyChangedEventArgs(propertyName));
 				Invalidate();
 			}
 		}
@@ -696,7 +687,7 @@ namespace Greenshot.Drawing {
 		public void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
 			LOG.DebugFormat("Field {0} changed", e.Field.FieldType);
 			if (e.Field.FieldType == FieldType.SHADOW) {
-				accountForShadowChange = true;
+				_accountForShadowChange = true;
 			}
 			Invalidate();
 		}
@@ -712,11 +703,19 @@ namespace Greenshot.Drawing {
 				return;
 			}
 			Point center = new Point(Left + (Width/2), Top + (Height/2));
-			Point[] points = { center };
+			Point[] points;
+			if (TargetGripper != null) {
+				points = new[] {center, TargetGripper.Location};
+
+			} else {
+				points = new[] { center};
+			}
 			matrix.TransformPoints(points);
 
-			Left = points[0].X - (Width / 2);
-			Top = points[0].Y - (Height / 2);
+			Location = new Point(points[0].X - (Width/2), points[0].Y - (Height/2));
+			if (TargetGripper != null) {
+				TargetGripper.Location = points[1];
+			}
 		}
 
 		public virtual void Rotate(RotateFlipType rotateFlipType) {
@@ -778,13 +777,13 @@ namespace Greenshot.Drawing {
 			return ScaleHelper.ShapeAngleRoundBehavior.Instance;
 		}
 		
-		public virtual bool hasContextMenu {
+		public virtual bool HasContextMenu {
 			get {
 				return true;
 			}
 		}
 
-		public virtual bool hasDefaultSize {
+		public virtual bool HasDefaultSize {
 			get {
 				return false;
 			}

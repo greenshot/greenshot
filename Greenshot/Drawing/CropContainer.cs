@@ -68,7 +68,7 @@ namespace Greenshot.Drawing {
 			}
 		}
 		
-		public override bool hasContextMenu {
+		public override bool HasContextMenu {
 			get {
 				// No context menu for the CropContainer
 				return false;

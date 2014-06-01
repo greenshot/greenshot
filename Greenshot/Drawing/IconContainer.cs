@@ -87,7 +87,7 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public override bool hasDefaultSize {
+		public override bool HasDefaultSize {
 			get {
 				return true;
 			}

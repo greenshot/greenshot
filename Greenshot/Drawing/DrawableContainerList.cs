@@ -509,7 +509,7 @@ namespace Greenshot.Drawing {
 			bool canReset = false;
 			foreach (var drawableContainer in this) {
 				var container = (DrawableContainer) drawableContainer;
-				if (container.hasDefaultSize) {
+				if (container.HasDefaultSize) {
 					canReset = true;
 				}
 			}
@@ -519,7 +519,7 @@ namespace Greenshot.Drawing {
 				item.Click += delegate {
 					foreach (var drawableContainer in this) {
 						var container = (DrawableContainer) drawableContainer;
-						if (!container.hasDefaultSize) {
+						if (!container.HasDefaultSize) {
 							continue;
 						}
 						Size defaultSize = container.DefaultSize;
@@ -538,7 +538,7 @@ namespace Greenshot.Drawing {
 			bool hasMenu = false;
 			foreach (var drawableContainer in this) {
 				var container = (DrawableContainer) drawableContainer;
-				if (!container.hasContextMenu) {
+				if (!container.HasContextMenu) {
 					continue;
 				}
 				hasMenu = true;

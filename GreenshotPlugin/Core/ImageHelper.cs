@@ -62,9 +62,9 @@ namespace GreenshotPlugin.Core {
 			}
 			try {
 				// Get the index of the orientation property.
-				int orientation_index = Array.IndexOf(image.PropertyIdList, EXIF_ORIENTATION_ID);
+				int orientationIndex = Array.IndexOf(image.PropertyIdList, EXIF_ORIENTATION_ID);
 				// If there is no such property, return Unknown.
-				if (orientation_index < 0) {
+				if (orientationIndex < 0) {
 					return;
 				}
 				PropertyItem item = image.GetPropertyItem(EXIF_ORIENTATION_ID);
@@ -129,18 +129,18 @@ namespace GreenshotPlugin.Core {
 			int srcWidth=image.Width;
 			int srcHeight=image.Height; 
 			if (thumbHeight < 0) {
-				thumbHeight = (int)(thumbWidth * ((float)srcHeight / (float)srcWidth));
+				thumbHeight = (int)(thumbWidth * (srcHeight / (float)srcWidth));
 			}
 			if (thumbWidth < 0) {
-				thumbWidth = (int)(thumbHeight * ((float)srcWidth / (float)srcHeight));
+				thumbWidth = (int)(thumbHeight * (srcWidth / (float)srcHeight));
 			}
 			if (maxWidth > 0 && thumbWidth > maxWidth) {
 				thumbWidth = Math.Min(thumbWidth, maxWidth);
-				thumbHeight = (int)(thumbWidth * ((float)srcHeight / (float)srcWidth));
+				thumbHeight = (int)(thumbWidth * (srcHeight / (float)srcWidth));
 			}
 			if (maxHeight > 0 && thumbHeight > maxHeight) {
 				thumbHeight = Math.Min(thumbHeight, maxHeight);
-				thumbWidth = (int)(thumbHeight * ((float)srcWidth / (float)srcHeight));
+				thumbWidth = (int)(thumbHeight * (srcWidth / (float)srcHeight));
 			}
 
 			Bitmap bmp = new Bitmap(thumbWidth, thumbHeight);
@@ -174,12 +174,13 @@ namespace GreenshotPlugin.Core {
 			LOG.Warn("Can't crop a null/zero size image!");
 			return false;
 		}
-		
+
 		/// <summary>
 		/// Private helper method for the FindAutoCropRectangle
 		/// </summary>
 		/// <param name="fastBitmap"></param>
 		/// <param name="colorPoint"></param>
+		/// <param name="cropDifference"></param>
 		/// <returns>Rectangle</returns>
 		private static Rectangle FindAutoCropRectangle(IFastBitmap fastBitmap, Point colorPoint, int cropDifference) {
 			Rectangle cropRectangle = Rectangle.Empty;
@@ -194,24 +195,26 @@ namespace GreenshotPlugin.Core {
 						int diffR = Math.Abs(currentColor.R - referenceColor.R);
 						int diffG = Math.Abs(currentColor.G - referenceColor.G);
 						int diffB = Math.Abs(currentColor.B - referenceColor.B);
-						if (((diffR + diffG + diffB) / 3) > cropDifference) {
-							if (x < min.X) min.X = x;
-							if (y < min.Y) min.Y = y;
-							if (x > max.X) max.X = x;
-							if (y > max.Y) max.Y = y;
+						if (((diffR + diffG + diffB)/3) <= cropDifference) {
+							continue;
 						}
+						if (x < min.X) min.X = x;
+						if (y < min.Y) min.Y = y;
+						if (x > max.X) max.X = x;
+						if (y > max.Y) max.Y = y;
 					}
 				}
 			} else {
 				for (int y = 0; y < fastBitmap.Height; y++) {
 					for (int x = 0; x < fastBitmap.Width; x++) {
 						Color currentColor = fastBitmap.GetColorAt(x, y);
-						if (referenceColor.Equals(currentColor)) {
-							if (x < min.X) min.X = x;
-							if (y < min.Y) min.Y = y;
-							if (x > max.X) max.X = x;
-							if (y > max.Y) max.Y = y;
+						if (!referenceColor.Equals(currentColor)) {
+							continue;
 						}
+						if (x < min.X) min.X = x;
+						if (y < min.Y) min.Y = y;
+						if (x > max.X) max.X = x;
+						if (y > max.Y) max.Y = y;
 					}
 				}
 			}
@@ -228,10 +231,11 @@ namespace GreenshotPlugin.Core {
 		/// Get a rectangle for the image which crops the image of all colors equal to that on 0,0
 		/// </summary>
 		/// <param name="image"></param>
+		/// <param name="cropDifference"></param>
 		/// <returns>Rectangle</returns>
 		public static Rectangle FindAutoCropRectangle(Image image, int cropDifference) {
 			Rectangle cropRectangle = Rectangle.Empty;
-			Rectangle currentRectangle = Rectangle.Empty;
+			Rectangle currentRectangle;
 			List<Point> checkPoints = new List<Point>();
 			// Top Left
 			checkPoints.Add(new Point(0, 0));
@@ -391,20 +395,20 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the number of icon in the file
 		/// </summary>
-		/// <param name="icon"></param>
 		/// <param name="location">Location of the EXE or DLL</param>
 		/// <returns></returns>
 		public static int CountAssociatedIcons(string location) {
-			IntPtr large = IntPtr.Zero;
-			IntPtr small = IntPtr.Zero;
+			IntPtr large;
+			IntPtr small;
 			return Shell32.ExtractIconEx(location, -1, out large, out small, 0);
 		}
 
 		/// <summary>
 		/// Apply the effect to the bitmap
 		/// </summary>
-		/// <param name="sourceBitmap">Bitmap</param>
+		/// <param name="sourceImage">Bitmap</param>
 		/// <param name="effect">IEffect</param>
+		/// <param name="matrix"></param>
 		/// <returns>Bitmap</returns>
 		public static Image ApplyEffect(Image sourceImage, IEffect effect, Matrix matrix) {
 			List<IEffect> effects = new List<IEffect>();
@@ -415,8 +419,9 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Apply the effects in the supplied order to the bitmap
 		/// </summary>
-		/// <param name="sourceBitmap">Bitmap</param>
+		/// <param name="sourceImage">Bitmap</param>
 		/// <param name="effects">List<IEffect></param>
+		/// <param name="matrix"></param>
 		/// <returns>Bitmap</returns>
 		public static Image ApplyEffects(Image sourceImage, List<IEffect> effects, Matrix matrix) {
 			Image currentImage = sourceImage;
@@ -449,8 +454,8 @@ namespace GreenshotPlugin.Core {
 			Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			using (GraphicsPath path = new GraphicsPath()) {
 				Random random = new Random();
-				int HorizontalRegions = (int)(sourceImage.Width / horizontalToothRange);
-				int VerticalRegions = (int)(sourceImage.Height / verticalToothRange);
+				int horizontalRegions = sourceImage.Width / horizontalToothRange;
+				int verticalRegions = sourceImage.Height / verticalToothRange;
 
 				// Start
 				Point previousEndingPoint = new Point(0,0);
@@ -458,8 +463,8 @@ namespace GreenshotPlugin.Core {
 				if (edges[0]) {
 					previousEndingPoint = new Point(horizontalToothRange, random.Next(1, toothHeight));
 					// Top
-					for (int i = 0; i < HorizontalRegions; i++) {
-						int x = (int)previousEndingPoint.X + horizontalToothRange;
+					for (int i = 0; i < horizontalRegions; i++) {
+						int x = previousEndingPoint.X + horizontalToothRange;
 						int y = random.Next(1, toothHeight);
 						newEndingPoint = new Point(x, y);
 						path.AddLine(previousEndingPoint, newEndingPoint);
@@ -472,9 +477,9 @@ namespace GreenshotPlugin.Core {
 				}
 				if (edges[1]) {
 					// Right
-					for (int i = 0; i < VerticalRegions; i++) {
+					for (int i = 0; i < verticalRegions; i++) {
 						int x = sourceImage.Width - random.Next(1, toothHeight);
-						int y = (int)previousEndingPoint.Y + verticalToothRange;
+						int y = previousEndingPoint.Y + verticalToothRange;
 						newEndingPoint = new Point(x, y);
 						path.AddLine(previousEndingPoint, newEndingPoint);
 						previousEndingPoint = newEndingPoint;
@@ -486,8 +491,8 @@ namespace GreenshotPlugin.Core {
 				}
 				if (edges[2]) {
 					// Bottom
-					for (int i = 0; i < HorizontalRegions; i++) {
-						int x = (int)previousEndingPoint.X - horizontalToothRange;
+					for (int i = 0; i < horizontalRegions; i++) {
+						int x = previousEndingPoint.X - horizontalToothRange;
 						int y = sourceImage.Height - random.Next(1, toothHeight);
 						newEndingPoint = new Point(x, y);
 						path.AddLine(previousEndingPoint, newEndingPoint);
@@ -500,9 +505,9 @@ namespace GreenshotPlugin.Core {
 				}
 				if (edges[3]) {
 					// Left
-					for (int i = 0; i < VerticalRegions; i++) {
+					for (int i = 0; i < verticalRegions; i++) {
 						int x = random.Next(1, toothHeight);
-						int y = (int)previousEndingPoint.Y - verticalToothRange;
+						int y = previousEndingPoint.Y - verticalToothRange;
 						newEndingPoint = new Point(x, y);
 						path.AddLine(previousEndingPoint, newEndingPoint);
 						previousEndingPoint = newEndingPoint;
@@ -510,7 +515,7 @@ namespace GreenshotPlugin.Core {
 				} else {
 					newEndingPoint = new Point(0, 0);
 					path.AddLine(previousEndingPoint, newEndingPoint);
-					previousEndingPoint = newEndingPoint;
+					//previousEndingPoint = newEndingPoint;
 				}
 
 				path.CloseFigure();
@@ -522,30 +527,12 @@ namespace GreenshotPlugin.Core {
 					graphics.CompositingQuality = CompositingQuality.HighQuality;
 					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 					using (Brush brush = new TextureBrush(sourceImage)) {
-						// Imporant note: If the target wouldn't be at 0,0 we need to translate-transform!!
+						// Important note: If the target wouldn't be at 0,0 we need to translate-transform!!
 						graphics.FillPath(brush, path);
 					}
 				}
 			}
 			return returnImage;
-		}
-
-		/// <summary>
-		/// Helper Method for the ApplyBlur
-		/// </summary>
-		/// <param name="amount"></param>
-		/// <returns></returns>
-		private static int[] CreateGaussianBlurRow(int amount) {
-			int size = 1 + (amount * 2);
-			int[] weights = new int[size];
-
-			for (int i = 0; i <= amount; ++i) {
-				// 1 + aa - aa + 2ai - ii
-				weights[i] = 16 * (i + 1);
-				weights[weights.Length - i - 1] = weights[i];
-			}
-
-			return weights;
 		}
 
 		/// <summary>
@@ -638,7 +625,6 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// BoxBlurHorizontal is a private helper method for the BoxBlur, only for IFastBitmaps with alpha channel
 		/// </summary>
-		/// <param name="bbbSrc">Source BitmapBuffer</param>
 		/// <param name="targetFastBitmap">Target BitmapBuffer</param>
 		/// <param name="range">Range must be odd!</param>
 		private static void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range) {
@@ -694,11 +680,8 @@ namespace GreenshotPlugin.Core {
 			if (targetFastBitmap.hasAlphaChannel) {
 				throw new NotSupportedException("BoxBlurVertical should NOT be called for bitmaps with alpha channel");
 			}
-			int w = targetFastBitmap.Width;
 			int halfRange = range / 2;
 			Color[] newColors = new Color[targetFastBitmap.Height];
-			int oldPixelOffset = -(halfRange + 1) * w;
-			int newPixelOffset = (halfRange) * w;
 			byte[] tmpColor = new byte[4];
 			for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++) {
 				int hits = 0;
@@ -745,11 +728,8 @@ namespace GreenshotPlugin.Core {
 				throw new NotSupportedException("BoxBlurVerticalAlpha should be called for bitmaps with alpha channel");
 			}
 
-			int w = targetFastBitmap.Width;
 			int halfRange = range / 2;
 			Color[] newColors = new Color[targetFastBitmap.Height];
-			int oldPixelOffset = -(halfRange + 1) * w;
-			int newPixelOffset = (halfRange) * w;
 			byte[] tmpColor = new byte[4];
 			for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++) {
 				int hits = 0;
@@ -818,13 +798,14 @@ namespace GreenshotPlugin.Core {
 		/// <param name="darkness">How dark is the shadow</param>
 		/// <param name="shadowSize">Size of the shadow</param>
 		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
-		/// <param name="offset">How many pixels is the original image moved?</param>
+		/// <param name="shadowOffset"></param>
+		/// <param name="matrix">The transform matrix which describes how the elements need to be transformed to stay at the same location</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
 		public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, Point shadowOffset, Matrix matrix, PixelFormat targetPixelformat) {
 			Point offset = shadowOffset;
 			offset.X += shadowSize - 1;
 			offset.Y += shadowSize - 1;
-			matrix.Translate(offset.X, offset.Y);
+			matrix.Translate(offset.X, offset.Y, MatrixOrder.Append);
 			// Create a new "clean" image
 			Bitmap returnImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 			// Make sure the shadow is odd, there is no reason for an even blur!
@@ -865,7 +846,7 @@ namespace GreenshotPlugin.Core {
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				// draw original with a TextureBrush so we have nice antialiasing!
 				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp)) {
-					// We need to do a translate-tranform otherwise the image is wrapped
+					// We need to do a translate-transform otherwise the image is wrapped
 					graphics.TranslateTransform(offset.X, offset.Y);
 					graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
 				}
@@ -880,7 +861,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Negative bitmap</returns>
 		public static Bitmap CreateNegative(Image sourceImage) {
 			Bitmap clone = (Bitmap)Clone(sourceImage);
-			ColorMatrix invertMatrix = new ColorMatrix(new float[][] { 
+			ColorMatrix invertMatrix = new ColorMatrix(new[] { 
 				new float[] {-1, 0, 0, 0, 0}, 
 				new float[] {0, -1, 0, 0, 0}, 
 				new float[] {0, 0, -1, 0, 0}, 
@@ -980,12 +961,12 @@ namespace GreenshotPlugin.Core {
 		/// <param name="borderSize">Size of the border</param>
 		/// <param name="borderColor">Color of the border</param>
 		/// <param name="targetPixelformat">What pixel format must the returning bitmap have</param>
-		/// <param name="offset">How many pixels is the original image moved?</param>
+		/// <param name="matrix">The transform matrix which describes how the elements need to be transformed to stay at the same location</param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
 		public static Image CreateBorder(Image sourceImage, int borderSize, Color borderColor, PixelFormat targetPixelformat, Matrix matrix) {
 			// "return" the shifted offset, so the caller can e.g. move elements
 			Point offset = new Point(borderSize, borderSize);
-			matrix.Translate(offset.X, offset.Y);
+			matrix.Translate(offset.X, offset.Y, MatrixOrder.Append);
 
 			// Create a new "clean" image
 			Bitmap newImage = CreateEmpty(sourceImage.Width + (borderSize * 2), sourceImage.Height + (borderSize * 2), targetPixelformat, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
@@ -1039,11 +1020,15 @@ namespace GreenshotPlugin.Core {
 			attributes.SetGamma(gamma, ColorAdjustType.Bitmap);
 			return attributes;
 		}
+
 		/// <summary>
 		/// Adjust the brightness, contract or gamma of an image.
 		/// Use the value "1.0f" for no changes.
 		/// </summary>
 		/// <param name="sourceImage">Original bitmap</param>
+		/// <param name="brightness"></param>
+		/// <param name="contrast"></param>
+		/// <param name="gamma"></param>
 		/// <returns>Bitmap with grayscale</returns>
 		public static Image Adjust(Image sourceImage, float brightness, float contrast, float gamma) {
 			//create a blank bitmap the same size as original
@@ -1284,9 +1269,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="right"></param>
 		/// <param name="top"></param>
 		/// <param name="bottom"></param>
+		/// <param name="matrix"></param>
 		/// <returns>a new bitmap with the source copied on it</returns>
 		public static Image ResizeCanvas(Image sourceImage, Color backgroundColor, int left, int right, int top, int bottom, Matrix matrix) {
-			matrix.Translate(left, top);
+			matrix.Translate(left, top, MatrixOrder.Append);
 			Bitmap newBitmap = CreateEmpty(sourceImage.Width + left + right, sourceImage.Height + top + bottom, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			using (Graphics graphics = Graphics.FromImage(newBitmap)) {
 				graphics.DrawImageUnscaled(sourceImage, left, top);
@@ -1301,6 +1287,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
 		/// <param name="newWidth"></param>
 		/// <param name="newHeight"></param>
+		/// <param name="matrix"></param>
 		/// <returns></returns>
 		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix) {
 			return ResizeImage(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix);
@@ -1310,7 +1297,7 @@ namespace GreenshotPlugin.Core {
 		/// Count how many times the supplied color exists
 		/// </summary>
 		/// <param name="sourceImage">Image to count the pixels of</param>
-		/// <param name="colorToCount">Color to count/param>
+		/// <param name="colorToCount">Color to count</param>
 		/// <param name="includeAlpha">true if Alpha needs to be checked</param>
 		/// <returns>int with the number of pixels which have colorToCount</returns>
 		public static int CountColor(Image sourceImage, Color colorToCount, bool includeAlpha) {
@@ -1340,9 +1327,11 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="sourceImage">Image to scale</param>
 		/// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
+		/// <param name="canvasUseNewSize"></param>
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
 		/// <param name="newWidth">new width</param>
 		/// <param name="newHeight">new height</param>
+		/// <param name="matrix"></param>
 		/// <returns>a new bitmap with the specified size, the source-Image scaled to fit with aspect ratio locked</returns>
 		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, Matrix matrix) {
 			int destX = 0;
@@ -1351,8 +1340,8 @@ namespace GreenshotPlugin.Core {
 			float nPercentW = 0;
 			float nPercentH = 0;
 			
-			nPercentW = ((float)newWidth / (float)sourceImage.Width);
-			nPercentH = ((float)newHeight / (float)sourceImage.Height);
+			nPercentW = (newWidth / (float)sourceImage.Width);
+			nPercentH = (newHeight / (float)sourceImage.Height);
 			if (maintainAspectRatio) {
 				if (nPercentW == 1) {
 					nPercentW = nPercentH;
@@ -1388,10 +1377,10 @@ namespace GreenshotPlugin.Core {
 			Image newImage = null;
 			if (maintainAspectRatio && canvasUseNewSize) {
 				newImage = CreateEmpty(newWidth, newHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-				matrix.Scale(sourceImage.Width / newWidth, sourceImage.Height / newHeight);
+				matrix.Scale((float)newWidth / sourceImage.Width, (float)newHeight / sourceImage.Height);
 			} else {
 				newImage = CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-				matrix.Scale(sourceImage.Width / destWidth, sourceImage.Height / destHeight);
+				matrix.Scale((float)destWidth / sourceImage.Width, (float)destHeight / sourceImage.Height);
 			}
 
 			using (Graphics graphics = Graphics.FromImage(newImage)) {

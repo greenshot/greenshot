@@ -58,7 +58,8 @@ namespace Greenshot.Drawing {
 		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 3);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-		}
+		}
+
 		
 		protected void Init() {
 			if (_grippers != null) {
@@ -108,10 +109,10 @@ namespace Greenshot.Drawing {
 		public override bool HandleMouseMove(int mouseX, int mouseY) {
 			Point previousPoint = capturePoints[capturePoints.Count-1];
 
-			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= (2*editorConfig.FreehandSensitivity)) {
+			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= (2*EditorConfig.FreehandSensitivity)) {
 				capturePoints.Add(new Point(mouseX, mouseY));
 			}
-			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= editorConfig.FreehandSensitivity) {
+			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
 				//path.AddCurve(new Point[]{lastMouse, new Point(mouseX, mouseY)});
 				freehandPath.AddLine(lastMouse, new Point(mouseX, mouseY));
 				lastMouse = new Point(mouseX, mouseY);
@@ -127,7 +128,7 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		public override void HandleMouseUp(int mouseX, int mouseY) {
 			// Make sure we don't loose the ending point
-			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= editorConfig.FreehandSensitivity) {
+			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
 				capturePoints.Add(new Point(mouseX, mouseY));
 			}
 			RecalculatePath();
