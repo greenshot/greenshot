@@ -73,7 +73,7 @@ namespace Greenshot {
 			this.tornEdgesToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.grayscaleToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.invertToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.resizeToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.btnResize = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnCrop = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.rotateCwToolstripButton = new GreenshotPlugin.Controls.GreenshotToolStripButton();
@@ -312,7 +312,8 @@ namespace Greenshot {
 									this.toolStripSeparator13,
 									this.btnCrop,
 									this.rotateCwToolstripButton,
-									this.rotateCcwToolstripButton});
+									this.rotateCcwToolstripButton,
+									this.btnResize});
 			this.toolStrip2.Location = new System.Drawing.Point(0, 0);
 			this.toolStrip2.Name = "toolStrip2";
 			this.toolStrip2.Size = new System.Drawing.Size(24, 385);
@@ -457,8 +458,7 @@ namespace Greenshot {
 									this.addDropshadowToolStripMenuItem,
 									this.tornEdgesToolStripMenuItem,
 									this.grayscaleToolStripMenuItem,
-									this.invertToolStripMenuItem,
-									this.resizeToolStripMenuItem});
+									this.invertToolStripMenuItem});
 			this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
 			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripSplitButton1.LanguageKey = "editor_effects";
@@ -502,12 +502,16 @@ namespace Greenshot {
 			this.invertToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.invertToolStripMenuItem.Click += new System.EventHandler(this.InvertToolStripMenuItemClick);
 			// 
-			// resizeToolStripMenuItem
+			// btnResize
 			// 
-			this.resizeToolStripMenuItem.Text = "Resize";
-			this.resizeToolStripMenuItem.Name = "resizeToolStripMenuItem";
-			this.resizeToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
-			this.resizeToolStripMenuItem.Click += new System.EventHandler(this.ResizeToolStripMenuItemClick);
+			this.btnResize.Text = "Resize";
+			this.btnResize.Name = "btnResize";
+			this.btnResize.Size = new System.Drawing.Size(22, 20);
+			this.btnResize.Click += new System.EventHandler(this.BtnResizeClick);
+			this.btnResize.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnResize.Image = ((System.Drawing.Image)(resources.GetObject("btnResize.Image")));
+			this.btnResize.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnResize.LanguageKey = "editor_resize";
 			// 
 			// toolStripSeparator13
 			// 
@@ -1747,7 +1751,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem alignTopToolStripMenuItem;
 		private Greenshot.Controls.BindableToolStripDropDownButton textVerticalAlignmentButton;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem invertToolStripMenuItem;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem resizeToolStripMenuItem;
+		private GreenshotPlugin.Controls.GreenshotToolStripButton btnResize;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem grayscaleToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton rotateCcwToolstripButton;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton rotateCwToolstripButton;

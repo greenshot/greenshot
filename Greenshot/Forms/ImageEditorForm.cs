@@ -175,7 +175,7 @@ namespace Greenshot {
 			
 			obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 			highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
-			
+
 			toolbarButtons = new[] { btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble };
 			//toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -1229,11 +1229,11 @@ namespace Greenshot {
 		}
 
 		/// <summary>
-		/// Currently unused
+		/// Open the resize settings from, and resize if ok was pressed
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void ResizeToolStripMenuItemClick(object sender, EventArgs e) {
+		void BtnResizeClick(object sender, EventArgs e) {
 			ResizeEffect resizeEffect = new ResizeEffect(surface.Image.Width, surface.Image.Height, true);
 			// TODO: Use the Resize SettingsForm to make it possible to change the default values
 			DialogResult result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
