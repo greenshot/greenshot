@@ -152,20 +152,6 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
-		/// Rotate the bitmap
-		/// </summary>
-		/// <param name="rotateFlipType"></param>
-		public override void Rotate(RotateFlipType rotateFlipType) {
-			Image newImage = ImageHelper.RotateFlip(image, rotateFlipType);
-			if (newImage != null) {
-				// Remove all current bitmaps, also the shadow (will be recreated)
-				DisposeImages();
-				image = newImage;
-			}
-			base.Rotate(rotateFlipType);
-		}
-
-		/// <summary>
 		/// This checks if a shadow is already generated
 		/// </summary>
 		/// <param name="shadow"></param>

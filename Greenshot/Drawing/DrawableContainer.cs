@@ -698,6 +698,14 @@ namespace Greenshot.Drawing {
 			}
 		}
 
+		/// <summary>
+		/// This method is called on a DrawableContainers when:
+		/// 1) The capture on the surface is modified in such a way, that the elements would not be placed correctly.
+		/// 2) Currently not implemented: an element needs to be moved, scaled or rotated.
+		/// This basis implementation makes sure the coordinates of the element, including the TargetGripper, is correctly rotated/scaled/translated.
+		/// But this implementation doesn't take care of any changes to the content!!
+		/// </summary>
+		/// <param name="matrix"></param>
 		public virtual void Transform(Matrix matrix) {
 			if (matrix == null) {
 				return;
@@ -720,61 +728,6 @@ namespace Greenshot.Drawing {
 			if (TargetGripper != null) {
 				TargetGripper.Location = points[points.Length-1];
 			}
-		}
-
-		public virtual void Rotate(RotateFlipType rotateFlipType) {
-			// somehow the rotation is the wrong way?
-			int angle = 90;
-			if (RotateFlipType.Rotate90FlipNone == rotateFlipType) {
-				angle = 270;
-			}
-
-			Rectangle beforeBounds = new Rectangle(Left, Top, Width, Height);
-			LOG.DebugFormat("Bounds before: {0}", beforeBounds);
-			GraphicsPath translatePath = new GraphicsPath();
-			translatePath.AddRectangle(beforeBounds);
-			Matrix rotateMatrix = new Matrix();
-			rotateMatrix.RotateAt(angle, new PointF(_parent.Width >> 1, _parent.Height >> 1));
-			translatePath.Transform(rotateMatrix);
-			RectangleF newBounds = translatePath.GetBounds();
-			LOG.DebugFormat("New bounds by using graphics path: {0}", newBounds);
-
-			int ox = 0;
-			int oy = 0;
-			int centerX = _parent.Width >> 1;
-			int centerY = _parent.Height >> 1;
-			// Transform from screen to normal coordinates
-			int px = Left - centerX;
-			int py = centerY - Top;
-			double theta = Math.PI * angle / 180.0;
-			double x1 = Math.Cos(theta) * (px - ox) - Math.Sin(theta) * (py - oy) + ox;
-			double y1 = Math.Sin(theta) * (px - ox) + Math.Cos(theta) * (py - oy) + oy;
-
-			// Transform from screen to normal coordinates
-			px = (Left + Width) - centerX;
-			py = centerY - (Top + Height);
-
-			double x2 = Math.Cos(theta) * (px - ox) - Math.Sin(theta) * (py - oy) + ox;
-			double y2 = Math.Sin(theta) * (px - ox) + Math.Cos(theta) * (py - oy) + oy;
-
-			// Transform back to screen coordinates, as we rotate the bitmap we need to switch the center X&Y
-			x1 += centerY;
-			y1 = centerX - y1;
-			x2 += centerY;
-			y2 = centerX - y2;
-
-			// Calculate to rectangle
-			double newWidth = x2 - x1;
-			double newHeight = y2 - y1;
-
-			RectangleF newRectangle = new RectangleF(
-				(float)x1,
-				(float)y1,
-				(float)newWidth,
-				(float)newHeight
-			);
-			ApplyBounds(newRectangle);
-			LOG.DebugFormat("New bounds by using old method: {0}", newRectangle);
 		}
 
 		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {
