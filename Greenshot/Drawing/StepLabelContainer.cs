@@ -48,12 +48,6 @@ namespace Greenshot.Drawing {
 			InitContent();
 		}
 
-		public override void ShowGrippers() {
-		}
-
-		public override void HideGrippers() {
-		}
-
 		public override bool InitContent() {
 			_defaultEditMode = EditStatus.IDLE;
 			_stringFormat.Alignment = StringAlignment.Center;
