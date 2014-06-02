@@ -692,10 +692,16 @@ namespace Greenshot.Drawing {
 			Invalidate();
 		}
 
-		public virtual bool CanRotate {
-			get {
-				return true;
-			}
+		/// <summary>
+		/// Retrieve the rotation angle from the matrix
+		/// </summary>
+		/// <param name="matrix"></param>
+		/// <returns></returns>
+		public static int CalculateAngle(Matrix matrix) {
+			const int M11 = 0;
+			const int M21 = 2;
+			var radians = Math.Atan2(matrix.Elements[M21], matrix.Elements[M11]);
+			return (int)-Math.Round(radians * 180 / Math.PI);
 		}
 
 		/// <summary>

@@ -172,15 +172,6 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
-		/// Currently we can't rotate the freehand
-		/// </summary>
-		public override bool CanRotate {
-			get {
-				return false;
-			}
-		}
-
-		/// <summary>
 		/// Do the drawing of the freehand "stroke"
 		/// </summary>
 		/// <param name="graphics"></param>
@@ -267,6 +258,10 @@ namespace Greenshot.Drawing {
 			return freehandPath.GetHashCode();
 		}
 
+		/// <summary>
+		/// This is overriden to prevent the grippers to be modified.
+		/// Might not be the best way...
+		/// </summary>
 		protected override void DoLayout() {
 		}
 

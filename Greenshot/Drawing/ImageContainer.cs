@@ -93,7 +93,8 @@ namespace Greenshot.Drawing {
 		public Image Image {
 			set {
 				// Remove all current bitmaps
-				DisposeImages();
+				DisposeImage();
+				DisposeShadow();
 				image = ImageHelper.Clone(value);
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 				CheckShadow(shadow);
@@ -118,22 +119,40 @@ namespace Greenshot.Drawing {
 		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				DisposeImages();
+				DisposeImage();
+				DisposeShadow();
 			}
-			image = null;
-			_shadowBitmap = null;
 			base.Dispose(disposing);
 		}
 
-		private void DisposeImages() {
+		private void DisposeImage() {
 			if (image != null) {
 				image.Dispose();
 			}
+			image = null;
+		}
+		private void DisposeShadow() {
 			if (_shadowBitmap != null) {
 				_shadowBitmap.Dispose();
 			}
-			image = null;
 			_shadowBitmap = null;
+		}
+
+
+
+		/// <summary>
+		/// Make sure the content is also transformed.
+		/// </summary>
+		/// <param name="matrix"></param>
+		public override void Transform(Matrix matrix) {
+			base.Transform(matrix);
+			LOG.DebugFormat("Rotating element with {0} degrees.", CalculateAngle(matrix));
+			DisposeShadow();
+			using (var tmpMatrix = new Matrix()) {
+				using (image) {
+					image = ImageHelper.ApplyEffect(image, new RotateEffect(CalculateAngle(matrix)), tmpMatrix);
+				}
+			}
 		}
 
 		/// <summary>
@@ -157,7 +176,9 @@ namespace Greenshot.Drawing {
 		/// <param name="shadow"></param>
 		private void CheckShadow(bool shadow) {
 			if (shadow && _shadowBitmap == null) {
-				_shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), new Matrix());
+				using (var matrix = new Matrix()) {
+					_shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), matrix);
+				}
 			}
 		}
 
