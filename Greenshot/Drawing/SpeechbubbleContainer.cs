@@ -148,9 +148,10 @@ namespace Greenshot.Drawing {
 				state = graphics.Save();
 				// Draw bubble where the Tail is not visible.
 				using (Region clipRegion = new Region(tail)) {
-					Matrix transformMatrix = new Matrix();
-					transformMatrix.Rotate(tailAngle);
-					clipRegion.Transform(transformMatrix);
+					using (Matrix transformMatrix = new Matrix()) {
+						transformMatrix.Rotate(tailAngle);
+						clipRegion.Transform(transformMatrix);
+					}
 					clipRegion.Translate(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2));
 					graphics.SetClip(clipRegion, CombineMode.Exclude);
 					graphics.TranslateTransform(rect.Left, rect.Top);

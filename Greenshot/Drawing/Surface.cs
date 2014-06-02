@@ -879,6 +879,9 @@ namespace Greenshot.Drawing {
 					if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
 						_surfaceSizeChanged(this, null);
 					}
+				} else {
+					// clean up matrix, as it hasn't been used in the undo stack.
+					matrix.Dispose();
 				}
 			} finally {
 				// Always close the background form

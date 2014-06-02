@@ -303,7 +303,9 @@ namespace GreenshotPlugin.Core {
 			Image tmpImage;
 			if (outputSettings.Effects != null && outputSettings.Effects.Count > 0) {
 				// apply effects, if there are any
-				tmpImage = ImageHelper.ApplyEffects(imageToSave, outputSettings.Effects, new Matrix());
+				using (Matrix matrix = new Matrix()) {
+					tmpImage = ImageHelper.ApplyEffects(imageToSave, outputSettings.Effects, matrix);
+				}
 				if (tmpImage != null) {
 					if (disposeImage) {
 						imageToSave.Dispose();
