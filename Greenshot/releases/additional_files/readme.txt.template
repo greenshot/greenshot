@@ -9,10 +9,18 @@ CHANGE LOG:
 
 Features:
 * Added a speech bubble to the editor.
-* Added automaticly numbered labels to the editor.
+* Added numbered labels to the editor.
 * Added a resize effect with settings window to the editor.
 * Added a settings window for the torn-edge effect in the editor.
 * Added a settings window for the drop shadow effect in the editor.
+
+Changes:
+* Editor: Element locations are now correctly updated when rotating or resizing.
+
+Bugs resolved:
+* Bug #1610: Image editor: 'Obfuscate' and 'Highlight' won't rotate correctly
+
+
 
 1.1.9.13-g01ce82d Windows 8.1 & Box bug-fix Release
 
