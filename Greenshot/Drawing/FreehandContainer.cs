@@ -18,21 +18,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
+
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 using log4net;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
 	/// Description of PathContainer.
 	/// </summary>
-	[Serializable()] 
+	[Serializable] 
 	public class FreehandContainer : DrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FreehandContainer));
 		private static readonly float [] POINT_OFFSET = new float[]{0.5f, 0.25f, 0.75f};
@@ -69,8 +70,17 @@ namespace Greenshot.Drawing {
 				}
 			}
 		}
+
+		public override void Transform(Matrix matrix) {
+			Point[] points = capturePoints.ToArray();
+
+			matrix.TransformPoints(points);
+			capturePoints.Clear();
+			capturePoints.AddRange(points);
+			RecalculatePath();
+		}
 		
-		[OnDeserialized()]
+		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
 			InitGrippers();
 			DoLayout();
