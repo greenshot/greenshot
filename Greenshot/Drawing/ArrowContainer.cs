@@ -110,9 +110,11 @@ namespace Greenshot.Drawing {
 						SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
 						using (GraphicsPath path = new GraphicsPath()) {
 							path.AddLine(Left, Top, Left + Width, Top + Height);
-							Rectangle drawingBounds = Rectangle.Round(path.GetBounds(new Matrix(), pen));
-							drawingBounds.Inflate(2, 2);
-							return drawingBounds;
+							using (Matrix matrix = new Matrix()) {
+								Rectangle drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
+								drawingBounds.Inflate(2, 2);
+								return drawingBounds;
+							}
 						}
 					}
 				}
