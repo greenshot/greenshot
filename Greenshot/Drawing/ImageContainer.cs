@@ -155,18 +155,6 @@ namespace Greenshot.Drawing {
 						image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
 					}
 				}
-			} else {
-				float scaleX = CalculateScaleX(matrix);
-				float scaleY = CalculateScaleY(matrix);
-				int newWidth = (int)(Width * scaleX);
-				int newHeight = (int)(Height * scaleY);
-				if (newWidth != Width || newHeight != Height) {
-					using (var tmpMatrix = new Matrix()) {
-						using (Image tmpImage = image) {
-							image = ImageHelper.ApplyEffect(image, new ResizeEffect(newWidth, newHeight, false), tmpMatrix);
-						}
-					}
-				}
 			}
 			base.Transform(matrix);
 		}
