@@ -145,14 +145,30 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="matrix"></param>
 		public override void Transform(Matrix matrix) {
-			base.Transform(matrix);
-			LOG.DebugFormat("Rotating element with {0} degrees.", CalculateAngle(matrix));
-			DisposeShadow();
-			using (var tmpMatrix = new Matrix()) {
-				using (image) {
-					image = ImageHelper.ApplyEffect(image, new RotateEffect(CalculateAngle(matrix)), tmpMatrix);
+			int rotateAngle = CalculateAngle(matrix);
+			// we currently assume only one transformation has been made.
+			if (rotateAngle != 0) {
+				LOG.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
+				DisposeShadow();
+				using (var tmpMatrix = new Matrix()) {
+					using (Image tmpImage = image) {
+						image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
+					}
+				}
+			} else {
+				float scaleX = CalculateScaleX(matrix);
+				float scaleY = CalculateScaleY(matrix);
+				int newWidth = (int)(Width * scaleX);
+				int newHeight = (int)(Height * scaleY);
+				if (newWidth != Width || newHeight != Height) {
+					using (var tmpMatrix = new Matrix()) {
+						using (Image tmpImage = image) {
+							image = ImageHelper.ApplyEffect(image, new ResizeEffect(newWidth, newHeight, false), tmpMatrix);
+						}
+					}
 				}
 			}
+			base.Transform(matrix);
 		}
 
 		/// <summary>

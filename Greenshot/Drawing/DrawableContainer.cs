@@ -47,6 +47,11 @@ namespace Greenshot.Drawing {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
 		protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 		private bool _isMadeUndoable;
+		private const int M11 = 0;
+		private const int M12 = 1;
+		private const int M21 = 2;
+		private const int M22 = 3;
+
 
 		protected EditStatus _defaultEditMode = EditStatus.DRAWING;
 		public EditStatus DefaultEditMode {
@@ -690,6 +695,24 @@ namespace Greenshot.Drawing {
 				_accountForShadowChange = true;
 			}
 			Invalidate();
+		}
+
+		/// <summary>
+		/// Retrieve the Y scale from the matrix
+		/// </summary>
+		/// <param name="matrix"></param>
+		/// <returns></returns>
+		public static float CalculateScaleY(Matrix matrix) {
+			return matrix.Elements[M22];
+		}
+
+		/// <summary>
+		/// Retrieve the X scale from the matrix
+		/// </summary>
+		/// <param name="matrix"></param>
+		/// <returns></returns>
+		public static float CalculateScaleX(Matrix matrix) {
+			return matrix.Elements[M11];
 		}
 
 		/// <summary>
