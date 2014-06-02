@@ -739,6 +739,7 @@ namespace Greenshot.Drawing {
 			if (matrix == null) {
 				return;
 			}
+			SuspendLayout();
 			Point topLeft = new Point(Left, Top);
 			Point bottomRight = new Point(Left + Width, Top + Height);
 			Point[] points;
@@ -757,6 +758,7 @@ namespace Greenshot.Drawing {
 			if (TargetGripper != null) {
 				TargetGripper.Location = points[points.Length-1];
 			}
+			ResumeLayout();
 		}
 
 		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {

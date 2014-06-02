@@ -48,17 +48,21 @@ namespace Greenshot.Drawing {
 			InitContent();
 		}
 
+		public override Size DefaultSize {
+			get {
+				return new Size(30, 30);
+			}
+		}
+
 		public override bool InitContent() {
 			_defaultEditMode = EditStatus.IDLE;
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;
 
 			// Set defaults
-			Width = 30;
-			Height = 30;
-			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				_font = new Font(fam, 12, FontStyle.Bold, GraphicsUnit.Pixel);
-			}
+			Width = DefaultSize.Width;
+			Height = DefaultSize.Height;
+
 			return true;
 		}
 
@@ -113,8 +117,11 @@ namespace Greenshot.Drawing {
 			} else {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
-
-			TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
+			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
+				float factor = (((float)Width / DefaultSize.Width) + ((float)Height / DefaultSize.Height)) / 2;
+				_font = new Font(fam, 16 * factor, FontStyle.Bold, GraphicsUnit.Pixel);
+				TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
+			}
 		}
 
 		public override bool ClickableAt(int x, int y) {

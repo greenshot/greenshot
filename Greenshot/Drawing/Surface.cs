@@ -18,26 +18,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Configuration;
+using Greenshot.Core;
+using Greenshot.Drawing.Fields;
+using Greenshot.Helpers;
+using Greenshot.IniFile;
+using Greenshot.Memento;
+using Greenshot.Plugin;
+using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
-using Greenshot.Configuration;
-using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Core;
-using Greenshot.Memento;
-using Greenshot.IniFile;
-using GreenshotPlugin.Controls;
-using Greenshot.Core;
-using log4net;
-using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing {
 
