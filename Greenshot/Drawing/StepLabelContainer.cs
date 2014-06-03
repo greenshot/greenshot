@@ -118,7 +118,7 @@ namespace Greenshot.Drawing {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				float factor = (((float)Width / DefaultSize.Width) + ((float)Height / DefaultSize.Height)) / 2;
+				float factor = (((float)rect.Width / DefaultSize.Width) + ((float)rect.Height / DefaultSize.Height)) / 2;
 				_font = new Font(fam, 16 * factor, FontStyle.Bold, GraphicsUnit.Pixel);
 				TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
 			}
