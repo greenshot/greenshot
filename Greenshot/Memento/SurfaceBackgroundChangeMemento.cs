@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Configuration;
+using Greenshot.Drawing;
 using System;
 using System.Drawing;
-
-using Greenshot.Drawing;
-using Greenshot.Configuration;
 using System.Drawing.Drawing2D;
 
 namespace Greenshot.Memento {
@@ -30,16 +30,16 @@ namespace Greenshot.Memento {
 	/// The SurfaceCropMemento makes it possible to undo-redo an surface crop
 	/// </summary>
 	public class SurfaceBackgroundChangeMemento : IMemento {
-		private Image image;
-		private Surface surface;
-		private Matrix matrix;
+		private Image _image;
+		private Surface _surface;
+		private Matrix _matrix;
 		
 		public SurfaceBackgroundChangeMemento(Surface surface, Matrix matrix) {
-			this.surface = surface;
-			image = surface.Image;
-			this.matrix = (Matrix)matrix.Clone();
+			_surface = surface;
+			_image = surface.Image;
+			_matrix = matrix.Clone();
 			// Make sure the reverse is applied
-			this.matrix.Invert();
+			_matrix.Invert();
 		}
 		
 		public void Dispose() {
@@ -49,11 +49,15 @@ namespace Greenshot.Memento {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (image != null) {
-					image.Dispose();
-					image = null;
+				if (_matrix != null) {
+					_matrix.Dispose();
+					_matrix = null;
 				}
-				surface = null;
+				if (_image != null) {
+					_image.Dispose();
+					_image = null;
+				}
+				_surface = null;
 			}
 		}
 
@@ -69,10 +73,9 @@ namespace Greenshot.Memento {
 		}
 
 		public IMemento Restore() {
-			SurfaceBackgroundChangeMemento oldState = new SurfaceBackgroundChangeMemento(surface, matrix);
-
-			surface.UndoBackgroundChange(image, matrix);
-			surface.Invalidate();
+			SurfaceBackgroundChangeMemento oldState = new SurfaceBackgroundChangeMemento(_surface, _matrix);
+			_surface.UndoBackgroundChange(_image, _matrix);
+			_surface.Invalidate();
 			return oldState;
 		}
 	}
