@@ -22,12 +22,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################
 
-if ($args.length -eq 0) {
-	Write-Host "please supply the version and the detail version as arguments"
-	exit -1
-}
-$version = $args[0]
-$detailversion = $args[1]
+$version=$env:APPVEYOR_BUILD_VERSION
+$gitcommit=$env:APPVEYOR_REPO_COMMIT
+$detailversion='$version-$gitcommit'
+
+Write-Host "Building Greenshot $detailversion"
 
 # Create a MD5 string for the supplied filename
 Function MD5($filename) {
