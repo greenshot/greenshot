@@ -1,6 +1,6 @@
 [Format]
 Type=PortableApps.comFormat
-Version=@GITVERSION@
+Version=@VERSION@
 
 [Details]
 Name=Greenshot Portable
@@ -21,8 +21,8 @@ CommercialUse=true
 EULAVersion=true
 
 [Version]
-PackageVersion=@GITDETAILVERSION@
-DisplayVersion=@GITVERSION@
+PackageVersion=@DETAILVERSION@
+DisplayVersion=@VERSION@
 
 [SpecialPaths]
 Plugins=NONE
