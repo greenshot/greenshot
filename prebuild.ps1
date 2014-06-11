@@ -38,7 +38,7 @@ Function FillCredentials {
 			$newtext += $line
 		}
 		# Write the new information to the file
-		Write-Host "Updating $_`n"
+		Write-Host "Updating $_"
 		$newtext | Set-Content $_.FullName -encoding UTF8
 	}
 }

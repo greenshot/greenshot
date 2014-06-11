@@ -24,8 +24,7 @@
 
 $version=$env:APPVEYOR_BUILD_VERSION
 $gitcommit=$env:APPVEYOR_REPO_COMMIT
-$detailversion='$version-$gitcommit'
-
+$detailversion=$version + '-' + $gitcommit
 Write-Host "Building Greenshot $detailversion"
 
 # Create a MD5 string for the supplied filename
@@ -38,7 +37,7 @@ Function MD5($filename) {
 
 # Fill the templates
 Function FillTemplates {
-	Write-Host "Filling templates for Git version $detailversion`n`n"
+	Write-Host "Filling templates for version $detailversion`n`n"
 	
 	Get-ChildItem . -recurse *.template | 
 		foreach {
@@ -112,7 +111,7 @@ Function PackagePortable {
 	$portableOutput = "$(get-location)\portable"
 	$portableInstaller = "$(get-location)\greenshot\tools\PortableApps.comInstaller\PortableApps.comInstaller.exe"
 	$arguments = @("$destbase\portabletmp")
-	Write-Hos "Starting $portableInstaller $arguments"
+	Write-Host "Starting $portableInstaller $arguments"
 	$portableResult = Start-Process -wait -PassThru "$portableInstaller" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$portableOutput.log" -RedirectStandardError "$portableOutput.error"
 	Write-Host "Log output:"
 	Get-Content "$portableOutput.log"| Write-Host
