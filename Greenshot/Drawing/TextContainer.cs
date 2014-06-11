@@ -267,10 +267,11 @@ namespace Greenshot.Drawing {
 		}
 		
 		private void UpdateTextBoxPosition() {
-			_textBox.Left = Left;
-			_textBox.Top = Top;
-			_textBox.Width = Width;
-			_textBox.Height = Height;
+			Rectangle absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			_textBox.Left = absRectangle.Left;
+			_textBox.Top = absRectangle.Top;
+			_textBox.Width = absRectangle.Width;
+			_textBox.Height = absRectangle.Height;
 		}
 
 		public override void ApplyBounds(RectangleF newBounds) {
