@@ -218,7 +218,3 @@ PackageZip
 
 echo "Generating Portable"
 PackagePortable
-
-echo "Ready, press any key to continue!"
-
-WaitForKey

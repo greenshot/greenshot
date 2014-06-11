@@ -22,10 +22,10 @@
 namespace GreenshotPhotobucketPlugin {
 	/// <summary>
 	/// This class is merely a placeholder for the file keeping the API key and secret for photobucket integration.
-	/// Copy this file to PhotobucketCredentials.private.cs and fill in valid credentials. (Or empty strings, but of course you won't be able to use the Photobucket plugin then.)
+	/// You can set your own values here
 	/// </summary>
 	public static class PhotobucketCredentials {
-		public static string ConsumerKey = empty;
-		public static string ConsumerSecret = empty;
+		public static string ConsumerKey = "@credentials_photobucket_consumer_key@";
+		public static string ConsumerSecret = "@credentials_photobucket_consumer_secret@";
 	}
 }

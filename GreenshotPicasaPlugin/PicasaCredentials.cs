@@ -22,10 +22,10 @@
 namespace GreenshotPicasaPlugin {
 	/// <summary>
 	/// This class is merely a placeholder for the file keeping the API key and secret for dropbox integration.
-	/// Copy this file to PicasaCredentials.private.cs and fill in valid credentials. (Or empty strings, but of course you won't be able to use the DropBox plugin then.)
+	/// You can set your own values here
 	/// </summary>
 	public static class PicasaCredentials {
-		public static string ConsumerKey = empty;
-		public static string ConsumerSecret = empty;
+		public static string ConsumerKey = "@credentials_picasa_consumer_key@";
+		public static string ConsumerSecret = "@credentials_picasa_consumer_secret@";
 	}
 }

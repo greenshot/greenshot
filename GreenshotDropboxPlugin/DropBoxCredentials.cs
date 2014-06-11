@@ -22,10 +22,10 @@
 namespace GreenshotDropboxPlugin {
 	/// <summary>
 	/// This class is merely a placeholder for the file keeping the API key and secret for dropbox integration.
-	/// Copy this file to DropBoxCredentials.private.cs and fill in valid credentials. (Or empty strings, but of course you won't be able to use the DropBox plugin then.)
+	/// You can set your own values here
 	/// </summary>
 	public static class DropBoxCredentials {
-		public static string CONSUMER_KEY = empty;
-		public static string CONSUMER_SECRET = empty;
+		public static string CONSUMER_KEY = "@credentials_dropbox_consumer_key@";
+		public static string CONSUMER_SECRET = "@credentials_dropbox_consumer_secret@";
 	}
 }

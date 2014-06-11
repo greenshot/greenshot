@@ -23,10 +23,10 @@ using System;
 namespace GreenshotBoxPlugin {
 	/// <summary>
 	/// This class is merely a placeholder for the file keeping the API key and secret for Box integration.
-	/// Copy this file to BoxCredentials.private.cs and fill in valid credentials. (Or empty strings, but of course you won't be able to use the plugin then.)
+	/// You can set your own values here
 	/// </summary>
 	public static class BoxCredentials {
-		public static string ClientId = string.Empty;
-		public static string ClientSecret = string.Empty;
+		public static string ClientId = "1234";
+		public static string ClientSecret = "@credentials_box_client_secret@";
 	}
 }
