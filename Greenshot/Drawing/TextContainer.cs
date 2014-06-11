@@ -38,16 +38,22 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class TextContainer : RectangleContainer, ITextContainer {
+		[NonSerialized]
 		private bool fontInvalidated = true;
 		// If makeUndoable is true the next text-change will make the change undoable.
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
 		private bool makeUndoable;
+		[NonSerialized]
 		private Font _font;
 		public Font Font {
 			get {
 				return _font;
 			}
 		}
+
+		[NonSerialized]
+		private TextBox _textBox;
+
 		/// <summary>
 		/// The StringFormat object is not serializable!!
 		/// </summary>
@@ -77,14 +83,9 @@ namespace Greenshot.Drawing {
 				OnPropertyChanged("Text"); 
 			}
 		}
-
-		[NonSerialized]
-		private TextBox textBox;
 		
 		public TextContainer(Surface parent) : base(parent) {
 			Init();
-			_stringFormat = new StringFormat();
-			_stringFormat.Trimming = StringTrimming.EllipsisWord;
 		}
 
 		protected override void InitializeFields() {
@@ -102,7 +103,6 @@ namespace Greenshot.Drawing {
 		
 		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
-			_stringFormat = new StringFormat();
 			Init();
 			UpdateFormat();
 		}
@@ -117,15 +117,18 @@ namespace Greenshot.Drawing {
 					_stringFormat.Dispose();
 					_stringFormat = null;
 				}
-				if (textBox != null) {
-					textBox.Dispose();
-					textBox = null;
+				if (_textBox != null) {
+					_textBox.Dispose();
+					_textBox = null;
 				}
 			}
 			base.Dispose(disposing);
 		}
 		
 		private void Init() {
+			_stringFormat = new StringFormat();
+			_stringFormat.Trimming = StringTrimming.EllipsisWord;
+			fontInvalidated = true;
 			CreateTextBox();
 			PropertyChanged += TextContainer_PropertyChanged;
 			FieldChanged += TextContainer_FieldChanged;
@@ -141,23 +144,23 @@ namespace Greenshot.Drawing {
 
 		void TextContainer_PropertyChanged(object sender, PropertyChangedEventArgs e) {
 			if (e.PropertyName.Equals("Selected")) {
-				if (!Selected && textBox.Visible) {
+				if (!Selected && _textBox.Visible) {
 					HideTextBox();
 				} else if (Selected && Status==EditStatus.DRAWING) {
 					ShowTextBox();
 				}
 			}
-			if (textBox.Visible) {
+			if (_textBox.Visible) {
 				UpdateTextBoxPosition();
 				UpdateTextBoxFormat();
-				textBox.Invalidate();
+				_textBox.Invalidate();
 			}
 		}
 		
 		void TextContainer_FieldChanged(object sender, FieldChangedEventArgs e) {
-			if (textBox.Visible) {
+			if (_textBox.Visible) {
 				UpdateTextBoxFormat();
-				textBox.Invalidate();
+				_textBox.Invalidate();
 			} else {
 				UpdateFormat();
 				//Invalidate();
@@ -169,29 +172,28 @@ namespace Greenshot.Drawing {
 		
 		public override void OnDoubleClick() {
 			ShowTextBox();
-			textBox.Focus();
 		}
 		
 		private void CreateTextBox() {
-			textBox = new TextBox();
+			_textBox = new TextBox();
             
-			textBox.ImeMode = ImeMode.On;
-			textBox.Multiline = true;
-			textBox.AcceptsTab = true;
-			textBox.AcceptsReturn = true;
-			textBox.DataBindings.Add("Text", this, "Text", false, DataSourceUpdateMode.OnPropertyChanged);
-			textBox.LostFocus += textBox_LostFocus;
-			textBox.KeyDown += textBox_KeyDown;
-			textBox.BorderStyle = BorderStyle.FixedSingle;
-			textBox.Visible = false;
+			_textBox.ImeMode = ImeMode.On;
+			_textBox.Multiline = true;
+			_textBox.AcceptsTab = true;
+			_textBox.AcceptsReturn = true;
+			_textBox.DataBindings.Add("Text", this, "Text", false, DataSourceUpdateMode.OnPropertyChanged);
+			_textBox.LostFocus += textBox_LostFocus;
+			_textBox.KeyDown += textBox_KeyDown;
+			_textBox.BorderStyle = BorderStyle.FixedSingle;
+			_textBox.Visible = false;
 		}
 
 		private void ShowTextBox() {
 			_parent.KeysLocked = true;
-			_parent.Controls.Add(textBox);
+			_parent.Controls.Add(_textBox);
             EnsureTextBoxContrast();
-			textBox.Show();
-			textBox.Focus();
+			_textBox.Show();
+			_textBox.Focus();
 		}
 
         /// <summary>
@@ -200,17 +202,17 @@ namespace Greenshot.Drawing {
         private void EnsureTextBoxContrast() {
             Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
             if (lc.R > 203 && lc.G > 203 && lc.B > 203) {
-                textBox.BackColor = Color.FromArgb(51, 51, 51);
+                _textBox.BackColor = Color.FromArgb(51, 51, 51);
             } else {
-                textBox.BackColor = Color.White;
+                _textBox.BackColor = Color.White;
             }
         }
 		
 		private void HideTextBox() {
 			_parent.Focus();
-			textBox.Hide();
+			_textBox.Hide();
 			_parent.KeysLocked = false;
-			_parent.Controls.Remove(textBox);
+			_parent.Controls.Remove(_textBox);
 		}
 		
 		protected void UpdateFormat() {
@@ -265,10 +267,10 @@ namespace Greenshot.Drawing {
 		}
 		
 		private void UpdateTextBoxPosition() {
-			textBox.Left = Left;
-			textBox.Top = Top;
-			textBox.Width = Width;
-			textBox.Height = Height;
+			_textBox.Left = Left;
+			_textBox.Top = Top;
+			_textBox.Width = Width;
+			_textBox.Height = Height;
 		}
 
 		public override void ApplyBounds(RectangleF newBounds) {
@@ -279,8 +281,28 @@ namespace Greenshot.Drawing {
 		private void UpdateTextBoxFormat() {
 			UpdateFormat();
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			textBox.ForeColor = lineColor;
-			textBox.Font = _font;
+			_textBox.ForeColor = lineColor;
+			_textBox.Font = _font;
+			StringAlignment horizontalAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+			switch (horizontalAlignment) {
+				case StringAlignment.Center:
+					_textBox.TextAlign = HorizontalAlignment.Center;
+					break;
+				case StringAlignment.Far:
+					if (_textBox.RightToLeft != RightToLeft.Yes) {
+						_textBox.TextAlign = HorizontalAlignment.Right;
+					} else {
+						_textBox.TextAlign = HorizontalAlignment.Left;
+					}
+					break;
+				case StringAlignment.Near:
+					if (_textBox.RightToLeft != RightToLeft.Yes) {
+						_textBox.TextAlign = HorizontalAlignment.Left;
+					} else {
+						_textBox.TextAlign = HorizontalAlignment.Right;
+					}
+					break;
+			}
 		}
 		
 		void textBox_KeyDown(object sender, KeyEventArgs e) {

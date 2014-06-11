@@ -33,10 +33,9 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// Description of SpeechbubbleContainer.
 	/// </summary>
-	[Serializable()]
+	[Serializable]
 	public class SpeechbubbleContainer : TextContainer {
-		public SpeechbubbleContainer(Surface parent)
-			: base(parent) {
+		public SpeechbubbleContainer(Surface parent) : base(parent) {
 		}
 
 		/// <summary>
@@ -73,9 +72,11 @@ namespace Greenshot.Drawing {
 
 		public override Rectangle DrawingBounds {
 			get {
+				// TODO: Use the normal bounds and extend with the TargetGripper
 				return new Rectangle(0, 0, _parent.Width, _parent.Height);
 			}
 		}
+
 		public override void Draw(Graphics graphics, RenderMode renderMode) {
 			if (TargetGripper == null) {
 				return;
@@ -92,6 +93,10 @@ namespace Greenshot.Drawing {
 
 			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+
+			if (Selected && renderMode == RenderMode.EDIT) {
+				DrawSelectionBorder(graphics, rect);
+			}
 
 			int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Left, TargetGripper.Top);
 			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Left, TargetGripper.Top);

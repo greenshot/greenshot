@@ -31,7 +31,7 @@ namespace Greenshot.Drawing.Fields {
 	/// <summary>
 	/// Basic IFieldHolder implementation, providing access to a set of fields
 	/// </summary>
-	[Serializable()]
+	[Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
@@ -54,9 +54,9 @@ namespace Greenshot.Drawing.Fields {
 		
 		public AbstractFieldHolder() {}
 		
-		[OnDeserialized()]
+		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
-			fieldsByType  = new Dictionary<FieldType, Field>();
+			fieldsByType = new Dictionary<FieldType, Field>();
 			// listen to changing properties
 			foreach(Field field in fields) {
 				field.PropertyChanged += delegate {

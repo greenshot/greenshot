@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -39,13 +40,19 @@ namespace Greenshot.Drawing {
 	public class StepLabelContainer : DrawableContainer {
 		[NonSerialized]
 		private StringFormat _stringFormat = new StringFormat();
-		[NonSerialized]
-		private Font _font;
-		private bool drawAsRectangle = false;
+
+		private readonly bool _drawAsRectangle = false;
 
 		public StepLabelContainer(Surface parent) : base(parent) {
 			parent.AddStepLabel(this);
 			InitContent();
+		}
+
+		[OnDeserialized]
+		private void OnDeserialized(StreamingContext context) {
+			_stringFormat = new StringFormat();
+			_stringFormat.Alignment = StringAlignment.Center;
+			_stringFormat.LineAlignment = StringAlignment.Center;
 		}
 
 		public override Size DefaultSize {
@@ -112,22 +119,23 @@ namespace Greenshot.Drawing {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			if (drawAsRectangle) {
+			if (_drawAsRectangle) {
 				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			} else {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
 				float factor = (((float)rect.Width / DefaultSize.Width) + ((float)rect.Height / DefaultSize.Height)) / 2;
-				_font = new Font(fam, 16 * factor, FontStyle.Bold, GraphicsUnit.Pixel);
-				TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
+				using (Font _font = new Font(fam, 16 * factor, FontStyle.Bold, GraphicsUnit.Pixel)) {
+					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
+				}
 			}
 		}
 
 		public override bool ClickableAt(int x, int y) {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			if (drawAsRectangle) {
+			if (_drawAsRectangle) {
 				return RectangleContainer.RectangleClickableAt(rect, 0, fillColor, x, y);
 			} else {
 				return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
