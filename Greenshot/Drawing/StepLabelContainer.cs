@@ -55,6 +55,21 @@ namespace Greenshot.Drawing {
 			_stringFormat.LineAlignment = StringAlignment.Center;
 		}
 
+		/// <summary>
+		/// Make sure the StepLabel is addded to the parent after deserializing
+		/// by removing it from the current parent and added it to the new
+		/// </summary>
+		/// <param name="newParent"></param>
+		protected override void SwitchParent(Surface newParent) {
+			if (Parent != null) {
+				Parent.RemoveStepLabel(this);
+			}
+			base.SwitchParent(newParent);
+			if (Parent != null) {
+				Parent.AddStepLabel(this);
+			}
+		}
+
 		public override Size DefaultSize {
 			get {
 				return new Size(30, 30);

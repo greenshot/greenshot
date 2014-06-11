@@ -208,10 +208,10 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// all stepLabels for the surface, needed with serialization
 		/// </summary>
-		private readonly LinkedList<IDrawableContainer> _stepLabels = new LinkedList<IDrawableContainer>();
+		private List<IDrawableContainer> _stepLabels = new List<IDrawableContainer>();
 
 		public void AddStepLabel(IDrawableContainer stepLabel) {
-			_stepLabels.AddLast(stepLabel);
+			_stepLabels.Add(stepLabel);
 		}
 		public void RemoveStepLabel(IDrawableContainer stepLabel) {
 			_stepLabels.Remove(stepLabel);

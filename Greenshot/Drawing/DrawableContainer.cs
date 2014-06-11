@@ -633,7 +633,7 @@ namespace Greenshot.Drawing {
 		public virtual void HandleMouseUp(int x, int y) {
 		}
 		
-		private void SwitchParent(Surface newParent) {
+		protected virtual void SwitchParent(Surface newParent) {
 			if (_parent != null && _grippers != null) {
 				for (int i=0; i<_grippers.Length; i++) {
 					_parent.Controls.Remove(_grippers[i]);
