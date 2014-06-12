@@ -31,7 +31,8 @@ namespace Greenshot.Forms {
 			this.effect = effect;
 			InitializeComponent();
 			this.Icon = GreenshotResources.getGreenshotIcon();
-			trackBar1.Value = (int)(effect.Darkness * 40);
+			shadowCheckbox.Checked = effect.GenerateShadow;
+			shadowDarkness.Value = (int)(effect.Darkness * 40);
 			offsetX.Value = effect.ShadowOffset.X;
 			offsetY.Value = effect.ShadowOffset.Y;
 			toothsize.Value = effect.ToothHeight;
@@ -44,14 +45,22 @@ namespace Greenshot.Forms {
 		}
 
 		private void buttonOK_Click(object sender, EventArgs e) {
-			effect.Darkness = (float)trackBar1.Value / (float)40;
+			effect.Darkness = (float)shadowDarkness.Value / (float)40;
 			effect.ShadowOffset = new Point((int)offsetX.Value, (int)offsetY.Value);
 			effect.ShadowSize = (int)thickness.Value;
 			effect.ToothHeight = (int)toothsize.Value;
 			effect.VerticalToothRange = (int)verticaltoothrange.Value;
 			effect.HorizontalToothRange = (int)horizontaltoothrange.Value;
 			effect.Edges = new bool[] { top.Checked, right.Checked, bottom.Checked, left.Checked };
+			effect.GenerateShadow = shadowCheckbox.Checked;
 			DialogResult = DialogResult.OK;
+		}
+
+		private void shadowCheckbox_CheckedChanged(object sender, EventArgs e) {
+			thickness.Enabled = shadowCheckbox.Checked;
+			offsetX.Enabled = shadowCheckbox.Checked;
+			offsetY.Enabled = shadowCheckbox.Checked;
+			shadowDarkness.Enabled = shadowCheckbox.Checked;
 		}
 	}
 }

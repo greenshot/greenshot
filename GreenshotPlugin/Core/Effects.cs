@@ -70,6 +70,7 @@ namespace Greenshot.Core {
 			HorizontalToothRange = 20;
 			VerticalToothRange = 20;
 			Edges = new bool[] {true, true, true, true};
+			GenerateShadow = true;
 		}
 		public int ToothHeight {
 			get;
@@ -87,10 +88,19 @@ namespace Greenshot.Core {
 			get;
 			set;
 		}
+		public bool GenerateShadow {
+			get;
+			set;
+		}
+
 		public override Image Apply(Image sourceImage, Matrix matrix) {
-			using (Image tmpTornImage = ImageHelper.CreateTornEdge(sourceImage, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges)) {
-				return ImageHelper.CreateShadow(tmpTornImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
+			Image tmpTornImage = ImageHelper.CreateTornEdge(sourceImage, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges);
+			if (GenerateShadow) {
+				using (tmpTornImage) {
+					return ImageHelper.CreateShadow(tmpTornImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
+				}
 			}
+			return tmpTornImage;
 		}
 	}
 
