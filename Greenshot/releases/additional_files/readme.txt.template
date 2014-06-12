@@ -5,21 +5,19 @@ Apply text and shapes to the screenshot. Offers capture of window, region or ful
 
 CHANGE LOG:
 
-@DETAILVERSION@
+@DETAILVERSION@ UNSTABLE
 
 Features:
-* Added a speech bubble to the editor.
-* Added numbered labels to the editor.
-* Added a resize effect with settings window to the editor.
-* Added a settings window for the torn-edge effect in the editor.
-* Added a settings window for the drop shadow effect in the editor.
-
-Changes:
-* Editor: Element locations are now correctly updated when rotating or resizing.
+* Feature #184,#282,#486: Image editor now has a Speech bubble
+* Feature #281,#669,#707,#734: Image editor now has auto incrementing labels
+* Editor: a resize effect with settings window has been added.
+* Editor: a settings window for the torn-edge effect has been added.
+* Editor: a settings window for the drop shadow effect has been added.
 
 Bugs resolved:
-* Bug #1610: Image editor: 'Obfuscate' and 'Highlight' won't rotate correctly.
-* Bug #1619: Autocrop didn't take any elements into account.
+* Bug #1559,#1643: Repeating hotkeys are now prevented, unfortunately only for Windows 7 and later.
+* Bug #1610: Image editor: 'Obfuscate' and 'Highlight' and more, now should rotate / resize correctly.
+* Bug #1619: Image editor: Autocrop now also considers the elements.
 
 
 1.1.9.13-g01ce82d Windows 8.1 & Box bug-fix Release

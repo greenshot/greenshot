@@ -57,7 +57,8 @@ namespace GreenshotPlugin.Controls {
 			ALT = 1,
 			CTRL = 2,
 			SHIFT = 4,
-			WIN = 8
+			WIN = 8,
+			NO_REPEAT = 0x4000
 		}
 
 		private enum MapType : uint {
@@ -472,7 +473,10 @@ namespace GreenshotPlugin.Controls {
 			if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin) {
 				modifiers |= (uint)Modifiers.WIN;
 			}
-
+			// Disable repeating hotkey for Windows 7 and beyond, as described in #1559
+			if (Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1) {
+				modifiers |= (uint)Modifiers.NO_REPEAT;
+			}
 			if (RegisterHotKey(hotkeyHWND, hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
 				keyHandlers.Add(hotKeyCounter, handler);
 				return hotKeyCounter++;
