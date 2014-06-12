@@ -27,6 +27,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 
 namespace Greenshot.Drawing {
@@ -35,7 +36,34 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable]
 	public class SpeechbubbleContainer : TextContainer {
-		public SpeechbubbleContainer(Surface parent) : base(parent) {
+
+		#region TargetGripper serializing code
+		// Only used for serializing the TargetGripper location
+		private Point _storedTargetGripperLocation;
+
+		/// <summary>
+		/// Store the current location of the target gripper
+		/// </summary>
+		/// <param name="context"></param>
+		[OnSerializing]
+		private void SetValuesOnSerializing(StreamingContext context) {
+			if (TargetGripper != null) {
+				_storedTargetGripperLocation = TargetGripper.Location;
+			}
+		}
+
+		/// <summary>
+		/// Restore the target gripper
+		/// </summary>
+		/// <param name="context"></param>
+		[OnDeserialized]
+		private void SetValuesOnDeserialized(StreamingContext context) {
+			InitTargetGripper(Color.Green, _storedTargetGripperLocation);
+		}
+		#endregion
+
+		public SpeechbubbleContainer(Surface parent)
+			: base(parent) {
 		}
 
 		/// <summary>

@@ -48,25 +48,52 @@ namespace Greenshot.Drawing {
 			InitContent();
 		}
 
+		#region Number serializing
+		// Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
+		private int _number;
+		public int Number {
+			get {
+				return _number;
+			}
+			set {
+				_number = value;
+			}
+		}
+
+		/// <summary>
+		/// Retrieve the counter before serializing
+		/// </summary>
+		/// <param name="context"></param>
+		[OnSerializing]
+		private void SetValuesOnSerializing(StreamingContext context) {
+			if (Parent != null) {
+				Number = ((Surface)Parent).CountStepLabels(this);
+			}
+		}
+		#endregion
+
+		/// <summary>
+		/// Restore values that don't serialize
+		/// </summary>
+		/// <param name="context"></param>
 		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+		private void SetValuesOnDeserialized(StreamingContext context) {
 			_stringFormat = new StringFormat();
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;
 		}
 
 		/// <summary>
-		/// Make sure the StepLabel is addded to the parent after deserializing
-		/// by removing it from the current parent and added it to the new
+		/// Add the StepLabel to the parent
 		/// </summary>
 		/// <param name="newParent"></param>
 		protected override void SwitchParent(Surface newParent) {
 			if (Parent != null) {
-				Parent.RemoveStepLabel(this);
+				((Surface)Parent).RemoveStepLabel(this);
 			}
 			base.SwitchParent(newParent);
-			if (Parent != null) {
-				Parent.AddStepLabel(this);
+			if (newParent != null) {
+				((Surface)Parent).AddStepLabel(this);
 			}
 		}
 
@@ -107,7 +134,7 @@ namespace Greenshot.Drawing {
 		/// Make sure this element is no longer referenced from the surface
 		/// </summary>
 		public override void Dispose() {
-			Parent.RemoveStepLabel(this);
+			((Surface)Parent).RemoveStepLabel(this);
 			base.Dispose();
 		}
 
@@ -130,7 +157,7 @@ namespace Greenshot.Drawing {
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-			string text = Parent.CountStepLabels(this).ToString();
+			string text = ((Surface)Parent).CountStepLabels(this).ToString();
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);

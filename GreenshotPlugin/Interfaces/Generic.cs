@@ -198,9 +198,5 @@ namespace Greenshot.Plugin {
 			get;
 			set;
 		}
-
-		void AddStepLabel(IDrawableContainer stepLabel);
-		void RemoveStepLabel(IDrawableContainer stepLabel);
-		int CountStepLabels(IDrawableContainer stopCountingOnStepLabel);
 	}
 }

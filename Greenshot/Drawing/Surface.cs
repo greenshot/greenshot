@@ -208,24 +208,23 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// all stepLabels for the surface, needed with serialization
 		/// </summary>
-		private List<IDrawableContainer> _stepLabels = new List<IDrawableContainer>();
+		private List<StepLabelContainer> _stepLabels = new List<StepLabelContainer>();
 
-		public void AddStepLabel(IDrawableContainer stepLabel) {
+		public void AddStepLabel(StepLabelContainer stepLabel) {
 			_stepLabels.Add(stepLabel);
 		}
-		public void RemoveStepLabel(IDrawableContainer stepLabel) {
+		public void RemoveStepLabel(StepLabelContainer stepLabel) {
 			_stepLabels.Remove(stepLabel);
 		}
 
 		/// <summary>
-		/// Count all the steplabels in the surface, up to the supplied one
+		/// Count all the VISIBLE steplabels in the surface, up to the supplied one
 		/// </summary>
 		/// <param name="stopAtContainer">can be null, if not the counting stops here</param>
 		/// <returns>number of steplabels before the supplied container</returns>
 		public int CountStepLabels(IDrawableContainer stopAtContainer) {
 			int number = 1;
-			foreach (var drawableContainer in _stepLabels) {
-				var possibleThis = (StepLabelContainer) drawableContainer;
+			foreach (var possibleThis in _stepLabels) {
 				if (possibleThis == stopAtContainer) {
 					break;
 				}
@@ -631,6 +630,10 @@ namespace Greenshot.Drawing {
 				BinaryFormatter binaryRead = new BinaryFormatter();
 				DrawableContainerList loadedElements = (DrawableContainerList) binaryRead.Deserialize(streamRead);
 				loadedElements.Parent = this;
+				// Make sure the steplabels are sorted accoring to their number
+				_stepLabels.Sort(delegate(StepLabelContainer p1, StepLabelContainer p2) {
+					return p1.Number.CompareTo(p2.Number);
+				});
 				DeselectAllElements();
 				AddElements(loadedElements);
 				SelectElements(loadedElements);
