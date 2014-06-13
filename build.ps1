@@ -214,5 +214,5 @@ PackageInstaller
 echo "Generating ZIP"
 PackageZip
 
-echo "Generating Portable"
-PackagePortable
+#echo "Generating Portable"
+#PackagePortable
