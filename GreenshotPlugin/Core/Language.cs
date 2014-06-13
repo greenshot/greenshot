@@ -427,14 +427,14 @@ namespace GreenshotPlugin.Core {
 								foreach (LanguageFile deleteFile in deleteList) {
 									currentFiles.Remove(deleteFile);
 								}
-								LOG.InfoFormat("Added language {0} from: {1}", languageFile.Description, languageFile.Filepath);
+								LOG.InfoFormat("Added language definition {0} from: {1}", languageFile.Description, languageFile.Filepath);
 								currentFiles.Add(languageFile);
 							}
 						} else {
 							currentFiles = new List<LanguageFile>();
 							currentFiles.Add(languageFile);
 							languageFiles.Add(languageFile.Ietf, currentFiles);
-							LOG.InfoFormat("Added language {0} from: {1}", languageFile.Description, languageFile.Filepath);
+							LOG.InfoFormat("Added language definition {0} from: {1}", languageFile.Description, languageFile.Filepath);
 						}
 					}
 				} catch (DirectoryNotFoundException) {

@@ -191,7 +191,7 @@ namespace Greenshot.Helpers {
 	/// Contains data and other information associated with data
 	/// which has been sent from another application.
 	/// </summary>
-	public class CopyDataReceivedEventArgs {
+	public class CopyDataReceivedEventArgs : EventArgs {
 		private string channelName = "";
 		private object data = null;
 		private DateTime sent;
@@ -365,12 +365,12 @@ namespace Greenshot.Helpers {
 		[DllImport("user32", CharSet=CharSet.Unicode, SetLastError = true)]
 		private extern static IntPtr GetProp(IntPtr hwnd, string lpString);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private extern static IntPtr SetProp(IntPtr hwnd, string lpString, int hData);
+		private extern static bool SetProp(IntPtr hwnd, string lpString, IntPtr hData);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		private extern static IntPtr RemoveProp(IntPtr hwnd, string lpString);
 
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private extern static IntPtr SendMessage(IntPtr hwnd, int wMsg, int wParam, ref COPYDATASTRUCT lParam);
+		private extern static IntPtr SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, ref COPYDATASTRUCT lParam);
 
 		[StructLayout(LayoutKind.Sequential)]
 		private struct COPYDATASTRUCT {
@@ -448,7 +448,7 @@ namespace Greenshot.Helpers {
 							cds.cbData = dataSize;
 							cds.dwData = IntPtr.Zero;
 							cds.lpData = ptrData;
-							SendMessage(window.Handle, WM_COPYDATA, (int)owner.Handle, ref cds);
+							SendMessage(window.Handle, WM_COPYDATA, owner.Handle, ref cds);
 							recipients += (Marshal.GetLastWin32Error() == 0 ? 1 : 0);
 						}
 					}
@@ -464,7 +464,7 @@ namespace Greenshot.Helpers {
 
 		private void addChannel() {
 			// Tag this window with property "channelName"
-			SetProp(owner.Handle, channelName, (int)owner.Handle);
+			SetProp(owner.Handle, channelName, owner.Handle);
 		}
 
 		private void removeChannel() {
@@ -515,7 +515,7 @@ namespace Greenshot.Helpers {
 		}
 
 		~CopyDataChannel() {
-			Dispose();
+			Dispose(false);
 		}
 	}
 

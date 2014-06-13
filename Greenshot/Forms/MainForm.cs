@@ -239,18 +239,25 @@ namespace Greenshot {
 						StringBuilder instanceInfo = new StringBuilder();
 						bool matchedThisProcess = false;
 						int index = 1;
+						int currentProcessId;
+						using (Process currentProcess = Process.GetCurrentProcess()) {
+							currentProcessId = currentProcess.Id;
+						}
 						foreach (Process greenshotProcess in Process.GetProcessesByName("greenshot")) {
 							try {
-								instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(new IntPtr(greenshotProcess.Id)));
-								if (Process.GetCurrentProcess().Id == greenshotProcess.Id) {
+								instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(greenshotProcess.Id));
+								if (currentProcessId == greenshotProcess.Id) {
 									matchedThisProcess = true;
 								}
 							} catch (Exception ex) {
 								LOG.Debug(ex);
 							}
+							greenshotProcess.Dispose();
 						}
 						if (!matchedThisProcess) {
-							instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(new IntPtr(Process.GetCurrentProcess().Id)));
+							using (Process currentProcess = Process.GetCurrentProcess()) {
+								instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
+							}
 						}
 						MessageBox.Show(Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error));
 					}
@@ -1249,7 +1256,8 @@ namespace Greenshot {
 
 					if (path != null) {
 						try {
-							Process.Start(path);
+							using (Process process = Process.Start(path)) {
+							}
 						} catch (Exception ex) {
 							// Make sure we show what we tried to open in the exception
 							ex.Data.Add("path", path);
@@ -1382,7 +1390,9 @@ namespace Greenshot {
 		private void BackgroundWorkerTimerTick(object sender, EventArgs e) {
 			if (_conf.MinimizeWorkingSetSize) {
 				LOG.Info("Calling EmptyWorkingSet");
-				PsAPI.EmptyWorkingSet(Process.GetCurrentProcess().Handle);
+				using (Process currentProcess = Process.GetCurrentProcess()) {
+					PsAPI.EmptyWorkingSet(currentProcess.Handle);
+				}
 			}
 			if (UpdateHelper.IsUpdateCheckNeeded()) {
 				LOG.Debug("BackgroundWorkerTimerTick checking for update");

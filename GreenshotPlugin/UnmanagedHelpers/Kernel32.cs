@@ -56,12 +56,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern int ResumeThread(IntPtr hThread);
 		[DllImport("kernel32", SetLastError = true)]
-		public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, IntPtr dwProcessId);
-		[DllImport("kernel32", SetLastError = true)]
+		public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+		[DllImport("kernel32", SetLastError = true, CharSet=CharSet.Unicode)]
 		public static extern bool QueryFullProcessImageName(IntPtr hProcess, uint dwFlags, StringBuilder lpExeName, ref uint lpdwSize);
-		[DllImport("kernel32", SetLastError = true)]
+		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint QueryDosDevice(string lpDeviceName, StringBuilder lpTargetPath, uint uuchMax);
-		[DllImport("kernel32", SetLastError = true)]
+		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr GetModuleHandle(string lpModuleName);
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern bool CloseHandle(IntPtr hObject);
@@ -71,7 +71,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="processid"></param>
 		/// <returns></returns>
-		public static string GetProcessPath(IntPtr processid) {
+		public static string GetProcessPath(int processid) {
 			StringBuilder _PathBuffer = new StringBuilder(512);
 			// Try the GetModuleFileName method first since it's the fastest. 
 			// May return ACCESS_DENIED (due to VM_READ flag) if the process is not owned by the current user.

@@ -27,9 +27,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Description of PsAPI.
 	/// </summary>
 	public class PsAPI {
-		[DllImport("psapi", SetLastError = true)]
+		[DllImport("psapi", SetLastError = true, CharSet=CharSet.Unicode)]
 		public static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, StringBuilder lpFilename, uint nSize);
-		[DllImport("psapi", SetLastError = true)]
+		[DllImport("psapi", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint GetProcessImageFileName(IntPtr hProcess, StringBuilder lpImageFileName, uint nSize);
 		[DllImport("psapi")]
 		public static extern int EmptyWorkingSet(IntPtr hwProc);

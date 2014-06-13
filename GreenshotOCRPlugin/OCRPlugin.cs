@@ -182,10 +182,11 @@ namespace GreenshotOCR {
 				processStartInfo.CreateNoWindow = true;
 				processStartInfo.RedirectStandardOutput = true;
 				processStartInfo.UseShellExecute = false;
-				Process process = Process.Start(processStartInfo);
-				process.WaitForExit(30*1000);
-				if (process.ExitCode == 0) {
-					text = process.StandardOutput.ReadToEnd();
+				using (Process process = Process.Start(processStartInfo)) {
+					process.WaitForExit(30 * 1000);
+					if (process.ExitCode == 0) {
+						text = process.StandardOutput.ReadToEnd();
+					}
 				}
 			} catch (Exception e) {
 				LOG.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
@@ -215,10 +216,10 @@ namespace GreenshotOCR {
 
 		private bool HasMODI() {
 			try {
-				Process process = Process.Start(OCR_COMMAND, "-c");
-				process.WaitForExit();
-				int errorCode = process.ExitCode;
-				return errorCode == 0;
+				using (Process process = Process.Start(OCR_COMMAND, "-c")) {
+					process.WaitForExit();
+					return process.ExitCode == 0;
+				}
 			} catch(Exception e) {
 				LOG.DebugFormat("Error trying to initiate MODI: {0}", e.Message);
 			}

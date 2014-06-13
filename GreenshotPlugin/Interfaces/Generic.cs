@@ -71,10 +71,10 @@ namespace Greenshot.Plugin {
 		}
 	}
 	
-	public delegate void SurfaceSizeChangeEventHandler(object sender, EventArgs eventArgs);
-	public delegate void SurfaceMessageEventHandler(object sender, SurfaceMessageEventArgs eventArgs);
-	public delegate void SurfaceElementEventHandler(object sender, SurfaceElementEventArgs eventArgs);
-	public delegate void SurfaceDrawingModeEventHandler(object sender, SurfaceDrawingModeEventArgs eventArgs);
+	public delegate void SurfaceSizeChangeEventHandler(object sender, EventArgs e);
+	public delegate void SurfaceMessageEventHandler(object sender, SurfaceMessageEventArgs e);
+	public delegate void SurfaceElementEventHandler(object sender, SurfaceElementEventArgs e);
+	public delegate void SurfaceDrawingModeEventHandler(object sender, SurfaceDrawingModeEventArgs e);
 	public enum DrawingModes {
 		None,
 		Rect,

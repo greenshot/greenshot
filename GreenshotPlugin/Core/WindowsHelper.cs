@@ -91,7 +91,7 @@ namespace GreenshotPlugin.Core  {
 		public WindowsEnumerator GetWindows(IntPtr hWndParent, string classname) {
 			items = new List<WindowDetails>();
 			List<WindowDetails> windows = new List<WindowDetails>();
-			User32.EnumChildWindows(hWndParent, new EnumWindowsProc(WindowEnum), 0);
+			User32.EnumChildWindows(hWndParent, new EnumWindowsProc(WindowEnum), IntPtr.Zero);
 
 			bool hasParent = !IntPtr.Zero.Equals(hWndParent);
 			string parentText = null;
@@ -161,7 +161,6 @@ namespace GreenshotPlugin.Core  {
 	/// Provides details about a Window returned by the 
 	/// enumeration
 	/// </summary>
-	[SuppressMessage("Microsoft.Design", "CA1049:TypesThatOwnNativeResourcesShouldBeDisposable")]
 	public class WindowDetails : IEquatable<WindowDetails>{
 		private const string METRO_WINDOWS_CLASS = "Windows.UI.Core.CoreWindow";
 		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
@@ -281,7 +280,7 @@ namespace GreenshotPlugin.Core  {
 					return string.Empty;
 				}
 				// Get the process id
-				IntPtr processid;
+				int processid;
 				User32.GetWindowThreadProcessId(Handle, out processid);
 				return Kernel32.GetProcessPath(processid);
 			}
@@ -730,10 +729,10 @@ namespace GreenshotPlugin.Core  {
 				return parentHandle != IntPtr.Zero;
 			}
 		}
-		
-		public IntPtr ProcessId {
+
+		public int ProcessId {
 			get {
-				IntPtr processId;
+				int processId;
 				User32.GetWindowThreadProcessId(Handle, out processId);
 				return processId;
 			}
@@ -742,9 +741,9 @@ namespace GreenshotPlugin.Core  {
 		public Process Process {
 			get {
 				try {
-					IntPtr processId;
+					int processId;
 					User32.GetWindowThreadProcessId(Handle, out processId);
-					Process process = Process.GetProcessById(processId.ToInt32());
+					Process process = Process.GetProcessById(processId);
 					if (process != null) {
 						return process;
 					}
@@ -866,7 +865,7 @@ namespace GreenshotPlugin.Core  {
 				return (WindowStyleFlags)User32.GetWindowLongWrapper(hWnd, (int)WindowLongIndex.GWL_STYLE);
 			}
 			set {
-				User32.SetWindowLongWrapper(hWnd, (int)WindowLongIndex.GWL_STYLE, (uint)value);
+				User32.SetWindowLongWrapper(hWnd, (int)WindowLongIndex.GWL_STYLE, new IntPtr((uint)value));
 			}
 		}
 
@@ -892,7 +891,7 @@ namespace GreenshotPlugin.Core  {
 				return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(hWnd, (int)WindowLongIndex.GWL_EXSTYLE);
 			}
 			set {
-				User32.SetWindowLongWrapper(hWnd, (int)WindowLongIndex.GWL_EXSTYLE, (uint)value);
+				User32.SetWindowLongWrapper(hWnd, (int)WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)value));
 			}
 		}
 
@@ -992,9 +991,11 @@ namespace GreenshotPlugin.Core  {
 					// check if the capture fits
 					if (!doesCaptureFit) {
 						// if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
-						if (!isMetroApp && WindowCapture.isGDIAllowed(Process)) {
-							// we return null which causes the capturing code to try another method.
-							return null;
+						using (Process thisWindowProcess = Process) {
+							if (!isMetroApp && WindowCapture.isGDIAllowed(thisWindowProcess)) {
+								// we return null which causes the capturing code to try another method.
+								return null;
+							}
 						}
 					}
 				}
@@ -1292,28 +1293,30 @@ namespace GreenshotPlugin.Core  {
 		/// Warning: Use only if no other way!!
 		/// </summary>
 		private bool FreezeWindow() {
-			Process proc = Process.GetProcessById(ProcessId.ToInt32());
-			string processName = proc.ProcessName;
-			if (!CanFreezeOrUnfreeze(processName)) {
-				LOG.DebugFormat("Not freezing {0}", processName);
-				return false;
-			}
-			if (!CanFreezeOrUnfreeze(Text)) {
-				LOG.DebugFormat("Not freezing {0}", processName);
-				return false;
-			}
-			LOG.DebugFormat("Freezing process: {0}", processName);
-			
 			bool frozen = false;
-		
-			foreach (ProcessThread pT in proc.Threads) {
-				IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
-		
-				if (pOpenThread == IntPtr.Zero) {
-					break;
+			using (Process proc = Process.GetProcessById(ProcessId)) {
+				string processName = proc.ProcessName;
+				if (!CanFreezeOrUnfreeze(processName)) {
+					LOG.DebugFormat("Not freezing {0}", processName);
+					return false;
 				}
-				frozen = true;
-				Kernel32.SuspendThread(pOpenThread);
+				if (!CanFreezeOrUnfreeze(Text)) {
+					LOG.DebugFormat("Not freezing {0}", processName);
+					return false;
+				}
+				LOG.DebugFormat("Freezing process: {0}", processName);
+
+
+				foreach (ProcessThread pT in proc.Threads) {
+					IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
+
+					if (pOpenThread == IntPtr.Zero) {
+						break;
+					}
+					frozen = true;
+					Kernel32.SuspendThread(pOpenThread);
+					pT.Dispose();
+				}
 			}
 			return frozen;
 		}
@@ -1322,27 +1325,27 @@ namespace GreenshotPlugin.Core  {
 		/// Unfreeze the process belonging to the window
 		/// </summary>
 		public void UnfreezeWindow() {
-			Process proc = Process.GetProcessById(ProcessId.ToInt32());
-
-			string processName = proc.ProcessName;
-			if (!CanFreezeOrUnfreeze(processName)) {
-				LOG.DebugFormat("Not unfreezing {0}", processName);
-				return;
-			}
-			if (!CanFreezeOrUnfreeze(Text)) {
-				LOG.DebugFormat("Not unfreezing {0}", processName);
-				return;
-			}
-			LOG.DebugFormat("Unfreezing process: {0}", processName);
-			
-			foreach (ProcessThread pT in proc.Threads) {
-				IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
-		
-				if (pOpenThread == IntPtr.Zero) {
-					break;
+			using (Process proc = Process.GetProcessById(ProcessId)) {
+				string processName = proc.ProcessName;
+				if (!CanFreezeOrUnfreeze(processName)) {
+					LOG.DebugFormat("Not unfreezing {0}", processName);
+					return;
 				}
-		
-				Kernel32.ResumeThread(pOpenThread);
+				if (!CanFreezeOrUnfreeze(Text)) {
+					LOG.DebugFormat("Not unfreezing {0}", processName);
+					return;
+				}
+				LOG.DebugFormat("Unfreezing process: {0}", processName);
+
+				foreach (ProcessThread pT in proc.Threads) {
+					IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
+
+					if (pOpenThread == IntPtr.Zero) {
+						break;
+					}
+
+					Kernel32.ResumeThread(pOpenThread);
+				}
 			}
 		}
 
@@ -1363,15 +1366,12 @@ namespace GreenshotPlugin.Core  {
 				}
 				returnImage = new Bitmap(windowRect.Width, windowRect.Height, pixelFormat);
 				using (Graphics graphics = Graphics.FromImage(returnImage)) {
-					IntPtr hDCDest = graphics.GetHdc();
-					try {
-						bool printSucceeded = User32.PrintWindow(Handle, hDCDest, 0x0);
+					using (SafeDeviceContextHandle graphicsDC = graphics.getSafeDeviceContext()) {
+						bool printSucceeded = User32.PrintWindow(Handle, graphicsDC.DangerousGetHandle(), 0x0);
 						if (!printSucceeded) {
 							// something went wrong, most likely a "0x80004005" (Acess Denied) when using UAC
 							exceptionOccured = User32.CreateWin32Exception("PrintWindow");
 						}
-					} finally {
-						graphics.ReleaseHdc(hDCDest);
 					}
 	
 					// Apply the region "transparency"
@@ -1439,7 +1439,9 @@ namespace GreenshotPlugin.Core  {
 			get {
 				try {
 					if (!isMetroApp) {
-						return "Greenshot".Equals(Process.MainModule.FileVersionInfo.ProductName);
+						using (Process thisWindowProcess = Process) {
+							return "Greenshot".Equals(thisWindowProcess.MainModule.FileVersionInfo.ProductName);
+						}
 					}
 				} catch (Exception ex) {
 					LOG.Warn(ex);
@@ -1622,7 +1624,7 @@ namespace GreenshotPlugin.Core  {
 		/// <param name="windowToLinkTo"></param>
 		/// <returns></returns>
 		public static WindowDetails GetLinkedWindow(WindowDetails windowToLinkTo) {
-			IntPtr processIdSelectedWindow = windowToLinkTo.ProcessId;
+			int processIdSelectedWindow = windowToLinkTo.ProcessId;
 			foreach(WindowDetails window in GetAllWindows()) {
 				// Ignore windows without title
 				if (window.Text.Length == 0) {

@@ -100,18 +100,19 @@ EndSelection:<<<<<<<4
 			try {
 				IntPtr hWnd = User32.GetClipboardOwner();
 				if (hWnd != IntPtr.Zero) {
-					IntPtr pid = IntPtr.Zero;
-					IntPtr tid = User32.GetWindowThreadProcessId( hWnd, out pid);
-					Process me = Process.GetCurrentProcess();
-					Process ownerProcess = Process.GetProcessById( pid.ToInt32() );
-					// Exclude myself
-					if (ownerProcess != null && me.Id != ownerProcess.Id) {
-						// Get Process Name
-						owner = ownerProcess.ProcessName;
-						// Try to get the starting Process Filename, this might fail.
-						try {
-							owner = ownerProcess.Modules[0].FileName;
-						} catch (Exception) {
+					int pid;
+					User32.GetWindowThreadProcessId( hWnd, out pid);
+					using (Process me = Process.GetCurrentProcess())
+					using (Process ownerProcess = Process.GetProcessById(pid)) {
+						// Exclude myself
+						if (ownerProcess != null && me.Id != ownerProcess.Id) {
+							// Get Process Name
+							owner = ownerProcess.ProcessName;
+							// Try to get the starting Process Filename, this might fail.
+							try {
+								owner = ownerProcess.Modules[0].FileName;
+							} catch (Exception) {
+							}
 						}
 					}
 				}

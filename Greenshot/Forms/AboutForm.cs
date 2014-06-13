@@ -317,7 +317,9 @@ namespace Greenshot {
 					case Keys.L:
 						try {
 							if (File.Exists(MainForm.LogFileLocation)) {
-								Process.Start("\"" + MainForm.LogFileLocation + "\"");
+								using (Process.Start("\"" + MainForm.LogFileLocation + "\"")) {
+									// nothing to do, just using dispose to cleanup
+								}
 							} else {
 								MessageBox.Show("Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
 							}
@@ -327,7 +329,8 @@ namespace Greenshot {
 						break;
 					case Keys.I:
 						try {
-							Process.Start("\"" + IniConfig.ConfigLocation + "\"");
+							using (Process.Start("\"" + IniConfig.ConfigLocation + "\"")) {
+							}
 						} catch (Exception) {
 							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 						}

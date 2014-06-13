@@ -250,21 +250,22 @@ namespace GreenshotPlugin.Core {
 				processStartInfo.RedirectStandardOutput = true;
 				processStartInfo.RedirectStandardError = true;
 				processStartInfo.UseShellExecute = false;
-				Process process = Process.Start(processStartInfo);
-				if (process != null) {
-					process.WaitForExit();
-					if (process.ExitCode == 0) {
-						if (LOG.IsDebugEnabled) {
-							LOG.DebugFormat("File size after processing {0}", new FileInfo(tmpFileName).Length);
-							LOG.DebugFormat("Reading back tmp file: {0}", tmpFileName);
+				using (Process process = Process.Start(processStartInfo)) {
+					if (process != null) {
+						process.WaitForExit();
+						if (process.ExitCode == 0) {
+							if (LOG.IsDebugEnabled) {
+								LOG.DebugFormat("File size after processing {0}", new FileInfo(tmpFileName).Length);
+								LOG.DebugFormat("Reading back tmp file: {0}", tmpFileName);
+							}
+							byte[] processedImage = File.ReadAllBytes(tmpFileName);
+							targetStream.Write(processedImage, 0, processedImage.Length);
+							return true;
 						}
-						byte[] processedImage = File.ReadAllBytes(tmpFileName);
-						targetStream.Write(processedImage, 0, processedImage.Length);
-						return true;
+						LOG.ErrorFormat("Error while processing PNG image: {0}", process.ExitCode);
+						LOG.ErrorFormat("Output: {0}", process.StandardOutput.ReadToEnd());
+						LOG.ErrorFormat("Error: {0}", process.StandardError.ReadToEnd());
 					}
-					LOG.ErrorFormat("Error while processing PNG image: {0}", process.ExitCode);
-					LOG.ErrorFormat("Output: {0}", process.StandardOutput.ReadToEnd());
-					LOG.ErrorFormat("Error: {0}", process.StandardError.ReadToEnd());
 				}
 			} catch (Exception e) {
 				LOG.Error("Error while processing PNG image: ", e);

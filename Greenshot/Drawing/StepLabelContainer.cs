@@ -133,7 +133,7 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// Make sure this element is no longer referenced from the surface
 		/// </summary>
-		public override void Dispose() {
+		public new void Dispose() {
 			((Surface)Parent).RemoveStepLabel(this);
 			base.Dispose();
 		}

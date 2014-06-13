@@ -60,7 +60,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public extern static bool IsWindowVisible(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, out IntPtr processId);
+		public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int processId);
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetParent(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
@@ -100,8 +100,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public extern static int GetClassName (IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr GetClassLong(IntPtr hWnd, int nIndex);
-		[DllImport("user32", SetLastError = true)]
+		public static extern uint GetClassLong(IntPtr hWnd, int nIndex);
+		[DllImport("user32", SetLastError = true, EntryPoint = "GetClassLongPtr")]
 		public static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -110,14 +110,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
 		[DllImport("user32", SetLastError = true)]
 		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+		[DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLong")]
+		public extern static int GetWindowLong(IntPtr hwnd, int index);
+		[DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLongPtr")]
+		public extern static IntPtr GetWindowLongPtr(IntPtr hwnd, int nIndex);
 		[DllImport("user32", SetLastError = true)]
-		public extern static uint GetWindowLong(IntPtr hwnd, int index);
+		public static extern int SetWindowLong(IntPtr hWnd, int index, int styleFlags);
 		[DllImport("user32", SetLastError = true)]
-		public extern static uint GetWindowLongPtr(IntPtr hwnd, int nIndex);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int SetWindowLong(IntPtr hWnd, int index, uint styleFlags);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int SetWindowLongPtr(IntPtr hWnd, int index, uint styleFlags);
+		public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int index, IntPtr styleFlags);
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
 		[DllImport("user32", SetLastError = true)]
@@ -126,9 +126,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowInfo(IntPtr hwnd, ref WindowInfo pwi);
 		[DllImport("user32", SetLastError = true)]
-		public extern static int EnumWindows(EnumWindowsProc lpEnumFunc, int lParam);
+		public extern static int EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 		[DllImport("user32", SetLastError = true)]
-		public extern static int EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, int lParam);
+		public extern static int EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetScrollInfo(IntPtr hwnd, int fnBar, ref SCROLLINFO lpsi);
@@ -151,7 +151,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr GetDC(IntPtr hwnd);
 
 		[DllImport("user32", SetLastError = true)]
-		public static extern void ReleaseDC(IntPtr dc);
+		public static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetClipboardOwner();
@@ -167,9 +167,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr SetWinEventHook(WinEvent eventMin, WinEvent eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, int idProcess, int idThread, WinEventHookFlags dwFlags);
 
 		// Added for finding Metro apps, Greenshot 1.1
-		[DllImport("user32", SetLastError = true)]
+		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-		[DllImport("user32", SetLastError = true)]
+		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
 
 		/// uiFlags: 0 - Count of GDI objects
@@ -181,7 +181,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		///
 		[DllImport("user32", SetLastError = true)]
 		public static extern uint GetGuiResources(IntPtr hProcess, uint uiFlags);
-		[DllImport("user32", EntryPoint = "RegisterWindowMessageA", SetLastError = true)]
+		[DllImport("user32", EntryPoint = "RegisterWindowMessageA", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint RegisterWindowMessage(string lpString);
 		[DllImport("user32", SetLastError=true, CharSet=CharSet.Auto)]
 		public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out UIntPtr lpdwResult);
@@ -223,7 +223,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			if (IntPtr.Size > 4) {
 				return GetClassLongPtr(hWnd, nIndex);
 			}  else {
-				return GetClassLong(hWnd, nIndex);
+				return new IntPtr(GetClassLong(hWnd, nIndex));
 			}
 		}
 
@@ -233,9 +233,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="hwnd"></param>
 		/// <param name="nIndex"></param>
 		/// <returns></returns>
-		public static uint GetWindowLongWrapper(IntPtr hwnd, int nIndex) {
+		public static long GetWindowLongWrapper(IntPtr hwnd, int nIndex) {
 			if (IntPtr.Size == 8) {
-				return GetWindowLongPtr(hwnd, nIndex);
+				return GetWindowLongPtr(hwnd, nIndex).ToInt64();
 			} else {
 				return GetWindowLong(hwnd, nIndex);
 			}
@@ -247,20 +247,24 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="hwnd"></param>
 		/// <param name="nIndex"></param>
 		/// <param name="styleFlags"></param>
-		public static void SetWindowLongWrapper(IntPtr hwnd, int nIndex, uint styleFlags) {
+		public static void SetWindowLongWrapper(IntPtr hwnd, int nIndex, IntPtr styleFlags) {
 			if (IntPtr.Size == 8) {
 				SetWindowLongPtr(hwnd, nIndex, styleFlags);
 			} else {
-				SetWindowLong(hwnd, nIndex, styleFlags);
+				SetWindowLong(hwnd, nIndex, styleFlags.ToInt32());
 			}
 		}
 
 		public static uint GetGuiResourcesGDICount() {
-			return GetGuiResources(Process.GetCurrentProcess().Handle, 0);
+			using (Process currentProcess = Process.GetCurrentProcess()) {
+				return GetGuiResources(currentProcess.Handle, 0);
+			}
 		}
 
 		public static uint GetGuiResourcesUserCount() {
-			return GetGuiResources(Process.GetCurrentProcess().Handle, 1);
+			using (Process currentProcess = Process.GetCurrentProcess()) {
+				return GetGuiResources(currentProcess.Handle, 1);
+			}
 		}
 
 		/// <summary>

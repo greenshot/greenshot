@@ -60,7 +60,7 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public virtual void Dispose() {
+		public void Dispose() {
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}

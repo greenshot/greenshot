@@ -128,23 +128,24 @@ namespace ExternalCommand {
 			string arguments = config.arguments[commando];
 			output = null;
 			if (commandline != null && commandline.Length > 0) {
-				Process p = new Process();
-				p.StartInfo.FileName = commandline;
-				p.StartInfo.Arguments = String.Format(arguments, fullPath);
-				p.StartInfo.UseShellExecute = false;
-				p.StartInfo.RedirectStandardOutput = true;
-				if (verb != null) {
-					p.StartInfo.Verb = verb;
+				using (Process p = new Process()) {
+					p.StartInfo.FileName = commandline;
+					p.StartInfo.Arguments = String.Format(arguments, fullPath);
+					p.StartInfo.UseShellExecute = false;
+					p.StartInfo.RedirectStandardOutput = true;
+					if (verb != null) {
+						p.StartInfo.Verb = verb;
+					}
+					LOG.Info("Starting : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
+					p.Start();
+					p.WaitForExit();
+					output = p.StandardOutput.ReadToEnd();
+					if (output != null && output.Trim().Length > 0) {
+						LOG.Info("Output:\n" + output);
+					}
+					LOG.Info("Finished : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
+					return p.ExitCode;
 				}
-				LOG.Info("Starting : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
-				p.Start();
-				p.WaitForExit();
-				output = p.StandardOutput.ReadToEnd();
-				if (output != null && output.Trim().Length > 0) {
-					LOG.Info("Output:\n" + output);
-				}
-				LOG.Info("Finished : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
-				return p.ExitCode;
 			}
 			return -1;
 		}

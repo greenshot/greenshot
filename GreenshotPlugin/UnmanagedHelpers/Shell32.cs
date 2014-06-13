@@ -29,9 +29,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Description of Shell32.
 	/// </summary>
 	public static class Shell32 {
-		[DllImport("shell32")]
+		[DllImport("shell32", CharSet = CharSet.Unicode)]
 		public static extern int ExtractIconEx(string sFile, int iIndex, out IntPtr piLargeVersion, out IntPtr piSmallVersion, int amountIcons);
-		[DllImport("shell32", CharSet = CharSet.Auto)]
+		[DllImport("shell32", CharSet = CharSet.Unicode)]
 		internal static extern IntPtr ExtractAssociatedIcon(HandleRef hInst, StringBuilder iconPath, ref int index);
 
 		/// <summary>

@@ -44,12 +44,12 @@ namespace GreenshotPlugin.Core {
 				using (MemoryStream ms = new MemoryStream()) {
 					byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
 					byte[] key = Encoding.ASCII.GetBytes(KEY);
-					CryptoStream cs = new CryptoStream(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write);
-	
-					cs.Write(clearTextBytes, 0, clearTextBytes.Length);
-	
-					cs.Close();
-					returnValue = Convert.ToBase64String(ms.ToArray());
+					using (CryptoStream cs = new CryptoStream(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write)) {
+						cs.Write(clearTextBytes, 0, clearTextBytes.Length);
+						cs.FlushFinalBlock();
+
+						returnValue = Convert.ToBase64String(ms.ToArray());
+					}
 				}
 			} catch (Exception ex) {
 				LOG.ErrorFormat("Error encrypting, error: ", ex.Message);
@@ -72,14 +72,13 @@ namespace GreenshotPlugin.Core {
 	
 					byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
 					byte[] key = Encoding.ASCII.GetBytes(KEY);
+
+					using (CryptoStream cs = new CryptoStream(ms, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write)) {
+						cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
+						cs.FlushFinalBlock();
+						returnValue = Encoding.ASCII.GetString(ms.ToArray());
+					}
 	
-					CryptoStream cs = new CryptoStream(ms, rijn.CreateDecryptor(key, rgbIV),
-					CryptoStreamMode.Write);
-	
-					cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
-	
-					cs.Close();
-					returnValue = Encoding.ASCII.GetString(ms.ToArray());
 				}
 			} catch (Exception ex) {
 				LOG.ErrorFormat("Error decrypting {0}, error: ", EncryptedText, ex.Message);

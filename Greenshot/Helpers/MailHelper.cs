@@ -504,7 +504,7 @@ namespace Greenshot.Helpers {
 				public IntPtr EntryID = IntPtr.Zero;
 			}
 
-			[DllImport("MAPI32.DLL", SetLastError = true)]
+			[DllImport("MAPI32.DLL", SetLastError = true, CharSet=CharSet.Unicode)]
 			public static extern int MAPISendMail(IntPtr session, IntPtr hwnd, MapiMessage message, int flg, int rsv);
 
 			#endregion Structs
