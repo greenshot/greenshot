@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -51,7 +52,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <returns>SafeDeviceContextHandle</returns>
-		public static SafeDeviceContextHandle getSafeDeviceContext(this Graphics graphics) {
+		public static SafeDeviceContextHandle GetSafeDeviceContext(this Graphics graphics) {
 			return SafeDeviceContextHandle.fromGraphics(graphics);
 		}
 	}
@@ -76,10 +77,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public class SafeHBitmapHandle : SafeObjectHandle {
 		[SecurityCritical]
-		private SafeHBitmapHandle() : base(true) {
-		}
-
-		[SecurityCritical]
 		public SafeHBitmapHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
 		}
@@ -90,10 +87,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public class SafeRegionHandle : SafeObjectHandle {
 		[SecurityCritical]
-		private SafeRegionHandle() : base(true) {
-		}
-
-		[SecurityCritical]
 		public SafeRegionHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
 		}
@@ -103,10 +96,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A dibsection SafeHandle implementation
 	/// </summary>
 	public class SafeDibSectionHandle : SafeObjectHandle {
-		[SecurityCritical]
-		private SafeDibSectionHandle() : base(true) {
-		}
-
 		[SecurityCritical]
 		public SafeDibSectionHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
@@ -122,10 +111,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
 
 		private SafeHandle hdc;
-
-		[SecurityCritical]
-		private SafeSelectObjectHandle() : base(true) {
-		}
 
 		[SecurityCritical]
 		public SafeSelectObjectHandle(SafeDCHandle hdc, SafeHandle newHandle) : base(true) {
@@ -151,10 +136,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern bool DeleteDC(IntPtr hDC);
 
 		[SecurityCritical]
-		private SafeCompatibleDCHandle() : base(true) {
-		}
-
-		[SecurityCritical]
 		public SafeCompatibleDCHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
 		}
@@ -173,9 +154,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public class SafeDeviceContextHandle : SafeDCHandle {
 		private Graphics graphics = null;
-		[SecurityCritical]
-		private SafeDeviceContextHandle() : base(true) {
-		}
 
 		[SecurityCritical]
 		public SafeDeviceContextHandle(Graphics graphics, IntPtr preexistingHandle) : base(true) {
@@ -225,10 +203,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="target"></param>
 		/// <param name="source"></param>
 		public static void StretchBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Rectangle destination) {
-			using (SafeDeviceContextHandle targetDC = target.getSafeDeviceContext()) {
+			using (SafeDeviceContextHandle targetDC = target.GetSafeDeviceContext()) {
 				using (SafeCompatibleDCHandle safeCompatibleDCHandle = CreateCompatibleDC(targetDC)) {
 					using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
-						using (SafeSelectObjectHandle selectObject = safeCompatibleDCHandle.SelectObject(hBitmapHandle)) {
+						using (safeCompatibleDCHandle.SelectObject(hBitmapHandle)) {
 							StretchBlt(targetDC, destination.X, destination.Y, destination.Width, destination.Height, safeCompatibleDCHandle, source.Left, source.Top, source.Width, source.Height, CopyPixelOperation.SourceCopy);
 						}
 					}
@@ -242,10 +220,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="target"></param>
 		/// <param name="source"></param>
 		public static void BitBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Point destination, CopyPixelOperation rop) {
-			using (SafeDeviceContextHandle targetDC = target.getSafeDeviceContext()) {
+			using (SafeDeviceContextHandle targetDC = target.GetSafeDeviceContext()) {
 				using (SafeCompatibleDCHandle safeCompatibleDCHandle = CreateCompatibleDC(targetDC)) {
 					using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
-						using (SafeSelectObjectHandle selectObject = safeCompatibleDCHandle.SelectObject(hBitmapHandle)) {
+						using (safeCompatibleDCHandle.SelectObject(hBitmapHandle)) {
 							BitBlt(targetDC, destination.X, destination.Y, source.Width, source.Height, safeCompatibleDCHandle, source.Left, source.Top, rop);
 						}
 					}

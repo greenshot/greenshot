@@ -434,6 +434,8 @@ namespace Greenshot.Interop.Office {
 		PR_REPORTING_MTA_CERTIFICATE = PT.PT_BINARY | 0x1004 << 16,
 	};
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Interoperability", "CA1401:PInvokesShouldNotBeVisible")]
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass")]
 	public class OutlookUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookUtils));
 		private const uint KEEP_OPEN_READONLY = 0x00000001;
@@ -783,20 +785,13 @@ namespace Greenshot.Interop.Office {
 		}
 
 		#region MAPI DLL Imports
-
-		[DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "HrGetOneProp@12")]
-		private static extern void HrGetOneProp(IntPtr pmp, uint ulPropTag, out IntPtr ppProp);
-
-		[DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "HrSetOneProp@8")]
+		[DllImport("MAPI32.DLL", EntryPoint = "HrSetOneProp@8")]
 		private static extern void HrSetOneProp(IntPtr pmp, IntPtr pprop);
 
-		[DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "MAPIFreeBuffer@4")]
-		private static extern void MAPIFreeBuffer(IntPtr lpBuffer);
-
-		[DllImport("MAPI32.DLL", CharSet = CharSet.Ansi)]
+		[DllImport("MAPI32.DLL")]
 		private static extern int MAPIInitialize(IntPtr lpMapiInit);
 
-		[DllImport("MAPI32.DLL", CharSet = CharSet.Ansi)]
+		[DllImport("MAPI32.DLL")]
 		private static extern void MAPIUninitialize();
 		#endregion
 	}

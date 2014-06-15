@@ -30,7 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Configuration\AppConfig.cs" />
     <Compile Include="Configuration\EditorConfiguration.cs" />
     <Compile Include="Configuration\LanguageKeys.cs" />
     <Compile Include="Configuration\RuntimeConfig.cs" />
@@ -204,6 +203,7 @@
     </Compile>
     <None Include="App.config" />
     <None Include="Helpers\AviHelper.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
     <Compile Include="Helpers\CopyData.cs" />

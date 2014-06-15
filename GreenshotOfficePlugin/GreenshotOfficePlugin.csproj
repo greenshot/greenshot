@@ -54,6 +54,7 @@
     <Compile Include="Destinations\OneNoteDestination.cs" />
     <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\WordDestination.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="OfficeConfiguration.cs" />
     <Compile Include="OfficePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -76,9 +77,7 @@
       <Name>GreenshotPlugin</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Destinations" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)"

@@ -35,6 +35,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Core\FastBitmap.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IEInterop\IHTMLBodyElement.cs" />
     <Compile Include="IEInterop\IHTMLCurrentStyle.cs" />
     <Compile Include="IEInterop\IHTMLDocument.cs" />

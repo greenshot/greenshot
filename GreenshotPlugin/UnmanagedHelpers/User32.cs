@@ -116,7 +116,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public extern static IntPtr GetWindowLongPtr(IntPtr hwnd, int nIndex);
 		[DllImport("user32", SetLastError = true)]
 		public static extern int SetWindowLong(IntPtr hWnd, int index, int styleFlags);
-		[DllImport("user32", SetLastError = true)]
+		[DllImport("user32", SetLastError = true, EntryPoint = "SetWindowLongPtr")]
 		public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int index, IntPtr styleFlags);
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);

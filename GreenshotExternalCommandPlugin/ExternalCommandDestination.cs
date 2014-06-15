@@ -114,7 +114,7 @@ namespace ExternalCommand {
 				} catch {
 					w32ex.Data.Add("commandline", config.commandlines[presetCommand]);
 					w32ex.Data.Add("arguments", config.arguments[presetCommand]);
-					throw w32ex;
+					throw;
 				}
 			} catch (Exception ex) {
 				ex.Data.Add("commandline", config.commandlines[presetCommand]);
@@ -127,7 +127,7 @@ namespace ExternalCommand {
 			string commandline = config.commandlines[commando];
 			string arguments = config.arguments[commando];
 			output = null;
-			if (commandline != null && commandline.Length > 0) {
+			if (!string.IsNullOrEmpty(commandline)) {
 				using (Process p = new Process()) {
 					p.StartInfo.FileName = commandline;
 					p.StartInfo.Arguments = String.Format(arguments, fullPath);

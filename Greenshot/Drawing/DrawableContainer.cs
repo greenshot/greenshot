@@ -60,6 +60,10 @@ namespace Greenshot.Drawing {
 			}
 		}
 
+		/// <summary>
+		/// The public accessible Dispose
+		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
+		/// </summary>
 		public void Dispose() {
 			Dispose(true);
 			GC.SuppressFinalize(this);

@@ -21,10 +21,8 @@
 
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -133,9 +131,16 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// Make sure this element is no longer referenced from the surface
 		/// </summary>
-		public new void Dispose() {
+		protected override void Dispose(bool disposing) {
+			base.Dispose(disposing);
+			if (!disposing) {
+				return;
+			}
 			((Surface)Parent).RemoveStepLabel(this);
-			base.Dispose();
+			if (_stringFormat != null) {
+				_stringFormat.Dispose();
+				_stringFormat = null;
+			}
 		}
 
 		public override bool HandleMouseMove(int x, int y) {

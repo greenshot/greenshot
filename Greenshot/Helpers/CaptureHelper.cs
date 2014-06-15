@@ -40,7 +40,7 @@ namespace Greenshot.Helpers {
 	/// <summary>
 	/// CaptureHelper contains all the capture logic 
 	/// </summary>
-	public class CaptureHelper {
+	public class CaptureHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureHelper));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
@@ -73,36 +73,48 @@ namespace Greenshot.Helpers {
 			if (disposing) {
 				// Cleanup
 			}
+			// Unfortunately we can't dispose the capture, this might still be used somewhere else.
 			_windows = null;
 			_selectedCaptureWindow = null;
 			_capture = null;
 		}
 		public static void CaptureClipboard() {
-			new CaptureHelper(CaptureMode.Clipboard).MakeCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard)) {
+				captureHelper.MakeCapture();
+			}
 		}
 		public static void CaptureRegion(bool captureMouse) {
-			new CaptureHelper(CaptureMode.Region, captureMouse).MakeCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse)) {
+				captureHelper.MakeCapture();
+			}
 		}
 		public static void CaptureRegion(bool captureMouse, IDestination destination) {
-			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination);
-			captureHelper.MakeCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination)) {
+				captureHelper.MakeCapture();			
+			}
 		}
 		public static void CaptureRegion(bool captureMouse, Rectangle region) {
-			new CaptureHelper(CaptureMode.Region, captureMouse).MakeCapture(region);
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse)) {
+				captureHelper.MakeCapture(region);
+			}
 		}
 		public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode) {
-			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse);
-			captureHelper._screenCaptureMode = screenCaptureMode;
-			captureHelper.MakeCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse)) {
+				captureHelper._screenCaptureMode = screenCaptureMode;
+				captureHelper.MakeCapture();
+			}
 		}
 		public static void CaptureLastRegion(bool captureMouse) {
-			new CaptureHelper(CaptureMode.LastRegion, captureMouse).MakeCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.LastRegion, captureMouse)) {
+				captureHelper.MakeCapture();
+			}
 		}
 
 		public static void CaptureIE(bool captureMouse, WindowDetails windowToCapture) {
-			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse);
-			captureHelper.SelectedCaptureWindow = windowToCapture;
-			captureHelper.MakeCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse)) {
+				captureHelper.SelectedCaptureWindow = windowToCapture;
+				captureHelper.MakeCapture();
+			}
 		}
 
 		public static void CaptureWindow(bool captureMouse) {
@@ -110,27 +122,35 @@ namespace Greenshot.Helpers {
 		}
 
 		public static void CaptureWindow(WindowDetails windowToCapture) {
-			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow);
-			captureHelper.SelectedCaptureWindow = windowToCapture;
-			captureHelper.MakeCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow)) {
+				captureHelper.SelectedCaptureWindow = windowToCapture;
+				captureHelper.MakeCapture();
+			}
 		}
 
 		public static void CaptureWindowInteractive(bool captureMouse) {
-			new CaptureHelper(CaptureMode.Window, captureMouse).MakeCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Window)) {
+				captureHelper.MakeCapture();
+			}
 		}
 
 		public static void CaptureFile(string filename) {
-			new CaptureHelper(CaptureMode.File).MakeCapture(filename);
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File)) {
+				captureHelper.MakeCapture(filename);
+			}
 		}
 
 		public static void CaptureFile(string filename, IDestination destination) {
-			new CaptureHelper(CaptureMode.File).AddDestination(destination).MakeCapture(filename);
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File)) {
+				captureHelper.AddDestination(destination).MakeCapture(filename);
+			}
 		}
 
 		public static void ImportCapture(ICapture captureToImport) {
-			CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File);
-			captureHelper._capture = captureToImport;
-			captureHelper.HandleCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File)) {
+				captureHelper._capture = captureToImport;
+				captureHelper.HandleCapture();
+			}
 		}
 
 		public CaptureHelper AddDestination(IDestination destination) {

@@ -18,6 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
+using log4net;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,44 +31,40 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
-/// <summary>
-/// Author: Andrew Baker
-/// Datum: 10.03.2006
-/// Available from: http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1
-/// </summary>
-using log4net;
-
 namespace Greenshot.Helpers {
+	/// <summary>
+	/// Author: Andrew Baker
+	/// Datum: 10.03.2006
+	/// Available from: http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1
+	/// </summary>
 	#region Public MapiMailMessage Class
 
 	/// <summary>
 	/// Represents an email message to be sent through MAPI.
 	/// </summary>
-	public class MapiMailMessage {
+	public class MapiMailMessage : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(MapiMailMessage));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		/// <summary>
 		/// Helper Method for creating an Email with Attachment
 		/// </summary>
-		/// <param name="fullpath">Path to file</param>
-		/// <param name="captureDetails"></param>
+		/// <param name="fullPath">Path to file</param>
+		/// <param name="title"></param>
 		public static void SendImage(string fullPath, string title) {
-			MapiMailMessage message = new MapiMailMessage(title, null);
-			message.Files.Add(fullPath);
-			if (!string.IsNullOrEmpty(conf.MailApiTo)) {
-				message._recipientCollection.Add(new Recipient(conf.MailApiTo, RecipientType.To));
+			using (MapiMailMessage message = new MapiMailMessage(title, null)) {
+				message.Files.Add(fullPath);
+				if (!string.IsNullOrEmpty(conf.MailApiTo)) {
+					message._recipientCollection.Add(new Recipient(conf.MailApiTo, RecipientType.To));
+				}
+				if (!string.IsNullOrEmpty(conf.MailApiCC)) {
+					message._recipientCollection.Add(new Recipient(conf.MailApiCC, RecipientType.CC));
+				}
+				if (!string.IsNullOrEmpty(conf.MailApiBCC)) {
+					message._recipientCollection.Add(new Recipient(conf.MailApiBCC, RecipientType.BCC));
+				}
+				message.ShowDialog();
 			}
-			if (!string.IsNullOrEmpty(conf.MailApiCC)) {
-				message._recipientCollection.Add(new Recipient(conf.MailApiCC, RecipientType.CC));
-			}
-			if (!string.IsNullOrEmpty(conf.MailApiBCC)) {
-				message._recipientCollection.Add(new Recipient(conf.MailApiBCC, RecipientType.BCC));
-			}
-			message.ShowDialog();
 		}
 
 
@@ -133,8 +134,8 @@ namespace Greenshot.Helpers {
 		private string _subject;
 		private string _body;
 		private RecipientCollection _recipientCollection;
-		private List<string> _files;
-		private ManualResetEvent _manualResetEvent;
+		private readonly List<string> _files;
+		private readonly ManualResetEvent _manualResetEvent;
 
 		#endregion Member Variables
 
@@ -230,9 +231,24 @@ namespace Greenshot.Helpers {
 			_manualResetEvent.Reset();
 		}
 
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
 		#endregion Public Methods
 
 		#region Private Methods
+
+		protected virtual void Dispose(bool disposing) {
+			if (!disposing) {
+				return;
+			}
+			if (_manualResetEvent != null) {
+				_manualResetEvent.Close();
+			}
+
+		}
 
 		/// <summary>
 		/// Sends the mail message.
@@ -504,7 +520,7 @@ namespace Greenshot.Helpers {
 				public IntPtr EntryID = IntPtr.Zero;
 			}
 
-			[DllImport("MAPI32.DLL", SetLastError = true, CharSet=CharSet.Unicode)]
+			[DllImport("MAPI32.DLL", SetLastError = true, CharSet=CharSet.Ansi)]
 			public static extern int MAPISendMail(IntPtr session, IntPtr hwnd, MapiMessage message, int flg, int rsv);
 
 			#endregion Structs

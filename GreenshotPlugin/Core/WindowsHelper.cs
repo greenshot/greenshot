@@ -1366,7 +1366,7 @@ namespace GreenshotPlugin.Core  {
 				}
 				returnImage = new Bitmap(windowRect.Width, windowRect.Height, pixelFormat);
 				using (Graphics graphics = Graphics.FromImage(returnImage)) {
-					using (SafeDeviceContextHandle graphicsDC = graphics.getSafeDeviceContext()) {
+					using (SafeDeviceContextHandle graphicsDC = graphics.GetSafeDeviceContext()) {
 						bool printSucceeded = User32.PrintWindow(Handle, graphicsDC.DangerousGetHandle(), 0x0);
 						if (!printSucceeded) {
 							// something went wrong, most likely a "0x80004005" (Acess Denied) when using UAC

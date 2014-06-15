@@ -76,13 +76,6 @@ namespace Greenshot {
 			// Log the startup
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 
-			// Upgrade if needed
-			try {
-				AppConfig.UpgradeToIni();
-			} catch {
-				LOG.Warn("Couldn't upgrade the config.dat to geenshot.ini.");
-			}
-
 			// Read configuration
 			_conf = IniConfig.GetIniSection<CoreConfiguration>();
 			try {
