@@ -18,14 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Reflection;
 using System.Runtime.InteropServices;
-// Information about this assembly is defined by the following
-// attributes.
-//
-// change them to the information which is associated with the assembly
-// you compile.
+using System.Security;
 
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
 [assembly: AssemblyTitle("Greenshot")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -39,13 +39,7 @@ using System.Runtime.InteropServices;
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
 [assembly: ComVisible(false)]
 
-// The assembly version has following format :
-//
-// Major.Minor.Build.Revision
-//
-// You can specify all values by your own or you can build default build and revision
-// numbers with the '*' character (the default):
-
-[assembly: AssemblyVersion("1.2.0.7")]
-[assembly: AssemblyInformationalVersion("1.2.0.7-gdb8b2cb")]
-
+// The assembly version, replaced by build scripts
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyInformationalVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]

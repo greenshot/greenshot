@@ -1,6 +1,27 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security;
 
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
@@ -22,14 +43,7 @@ using System.Runtime.InteropServices;
 // Die folgende GUID bestimmt die ID der Typbibliothek, wenn dieses Projekt für COM verfügbar gemacht wird
 [assembly: Guid("d7668e7e-3018-4d27-9aa0-21b1afade1b8")]
 
-// Versionsinformationen für eine Assembly bestehen aus den folgenden vier Werten:
-//
-//	  Hauptversion
-//	  Nebenversion 
-//	  Buildnummer
-//	  Revision
-//
-// Sie können alle Werte angeben oder die standardmäßigen Build- und Revisionsnummern 
-// übernehmen, indem Sie "*" eingeben:
-[assembly: AssemblyVersion("1.2.0.7")]
-[assembly: AssemblyInformationalVersion("1.2.0.7-gdb8b2cb")]
+// The assembly version, replaced by build scripts
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyInformationalVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]

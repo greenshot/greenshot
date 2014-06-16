@@ -18,13 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#region Using directives
 
-using System;
+using Greenshot.Plugin;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Greenshot.Plugin;
-#endregion
+using System.Security;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -44,11 +42,10 @@ using Greenshot.Plugin;
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
 [assembly: ComVisible(false)]
 
-// The assembly version has following format :
-//
-// Major.Minor.Build.Revision
-//
-// You can specify all the values or you can use the default the Revision and 
-// Build Numbers by using the '*' as shown below:
-[assembly: AssemblyVersion("1.2.0.7")]
-[assembly: AssemblyInformationalVersion("1.2.0.7-gdb8b2cb")]
+// Solve Link-Demand issues
+[assembly: SecurityTransparent]
+
+// The assembly version, replaced by build scripts
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyInformationalVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]
