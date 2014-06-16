@@ -407,6 +407,8 @@ namespace Greenshot {
 			if (dataTransport != null) {
 				HandleDataTransport(dataTransport);
 			}
+			// Make Greenshot use less memory after startup
+			EmptyWorkingSet();
 		}
 
 		/// <summary>
@@ -1037,6 +1039,13 @@ namespace Greenshot {
 		void Contextmenu_exitClick(object sender, EventArgs e) {
 			 Exit();
 		}
+
+		private void CheckStateChangedHandler(object sender, EventArgs e) {
+			ToolStripMenuSelectListItem captureMouseItem = sender as ToolStripMenuSelectListItem;
+			if (captureMouseItem != null) {
+				_conf.CaptureMousepointer = captureMouseItem.Checked;
+			}
+		}
 		
 		/// <summary>
 		/// This needs to be called to initialize the quick settings menu entries
@@ -1055,9 +1064,7 @@ namespace Greenshot {
 				captureMouseItem.Text = Language.GetString("settings_capture_mousepointer");
 				captureMouseItem.Checked = _conf.CaptureMousepointer;
 				captureMouseItem.CheckOnClick = true;
-				captureMouseItem.CheckStateChanged += delegate {
-					_conf.CaptureMousepointer = captureMouseItem.Checked;
-				};
+				captureMouseItem.CheckStateChanged += CheckStateChangedHandler;
 
 				contextmenu_quicksettings.DropDownItems.Add(captureMouseItem);
 			}
@@ -1371,7 +1378,16 @@ namespace Greenshot {
 				notifyIcon = null;
 			}
 		}
-		
+
+		/// <summary>
+		/// Make the process use less memory by emptying the working set
+		/// </summary>
+		private void EmptyWorkingSet() {
+			using (Process currentProcess = Process.GetCurrentProcess()) {
+				PsAPI.EmptyWorkingSet(currentProcess.Handle);
+			}
+		}
+
 		/// <summary>
 		/// Do work in the background
 		/// </summary>
@@ -1380,9 +1396,7 @@ namespace Greenshot {
 		private void BackgroundWorkerTimerTick(object sender, EventArgs e) {
 			if (_conf.MinimizeWorkingSetSize) {
 				LOG.Info("Calling EmptyWorkingSet");
-				using (Process currentProcess = Process.GetCurrentProcess()) {
-					PsAPI.EmptyWorkingSet(currentProcess.Handle);
-				}
+				EmptyWorkingSet();
 			}
 			if (UpdateHelper.IsUpdateCheckNeeded()) {
 				LOG.Debug("BackgroundWorkerTimerTick checking for update");
