@@ -408,7 +408,9 @@ namespace Greenshot {
 				HandleDataTransport(dataTransport);
 			}
 			// Make Greenshot use less memory after startup
-			EmptyWorkingSet();
+			if (_conf.MinimizeWorkingSetSize) {
+				PsAPI.EmptyWorkingSet();
+			}
 		}
 
 		/// <summary>
@@ -1253,8 +1255,7 @@ namespace Greenshot {
 
 					if (path != null) {
 						try {
-							using (Process process = Process.Start(path)) {
-							}
+							using (Process.Start(path)) {}
 						} catch (Exception ex) {
 							// Make sure we show what we tried to open in the exception
 							ex.Data.Add("path", path);
@@ -1379,14 +1380,6 @@ namespace Greenshot {
 			}
 		}
 
-		/// <summary>
-		/// Make the process use less memory by emptying the working set
-		/// </summary>
-		private void EmptyWorkingSet() {
-			using (Process currentProcess = Process.GetCurrentProcess()) {
-				PsAPI.EmptyWorkingSet(currentProcess.Handle);
-			}
-		}
 
 		/// <summary>
 		/// Do work in the background
@@ -1395,8 +1388,7 @@ namespace Greenshot {
 		/// <param name="e"></param>
 		private void BackgroundWorkerTimerTick(object sender, EventArgs e) {
 			if (_conf.MinimizeWorkingSetSize) {
-				LOG.Info("Calling EmptyWorkingSet");
-				EmptyWorkingSet();
+				PsAPI.EmptyWorkingSet();
 			}
 			if (UpdateHelper.IsUpdateCheckNeeded()) {
 				LOG.Debug("BackgroundWorkerTimerTick checking for update");

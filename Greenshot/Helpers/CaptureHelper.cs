@@ -77,6 +77,10 @@ namespace Greenshot.Helpers {
 			_windows = null;
 			_selectedCaptureWindow = null;
 			_capture = null;
+			// Empty working set after capturing
+			if (conf.MinimizeWorkingSetSize) {
+				PsAPI.EmptyWorkingSet();
+			}
 		}
 		public static void CaptureClipboard() {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard)) {
