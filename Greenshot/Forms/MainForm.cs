@@ -419,7 +419,17 @@ namespace Greenshot {
 			var dataTransport = (CopyDataTransport)copyDataReceivedEventArgs.Data;
 			HandleDataTransport(dataTransport);
 		}
+
+		private void BalloonTipClicked(object sender, EventArgs e) {
+			BalloonTipClosed(sender, e);
+			ShowSetting();
+		}
+		private void BalloonTipClosed(object sender, EventArgs e) {
+			notifyIcon.BalloonTipClicked -= BalloonTipClicked;
+			notifyIcon.BalloonTipClosed -= BalloonTipClosed;
+		}
 		
+
 		private void HandleDataTransport(CopyDataTransport dataTransport) {
 			foreach(KeyValuePair<CommandEnum, string> command in dataTransport.Commands) {
 				LOG.Debug("Data received, Command = " + command.Key + ", Data: " + command.Value);
@@ -430,22 +440,9 @@ namespace Greenshot {
 						break;
 					case CommandEnum.FirstLaunch:
 						LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-
 						try {
-							EventHandler balloonTipClickedHandler = null;
-							EventHandler balloonTipClosedHandler = null;
-							balloonTipClosedHandler = delegate {
-								notifyIcon.BalloonTipClicked -= balloonTipClickedHandler;
-								notifyIcon.BalloonTipClosed -= balloonTipClosedHandler;
-							};
-
-							balloonTipClickedHandler = delegate {
-								ShowSetting();
-								notifyIcon.BalloonTipClicked -= balloonTipClickedHandler;
-								notifyIcon.BalloonTipClosed -= balloonTipClosedHandler;
-							};
-							notifyIcon.BalloonTipClicked += balloonTipClickedHandler;
-							notifyIcon.BalloonTipClosed += balloonTipClosedHandler;
+							notifyIcon.BalloonTipClicked += BalloonTipClicked;
+							notifyIcon.BalloonTipClosed += BalloonTipClosed;
 							notifyIcon.ShowBalloonTip(2000, "Greenshot", Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), ToolTipIcon.Info);
 						} catch (Exception ex) {
 							LOG.Warn("Exception while showing first launch: ", ex);

@@ -67,7 +67,6 @@ namespace Greenshot.Forms {
 		private bool _mouseDown;
 		private Rectangle _captureRect = Rectangle.Empty;
 		private readonly ICapture _capture;
-		private readonly Image _capturedImage;
 		private Point _previousMousePos = Point.Empty;
 		private FixMode _fixMode = FixMode.None;
 		private RectangleAnimator _windowAnimator;
@@ -112,6 +111,15 @@ namespace Greenshot.Forms {
 			}
 		}
 
+		private void ClosedHandler(object sender, EventArgs e) {
+			_currentForm = null;
+			LOG.Debug("Remove CaptureForm from currentForm");
+		}
+
+		private void ClosingHandler(object sender, EventArgs e) {
+			LOG.Debug("Closing captureform");
+			WindowDetails.UnregisterIgnoreHandle(Handle);
+		}
 		/// <summary>
 		/// This creates the capture form
 		/// </summary>
@@ -129,16 +137,8 @@ namespace Greenshot.Forms {
 			// Enable the AnimatingForm
 			EnableAnimation = true;
 
-			// Using 32bppPArgb speeds up the drawing.
-			//capturedImage = ImageHelper.Clone(capture.Image, PixelFormat.Format32bppPArgb);
-			// comment the clone, uncomment the assignment and the original bitmap is used.
-			_capturedImage = capture.Image;
-
 			// clean up
-			FormClosed += delegate {
-				_currentForm = null;
-				LOG.Debug("Remove CaptureForm from currentForm");
-			};
+			FormClosed += ClosedHandler;
 
 			_capture = capture;
 			_windows = windows;
@@ -155,14 +155,7 @@ namespace Greenshot.Forms {
 			// Make sure we never capture the captureform
 			WindowDetails.RegisterIgnoreHandle(Handle);
 			// Unregister at close
-			FormClosing += delegate {
-				// remove the buffer if it was created inside this form
-				if (_capturedImage != capture.Image) {
-					_capturedImage.Dispose();
-				}
-				LOG.Debug("Closing captureform");
-				WindowDetails.UnregisterIgnoreHandle(Handle);
-			};
+			FormClosing += ClosingHandler;
 
 			// set cursor location
 			_cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
@@ -586,7 +579,7 @@ namespace Greenshot.Forms {
 		/// <param name="sourceRectangle"></param>
 		/// <param name="destinationRectangle"></param>
 		private void DrawZoom(Graphics graphics, Rectangle sourceRectangle, Rectangle destinationRectangle) {
-			if (_capturedImage == null) {
+			if (_capture.Image == null) {
 				return;
 			}
 			ImageAttributes attributes;
@@ -611,9 +604,9 @@ namespace Greenshot.Forms {
 				graphics.SetClip(path);
 				if (!_isZoomerTransparent) {
 					graphics.FillRectangle(BackgroundBrush, destinationRectangle);
-					graphics.DrawImage(_capturedImage, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
+					graphics.DrawImage(_capture.Image, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 				} else {
-					graphics.DrawImage(_capturedImage, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height, GraphicsUnit.Pixel, attributes);
+					graphics.DrawImage(_capture.Image, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height, GraphicsUnit.Pixel, attributes);
 				}
 			}
 			int alpha = (int)(255 * Conf.ZoomerOpacity);
@@ -680,7 +673,7 @@ namespace Greenshot.Forms {
 			Graphics graphics = e.Graphics;
 			Rectangle clipRectangle = e.ClipRectangle;
 			//graphics.BitBlt((Bitmap)buffer, Point.Empty);
-			graphics.DrawImageUnscaled(_capturedImage, Point.Empty);
+			graphics.DrawImageUnscaled(_capture.Image, Point.Empty);
 			// Only draw Cursor if it's (partly) visible
 			if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(_capture.CursorLocation, _capture.Cursor.Size))) {
 				graphics.DrawIcon(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);

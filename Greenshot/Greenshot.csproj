@@ -202,14 +202,12 @@
       <DependentUpon>MovableShowColorForm.cs</DependentUpon>
     </Compile>
     <None Include="App.config" />
-    <None Include="Helpers\AviHelper.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
     <Compile Include="Helpers\CopyData.cs" />
     <Compile Include="Helpers\GeometryHelper.cs" />
     <Compile Include="Helpers\DestinationHelper.cs" />
-    <None Include="Helpers\HookHelper.cs" />
     <Compile Include="Helpers\IECaptureHelper.cs" />
     <Compile Include="Helpers\IEInterop\IEContainer.cs" />
     <Compile Include="Helpers\ProcessorHelper.cs" />
@@ -223,7 +221,6 @@
     <Compile Include="Memento\IMemento.cs" />
     <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
     <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
-    <None Include="Helpers\ScreenCaptureHelper.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />
     <Compile Include="Helpers\GuiRectangle.cs" />

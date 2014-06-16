@@ -65,16 +65,16 @@ namespace Greenshot {
 			}
 
 			// This makes it possible to still capture the settings screen
-			fullscreen_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			fullscreen_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-			window_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			window_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-			region_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			region_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-			ie_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			ie_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
-			lastregion_hotkeyControl.Enter += delegate { EnterHotkeyControl(); };
-			lastregion_hotkeyControl.Leave += delegate { LeaveHotkeyControl(); };
+			fullscreen_hotkeyControl.Enter += EnterHotkeyControl;
+			fullscreen_hotkeyControl.Leave += LeaveHotkeyControl;
+			window_hotkeyControl.Enter += EnterHotkeyControl;
+			window_hotkeyControl.Leave += LeaveHotkeyControl;
+			region_hotkeyControl.Enter += EnterHotkeyControl;
+			region_hotkeyControl.Leave += LeaveHotkeyControl;
+			ie_hotkeyControl.Enter += EnterHotkeyControl;
+			ie_hotkeyControl.Leave += LeaveHotkeyControl;
+			lastregion_hotkeyControl.Enter += EnterHotkeyControl;
+			lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
 
 			DisplayPluginTab();
 			UpdateUI();
@@ -83,12 +83,12 @@ namespace Greenshot {
 			CheckSettings();
 		}
 
-		private void EnterHotkeyControl() {
+		private void EnterHotkeyControl(object sender, EventArgs e) {
 			HotkeyControl.UnregisterHotkeys();
 			_inHotkey = true;
 		}
 
-		private void LeaveHotkeyControl() {
+		private void LeaveHotkeyControl(object sender, EventArgs e) {
 			MainForm.RegisterHotkeys();
 			_inHotkey = false;
 		}

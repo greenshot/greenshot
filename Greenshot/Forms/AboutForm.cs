@@ -121,7 +121,7 @@ namespace Greenshot {
 		/// <summary>
 		/// Cleanup all the allocated resources
 		/// </summary>
-		private void Cleanup() {
+		private void Cleanup(object sender, EventArgs e) {
 			if (gBitmap != null) {
 				gBitmap.Dispose();
 				gBitmap = null;
@@ -133,12 +133,8 @@ namespace Greenshot {
 		/// </summary>
 		public AboutForm() {
 			// Make sure our resources are removed again.
-			Disposed += delegate {
-				Cleanup();
-			};
-			FormClosing += delegate {
-				Cleanup();
-			};
+			Disposed += Cleanup;
+			FormClosing += Cleanup;
 
 			// Enable animation for this form, when we don't set this the timer doesn't start as soon as the form is loaded.
 			EnableAnimation = true;

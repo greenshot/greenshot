@@ -27,6 +27,7 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,7 +35,6 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -118,7 +118,9 @@ namespace Greenshot.Helpers {
 		}
 
 		public static void CaptureWindow(bool captureMouse) {
-			new CaptureHelper(CaptureMode.ActiveWindow, captureMouse).MakeCapture();
+			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow, captureMouse)) {
+				captureHelper.MakeCapture();
+			}
 		}
 
 		public static void CaptureWindow(WindowDetails windowToCapture) {
@@ -214,13 +216,8 @@ namespace Greenshot.Helpers {
 		/// Make Capture with specified destinations
 		/// </summary>
 		private void MakeCapture() {
-			// Experimental code
-			// TODO: when we get the screen capture code working correctly, this needs to be enabled
-			//if (screenCapture != null) {
-			//	screenCapture.Stop();
-			//	screenCapture = null;
-			//	return;
-			//}
+			Thread retrieveWindowDetailsThread = null;
+
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
 			// forcefully removes the balloon!
 			if (!conf.HideTrayicon) {
@@ -236,11 +233,11 @@ namespace Greenshot.Helpers {
 				case CaptureMode.Region:
 					// Check if a region is pre-supplied!
 					if (Rectangle.Empty.Equals(_captureRect)) {
-						PrepareForCaptureWithFeedback();
+						retrieveWindowDetailsThread = PrepareForCaptureWithFeedback();
 					}
 					break;
 				case CaptureMode.Window:
-					PrepareForCaptureWithFeedback();
+					retrieveWindowDetailsThread = PrepareForCaptureWithFeedback();
 					break;
 			}
 
@@ -286,12 +283,6 @@ namespace Greenshot.Helpers {
 					break;
 				case CaptureMode.ActiveWindow:
 					if (CaptureActiveWindow()) {
-						// TODO: Reactive / check if the elements code is activated
-						//if (windowDetailsThread != null) {
-						//	windowDetailsThread.Join();
-						//}
-						//capture.MoveElements(capture.ScreenBounds.Location.X-capture.Location.X, capture.ScreenBounds.Location.Y-capture.Location.Y);
-
 						// Capture worked, offset mouse according to screen bounds and capture location
 						_capture.MoveMouseLocation(_capture.ScreenBounds.Location.X-_capture.Location.X, _capture.ScreenBounds.Location.Y-_capture.Location.Y);
 						_capture.CaptureDetails.AddMetaData("source", "Window");
@@ -448,10 +439,10 @@ namespace Greenshot.Helpers {
 					LOG.Warn("Unknown capture mode: " + _captureMode);
 					break;
 			}
-			// TODO: Reactive / check if the elements code is activated
-			//if (windowDetailsThread != null) {
-			//	windowDetailsThread.Join();
-			//}
+			// Wait for thread, otherwise we can't dipose the CaptureHelper
+			if (retrieveWindowDetailsThread != null) {
+				retrieveWindowDetailsThread.Join();
+			}
 			if (_capture != null) {
 				LOG.Debug("Disposing capture");
 				_capture.Dispose();
@@ -470,82 +461,47 @@ namespace Greenshot.Helpers {
 				_windows.Add(appLauncherWindow);
 				return null;
 			}
-			
-			Thread getWindowDetailsThread = new Thread (delegate() {
-				// Start Enumeration of "active" windows
-				List<WindowDetails> allWindows = WindowDetails.GetMetroApps();
-				allWindows.AddRange(WindowDetails.GetAllWindows());
-				foreach (WindowDetails window in allWindows) {
-					// Window should be visible and not ourselves
-					if (!window.Visible) {
-						continue;
-					}
-	
-					// Skip empty 
-					Rectangle windowRectangle = window.WindowRectangle;
-					Size windowSize = windowRectangle.Size;
-					if (windowSize.Width == 0 ||  windowSize.Height == 0) {
-						continue;
-					}
-	
-					// Make sure the details are retrieved once
-					window.FreezeDetails();
-	
-					// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
-					int goLevelDeep = 3;
-					if (conf.WindowCaptureAllChildLocations) {
-						goLevelDeep = 20;
-					}
-					window.GetChildren(goLevelDeep);
-					lock (_windows) {
-						_windows.Add(window);
-					}
 
-					// TODO: Following code should be enabled & checked if the editor can support "elements"
-					//// Get window rectangle as capture Element
-					//CaptureElement windowCaptureElement = new CaptureElement(windowRectangle);
-					//if (capture == null) {
-					//	break;
-					//}
-					//capture.Elements.Add(windowCaptureElement);
-	
-					//if (!window.HasParent) {
-					//	// Get window client rectangle as capture Element, place all the other "children" in there
-					//	Rectangle clientRectangle = window.ClientRectangle;
-					//	CaptureElement windowClientCaptureElement = new CaptureElement(clientRectangle);
-					//	windowCaptureElement.Children.Add(windowClientCaptureElement);
-					//	AddCaptureElementsForWindow(windowClientCaptureElement, window, goLevelDeep);
-					//} else {
-					//	AddCaptureElementsForWindow(windowCaptureElement, window, goLevelDeep);
-					//}
-				}
-//				lock (windows) {
-//					windows = WindowDetails.SortByZOrder(IntPtr.Zero, windows);
-//				}
-			});
+			Thread getWindowDetailsThread = new Thread(RetrieveWindowDetails);
 			getWindowDetailsThread.Name = "Retrieve window details";
 			getWindowDetailsThread.IsBackground = true;
 			getWindowDetailsThread.Start();
 			return getWindowDetailsThread;
 		}
-		
-		// Code used to get the capture elements, which is not active yet
-		//private void AddCaptureElementsForWindow(ICaptureElement parentElement, WindowDetails parentWindow, int level) {
-		//    foreach(WindowDetails childWindow in parentWindow.Children) {
-		//        // Make sure the details are retrieved once
-		//        childWindow.FreezeDetails();
-		//        Rectangle childRectangle = childWindow.WindowRectangle;
-		//        Size s1 = childRectangle.Size;
-		//        childRectangle.Intersect(parentElement.Bounds);
-		//        if (childRectangle.Width > 0 && childRectangle.Height > 0) {
-		//            CaptureElement childCaptureElement = new CaptureElement(childRectangle);
-		//            parentElement.Children.Add(childCaptureElement);
-		//            if (level > 0) {
-		//                AddCaptureElementsForWindow(childCaptureElement, childWindow, level -1);
-		//            }
-		//        }
-		//    }
-		//}
+
+		private void RetrieveWindowDetails() {
+			LOG.Debug("start RetrieveWindowDetails");
+			// Start Enumeration of "active" windows
+			List<WindowDetails> allWindows = WindowDetails.GetMetroApps();
+			allWindows.AddRange(WindowDetails.GetAllWindows());
+			foreach (WindowDetails window in allWindows) {
+				// Window should be visible and not ourselves
+				if (!window.Visible) {
+					continue;
+				}
+
+				// Skip empty 
+				Rectangle windowRectangle = window.WindowRectangle;
+				Size windowSize = windowRectangle.Size;
+				if (windowSize.Width == 0 || windowSize.Height == 0) {
+					continue;
+				}
+
+				// Make sure the details are retrieved once
+				window.FreezeDetails();
+
+				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
+				int goLevelDeep = 3;
+				if (conf.WindowCaptureAllChildLocations) {
+					goLevelDeep = 20;
+				}
+				window.GetChildren(goLevelDeep);
+				lock (_windows) {
+					_windows.Add(window);
+				}
+			}
+			LOG.Debug("end RetrieveWindowDetails");
+		}
 
 		private void AddConfiguredDestination() {
 			foreach(string destinationDesignation in conf.OutputDestinations) {
@@ -555,6 +511,98 @@ namespace Greenshot.Helpers {
 				}
 			}
 		}
+
+		/// <summary>
+		/// If a balloon tip is show for a taken capture, this handles the click on it
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OpenCaptureOnClick(object sender, EventArgs e) {
+			SurfaceMessageEventArgs eventArgs = MainForm.Instance.NotifyIcon.Tag as SurfaceMessageEventArgs;
+			if (eventArgs == null) {
+				LOG.Warn("OpenCaptureOnClick called without SurfaceMessageEventArgs");
+				RemoveEventHandler(sender, e);
+				return;
+			}
+			ISurface surface = eventArgs.Surface;
+			if (surface != null && eventArgs.MessageType == SurfaceMessageTyp.FileSaved) {
+				if (!string.IsNullOrEmpty(surface.LastSaveFullPath)) {
+					string errorMessage = null;
+
+					try {
+						ProcessStartInfo psi = new ProcessStartInfo("explorer.exe");
+						psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
+						psi.UseShellExecute = false;
+						using (Process p = new Process()) {
+							p.StartInfo = psi;
+							p.Start();
+						}
+					} catch (Exception ex) {
+						errorMessage = ex.Message;
+					}
+					// Added fallback for when the explorer can't be found
+					if (errorMessage != null) {
+						try {
+							string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
+							string explorerPath = Path.Combine(windowsPath, "explorer.exe");
+							if (File.Exists(explorerPath)) {
+								ProcessStartInfo psi = new ProcessStartInfo(explorerPath);
+								psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
+								psi.UseShellExecute = false;
+								using (Process p = new Process()) {
+									p.StartInfo = psi;
+									p.Start();
+								}
+								errorMessage = null;
+							}
+						} catch {
+						}
+					}
+					if (errorMessage != null) {
+						MessageBox.Show(string.Format("{0}\r\nexplorer.exe {1}", errorMessage, surface.LastSaveFullPath), "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}
+				}
+			} else if (surface != null && !string.IsNullOrEmpty(surface.UploadURL)) {
+				Process.Start(surface.UploadURL);
+			}
+			LOG.DebugFormat("Deregistering the BalloonTipClicked");
+			RemoveEventHandler(sender, e);
+		}
+
+		private void RemoveEventHandler(object sender, EventArgs e) {
+			MainForm.Instance.NotifyIcon.BalloonTipClicked -= OpenCaptureOnClick;
+			MainForm.Instance.NotifyIcon.BalloonTipClosed -= RemoveEventHandler;
+			MainForm.Instance.NotifyIcon.Tag = null;
+		}
+
+		/// <summary>
+		/// This is the SufraceMessageEvent receiver
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="eventArgs"></param>
+		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs) {
+			if (eventArgs == null || string.IsNullOrEmpty(eventArgs.Message)) {
+				return;
+			}
+			switch (eventArgs.MessageType) {
+				case SurfaceMessageTyp.Error:
+					MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
+					break;
+				case SurfaceMessageTyp.Info:
+					MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
+					break;
+				case SurfaceMessageTyp.FileSaved:
+				case SurfaceMessageTyp.UploadedUri:
+					// Show a balloon and register an event handler to open the "capture" for if someone clicks the balloon.
+					MainForm.Instance.NotifyIcon.BalloonTipClicked += OpenCaptureOnClick;
+					MainForm.Instance.NotifyIcon.BalloonTipClosed += RemoveEventHandler;
+					// Store for later usage
+					MainForm.Instance.NotifyIcon.Tag = eventArgs;
+					MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
+					break;
+			}
+		}
+
 
 		private void HandleCapture() {
 			// Flag to see if the image was "exported" so the FileEditor doesn't
@@ -586,80 +634,7 @@ namespace Greenshot.Helpers {
 
 			// Register notify events if this is wanted			
 			if (conf.ShowTrayNotification && !conf.HideTrayicon) {
-				surface.SurfaceMessage += delegate(object source, SurfaceMessageEventArgs eventArgs) {
-                   if (eventArgs == null || string.IsNullOrEmpty(eventArgs.Message)) {
-						return;
-					}
-					switch (eventArgs.MessageType) {
-						case SurfaceMessageTyp.Error:
-							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
-							break;
-						case SurfaceMessageTyp.Info:
-							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
-							break;
-						case SurfaceMessageTyp.FileSaved:
-						case SurfaceMessageTyp.UploadedUri:
-							EventHandler balloonTipClickedHandler = null;
-							EventHandler balloonTipClosedHandler = null;
-							balloonTipClosedHandler = delegate(object sender, EventArgs e) {
-								LOG.DebugFormat("Deregistering the BalloonTipClosed");
-								MainForm.Instance.NotifyIcon.BalloonTipClicked -= balloonTipClickedHandler;
-								MainForm.Instance.NotifyIcon.BalloonTipClosed -= balloonTipClosedHandler;
-							};
-
-							balloonTipClickedHandler = delegate(object sender, EventArgs e) {
-								if (eventArgs.MessageType == SurfaceMessageTyp.FileSaved) {
-									if (!string.IsNullOrEmpty(surface.LastSaveFullPath)) {
-										string errorMessage = null;
-
-										try {
-											ProcessStartInfo psi = new ProcessStartInfo("explorer.exe");
-											psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
-											psi.UseShellExecute = false;
-											using (Process p = new Process()) {
-												p.StartInfo = psi;
-												p.Start();
-											}
-										} catch (Exception ex) {
-											errorMessage = ex.Message;
-										}
-										// Added fallback for when the explorer can't be found
-										if (errorMessage != null) {
-											try {
-												string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
-												string explorerPath = Path.Combine(windowsPath, "explorer.exe");
-												if (File.Exists(explorerPath)) {
-													ProcessStartInfo psi = new ProcessStartInfo(explorerPath);
-													psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
-													psi.UseShellExecute = false;
-													using (Process p = new Process()) {
-														p.StartInfo = psi;
-														p.Start();
-													}
-													errorMessage = null;
-												}
-											} catch {
-											}
-										}
-										if (errorMessage != null) {
-											MessageBox.Show(string.Format("{0}\r\nexplorer.exe {1}", errorMessage, surface.LastSaveFullPath), "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
-										}
-									}
-								} else {
-									if (!string.IsNullOrEmpty(surface.UploadURL)) {
-										Process.Start(surface.UploadURL);
-									}
-								}
-								LOG.DebugFormat("Deregistering the BalloonTipClicked");
-								MainForm.Instance.NotifyIcon.BalloonTipClicked -= balloonTipClickedHandler;
-								MainForm.Instance.NotifyIcon.BalloonTipClosed -= balloonTipClosedHandler;
-							};
-							MainForm.Instance.NotifyIcon.BalloonTipClicked += balloonTipClickedHandler;
-							MainForm.Instance.NotifyIcon.BalloonTipClosed += balloonTipClosedHandler;
-							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
-							break;
-					}
-				};
+				surface.SurfaceMessage += SurfaceMessageReceived;
 				
 			}
 			// Let the processors do their job
@@ -984,30 +959,6 @@ namespace Greenshot.Helpers {
 					}
 					
 					if (_captureRect.Height > 0 && _captureRect.Width > 0) {
-						// TODO: Reactive / check if the elements code is activated
-						//if (windowDetailsThread != null) {
-						//	windowDetailsThread.Join();
-						//}
-
-						// Experimental code for Video capture
-						// TODO: when we get the screen capture code working correctly, this needs to be enabled
-						//if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
-						//    if (captureForm.UsedCaptureMode == CaptureMode.Window) {
-						//        screenCapture = new ScreenCaptureHelper(selectedCaptureWindow);
-						//    } else if (captureForm.UsedCaptureMode == CaptureMode.Region) {
-						//        screenCapture = new ScreenCaptureHelper(captureRect);
-						//    }
-						//    if (screenCapture != null) {
-						//        screenCapture.RecordMouse = capture.CursorVisible;
-						//        if (screenCapture.Start(25)) {
-						//            return;
-						//        }
-						//        // User clicked cancel or a problem occured
-						//        screenCapture.Stop();
-						//        screenCapture = null;
-						//        return;
-						//    }
-						//}
 						// Take the captureRect, this already is specified as bitmap coordinates
 						_capture.Crop(_captureRect);
 						

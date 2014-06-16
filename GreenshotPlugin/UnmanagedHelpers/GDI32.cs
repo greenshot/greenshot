@@ -77,6 +77,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public class SafeHBitmapHandle : SafeObjectHandle {
 		[SecurityCritical]
+		private SafeHBitmapHandle() : base(true) {
+		}
+
+		[SecurityCritical]
 		public SafeHBitmapHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
 		}
@@ -87,6 +91,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public class SafeRegionHandle : SafeObjectHandle {
 		[SecurityCritical]
+		private SafeRegionHandle() : base(true) {
+		}
+
+		[SecurityCritical]
 		public SafeRegionHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
 		}
@@ -96,6 +104,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A dibsection SafeHandle implementation
 	/// </summary>
 	public class SafeDibSectionHandle : SafeObjectHandle {
+		[SecurityCritical]
+		private SafeDibSectionHandle() : base(true) {
+		}
+
 		[SecurityCritical]
 		public SafeDibSectionHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
@@ -111,6 +123,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
 
 		private SafeHandle hdc;
+
+		[SecurityCritical]
+		private SafeSelectObjectHandle() : base(true) {
+		}
 
 		[SecurityCritical]
 		public SafeSelectObjectHandle(SafeDCHandle hdc, SafeHandle newHandle) : base(true) {
@@ -136,6 +152,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern bool DeleteDC(IntPtr hDC);
 
 		[SecurityCritical]
+		private SafeCompatibleDCHandle() : base(true) {
+		}
+
+		[SecurityCritical]
 		public SafeCompatibleDCHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
 		}
@@ -154,6 +174,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public class SafeDeviceContextHandle : SafeDCHandle {
 		private Graphics graphics = null;
+		
+		[SecurityCritical]
+		private SafeDeviceContextHandle() : base(true) {
+		}
 
 		[SecurityCritical]
 		public SafeDeviceContextHandle(Graphics graphics, IntPtr preexistingHandle) : base(true) {
