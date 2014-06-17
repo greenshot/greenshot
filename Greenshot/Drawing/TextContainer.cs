@@ -64,22 +64,22 @@ namespace Greenshot.Drawing {
 				return _stringFormat;
 			}
 		}
-		private string _text;
+		private string text;
 		// there is a binding on the following property!
 		public string Text {
-			get { return _text; }
+			get { return text; }
 			set { 
 				ChangeText(value, true);
 			}
 		}
 		
 		internal void ChangeText(string newText, bool allowUndoable) {
-			if ((_text == null && newText != null)  || !_text.Equals(newText)) {
+			if ((text == null && newText != null)  || !text.Equals(newText)) {
 				if (makeUndoable && allowUndoable) {
 					makeUndoable = false;
 					_parent.MakeUndoable(new TextChangeMemento(this), false);
 				}
-				_text = newText; 
+				text = newText; 
 				OnPropertyChanged("Text"); 
 			}
 		}
@@ -136,7 +136,7 @@ namespace Greenshot.Drawing {
 		
 		public void FitToText() {
 			UpdateFormat();
-			Size textSize = TextRenderer.MeasureText(_text, _font);
+			Size textSize = TextRenderer.MeasureText(text, _font);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Width = textSize.Width + lineThickness;
 			Height = textSize.Height + lineThickness;
@@ -334,7 +334,7 @@ namespace Greenshot.Drawing {
 				DrawSelectionBorder(graphics, rect);
 			}
 			
-			if (_text == null || _text.Length == 0 ) {
+			if (text == null || text.Length == 0 ) {
 				return;
 			}
 
@@ -345,7 +345,7 @@ namespace Greenshot.Drawing {
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			bool drawShadow = shadow && (fillColor == Color.Transparent || fillColor == Color.Empty);
 
-			DrawText(graphics, rect, lineThickness, lineColor, drawShadow, _stringFormat, _text, _font);
+			DrawText(graphics, rect, lineThickness, lineColor, drawShadow, _stringFormat, text, _font);
 		}
 
 		/// <summary>

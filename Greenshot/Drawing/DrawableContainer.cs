@@ -46,7 +46,7 @@ namespace Greenshot.Drawing {
 	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
 		protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-		private bool _isMadeUndoable;
+		private bool isMadeUndoable;
 		private const int M11 = 0;
 		private const int M12 = 1;
 		private const int M21 = 2;
@@ -119,7 +119,7 @@ namespace Greenshot.Drawing {
 		}
 		[NonSerialized]
 		protected Gripper[] _grippers;
-		private bool _layoutSuspended;
+		private bool layoutSuspended;
 
 		[NonSerialized]
 		private Gripper _targetGripper;
@@ -152,71 +152,71 @@ namespace Greenshot.Drawing {
 		}
 
 		
-		private int _left;
+		private int left;
 		public int Left {
-			get { return _left; }
+			get { return left; }
 			set {
-				if (value == _left) {
+				if (value == left) {
 					return;
 				}
-				_left = value;
+				left = value;
 				DoLayout();
 			}
 		}
 		
-		private int _top;
+		private int top;
 		public int Top {
-			get { return _top; }
+			get { return top; }
 			set {
-				if (value == _top) {
+				if (value == top) {
 					return;
 				}
-				_top = value;
+				top = value;
 				DoLayout();
 			}
 		}
 		
-		private int _width;
+		private int width;
 		public int Width {
-			get { return _width; }
+			get { return width; }
 			set {
-				if (value == _width) {
+				if (value == width) {
 					return;
 				}
-				_width = value;
+				width = value;
 				DoLayout();
 			}
 		}
 		
-		private int _height;
+		private int height;
 		public int Height {
-			get { return _height; }
+			get { return height; }
 			set {
-				if (value == _height) {
+				if (value == height) {
 					return;
 				}
-				_height = value;
+				height = value;
 				DoLayout();
 			}
 		}
 		
 		public Point Location {
 			get {
-				return new Point(_left, _top);
+				return new Point(left, top);
 			}
 			set {
-				_left = value.X;
-				_top = value.Y;
+				left = value.X;
+				top = value.Y;
 			}
 		}
 
 		public Size Size {
 			get {
-				return new Size(_width, _height);
+				return new Size(width, height);
 			}
 			set {
-				_width = value.Width;
-				_height = value.Height;
+				width = value.Width;
+				height = value.Height;
 			}
 		}
 
@@ -265,7 +265,7 @@ namespace Greenshot.Drawing {
 			return (int)Math.Round(f);
 		}
 		
-		private bool _accountForShadowChange;
+		private bool accountForShadowChange;
 		public virtual Rectangle DrawingBounds {
 			get {
 				foreach(IFilter filter in Filters) {
@@ -281,8 +281,8 @@ namespace Greenshot.Drawing {
 				int offset = lineThickness/2;
 
 				int shadow = 0;
-				if (_accountForShadowChange || (HasField(FieldType.SHADOW) && GetFieldValueAsBool(FieldType.SHADOW))){
-					_accountForShadowChange = false;
+				if (accountForShadowChange || (HasField(FieldType.SHADOW) && GetFieldValueAsBool(FieldType.SHADOW))){
+					accountForShadowChange = false;
 					shadow += 10;
 				}
 				return new Rectangle(Bounds.Left-offset, Bounds.Top-offset, Bounds.Width+lineThickness+shadow, Bounds.Height+lineThickness+shadow);
@@ -378,11 +378,11 @@ namespace Greenshot.Drawing {
 		}
 		
 		public void SuspendLayout() {
-			_layoutSuspended = true;
+			layoutSuspended = true;
 		}
 		
 		public void ResumeLayout() {
-			_layoutSuspended = false;
+			layoutSuspended = false;
 			DoLayout();
 		}
 		
@@ -390,7 +390,7 @@ namespace Greenshot.Drawing {
 			if (_grippers == null) {
 				return;
 			}
-			if (!_layoutSuspended) {
+			if (!layoutSuspended) {
 				int[] xChoords = {Left-2,Left+Width/2-2,Left+Width-2};
 				int[] yChoords = {Top-2,Top+Height/2-2,Top+Height-2};
 
@@ -429,12 +429,12 @@ namespace Greenshot.Drawing {
 			Gripper originatingGripper = (Gripper)sender;
 			if (originatingGripper != _targetGripper) {
 				Status = EditStatus.RESIZING;
-				_boundsBeforeResize = new Rectangle(_left, _top, _width, _height);
+				_boundsBeforeResize = new Rectangle(left, top, width, height);
 				_boundsAfterResize = new RectangleF(_boundsBeforeResize.Left, _boundsBeforeResize.Top, _boundsBeforeResize.Width, _boundsBeforeResize.Height);
 			} else {
 				Status = EditStatus.MOVING;
 			}
-			_isMadeUndoable = false;
+			isMadeUndoable = false;
 		}
 
 		private void GripperMouseUp(object sender, MouseEventArgs e) {
@@ -442,7 +442,7 @@ namespace Greenshot.Drawing {
 			if (originatingGripper != _targetGripper) {
 				_boundsBeforeResize = Rectangle.Empty;
 				_boundsAfterResize = RectangleF.Empty;
-				_isMadeUndoable = false;
+				isMadeUndoable = false;
 			}
 			Status = EditStatus.IDLE;
 			Invalidate();
@@ -456,9 +456,9 @@ namespace Greenshot.Drawing {
 				TargetGripperMove(absX, absY);
 			} else if (Status.Equals(EditStatus.RESIZING)) {
 				// check if we already made this undoable
-				if (!_isMadeUndoable) {
+				if (!isMadeUndoable) {
 					// don't allow another undo until we are finished with this move
-					_isMadeUndoable = true;
+					isMadeUndoable = true;
 					// Make undo-able
 					MakeBoundsChangeUndoable(false);
 				}
@@ -659,7 +659,7 @@ namespace Greenshot.Drawing {
 			bool ret = false;
 			if (obj != null && GetType() == obj.GetType()) {
 				DrawableContainer other = obj as DrawableContainer;
-				if (other != null && _left==other._left && _top==other._top && _width==other._width && _height==other._height) {
+				if (other != null && left==other.left && top==other.top && width==other.width && height==other.height) {
 					ret = true;
 				}
 			}
@@ -667,7 +667,7 @@ namespace Greenshot.Drawing {
 		}
 		
 		public override int GetHashCode() {
-			return _left.GetHashCode() ^ _top.GetHashCode() ^ _width.GetHashCode() ^ _height.GetHashCode() ^ GetFields().GetHashCode();
+			return left.GetHashCode() ^ top.GetHashCode() ^ width.GetHashCode() ^ height.GetHashCode() ^ GetFields().GetHashCode();
 		}
 		
 		protected void OnPropertyChanged(string propertyName) {
@@ -696,7 +696,7 @@ namespace Greenshot.Drawing {
 		public void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
 			LOG.DebugFormat("Field {0} changed", e.Field.FieldType);
 			if (e.Field.FieldType == FieldType.SHADOW) {
-				_accountForShadowChange = true;
+				accountForShadowChange = true;
 			}
 			Invalidate();
 		}
