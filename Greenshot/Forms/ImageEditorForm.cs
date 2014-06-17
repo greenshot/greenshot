@@ -32,6 +32,7 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -49,7 +50,8 @@ namespace Greenshot {
 	public partial class ImageEditorForm : BaseForm, IImageEditor {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageEditorForm));
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-		private static List<string> ignoreDestinations = new List<string>() {PickerDestination.DESIGNATION, EditorDestination.DESIGNATION};
+		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static List<string> ignoreDestinations = new List<string>() { PickerDestination.DESIGNATION, EditorDestination.DESIGNATION };
 		private static List<IImageEditor> editorList = new List<IImageEditor>();
 
 		private Surface surface;
@@ -714,6 +716,9 @@ namespace Greenshot {
 			surface.Dispose();
 
 			GC.Collect();
+			if (coreConfiguration.MinimizeWorkingSetSize) {
+				PsAPI.EmptyWorkingSet();
+			}
 		}
 
 		void ImageEditorFormKeyDown(object sender, KeyEventArgs e) {
