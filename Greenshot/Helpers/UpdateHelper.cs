@@ -105,8 +105,7 @@ namespace Greenshot.Experimental {
 			} catch (Exception) {
 				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, downloadLink), Language.GetString(LangKey.error));
 			} finally {
-				MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
-				MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
+				CleanupBalloonTipClick(sender, e);
 			}
 		}
 

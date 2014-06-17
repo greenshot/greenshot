@@ -425,14 +425,17 @@ namespace Greenshot {
 		}
 
 		private void BalloonTipClicked(object sender, EventArgs e) {
-			BalloonTipClosed(sender, e);
-			ShowSetting();
+			try {
+				ShowSetting();
+			} finally {
+				BalloonTipClosed(sender, e);
+			}
 		}
+
 		private void BalloonTipClosed(object sender, EventArgs e) {
 			notifyIcon.BalloonTipClicked -= BalloonTipClicked;
 			notifyIcon.BalloonTipClosed -= BalloonTipClosed;
 		}
-		
 
 		private void HandleDataTransport(CopyDataTransport dataTransport) {
 			foreach(KeyValuePair<CommandEnum, string> command in dataTransport.Commands) {
