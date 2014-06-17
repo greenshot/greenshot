@@ -19,6 +19,8 @@ Bugs resolved:
 * Bug #1610: Image editor: 'Obfuscate' and 'Highlight' and more, now should rotate / resize correctly.
 * Bug #1619: Image editor: Autocrop now also considers the elements.
 
+Changes:
+* We cleaned up the dynamic destination context-menu: if an entry (e.g export to the editor) has child items (export to open editors) the parent is still selectable, we also no longer repeat the parent in the children.
 
 1.1.9.13-g01ce82d Windows 8.1 & Box bug-fix Release
 

@@ -307,6 +307,9 @@ namespace GreenshotPlugin.Core {
 			basisMenuItem.Tag = this;
 			basisMenuItem.Text = Description;
 			AddTagEvents(basisMenuItem, menu, Description);
+			basisMenuItem.Click -= destinationClickHandler;
+			basisMenuItem.Click += destinationClickHandler;		
+
 			if (isDynamic && addDynamics) {
 				basisMenuItem.DropDownOpening += delegate(object source, EventArgs eventArgs) {
 					if (basisMenuItem.DropDownItems.Count == 0) {
@@ -322,18 +325,6 @@ namespace GreenshotPlugin.Core {
 
 							ToolStripMenuItem destinationMenuItem = null;
 
-							if (!useDynamicsOnly) {
-								destinationMenuItem = new ToolStripMenuItem(Description);
-								destinationMenuItem.Tag = this;
-								destinationMenuItem.Image = DisplayIcon;
-								destinationMenuItem.Click += destinationClickHandler;
-								AddTagEvents(destinationMenuItem, menu, Description);
-
-								basisMenuItem.DropDownItems.Add(destinationMenuItem);
-								// invoke the "main" subdestination when clicking its parent
-								basisMenuItem.Click -= destinationClickHandler;
-								basisMenuItem.Click += destinationClickHandler;								
-							}
 							if (useDynamicsOnly && subDestinations.Count == 1) {
 								basisMenuItem.Tag = subDestinations[0];
 								basisMenuItem.Text = subDestinations[0].Description;
@@ -349,17 +340,9 @@ namespace GreenshotPlugin.Core {
 									basisMenuItem.DropDownItems.Add(destinationMenuItem);
 								}
 							}
-						} else {
-							// Setting base "click" only if there are no sub-destinations
-
-							// Make sure any previous handler is removed, otherwise it would be added multiple times!
-							basisMenuItem.Click -= destinationClickHandler;
-							basisMenuItem.Click += destinationClickHandler;
 						}
 					}
 				};
-			} else {
-				basisMenuItem.Click += destinationClickHandler;
 			}
 
 			return basisMenuItem;
