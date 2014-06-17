@@ -256,5 +256,29 @@ Alle Greenshot functies werken ook over het context menu.</resource>
 		<resource name="WindowCaptureMode.Auto">Automatisch</resource>
 		<resource name="WindowCaptureMode.GDI">Standaard kleur</resource>
 		<resource name="WindowCaptureMode.Screen">Zoals zichtbaar</resource>
+
+		<!-- 1.2 -->
+		<resource name="editor_dropshadow_darkness">Schaduw intensiteit</resource>
+		<resource name="editor_dropshadow_offset">Schaduw verspringing</resource>
+		<resource name="editor_dropshadow_settings">Schaduw</resource>
+		<resource name="editor_dropshadow_thickness">Schaduw dikte</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Horizontale tand afstand</resource>
+		<resource name="editor_tornedge_settings">Gescheurde kanten</resource>
+		<resource name="editor_tornedge_toothsize">Tand grootte</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Vertikale tand afstand</resource>
+		<resource name="editor_tornedge_left">Linkerkant scheuren</resource>
+		<resource name="editor_tornedge_right">Rechterkant scheuren</resource>
+		<resource name="editor_tornedge_top">Bovenkant scheuren</resource>
+		<resource name="editor_tornedge_bottom">Onderkant scheuern</resource>
+		<resource name="editor_tornedge_shadow">Schaduw</resource>
+
+		<resource name="editor_counter">Teller toevoegen</resource>
+		<resource name="editor_speechbubble">Tekstballon toevoegen</resource>
+
+		<resource name="editor_resize">Grootte veranderen</resource>
+		<resource name="editor_resize_settings">Grootte veranderen</resource>
+		<resource name="editor_resize_aspectratio">Aspect ratio behouden</resource>
+		<resource name="editor_resize_width">Breedte</resource>
+		<resource name="editor_resize_height">Hoogte</resource>
 	</resources>
 </language>

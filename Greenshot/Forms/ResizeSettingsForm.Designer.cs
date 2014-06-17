@@ -61,7 +61,6 @@ namespace Greenshot.Forms {
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 6;
-			this.buttonOK.Text = "Ok";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
 			// 
@@ -73,7 +72,6 @@ namespace Greenshot.Forms {
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 7;
-			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_aspectratio
@@ -84,7 +82,6 @@ namespace Greenshot.Forms {
 			this.checkbox_aspectratio.Name = "checkbox_aspectratio";
 			this.checkbox_aspectratio.Size = new System.Drawing.Size(124, 17);
 			this.checkbox_aspectratio.TabIndex = 5;
-			this.checkbox_aspectratio.Text = "Maintain aspect ratio";
 			this.checkbox_aspectratio.UseVisualStyleBackColor = true;
 			// 
 			// label_width
@@ -95,7 +92,6 @@ namespace Greenshot.Forms {
 			this.label_width.Name = "label_width";
 			this.label_width.Size = new System.Drawing.Size(35, 13);
 			this.label_width.TabIndex = 14;
-			this.label_width.Text = "Width";
 			// 
 			// label_height
 			// 
@@ -105,7 +101,6 @@ namespace Greenshot.Forms {
 			this.label_height.Name = "label_height";
 			this.label_height.Size = new System.Drawing.Size(38, 13);
 			this.label_height.TabIndex = 15;
-			this.label_height.Text = "Height";
 			// 
 			// textbox_height
 			// 
@@ -165,7 +160,6 @@ namespace Greenshot.Forms {
 			this.MinimizeBox = false;
 			this.Name = "ResizeSettingsForm";
 			this.ShowIcon = false;
-			this.Text = "Resize settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

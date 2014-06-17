@@ -151,7 +151,6 @@ namespace Greenshot.Forms {
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 11;
-			this.buttonOK.Text = "Ok";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
 			// 
@@ -163,7 +162,6 @@ namespace Greenshot.Forms {
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 12;
-			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// labelDarkness
@@ -174,7 +172,6 @@ namespace Greenshot.Forms {
 			this.labelDarkness.Name = "labelDarkness";
 			this.labelDarkness.Size = new System.Drawing.Size(92, 13);
 			this.labelDarkness.TabIndex = 13;
-			this.labelDarkness.Text = "Shadow darkness";
 			// 
 			// labelOffset
 			// 
@@ -184,7 +181,6 @@ namespace Greenshot.Forms {
 			this.labelOffset.Name = "labelOffset";
 			this.labelOffset.Size = new System.Drawing.Size(75, 13);
 			this.labelOffset.TabIndex = 14;
-			this.labelOffset.Text = "Shadow offset";
 			// 
 			// labelThickness
 			// 
@@ -194,7 +190,6 @@ namespace Greenshot.Forms {
 			this.labelThickness.Name = "labelThickness";
 			this.labelThickness.Size = new System.Drawing.Size(94, 13);
 			this.labelThickness.TabIndex = 15;
-			this.labelThickness.Text = "Shadow thickness";
 			// 
 			// DropShadowSettingsForm
 			// 
@@ -220,7 +215,6 @@ namespace Greenshot.Forms {
 			this.MinimizeBox = false;
 			this.Name = "DropShadowSettingsForm";
 			this.ShowIcon = false;
-			this.Text = "Dropshadow settings";
 			((System.ComponentModel.ISupportInitialize)(this.thickness)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetX)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetY)).EndInit();

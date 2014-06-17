@@ -165,7 +165,6 @@ namespace Greenshot.Forms {
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 11;
-			this.buttonOK.Text = "Ok";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
 			// 
@@ -177,7 +176,6 @@ namespace Greenshot.Forms {
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 12;
-			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// labelDarkness
@@ -188,7 +186,6 @@ namespace Greenshot.Forms {
 			this.labelDarkness.Name = "labelDarkness";
 			this.labelDarkness.Size = new System.Drawing.Size(92, 13);
 			this.labelDarkness.TabIndex = 13;
-			this.labelDarkness.Text = "Shadow darkness";
 			// 
 			// labelOffset
 			// 
@@ -198,7 +195,6 @@ namespace Greenshot.Forms {
 			this.labelOffset.Name = "labelOffset";
 			this.labelOffset.Size = new System.Drawing.Size(75, 13);
 			this.labelOffset.TabIndex = 14;
-			this.labelOffset.Text = "Shadow offset";
 			// 
 			// labelThickness
 			// 
@@ -208,7 +204,6 @@ namespace Greenshot.Forms {
 			this.labelThickness.Name = "labelThickness";
 			this.labelThickness.Size = new System.Drawing.Size(94, 13);
 			this.labelThickness.TabIndex = 15;
-			this.labelThickness.Text = "Shadow thickness";
 			// 
 			// toothsize
 			// 
@@ -240,7 +235,6 @@ namespace Greenshot.Forms {
 			this.label_toothsize.Name = "label_toothsize";
 			this.label_toothsize.Size = new System.Drawing.Size(56, 13);
 			this.label_toothsize.TabIndex = 17;
-			this.label_toothsize.Text = "Tooth size";
 			// 
 			// label_horizontaltoothrange
 			// 
@@ -250,7 +244,6 @@ namespace Greenshot.Forms {
 			this.label_horizontaltoothrange.Name = "label_horizontaltoothrange";
 			this.label_horizontaltoothrange.Size = new System.Drawing.Size(111, 13);
 			this.label_horizontaltoothrange.TabIndex = 19;
-			this.label_horizontaltoothrange.Text = "Horizontal tooth range";
 			// 
 			// horizontaltoothrange
 			// 
@@ -282,7 +275,6 @@ namespace Greenshot.Forms {
 			this.labelVerticaltoothrange.Name = "labelVerticaltoothrange";
 			this.labelVerticaltoothrange.Size = new System.Drawing.Size(99, 13);
 			this.labelVerticaltoothrange.TabIndex = 21;
-			this.labelVerticaltoothrange.Text = "Vertical tooth range";
 			// 
 			// verticaltoothrange
 			// 
@@ -313,7 +305,7 @@ namespace Greenshot.Forms {
 			this.top.Name = "top";
 			this.top.Size = new System.Drawing.Size(88, 17);
 			this.top.TabIndex = 22;
-			this.top.Text = "Tear top side";
+			this.top.LanguageKey = "editor_tornedge_top";
 			this.top.UseVisualStyleBackColor = true;
 			// 
 			// right
@@ -323,7 +315,7 @@ namespace Greenshot.Forms {
 			this.right.Name = "right";
 			this.right.Size = new System.Drawing.Size(93, 17);
 			this.right.TabIndex = 23;
-			this.right.Text = "Tear right side";
+			this.right.LanguageKey = "editor_tornedge_right";
 			this.right.UseVisualStyleBackColor = true;
 			// 
 			// bottom
@@ -333,7 +325,7 @@ namespace Greenshot.Forms {
 			this.bottom.Name = "bottom";
 			this.bottom.Size = new System.Drawing.Size(105, 17);
 			this.bottom.TabIndex = 24;
-			this.bottom.Text = "Tear bottom side";
+			this.bottom.LanguageKey = "editor_tornedge_bottom";
 			this.bottom.UseVisualStyleBackColor = true;
 			// 
 			// left
@@ -343,7 +335,7 @@ namespace Greenshot.Forms {
 			this.left.Name = "left";
 			this.left.Size = new System.Drawing.Size(87, 17);
 			this.left.TabIndex = 25;
-			this.left.Text = "Tear left side";
+			this.left.LanguageKey = "editor_tornedge_left";
 			this.left.UseVisualStyleBackColor = true;
 			// 
 			// shadowCheckbox
@@ -353,7 +345,7 @@ namespace Greenshot.Forms {
 			this.shadowCheckbox.Name = "shadowCheckbox";
 			this.shadowCheckbox.Size = new System.Drawing.Size(110, 17);
 			this.shadowCheckbox.TabIndex = 26;
-			this.shadowCheckbox.Text = "Generate shadow";
+			this.shadowCheckbox.LanguageKey = "editor_tornedge_shadow";
 			this.shadowCheckbox.UseVisualStyleBackColor = true;
 			this.shadowCheckbox.CheckedChanged += new System.EventHandler(this.shadowCheckbox_CheckedChanged);
 			// 
@@ -392,7 +384,6 @@ namespace Greenshot.Forms {
 			this.MinimizeBox = false;
 			this.Name = "TornEdgeSettingsForm";
 			this.ShowIcon = false;
-			this.Text = "Torn edges settings";
 			((System.ComponentModel.ISupportInitialize)(this.thickness)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetX)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetY)).EndInit();

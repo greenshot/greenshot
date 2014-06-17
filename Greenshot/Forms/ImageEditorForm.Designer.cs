@@ -409,7 +409,7 @@ namespace Greenshot {
 			this.btnSpeechBubble.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnSpeechBubble.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
 			this.btnSpeechBubble.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnSpeechBubble.Text = "Add speech bubble";
+			this.btnSpeechBubble.LanguageKey = "editor_speechbubble";
 			this.btnSpeechBubble.Name = "btnSpeechBubble";
 			this.btnSpeechBubble.Size = new System.Drawing.Size(22, 20);
 			this.btnSpeechBubble.Click += new System.EventHandler(this.BtnSpeechBubbleClick);
@@ -420,7 +420,7 @@ namespace Greenshot {
 			this.btnStepLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnStepLabel.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
 			this.btnStepLabel.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnStepLabel.Text = "Add counter";
+			this.btnStepLabel.LanguageKey = "editor_counter";
 			this.btnStepLabel.Name = "btnStepLabel";
 			this.btnStepLabel.Size = new System.Drawing.Size(22, 20);
 			this.btnStepLabel.Click += new System.EventHandler(this.BtnStepLabelClick);
@@ -504,7 +504,6 @@ namespace Greenshot {
 			// 
 			// btnResize
 			// 
-			this.btnResize.Text = "Resize";
 			this.btnResize.Name = "btnResize";
 			this.btnResize.Size = new System.Drawing.Size(22, 20);
 			this.btnResize.Click += new System.EventHandler(this.BtnResizeClick);
