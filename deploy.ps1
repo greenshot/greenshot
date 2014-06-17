@@ -74,7 +74,6 @@ try {
         $session.Dispose()
     }
  
-    exit 0
 } catch [Exception] {
     Write-Host "Error: "$_.Exception
     exit 1
