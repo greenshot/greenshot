@@ -24,7 +24,7 @@
 
 $version=$env:APPVEYOR_BUILD_VERSION
 $gitcommit=$env:APPVEYOR_REPO_COMMIT
-$gitcommit=$gitcommit.SubString(0, [math]::Min($gitcommit.Length, 6))
+$gitcommit=$gitcommit.SubString(0, [math]::Min($gitcommit.Length, 7))
 $detailversion=$version + '-' + $gitcommit
 $release=(([version]$version).build) % 2 -eq 1
 $fileversion=$version
