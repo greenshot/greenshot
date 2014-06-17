@@ -1,6 +1,6 @@
 ﻿#define ExeName "Greenshot"
 #define Version "@VERSION@"
-#define DetailVersion "@DETAILVERSION@"
+#define FileVersion "@FILEVERSION@"
 
 ; Include the scripts to install .NET Framework
 ; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
@@ -122,7 +122,7 @@ InfoBeforeFile=..\additional_files\readme.txt
 LicenseFile=..\additional_files\license.txt
 LanguageDetectionMethod=uilanguage
 MinVersion=0,5.01.2600
-OutputBaseFilename={#ExeName}-INSTALLER-{#Version}
+OutputBaseFilename={#ExeName}-INSTALLER-{#FileVersion}
 OutputDir=..\
 PrivilegesRequired=none
 SetupIconFile=..\..\icons\applicationIcon\icon.ico

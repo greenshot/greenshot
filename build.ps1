@@ -24,7 +24,17 @@
 
 $version=$env:APPVEYOR_BUILD_VERSION
 $gitcommit=$env:APPVEYOR_REPO_COMMIT
+$gitcommit=$gitcommit.SubString(0, [math]::Min($gitcommit.Length, 6))
 $detailversion=$version + '-' + $gitcommit
+$release=(([version]$version).build) % 2 -eq 1
+$fileversion=$version
+# Add the UNSTABLE, if we aren't a release -> the build is even. (major.minor.build.revision)
+if ( ! $release) {
+	$fileversion=$version + "-UNSTABLE"
+	$detailversion=$detailversion + " UNSTABLE"
+} else {
+	$detailversion=$detailversion + " Release"
+}
 Write-Host "Building Greenshot $detailversion"
 
 # Create a MD5 string for the supplied filename
@@ -49,7 +59,7 @@ Function FillTemplates {
 			# Create an empty array, this will contain the replaced lines
 			$newtext = @()
 			foreach ($line in $template) {
-				$newtext += $line -replace "\@VERSION\@", $version -replace "\@DETAILVERSION\@", $detailversion
+				$newtext += $line -replace "\@VERSION\@", $version -replace "\@DETAILVERSION\@", $detailversion -replace "\@FILEVERSION\@", $fileversion
 			}
 			# Write the new information to the file
 			$newtext | Set-Content $newfile -encoding UTF8
@@ -132,8 +142,8 @@ Function PackageZip {
 	$destinstaller = "$destbase\NO-INSTALLER"
 
 	# Only remove the zip we are going to create, to prevent adding but keeping the history
-	if (Test-Path  ("$destbase\Greenshot-NO-INSTALLER-$version.zip")) {
-		Remove-Item "$destbase\Greenshot-NO-INSTALLER-$version.zip" -Confirm:$false
+	if (Test-Path  ("$destbase\Greenshot-NO-INSTALLER-$fileversion.zip")) {
+		Remove-Item "$destbase\Greenshot-NO-INSTALLER-$fileversion.zip" -Confirm:$false
 	}
 	# Remove the directory to create the files in
 	if (Test-Path  ("$destinstaller")) {
@@ -170,7 +180,7 @@ Function PackageZip {
 
 	$zipOutput = "$(get-location)\zip"
 	$zip7 = "$(get-location)\greenshot\tools\7zip\7za.exe"
-	$arguments = @('a', '-mx9', '-tzip', '-r', "$destbase\Greenshot-NO-INSTALLER-$version.zip", "$destinstaller\*")
+	$arguments = @('a', '-mx9', '-tzip', '-r', "$destbase\Greenshot-NO-INSTALLER-$fileversion.zip", "$destinstaller\*")
 	Write-Host "Starting $zip7 $arguments"
 	$zipResult = Start-Process -wait -PassThru "$zip7" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$zipOutput.log" -RedirectStandardError "$zipOutput.error"
 	Write-Host "Log output:"

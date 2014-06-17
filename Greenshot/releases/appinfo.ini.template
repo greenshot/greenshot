@@ -1,6 +1,6 @@
 [Format]
 Type=PortableApps.comFormat
-Version=@VERSION@
+Version=2.0
 
 [Details]
 Name=Greenshot Portable
@@ -22,14 +22,14 @@ EULAVersion=true
 
 [Version]
 PackageVersion=@DETAILVERSION@
-DisplayVersion=@VERSION@
+DisplayVersion=@FILEVERSION@
 
 [SpecialPaths]
 Plugins=NONE
 
 [Dependencies]
 UsesJava=false
-UsesDotNetVersion=4.5
+UsesDotNetVersion=3.5
 
 [Control]
 Icons=1
