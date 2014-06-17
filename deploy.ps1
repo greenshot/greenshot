@@ -51,7 +51,7 @@ try {
         $transferOptions = New-Object WinSCP.TransferOptions
         $transferOptions.TransferMode = [WinSCP.TransferMode]::Binary
 
-		$artifactbase = "$(get-location)\Greenshot\bin\Release"
+		$artifactbase = "$(get-location)\Greenshot\releases"
 		# The list of all the artifacts that need to be uploaded
 		@(
 			"$artifactbase\Greenshot-INSTALLER*.exe",
