@@ -137,7 +137,7 @@ namespace Greenshot.Experimental {
 						// the current version is a release or release candidate AND check unstable is turned off.
 						if (rssFile.isUnstable) {
 							// Skip if we shouldn't check unstables
-							if ((conf.BuildState == BuildStates.RELEASE || conf.BuildState == BuildStates.RELEASE_CANDIDATE) && !conf.CheckForUnstable) {
+							if ((conf.BuildState == BuildStates.RELEASE) && !conf.CheckForUnstable) {
 								continue;
 							}
 						}
