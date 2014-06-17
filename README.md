@@ -32,6 +32,9 @@ But it mostly has a few more bug fixes and changes as are in our Greenshot relea
 1.2 is a "dying" branch, as we want to change a lot of the underlying application for 2.0 and most of Greenshot will need to be rewritten.
 This means pull request with fixes or **small** changes are very welcome!
 
+We now have a continuous integration system, you can find the latest unstable 1.2 builds [here](https://ci.appveyor.com/project/Greenshot/greenshot/history) 
+
+
 **master**
 The master branch has that which some day will be available in Greenshot 2.0.
 As we are re factoring and changing a lot of code for 2.0, this branch should be considered highly unstable!
