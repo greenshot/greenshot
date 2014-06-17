@@ -34,6 +34,7 @@
     <Compile Include="Controls\GreenshotRadioButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IEInterop\IHTMLBodyElement.cs" />

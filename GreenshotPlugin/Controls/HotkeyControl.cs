@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,6 +28,7 @@ using System.Windows.Forms;
 
 using Greenshot.Plugin;
 using log4net;
+using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -36,6 +38,9 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public class HotkeyControl : GreenshotTextBox {
 		private static ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
+
+		private static EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
+		private static bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
 
 		// Holds the list of hotkeys
 		private static Dictionary<int, HotKeyHandler> keyHandlers = new Dictionary<int, HotKeyHandler>();
@@ -474,7 +479,7 @@ namespace GreenshotPlugin.Controls {
 				modifiers |= (uint)Modifiers.WIN;
 			}
 			// Disable repeating hotkey for Windows 7 and beyond, as described in #1559
-			if (Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1) {
+			if (isWindows7OrOlder) {
 				modifiers |= (uint)Modifiers.NO_REPEAT;
 			}
 			if (RegisterHotKey(hotkeyHWND, hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
@@ -516,7 +521,13 @@ namespace GreenshotPlugin.Controls {
 		public static bool HandleMessages(ref Message m) {
 			if (m.Msg == WM_HOTKEY) {
 				// Call handler
-				keyHandlers[(int)m.WParam]();
+				if (isWindows7OrOlder) {
+					keyHandlers[(int)m.WParam]();
+				} else {
+					if (eventDelay.Check()) {
+						keyHandlers[(int)m.WParam]();
+					}
+				}
 				return true;
 			}
 			return false;

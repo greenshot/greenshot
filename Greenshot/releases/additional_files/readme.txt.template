@@ -15,7 +15,7 @@ Features:
 * Editor: a settings window for the drop shadow effect has been added.
 
 Bugs resolved:
-* Bug #1559,#1643: Repeating hotkeys are now prevented, unfortunately only for Windows 7 and later.
+* Bug #1559,#1643: Repeating hotkeys are now prevented.
 * Bug #1610: Image editor: 'Obfuscate' and 'Highlight' and more, now should rotate / resize correctly.
 * Bug #1619: Image editor: Autocrop now also considers the elements.
 
