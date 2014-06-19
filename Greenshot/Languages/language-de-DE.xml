@@ -292,23 +292,23 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 		<resource name="editor_dropshadow_offset">Schatten-Versatz</resource>
 		<resource name="editor_dropshadow_settings">Schatten-Einstellungen</resource>
 		<resource name="editor_dropshadow_thickness">Schatten-Breite</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Horizontale Zahnabstand</resource>
-		<resource name="editor_tornedge_settings">Gerissene Kanten Einstellungen</resource>
-		<resource name="editor_tornedge_toothsize">Zahn große</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Vertikale Zahnabstand</resource>
-		<resource name="editor_tornedge_left">Linker Kante einreißen</resource>
-		<resource name="editor_tornedge_right">Rechter Kante einreißen</resource>
-		<resource name="editor_tornedge_top">Top Kante einreißen</resource>
-		<resource name="editor_tornedge_bottom">Boden Kante einreißen</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Horizontaler Zahnabstand</resource>
+		<resource name="editor_tornedge_settings">Einstellungen für gerissene Kanten</resource>
+		<resource name="editor_tornedge_toothsize">Zahngröße</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Vertikaler Zahnabstand</resource>
+		<resource name="editor_tornedge_left">Linke Seite einreißen</resource>
+		<resource name="editor_tornedge_right">Rechte Seite einreißen</resource>
+		<resource name="editor_tornedge_top">Obere Seite einreißen</resource>
+		<resource name="editor_tornedge_bottom">Untere Seite einreißen</resource>
 		<resource name="editor_tornedge_shadow">Schatten erstellen</resource>
 
-		<resource name="editor_counter">Zähler zufügen</resource>
-		<resource name="editor_speechbubble">Sprechblase zufügen</resource>
+		<resource name="editor_counter">Zähler hinzufügen</resource>
+		<resource name="editor_speechbubble">Sprechblase hinzufügen</resource>
 
-		<resource name="editor_resize">Größe ändern</resource>
-		<resource name="editor_resize_settings">Einstellungen größe ändern</resource>
-		<resource name="editor_resize_aspectratio">Aspektratio behalten</resource>
-		<resource name="editor_resize_width">Breidte</resource>
+		<resource name="editor_resize">Skalieren</resource>
+		<resource name="editor_resize_settings">Einstellungen für Skalierung</resource>
+		<resource name="editor_resize_aspectratio">Seitenverhältnis beibehalten</resource>
+		<resource name="editor_resize_width">Breite</resource>
 		<resource name="editor_resize_height">Höhe</resource>
 	</resources>
 </language>
