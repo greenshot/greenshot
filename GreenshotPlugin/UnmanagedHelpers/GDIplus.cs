@@ -96,16 +96,16 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	public static class GDIplus {
 		private static ILog LOG = LogManager.GetLogger(typeof(GDIplus));
 
-		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
+		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipBitmapApplyEffect(IntPtr bitmap, IntPtr effect, ref RECT rectOfInterest, bool useAuxData, IntPtr auxData, int auxDataSize);
 
-		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
+		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipDrawImageFX(IntPtr graphics, IntPtr bitmap, ref RECTF source, IntPtr matrix, IntPtr effect, IntPtr imageAttributes, GpUnit srcUnit);
-		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
+		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipSetEffectParameters(IntPtr effect, IntPtr parameters, uint size);
-		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
+		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipCreateEffect(Guid guid, out IntPtr effect);
-		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
+		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipDeleteEffect(IntPtr effect);
 		private static Guid BlurEffectGuid = new Guid("{633C80A4-1843-482B-9EF2-BE2834C5FDD4}");
 

@@ -84,7 +84,7 @@ namespace GreenshotPlugin.Controls {
 
 		[DllImport("user32.dll", SetLastError = true)]
 		private static extern uint MapVirtualKey(uint uCode, uint uMapType);
-		[DllImport("user32.dll", EntryPoint = "GetKeyNameTextW", SetLastError = true, CharSet = CharSet.Unicode)]
+		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
 		private static extern int GetKeyNameText(uint lParam, [Out] StringBuilder lpString, int nSize);
 
 		// These variables store the current hotkey and modifier(s)

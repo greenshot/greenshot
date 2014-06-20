@@ -71,7 +71,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern int ShowWindow(IntPtr hWnd, ShowWindowCommand nCmdShow);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public extern static int GetWindowText(IntPtr hWnd, StringBuilder lpString, int cch);
-		[DllImport("user32", CharSet = CharSet.Auto, SetLastError = true)]
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public extern static int GetWindowTextLength(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
 		public static extern uint GetSysColor(int nIndex);
@@ -137,7 +137,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool ShowScrollBar(IntPtr hwnd, ScrollBarDirection scrollBar, bool show);
 		[DllImport("user32", SetLastError = true)]
 		public static extern int SetScrollPos(IntPtr hWnd, Orientation nBar, int nPos, bool bRedraw);
-		[DllImport("user32", SetLastError=true, EntryPoint = "PostMessageA")]
+		[DllImport("user32", SetLastError=true)]
 		public static extern bool PostMessage(IntPtr hWnd, uint msg, int wParam, int lParam);
 		[DllImport("user32", SetLastError = true)]
 		public static extern RegionResult GetWindowRgn(IntPtr hWnd, SafeHandle hRgn);
@@ -157,7 +157,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr GetClipboardOwner();
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
-		[DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
+		[DllImport("user32", SetLastError = true)]
 		public static extern bool ChangeClipboardChain(IntPtr hWndRemove, IntPtr hWndNewNext);
 
 		// Added for WinEventHook logic, Greenshot 1.2
@@ -181,9 +181,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		///
 		[DllImport("user32", SetLastError = true)]
 		public static extern uint GetGuiResources(IntPtr hProcess, uint uiFlags);
-		[DllImport("user32", EntryPoint = "RegisterWindowMessageA", SetLastError = true, CharSet = CharSet.Unicode)]
+		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint RegisterWindowMessage(string lpString);
-		[DllImport("user32", SetLastError=true, CharSet=CharSet.Auto)]
+		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out UIntPtr lpdwResult);
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool GetPhysicalCursorPos(out POINT cursorLocation);

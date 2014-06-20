@@ -362,7 +362,7 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public class CopyDataChannel : IDisposable {
 		#region Unmanaged Code
-		[DllImport("user32", CharSet=CharSet.Unicode, SetLastError = true)]
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		private extern static IntPtr GetProp(IntPtr hwnd, string lpString);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		private extern static bool SetProp(IntPtr hwnd, string lpString, IntPtr hData);

@@ -583,7 +583,7 @@ namespace GreenshotPlugin.Core {
 		/// http://www.pinvoke.net/default.aspx/credui.CredUIPromptForCredentialsW
 		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
 		/// </summary>
-		[DllImport("credui", EntryPoint="CredUIPromptForCredentialsW", CharSet=CharSet.Unicode)]
+		[DllImport("credui", CharSet=CharSet.Unicode)]
 		public static extern ReturnCodes PromptForCredentials(
 			ref INFO creditUR,
 			string targetName,
@@ -601,7 +601,7 @@ namespace GreenshotPlugin.Core {
 		/// http://www.pinvoke.net/default.aspx/credui.CredUIConfirmCredentials
 		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduiconfirmcredentials.asp
 		/// </summary>
-		[DllImport("credui.dll", EntryPoint="CredUIConfirmCredentialsW", CharSet=CharSet.Unicode)]
+		[DllImport("credui.dll", CharSet=CharSet.Unicode)]
 		public static extern ReturnCodes ConfirmCredentials(string targetName, bool confirm);
 	}
 }
