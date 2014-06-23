@@ -277,7 +277,8 @@ namespace Greenshot {
 					IniConfig.Save();
 					transport.AddCommand(CommandEnum.FirstLaunch);
 				}
-
+				// Should fix BUG-1633
+				Application.DoEvents();
 				_instance = new MainForm(transport);
 				Application.Run();
 			} catch(Exception ex) {
