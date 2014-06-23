@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<language description="Français" ietf="fr-FR" version="1.1.0.2515" languagegroup="1">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Français" ietf="fr-FR" version="1.2.0.58" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Veuillez rapporter les bogues à</resource>
 		<resource name="about_donations">Si vous aimez Greenshot, vous pouvez nous soutenir :</resource>
 		<resource name="about_host">Greenshot est hébergé par sourceforge.net à</resource>
 		<resource name="about_icons">Icônes provenant du lot d'icônes Fugue de Kamiyamane Yuusuke (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright © 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
 Détails de la GNU General Public License :</resource>
 		<resource name="about_title">À propos de Greenshot</resource>
@@ -22,7 +22,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="CANCEL">Annuler</resource>
 		<resource name="clipboard_error">Une erreur inattendue a eu lieu lors de l'écriture vers le presse-papier.</resource>
 		<resource name="clipboard_inuse">Greenshot n'a pu écrire dans le presse-papier car le processus {0} en a bloqué l'accès.</resource>
-		<resource name="clipboard_noimage">Impossible de trouver une image dans le presse-papiers.</resource>
+		<resource name="clipboard_noimage">Impossible de trouver une image dans le presse-papier.</resource>
 		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
 		<resource name="ClipboardFormat.DIB">Format d'image indépendante du périphérique (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
@@ -91,12 +91,13 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_copyimagetoclipboard">Copier l'image vers le presse-papier</resource>
 		<resource name="editor_copypathtoclipboard">Copier le chemin vers le presse-papier</resource>
 		<resource name="editor_copytoclipboard">Copier</resource>
+		<resource name="editor_counter">Ajouter un compteur</resource>
 		<resource name="editor_crop">Recadrer (C)</resource>
 		<resource name="editor_cursortool">Outil de sélection (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Couper</resource>
 		<resource name="editor_deleteelement">Supprimer</resource>
 		<resource name="editor_downonelevel">Abaisser</resource>
-		<resource name="editor_downtobottom">Á l'arrière-plan</resource>
+		<resource name="editor_downtobottom">À l'arrière-plan</resource>
 		<resource name="editor_drawarrow">Dessiner une flèche (A)</resource>
 		<resource name="editor_drawellipse">Dessiner une ellipse (E)</resource>
 		<resource name="editor_drawfreehand">Dessiner à main levée (F)</resource>
@@ -104,9 +105,9 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_drawline">Dessiner une ligne (L)</resource>
 		<resource name="editor_drawrectangle">Dessiner un rectangle (R)</resource>
 		<resource name="editor_drawtextbox">Ajouter une boîte de texte (T)</resource>
-		<resource name="editor_dropshadow_darkness">Intensité de l'ombre</resource>
-		<resource name="editor_dropshadow_offset">Décalage de l'ombre</resource>
-		<resource name="editor_dropshadow_settings">Paramètres de l'ombre portée</resource>
+		<resource name="editor_dropshadow_darkness">Opacité de l'ombre</resource>
+		<resource name="editor_dropshadow_offset">Décalage</resource>
+		<resource name="editor_dropshadow_settings">Paramètrage de l'ombre</resource>
 		<resource name="editor_dropshadow_thickness">Épaisseur de l'ombre</resource>
 		<resource name="editor_duplicate">Dupliquer l'élément sélectionné</resource>
 		<resource name="editor_edit">Édition</resource>
@@ -114,7 +115,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_email">Courriel</resource>
 		<resource name="editor_file">Fichier</resource>
 		<resource name="editor_fontsize">Taille</resource>
-		<resource name="editor_forecolor">Couleur de ligne</resource>
+		<resource name="editor_forecolor">Couleur de la ligne</resource>
 		<resource name="editor_grayscale">Niveaux de gris</resource>
 		<resource name="editor_highlight_area">Surligner une zone</resource>
 		<resource name="editor_highlight_grayscale">Niveaux de gris</resource>
@@ -141,8 +142,13 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_print">Imprimer</resource>
 		<resource name="editor_redo">Rétablir {0}</resource>
 		<resource name="editor_resetsize">Réinitialiser la taille</resource>
+		<resource name="editor_resize">Redimmensionner</resource>
+		<resource name="editor_resize_aspectratio">Maintenir le rapport L / H</resource>
+		<resource name="editor_resize_height">Hauteur</resource>
 		<resource name="editor_resize_percent">Pourcentage</resource>
 		<resource name="editor_resize_pixel">Pixels</resource>
+		<resource name="editor_resize_settings">Paramètres du redimmensionnement</resource>
+		<resource name="editor_resize_width">Largeur</resource>
 		<resource name="editor_rotateccw">Tourner vers la gauche</resource>
 		<resource name="editor_rotatecw">Tourner vers la droite</resource>
 		<resource name="editor_save">Enregistrer</resource>
@@ -151,14 +157,20 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_selectall">Sélectionner tout</resource>
 		<resource name="editor_senttoprinter">La tâche d'impression a été envoyée vers '{0}'.</resource>
 		<resource name="editor_shadow">Ombre portée</resource>
+		<resource name="editor_speechbubble">Ajouter une bulle de texte</resource>
 		<resource name="editor_storedtoclipboard">L'image a été placée dans le presse-papier.</resource>
 		<resource name="editor_thickness">Épaisseur de ligne</resource>
 		<resource name="editor_title">Greenshot Éditeur d'Image</resource>
-		<resource name="editor_torn_edge">Bord déchiré</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Gamme de dents horizontale</resource>
-		<resource name="editor_tornedge_settings">Paramètres</resource>
+		<resource name="editor_torn_edge">Bordures déchirées</resource>
+		<resource name="editor_tornedge_bottom">Appliquer une déchirure en bas</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Horizontal : Intervalle des dents</resource>
+		<resource name="editor_tornedge_left">Appliquer une déchirure à gauche</resource>
+		<resource name="editor_tornedge_right">Appliquer une déchirure à droite</resource>
+		<resource name="editor_tornedge_settings">Paramètrage de la bordure</resource>
+		<resource name="editor_tornedge_shadow">Générer une ombre</resource>
 		<resource name="editor_tornedge_toothsize">Taille des dents</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Gamme de dents verticale</resource>
+		<resource name="editor_tornedge_top">Appliquer une déchirure en haut</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Vertical : Intervalle des dents</resource>
 		<resource name="editor_undo">Annuler {0}</resource>
 		<resource name="editor_uponelevel">Élever</resource>
 		<resource name="editor_uptotop">Au premier plan</resource>
@@ -178,7 +190,7 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="expertsettings_clipboardformats">Formats du presse-papier</resource>
 		<resource name="expertsettings_counter">Nombre pour $(NUM) dans modèle nom de fichier</resource>
 		<resource name="expertsettings_enableexpert">Je sais ce que je fais !</resource>
-		<resource name="expertsettings_footerpattern">Pied de page impression</resource>
+		<resource name="expertsettings_footerpattern">Modèle du pied de page</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Empreinte mémoire minimisée, mais performances dégradées (non conseillé).</resource>
 		<resource name="expertsettings_optimizeforrdp">Optimisations pour l'utilisation avec le bureau à distance</resource>
 		<resource name="expertsettings_reuseeditorifpossible">Réutiliser l'éditeur si possible</resource>
@@ -265,7 +277,6 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="settings_registerhotkeys">Enregistrer les raccourcis clavier</resource>
 		<resource name="settings_showflashlight">Faire flasher l'écran</resource>
 		<resource name="settings_shownotify">Afficher les notifications</resource>
-		<resource name="settings_zoom">Afficher la loupe</resource>
 		<resource name="settings_storagelocation">Rép. de sauvegarde</resource>
 		<resource name="settings_title">Paramètres</resource>
 		<resource name="settings_tooltip_filenamepattern">Modèle utilisé pour générer les noms de fichier lors de la sauvegarde des captures d'écran</resource>
@@ -278,6 +289,7 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="settings_waittime">Millisecondes d'attente avant la capture</resource>
 		<resource name="settings_window_capture_mode">Mode de capture de fenêtre (style Aero)</resource>
 		<resource name="settings_windowscapture">Capture de la fenêtre active</resource>
+		<resource name="settings_zoom">Afficher la loupe</resource>
 		<resource name="tooltip_firststart">Cliquez droit ici ou appuyez sur la touche {0}.</resource>
 		<resource name="update_found">Une nouvelle version de Greenshot est disponible ! Voulez-vous télécharger Greenshot {0} ?</resource>
 		<resource name="wait_ie_capture">Veuillez patienter pendant la capture de la page Internet Explorer...</resource>
@@ -285,7 +297,7 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="warning_hotkeys">Le(s) raccourci(s) clavier "{0}" n'a pu être enregistré. Ce problème est probablement dû à un autre outil qui utilise le(s) même(s) raccourci(s) clavier. Vous pouvez soit modifier vos raccourcis clavier soit désactiver/modifier le logiciel utilisant le(s) raccourci(s).
 
 Toutes les fonctionnalités de Greenshot se lancent aussi directement depuis le menu contextuel de l'icône de la zone de notifications système.</resource>
-		<resource name="WindowCaptureMode.Aero">Utiliser une couleurs personnalisée</resource>
+		<resource name="WindowCaptureMode.Aero">Utiliser une couleur personnalisée</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Préserver la transparence</resource>
 		<resource name="WindowCaptureMode.Auto">Automatique</resource>
 		<resource name="WindowCaptureMode.GDI">Utiliser la couleur par défaut</resource>
