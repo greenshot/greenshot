@@ -385,7 +385,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>Confirmation action to be applied.</summary>
 		/// <param name="value">True if the credentials should be persisted.</param>
 		public void Confirm(bool value) {
-			switch (CREDUI.ConfirmCredentials(Target, value)) {
+			switch (CREDUI.CredUIConfirmCredentials(Target, value)) {
 				case CREDUI.ReturnCodes.NO_ERROR:
 					break;
 			   
@@ -417,7 +417,7 @@ namespace GreenshotPlugin.Core {
 			CREDUI.FLAGS flags = GetFlags();
 
 			// make the api call
-			CREDUI.ReturnCodes code = CREDUI.PromptForCredentials(
+			CREDUI.ReturnCodes code = CREDUI.CredUIPromptForCredentials(
 				ref info,
 				Target,
 				IntPtr.Zero, 0,
@@ -518,7 +518,7 @@ namespace GreenshotPlugin.Core {
 		}
 	}
 
-	public sealed class CREDUI {
+	internal sealed class CREDUI {
 		private CREDUI() {
 		}
 
@@ -583,8 +583,8 @@ namespace GreenshotPlugin.Core {
 		/// http://www.pinvoke.net/default.aspx/credui.CredUIPromptForCredentialsW
 		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
 		/// </summary>
-		[DllImport("credui", CharSet=CharSet.Unicode)]
-		public static extern ReturnCodes PromptForCredentials(
+		[DllImport("credui", CharSet = CharSet.Unicode)]
+		public static extern ReturnCodes CredUIPromptForCredentials (
 			ref INFO creditUR,
 			string targetName,
 			IntPtr reserved1,
@@ -602,6 +602,6 @@ namespace GreenshotPlugin.Core {
 		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduiconfirmcredentials.asp
 		/// </summary>
 		[DllImport("credui.dll", CharSet=CharSet.Unicode)]
-		public static extern ReturnCodes ConfirmCredentials(string targetName, bool confirm);
+		public static extern ReturnCodes CredUIConfirmCredentials(string targetName, bool confirm);
 	}
 }
