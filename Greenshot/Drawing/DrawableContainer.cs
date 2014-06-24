@@ -638,6 +638,11 @@ namespace Greenshot.Drawing {
 		}
 		
 		protected virtual void SwitchParent(Surface newParent) {
+			// Target gripper
+			if (_parent != null && _targetGripper != null) {
+				_parent.Controls.Remove(_targetGripper);
+			}
+			// Normal grippers
 			if (_parent != null && _grippers != null) {
 				for (int i=0; i<_grippers.Length; i++) {
 					_parent.Controls.Remove(_grippers[i]);
@@ -646,9 +651,15 @@ namespace Greenshot.Drawing {
 				InitControls();
 			}
 			_parent = newParent;
+			// Target gripper
+			if (_parent != null && _targetGripper != null) {
+				_parent.Controls.Add(_targetGripper);
+			}
+			// Normal grippers
 			if (_grippers != null) {
 				_parent.Controls.AddRange(_grippers);				
 			}
+
 			foreach(IFilter filter in Filters) {
 				filter.Parent = this;
 			}
