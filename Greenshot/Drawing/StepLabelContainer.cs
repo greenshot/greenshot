@@ -41,6 +41,8 @@ namespace Greenshot.Drawing {
 
 		private readonly bool _drawAsRectangle = false;
 
+		private float fontSize = 16;
+
 		public StepLabelContainer(Surface parent) : base(parent) {
 			parent.AddStepLabel(this);
 			InitContent();
@@ -152,6 +154,26 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
+		/// Make sure the size of the font is scaled
+		/// </summary>
+		/// <param name="matrix"></param>
+		public override void Transform(Matrix matrix) {
+			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			int widthBefore = rect.Width;
+			int heightBefore = rect.Height;
+
+			// Transform this container
+			base.Transform(matrix);
+			rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+
+			int widthAfter = rect.Width;
+			int heightAfter = rect.Height;
+			float factor = (((float)widthAfter / widthBefore) + ((float)heightAfter / heightBefore)) / 2;
+
+			fontSize *= factor;
+		}
+
+		/// <summary>
 		/// Override the parent, calculate the label number, than draw
 		/// </summary>
 		/// <param name="graphics"></param>
@@ -172,8 +194,7 @@ namespace Greenshot.Drawing {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				float factor = (((float)rect.Width / DefaultSize.Width) + ((float)rect.Height / DefaultSize.Height)) / 2;
-				using (Font _font = new Font(fam, 16 * factor, FontStyle.Bold, GraphicsUnit.Pixel)) {
+				using (Font _font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
 					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
 				}
 			}
