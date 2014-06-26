@@ -104,14 +104,19 @@ namespace Greenshot.Forms {
 			if (!validate(sender)) {
 				return;
 			}
-			if (!checkbox_aspectratio.Checked) {
-				return;
-			}
 			TextBox textbox = sender as TextBox;
 			if (textbox.Text.Length == 0) {
 				return;
 			}
-			bool isWidth =  textbox == textbox_width;
+			bool isWidth = textbox == textbox_width;
+			if (!checkbox_aspectratio.Checked) {
+				if (isWidth) {
+					newWidth = double.Parse(textbox_width.Text);
+				} else {
+					newHeight = double.Parse(textbox_height.Text);
+				}
+				return;
+			}
 			bool isPercent = false;
 			if (isWidth) {
 				isPercent = value_percent.Equals(combobox_width.SelectedItem);
