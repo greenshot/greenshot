@@ -38,8 +38,6 @@ namespace Greenshot.Interop {
 		private const int CO_E_CLASSSTRING = -2147221005;
 		public const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
 		public const int RPC_E_FAIL = unchecked((int)0x80004005);
-		public const int RPC_E_COM_SEPARATED_RCW = unchecked((int)0x80131527);
-		
 
 		#region Private Data
 
@@ -673,6 +671,10 @@ namespace Greenshot.Interop {
 					try {
 						returnValue = invokeType.InvokeMember(methodName, flags, null, invokeObject, args, argModifiers, null, null);
 						break;
+					} catch (InvalidComObjectException icoEx) {
+						// Should assist BUG-1616 and others
+						LOG.WarnFormat("COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.", _InterceptType.FullName);
+						return new ReturnMessage(icoEx, callMessage);
 					} catch (Exception ex) {
 						// Test for rejected
 						COMException comEx = ex as COMException;
@@ -692,9 +694,6 @@ namespace Greenshot.Interop {
 							if (result == DialogResult.OK) {
 								continue;
 							}
-						}
-						if (comEx != null && comEx.ErrorCode == RPC_E_COM_SEPARATED_RCW) {
-							LOG.WarnFormat("COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.", _InterceptType.FullName);
 						}
 						// Not rejected OR pressed cancel
 						return new ReturnMessage(ex, callMessage);
