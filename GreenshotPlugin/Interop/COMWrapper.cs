@@ -38,6 +38,8 @@ namespace Greenshot.Interop {
 		private const int CO_E_CLASSSTRING = -2147221005;
 		public const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
 		public const int RPC_E_FAIL = unchecked((int)0x80004005);
+		public const int RPC_E_COM_SEPARATED_RCW = unchecked((int)0x80131527);
+		
 
 		#region Private Data
 
@@ -357,11 +359,17 @@ namespace Greenshot.Interop {
 				LOG.DebugFormat("Disposing {0}", _InterceptType.ToString());
 				if (Marshal.IsComObject(_COMObject)) {
 					try {
-						while (Marshal.ReleaseComObject(_COMObject) > 0) ;
+						int count;
+						do {
+							count = Marshal.ReleaseComObject(_COMObject);
+							LOG.DebugFormat("RCW count for {0} now is {1}", _InterceptType.ToString(), count);
+						} while (count > 0);
 					} catch (Exception ex) {
-						LOG.WarnFormat("Problem releasing {0}", _COMType);
+						LOG.WarnFormat("Problem releasing COM object {0}", _COMType);
 						LOG.Warn("Error: ", ex);
 					}
+				} else {
+					LOG.WarnFormat("{0} is not a COM object", _COMType);
 				}
 
 				_COMObject = null;
@@ -684,6 +692,9 @@ namespace Greenshot.Interop {
 							if (result == DialogResult.OK) {
 								continue;
 							}
+						}
+						if (comEx != null && comEx.ErrorCode == RPC_E_COM_SEPARATED_RCW) {
+							LOG.WarnFormat("COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.", _InterceptType.FullName);
 						}
 						// Not rejected OR pressed cancel
 						return new ReturnMessage(ex, callMessage);
