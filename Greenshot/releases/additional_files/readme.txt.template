@@ -7,20 +7,24 @@ CHANGE LOG:
 
 @DETAILVERSION@
 
+All details to our tickets can be found here: https://greenshot.atlassian.net
+
 Features:
-* Feature #184,#282,#486: Image editor now has a Speech bubble
-* Feature #281,#669,#707,#734: Image editor now has auto incrementing labels
+* FEATURE-184, FEATURE-282, FEATURE-486: Image editor now has a Speech bubble
+* FEATURE-281, FEATURE-669, FEATURE-707, FEATURE-734: Image editor now has auto incrementing labels
 * Editor: a resize effect with settings window has been added.
 * Editor: a settings window for the torn-edge effect has been added.
 * Editor: a settings window for the drop shadow effect has been added.
 
 Bugs resolved:
-* Bug #1559,#1643: Repeating hotkeys are now prevented.
-* Bug #1610: Image editor: 'Obfuscate' and 'Highlight' and more, now should rotate / resize correctly.
-* Bug #1619: Image editor: Autocrop now also considers the elements.
+* BUG-1559, BUG-1643: Repeating hotkeys are now prevented.
+* BUG-1610: Image editor: 'Obfuscate' and 'Highlight' and more, now should rotate / resize correctly.
+* BUG-1619: Image editor: Autocrop now also considers the elements.
+* BUG-1653: Editor menu entry "File" can't be activated/used via the keyboard
 
 Changes:
 * We cleaned up the dynamic destination context-menu: if an entry (e.g export to the editor) has child items (export to open editors) the parent is still selectable, we also no longer repeat the parent in the children.
+
 
 1.1.9.13-g01ce82d Windows 8.1 & Box bug-fix Release
 
