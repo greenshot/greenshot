@@ -569,6 +569,8 @@ namespace Greenshot {
 			this.fileStripMenuItem.Size = new System.Drawing.Size(37, 20);
 			this.fileStripMenuItem.Text = "File";
 			this.fileStripMenuItem.DropDownOpening += new System.EventHandler(this.FileMenuDropDownOpening);
+			// Fix for BUG-1653, the DropDownOpening is not called when there are no children.
+			this.fileStripMenuItem.DropDownItems.Add(toolStripSeparator9);
 			// 
 			// editToolStripMenuItem
 			// 
