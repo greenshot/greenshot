@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    Externen Befehl konfigurieren
+  </resource>
+  <resource name="settings_title">
+  		Einstellungen externer Befehl
+	</resource>
+	<resource name="settings_detail_title">
+  		Befehl konfigurieren
+	</resource>
+	<resource name="settings_new">
+  		Neu
+	</resource>
+	<resource name="settings_delete">
+  		Löschen
+	</resource>
+	<resource name="settings_edit">
+  		Bearbeiten
+	</resource>
+    <resource name="label_name">
+      Name
+    </resource>
+    <resource name="label_command">
+      Befehl
+    </resource>
+    <resource name="label_argument">
+      Arguments
+    </resource>
+    <resource name="label_information">
+      {0} ist der Dateiname des Screenshots
+    </resource>
+  </resources>
+</language>

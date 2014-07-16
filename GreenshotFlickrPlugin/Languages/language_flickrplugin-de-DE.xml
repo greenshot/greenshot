@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1.0.0">
+	<resources>
+	 <resource name="label_HiddenFromSearch">
+			Versteckte Suchmaske
+		</resource>
+		<resource name="label_SafetyLevel">
+			Sicherheits Level
+		</resource>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	 Link in der Zwischenablage
+	</resource>
+		<resource name="label_AfterUpload">
+		Anschliessend
+		</resource>
+	<resource name="Configure">
+			Flickr konfigurieren
+		</resource>
+		<resource name="upload_menu_item">
+		Hochladen zu Flickr
+	</resource>
+	<resource name="settings_title">
+		Flickr Einstellungen
+	</resource>
+		<resource name="upload_success">
+		Erfolgreich zu Flickr hochgeladen!
+	</resource>
+		<resource name="upload_failure">
+		Fehler beim hochladen zu Flickr:
+	</resource>
+		<resource name="label_upload_format">
+			Grafikformat
+	</resource>
+		<resource name="communication_wait">
+			Übermittle Daten zu Flickr. Bitte warten...
+	</resource>
+	  <resource name="public">
+	  Öffentlich
+	  </resource>
+	<resource name="family">
+	  Familie
+	</resource>
+	<resource name="friend">
+	  Freunde
+	</resource>
+  </resources>
+</language>

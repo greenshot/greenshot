@@ -61,11 +61,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Languages\language_Picasaplugin-fr-FR.xml" />
-    <None Include="Languages\language_Picasaplugin-it-IT.xml" />
-    <None Include="Languages\language_Picasaplugin-ru-RU.xml" />
-    <None Include="Languages\language_Picasaplugin-uk-UA.xml" />
-    <None Include="Languages\language_Picasaplugin-zh-CN.xml" />
+    <None Include="Languages\language_picasaplugin-fr-FR.xml" />
+    <None Include="Languages\language_picasaplugin-it-IT.xml" />
+    <None Include="Languages\language_picasaplugin-ru-RU.xml" />
+    <None Include="Languages\language_picasaplugin-uk-UA.xml" />
+    <None Include="Languages\language_picasaplugin-zh-CN.xml" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>if exist "$(ProjectDir)PicasaCredentials.orig.cs" (

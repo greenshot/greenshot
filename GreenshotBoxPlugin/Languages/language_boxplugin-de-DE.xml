@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1.0.0">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">
+		 Link in der Zwischenablage
+		</resource>
+		<resource name="label_AfterUpload">
+		Anschliessend
+		</resource>
+		<resource name="Configure">
+			Box konfigurieren
+		</resource>
+		<resource name="upload_menu_item">
+		Zu Box hochladen
+	</resource>
+	<resource name="settings_title">
+		Box Einstellungen
+	</resource>
+		<resource name="upload_success">
+		Hochladen zu Box war erfolgreich !
+	</resource>
+		<resource name="upload_failure">
+		Fehler beim Hochladen zu Box:
+	</resource>
+		<resource name="label_upload_format">
+			Grafikformat
+	</resource>
+		<resource name="communication_wait">
+			Übermittle Daten zu Box. Bitte warten...
+	</resource>
+	</resources>
+</language>
