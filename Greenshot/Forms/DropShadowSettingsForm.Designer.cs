@@ -74,7 +74,7 @@ namespace Greenshot.Forms {
             0});
 			this.thickness.Name = "thickness";
 			this.thickness.Size = new System.Drawing.Size(45, 20);
-			this.thickness.TabIndex = 0;
+			this.thickness.TabIndex = 1;
 			this.thickness.Value = new decimal(new int[] {
             9,
             0,
@@ -96,7 +96,7 @@ namespace Greenshot.Forms {
             -2147483648});
 			this.offsetX.Name = "offsetX";
 			this.offsetX.Size = new System.Drawing.Size(45, 20);
-			this.offsetX.TabIndex = 4;
+			this.offsetX.TabIndex = 2;
 			this.offsetX.Value = new decimal(new int[] {
             1,
             0,
@@ -127,7 +127,7 @@ namespace Greenshot.Forms {
             -2147483648});
 			this.offsetY.Name = "offsetY";
 			this.offsetY.Size = new System.Drawing.Size(45, 20);
-			this.offsetY.TabIndex = 6;
+			this.offsetY.TabIndex = 3;
 			this.offsetY.Value = new decimal(new int[] {
             1,
             0,
@@ -141,7 +141,7 @@ namespace Greenshot.Forms {
 			this.trackBar1.Minimum = 1;
 			this.trackBar1.Name = "trackBar1";
 			this.trackBar1.Size = new System.Drawing.Size(116, 45);
-			this.trackBar1.TabIndex = 7;
+			this.trackBar1.TabIndex = 4;
 			this.trackBar1.Value = 40;
 			// 
 			// buttonOK

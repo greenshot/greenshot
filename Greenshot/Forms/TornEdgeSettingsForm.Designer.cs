@@ -88,7 +88,7 @@ namespace Greenshot.Forms {
             0});
 			this.thickness.Name = "thickness";
 			this.thickness.Size = new System.Drawing.Size(45, 20);
-			this.thickness.TabIndex = 0;
+			this.thickness.TabIndex = 2;
 			this.thickness.Value = new decimal(new int[] {
             9,
             0,
@@ -110,7 +110,7 @@ namespace Greenshot.Forms {
             -2147483648});
 			this.offsetX.Name = "offsetX";
 			this.offsetX.Size = new System.Drawing.Size(45, 20);
-			this.offsetX.TabIndex = 4;
+			this.offsetX.TabIndex = 3;
 			this.offsetX.Value = new decimal(new int[] {
             1,
             0,
@@ -141,7 +141,7 @@ namespace Greenshot.Forms {
             -2147483648});
 			this.offsetY.Name = "offsetY";
 			this.offsetY.Size = new System.Drawing.Size(45, 20);
-			this.offsetY.TabIndex = 6;
+			this.offsetY.TabIndex = 4;
 			this.offsetY.Value = new decimal(new int[] {
             1,
             0,
@@ -155,7 +155,7 @@ namespace Greenshot.Forms {
 			this.shadowDarkness.Minimum = 1;
 			this.shadowDarkness.Name = "shadowDarkness";
 			this.shadowDarkness.Size = new System.Drawing.Size(116, 45);
-			this.shadowDarkness.TabIndex = 7;
+			this.shadowDarkness.TabIndex = 5;
 			this.shadowDarkness.Value = 40;
 			// 
 			// buttonOK
@@ -164,7 +164,7 @@ namespace Greenshot.Forms {
 			this.buttonOK.Location = new System.Drawing.Point(62, 320);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
-			this.buttonOK.TabIndex = 11;
+			this.buttonOK.TabIndex = 20;
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
 			// 
@@ -175,7 +175,7 @@ namespace Greenshot.Forms {
 			this.buttonCancel.Location = new System.Drawing.Point(143, 320);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-			this.buttonCancel.TabIndex = 12;
+			this.buttonCancel.TabIndex = 21;
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// labelDarkness
@@ -220,7 +220,7 @@ namespace Greenshot.Forms {
             0});
 			this.toothsize.Name = "toothsize";
 			this.toothsize.Size = new System.Drawing.Size(45, 20);
-			this.toothsize.TabIndex = 16;
+			this.toothsize.TabIndex = 6;
 			this.toothsize.Value = new decimal(new int[] {
             12,
             0,
@@ -260,7 +260,7 @@ namespace Greenshot.Forms {
             0});
 			this.horizontaltoothrange.Name = "horizontaltoothrange";
 			this.horizontaltoothrange.Size = new System.Drawing.Size(45, 20);
-			this.horizontaltoothrange.TabIndex = 18;
+			this.horizontaltoothrange.TabIndex = 7;
 			this.horizontaltoothrange.Value = new decimal(new int[] {
             20,
             0,
@@ -291,7 +291,7 @@ namespace Greenshot.Forms {
             0});
 			this.verticaltoothrange.Name = "verticaltoothrange";
 			this.verticaltoothrange.Size = new System.Drawing.Size(45, 20);
-			this.verticaltoothrange.TabIndex = 20;
+			this.verticaltoothrange.TabIndex = 8;
 			this.verticaltoothrange.Value = new decimal(new int[] {
             20,
             0,
@@ -301,51 +301,52 @@ namespace Greenshot.Forms {
 			// top
 			// 
 			this.top.AutoSize = true;
+			this.top.LanguageKey = "editor_tornedge_top";
 			this.top.Location = new System.Drawing.Point(15, 222);
 			this.top.Name = "top";
 			this.top.Size = new System.Drawing.Size(88, 17);
-			this.top.TabIndex = 22;
-			this.top.LanguageKey = "editor_tornedge_top";
+			this.top.TabIndex = 9;
 			this.top.UseVisualStyleBackColor = true;
 			// 
 			// right
 			// 
 			this.right.AutoSize = true;
+			this.right.LanguageKey = "editor_tornedge_right";
 			this.right.Location = new System.Drawing.Point(15, 245);
 			this.right.Name = "right";
 			this.right.Size = new System.Drawing.Size(93, 17);
-			this.right.TabIndex = 23;
+			this.right.TabIndex = 10;
 			this.right.LanguageKey = "editor_tornedge_right";
 			this.right.UseVisualStyleBackColor = true;
 			// 
 			// bottom
 			// 
 			this.bottom.AutoSize = true;
+			this.bottom.LanguageKey = "editor_tornedge_bottom";
 			this.bottom.Location = new System.Drawing.Point(15, 268);
 			this.bottom.Name = "bottom";
 			this.bottom.Size = new System.Drawing.Size(105, 17);
-			this.bottom.TabIndex = 24;
-			this.bottom.LanguageKey = "editor_tornedge_bottom";
+			this.bottom.TabIndex = 11;
 			this.bottom.UseVisualStyleBackColor = true;
 			// 
 			// left
 			// 
 			this.left.AutoSize = true;
+			this.left.LanguageKey = "editor_tornedge_left";
 			this.left.Location = new System.Drawing.Point(15, 291);
 			this.left.Name = "left";
 			this.left.Size = new System.Drawing.Size(87, 17);
-			this.left.TabIndex = 25;
-			this.left.LanguageKey = "editor_tornedge_left";
+			this.left.TabIndex = 12;
 			this.left.UseVisualStyleBackColor = true;
 			// 
 			// shadowCheckbox
 			// 
 			this.shadowCheckbox.AutoSize = true;
+			this.shadowCheckbox.LanguageKey = "editor_tornedge_shadow";
 			this.shadowCheckbox.Location = new System.Drawing.Point(12, 12);
 			this.shadowCheckbox.Name = "shadowCheckbox";
 			this.shadowCheckbox.Size = new System.Drawing.Size(110, 17);
-			this.shadowCheckbox.TabIndex = 26;
-			this.shadowCheckbox.LanguageKey = "editor_tornedge_shadow";
+			this.shadowCheckbox.TabIndex = 1;
 			this.shadowCheckbox.UseVisualStyleBackColor = true;
 			this.shadowCheckbox.CheckedChanged += new System.EventHandler(this.shadowCheckbox_CheckedChanged);
 			// 

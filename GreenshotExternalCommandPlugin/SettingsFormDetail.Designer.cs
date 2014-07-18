@@ -63,22 +63,22 @@ namespace ExternalCommand {
 			// buttonOk
 			// 
 			this.buttonOk.Enabled = false;
+			this.buttonOk.LanguageKey = "OK";
 			this.buttonOk.Location = new System.Drawing.Point(273, 140);
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.Size = new System.Drawing.Size(75, 23);
-			this.buttonOk.TabIndex = 26;
-			this.buttonOk.LanguageKey = "OK";
+			this.buttonOk.TabIndex = 10;
 			this.buttonOk.UseVisualStyleBackColor = true;
 			this.buttonOk.Click += new System.EventHandler(this.ButtonOkClick);
 			// 
 			// buttonCancel
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(9, 140);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-			this.buttonCancel.TabIndex = 27;
-			this.buttonCancel.LanguageKey = "CANCEL";
+			this.buttonCancel.TabIndex = 11;
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
@@ -92,12 +92,12 @@ namespace ExternalCommand {
 			this.groupBox1.Controls.Add(this.textBox_arguments);
 			this.groupBox1.Controls.Add(this.label1);
 			this.groupBox1.Controls.Add(this.textBox_commandline);
+			this.groupBox1.LanguageKey = "settings_title";
 			this.groupBox1.Location = new System.Drawing.Point(10, 12);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(339, 122);
 			this.groupBox1.TabIndex = 28;
 			this.groupBox1.TabStop = false;
-			this.groupBox1.LanguageKey = "settings_title";
 			// 
 			// label4
 			// 
@@ -112,7 +112,7 @@ namespace ExternalCommand {
 			this.buttonPathSelect.Location = new System.Drawing.Point(298, 47);
 			this.buttonPathSelect.Name = "buttonPathSelect";
 			this.buttonPathSelect.Size = new System.Drawing.Size(33, 23);
-			this.buttonPathSelect.TabIndex = 18;
+			this.buttonPathSelect.TabIndex = 3;
 			this.buttonPathSelect.Text = "...";
 			this.buttonPathSelect.UseVisualStyleBackColor = true;
 			this.buttonPathSelect.Click += new System.EventHandler(this.Button3Click);
@@ -130,7 +130,7 @@ namespace ExternalCommand {
 			this.textBox_name.Location = new System.Drawing.Point(68, 23);
 			this.textBox_name.Name = "textBox_name";
 			this.textBox_name.Size = new System.Drawing.Size(225, 20);
-			this.textBox_name.TabIndex = 12;
+			this.textBox_name.TabIndex = 1;
 			this.textBox_name.TextChanged += new System.EventHandler(this.textBox_name_TextChanged);
 			// 
 			// label2
@@ -146,7 +146,7 @@ namespace ExternalCommand {
 			this.textBox_arguments.Location = new System.Drawing.Point(68, 75);
 			this.textBox_arguments.Name = "textBox_arguments";
 			this.textBox_arguments.Size = new System.Drawing.Size(225, 20);
-			this.textBox_arguments.TabIndex = 14;
+			this.textBox_arguments.TabIndex = 4;
 			// 
 			// label1
 			// 
@@ -161,7 +161,7 @@ namespace ExternalCommand {
 			this.textBox_commandline.Location = new System.Drawing.Point(68, 49);
 			this.textBox_commandline.Name = "textBox_commandline";
 			this.textBox_commandline.Size = new System.Drawing.Size(225, 20);
-			this.textBox_commandline.TabIndex = 13;
+			this.textBox_commandline.TabIndex = 2;
 			this.textBox_commandline.TextChanged += new System.EventHandler(this.textBox_commandline_TextChanged);
 			// 
 			// SettingsFormDetail

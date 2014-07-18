@@ -60,13 +60,13 @@ namespace GreenshotJiraPlugin {
 			// jiraFilterBox
 			// 
 			this.jiraFilterBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraFilterBox.DisplayMember = "name";
 			this.jiraFilterBox.FormattingEnabled = true;
 			this.jiraFilterBox.Location = new System.Drawing.Point(102, 11);
 			this.jiraFilterBox.Name = "jiraFilterBox";
 			this.jiraFilterBox.Size = new System.Drawing.Size(604, 21);
-			this.jiraFilterBox.TabIndex = 23;
+			this.jiraFilterBox.TabIndex = 5;
 			this.jiraFilterBox.SelectedIndexChanged += new System.EventHandler(this.jiraFilterBox_SelectedIndexChanged);
 			// 
 			// label_jirafilter
@@ -94,7 +94,7 @@ namespace GreenshotJiraPlugin {
 			this.uploadButton.Location = new System.Drawing.Point(550, 281);
 			this.uploadButton.Name = "uploadButton";
 			this.uploadButton.Size = new System.Drawing.Size(75, 23);
-			this.uploadButton.TabIndex = 32;
+			this.uploadButton.TabIndex = 10;
 			this.uploadButton.Text = "Upload";
 			this.uploadButton.UseVisualStyleBackColor = true;
 			this.uploadButton.Click += new System.EventHandler(this.uploadButton_Click);
@@ -102,27 +102,27 @@ namespace GreenshotJiraPlugin {
 			// jiraListView
 			// 
 			this.jiraListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraListView.FullRowSelect = true;
 			this.jiraListView.Location = new System.Drawing.Point(102, 41);
 			this.jiraListView.MultiSelect = false;
 			this.jiraListView.Name = "jiraListView";
 			this.jiraListView.Size = new System.Drawing.Size(604, 172);
-			this.jiraListView.TabIndex = 33;
+			this.jiraListView.TabIndex = 4;
 			this.jiraListView.UseCompatibleStateImageBehavior = false;
 			this.jiraListView.View = System.Windows.Forms.View.Details;
-			this.jiraListView.SelectedIndexChanged += new System.EventHandler(this.jiraListView_SelectedIndexChanged);
 			this.jiraListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.jiraListView_ColumnClick);
+			this.jiraListView.SelectedIndexChanged += new System.EventHandler(this.jiraListView_SelectedIndexChanged);
 			// 
 			// jiraFilenameBox
 			// 
 			this.jiraFilenameBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraFilenameBox.Location = new System.Drawing.Point(102, 219);
 			this.jiraFilenameBox.Name = "jiraFilenameBox";
 			this.jiraFilenameBox.Size = new System.Drawing.Size(604, 20);
-			this.jiraFilenameBox.TabIndex = 34;
+			this.jiraFilenameBox.TabIndex = 3;
 			// 
 			// label_filename
 			// 
@@ -147,11 +147,11 @@ namespace GreenshotJiraPlugin {
 			// jiraCommentBox
 			// 
 			this.jiraCommentBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraCommentBox.Location = new System.Drawing.Point(102, 245);
 			this.jiraCommentBox.Name = "jiraCommentBox";
 			this.jiraCommentBox.Size = new System.Drawing.Size(604, 20);
-			this.jiraCommentBox.TabIndex = 37;
+			this.jiraCommentBox.TabIndex = 2;
 			// 
 			// cancelButton
 			// 
@@ -159,7 +159,7 @@ namespace GreenshotJiraPlugin {
 			this.cancelButton.Location = new System.Drawing.Point(631, 281);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
-			this.cancelButton.TabIndex = 38;
+			this.cancelButton.TabIndex = 11;
 			this.cancelButton.Text = "Cancel";
 			this.cancelButton.UseVisualStyleBackColor = true;
 			this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
@@ -177,11 +177,11 @@ namespace GreenshotJiraPlugin {
 			// jiraKey
 			// 
 			this.jiraKey.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraKey.Location = new System.Drawing.Point(102, 271);
 			this.jiraKey.Name = "jiraKey";
 			this.jiraKey.Size = new System.Drawing.Size(158, 20);
-			this.jiraKey.TabIndex = 40;
+			this.jiraKey.TabIndex = 1;
 			this.jiraKey.TextChanged += new System.EventHandler(this.JiraKeyTextChanged);
 			// 
 			// JiraForm

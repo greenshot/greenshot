@@ -135,7 +135,7 @@ namespace Greenshot.Forms {
 			this.combobox_height.Location = new System.Drawing.Point(165, 38);
 			this.combobox_height.Name = "combobox_height";
 			this.combobox_height.Size = new System.Drawing.Size(65, 21);
-			this.combobox_height.TabIndex = 19;
+			this.combobox_height.TabIndex = 4;
 			// 
 			// ResizeSettingsForm
 			// 

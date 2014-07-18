@@ -61,17 +61,17 @@ namespace GreenshotImgurPlugin
 			// listview_imgur_uploads
 			// 
 			this.listview_imgur_uploads.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.listview_imgur_uploads.FullRowSelect = true;
 			this.listview_imgur_uploads.Location = new System.Drawing.Point(12, 12);
 			this.listview_imgur_uploads.Name = "listview_imgur_uploads";
 			this.listview_imgur_uploads.Size = new System.Drawing.Size(510, 249);
-			this.listview_imgur_uploads.TabIndex = 0;
+			this.listview_imgur_uploads.TabIndex = 1;
 			this.listview_imgur_uploads.UseCompatibleStateImageBehavior = false;
 			this.listview_imgur_uploads.View = System.Windows.Forms.View.Details;
-			this.listview_imgur_uploads.SelectedIndexChanged += new System.EventHandler(this.Listview_imgur_uploadsSelectedIndexChanged);
 			this.listview_imgur_uploads.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listview_imgur_uploads_ColumnClick);
+			this.listview_imgur_uploads.SelectedIndexChanged += new System.EventHandler(this.Listview_imgur_uploadsSelectedIndexChanged);
 			// 
 			// pictureBox1
 			// 
@@ -80,9 +80,9 @@ namespace GreenshotImgurPlugin
 			this.pictureBox1.Location = new System.Drawing.Point(13, 272);
 			this.pictureBox1.Name = "pictureBox1";
 			this.pictureBox1.Size = new System.Drawing.Size(90, 90);
+			this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			this.pictureBox1.TabIndex = 1;
 			this.pictureBox1.TabStop = false;
-			this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			// 
 			// deleteButton
 			// 
@@ -114,7 +114,7 @@ namespace GreenshotImgurPlugin
 			this.finishedButton.Location = new System.Drawing.Point(447, 338);
 			this.finishedButton.Name = "finishedButton";
 			this.finishedButton.Size = new System.Drawing.Size(75, 23);
-			this.finishedButton.TabIndex = 4;
+			this.finishedButton.TabIndex = 11;
 			this.finishedButton.Text = "Finished";
 			this.finishedButton.UseVisualStyleBackColor = true;
 			this.finishedButton.Click += new System.EventHandler(this.FinishedButtonClick);
@@ -126,7 +126,7 @@ namespace GreenshotImgurPlugin
 			this.clipboardButton.Location = new System.Drawing.Point(109, 338);
 			this.clipboardButton.Name = "clipboardButton";
 			this.clipboardButton.Size = new System.Drawing.Size(129, 23);
-			this.clipboardButton.TabIndex = 5;
+			this.clipboardButton.TabIndex = 4;
 			this.clipboardButton.Text = "Copy link(s) to clipboard";
 			this.clipboardButton.UseVisualStyleBackColor = true;
 			this.clipboardButton.Click += new System.EventHandler(this.ClipboardButtonClick);
@@ -137,7 +137,7 @@ namespace GreenshotImgurPlugin
 			this.clearHistoryButton.Location = new System.Drawing.Point(447, 272);
 			this.clearHistoryButton.Name = "clearHistoryButton";
 			this.clearHistoryButton.Size = new System.Drawing.Size(75, 23);
-			this.clearHistoryButton.TabIndex = 6;
+			this.clearHistoryButton.TabIndex = 10;
 			this.clearHistoryButton.Text = "Clear history";
 			this.clearHistoryButton.UseVisualStyleBackColor = true;
 			this.clearHistoryButton.Click += new System.EventHandler(this.ClearHistoryButtonClick);
@@ -154,8 +154,8 @@ namespace GreenshotImgurPlugin
 			this.Controls.Add(this.deleteButton);
 			this.Controls.Add(this.pictureBox1);
 			this.Controls.Add(this.listview_imgur_uploads);
-			this.Name = "ImgurHistory";
 			this.LanguageKey = "imgur.history";
+			this.Name = "ImgurHistory";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImgurHistoryFormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.ResumeLayout(false);

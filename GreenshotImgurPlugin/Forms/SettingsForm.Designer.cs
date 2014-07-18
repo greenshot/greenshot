@@ -62,7 +62,7 @@ namespace GreenshotImgurPlugin {
 			this.buttonOK.Location = new System.Drawing.Point(222, 88);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
-			this.buttonOK.TabIndex = 2;
+			this.buttonOK.TabIndex = 10;
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
 			// 
@@ -73,7 +73,7 @@ namespace GreenshotImgurPlugin {
 			this.buttonCancel.Location = new System.Drawing.Point(303, 88);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-			this.buttonCancel.TabIndex = 3;
+			this.buttonCancel.TabIndex = 11;
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
@@ -86,7 +86,7 @@ namespace GreenshotImgurPlugin {
 			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
 			this.combobox_uploadimageformat.SectionName = "Imgur";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(210, 21);
-			this.combobox_uploadimageformat.TabIndex = 8;
+			this.combobox_uploadimageformat.TabIndex = 1;
 			// 
 			// label_upload_format
 			// 
@@ -103,7 +103,7 @@ namespace GreenshotImgurPlugin {
 			this.historyButton.Location = new System.Drawing.Point(13, 88);
 			this.historyButton.Name = "historyButton";
 			this.historyButton.Size = new System.Drawing.Size(75, 23);
-			this.historyButton.TabIndex = 11;
+			this.historyButton.TabIndex = 20;
 			this.historyButton.UseVisualStyleBackColor = true;
 			this.historyButton.Click += new System.EventHandler(this.ButtonHistoryClick);
 			// 
@@ -115,8 +115,8 @@ namespace GreenshotImgurPlugin {
 			this.checkbox_anonymous_access.Name = "checkbox_anonymous_access";
 			this.checkbox_anonymous_access.PropertyName = "AnonymousAccess";
 			this.checkbox_anonymous_access.SectionName = "Imgur";
-			this.checkbox_anonymous_access.Size = new System.Drawing.Size(15, 14);
-			this.checkbox_anonymous_access.TabIndex = 13;
+			this.checkbox_anonymous_access.Size = new System.Drawing.Size(139, 17);
+			this.checkbox_anonymous_access.TabIndex = 2;
 			this.checkbox_anonymous_access.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_usepagelink
@@ -127,8 +127,8 @@ namespace GreenshotImgurPlugin {
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
 			this.checkbox_usepagelink.PropertyName = "UsePageLink";
 			this.checkbox_usepagelink.SectionName = "Imgur";
-			this.checkbox_usepagelink.Size = new System.Drawing.Size(15, 14);
-			this.checkbox_usepagelink.TabIndex = 13;
+			this.checkbox_usepagelink.Size = new System.Drawing.Size(251, 17);
+			this.checkbox_usepagelink.TabIndex = 3;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 
 			// SettingsForm

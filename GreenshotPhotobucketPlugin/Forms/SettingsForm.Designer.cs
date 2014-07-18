@@ -60,7 +60,7 @@ namespace GreenshotPhotobucketPlugin {
 			this.buttonOK.Location = new System.Drawing.Point(222, 70);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
-			this.buttonOK.TabIndex = 2;
+			this.buttonOK.TabIndex = 3;
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
 			// 
@@ -71,7 +71,7 @@ namespace GreenshotPhotobucketPlugin {
 			this.buttonCancel.Location = new System.Drawing.Point(303, 70);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-			this.buttonCancel.TabIndex = 3;
+			this.buttonCancel.TabIndex = 4;
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
@@ -84,7 +84,7 @@ namespace GreenshotPhotobucketPlugin {
 			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
 			this.combobox_uploadimageformat.SectionName = "Photobucket";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(276, 21);
-			this.combobox_uploadimageformat.TabIndex = 8;
+			this.combobox_uploadimageformat.TabIndex = 1;
 			// 
 			// label_upload_format
 			// 
@@ -103,7 +103,7 @@ namespace GreenshotPhotobucketPlugin {
 			this.checkbox_usepagelink.PropertyName = "UsePageLink";
 			this.checkbox_usepagelink.SectionName = "Photobucket";
 			this.checkbox_usepagelink.Size = new System.Drawing.Size(251, 17);
-			this.checkbox_usepagelink.TabIndex = 13;
+			this.checkbox_usepagelink.TabIndex = 2;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 
 			// SettingsForm

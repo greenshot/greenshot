@@ -60,8 +60,7 @@ namespace GreenshotPicasaPlugin {
 			this.buttonOK.Location = new System.Drawing.Point(267, 78);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
-			this.buttonOK.TabIndex = 12;
-			this.buttonOK.Text = "OK";
+			this.buttonOK.TabIndex = 10;
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
 			// 
@@ -72,7 +71,7 @@ namespace GreenshotPicasaPlugin {
 			this.buttonCancel.Location = new System.Drawing.Point(348, 78);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-			this.buttonCancel.TabIndex = 13;
+			this.buttonCancel.TabIndex = 11;
 			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
@@ -80,7 +79,7 @@ namespace GreenshotPicasaPlugin {
 			// combobox_uploadimageformat
 			// 
 			this.combobox_uploadimageformat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(197, 12);
@@ -88,7 +87,7 @@ namespace GreenshotPicasaPlugin {
 			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
 			this.combobox_uploadimageformat.SectionName = "Picasa";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(225, 21);
-			this.combobox_uploadimageformat.TabIndex = 5;
+			this.combobox_uploadimageformat.TabIndex = 1;
 			// 
 			// label_upload_format
 			// 
@@ -119,7 +118,7 @@ namespace GreenshotPicasaPlugin {
 			this.checkboxAfterUploadLinkToClipBoard.PropertyName = "AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Picasa";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
-			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 10;
+			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 2;
 			this.checkboxAfterUploadLinkToClipBoard.Text = "Link to clipboard";
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 

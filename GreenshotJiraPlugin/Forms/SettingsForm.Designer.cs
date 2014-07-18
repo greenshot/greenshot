@@ -61,8 +61,7 @@ namespace GreenshotJiraPlugin {
 			this.buttonOK.Location = new System.Drawing.Point(222, 84);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
-			this.buttonOK.TabIndex = 2;
-			this.buttonOK.Text = "OK";
+			this.buttonOK.TabIndex = 10;
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
 			// 
@@ -73,7 +72,7 @@ namespace GreenshotJiraPlugin {
 			this.buttonCancel.Location = new System.Drawing.Point(303, 84);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-			this.buttonCancel.TabIndex = 3;
+			this.buttonCancel.TabIndex = 11;
 			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
@@ -133,7 +132,6 @@ namespace GreenshotJiraPlugin {
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
-			this.Text = "Please enter your Jira data";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
