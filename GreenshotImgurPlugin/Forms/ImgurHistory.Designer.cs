@@ -117,7 +117,6 @@ namespace GreenshotImgurPlugin
 			this.finishedButton.TabIndex = 11;
 			this.finishedButton.Text = "Finished";
 			this.finishedButton.UseVisualStyleBackColor = true;
-			this.finishedButton.Click += new System.EventHandler(this.FinishedButtonClick);
 			// 
 			// clipboardButton
 			// 

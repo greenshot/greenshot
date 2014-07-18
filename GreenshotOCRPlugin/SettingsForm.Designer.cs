@@ -100,6 +100,7 @@ namespace GreenshotOCR
 			// buttonOK
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(12, 98);
 			this.buttonOK.Name = "buttonOK";
@@ -111,13 +112,13 @@ namespace GreenshotOCR
 			// buttonCancel
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(128, 98);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(104, 23);
 			this.buttonCancel.TabIndex = 5;
 			this.buttonCancel.UseVisualStyleBackColor = true;
-			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
 			// SettingsForm
 			// 
@@ -133,6 +134,7 @@ namespace GreenshotOCR
 			this.LanguageKey = "settings_title";
 			this.Name = "SettingsForm";
 			this.ResumeLayout(false);
+
 		}
 		private GreenshotPlugin.Controls.GreenshotLabel label_language;
 		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;

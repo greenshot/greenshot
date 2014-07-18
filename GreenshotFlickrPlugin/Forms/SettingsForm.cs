@@ -38,14 +38,9 @@ namespace GreenshotFlickrPlugin {
 			//
 			InitializeComponent();
 			Icon = GreenshotResources.getGreenshotIcon();
+			CancelButton = buttonCancel;
+			AcceptButton = buttonOK;
 		}
-				
-		void ButtonOKClick(object sender, EventArgs e) {
-			DialogResult = DialogResult.OK;
-		}
-		
-		void ButtonCancelClick(object sender, EventArgs e) {
-			DialogResult = DialogResult.Cancel;
-		}
+			
 	}
 }

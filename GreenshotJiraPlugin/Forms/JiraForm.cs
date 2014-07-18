@@ -37,6 +37,9 @@ namespace GreenshotJiraPlugin {
 		public JiraForm(JiraConnector jiraConnector) {
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			AcceptButton = uploadButton;
+			CancelButton = cancelButton;
+
 			initializeComponentText();
 
 			this.columnSorter = new GreenshotColumnSorter();
@@ -167,14 +170,6 @@ namespace GreenshotJiraPlugin {
 			} else {
 				uploadButton.Enabled = false;
 			}
-		}
-
-		private void uploadButton_Click(object sender, EventArgs e) {
-			this.DialogResult = DialogResult.OK;
-		}
-
-		private void cancelButton_Click(object sender, EventArgs e) {
-			this.DialogResult = DialogResult.Cancel;
 		}
 
 		private void jiraListView_ColumnClick(object sender, ColumnClickEventArgs e) {

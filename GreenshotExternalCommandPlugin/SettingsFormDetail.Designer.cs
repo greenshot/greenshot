@@ -62,6 +62,7 @@ namespace ExternalCommand {
 			// 
 			// buttonOk
 			// 
+			this.buttonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.buttonOk.Enabled = false;
 			this.buttonOk.LanguageKey = "OK";
 			this.buttonOk.Location = new System.Drawing.Point(273, 140);
@@ -80,7 +81,6 @@ namespace ExternalCommand {
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 11;
 			this.buttonCancel.UseVisualStyleBackColor = true;
-			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
 			// groupBox1
 			// 
@@ -178,7 +178,6 @@ namespace ExternalCommand {
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.LanguageKey = "externalcommand.settings_detail_title";
 			this.Name = "SettingsFormDetail";
-			this.Text = "Configure command";
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);

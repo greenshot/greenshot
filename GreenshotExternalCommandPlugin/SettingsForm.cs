@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
-using Greenshot.IniFile;
 
 namespace ExternalCommand {
 	/// <summary>
@@ -31,34 +31,31 @@ namespace ExternalCommand {
 	public partial class SettingsForm : ExternalCommandForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
 		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		
+
 		public SettingsForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			AcceptButton = buttonOk;
+			CancelButton = buttonCancel;
 			UpdateView();
 		}
-		
+
 		void ButtonOkClick(object sender, EventArgs e) {
 			IniConfig.Save();
-			DialogResult = DialogResult.OK;
-		}
-		
-		void ButtonCancelClick(object sender, EventArgs e) {
-			DialogResult = DialogResult.Cancel;
 		}
 
 		void ButtonAddClick(object sender, EventArgs e) {
 			SettingsFormDetail form = new SettingsFormDetail(null);
 			form.ShowDialog();
-			
+
 			UpdateView();
 		}
 
 		void ButtonDeleteClick(object sender, EventArgs e) {
-			foreach ( ListViewItem item in listView1.SelectedItems ) {
+			foreach(ListViewItem item in listView1.SelectedItems) {
 				string commando = item.Tag as string;
 				config.commands.Remove(commando);
 				config.commandlines.Remove(commando);
@@ -69,15 +66,15 @@ namespace ExternalCommand {
 
 		void UpdateView() {
 			listView1.Items.Clear();
-			if (config.commands != null) {
+			if(config.commands != null) {
 				listView1.ListViewItemSorter = new ListviewComparer();
 				ImageList imageList = new ImageList();
 				listView1.SmallImageList = imageList;
 				int imageNr = 0;
-				foreach (string commando in config.commands) {
+				foreach(string commando in config.commands) {
 					ListViewItem item = null;
 					Image iconForExe = IconCache.IconForCommand(commando);
-					if (iconForExe != null) {
+					if(iconForExe != null) {
 						imageList.Images.Add(iconForExe);
 						item = new ListViewItem(commando, imageNr++);
 					} else {
@@ -94,39 +91,39 @@ namespace ExternalCommand {
 		void ListView1ItemSelectionChanged(object sender, EventArgs e) {
 			button_edit.Enabled = listView1.SelectedItems.Count > 0;
 		}
-		
+
 		void ButtonEditClick(object sender, EventArgs e) {
 			ListView1DoubleClick(sender, e);
 		}
-		
+
 		void ListView1DoubleClick(object sender, EventArgs e) {
 			// Safety check for bug #1484
 			bool selectionActive = listView1.SelectedItems.Count > 0;
-			if (!selectionActive) {
+			if(!selectionActive) {
 				button_edit.Enabled = false;
 				return;
 			}
 			string commando = listView1.SelectedItems[0].Tag as string;
-			
+
 			SettingsFormDetail form = new SettingsFormDetail(commando);
 			form.ShowDialog();
-			
+
 			UpdateView();
 		}
 	}
 
 	public class ListviewComparer : System.Collections.IComparer {
 		public int Compare(object x, object y) {
-			if (!(x is ListViewItem)) {
+			if(!(x is ListViewItem)) {
 				return (0);
 			}
-			if (!(y is ListViewItem)) {
+			if(!(y is ListViewItem)) {
 				return (0);
 			}
 
 			ListViewItem l1 = (ListViewItem)x;
 			ListViewItem l2 = (ListViewItem)y;
-			if (l2 == null) {
+			if(l2 == null) {
 				return 1;
 			}
 			return l1.Text.CompareTo(l2.Text);

@@ -1,17 +1,29 @@
 ﻿/*
- * Created by SharpDevelop.
- * User: 05018038
- * Date: 04.04.2012
- * Time: 10:50
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-
-using Greenshot.IniFile;
 
 namespace ExternalCommand {
 	/// <summary>
@@ -20,17 +32,18 @@ namespace ExternalCommand {
 	public partial class SettingsFormDetail : ExternalCommandForm {
 		private string commando;
 		private int commandIndex;
-		
+
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
 		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		
-		public SettingsFormDetail(string commando)
-		{
+
+		public SettingsFormDetail(string commando) {
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			AcceptButton = buttonOk;
+			CancelButton = buttonCancel;
 			this.commando = commando;
-			
-			if (commando != null) {
+
+			if(commando != null) {
 				textBox_name.Text = commando;
 				textBox_commandline.Text = config.commandlines[commando];
 				textBox_arguments.Text = config.arguments[commando];
@@ -40,13 +53,12 @@ namespace ExternalCommand {
 			}
 			OKButtonState();
 		}
-		
-		void ButtonOkClick(object sender, EventArgs e)
-		{
+
+		void ButtonOkClick(object sender, EventArgs e) {
 			string commandName = textBox_name.Text;
 			string commandLine = textBox_commandline.Text;
 			string arguments = textBox_arguments.Text;
-			if (commando != null) {
+			if(commando != null) {
 				config.commands[commandIndex] = commandName;
 				config.commandlines.Remove(commando);
 				config.commandlines.Add(commandName, commandLine);
@@ -57,17 +69,9 @@ namespace ExternalCommand {
 				config.commandlines.Add(commandName, commandLine);
 				config.arguments.Add(commandName, arguments);
 			}
-			
-			Close();
 		}
-		
-		void ButtonCancelClick(object sender, EventArgs e)
-		{
-			Close();
-		}
-		
-		void Button3Click(object sender, EventArgs e)
-		{
+
+		void Button3Click(object sender, EventArgs e) {
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Executables (*.exe, *.bat, *.com)|*.exe; *.bat; *.com|All files (*)|*";
 			openFileDialog.FilterIndex = 1;
@@ -76,15 +80,15 @@ namespace ExternalCommand {
 			string initialPath = null;
 			try {
 				initialPath = Path.GetDirectoryName(textBox_commandline.Text);
-			} catch {}
-			if (initialPath != null && Directory.Exists(initialPath)) {
-				openFileDialog.InitialDirectory = initialPath;				
+			} catch { }
+			if(initialPath != null && Directory.Exists(initialPath)) {
+				openFileDialog.InitialDirectory = initialPath;
 			} else {
 				initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 				openFileDialog.InitialDirectory = initialPath;
 			}
 			LOG.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
-			if (openFileDialog.ShowDialog() == DialogResult.OK) {
+			if(openFileDialog.ShowDialog() == DialogResult.OK) {
 				textBox_commandline.Text = openFileDialog.FileName;
 			}
 		}
@@ -95,20 +99,20 @@ namespace ExternalCommand {
 			textBox_name.BackColor = Color.White;
 			textBox_commandline.BackColor = Color.White;
 			// Is there a text in the name field
-			if (string.IsNullOrEmpty(textBox_name.Text)) {
+			if(string.IsNullOrEmpty(textBox_name.Text)) {
 				buttonOk.Enabled = false;
 			}
 			// Check if commandname is unique
-			if (commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.commands.Contains(textBox_name.Text)) {
+			if(commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.commands.Contains(textBox_name.Text)) {
 				buttonOk.Enabled = false;
 				textBox_name.BackColor = Color.Red;
 			}
 			// Is there a text in the commandline field
-			if (string.IsNullOrEmpty(textBox_commandline.Text)) {
+			if(string.IsNullOrEmpty(textBox_commandline.Text)) {
 				buttonOk.Enabled = false;
 			}
 			// Is the command available?
-			if (!string.IsNullOrEmpty(textBox_commandline.Text) && !File.Exists(textBox_commandline.Text)) {
+			if(!string.IsNullOrEmpty(textBox_commandline.Text) && !File.Exists(textBox_commandline.Text)) {
 				buttonOk.Enabled = false;
 				textBox_commandline.BackColor = Color.Red;
 			}

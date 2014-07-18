@@ -90,6 +90,7 @@ namespace GreenshotJiraPlugin {
 			// uploadButton
 			// 
 			this.uploadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.uploadButton.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.uploadButton.Enabled = false;
 			this.uploadButton.Location = new System.Drawing.Point(550, 281);
 			this.uploadButton.Name = "uploadButton";
@@ -97,7 +98,6 @@ namespace GreenshotJiraPlugin {
 			this.uploadButton.TabIndex = 10;
 			this.uploadButton.Text = "Upload";
 			this.uploadButton.UseVisualStyleBackColor = true;
-			this.uploadButton.Click += new System.EventHandler(this.uploadButton_Click);
 			// 
 			// jiraListView
 			// 
@@ -156,13 +156,13 @@ namespace GreenshotJiraPlugin {
 			// cancelButton
 			// 
 			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.cancelButton.Location = new System.Drawing.Point(631, 281);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
 			this.cancelButton.TabIndex = 11;
 			this.cancelButton.Text = "Cancel";
 			this.cancelButton.UseVisualStyleBackColor = true;
-			this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
 			// 
 			// label1
 			// 
@@ -206,6 +206,7 @@ namespace GreenshotJiraPlugin {
 			this.TopMost = true;
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.TextBox jiraKey;
 		private System.Windows.Forms.Label label1;

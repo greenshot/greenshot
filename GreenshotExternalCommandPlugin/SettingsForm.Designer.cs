@@ -63,10 +63,10 @@ namespace ExternalCommand {
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 11;
 			this.buttonCancel.UseVisualStyleBackColor = true;
-			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
 			// buttonOk
 			// 
+			this.buttonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.buttonOk.LanguageKey = "OK";
 			this.buttonOk.Location = new System.Drawing.Point(275, 173);
 			this.buttonOk.Name = "buttonOk";
@@ -144,6 +144,7 @@ namespace ExternalCommand {
 			this.LanguageKey = "externalcommand.settings_title";
 			this.Name = "SettingsForm";
 			this.ResumeLayout(false);
+
 		}
 		private GreenshotPlugin.Controls.GreenshotButton button_edit;
 		private GreenshotPlugin.Controls.GreenshotButton button_delete;

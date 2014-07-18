@@ -54,7 +54,8 @@ namespace GreenshotImgurPlugin {
 			//
 			InitializeComponent();
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-
+			AcceptButton = finishedButton;
+			CancelButton = finishedButton;
 			// Init sorting
 			columnSorter = new GreenshotColumnSorter();
 			this.listview_imgur_uploads.ListViewItemSorter = columnSorter;
@@ -155,10 +156,6 @@ namespace GreenshotImgurPlugin {
 				}
 			}
 			ClipboardHelper.SetClipboardData(links.ToString());
-		}
-
-		private void FinishedButtonClick(object sender, EventArgs e) {
-			this.Close();
 		}
 
 		private void ClearHistoryButtonClick(object sender, EventArgs e) {

@@ -33,6 +33,8 @@ namespace GreenshotImgurPlugin {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			CancelButton = buttonCancel;
+			AcceptButton = buttonOK;
 			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			
 			ImgurUtils.LoadHistory();
@@ -42,14 +44,6 @@ namespace GreenshotImgurPlugin {
 			} else {
 				historyButton.Enabled = false;
 			}
-		}
-				
-		void ButtonOKClick(object sender, EventArgs e) {
-			this.DialogResult = DialogResult.OK;
-		}
-		
-		void ButtonCancelClick(object sender, System.EventArgs e) {
-			this.DialogResult = DialogResult.Cancel;
 		}
 		
 		void ButtonHistoryClick(object sender, EventArgs e) {

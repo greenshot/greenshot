@@ -30,22 +30,16 @@ namespace GreenshotPicasaPlugin {
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : PicasaForm {
-		private string PicasaFrob = string.Empty;
 
 		public SettingsForm(PicasaConfiguration config) : base() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			CancelButton = buttonCancel;
+			AcceptButton = buttonOK;
+			Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 		}
 
-		void ButtonOKClick(object sender, EventArgs e) {
-			this.DialogResult = DialogResult.OK;
-		}
-		
-		void ButtonCancelClick(object sender, System.EventArgs e) {
-			this.DialogResult = DialogResult.Cancel;
-		}
 	}
 }

@@ -57,17 +57,18 @@ namespace GreenshotJiraPlugin {
 			// buttonOK
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(222, 84);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 10;
 			this.buttonOK.UseVisualStyleBackColor = true;
-			this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
 			// 
 			// buttonCancel
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(303, 84);
 			this.buttonCancel.Name = "buttonCancel";
@@ -75,7 +76,6 @@ namespace GreenshotJiraPlugin {
 			this.buttonCancel.TabIndex = 11;
 			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
-			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
 			// label_url
 			// 
@@ -134,6 +134,7 @@ namespace GreenshotJiraPlugin {
 			this.Name = "SettingsForm";
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
 		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;

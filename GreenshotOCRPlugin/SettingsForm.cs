@@ -35,6 +35,8 @@ namespace GreenshotOCR {
 			//
 			this.config = config;
 			InitializeComponent();
+			AcceptButton = buttonOK;
+			CancelButton = buttonCancel;
 			this.Icon = GreenshotResources.getGreenshotIcon();
 			
 			comboBox_languages.Items.Clear();
@@ -54,18 +56,12 @@ namespace GreenshotOCR {
 				index++;
 			}
 		}
-
-		void ButtonCancelClick(object sender, EventArgs e) {
-			DialogResult = DialogResult.Cancel;
-		}
 		
 		void ButtonOKClick(object sender, EventArgs e) {
 			string selectedString = (string) comboBox_languages.SelectedItem;
 			if (selectedString != null) {
 				config.Language = selectedString.ToUpper();
 			}
-
-			DialogResult = DialogResult.OK;
 		}
 	}
 }

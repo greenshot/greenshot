@@ -63,25 +63,24 @@ namespace GreenshotFlickrPlugin {
 			// buttonOK
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(270, 151);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 10;
 			this.buttonOK.UseVisualStyleBackColor = true;
-			this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
 			// 
 			// buttonCancel
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(351, 151);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 11;
-			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
-			this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
 			// 
 			// combobox_uploadimageformat
 			// 
@@ -103,7 +102,6 @@ namespace GreenshotFlickrPlugin {
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(157, 20);
 			this.label_upload_format.TabIndex = 3;
-			this.label_upload_format.Text = "Image format";
 			// 
 			// checkBoxPublic
 			// 
@@ -115,7 +113,6 @@ namespace GreenshotFlickrPlugin {
 			this.checkBoxPublic.SectionName = "Flickr";
 			this.checkBoxPublic.Size = new System.Drawing.Size(55, 17);
 			this.checkBoxPublic.TabIndex = 4;
-			this.checkBoxPublic.Text = "Public";
 			this.checkBoxPublic.UseVisualStyleBackColor = true;
 			// 
 			// checkBoxFamily
@@ -128,7 +125,6 @@ namespace GreenshotFlickrPlugin {
 			this.checkBoxFamily.SectionName = "Flickr";
 			this.checkBoxFamily.Size = new System.Drawing.Size(55, 17);
 			this.checkBoxFamily.TabIndex = 5;
-			this.checkBoxFamily.Text = "Family";
 			this.checkBoxFamily.UseVisualStyleBackColor = true;
 			// 
 			// checkBoxFriend
@@ -150,7 +146,6 @@ namespace GreenshotFlickrPlugin {
 			this.label_SafetyLevel.Name = "label_SafetyLevel";
 			this.label_SafetyLevel.Size = new System.Drawing.Size(157, 21);
 			this.label_SafetyLevel.TabIndex = 7;
-			this.label_SafetyLevel.Text = "Safety level";
 			// 
 			// combobox_safetyLevel
 			// 
@@ -172,7 +167,6 @@ namespace GreenshotFlickrPlugin {
 			this.label_AfterUpload.Name = "label_AfterUpload";
 			this.label_AfterUpload.Size = new System.Drawing.Size(155, 21);
 			this.label_AfterUpload.TabIndex = 14;
-			this.label_AfterUpload.Text = "After upload";
 			// 
 			// checkboxAfterUploadLinkToClipBoard
 			// 
@@ -184,7 +178,6 @@ namespace GreenshotFlickrPlugin {
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Flickr";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 7;
-			this.checkboxAfterUploadLinkToClipBoard.Text = "Link to clipboard";
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 
 			// checkBox_hiddenfromsearch
@@ -221,9 +214,9 @@ namespace GreenshotFlickrPlugin {
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
-			this.Text = "Flickr settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkBox_hiddenfromsearch;
 		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
