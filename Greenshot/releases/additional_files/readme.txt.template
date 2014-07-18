@@ -29,14 +29,14 @@ Changes:
 1.1.9.13-g01ce82d Windows 8.1 & Box bug-fix Release
 
 Bugs resolved:
-* Bug #1604,#1631,#1634: Capture problems since update to Windows 8.1 with multiple displays
-* Bug #1627: Box upload failed since 1.1.8
+* BUG-1604, BUG-1631, BUG-1634: Capture problems since update to Windows 8.1 with multiple displays
+* BUG-1627: Box upload failed since 1.1.8
 * Unreported: The greenshot.ini values "NoGDICaptureForProduct" and "NoDWMCaptureForProduct" had incorrect defaults, which might cause issues with some applications when using the auto capture mode.
 
 Features:
-* Feature #697: Added the possibility to replace characters/strings when a pattern is used, to have more control over the resulting filename. E.G. ${title:r ,_} will cause all the spaces to be replaced by underscores.
-* Feature #712: The amount of colour which images are reduce to, if the setting is active, has been made configurable in the greenshot.ini property OutputFileReduceColorsTo. Default stays at 256,
-* Feature #723: Adding a newline when exporting to Word or an open Outlook email, this makes it possible to repeat exports.
+* FEATURE-697: Added the possibility to replace characters/strings when a pattern is used, to have more control over the resulting filename. E.G. ${title:r ,_} will cause all the spaces to be replaced by underscores.
+* FEATURE-712: The amount of colour which images are reduce to, if the setting is active, has been made configurable in the greenshot.ini property OutputFileReduceColorsTo. Default stays at 256,
+* FEATURE-723: Adding a newline when exporting to Word or an open Outlook email, this makes it possible to repeat exports.
 
 Changes:
 * Flickr plug-in: from June 27th, 2014 Flickr will only accept uploads via HTTPS! As the switch is already possible Greenshot has been changed accordingly.
@@ -48,21 +48,21 @@ Languages:
 1.1.8.35-g8f5559c Bugfix Release
 
 Bugs resolved:
-* Bug #1578: Changed the behavior of creating filenames for Imgur to be configurable, default will be the date/time.
-* Bug #1580: removed device names for capture fullscreen submenu in multi-monitor setups, which sometimes delivered inconsistent results or even garbage characters. Sticking to descriptive text like "bottom left", which is more useful anyway.
-* Bug #1581: Ini-file reading is now done without locking the file, this should help a bit in cases where other applications have this file open.
-* Bug #1600: Found that Greenshot uses a wrong URL format on the clipboard, this fix might solve some issues
+* BUG-1578: Changed the behavior of creating filenames for Imgur to be configurable, default will be the date/time.
+* BUG-1580: removed device names for capture fullscreen submenu in multi-monitor setups, which sometimes delivered inconsistent results or even garbage characters. Sticking to descriptive text like "bottom left", which is more useful anyway.
+* BUG-1581: Ini-file reading is now done without locking the file, this should help a bit in cases where other applications have this file open.
+* BUG-1600: Found that Greenshot uses a wrong URL format on the clipboard, this fix might solve some issues
 * Bug: When capturing client windows on a DWM enabled system (Vista & Windows 7) with "auto" set, sometimes the capture had a blurred/transparent effect.
 * Bug: Couldn't export to an Outlook 2013 reply which is being edited in the preview pane
 
 Features:
-* Feature #663: dark background for textbox input when editing bright-colored text
-* Feature #667: destinations with subdestinations can now be clicked to invoke the "main" subdestination
+* FEATURE-663: dark background for textbox input when editing bright-colored text
+* FEATURE-667: destinations with subdestinations can now be clicked to invoke the "main" subdestination
 
 Languages:
 * Updates for Swedish translation and help, new Swedish translations for plugins and installer
 * Improvements for German translation and help
-* Bug #1608: Fixed typo in French translation
+* BUG-1608: Fixed typo in French translation
 
 1.1.7 build 17 Bugfix Release
 
@@ -70,9 +70,9 @@ Changes:
 * We moved our repository to BitBucket (GIT), this forced us to change the build script and the version
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
-* Bug #1517: (now it is really fixed) export to Microsoft Word always goes to the last active Word instance.
-* Bug #1589/#1584 System.NullReferenceException
-* Bug #1574: AccessException when loading plugins
+* BUG-1517: (now it is really fixed) export to Microsoft Word always goes to the last active Word instance.
+* BUG-1589, BUG-1584 System.NullReferenceException
+* BUG-1574: AccessException when loading plugins
 
 Features:
 * Changed the Box plug-in to use the new V2 API, which is mandatory from 13.12.2013. The Box plug-in now needs the .NET 3.5 Full Framework.
@@ -81,17 +81,17 @@ Features:
 1.1.6 build 2779 Bugfix Release
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
-* Bug #1515: Changed the settings GUI to clearly show that the interactive Window capture mode doesn't use the windows capture mode settings.
-* Bug #1517: export to Microsoft Word always goes to the last active Word instance.
-* Bug #1525/#1486: Greenshot looses configuration settings. (At least we hope this is resolved)
-* Bug #1528: export to Microsoft Excel isn't stored in file, which results in a "red cross" when opening on a different or MUCH later on the same computer.
-* Bug #1544: EntryPointNotFoundException when using higlight area or blur
-* Bug #1546: Exception in the editor when using multiple destination, among which the editor, and a picker (e.g. Word) is shown.
+* BUG-1515: Changed the settings GUI to clearly show that the interactive Window capture mode doesn't use the windows capture mode settings.
+* BUG-1517: export to Microsoft Word always goes to the last active Word instance.
+* BUG-1525, BUG-1486: Greenshot looses configuration settings. (At least we hope this is resolved)
+* BUG-1528: export to Microsoft Excel isn't stored in file, which results in a "red cross" when opening on a different or MUCH later on the same computer.
+* BUG-1544: EntryPointNotFoundException when using higlight area or blur
+* BUG-1546: Exception in the editor when using multiple destination, among which the editor, and a picker (e.g. Word) is shown.
 * Not reported: Canceling Imgur authorization or upload caused an NullPointerReference
 
 Features:
 * Added EXIF orientation support when copying images from the clipboard
-* Feature #596: Added commandline option "/inidirectory <directory>" to specify the location of the greenshot.ini, this can e.g. be used for multi-profiles...
+* FEATURE-596: Added commandline option "/inidirectory <directory>" to specify the location of the greenshot.ini, this can e.g. be used for multi-profiles...
 * Removed reading the greenshot.ini if it was changed manually outside of Greenshot while it is running, this should increase stability. People should now exit Greenshot before modifying this file manually.
 
 Improvements:
@@ -100,8 +100,8 @@ Improvements:
 1.1.5 build 2643 Bugfix Release
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
-* Bug #1510: Under Windows Vista when trying to apply a drop-shadow or a torn-edge effect a GDIPlus error occurs.
-* Bug #1512/#1514: Will not print color
+* BUG-1510: Under Windows Vista when trying to apply a drop-shadow or a torn-edge effect a GDIPlus error occurs.
+* BUG-1512, BUG-1514: Will not print color
 * Not reported: Annotations where not visible when exporting to Office destinations after writing in the Greenshot format.
 * Not reported: Removed the update check in Greenshot for PortableApps
 
@@ -126,27 +126,27 @@ Features added:
 * Plug-in: Added Photobucket plugin
 
 Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and search on the ID):
-* Bug #1327, #1401 & #1410 : On Windows XP Firefox/java captures are mainly black. This fix should also work with other OS versions and applications.
-* Bug #1340: Fixed issue with opening a screenshow from the clipboard which was created in a remote desktop
-* Bug #1375, #1396 & #1397: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
-* Bug #1375: Exported captures to Powerpoint were displayed cropped, which needed extra actions to correct.
-* Bug #1378: Picasa-Web uploads didn't have a filename and the filename was shown as "UNSET" in Picasa-Web.
-* Bug #1380: The window corners on Windows Vista & Windows 7 weren't cut correctly. While fixing this issue, we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
-* Bug #1386: Resize issues with some the plugin configuration dialogs.
-* Bug #1390: Elements in 1.0 are drawn differently as in pre 1.0
-* Bug #1391: Fixed missing filename in the Editor title
-* Bug #1414: Pasting captures as HTML-inline in Thunderbird doesn't work when using 256-colors.
-* Bug #1418: Fixed a problem with the editor initialization, in some small cases this gave an error as something happend at the same time.
-* Bug #1426: Added some checks for some configuration values, if they were not set this caused an error
-* Bug #1442: If copying an image from Outlook via the clipboard the image was cropped
-* Bug #1443: Image exports to Microsoft Word didn't have the "Lock aspect ratio" set
-* Bug #1444: Colors were disappearing when "Create an 8-bit image if colors are less than 256 while having a > 8 bits image" was turned on
-* Bug #1462: Auto-filename generation cropping title text after period 
-* Bug #1481: when pasting elements from one editor into another the element could end up outside the visible area 
-* Bug #1484, #1494: External Command plug-in issues. e.g. when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occured.
-* Bug #1499: Stability improvements for when Greenshot tries to open the explorer.exe
-* Bug #1500: Error while dragging an obfuscation
-* Bug #1504: InvalidCastException when using the brightness-filter
+* BUG-1327, BUG-1401 & BUG-1410 : On Windows XP Firefox/java captures are mainly black. This fix should also work with other OS versions and applications.
+* BUG-1340: Fixed issue with opening a screenshow from the clipboard which was created in a remote desktop
+* BUG-1375, BUG-1396 & BUG-1397: Exporting captures to Microsoft Office applications give problems when the Office application shows a dialog, this is fixed by displaying a retry dialog with info.
+* BUG-1375: Exported captures to Powerpoint were displayed cropped, which needed extra actions to correct.
+* BUG-1378: Picasa-Web uploads didn't have a filename and the filename was shown as "UNSET" in Picasa-Web.
+* BUG-1380: The window corners on Windows Vista & Windows 7 weren't cut correctly. While fixing this issue, we found some other small bugs which could cause small capture issues on Vista & 7 it also used more resources than needed.
+* BUG-1386: Resize issues with some the plugin configuration dialogs.
+* BUG-1390: Elements in 1.0 are drawn differently as in pre 1.0
+* BUG-1391: Fixed missing filename in the Editor title
+* BUG-1414: Pasting captures as HTML-inline in Thunderbird doesn't work when using 256-colors.
+* BUG-1418: Fixed a problem with the editor initialization, in some small cases this gave an error as something happend at the same time.
+* BUG-1426: Added some checks for some configuration values, if they were not set this caused an error
+* BUG-1442: If copying an image from Outlook via the clipboard the image was cropped
+* BUG-1443: Image exports to Microsoft Word didn't have the "Lock aspect ratio" set
+* BUG-1444: Colors were disappearing when "Create an 8-bit image if colors are less than 256 while having a > 8 bits image" was turned on
+* BUG-1462: Auto-filename generation cropping title text after period 
+* BUG-1481: when pasting elements from one editor into another the element could end up outside the visible area 
+* BUG-1484, BUG-1494: External Command plug-in issues. e.g. when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occured.
+* BUG-1499: Stability improvements for when Greenshot tries to open the explorer.exe
+* BUG-1500: Error while dragging an obfuscation
+* BUG-1504: InvalidCastException when using the brightness-filter
 * Reported in forum: Fixed a problem with the OCR, it sometimes didn't work. See: http://sourceforge.net/p/greenshot/discussion/676082/thread/31a08c8c
 * Not reported: Flickr configuration for the Family, Friend & Public wasn't stored.
 * Not reported: If Greenshot is linked in a Windows startup folder, the "Start with startup" checkbox wasn't checked.
