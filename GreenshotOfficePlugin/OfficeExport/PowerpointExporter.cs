@@ -69,7 +69,7 @@ namespace Greenshot.Interop.Office {
 			} catch (Exception ex) {
 				LOG.Warn("Problem retrieving word destinations, ignoring: ", ex);
 			}
-
+			foundPresentations.Sort();
 			return foundPresentations;
 		}
 

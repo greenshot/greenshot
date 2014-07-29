@@ -73,6 +73,13 @@ namespace Greenshot {
 
 		public static List<IImageEditor> Editors {
 			get {
+				try {
+					editorList.Sort(delegate(IImageEditor e1, IImageEditor e2) {
+						return e1.Surface.CaptureDetails.Title.CompareTo(e2.Surface.CaptureDetails.Title);
+					});
+				} catch(Exception ex) {
+					LOG.Warn("Sorting of editors failed.", ex);
+				}
 				return editorList;
 			}
 		}

@@ -56,8 +56,8 @@ namespace Greenshot.Interop.Office {
 		/// A method to retrieve all inspectors which can act as an export target
 		/// </summary>
 		/// <returns>List<string> with inspector captions (window title)</returns>
-		public static Dictionary<string, OlObjectClass> RetrievePossibleTargets() {
-			Dictionary<string, OlObjectClass> inspectorCaptions = new Dictionary<string, OlObjectClass>();
+		public static IDictionary<string, OlObjectClass> RetrievePossibleTargets() {
+			IDictionary<string, OlObjectClass> inspectorCaptions = new SortedDictionary<string, OlObjectClass>();
 			try {
 				using (IOutlookApplication outlookApplication = GetOutlookApplication()) {
 					if (outlookApplication == null) {

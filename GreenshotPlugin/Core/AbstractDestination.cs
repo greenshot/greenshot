@@ -321,8 +321,6 @@ namespace GreenshotPlugin.Core {
 							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
 						}
 						if (subDestinations.Count > 0) {
-							subDestinations.Sort();
-
 							ToolStripMenuItem destinationMenuItem = null;
 
 							if (useDynamicsOnly && subDestinations.Count == 1) {

@@ -91,7 +91,23 @@ namespace Greenshot.Destinations {
 		/// </summary>
 		/// <returns>IEnumerable<IDestination></returns>
 		public override IEnumerable<IDestination> DynamicDestinations() {
+			PrinterSettings settings = new PrinterSettings();
+			string defaultPrinter = settings.PrinterName;
+			List<string> printers = new List<string>();
+
 			foreach (string printer in PrinterSettings.InstalledPrinters) {
+				printers.Add(printer);
+			}
+			printers.Sort(delegate(string p1, string p2) {
+				if(defaultPrinter.Equals(p1)) {
+					return -1;
+				}
+				if(defaultPrinter.Equals(p2)) {
+					return 1;
+				}
+				return p1.CompareTo(p2);
+			});
+			foreach(string printer in printers) {
 				yield return new PrinterDestination(printer);
 			}
 		}

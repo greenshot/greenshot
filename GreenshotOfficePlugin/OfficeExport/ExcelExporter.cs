@@ -54,6 +54,7 @@ namespace Greenshot.Interop.Office {
 					}
 				}
 			}
+			currentWorkbooks.Sort();
 			return currentWorkbooks;
 		}
 

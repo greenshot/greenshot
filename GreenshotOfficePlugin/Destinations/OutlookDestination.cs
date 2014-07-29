@@ -133,7 +133,7 @@ namespace GreenshotOfficePlugin {
 		}
 		
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
+			IDictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
 			if (inspectorCaptions != null) {
 				foreach (string inspectorCaption in inspectorCaptions.Keys) {
 					yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
