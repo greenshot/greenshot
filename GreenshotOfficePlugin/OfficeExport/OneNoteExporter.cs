@@ -35,6 +35,7 @@ namespace Greenshot.Interop.Office {
 	public class OneNotePage {
 		public string PageName { get; set; }
 		public string PageID { get; set; }
+		public bool IsCurrentlyViewed { get; set; }
 	}
 	public class OneNoteExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OneNoteExporter));
@@ -53,6 +54,11 @@ namespace Greenshot.Interop.Office {
 				using (IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
 					LOG.InfoFormat("Sending XML: {0}", pageChangesXml);
 					oneNoteApplication.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);
+					try {
+						oneNoteApplication.NavigateTo(page.PageID, null, false);
+					} catch(Exception ex) {
+						LOG.Warn("Unable to navigate to the target page", ex);
+					}
 				}
 			}
 		}
@@ -77,16 +83,18 @@ namespace Greenshot.Interop.Office {
 									reader = null;
 									while (xmlReader.Read()) {
 										if ("one:Page".Equals(xmlReader.Name)) {
-											if ("true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"))) {
-												OneNotePage page = new OneNotePage();
-												page.PageName = xmlReader.GetAttribute("name");
-												page.PageID = xmlReader.GetAttribute("ID");
-												pages.Add(page);
-												// For debugging
-												//string pageXml = "";
-												//oneNoteApplication.GetPageContent(page.PageID, out pageXml, PageInfo.piAll, XMLSchema.xs2010);
-												//LOG.DebugFormat("Page XML: {0}", pageXml);
+											// Skip deleted items
+											if("true".Equals(xmlReader.GetAttribute("isInRecycleBin"))) {
+												continue;
 											}
+											OneNotePage page = new OneNotePage();
+											page.PageName = xmlReader.GetAttribute("name");
+											page.PageID = xmlReader.GetAttribute("ID");
+											if(page.PageID == null || page.PageName == null) {
+												continue;
+											}
+											page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
+											pages.Add(page);
 										}
 									}
 								}
@@ -101,6 +109,12 @@ namespace Greenshot.Interop.Office {
 			} catch (Exception ex) {
 				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", ex);
 			}
+			pages.Sort(delegate(OneNotePage p1, OneNotePage p2) {
+				if(p1.IsCurrentlyViewed || p2.IsCurrentlyViewed) {
+					return p2.IsCurrentlyViewed.CompareTo(p1.IsCurrentlyViewed);
+				}
+				return p1.PageName.CompareTo(p2.PageName);
+			});
 			return pages;
 		}
 	}

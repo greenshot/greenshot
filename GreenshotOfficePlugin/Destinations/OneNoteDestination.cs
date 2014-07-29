@@ -109,14 +109,21 @@ namespace GreenshotOfficePlugin {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+
 			if (page != null) {
-				try {
-					OneNoteExporter.ExportToPage(surface, page);
-					exportInformation.ExportMade = true;
-				} catch (Exception ex) {
-					exportInformation.ErrorMessage = ex.Message;
-					LOG.Error(ex);
+				// No page selected, take the current
+				List<OneNotePage> pages = OneNoteExporter.GetPages();
+				if(pages == null || pages.Count == 0) {
+					return exportInformation;
 				}
+				page = pages[0];
+			}
+			try {
+				OneNoteExporter.ExportToPage(surface, page);
+				exportInformation.ExportMade = true;
+			} catch (Exception ex) {
+				exportInformation.ErrorMessage = ex.Message;
+				LOG.Error(ex);
 			}
 			return exportInformation;
 		}

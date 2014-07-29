@@ -33,6 +33,7 @@ namespace Greenshot.Interop.Office {
 		void GetHierarchy(string startNode, HierarchyScope scope, out string notebookXml, XMLSchema schema);
 		void UpdatePageContent(string pageChangesXml, DateTime dateExpectedLastModified, XMLSchema schema, bool force);
 		void GetPageContent(string pageId, out string pageXml, PageInfo pageInfoToExport, XMLSchema schema);
+		void NavigateTo(string hierarchyObjectID, string objectId, bool newWindow);
 	}
 
 	public enum PageInfo {
