@@ -175,7 +175,7 @@ namespace GreenshotOfficePlugin {
 				exportInformation.ExportMade = true;
 			} else {
 				if (!manuallyInitiated) {
-					Dictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
+					IDictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
 					if (inspectorCaptions != null && inspectorCaptions.Count > 0) {
 						List<IDestination> destinations = new List<IDestination>();
 						destinations.Add(new OutlookDestination());
