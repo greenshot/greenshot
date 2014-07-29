@@ -69,7 +69,7 @@ namespace GreenshotOfficePlugin {
 				if (page == null) {
 					return "Microsoft OneNote";
 				} else {
-					return page.PageName;
+					return page.DisplayName;
 				}
 			}
 		}
@@ -110,20 +110,20 @@ namespace GreenshotOfficePlugin {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 
-			if (page != null) {
-				// No page selected, take the current
-				List<OneNotePage> pages = OneNoteExporter.GetPages();
-				if(pages == null || pages.Count == 0) {
-					return exportInformation;
+			if (page == null) {
+				try {
+					exportInformation.ExportMade = OneNoteExporter.ExportToNewPage(surface);
+				} catch(Exception ex) {
+					exportInformation.ErrorMessage = ex.Message;
+					LOG.Error(ex);
 				}
-				page = pages[0];
-			}
-			try {
-				OneNoteExporter.ExportToPage(surface, page);
-				exportInformation.ExportMade = true;
-			} catch (Exception ex) {
-				exportInformation.ErrorMessage = ex.Message;
-				LOG.Error(ex);
+			} else {
+				try {
+					exportInformation.ExportMade = OneNoteExporter.ExportToPage(surface, page);
+				} catch(Exception ex) {
+					exportInformation.ErrorMessage = ex.Message;
+					LOG.Error(ex);
+				}
 			}
 			return exportInformation;
 		}

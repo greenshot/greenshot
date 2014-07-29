@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
 namespace Greenshot.Interop.Office {
@@ -27,13 +28,15 @@ namespace Greenshot.Interop.Office {
 	[ComProgId("OneNote.Application")]
 	public interface IOneNoteApplication : ICommon {
 		/// <summary>
-		/// Make sure that the notebookXml is of type string, e.g. "", otherwise a type error occurs.
+		/// Make sure that the out variables are filled with a string, e.g. "", otherwise a type error occurs.
 		/// For more info on the methods: http://msdn.microsoft.com/en-us/library/gg649853.aspx
 		/// </summary>
 		void GetHierarchy(string startNode, HierarchyScope scope, out string notebookXml, XMLSchema schema);
+		void GetSpecialLocation(SpecialLocation specialLocation, out string specialLocationPath);
 		void UpdatePageContent(string pageChangesXml, DateTime dateExpectedLastModified, XMLSchema schema, bool force);
 		void GetPageContent(string pageId, out string pageXml, PageInfo pageInfoToExport, XMLSchema schema);
 		void NavigateTo(string hierarchyObjectID, string objectId, bool newWindow);
+		void CreateNewPage(string sectionID, out string pageID, NewPageStyle newPageStyle);
 	}
 
 	public enum PageInfo {
@@ -56,5 +59,45 @@ namespace Greenshot.Interop.Office {
 		xs2007	= 0,
 		xs2010	= 1,
 		xsCurrent= xs2010
+	}
+
+	public enum SpecialLocation : int {
+		slBackupFolder = 0,
+		slUnfiledNotesSection = 1,
+		slDefaultNotebookFolder = 2
+	}
+
+	public enum NewPageStyle {
+		npsDefault = 0,
+		npsBlankPageWithTitle = 1,
+		npsBlankPageNoTitle = 2
+	}
+
+	public class OneNotePage {
+		public OneNoteSection Parent { get; set; }
+		public string Name { get; set; }
+		public string ID { get; set; }
+		public bool IsCurrentlyViewed { get; set; }
+		public string DisplayName {
+			get {
+				OneNoteNotebook notebook = Parent.Parent;
+				if(string.IsNullOrEmpty(notebook.Name)) {
+					return string.Format("{0} / {1}", Parent.Name, Name);
+				} else {
+					return string.Format("{0} / {1} / {2}", Parent.Parent.Name, Parent.Name, Name);
+				}
+			}
+		}
+	}
+
+	public class OneNoteSection {
+		public OneNoteNotebook Parent { get; set; }
+		public string Name { get; set; }
+		public string ID { get; set; }
+	}
+
+	public class OneNoteNotebook {
+		public string Name { get; set; }
+		public string ID { get; set; }
 	}
 }
