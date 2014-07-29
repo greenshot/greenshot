@@ -167,7 +167,7 @@ namespace GreenshotPlugin.Core {
 		public List<string> IncludePlugins;
 		[IniProperty("ExcludePlugins", Description="Comma separated list of Plugins which are NOT allowed.")]
 		public List<string> ExcludePlugins;
-		[IniProperty("ExcludeDestinations", Description = "Comma separated list of destinations which should be disabled.", DefaultValue = "OneNote")]
+		[IniProperty("ExcludeDestinations", Description = "Comma separated list of destinations which should be disabled.")]
 		public List<string> ExcludeDestinations;
 
 		[IniProperty("UpdateCheckInterval", Description="How many days between every update check? (0=no checks)", DefaultValue="1")]
@@ -355,6 +355,16 @@ namespace GreenshotPlugin.Core {
 				LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
 				// Disable the AutoReduceColors as it causes issues with Mozzila applications and some others
 				OutputFileAutoReduceColors = false;
+			}
+
+			// Enable OneNote if upgrading from 1.1
+			if(ExcludeDestinations != null && ExcludeDestinations.Contains("OneNote")) {
+				if(LastSaveWithVersion != null && LastSaveWithVersion.StartsWith("1.1")) {
+					ExcludeDestinations.Remove("OneNote");
+				} else {
+					// TODO: Remove with the release
+					ExcludeDestinations.Remove("OneNote");
+				}
 			}
 
 			if (OutputDestinations == null) {
