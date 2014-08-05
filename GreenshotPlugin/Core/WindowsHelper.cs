@@ -176,7 +176,7 @@ namespace GreenshotPlugin.Core  {
 		
 		static WindowDetails() {
 			try {
-				// Only try to instanciate when Windows 8 or later.
+				// Only try to instantiate when Windows 8 or later.
 				if (Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 2) {
 					appVisibility = COMWrapper.CreateInstance<IAppVisibility>();					
 				}
@@ -413,7 +413,7 @@ namespace GreenshotPlugin.Core  {
 		}
 		
 		/// <summary>
-		/// Retrieve the child with mathing classname
+		/// Retrieve the child with matching classname
 		/// </summary>
 		public WindowDetails GetChild(string childClassname) {
 			foreach(WindowDetails child in Children) {
@@ -425,7 +425,7 @@ namespace GreenshotPlugin.Core  {
 		}
 
 		/// <summary>
-		/// Retrieve the children with mathing classname
+		/// Retrieve the children with matching classname
 		/// </summary>
 		public IEnumerable<WindowDetails> GetChilden(string childClassname) {
 			foreach (WindowDetails child in Children) {
@@ -499,7 +499,7 @@ namespace GreenshotPlugin.Core  {
 		/// </summary>
 		/// <param name="titlePattern">The regexp to look for in the title</param>
 		/// <param name="classnamePattern">The regexp to look for in the classname</param>
-		/// <returns>List<WindowDetails> with all the found windows, or an emptry list</returns>
+		/// <returns>List<WindowDetails> with all the found windows, or an empty list</returns>
 		public List<WindowDetails> FindChildren(string titlePattern, string classnamePattern) {
 			return FindWindow(Children, titlePattern, classnamePattern);
 		}
@@ -627,7 +627,7 @@ namespace GreenshotPlugin.Core  {
 		}
 
 		/// <summary>
-		/// Gets/Sets whether the window is iconic (mimimised) or not.
+		/// Gets/Sets whether the window is iconic (mimimized) or not.
 		/// </summary>
 		public bool Iconic {
 			get {
@@ -705,7 +705,7 @@ namespace GreenshotPlugin.Core  {
 									}
 								}
 							} else {
-								// Is only partly on the screen, when this happens the app is allways visible!
+								// Is only partly on the screen, when this happens the app is always visible!
 								return true;
 							}
 						}
@@ -984,7 +984,7 @@ namespace GreenshotPlugin.Core  {
 					// Correct capture size for maximized window by offsetting the X,Y with the border size
 					captureRectangle.X += borderSize.Width;
 					captureRectangle.Y += borderSize.Height;
-					// and subtrackting the border from the size (2 times, as we move right/down for the capture without resizing)
+					// and subtracting the border from the size (2 times, as we move right/down for the capture without resizing)
 					captureRectangle.Width -= 2 * borderSize.Width;
 					captureRectangle.Height -= 2 * borderSize.Height;
 				} else if (autoMode) {
@@ -1035,7 +1035,7 @@ namespace GreenshotPlugin.Core  {
 									// Make sure the application window is active, so the colors & buttons are right
 									ToForeground();
 								}
-								// Make sure all changes are processed and visisble
+								// Make sure all changes are processed and visible
 								Application.DoEvents();
 								using (Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
 									capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
@@ -1043,7 +1043,7 @@ namespace GreenshotPlugin.Core  {
 							}
 						} catch (Exception e) {
 							LOG.Debug("Exception: ", e);
-							// Some problem occured, cleanup and make a normal capture
+							// Some problem occurred, cleanup and make a normal capture
 							if (capturedBitmap != null) {
 								capturedBitmap.Dispose();
 								capturedBitmap = null;
@@ -1067,7 +1067,7 @@ namespace GreenshotPlugin.Core  {
 							// Make sure the application window is active, so the colors & buttons are right
 							ToForeground();
 						}
-						// Make sure all changes are processed and visisble
+						// Make sure all changes are processed and visible
 						Application.DoEvents();
 						// Capture from the screen
 						capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
@@ -1135,7 +1135,7 @@ namespace GreenshotPlugin.Core  {
 		/// <summary>
 		/// Apply transparency by comparing a transparent capture with a black and white background
 		/// A "Math.min" makes sure there is no overflow, but this could cause the picture to have shifted colors.
-		/// The pictures should have been taken without differency, exect for the colors.
+		/// The pictures should have been taken without differency, except for the colors.
 		/// </summary>
 		/// <param name="blackBitmap">Bitmap with the black image</param>
 		/// <param name="whiteBitmap">Bitmap with the black image</param>
@@ -1350,7 +1350,7 @@ namespace GreenshotPlugin.Core  {
 		}
 
 		/// <summary>
-		/// Return an Image representating the Window!
+		/// Return an Image representing the Window!
 		/// As GDI+ draws it, it will be without Aero borders!
 		/// </summary>
 		public Image PrintWindow() {
@@ -1451,9 +1451,9 @@ namespace GreenshotPlugin.Core  {
 		}
 		
 		/// <summary>
-		/// Gets the Destop window
+		/// Gets the Desktop window
 		/// </summary>
-		/// <returns>WindowDetails for the destop window</returns>
+		/// <returns>WindowDetails for the desktop window</returns>
 		public static WindowDetails GetDesktopWindow() {
 			return new WindowDetails(User32.GetDesktopWindow());
 		}

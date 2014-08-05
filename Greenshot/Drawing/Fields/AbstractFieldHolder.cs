@@ -46,7 +46,7 @@ namespace Greenshot.Drawing.Fields {
 			remove{ fieldChanged -= value; }
 		}
 		
-		// we keep to Coolections of our fields, dictionary for quick access, list for serialization
+		// we keep two Collections of our fields, dictionary for quick access, list for serialization
 		// this allows us to use default serialization
 		[NonSerialized]
 		private Dictionary<FieldType, Field> fieldsByType = new Dictionary<FieldType, Field>();

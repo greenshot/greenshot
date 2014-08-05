@@ -257,7 +257,7 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		/// <param name="section">IniSection</param>
 		private static void FixProperties(IniSection section) {
-			// Make properties unchangable
+			// Make properties unchangeable
 			if (fixedProperties != null) {
 				Dictionary<string, string> fixedPropertiesForSection = null;
 				if (fixedProperties.TryGetValue(section.IniSectionAttribute.Name, out fixedPropertiesForSection)) {
