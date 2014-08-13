@@ -746,7 +746,7 @@ namespace Greenshot {
             this.checkbox_zoomer.Name = "checkbox_zoomer";
             this.checkbox_zoomer.PropertyName = "ZoomerEnabled";
             this.checkbox_zoomer.Size = new System.Drawing.Size(399, 24);
-            this.checkbox_zoomer.TabIndex = 27;
+            this.checkbox_zoomer.TabIndex = 4;
             this.checkbox_zoomer.UseVisualStyleBackColor = true;
             // 
             // checkbox_notifications
