@@ -132,16 +132,20 @@ namespace ExternalCommand {
 					p.StartInfo.FileName = commandline;
 					p.StartInfo.Arguments = String.Format(arguments, fullPath);
 					p.StartInfo.UseShellExecute = false;
+					if (!config.DoNotRedirect) {
 					p.StartInfo.RedirectStandardOutput = true;
+					}
 					if (verb != null) {
 						p.StartInfo.Verb = verb;
 					}
 					LOG.Info("Starting : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
 					p.Start();
 					p.WaitForExit();
+					if (!config.DoNotRedirect) {
 					output = p.StandardOutput.ReadToEnd();
 					if (output != null && output.Trim().Length > 0) {
 						LOG.Info("Output:\n" + output);
+					}
 					}
 					LOG.Info("Finished : " + p.StartInfo.FileName + " " + p.StartInfo.Arguments);
 					return p.ExitCode;
