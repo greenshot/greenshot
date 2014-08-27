@@ -32,6 +32,9 @@ namespace ExternalCommand {
 	public class ExternalCommandConfiguration : IniSection {
 		[IniProperty("Commands", Description="The commands that are available.")]
 		public List<string> commands;
+		
+		[IniProperty("DoNotRedirect", Description="Skip redirect of standard output", DefaultValue="false")]
+		public bool DoNotRedirect;
 
 		[IniProperty("Commandline", Description="The commandline for the output command.")]
 		public Dictionary<string, string> commandlines;
