@@ -10,7 +10,8 @@ body {
 
 .carousel-inner > .item > img, 
 .carousel-inner > .item > a > img {
-   width: 100%;
-   height: 100%;
-   margin: auto;
+   max-width: 100%;
+   width: auto;
+   height: auto;
+   vertical-align: middle;
 }
