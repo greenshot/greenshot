@@ -1,0 +1,25 @@
+# Site settings
+title: Greenshot
+email: getgreenshot@gmail.com
+description: "Greenshot - a free screenshot tool optimized for productivity"
+baseurl: ""
+url: "http://www.getgreenshot.org"
+twitter_username: greenshot_app
+github_username: greenshot
+facebook: greenshot
+googleplus: greenshot
+openhub_project: greenshot
+
+# Build settings
+markdown: redcarpet
+permalink: pretty
+exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'CNAME']
+
+gems:
+  - jemoji
+
+kramdown:
+ input: GFM
+
+redcarpet:
+ extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data", "hard_wrap"]
