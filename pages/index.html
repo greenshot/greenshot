@@ -53,3 +53,22 @@ title: Greenshot
 	</div>
 </div>
 </div>
+
+<div class="col-lg-2 hidden-sm hidden-xs hidden-md">
+	<div class="panel panel-info" >
+		<div class="panel-heading">
+			<h3 class="panel-title">Latest news</h3>
+		</div>
+		<div class="panel-body">
+		  <ul>
+			{% for post in site.posts offset: 0 limit: 3 %}
+			  <li>
+				<span>{{ post.date | date: "%b %-d, %Y" }}</span><br/>
+				<a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+			  </li>
+			{% endfor %}
+			<span class="label"><a href="/blog">All entries</a></span>
+		  </ul>
+		</div>
+	</div>
+</div>
