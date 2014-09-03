@@ -13,7 +13,7 @@ openhub_project: greenshot
 # Build settings
 markdown: redcarpet
 permalink: pretty
-exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'CNAME']
+exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'CNAME', 'LICENSE']
 
 gems:
   - jemoji
