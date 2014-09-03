@@ -8,10 +8,8 @@ body {
    text-align: center;
 }
 
-.carousel-inner > .item > img, 
-.carousel-inner > .item > a > img {
-   max-width: 100%;
-   width: auto;
-   height: auto;
-   vertical-align: middle;
+.carousel .carousel-inner .item {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
