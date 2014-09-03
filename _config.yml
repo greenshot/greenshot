@@ -4,10 +4,10 @@ email: getgreenshot@gmail.com
 description: "Greenshot - a free screenshot tool optimized for productivity"
 baseurl: ""
 url: "http://greenshot.github.io/"
-twitter_username: greenshot_app
+twitter_username: greenshot_tool
 github_username: greenshot
-facebook: greenshot
-googleplus: greenshot
+facebook: Greenshot.Tool
+googleplus: 108405649004966849465
 openhub_project: greenshot
 
 # Build settings
