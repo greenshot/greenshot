@@ -2,10 +2,17 @@
 layout: page
 title: Blog
 permalink: /blog/
-tags: show_in_header_menu
+tags: menu
 ---
+<div class="page-header">
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<h1 class="text-center">{{ page.title }}</h1>
+		</div>
+	</div>
+</div>
+
 <div class="container">
-	<h1 class="text-center">Blog</h1>
 	{% for post in site.posts %}
 		<div class="panel panel-primary" >
 			<div class="panel-heading">

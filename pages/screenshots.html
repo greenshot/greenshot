@@ -2,41 +2,46 @@
 layout: page
 title: Screenshots
 permalink: /screenshots/
-tags: show_in_header_menu
+tags: menu
 ---
-<div class="col-md-6 col-md-offset-3">
-    <div id="myCarousel" class="carousel slide container" data-interval="3000" data-ride="carousel">
-        <!-- Carousel indicators -->
-        <ol class="carousel-indicators">
-            <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-            <li data-target="#myCarousel" data-slide-to="1"></li>
-            <li data-target="#myCarousel" data-slide-to="2"></li>
-        </ol>   
-       <!-- Carousel items -->
-        <div class="carousel-inner">
-<div class="active item" style="background-image: url('http://getgreenshot.org/wp-content/uploads/2010/06/01-installing-plugins.png')">
-                <div class="carousel-caption">
-                  <h3>Selecting plugins during installation</h3>
-                </div>
-            </div>
-<div class="item" style="background-image: url('http://getgreenshot.org/wp-content/uploads/2010/06/02-context-menu.png')">
-                <div class="carousel-caption">
-                  <h3>Greenshot’s systray context menu</h3>
-                </div>
-            </div>
-<div class="item" style="background-image: url('http://getgreenshot.org/wp-content/uploads/2010/06/03-selecting-capture-region.png')">
-                <div class="carousel-caption">
-                  <h3>Manually selecting a region to capture</h3>
-                </div>
-            </div>
-        </div>
-        <!-- Carousel nav -->
-        <a class="carousel-control left" href="#myCarousel" data-slide="prev">
-            <span class="glyphicon glyphicon-chevron-left"></span>
-        </a>
-        <a class="carousel-control right" href="#myCarousel" data-slide="next">
-            <span class="glyphicon glyphicon-chevron-right"></span>
-        </a>
-    </div>
+<div class="page-header">
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<h1 class="text-center">{{ page.title }}</h1>
+		</div>
+	</div>
 </div>
+
+<div class="row">
+	<div class="col-md-6 col-md-offset-3">
+		<div id="myCarousel" class="carousel slide" data-interval="3000" data-ride="carousel">
+			<!-- Carousel indicators -->
+			<ol class="carousel-indicators">
+				{% assign counter=0 %}
+				{% for screenshot in site.data.screenshots %}
+				<li data-target="#myCarousel" data-slide-to="{{ counter }}" {% if counter == 0 %}class="active"{% endif %}></li>
+				{% assign counter=counter | plus:1 %}
+				{% endfor %}
+			</ol>   
+		   <!-- Carousel items -->
+			<div class="carousel-inner">
+				{% assign counter=0 %}
+				{% for screenshot in site.data.screenshots %}
+				<div class="{% if counter == 0 %}active{% endif %} item" style="background-image: url('/assets/screenshots/{{screenshot.file}}')">
+					<div class="carousel-caption">
+					  <h3>{{screenshot.title}}</h3>
+					</div>
+				</div>
+				{% assign counter=counter | plus:1 %}
+				{% endfor %}
+			</div>
+			<!-- Carousel nav -->
+			<a class="carousel-control left" href="#myCarousel" data-slide="prev">
+				<span class="glyphicon glyphicon-chevron-left"></span>
+			</a>
+			<a class="carousel-control right" href="#myCarousel" data-slide="next">
+				<span class="glyphicon glyphicon-chevron-right"></span>
+			</a>
+		</div>
+	</div>
 </div>

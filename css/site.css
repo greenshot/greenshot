@@ -1,15 +1,25 @@
 body {
-	margin-top: 40px;
+	margin-top: 60px;
 	margin-bottom: 50px;
 }
 
-.item {
-   height: 300px;
-   text-align: center;
+.carousel .carousel-inner .item {
+	height: 500px;
+	background-position: center top;
+	background-repeat: no-repeat;
+	background-size: auto 75%;
 }
 
-.carousel .carousel-inner .item {
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover;
+.carousel .carousel-inner .carousel-caption {
+  width: 60%;
+  vertical-align: bottom;
+}
+
+.carousel-indicators li {
+  background-color: #999;
+  background-color: rgba(70,70,70,.25);
+}
+
+.carousel-indicators .active {
+  background-color: #444;
 }

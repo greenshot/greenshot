@@ -1,0 +1,14 @@
+- title: Selecting plugins during installation
+  file: 01-installing-plugins.png
+- title: Greenshot’s systray context menu
+  file: 02-context-menu.png
+- title: Manually selecting a region to capture
+  file: 03-selecting-capture-region.png
+- title: Selecting a destination for the screenshot
+  file: 04-selecting-screenshot-destination.png
+- title: Highlighting an area using the Greenshot Image Editor
+  file: 05-editor-highlighting-area.png
+- title: Highlighting text using the Greenshot Image Editor
+  file: 06-editor-highlighting-text.png
+- title: Adding annotations, shapes and arrows using the Greenshot Image Editor
+  file: 07-adding-annotations.png

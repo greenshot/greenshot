@@ -1,22 +1,22 @@
 ---
 layout: page
 title: FAQ
-tags: show_in_header_menu
+tags: menu
 ---
 <div class="page-header">
-<div class="row">
-	<div class="col-md-6 col-md-offset-3">
-		<h1 class="text-center">FAQ</h1>
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<h1 class="text-center">{{ page.title }}</h1>
+		</div>
 	</div>
 </div>
-</div>
+
 <div class="row">
-{% assign sorted_pages = site.pages | sort:"sort_id" %}
+{% assign sorted_faqs = site.faqs | sort:"sort_id" %}
 
 <div class="col-md-6 col-md-offset-3">
 	<div id="user_accordion" class="panel-group">
-		{% for faq in sorted_pages %}
-			{% if faq.layout == "faq" %}
+		{% for faq in sorted_faqs %}
 			<div class="panel panel-primary" id="user_{{ faq.sort_id }}">
 				<div class="panel-heading btn btn-block" data-toggle="collapse" data-target="#body_user_{{ faq.sort_id }}">
 					<h2 class="panel-title">{{ faq.title }}<span class="glyphicon glyphicon-chevron-down pull-right"/></h2>
@@ -27,7 +27,6 @@ tags: show_in_header_menu
 					</div>
 				</div>
 			</div>
-			{% endif %}
 		{% endfor %}
 	</div>
 </div>
