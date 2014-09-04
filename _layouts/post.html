@@ -1,15 +1,10 @@
 ---
 layout: default
 ---
-<div class="page-header">
-<h1 class="text-center">{{ page.title }}</h1>
-<h3 class="text-center">{{ page.date | date: "%-d %B %Y" }}</h3>
-</div>
+{% include logo.html %}
+
 <div class="container-fluid">
-	<div class="col-md-8 col-md-offset-2">
-		<div class="well">
-		{{ content }}
-		</div>
+	<div class="col-md-10 col-md-offset-1">
 		<ul class="pager">
 			{% assign previous = null %}
 			{% assign found = false %}
@@ -33,5 +28,16 @@ layout: default
 				<li class="next disabled"><a href="#">Next post &rarr;</a></li>
 			{% endif %}
 		</ul>
+		<div class="panel panel-primary" id="blog_{{counter}}">
+			<div class="panel-heading">
+				<h3 class="panel-title">{{ page.title }}</h3>
+			</div>
+			<div class="panel-body">
+			{{ content }}
+			</div>
+			<div class="panel-footer">
+			{{ page.date | date: "%-d %B %Y" }}
+			</div>
+		</div>
 	</div>
 </div>

@@ -4,19 +4,41 @@ title: Blog
 permalink: /blog/
 tags: menu
 ---
-
-<div class="container">
-	{% for post in site.posts %}
-		<div class="panel panel-primary" >
+<div class="container-fluid">
+	<div class="col-md-4">
+		<div class="panel panel-info affix">
 			<div class="panel-heading">
-				<h3 class="panel-title">{{ post.date | date: "%-d %b %Y" }}: {{ post.title }}</h3>
+				<h3 class="panel-title">Table of content</h3>
 			</div>
 			<div class="panel-body">
-			{{ post.content }}
-			</div>
-			<div class="panel-footer">
-				Post direct link: <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+				<div class="navbar nav" id="scollspy">
+					<ul class="nav nav-pills nav-stacked">
+						{% assign counter=0 %}
+						{% for post in site.posts %}
+						<li style="padding-left: 30px;"><a href="#blog_{{ counter }}">{{ post.title }}</a></li>
+						{% assign counter=counter | plus:1 %}
+						{% endfor %}
+					</ul>
+				</div>
 			</div>
 		</div>
-	{% endfor %}
+	</div>
+
+	<div class="col-md-7">
+		{% assign counter=0 %}
+		{% for post in site.posts %}
+			<div class="panel panel-primary" id="blog_{{counter}}">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{ post.date | date: "%-d %b %Y" }}: {{ post.title }}</h3>
+				</div>
+				<div class="panel-body">
+				{{ post.content }}
+				</div>
+				<div class="panel-footer">
+					Post direct link: <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+				</div>
+			</div>
+		{% assign counter=counter | plus:1 %}
+		{% endfor %}
+	</div>
 </div>
