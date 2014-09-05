@@ -15,10 +15,10 @@
 </div>
 <script>
 var quotes = [
-{% assign counter=0 %}{% for quote in site.data.quotes %}{
+{% for quote in site.data.quotes %}{
 		"quote" : "{{ quote.quote }}",
 		"quoter" : "{{ quote.quoter }}"
-}{% assign counter=counter | plus:1 %}{% if counter < site.data.quotes.size %},{% endif%}{% endfor %}
+}{% if forloop.rindex > 0 %},{% endif%}{% endfor %}
 ]
 var quoteNr = Math.floor(Math.random() * quotes.length);
 $("#quote").text(quotes[quoteNr].quote);

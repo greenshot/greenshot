@@ -10,22 +10,16 @@ tags: menu
 		<div id="myCarousel" class="carousel slide" data-interval="3000" data-ride="carousel">
 			<!-- Carousel indicators -->
 			<ol class="carousel-indicators">
-				{% assign counter=0 %}
-				{% for screenshot in site.data.screenshots %}
-				<li data-target="#myCarousel" data-slide-to="{{ counter }}" {% if counter == 0 %}class="active"{% endif %}></li>
-				{% assign counter=counter | plus:1 %}
-				{% endfor %}
+				{% for screenshot in site.data.screenshots %}<li data-target="#myCarousel" data-slide-to="{{ forloop.index0 }}" {% if forloop.first %}class="active"{% endif %}></li>{% endfor %}
 			</ol>   
 		   <!-- Carousel items -->
 			<div class="carousel-inner">
-				{% assign counter=0 %}
 				{% for screenshot in site.data.screenshots %}
-				<div class="{% if counter == 0 %}active{% endif %} item" style="background-image: url('/assets/screenshots/{{screenshot.file}}')">
+				<div class="{% if forloop.first %}active{% endif %} item" style="background-image: url('/assets/screenshots/{{screenshot.file}}')">
 					<div class="carousel-caption">
 					  <h4>{{screenshot.title}}</h4>
 					</div>
 				</div>
-				{% assign counter=counter | plus:1 %}
 				{% endfor %}
 			</div>
 			<!-- Carousel nav -->
