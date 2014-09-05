@@ -1,17 +1,26 @@
 <div class="page-header">
 	<div class="container-fluid" >
-		<div class="col-md-3 col-md-offset-3">
-			<img style="position:absolute;left:370px;top: 40px;z-index:3;" src="/assets/rating-badges.png" alt="Rating badges" class="rating-badges"/>
-			<div style="position:absolute;left:80px;top:60px;z-index:3;width:280px;" class="well">
-				<p style="font-style:italic;">
-					<q>Way better intuitive control than Skitch or Snag-it. And it&#8217;s free.</q>
-					<cite>&mdash;&nbsp;<span style="font-style:normal;">Christian</span></cite>
-				</p>
-			</div>
-			<div id="site-description"></div>
-				<img src="/assets/header_med.gif" width="940" height="198" alt="Header image" />
+		<div class="col-md-6 col-md-offset-3">
+			<div class="logo">
+				<img style="position:absolute;left:370px;top: 40px;z-index:3;" src="/assets/rating-badges.png" alt="Rating badges" class="rating-badges"/>
+				<div style="position:absolute;left:80px;top:60px;z-index:3;width:280px;" class="well">
+					<p style="font-style:italic;">
+						<q id="quote">{{ site.data.quotes[0].quote }}</q>
+						<cite>&mdash;&nbsp;<span style="font-style:normal;" id="quoter">{{ site.data.quotes[0].quoter }}</span></cite>
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
-
+<script>
+var quotes = [
+{% assign counter=0 %}{% for quote in site.data.quotes %}{
+		"quote" : "{{ quote.quote }}",
+		"quoter" : "{{ quote.quoter }}"
+}{% assign counter=counter | plus:1 %}{% if counter < site.data.quotes.size %},{% endif%}{% endfor %}
+]
+var quoteNr = Math.floor(Math.random() * quotes.length);
+$("#quote").text(quotes[quoteNr].quote);
+$("#quoter").text(quotes[quoteNr].quoter);
+</script>

@@ -22,7 +22,7 @@ tags: menu
 				{% for screenshot in site.data.screenshots %}
 				<div class="{% if counter == 0 %}active{% endif %} item" style="background-image: url('/assets/screenshots/{{screenshot.file}}')">
 					<div class="carousel-caption">
-					  <h3>{{screenshot.title}}</h3>
+					  <h4>{{screenshot.title}}</h4>
 					</div>
 				</div>
 				{% assign counter=counter | plus:1 %}
