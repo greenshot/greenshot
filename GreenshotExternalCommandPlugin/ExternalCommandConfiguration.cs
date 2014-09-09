@@ -32,9 +32,24 @@ namespace ExternalCommand {
 	public class ExternalCommandConfiguration : IniSection {
 		[IniProperty("Commands", Description="The commands that are available.")]
 		public List<string> commands;
-		
-		[IniProperty("DoNotRedirect", Description="Skip redirect of standard output", DefaultValue="false")]
-		public bool DoNotRedirect;
+
+		[IniProperty("RedirectStandardError", Description = "Redirect the standard error of all external commands, used to output as warning to the greenshot.log.", DefaultValue = "true")]
+		public bool RedirectStandardError;
+
+		[IniProperty("RedirectStandardOutput", Description = "Redirect the standard output of all external commands, used for different other functions (more below).", DefaultValue = "true")]
+		public bool RedirectStandardOutput;
+
+		[IniProperty("ShowStandardOutputInLog", Description = "Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be usefull for debugging.", DefaultValue = "false")]
+		public bool ShowStandardOutputInLog;
+
+		[IniProperty("ParseForUri", Description = "Depends on 'RedirectStandardOutput': Parse the output and take the first found URI, if a URI is found than clicking on the notify bubble goes there.", DefaultValue = "true")]
+		public bool ParseOutputForUri;
+
+		[IniProperty("OutputToClipboard", Description = "Depends on 'RedirectStandardOutput': Place the standard output on the clipboard.", DefaultValue = "false")]
+		public bool OutputToClipboard;
+
+		[IniProperty("UriToClipboard", Description = "Depends on 'RedirectStandardOutput' & 'ParseForUri': If an URI is found in the standard input, place it on the clipboard. (This overwrites the output from OutputToClipboard setting.)", DefaultValue = "true")]
+		public bool UriToClipboard;
 
 		[IniProperty("Commandline", Description="The commandline for the output command.")]
 		public Dictionary<string, string> commandlines;

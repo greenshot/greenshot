@@ -56,6 +56,9 @@ namespace Greenshot.Plugin {
 			}
 		}
 
+		/// <summary>
+		/// Set to true to specify if the export worked.
+		/// </summary>
 		public bool ExportMade {
 			get {
 				return exportMade;

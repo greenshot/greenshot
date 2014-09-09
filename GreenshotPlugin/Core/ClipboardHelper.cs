@@ -130,7 +130,7 @@ EndSelection:<<<<<<<4
 		/// <param name="copy"></param>
 		private static void SetDataObject(IDataObject ido, bool copy) {
 			lock (clipboardLockObject) {
-				int retryCount = 2;
+				int retryCount = 5;
 				while (retryCount >= 0) {
 					try {
 						Clipboard.SetDataObject(ido, copy);

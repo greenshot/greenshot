@@ -25,6 +25,7 @@ using System.Windows.Forms;
 using Greenshot.Plugin;
 using log4net;
 using Microsoft.Win32;
+using GreenshotPlugin.UnmanagedHelpers;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -79,6 +80,11 @@ namespace GreenshotPlugin.Core {
 			}
 			try {
 				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, false)) {
+					if (appIcon != null) {
+						return appIcon.ToBitmap();
+					}
+				}
+				using (Icon appIcon = Shell32.GetFileIcon(path, Shell32.IconSize.Small, false)) {
 					if (appIcon != null) {
 						return appIcon.ToBitmap();
 					}

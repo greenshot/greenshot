@@ -16,6 +16,7 @@ Features:
 * Editor: a settings window for the torn-edge effect has been added.
 * Editor: a settings window for the drop shadow effect has been added.
 * OneNote: Enabled and enhanced the OneNote destination, so we can test this and see if it's worth releasing.
+* External command: If a command outputs an URI this will be captured and placed on the clipboard, the behaviour currently can only be modified in the greenshot.ini
 
 Bugs resolved:
 * BUG-1559, BUG-1643: Repeating hotkeys are now prevented.

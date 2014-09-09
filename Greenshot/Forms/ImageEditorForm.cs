@@ -316,6 +316,7 @@ namespace Greenshot {
 			fileStripMenuItem.DropDownItems.Add(closeToolStripMenuItem);
 		}
 
+		private delegate void SurfaceMessageReceivedThreadSafeDelegate(object sender, SurfaceMessageEventArgs eventArgs);
 		/// <summary>
 		/// This is the SufraceMessageEvent receiver which display a message in the status bar if the
 		/// surface is exported. It also updates the title to represent the filename, if there is one.
@@ -323,22 +324,26 @@ namespace Greenshot {
 		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
 		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs) {
-			string dateTime = DateTime.Now.ToLongTimeString();
-			// TODO: Fix that we only open files, like in the tooltip
-			switch (eventArgs.MessageType) {
-				case SurfaceMessageTyp.FileSaved:
-					// Put the event message on the status label and attach the context menu
-					updateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
-					// Change title
-					Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
-					break;
-				case SurfaceMessageTyp.Error:
-				case SurfaceMessageTyp.Info:
-				case SurfaceMessageTyp.UploadedUri:
-				default:
-					// Put the event message on the status label
-					updateStatusLabel(dateTime + " - " + eventArgs.Message);
-					break;
+			if (InvokeRequired) {
+				this.Invoke(new SurfaceMessageReceivedThreadSafeDelegate(SurfaceMessageReceived), new object[] { sender, eventArgs });
+			} else {
+				string dateTime = DateTime.Now.ToLongTimeString();
+				// TODO: Fix that we only open files, like in the tooltip
+				switch (eventArgs.MessageType) {
+					case SurfaceMessageTyp.FileSaved:
+						// Put the event message on the status label and attach the context menu
+						updateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
+						// Change title
+						Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
+						break;
+					case SurfaceMessageTyp.Error:
+					case SurfaceMessageTyp.Info:
+					case SurfaceMessageTyp.UploadedUri:
+					default:
+						// Put the event message on the status label
+						updateStatusLabel(dateTime + " - " + eventArgs.Message);
+						break;
+				}
 			}
 		}
 
