@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="1.1.2.2572" languagegroup="5">
+<language description="Українська" ietf="uk-UA" version="1.0.4" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
 		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
@@ -104,10 +104,6 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_drawline">Лінія (Д)</resource>
 		<resource name="editor_drawrectangle">Прямокутник (К)</resource>
 		<resource name="editor_drawtextbox">Додати текст (Е)</resource>
-		<resource name="editor_dropshadow_darkness">Тьмяність тіні</resource>
-		<resource name="editor_dropshadow_offset">Зсув тіні</resource>
-		<resource name="editor_dropshadow_settings">Параметри тіні</resource>
-		<resource name="editor_dropshadow_thickness">Товщина тіні</resource>
 		<resource name="editor_duplicate">Дублювати вибраний елемент</resource>
 		<resource name="editor_edit">Змінити</resource>
 		<resource name="editor_effects">Ефекти</resource>
@@ -155,10 +151,6 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_thickness">Товщина лінії</resource>
 		<resource name="editor_title">Редактор зображень Greenshot</resource>
 		<resource name="editor_torn_edge">Розірваний край</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Горизонтальна частота зубців</resource>
-		<resource name="editor_tornedge_settings">Параметри розірваного краю</resource>
-		<resource name="editor_tornedge_toothsize">Розмір зубця</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Вертикальна частота зубців</resource>
 		<resource name="editor_undo">Скасувати {0}</resource>
 		<resource name="editor_uponelevel">Вгору на один рівень</resource>
 		<resource name="editor_uptotop">На передній план</resource>
@@ -289,5 +281,31 @@ ${hostname} назва комп’ютера
 		<resource name="WindowCaptureMode.Auto">Автоматично</resource>
 		<resource name="WindowCaptureMode.GDI">Використовувати стандартний колір</resource>
 		<resource name="WindowCaptureMode.Screen">Як відображається</resource>
-	</resources>
+
+    <!-- 1.2 -->
+    <resource name="editor_dropshadow_darkness">Тьмяність тіні</resource>
+    <resource name="editor_dropshadow_offset">Зсув тіні</resource>
+    <resource name="editor_dropshadow_settings">Параметри тіні</resource>
+    <resource name="editor_dropshadow_thickness">Товщина тіні</resource>
+
+    <resource name="editor_tornedge_horizontaltoothrange">Горизонтальна частота зубців</resource>
+    <resource name="editor_tornedge_settings">Параметри розірваного краю</resource>
+    <resource name="editor_tornedge_toothsize">Розмір зубця</resource>
+    <resource name="editor_tornedge_verticaltoothrange">Вертикальна частота зубців</resource>
+    <resource name="editor_tornedge_left">Рваний лівий край</resource>
+    <resource name="editor_tornedge_right">Рваний правий край</resource>
+    <resource name="editor_tornedge_top">Рваний верхній край</resource>
+    <resource name="editor_tornedge_bottom">Рваний нижній край</resource>
+    <resource name="editor_tornedge_shadow">Створити тінь</resource>
+    
+    <resource name="editor_counter">Додати лічильник</resource>
+    <resource name="editor_speechbubble">Додати словесну бульбашку</resource>
+
+    <resource name="editor_resize">Змінити розмір</resource>
+    <resource name="editor_resize_settings">Параметри зміни розміру</resource>
+    <resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
+    <resource name="editor_resize_width">Ширина</resource>
+    <resource name="editor_resize_height">Висота</resource>
+    
+  </resources>
 </language>
