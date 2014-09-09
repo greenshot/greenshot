@@ -5,7 +5,7 @@
 		<resource name="about_donations">Greenshot がお気に召したなら、是非支援をお願いします :</resource>
 		<resource name="about_host">Greenshot は sourceforge.net によって運営されています :</resource>
 		<resource name="about_icons">上山根 祐輔氏の Fugue Icons を使用しています (Creative Commons Attribution 3.0 license) :</resource>
-		<resource name="about_license">Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot には一切の保障がありません。GNU General Public License に定められた条件下で再配布をおこなうことができます。:</resource>
 		<resource name="about_title">Greenshot について</resource>
 		<resource name="application_title">Greenshot - the revolutionary screenshot utility</resource>
@@ -61,6 +61,14 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="contextmenu_quicksettings">クィック設定</resource>
 		<resource name="contextmenu_settings">設定...</resource>
 		<resource name="destination_exportfailed">{0} へ書き出し中にエラーが発生しました。再度試行してください。</resource>
+		<resource name="editor_align_bottom">下端</resource>
+		<resource name="editor_align_center">中心</resource>
+		<resource name="editor_align_horizontal">水平方向の整列</resource>
+		<resource name="editor_align_left">左端</resource>
+		<resource name="editor_align_middle">中央</resource>
+		<resource name="editor_align_right">右端</resource>
+		<resource name="editor_align_top">上端</resource>
+		<resource name="editor_align_vertical">垂直方向の整列</resource>
 		<resource name="editor_arrange">配置</resource>
 		<resource name="editor_arrowheads">矢尻</resource>
 		<resource name="editor_arrowheads_both">両端</resource>
@@ -82,6 +90,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_copyimagetoclipboard">画像をクリップボードにコピー</resource>
 		<resource name="editor_copypathtoclipboard">パスをクリップボードにコピー</resource>
 		<resource name="editor_copytoclipboard">コピー</resource>
+		<resource name="editor_counter">カウンターを挿入する</resource>
 		<resource name="editor_crop">切り抜き (C)</resource>
 		<resource name="editor_cursortool">選択ツール (ESC)</resource>
 		<resource name="editor_cuttoclipboard">切り取り</resource>
@@ -132,8 +141,13 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_print">印刷</resource>
 		<resource name="editor_redo">やり直し{0}</resource>
 		<resource name="editor_resetsize">サイズをリセット</resource>
+		<resource name="editor_resize">リサイズ</resource>
+		<resource name="editor_resize_aspectratio">縦横比を維持する</resource>
+		<resource name="editor_resize_height">高さ</resource>
 		<resource name="editor_resize_percent">パーセント</resource>
 		<resource name="editor_resize_pixel">ピクセル</resource>
+		<resource name="editor_resize_settings">リサイズ設定</resource>
+		<resource name="editor_resize_width">横幅</resource>
 		<resource name="editor_rotateccw">反時計回りに回転 (Control + ,)</resource>
 		<resource name="editor_rotatecw">時計回りに回転 (Control + .)</resource>
 		<resource name="editor_save">保存</resource>
@@ -142,13 +156,19 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_selectall">すべて選択</resource>
 		<resource name="editor_senttoprinter">'{0}' に印刷ジョブを送りました。</resource>
 		<resource name="editor_shadow">シャドウ</resource>
+		<resource name="editor_speechbubble">吹き出しを挿入する</resource>
 		<resource name="editor_storedtoclipboard">画像をクリップボードに送りました。</resource>
 		<resource name="editor_thickness">線の太さ</resource>
 		<resource name="editor_title">Greenshot イメージ エディター</resource>
 		<resource name="editor_torn_edge">破れたエッジ</resource>
+		<resource name="editor_tornedge_bottom">下側のエッジを破る</resource>
 		<resource name="editor_tornedge_horizontaltoothrange">水平方向のギザギザの範囲</resource>
-		<resource name="editor_tornedge_settings">破れたエッジの設定</resource>
+		<resource name="editor_tornedge_left">左側のエッジを破る</resource>
+		<resource name="editor_tornedge_right">右側のエッジを破る</resource>
+		<resource name="editor_tornedge_settings">破れたようなエッジの設定</resource>
+		<resource name="editor_tornedge_shadow">影をつける</resource>
 		<resource name="editor_tornedge_toothsize">ギザギザの大きさ</resource>
+		<resource name="editor_tornedge_top">上側のエッジを破る</resource>
 		<resource name="editor_tornedge_verticaltoothrange">垂直方向のギザギザの範囲</resource>
 		<resource name="editor_undo">元に戻す{0}</resource>
 		<resource name="editor_uponelevel">一階層手前へ</resource>
@@ -188,9 +208,13 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="printoptions_allowenlarge">用紙に合わせて画像を拡大</resource>
 		<resource name="printoptions_allowrotate">ページの方向に合わせて画像を回転</resource>
 		<resource name="printoptions_allowshrink">用紙に合わせて画像を縮小</resource>
+		<resource name="printoptions_colors">カラー設定</resource>
 		<resource name="printoptions_dontaskagain">デフォルトの設定で保存して、以降は確認しない</resource>
 		<resource name="printoptions_inverted">色を反転させて印刷する</resource>
+		<resource name="printoptions_layout">ページレイアウト設定</resource>
+		<resource name="printoptions_printcolor">フルカラーで印刷する</resource>
 		<resource name="printoptions_printgrayscale">強制的にグレースケールで印刷する</resource>
+		<resource name="printoptions_printmonochrome">強制的に白黒二値で印刷する</resource>
 		<resource name="printoptions_timestamp">日付 / 時刻をページの下方に印刷</resource>
 		<resource name="printoptions_title">Greenshot - 印刷オプション</resource>
 		<resource name="qualitydialog_dontaskagain">デフォルトの品質で保存し、以降は確認しない</resource>
@@ -272,6 +296,7 @@ ${hostname} PC の名称
 		<resource name="settings_waittime">ミリ秒 （キャプチャー時の遅延時間）</resource>
 		<resource name="settings_window_capture_mode">ウィンドウキャプチャーモード</resource>
 		<resource name="settings_windowscapture">ウィンドウキャプチャー</resource>
+		<resource name="settings_zoom">拡大鏡を表示する</resource>
 		<resource name="tooltip_firststart">ここを右クリック、または Print Screen キーを押してください</resource>
 		<resource name="update_found">最新のバージョンのGreenshotがご利用になれます。Greenshot {0} をダウンロードしますか?</resource>
 		<resource name="wait_ie_capture">Internet Explorerのキャプチャーが終了するまでお待ちください...</resource>
@@ -282,7 +307,7 @@ ${hostname} PC の名称
 		<resource name="WindowCaptureMode.Aero">カスタムカラーを使用する</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">透明度を保存する</resource>
 		<resource name="WindowCaptureMode.Auto">自動</resource>
-		<resource name="WindowCaptureMode.GDI">デフォルトカラーを使用する</resource>
+		<resource name="WindowCaptureMode.GDI">デフォルトのカラーを使用する</resource>
 		<resource name="WindowCaptureMode.Screen">表示通りにキャプチャーする</resource>
 	</resources>
 </language>
