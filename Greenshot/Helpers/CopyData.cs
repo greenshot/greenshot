@@ -109,7 +109,7 @@ namespace Greenshot.Helpers {
 					BinaryFormatter b = new BinaryFormatter();
 					CopyDataObjectData cdo = (CopyDataObjectData) b.Deserialize(stream);
 					
-					if (channels.Contains(cdo.Channel)) {
+					if (channels != null && channels.Contains(cdo.Channel)) {
 						CopyDataReceivedEventArgs d = new CopyDataReceivedEventArgs(cdo.Channel, cdo.Data, cdo.Sent);
 						OnCopyDataReceived(d);
 						m.Result = (IntPtr) 1;
@@ -119,7 +119,9 @@ namespace Greenshot.Helpers {
 				// WM_DESTROY fires before OnHandleChanged and is
 				// a better place to ensure that we've cleared 
 				// everything up.
-				channels.OnHandleChange();
+				if (channels != null) {
+					channels.OnHandleChange();
+				}
 				base.OnHandleChange();
 			}
 			base.WndProc(ref m);
@@ -142,7 +144,9 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		protected override void OnHandleChange () {
 			// need to clear up everything we had set.
-			channels.OnHandleChange();
+			if (channels != null) {
+				channels.OnHandleChange();
+			}
 			base.OnHandleChange();
 		}
 
@@ -164,7 +168,7 @@ namespace Greenshot.Helpers {
 		/// Clears up any resources associated with this object.
 		/// </summary>
 		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
+			if (disposing && channels != null) {
 				channels.Clear();
 				channels = null;
 			}
