@@ -10,7 +10,7 @@ CHANGE LOG:
 All details to our tickets can be found here: https://greenshot.atlassian.net
 
 Features:
-* FEATURE-184, FEATURE-282, FEATURE-486: Image editor now has a Speech bubble
+* FEATURE-184, FEATURE-282, FEATURE-486: Image editor now has a speech bubble
 * FEATURE-281, FEATURE-669, FEATURE-707, FEATURE-734: Image editor now has auto incrementing labels
 * Editor: a resize effect with settings window has been added.
 * Editor: a settings window for the torn-edge effect has been added.
@@ -27,6 +27,9 @@ Bugs resolved:
 Changes:
 * Dynamic destination context-menu: If a destination has child items the parent is still selectable and executes the default export, we now no longer repeat the parent in the children.
 * Dynamic destination context-menu: We are now leaving the sorting to the destination code, this allows us to e.g. show the default printer on top of the list.
+
+Languages:
+* Updates for Ukrainian and Japanese translation
 
 1.1.9.13-g01ce82d Windows 8.1 & Box bug-fix Release
 
