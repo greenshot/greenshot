@@ -23,18 +23,13 @@
 ################################################################
 
 $version=$env:APPVEYOR_BUILD_VERSION
+$buildType=$env:build_type
 $gitcommit=$env:APPVEYOR_REPO_COMMIT
 $gitcommit=$gitcommit.SubString(0, [math]::Min($gitcommit.Length, 7))
-$detailversion=$version + '-' + $gitcommit
+$detailversion=$version + '-' + $gitcommit + " " + $buildType
 $release=(([version]$version).build) % 2 -eq 1
-$fileversion=$version
-# Add the UNSTABLE, if we aren't a release -> the build is even. (major.minor.build.revision)
-if ( ! $release) {
-	$fileversion=$version + "-UNSTABLE"
-	$detailversion=$detailversion + " UNSTABLE"
-} else {
-	$detailversion=$detailversion + " Release"
-}
+$fileversion=$version + "-" + $buildType
+
 Write-Host "Building Greenshot $detailversion"
 
 # Create a MD5 string for the supplied filename
