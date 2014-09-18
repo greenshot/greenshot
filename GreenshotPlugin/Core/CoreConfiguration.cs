@@ -254,7 +254,7 @@ namespace GreenshotPlugin.Core {
 		public bool ProcessEXIFOrientation;
 
 		// Specifies what THIS build is
-		public BuildStates BuildState = Assembly.GetExecutingAssembly().GetName().Version.Build % 2 == 0 ? BuildStates.UNSTABLE : BuildStates.RELEASE;
+		public BuildStates BuildState = BuildStates.RELEASE_CANDIDATE;
 
 		/// <summary>
 		/// A helper method which returns true if the supplied experimental feature is enabled
