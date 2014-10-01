@@ -23,6 +23,7 @@ Bugs resolved:
 * BUG-1610: Image editor: 'Obfuscate' and 'Highlight' and more, now should rotate / resize correctly.
 * BUG-1619: Image editor: Autocrop now also considers the elements.
 * BUG-1653: Accessibility issues: Editor "File" menu entry can't be activated and missing translations
+* BUG-1671: Fixed error that occurred when double-clicking systray icon before the first time a screenshot was saved to file
 
 Changes:
 * Dynamic destination context-menu: If a destination has child items the parent is still selectable and executes the default export, we now no longer repeat the parent in the children.

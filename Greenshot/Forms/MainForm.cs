@@ -1249,13 +1249,18 @@ namespace Greenshot {
 			switch (clickAction) {
 				case ClickActions.OPEN_LAST_IN_EXPLORER:
 					string path = null;
-					string configPath = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
-					string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
-					if (lastFilePath != null && Directory.Exists(lastFilePath)) {
-						path = lastFilePath;
-					} else if (Directory.Exists(configPath)) {
-						path = configPath;
-					}
+                    if (!string.IsNullOrEmpty(_conf.OutputFileAsFullpath)) {
+                        string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
+                        if (!string.IsNullOrEmpty(lastFilePath) && Directory.Exists(lastFilePath)) {
+                            path = lastFilePath;
+					    }
+                    }
+                    if (path == null) {
+                        string configPath = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
+                        if (Directory.Exists(configPath)) {
+                            path = configPath;
+                        }
+                    }
 
 					if (path != null) {
 						try {
