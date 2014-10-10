@@ -308,26 +308,6 @@ namespace Greenshot.Drawing {
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			_textBox.ForeColor = lineColor;
 			_textBox.Font = _font;
-			StringAlignment horizontalAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
-			switch (horizontalAlignment) {
-				case StringAlignment.Center:
-					_textBox.TextAlign = HorizontalAlignment.Center;
-					break;
-				case StringAlignment.Far:
-					if (_textBox.RightToLeft != RightToLeft.Yes) {
-						_textBox.TextAlign = HorizontalAlignment.Right;
-					} else {
-						_textBox.TextAlign = HorizontalAlignment.Left;
-					}
-					break;
-				case StringAlignment.Near:
-					if (_textBox.RightToLeft != RightToLeft.Yes) {
-						_textBox.TextAlign = HorizontalAlignment.Left;
-					} else {
-						_textBox.TextAlign = HorizontalAlignment.Right;
-					}
-					break;
-			}
 		}
 		
 		void textBox_KeyDown(object sender, KeyEventArgs e) {
