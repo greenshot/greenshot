@@ -72,6 +72,8 @@ namespace Greenshot.Forms {
 		private RectangleAnimator _windowAnimator;
 		private RectangleAnimator _zoomAnimator;
 		private readonly bool _isZoomerTransparent = Conf.ZoomerOpacity < 1;
+		private bool _isCtrlPressed = false;
+
 		/// <summary>
 		/// Property to access the selected capture rectangle
 		/// </summary>
@@ -192,8 +194,13 @@ namespace Greenshot.Forms {
 
 		#region key handling		
 		void CaptureFormKeyUp(object sender, KeyEventArgs e) {
-			if (e.KeyCode == Keys.ShiftKey) {
-				_fixMode = FixMode.None;
+			switch(e.KeyCode) {
+				case Keys.ShiftKey:
+					_fixMode = FixMode.None;
+					break;
+				case Keys.ControlKey:
+					_isCtrlPressed = false;
+					break;
 			}
 		}
 
@@ -203,24 +210,29 @@ namespace Greenshot.Forms {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void CaptureFormKeyDown(object sender, KeyEventArgs e) {
+			int step = _isCtrlPressed ? 10 : 1;
+
 			switch (e.KeyCode) {
 				case Keys.Up:
-					Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y - 1);
+					Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y - step);
 					break;
 				case Keys.Down:
-					Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y + 1);
+					Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y + step);
 					break;
 				case Keys.Left:
-					Cursor.Position = new Point(Cursor.Position.X - 1, Cursor.Position.Y);
+					Cursor.Position = new Point(Cursor.Position.X - step, Cursor.Position.Y);
 					break;
 				case Keys.Right:
-					Cursor.Position = new Point(Cursor.Position.X + 1, Cursor.Position.Y);
+					Cursor.Position = new Point(Cursor.Position.X + step, Cursor.Position.Y);
 					break;
 				case Keys.ShiftKey:
 					// Fixmode
 					if (_fixMode == FixMode.None) {
 						_fixMode = FixMode.Initiated;
 					}
+					break;
+				case Keys.ControlKey:
+					_isCtrlPressed = true;
 					break;
 				case Keys.Escape:
 					// Cancel
@@ -280,6 +292,10 @@ namespace Greenshot.Forms {
 					// Confirm
 					if (_captureMode == CaptureMode.Window) {
 						DialogResult = DialogResult.OK;
+					} else if (!_mouseDown) {
+						HandleMouseDown();
+					} else if (_mouseDown) {
+						HandleMouseUp();
 					}
 					break;
 			}
@@ -294,13 +310,38 @@ namespace Greenshot.Forms {
 		/// <param name="e"></param>
 		void OnMouseDown(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
-				Point tmpCursorLocation = WindowCapture.GetCursorLocationRelativeToScreenBounds();
-				_mX = tmpCursorLocation.X;
-				_mY = tmpCursorLocation.Y;
-				_mouseDown = true;
-				OnMouseMove(this, e);
+				HandleMouseDown();
+			}
+		}
+
+		private void HandleMouseDown() {
+			Point tmpCursorLocation = WindowCapture.GetCursorLocationRelativeToScreenBounds();
+			_mX = tmpCursorLocation.X;
+			_mY = tmpCursorLocation.Y;
+			_mouseDown = true;
+			OnMouseMove(this, null);
+			Invalidate();
+		}
+
+		private void HandleMouseUp() {
+			// If the mouse goes up we set down to false (nice logic!)
+			_mouseDown = false;
+			// Check if anything is selected
+			if (_captureMode == CaptureMode.Window && _selectedCaptureWindow != null) {
+				// Go and process the capture
+				DialogResult = DialogResult.OK;
+			} else if (_captureRect.Height > 0 && _captureRect.Width > 0) {
+				// correct the GUI width to real width if Region mode
+				if (_captureMode == CaptureMode.Region) {
+					_captureRect.Width += 1;
+					_captureRect.Height += 1;
+				}
+				// Go and process the capture
+				DialogResult = DialogResult.OK;
+			} else {
 				Invalidate();
 			}
+
 		}
 		
 		/// <summary>
@@ -310,23 +351,7 @@ namespace Greenshot.Forms {
 		/// <param name="e"></param>
 		void OnMouseUp(object sender, MouseEventArgs e) {
 			if (_mouseDown) {
-				// If the mouse goes up we set down to false (nice logic!)
-				_mouseDown = false;
-				// Check if anything is selected
-				if (_captureMode == CaptureMode.Window && _selectedCaptureWindow != null) {
-					// Go and process the capture
-					DialogResult = DialogResult.OK;
-				} else if (_captureRect.Height > 0 && _captureRect.Width > 0) {
-					// correct the GUI width to real width if Region mode
-					if (_captureMode == CaptureMode.Region) {
-						_captureRect.Width += 1;
-						_captureRect.Height += 1;
-					}
-					// Go and process the capture
-					DialogResult = DialogResult.OK;
-				} else {
-					Invalidate();
-				}
+				HandleMouseUp();
 			}
 		}
 		
