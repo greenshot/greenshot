@@ -212,7 +212,7 @@ namespace Greenshot.Drawing {
 
 			// Draw the text
 			UpdateFormat();
-			DrawText(graphics, rect, lineThickness, ControlPaint.Dark(lineColor, 0.25f ), false, StringFormat, Text, Font);
+			DrawText(graphics, rect, lineThickness, lineColor, false, StringFormat, Text, Font);
 		}
 
 		public override bool Contains(int x, int y) {
