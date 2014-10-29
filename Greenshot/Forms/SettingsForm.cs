@@ -109,7 +109,7 @@ namespace Greenshot {
 		}
 
 		/// <summary>
-		/// This is a method to popululate the ComboBox
+		/// This is a method to populate the ComboBox
 		/// with the items from the enumeration
 		/// </summary>
 		/// <param name="comboBox">ComboBox to populate</param>

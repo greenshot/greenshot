@@ -225,7 +225,7 @@ namespace Greenshot.Drawing {
 		private Rectangle _boundsBeforeResize = Rectangle.Empty;
 		
 		[NonSerialized]
-		// "workbench" rectangle - used for calculatoing bounds during resizing (to be applied to this DrawableContainer afterwards)
+		// "workbench" rectangle - used for calculating bounds during resizing (to be applied to this DrawableContainer afterwards)
 		private RectangleF _boundsAfterResize = RectangleF.Empty;
 		
 		public Rectangle Bounds {

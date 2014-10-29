@@ -25,7 +25,7 @@ using GreenshotPlugin.Controls;
 namespace Greenshot.Controls {
 	/// <summary>
 	/// A simple ToolStripDropDownButton implementing INotifyPropertyChanged for data binding.
-	/// Also, when a DropDownItem is selected, the DropDownButton adops its Tag and Image.
+	/// Also, when a DropDownItem is selected, the DropDownButton adopts its Tag and Image.
 	/// The selected tag can be accessed via SelectedTag property.
 	/// </summary>
 	public class BindableToolStripDropDownButton : ToolStripDropDownButton, INotifyPropertyChanged, IGreenshotLanguageBindable {
