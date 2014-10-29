@@ -61,7 +61,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			public int lParam;
 			public IntPtr iImage;
 		}
-		[StructLayout(LayoutKind.Sequential)]
+		[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
 		private struct SHFILEINFO {
 			public IntPtr hIcon;
 			public int iIcon;
@@ -143,34 +143,39 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		}
 
 		/// <summary>
-		/// Returns an icon for a given file - indicated by the name parameter.
+		/// Returns an icon for a given file extension - indicated by the name parameter.
 		/// </summary>
-		/// <param name="name">Pathname for file.</param>
+		/// <param name="name">Filename</param>
 		/// <param name="size">Large or small</param>
 		/// <param name="linkOverlay">Whether to include the link icon</param>
 		/// <returns>System.Drawing.Icon</returns>
-		public static Icon GetFileIcon(string name, IconSize size, bool linkOverlay) {
+		public static Icon GetFileIcon(string filename, IconSize size, bool linkOverlay) {
 			SHFILEINFO shfi = new SHFILEINFO();
+			// SHGFI_USEFILEATTRIBUTES makes it simulate, just gets the icon for the extension
 			uint flags = Shell32.SHGFI_ICON | Shell32.SHGFI_USEFILEATTRIBUTES;
 
 			if (true == linkOverlay) {
 				flags += Shell32.SHGFI_LINKOVERLAY;
 			}
 
-			/* Check the size specified for return. */
+			// Check the size specified for return.
 			if (IconSize.Small == size) {
 				flags += Shell32.SHGFI_SMALLICON;
 			} else {
 				flags += Shell32.SHGFI_LARGEICON;
 			}
 
-			SHGetFileInfo(name, Shell32.FILE_ATTRIBUTE_NORMAL, ref shfi, (uint)Marshal.SizeOf(shfi), flags);
+			SHGetFileInfo(Path.GetFileName(filename), Shell32.FILE_ATTRIBUTE_NORMAL, ref shfi, (uint)Marshal.SizeOf(shfi), flags);
 
-			// Copy (clone) the returned icon to a new object, thus allowing us to clean-up properly
-			Icon icon = (Icon)Icon.FromHandle(shfi.hIcon).Clone();
-			// Cleanup
-			User32.DestroyIcon(shfi.hIcon);
-			return icon;
+			// Only return an icon if we really got one
+			if (shfi.hIcon != IntPtr.Zero) {
+				// Copy (clone) the returned icon to a new object, thus allowing us to clean-up properly
+				Icon icon = (Icon)Icon.FromHandle(shfi.hIcon).Clone();
+				// Cleanup
+				User32.DestroyIcon(shfi.hIcon);
+				return icon;
+			}
+			return null;
 		}
 
 		/// <summary>
