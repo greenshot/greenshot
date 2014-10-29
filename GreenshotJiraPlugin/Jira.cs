@@ -1,3 +1,4 @@
+
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
@@ -18,14 +19,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Windows.Forms;
+
 using Greenshot.IniFile;
 using GreenshotJiraPlugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace Jira {
 	#region transport classes
@@ -309,6 +311,33 @@ namespace Jira {
 			checkCredentials();
 			try {
 				RemoteIssue[] issues = jira.getIssuesFromFilter(credentials, filterId);
+
+				#region Username cache update
+				List<string> users = new List<string>();
+				foreach (RemoteIssue issue in issues) {
+					if (issue.reporter != null && !hasUser(issue.reporter) && !users.Contains(issue.reporter)) {
+						users.Add(issue.reporter);
+					}
+					if (issue.assignee != null && !hasUser(issue.assignee) && !users.Contains(issue.assignee)) {
+						users.Add(issue.assignee);
+					}
+				}
+				int taskCount = users.Count;
+				if (taskCount > 0) {
+					ManualResetEvent doneEvent = new ManualResetEvent(false);
+					for (int i = 0; i < users.Count; i++) {
+						ThreadPool.QueueUserWorkItem(delegate(object name) {
+							LOG.InfoFormat("Retrieving {0}", name);
+							getUserFullName((string)name);
+							if (Interlocked.Decrement(ref taskCount) == 0) {
+								doneEvent.Set();
+							}
+						}, users[i]);
+					}
+					doneEvent.WaitOne();
+				}
+				#endregion
+
 				foreach (RemoteIssue issue in issues) {
 					try {
 						JiraIssue jiraIssue = new JiraIssue(issue.key, issue.created, getUserFullName(issue.reporter), getUserFullName(issue.assignee), issue.project, issue.summary, issue.description, "", issue.attachmentNames);
@@ -352,6 +381,13 @@ namespace Jira {
 			comment.body = commentString;
 			checkCredentials();
 			jira.addComment(credentials, issueKey, comment);
+		}
+
+		private bool hasUser(string user) {
+			if (user != null) {
+				return userCache.Contains(user);
+			}
+			return false;
 		}
 
 		private string getUserFullName(string user) {
