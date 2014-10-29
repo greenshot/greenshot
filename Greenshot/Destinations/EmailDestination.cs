@@ -83,6 +83,7 @@ namespace Greenshot.Destinations {
 			get {
 				if (isActiveFlag) {
 					// Disable if the office plugin is installed and the client is outlook
+					// TODO: Change this! It always creates an exception, as the plugin has not been loaded the type is not there :(
 					Type outlookdestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin");
 					if (outlookdestination != null) {
 						if (mapiClient.ToLower().Contains("microsoft outlook")) {

@@ -15,8 +15,8 @@ Changes:
 * JIRA: With JIRA 6.x using the SOAP (Webservice) API the access has gotten really slow, we improved the performance slightly by loading some information parallel. (In Greenshot 2.x we will move to another API.)
 
 Bugs Resolved:
-* BUG-1667 removed horizontal alignment of textbox in input mode, as it caused problems with textbox focus and could not be implemented consistently anyway (no vertical alignment possible)
-
+* BUG-1667: removed horizontal alignment of textbox in input mode, as it caused problems with textbox focus and could not be implemented consistently anyway (no vertical alignment possible)
+* BUG-1681: Improvements for the new speech bubble, text color is now the same as the border and the rounded corners are correctly calculated when using thick lines and a small bubble.
 
 1.2.1.2-af946cf RC1
 
