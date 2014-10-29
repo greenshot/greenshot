@@ -33,7 +33,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern int ExtractIconEx(string sFile, int iIndex, out IntPtr piLargeVersion, out IntPtr piSmallVersion, int amountIcons);
 		[DllImport("shell32", CharSet = CharSet.Unicode)]
 		internal static extern IntPtr ExtractAssociatedIcon(HandleRef hInst, StringBuilder iconPath, ref int index);
-		[DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
+		[DllImport("shell32", CharSet = CharSet.Unicode)]
 		private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
 
 		#region Structs
@@ -66,7 +66,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			public IntPtr hIcon;
 			public int iIcon;
 			public uint dwAttributes;
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
 			public string szDisplayName;
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
 			public string szTypeName;
