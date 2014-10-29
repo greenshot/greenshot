@@ -119,7 +119,7 @@ namespace Greenshot.Destinations {
 				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
 				outputMade = (fullPath != null);
 			}
-			// Don't overwite filename if no output is made
+			// Don't overwrite filename if no output is made
 			if (outputMade) {
 				exportInformation.ExportMade = outputMade;
 				exportInformation.Filepath = fullPath;
