@@ -33,6 +33,7 @@ But it mostly has a few more bug fixes and changes as are in our Greenshot relea
 This means pull request with fixes or **small** changes are very welcome!
 
 We now have a continuous integration system, you can find the latest unstable 1.2 builds [here](https://ci.appveyor.com/project/Greenshot/greenshot/history) 
+Current build status: ![Unknown](https://ci.appveyor.com/api/projects/status/yh4jnjbo03qrl60d/branch/1.2?svg=true)
 
 
 **master**

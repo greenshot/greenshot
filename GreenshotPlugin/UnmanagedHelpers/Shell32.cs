@@ -144,6 +144,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 		/// <summary>
 		/// Returns an icon for a given file extension - indicated by the name parameter.
+		/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/bb762179(v=vs.85).aspx
 		/// </summary>
 		/// <param name="name">Filename</param>
 		/// <param name="size">Large or small</param>
