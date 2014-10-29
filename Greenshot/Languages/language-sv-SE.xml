@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="Svenska" ietf="sv-SE" version="1.0.4" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Var vänlig att rapportera in fel till</resource>
 		<resource name="about_donations">Om du gillar Greenshot, så är du välkommen att stödja oss:</resource>
 		<resource name="about_host">Greenshots hemsida tillhandahålls av sourceforge.net på</resource>
 		<resource name="about_icons">Ikoner från "Yusuke Kamiyamane's Fugue icon set" (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot lämnar ABSOLUT INGA GARANTIER. Detta är ett gratisprogram, och du kan/får vidaredistribuera programmet under vissa villkor.
+		<resource name="about_license">Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot lämnar ABSOLUT INGA GARANTIER. Detta är ett gratisprogram, och du får vidaredistribuera programmet under vissa villkor.
 Detaljer om "GNU General Public License":</resource>
 		<resource name="about_title">Om Greenshot</resource>
 		<resource name="about_translation">Svensk översättning av Torsten Augustsson</resource>
@@ -33,14 +33,14 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="colorpicker_apply">Verkställ</resource>
 		<resource name="colorpicker_blue">Blå</resource>
 		<resource name="colorpicker_green">Grön</resource>
-		<resource name="colorpicker_htmlcolor">HTMLfärg</resource>
-		<resource name="colorpicker_recentcolors">Senaste använda färgerna</resource>
+		<resource name="colorpicker_htmlcolor">HTML-färg</resource>
+		<resource name="colorpicker_recentcolors">Senast använda färgerna</resource>
 		<resource name="colorpicker_red">Röd</resource>
 		<resource name="colorpicker_title">Färgväljare</resource>
 		<resource name="colorpicker_transparent">Transparent</resource>
 		<resource name="com_rejected">Målet {0} nekade åtkomst för Greenshot, antagligen är en dialogruta öppen. Stäng dialogrutan och försök igen.</resource>
 		<resource name="com_rejected_title">Åtkomst för Greenshot nekades</resource>
-		<resource name="config_unauthorizedaccess_write">Kunde inte spara Greenshot's konfigurationsfil. Var vänlig kontrollera åtkomsträttigheterna för '{0}'.</resource>
+		<resource name="config_unauthorizedaccess_write">Kunde inte spara Greenshots konfigurationsfil. Var vänlig kontrollera åtkomsträttigheterna för '{0}'.</resource>
 		<resource name="contextmenu_about">Om Greenshot</resource>
 		<resource name="contextmenu_capturearea">Skärmdump av yta</resource>
 		<resource name="contextmenu_captureclipboard">Öppna bild från urklipp</resource>
@@ -49,7 +49,7 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="contextmenu_capturefullscreen_bottom">botten</resource>
 		<resource name="contextmenu_capturefullscreen_left">vänster</resource>
 		<resource name="contextmenu_capturefullscreen_right">höger</resource>
-		<resource name="contextmenu_capturefullscreen_top">topp</resource>
+		<resource name="contextmenu_capturefullscreen_top">toppen</resource>
 		<resource name="contextmenu_captureie">Skärmdump av Internet Explorer</resource>
 		<resource name="contextmenu_captureiefromlist">Skärmdump av Internet Exporer från lista</resource>
 		<resource name="contextmenu_capturelastregion">Skärmdump av senaste ytan</resource>
@@ -62,7 +62,7 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="contextmenu_openrecentcapture">Öppna platsen för senaste skärmdumpen</resource>
 		<resource name="contextmenu_quicksettings">Snabbinställningar</resource>
 		<resource name="contextmenu_settings">Inställningar...</resource>
-		<resource name="destination_exportfailed">Fel vid export till {0}. Vänligen försök igen.</resource>
+		<resource name="destination_exportfailed">Fel vid export till {0}. Försök igen.</resource>
 		<resource name="editor_align_bottom">Underkant</resource>
 		<resource name="editor_align_center">Mitten</resource>
 		<resource name="editor_align_horizontal">Horisontell justering</resource>
@@ -72,10 +72,10 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_align_top">Överkant</resource>
 		<resource name="editor_align_vertical">Vertikal justering</resource>
 		<resource name="editor_arrange">Arrangera</resource>
-		<resource name="editor_arrowheads">Pilhuvud</resource>
+		<resource name="editor_arrowheads">Pilhuvuden</resource>
 		<resource name="editor_arrowheads_both">Båda</resource>
 		<resource name="editor_arrowheads_end">Slutpunkt</resource>
-		<resource name="editor_arrowheads_none">Ingen</resource>
+		<resource name="editor_arrowheads_none">Inget</resource>
 		<resource name="editor_arrowheads_start">Startpunkt</resource>
 		<resource name="editor_autocrop">Autobeskärning</resource>
 		<resource name="editor_backcolor">Fyllnadsfärg</resource>
@@ -88,7 +88,7 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_close">Stäng</resource>
 		<resource name="editor_close_on_save">Vill du spara skärmdumpen?</resource>
 		<resource name="editor_close_on_save_title">Spara bild?</resource>
-		<resource name="editor_confirm">Konfirmera</resource>
+		<resource name="editor_confirm">Godkänn</resource>
 		<resource name="editor_copyimagetoclipboard">Kopiera bilden till urklipp</resource>
 		<resource name="editor_copypathtoclipboard">Kopiera sökväg till urklipp</resource>
 		<resource name="editor_copytoclipboard">Kopiera</resource>
@@ -105,10 +105,6 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_drawline">Rita en line (L)</resource>
 		<resource name="editor_drawrectangle">Rita en rektangel (R)</resource>
 		<resource name="editor_drawtextbox">Lägg till en textruta (T)</resource>
-		<resource name="editor_dropshadow_darkness">Skuggmörkhet</resource>
-		<resource name="editor_dropshadow_offset">Skuggoffset</resource>
-		<resource name="editor_dropshadow_settings">Skugginställningar</resource>
-		<resource name="editor_dropshadow_thickness">Skuggtjocklek</resource>
 		<resource name="editor_duplicate">Duplicera valt element</resource>
 		<resource name="editor_edit">Redigera</resource>
 		<resource name="editor_effects">Effekter</resource>
@@ -154,12 +150,8 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_shadow">Skugga</resource>
 		<resource name="editor_storedtoclipboard">Bilden sparades i urklipp.</resource>
 		<resource name="editor_thickness">Linjetjocklek</resource>
-		<resource name="editor_title">Greenshot Bildredigerare</resource>
+		<resource name="editor_title">Greenshot bildredigerare</resource>
 		<resource name="editor_torn_edge">Riven kant</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Horisontell tandspann</resource>
-		<resource name="editor_tornedge_settings">Riven kantinställningar</resource>
-		<resource name="editor_tornedge_toothsize">Tandstorlek</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Vertikalt tandspann</resource>
 		<resource name="editor_undo">Ångra {0}</resource>
 		<resource name="editor_uponelevel">Upp en nivå</resource>
 		<resource name="editor_uptotop">Upp till toppen</resource>
@@ -167,16 +159,16 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook med HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook med text</resource>
 		<resource name="error">Fel</resource>
-		<resource name="error_multipleinstances">Programmet Greenshot körs redan.</resource>
+		<resource name="error_multipleinstances">En instans av Greenshot körs redan.</resource>
 		<resource name="error_nowriteaccess">Kan inte spara filen till {0}.
-Var god kontrollera skrivrättigheterna till den förvalda mappen.</resource>
+Kontrollera skrivrättigheterna för den valda mappen.</resource>
 		<resource name="error_openfile">Filen "{0}" kunde inte öppnas.</resource>
 		<resource name="error_openlink">Kunde inte öppna länken '{0}'.</resource>
 		<resource name="error_save">Kunde inte spara skärmdumpen. Välj en lämplig mapp att spara i.</resource>
 		<resource name="expertsettings">Expert</resource>
 		<resource name="expertsettings_autoreducecolors">Skapa en 8-bitars bild om det är färre än 256 men bilden är &gt; 8 bitar</resource>
 		<resource name="expertsettings_checkunstableupdates">Leta efter instabila uppdateringar</resource>
-		<resource name="expertsettings_clipboardformats">Utklippsformat</resource>
+		<resource name="expertsettings_clipboardformats">Urklippsformat</resource>
 		<resource name="expertsettings_counter">Numret för ${NUM} i filnamnsmönstret</resource>
 		<resource name="expertsettings_enableexpert">Jag vet vad jag håller på med!</resource>
 		<resource name="expertsettings_footerpattern">Mönster för skrivarsidfot</resource>
@@ -197,28 +189,28 @@ Var god kontrollera skrivrättigheterna till den förvalda mappen.</resource>
 		<resource name="printoptions_allowrotate">Rotera utskriften till sidans orientering</resource>
 		<resource name="printoptions_allowshrink">Förminska/anpassa utskriften till papprets storlek</resource>
 		<resource name="printoptions_colors">Färginställningar</resource>
-		<resource name="printoptions_dontaskagain">Spara insällningar som förvalda och fråga inte igen</resource>
+		<resource name="printoptions_dontaskagain">Spara alternativen som standard och fråga inte igen</resource>
 		<resource name="printoptions_inverted">Skriv ut med inverterade färger</resource>
 		<resource name="printoptions_layout">Utskriftsformat</resource>
 		<resource name="printoptions_printcolor">Fullfärgsutskrift</resource>
 		<resource name="printoptions_printgrayscale">Tvinga gråskalig utskrift</resource>
 		<resource name="printoptions_printmonochrome">Tvinga svart/vit utskrift</resource>
-		<resource name="printoptions_timestamp">Utskriftsdatum/klockslag i sidans nedre kant</resource>
+		<resource name="printoptions_timestamp">Skriv ut datum/klockslag i sidans nedre kant</resource>
 		<resource name="printoptions_title">Greenshot skrivarinställningar</resource>
 		<resource name="qualitydialog_dontaskagain">Spara som standardkvalitet och fråga inte igen</resource>
 		<resource name="qualitydialog_title">Greenshot-kvalitet</resource>
 		<resource name="quicksettings_destination_file">Spara direkt (använd önskade filinställningar)</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Visa dialogruta varje gång en bild skall skrivas ut</resource>
 		<resource name="settings_alwaysshowqualitydialog">Visa kvalitetsdialogen vaje gång en bild sparas</resource>
-		<resource name="settings_applicationsettings">Programinställningar</resource>
+		<resource name="settings_applicationsettings">Applikationställningar</resource>
 		<resource name="settings_autostartshortcut">Starta Greenshot när datorn startas</resource>
 		<resource name="settings_capture">Skärmdump</resource>
 		<resource name="settings_capture_mousepointer">Inkludera muspekaren</resource>
 		<resource name="settings_capture_windows_interactive">Välj fönster</resource>
-		<resource name="settings_checkperiod">Intervall för att leta efter uppdateringar i dagar (0=leta inte)</resource>
+		<resource name="settings_checkperiod">Intervall för att leta efter uppdateringar, i dagar (0=leta inte)</resource>
 		<resource name="settings_configureplugin">Konfigurera</resource>
 		<resource name="settings_copypathtoclipboard">Kopiera bildens sökväg till urklipp varje gång en bild sparas</resource>
-		<resource name="settings_destination">Destination för skärmdumpar</resource>
+		<resource name="settings_destination">Destination</resource>
 		<resource name="settings_destination_clipboard">Kopiera till urklipp</resource>
 		<resource name="settings_destination_editor">Öppna i bildredigeraren</resource>
 		<resource name="settings_destination_email">E-mail</resource>
@@ -245,8 +237,7 @@ ${user} Användarnamn
 ${domain} Windows domän
 ${hostname} Datorns namn
 
-Du kan också göra så att Greenshot skapar mappar dynamiskt.
-Använd helt enkelt backslash (\) för att separera mapp-/filnamn.
+Du kan också göra så att Greenshot skapar mappar dynamiskt. Använd helt enkelt backslash (\) för att separera mapp-/filnamn.
 Exempel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 Mönstret kommer att skapa en mapp med dagens datum på ditt förvalda ställe, t.e.x. 2008-06-29, och bildens filnamn blir den aktuella tiden, e.x. 11_58_32.xxx
 där "xxx" är det filformat du angett.</resource>
@@ -258,10 +249,10 @@ där "xxx" är det filformat du angett.</resource>
 		<resource name="settings_plugins_dllpath">DLL-sökväg</resource>
 		<resource name="settings_plugins_name">Namn</resource>
 		<resource name="settings_plugins_version">Version</resource>
-		<resource name="settings_preferredfilesettings">Inställningar för filsparning</resource>
+		<resource name="settings_preferredfilesettings">Föredragna inställningar för filsparning</resource>
 		<resource name="settings_primaryimageformat">Bildformat</resource>
 		<resource name="settings_printer">Utskrift</resource>
-		<resource name="settings_printoptions">Skrivarinställningar</resource>
+		<resource name="settings_printoptions">Utskriftsalternativ</resource>
 		<resource name="settings_qualitysettings">Kvalitetsinställningar</resource>
 		<resource name="settings_reducecolors">Reducera antalet färger till maximalt 256</resource>
 		<resource name="settings_registerhotkeys">Registrera kortkommandon</resource>
@@ -272,7 +263,7 @@ där "xxx" är det filformat du angett.</resource>
 		<resource name="settings_title">Inställningar</resource>
 		<resource name="settings_tooltip_filenamepattern">Det mönster som används för att generera filnamn när skärmdumpar sparas</resource>
 		<resource name="settings_tooltip_language">Språk som används i Greenshot</resource>
-		<resource name="settings_tooltip_primaryimageformat">Förvalt bildformat</resource>
+		<resource name="settings_tooltip_primaryimageformat">Bildformat som används som standard</resource>
 		<resource name="settings_tooltip_registerhotkeys">Definierar om kortkommandona Prnt, Ctrl+Print, Alt+Prnt är reserverade att användas globalt av Greenshot när programmet startar, tills programmet stängs ner.</resource>
 		<resource name="settings_tooltip_storagelocation">Plats skärmdumpar skall sparas som standard (lämna tomt för att spara på skrivbordet)</resource>
 		<resource name="settings_usedefaultproxy">Använd systemets standardproxy</resource>
@@ -282,15 +273,41 @@ där "xxx" är det filformat du angett.</resource>
 		<resource name="settings_windowscapture">Skärmdump av fönster</resource>
 		<resource name="tooltip_firststart">Högerklicka här eller tryck på tangenten {0}</resource>
 		<resource name="update_found">En nyare version av Greenshot finns tillgänglig! Vill du ladda ner Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Vänligen vänta medan skärmdump av Internet Exporer skapas...</resource>
+		<resource name="wait_ie_capture">Vänta medan skärmdump av Internet Exporer skapas...</resource>
 		<resource name="warning">Varning</resource>
-		<resource name="warning_hotkeys">En eller flera kortkommandon kunde inte registreras. Därför kanske det inte är möjligt att använda Greenshot's kortkomandon.
-Problemet är troligen orsakat av att ett annat program/verktyg har lagt beslag på samma kortkommando(n).
-Försök att avaktivera de program som använder sig av knappen "Print". Men du kan också använda dig av dessa funktioner genom att högerklicka på Greenshotikonen i aktivitesfältet.</resource>
+		<resource name="warning_hotkeys">Kortkommandot "{0}" kunde inte registrerar. Problemet är troligen orsakat av att ett annat program/verktyg har lagt beslag på samma kortkommando(n)! Du kan antingen ändra dina inställningar för kortkommandon eller avaktivera/ändra programvaran som använder samma kortkommando(n).
+
+Alla Greenshots funktioner fungerar fortfarande från snabbmenyn i aktivitetsfältsikonen utan kortkommandon.</resource>
 		<resource name="WindowCaptureMode.Aero">Använd anspassad färg</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Bevara genomskinlighet</resource>
 		<resource name="WindowCaptureMode.Auto">Automatiskt</resource>
 		<resource name="WindowCaptureMode.GDI">Använd standardfärg</resource>
 		<resource name="WindowCaptureMode.Screen">Som visat</resource>
+
+    <!-- 1.2 -->
+	<resource name="editor_dropshadow_darkness">Skuggmörkhet</resource>
+	<resource name="editor_dropshadow_offset">Skuggoffset</resource>
+	<resource name="editor_dropshadow_settings">Skugginställningar</resource>
+	<resource name="editor_dropshadow_thickness">Skuggtjocklek</resource>
+
+	<resource name="editor_tornedge_horizontaltoothrange">Horisontell tandspann</resource>
+	<resource name="editor_tornedge_settings">Riven kantinställningar</resource>
+	<resource name="editor_tornedge_toothsize">Tandstorlek</resource>
+	<resource name="editor_tornedge_verticaltoothrange">Vertikalt tandspann</resource>
+	<resource name="editor_tornedge_left">Riv vänster sida</resource>
+	<resource name="editor_tornedge_right">Riv höger sida</resource>
+	<resource name="editor_tornedge_top">Riv övre sida</resource>
+	<resource name="editor_tornedge_bottom">Riv nedre sida</resource>
+	<resource name="editor_tornedge_shadow">Generera skugga</resource>
+
+	<resource name="editor_counter">Lägg till räknare</resource>
+	<resource name="editor_speechbubble">Lägg till pratbubbla</resource>
+
+    <resource name="editor_resize">Anpassa storlek</resource>
+    <resource name="editor_resize_settings">Storleksinställningar</resource>
+    <resource name="editor_resize_aspectratio">Behåll bildförhållande</resource>
+    <resource name="editor_resize_width">Bredd</resource>
+    <resource name="editor_resize_height">Höjd</resource>
+	
 	</resources>
 </language>
