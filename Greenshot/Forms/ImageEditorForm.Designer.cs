@@ -202,6 +202,8 @@ namespace Greenshot {
 			// 
 			// toolStripContainer1
 			// 
+			this.toolStripContainer1.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.toolStripContainer1.AutoScaleMode = System.Windows.Forms.AutoScaleMode.DPI;
 			// 
 			// toolStripContainer1.BottomToolStripPanel
 			// 
@@ -1712,6 +1714,21 @@ namespace Greenshot {
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(785, 485);
+			if (editorConfiguration.EnableButtonScaling) {
+				using (var g = this.CreateGraphics()) {
+					var scale = System.Math.Max(g.DpiX, g.DpiY) / 96.0;
+					if (scale > 1) {
+						var newWidth = (int)(toolStrip1.ImageScalingSize.Width * scale);
+						var newHeight = (int)(toolStrip1.ImageScalingSize.Height * scale);
+						toolStrip1.ImageScalingSize = new System.Drawing.Size(newWidth, newHeight);
+						toolStrip1.AutoSize = false; //because sometime it is needed
+						newWidth = (int)(toolStrip2.ImageScalingSize.Width * scale);
+						newHeight = (int)(toolStrip2.ImageScalingSize.Height * scale);
+						toolStrip2.ImageScalingSize = new System.Drawing.Size(newWidth, newHeight);
+						toolStrip2.AutoSize = false; //because sometime it is needed
+					}
+				}
+			}
 			this.Controls.Add(this.toolStripContainer1);
 			this.KeyPreview = true;
 			this.LanguageKey = "editor_title";

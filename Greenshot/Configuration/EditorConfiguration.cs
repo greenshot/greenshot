@@ -54,6 +54,8 @@ namespace Greenshot.Configuration {
 		public bool ReuseEditor;
 		[IniProperty("FreehandSensitivity", Description = "The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line.", DefaultValue = "3")]
 		public int FreehandSensitivity;
+		[IniProperty("EnableButtonScaling", Description = "Experimental DPI scaling for the buttons", DefaultValue = "false")]
+		public bool EnableButtonScaling;
 
 		[IniProperty("SuppressSaveDialogAtClose", Description="Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue="False")]
 		public bool SuppressSaveDialogAtClose;
