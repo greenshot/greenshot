@@ -203,7 +203,7 @@ namespace Greenshot {
 			// toolStripContainer1
 			// 
 			this.toolStripContainer1.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.toolStripContainer1.AutoScaleMode = System.Windows.Forms.AutoScaleMode.DPI;
+			this.toolStripContainer1.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			// 
 			// toolStripContainer1.BottomToolStripPanel
 			// 
