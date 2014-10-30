@@ -133,6 +133,14 @@ namespace Greenshot.Drawing {
 			PropertyChanged += TextContainer_PropertyChanged;
 			FieldChanged += TextContainer_FieldChanged;
 		}
+
+
+		public override void Invalidate() {
+			base.Invalidate();
+			if (_textBox != null && _textBox.Visible) {
+				_textBox.Invalidate();
+			}
+		}
 		
 		public void FitToText() {
 			UpdateFormat();
