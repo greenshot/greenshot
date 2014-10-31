@@ -94,7 +94,7 @@ namespace GreenshotPlugin.Core {
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 				if (request.HaveResponse) {
 					using (Image image = Image.FromStream(response.GetResponseStream())) {
-						return ImageHelper.Clone(image);
+						return ImageHelper.Clone(image, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 					}
 				}
 			} catch (Exception e) {
