@@ -227,9 +227,9 @@ namespace Greenshot {
 			// 
 			// toolStripContainer1.TopToolStripPanel
 			// 
-			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.menuStrip1);
-			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
-			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.propertiesToolStrip);
+			this.toolStripContainer1.TopToolStripPanel.Join(this.menuStrip1, 1);
+			this.toolStripContainer1.TopToolStripPanel.Join(this.toolStrip1, 2);
+			this.toolStripContainer1.TopToolStripPanel.Join(this.propertiesToolStrip, 3);
 			// 
 			// statusStrip1
 			// 
