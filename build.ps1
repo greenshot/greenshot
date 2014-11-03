@@ -218,7 +218,7 @@ Function TagCode {
 		$fileContent += $key.substring($i*64, $min) + "`n";
 	} 
 	$fileContent += "-----END RSA PRIVATE KEY-----" + "`n" 
-	Set-Content c:\users\greenshot\.ssh\id_rsa $fileContent
+	Set-Content c:\users\appveyor\.ssh\id_rsa $fileContent
 	Write-Host "Tagging repo with $fileversion"
 	git tag -a $fileversion -m 'Build from AppVeyor'
 	Write-Host "Pushing tags to remote."
