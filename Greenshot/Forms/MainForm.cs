@@ -692,7 +692,7 @@ namespace Greenshot {
 		#region contextmenu
 		void ContextMenuOpening(object sender, CancelEventArgs e)	{
 			contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
-			contextmenu_capturelastregion.Enabled = RuntimeConfig.LastCapturedRegion != Rectangle.Empty;
+			contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != Rectangle.Empty;
 
 			// IE context menu code
 			try {

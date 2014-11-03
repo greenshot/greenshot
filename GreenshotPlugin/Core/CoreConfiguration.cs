@@ -432,10 +432,6 @@ namespace GreenshotPlugin.Core {
 			if (OutputFileReduceColorsTo > 256) {
 				OutputFileReduceColorsTo = 256;
 			}
-
-			if (ContextMenuIconSize == Size.Empty) {
-				ContextMenuIconSize = new Size(16,16);
-			}
 		}
 	}
 }
