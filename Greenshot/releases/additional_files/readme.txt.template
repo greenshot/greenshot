@@ -10,9 +10,11 @@ CHANGE LOG:
 Features:
 * Due to BUG-1667 we had to remove the horizontal text alignment, this afflicts the textbox and the speech bubble.
 * Added the possibility to select the region to capture by using the keyboard, use the cursor keys to move the cursor (ctrl-key speeds up the movement) and the enter key to mark the start and ending.
+* FEATURE-757: Greenshot will now store the last used region in the greenshot.ini, which makes it also available after a restart.
 
 Changes:
 * JIRA: With JIRA 6.x using the SOAP (Webservice) API the access has gotten really slow, we improved the performance slightly by loading some information parallel. (In Greenshot 2.x we will move to another API.)
+* Editor: Due to the amount of high DPI screens, we are testing the possibility to change the icon size. Look for the ButtonIconSize in the editor section of the greenshot.ini. Disadvantage: As the icons are bitmaps, enlarging them does look ugly.
 
 Bugs Resolved:
 * BUG-1667: removed horizontal alignment of textbox in input mode, as it caused problems with textbox focus and could not be implemented consistently anyway (no vertical alignment possible)

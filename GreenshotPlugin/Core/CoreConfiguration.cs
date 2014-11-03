@@ -253,6 +253,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("ProcessEXIFOrientation", Description = "When reading images from files or clipboard, use the EXIF information to correct the orientation", DefaultValue = "True")]
 		public bool ProcessEXIFOrientation;
 
+		[IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
+		public Rectangle LastCapturedRegion;
+
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.RELEASE_CANDIDATE;
 
@@ -428,6 +431,10 @@ namespace GreenshotPlugin.Core {
 			}
 			if (OutputFileReduceColorsTo > 256) {
 				OutputFileReduceColorsTo = 256;
+			}
+
+			if (ContextMenuIconSize == Size.Empty) {
+				ContextMenuIconSize = new Size(16,16);
 			}
 		}
 	}

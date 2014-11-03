@@ -403,8 +403,8 @@ namespace Greenshot.Helpers {
 					}
 					break;
 				case CaptureMode.LastRegion:
-					if (!RuntimeConfig.LastCapturedRegion.IsEmpty) {
-						_capture = WindowCapture.CaptureRectangle(_capture, RuntimeConfig.LastCapturedRegion);
+					if (!conf.LastCapturedRegion.IsEmpty) {
+						_capture = WindowCapture.CaptureRectangle(_capture, conf.LastCapturedRegion);
 						// TODO: Reactive / check if the elements code is activated
 						//if (windowDetailsThread != null) {
 						//	windowDetailsThread.Join();
@@ -412,7 +412,7 @@ namespace Greenshot.Helpers {
 
 						// Set capture title, fixing bug #3569703
 						foreach (WindowDetails window in WindowDetails.GetVisibleWindows()) {
-							Point estimatedLocation = new Point(RuntimeConfig.LastCapturedRegion.X + (RuntimeConfig.LastCapturedRegion.Width / 2), RuntimeConfig.LastCapturedRegion.Y + (RuntimeConfig.LastCapturedRegion.Height / 2));
+							Point estimatedLocation = new Point(conf.LastCapturedRegion.X + (conf.LastCapturedRegion.Width / 2), conf.LastCapturedRegion.Y + (conf.LastCapturedRegion.Height / 2));
 							if (window.Contains(estimatedLocation)) {
 								_selectedCaptureWindow = window;
 								_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
@@ -718,7 +718,7 @@ namespace Greenshot.Helpers {
 				return false;
 			}
 			// Fix for Bug #3430560 
-			RuntimeConfig.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
+			conf.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
 			bool returnValue = CaptureWindow(_selectedCaptureWindow, _capture, conf.WindowCaptureMode) != null;
 			return returnValue;
 		}
@@ -970,7 +970,7 @@ namespace Greenshot.Helpers {
 						// Important here is that the location needs to be offsetted back to screen coordinates!
 						Rectangle tmpRectangle = _captureRect;
 						tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
-						RuntimeConfig.LastCapturedRegion = tmpRectangle;
+						conf.LastCapturedRegion = tmpRectangle;
 						HandleCapture();
 					}
 				}
