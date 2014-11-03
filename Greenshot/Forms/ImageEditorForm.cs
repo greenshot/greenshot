@@ -263,11 +263,11 @@ namespace Greenshot {
 					}
 				};
 
-				toolStrip1.Items.Insert(toolStrip1.Items.IndexOf(toolStripSeparator16), destinationButton);
+				destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
 				
 			} else {
 				ToolStripButton destinationButton = new ToolStripButton();
-				toolStrip1.Items.Insert(toolStrip1.Items.IndexOf(toolStripSeparator16), destinationButton);
+				destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
 				destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
 				destinationButton.Size = new Size(23, 22);
 				destinationButton.Text = toolstripDestination.Description;
@@ -1025,8 +1025,8 @@ namespace Greenshot {
 				// disable most controls
 				if(!controlsDisabledDueToConfirmable) {
 					ToolStripItemEndisabler.Disable(menuStrip1);
-					ToolStripItemEndisabler.Disable(toolStrip1);
-					ToolStripItemEndisabler.Disable(toolStrip2);
+					ToolStripItemEndisabler.Disable(destinationsToolStrip);
+					ToolStripItemEndisabler.Disable(toolsToolStrip);
 					ToolStripItemEndisabler.Enable(closeToolStripMenuItem);
 					ToolStripItemEndisabler.Enable(helpToolStripMenuItem);
 					ToolStripItemEndisabler.Enable(aboutToolStripMenuItem);
@@ -1036,8 +1036,8 @@ namespace Greenshot {
 			} else if(controlsDisabledDueToConfirmable) {
 				// re-enable disabled controls, confirmable element has either been confirmed or cancelled
 				ToolStripItemEndisabler.Enable(menuStrip1);
-				ToolStripItemEndisabler.Enable(toolStrip1);
-				ToolStripItemEndisabler.Enable(toolStrip2);
+				ToolStripItemEndisabler.Enable(destinationsToolStrip);
+				ToolStripItemEndisabler.Enable(toolsToolStrip);
 				controlsDisabledDueToConfirmable = false;
 			}
 			

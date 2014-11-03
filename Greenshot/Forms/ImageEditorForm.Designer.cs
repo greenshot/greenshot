@@ -47,13 +47,13 @@ namespace Greenshot {
 		/// </summary>
 		private void InitializeComponent() {
 			this.components = new System.ComponentModel.Container();
-			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
+			this.topToolStripContainer = new System.Windows.Forms.ToolStripContainer();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.dimensionsLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.panel1 = new GreenshotPlugin.Controls.NonJumpingPanel();
-			this.toolStrip2 = new Greenshot.Controls.ToolStripEx();
+			this.toolsToolStrip = new Greenshot.Controls.ToolStripEx();
 			this.btnCursor = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnRect = new GreenshotPlugin.Controls.GreenshotToolStripButton();
@@ -117,7 +117,7 @@ namespace Greenshot {
 			this.helpToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.helpToolStripMenuItem1 = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.aboutToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.toolStrip1 = new Greenshot.Controls.ToolStripEx();
+			this.destinationsToolStrip = new Greenshot.Controls.ToolStripEx();
 			this.btnSave = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.btnClipboard = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.btnPrint = new GreenshotPlugin.Controls.GreenshotToolStripButton();
@@ -186,50 +186,44 @@ namespace Greenshot {
 			this.alignLeftToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.alignCenterToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.alignRightToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.toolStripContainer1.BottomToolStripPanel.SuspendLayout();
-			this.toolStripContainer1.ContentPanel.SuspendLayout();
-			this.toolStripContainer1.LeftToolStripPanel.SuspendLayout();
-			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
-			this.toolStripContainer1.SuspendLayout();
+			this.topToolStripContainer.BottomToolStripPanel.SuspendLayout();
+			this.topToolStripContainer.ContentPanel.SuspendLayout();
+			this.topToolStripContainer.LeftToolStripPanel.SuspendLayout();
+			this.topToolStripContainer.TopToolStripPanel.SuspendLayout();
+			this.topToolStripContainer.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
-			this.toolStrip2.SuspendLayout();
+			this.toolsToolStrip.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
-			this.toolStrip1.SuspendLayout();
+			this.destinationsToolStrip.SuspendLayout();
 			this.propertiesToolStrip.SuspendLayout();
 			this.fileSavedStatusContextMenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// toolStripContainer1
+			// topToolStripContainer
 			// 
-			this.toolStripContainer1.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.toolStripContainer1.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			// 
-			// toolStripContainer1.BottomToolStripPanel
+			// topToolStripContainer.BottomToolStripPanel
 			// 
-			this.toolStripContainer1.BottomToolStripPanel.Controls.Add(this.statusStrip1);
+			this.topToolStripContainer.BottomToolStripPanel.Controls.Add(this.statusStrip1);
 			// 
-			// toolStripContainer1.ContentPanel
+			// topToolStripContainer.ContentPanel
 			// 
-			this.toolStripContainer1.ContentPanel.AutoScroll = true;
-			this.toolStripContainer1.ContentPanel.Controls.Add(this.tableLayoutPanel1);
-			this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(761, 385);
-			this.toolStripContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-			// 
-			// toolStripContainer1.LeftToolStripPanel
-			// 
-			this.toolStripContainer1.LeftToolStripPanel.Controls.Add(this.toolStrip2);
-			this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
-			this.toolStripContainer1.Name = "toolStripContainer1";
-			this.toolStripContainer1.Size = new System.Drawing.Size(785, 485);
-			this.toolStripContainer1.TabIndex = 2;
-			this.toolStripContainer1.Text = "toolStripContainer1";
-			// 
-			// toolStripContainer1.TopToolStripPanel
-			// 
-			this.toolStripContainer1.TopToolStripPanel.Join(this.menuStrip1, 1);
-			this.toolStripContainer1.TopToolStripPanel.Join(this.toolStrip1, 2);
-			this.toolStripContainer1.TopToolStripPanel.Join(this.propertiesToolStrip, 3);
+			this.topToolStripContainer.ContentPanel.AutoScroll = true;
+			this.topToolStripContainer.ContentPanel.Controls.Add(this.tableLayoutPanel1);
+			this.topToolStripContainer.ContentPanel.Size = new System.Drawing.Size(761, 385);
+			this.topToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.topToolStripContainer.LeftToolStripPanel.Controls.Add(this.toolsToolStrip);
+			this.topToolStripContainer.Location = new System.Drawing.Point(0, 0);
+			this.topToolStripContainer.Name = "toolStripContainer1";
+			this.topToolStripContainer.Size = new System.Drawing.Size(785, 485);
+			this.topToolStripContainer.TabIndex = 2;
+			this.topToolStripContainer.Text = "toolStripContainer1";
+			this.topToolStripContainer.TopToolStripPanel.Join(this.menuStrip1, 1);
+			this.topToolStripContainer.TopToolStripPanel.Join(this.destinationsToolStrip, 2);
+			this.topToolStripContainer.TopToolStripPanel.Join(this.propertiesToolStrip, 3);
 			// 
 			// statusStrip1
 			// 
@@ -251,7 +245,6 @@ namespace Greenshot {
 			this.dimensionsLabel.BorderStyle = System.Windows.Forms.Border3DStyle.Sunken;
 			this.dimensionsLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.dimensionsLabel.Name = "dimensionsLabel";
-			this.dimensionsLabel.Size = new System.Drawing.Size(52, 19);
 			this.dimensionsLabel.Text = "123x321";
 			// 
 			// statusLabel
@@ -262,7 +255,6 @@ namespace Greenshot {
 			this.statusLabel.BorderStyle = System.Windows.Forms.Border3DStyle.Sunken;
 			this.statusLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.statusLabel.Name = "statusLabel";
-			this.statusLabel.Size = new System.Drawing.Size(4, 19);
 			this.statusLabel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.StatusLabelClicked);
 			// 
 			// tableLayoutPanel1
@@ -291,12 +283,13 @@ namespace Greenshot {
 			this.panel1.Size = new System.Drawing.Size(755, 379);
 			this.panel1.TabIndex = 2;
 			// 
-			// toolStrip2
+			// toolsToolStrip
 			// 
-			this.toolStrip2.ClickThrough = true;
-			this.toolStrip2.Dock = System.Windows.Forms.DockStyle.None;
-			this.toolStrip2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.toolsToolStrip.ClickThrough = true;
+			this.toolsToolStrip.ImageScalingSize = editorConfiguration.ButtonIconSize;
+			this.toolsToolStrip.Dock = System.Windows.Forms.DockStyle.None;
+			this.toolsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.toolsToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.btnCursor,
 									this.toolStripSeparator1,
 									this.btnRect,
@@ -316,11 +309,12 @@ namespace Greenshot {
 									this.rotateCwToolstripButton,
 									this.rotateCcwToolstripButton,
 									this.btnResize});
-			this.toolStrip2.Location = new System.Drawing.Point(0, 0);
-			this.toolStrip2.Name = "toolStrip2";
-			this.toolStrip2.Size = new System.Drawing.Size(24, 385);
-			this.toolStrip2.Stretch = true;
-			this.toolStrip2.TabIndex = 0;
+			this.toolsToolStrip.Location = new System.Drawing.Point(0, 0);
+			this.toolsToolStrip.Name = "toolStrip2";
+			this.toolsToolStrip.Size = new System.Drawing.Size(24, 385);
+			this.toolsToolStrip.Stretch = true;
+			this.toolsToolStrip.TabIndex = 0;
+			this.toolsToolStrip.BackColor = System.Drawing.SystemColors.Control;
 			// 
 			// btnCursor
 			// 
@@ -332,13 +326,11 @@ namespace Greenshot {
 			this.btnCursor.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCursor.LanguageKey = "editor_cursortool";
 			this.btnCursor.Name = "btnCursor";
-			this.btnCursor.Size = new System.Drawing.Size(22, 20);
 			this.btnCursor.Click += new System.EventHandler(this.BtnCursorClick);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(22, 6);
 			// 
 			// btnRect
 			// 
@@ -348,7 +340,6 @@ namespace Greenshot {
 			this.btnRect.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnRect.LanguageKey = "editor_drawrectangle";
 			this.btnRect.Name = "btnRect";
-			this.btnRect.Size = new System.Drawing.Size(22, 20);
 			this.btnRect.Click += new System.EventHandler(this.BtnRectClick);
 			// 
 			// btnEllipse
@@ -359,7 +350,6 @@ namespace Greenshot {
 			this.btnEllipse.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnEllipse.LanguageKey = "editor_drawellipse";
 			this.btnEllipse.Name = "btnEllipse";
-			this.btnEllipse.Size = new System.Drawing.Size(22, 20);
 			this.btnEllipse.Click += new System.EventHandler(this.BtnEllipseClick);
 			// 
 			// btnLine
@@ -370,7 +360,6 @@ namespace Greenshot {
 			this.btnLine.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnLine.LanguageKey = "editor_drawline";
 			this.btnLine.Name = "btnLine";
-			this.btnLine.Size = new System.Drawing.Size(22, 20);
 			this.btnLine.Click += new System.EventHandler(this.BtnLineClick);
 			// 
 			// btnArrow
@@ -381,7 +370,6 @@ namespace Greenshot {
 			this.btnArrow.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnArrow.LanguageKey = "editor_drawarrow";
 			this.btnArrow.Name = "btnArrow";
-			this.btnArrow.Size = new System.Drawing.Size(22, 20);
 			this.btnArrow.Click += new System.EventHandler(this.BtnArrowClick);
 			// 
 			// btnFreehand
@@ -391,7 +379,6 @@ namespace Greenshot {
 			this.btnFreehand.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnFreehand.LanguageKey = "editor_drawfreehand";
 			this.btnFreehand.Name = "btnFreehand";
-			this.btnFreehand.Size = new System.Drawing.Size(22, 20);
 			this.btnFreehand.Click += new System.EventHandler(this.BtnFreehandClick);
 			// 
 			// btnText
@@ -402,7 +389,6 @@ namespace Greenshot {
 			this.btnText.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnText.LanguageKey = "editor_drawtextbox";
 			this.btnText.Name = "btnText";
-			this.btnText.Size = new System.Drawing.Size(22, 20);
 			this.btnText.Click += new System.EventHandler(this.BtnTextClick);
 			// 
 			// btnSpeechBubble
@@ -413,7 +399,6 @@ namespace Greenshot {
 			this.btnSpeechBubble.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSpeechBubble.LanguageKey = "editor_speechbubble";
 			this.btnSpeechBubble.Name = "btnSpeechBubble";
-			this.btnSpeechBubble.Size = new System.Drawing.Size(22, 20);
 			this.btnSpeechBubble.Click += new System.EventHandler(this.BtnSpeechBubbleClick);
 			// 
 			// btnStepLabel
@@ -424,13 +409,11 @@ namespace Greenshot {
 			this.btnStepLabel.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnStepLabel.LanguageKey = "editor_counter";
 			this.btnStepLabel.Name = "btnStepLabel";
-			this.btnStepLabel.Size = new System.Drawing.Size(22, 20);
 			this.btnStepLabel.Click += new System.EventHandler(this.BtnStepLabelClick);
 			// 
 			// toolStripSeparator14
 			// 
 			this.toolStripSeparator14.Name = "toolStripSeparator14";
-			this.toolStripSeparator14.Size = new System.Drawing.Size(22, 6);
 			// 
 			// btnHighlight
 			// 
@@ -439,7 +422,6 @@ namespace Greenshot {
 			this.btnHighlight.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnHighlight.LanguageKey = "editor_drawhighlighter";
 			this.btnHighlight.Name = "btnHighlight";
-			this.btnHighlight.Size = new System.Drawing.Size(22, 20);
 			this.btnHighlight.Click += new System.EventHandler(this.BtnHighlightClick);
 			// 
 			// btnObfuscate
@@ -449,7 +431,6 @@ namespace Greenshot {
 			this.btnObfuscate.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnObfuscate.LanguageKey = "editor_obfuscate";
 			this.btnObfuscate.Name = "btnObfuscate";
-			this.btnObfuscate.Size = new System.Drawing.Size(22, 20);
 			this.btnObfuscate.Click += new System.EventHandler(this.BtnObfuscateClick);
 			// 
 			// toolStripSplitButton1
@@ -466,48 +447,41 @@ namespace Greenshot {
 			this.toolStripSplitButton1.LanguageKey = "editor_effects";
 			this.toolStripSplitButton1.Name = "toolStripSplitButton1";
 			this.toolStripSplitButton1.ShowDropDownArrow = false;
-			this.toolStripSplitButton1.Size = new System.Drawing.Size(22, 20);
 			this.toolStripSplitButton1.Text = "toolStripSplitButton1";
 			// 
 			// addBorderToolStripMenuItem
 			// 
 			this.addBorderToolStripMenuItem.LanguageKey = "editor_border";
 			this.addBorderToolStripMenuItem.Name = "addBorderToolStripMenuItem";
-			this.addBorderToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.addBorderToolStripMenuItem.Click += new System.EventHandler(this.AddBorderToolStripMenuItemClick);
 			// 
 			// addDropshadowToolStripMenuItem
 			// 
 			this.addDropshadowToolStripMenuItem.LanguageKey = "editor_image_shadow";
 			this.addDropshadowToolStripMenuItem.Name = "addDropshadowToolStripMenuItem";
-			this.addDropshadowToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.addDropshadowToolStripMenuItem.Click += new System.EventHandler(this.AddDropshadowToolStripMenuItemClick);
 			// 
 			// tornEdgesToolStripMenuItem
 			// 
 			this.tornEdgesToolStripMenuItem.LanguageKey = "editor_torn_edge";
 			this.tornEdgesToolStripMenuItem.Name = "tornEdgesToolStripMenuItem";
-			this.tornEdgesToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.tornEdgesToolStripMenuItem.Click += new System.EventHandler(this.TornEdgesToolStripMenuItemClick);
 			// 
 			// grayscaleToolStripMenuItem
 			// 
 			this.grayscaleToolStripMenuItem.LanguageKey = "editor_grayscale";
 			this.grayscaleToolStripMenuItem.Name = "grayscaleToolStripMenuItem";
-			this.grayscaleToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.grayscaleToolStripMenuItem.Click += new System.EventHandler(this.GrayscaleToolStripMenuItemClick);
 			// 
 			// invertToolStripMenuItem
 			// 
 			this.invertToolStripMenuItem.LanguageKey = "editor_invert";
 			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
-			this.invertToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.invertToolStripMenuItem.Click += new System.EventHandler(this.InvertToolStripMenuItemClick);
 			// 
 			// btnResize
 			// 
 			this.btnResize.Name = "btnResize";
-			this.btnResize.Size = new System.Drawing.Size(22, 20);
 			this.btnResize.Click += new System.EventHandler(this.BtnResizeClick);
 			this.btnResize.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnResize.Image = ((System.Drawing.Image)(resources.GetObject("btnResize.Image")));
@@ -517,7 +491,6 @@ namespace Greenshot {
 			// toolStripSeparator13
 			// 
 			this.toolStripSeparator13.Name = "toolStripSeparator13";
-			this.toolStripSeparator13.Size = new System.Drawing.Size(22, 6);
 			// 
 			// btnCrop
 			// 
@@ -526,7 +499,6 @@ namespace Greenshot {
 			this.btnCrop.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCrop.LanguageKey = "editor_crop";
 			this.btnCrop.Name = "btnCrop";
-			this.btnCrop.Size = new System.Drawing.Size(22, 20);
 			this.btnCrop.Click += new System.EventHandler(this.BtnCropClick);
 			// 
 			// rotateCwToolstripButton
@@ -536,7 +508,6 @@ namespace Greenshot {
 			this.rotateCwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCwToolstripButton.LanguageKey = "editor_rotatecw";
 			this.rotateCwToolstripButton.Name = "rotateCwToolstripButton";
-			this.rotateCwToolstripButton.Size = new System.Drawing.Size(22, 20);
 			this.rotateCwToolstripButton.Click += new System.EventHandler(this.RotateCwToolstripButtonClick);
 			// 
 			// rotateCcwToolstripButton
@@ -546,12 +517,12 @@ namespace Greenshot {
 			this.rotateCcwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCcwToolstripButton.LanguageKey = "editor_rotateccw";
 			this.rotateCcwToolstripButton.Name = "rotateCcwToolstripButton";
-			this.rotateCcwToolstripButton.Size = new System.Drawing.Size(22, 20);
 			this.rotateCcwToolstripButton.Click += new System.EventHandler(this.RotateCcwToolstripButtonClick);
 			// 
 			// menuStrip1
 			// 
 			this.menuStrip1.ClickThrough = true;
+			this.menuStrip1.ImageScalingSize = editorConfiguration.ButtonIconSize;
 			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.fileStripMenuItem,
@@ -562,6 +533,7 @@ namespace Greenshot {
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(785, 24);
+			this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
 			this.menuStrip1.TabIndex = 1;
 			// 
 			// fileStripMenuItem
@@ -603,7 +575,6 @@ namespace Greenshot {
 			this.undoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("undoToolStripMenuItem.Image")));
 			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
 			this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-			this.undoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.undoToolStripMenuItem.Text = "Undo";
 			this.undoToolStripMenuItem.Click += new System.EventHandler(this.UndoToolStripMenuItemClick);
 			// 
@@ -613,14 +584,12 @@ namespace Greenshot {
 			this.redoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("redoToolStripMenuItem.Image")));
 			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
 			this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-			this.redoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.redoToolStripMenuItem.Text = "Redo";
 			this.redoToolStripMenuItem.Click += new System.EventHandler(this.RedoToolStripMenuItemClick);
 			// 
 			// toolStripSeparator15
 			// 
 			this.toolStripSeparator15.Name = "toolStripSeparator15";
-			this.toolStripSeparator15.Size = new System.Drawing.Size(141, 6);
 			// 
 			// cutToolStripMenuItem
 			// 
@@ -629,7 +598,6 @@ namespace Greenshot {
 			this.cutToolStripMenuItem.LanguageKey = "editor_cuttoclipboard";
 			this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
 			this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-			this.cutToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.cutToolStripMenuItem.Click += new System.EventHandler(this.CutToolStripMenuItemClick);
 			// 
 			// copyToolStripMenuItem
@@ -639,7 +607,6 @@ namespace Greenshot {
 			this.copyToolStripMenuItem.LanguageKey = "editor_copytoclipboard";
 			this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
 			this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-			this.copyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.copyToolStripMenuItem.Click += new System.EventHandler(this.CopyToolStripMenuItemClick);
 			// 
 			// pasteToolStripMenuItem
@@ -649,13 +616,11 @@ namespace Greenshot {
 			this.pasteToolStripMenuItem.LanguageKey = "editor_pastefromclipboard";
 			this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
 			this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-			this.pasteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.pasteToolStripMenuItem.Click += new System.EventHandler(this.PasteToolStripMenuItemClick);
 			// 
 			// toolStripSeparator4
 			// 
 			this.toolStripSeparator4.Name = "toolStripSeparator4";
-			this.toolStripSeparator4.Size = new System.Drawing.Size(141, 6);
 			// 
 			// duplicateToolStripMenuItem
 			// 
@@ -663,44 +628,37 @@ namespace Greenshot {
 			this.duplicateToolStripMenuItem.LanguageKey = "editor_duplicate";
 			this.duplicateToolStripMenuItem.Name = "duplicateToolStripMenuItem";
 			this.duplicateToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
-			this.duplicateToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.duplicateToolStripMenuItem.Click += new System.EventHandler(this.DuplicateToolStripMenuItemClick);
 			// 
 			// toolStripSeparator12
 			// 
 			this.toolStripSeparator12.Name = "toolStripSeparator12";
-			this.toolStripSeparator12.Size = new System.Drawing.Size(141, 6);
 			// 
 			// preferencesToolStripMenuItem
 			// 
 			this.preferencesToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("preferencesToolStripMenuItem.Image")));
 			this.preferencesToolStripMenuItem.LanguageKey = "contextmenu_settings";
 			this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-			this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.preferencesToolStripMenuItem.Click += new System.EventHandler(this.PreferencesToolStripMenuItemClick);
 			// 
 			// toolStripSeparator5
 			// 
 			this.toolStripSeparator5.Name = "toolStripSeparator5";
-			this.toolStripSeparator5.Size = new System.Drawing.Size(141, 6);
 			// 
 			// autoCropToolStripMenuItem
 			// 
 			this.autoCropToolStripMenuItem.LanguageKey = "editor_autocrop";
 			this.autoCropToolStripMenuItem.Name = "autoCropToolStripMenuItem";
-			this.autoCropToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.autoCropToolStripMenuItem.Click += new System.EventHandler(this.AutoCropToolStripMenuItemClick);
 			// 
 			// toolStripSeparator17
 			// 
 			this.toolStripSeparator17.Name = "toolStripSeparator17";
-			this.toolStripSeparator17.Size = new System.Drawing.Size(141, 6);
 			// 
 			// insert_window_toolstripmenuitem
 			// 
 			this.insert_window_toolstripmenuitem.LanguageKey = "editor_insertwindow";
 			this.insert_window_toolstripmenuitem.Name = "insert_window_toolstripmenuitem";
-			this.insert_window_toolstripmenuitem.Size = new System.Drawing.Size(144, 22);
 			this.insert_window_toolstripmenuitem.MouseEnter += new System.EventHandler(this.Insert_window_toolstripmenuitemMouseEnter);
 			// 
 			// objectToolStripMenuItem
@@ -729,7 +687,6 @@ namespace Greenshot {
 			this.addRectangleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addRectangleToolStripMenuItem.Image")));
 			this.addRectangleToolStripMenuItem.LanguageKey = "editor_drawrectangle";
 			this.addRectangleToolStripMenuItem.Name = "addRectangleToolStripMenuItem";
-			this.addRectangleToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.addRectangleToolStripMenuItem.Click += new System.EventHandler(this.AddRectangleToolStripMenuItemClick);
 			// 
 			// addEllipseToolStripMenuItem
@@ -737,7 +694,6 @@ namespace Greenshot {
 			this.addEllipseToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addEllipseToolStripMenuItem.Image")));
 			this.addEllipseToolStripMenuItem.LanguageKey = "editor_drawellipse";
 			this.addEllipseToolStripMenuItem.Name = "addEllipseToolStripMenuItem";
-			this.addEllipseToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.addEllipseToolStripMenuItem.Click += new System.EventHandler(this.AddEllipseToolStripMenuItemClick);
 			// 
 			// drawLineToolStripMenuItem
@@ -745,7 +701,6 @@ namespace Greenshot {
 			this.drawLineToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawLineToolStripMenuItem.Image")));
 			this.drawLineToolStripMenuItem.LanguageKey = "editor_drawline";
 			this.drawLineToolStripMenuItem.Name = "drawLineToolStripMenuItem";
-			this.drawLineToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.drawLineToolStripMenuItem.Click += new System.EventHandler(this.DrawLineToolStripMenuItemClick);
 			// 
 			// drawArrowToolStripMenuItem
@@ -753,7 +708,6 @@ namespace Greenshot {
 			this.drawArrowToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawArrowToolStripMenuItem.Image")));
 			this.drawArrowToolStripMenuItem.LanguageKey = "editor_drawarrow";
 			this.drawArrowToolStripMenuItem.Name = "drawArrowToolStripMenuItem";
-			this.drawArrowToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.drawArrowToolStripMenuItem.Click += new System.EventHandler(this.DrawArrowToolStripMenuItemClick);
 			// 
 			// drawFreehandToolStripMenuItem
@@ -761,7 +715,6 @@ namespace Greenshot {
 			this.drawFreehandToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawFreehandToolStripMenuItem.Image")));
 			this.drawFreehandToolStripMenuItem.LanguageKey = "editor_drawfreehand";
 			this.drawFreehandToolStripMenuItem.Name = "drawFreehandToolStripMenuItem";
-			this.drawFreehandToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.drawFreehandToolStripMenuItem.Click += new System.EventHandler(this.DrawFreehandToolStripMenuItemClick);
 			// 
 			// addTextBoxToolStripMenuItem
@@ -769,20 +722,17 @@ namespace Greenshot {
 			this.addTextBoxToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addTextBoxToolStripMenuItem.Image")));
 			this.addTextBoxToolStripMenuItem.LanguageKey = "editor_drawtextbox";
 			this.addTextBoxToolStripMenuItem.Name = "addTextBoxToolStripMenuItem";
-			this.addTextBoxToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.addTextBoxToolStripMenuItem.Click += new System.EventHandler(this.AddTextBoxToolStripMenuItemClick);
 			// 
 			// toolStripSeparator8
 			// 
 			this.toolStripSeparator8.Name = "toolStripSeparator8";
-			this.toolStripSeparator8.Size = new System.Drawing.Size(106, 6);
 			// 
 			// selectAllToolStripMenuItem
 			// 
 			this.selectAllToolStripMenuItem.LanguageKey = "editor_selectall";
 			this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
 			this.selectAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
-			this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItemClick);
 			// 
 			// removeObjectToolStripMenuItem
@@ -792,13 +742,11 @@ namespace Greenshot {
 			this.removeObjectToolStripMenuItem.LanguageKey = "editor_deleteelement";
 			this.removeObjectToolStripMenuItem.Name = "removeObjectToolStripMenuItem";
 			this.removeObjectToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
-			this.removeObjectToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.removeObjectToolStripMenuItem.Click += new System.EventHandler(this.RemoveObjectToolStripMenuItemClick);
 			// 
 			// toolStripSeparator7
 			// 
 			this.toolStripSeparator7.Name = "toolStripSeparator7";
-			this.toolStripSeparator7.Size = new System.Drawing.Size(106, 6);
 			// 
 			// arrangeToolStripMenuItem
 			// 
@@ -810,7 +758,6 @@ namespace Greenshot {
 			this.arrangeToolStripMenuItem.Enabled = false;
 			this.arrangeToolStripMenuItem.LanguageKey = "editor_arrange";
 			this.arrangeToolStripMenuItem.Name = "arrangeToolStripMenuItem";
-			this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			// 
 			// upToTopToolStripMenuItem
 			// 
@@ -818,7 +765,6 @@ namespace Greenshot {
 			this.upToTopToolStripMenuItem.LanguageKey = "editor_uptotop";
 			this.upToTopToolStripMenuItem.Name = "upToTopToolStripMenuItem";
 			this.upToTopToolStripMenuItem.ShortcutKeyDisplayString = "Home";
-			this.upToTopToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.upToTopToolStripMenuItem.Click += new System.EventHandler(this.UpToTopToolStripMenuItemClick);
 			// 
 			// upOneLevelToolStripMenuItem
@@ -827,7 +773,6 @@ namespace Greenshot {
 			this.upOneLevelToolStripMenuItem.LanguageKey = "editor_uponelevel";
 			this.upOneLevelToolStripMenuItem.Name = "upOneLevelToolStripMenuItem";
 			this.upOneLevelToolStripMenuItem.ShortcutKeyDisplayString = "PgUp";
-			this.upOneLevelToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.upOneLevelToolStripMenuItem.Click += new System.EventHandler(this.UpOneLevelToolStripMenuItemClick);
 			// 
 			// downOneLevelToolStripMenuItem
@@ -836,7 +781,6 @@ namespace Greenshot {
 			this.downOneLevelToolStripMenuItem.LanguageKey = "editor_downonelevel";
 			this.downOneLevelToolStripMenuItem.Name = "downOneLevelToolStripMenuItem";
 			this.downOneLevelToolStripMenuItem.ShortcutKeyDisplayString = "PgDn";
-			this.downOneLevelToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.downOneLevelToolStripMenuItem.Click += new System.EventHandler(this.DownOneLevelToolStripMenuItemClick);
 			// 
 			// downToBottomToolStripMenuItem
@@ -845,28 +789,24 @@ namespace Greenshot {
 			this.downToBottomToolStripMenuItem.LanguageKey = "editor_downtobottom";
 			this.downToBottomToolStripMenuItem.Name = "downToBottomToolStripMenuItem";
 			this.downToBottomToolStripMenuItem.ShortcutKeyDisplayString = "End";
-			this.downToBottomToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.downToBottomToolStripMenuItem.Click += new System.EventHandler(this.DownToBottomToolStripMenuItemClick);
 			// 
 			// saveElementsToolStripMenuItem
 			// 
 			this.saveElementsToolStripMenuItem.LanguageKey = "editor_save_objects";
 			this.saveElementsToolStripMenuItem.Name = "saveElementsToolStripMenuItem";
-			this.saveElementsToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.saveElementsToolStripMenuItem.Click += new System.EventHandler(this.SaveElementsToolStripMenuItemClick);
 			// 
 			// loadElementsToolStripMenuItem
 			// 
 			this.loadElementsToolStripMenuItem.LanguageKey = "editor_load_objects";
 			this.loadElementsToolStripMenuItem.Name = "loadElementsToolStripMenuItem";
-			this.loadElementsToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
 			this.loadElementsToolStripMenuItem.Click += new System.EventHandler(this.LoadElementsToolStripMenuItemClick);
 			// 
 			// pluginToolStripMenuItem
 			// 
 			this.pluginToolStripMenuItem.LanguageKey = "settings_plugins";
 			this.pluginToolStripMenuItem.Name = "pluginToolStripMenuItem";
-			this.pluginToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
 			this.pluginToolStripMenuItem.Text = "Plugins";
 			this.pluginToolStripMenuItem.Visible = false;
 			// 
@@ -877,7 +817,6 @@ namespace Greenshot {
 									this.aboutToolStripMenuItem});
 			this.helpToolStripMenuItem.LanguageKey = "contextmenu_help";
 			this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-			this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
 			this.helpToolStripMenuItem.Text = "Help";
 			// 
 			// helpToolStripMenuItem1
@@ -886,22 +825,21 @@ namespace Greenshot {
 			this.helpToolStripMenuItem1.LanguageKey = "contextmenu_help";
 			this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
 			this.helpToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F1;
-			this.helpToolStripMenuItem1.Size = new System.Drawing.Size(86, 22);
 			this.helpToolStripMenuItem1.Click += new System.EventHandler(this.HelpToolStripMenuItem1Click);
 			// 
 			// aboutToolStripMenuItem
 			// 
 			this.aboutToolStripMenuItem.LanguageKey = "contextmenu_about";
 			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(86, 22);
 			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItemClick);
 			// 
-			// toolStrip1
+			// destinationsToolStrip
 			// 
-			this.toolStrip1.ClickThrough = true;
-			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
-			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.destinationsToolStrip.ClickThrough = true;
+			this.destinationsToolStrip.ImageScalingSize = editorConfiguration.ButtonIconSize;
+			this.destinationsToolStrip.Dock = System.Windows.Forms.DockStyle.None;
+			this.destinationsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.destinationsToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.btnSave,
 									this.btnClipboard,
 									this.btnPrint,
@@ -918,11 +856,12 @@ namespace Greenshot {
 									this.toolStripSeparator11,
 									this.toolStripSeparator16,
 									this.btnHelp});
-			this.toolStrip1.Location = new System.Drawing.Point(0, 24);
-			this.toolStrip1.Name = "toolStrip1";
-			this.toolStrip1.Size = new System.Drawing.Size(785, 25);
-			this.toolStrip1.Stretch = true;
-			this.toolStrip1.TabIndex = 0;
+			this.destinationsToolStrip.Location = new System.Drawing.Point(0, 24);
+			this.destinationsToolStrip.Name = "toolStrip1";
+			this.destinationsToolStrip.Size = new System.Drawing.Size(785, 25);
+			this.destinationsToolStrip.Stretch = true;
+			this.destinationsToolStrip.TabIndex = 0;
+			this.destinationsToolStrip.BackColor = System.Drawing.SystemColors.Control;
 			// 
 			// btnSave
 			// 
@@ -931,7 +870,6 @@ namespace Greenshot {
 			this.btnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSave.LanguageKey = "editor_save";
 			this.btnSave.Name = "btnSave";
-			this.btnSave.Size = new System.Drawing.Size(23, 22);
 			this.btnSave.Click += new System.EventHandler(this.BtnSaveClick);
 			// 
 			// btnClipboard
@@ -941,7 +879,6 @@ namespace Greenshot {
 			this.btnClipboard.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnClipboard.LanguageKey = "editor_copyimagetoclipboard";
 			this.btnClipboard.Name = "btnClipboard";
-			this.btnClipboard.Size = new System.Drawing.Size(23, 22);
 			this.btnClipboard.Click += new System.EventHandler(this.BtnClipboardClick);
 			// 
 			// btnPrint
@@ -951,14 +888,12 @@ namespace Greenshot {
 			this.btnPrint.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnPrint.LanguageKey = "editor_print";
 			this.btnPrint.Name = "btnPrint";
-			this.btnPrint.Size = new System.Drawing.Size(23, 22);
 			this.btnPrint.Text = "Print";
 			this.btnPrint.Click += new System.EventHandler(this.BtnPrintClick);
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
 			// 
 			// btnDelete
 			// 
@@ -968,13 +903,11 @@ namespace Greenshot {
 			this.btnDelete.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnDelete.LanguageKey = "editor_deleteelement";
 			this.btnDelete.Name = "btnDelete";
-			this.btnDelete.Size = new System.Drawing.Size(23, 22);
 			this.btnDelete.Click += new System.EventHandler(this.BtnDeleteClick);
 			// 
 			// toolStripSeparator3
 			// 
 			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
 			// 
 			// btnCut
 			// 
@@ -984,7 +917,6 @@ namespace Greenshot {
 			this.btnCut.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCut.LanguageKey = "editor_cuttoclipboard";
 			this.btnCut.Name = "btnCut";
-			this.btnCut.Size = new System.Drawing.Size(23, 22);
 			this.btnCut.Click += new System.EventHandler(this.BtnCutClick);
 			// 
 			// btnCopy
@@ -995,7 +927,6 @@ namespace Greenshot {
 			this.btnCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCopy.LanguageKey = "editor_copytoclipboard";
 			this.btnCopy.Name = "btnCopy";
-			this.btnCopy.Size = new System.Drawing.Size(23, 22);
 			this.btnCopy.Click += new System.EventHandler(this.BtnCopyClick);
 			// 
 			// btnPaste
@@ -1006,7 +937,6 @@ namespace Greenshot {
 			this.btnPaste.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnPaste.LanguageKey = "editor_pastefromclipboard";
 			this.btnPaste.Name = "btnPaste";
-			this.btnPaste.Size = new System.Drawing.Size(23, 22);
 			this.btnPaste.Click += new System.EventHandler(this.BtnPasteClick);
 			// 
 			// btnUndo
@@ -1016,7 +946,6 @@ namespace Greenshot {
 			this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
 			this.btnUndo.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnUndo.Name = "btnUndo";
-			this.btnUndo.Size = new System.Drawing.Size(23, 22);
 			this.btnUndo.Click += new System.EventHandler(this.BtnUndoClick);
 			// 
 			// btnRedo
@@ -1026,13 +955,11 @@ namespace Greenshot {
 			this.btnRedo.Image = ((System.Drawing.Image)(resources.GetObject("btnRedo.Image")));
 			this.btnRedo.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnRedo.Name = "btnRedo";
-			this.btnRedo.Size = new System.Drawing.Size(23, 22);
 			this.btnRedo.Click += new System.EventHandler(this.BtnRedoClick);
 			// 
 			// toolStripSeparator6
 			// 
 			this.toolStripSeparator6.Name = "toolStripSeparator6";
-			this.toolStripSeparator6.Size = new System.Drawing.Size(6, 25);
 			// 
 			// btnSettings
 			// 
@@ -1041,18 +968,15 @@ namespace Greenshot {
 			this.btnSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSettings.LanguageKey = "contextmenu_settings";
 			this.btnSettings.Name = "btnSettings";
-			this.btnSettings.Size = new System.Drawing.Size(23, 22);
 			this.btnSettings.Click += new System.EventHandler(this.BtnSettingsClick);
 			// 
 			// toolStripSeparator11
 			// 
 			this.toolStripSeparator11.Name = "toolStripSeparator11";
-			this.toolStripSeparator11.Size = new System.Drawing.Size(6, 25);
 			// 
 			// toolStripSeparator16
 			// 
 			this.toolStripSeparator16.Name = "toolStripSeparator16";
-			this.toolStripSeparator16.Size = new System.Drawing.Size(6, 25);
 			// 
 			// btnHelp
 			// 
@@ -1061,13 +985,13 @@ namespace Greenshot {
 			this.btnHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnHelp.LanguageKey = "contextmenu_help";
 			this.btnHelp.Name = "btnHelp";
-			this.btnHelp.Size = new System.Drawing.Size(23, 22);
 			this.btnHelp.Text = "Help";
 			this.btnHelp.Click += new System.EventHandler(this.BtnHelpClick);
 			// 
 			// propertiesToolStrip
 			// 
 			this.propertiesToolStrip.ClickThrough = true;
+			this.propertiesToolStrip.ImageScalingSize = editorConfiguration.ButtonIconSize;
 			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.propertiesToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.propertiesToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1102,11 +1026,12 @@ namespace Greenshot {
 									this.btnConfirm,
 									this.btnCancel});
 			this.propertiesToolStrip.Location = new System.Drawing.Point(0, 49);
-			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(0, 27);
+			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(0, editorConfiguration.ButtonIconSize.Height + 8);
 			this.propertiesToolStrip.Name = "propertiesToolStrip";
-			this.propertiesToolStrip.Size = new System.Drawing.Size(785, 27);
+			//this.propertiesToolStrip.Size = new System.Drawing.Size(785, 33);
 			this.propertiesToolStrip.Stretch = true;
 			this.propertiesToolStrip.TabIndex = 2;
+			this.propertiesToolStrip.BackColor = System.Drawing.SystemColors.Control;
 			// 
 			// obfuscateModeButton
 			// 
@@ -1119,7 +1044,6 @@ namespace Greenshot {
 			this.obfuscateModeButton.LanguageKey = "editor_obfuscate_mode";
 			this.obfuscateModeButton.Name = "obfuscateModeButton";
 			this.obfuscateModeButton.SelectedTag = Greenshot.Drawing.FilterContainer.PreparedFilter.BLUR;
-			this.obfuscateModeButton.Size = new System.Drawing.Size(29, 24);
 			this.obfuscateModeButton.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.BLUR;
 			// 
 			// pixelizeToolStripMenuItem
@@ -1127,7 +1051,6 @@ namespace Greenshot {
 			this.pixelizeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pixelizeToolStripMenuItem.Image")));
 			this.pixelizeToolStripMenuItem.LanguageKey = "editor_obfuscate_pixelize";
 			this.pixelizeToolStripMenuItem.Name = "pixelizeToolStripMenuItem";
-			this.pixelizeToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.pixelizeToolStripMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.PIXELIZE;
 			// 
 			// blurToolStripMenuItem
@@ -1135,7 +1058,6 @@ namespace Greenshot {
 			this.blurToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("blurToolStripMenuItem.Image")));
 			this.blurToolStripMenuItem.LanguageKey = "editor_obfuscate_blur";
 			this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
-			this.blurToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.blurToolStripMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.BLUR;
 			// 
 			// highlightModeButton
@@ -1151,7 +1073,6 @@ namespace Greenshot {
 			this.highlightModeButton.LanguageKey = "editor_highlight_mode";
 			this.highlightModeButton.Name = "highlightModeButton";
 			this.highlightModeButton.SelectedTag = Greenshot.Drawing.FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
-			this.highlightModeButton.Size = new System.Drawing.Size(29, 24);
 			this.highlightModeButton.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			// 
 			// textHighlightMenuItem
@@ -1159,7 +1080,6 @@ namespace Greenshot {
 			this.textHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("textHighlightMenuItem.Image")));
 			this.textHighlightMenuItem.LanguageKey = "editor_highlight_text";
 			this.textHighlightMenuItem.Name = "textHighlightMenuItem";
-			this.textHighlightMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.textHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			// 
 			// areaHighlightMenuItem
@@ -1167,7 +1087,6 @@ namespace Greenshot {
 			this.areaHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("areaHighlightMenuItem.Image")));
 			this.areaHighlightMenuItem.LanguageKey = "editor_highlight_area";
 			this.areaHighlightMenuItem.Name = "areaHighlightMenuItem";
-			this.areaHighlightMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.areaHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.AREA_HIGHLIGHT;
 			// 
 			// grayscaleHighlightMenuItem
@@ -1175,7 +1094,6 @@ namespace Greenshot {
 			this.grayscaleHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("grayscaleHighlightMenuItem.Image")));
 			this.grayscaleHighlightMenuItem.LanguageKey = "editor_highlight_grayscale";
 			this.grayscaleHighlightMenuItem.Name = "grayscaleHighlightMenuItem";
-			this.grayscaleHighlightMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.grayscaleHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.GRAYSCALE;
 			// 
 			// magnifyMenuItem
@@ -1183,39 +1101,30 @@ namespace Greenshot {
 			this.magnifyMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("magnifyMenuItem.Image")));
 			this.magnifyMenuItem.LanguageKey = "editor_highlight_magnify";
 			this.magnifyMenuItem.Name = "magnifyMenuItem";
-			this.magnifyMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.magnifyMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.MAGNIFICATION;
 			// 
 			// btnFillColor
 			// 
-			this.btnFillColor.AutoSize = false;
 			this.btnFillColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnFillColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnFillColor.Image = ((System.Drawing.Image)(resources.GetObject("btnFillColor.Image")));
-			this.btnFillColor.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
 			this.btnFillColor.LanguageKey = "editor_backcolor";
-			this.btnFillColor.Margin = new System.Windows.Forms.Padding(0);
 			this.btnFillColor.Name = "btnFillColor";
 			this.btnFillColor.SelectedColor = System.Drawing.Color.Transparent;
-			this.btnFillColor.Size = new System.Drawing.Size(23, 24);
 			// 
 			// btnLineColor
 			// 
-			this.btnLineColor.AutoSize = false;
 			this.btnLineColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnLineColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnLineColor.Image = ((System.Drawing.Image)(resources.GetObject("btnLineColor.Image")));
-			this.btnLineColor.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
 			this.btnLineColor.LanguageKey = "editor_forecolor";
 			this.btnLineColor.Name = "btnLineColor";
 			this.btnLineColor.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(222)))), ((int)(((byte)(250)))));
-			this.btnLineColor.Size = new System.Drawing.Size(23, 24);
 			// 
 			// lineThicknessLabel
 			// 
 			this.lineThicknessLabel.LanguageKey = "editor_thickness";
 			this.lineThicknessLabel.Name = "lineThicknessLabel";
-			this.lineThicknessLabel.Size = new System.Drawing.Size(0, 24);
 			// 
 			// lineThicknessUpDown
 			// 
@@ -1236,7 +1145,6 @@ namespace Greenshot {
 									0,
 									0});
 			this.lineThicknessUpDown.Name = "lineThicknessUpDown";
-			this.lineThicknessUpDown.Size = new System.Drawing.Size(41, 24);
 			this.lineThicknessUpDown.Text = "0";
 			this.lineThicknessUpDown.Value = new decimal(new int[] {
 									0,
@@ -1248,7 +1156,6 @@ namespace Greenshot {
 			// 
 			// fontFamilyComboBox
 			// 
-			this.fontFamilyComboBox.AutoSize = false;
 			this.fontFamilyComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.fontFamilyComboBox.MaxDropDownItems = 20;
 			this.fontFamilyComboBox.Name = "fontFamilyComboBox";
@@ -1261,7 +1168,6 @@ namespace Greenshot {
 			// 
 			this.fontSizeLabel.LanguageKey = "editor_fontsize";
 			this.fontSizeLabel.Name = "fontSizeLabel";
-			this.fontSizeLabel.Size = new System.Drawing.Size(0, 24);
 			// 
 			// fontSizeUpDown
 			// 
@@ -1282,7 +1188,6 @@ namespace Greenshot {
 									0,
 									0});
 			this.fontSizeUpDown.Name = "fontSizeUpDown";
-			this.fontSizeUpDown.Size = new System.Drawing.Size(41, 24);
 			this.fontSizeUpDown.Text = "12";
 			this.fontSizeUpDown.Value = new decimal(new int[] {
 									12,
@@ -1300,7 +1205,6 @@ namespace Greenshot {
 			this.fontBoldButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.fontBoldButton.LanguageKey = "editor_bold";
 			this.fontBoldButton.Name = "fontBoldButton";
-			this.fontBoldButton.Size = new System.Drawing.Size(23, 24);
 			this.fontBoldButton.Text = "Bold";
 			this.fontBoldButton.Click += new System.EventHandler(this.FontBoldButtonClick);
 			// 
@@ -1312,7 +1216,6 @@ namespace Greenshot {
 			this.fontItalicButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.fontItalicButton.LanguageKey = "editor_italic";
 			this.fontItalicButton.Name = "fontItalicButton";
-			this.fontItalicButton.Size = new System.Drawing.Size(23, 24);
 			this.fontItalicButton.Text = "Italic";
 			this.fontItalicButton.Click += new System.EventHandler(this.FontItalicButtonClick);
 			// 
@@ -1328,7 +1231,6 @@ namespace Greenshot {
 			this.textVerticalAlignmentButton.LanguageKey = "editor_align_vertical";
 			this.textVerticalAlignmentButton.Name = "textVerticalAlignmentButton";
 			this.textVerticalAlignmentButton.SelectedTag = System.Windows.Forms.HorizontalAlignment.Center;
-			this.textVerticalAlignmentButton.Size = new System.Drawing.Size(13, 24);
 			this.textVerticalAlignmentButton.Tag = Greenshot.Plugin.VerticalAlignment.CENTER;
 			// 
 			// alignTopToolStripMenuItem
@@ -1337,7 +1239,6 @@ namespace Greenshot {
 			this.alignTopToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignTop.Image")));
 			this.alignTopToolStripMenuItem.LanguageKey = "editor_align_top";
 			this.alignTopToolStripMenuItem.Name = "alignTopToolStripMenuItem";
-			this.alignTopToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.alignTopToolStripMenuItem.Tag = Greenshot.Plugin.VerticalAlignment.TOP;
 			// 
 			// alignMiddleToolStripMenuItem
@@ -1346,7 +1247,6 @@ namespace Greenshot {
 			this.alignMiddleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
 			this.alignMiddleToolStripMenuItem.LanguageKey = "editor_align_middle";
 			this.alignMiddleToolStripMenuItem.Name = "alignMiddleToolStripMenuItem";
-			this.alignMiddleToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.alignMiddleToolStripMenuItem.Tag = Greenshot.Plugin.VerticalAlignment.CENTER;
 			// 
 			// alignBottomToolStripMenuItem
@@ -1355,14 +1255,12 @@ namespace Greenshot {
 			this.alignBottomToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignBottom.Image")));
 			this.alignBottomToolStripMenuItem.LanguageKey = "editor_align_bottom";
 			this.alignBottomToolStripMenuItem.Name = "alignBottomToolStripMenuItem";
-			this.alignBottomToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.alignBottomToolStripMenuItem.Tag = Greenshot.Plugin.VerticalAlignment.BOTTOM;
 			// 
 			// blurRadiusLabel
 			// 
 			this.blurRadiusLabel.LanguageKey = "editor_blur_radius";
 			this.blurRadiusLabel.Name = "blurRadiusLabel";
-			this.blurRadiusLabel.Size = new System.Drawing.Size(63, 24);
 			this.blurRadiusLabel.Text = "Blur radius";
 			// 
 			// blurRadiusUpDown
@@ -1384,7 +1282,6 @@ namespace Greenshot {
 									0,
 									0});
 			this.blurRadiusUpDown.Name = "blurRadiusUpDown";
-			this.blurRadiusUpDown.Size = new System.Drawing.Size(41, 24);
 			this.blurRadiusUpDown.Text = "1";
 			this.blurRadiusUpDown.Value = new decimal(new int[] {
 									1,
@@ -1398,7 +1295,6 @@ namespace Greenshot {
 			// 
 			this.brightnessLabel.LanguageKey = "editor_brightness";
 			this.brightnessLabel.Name = "brightnessLabel";
-			this.brightnessLabel.Size = new System.Drawing.Size(62, 24);
 			this.brightnessLabel.Text = "Brightness";
 			// 
 			// brightnessUpDown
@@ -1420,7 +1316,6 @@ namespace Greenshot {
 									0,
 									0});
 			this.brightnessUpDown.Name = "brightnessUpDown";
-			this.brightnessUpDown.Size = new System.Drawing.Size(41, 24);
 			this.brightnessUpDown.Text = "100";
 			this.brightnessUpDown.Value = new decimal(new int[] {
 									100,
@@ -1434,7 +1329,6 @@ namespace Greenshot {
 			// 
 			this.previewQualityLabel.LanguageKey = "editor_preview_quality";
 			this.previewQualityLabel.Name = "previewQualityLabel";
-			this.previewQualityLabel.Size = new System.Drawing.Size(87, 24);
 			this.previewQualityLabel.Text = "Preview quality";
 			// 
 			// previewQualityUpDown
@@ -1456,7 +1350,6 @@ namespace Greenshot {
 									0,
 									0});
 			this.previewQualityUpDown.Name = "previewQualityUpDown";
-			this.previewQualityUpDown.Size = new System.Drawing.Size(41, 23);
 			this.previewQualityUpDown.Text = "50";
 			this.previewQualityUpDown.Value = new decimal(new int[] {
 									50,
@@ -1470,7 +1363,6 @@ namespace Greenshot {
 			// 
 			this.magnificationFactorLabel.LanguageKey = "editor_magnification_factor";
 			this.magnificationFactorLabel.Name = "magnificationFactorLabel";
-			this.magnificationFactorLabel.Size = new System.Drawing.Size(0, 0);
 			this.magnificationFactorLabel.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.MAGNIFICATION;
 			// 
 			// magnificationFactorUpDown
@@ -1492,7 +1384,6 @@ namespace Greenshot {
 									0,
 									0});
 			this.magnificationFactorUpDown.Name = "magnificationFactorUpDown";
-			this.magnificationFactorUpDown.Size = new System.Drawing.Size(29, 23);
 			this.magnificationFactorUpDown.Text = "2";
 			this.magnificationFactorUpDown.Value = new decimal(new int[] {
 									2,
@@ -1506,7 +1397,6 @@ namespace Greenshot {
 			// 
 			this.pixelSizeLabel.LanguageKey = "editor_pixel_size";
 			this.pixelSizeLabel.Name = "pixelSizeLabel";
-			this.pixelSizeLabel.Size = new System.Drawing.Size(0, 0);
 			// 
 			// pixelSizeUpDown
 			// 
@@ -1527,7 +1417,6 @@ namespace Greenshot {
 									0,
 									0});
 			this.pixelSizeUpDown.Name = "pixelSizeUpDown";
-			this.pixelSizeUpDown.Size = new System.Drawing.Size(41, 23);
 			this.pixelSizeUpDown.Text = "5";
 			this.pixelSizeUpDown.Value = new decimal(new int[] {
 									5,
@@ -1541,7 +1430,6 @@ namespace Greenshot {
 			// 
 			this.arrowHeadsLabel.LanguageKey = "editor_pixel_size";
 			this.arrowHeadsLabel.Name = "arrowHeadsLabel";
-			this.arrowHeadsLabel.Size = new System.Drawing.Size(0, 0);
 			// 
 			// arrowHeadsDropDownButton
 			// 
@@ -1555,13 +1443,11 @@ namespace Greenshot {
 			this.arrowHeadsDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.arrowHeadsDropDownButton.LanguageKey = "editor_arrowheads";
 			this.arrowHeadsDropDownButton.Name = "arrowHeadsDropDownButton";
-			this.arrowHeadsDropDownButton.Size = new System.Drawing.Size(29, 20);
 			// 
 			// arrowHeadStartMenuItem
 			// 
 			this.arrowHeadStartMenuItem.LanguageKey = "editor_arrowheads_start";
 			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
-			this.arrowHeadStartMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.arrowHeadStartMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.START_POINT;
 			this.arrowHeadStartMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
@@ -1569,7 +1455,6 @@ namespace Greenshot {
 			// 
 			this.arrowHeadEndMenuItem.LanguageKey = "editor_arrowheads_end";
 			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
-			this.arrowHeadEndMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.arrowHeadEndMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.END_POINT;
 			this.arrowHeadEndMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
@@ -1577,7 +1462,6 @@ namespace Greenshot {
 			// 
 			this.arrowHeadBothMenuItem.LanguageKey = "editor_arrowheads_both";
 			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
-			this.arrowHeadBothMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.arrowHeadBothMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.BOTH;
 			this.arrowHeadBothMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
@@ -1585,7 +1469,6 @@ namespace Greenshot {
 			// 
 			this.arrowHeadNoneMenuItem.LanguageKey = "editor_arrowheads_none";
 			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
-			this.arrowHeadNoneMenuItem.Size = new System.Drawing.Size(67, 22);
 			this.arrowHeadNoneMenuItem.Tag = Greenshot.Drawing.ArrowContainer.ArrowHeadCombination.NONE;
 			this.arrowHeadNoneMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
@@ -1597,17 +1480,14 @@ namespace Greenshot {
 			this.shadowButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.shadowButton.LanguageKey = "editor_shadow";
 			this.shadowButton.Name = "shadowButton";
-			this.shadowButton.Size = new System.Drawing.Size(23, 20);
 			// 
 			// toolStripSeparator
 			// 
 			this.toolStripSeparator.Name = "toolStripSeparator";
-			this.toolStripSeparator.Size = new System.Drawing.Size(6, 27);
 			// 
 			// toolStripSeparator10
 			// 
 			this.toolStripSeparator10.Name = "toolStripSeparator10";
-			this.toolStripSeparator10.Size = new System.Drawing.Size(6, 27);
 			// 
 			// btnConfirm
 			// 
@@ -1616,7 +1496,6 @@ namespace Greenshot {
 			this.btnConfirm.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnConfirm.LanguageKey = "editor_confirm";
 			this.btnConfirm.Name = "btnConfirm";
-			this.btnConfirm.Size = new System.Drawing.Size(23, 20);
 			this.btnConfirm.Text = "Confirm";
 			this.btnConfirm.Click += new System.EventHandler(this.BtnConfirmClick);
 			// 
@@ -1627,14 +1506,12 @@ namespace Greenshot {
 			this.btnCancel.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCancel.LanguageKey = "editor_cancel";
 			this.btnCancel.Name = "btnCancel";
-			this.btnCancel.Size = new System.Drawing.Size(23, 20);
 			this.btnCancel.Text = "Cancel";
 			this.btnCancel.Click += new System.EventHandler(this.BtnCancelClick);
 			// 
 			// toolStripSeparator9
 			// 
 			this.toolStripSeparator9.Name = "toolStripSeparator9";
-			this.toolStripSeparator9.Size = new System.Drawing.Size(304, 6);
 			// 
 			// closeToolStripMenuItem
 			// 
@@ -1642,7 +1519,6 @@ namespace Greenshot {
 			this.closeToolStripMenuItem.LanguageKey = "editor_close";
 			this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
 			this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-			this.closeToolStripMenuItem.Size = new System.Drawing.Size(307, 22);
 			this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItemClick);
 			// 
 			// fileSavedStatusContextMenu
@@ -1651,20 +1527,17 @@ namespace Greenshot {
 									this.copyPathMenuItem,
 									this.openDirectoryMenuItem});
 			this.fileSavedStatusContextMenu.Name = "contextMenuStrip1";
-			this.fileSavedStatusContextMenu.Size = new System.Drawing.Size(247, 48);
 			// 
 			// copyPathMenuItem
 			// 
 			this.copyPathMenuItem.LanguageKey = "editor_copypathtoclipboard";
 			this.copyPathMenuItem.Name = "copyPathMenuItem";
-			this.copyPathMenuItem.Size = new System.Drawing.Size(246, 22);
 			this.copyPathMenuItem.Click += new System.EventHandler(this.CopyPathMenuItemClick);
 			// 
 			// openDirectoryMenuItem
 			// 
 			this.openDirectoryMenuItem.LanguageKey = "editor_opendirinexplorer";
 			this.openDirectoryMenuItem.Name = "openDirectoryMenuItem";
-			this.openDirectoryMenuItem.Size = new System.Drawing.Size(246, 22);
 			this.openDirectoryMenuItem.Click += new System.EventHandler(this.OpenDirectoryMenuItemClick);
 			// 
 			// textHorizontalAlignmentButton
@@ -1679,7 +1552,6 @@ namespace Greenshot {
 			this.textHorizontalAlignmentButton.LanguageKey = "editor_align_horizontal";
 			this.textHorizontalAlignmentButton.Name = "textHorizontalAlignmentButton";
 			this.textHorizontalAlignmentButton.SelectedTag = System.Windows.Forms.HorizontalAlignment.Center;
-			this.textHorizontalAlignmentButton.Size = new System.Drawing.Size(13, 24);
 			this.textHorizontalAlignmentButton.Tag = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// alignLeftToolStripMenuItem
@@ -1688,7 +1560,6 @@ namespace Greenshot {
 			this.alignLeftToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignLeft.Image")));
 			this.alignLeftToolStripMenuItem.LanguageKey = "editor_align_left";
 			this.alignLeftToolStripMenuItem.Name = "alignLeftToolStripMenuItem";
-			this.alignLeftToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.alignLeftToolStripMenuItem.Tag = System.Windows.Forms.HorizontalAlignment.Left;
 			// 
 			// alignCenterToolStripMenuItem
@@ -1697,7 +1568,6 @@ namespace Greenshot {
 			this.alignCenterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
 			this.alignCenterToolStripMenuItem.LanguageKey = "editor_align_center";
 			this.alignCenterToolStripMenuItem.Name = "alignCenterToolStripMenuItem";
-			this.alignCenterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.alignCenterToolStripMenuItem.Tag = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// alignRightToolStripMenuItem
@@ -1706,7 +1576,6 @@ namespace Greenshot {
 			this.alignRightToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignRight.Image")));
 			this.alignRightToolStripMenuItem.LanguageKey = "editor_align_right";
 			this.alignRightToolStripMenuItem.Name = "alignRightToolStripMenuItem";
-			this.alignRightToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.alignRightToolStripMenuItem.Tag = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// ImageEditorForm
@@ -1714,22 +1583,7 @@ namespace Greenshot {
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(785, 485);
-			if (editorConfiguration.EnableButtonScaling) {
-				using (var g = this.CreateGraphics()) {
-					var scale = System.Math.Max(g.DpiX, g.DpiY) / 96.0;
-					if (scale > 1) {
-						var newWidth = (int)(toolStrip1.ImageScalingSize.Width * scale);
-						var newHeight = (int)(toolStrip1.ImageScalingSize.Height * scale);
-						toolStrip1.ImageScalingSize = new System.Drawing.Size(newWidth, newHeight);
-						toolStrip1.AutoSize = false; //because sometime it is needed
-						newWidth = (int)(toolStrip2.ImageScalingSize.Width * scale);
-						newHeight = (int)(toolStrip2.ImageScalingSize.Height * scale);
-						toolStrip2.ImageScalingSize = new System.Drawing.Size(newWidth, newHeight);
-						toolStrip2.AutoSize = false; //because sometime it is needed
-					}
-				}
-			}
-			this.Controls.Add(this.toolStripContainer1);
+			this.Controls.Add(this.topToolStripContainer);
 			this.KeyPreview = true;
 			this.LanguageKey = "editor_title";
 			this.Name = "ImageEditorForm";
@@ -1737,24 +1591,24 @@ namespace Greenshot {
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImageEditorFormFormClosing);
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ImageEditorFormKeyDown);
 			this.Resize += new System.EventHandler(this.ImageEditorFormResize);
-			this.toolStripContainer1.BottomToolStripPanel.ResumeLayout(false);
-			this.toolStripContainer1.BottomToolStripPanel.PerformLayout();
-			this.toolStripContainer1.ContentPanel.ResumeLayout(false);
-			this.toolStripContainer1.LeftToolStripPanel.ResumeLayout(false);
-			this.toolStripContainer1.LeftToolStripPanel.PerformLayout();
-			this.toolStripContainer1.TopToolStripPanel.ResumeLayout(false);
-			this.toolStripContainer1.TopToolStripPanel.PerformLayout();
-			this.toolStripContainer1.ResumeLayout(false);
-			this.toolStripContainer1.PerformLayout();
+			this.topToolStripContainer.BottomToolStripPanel.ResumeLayout(false);
+			this.topToolStripContainer.BottomToolStripPanel.PerformLayout();
+			this.topToolStripContainer.ContentPanel.ResumeLayout(false);
+			this.topToolStripContainer.LeftToolStripPanel.ResumeLayout(false);
+			this.topToolStripContainer.LeftToolStripPanel.PerformLayout();
+			this.topToolStripContainer.TopToolStripPanel.ResumeLayout(false);
+			this.topToolStripContainer.TopToolStripPanel.PerformLayout();
+			this.topToolStripContainer.ResumeLayout(false);
+			this.topToolStripContainer.PerformLayout();
 			this.statusStrip1.ResumeLayout(false);
 			this.statusStrip1.PerformLayout();
 			this.tableLayoutPanel1.ResumeLayout(false);
-			this.toolStrip2.ResumeLayout(false);
-			this.toolStrip2.PerformLayout();
+			this.toolsToolStrip.ResumeLayout(false);
+			this.toolsToolStrip.PerformLayout();
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
-			this.toolStrip1.ResumeLayout(false);
-			this.toolStrip1.PerformLayout();
+			this.destinationsToolStrip.ResumeLayout(false);
+			this.destinationsToolStrip.PerformLayout();
 			this.propertiesToolStrip.ResumeLayout(false);
 			this.propertiesToolStrip.PerformLayout();
 			this.fileSavedStatusContextMenu.ResumeLayout(false);
@@ -1838,7 +1692,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem upOneLevelToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem arrangeToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnCursor;
-		private Greenshot.Controls.ToolStripEx toolStrip2;
+		private Greenshot.Controls.ToolStripEx toolsToolStrip;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnArrow;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem drawArrowToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem drawFreehandToolStripMenuItem;
@@ -1892,8 +1746,8 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnEllipse;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnSave;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnRect;
-		private System.Windows.Forms.ToolStripContainer toolStripContainer1;
-		private Greenshot.Controls.ToolStripEx toolStrip1;
+		private System.Windows.Forms.ToolStripContainer topToolStripContainer;
+		private Greenshot.Controls.ToolStripEx destinationsToolStrip;
 		private GreenshotPlugin.Controls.NonJumpingPanel panel1;
 		private Greenshot.Controls.ToolStripColorButton btnFillColor;
 		private Greenshot.Controls.ToolStripColorButton btnLineColor;
