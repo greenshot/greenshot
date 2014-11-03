@@ -223,8 +223,8 @@ Function TagCode {
 	git config --global user.name "Greenshot-AppVeyor"
 	Write-Host "Tagging repo with $fileversion"
 	git tag -a $fileversion -m 'Build from AppVeyor'
-	Write-Host "Pushing tags to remote."
-	git push --tags
+	Write-Host "Pushing tag $fileversion to remote"
+	git push origin $fileversion
 	return
 }
 
@@ -243,5 +243,5 @@ PackageZip
 echo "Generating Portable"
 PackagePortable
 
-echo "Tagging with $fileversion"
+echo "build successful, tagging with $fileversion"
 TagCode
