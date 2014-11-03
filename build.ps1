@@ -207,6 +207,25 @@ Function PackageInstaller {
 	return
 }
 
+# This function tags the current 
+Function TagCode {
+	Write-Host "Setting id_rsa with the content from environment rsakey so we can push a tag"
+	# Write the RSA key contents from the AppVeyor rsakey UI ENV variable to the private key file
+	$key = $env:rsakey
+	$fileContent = "-----BEGIN RSA PRIVATE KEY-----" + "`n" 
+	for ($i = 0; $i -lt $key.Length / 64; $i++) {
+		$min = [math]::min(64, $key.Length - ($i * 64));
+		$fileContent += $key.substring($i*64, $min) + "`n";
+	} 
+	$fileContent += "-----END RSA PRIVATE KEY-----" + "`n" 
+	Set-Content c:\users\greenshot\.ssh\id_rsa $fileContent
+	Write-Host "Tagging repo with $fileversion"
+	git tag -a $fileversion -m 'Build from AppVeyor'
+	Write-Host "Pushing tags to remote."
+	git push --tags
+	return
+}
+
 FillTemplates
 
 echo "Generating MD5"
@@ -221,3 +240,6 @@ PackageZip
 
 echo "Generating Portable"
 PackagePortable
+
+echo "Tagging with $fileversion"
+TagCode
