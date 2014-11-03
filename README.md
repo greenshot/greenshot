@@ -38,9 +38,9 @@ Current build status 1.2 branch: ![Unknown](https://ci.appveyor.com/api/projects
 
 
 **master**
-The master branch has that which some day will be available in Greenshot 2.0.
-As we are re factoring and changing a lot of code for 2.0, this branch should be considered highly unstable!
-We accept pull-request for 2.0, but it might be better to wait with bigger changes until things settle down a bit.
+The master branch has that which some day will be available in Greenshot 2.x.
+As we are re factoring and changing a lot of code for 2.x, this branch should be considered highly unstable!
+We accept pull-requests for 2.x, but it might be better to wait with bigger changes until things settle down a bit.
 
 
 Developing for Greenshot
