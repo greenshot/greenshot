@@ -219,6 +219,8 @@ Function TagCode {
 	} 
 	$fileContent += "-----END RSA PRIVATE KEY-----" + "`n" 
 	Set-Content c:\users\appveyor\.ssh\id_rsa $fileContent
+	git config --global user.email "getgreenshot@gmail.com"
+	git config --global user.name "Greenshot-AppVeyor"
 	Write-Host "Tagging repo with $fileversion"
 	git tag -a $fileversion -m 'Build from AppVeyor'
 	Write-Host "Pushing tags to remote."
