@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ using System.Windows.Forms;
 
 namespace Greenshot.Forms {
 	/// <summary>
-	/// Description of ToolStripMenuSelectList.
+	/// the ToolStripMenuSelectList makes it possible to have a single or multi-check menu
 	/// </summary>
 	public class ToolStripMenuSelectList : ToolStripMenuItem {
 		private bool multiCheckAllowed = false;
@@ -35,26 +36,28 @@ namespace Greenshot.Forms {
 		/// Occurs when one of the list's child element's Checked state changes.
 		/// </summary>
 		public new event EventHandler CheckedChanged;
-		public Object Identifier;
-		
-		
-		public ToolStripMenuSelectList(Object identifier, bool allowMultiCheck) {
+		public object Identifier {
+			get;
+			private set;
+		}
+
+		public ToolStripMenuSelectList(object identifier, bool allowMultiCheck) {
 			Identifier = identifier;
 			CheckOnClick = false;
 			multiCheckAllowed = allowMultiCheck;
 		}
 		public ToolStripMenuSelectList() : this(null,false) {}
 		public ToolStripMenuSelectList(Object identifier) : this(identifier,false) {}
-		
+
 		/// <summary>
 		/// gets or sets the currently checked item
 		/// </summary>
-		public Object CheckedItem {
+		public ToolStripMenuSelectListItem CheckedItem {
 			
 			get {
 				IEnumerator items = DropDownItems.GetEnumerator();
 				while (items.MoveNext()) {
-					ToolStripMenuItem tsmi = (ToolStripMenuItem)items.Current;
+					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
 					if (tsmi.Checked) {
 						return tsmi;
 					}
@@ -64,7 +67,7 @@ namespace Greenshot.Forms {
 			set {
 				IEnumerator items = DropDownItems.GetEnumerator();
 				while (items.MoveNext()) {
-					ToolStripMenuItem tsmi = (ToolStripMenuItem)items.Current;
+					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
 					if (!multiCheckAllowed && !tsmi.Equals(value)) {
 						tsmi.Checked = false;
 					} else if (tsmi.Equals(value)) {
@@ -96,7 +99,7 @@ namespace Greenshot.Forms {
 				IEnumerator items = DropDownItems.GetEnumerator();
 				IEnumerator sel = value.GetEnumerator();
 				while (items.MoveNext()) {
-					ToolStripMenuItem tsmi = (ToolStripMenuItem)items.Current;
+					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
 					while (sel.MoveNext()) {
 						if (tsmi.Equals(sel.Current)) {
 							tsmi.Checked = true;
@@ -217,21 +220,34 @@ namespace Greenshot.Forms {
 		public void UncheckAll() {
 			IEnumerator items = DropDownItems.GetEnumerator();
 			while (items.MoveNext()) {
-				((ToolStripMenuItem)items.Current).Checked = false;
+				((ToolStripMenuSelectListItem)items.Current).Checked = false;
 			}
 		}
 	}
 	
+	/// <summary>
+	/// Event class for the CheckedChanged event in the ToolStripMenuSelectList
+	/// </summary>
 	public class ItemCheckedChangedEventArgs : EventArgs {
-		public ToolStripMenuSelectListItem Item;
+		public ToolStripMenuSelectListItem Item {
+			get;
+			set;
+		}
 		public ItemCheckedChangedEventArgs(ToolStripMenuSelectListItem item) {
 			Item = item;
 		}
 	}
 	
+	/// <summary>
+	/// Wrapper around the ToolStripMenuItem, which can contain an object
+	/// Also the Checked property hides the normal checked property so we can render our own check
+	/// </summary>
 	public class ToolStripMenuSelectListItem : ToolStripMenuItem {
-		public Object Data;
+
+		public object Data {
+			get;
+			set;
+		}
+
 	}
 }
-
-
