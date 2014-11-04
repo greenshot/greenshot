@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,6 +44,7 @@ namespace Greenshot {
 	/// </summary>
 	public partial class SettingsForm : BaseForm {
 		private static ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
+		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
 
@@ -366,6 +368,8 @@ namespace Greenshot {
 			
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
+			text_icon_width.Text = editorConfiguration.ButtonIconSize.Width.ToString(CultureInfo.InvariantCulture);
+			text_icon_height.Text = editorConfiguration.ButtonIconSize.Height.ToString(CultureInfo.InvariantCulture);
 			CheckDestinationSettings();
 		}
 
@@ -410,6 +414,14 @@ namespace Greenshot {
 			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
+			int iconWidth;
+			if (int.TryParse(text_icon_width.Text, out iconWidth)) {
+				editorConfiguration.ButtonIconSize.Width = iconWidth;
+			}
+			int iconHeight;
+			if (int.TryParse(text_icon_height.Text, out iconHeight)) {
+				editorConfiguration.ButtonIconSize.Height = iconHeight;
+			}
 			try {
 				if (checkbox_autostartshortcut.Checked) {
 					// It's checked, so we set the RunUser if the RunAll isn't set.
