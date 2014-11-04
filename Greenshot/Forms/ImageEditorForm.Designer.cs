@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Controls;
+
 namespace Greenshot {
 	partial class ImageEditorForm {
 		/// <summary>
@@ -215,15 +218,15 @@ namespace Greenshot {
 			this.topToolStripContainer.ContentPanel.Controls.Add(this.tableLayoutPanel1);
 			this.topToolStripContainer.ContentPanel.Size = new System.Drawing.Size(761, 385);
 			this.topToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.topToolStripContainer.LeftToolStripPanel.Controls.Add(this.toolsToolStrip);
+			this.topToolStripContainer.LeftToolStripPanel.Join(this.toolsToolStrip,0);
 			this.topToolStripContainer.Location = new System.Drawing.Point(0, 0);
 			this.topToolStripContainer.Name = "toolStripContainer1";
 			this.topToolStripContainer.Size = new System.Drawing.Size(785, 485);
 			this.topToolStripContainer.TabIndex = 2;
 			this.topToolStripContainer.Text = "toolStripContainer1";
-			this.topToolStripContainer.TopToolStripPanel.Join(this.menuStrip1, 1);
-			this.topToolStripContainer.TopToolStripPanel.Join(this.destinationsToolStrip, 2);
-			this.topToolStripContainer.TopToolStripPanel.Join(this.propertiesToolStrip, 3);
+			this.topToolStripContainer.TopToolStripPanel.Join(this.menuStrip1,0);
+			this.topToolStripContainer.TopToolStripPanel.Join(this.destinationsToolStrip, 1);
+			this.topToolStripContainer.TopToolStripPanel.Join(this.propertiesToolStrip, 2);
 			// 
 			// statusStrip1
 			// 
@@ -289,6 +292,7 @@ namespace Greenshot {
 			this.toolsToolStrip.ImageScalingSize = editorConfiguration.ButtonIconSize;
 			this.toolsToolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.toolsToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
 			this.toolsToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.btnCursor,
 									this.toolStripSeparator1,
@@ -309,12 +313,11 @@ namespace Greenshot {
 									this.rotateCwToolstripButton,
 									this.rotateCcwToolstripButton,
 									this.btnResize});
-			this.toolsToolStrip.Location = new System.Drawing.Point(0, 0);
-			this.toolsToolStrip.Name = "toolStrip2";
-			this.toolsToolStrip.Size = new System.Drawing.Size(24, 385);
+			this.toolsToolStrip.Name = "toolsToolStrip";
 			this.toolsToolStrip.Stretch = true;
 			this.toolsToolStrip.TabIndex = 0;
 			this.toolsToolStrip.BackColor = System.Drawing.SystemColors.Control;
+			this.toolsToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
 			// 
 			// btnCursor
 			// 
@@ -523,16 +526,15 @@ namespace Greenshot {
 			// 
 			this.menuStrip1.ClickThrough = true;
 			this.menuStrip1.ImageScalingSize = editorConfiguration.ButtonIconSize;
-			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
+			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.menuStrip1.Stretch = true;
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.fileStripMenuItem,
 									this.editToolStripMenuItem,
 									this.objectToolStripMenuItem,
 									this.pluginToolStripMenuItem,
 									this.helpToolStripMenuItem});
-			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(785, 24);
 			this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
 			this.menuStrip1.TabIndex = 1;
 			// 
@@ -837,7 +839,7 @@ namespace Greenshot {
 			// 
 			this.destinationsToolStrip.ClickThrough = true;
 			this.destinationsToolStrip.ImageScalingSize = editorConfiguration.ButtonIconSize;
-			this.destinationsToolStrip.Dock = System.Windows.Forms.DockStyle.None;
+			this.destinationsToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.destinationsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.destinationsToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.btnSave,
@@ -856,12 +858,12 @@ namespace Greenshot {
 									this.toolStripSeparator11,
 									this.toolStripSeparator16,
 									this.btnHelp});
-			this.destinationsToolStrip.Location = new System.Drawing.Point(0, 24);
 			this.destinationsToolStrip.Name = "toolStrip1";
-			this.destinationsToolStrip.Size = new System.Drawing.Size(785, 25);
 			this.destinationsToolStrip.Stretch = true;
 			this.destinationsToolStrip.TabIndex = 0;
+			this.destinationsToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
 			this.destinationsToolStrip.BackColor = System.Drawing.SystemColors.Control;
+			this.destinationsToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
 			// 
 			// btnSave
 			// 
@@ -992,7 +994,7 @@ namespace Greenshot {
 			// 
 			this.propertiesToolStrip.ClickThrough = true;
 			this.propertiesToolStrip.ImageScalingSize = editorConfiguration.ButtonIconSize;
-			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.None;
+			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.propertiesToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.propertiesToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.obfuscateModeButton,
@@ -1025,13 +1027,13 @@ namespace Greenshot {
 									this.toolStripSeparator10,
 									this.btnConfirm,
 									this.btnCancel});
-			this.propertiesToolStrip.Location = new System.Drawing.Point(0, 49);
 			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(0, editorConfiguration.ButtonIconSize.Height + 8);
 			this.propertiesToolStrip.Name = "propertiesToolStrip";
-			//this.propertiesToolStrip.Size = new System.Drawing.Size(785, 33);
 			this.propertiesToolStrip.Stretch = true;
 			this.propertiesToolStrip.TabIndex = 2;
+			this.propertiesToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
 			this.propertiesToolStrip.BackColor = System.Drawing.SystemColors.Control;
+			this.propertiesToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
 			// 
 			// obfuscateModeButton
 			// 
@@ -1591,27 +1593,18 @@ namespace Greenshot {
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImageEditorFormFormClosing);
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ImageEditorFormKeyDown);
 			this.Resize += new System.EventHandler(this.ImageEditorFormResize);
-			this.topToolStripContainer.BottomToolStripPanel.ResumeLayout(false);
-			this.topToolStripContainer.BottomToolStripPanel.PerformLayout();
-			this.topToolStripContainer.ContentPanel.ResumeLayout(false);
-			this.topToolStripContainer.LeftToolStripPanel.ResumeLayout(false);
-			this.topToolStripContainer.LeftToolStripPanel.PerformLayout();
-			this.topToolStripContainer.TopToolStripPanel.ResumeLayout(false);
-			this.topToolStripContainer.TopToolStripPanel.PerformLayout();
-			this.topToolStripContainer.ResumeLayout(false);
-			this.topToolStripContainer.PerformLayout();
-			this.statusStrip1.ResumeLayout(false);
-			this.statusStrip1.PerformLayout();
-			this.tableLayoutPanel1.ResumeLayout(false);
-			this.toolsToolStrip.ResumeLayout(false);
-			this.toolsToolStrip.PerformLayout();
-			this.menuStrip1.ResumeLayout(false);
-			this.menuStrip1.PerformLayout();
-			this.destinationsToolStrip.ResumeLayout(false);
-			this.destinationsToolStrip.PerformLayout();
-			this.propertiesToolStrip.ResumeLayout(false);
-			this.propertiesToolStrip.PerformLayout();
-			this.fileSavedStatusContextMenu.ResumeLayout(false);
+			this.topToolStripContainer.BottomToolStripPanel.ResumeLayout(true);
+			this.topToolStripContainer.ContentPanel.ResumeLayout(true);
+			this.topToolStripContainer.LeftToolStripPanel.ResumeLayout(true);
+			this.topToolStripContainer.TopToolStripPanel.ResumeLayout(true);
+			this.topToolStripContainer.ResumeLayout(true);
+			this.statusStrip1.ResumeLayout(true);
+			this.tableLayoutPanel1.ResumeLayout(true);
+			this.toolsToolStrip.ResumeLayout(true);
+			this.menuStrip1.ResumeLayout(true);
+			this.destinationsToolStrip.ResumeLayout(true);
+			this.propertiesToolStrip.ResumeLayout(true);
+			this.fileSavedStatusContextMenu.ResumeLayout(true);
 			this.ResumeLayout(false);
 		}
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem alignRightToolStripMenuItem;
