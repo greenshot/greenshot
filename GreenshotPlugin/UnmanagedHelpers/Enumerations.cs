@@ -25,7 +25,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Window Style Flags
 	/// </summary>
 	[Flags]
-    public enum WindowStyleFlags : uint {
+    public enum WindowStyleFlags : long {
 		//WS_OVERLAPPED       = 0x00000000,
 		WS_POPUP            = 0x80000000,
 		WS_CHILD            = 0x40000000,

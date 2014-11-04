@@ -865,7 +865,7 @@ namespace GreenshotPlugin.Core  {
 				return (WindowStyleFlags)User32.GetWindowLongWrapper(hWnd, (int)WindowLongIndex.GWL_STYLE);
 			}
 			set {
-				User32.SetWindowLongWrapper(hWnd, (int)WindowLongIndex.GWL_STYLE, new IntPtr((uint)value));
+				User32.SetWindowLongWrapper(hWnd, (int)WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
 			}
 		}
 
