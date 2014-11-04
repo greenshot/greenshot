@@ -459,29 +459,12 @@ namespace GreenshotPlugin.Core {
 		}
 		
 		/// <summary>
-		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7.
-		/// <returns>Point with cursor location, relative to the origin of the monitor setup (i.e. negative coordinates are
-		/// possible in multiscreen setups)</returns>
-		public static Point GetCursorLocation() {
-			if (Environment.OSVersion.Version.Major >= 6) {
-				POINT cursorLocation;
-				if (User32.GetPhysicalCursorPos(out cursorLocation)) {
-					return new Point(cursorLocation.X, cursorLocation.Y);
-				} else {
-					Win32Error error = Win32.GetLastErrorCode();
-					LOG.ErrorFormat("Error retrieving PhysicalCursorPos : {0}", Win32.GetMessage(error));
-				}
-			}
-			return new Point(Cursor.Position.X, Cursor.Position.Y);
-		}
-		
-		/// <summary>
 		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
 		/// can conveniently be used when the cursor location is needed to deal with a fullscreen bitmap.
 		/// <returns>Point with cursor location, relative to the top left corner of the monitor setup (which itself might
 		/// actually not be on any screen)</returns>
 		public static Point GetCursorLocationRelativeToScreenBounds() {
-			return GetLocationRelativeToScreenBounds(GetCursorLocation());
+			return GetLocationRelativeToScreenBounds(User32.GetCursorLocation());
 		}
 		
 		/// <summary>
@@ -515,7 +498,7 @@ namespace GreenshotPlugin.Core {
 				if (cursorInfo.flags == User32.CURSOR_SHOWING) { 
 					using (SafeIconHandle safeIcon = User32.CopyIcon(cursorInfo.hCursor)) {
 						if (User32.GetIconInfo(safeIcon, out iconInfo)) {
-							Point cursorLocation = GetCursorLocation();
+							Point cursorLocation = User32.GetCursorLocation();
 							// Allign cursor location to Bitmap coordinates (instead of Screen coordinates)
 							x = cursorLocation.X - iconInfo.xHotspot - capture.ScreenBounds.X;
 							y = cursorLocation.Y - iconInfo.yHotspot - capture.ScreenBounds.Y;
