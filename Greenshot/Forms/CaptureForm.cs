@@ -19,19 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Globalization;
 using Greenshot.Drawing;
 using Greenshot.Helpers;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.Security.Permissions;
 using System.Windows.Forms;
 
@@ -383,7 +384,7 @@ namespace Greenshot.Forms {
 		/// <param name="e"></param>
 		void OnMouseMove(object sender, MouseEventArgs e) {
 			// Make sure the mouse coordinates are fixed, when pressing shift
-			_mouseMovePos = FixMouseCoordinates(WindowCapture.GetCursorLocation());
+			_mouseMovePos = FixMouseCoordinates(User32.GetCursorLocation());
 			_mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(_mouseMovePos);
 		}
 

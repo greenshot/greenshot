@@ -309,7 +309,7 @@ namespace Greenshot.Helpers {
 					bool captureTaken = false;
 					switch (_screenCaptureMode) {
 						case ScreenCaptureMode.Auto:
-							Point mouseLocation = WindowCapture.GetCursorLocation();
+							Point mouseLocation = User32.GetCursorLocation();
 							foreach (Screen screen in Screen.AllScreens) {
 								if (screen.Bounds.Contains(mouseLocation)) {
 									_capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
