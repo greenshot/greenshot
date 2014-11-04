@@ -302,8 +302,8 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 		<resource name="editor_tornedge_bottom">Untere Seite einreißen</resource>
 		<resource name="editor_tornedge_shadow">Schatten erstellen</resource>
 
-		<resource name="editor_counter">Zähler hinzufügen</resource>
-		<resource name="editor_speechbubble">Sprechblase hinzufügen</resource>
+		<resource name="editor_counter">Zähler hinzufügen (I)</resource>
+		<resource name="editor_speechbubble">Sprechblase hinzufügen (S)</resource>
 
 		<resource name="editor_resize">Skalieren</resource>
 		<resource name="editor_resize_settings">Einstellungen für Skalierung</resource>

@@ -105,6 +105,8 @@ namespace Greenshot {
 			this.drawArrowToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.drawFreehandToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.addTextBoxToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.addSpeechBubbleToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.addCounterToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			this.selectAllToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.removeObjectToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
@@ -672,6 +674,8 @@ namespace Greenshot {
 									this.drawArrowToolStripMenuItem,
 									this.drawFreehandToolStripMenuItem,
 									this.addTextBoxToolStripMenuItem,
+									this.addSpeechBubbleToolStripMenuItem,
+									this.addCounterToolStripMenuItem,
 									this.toolStripSeparator8,
 									this.selectAllToolStripMenuItem,
 									this.removeObjectToolStripMenuItem,
@@ -725,6 +729,20 @@ namespace Greenshot {
 			this.addTextBoxToolStripMenuItem.LanguageKey = "editor_drawtextbox";
 			this.addTextBoxToolStripMenuItem.Name = "addTextBoxToolStripMenuItem";
 			this.addTextBoxToolStripMenuItem.Click += new System.EventHandler(this.AddTextBoxToolStripMenuItemClick);
+            // 
+            // addSpeechBubbleToolStripMenuItem
+            // 
+            this.addSpeechBubbleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
+            this.addSpeechBubbleToolStripMenuItem.LanguageKey = "editor_speechbubble";
+            this.addSpeechBubbleToolStripMenuItem.Name = "addSpeechBubbleToolStripMenuItem";
+            this.addSpeechBubbleToolStripMenuItem.Click += new System.EventHandler(this.AddSpeechBubbleToolStripMenuItemClick);
+            // 
+            // addCounterToolStripMenuItem
+            // 
+            this.addCounterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
+            this.addCounterToolStripMenuItem.LanguageKey = "editor_counter";
+            this.addCounterToolStripMenuItem.Name = "addCounterToolStripMenuItem";
+            this.addCounterToolStripMenuItem.Click += new System.EventHandler(this.AddCounterToolStripMenuItemClick);
 			// 
 			// toolStripSeparator8
 			// 
@@ -1713,6 +1731,8 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem fileStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem removeObjectToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addTextBoxToolStripMenuItem;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addSpeechBubbleToolStripMenuItem;
+        private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addCounterToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addEllipseToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addRectangleToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem objectToolStripMenuItem;

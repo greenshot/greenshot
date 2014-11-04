@@ -568,6 +568,14 @@ namespace Greenshot {
 			BtnTextClick(sender, e);
 		}
 		
+		void AddSpeechBubbleToolStripMenuItemClick(object sender, EventArgs e) {
+			BtnSpeechBubbleClick(sender, e);
+		}
+		
+		void AddCounterToolStripMenuItemClick(object sender, EventArgs e) {
+			BtnStepLabelClick(sender, e);
+		}
+		
 		void DrawLineToolStripMenuItemClick(object sender, EventArgs e) {
 			BtnLineClick(sender, e);
 		}
@@ -758,6 +766,12 @@ namespace Greenshot {
 						break;
 					case Keys.T:
 						BtnTextClick(sender, e);
+						break;
+					case Keys.S:
+						BtnSpeechBubbleClick(sender, e);
+						break;
+					case Keys.I:
+						BtnStepLabelClick(sender, e);
 						break;
 					case Keys.H:
 						BtnHighlightClick(sender, e);
@@ -1013,12 +1027,16 @@ namespace Greenshot {
 		/// </summary>
 		private void refreshEditorControls() {
 			int stepLabels = surface.CountStepLabels(null);
+		    Image icon;
 			if (stepLabels <= 20) {
-				this.btnStepLabel.Image = ((System.Drawing.Image)(resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
+			    icon = ((System.Drawing.Image)(resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
 			} else {
-				this.btnStepLabel.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel20+.Image")));
+			    icon = ((System.Drawing.Image)(resources.GetObject("btnStepLabel20+.Image")));
 			}
-			FieldAggregator props = surface.FieldAggregator;
+            this.btnStepLabel.Image = icon;
+            this.addCounterToolStripMenuItem.Image = icon;
+
+		    FieldAggregator props = surface.FieldAggregator;
 			// if a confirmable element is selected, we must disable most of the controls
 			// since we demand confirmation or cancel for confirmable element
 			if (props.HasFieldValue(FieldType.FLAGS) && ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS) & FieldType.Flag.CONFIRMABLE) == FieldType.Flag.CONFIRMABLE) {

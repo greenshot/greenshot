@@ -272,8 +272,8 @@ Alle Greenshot functies werken ook over het context menu.</resource>
 		<resource name="editor_tornedge_bottom">Onderkant scheuern</resource>
 		<resource name="editor_tornedge_shadow">Schaduw</resource>
 
-		<resource name="editor_counter">Teller toevoegen</resource>
-		<resource name="editor_speechbubble">Tekstballon toevoegen</resource>
+		<resource name="editor_counter">Teller toevoegen (I)</resource>
+		<resource name="editor_speechbubble">Tekstballon toevoegen (S)</resource>
 
 		<resource name="editor_resize">Grootte veranderen</resource>
 		<resource name="editor_resize_settings">Grootte veranderen</resource>

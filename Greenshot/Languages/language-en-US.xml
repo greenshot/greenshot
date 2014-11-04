@@ -299,8 +299,8 @@ All Greenshot features still work directly from the tray icon context menu witho
     <resource name="editor_tornedge_bottom">Tear bottom side</resource>
     <resource name="editor_tornedge_shadow">Generate shadow</resource>
     
-    <resource name="editor_counter">Add counter</resource>
-    <resource name="editor_speechbubble">Add speechbubble</resource>
+    <resource name="editor_counter">Add counter (I)</resource>
+    <resource name="editor_speechbubble">Add speechbubble (S)</resource>
 
     <resource name="editor_resize">Resize</resource>
     <resource name="editor_resize_settings">Resize settings</resource>
