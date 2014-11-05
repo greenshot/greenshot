@@ -44,6 +44,7 @@ namespace GreenshotPlugin.Core {
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";
 		private static readonly string FORMAT_PNG = "PNG";
 		private static readonly string FORMAT_PNG_OFFICEART = "PNG+Office Art";
+		private static readonly string FORMAT_17 = "Format17";
 		private static readonly string FORMAT_JPG = "JPG";
 		private static readonly string FORMAT_JFIF = "JFIF";
 		private static readonly string FORMAT_JFIF_OFFICEART = "JFIF+Office Art";
@@ -325,7 +326,7 @@ EndSelection:<<<<<<<4
 					LOG.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
 					retrieveFormats = new string[] { DataFormats.Dib, FORMAT_BITMAP_PLACEHOLDER, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF };
 				} else {
-					retrieveFormats = new string[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP_PLACEHOLDER, FORMAT_FILECONTENTS, FORMAT_GIF };
+					retrieveFormats = new string[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, "System.Drawing.Bitmap", DataFormats.Dib, FORMAT_BITMAP_PLACEHOLDER, FORMAT_FILECONTENTS, FORMAT_GIF };
 				}
 				foreach (string currentFormat in retrieveFormats) {
 					if (FORMAT_BITMAP_PLACEHOLDER.Equals(currentFormat)) {
@@ -342,6 +343,8 @@ EndSelection:<<<<<<<4
 						LOG.InfoFormat("Found {0}, trying to retrieve.", currentFormat);
 						if (currentFormat == DataFormats.Dib) {
 							returnImage = GetDIBImage(dataObject);
+						} else if (currentFormat == FORMAT_17) {
+							returnImage = CF_DIBV5ToBitmap(dataObject);
 						} else {
 							returnImage = GetImageFormat(currentFormat, dataObject);
 						}
@@ -356,18 +359,48 @@ EndSelection:<<<<<<<4
 			}
 			return null;
 		}
-		
+
+		/// <summary>
+		/// Convert Format17 (DIBV5) to a bitmap
+		/// Based on: http://stackoverflow.com/a/14335591
+		/// </summary>
+		/// <param name="stream">MemoryStream</param>
+		/// <returns>Bitmap</returns>
+		private static Bitmap CF_DIBV5ToBitmap(IDataObject dataObject) {
+			MemoryStream dibStream = GetFromDataObject(dataObject, DataFormats.Dib) as MemoryStream;
+			if (isValidStream(dibStream)) {
+				IntPtr gcHandle = IntPtr.Zero;
+				try {
+					byte[] data = dibStream.ToArray();
+					GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+					gcHandle = GCHandle.ToIntPtr(handle);
+					var bmi = (BitmapV5Header)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(BitmapV5Header));
+					return new Bitmap(bmi.bV5Width, bmi.bV5Height, -(int)(bmi.bV5SizeImage / bmi.bV5Height),
+						PixelFormat.Format32bppArgb,
+						new IntPtr(handle.AddrOfPinnedObject().ToInt32() + bmi.bV5Size + (bmi.bV5Height - 1) * (int)(bmi.bV5SizeImage / bmi.bV5Height)));
+				} catch (Exception ex) {
+					LOG.Error("Problem retrieving Format17 from clipboard.", ex);
+				} finally {
+					if (gcHandle == IntPtr.Zero) {
+						GCHandle.FromIntPtr(gcHandle).Free();
+					}
+				}
+			}
+			return null;
+
+		}   
+
 		/// <summary>
 		/// the DIB readed should solve the issue reported here: https://sourceforge.net/projects/greenshot/forums/forum/676083/topic/6354353/index/page/1
 		/// </summary>
 		/// <returns>Image</returns>
-		private static Image GetDIBImage(IDataObject dataObejct) {
+		private static Image GetDIBImage(IDataObject dataObject) {
 			try {
 				// If the EnableSpecialDIBClipboardReader flag in the config is set, use the code from:
 				// http://www.thomaslevesque.com/2009/02/05/wpf-paste-an-image-from-the-clipboard/
 				// to read the DeviceIndependentBitmap from the clipboard, this might fix bug 3576125
 				if (config.EnableSpecialDIBClipboardReader) {
-					MemoryStream dibStream = GetFromDataObject(dataObejct, DataFormats.Dib) as MemoryStream;
+					MemoryStream dibStream = GetFromDataObject(dataObject, DataFormats.Dib) as MemoryStream;
 					if (isValidStream(dibStream)) {
 						LOG.Info("Found valid DIB stream, trying to process it.");
 						byte[] dibBuffer = new byte[dibStream.Length];

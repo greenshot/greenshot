@@ -300,4 +300,32 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			biClrImportant = 0;
 		}
 	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct BitmapV5Header {
+		public uint bV5Size;
+		public int bV5Width;
+		public int bV5Height;
+		public UInt16 bV5Planes;
+		public UInt16 bV5BitCount;
+		public uint bV5Compression;
+		public uint bV5SizeImage;
+		public int bV5XPelsPerMeter;
+		public int bV5YPelsPerMeter;
+		public UInt16 bV5ClrUsed;
+		public UInt16 bV5ClrImportant;
+		public UInt16 bV5RedMask;
+		public UInt16 bV5GreenMask;
+		public UInt16 bV5BlueMask;
+		public UInt16 bV5AlphaMask;
+		public UInt16 bV5CSType;
+		public IntPtr bV5Endpoints;
+		public UInt16 bV5GammaRed;
+		public UInt16 bV5GammaGreen;
+		public UInt16 bV5GammaBlue;
+		public UInt16 bV5Intent;
+		public UInt16 bV5ProfileData;
+		public UInt16 bV5ProfileSize;
+		public UInt16 bV5Reserved;
+	}  
 }
