@@ -368,8 +368,9 @@ namespace Greenshot {
 			
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
-			text_icon_width.Text = editorConfiguration.ButtonIconSize.Width.ToString(CultureInfo.InvariantCulture);
-			text_icon_height.Text = editorConfiguration.ButtonIconSize.Height.ToString(CultureInfo.InvariantCulture);
+			coreConfiguration.FixIconSize();
+			text_icon_width.Text = coreConfiguration.IconSize.Width.ToString(CultureInfo.InvariantCulture);
+			text_icon_height.Text = coreConfiguration.IconSize.Height.ToString(CultureInfo.InvariantCulture);
 			CheckDestinationSettings();
 		}
 
@@ -416,12 +417,13 @@ namespace Greenshot {
 
 			int iconWidth;
 			if (int.TryParse(text_icon_width.Text, out iconWidth)) {
-				editorConfiguration.ButtonIconSize.Width = iconWidth;
+				coreConfiguration.IconSize.Width = iconWidth;
 			}
 			int iconHeight;
 			if (int.TryParse(text_icon_height.Text, out iconHeight)) {
-				editorConfiguration.ButtonIconSize.Height = iconHeight;
+				coreConfiguration.IconSize.Height = iconHeight;
 			}
+			coreConfiguration.FixIconSize();
 			try {
 				if (checkbox_autostartshortcut.Checked) {
 					// It's checked, so we set the RunUser if the RunAll isn't set.

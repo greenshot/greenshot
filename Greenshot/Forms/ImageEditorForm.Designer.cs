@@ -291,7 +291,7 @@ namespace Greenshot {
 			// toolsToolStrip
 			// 
 			this.toolsToolStrip.ClickThrough = true;
-			this.toolsToolStrip.ImageScalingSize = editorConfiguration.ButtonIconSize;
+			this.toolsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
 			this.toolsToolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolsToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
@@ -527,7 +527,7 @@ namespace Greenshot {
 			// menuStrip1
 			// 
 			this.menuStrip1.ClickThrough = true;
-			this.menuStrip1.ImageScalingSize = editorConfiguration.ButtonIconSize;
+			this.menuStrip1.ImageScalingSize = coreConfiguration.IconSize;
 			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.menuStrip1.Stretch = true;
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -856,7 +856,7 @@ namespace Greenshot {
 			// destinationsToolStrip
 			// 
 			this.destinationsToolStrip.ClickThrough = true;
-			this.destinationsToolStrip.ImageScalingSize = editorConfiguration.ButtonIconSize;
+			this.destinationsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
 			this.destinationsToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.destinationsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.destinationsToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1011,7 +1011,7 @@ namespace Greenshot {
 			// propertiesToolStrip
 			// 
 			this.propertiesToolStrip.ClickThrough = true;
-			this.propertiesToolStrip.ImageScalingSize = editorConfiguration.ButtonIconSize;
+			this.propertiesToolStrip.ImageScalingSize = coreConfiguration.IconSize;
 			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.propertiesToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.propertiesToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1045,7 +1045,7 @@ namespace Greenshot {
 									this.toolStripSeparator10,
 									this.btnConfirm,
 									this.btnCancel});
-			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(0, editorConfiguration.ButtonIconSize.Height + 8);
+			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(0, coreConfiguration.IconSize.Height + 8);
 			this.propertiesToolStrip.Name = "propertiesToolStrip";
 			this.propertiesToolStrip.Stretch = true;
 			this.propertiesToolStrip.TabIndex = 2;

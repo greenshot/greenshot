@@ -1392,10 +1392,14 @@ namespace GreenshotPlugin.Core {
 			Image newImage = null;
 			if (maintainAspectRatio && canvasUseNewSize) {
 				newImage = CreateEmpty(newWidth, newHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-				matrix.Scale((float)newWidth / sourceImage.Width, (float)newHeight / sourceImage.Height, MatrixOrder.Append);
+				if (matrix != null) {
+					matrix.Scale((float)newWidth / sourceImage.Width, (float)newHeight / sourceImage.Height, MatrixOrder.Append);
+				}
 			} else {
 				newImage = CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-				matrix.Scale((float)destWidth / sourceImage.Width, (float)destHeight / sourceImage.Height, MatrixOrder.Append);
+				if (matrix != null) {
+					matrix.Scale((float)destWidth / sourceImage.Width, (float)destHeight / sourceImage.Height, MatrixOrder.Append);
+				}
 			}
 
 			using (Graphics graphics = Graphics.FromImage(newImage)) {

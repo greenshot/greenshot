@@ -256,8 +256,17 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
 		public Rectangle LastCapturedRegion;
 
+		[IniProperty("IconSize", Description = "Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling", DefaultValue = "16,16")]
+		public Size IconSize;
+
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.RELEASE_CANDIDATE;
+
+		public bool UseLargeIcons {
+			get {
+				return IconSize.Width >= 32 || IconSize.Height >= 32;
+			}
+		}
 
 		/// <summary>
 		/// A helper method which returns true if the supplied experimental feature is enabled
@@ -432,6 +441,30 @@ namespace GreenshotPlugin.Core {
 			if (OutputFileReduceColorsTo > 256) {
 				OutputFileReduceColorsTo = 256;
 			}
+			FixIconSize();
+		}
+
+		/// <summary>
+		/// Validation & correction of the icon size
+		/// </summary>
+		public void FixIconSize() {
+			if (IconSize == Size.Empty) {
+				IconSize = new Size(16, 16);
+			} else {
+				if (IconSize.Width < 16) {
+					IconSize.Width = 16;
+				}
+				if (IconSize.Width > 256) {
+					IconSize.Width = 256;
+				}
+				if (IconSize.Height < 16) {
+					IconSize.Height = 16;
+				}
+				if (IconSize.Height > 256) {
+					IconSize.Height = 256;
+				}
+			}
+
 		}
 	}
 }

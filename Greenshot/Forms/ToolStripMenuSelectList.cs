@@ -19,6 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.IniFile;
+using GreenshotPlugin.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,8 +32,10 @@ namespace Greenshot.Forms {
 	/// the ToolStripMenuSelectList makes it possible to have a single or multi-check menu
 	/// </summary>
 	public class ToolStripMenuSelectList : ToolStripMenuItem {
+		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 		private bool multiCheckAllowed = false;
 		private bool updateInProgress = false;
+		private static Image defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
 		/// <summary>
 		/// Occurs when one of the list's child element's Checked state changes.
 		/// </summary>
@@ -45,6 +49,7 @@ namespace Greenshot.Forms {
 			Identifier = identifier;
 			CheckOnClick = false;
 			multiCheckAllowed = allowMultiCheck;
+			Image = defaultImage;
 		}
 		public ToolStripMenuSelectList() : this(null,false) {}
 		public ToolStripMenuSelectList(Object identifier) : this(identifier,false) {}
@@ -142,6 +147,10 @@ namespace Greenshot.Forms {
 		public void AddItem(string label, Image image, Object data, bool isChecked) {
 			ToolStripMenuSelectListItem newItem = new ToolStripMenuSelectListItem();
 			newItem.Text = label;
+			if (image == null) {
+				image = defaultImage;
+			}
+			newItem.DisplayStyle = ToolStripItemDisplayStyle.Text;
 			newItem.Image = image;
 			newItem.CheckOnClick = true;
 			newItem.CheckStateChanged += ItemCheckStateChanged;
@@ -243,7 +252,6 @@ namespace Greenshot.Forms {
 	/// Also the Checked property hides the normal checked property so we can render our own check
 	/// </summary>
 	public class ToolStripMenuSelectListItem : ToolStripMenuItem {
-
 		public object Data {
 			get;
 			set;

@@ -56,18 +56,14 @@ namespace Greenshot.Configuration {
 		public int FreehandSensitivity;
 		[IniProperty("SuppressSaveDialogAtClose", Description="Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue="False")]
 		public bool SuppressSaveDialogAtClose;
-		[IniProperty("ButtonIconSize", Description = "Defines the size of the icons for the buttons in the editor, default value 16,16 anything bigger will cause scaling", DefaultValue = "16,16")]
-		public Size ButtonIconSize;
 
 		public override void AfterLoad() {
 			base.AfterLoad();
 			if (RecentColors == null) {
 				RecentColors = new List<Color>();
 			}
-			if (ButtonIconSize == Size.Empty) {
-				ButtonIconSize = new Size(16,16);
-			}
 		}
+
 		/// <param name="requestingType">Type of the class for which to create the field</param>
 		/// <param name="fieldType">FieldType of the field to construct</param>
 		/// <param name="scope">FieldType of the field to construct</param>

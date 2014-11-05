@@ -18,14 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
+using Greenshot.Plugin;
+using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
+using Microsoft.Win32;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.Plugin;
-using log4net;
-using Microsoft.Win32;
-using GreenshotPlugin.UnmanagedHelpers;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -33,6 +35,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class PluginUtils {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginUtils));
+		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 
 		/// <summary>
@@ -79,12 +82,12 @@ namespace GreenshotPlugin.Core {
 				return null;
 			}
 			try {
-				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, false)) {
+				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, conf.UseLargeIcons)) {
 					if (appIcon != null) {
 						return appIcon.ToBitmap();
 					}
 				}
-				using (Icon appIcon = Shell32.GetFileIcon(path, Shell32.IconSize.Small, false)) {
+				using (Icon appIcon = Shell32.GetFileIcon(path, conf.UseLargeIcons ? Shell32.IconSize.Large : Shell32.IconSize.Small, false)) {
 					if (appIcon != null) {
 						return appIcon.ToBitmap();
 					}
