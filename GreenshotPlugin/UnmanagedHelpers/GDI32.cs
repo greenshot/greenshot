@@ -212,7 +212,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern IntPtr SelectObject(SafeHandle hDC, SafeHandle hObject);
 		[DllImport("gdi32", SetLastError=true)]
-		public static extern SafeDibSectionHandle CreateDIBSection(SafeHandle hdc, ref BitmapInfoHeader bmi, uint Usage, out IntPtr bits, IntPtr hSection, uint dwOffset); 
+		public static extern SafeDibSectionHandle CreateDIBSection(SafeHandle hdc, ref BITMAPINFOHEADER bmi, uint Usage, out IntPtr bits, IntPtr hSection, uint dwOffset); 
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern SafeRegionHandle CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect);
 		[DllImport("gdi32", SetLastError=true)]
@@ -257,7 +257,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 2)]
-	public struct BitmapFileHeader {
+	public struct BITMAPFILEHEADER {
 		public static readonly short BM = 0x4d42; // BM
 		public short bfType;
 		public int bfSize;
@@ -266,66 +266,166 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public int bfOffBits;
 	}
 
-	[StructLayout(LayoutKind.Sequential)] 
-	public struct BitmapInfoHeader {
-		public uint biSize;
-		public int biWidth;
-		public int biHeight;
-		public short biPlanes;
-		public short biBitCount;
-		public uint biCompression;
-		public uint biSizeImage;
-		public int biXPelsPerMeter;
-		public int biYPelsPerMeter;
-		public uint biClrUsed;
-		public int biClrImportant;
-
-		private const int BI_RGB = 0;	//Das Bitmap ist nicht komprimiert
-		private const int BI_RLE8 = 1; //Das Bitmap ist komprimiert (Für 8-Bit Bitmaps)
-		private const int BI_RLE4 = 2; //Das Bitmap ist komprimiert (Für 4-Bit Bitmaps)
-		private const int BI_BITFIELDS = 3; //Das Bitmap ist nicht komprimiert. Die Farbtabelle enthält 
-		public const int DIB_RGB_COLORS = 0;
-
-		public BitmapInfoHeader(int width, int height, short bpp) {
-			biSize = (uint)Marshal.SizeOf(typeof(BitmapInfoHeader));	// BITMAPINFOHEADER is 40 bytes
-			biPlanes = 1;	// Should allways be 1
-			biCompression = BI_RGB;
-			biWidth=width;
-			biHeight=height;
-			biBitCount=bpp;
-			biSizeImage = 0;
-			biXPelsPerMeter = 0;
-			biYPelsPerMeter = 0;
-			biClrUsed = 0;
-			biClrImportant = 0;
+	[StructLayout(LayoutKind.Sequential)]
+	public struct BitfieldColorMask {
+		public uint blue;
+		public uint green;
+		public uint red;
+		public void InitValues() {
+			red = (uint)255 << 8;
+			green = (uint)255 << 16;
+			blue = (uint)255 << 24;
 		}
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct BitmapV5Header {
-		public uint bV5Size;
-		public int bV5Width;
-		public int bV5Height;
-		public UInt16 bV5Planes;
-		public UInt16 bV5BitCount;
-		public uint bV5Compression;
-		public uint bV5SizeImage;
-		public int bV5XPelsPerMeter;
-		public int bV5YPelsPerMeter;
-		public UInt16 bV5ClrUsed;
-		public UInt16 bV5ClrImportant;
-		public UInt16 bV5RedMask;
-		public UInt16 bV5GreenMask;
-		public UInt16 bV5BlueMask;
-		public UInt16 bV5AlphaMask;
-		public UInt16 bV5CSType;
-		public IntPtr bV5Endpoints;
-		public UInt16 bV5GammaRed;
-		public UInt16 bV5GammaGreen;
-		public UInt16 bV5GammaBlue;
-		public UInt16 bV5Intent;
-		public UInt16 bV5ProfileData;
-		public UInt16 bV5ProfileSize;
-		public UInt16 bV5Reserved;
-	}  
+	public struct CIEXYZ {
+		public uint ciexyzX; //FXPT2DOT30
+		public uint ciexyzY; //FXPT2DOT30
+		public uint ciexyzZ; //FXPT2DOT30
+		public CIEXYZ(uint FXPT2DOT30) {
+			ciexyzX = FXPT2DOT30;
+			ciexyzY = FXPT2DOT30;
+			ciexyzZ = FXPT2DOT30;
+		}
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct CIEXYZTRIPLE {
+		public CIEXYZ ciexyzRed;
+		public CIEXYZ ciexyzGreen;
+		public CIEXYZ ciexyzBlue;
+	}
+
+	public enum BI_COMPRESSION : uint {
+		BI_RGB = 0,			// Uncompressed
+		BI_RLE8 = 1,		// RLE 8BPP
+		BI_RLE4 = 2,		// RLE 4BPP
+		BI_BITFIELDS = 3,	// Specifies that the bitmap is not compressed and that the color table consists of three DWORD color masks that specify the red, green, and blue components, respectively, of each pixel. This is valid when used with 16- and 32-bpp bitmaps.
+		BI_JPEG = 4,		// Indicates that the image is a JPEG image.
+		BI_PNG = 5			// Indicates that the image is a PNG image.
+	}
+
+	[StructLayout(LayoutKind.Explicit)] 
+	public struct BITMAPINFOHEADER {
+		[FieldOffset(0)]
+		public uint biSize;
+		[FieldOffset(4)]
+		public int biWidth;
+		[FieldOffset(8)]
+		public int biHeight;
+		[FieldOffset(12)]
+		public ushort biPlanes;
+		[FieldOffset(14)]
+		public ushort biBitCount;
+		[FieldOffset(16)]
+		public BI_COMPRESSION biCompression;
+		[FieldOffset(20)]
+		public uint biSizeImage;
+		[FieldOffset(24)]
+		public int biXPelsPerMeter;
+		[FieldOffset(28)]
+		public int biYPelsPerMeter;
+		[FieldOffset(32)]
+		public uint biClrUsed;
+		[FieldOffset(36)]
+		public uint biClrImportant;
+		[FieldOffset(40)]
+		public uint bV5RedMask;
+		[FieldOffset(44)]
+		public uint bV5GreenMask;
+		[FieldOffset(48)]
+		public uint bV5BlueMask;
+		[FieldOffset(52)]
+		public uint bV5AlphaMask;
+		[FieldOffset(56)]
+		public uint bV5CSType;
+		[FieldOffset(60)]
+		public CIEXYZTRIPLE bV5Endpoints;
+		[FieldOffset(96)]
+		public uint bV5GammaRed;
+		[FieldOffset(100)]
+		public uint bV5GammaGreen;
+		[FieldOffset(104)]
+		public uint bV5GammaBlue;
+		[FieldOffset(108)]
+		public uint bV5Intent;		// Rendering intent for bitmap 
+		[FieldOffset(112)]
+		public uint bV5ProfileData;
+		[FieldOffset(116)]
+		public uint bV5ProfileSize;
+		[FieldOffset(120)]
+		public uint bV5Reserved;
+
+		public const int DIB_RGB_COLORS = 0;
+
+		public BITMAPINFOHEADER(int width, int height, ushort bpp) {
+			biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));	// BITMAPINFOHEADER < DIBV5 is 40 bytes
+			biPlanes = 1;	// Should allways be 1
+			biCompression = BI_COMPRESSION.BI_RGB;
+			biWidth = width;
+			biHeight = height;
+			biBitCount = bpp;
+			biSizeImage = (uint)(width*height*(bpp>>3));
+			biXPelsPerMeter = 0;
+			biYPelsPerMeter = 0;
+			biClrUsed = 0;
+			biClrImportant = 0;
+
+			// V5
+			bV5RedMask = (uint)255 << 16;
+			bV5GreenMask = (uint)255 << 8;
+			bV5BlueMask = (uint)255;
+			bV5AlphaMask = (uint)255 << 24;
+			bV5CSType = 1934772034; // sRGB
+			bV5Endpoints = new CIEXYZTRIPLE();
+			bV5Endpoints.ciexyzBlue = new CIEXYZ(0);
+			bV5Endpoints.ciexyzGreen = new CIEXYZ(0);
+			bV5Endpoints.ciexyzRed = new CIEXYZ(0);
+			bV5GammaRed = 0;
+			bV5GammaGreen = 0;
+			bV5GammaBlue = 0;
+			bV5Intent = 4;
+			bV5ProfileData = 0;
+			bV5ProfileSize = 0;
+			bV5Reserved = 0;
+		}
+		public bool IsDibV5 {
+			get {
+				uint sizeOfBMI = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));
+				return biSize >= sizeOfBMI;
+			}
+		}
+		public uint OffsetToPixels {
+			get {
+				if (biCompression == BI_COMPRESSION.BI_BITFIELDS) {
+					// Add 3x4 bytes for the bitfield color mask
+					return biSize + 3 * 4;
+				}
+				return biSize;
+			}
+		}
+	}
+
+	[StructLayoutAttribute(LayoutKind.Sequential)]
+	public struct BITMAPINFO {
+		/// <summary>
+		/// A BITMAPINFOHEADER structure that contains information about the dimensions of color format.
+		/// </summary>
+		public BITMAPINFOHEADER bmiHeader;
+
+		/// <summary>
+		/// An array of RGBQUAD. The elements of the array that make up the color table.
+		/// </summary>
+		[MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 1, ArraySubType = UnmanagedType.Struct)]
+		public RGBQUAD[] bmiColors;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct RGBQUAD {
+		public byte rgbBlue;
+		public byte rgbGreen;
+		public byte rgbRed;
+		public byte rgbReserved;
+	}
 }

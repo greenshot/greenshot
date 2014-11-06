@@ -651,15 +651,15 @@ namespace GreenshotPlugin.Core {
 						// throw exception
 						throw exceptionToThrow;
 					}
-					// Create BitmapInfoHeader for CreateDIBSection
-					BitmapInfoHeader bmi = new BitmapInfoHeader(captureBounds.Width, captureBounds.Height, 24);
+					// Create BITMAPINFOHEADER for CreateDIBSection
+					BITMAPINFOHEADER bmi = new BITMAPINFOHEADER(captureBounds.Width, captureBounds.Height, 24);
 
 					// Make sure the last error is set to 0
 					Win32.SetLastError(0);
 
 					// create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
 					IntPtr bits0; // not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
-					using (SafeDibSectionHandle safeDibSectionHandle = GDI32.CreateDIBSection(desktopDCHandle, ref bmi, BitmapInfoHeader.DIB_RGB_COLORS, out bits0, IntPtr.Zero, 0)) {
+					using (SafeDibSectionHandle safeDibSectionHandle = GDI32.CreateDIBSection(desktopDCHandle, ref bmi, BITMAPINFOHEADER.DIB_RGB_COLORS, out bits0, IntPtr.Zero, 0)) {
 						if (safeDibSectionHandle.IsInvalid) {
 							// Get Exception before the error is lost
 							Exception exceptionToThrow = CreateCaptureException("CreateDIBSection", captureBounds);

@@ -29,7 +29,7 @@ using System.Reflection;
 
 namespace GreenshotPlugin.Core {
 	public enum ClipboardFormat {
-		PNG, DIB, HTML, HTMLDATAURL, BITMAP
+		PNG, DIB, HTML, HTMLDATAURL, BITMAP, DIBV5
 	}
 	public enum OutputFormat {
 		bmp, gif, jpg, png, tiff, greenshot
