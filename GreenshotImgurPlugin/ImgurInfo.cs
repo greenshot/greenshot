@@ -129,6 +129,16 @@ namespace GreenshotImgurPlugin
 		}
 		public static ImgurInfo ParseResponse(string response) {
 			LOG.Debug(response);
+			// This is actually a hack for BUG-1695
+			// The problem is the (C) sign, we send it HTML encoded "&reg;" to Imgur and get it HTML encoded in the XML back 
+			// Added all the encodings I found quickly, I guess these are not all... but it should fix the issue for now.
+			response = response.Replace("&cent;", "&#162;");
+			response = response.Replace("&pound;", "&#163;");
+			response = response.Replace("&yen;", "&#165;");
+			response = response.Replace("&euro;", "&#8364;");
+			response = response.Replace("&copy;", "&#169;");
+			response = response.Replace("&reg;", "&#174;");
+
 			ImgurInfo imgurInfo = new ImgurInfo();
 			try {
 				XmlDocument doc = new XmlDocument();

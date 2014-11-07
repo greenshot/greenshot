@@ -20,6 +20,7 @@ Changes:
 Bugs Resolved:
 * BUG-1667: removed horizontal alignment of textbox in input mode, as it caused problems with textbox focus and could not be implemented consistently anyway (no vertical alignment possible)
 * BUG-1681: Improvements for the new speech bubble, text color is now the same as the border and the rounded corners are correctly calculated when using thick lines and a small bubble.
+* BUG-1695: Fixed an issue with processing the response from Imgur, which caused the error "Value cannot be null. Parameter name: key"
 
 1.2.1.2-af946cf RC1
 
