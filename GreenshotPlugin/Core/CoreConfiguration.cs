@@ -457,12 +457,14 @@ namespace GreenshotPlugin.Core {
 				if (IconSize.Width > 256) {
 					IconSize.Width = 256;
 				}
+				IconSize.Width = (IconSize.Width / 16) * 16;
 				if (IconSize.Height < 16) {
 					IconSize.Height = 16;
 				}
 				if (IconSize.Height > 256) {
 					IconSize.Height = 256;
 				}
+				IconSize.Height = (IconSize.Height/16)*16;
 			}
 
 		}
