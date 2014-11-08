@@ -94,9 +94,7 @@ namespace Greenshot {
 			this.fullscreen_hotkeyControl = new GreenshotPlugin.Controls.HotkeyControl();
 			this.tab_capture = new GreenshotPlugin.Controls.GreenshotTabPage();
 			this.groupbox_editor = new GreenshotPlugin.Controls.GreenshotGroupBox();
-			this.xLabel = new System.Windows.Forms.Label();
-			this.text_icon_width = new System.Windows.Forms.TextBox();
-			this.text_icon_height = new System.Windows.Forms.TextBox();
+			this.numericUpdownIconWidth = new System.Windows.Forms.NumericUpDown();
 			this.label_icon_size = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.checkbox_editor_match_capture_size = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.groupbox_iecapture = new GreenshotPlugin.Controls.GreenshotGroupBox();
@@ -630,9 +628,7 @@ namespace Greenshot {
 			// 
 			// groupbox_editor
 			// 
-			this.groupbox_editor.Controls.Add(this.xLabel);
-			this.groupbox_editor.Controls.Add(this.text_icon_width);
-			this.groupbox_editor.Controls.Add(this.text_icon_height);
+			this.groupbox_editor.Controls.Add(this.numericUpdownIconWidth);
 			this.groupbox_editor.Controls.Add(this.label_icon_size);
 			this.groupbox_editor.Controls.Add(this.checkbox_editor_match_capture_size);
 			this.groupbox_editor.LanguageKey = "settings_editor";
@@ -642,34 +638,22 @@ namespace Greenshot {
 			this.groupbox_editor.TabIndex = 27;
 			this.groupbox_editor.TabStop = false;
 			// 
-			// xLabel
+			// numericUpdownIconWidth
 			// 
-			this.xLabel.Location = new System.Drawing.Point(358, 45);
-			this.xLabel.Name = "xLabel";
-			this.xLabel.Size = new System.Drawing.Size(10, 16);
-			this.xLabel.TabIndex = 14;
-			this.xLabel.Text = "X";
-			// 
-			// text_icon_width
-			// 
-			this.text_icon_width.Location = new System.Drawing.Point(318, 42);
-			this.text_icon_width.Name = "text_icon_width";
-			this.text_icon_width.Size = new System.Drawing.Size(36, 20);
-			this.text_icon_width.TabIndex = 12;
-			// 
-			// text_icon_height
-			// 
-			this.text_icon_height.Location = new System.Drawing.Point(374, 42);
-			this.text_icon_height.Name = "text_icon_height";
-			this.text_icon_height.Size = new System.Drawing.Size(36, 20);
-			this.text_icon_height.TabIndex = 13;
+			this.numericUpdownIconWidth.Location = new System.Drawing.Point(365, 42);
+			this.numericUpdownIconWidth.Name = "numericUpdownIconWidth";
+			this.numericUpdownIconWidth.Size = new System.Drawing.Size(44, 20);
+			this.numericUpdownIconWidth.TabIndex = 12;
+			this.numericUpdownIconWidth.Maximum = 256;
+			this.numericUpdownIconWidth.Minimum = 16;
+			this.numericUpdownIconWidth.Increment = 16;
 			// 
 			// label_icon_size
 			// 
 			this.label_icon_size.LanguageKey = "settings_iconsize";
 			this.label_icon_size.Location = new System.Drawing.Point(3, 44);
 			this.label_icon_size.Name = "label_icon_size";
-			this.label_icon_size.Size = new System.Drawing.Size(309, 16);
+			this.label_icon_size.Size = new System.Drawing.Size(355, 16);
 			this.label_icon_size.TabIndex = 6;
 			// 
 			// checkbox_editor_match_capture_size
@@ -1432,8 +1416,6 @@ namespace Greenshot {
         private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowCenter;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_zoomer;
 		private GreenshotPlugin.Controls.GreenshotLabel label_icon_size;
-		private System.Windows.Forms.Label xLabel;
-		private System.Windows.Forms.TextBox text_icon_width;
-		private System.Windows.Forms.TextBox text_icon_height;
+		private System.Windows.Forms.NumericUpDown numericUpdownIconWidth;
 	}
 }

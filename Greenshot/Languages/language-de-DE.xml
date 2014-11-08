@@ -310,5 +310,6 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 		<resource name="editor_resize_aspectratio">Seitenverhältnis beibehalten</resource>
 		<resource name="editor_resize_width">Breite</resource>
 		<resource name="editor_resize_height">Höhe</resource>
+		<resource name="settings_iconsize">UI Symbolgröße</resource>
 	</resources>
 </language>

@@ -280,5 +280,6 @@ Alle Greenshot functies werken ook over het context menu.</resource>
 		<resource name="editor_resize_aspectratio">Aspect ratio behouden</resource>
 		<resource name="editor_resize_width">Breedte</resource>
 		<resource name="editor_resize_height">Hoogte</resource>
+		<resource name="settings_iconsize">UI pictogram grootte</resource>
 	</resources>
 </language>
