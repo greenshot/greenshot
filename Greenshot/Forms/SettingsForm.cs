@@ -369,7 +369,7 @@ namespace Greenshot {
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
 			coreConfiguration.FixIconSize();
-			numericUpdownIconWidth.Value = (coreConfiguration.IconSize.Width /16) * 16;
+			numericUpdownIconSize.Value = (coreConfiguration.IconSize.Width /16) * 16;
 			CheckDestinationSettings();
 		}
 
@@ -414,7 +414,7 @@ namespace Greenshot {
 			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
-			coreConfiguration.IconSize = new Size((int)numericUpdownIconWidth.Value, (int)numericUpdownIconWidth.Value);
+			coreConfiguration.IconSize = new Size((int)numericUpdownIconSize.Value, (int)numericUpdownIconSize.Value);
 			coreConfiguration.FixIconSize();
 			try {
 				if (checkbox_autostartshortcut.Checked) {
