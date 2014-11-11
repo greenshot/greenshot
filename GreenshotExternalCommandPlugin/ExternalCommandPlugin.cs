@@ -24,6 +24,7 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 
@@ -33,6 +34,7 @@ namespace ExternalCommand {
 	/// </summary>
 	public class ExternalCommandPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
+		private static CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private IGreenshotHost host;
 		private PluginAttribute myAttributes;
@@ -121,24 +123,36 @@ namespace ExternalCommand {
 
 
 			itemPlugInRoot = new ToolStripMenuItem();
-			itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
 			itemPlugInRoot.Tag = host;
-			try {
-				string exePath = PluginUtils.GetExePath("cmd.exe");
-				if (exePath != null && File.Exists(exePath)) {
-					itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
-				}
-			} catch (Exception ex) {
-				LOG.Warn("Couldn't get the cmd.exe image", ex);
-			}
+			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
+			OnLanguageChanged(this, null);
 			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
 
 			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
-			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
+			Language.LanguageChanged += OnLanguageChanged;
+			coreConfig.PropertyChanged += OnIconSizeChanged;
 			return true;
 		}
 
-		public void OnLanguageChanged(object sender, EventArgs e) {
+		/// <summary>
+		/// Fix icon reference
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
+			if (e.PropertyName == "IconSize") {
+				try {
+					string exePath = PluginUtils.GetExePath("cmd.exe");
+					if (exePath != null && File.Exists(exePath)) {
+						itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
+					}
+				} catch (Exception ex) {
+					LOG.Warn("Couldn't get the cmd.exe image", ex);
+				}
+			}
+		}
+
+		private void OnLanguageChanged(object sender, EventArgs e) {
 			if (itemPlugInRoot != null) {
 				itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
 			}

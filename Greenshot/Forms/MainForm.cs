@@ -388,7 +388,8 @@ namespace Greenshot {
 			}
 			SoundHelper.Initialize();
 
-			MainForm.ResetImageScalingSize();
+			coreConfiguration.PropertyChanged += OnIconSizeChanged;
+			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
 
 			// Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
 			// Setting it to true this late prevents Problems with the context menu
@@ -552,12 +553,14 @@ namespace Greenshot {
 		}
 
 		/// <summary>
-		/// Reset ImageScalingSize
+		/// Fix icon reference
 		/// </summary>
-		/// <returns>Used for fixing scaling issues</returns>
-		public static void ResetImageScalingSize() {
-			MainForm thisForm = MainForm.Instance;
-			thisForm.contextMenu.ImageScalingSize = coreConfiguration.IconSize;
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
+			if (e.PropertyName == "IconSize") {
+				contextMenu.ImageScalingSize = coreConfiguration.IconSize;
+			}
 		}
 
 		/// <summary>

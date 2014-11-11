@@ -368,7 +368,6 @@ namespace Greenshot {
 			
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
-			coreConfiguration.FixIconSize();
 			numericUpdownIconSize.Value = (coreConfiguration.IconSize.Width /16) * 16;
 			CheckDestinationSettings();
 		}
@@ -417,12 +416,6 @@ namespace Greenshot {
 			Size previousValue = coreConfiguration.IconSize;
 			coreConfiguration.IconSize = new Size((int)numericUpdownIconSize.Value, (int)numericUpdownIconSize.Value);
 
-			// Clear caches when changing the settings
-			if (previousValue != coreConfiguration.IconSize) {
-				PluginUtils.ClearExeIconCache();
-				MainForm.ResetImageScalingSize();
-			}
-			coreConfiguration.FixIconSize();
 			try {
 				if (checkbox_autostartshortcut.Checked) {
 					// It's checked, so we set the RunUser if the RunAll isn't set.

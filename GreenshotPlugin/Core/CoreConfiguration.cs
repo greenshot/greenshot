@@ -18,14 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace GreenshotPlugin.Core {
 	public enum ClipboardFormat {
@@ -56,7 +58,9 @@ namespace GreenshotPlugin.Core {
 	/// Description of CoreConfiguration.
 	/// </summary>
 	[IniSection("Core", Description="Greenshot core configuration")]
-	public class CoreConfiguration : IniSection {
+	public class CoreConfiguration : IniSection, INotifyPropertyChanged {
+		public event PropertyChangedEventHandler PropertyChanged;
+
 		[IniProperty("Language", Description = "The language in IETF format (e.g. en-US)")]
 		public string Language;
 
@@ -256,8 +260,36 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
 		public Rectangle LastCapturedRegion;
 
+		private Size _iconSize;
 		[IniProperty("IconSize", Description = "Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling", DefaultValue = "16,16")]
-		public Size IconSize;
+		public Size IconSize {
+			get {
+				return _iconSize;
+			}
+			set {
+				Size newSize = value;
+				if (newSize != Size.Empty) {
+					if (newSize.Width < 16) {
+						newSize.Width = 16;
+					} else if (newSize.Width > 256) {
+						newSize.Width = 256;
+					}
+					newSize.Width = (newSize.Width / 16) * 16;
+					if (newSize.Height < 16) {
+						newSize.Height = 16;
+					} else if (IconSize.Height > 256) {
+						newSize.Height = 256;
+					}
+					newSize.Height = (newSize.Height / 16) * 16;
+				}
+				if (_iconSize != newSize) {
+					_iconSize = value;
+					if (PropertyChanged != null) {
+						PropertyChanged(this, new PropertyChangedEventArgs("IconSize"));
+					}
+				}
+			}
+		}
 
 		// Specifies what THIS build is
 		public BuildStates BuildState = BuildStates.RELEASE_CANDIDATE;
@@ -441,32 +473,7 @@ namespace GreenshotPlugin.Core {
 			if (OutputFileReduceColorsTo > 256) {
 				OutputFileReduceColorsTo = 256;
 			}
-			FixIconSize();
 		}
 
-		/// <summary>
-		/// Validation & correction of the icon size
-		/// </summary>
-		public void FixIconSize() {
-			if (IconSize == Size.Empty) {
-				IconSize = new Size(16, 16);
-			} else {
-				if (IconSize.Width < 16) {
-					IconSize.Width = 16;
-				}
-				if (IconSize.Width > 256) {
-					IconSize.Width = 256;
-				}
-				IconSize.Width = (IconSize.Width / 16) * 16;
-				if (IconSize.Height < 16) {
-					IconSize.Height = 16;
-				}
-				if (IconSize.Height > 256) {
-					IconSize.Height = 256;
-				}
-				IconSize.Height = (IconSize.Height/16)*16;
-			}
-
-		}
 	}
 }

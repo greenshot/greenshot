@@ -26,6 +26,7 @@ using log4net;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -40,6 +41,10 @@ namespace GreenshotPlugin.Core {
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 		private static IDictionary<string, Image> exeIconCache = new Dictionary<string, Image>();
 
+		static PluginUtils() {
+			conf.PropertyChanged += OnIconSizeChanged;
+		}
+
 		/// <summary>
 		/// Simple global property to get the Greenshot host
 		/// </summary>
@@ -48,18 +53,26 @@ namespace GreenshotPlugin.Core {
 			set;
 		}
 
-		public static void ClearExeIconCache() {
-			List<Image> cachedImages = new List<Image>();
-			lock (exeIconCache) {
-				foreach (string key in exeIconCache.Keys) {
-					cachedImages.Add(exeIconCache[key]);
+		/// <summary>
+		/// Clear icon cache
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
+			if (e.PropertyName == "IconSize") {
+				List<Image> cachedImages = new List<Image>();
+				lock (exeIconCache) {
+					foreach (string key in exeIconCache.Keys) {
+						cachedImages.Add(exeIconCache[key]);
+					}
+					exeIconCache.Clear();
 				}
-				exeIconCache.Clear();
-			}
-			foreach (Image cachedImage in cachedImages) {
-				if (cachedImage != null) {
-					cachedImage.Dispose();
+				foreach (Image cachedImage in cachedImages) {
+					if (cachedImage != null) {
+						cachedImage.Dispose();
+					}
 				}
+
 			}
 		}
 
