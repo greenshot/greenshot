@@ -36,16 +36,15 @@ namespace GreenshotOfficePlugin {
 	/// </summary>
 	public class PowerpointDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointDestination));
+		private const int ICON_APPLICATION = 0;
+		private const int ICON_PRESENTATION = 1;
+
 		private static string exePath = null;
-		private static Image applicationIcon = null;
-		private static Image presentationIcon = null;
 		private string presentationName = null;
 		
 		static PowerpointDestination() {
 			exePath = PluginUtils.GetExePath("POWERPNT.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
-				presentationIcon = PluginUtils.GetExeIcon(exePath, 1);
 				WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
 			} else {
 				exePath = null;
@@ -96,10 +95,10 @@ namespace GreenshotOfficePlugin {
 		public override Image DisplayIcon {
 			get {
 				if (!string.IsNullOrEmpty(presentationName)) {
-					return presentationIcon;
+					return PluginUtils.GetCachedExeIcon(exePath, ICON_PRESENTATION);
 				}
 
-				return applicationIcon;
+				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
 			}
 		}
 

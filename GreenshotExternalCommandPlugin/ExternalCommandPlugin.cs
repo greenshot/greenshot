@@ -126,7 +126,7 @@ namespace ExternalCommand {
 			try {
 				string exePath = PluginUtils.GetExePath("cmd.exe");
 				if (exePath != null && File.Exists(exePath)) {
-					itemPlugInRoot.Image = PluginUtils.GetExeIcon(exePath, 0);
+					itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
 				}
 			} catch (Exception ex) {
 				LOG.Warn("Couldn't get the cmd.exe image", ex);

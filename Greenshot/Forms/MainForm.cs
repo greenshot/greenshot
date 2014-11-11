@@ -336,7 +336,7 @@ namespace Greenshot {
 
 		public MainForm(CopyDataTransport dataTransport) {
 			_instance = this;
-			
+
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -387,6 +387,8 @@ namespace Greenshot {
 				InitializeQuickSettingsMenu();
 			}
 			SoundHelper.Initialize();
+
+			MainForm.ResetImageScalingSize();
 
 			// Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
 			// Setting it to true this late prevents Problems with the context menu
@@ -547,6 +549,15 @@ namespace Greenshot {
 				hotkeyValue.ContainingIniSection.IsDirty = true;
 				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
 			}
+		}
+
+		/// <summary>
+		/// Reset ImageScalingSize
+		/// </summary>
+		/// <returns>Used for fixing scaling issues</returns>
+		public static void ResetImageScalingSize() {
+			MainForm thisForm = MainForm.Instance;
+			thisForm.contextMenu.ImageScalingSize = coreConfiguration.IconSize;
 		}
 
 		/// <summary>

@@ -33,16 +33,8 @@ namespace GreenshotOCR {
 		private static OCRConfiguration config = IniConfig.GetIniSection<OCRConfiguration>();
 		private const int MIN_WIDTH = 130;
 		private const int MIN_HEIGHT = 130;
-		private static Image icon = null;
 		private OcrPlugin plugin;
 		
-		static OCRDestination() {
-			string exePath = PluginUtils.GetExePath("MSPVIEW.EXE");
-			if (exePath != null && File.Exists(exePath)) {
-				icon = PluginUtils.GetExeIcon(exePath, 0);
-			}
-		}
-
 		public override string Designation {
 			get {
 				return "OCR";
@@ -57,7 +49,11 @@ namespace GreenshotOCR {
 
 		public override Image DisplayIcon {
 			get {
-				return icon;
+				string exePath = PluginUtils.GetExePath("MSPVIEW.EXE");
+				if (exePath != null && File.Exists(exePath)) {
+					return PluginUtils.GetCachedExeIcon(exePath, 0);
+				}
+				return null;
 			}
 		}
 

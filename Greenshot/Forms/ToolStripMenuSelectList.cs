@@ -35,7 +35,8 @@ namespace Greenshot.Forms {
 		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 		private bool multiCheckAllowed = false;
 		private bool updateInProgress = false;
-		private static Image defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
+		private static Image defaultImage;
+
 		/// <summary>
 		/// Occurs when one of the list's child element's Checked state changes.
 		/// </summary>
@@ -49,10 +50,16 @@ namespace Greenshot.Forms {
 			Identifier = identifier;
 			CheckOnClick = false;
 			multiCheckAllowed = allowMultiCheck;
+			if (defaultImage == null || defaultImage.Size != coreConfiguration.IconSize) {
+				if (defaultImage != null) {
+					defaultImage.Dispose();
+				}
+				defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
+			}
 			Image = defaultImage;
 		}
 		public ToolStripMenuSelectList() : this(null,false) {}
-		public ToolStripMenuSelectList(Object identifier) : this(identifier,false) {}
+		public ToolStripMenuSelectList(object identifier) : this(identifier,false) {}
 
 		/// <summary>
 		/// gets or sets the currently checked item

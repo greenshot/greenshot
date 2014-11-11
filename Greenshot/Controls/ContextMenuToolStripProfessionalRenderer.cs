@@ -34,7 +34,10 @@ namespace Greenshot.Controls {
 		private static Image scaledCheckbox;
 
 		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e) {
-			if (scaledCheckbox == null) {
+			if (scaledCheckbox == null || scaledCheckbox.Size != coreConfiguration.IconSize) {
+				if (scaledCheckbox != null) {
+					scaledCheckbox.Dispose();
+				}
 				scaledCheckbox = ImageHelper.ResizeImage(e.Image, true, coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, null);
 			}
 			Rectangle old = e.ImageRectangle;

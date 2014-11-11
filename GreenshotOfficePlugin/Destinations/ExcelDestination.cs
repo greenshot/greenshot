@@ -36,16 +36,14 @@ namespace GreenshotOfficePlugin {
 	/// </summary>
 	public class ExcelDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelDestination));
+		private const int ICON_APPLICATION = 0;
+		private const int ICON_WORKBOOK = 1;
 		private static string exePath = null;
-		private static Image applicationIcon = null;
-		private static Image workbookIcon = null;
 		private string workbookName = null;
 
 		static ExcelDestination() {
 			exePath = PluginUtils.GetExePath("EXCEL.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
-				workbookIcon = PluginUtils.GetExeIcon(exePath, 1);
 				WindowDetails.AddProcessToExcludeFromFreeze("excel");
 			} else {
 				exePath = null;
@@ -96,9 +94,9 @@ namespace GreenshotOfficePlugin {
 		public override Image DisplayIcon {
 			get {
 				if (!string.IsNullOrEmpty(workbookName)) {
-					return workbookIcon;
+					return PluginUtils.GetCachedExeIcon(exePath, ICON_WORKBOOK);
 				}
-				return applicationIcon;
+				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
 			}
 		}
 

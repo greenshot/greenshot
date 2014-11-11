@@ -414,7 +414,14 @@ namespace Greenshot {
 			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
+			Size previousValue = coreConfiguration.IconSize;
 			coreConfiguration.IconSize = new Size((int)numericUpdownIconSize.Value, (int)numericUpdownIconSize.Value);
+
+			// Clear caches when changing the settings
+			if (previousValue != coreConfiguration.IconSize) {
+				PluginUtils.ClearExeIconCache();
+				MainForm.ResetImageScalingSize();
+			}
 			coreConfiguration.FixIconSize();
 			try {
 				if (checkbox_autostartshortcut.Checked) {

@@ -25,6 +25,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -37,6 +38,7 @@ namespace GreenshotPlugin.Core {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginUtils));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
+		private static IDictionary<string, Image> exeIconCache = new Dictionary<string, Image>();
 
 		/// <summary>
 		/// Simple global property to get the Greenshot host
@@ -44,6 +46,21 @@ namespace GreenshotPlugin.Core {
 		public static IGreenshotHost Host {
 			get;
 			set;
+		}
+
+		public static void ClearExeIconCache() {
+			List<Image> cachedImages = new List<Image>();
+			lock (exeIconCache) {
+				foreach (string key in exeIconCache.Keys) {
+					cachedImages.Add(exeIconCache[key]);
+				}
+				exeIconCache.Clear();
+			}
+			foreach (Image cachedImage in cachedImages) {
+				if (cachedImage != null) {
+					cachedImage.Dispose();
+				}
+			}
 		}
 
 		/// <summary>
@@ -70,6 +87,28 @@ namespace GreenshotPlugin.Core {
 			}
 			return null;
 		}
+		
+		/// <summary>
+		/// Get icon for executable, from the cache
+		/// </summary>
+		/// <param name="path">path to the exe or dll</param>
+		/// <param name="index">index of the icon</param>
+		/// <returns>Bitmap with the icon or null if something happended</returns>
+		public static Image GetCachedExeIcon(string path, int index) {
+			string cacheKey = string.Format("{0}:{1}", path, index);
+			Image returnValue;
+			if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
+				lock (exeIconCache) {
+					if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
+						returnValue = GetExeIcon(path, index);
+						if (returnValue != null) {
+							exeIconCache.Add(cacheKey, returnValue);
+						}
+					}
+				}
+			}
+			return returnValue;
+		}
 
 		/// <summary>
 		/// Get icon for executable
@@ -77,7 +116,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="path">path to the exe or dll</param>
 		/// <param name="index">index of the icon</param>
 		/// <returns>Bitmap with the icon or null if something happended</returns>
-		public static Bitmap GetExeIcon(string path, int index) {
+		private static Bitmap GetExeIcon(string path, int index) {
 			if (!File.Exists(path)) {
 				return null;
 			}

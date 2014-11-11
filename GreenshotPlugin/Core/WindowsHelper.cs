@@ -170,7 +170,6 @@ namespace GreenshotPlugin.Core  {
 		private static Dictionary<string, List<string>> classnameTree = new Dictionary<string, List<string>>();
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static List<IntPtr> ignoreHandles = new List<IntPtr>();
-		private static Dictionary<string, Image> iconCache = new Dictionary<string, Image>();
 		private static List<string> excludeProcessesFromFreeze = new List<string>();
 		private static IAppVisibility appVisibility = null;
 		
@@ -203,7 +202,6 @@ namespace GreenshotPlugin.Core  {
 				return METRO_WINDOWS_CLASS.Equals(ClassName);
 			}
 		}
-		
 		
 		public bool isGutter {
 			get {
@@ -307,17 +305,7 @@ namespace GreenshotPlugin.Core  {
 					return null;
 				}
 				try {
-					string filename = ProcessPath;
-					if (!iconCache.ContainsKey(filename)) {
-						Image icon = null;
-						using (Icon appIcon = Shell32.ExtractAssociatedIcon(filename)) {
-							if (appIcon != null) {
-								icon = appIcon.ToBitmap();
-							}
-						}
-						iconCache.Add(filename, icon);
-					}
-					return iconCache[filename];
+					return PluginUtils.GetCachedExeIcon(ProcessPath, 0);
 				} catch (Exception ex) {
 					LOG.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
 					LOG.Warn(ex);

@@ -18,17 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
+using Greenshot.IniFile;
+using Greenshot.Interop.Office;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-
-using Greenshot.Interop.Office;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -36,11 +35,12 @@ namespace GreenshotOfficePlugin {
 	/// </summary>
 	public class OutlookDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookDestination));
+		private const int ICON_APPLICATION = 0;
+		private const int ICON_MEETING = 2;
+
+		private static Image mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
 		private static OfficeConfiguration conf = IniConfig.GetIniSection<OfficeConfiguration>();
 		private static string exePath = null;
-		private static Image applicationIcon = null;
-		private static Image mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
-		private static Image meetingIcon = null;
 		private static bool isActiveFlag = false;
 		private static string mapiClient = "Microsoft Outlook";
 		public const string DESIGNATION = "Outlook";
@@ -53,11 +53,7 @@ namespace GreenshotOfficePlugin {
 			}
 			exePath = PluginUtils.GetExePath("OUTLOOK.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
 				WindowDetails.AddProcessToExcludeFromFreeze("outlook");
-				if (conf.OutlookAllowExportInMeetings) {
-					meetingIcon = PluginUtils.GetExeIcon(exePath, 2);
-				}
 			} else {
 				exePath = null;
 			}
@@ -119,15 +115,12 @@ namespace GreenshotOfficePlugin {
 				if (outlookInspectorCaption != null) {
 					if (OlObjectClass.olAppointment.Equals(outlookInspectorType)) {
 						// Make sure we loaded the icon, maybe the configuration has been changed!
-						if (meetingIcon == null) {
-							meetingIcon = PluginUtils.GetExeIcon(exePath, 2);
-						}
-						return meetingIcon;
+						return PluginUtils.GetCachedExeIcon(exePath, ICON_MEETING);
 					} else {
 						return mailIcon;
 					}
 				} else {
-					return applicationIcon;
+					return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
 				}
 			}
 		}

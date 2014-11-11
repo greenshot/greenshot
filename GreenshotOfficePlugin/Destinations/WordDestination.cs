@@ -18,17 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Interop.Office;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Windows.Forms;
-
-using GreenshotPlugin.Core;
-using Greenshot.Plugin;
-using Greenshot.Interop.Office;
-using Greenshot.IniFile;
 using System.Text.RegularExpressions;
 
 namespace GreenshotOfficePlugin {
@@ -37,17 +34,14 @@ namespace GreenshotOfficePlugin {
 	/// </summary>
 	public class WordDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+		private const int ICON_APPLICATION = 0;
+		private const int ICON_DOCUMENT = 1;
 		private static string exePath = null;
-		private static Image applicationIcon = null;
-		private static Image documentIcon = null;
 		private string documentCaption = null;
 
 		static WordDestination() {
 			exePath = PluginUtils.GetExePath("WINWORD.EXE");
-			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
-				documentIcon = PluginUtils.GetExeIcon(exePath, 1);
-			} else {
+			if (exePath != null && !File.Exists(exePath)) {
 				exePath = null;
 			}
 		}
@@ -97,9 +91,9 @@ namespace GreenshotOfficePlugin {
 		public override Image DisplayIcon {
 			get {
 				if (!string.IsNullOrEmpty(documentCaption)) {
-					return documentIcon;
+					return PluginUtils.GetCachedExeIcon(exePath, ICON_DOCUMENT);
 				}
-				return applicationIcon;
+				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
 			}
 		}
 

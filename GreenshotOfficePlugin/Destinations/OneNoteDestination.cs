@@ -18,32 +18,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Interop.Office;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Windows.Forms;
-
-using GreenshotPlugin.Core;
-using Greenshot.Plugin;
-using Greenshot.Interop.Office;
-using Greenshot.IniFile;
 
 namespace GreenshotOfficePlugin {
 	public class OneNoteDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+		private const int ICON_APPLICATION = 0;
 		public const string DESIGNATION = "OneNote";
 		private static string exePath = null;
-		private static Image applicationIcon = null;
-		private static Image notebookIcon = null;
 		private OneNotePage page = null;
 
 		static OneNoteDestination() {
 			exePath = PluginUtils.GetExePath("ONENOTE.EXE");
 			if (exePath != null && File.Exists(exePath)) {
-				applicationIcon = PluginUtils.GetExeIcon(exePath, 0);
-				notebookIcon = PluginUtils.GetExeIcon(exePath, 0);
 				WindowDetails.AddProcessToExcludeFromFreeze("onenote");
 			} else {
 				exePath = null;
@@ -94,10 +88,7 @@ namespace GreenshotOfficePlugin {
 
 		public override Image DisplayIcon {
 			get {
-				if (page != null) {
-					return notebookIcon;
-				}
-				return applicationIcon;
+				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
 			}
 		}
 
