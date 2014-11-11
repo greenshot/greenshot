@@ -307,7 +307,7 @@ All Greenshot features still work directly from the tray icon context menu witho
     <resource name="editor_resize_aspectratio">Maintain aspect ratio</resource>
     <resource name="editor_resize_width">Width</resource>
     <resource name="editor_resize_height">Height</resource>
-	<resource name="settings_iconsize">UI icon size</resource>
+	<resource name="settings_iconsize">Icon size</resource>
     
   </resources>
 </language>
