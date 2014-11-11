@@ -26,7 +26,7 @@ namespace GreenshotBoxPlugin {
 	/// You can set your own values here
 	/// </summary>
 	public static class BoxCredentials {
-		public static string ClientId = "1234";
+		public static string ClientId = "@credentials_box_client_id@";
 		public static string ClientSecret = "@credentials_box_client_secret@";
 	}
 }
