@@ -141,7 +141,6 @@ namespace Greenshot {
 			// 
 			// contextmenu_captureie
 			// 
-			this.contextmenu_captureie.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_captureie.Image")));
 			this.contextmenu_captureie.Name = "contextmenu_captureie";
 			this.contextmenu_captureie.ShortcutKeyDisplayString = "Ctrl + Shift + Print";
 			this.contextmenu_captureie.Size = new System.Drawing.Size(170, 22);

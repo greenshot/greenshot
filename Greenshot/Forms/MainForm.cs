@@ -560,6 +560,10 @@ namespace Greenshot {
 		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
 			if (e.PropertyName == "IconSize") {
 				contextMenu.ImageScalingSize = coreConfiguration.IconSize;
+				string ieExePath = PluginUtils.GetExePath("iexplore.exe");
+				if (!string.IsNullOrEmpty(ieExePath)) {
+					this.contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0);
+				}
 			}
 		}
 
