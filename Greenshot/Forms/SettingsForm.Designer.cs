@@ -94,7 +94,7 @@ namespace Greenshot {
 			this.fullscreen_hotkeyControl = new GreenshotPlugin.Controls.HotkeyControl();
 			this.tab_capture = new GreenshotPlugin.Controls.GreenshotTabPage();
 			this.groupbox_editor = new GreenshotPlugin.Controls.GreenshotGroupBox();
-			this.numericUpdownIconWidth = new System.Windows.Forms.NumericUpDown();
+			this.numericUpdownIconSize = new System.Windows.Forms.NumericUpDown();
 			this.label_icon_size = new GreenshotPlugin.Controls.GreenshotLabel();
 			this.checkbox_editor_match_capture_size = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.groupbox_iecapture = new GreenshotPlugin.Controls.GreenshotGroupBox();
@@ -250,7 +250,7 @@ namespace Greenshot {
 			this.combobox_language.Location = new System.Drawing.Point(193, 17);
 			this.combobox_language.MaxDropDownItems = 15;
 			this.combobox_language.Name = "combobox_language";
-			this.combobox_language.Size = new System.Drawing.Size(213, 21);
+			this.combobox_language.Size = new System.Drawing.Size(210, 21);
 			this.combobox_language.TabIndex = 0;
 			// 
 			// combobox_primaryimageformat
@@ -311,23 +311,43 @@ namespace Greenshot {
 			// 
             // groupbox_applicationsettings
 			// 
-			this.groupbox_applicationsettings.Controls.Add(this.checkbox_autostartshortcut);
 			this.groupbox_applicationsettings.Controls.Add(this.label_language);
 			this.groupbox_applicationsettings.Controls.Add(this.combobox_language);
+			this.groupbox_applicationsettings.Controls.Add(this.numericUpdownIconSize);
+			this.groupbox_applicationsettings.Controls.Add(this.label_icon_size);
+			this.groupbox_applicationsettings.Controls.Add(this.checkbox_autostartshortcut);
 			this.groupbox_applicationsettings.LanguageKey = "settings_applicationsettings";
 			this.groupbox_applicationsettings.Location = new System.Drawing.Point(2, 6);
 			this.groupbox_applicationsettings.Name = "groupbox_applicationsettings";
-			this.groupbox_applicationsettings.Size = new System.Drawing.Size(412, 68);
+			this.groupbox_applicationsettings.Size = new System.Drawing.Size(412, 89);
 			this.groupbox_applicationsettings.TabIndex = 14;
 			this.groupbox_applicationsettings.TabStop = false;
+			// 
+			// numericUpdownIconSize
+			// 
+			this.numericUpdownIconSize.Location = new System.Drawing.Point(359, 42);
+			this.numericUpdownIconSize.Name = "numericUpdownIconWidth";
+			this.numericUpdownIconSize.Size = new System.Drawing.Size(44, 20);
+			this.numericUpdownIconSize.TabIndex = 1;
+			this.numericUpdownIconSize.Maximum = 256;
+			this.numericUpdownIconSize.Minimum = 16;
+			this.numericUpdownIconSize.Increment = 16;
+			// 
+			// label_icon_size
+			// 
+			this.label_icon_size.LanguageKey = "settings_iconsize";
+			this.label_icon_size.Location = new System.Drawing.Point(6, 44);
+			this.label_icon_size.Name = "label_icon_size";
+			this.label_icon_size.Size = new System.Drawing.Size(350, 16);
+			this.label_icon_size.TabIndex = 6;
 			// 
 			// checkbox_autostartshortcut
 			// 
 			this.checkbox_autostartshortcut.LanguageKey = "settings_autostartshortcut";
-			this.checkbox_autostartshortcut.Location = new System.Drawing.Point(8, 39);
+			this.checkbox_autostartshortcut.Location = new System.Drawing.Point(8, 60);
 			this.checkbox_autostartshortcut.Name = "checkbox_autostartshortcut";
 			this.checkbox_autostartshortcut.Size = new System.Drawing.Size(397, 25);
-			this.checkbox_autostartshortcut.TabIndex = 1;
+			this.checkbox_autostartshortcut.TabIndex = 2;
 			this.checkbox_autostartshortcut.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_qualitysettings
@@ -338,7 +358,7 @@ namespace Greenshot {
 			this.groupbox_qualitysettings.Controls.Add(this.textBoxJpegQuality);
 			this.groupbox_qualitysettings.Controls.Add(this.trackBarJpegQuality);
 			this.groupbox_qualitysettings.LanguageKey = "settings_qualitysettings";
-			this.groupbox_qualitysettings.Location = new System.Drawing.Point(2, 156);
+			this.groupbox_qualitysettings.Location = new System.Drawing.Point(2, 157);
 			this.groupbox_qualitysettings.Name = "groupbox_qualitysettings";
 			this.groupbox_qualitysettings.Size = new System.Drawing.Size(412, 106);
 			this.groupbox_qualitysettings.TabIndex = 14;
@@ -472,7 +492,7 @@ namespace Greenshot {
 			this.groupbox_network.Controls.Add(this.label_checkperiod);
 			this.groupbox_network.Controls.Add(this.checkbox_usedefaultproxy);
 			this.groupbox_network.LanguageKey = "settings_network";
-			this.groupbox_network.Location = new System.Drawing.Point(3, 232);
+			this.groupbox_network.Location = new System.Drawing.Point(3, 253);
 			this.groupbox_network.Name = "groupbox_network";
 			this.groupbox_network.Size = new System.Drawing.Size(412, 72);
 			this.groupbox_network.TabIndex = 54;
@@ -517,7 +537,7 @@ namespace Greenshot {
 			this.groupbox_hotkeys.Controls.Add(this.window_hotkeyControl);
 			this.groupbox_hotkeys.Controls.Add(this.fullscreen_hotkeyControl);
 			this.groupbox_hotkeys.LanguageKey = "hotkeys";
-			this.groupbox_hotkeys.Location = new System.Drawing.Point(2, 77);
+			this.groupbox_hotkeys.Location = new System.Drawing.Point(2, 98);
 			this.groupbox_hotkeys.Name = "groupbox_hotkeys";
 			this.groupbox_hotkeys.Size = new System.Drawing.Size(412, 152);
 			this.groupbox_hotkeys.TabIndex = 15;
@@ -628,33 +648,13 @@ namespace Greenshot {
 			// 
 			// groupbox_editor
 			// 
-			this.groupbox_editor.Controls.Add(this.numericUpdownIconWidth);
-			this.groupbox_editor.Controls.Add(this.label_icon_size);
 			this.groupbox_editor.Controls.Add(this.checkbox_editor_match_capture_size);
 			this.groupbox_editor.LanguageKey = "settings_editor";
 			this.groupbox_editor.Location = new System.Drawing.Point(4, 277);
 			this.groupbox_editor.Name = "groupbox_editor";
-			this.groupbox_editor.Size = new System.Drawing.Size(416, 71);
+			this.groupbox_editor.Size = new System.Drawing.Size(416, 50);
 			this.groupbox_editor.TabIndex = 27;
 			this.groupbox_editor.TabStop = false;
-			// 
-			// numericUpdownIconWidth
-			// 
-			this.numericUpdownIconWidth.Location = new System.Drawing.Point(365, 42);
-			this.numericUpdownIconWidth.Name = "numericUpdownIconWidth";
-			this.numericUpdownIconWidth.Size = new System.Drawing.Size(44, 20);
-			this.numericUpdownIconWidth.TabIndex = 12;
-			this.numericUpdownIconWidth.Maximum = 256;
-			this.numericUpdownIconWidth.Minimum = 16;
-			this.numericUpdownIconWidth.Increment = 16;
-			// 
-			// label_icon_size
-			// 
-			this.label_icon_size.LanguageKey = "settings_iconsize";
-			this.label_icon_size.Location = new System.Drawing.Point(3, 44);
-			this.label_icon_size.Name = "label_icon_size";
-			this.label_icon_size.Size = new System.Drawing.Size(355, 16);
-			this.label_icon_size.TabIndex = 6;
 			// 
 			// checkbox_editor_match_capture_size
 			// 
@@ -1416,6 +1416,6 @@ namespace Greenshot {
         private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowCenter;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_zoomer;
 		private GreenshotPlugin.Controls.GreenshotLabel label_icon_size;
-		private System.Windows.Forms.NumericUpDown numericUpdownIconWidth;
+		private System.Windows.Forms.NumericUpDown numericUpdownIconSize;
 	}
 }
