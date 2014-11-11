@@ -291,8 +291,23 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		// Specifies what THIS build is
-		public BuildStates BuildState = BuildStates.RELEASE_CANDIDATE;
+		/// <summary>
+		/// Specifies what THIS build is
+		/// </summary>
+		public BuildStates BuildState {
+			get {
+				string informationalVersion = Application.ProductVersion;
+				if (informationalVersion != null) {
+					if (informationalVersion.ToLowerInvariant().Contains("-rc")) {
+						return BuildStates.RELEASE_CANDIDATE;
+					}
+					if (informationalVersion.ToLowerInvariant().Contains("-unstable")) {
+						return BuildStates.UNSTABLE;
+					}
+				}
+				return BuildStates.RELEASE;
+			}
+		}
 
 		public bool UseLargeIcons {
 			get {
