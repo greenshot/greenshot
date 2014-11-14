@@ -60,6 +60,10 @@ namespace Greenshot.Experimental {
 						return false;
 					}
 					LOG.DebugFormat("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
+					if (!SourceForgeHelper.isRSSModifiedAfter(conf.LastUpdateCheck)) {
+						LOG.DebugFormat("RSS feed has not been updated since after {0}", conf.LastUpdateCheck);
+						return false;
+					}
 				}
 			}
 			return true;

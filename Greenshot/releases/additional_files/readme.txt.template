@@ -8,6 +8,16 @@ CHANGE LOG:
 @DETAILVERSION@
 
 Features:
+
+Changes:
+
+Bugs Resolved:
+
+
+
+1.2.2.43-380f581 RC2 
+
+Features:
 * Added the possibility to select the region to capture by using the keyboard, use the cursor keys to move the cursor (ctrl-key speeds up the movement) and the enter key to mark the start and ending.
 * FEATURE-757: Greenshot will now store the last used region in the greenshot.ini, which makes it also available after a restart.
 * FEATURE-758: Due to the fact that more and more high DPI displays are used, we added a setting to change the icon size.

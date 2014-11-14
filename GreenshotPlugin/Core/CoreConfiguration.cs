@@ -410,8 +410,12 @@ namespace GreenshotPlugin.Core {
 			// CheckForUnstable = true;
 
 			if (string.IsNullOrEmpty(LastSaveWithVersion)) {
-				// Store version, this can be used later to fix settings after an update
-				LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+				try {
+					// Store version, this can be used later to fix settings after an update
+					LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+				} catch {
+
+				}
 				// Disable the AutoReduceColors as it causes issues with Mozzila applications and some others
 				OutputFileAutoReduceColors = false;
 			}

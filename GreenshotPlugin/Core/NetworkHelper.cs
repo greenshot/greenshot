@@ -336,6 +336,27 @@ namespace GreenshotPlugin.Core {
 
 			return responseData;
 		}
+
+		/// <summary>
+		/// Get LastModified for a URI
+		/// </summary>
+		/// <param name="uri">Uri</param>
+		/// <returns>DateTime</returns>
+		public static DateTime GetLastModified(Uri uri) {
+			HttpWebRequest webRequest;
+			try {
+				webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(uri);
+				webRequest.Method = "HEAD";
+				HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+				LOG.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
+				return webResponse.LastModified;
+			} catch (Exception wE) {
+				LOG.WarnFormat("Problem requesting HTTP - HEAD on uri {0}", uri);
+				LOG.Warn(wE.Message);
+				// Pretend it is old
+				return DateTime.MinValue;
+			}
+		}
 	}
 
 	/// <summary>

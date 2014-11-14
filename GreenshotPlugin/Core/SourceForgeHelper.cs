@@ -99,6 +99,16 @@ namespace GreenshotPlugin.Core {
 		private const String RSSFEED = "http://getgreenshot.org/project-feed/";
 
 		/// <summary>
+		/// This is using the HTTP HEAD Method to check if the RSS Feed is modified after the supplied date
+		/// </summary>
+		/// <param name="updateTime">DateTime</param>
+		/// <returns>true if the feed is newer</returns>
+		public static bool isRSSModifiedAfter(DateTime updateTime) {
+			DateTime lastModified = NetworkHelper.GetLastModified(new Uri(RSSFEED));
+			return updateTime.CompareTo(lastModified) < 0;
+		}
+
+		/// <summary>
 		/// Read the Greenshot RSS feed, so we can use this information to check for updates
 		/// </summary>
 		/// <returns>Dictionary<string, Dictionary<string, RssFile>> with files and their RssFile "description"</returns>
