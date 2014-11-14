@@ -25,6 +25,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Text;
 
 namespace Greenshot.Core {
 	/// <summary>
@@ -57,6 +58,16 @@ namespace Greenshot.Core {
 		}
 		public virtual Image Apply(Image sourceImage, Matrix matrix) {
 			return ImageHelper.CreateShadow(sourceImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
+		}
+
+		public override string ToString() {
+			StringBuilder sb = new StringBuilder();
+			sb.AppendFormat("Darkness:{0:F2}|ShadowSize:{1}|ShadowOffset:{2},{3}", Darkness, ShadowSize, ShadowOffset.X, ShadowOffset.Y);
+			return sb.ToString();
+		}
+
+		public void ApplySettings(string settings) {
+
 		}
 	}
 
@@ -101,6 +112,16 @@ namespace Greenshot.Core {
 				}
 			}
 			return tmpTornImage;
+		}
+
+		public override string ToString() {
+			StringBuilder sb = new StringBuilder();
+			sb.AppendFormat("{0}|GenerateShadow:{1}|ToothHeight:{2}|HorizontalToothRange:{3}|VerticalToothRange:{4}|Edges:{5},{6},{7},{8}", base.ToString(), GenerateShadow, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges[0], Edges[1], Edges[2], Edges[3]);
+			return sb.ToString();
+		}
+
+		public void ApplySettings(string settings) {
+			
 		}
 	}
 
