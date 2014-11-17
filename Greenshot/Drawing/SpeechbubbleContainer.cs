@@ -72,7 +72,7 @@ namespace Greenshot.Drawing {
 		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Blue);
-			AddField(GetType(), FieldType.SHADOW, false);
+			//AddField(GetType(), FieldType.SHADOW, false);
 			AddField(GetType(), FieldType.FONT_ITALIC, false);
 			AddField(GetType(), FieldType.FONT_BOLD, true);
 			AddField(GetType(), FieldType.FILL_COLOR, Color.White);
