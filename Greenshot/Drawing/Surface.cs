@@ -1235,14 +1235,25 @@ namespace Greenshot.Drawing {
 					//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 					//graphics.CompositingQuality = CompositingQuality.HighQuality;
 					//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+					DrawBackground(graphics, clipRectangle);
 					graphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 					graphics.SetClip(targetGraphics);
 					_elements.Draw(graphics, _buffer, RenderMode.EDIT, clipRectangle);
 				}
 				targetGraphics.DrawImage(_buffer, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 			} else {
+				DrawBackground(targetGraphics, clipRectangle);
 				targetGraphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 				_elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
+			}
+		}
+
+		private void DrawBackground(Graphics targetGraphics, Rectangle clipRectangle) {
+			// check if we need to draw the checkerboard
+			if (Image.IsAlphaPixelFormat(Image.PixelFormat) && _transparencyBackgroundBrush != null) {
+				targetGraphics.FillRectangle(_transparencyBackgroundBrush, clipRectangle);
+			} else {
+				targetGraphics.Clear(BackColor);
 			}
 		}
 		
@@ -1251,16 +1262,6 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="e">PaintEventArgs</param>
 		protected override void OnPaintBackground(PaintEventArgs e) {
-			// check if we need to draw the checkerboard
-			if (Image.IsAlphaPixelFormat(Image.PixelFormat) && _transparencyBackgroundBrush != null) {
-				Graphics targetGraphics = e.Graphics;
-				Rectangle clipRectangle = e.ClipRectangle;
-				targetGraphics.FillRectangle(_transparencyBackgroundBrush, clipRectangle);
-			} else {
-				Graphics targetGraphics = e.Graphics;
-				targetGraphics.Clear(BackColor);
-				//base.OnPaintBackground(e);
-			}
 		} 
 
 		/// <summary>
