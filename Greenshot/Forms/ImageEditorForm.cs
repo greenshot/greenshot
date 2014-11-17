@@ -1253,7 +1253,7 @@ namespace Greenshot {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) {
-			DropShadowEffect dropShadowEffect= new DropShadowEffect();
+			DropShadowEffect dropShadowEffect = editorConfiguration.DropShadowEffectSettings;
 			// TODO: Use the dropshadow settings form to make it possible to change the default values
 			DialogResult result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
 			if (result == DialogResult.OK) {
@@ -1283,7 +1283,7 @@ namespace Greenshot {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) {
-			TornEdgeEffect tornEdgeEffect = new TornEdgeEffect();
+			TornEdgeEffect tornEdgeEffect = editorConfiguration.TornEdgeEffectSettings;
 			// TODO: Use the dropshadow settings form to make it possible to change the default values
 			DialogResult result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
 			if (result == DialogResult.OK) {

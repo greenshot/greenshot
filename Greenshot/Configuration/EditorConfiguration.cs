@@ -25,6 +25,7 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.IniFile;
+using Greenshot.Core;
 
 namespace Greenshot.Configuration {
 	/// <summary>
@@ -56,6 +57,12 @@ namespace Greenshot.Configuration {
 		public int FreehandSensitivity;
 		[IniProperty("SuppressSaveDialogAtClose", Description="Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue="False")]
 		public bool SuppressSaveDialogAtClose;
+
+		[IniProperty("DropShadowEffectSettings", Description = "Settings for the drop shadow effect.")]
+		public DropShadowEffect DropShadowEffectSettings;
+
+		[IniProperty("TornEdgeEffectSettings", Description = "Settings for the torn edge effect.")]
+		public TornEdgeEffect TornEdgeEffectSettings;
 
 		public override void AfterLoad() {
 			base.AfterLoad();

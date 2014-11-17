@@ -31,6 +31,10 @@ namespace Greenshot.Forms {
 			this.effect = effect;
 			InitializeComponent();
 			this.Icon = GreenshotResources.getGreenshotIcon();
+			ShowSettings();
+		}
+
+		private void ShowSettings() {
 			shadowCheckbox.Checked = effect.GenerateShadow;
 			shadowDarkness.Value = (int)(effect.Darkness * 40);
 			offsetX.Value = effect.ShadowOffset.X;
@@ -44,7 +48,7 @@ namespace Greenshot.Forms {
 			left.Checked = effect.Edges[3];
 		}
 
-		private void buttonOK_Click(object sender, EventArgs e) {
+		private void ButtonOK_Click(object sender, EventArgs e) {
 			effect.Darkness = (float)shadowDarkness.Value / (float)40;
 			effect.ShadowOffset = new Point((int)offsetX.Value, (int)offsetY.Value);
 			effect.ShadowSize = (int)thickness.Value;
@@ -56,7 +60,12 @@ namespace Greenshot.Forms {
 			DialogResult = DialogResult.OK;
 		}
 
-		private void shadowCheckbox_CheckedChanged(object sender, EventArgs e) {
+		private void ButtonReset_Click(object sender, EventArgs e) {
+			effect.Reset();
+			ShowSettings();
+		}
+
+		private void ShadowCheckbox_CheckedChanged(object sender, EventArgs e) {
 			thickness.Enabled = shadowCheckbox.Checked;
 			offsetX.Enabled = shadowCheckbox.Checked;
 			offsetY.Enabled = shadowCheckbox.Checked;

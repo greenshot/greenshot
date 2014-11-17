@@ -305,7 +305,7 @@ namespace Greenshot.IniFile {
 					Value = defaultValueFromConfig;
 					return;
 				}
-			} else if (propertyValue != null) {
+			} else if (!string.IsNullOrEmpty(propertyValue)) {
 				if (valueType.IsGenericType && valueType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
 					// We are dealing with a generic type that is nullable
 					valueType = Nullable.GetUnderlyingType(valueType);
