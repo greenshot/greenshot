@@ -8,11 +8,13 @@ CHANGE LOG:
 @DETAILVERSION@
 
 Features:
+* Greenshot now stores the settings of the torn edge & drop shadow effects
 
 Changes:
+* Optimized Greenshots update check to use even less traffic by checking the time-stamp of the update feed before downloading it.
 
 Bugs Resolved:
-
+* BUG-1686: Issues with the background if a filter (highlight etc) is used.
 
 
 1.2.2.43-380f581 RC2 
