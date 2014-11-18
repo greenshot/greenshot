@@ -14,7 +14,8 @@ Changes:
 * Optimized Greenshots update check to use even less traffic by checking the time-stamp of the update feed before downloading it.
 
 Bugs Resolved:
-* BUG-1686: Issues with the background if a filter (highlight etc) is used.
+* BUG-1686: Shadow (drop shadow or torn edge) grows if a filter (highlight etc) is used and an element is moved around
+* BUG-1700: IE capture only works once
 
 
 1.2.2.43-380f581 RC2 

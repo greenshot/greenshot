@@ -330,11 +330,14 @@ namespace Greenshot.Helpers.IEInterop {
 		
 		public Color BackgroundColor {
 			get {
-				if (document2.bgColor != null) {
-					string bgColorString = (string)document2.bgColor;
-					int rgbInt = Int32.Parse(bgColorString.Substring(1), NumberStyles.HexNumber);
-					Color bgColor = Color.FromArgb(rgbInt >> 16, (rgbInt >> 8) & 255, rgbInt & 255);
-					return bgColor;
+				try {
+					string bgColor = (string)document2.bgColor;
+					if (bgColor != null) {
+						int rgbInt = Int32.Parse(bgColor.Substring(1), NumberStyles.HexNumber);
+						return Color.FromArgb(rgbInt >> 16, (rgbInt >> 8) & 255, rgbInt & 255);
+					}
+				} catch (Exception ex) {
+					LOG.Error("Problem retrieving the background color: ", ex);
 				}
 				return Color.White;
 			}

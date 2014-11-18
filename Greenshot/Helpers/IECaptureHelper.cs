@@ -43,7 +43,7 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public static class IECaptureHelper {
 		private static ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
-		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex) {
@@ -96,7 +96,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Get Windows displaying an IE
 		/// </summary>
-		/// <returns>List<WindowDetails></returns>
+		/// <returns>IEnumerable WindowDetails</returns>
 		public static IEnumerable<WindowDetails> GetIEWindows() {
 			foreach (WindowDetails possibleIEWindow in WindowDetails.GetAllWindows()) {
 				if (possibleIEWindow.Text.Length == 0) {
@@ -369,9 +369,8 @@ namespace Greenshot.Helpers {
 
 				// bitmap to return
 				Bitmap returnBitmap = null;
-				Size pageSize = Size.Empty;
 				try {
-					pageSize = PrepareCapture(documentContainer, capture);
+					Size pageSize = PrepareCapture(documentContainer, capture);
 					returnBitmap = capturePage(documentContainer, capture, pageSize);
 				} catch (Exception captureException) {
 					LOG.Error("Exception found, ignoring and returning nothing! Error was: ", captureException);
