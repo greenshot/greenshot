@@ -945,13 +945,15 @@ namespace Greenshot.Helpers {
 
 		#region capture with feedback
 		private void CaptureWithFeedback() {
+			// The following, to be precise the HideApp, causes the app to close as described in BUG-1620 
 			// Added check for metro (Modern UI) apps, which might be maximized and cover the screen.
-			// as they don't want to 
+			
 			foreach(WindowDetails app in WindowDetails.GetMetroApps()) {
-				if (app.Maximised) {
-					app.HideApp();
-				}
-			}
+			//	if (app.Maximised) {
+			//		app.HideApp();
+			//	}
+			//}
+
 			using (CaptureForm captureForm = new CaptureForm(_capture, _windows)) {
 				DialogResult result = captureForm.ShowDialog();
 				if (result == DialogResult.OK) {
