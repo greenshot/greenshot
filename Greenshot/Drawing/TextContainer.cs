@@ -154,8 +154,11 @@ namespace Greenshot.Drawing {
 			if (e.PropertyName.Equals("Selected")) {
 				if (!Selected && _textBox.Visible) {
 					HideTextBox();
-				} else if (Selected && Status==EditStatus.DRAWING) {
+				} else if (Selected && Status == EditStatus.DRAWING) {
 					ShowTextBox();
+				} else if (Selected && Status == EditStatus.IDLE && _textBox.Visible) {
+					// Fix (workaround) for BUG-1698
+					_parent.KeysLocked = true;
 				}
 			}
 			if (_textBox.Visible) {
@@ -184,7 +187,7 @@ namespace Greenshot.Drawing {
 		
 		private void CreateTextBox() {
 			_textBox = new TextBox();
-            
+
 			_textBox.ImeMode = ImeMode.On;
 			_textBox.Multiline = true;
 			_textBox.AcceptsTab = true;
@@ -199,22 +202,22 @@ namespace Greenshot.Drawing {
 		private void ShowTextBox() {
 			_parent.KeysLocked = true;
 			_parent.Controls.Add(_textBox);
-            EnsureTextBoxContrast();
+			EnsureTextBoxContrast();
 			_textBox.Show();
 			_textBox.Focus();
 		}
 
-        /// <summary>
-        /// Makes textbox background dark if text color is very bright
-        /// </summary>
-        private void EnsureTextBoxContrast() {
-            Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
-            if (lc.R > 203 && lc.G > 203 && lc.B > 203) {
-                _textBox.BackColor = Color.FromArgb(51, 51, 51);
-            } else {
-                _textBox.BackColor = Color.White;
-            }
-        }
+		/// <summary>
+		/// Makes textbox background dark if text color is very bright
+		/// </summary>
+		private void EnsureTextBoxContrast() {
+			Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			if (lc.R > 203 && lc.G > 203 && lc.B > 203) {
+				_textBox.BackColor = Color.FromArgb(51, 51, 51);
+			} else {
+				_textBox.BackColor = Color.White;
+			}
+		}
 		
 		private void HideTextBox() {
 			_parent.Focus();

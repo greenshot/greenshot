@@ -15,6 +15,7 @@ Changes:
 
 Bugs Resolved:
 * BUG-1686: Shadow (drop shadow or torn edge) grows if a filter (highlight etc) is used and an element is moved around
+* BUG-1698: Cannot enter textbox/Speechbubble lowercase text after changing font family
 * BUG-1700: IE capture only works once
 
 
