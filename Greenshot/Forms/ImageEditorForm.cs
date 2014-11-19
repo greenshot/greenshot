@@ -193,7 +193,31 @@ namespace Greenshot {
 
 			ApplyLanguage();
 		}
-		
+
+		/// <summary>
+		/// Workaround for having a border around the dropdown
+		/// See: http://stackoverflow.com/questions/9560812/change-border-of-toolstripcombobox-with-flat-style
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void propertiesToolStrip_Paint(object sender, PaintEventArgs e) {
+			using (Pen cbBorderPen = new Pen(SystemColors.ActiveBorder)) {
+				// Loop over all items in the propertiesToolStrip
+				foreach (ToolStripItem item in propertiesToolStrip.Items) {
+					ToolStripComboBox cb = item as ToolStripComboBox;
+					// Only ToolStripComboBox that are visible
+					if (cb == null || !cb.Visible) {
+						continue;
+					}
+					// Calculate the rectangle
+					Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
+
+					// Draw the rectangle
+					e.Graphics.DrawRectangle(cbBorderPen, r);
+				}
+			}
+		}
+
 		/// <summary>
 		/// Get all the destinations and display them in the file menu and the buttons
 		/// </summary>

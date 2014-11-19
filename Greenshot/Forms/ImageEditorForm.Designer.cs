@@ -1045,13 +1045,14 @@ namespace Greenshot {
 									this.toolStripSeparator10,
 									this.btnConfirm,
 									this.btnCancel});
-			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(0, coreConfiguration.IconSize.Height + 8);
+			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.IconSize.Height + 9);
 			this.propertiesToolStrip.Name = "propertiesToolStrip";
 			this.propertiesToolStrip.Stretch = true;
 			this.propertiesToolStrip.TabIndex = 2;
 			this.propertiesToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
 			this.propertiesToolStrip.BackColor = System.Drawing.SystemColors.Control;
 			this.propertiesToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
+			this.propertiesToolStrip.Paint += propertiesToolStrip_Paint;
 			// 
 			// obfuscateModeButton
 			// 
@@ -1177,9 +1178,10 @@ namespace Greenshot {
 			// fontFamilyComboBox
 			// 
 			this.fontFamilyComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.fontFamilyComboBox.AutoSize = false;
 			this.fontFamilyComboBox.MaxDropDownItems = 20;
 			this.fontFamilyComboBox.Name = "fontFamilyComboBox";
-			this.fontFamilyComboBox.Size = new System.Drawing.Size(200, 23);
+			this.fontFamilyComboBox.Size = new System.Drawing.Size(200, 20);
 			this.fontFamilyComboBox.Text = "Aharoni";
 			this.fontFamilyComboBox.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.fontFamilyComboBox.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
