@@ -42,6 +42,7 @@ namespace Greenshot.Forms {
 			trackBar1.Value = (int)(effect.Darkness * 40);
 			offsetX.Value = effect.ShadowOffset.X;
 			offsetY.Value = effect.ShadowOffset.Y;
+			thickness.Value = effect.ShadowSize;
 		}
 
 		private void ButtonOK_Click(object sender, EventArgs e) {
