@@ -293,10 +293,11 @@ All Greenshot features still work directly from the tray icon context menu witho
     <resource name="editor_tornedge_settings">Torn edges settings</resource>
     <resource name="editor_tornedge_toothsize">Tooth size</resource>
     <resource name="editor_tornedge_verticaltoothrange">Vertical tooth range</resource>
-    <resource name="editor_tornedge_left">Tear left side</resource>
-    <resource name="editor_tornedge_right">Tear right side</resource>
-    <resource name="editor_tornedge_top">Tear top side</resource>
-    <resource name="editor_tornedge_bottom">Tear bottom side</resource>
+    <resource name="editor_tornedge_all">Tear all sides</resource>
+    <resource name="editor_tornedge_left">Left side</resource>
+    <resource name="editor_tornedge_right">Right side</resource>
+    <resource name="editor_tornedge_top">Top side</resource>
+    <resource name="editor_tornedge_bottom">Bottom side</resource>
     <resource name="editor_tornedge_shadow">Generate shadow</resource>
     
     <resource name="editor_counter">Add counter (I)</resource>

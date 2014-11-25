@@ -296,10 +296,11 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 		<resource name="editor_tornedge_settings">Einstellungen für gerissene Kanten</resource>
 		<resource name="editor_tornedge_toothsize">Zahngröße</resource>
 		<resource name="editor_tornedge_verticaltoothrange">Vertikaler Zahnabstand</resource>
-		<resource name="editor_tornedge_left">Linke Seite einreißen</resource>
-		<resource name="editor_tornedge_right">Rechte Seite einreißen</resource>
-		<resource name="editor_tornedge_top">Obere Seite einreißen</resource>
-		<resource name="editor_tornedge_bottom">Untere Seite einreißen</resource>
+		<resource name="editor_tornedge_all">Alle Seiten einreißen</resource>
+		<resource name="editor_tornedge_left">Linke Seite</resource>
+		<resource name="editor_tornedge_right">Rechte Seite</resource>
+		<resource name="editor_tornedge_top">Obere Seite</resource>
+		<resource name="editor_tornedge_bottom">Untere Seite</resource>
 		<resource name="editor_tornedge_shadow">Schatten erstellen</resource>
 
 		<resource name="editor_counter">Zähler hinzufügen (I)</resource>

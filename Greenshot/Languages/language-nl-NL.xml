@@ -266,10 +266,11 @@ Alle Greenshot functies werken ook over het context menu.</resource>
 		<resource name="editor_tornedge_settings">Gescheurde kanten</resource>
 		<resource name="editor_tornedge_toothsize">Tand grootte</resource>
 		<resource name="editor_tornedge_verticaltoothrange">Vertikale tand afstand</resource>
-		<resource name="editor_tornedge_left">Linkerkant scheuren</resource>
-		<resource name="editor_tornedge_right">Rechterkant scheuren</resource>
-		<resource name="editor_tornedge_top">Bovenkant scheuren</resource>
-		<resource name="editor_tornedge_bottom">Onderkant scheuern</resource>
+		<resource name="editor_tornedge_all">Alle kanten</resource>
+		<resource name="editor_tornedge_left">Linkerkant</resource>
+		<resource name="editor_tornedge_right">Rechterkant</resource>
+		<resource name="editor_tornedge_top">Bovenkant</resource>
+		<resource name="editor_tornedge_bottom">Onderkant</resource>
 		<resource name="editor_tornedge_shadow">Schaduw</resource>
 
 		<resource name="editor_counter">Teller toevoegen (I)</resource>
