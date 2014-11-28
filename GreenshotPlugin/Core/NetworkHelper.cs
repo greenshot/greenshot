@@ -49,12 +49,12 @@ namespace GreenshotPlugin.Core {
 			};
 		}
 		/// <summary>
-		/// Download a url response as string
+		/// Download a uri response as string
 		/// </summary>
-		/// <param name=url">An Uri to specify the download location</param>
+		/// <param name="uri">An Uri to specify the download location</param>
 		/// <returns>string with the file content</returns>
-		public static string GetAsString(Uri url) {
-			HttpWebRequest webRequest = (HttpWebRequest)CreateWebRequest(url);
+		public static string GetAsString(Uri uri) {
+			HttpWebRequest webRequest = (HttpWebRequest)CreateWebRequest(uri);
 			webRequest.Method = "GET";
 			webRequest.KeepAlive = true;
 			webRequest.Credentials = CredentialCache.DefaultCredentials;
@@ -84,7 +84,7 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Download the url to Bitmap
+		/// Download the uri to Bitmap
 		/// </summary>
 		/// <param name="baseUri"></param>
 		/// <returns>Bitmap</returns>
@@ -212,7 +212,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Dictionary<string, string></returns>
 		public static IDictionary<string, string> ParseQueryString(string s) {
 			IDictionary<string, string> parameters = new SortedDictionary<string, string>();
-			// remove anything other than query string from url
+			// remove anything other than query string from uri
 			if (s.Contains("?")) {
 				s = s.Substring(s.IndexOf('?') + 1);
 			}
@@ -318,18 +318,30 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="webRequest">The request object.</param>
 		/// <returns>The response data.</returns>
+		/// TODO: This method should handle the StatusCode better!
 		public static string GetResponse(HttpWebRequest webRequest) {
-			string responseData;
+			string responseData = null;
 			try {
 				HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-				using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
-					responseData = reader.ReadToEnd();
+				LOG.InfoFormat("Response status: {0}", response.StatusCode);
+				bool isHttpError = (int) response.StatusCode >= 300;
+				Stream responseStream = response.GetResponseStream();
+				if (responseStream != null) {
+					using (StreamReader reader = new StreamReader(responseStream, true)) {
+						responseData = reader.ReadToEnd();
+					}
+					if (isHttpError) {
+						LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, responseData);
+					}
 				}
-				LOG.DebugFormat("Response status: {0}", response.StatusCode);
 			} catch (WebException e) {
 				HttpWebResponse response = (HttpWebResponse)e.Response;
 				using (Stream responseStream = response.GetResponseStream()) {
-					LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, new StreamReader(responseStream, true).ReadToEnd());
+					if (responseStream != null) {
+						LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, new StreamReader(responseStream, true).ReadToEnd());
+					} else {
+						LOG.ErrorFormat("HTTP error {0}", response.StatusCode);
+					}
 				}
 				throw;
 			}

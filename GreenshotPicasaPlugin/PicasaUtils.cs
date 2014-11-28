@@ -30,8 +30,9 @@ namespace GreenshotPicasaPlugin {
 	/// Description of PicasaUtils.
 	/// </summary>
 	public class PicasaUtils {
+		private const string GoogleAccountUri = "https://www.google.com/accounts/";
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaUtils));
-		private static PicasaConfiguration config = IniConfig.GetIniSection<PicasaConfiguration>();
+		private static readonly PicasaConfiguration Config = IniConfig.GetIniSection<PicasaConfiguration>();
 
 		private PicasaUtils() {
 		}
@@ -39,17 +40,20 @@ namespace GreenshotPicasaPlugin {
 		/// <summary>
 		/// Do the actual upload to Picasa
 		/// </summary>
-		/// <param name="imageData">byte[] with image data</param>
+		/// <param name="surfaceToUpload">Image to upload</param>
+		/// <param name="outputSettings"></param>
+		/// <param name="title"></param>
+		/// <param name="filename"></param>
 		/// <returns>PicasaResponse</returns>
 		public static string UploadToPicasa(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
 			OAuthSession oAuth = new OAuthSession(PicasaCredentials.ConsumerKey, PicasaCredentials.ConsumerSecret);
 			oAuth.BrowserSize = new Size(1020, 590);
-			oAuth.AccessTokenUrl =  "https://www.google.com/accounts/OAuthGetAccessToken";
-			oAuth.AuthorizeUrl =	"https://www.google.com/accounts/OAuthAuthorizeToken";
-			oAuth.RequestTokenUrl = "https://www.google.com/accounts/OAuthGetRequestToken";
+			oAuth.AccessTokenUrl =  GoogleAccountUri + "OAuthGetAccessToken";
+			oAuth.AuthorizeUrl =	GoogleAccountUri + "OAuthAuthorizeToken";
+			oAuth.RequestTokenUrl = GoogleAccountUri + "OAuthGetRequestToken";
 			oAuth.LoginTitle = "Picasa authorization";
-			oAuth.Token = config.PicasaToken;
-			oAuth.TokenSecret = config.PicasaTokenSecret;
+			oAuth.Token = Config.PicasaToken;
+			oAuth.TokenSecret = Config.PicasaTokenSecret;
 			oAuth.RequestTokenParameters.Add("scope", "https://picasaweb.google.com/data/");
 			oAuth.RequestTokenParameters.Add("xoauth_displayname", "Greenshot");
 			if (string.IsNullOrEmpty(oAuth.Token)) {
@@ -57,10 +61,10 @@ namespace GreenshotPicasaPlugin {
 					return null;
 				}
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
-					config.PicasaToken = oAuth.Token;
+					Config.PicasaToken = oAuth.Token;
 				}
 				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
-					config.PicasaTokenSecret = oAuth.TokenSecret;
+					Config.PicasaTokenSecret = oAuth.TokenSecret;
 				}
 				IniConfig.Save();
 			}
@@ -74,10 +78,10 @@ namespace GreenshotPicasaPlugin {
 				throw;
 			} finally {
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
-					config.PicasaToken = oAuth.Token;
+					Config.PicasaToken = oAuth.Token;
 				}
 				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
-					config.PicasaTokenSecret = oAuth.TokenSecret;
+					Config.PicasaTokenSecret = oAuth.TokenSecret;
 				}
 			}
 		}
@@ -93,13 +97,14 @@ namespace GreenshotPicasaPlugin {
 				if(nodes.Count > 0) {
 					string url = null;
 					foreach(XmlNode node in nodes) {
-						url = node.Attributes["href"].Value;
-						string rel = node.Attributes["rel"].Value;
-						// Pictures with rel="http://schemas.google.com/photos/2007#canonical" are the direct link
-						if (rel != null && rel.EndsWith("canonical")) {
-							break;
+						if (node.Attributes != null) {
+							url = node.Attributes["href"].Value;
+							string rel = node.Attributes["rel"].Value;
+							// Pictures with rel="http://schemas.google.com/photos/2007#canonical" are the direct link
+							if (rel != null && rel.EndsWith("canonical")) {
+								break;
+							}
 						}
-						
 					}
 					return url;
 				}

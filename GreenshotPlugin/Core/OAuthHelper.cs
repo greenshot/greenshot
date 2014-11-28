@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -72,14 +73,14 @@ namespace GreenshotPlugin.Core {
 
 		private string _userAgent = "Greenshot";
 		private string _callbackUrl = "http://getgreenshot.org";
-		private bool checkVerifier = true;
-		private bool useHTTPHeadersForAuthorization = true;
-		private IDictionary<string, string> accessTokenResponseParameters = null;
-		private IDictionary<string, string> requestTokenResponseParameters = null;
-		private IDictionary<string, object> requestTokenParameters = new Dictionary<string, object>();
+		private bool _checkVerifier = true;
+		private bool _useHttpHeadersForAuthorization = true;
+		private IDictionary<string, string> _accessTokenResponseParameters;
+		private IDictionary<string, string> _requestTokenResponseParameters;
+		private readonly IDictionary<string, object> _requestTokenParameters = new Dictionary<string, object>();
 		
 		public IDictionary<string, object> RequestTokenParameters {
-			get { return requestTokenParameters; }
+			get { return _requestTokenParameters; }
 		}
 
 		/// <summary>
@@ -87,7 +88,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public IDictionary<string, string> AccessTokenResponseParameters {
 			get {
-				return accessTokenResponseParameters;
+				return _accessTokenResponseParameters;
 			}
 		}
 		/// <summary>
@@ -95,15 +96,15 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public IDictionary<string, string> RequestTokenResponseParameters {
 			get {
-				return requestTokenResponseParameters;
+				return _requestTokenResponseParameters;
 			}
 		}
-		private string consumerKey;
-		private string consumerSecret;
+		private readonly string _consumerKey;
+		private readonly string _consumerSecret;
 
 		// default browser size
 		private Size _browserSize = new Size(864, 587);
-		private string loginTitle = "Authorize Greenshot access";
+		private string _loginTitle = "Authorize Greenshot access";
 
 		#region PublicProperties
 		public HTTPMethod RequestTokenMethod {
@@ -162,10 +163,10 @@ namespace GreenshotPlugin.Core {
 		}
 		public bool CheckVerifier {
 			get {
-				return checkVerifier;
+				return _checkVerifier;
 			}
 			set {
-				checkVerifier = value;
+				_checkVerifier = value;
 			}
 		}
 
@@ -180,18 +181,18 @@ namespace GreenshotPlugin.Core {
 
 		public string LoginTitle {
 			get {
-				return loginTitle;
+				return _loginTitle;
 			}
 			set {
-				loginTitle = value;
+				_loginTitle = value;
 			}
 		}
 		public bool UseHTTPHeadersForAuthorization {
 			get {
-				return useHTTPHeadersForAuthorization;
+				return _useHttpHeadersForAuthorization;
 			}
 			set {
-				useHTTPHeadersForAuthorization = value;
+				_useHttpHeadersForAuthorization = value;
 			}
 		}
 
@@ -208,8 +209,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="consumerKey">"Public" key for the encoding. When using RSASHA1 this is the path to the private key file</param>
 		/// <param name="consumerSecret">"Private" key for the encoding. when usin RSASHA1 this is the password for the private key file</param>
 		public OAuthSession(string consumerKey, string consumerSecret) {
-			this.consumerKey = consumerKey;
-			this.consumerSecret = consumerSecret;
+			_consumerKey = consumerKey;
+			_consumerSecret = consumerSecret;
 			UseMultipartFormData = true;
 			RequestTokenMethod = HTTPMethod.GET;
 			AccessTokenMethod = HTTPMethod.GET;
@@ -307,66 +308,63 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the request token using the consumer key and secret.  Also initializes tokensecret
 		/// </summary>
-		/// <returns>The request token.</returns>
-		private String getRequestToken() {
-			string ret = null;
+		private void GetRequestToken() {
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
-			foreach(var value in requestTokenParameters) {
+			foreach(var value in _requestTokenParameters) {
 				parameters.Add(value);
 			}
 			Sign(RequestTokenMethod, RequestTokenUrl, parameters);
 			string response = MakeRequest(RequestTokenMethod, RequestTokenUrl, null, parameters, null);
-			if (response != null && response.Length > 0) {
+			if (!string.IsNullOrEmpty(response)) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Request token response: {0}", response);
-				requestTokenResponseParameters = NetworkHelper.ParseQueryString(response);
-				if (requestTokenResponseParameters.ContainsKey(OAUTH_TOKEN_KEY)) {
-					Token = requestTokenResponseParameters[OAUTH_TOKEN_KEY];
-					TokenSecret = requestTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
-					ret = Token;
+				_requestTokenResponseParameters = NetworkHelper.ParseQueryString(response);
+				string value;
+				if (_requestTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out value)) {
+					Token = value;
+					TokenSecret = _requestTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
 				}
 			}
-			return ret;
 		}
 
 		/// <summary>
 		/// Authorize the token by showing the dialog
 		/// </summary>
 		/// <returns>The request token.</returns>
-		private String getAuthorizeToken() {
+		private String GetAuthorizeToken() {
 			if (string.IsNullOrEmpty(Token)) {
 				Exception e = new Exception("The request token is not set");
 				throw e;
 			}
-			LOG.DebugFormat("Opening AuthorizationLink: {0}", authorizationLink);
-			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, authorizationLink, CallbackUrl);
+			LOG.DebugFormat("Opening AuthorizationLink: {0}", AuthorizationLink);
+			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
 			oAuthLoginForm.ShowDialog();
 			if (oAuthLoginForm.isOk) {
 				if (oAuthLoginForm.CallbackParameters != null) {
-					if (oAuthLoginForm.CallbackParameters.ContainsKey(OAUTH_TOKEN_KEY)) {
-						Token = oAuthLoginForm.CallbackParameters[OAUTH_TOKEN_KEY];
+					string tokenValue;
+					if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue)) {
+						Token = tokenValue;
 					}
-					if (oAuthLoginForm.CallbackParameters.ContainsKey(OAUTH_VERIFIER_KEY)) {
-						Verifier = oAuthLoginForm.CallbackParameters[OAUTH_VERIFIER_KEY];
+					string verifierValue;
+					if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_VERIFIER_KEY, out verifierValue)) {
+						Verifier = verifierValue;
 					}
 				}
 			}
 			if (CheckVerifier) {
 				if (!string.IsNullOrEmpty(Verifier)) {
 					return Token;
-				} else {
-					return null;
 				}
-			} else {
-				return Token;
+				return null;
 			}
+			return Token;
 		}
 
 		/// <summary>
 		/// Get the access token
 		/// </summary>
 		/// <returns>The access token.</returns>		
-		private String getAccessToken() {
+		private String GetAccessToken() {
 			if (string.IsNullOrEmpty(Token) || (CheckVerifier && string.IsNullOrEmpty(Verifier))) {
 				Exception e = new Exception("The request token and verifier were not set");
 				throw e;
@@ -375,15 +373,17 @@ namespace GreenshotPlugin.Core {
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
 			Sign(AccessTokenMethod, AccessTokenUrl, parameters);
 			string response = MakeRequest(AccessTokenMethod, AccessTokenUrl, null, parameters, null);
-			if (response != null && response.Length > 0) {
+			if (!string.IsNullOrEmpty(response)) {
 				response = NetworkHelper.UrlDecode(response);
 				LOG.DebugFormat("Access token response: {0}", response);
-				accessTokenResponseParameters = NetworkHelper.ParseQueryString(response);
-				if (accessTokenResponseParameters.ContainsKey(OAUTH_TOKEN_KEY) && accessTokenResponseParameters[OAUTH_TOKEN_KEY] != null) {
-					Token = accessTokenResponseParameters[OAUTH_TOKEN_KEY];
+				_accessTokenResponseParameters = NetworkHelper.ParseQueryString(response);
+				string tokenValue;
+				if (_accessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue) && tokenValue != null) {
+					Token = tokenValue;
 				}
-				if (accessTokenResponseParameters.ContainsKey(OAUTH_TOKEN_SECRET_KEY) && accessTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY] != null) {
-					TokenSecret = accessTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
+				string secretValue;
+				if (_accessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_SECRET_KEY, out secretValue) && secretValue != null) {
+					TokenSecret = secretValue;
 				}
 			}
 
@@ -400,18 +400,18 @@ namespace GreenshotPlugin.Core {
 			Verifier = null;
 			LOG.Debug("Creating Token");
 			try {
-				getRequestToken();
+				GetRequestToken();
 			} catch (Exception ex) {
 				LOG.Error(ex);
 				throw new NotSupportedException("Service is not available: " + ex.Message);
 			}
-			if (string.IsNullOrEmpty(getAuthorizeToken())) {
+			if (string.IsNullOrEmpty(GetAuthorizeToken())) {
 				LOG.Debug("User didn't authenticate!");
 				return false;
 			}
 			try {
 				Thread.Sleep(1000);
-				return getAccessToken() != null;
+				return GetAccessToken() != null;
 			} catch (Exception ex) {
 				LOG.Error(ex);
 				throw;
@@ -422,7 +422,7 @@ namespace GreenshotPlugin.Core {
 		/// Get the link to the authorization page for this application.
 		/// </summary>
 		/// <returns>The url with a valid request token, or a null string.</returns>
-		private string authorizationLink {
+		private string AuthorizationLink {
 			get {
 				return AuthorizeUrl + "?" + OAUTH_TOKEN_KEY + "=" + Token + "&" + OAUTH_CALLBACK_KEY + "=" + UrlEncode3986(CallbackUrl);
 			}
@@ -578,8 +578,8 @@ namespace GreenshotPlugin.Core {
 					parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, HMACSHA1SignatureType);
 					break;
 			}
-			parameters.Add(OAUTH_CONSUMER_KEY_KEY, consumerKey);
-			if (CallbackUrl != null && RequestTokenUrl != null && requestURL.ToString().StartsWith(RequestTokenUrl)) {
+			parameters.Add(OAUTH_CONSUMER_KEY_KEY, _consumerKey);
+			if (CallbackUrl != null && RequestTokenUrl != null && requestURL.StartsWith(RequestTokenUrl)) {
 				parameters.Add(OAUTH_CALLBACK_KEY, CallbackUrl);
 			}
 			if (!string.IsNullOrEmpty(Verifier)) {
@@ -590,13 +590,13 @@ namespace GreenshotPlugin.Core {
 			}
 			signatureBase.Append(UrlEncode3986(GenerateNormalizedParametersString(parameters)));
 			LOG.DebugFormat("Signature base: {0}", signatureBase);
-			string key = string.Format(CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret));
+			string key = string.Format(CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(_consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret));
 			switch (SignatureType) {
 				case OAuthSignatureTypes.RSASHA1:
 					// Code comes from here: http://www.dotnetfunda.com/articles/article1932-rest-service-call-using-oauth-10-authorization-with-rsa-sha1.aspx
 					// Read the .P12 file to read Private/Public key Certificate
-					string certFilePath = consumerKey; // The .P12 certificate file path Example: "C:/mycertificate/MCOpenAPI.p12
-					string password = consumerSecret; // password to read certificate .p12 file
+					string certFilePath = _consumerKey; // The .P12 certificate file path Example: "C:/mycertificate/MCOpenAPI.p12
+					string password = _consumerSecret; // password to read certificate .p12 file
 					// Read the Certification from .P12 file.
 					X509Certificate2 cert = new X509Certificate2(certFilePath.ToString(), password);
 					// Retrieve the Private key from Certificate.
@@ -644,7 +644,7 @@ namespace GreenshotPlugin.Core {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
-			IDictionary<string, object> requestParameters = null;
+			IDictionary<string, object> requestParameters;
 			// Add oAuth values as HTTP headers, if this is allowed
 			StringBuilder authHeader = null;
 			if (UseHTTPHeadersForAuthorization) {
@@ -679,8 +679,8 @@ namespace GreenshotPlugin.Core {
 			webRequest.Timeout = 20000;
 
 			if (UseHTTPHeadersForAuthorization && authHeader != null) {
-				LOG.DebugFormat("Authorization: OAuth {0}", authHeader.ToString());
-				webRequest.Headers.Add("Authorization: OAuth " + authHeader.ToString());
+				LOG.DebugFormat("Authorization: OAuth {0}", authHeader);
+				webRequest.Headers.Add("Authorization: OAuth " + authHeader);
 			}
 
 			if (headers != null) {
@@ -689,7 +689,7 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 
-			if ((HTTPMethod.POST == method || HTTPMethod.PUT == method) && postData == null && requestParameters != null && requestParameters.Count > 0) {
+			if ((HTTPMethod.POST == method || HTTPMethod.PUT == method) && postData == null && requestParameters.Count > 0) {
 				if (UseMultipartFormData) {
 					NetworkHelper.WriteMultipartFormData(webRequest, requestParameters);
 				} else {
@@ -718,7 +718,7 @@ namespace GreenshotPlugin.Core {
 				webRequest.ContentLength = 0;
 			}
 
-			string responseData = null;
+			string responseData;
 			try {
 				responseData = NetworkHelper.GetResponse(webRequest);
 				LOG.DebugFormat("Response: {0}", responseData);
