@@ -363,9 +363,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="uri">Uri</param>
 		/// <returns>DateTime</returns>
 		public static DateTime GetLastModified(Uri uri) {
-			HttpWebRequest webRequest;
 			try {
-				webRequest = (HttpWebRequest)CreateWebRequest(uri);
+				HttpWebRequest webRequest = CreateWebRequest(uri);
 				webRequest.Method = "HEAD";
 				HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
 				LOG.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
