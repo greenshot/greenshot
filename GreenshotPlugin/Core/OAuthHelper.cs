@@ -672,11 +672,11 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 			// Create webrequest
-			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(requestURL);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(requestURL);
 			webRequest.Method = method.ToString();
 			webRequest.ServicePoint.Expect100Continue = false;
 			webRequest.UserAgent = _userAgent;
-			webRequest.Timeout = 20000;
+			webRequest.Timeout = 100000;
 
 			if (UseHTTPHeadersForAuthorization && authHeader != null) {
 				LOG.DebugFormat("Authorization: OAuth {0}", authHeader);
