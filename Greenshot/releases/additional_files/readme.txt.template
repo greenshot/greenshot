@@ -9,6 +9,7 @@ CHANGE LOG:
 
 Features:
 * Greenshot now stores the settings of the torn edge & drop shadow effects
+* FEATURE-776: Improvement of the torn edge settings dialog
 
 Changes:
 * Optimized Greenshots update check to use even less traffic by checking the time-stamp of the update feed before downloading it.
