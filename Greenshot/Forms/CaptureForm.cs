@@ -688,6 +688,9 @@ namespace Greenshot.Forms {
 				// Horizontal middle + 1 to right
 				graphics.DrawRectangle(pen, destinationRectangle.X + halfWidthEnd + 2 * padding, drawAtHeight, halfWidthEnd - 2 * padding - 1, pixelThickness);
 			}
+			if (attributes != null) {
+				attributes.Dispose();
+			}
 		}
 
 		/// <summary>
