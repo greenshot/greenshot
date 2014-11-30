@@ -222,11 +222,11 @@ namespace Greenshot.Drawing {
 
 		[NonSerialized]
 		// will store current bounds of this DrawableContainer before starting a resize
-		private Rectangle _boundsBeforeResize = Rectangle.Empty;
+		protected Rectangle _boundsBeforeResize = Rectangle.Empty;
 		
 		[NonSerialized]
 		// "workbench" rectangle - used for calculating bounds during resizing (to be applied to this DrawableContainer afterwards)
-		private RectangleF _boundsAfterResize = RectangleF.Empty;
+		protected RectangleF _boundsAfterResize = RectangleF.Empty;
 		
 		public Rectangle Bounds {
 			get { return GuiRectangle.GetGuiRectangle(Left, Top, Width, Height); }
@@ -449,6 +449,7 @@ namespace Greenshot.Drawing {
 		}
 		
 		private void GripperMouseMove(object sender, MouseEventArgs e) {
+			Invalidate();
 			Gripper originatingGripper = (Gripper)sender;
 			int absX = originatingGripper.Left + e.X;
 			int absY = originatingGripper.Top + e.Y;
@@ -463,7 +464,6 @@ namespace Greenshot.Drawing {
 					MakeBoundsChangeUndoable(false);
 				}
 				
-				Invalidate();
 				SuspendLayout();
 				
 				// reset "workbench" rectangle to current bounds
@@ -479,8 +479,8 @@ namespace Greenshot.Drawing {
 				ApplyBounds(_boundsAfterResize);
 	            
 				ResumeLayout();
-				Invalidate();
 			}
+			Invalidate();
 		}
 				
 		public bool hasFilters {

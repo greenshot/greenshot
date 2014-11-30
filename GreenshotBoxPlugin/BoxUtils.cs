@@ -71,7 +71,7 @@ namespace GreenshotBoxPlugin {
 		/// <param name="postMessage"></param>
 		/// <returns>string with the file content</returns>
 		public static string PostAndReturn(Uri url, string postMessage) {
-			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url);
 			webRequest.Method = "POST";
 			webRequest.KeepAlive = true;
 			webRequest.Credentials = CredentialCache.DefaultCredentials;

@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
-using log4net;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -32,7 +32,6 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class RectangleContainer : DrawableContainer {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(RectangleContainer));
 
 		public RectangleContainer(Surface parent) : base(parent) {
 		}

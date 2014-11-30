@@ -22,10 +22,9 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Drawing
-{
+namespace Greenshot.Drawing {
 	/// <summary>
-	/// Description of Gripper.
+	/// Grippers are the dragable edges of our containers
 	/// </summary>
 	public class Gripper : Label {
 		/// <summary>
@@ -34,38 +33,24 @@ namespace Greenshot.Drawing
 		/// 7   3
 		/// 6 5 4
 		/// </summary>
-		public const int POSITION_TOP_LEFT      = 0;
-		public const int POSITION_TOP_CENTER    = 1;
-		public const int POSITION_TOP_RIGHT     = 2;
-		public const int POSITION_MIDDLE_RIGHT  = 3;
-		public const int POSITION_BOTTOM_RIGHT  = 4;
+		public const int POSITION_TOP_LEFT = 0;
+		public const int POSITION_TOP_CENTER = 1;
+		public const int POSITION_TOP_RIGHT = 2;
+		public const int POSITION_MIDDLE_RIGHT = 3;
+		public const int POSITION_BOTTOM_RIGHT = 4;
 		public const int POSITION_BOTTOM_CENTER = 5;
-		public const int POSITION_BOTTOM_LEFT   = 6;
-		public const int POSITION_MIDDLE_LEFT   = 7;
-		
-		public int Position;
-		
+		public const int POSITION_BOTTOM_LEFT = 6;
+		public const int POSITION_MIDDLE_LEFT = 7;
+
+		public int Position {
+			get;
+			set;
+		}
+
 		public Gripper() {
 			Width = 5;
 			Height = 5;
 			BackColor = Color.Black;
-			
-		}
-		
-		public bool IsTop() {
-			return Position == 0 || Position == 1 || Position == 2;
-		}
-		public bool IsRight() {
-			return Position == 2 || Position == 3 || Position == 4;
-		}
-		public bool IsBottom() {
-			return Position == 4 || Position == 5 || Position == 6;
-		}
-		public bool IsLeft() {
-			return Position == 6 || Position == 7 || Position == 0;
-		}
-		public bool IsCorner() {
-			return Position == 0 || Position == 2 || Position == 4 || Position == 6;
 		}
 	}
 }
