@@ -29,7 +29,6 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 
 namespace Greenshot.Drawing {
@@ -38,7 +37,6 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable]
 	public class SpeechbubbleContainer : TextContainer {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(RectangleContainer));
 
 		private Point _initialGripperPoint;
 
@@ -77,7 +75,7 @@ namespace Greenshot.Drawing {
 		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Blue);
-			//AddField(GetType(), FieldType.SHADOW, false);
+			AddField(GetType(), FieldType.SHADOW, false);
 			AddField(GetType(), FieldType.FONT_ITALIC, false);
 			AddField(GetType(), FieldType.FONT_BOLD, true);
 			AddField(GetType(), FieldType.FILL_COLOR, Color.White);
@@ -221,6 +219,7 @@ namespace Greenshot.Drawing {
 
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
 			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
@@ -233,6 +232,31 @@ namespace Greenshot.Drawing {
 			GraphicsPath bubble = CreateBubble(lineThickness);
 
 			GraphicsPath tail = CreateTail();
+
+			//draw shadow first
+			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
+				const int basealpha = 100;
+				int alpha = basealpha;
+				const int steps = 5;
+				int currentStep = lineVisible ? 1 : 0;
+				using (Matrix shadowMatrix = new Matrix())
+				using (GraphicsPath bubbleClone = (GraphicsPath)bubble.Clone())
+				using (GraphicsPath tailClone = (GraphicsPath)tail.Clone()) {
+					shadowMatrix.Translate(1, 1);
+					while (currentStep <= steps) {
+						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
+							shadowPen.Width = lineVisible ? lineThickness : 1;
+							tailClone.Transform(shadowMatrix);
+							graphics.DrawPath(shadowPen, tailClone);
+							bubbleClone.Transform(shadowMatrix);
+							graphics.DrawPath(shadowPen, bubbleClone);
+						}
+						currentStep++;
+						alpha = alpha - (basealpha / steps);
+					}
+				}
+			}
+
 			GraphicsState state = graphics.Save();
 			// draw the tail border where the bubble is not visible
 			using (Region clipRegion = new Region(bubble)) {
@@ -281,7 +305,7 @@ namespace Greenshot.Drawing {
 
 			// Draw the text
 			UpdateFormat();
-			DrawText(graphics, rect, lineThickness, lineColor, false, StringFormat, Text, Font);
+			DrawText(graphics, rect, lineThickness, lineColor, shadow, StringFormat, Text, Font);
 		}
 
 		public override bool Contains(int x, int y) {
