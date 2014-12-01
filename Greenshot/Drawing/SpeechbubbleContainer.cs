@@ -133,13 +133,16 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		public override Rectangle DrawingBounds {
 			get {
-				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-				Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-				using (Pen pen = new Pen(lineColor, lineThickness)) {
-					using (GraphicsPath tailPath = CreateTail()) {
-						return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)),GuiRectangle.GetGuiRectangle(Left, Top, Width, Height)), lineThickness+2, lineThickness+2);
+				if (Status != EditStatus.UNDRAWN) {
+					int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+					Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+					using (Pen pen = new Pen(lineColor, lineThickness)) {
+						using (GraphicsPath tailPath = CreateTail()) {
+							return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)), GuiRectangle.GetGuiRectangle(Left, Top, Width, Height)), lineThickness + 2, lineThickness + 2);
+						}
 					}
 				}
+				return Rectangle.Empty;
 			}
 		}
 

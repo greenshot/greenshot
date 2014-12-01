@@ -290,7 +290,9 @@ namespace Greenshot.Drawing {
 		}
 
 		public virtual void Invalidate() {
-			_parent.Invalidate(DrawingBounds);
+			if (Status != EditStatus.UNDRAWN) {
+				_parent.Invalidate(DrawingBounds);
+			}
 		}
 		
 		public void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment) {
