@@ -85,11 +85,6 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
 		}
 
-		protected override void TargetGripperMove(int absX, int absY) {
-			base.TargetGripperMove(absX, absY);
-			Invalidate();
-		}
-
 		/// <summary>
 		/// Called from Surface (the _parent) when the drawing begins (mouse-down)
 		/// </summary>
@@ -108,22 +103,23 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="y"></param>
-		/// <returns></returns>
+		/// <returns>base.HandleMouseMove</returns>
 		public override bool HandleMouseMove(int x, int y) {
 			bool returnValue = base.HandleMouseMove(x, y);
+
+			bool leftAligned = _boundsAfterResize.Right - _boundsAfterResize.Left >= 0;
+			bool topAligned = _boundsAfterResize.Bottom - _boundsAfterResize.Top >= 0;
+
+			int xOffset = leftAligned ? -20 : 20;
+			int yOffset = topAligned ? -20 : 20;
+
 			Point newGripperLocation = _initialGripperPoint;
-			if (_boundsAfterResize.Right - _boundsAfterResize.Left >= 0) {
-				newGripperLocation.Offset(-20, 0);
-			} else {
-				newGripperLocation.Offset(20, 0);
-			}
-			if (_boundsAfterResize.Bottom - _boundsAfterResize.Top >= 0) {
-				newGripperLocation.Offset(0, -20);
-			} else {
-				newGripperLocation.Offset(0, 20);
-			}
+			newGripperLocation.Offset(xOffset, yOffset);
+			
 			if (TargetGripper.Location != newGripperLocation) {
+				Invalidate();
 				TargetGripperMove(newGripperLocation.X, newGripperLocation.Y);
+				Invalidate();
 			}
 			return returnValue;
 		}
