@@ -859,6 +859,12 @@ namespace Greenshot {
 			this.destinationsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
 			this.destinationsToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.destinationsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.destinationsToolStrip.Name = "toolStrip1";
+			this.destinationsToolStrip.Stretch = true;
+			this.destinationsToolStrip.TabIndex = 0;
+			this.destinationsToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
+			this.destinationsToolStrip.BackColor = System.Drawing.SystemColors.Control;
+			this.destinationsToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
 			this.destinationsToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.btnSave,
 									this.btnClipboard,
@@ -876,12 +882,6 @@ namespace Greenshot {
 									this.toolStripSeparator11,
 									this.toolStripSeparator16,
 									this.btnHelp});
-			this.destinationsToolStrip.Name = "toolStrip1";
-			this.destinationsToolStrip.Stretch = true;
-			this.destinationsToolStrip.TabIndex = 0;
-			this.destinationsToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
-			this.destinationsToolStrip.BackColor = System.Drawing.SystemColors.Control;
-			this.destinationsToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
 			// 
 			// btnSave
 			// 
@@ -1010,10 +1010,19 @@ namespace Greenshot {
 			// 
 			// propertiesToolStrip
 			// 
+			this.propertiesToolStrip.AutoSize = false;
 			this.propertiesToolStrip.ClickThrough = true;
 			this.propertiesToolStrip.ImageScalingSize = coreConfiguration.IconSize;
 			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.propertiesToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.IconSize.Height + 10);
+			this.propertiesToolStrip.Name = "propertiesToolStrip";
+			this.propertiesToolStrip.Stretch = true;
+			this.propertiesToolStrip.TabIndex = 2;
+			this.propertiesToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
+			this.propertiesToolStrip.BackColor = System.Drawing.SystemColors.Control;
+			this.propertiesToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
+			this.propertiesToolStrip.Paint += propertiesToolStrip_Paint;
 			this.propertiesToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.obfuscateModeButton,
 									this.highlightModeButton,
@@ -1045,14 +1054,6 @@ namespace Greenshot {
 									this.toolStripSeparator10,
 									this.btnConfirm,
 									this.btnCancel});
-			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.IconSize.Height + 9);
-			this.propertiesToolStrip.Name = "propertiesToolStrip";
-			this.propertiesToolStrip.Stretch = true;
-			this.propertiesToolStrip.TabIndex = 2;
-			this.propertiesToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
-			this.propertiesToolStrip.BackColor = System.Drawing.SystemColors.Control;
-			this.propertiesToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
-			this.propertiesToolStrip.Paint += propertiesToolStrip_Paint;
 			// 
 			// obfuscateModeButton
 			// 
@@ -1183,6 +1184,7 @@ namespace Greenshot {
 			this.fontFamilyComboBox.Name = "fontFamilyComboBox";
 			this.fontFamilyComboBox.Size = new System.Drawing.Size(200, 20);
 			this.fontFamilyComboBox.Text = "Aharoni";
+			this.fontFamilyComboBox.Padding = new System.Windows.Forms.Padding(2,0,0,2);
 			this.fontFamilyComboBox.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.fontFamilyComboBox.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
