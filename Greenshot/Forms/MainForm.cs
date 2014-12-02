@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -252,7 +253,17 @@ namespace Greenshot {
 								instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
 							}
 						}
-						MessageBox.Show(Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error));
+
+						// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
+						using (Form dummyForm = new Form()) {
+							dummyForm.Icon = GreenshotResources.getGreenshotIcon();
+							dummyForm.ShowInTaskbar = true;
+							dummyForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+							dummyForm.Location = new Point(int.MinValue, int.MinValue);
+							dummyForm.Load += delegate { dummyForm.Size = Size.Empty; };
+							dummyForm.Show();
+							MessageBox.Show(dummyForm, Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+						}
 					}
 					FreeMutex();
 					Application.Exit();
