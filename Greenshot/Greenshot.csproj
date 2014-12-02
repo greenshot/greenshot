@@ -76,7 +76,6 @@
     <Compile Include="Destinations\PrinterDestination.cs" />
     <Compile Include="Drawing\ArrowContainer.cs" />
     <Compile Include="Drawing\StepLabelContainer.cs" />
-    <Compile Include="Drawing\Fields\Binding\AlignmentConverter.cs" />
     <Compile Include="Drawing\ImageContainer.cs" />
     <Compile Include="Drawing\CropContainer.cs" />
     <Compile Include="Drawing\CursorContainer.cs" />
