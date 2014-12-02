@@ -10,16 +10,24 @@ CHANGE LOG:
 Features:
 * Greenshot now stores the settings of the torn edge & drop shadow effects
 * FEATURE-776: Improvement of the torn edge settings dialog
+* FEATURE-777: Improvement of the tool settings (font family)
 
 Changes:
 * Optimized Greenshots update check to use even less traffic by checking the time-stamp of the update feed before downloading it.
 
 Bugs Resolved:
 * BUG-1620: Greenshot crashing Chrome running in 'Windows 8 Mode'
+* BUG-1682: Speech bubble tail "gripper" moved outside of the drawing area, making it impossible to move the tail
 * BUG-1686: Shadow (drop shadow or torn edge) grows if a filter (highlight etc) is used and an element is moved around
+* BUG-1687: Speech bubble didn't have a working shadow
 * BUG-1698: Cannot enter textbox/Speechbubble lowercase text after changing font family
+* BUG-1699: UI jumps when Textbox or SpeechBubble tools are selected, and changing to another tool. (also the other way around)
 * BUG-1700: IE capture only works once
-
+* BUG-1701: Drop shadow setting "shadow thickness" wasn't restored.
+* BUG-1709: Alignment of the text and speech-bubble wasn't always correctly saved in the .greenshot file
+* BUG-1710: After resizing the canvas the edges had a slightly different color (1px)
+* BUG-1711: Changing settings (e.g. fill color) on the speech bubble before drawing it, caused an exception.
+... and a lot more small changes to make Greenshot more stable.
 
 1.2.2.43-380f581 RC2 
 
