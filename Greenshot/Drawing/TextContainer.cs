@@ -97,8 +97,8 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
 			AddField(GetType(), FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
 			AddField(GetType(), FieldType.FONT_SIZE, 11f);
-			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, HorizontalAlignment.Center);
-			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
+			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
+			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
 		}
 		
 		[OnDeserialized]

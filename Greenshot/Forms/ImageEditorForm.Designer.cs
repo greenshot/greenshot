@@ -1254,8 +1254,8 @@ namespace Greenshot {
 			this.textVerticalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.textVerticalAlignmentButton.LanguageKey = "editor_align_vertical";
 			this.textVerticalAlignmentButton.Name = "textVerticalAlignmentButton";
-			this.textVerticalAlignmentButton.SelectedTag = System.Windows.Forms.HorizontalAlignment.Center;
-			this.textVerticalAlignmentButton.Tag = Greenshot.Plugin.VerticalAlignment.CENTER;
+			this.textVerticalAlignmentButton.SelectedTag = System.Drawing.StringAlignment.Center;
+			this.textVerticalAlignmentButton.Tag = System.Drawing.StringAlignment.Center;
 			// 
 			// alignTopToolStripMenuItem
 			// 
@@ -1263,7 +1263,7 @@ namespace Greenshot {
 			this.alignTopToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignTop.Image")));
 			this.alignTopToolStripMenuItem.LanguageKey = "editor_align_top";
 			this.alignTopToolStripMenuItem.Name = "alignTopToolStripMenuItem";
-			this.alignTopToolStripMenuItem.Tag = Greenshot.Plugin.VerticalAlignment.TOP;
+			this.alignTopToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
 			// 
 			// alignMiddleToolStripMenuItem
 			// 
@@ -1271,7 +1271,7 @@ namespace Greenshot {
 			this.alignMiddleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
 			this.alignMiddleToolStripMenuItem.LanguageKey = "editor_align_middle";
 			this.alignMiddleToolStripMenuItem.Name = "alignMiddleToolStripMenuItem";
-			this.alignMiddleToolStripMenuItem.Tag = Greenshot.Plugin.VerticalAlignment.CENTER;
+			this.alignMiddleToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
 			// 
 			// alignBottomToolStripMenuItem
 			// 
@@ -1279,7 +1279,7 @@ namespace Greenshot {
 			this.alignBottomToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignBottom.Image")));
 			this.alignBottomToolStripMenuItem.LanguageKey = "editor_align_bottom";
 			this.alignBottomToolStripMenuItem.Name = "alignBottomToolStripMenuItem";
-			this.alignBottomToolStripMenuItem.Tag = Greenshot.Plugin.VerticalAlignment.BOTTOM;
+			this.alignBottomToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
 			// 
 			// blurRadiusLabel
 			// 
@@ -1575,8 +1575,8 @@ namespace Greenshot {
 			this.textHorizontalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.textHorizontalAlignmentButton.LanguageKey = "editor_align_horizontal";
 			this.textHorizontalAlignmentButton.Name = "textHorizontalAlignmentButton";
-			this.textHorizontalAlignmentButton.SelectedTag = System.Windows.Forms.HorizontalAlignment.Center;
-			this.textHorizontalAlignmentButton.Tag = System.Windows.Forms.HorizontalAlignment.Center;
+			this.textHorizontalAlignmentButton.SelectedTag = System.Drawing.StringAlignment.Center;
+			this.textHorizontalAlignmentButton.Tag = System.Drawing.StringAlignment.Center;
 			// 
 			// alignLeftToolStripMenuItem
 			// 
@@ -1584,7 +1584,7 @@ namespace Greenshot {
 			this.alignLeftToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignLeft.Image")));
 			this.alignLeftToolStripMenuItem.LanguageKey = "editor_align_left";
 			this.alignLeftToolStripMenuItem.Name = "alignLeftToolStripMenuItem";
-			this.alignLeftToolStripMenuItem.Tag = System.Windows.Forms.HorizontalAlignment.Left;
+			this.alignLeftToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
 			// 
 			// alignCenterToolStripMenuItem
 			// 
@@ -1592,7 +1592,7 @@ namespace Greenshot {
 			this.alignCenterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
 			this.alignCenterToolStripMenuItem.LanguageKey = "editor_align_center";
 			this.alignCenterToolStripMenuItem.Name = "alignCenterToolStripMenuItem";
-			this.alignCenterToolStripMenuItem.Tag = System.Windows.Forms.HorizontalAlignment.Center;
+			this.alignCenterToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
 			// 
 			// alignRightToolStripMenuItem
 			// 
@@ -1600,7 +1600,7 @@ namespace Greenshot {
 			this.alignRightToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignRight.Image")));
 			this.alignRightToolStripMenuItem.LanguageKey = "editor_align_right";
 			this.alignRightToolStripMenuItem.Name = "alignRightToolStripMenuItem";
-			this.alignRightToolStripMenuItem.Tag = System.Windows.Forms.HorizontalAlignment.Right;
+			this.alignRightToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
 			// 
 			// ImageEditorForm
 			// 
