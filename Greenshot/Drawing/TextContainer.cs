@@ -130,6 +130,9 @@ namespace Greenshot.Drawing {
 			_stringFormat.Trimming = StringTrimming.EllipsisWord;
 			fontInvalidated = true;
 			CreateTextBox();
+			AlignTextbox();
+			UpdateFormat();
+			UpdateTextBoxFormat();
 			PropertyChanged += TextContainer_PropertyChanged;
 			FieldChanged += TextContainer_FieldChanged;
 		}
@@ -195,8 +198,26 @@ namespace Greenshot.Drawing {
 			_textBox.DataBindings.Add("Text", this, "Text", false, DataSourceUpdateMode.OnPropertyChanged);
 			_textBox.LostFocus += textBox_LostFocus;
 			_textBox.KeyDown += textBox_KeyDown;
-			_textBox.BorderStyle = BorderStyle.FixedSingle;
+			_textBox.BorderStyle = BorderStyle.None;
 			_textBox.Visible = false;
+		}
+
+		private void AlignTextbox() {
+			if (_textBox == null) {
+				return;
+			}
+			StringAlignment alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+			switch (alignment) {
+				case StringAlignment.Near:
+					_textBox.TextAlign = HorizontalAlignment.Left;
+					break;
+				case StringAlignment.Far:
+					_textBox.TextAlign = HorizontalAlignment.Right;
+					break;
+				case StringAlignment.Center:
+					_textBox.TextAlign = HorizontalAlignment.Center;
+					break;
+			}
 		}
 
 		private void ShowTextBox() {
@@ -250,6 +271,9 @@ namespace Greenshot.Drawing {
 			fontInvalidated = true;
 		}
 
+		/// <summary>
+		/// Generate the Font-Formal so we can draw correctly
+		/// </summary>
 		protected void UpdateFormat() {
 			string fontFamily = GetFieldValueAsString(FieldType.FONT_FAMILY);
 			bool fontBold = GetFieldValueAsBool(FieldType.FONT_BOLD);
@@ -300,13 +324,28 @@ namespace Greenshot.Drawing {
 			_stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
 			_stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
 		}
-		
+
+		/// <summary>
+		/// This will create the textbox exactly to the inner size of the element
+		/// is a bit of a hack, but for now it seems to work...
+		/// </summary>
 		private void UpdateTextBoxPosition() {
+			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+
+			int lineWidth = (int)Math.Floor(lineThickness / 2d);
+			int correction = (lineThickness +1 ) % 2;
+			if (lineThickness <= 1) {
+				lineWidth = 1;
+				correction = -1;
+			}
 			Rectangle absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			_textBox.Left = absRectangle.Left;
-			_textBox.Top = absRectangle.Top;
-			_textBox.Width = absRectangle.Width;
-			_textBox.Height = absRectangle.Height;
+			_textBox.Left = absRectangle.Left + lineWidth;
+			_textBox.Top = absRectangle.Top + lineWidth;
+			if (lineThickness <= 1) {
+				lineWidth = 0;
+			}
+			_textBox.Width = absRectangle.Width - (2 * lineWidth) + correction;
+			_textBox.Height = absRectangle.Height - (2 * lineWidth) + correction;
 		}
 
 		public override void ApplyBounds(RectangleF newBounds) {
@@ -319,6 +358,7 @@ namespace Greenshot.Drawing {
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			_textBox.ForeColor = lineColor;
 			_textBox.Font = _font;
+			AlignTextbox();
 		}
 		
 		void textBox_KeyDown(object sender, KeyEventArgs e) {
