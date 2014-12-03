@@ -18,31 +18,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Windows.Forms;
+
 using Greenshot.IniFile;
 using Greenshot.Interop;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+
 /// <summary>
 /// Code for handling with "windows"
 /// Main code is taken from vbAccelerator, location:
 /// http://www.vbaccelerator.com/home/NET/Code/Libraries/Windows/Enumerating_Windows/article.asp
 /// but a LOT of changes/enhancements were made to adapt it for Greenshot.
 /// </summary>
-using log4net;
-
-namespace GreenshotPlugin.Core  {
+namespace GreenshotPlugin.Core {
 	#region EnumWindows
 	/// <summary>
 	/// EnumWindows wrapper for .NET
@@ -73,7 +71,7 @@ namespace GreenshotPlugin.Core  {
 		/// <summary>
 		/// Gets all child windows of the specified window
 		/// </summary>
-		/// <param name="hWndParent">Window Handle to get children for</param>
+		/// <param name="parent">Window Handle to get children for</param>
 		public WindowsEnumerator GetWindows(WindowDetails parent) {
 			if (parent != null) {
 				GetWindows(parent.Handle, null);
@@ -167,7 +165,6 @@ namespace GreenshotPlugin.Core  {
 		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
 		
 		private static ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
-		private static Dictionary<string, List<string>> classnameTree = new Dictionary<string, List<string>>();
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static List<IntPtr> ignoreHandles = new List<IntPtr>();
 		private static List<string> excludeProcessesFromFreeze = new List<string>();
@@ -988,7 +985,7 @@ namespace GreenshotPlugin.Core  {
 					if (!doesCaptureFit) {
 						// if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
 						using (Process thisWindowProcess = Process) {
-							if (!isMetroApp && WindowCapture.isGDIAllowed(thisWindowProcess)) {
+							if (!isMetroApp && WindowCapture.IsGdiAllowed(thisWindowProcess)) {
 								// we return null which causes the capturing code to try another method.
 								return null;
 							}
