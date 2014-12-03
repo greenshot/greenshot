@@ -308,35 +308,34 @@ namespace Greenshot.Drawing {
 		}
 
 		public override bool Contains(int x, int y) {
-			double xDistanceFromCenter = x - (Left + Width / 2);
-			double yDistanceFromCenter = y - (Top + Height / 2);
-			// ellipse: x^2/a^2 + y^2/b^2 = 1
-			return Math.Pow(xDistanceFromCenter, 2) / Math.Pow(Width / 2, 2) + Math.Pow(yDistanceFromCenter, 2) / Math.Pow(Height / 2, 2) < 1;
-		}
-
-		public override bool ClickableAt(int x, int y) {
-			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			int lineThicknessPlusSafety = lineThickness + 10;
-
-			// If we clicked inside the rectangle and it's visible we are clickable at.
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			if (!Color.Transparent.Equals(fillColor)) {
-				if (Contains(x, y)) {
-					return true;
-				}
+			if (base.Contains(x, y)) {
+				return true;
 			}
-
-			// check the rest of the lines
-			if (lineThicknessPlusSafety > 0) {
-				using (Pen pen = new Pen(Color.White, lineThicknessPlusSafety)) {
-					using (GraphicsPath path = new GraphicsPath()) {
-						path.AddEllipse(rect);
-						return path.IsOutlineVisible(x, y, pen);
+			Point clickedPoint = new Point(x, y);
+			if (Status != EditStatus.UNDRAWN) {
+				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+				Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+				using (Pen pen = new Pen(lineColor, lineThickness)) {
+					using (GraphicsPath bubblePath = CreateBubble(lineThickness)) {
+						bubblePath.Widen(pen);
+						if (bubblePath.IsVisible(clickedPoint)) {
+							return true;
+						}
+					}
+					using (GraphicsPath tailPath = CreateTail()) {
+						tailPath.Widen(pen);
+						if (tailPath.IsVisible(clickedPoint)) {
+							return true;
+						}
 					}
 				}
 			}
+
 			return false;
+		}
+
+		public override bool ClickableAt(int x, int y) {
+			return Contains(x,y);
 		}
 	}
 }
