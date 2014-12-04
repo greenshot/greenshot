@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -30,31 +31,63 @@ namespace Greenshot.Controls {
 	/// </summary>
 	public class FontFamilyComboBox : ToolStripComboBox, INotifyPropertyChanged {
 		public event PropertyChangedEventHandler PropertyChanged;
-		
+
 		public FontFamily FontFamily {
 			get { return (FontFamily)SelectedItem; }
 			set {
-				if(!SelectedItem.Equals(value)) {
+				if (!SelectedItem.Equals(value)) {
 					SelectedItem = value;
 				}
 			}
 		}
-		
-		public FontFamilyComboBox() : base()
-		{
+
+		public FontFamilyComboBox() : base() {
 			ComboBox.DataSource = FontFamily.Families;
 			ComboBox.DisplayMember = "Name";
 			SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
+			ComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+			ComboBox.DrawItem += ComboBox_DrawItem;
 		}
 
-		void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			if(PropertyChanged != null) {
+		void ComboBox_DrawItem(object sender, DrawItemEventArgs e) {
+			// DrawBackground handles drawing the background (i.e,. hot-tracked v. not)
+			// It uses the system colors (Bluish, and and white, by default)
+			// same as calling e.Graphics.FillRectangle ( SystemBrushes.Highlight, e.Bounds );
+			e.DrawBackground();
+
+			if (e.Index > -1) {
+				FontFamily fontFamily = Items[e.Index] as FontFamily;
+				FontStyle fs = FontStyle.Regular;
+				if (!fontFamily.IsStyleAvailable(FontStyle.Regular)) {
+					if (fontFamily.IsStyleAvailable(FontStyle.Bold)) {
+						fs = FontStyle.Bold;
+					} else if (fontFamily.IsStyleAvailable(FontStyle.Italic)) {
+						fs = FontStyle.Italic;
+					} else if (fontFamily.IsStyleAvailable(FontStyle.Strikeout)) {
+						fs = FontStyle.Strikeout;
+					} else if (fontFamily.IsStyleAvailable(FontStyle.Underline)) {
+						fs = FontStyle.Underline;
+					}
+				}
+				using (Font font = new Font(fontFamily, this.Font.Size + 2, fs, GraphicsUnit.Pixel)) {
+					// Make sure the text is visible by centering it in the line
+					using(StringFormat stringFormat = new StringFormat()) {
+						stringFormat.LineAlignment = StringAlignment.Center;
+						e.Graphics.DrawString(fontFamily.Name, font, Brushes.Black, e.Bounds, stringFormat);
+					}
+				}
+			}
+			// Uncomment this if you actually like the way the focus rectangle looks
+			//e.DrawFocusRectangle ();
+		}
+
+		void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) {
+			if (PropertyChanged != null) {
 				PropertyChanged(this, new PropertyChangedEventArgs("Text"));
 				PropertyChanged(this, new PropertyChangedEventArgs("FontFamily"));
 				PropertyChanged(this, new PropertyChangedEventArgs("SelectedIndex"));
 				PropertyChanged(this, new PropertyChangedEventArgs("SelectedItem"));
-				
+
 			}
 		}
 	}
