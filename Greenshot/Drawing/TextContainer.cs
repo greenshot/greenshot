@@ -253,16 +253,14 @@ namespace Greenshot.Drawing {
 		/// <param name="matrix"></param>
 		public override void Transform(Matrix matrix) {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			int widthBefore = rect.Width;
-			int heightBefore = rect.Height;
+			int pixelsBefore = rect.Width * rect.Height;
 
 			// Transform this container
 			base.Transform(matrix);
 			rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
-			int widthAfter = rect.Width;
-			int heightAfter = rect.Height;
-			float factor = (((float)widthAfter / widthBefore) + ((float)heightAfter / heightBefore)) / 2;
+			int pixelsAfter = rect.Width * rect.Height;
+			float factor = pixelsAfter / pixelsBefore;
 
 			float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
 			fontSize *= factor;
