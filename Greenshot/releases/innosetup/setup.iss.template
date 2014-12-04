@@ -179,7 +179,7 @@ Name: startup; Description: {cm:startup}
 de.confluence=Confluence Plug-in
 de.default=Standard installation
 en.office=Microsoft Office Plug-in
-de.externalcommand=Öffne mit ein externem Kommando Plug-in
+de.externalcommand=Externes Kommando Plug-in
 de.imgur=Imgur Plug-in (Siehe: http://imgur.com)
 de.jira=Jira Plug-in
 de.language=Zusätzliche Sprachen
