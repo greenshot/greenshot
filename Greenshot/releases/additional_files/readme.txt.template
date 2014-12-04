@@ -10,7 +10,7 @@ CHANGE LOG:
 Features:
 * Greenshot now stores the settings of the torn edge & drop shadow effects
 * FEATURE-776: Improvement of the torn edge settings dialog
-* FEATURE-777: Improvement of the tool settings (font family)
+* FEATURE-777: Improvement of the font family settings, also changed the used font for every family making it easier to find your font.
 
 Changes:
 * Optimized Greenshots update check to use even less traffic by checking the time-stamp of the update feed before downloading it.

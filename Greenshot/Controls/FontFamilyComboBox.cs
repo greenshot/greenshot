@@ -69,7 +69,7 @@ namespace Greenshot.Controls {
 						fs = FontStyle.Underline;
 					}
 				}
-				using (Font font = new Font(fontFamily, this.Font.Size + 2, fs, GraphicsUnit.Pixel)) {
+				using (Font font = new Font(fontFamily, this.Font.Size + 5, fs, GraphicsUnit.Pixel)) {
 					// Make sure the text is visible by centering it in the line
 					using(StringFormat stringFormat = new StringFormat()) {
 						stringFormat.LineAlignment = StringAlignment.Center;
