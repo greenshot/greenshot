@@ -132,9 +132,11 @@ namespace Greenshot.Drawing {
 				if (Status != EditStatus.UNDRAWN) {
 					int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 					Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+					bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 					using (Pen pen = new Pen(lineColor, lineThickness)) {
+						int inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
 						using (GraphicsPath tailPath = CreateTail()) {
-							return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)), GuiRectangle.GetGuiRectangle(Left, Top, Width, Height)), lineThickness + 2, lineThickness + 2);
+							return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)), GuiRectangle.GetGuiRectangle(Left, Top, Width, Height)), inflateValue, inflateValue);
 						}
 					}
 				}
