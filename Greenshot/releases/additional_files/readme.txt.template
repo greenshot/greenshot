@@ -7,6 +7,9 @@ CHANGE LOG:
 
 @DETAILVERSION@
 
+
+1.2.3.29-e1fec74 RC3
+
 Features:
 * Greenshot now stores the settings of the torn edge & drop shadow effects
 * FEATURE-776: Improvement of the torn edge settings dialog
