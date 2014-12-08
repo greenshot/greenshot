@@ -173,15 +173,15 @@ namespace Greenshot.Drawing {
 		
 		void TextContainer_FieldChanged(object sender, FieldChangedEventArgs e) {
 			if (_textBox.Visible) {
-				UpdateTextBoxFormat();
 				_textBox.Invalidate();
-			} else {
-				UpdateFormat();
-				//Invalidate();
 			}
 			_font.Dispose();
 			_font = null;
 			fontInvalidated = true;
+			UpdateTextBoxFormat();
+			if (_textBox.Visible) {
+				_textBox.Invalidate();
+			}
 		}
 		
 		public override void OnDoubleClick() {
