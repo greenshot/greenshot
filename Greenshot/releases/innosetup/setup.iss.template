@@ -282,7 +282,7 @@ sv.optimize=Optimerar prestanda, detta kan ta en stund.
 
 uk.confluence=Плагін Confluence
 uk.default=${default}
-uk.externalcommand=Відкрити з плагіном зовнішніх команд
+uk.externalcommand=Плагін запуску зовнішньої команди
 uk.imgur=Плагін Imgur (див.: http://imgur.com)
 uk.jira=Плагін Jira
 uk.language=Додаткові мови
