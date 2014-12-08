@@ -75,7 +75,7 @@ namespace Greenshot {
 			this.btnTransparent.TabStop = false;
 			this.btnTransparent.Text = "Transparent";
 			this.btnTransparent.UseVisualStyleBackColor = false;
-			this.btnTransparent.Click += new System.EventHandler(this.btnTransparentClick);
+			this.btnTransparent.Click += new System.EventHandler(this.BtnTransparentClick);
 			// 
 			// colorPanel
 			// 
@@ -225,7 +225,7 @@ namespace Greenshot {
 			this.pipette.Name = "pipette";
 			this.pipette.Size = new System.Drawing.Size(33, 23);
 			this.pipette.TabIndex = 13;
-			this.pipette.PipetteUsed += new System.EventHandler<Greenshot.Controls.PipetteUsedArgs>(this.pipetteUsed);
+			this.pipette.PipetteUsed += new System.EventHandler<Greenshot.Controls.PipetteUsedArgs>(this.PipetteUsed);
 			// 
 			// ColorDialog
 			// 
