@@ -7,6 +7,10 @@ CHANGE LOG:
 
 @DETAILVERSION@
 
+Bugs Resolved:
+* BUG-1716: Selecting the textbox or speechbubble tool, and changing settings before drawing, causes an error when drawing
+* BUG-1719: color dialog didn't accept HTML color names
+
 
 1.2.3.29-e1fec74 RC3
 
