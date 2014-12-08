@@ -292,20 +292,22 @@ ${hostname} назва комп’ютера
     <resource name="editor_tornedge_settings">Параметри розірваного краю</resource>
     <resource name="editor_tornedge_toothsize">Розмір зубця</resource>
     <resource name="editor_tornedge_verticaltoothrange">Вертикальна частота зубців</resource>
-    <resource name="editor_tornedge_left">Рваний лівий край</resource>
-    <resource name="editor_tornedge_right">Рваний правий край</resource>
-    <resource name="editor_tornedge_top">Рваний верхній край</resource>
-    <resource name="editor_tornedge_bottom">Рваний нижній край</resource>
+    <resource name="editor_tornedge_all">Надірвати всі краї</resource>
+    <resource name="editor_tornedge_left">Лівий край</resource>
+    <resource name="editor_tornedge_right">Правий край</resource>
+    <resource name="editor_tornedge_top">Верхній край</resource>
+    <resource name="editor_tornedge_bottom">Нижній край</resource>
     <resource name="editor_tornedge_shadow">Створити тінь</resource>
     
-    <resource name="editor_counter">Додати лічильник</resource>
-    <resource name="editor_speechbubble">Додати словесну бульбашку</resource>
+    <resource name="editor_counter">Додати лічильник (Ш)</resource>
+    <resource name="editor_speechbubble">Додати словесну бульбашку (І)</resource>
 
     <resource name="editor_resize">Змінити розмір</resource>
     <resource name="editor_resize_settings">Параметри зміни розміру</resource>
     <resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
     <resource name="editor_resize_width">Ширина</resource>
     <resource name="editor_resize_height">Висота</resource>
+	<resource name="settings_iconsize">Розмір іконки</resource>
     
   </resources>
 </language>
