@@ -38,8 +38,6 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class TextContainer : RectangleContainer, ITextContainer {
-		[NonSerialized]
-		private bool fontInvalidated = true;
 		// If makeUndoable is true the next text-change will make the change undoable.
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
 		private bool makeUndoable;
@@ -104,7 +102,6 @@ namespace Greenshot.Drawing {
 		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
 			Init();
-			UpdateFormat();
 		}
 
 		protected override void Dispose(bool disposing) {
@@ -128,11 +125,12 @@ namespace Greenshot.Drawing {
 		private void Init() {
 			_stringFormat = new StringFormat();
 			_stringFormat.Trimming = StringTrimming.EllipsisWord;
-			fontInvalidated = true;
+
 			CreateTextBox();
-			AlignTextbox();
+
 			UpdateFormat();
 			UpdateTextBoxFormat();
+
 			PropertyChanged += TextContainer_PropertyChanged;
 			FieldChanged += TextContainer_FieldChanged;
 		}
@@ -146,7 +144,6 @@ namespace Greenshot.Drawing {
 		}
 		
 		public void FitToText() {
-			UpdateFormat();
 			Size textSize = TextRenderer.MeasureText(text, _font);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Width = textSize.Width + lineThickness;
@@ -154,6 +151,12 @@ namespace Greenshot.Drawing {
 		}
 
 		void TextContainer_PropertyChanged(object sender, PropertyChangedEventArgs e) {
+			if (_textBox.Visible) {
+				_textBox.Invalidate();
+			}
+
+			UpdateTextBoxPosition();
+			UpdateTextBoxFormat();
 			if (e.PropertyName.Equals("Selected")) {
 				if (!Selected && _textBox.Visible) {
 					HideTextBox();
@@ -165,8 +168,6 @@ namespace Greenshot.Drawing {
 				}
 			}
 			if (_textBox.Visible) {
-				UpdateTextBoxPosition();
-				UpdateTextBoxFormat();
 				_textBox.Invalidate();
 			}
 		}
@@ -175,10 +176,14 @@ namespace Greenshot.Drawing {
 			if (_textBox.Visible) {
 				_textBox.Invalidate();
 			}
-			_font.Dispose();
-			_font = null;
-			fontInvalidated = true;
+			// Only dispose the font, and re-create it, when a font field has changed.
+			if (e.Field.FieldType.Name.StartsWith("FONT")) {
+				_font.Dispose();
+				_font = null;
+				UpdateFormat();
+			}
 			UpdateTextBoxFormat();
+			
 			if (_textBox.Visible) {
 				_textBox.Invalidate();
 			}
@@ -200,24 +205,6 @@ namespace Greenshot.Drawing {
 			_textBox.KeyDown += textBox_KeyDown;
 			_textBox.BorderStyle = BorderStyle.None;
 			_textBox.Visible = false;
-		}
-
-		private void AlignTextbox() {
-			if (_textBox == null) {
-				return;
-			}
-			StringAlignment alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
-			switch (alignment) {
-				case StringAlignment.Near:
-					_textBox.TextAlign = HorizontalAlignment.Left;
-					break;
-				case StringAlignment.Far:
-					_textBox.TextAlign = HorizontalAlignment.Right;
-					break;
-				case StringAlignment.Center:
-					_textBox.TextAlign = HorizontalAlignment.Center;
-					break;
-			}
 		}
 
 		private void ShowTextBox() {
@@ -265,8 +252,7 @@ namespace Greenshot.Drawing {
 			float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
 			fontSize *= factor;
 			SetFieldValue(FieldType.FONT_SIZE, fontSize);
-
-			fontInvalidated = true;
+			UpdateFormat();
 		}
 
 		/// <summary>
@@ -278,38 +264,36 @@ namespace Greenshot.Drawing {
 			bool fontItalic = GetFieldValueAsBool(FieldType.FONT_ITALIC);
 			float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
 			try {
-				if (fontInvalidated && fontFamily != null && fontSize != 0) {
-					FontStyle fs = FontStyle.Regular;
+				FontStyle fs = FontStyle.Regular;
 					
-					bool hasStyle = false;
-					using(FontFamily fam = new FontFamily(fontFamily)) {
-						bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
-						if (fontBold && boldAvailable) {
-							fs |= FontStyle.Bold;
-							hasStyle = true;
-						}
+				bool hasStyle = false;
+				using(FontFamily fam = new FontFamily(fontFamily)) {
+					bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
+					if (fontBold && boldAvailable) {
+						fs |= FontStyle.Bold;
+						hasStyle = true;
+					}
 
-						bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
-						if (fontItalic && italicAvailable) {
-							fs |= FontStyle.Italic;
-							hasStyle = true;
-						}
+					bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
+					if (fontItalic && italicAvailable) {
+						fs |= FontStyle.Italic;
+						hasStyle = true;
+					}
 
-						if (!hasStyle) {
-							bool regularAvailable = fam.IsStyleAvailable(FontStyle.Regular);
-							if (regularAvailable) {
-								fs = FontStyle.Regular;
-							} else {
-								if (boldAvailable) {
-									fs = FontStyle.Bold;
-								} else if(italicAvailable) {
-									fs = FontStyle.Italic;
-								}
+					if (!hasStyle) {
+						bool regularAvailable = fam.IsStyleAvailable(FontStyle.Regular);
+						if (regularAvailable) {
+							fs = FontStyle.Regular;
+						} else {
+							if (boldAvailable) {
+								fs = FontStyle.Bold;
+							} else if(italicAvailable) {
+								fs = FontStyle.Italic;
 							}
 						}
-						_font = new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
 					}
-					fontInvalidated = false;
+					_font = new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
+					_textBox.Font = _font;
 				}
 			} catch (Exception ex) {
 				ex.Data.Add("fontFamily", fontFamily);
@@ -352,11 +336,24 @@ namespace Greenshot.Drawing {
 		}
 
 		private void UpdateTextBoxFormat() {
-			UpdateFormat();
+			if (_textBox == null) {
+				return;
+			}
+			StringAlignment alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+			switch (alignment) {
+				case StringAlignment.Near:
+					_textBox.TextAlign = HorizontalAlignment.Left;
+					break;
+				case StringAlignment.Far:
+					_textBox.TextAlign = HorizontalAlignment.Right;
+					break;
+				case StringAlignment.Center:
+					_textBox.TextAlign = HorizontalAlignment.Center;
+					break;
+			}
+
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			_textBox.ForeColor = lineColor;
-			_textBox.Font = _font;
-			AlignTextbox();
 		}
 		
 		void textBox_KeyDown(object sender, KeyEventArgs e) {
@@ -375,7 +372,7 @@ namespace Greenshot.Drawing {
 	
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			base.Draw(graphics, rm);
-			UpdateFormat();
+
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
