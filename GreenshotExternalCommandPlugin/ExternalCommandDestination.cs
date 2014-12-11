@@ -184,7 +184,7 @@ namespace ExternalCommand {
 			if (!string.IsNullOrEmpty(commandline)) {
 				using (Process process = new Process()) {
 					process.StartInfo.FileName = commandline;
-					process.StartInfo.Arguments = String.Format(arguments, fullPath);
+					process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
 					process.StartInfo.UseShellExecute = false;
 					if (config.RedirectStandardOutput) {
 						process.StartInfo.RedirectStandardOutput = true;
@@ -216,5 +216,10 @@ namespace ExternalCommand {
 			}
 			return -1;
 		}
-	}
+
+        public static string FormatArguments(string arguments, string fullpath)
+        {
+            return String.Format(arguments, fullpath);
+        }
+    }
 }

@@ -98,6 +98,7 @@ namespace ExternalCommand {
 			buttonOk.Enabled = true;
 			textBox_name.BackColor = Color.White;
 			textBox_commandline.BackColor = Color.White;
+            textBox_arguments.BackColor = Color.White;
 			// Is there a text in the name field
 			if(string.IsNullOrEmpty(textBox_name.Text)) {
 				buttonOk.Enabled = false;
@@ -116,6 +117,16 @@ namespace ExternalCommand {
 				buttonOk.Enabled = false;
 				textBox_commandline.BackColor = Color.Red;
 			}
+            // Are the arguments in a valid format? 
+            try
+            {
+                ExternalCommandDestination.FormatArguments(textBox_arguments.Text, string.Empty);
+            }
+            catch
+            {
+                buttonOk.Enabled = false;
+                textBox_arguments.BackColor = Color.Red;
+            }  
 		}
 
 		private void textBox_name_TextChanged(object sender, EventArgs e) {
@@ -125,6 +136,11 @@ namespace ExternalCommand {
 		private void textBox_commandline_TextChanged(object sender, EventArgs e) {
 			OKButtonState();
 		}
+
+        private void textBox_arguments_TextChanged(object sender, EventArgs e)
+        {
+            OKButtonState();
+        }
 
 	}
 }
