@@ -250,18 +250,6 @@ namespace Greenshot.Helpers {
 				AddConfiguredDestination();
 			}
 
-			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
-			WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
-			// Workaround for changed DPI settings in Windows 7
-			using (Graphics graphics = Graphics.FromHwnd(MainForm.Instance.Handle)) {
-				_capture.CaptureDetails.DpiX = graphics.DpiX;
-				_capture.CaptureDetails.DpiY = graphics.DpiY;
-			}
-			if (previouslyActiveWindow != null) {
-				// Set previouslyActiveWindow as foreground window
-				previouslyActiveWindow.ToForeground();
-			}
-
 			// Delay for the Context menu
 			if (conf.CaptureDelay > 0) {
 				Thread.Sleep(conf.CaptureDelay);
@@ -283,6 +271,7 @@ namespace Greenshot.Helpers {
 				case CaptureMode.Window:
 					_capture = WindowCapture.CaptureScreen(_capture);
 					_capture.CaptureDetails.AddMetaData("source", "Screen");
+					SetDPI();
 					CaptureWithFeedback();
 					break;
 				case CaptureMode.ActiveWindow:
@@ -296,11 +285,13 @@ namespace Greenshot.Helpers {
 						_capture.CaptureDetails.AddMetaData("source", "Screen");
 						_capture.CaptureDetails.Title = "Screen";
 					}
+					SetDPI();
 					HandleCapture();
 					break;
 				case CaptureMode.IE:
 					if (IECaptureHelper.CaptureIE(_capture, SelectedCaptureWindow) != null) {
 						_capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
+						SetDPI();
 						HandleCapture();
 					}
 					break;
@@ -331,6 +322,7 @@ namespace Greenshot.Helpers {
 					if (!captureTaken) {
 						_capture = WindowCapture.CaptureScreen(_capture);
 					}
+					SetDPI();
 					HandleCapture();
 					break;
 				case CaptureMode.Clipboard:
@@ -424,6 +416,7 @@ namespace Greenshot.Helpers {
 						//capture.MoveElements(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
 
 						_capture.CaptureDetails.AddMetaData("source", "screen");
+						SetDPI();
 						HandleCapture();
 					}
 					break;
@@ -432,10 +425,12 @@ namespace Greenshot.Helpers {
 					if (Rectangle.Empty.Equals(_captureRect)) {
 						_capture = WindowCapture.CaptureScreen(_capture);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
+						SetDPI();
 						CaptureWithFeedback();
 					} else {
 						_capture = WindowCapture.CaptureRectangle(_capture, _captureRect);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
+						SetDPI();
 						HandleCapture();
 					}
 					break;
@@ -941,6 +936,24 @@ namespace Greenshot.Helpers {
 			}
 
 			return captureForWindow;
+		}
+
+		private void SetDPI() {
+			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
+			WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
+			// Workaround for changed DPI settings in Windows 7
+			using (Graphics graphics = Graphics.FromHwnd(MainForm.Instance.Handle)) {
+				_capture.CaptureDetails.DpiX = graphics.DpiX;
+				_capture.CaptureDetails.DpiY = graphics.DpiY;
+			}
+			if (previouslyActiveWindow != null) {
+				// Set previouslyActiveWindow as foreground window
+				previouslyActiveWindow.ToForeground();
+			}
+			if (_capture.CaptureDetails != null && _capture.Image != null) {
+				((Bitmap)_capture.Image).SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+			}
+
 		}
 
 		#region capture with feedback

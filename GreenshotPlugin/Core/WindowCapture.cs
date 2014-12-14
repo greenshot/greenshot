@@ -589,12 +589,20 @@ namespace GreenshotPlugin.Core {
 			if (capture == null) {
 				capture = new Capture();
 			}
+			Image capturedImage = null;
 			// If the CaptureHandler has a handle use this, otherwise use the CaptureRectangle here
-			capture.Image = CaptureHandler.CaptureScreenRectangle != null ? CaptureHandler.CaptureScreenRectangle(captureBounds) : CaptureRectangle(captureBounds);
-			capture.Location = captureBounds.Location;
-			if (capture.CaptureDetails != null) {
-				((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
+			if (CaptureHandler.CaptureScreenRectangle != null) {
+				try {
+					capturedImage = CaptureHandler.CaptureScreenRectangle(captureBounds);
+				} catch {
+				}
 			}
+			// If no capture, use the normal screen capture
+			if  (capturedImage == null) {
+				capturedImage = CaptureRectangle(captureBounds);
+			}
+			capture.Image = capturedImage;
+			capture.Location = captureBounds.Location;
 			return capture.Image == null ? null : capture;
 		}
 
