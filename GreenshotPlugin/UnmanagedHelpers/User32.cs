@@ -218,10 +218,19 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr CreateIconIndirect(ref IconInfo icon);
 
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, DesktopAccessRight dwDesiredAccess);
+		[DllImport("user32", SetLastError = true)]
+		public static extern bool SetThreadDesktop(IntPtr hDesktop);
+		[DllImport("user32", SetLastError = true)]
+		public static extern bool CloseDesktop(IntPtr hDesktop);
+
+
 		#endregion
 
 		/// <summary>
 		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7.
+		/// </summary>
 		/// <returns>Point with cursor location, relative to the origin of the monitor setup
 		/// (i.e. negative coordinates arepossible in multiscreen setups)</returns>
 		public static Point GetCursorLocation() {
@@ -319,6 +328,34 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <param name="dwEventThread"></param>
 	/// <param name="dwmsEventTime"></param>
 	public delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hwnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
+	/// <summary>
+	/// A SafeHandle class implementation for the current input desktop
+	/// </summary>
+	public class SafeCurrentInputDesktopHandle : SafeHandleZeroOrMinusOneIsInvalid {
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(SafeCurrentInputDesktopHandle));
+
+		public SafeCurrentInputDesktopHandle() : base(true) {
+			IntPtr hDesktop = User32.OpenInputDesktop(0, true, DesktopAccessRight.GENERIC_ALL);
+			if (hDesktop != IntPtr.Zero) {
+				SetHandle(hDesktop);
+				if (User32.SetThreadDesktop(hDesktop)) {
+					LOG.DebugFormat("Switched to desktop {0}", hDesktop);
+				} else {
+					LOG.WarnFormat("Couldn't switch to desktop {0}", hDesktop);
+					LOG.Error(User32.CreateWin32Exception("SetThreadDesktop"));
+				}
+			} else {
+				LOG.Warn("Couldn't get current desktop.");
+				LOG.Error(User32.CreateWin32Exception("OpenInputDesktop"));
+			}
+		}
+
+		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+		protected override bool ReleaseHandle() {
+			return User32.CloseDesktop(handle);
+		}
+	}
 
 	/// <summary>
 	/// A SafeHandle class implementation for the hIcon
