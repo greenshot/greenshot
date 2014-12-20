@@ -18,20 +18,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
+using GreenshotOfficePlugin;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
-
-using Greenshot.Interop;
 
 namespace Greenshot.Interop.Office {
 	public class PowerpointExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointExporter));
-		private static Version powerpointVersion;
+		private static Version _powerpointVersion;
+		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
 
-		public static bool isAfter2003() {
-			return powerpointVersion.Major > (int)OfficeVersion.OFFICE_2003;
+		private static bool IsAfter2003() {
+			return _powerpointVersion.Major > (int)OfficeVersion.OFFICE_2003;
 		}
 
 		/// <summary>
@@ -39,7 +40,7 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <returns></returns>
 		public static List<string> GetPowerpointPresentations() {
-			List<string> foundPresentations = new System.Collections.Generic.List<string>();
+			List<string> foundPresentations = new List<string>();
 			try {
 				using (IPowerpointApplication powerpointApplication = GetPowerpointApplication()) {
 					if (powerpointApplication == null) {
@@ -56,7 +57,7 @@ namespace Greenshot.Interop.Office {
 								if (presentation.ReadOnly == MsoTriState.msoTrue) {
 									continue;
 								}
-								if (isAfter2003()) {
+								if (IsAfter2003()) {
 									if (presentation.Final) {
 										continue;
 									}
@@ -117,55 +118,49 @@ namespace Greenshot.Interop.Office {
 		/// <param name="imageSize"></param>
 		/// <param name="title"></param>
 		private static void AddPictureToPresentation(IPresentation presentation, string tmpFile, Size imageSize, string title) {
-			if (presentation == null) {
-				return;
-			}
-			ISlide slide;
-			float left = (presentation.PageSetup.SlideWidth / 2) - (imageSize.Width / 2) ;
-			float top = (presentation.PageSetup.SlideHeight / 2) - (imageSize.Height / 2);
-			float width = imageSize.Width;
-			float height = imageSize.Height;
-			bool isLayoutPictureWithCaption = false;
-			IShape shapeForCaption = null;
-			bool hasScaledWidth = false;
-			bool hasScaledHeight = false;
-
-			// Try to create the slide
-			using (ISlides slides = presentation.Slides) {
+			if (presentation != null) {
+				//ISlide slide = presentation.Slides.AddSlide( presentation.Slides.Count + 1, PPSlideLayout.ppLayoutPictureWithCaption);
+				ISlide slide;
+				float left = (presentation.PageSetup.SlideWidth / 2) - (imageSize.Width / 2f);
+				float top = (presentation.PageSetup.SlideHeight / 2) - (imageSize.Height / 2f);
+				float width = imageSize.Width;
+				float height = imageSize.Height;
+				IShape shapeForCaption = null;
+				bool hasScaledWidth = false;
+				bool hasScaledHeight = false;
 				try {
-					slide = slides.Add(slides.Count + 1, (int)PPSlideLayout.ppLayoutPictureWithCaption);
-					isLayoutPictureWithCaption = true;
+					slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int)officeConfiguration.PowerpointSlideLayout);
 					// Shapes[2] is the image shape on this layout.
 					shapeForCaption = slide.Shapes.item(1);
-					using (IShape shapeForLocation = slide.Shapes.item(2)) {
-						if (width > shapeForLocation.Width) {
-							width = shapeForLocation.Width;
-							left = shapeForLocation.Left;
-							hasScaledWidth = true;
-						} else {
-							shapeForLocation.Left = left;
-						}
-						shapeForLocation.Width = imageSize.Width;
+					IShape shapeForLocation = slide.Shapes.item(2);
 
-						if (height > shapeForLocation.Height) {
-							height = shapeForLocation.Height;
-							top = shapeForLocation.Top;
-							hasScaledHeight = true;
-						} else {
-							top = (shapeForLocation.Top + (shapeForLocation.Height / 2)) - (imageSize.Height / 2);
-						}
-						shapeForLocation.Height = imageSize.Height;
+					if (width > shapeForLocation.Width) {
+						width = shapeForLocation.Width;
+						left = shapeForLocation.Left;
+						hasScaledWidth = true;
+					} else {
+						shapeForLocation.Left = left;
 					}
+					shapeForLocation.Width = imageSize.Width;
+
+					if (height > shapeForLocation.Height) {
+						height = shapeForLocation.Height;
+						top = shapeForLocation.Top;
+						hasScaledHeight = true;
+					} else {
+						top = (shapeForLocation.Top + (shapeForLocation.Height / 2)) - (imageSize.Height / 2f);
+					}
+					shapeForLocation.Height = imageSize.Height;
 				} catch (Exception e) {
 					LOG.Error(e);
-					// didn't work. Use simple slide layout
-					slide = slides.Add(slides.Count + 1, (int)PPSlideLayout.ppLayoutBlank);
+					slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int)PPSlideLayout.ppLayoutBlank);
 				}
-			}
-
-			// Make sure the picture is added and correctly scaled
-			using (IShape shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height)) {
-				shape.LockAspectRatio = MsoTriState.msoTrue;
+				IShape shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height);
+				if (officeConfiguration.PowerpointLockAspectRatio) {
+					shape.LockAspectRatio = MsoTriState.msoTrue;
+				} else {
+					shape.LockAspectRatio = MsoTriState.msoFalse;
+				}
 				shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
 				shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
 				if (hasScaledWidth) {
@@ -177,34 +172,17 @@ namespace Greenshot.Interop.Office {
 				shape.Left = left;
 				shape.Top = top;
 				shape.AlternativeText = title;
-			}
-
-			// Try settings the caption
-			if (shapeForCaption != null) {
-				if (isLayoutPictureWithCaption) {
+				if (shapeForCaption != null) {
 					try {
 						// Using try/catch to make sure problems with the text range don't give an exception.
-						using (ITextFrame textFrame = shapeForCaption.TextFrame) {
-							textFrame.TextRange.Text = title;
-						}
+						ITextFrame textFrame = shapeForCaption.TextFrame;
+						textFrame.TextRange.Text = title;
 					} catch (Exception ex) {
 						LOG.Warn("Problem setting the title to a text-range", ex);
 					}
 				}
-				shapeForCaption.Dispose();
-			}
-
-			// Show the window, and show the new slide
-			using (IPowerpointApplication application = presentation.Application) {
-				using (IPowerpointWindow activeWindow = application.ActiveWindow) {
-					using (IPowerpointView view = activeWindow.View) {
-						view.GotoSlide(slide.SlideNumber);
-					}
-				}
-				application.Activate();
-			}
-			if (slide != null) {
-				slide.Dispose();
+				presentation.Application.ActiveWindow.View.GotoSlide(slide.SlideNumber);
+				presentation.Application.Activate();
 			}
 		}
 
@@ -218,17 +196,16 @@ namespace Greenshot.Interop.Office {
 		public static bool InsertIntoNewPresentation(string tmpFile, Size imageSize, string title) {
 			bool isPictureAdded = false;
 			using (IPowerpointApplication powerpointApplication = GetOrCreatePowerpointApplication()) {
-				if (powerpointApplication == null) {
-					return isPictureAdded;
-				}
-				powerpointApplication.Visible = true;
-				using (IPresentations presentations = powerpointApplication.Presentations) {
-					using (IPresentation presentation = presentations.Add(MsoTriState.msoTrue)) {
-						try {
-							AddPictureToPresentation(presentation, tmpFile, imageSize, title);
-							isPictureAdded = true;
-						} catch (Exception e) {
-							LOG.Error(e);
+				if (powerpointApplication != null) {
+					powerpointApplication.Visible = true;
+					using (IPresentations presentations = powerpointApplication.Presentations) {
+						using (IPresentation presentation = presentations.Add(MsoTriState.msoTrue)) {
+							try {
+								AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+								isPictureAdded = true;
+							} catch (Exception e) {
+								LOG.Error(e);
+							}
 						}
 					}
 				}
@@ -261,16 +238,16 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="powerpointApplication">IPowerpointApplication</param>
 		private static void InitializeVariables(IPowerpointApplication powerpointApplication) {
-			if (powerpointApplication == null || powerpointVersion != null) {
+			if (powerpointApplication == null || _powerpointVersion != null) {
 				return;
 			}
 			try {
-				powerpointVersion = new Version(powerpointApplication.Version);
-				LOG.InfoFormat("Using Powerpoint {0}", powerpointVersion);
+				_powerpointVersion = new Version(powerpointApplication.Version);
+				LOG.InfoFormat("Using Powerpoint {0}", _powerpointVersion);
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
 				LOG.Warn("Assuming Powerpoint version 1997.");
-				powerpointVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+				_powerpointVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 

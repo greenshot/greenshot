@@ -38,9 +38,14 @@ namespace GreenshotOfficePlugin {
 		public string EmailCC;
 		[IniProperty("EmailBCC", Description = "Default value for the BCC in emails that are created", DefaultValue = "")]
 		public string EmailBCC;
-		[IniProperty("OutlookAllowExportInMeetings", Description = "Allow export in meeting items", DefaultValue = "False")]
+		[IniProperty("OutlookAllowExportInMeetings", Description = "For Outlook: Allow export in meeting items", DefaultValue = "False")]
 		public bool OutlookAllowExportInMeetings;
 		[IniProperty("WordLockAspectRatio", Description = "For Word: Lock the aspect ratio of the image", DefaultValue = "True")]
 		public bool WordLockAspectRatio;
+		[IniProperty("PowerpointLockAspectRatio", Description = "For Powerpoint: Lock the aspect ratio of the image", DefaultValue = "True")]
+		public bool PowerpointLockAspectRatio;
+		[IniProperty("PowerpointSlideLayout", Description = "For Powerpoint: Slide layout, changing this to a wrong value will fallback on ppLayoutBlank!!", DefaultValue = "ppLayoutPictureWithCaption")]
+		public PPSlideLayout PowerpointSlideLayout;
+
 	}
 }

@@ -19,6 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -181,17 +183,17 @@ namespace Greenshot.Interop.Office {
 									OneNoteSection currentSection = null;
 									OneNoteNotebook currentNotebook = null;
 									while (xmlReader.Read()) {
-										if("one:Notebook".Equals(xmlReader.Name)) {
+										if ("one:Notebook".Equals(xmlReader.Name)) {
 											string id = xmlReader.GetAttribute("ID");
-											if(id != null && (currentNotebook == null || !id.Equals(currentNotebook.ID))) {
+											if (id != null && (currentNotebook == null || !id.Equals(currentNotebook.ID))) {
 												currentNotebook = new OneNoteNotebook();
 												currentNotebook.ID = xmlReader.GetAttribute("ID");
 												currentNotebook.Name = xmlReader.GetAttribute("name");
 											}
 										}
-										if("one:Section".Equals(xmlReader.Name)) {
+										if ("one:Section".Equals(xmlReader.Name)) {
 											string id = xmlReader.GetAttribute("ID");
-											if(id != null && (currentSection == null || !id.Equals(currentSection.ID))) {
+											if (id != null && (currentSection == null || !id.Equals(currentSection.ID))) {
 												currentSection = new OneNoteSection();
 												currentSection.ID = xmlReader.GetAttribute("ID");
 												currentSection.Name = xmlReader.GetAttribute("name");
@@ -200,14 +202,14 @@ namespace Greenshot.Interop.Office {
 										}
 										if ("one:Page".Equals(xmlReader.Name)) {
 											// Skip deleted items
-											if("true".Equals(xmlReader.GetAttribute("isInRecycleBin"))) {
+											if ("true".Equals(xmlReader.GetAttribute("isInRecycleBin"))) {
 												continue;
 											}
 											OneNotePage page = new OneNotePage();
 											page.Parent = currentSection;
 											page.Name = xmlReader.GetAttribute("name");
 											page.ID = xmlReader.GetAttribute("ID");
-											if(page.ID == null || page.Name == null) {
+											if (page.ID == null || page.Name == null) {
 												continue;
 											}
 											page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
@@ -223,8 +225,13 @@ namespace Greenshot.Interop.Office {
 						}
 					}
 				}
+			} catch (COMException cEx) {
+				if (cEx.ErrorCode == unchecked((int)0x8002801D)) {
+					LOG.Warn("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
+				}
+				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", cEx);
 			} catch (Exception ex) {
-				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", ex);
+					LOG.Warn("Problem retrieving onenote destinations, ignoring: ", ex);
 			}
 			pages.Sort(delegate(OneNotePage p1, OneNotePage p2) {
 				if(p1.IsCurrentlyViewed || p2.IsCurrentlyViewed) {
