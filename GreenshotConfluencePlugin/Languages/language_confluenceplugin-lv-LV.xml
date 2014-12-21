@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
+<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
+ <resources>
+	<resource name="plugin_settings">
+		Confluence iestatījumi
+	</resource>
+	<resource name="login_error">
+		Neizdevās pieteikties: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="label_timeout">
+		Noilgums
+	</resource>
+	<resource name="label_user">
+		Lietotājs
+	</resource>
+	<resource name="label_password">
+		Parole
+	</resource>
+	<resource name="login_title">
+		Ievadi savus Confluence pieteikšanās datus
+	</resource>
+	<resource name="OK">
+		Labi
+	</resource>
+	<resource name="CANCEL">
+		Atcelt
+	</resource>
+	<resource name="upload_menu_item">
+		Augšupieladēt uz Confluence
+	</resource>
+	<resource name="upload_success">
+		Attēls veiksmīgi augšupielādēts uz Confluence!
+	</resource>
+	<resource name="upload_failure">
+		Kļūda augšupielādējot uz Confluence:
+	</resource>
+	<resource name="open_page_after_upload">
+		Viena lapa pēc augšupielādes
+	</resource>
+	<resource name="upload_format">
+		Upload format
+	</resource>
+	<resource name="copy_wikimarkup">
+		Ievieto starpliktuvē Wikimarkup
+	</resource>
+	<resource name="filename">
+		Faila vārds
+	</resource>
+  <resource name="upload">
+		Augšupielāde
+	</resource>
+  <resource name="open_pages">
+		Atvērt lapas
+	</resource>
+  <resource name="search_pages">
+		Meklēt lapas
+	</resource>
+  <resource name="browse_pages">
+		Pārlūkot lapas
+	</resource>
+  <resource name="search_text">
+		Meklēt tekstu
+	</resource>
+  <resource name="search">
+		Meklēt
+	</resource>
+  <resource name="loading">
+		Confluence dati ielasās, lūdzu uzgaidiet...
+	</resource>
+  <resource name="include_person_spaces">
+    Meklējumos un pārlūkošanā iekļaut privāto daļu
+  </resource>
+   <resource name="communication_wait">
+     Pārsūtu datus uz Confluence, lūdzu uzgaidiet...
+   </resource>
+ </resources>
+</language>

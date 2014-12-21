@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
+<language description="Latviski" ietf="lv-LV" version="0.1.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    Labot pielāgotas darbības
+  </resource>
+  <resource name="settings_title">
+  		Pielāgotu darbību iestatījumi
+	</resource>
+	<resource name="settings_detail_title">
+  		Pielāgot darbību
+	</resource>
+	<resource name="settings_new">
+  		Jauna
+	</resource>
+	<resource name="settings_delete">
+  		Dzēst
+	</resource>
+	<resource name="settings_edit">
+  		Labot
+	</resource>
+    <resource name="label_name">
+      Vārds
+    </resource>
+    <resource name="label_command">
+      Komanda
+    </resource>
+    <resource name="label_argument">
+      Parametri
+    </resource>
+    <resource name="label_information">
+      {0} – ekrānattēla vārds
+    </resource>
+  </resources>
+</language>

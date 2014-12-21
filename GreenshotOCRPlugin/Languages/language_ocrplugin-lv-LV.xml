@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
+<language description="Latviski" ietf="lv-LV" version="0.1.0">
+  <resources>
+	<resource name="language">
+		OCR valoda
+	</resource>
+	<resource name="orient_image">
+		Pagriezt attēlu
+	</resource>
+	<resource name="straighten_image">
+		Iztaisnot attēlu
+	</resource>
+  </resources>
+</language>

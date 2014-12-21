@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
+<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
+	<resources>
+	 <resource name="label_HiddenFromSearch">
+			Paslēpt no meklētāja
+		</resource>
+		<resource name="label_SafetyLevel">
+			Drošības līmenis
+		</resource>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	 Saistīt ar starpliktuvi
+	</resource>
+		<resource name="label_AfterUpload">
+		Pēc augšupielādes
+		</resource>
+	<resource name="Configure">
+			Flickr iestatījumi
+		</resource>
+		<resource name="upload_menu_item">
+		Augšupieladēt uz Flickr
+	</resource>
+	<resource name="settings_title">
+		Flickr iestatījumi
+	</resource>
+		<resource name="upload_success">
+		Attēls veiksmīgi augšupielādēts uz Flickr!
+	</resource>
+		<resource name="upload_failure">
+		Kļūda augšupielādējot uz Flickr:
+	</resource>
+		<resource name="label_upload_format">
+			Attēla formāts
+	</resource>
+		<resource name="communication_wait">
+			Savienojos ar Flickr. Lūdzu uzgaidiet...
+	</resource>
+	  <resource name="public">
+	  Visiem pieejams
+	  </resource>
+	<resource name="family">
+	  Ģimenei
+	</resource>
+	<resource name="friend">
+	  Draugiem
+	</resource>
+  </resources>
+</language>
