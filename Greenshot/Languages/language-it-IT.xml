@@ -22,7 +22,9 @@ Inoltre, apprezzeremo molto se prima di inserire, tu controllassi se esiste già
 	<resource name="bugreport_title">Errore</resource>
 	<resource name="CANCEL">Annulla</resource>
 	<resource name="clipboard_error">Si è verificato un errore inaspettato durante la scrittura sugli appunti.</resource>
+	<resource name="clipboard_noimage">Nessuna immagine sugli Appunti.</resource>
 	<resource name="clipboard_inuse">Greenshot non è riuscito a scrivere sugli appunti poichè il processo {0} teneva l'accesso bloccato.</resource>
+	<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
 	<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
 	<resource name="ClipboardFormat.HTML">HTML</resource>
 	<resource name="ClipboardFormat.HTMLDATAURL">HTML con immagini in linea</resource>
@@ -36,6 +38,8 @@ Inoltre, apprezzeremo molto se prima di inserire, tu controllassi se esiste già
 	<resource name="colorpicker_red">Rosso</resource>
 	<resource name="colorpicker_title">Scelta colore</resource>
 	<resource name="colorpicker_transparent">Trasparente</resource>
+	<resource name="com_rejected">La destinazione {0} ha rifiutato l'accesso a Greenshot, probabilmente c'è una finestra aperta. Chiudi la finestra e riprova nuovamente.</resource>
+	<resource name="com_rejected_title">Accesso rifiutato a Greenshot</resource>
 	<resource name="config_unauthorizedaccess_write">Il file di configurazione di Greenshot non può essere salvato. Controllare i permessi di accesso per '{0}'.</resource>
 	<resource name="contextmenu_about">Notizie su Greenshot</resource>
 	<resource name="contextmenu_capturearea">Cattura regione</resource>
@@ -59,6 +63,14 @@ Inoltre, apprezzeremo molto se prima di inserire, tu controllassi se esiste già
 	<resource name="contextmenu_quicksettings">Preferenze veloci</resource>
 	<resource name="contextmenu_settings">Preferenze...</resource>
 	<resource name="destination_exportfailed">Errori durente l'esportazione verso {0}. Pregasi riprovare nuovamente.</resource>
+	<resource name="editor_align_bottom">In basso</resource>
+	<resource name="editor_align_center">Centro</resource>
+	<resource name="editor_align_horizontal">Allineamento orizzontale</resource>
+	<resource name="editor_align_left">Sinistra</resource>
+	<resource name="editor_align_middle">In mezzo</resource>
+	<resource name="editor_align_right">Destra</resource>
+	<resource name="editor_align_top">Alto</resource>
+	<resource name="editor_align_vertical">Allineamento verticale</resource>
 	<resource name="editor_arrange">Disponi</resource>
 	<resource name="editor_arrowheads">Tipi di punta di freccia</resource>
 	<resource name="editor_arrowheads_both">Entrambe</resource>
@@ -126,6 +138,8 @@ Inoltre, apprezzeremo molto se prima di inserire, tu controllassi se esiste già
 	<resource name="editor_print">Stampa</resource>
 	<resource name="editor_redo">Ripeti azione {0}</resource>
 	<resource name="editor_resetsize">Azzera Dimensione</resource>	
+	<resource name="editor_resize_percent">Percentuale</resource>
+	<resource name="editor_resize_pixel">Pixels</resource>
 	<resource name="editor_rotateccw">Ruota senso antiorario</resource>
 	<resource name="editor_rotatecw">Ruota senso orario</resource>	
 	<resource name="editor_save">Salva</resource>
@@ -179,10 +193,13 @@ Verifica l'accesso in scrittura sulla destinazione di salvataggio.</resource>
 	<resource name="printoptions_allowshrink">Riduci alle dimensioni pagina</resource>
 	<resource name="printoptions_dontaskagain">Salva le opzioni come default, e non chiedere più</resource>
 	<resource name="printoptions_inverted">Stampa con colori invertiti (negativo)</resource>
+    <resource name="printoptions_colors">Impostazione Colori</resource>
 	<resource name="printoptions_printgrayscale">Forza stampa in scala di grigi</resource>
     <resource name="printoptions_printmonochrome">Forza stampa in bianco e nero</resource>
 	<resource name="printoptions_timestamp">Stampa data / ora sul piede della pagina</resource>
 	<resource name="printoptions_title">Opzioni di stampa di Greenshot</resource>
+    <resource name="printoptions_layout">Impostazioni Layout di pagina</resource>
+    <resource name="printoptions_printcolor">Forza stampa a colori</resource>
 	<resource name="qualitydialog_dontaskagain">Save come qualità di default, e non chiedere più</resource>
 	<resource name="qualitydialog_title">Qualità di Greenshot</resource>
 	<resource name="quicksettings_destination_file">Salva direttamente (usando le impostazioni di emissione preferite)</resource>
@@ -262,8 +279,7 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)</resource
 	<resource name="update_found">Una nuova versione di Greenshot è ora disponibile! Vuoi scaricare Greenshot {0}?</resource>
 	<resource name="wait_ie_capture">Attendere prego, finchè la pagina di Internet Explorer viene catturata...</resource>
 	<resource name="warning">Attenzione</resource>
-	<resource name="warning_hotkeys">La registrazione della/e scorciatoie di tastiera "{0}" non è andata a buon fine. Questo problema è causato probabilmente da un altro software che richiede l'uso delle stesse scorciatoie di tastiera. E' possibile però variare le impostazioni delle scorciatoie, oppure disattivare il software.
-
+	<resource name="warning_hotkeys">La registrazione della/e scorciatoie di tastiera "{0}" non è andata a buon fine. Questo problema è causato probabilmente da un altro software che richiede l'uso delle stesse scorciatoie di tastiera. E' possibile però variare le impostazioni delle scorciatoie, oppure disattivare il software. 
 
 In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono comunque disponibili dal menù visualizzabile con tasto destro del mouse sull'icona G nella barra.</resource>
 	<resource name="WindowCaptureMode.Aero">Usa colori personalizzati</resource>
@@ -271,5 +287,27 @@ In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono
 	<resource name="WindowCaptureMode.Auto">Automaticamente</resource>
 	<resource name="WindowCaptureMode.GDI">Usa i colori di default</resource>
 	<resource name="WindowCaptureMode.Screen">Come visualizzata</resource>
+
+    <resource name="editor_counter">Aggiungi conteggio</resource>
+    <resource name="editor_speechbubble">Aggiungi nuvoletta</resource>
+    <resource name="editor_resize">Ridimensiona</resource>
+    <resource name="editor_resize_settings">Impostazioni ridimensionamento</resource>
+    <resource name="editor_resize_aspectratio">Mantieni il rapporto dimensioni</resource>
+    <resource name="editor_resize_width">Larghezza</resource>
+    <resource name="editor_resize_height">Altezza</resource>
+    <resource name="editor_dropshadow_darkness">Intensità ombra</resource>
+    <resource name="editor_dropshadow_offset">Offset ombra</resource>
+    <resource name="editor_dropshadow_settings">Impostazioni Ombreggiatura</resource>
+    <resource name="editor_dropshadow_thickness">Spessore ombra</resource>
+
+    <resource name="editor_tornedge_horizontaltoothrange">Intervallo orizzontale dentellatura</resource>
+    <resource name="editor_tornedge_settings">Impostazioni Bordi Strappati</resource>
+    <resource name="editor_tornedge_toothsize">Dimensione dentellatura</resource>
+    <resource name="editor_tornedge_verticaltoothrange">Intervallo verticale dentellatura</resource>
+    <resource name="editor_tornedge_left">Strappo lato sinistro</resource>
+    <resource name="editor_tornedge_right">Strappo lato destro</resource>
+    <resource name="editor_tornedge_top">Strappo lato in alto</resource>
+    <resource name="editor_tornedge_bottom">Strappo lato in basso</resource>
+    <resource name="editor_tornedge_shadow">Genera ombra</resource>
   </resources>
 </language>
