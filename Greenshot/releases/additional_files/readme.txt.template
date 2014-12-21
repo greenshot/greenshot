@@ -7,78 +7,50 @@ CHANGE LOG:
 
 @DETAILVERSION@
 
-Bugs Resolved:
-* BUG-1716: Selecting the textbox or speechbubble tool, and changing settings before drawing, causes an error when drawing
-* BUG-1719: color dialog didn't accept HTML color names
-
-
-1.2.3.29-e1fec74 RC3
+All details to our tickets can be found here: https://greenshot.atlassian.net
 
 Features:
-* Greenshot now stores the settings of the torn edge & drop shadow effects
+* Added the possibility to select the region to capture by using the keyboard, use the cursor keys to move the cursor (ctrl-key speeds up the movement) and the enter key to mark the start and ending.
+* Added support for another clipboard format "Format17" (aka CF_DIBV5) which could improve the result of the "open image from clipboard" and drag&drop actions.
+* Editor: a resize effect with settings window has been added.
+* Editor: a settings window for the torn-edge effect has been added, the settings will be stored.
+* Editor: a settings window for the drop shadow effect has been added, the settings will be stored.
+* OneNote: Enabled and enhanced the OneNote destination, so we can test this and see if it's worth releasing.
+* External command: If a command outputs an URI this will be captured and placed on the clipboard, the behaviour currently can only be modified in the greenshot.ini
+* FEATURE-184, FEATURE-282, FEATURE-486: Image editor now has a speech bubble
+* FEATURE-281, FEATURE-669, FEATURE-707, FEATURE-734: Image editor now has auto incrementing labels
+* FEATURE-757: Greenshot will now store the last used region in the greenshot.ini, which makes it also available after a restart.
+* FEATURE-758: Due to the fact that more and more high DPI displays are used, we added a setting to change the icon size.
 * FEATURE-776: Improvement of the torn edge settings dialog
 * FEATURE-777: Improvement of the font family settings, also changed the used font for every family making it easier to find your font.
 
 Changes:
 * Optimized Greenshots update check to use even less traffic by checking the time-stamp of the update feed before downloading it.
-
-Bugs Resolved:
-* BUG-1620: Greenshot crashing Chrome running in 'Windows 8 Mode'
-* BUG-1682: Speech bubble tail "gripper" moved outside of the drawing area, making it impossible to move the tail
-* BUG-1686: Shadow (drop shadow or torn edge) grows if a filter (highlight etc) is used and an element is moved around
-* BUG-1687: Speech bubble didn't have a working shadow
-* BUG-1688: While drawing a textbox there are black vertical lines inside
-* BUG-1698: Cannot enter textbox/Speechbubble lowercase text after changing font family
-* BUG-1699: UI jumps when Textbox or SpeechBubble tools are selected, and changing to another tool. (also the other way around)
-* BUG-1700: IE capture only works once
-* BUG-1701: Drop shadow setting "shadow thickness" wasn't restored.
-* BUG-1709: Alignment of the text and speech-bubble wasn't always correctly saved in the .greenshot file
-* BUG-1710: After resizing the canvas the edges had a slightly different color (1px)
-* BUG-1711: Changing settings (e.g. fill color) on the speech bubble before drawing it, caused an exception.
-... and a lot more small bug fixes to make Greenshot more stable.
-
-1.2.2.43-380f581 RC2 
-
-Features:
-* Added the possibility to select the region to capture by using the keyboard, use the cursor keys to move the cursor (ctrl-key speeds up the movement) and the enter key to mark the start and ending.
-* FEATURE-757: Greenshot will now store the last used region in the greenshot.ini, which makes it also available after a restart.
-* FEATURE-758: Due to the fact that more and more high DPI displays are used, we added a setting to change the icon size.
-* Added support for another clipboard format "Format17" (aka CF_DIBV5) which should improve the result of the "open image from clipboard" and drag&drop actions.
-
-Changes:
 * JIRA: With JIRA 6.x using the SOAP (Webservice) API the access has gotten really slow, we improved the performance slightly by loading some information parallel. (In Greenshot 2.x we will move to another API.)
-
-Bugs Resolved:
-* BUG-1667: removed horizontal alignment of textbox in input mode, as it caused problems with textbox focus and could not be implemented consistently anyway (no vertical alignment possible)
-* BUG-1681: Improvements for the new speech bubble, text color is now the same as the border and the rounded corners are correctly calculated when using thick lines and a small bubble.
-* BUG-1695: Fixed an issue with processing the response from Imgur, which caused the error "Value cannot be null. Parameter name: key"
-
-1.2.1.2-af946cf RC1
-
-All details to our tickets can be found here: https://greenshot.atlassian.net
-
-Features:
-* FEATURE-184, FEATURE-282, FEATURE-486: Image editor now has a speech bubble
-* FEATURE-281, FEATURE-669, FEATURE-707, FEATURE-734: Image editor now has auto incrementing labels
-* Editor: a resize effect with settings window has been added.
-* Editor: a settings window for the torn-edge effect has been added.
-* Editor: a settings window for the drop shadow effect has been added.
-* OneNote: Enabled and enhanced the OneNote destination, so we can test this and see if it's worth releasing.
-* External command: If a command outputs an URI this will be captured and placed on the clipboard, the behaviour currently can only be modified in the greenshot.ini
-
-Bugs resolved:
-* BUG-1559, BUG-1643: Repeating hotkeys are now prevented.
-* BUG-1610: Image editor: 'Obfuscate' and 'Highlight' and more, now should rotate / resize correctly.
-* BUG-1619: Image editor: Autocrop now also considers the elements.
-* BUG-1653: Accessibility issues: Editor "File" menu entry can't be activated and missing translations
-* BUG-1671: Fixed error that occurred when double-clicking systray icon before the first time a screenshot was saved to file
-
-Changes:
 * Dynamic destination context-menu: If a destination has child items the parent is still selectable and executes the default export, we now no longer repeat the parent in the children.
 * Dynamic destination context-menu: We are now leaving the sorting to the destination code, this allows us to e.g. show the default printer on top of the list.
 
+Bugs Resolved:
+* BUG-1559, BUG-1643: Repeating hotkeys are now prevented.
+* BUG-1610: Image editor: 'Obfuscate' and 'Highlight' and more, now should rotate / resize correctly.
+* BUG-1619: Image editor: Autocrop now also considers the elements.
+* BUG-1620: Greenshot crashing Chrome running in 'Windows 8 Mode'
+* BUG-1653: Accessibility issues: Editor "File" menu entry can't be activated and missing translations
+* BUG-1667: removed horizontal alignment of textbox in input mode, as it caused problems with textbox focus and could not be implemented consistently anyway (no vertical alignment possible)
+* BUG-1671: Fixed error that occurred when double-clicking systray icon before the first time a screenshot was saved to file
+* BUG-1686: Shadow (drop shadow or torn edge) grows if a filter (highlight etc) is used and an element is moved around
+* BUG-1688: While drawing a textbox there are black vertical lines inside
+* BUG-1695: Fixed an issue with processing the response from Imgur, which caused the error "Value cannot be null. Parameter name: key"
+* BUG-1699: UI jumps when Textbox or SpeechBubble tools are selected, and changing to another tool. (also the other way around)
+* BUG-1700: IE capture only works once
+* BUG-1709: Alignment of the text and speech-bubble wasn't always correctly saved in the .greenshot file
+* BUG-1710: After resizing the canvas the edges had a slightly different color (1px)
+* BUG-1719: color dialog didn't accept HTML color names
+... and a lot more small bug fixes to make Greenshot more stable.
+
 Languages:
 * Updates for Ukrainian and Japanese translation
+
 
 1.1.9.13-g01ce82d Windows 8.1 & Box bug-fix Release
 
