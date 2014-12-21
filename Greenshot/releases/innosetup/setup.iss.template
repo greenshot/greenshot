@@ -49,6 +49,7 @@ Source: ..\..\Languages\*it-IT*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: ..\..\Languages\*ja-JP*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*ko-KR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*lt-LT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ltLT; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*lv-LV*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\lvLV; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*nn-NO*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\nnNO; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*pl-PL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*pt-BR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -166,6 +167,7 @@ Name: es; MessagesFile: compiler:Languages\Spanish.isl
 Name: fi; MessagesFile: compiler:Languages\Finnish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
+Name: lt; MessagesFile: compiler:Languages\Latvian.isl
 Name: nn; MessagesFile: compiler:Languages\NorwegianNynorsk.isl
 Name: sr; MessagesFile: compiler:Languages\SerbianCyrillic.isl
 Name: sv; MessagesFile: compiler:Languages\Swedish.isl
@@ -234,6 +236,18 @@ fr.ocr=Greffon OCR (nécessite Document Imaging de Microsoft Office [MODI])
 fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
+
+lt.confluence=Confluence spraudnis
+lt.default=${default}
+lt.office=Microsoft Office spraudnis
+lt.externalcommand=Pielāgotu darbību spraudnis
+lt.imgur=Imgur spraudnis (Vairāk šeit: http://imgur.com)
+lt.jira=Jira spraudnis
+lt.language=Papildus valodas
+lt.ocr=OCR spraudnis (nepieciešams Microsoft Office Document Imaging (MODI))
+lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
+lt.startgreenshot=Palaist {#ExeName}
+lt.startup=Palaist {#ExeName} uzsākot darbus
 
 nl.confluence=Confluence plug-in
 nl.default=Default installation
@@ -342,6 +356,7 @@ Name: "languages\itIT"; Description: "Italiano"; Types: full custom; Flags: disa
 Name: "languages\jaJP"; Description: "日本語"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('7')
 Name: "languages\koKR"; Description: "한국의"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
 Name: "languages\ltLT"; Description: "Lietuvių"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
+Name: "languages\lvLV"; Description: "Latviski"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
 Name: "languages\nnNO"; Description: "Nynorsk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\plPL"; Description: "Polski"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
 Name: "languages\ptBR"; Description: "Português do Brasil"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')

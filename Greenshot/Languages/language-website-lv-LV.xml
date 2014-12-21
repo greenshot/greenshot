@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
+<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
+	<resources>
+		<resource name="home_downloads">Lejupielādes</resource>
+		<resource name="home_headline">„Greenshot” - mūsdienīga un  ērta ekrānattēla ieguves programmatūra</resource>
+		<resource name="home_opensource">„Greenshot” ir brīvi lietojama atvērtā koda programmatūra</resource>
+		<resource name="home_opensource_donate">Ja „Greenshot” Tev ļoti palīdz darbā un ļauj ietaupīt laiku un naudu, novērtē to  &lt;a href="/support/"&gt;atbalstot tās izstrādi&lt;/a&gt..</resource>
+		<resource name="home_opensource_gpl">„Greenshot” programmatūra ir pieejama ar  &lt;a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt; licenci. Tas nozīmē, ka to var brīvi lietot jebkurš gan personīgām, gan darba vajadzībām..</resource>
+		<resource name="home_seemore">Vēlies uzzināt ko vairāk?</resource>
+		<resource name="home_seemore_screenshots">Ar „Greenshot” iespējams paveikt daudz ko. Iepazīsties ar &lt;a title="„Greenshot” izmantošanas piemēru ekrānattēli" href="/screenshots/"&gt; „Greenshot” izmantošanas piemēriem&lt;/a&gt; vai lejupielādē &lt;a title="Lejupielādē jaunāko pārbaudīto „Greenshot” versiju" href="/downloads/"&gt;jaunāko pārbaudīto „Greenshot” versiju&lt;/a&gt;.</resource>
+		<resource name="home_whatis">Kas tad ir „Greenshot”?</resource>
+		<resource name="home_whatis_create">ātri iegūt ekranattēlus no visa ekrāna, tā daļas vai notikta loga, kā arī iegūt pilnu „Internet Explorer” lapu;</resource>
+		<resource name="home_whatis_edit">vienkārši pievienot piezīmes, izcelt vai aizmiglot atsevišķas attēla daļas;</resource>
+		<resource name="home_whatis_intro">„Greenshot” ir ātrdarbīga un ērta ekrānattēlu ieguves programmatūra „Windows” lietotājiem. Ar to iespējams:</resource>
+		<resource name="home_whatis_more">... un veikt daudzas citas brīnišķīgas lietas ikdienas vajadzībām.</resource>
+		<resource name="home_whatis_send">saglabāt ekrānattēlu daudz dažādos veidos: saglabāt failā, izdrukājot, ievietojot starpliktuvē, nosūtot uz kādu citu programmatūru vai augšupielādēt tīmekļa servisos;</resource>
+		<resource name="home_whatis_usage">Tā kā „Greenshot” ir vienkārši lietojams un pielāgojams, tas ir piemērots rīks projektu vadītājiem, programmatūru izstrādātājiem, pielietojumu aprakstu veidotājiem, testētājiem un viesiem pārējiem, kam vien nepieciešams iegūt ekrānattēlus.</resource>
+	</resources>
+</language>

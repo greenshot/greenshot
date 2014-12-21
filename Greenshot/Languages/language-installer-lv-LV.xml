@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
+<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
+	<resources>
+		<resource name="startup">Palaist {#ExeName} uzsākot darbu</resource>
+		<resource name="startgreenshot">Palaist {#ExeName}</resource>
+		<resource name="jira">Jira spraudnis</resource>
+		<resource name="confluence">Confluence spraudnis</resource>
+		<resource name="externalcommand">Pielāgotu darbību spraudnis</resource>
+		<resource name="ocr">OCR spraudnis (nepieciešams Microsoft Office Document Imaging (MODI))</resource>
+		<resource name="imgur">Imgur spraudnis (Vairāk šeit: http://imgur.com)</resource>
+		<resource name="language">Papildus valodas</resource>
+		<resource name="optimize">Uzlaboju veikstpēju, tas prasīs kādu laiciņu.</resource>
+	</resources>
+</language>

@@ -1,0 +1,315 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
+<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
+	<resources>
+		<resource name="about_bugs">Kļūdu ziņojumus sūtiet uz</resource>
+		<resource name="about_donations">Ja Tev patīk „Greenshot”, Tu vari mūs atbalstīt:</resource>
+		<resource name="about_host">„Greenshot” atrodams sourceforge.net adresē</resource>
+		<resource name="about_icons">Ikonas veidojis Yusuke Kamiyamane's Fugue (Radošās kopienas Atsaucoties 3.0 licence)</resource>
+		<resource name="about_license">Autortiesības (C): 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
+Ņemot vērā, ka „Greenshot” tiek licencēta bez maksas, šai programmai NAV NEKĀDU GARANTIJU. Tu vari to izplatīt un lietot ievērojot GNU Vispārīgo Publisko licenci:</resource>
+		<resource name="about_title">Par „Greenshot”</resource>
+		<resource name="application_title">„Greenshot” - mūsdienīga ekrānattēla ieguves programmatūra</resource>
+		<resource name="bugreport_cancel">Aizvērt</resource>
+		<resource name="bugreport_info">Atvaino, radās neparedzēta kļūda.
+
+Labās ziņas: Tu vari palīdzēt tikt ar to galā aizpildot kļūdu ziņojuma veidlapu.
+Dodies uz zemāk norādīto adresi, izveido jaunu kļūdu ziņojumu un iekopē tā aprakstā teksta lauka saturu.
+
+Lūgums pievienot saprotamu apkopojumu. Pievieno jebkuru informāciju, kura, Tavuprāt, varētu noderēt kļūdas atkārtošanai.
+Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav ziņojis par doto kļūdu. Atrašanai vari izmantot meklēšanas iepējas. Paldies :)</resource>
+		<resource name="bugreport_title">Kļūda</resource>
+		<resource name="CANCEL">Atsaukt</resource>
+		<resource name="clipboard_error">Rakstot starpliktuvē radās neparedzēta kļūda.</resource>
+		<resource name="clipboard_inuse">„Greenshot” nespēja ierakstīt starpliktuvē, jo process {0} piekļuvi tai liedza piekļuvi.</resource>
+		<resource name="clipboard_noimage">Starpliktuvē attēls nav atrodams.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML ar iekļautiem attēliem</resource>
+		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="colorpicker_alpha">Blīvums</resource>
+		<resource name="colorpicker_apply">Pielietot</resource>
+		<resource name="colorpicker_blue">Zils</resource>
+		<resource name="colorpicker_green">Zaļš</resource>
+		<resource name="colorpicker_htmlcolor">HTML krāsa</resource>
+		<resource name="colorpicker_recentcolors">Nesen lietotās krāsas</resource>
+		<resource name="colorpicker_red">Sarkans</resource>
+		<resource name="colorpicker_title">Krāsu pipete</resource>
+		<resource name="colorpicker_transparent">Caurspīdīgs</resource>
+		<resource name="com_rejected">Ir liegta „Greenshot” piekļuve mērķim {0}. Iespējams, ka atvērts kāds dialoglogs. Aizver to un mēģini vēlreiz.</resource>
+		<resource name="com_rejected_title">„Greenshot” piekļuve atteikta</resource>
+		<resource name="config_unauthorizedaccess_write">Nevar saglabāt failā „Greenshot” iestatījumus. Pārbaudi piekļuves tiesības vietai '{0}'.</resource>
+		<resource name="contextmenu_about">Par „Greenshot”</resource>
+		<resource name="contextmenu_capturearea">Tvert apgabalu</resource>
+		<resource name="contextmenu_captureclipboard">Ielasīt attēlu no starpliktuves</resource>
+		<resource name="contextmenu_capturefullscreen">Tvert visu ekrānu</resource>
+		<resource name="contextmenu_capturefullscreen_all">viss</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">apakša</resource>
+		<resource name="contextmenu_capturefullscreen_left">kreisā</resource>
+		<resource name="contextmenu_capturefullscreen_right">labā</resource>
+		<resource name="contextmenu_capturefullscreen_top">augša</resource>
+		<resource name="contextmenu_captureie">Tvert „Internet Explorer”</resource>
+		<resource name="contextmenu_captureiefromlist">Tvert kādu „Internet Explorer” cilnēm</resource>
+		<resource name="contextmenu_capturelastregion">Tvert pēdējo apgabalu</resource>
+		<resource name="contextmenu_capturewindow">Tvert logu</resource>
+		<resource name="contextmenu_capturewindowfromlist">Tvert kādu no logiem</resource>
+		<resource name="contextmenu_donate">Atbalstīt „Greenshot”</resource>
+		<resource name="contextmenu_exit">Iziet</resource>
+		<resource name="contextmenu_help">Pamācības</resource>
+		<resource name="contextmenu_openfile">Atvērt attēlu no faila</resource>
+		<resource name="contextmenu_openrecentcapture">Atvērt pēdējo ekrānattēla vietu</resource>
+		<resource name="contextmenu_quicksettings">Ātrie iestatījumi</resource>
+		<resource name="contextmenu_settings">Iestatījumi...</resource>
+		<resource name="destination_exportfailed">Kļūda eksportējot {0}. Mēģini vēlreiz.</resource>
+		<resource name="editor_align_bottom">Apakšmalā</resource>
+		<resource name="editor_align_center">Vidū</resource>
+		<resource name="editor_align_horizontal">Horizontālā līdzināšana</resource>
+		<resource name="editor_align_left">Pa kreisi</resource>
+		<resource name="editor_align_middle">Vidū</resource>
+		<resource name="editor_align_right">Pa labi</resource>
+		<resource name="editor_align_top">Augšmalā</resource>
+		<resource name="editor_align_vertical">Vertikālā līdzināšana</resource>
+		<resource name="editor_arrange">Secība</resource>
+		<resource name="editor_arrowheads">Bultu uzgaļi</resource>
+		<resource name="editor_arrowheads_both">Abos galos</resource>
+		<resource name="editor_arrowheads_end">Līnijas beigās</resource>
+		<resource name="editor_arrowheads_none">Bez uzgaļiem</resource>
+		<resource name="editor_arrowheads_start">Līnjas sākumā</resource>
+		<resource name="editor_autocrop">Automātiski apcirst</resource>
+		<resource name="editor_backcolor">Aizpildījuma krāsa</resource>
+		<resource name="editor_blur_radius">Izpludinājuma rādiuss</resource>
+		<resource name="editor_bold">Trekns</resource>
+		<resource name="editor_border">Apmale</resource>
+		<resource name="editor_brightness">Gaišums</resource>
+		<resource name="editor_cancel">Atsaukt</resource>
+		<resource name="editor_clipboardfailed">Neizdevās piekļūt starpliktuvei. Mēģini vēlreiz.</resource>
+		<resource name="editor_close">Aizvērt</resource>
+		<resource name="editor_close_on_save">Vai gribi saglabāt ekrānattēlu?</resource>
+		<resource name="editor_close_on_save_title">Saglabāt attēlu?</resource>
+		<resource name="editor_confirm">Apstiprināt</resource>
+		<resource name="editor_copyimagetoclipboard">Ievit attēlu starpliktuvē</resource>
+		<resource name="editor_copypathtoclipboard">Ievietot ceļu starpliktuvē</resource>
+		<resource name="editor_copytoclipboard">Kopēt</resource>
+		<resource name="editor_crop">Apcirst (C)</resource>
+		<resource name="editor_cursortool">Atlases rīks (ESC)</resource>
+		<resource name="editor_cuttoclipboard">Izgriezt</resource>
+		<resource name="editor_deleteelement">Izdzēst</resource>
+		<resource name="editor_downonelevel">Nolaist</resource>
+		<resource name="editor_downtobottom">Nolaist paša apakšā</resource>
+		<resource name="editor_drawarrow">Zīmēt bultu (A)</resource>
+		<resource name="editor_drawellipse">Zīmēt elipsi (E)</resource>
+		<resource name="editor_drawfreehand">Zīmēt brīvi līniju (F)</resource>
+		<resource name="editor_drawhighlighter">Izcelt (H)</resource>
+		<resource name="editor_drawline">Zīmēt līniju (L)</resource>
+		<resource name="editor_drawrectangle">Zīmēt taisnstūri (R)</resource>
+		<resource name="editor_drawtextbox">Pievienot tekstu (T)</resource>
+		<resource name="editor_duplicate">Dublēt izcelto vienumu</resource>
+		<resource name="editor_edit">Labot</resource>
+		<resource name="editor_effects">Efekti</resource>
+		<resource name="editor_email">E-pasts</resource>
+		<resource name="editor_file">Fails</resource>
+		<resource name="editor_fontsize">Izmērs</resource>
+		<resource name="editor_forecolor">Līnijas krāsa</resource>
+		<resource name="editor_grayscale">Pelēko toņu</resource>
+		<resource name="editor_highlight_area">Aptumšot apkārt</resource>
+		<resource name="editor_highlight_grayscale">Bez krāsas apkārt</resource>
+		<resource name="editor_highlight_magnify">Palielināt</resource>
+		<resource name="editor_highlight_mode">Izcēluma veids</resource>
+		<resource name="editor_highlight_text">Iekrāsot</resource>
+		<resource name="editor_image_shadow">Veidot ēnu</resource>
+		<resource name="editor_imagesaved">Attēls saglabāts kā {0}.</resource>
+		<resource name="editor_insertwindow">Ievietot logu</resource>
+		<resource name="editor_invert">Negatīvs</resource>
+		<resource name="editor_italic">Slīpraksts</resource>
+		<resource name="editor_load_objects">Ielasīt objektu no faila</resource>
+		<resource name="editor_magnification_factor">Palielinājums</resource>
+		<resource name="editor_match_capture_size">Salāgot ar tveruma izmēru</resource>
+		<resource name="editor_obfuscate">Aizmiglošana (O)</resource>
+		<resource name="editor_obfuscate_blur">Izpludināt</resource>
+		<resource name="editor_obfuscate_mode">Aizmiglošanas veids</resource>
+		<resource name="editor_obfuscate_pixelize">Sadrumstalot</resource>
+		<resource name="editor_object">Objekts</resource>
+		<resource name="editor_opendirinexplorer">Atvērt direktoriju ar Windows Explorer</resource>
+		<resource name="editor_pastefromclipboard">Ielīmēt</resource>
+		<resource name="editor_pixel_size">Pikseļa izmērs</resource>
+		<resource name="editor_preview_quality">Priekšapskates kvalitāte</resource>
+		<resource name="editor_print">Drukāt</resource>
+		<resource name="editor_redo">Atcelt atsaukšanu {0}</resource>
+		<resource name="editor_resetsize">Atjaunot izmēru</resource>
+		<resource name="editor_resize_percent">Procenti</resource>
+		<resource name="editor_resize_pixel">Pikseļi</resource>
+		<resource name="editor_rotateccw">Pagriezt pretēji pulksteņrādītājiem (Control + ,)</resource>
+		<resource name="editor_rotatecw">Pagriezt pulksteņrādītāju virzienā (Control + .)</resource>
+		<resource name="editor_save">Saglabāt</resource>
+		<resource name="editor_save_objects">Saglabāt objektus failā</resource>
+		<resource name="editor_saveas">Saglbāt kā...</resource>
+		<resource name="editor_selectall">Saglabāt visu</resource>
+		<resource name="editor_senttoprinter">Izdrukāt tika nosūtīts uz '{0}'.</resource>
+		<resource name="editor_shadow">Veidot ēnu</resource>
+		<resource name="editor_storedtoclipboard">Attēls saglabāts starpliktuvē.</resource>
+		<resource name="editor_thickness">Līnijas biezums</resource>
+		<resource name="editor_title">„Greenshot” attēla redaktors</resource>
+		<resource name="editor_torn_edge">Noplēst malas</resource>
+		<resource name="editor_undo">Atsaukt {0}</resource>
+		<resource name="editor_uponelevel">Pacelt</resource>
+		<resource name="editor_uptotop">Pacelt virspusē</resource>
+		<resource name="EmailFormat.MAPI">MAPI klients</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook ar HTML</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook ar tekstu</resource>
+		<resource name="error">Kļūda</resource>
+		<resource name="error_multipleinstances">„Greenshot” jau darbojas.</resource>
+		<resource name="error_nowriteaccess">Failu {0} nevar saglabāt.
+Pārbaudi dotajā vietā savas piekļuves tiesības.</resource>
+		<resource name="error_openfile">Failu "{0}" nevar atvērt.</resource>
+		<resource name="error_openlink">Nevar atvērt norādi '{0}'.</resource>
+		<resource name="error_save">Ekrānattēlu nevar saglabāt, izvēlies citu vietu.</resource>
+		<resource name="expertsettings">Paplašināti</resource>
+		<resource name="expertsettings_autoreducecolors">Veidot 8-bit attēlu, ja tajā ir mazāk par 256 krāsām</resource>
+		<resource name="expertsettings_checkunstableupdates">Pārbaudīt izstrādes atjauninājumus</resource>
+		<resource name="expertsettings_clipboardformats">Starpliktuves formāts</resource>
+		<resource name="expertsettings_counter">Faila vārda paraugā ${NUM} sākt skaitīt no</resource>
+		<resource name="expertsettings_enableexpert">Es zinu ko daru!</resource>
+		<resource name="expertsettings_footerpattern">Izdrukas kājenes paraugs</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Ietaupīt atmiņu uz veiktspējas rēķina (labāk nevajag).</resource>
+		<resource name="expertsettings_optimizeforrdp">Optimizēt attālinātai darba virsmai</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Ja vien iespējams redaktoru izmantot atkārtoti</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Aizverot redaktoru nerādīt attēla saglabāšanas piedāvājumu</resource>
+		<resource name="expertsettings_thumbnailpreview">Rādīt logu sīkattēlus peles izvēlnē (Vista, Windows 7)</resource>
+		<resource name="exported_to">Eksportēts uz: {0}</resource>
+		<resource name="exported_to_error">Kļūda eksportējot uz: {0}</resource>
+		<resource name="help_title">„Greenshot” apraksts</resource>
+		<resource name="hotkeys">Karstie taustiņi</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Izvēlies JPEG kvalitāti.</resource>
+		<resource name="OK">Labi</resource>
+		<resource name="print_error">Drukājot radās kļūda.</resource>
+		i<resource name="printoptions_allowcenter">Izdruku iecentrēt</resource>
+		<resource name="printoptions_allowenlarge">Palielināt izdruku atbilstoši lapai</resource>
+		<resource name="printoptions_allowrotate">Sagriezt izdruku atbilstoši lapai</resource>
+		<resource name="printoptions_allowshrink">Samazināt izdruku atbilstoši lapai</resource>
+    <resource name="printoptions_colors">Krāsu iestatījumi</resource>
+    <resource name="printoptions_dontaskagain">Saglabāt iestatījumus kā piedāvājumu un vairāk nejautāt</resource>
+		<resource name="printoptions_inverted">Izdrukāt kā negatīvu</resource>
+    <resource name="printoptions_layout">Izdrukas izkārtojums</resource>
+    <resource name="printoptions_printcolor">Pilnkrāsas izdruka</resource>
+    <resource name="printoptions_printgrayscale">Izdrukāt pelēkos toņos</resource>
+    <resource name="printoptions_printmonochrome">Izdrukāt kā melnbaltu</resource>
+    <resource name="printoptions_timestamp">Lapas apakšpusē izdrukāt datumu un laiku</resource>
+		<resource name="printoptions_title">„Greenshot” izdrukas iestatījumi</resource>
+		<resource name="qualitydialog_dontaskagain">Saglabāt kā piedāvāto kvalitāti un vairāk nejautāt</resource>
+		<resource name="qualitydialog_title">„Greenshot” kvalitāte</resource>
+		<resource name="quicksettings_destination_file">Saglabā nejautājot (lietojot izvēlētos failu izveides iestatījumus)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Rādīt izdrukas iestatījumu logu, kad vien tiek drukāts</resource>
+		<resource name="settings_alwaysshowqualitydialog">Rādīt kvalitātes iestatījumu logu, kad vien attēls tiek saglabāts</resource>
+		<resource name="settings_applicationsettings">Programmatūras iestatījumi</resource>
+		<resource name="settings_autostartshortcut">Palaist „Greenshot” uzsākot darbu</resource>
+		<resource name="settings_capture">Tvert</resource>
+		<resource name="settings_capture_mousepointer">Tvert arī peles kursoru</resource>
+		<resource name="settings_capture_windows_interactive">Lietot mijiedarbīgo logu tveršanas veidu</resource>
+		<resource name="settings_checkperiod">Cik dienās reizi pārbaudīt atjauninājumus (0=nepārbaudīt)</resource>
+		<resource name="settings_configureplugin">Pielāgot</resource>
+		<resource name="settings_copypathtoclipboard">Ievietot atmiņā faila ceļu, kad vien attēls tiek saglabāts</resource>
+		<resource name="settings_destination">Ko darīt ar attēlu</resource>
+		<resource name="settings_destination_clipboard">Ievietot atmiņā</resource>
+		<resource name="settings_destination_editor">Atvērt attēla redaktorā</resource>
+		<resource name="settings_destination_email">E-pasts</resource>
+		<resource name="settings_destination_file">Saglabāt nejautājot (izmantojot zemākesošos iestatījumus)</resource>
+		<resource name="settings_destination_fileas">Saglabāt kā (tiks vaicāts)</resource>
+		<resource name="settings_destination_picker">Piedāvāt iespējas</resource>
+		<resource name="settings_destination_printer">Drukāt</resource>
+		<resource name="settings_editor">Redaktors</resource>
+		<resource name="settings_filenamepattern">Faila vārda paraugs</resource>
+		<resource name="settings_general">Vispārīgi</resource>
+		<resource name="settings_iecapture">Tvert „Internet Explorer”</resource>
+		<resource name="settings_jpegquality">JPEG kvalitāte</resource>
+		<resource name="settings_language">Valoda (Language)</resource>
+		<resource name="settings_message_filenamepattern">Ir pieejami sekojoši aizstājējvārdi:
+${YYYY} gads, 4 cipari
+${MM} mēnesis, 2 cipari
+${DD} datums, 2 ciari
+${hh} stundas, 2 cipari
+${mm} minūtes, 2 cipari
+${ss} sekunes, 2 cipari
+${NUM} skaitītājs, 6 cipari
+${title} Loga virsraksts
+${user} Lietotājvārds
+${domain} Windows domēns
+${hostname} Datora vārds
+
+Ir iespejams izveidot arī direktorijas. Direktoriju un faila vārdu atdalīšnai lieto otrādo slīpsvītru (\).
+Piemērs: paraugs ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+izveidos direktoriju nosaucot to šīsdienas datuma vārdā, piemēram, 2014-12-19.
+Tur tiks glabāti ekrānattēlu faili, kuru nosaukumu veidos patreizējais laiks,
+piemēram, 06_16_31 ar paplašinājumu, kas noteikts iestatījumos (Attēla veids).</resource>
+		<resource name="settings_network">Tīkls un atjauninājumi</resource>
+		<resource name="settings_output">Saglabāšana</resource>
+		<resource name="settings_playsound">Atskaņot troksni</resource>
+		<resource name="settings_plugins">Sparudņi</resource>
+		<resource name="settings_plugins_createdby">Veidoja</resource>
+		<resource name="settings_plugins_dllpath">DLL ceļš</resource>
+		<resource name="settings_plugins_name">Vārds</resource>
+		<resource name="settings_plugins_version">Versija</resource>
+		<resource name="settings_preferredfilesettings">Vēlamie failu iestatījumi</resource>
+		<resource name="settings_primaryimageformat">Attēla veids</resource>
+		<resource name="settings_printer">Drukas iekārta</resource>
+		<resource name="settings_printoptions">Drukas iestatījumi</resource>
+		<resource name="settings_qualitysettings">Kvalitātes iestatījumi</resource>
+		<resource name="settings_reducecolors">Lietot ne vairāk kā 256 krāsas</resource>
+		<resource name="settings_registerhotkeys">Izveidot karstos taustiņus</resource>
+		<resource name="settings_showflashlight">Rādīt zibsni</resource>
+		<resource name="settings_shownotify">Rādīt paziņojumu</resource>
+		<resource name="settings_zoom">Rādīt palielinājumu</resource>
+		<resource name="settings_storagelocation">Vieta glabāšanai</resource>
+		<resource name="settings_title">Iestatījumi</resource>
+		<resource name="settings_tooltip_filenamepattern">Ekrānattēlu failu vārdu paraugs</resource>
+		<resource name="settings_tooltip_language">„Greenshot” saskarnes valoda</resource>
+		<resource name="settings_tooltip_primaryimageformat">Piedāvātais attēla formāts</resource>
+		<resource name="settings_tooltip_registerhotkeys">Nosaka, vai karstos taustiņus Prnt, Ctrl + Print, Alt + Prnt izmantos „Greenshot” (līdz tas tiks aizvērts).</resource>
+		<resource name="settings_tooltip_storagelocation">Vieta, kur tiks piedāvāts saglabāt ekrānatēlus (ja atstāsi tukšu, tad darbvirsma)</resource>
+		<resource name="settings_usedefaultproxy">Lietot sistēmas piedāvāto starpniekserveri</resource>
+		<resource name="settings_visualization">Efekti</resource>
+		<resource name="settings_waittime">Cik milisekundes gaidīt pirms tveršanas</resource>
+		<resource name="settings_window_capture_mode">Loga tveršanas veids</resource>
+		<resource name="settings_windowscapture">Loga tveršana</resource>
+		<resource name="tooltip_firststart">Lieto peles labo pogu vai {0} taustiņu.</resource>
+		<resource name="update_found">Ir pieejama jaunāka „Greenshot” versija! Vai vēlies lejuplādēt „Greenshot” {0}?</resource>
+		<resource name="wait_ie_capture">Uzgaidiet līdz tiek iegūta visa Internet Explorer lapa...</resource>
+		<resource name="warning">Brīdinājums</resource>
+		<resource name="warning_hotkeys">Neizdevās pievienot karsto taustiņu "{0}". Iespējams, ka kāda cita lietotne to jau izmanto! Vai nu izmanto citu karsto taustiņu, vai arī nomai tā lietojumu citur.
+
+Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Greenshot” ikonjoslas izvēlni.</resource>
+		<resource name="WindowCaptureMode.Aero">Izmantot pielāgotu krāsu</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Saglabāt caurspīdīgumu</resource>
+		<resource name="WindowCaptureMode.Auto">Automātiski</resource>
+		<resource name="WindowCaptureMode.GDI">Lietot piedāvāto krāsu</resource>
+		<resource name="WindowCaptureMode.Screen">Kā redzams</resource>
+
+    <!-- 1.2 -->
+    <resource name="editor_dropshadow_darkness">Ēnas tumšums</resource>
+    <resource name="editor_dropshadow_offset">Ēnas nobīde</resource>
+    <resource name="editor_dropshadow_settings">Ēnas iestatījumi</resource>
+    <resource name="editor_dropshadow_thickness">Ēnas platums</resource>
+
+    <resource name="editor_tornedge_horizontaltoothrange">Guleniskais plēsuma platums</resource>
+    <resource name="editor_tornedge_settings">Malu noplēšanas iestatījumi</resource>
+    <resource name="editor_tornedge_toothsize">Plēsuma platums</resource>
+    <resource name="editor_tornedge_verticaltoothrange">Stateniskais plāesuma platums</resource>
+    <resource name="editor_tornedge_all">Noplēst visas malas</resource>
+    <resource name="editor_tornedge_left">Kreisā puse</resource>
+    <resource name="editor_tornedge_right">Labā puse</resource>
+    <resource name="editor_tornedge_top">Augšpuse</resource>
+    <resource name="editor_tornedge_bottom">Apakšpuse</resource>
+    <resource name="editor_tornedge_shadow">Veidot ēnu</resource>
+    
+    <resource name="editor_counter">Pievienot skaitli (I)</resource>
+    <resource name="editor_speechbubble">Pievienot teksta norādi (S)</resource>
+
+    <resource name="editor_resize">Mainīt izmēru</resource>
+    <resource name="editor_resize_settings">Izmēra maiņas iestatījumi</resource>
+    <resource name="editor_resize_aspectratio">Saglabāt izmēru attiecības</resource>
+    <resource name="editor_resize_width">Platums</resource>
+    <resource name="editor_resize_height">Augstums</resource>
+	<resource name="settings_iconsize">Ikonas izmērs</resource>
+    
+  </resources>
+</language>
