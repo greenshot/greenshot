@@ -1245,11 +1245,12 @@ namespace Greenshot {
 				windowToCapture = CaptureHelper.SelectCaptureWindow(windowToCapture);
 				if (windowToCapture != null) {
 					capture = CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfiguration.WindowCaptureMode);
-					Activate();
-					WindowDetails.ToForeground(Handle);
-					if (capture!= null && capture.Image != null) {
+					if (capture != null && capture.CaptureDetails != null && capture.Image != null) {
+						((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
 						surface.AddImageContainer((Bitmap)capture.Image, 100, 100);
 					}
+					Activate();
+					WindowDetails.ToForeground(Handle);
 				}
 
 				if (capture!= null) {

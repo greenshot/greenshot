@@ -932,7 +932,6 @@ namespace Greenshot.Helpers {
 				if (windowToCapture != null) {
 					captureForWindow.CaptureDetails.Title = windowToCapture.Text;
 				}
-				((Bitmap)captureForWindow.Image).SetResolution(captureForWindow.CaptureDetails.DpiX, captureForWindow.CaptureDetails.DpiY);
 			}
 
 			return captureForWindow;
