@@ -618,9 +618,6 @@ namespace GreenshotPlugin.Core {
 			}
 			capture.Image = CaptureRectangle(captureBounds);
 			capture.Location = captureBounds.Location;
-			if (capture.CaptureDetails != null) {
-				((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
-			}
 			return capture.Image == null ? null : capture;
 		}
 
