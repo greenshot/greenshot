@@ -10,7 +10,7 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 @DETAILVERSION@
 
 Bugs Resolved:
-* BUG-1724
+* BUG-1724: Error when using "Alt + PrintScreen" after clicking system tray
 
 
 1.2.4.9-RELEASE-b4b6c6546d12
