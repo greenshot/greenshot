@@ -37,12 +37,6 @@ We now have a continuous integration system, you can find the latest unstable 1.
 Current build status 1.2 branch: ![Unknown](https://ci.appveyor.com/api/projects/status/yh4jnjbo03qrl60d/branch/1.2?svg=true)
 
 
-**master**
-The master branch has that which some day will be available in Greenshot 2.x.
-As we are re factoring and changing a lot of code for 2.x, this branch should be considered highly unstable!
-We accept pull-requests for 2.x, but it might be better to wait with bigger changes until things settle down a bit.
-
-
 Developing for Greenshot
 ------------------------
 We develop Greenshot with Visual Studio Express 2013 and tested our solution on Visual Studio Professional 2012.
