@@ -1,0 +1,60 @@
+version: 1.3.0.{build}
+branches:
+  only:
+  - master
+configuration: Release
+platform: Any CPU
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}-$(build_type)-$(APPVEYOR_REPO_COMMIT)'
+environment:
+  credentials_box_client_id: key
+  credentials_box_client_secret: secret
+  credentials_dropbox_consumer_key: key
+  credentials_dropbox_consumer_secret: secret
+  credentials_flickr_consumer_key: key
+  credentials_flickr_consumer_secret: secret
+  credentials_imgur_consumer_key: key
+  credentials_imgur_consumer_secret: secret
+  credentials_photobucket_consumer_key: key
+  credentials_photobucket_consumer_secret: secret
+  credentials_picasa_consumer_key: key
+  credentials_picasa_consumer_secret: secret
+  sourceforge_host: frs.sourceforge.net
+  sourceforge_user: user
+  sourceforge_password: password
+  sourceforge_hostkey: ssh-rsa 2048 b0:a8:eb:30:ce:1a:0e:6a:4d:7a:6b:3a:0a:c6:27:60
+  sourceforge_targetpath: /home/frs/project/greenshot/Greenshot/Greenshot 1.3/
+  build_type: UNSTABLE
+  rsakey: key
+before_build:
+- ps: iex (new-object Net.WebClient).DownloadString("https://bitbucket.org/greenshot/greenshot/raw/master/prebuild.ps1")
+build:
+  project: greenshot\greenshot.sln
+  verbosity: normal
+after_build:
+- ps: iex (new-object Net.WebClient).DownloadString("https://bitbucket.org/greenshot/greenshot/raw/master/build.ps1")
+test: off
+artifacts:
+- path: Greenshot\releases\Greenshot*INSTALLER*.exe
+  name: Installer
+- path: Greenshot\releases\Greenshot*paf.exe
+  name: Portable
+- path: Greenshot\releases\Greenshot-NO*.zip
+  name: Zip
+- path: Greenshot\releases\additional_files\readme.txt
+  name: Readme
+- path: Greenshot\releases\Greenshot-DEBUGSYMBOLS*.zip
+  name: DEBUGSYMBOLS
+deploy_script:
+- ps: iex (new-object Net.WebClient).DownloadString("https://bitbucket.org/greenshot/greenshot/raw/master/deploy.ps1")
+notifications:
+- provider: Email
+  to:
+  - robin@getgreenshot.org
+  on_build_success: false
+  on_build_failure: false
+  on_build_status_changed: true
