@@ -10,6 +10,12 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 @DETAILVERSION@
 
 Bugs Resolved:
+* BUG-1730: File type in the Save-As dialog doesn't default to configured output format
+
+
+1.2.4.10-RELEASE-94d66e09eb89
+
+Bugs Resolved:
 * BUG-1724: Error when using "Alt + PrintScreen" after clicking system tray
 
 
