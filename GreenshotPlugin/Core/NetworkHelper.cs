@@ -128,7 +128,9 @@ namespace GreenshotPlugin.Core {
 			HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(uri);
 			if (Config.UseProxy) {
 				webRequest.Proxy = CreateProxy(uri);
-				//webRequest.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			} else {
+				// BUG-1655: Fix that Greenshot always uses the default proxy even if the "use default proxy" checkbox is unset
+				webRequest.Proxy = null;
 			}
 			webRequest.AllowAutoRedirect = true;
 			// Set default timeouts
