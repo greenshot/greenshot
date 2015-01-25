@@ -64,6 +64,7 @@
     <Compile Include="Interop\ComProgIdAttribute.cs" />
     <Compile Include="Interop\COMWrapper.cs" />
     <Compile Include="Interop\IAppVisibility.cs" />
+    <Compile Include="Interop\IUnknown.cs" />
     <Compile Include="Interop\IDispatch.cs" />
     <Compile Include="Interop\IOleWindow.cs" />
     <Compile Include="Interop\IOleCommandTarget.cs" />

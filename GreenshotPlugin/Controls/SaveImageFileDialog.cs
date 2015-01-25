@@ -90,10 +90,12 @@ namespace GreenshotPlugin.Controls {
 			prepareFilterOptions();
 			string fdf = "";
 			int preselect = 0;
+            var outputFileFormatAsString = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat);
 			for(int i=0; i<filterOptions.Length; i++){
 				FilterOption fo = filterOptions[i];
 				fdf +=  fo.Label + "|*." + fo.Extension + "|";
-				if(conf.OutputFileAsFullpath.EndsWith(fo.Extension, StringComparison.CurrentCultureIgnoreCase)) preselect = i;
+                if(outputFileFormatAsString == fo.Extension)
+				    preselect = i;
 			}
 			fdf = fdf.Substring(0, fdf.Length-1);
 			saveFileDialog.Filter = fdf;

@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -49,17 +50,17 @@ namespace Greenshot.Interop {
 		/// <summary>
 		/// Type of the COM object, set on constructor after getting the COM reference
 		/// </summary>
-		private Type _COMType;
+		private readonly Type _COMType;
 
 		/// <summary>
 		/// The type of which method calls are intercepted and executed on the COM object.
 		/// </summary>
-		private Type _InterceptType;
+		private readonly Type _InterceptType;
 
 		/// <summary>
 		/// The humanly readable target name
 		/// </summary>
-		private string _TargetName;
+		private readonly string _TargetName;
 
 		#endregion
 		[DllImport("ole32.dll")]
@@ -73,7 +74,7 @@ namespace Greenshot.Interop {
 		/// <summary>
 		/// Gets a COM object and returns the transparent proxy which intercepts all calls to the object
 		/// </summary>
-		/// <param name="type">Interface which defines the method and properties to intercept</param>
+		/// <param name="T">Interface which defines the method and properties to intercept</param>
 		/// <returns>Transparent proxy to the real proxy for the object</returns>
 		/// <remarks>The <paramref name="type"/> must be an interface decorated with the <see cref="ComProgIdAttribute"/>attribute.</remarks>
 		public static T GetInstance<T>() {
@@ -183,6 +184,7 @@ namespace Greenshot.Interop {
 					}
 				} catch (Exception e) {
 					LOG.WarnFormat("Error {1} creating object for {0}", progId, e.Message);
+					throw;
 				}
 			}
 			if (comObject != null) {
@@ -288,6 +290,25 @@ namespace Greenshot.Interop {
 				}
 			}
 			return default(T);
+		}
+
+		/// <summary>
+		/// Wrap a com object as COMWrapper
+		/// </summary>
+		/// <param name="comObject">An object to intercept</param>
+		/// <param name="T">Interface which defines the method and properties to intercept</param>
+		/// <returns>Transparent proxy to the real proxy for the object</returns>
+		public static T Wrap<T>(object comObject) {
+			Type type = typeof (T);
+			if (null == comObject) {
+				throw new ArgumentNullException("comObject");
+			}
+			if (null == type) {
+				throw new ArgumentNullException("type");
+			}
+
+			COMWrapper wrapper = new COMWrapper(comObject, type, type.FullName);
+			return (T)wrapper.GetTransparentProxy();
 		}
 
 		/// <summary>
