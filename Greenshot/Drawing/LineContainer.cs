@@ -92,6 +92,8 @@ namespace Greenshot.Drawing {
 				}
 
 				using (Pen pen = new Pen(lineColor, lineThickness)) {
+                    graphics.Flush(FlushIntention.Flush);   
+                    graphics.SmoothingMode = SmoothingMode.None;
 					graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
 				}
 			}
