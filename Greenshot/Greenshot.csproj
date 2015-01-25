@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <Import Project="..\CommonProject.properties" />
   <PropertyGroup>
     <ProjectGuid>{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}</ProjectGuid>
@@ -18,8 +18,7 @@
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
+    <UpgradeBackupLocation />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
@@ -202,11 +201,6 @@
     <Compile Include="Forms\MovableShowColorForm.Designer.cs">
       <DependentUpon>MovableShowColorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Sounds.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Sounds.resx</DependentUpon>
-    </Compile>
     <None Include="App.config" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
@@ -247,19 +241,10 @@
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\PrintOptionsDialog.resx">
-      <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\TornEdgeSettingsForm.resx">
-      <DependentUpon>TornEdgeSettingsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sounds.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Sounds.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Sounds.resx" />
     <None Include="greenshot.manifest" />
     <None Include="Languages\help-en-US.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -346,7 +331,6 @@
     </None>
     <None Include="Languages\language-nl-NL.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
     </None>
     <None Include="Languages\language-nn-NO.xml" />
     <None Include="Languages\language-pl-PL.xml">

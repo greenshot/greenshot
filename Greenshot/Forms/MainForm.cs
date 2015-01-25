@@ -748,7 +748,7 @@ namespace Greenshot {
 			}
 
 			var now = DateTime.Now;
-			if ((now.Month == 12 && now.Day > 14 && now.Day < 27) || // christmas
+			if ((now.Month == 12 && now.Day > 19 && now.Day < 27) || // christmas
 			    (now.Month ==  3 && now.Day > 13 && now.Day < 21)) { // birthday
 				var resources = new ComponentResourceManager(typeof(MainForm));
 					contextmenu_donate.Image = (Image)resources.GetObject("contextmenu_present.Image");

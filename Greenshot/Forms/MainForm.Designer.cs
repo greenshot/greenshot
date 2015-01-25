@@ -80,32 +80,32 @@ namespace Greenshot {
 			// contextMenu
 			// 
 			this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.contextmenu_capturearea,
-            this.contextmenu_capturelastregion,
-            this.contextmenu_capturewindow,
-            this.contextmenu_capturefullscreen,
-            this.contextmenu_captureie,
-            this.toolStripListCaptureSeparator,
-            this.contextmenu_capturewindowfromlist,
-            this.contextmenu_captureiefromlist,
-            this.toolStripOtherSourcesSeparator,
-            this.contextmenu_captureclipboard,
-            this.contextmenu_openfile,
-            this.toolStripOpenFolderSeparator,
-            this.contextmenu_openrecentcapture,
-            this.toolStripPluginSeparator,
-            this.contextmenu_quicksettings,
-            this.contextmenu_settings,
-            this.toolStripMiscSeparator,
-            this.contextmenu_help,
-            this.contextmenu_donate,
-            this.contextmenu_about,
-            this.toolStripCloseSeparator,
-            this.contextmenu_exit});
+									this.contextmenu_capturearea,
+									this.contextmenu_capturelastregion,
+									this.contextmenu_capturewindow,
+									this.contextmenu_capturefullscreen,
+									this.contextmenu_captureie,
+									this.toolStripListCaptureSeparator,
+									this.contextmenu_capturewindowfromlist,
+									this.contextmenu_captureiefromlist,
+									this.toolStripOtherSourcesSeparator,
+									this.contextmenu_captureclipboard,
+									this.contextmenu_openfile,
+									this.toolStripOpenFolderSeparator,
+									this.contextmenu_openrecentcapture,
+									this.toolStripPluginSeparator,
+									this.contextmenu_quicksettings,
+									this.contextmenu_settings,
+									this.toolStripMiscSeparator,
+									this.contextmenu_help,
+									this.contextmenu_donate,
+									this.contextmenu_about,
+									this.toolStripCloseSeparator,
+									this.contextmenu_exit});
 			this.contextMenu.Name = "contextMenu";
-			this.contextMenu.Size = new System.Drawing.Size(171, 392);
 			this.contextMenu.Closing += new System.Windows.Forms.ToolStripDropDownClosingEventHandler(this.ContextMenuClosing);
 			this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuOpening);
+			this.contextMenu.Renderer = new Greenshot.Controls.ContextMenuToolStripProfessionalRenderer();
 			// 
 			// contextmenu_capturearea
 			// 
@@ -203,7 +203,7 @@ namespace Greenshot {
 			// contextmenu_quicksettings
 			// 
 			this.contextmenu_quicksettings.Name = "contextmenu_quicksettings";
-			this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, 22);
+			this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
 			// 
 			// contextmenu_settings
 			// 
@@ -276,7 +276,6 @@ namespace Greenshot {
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			this.contextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
-
 		}
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_captureiefromlist;
 		private System.Windows.Forms.ToolStripSeparator toolStripOtherSourcesSeparator;
