@@ -4,11 +4,11 @@
     xmlns:l="clr-namespace:TranslationByMarkupExtension"
 	Title="{l:Translate upload_menu_item}" Height="640" Width="500" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
 	<StackPanel>
-		<TabControl >
-            <TabItem Header="{l:Translate open_pages}">
+		<TabControl>
+            <TabItem Header="{l:Translate open_pages}" Name="PickerTab">
 				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=PickerPage}" Height="500"/>
 			</TabItem>
-            <TabItem Header="{l:Translate search_pages}">
+            <TabItem Header="{l:Translate search_pages}" Name="SearchTab">
 				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=SearchPage}" Height="500"/>
 			</TabItem>
             <TabItem Header="{l:Translate browse_pages}">

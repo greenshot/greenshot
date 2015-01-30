@@ -13,6 +13,7 @@ Bugs Resolved:
 * BUG-1655: Greenshot uses the default proxy, even if the "use default proxy" check-box is not checked.
 * BUG-1730: File type in the Save-As dialog doesn't default to configured output format.
 * BUG-1735: Editor crashed when trying to scale down a screenshot with text element
+* BUG-1741: Fixed a bug in the confluence plug-in, error when searching for nothing, by improving the upload GUI.
 
 
 1.2.4.10-RELEASE-94d66e09eb89

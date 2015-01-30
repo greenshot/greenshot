@@ -20,6 +20,7 @@
  */
 using System;
 using Confluence;
+using System.Collections.Generic;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
@@ -29,9 +30,9 @@ namespace GreenshotConfluencePlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePagePicker));
 		private ConfluenceUpload confluenceUpload = null;
 
-		public ConfluencePagePicker(ConfluenceUpload confluenceUpload) {
+		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, List<Page> pagesToPick) {
 			this.confluenceUpload = confluenceUpload;
-			this.DataContext = ConfluenceUtils.GetCurrentPages();
+			this.DataContext = pagesToPick;
 			InitializeComponent();
 		}
 		
