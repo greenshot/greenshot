@@ -76,6 +76,7 @@ namespace GreenshotConfluencePlugin {
 		void Search_Click(object sender, RoutedEventArgs e) {
 			doSearch();
 		}
+
 		void doSearch() {
 			string spaceKey = (string)SpaceComboBox.SelectedValue;
 			config.SearchSpaceKey = spaceKey;
@@ -85,15 +86,20 @@ namespace GreenshotConfluencePlugin {
 				pages.Add(page);
 			}
 		}
+
 		void SearchText_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
-			if (e.Key == System.Windows.Input.Key.Return) {
+			if (e.Key == System.Windows.Input.Key.Return && Search.IsEnabled) {
         		doSearch();
         		e.Handled = true;
-    		}
+			}
 		}
 		
 		void Page_Loaded(object sender,  System.Windows.RoutedEventArgs e) {
 			SelectionChanged();
+		}
+
+		private void searchText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+			Search.IsEnabled = !string.IsNullOrEmpty(searchText.Text);
 		}
 	}
 }

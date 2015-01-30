@@ -33,7 +33,10 @@ namespace GreenshotConfluencePlugin {
 		public Page PickerPage {
 			get {
 				if (pickerPage == null) {
-					pickerPage = new ConfluencePagePicker(this);
+					List<Confluence.Page> pages = ConfluenceUtils.GetCurrentPages();
+					if (pages != null && pages.Count > 0) {
+						pickerPage = new ConfluencePagePicker(this, pages);
+					}
 				}
 				return pickerPage;
 			}
@@ -101,6 +104,10 @@ namespace GreenshotConfluencePlugin {
 			InitializeComponent();
 			this.DataContext = this;
 			updateSpaces();
+			if (PickerPage == null) {
+				PickerTab.Visibility = System.Windows.Visibility.Collapsed;
+				SearchTab.IsSelected = true;
+			}
 		}
 		
 		void updateSpaces() {
