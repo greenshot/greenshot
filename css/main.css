@@ -37,6 +37,7 @@ footer ul, footer li, footer a {
 	margin: 0 10px 20px 0;
 	padding: 0;
 	text-decoration: none;
+	list-style: none;
 }
 
 
