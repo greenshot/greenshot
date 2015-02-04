@@ -39,6 +39,10 @@ footer ul, footer li, footer a {
 	list-style: none;
 }
 
+.slidesjs-next, .slidesjs-previous {
+	margin-right: 20px;
+	color: #000000;
+}
 
 header img {
 	margin: 20px;
