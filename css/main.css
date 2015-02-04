@@ -33,7 +33,6 @@ footer {
 footer ul, footer li, footer a {
 	color: #ffffff;
 	display: inline-block;
-	float: left;
 	margin: 0 10px 0 0;
 	padding: 0;
 	text-decoration: none;
