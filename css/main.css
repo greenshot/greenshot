@@ -24,6 +24,7 @@ header, footer {
 }
 
 footer {
+	margin-top: 30px;
 	padding: 20px 0;
 	color: #ffffff;
 	font-size: 0.8em;
