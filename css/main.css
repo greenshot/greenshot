@@ -18,7 +18,7 @@ body {
     font-family: 'Lato', 'Helvetica', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
-header {
+header, footer {
 	background-color: #3d3d3d;
 }
 
