@@ -34,6 +34,9 @@ footer ul, footer li, footer a {
 	color: #ffffff;
 	display: inline-block;
 	float: left;
+	margin: 0;
+	padding: 0;
+	margin-right: 10px;
 }
 
 
