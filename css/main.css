@@ -55,7 +55,7 @@ nav a:visited {
     color: white;
 }
 
-nav a:hover {
+nav a:hover, nav a.active {
     color: white;
     border-bottom: 3px solid #89e916;
 }
