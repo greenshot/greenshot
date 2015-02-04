@@ -130,8 +130,9 @@ a.cta {
 		width: 960px;
 	}
 	.body-ad {
-		width: 160px;
+		width: 180px;
 		margin-top: 30px;
+		overflow: visible;
 	}
 	
 	header img {
