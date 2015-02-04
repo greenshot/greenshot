@@ -8,9 +8,18 @@ tags: menu
 
 <div id="slides">
 	{% for screenshot in site.data.screenshots %}
-	    <img src="/assets/screenshots/{{screenshot.file}}">
+		<img src="/assets/screenshots/{{screenshot.file}}">
 	{% endfor %}
-  </div>
+</div>
+
+<script>
+	$(function(){
+		$("#slides").slidesjs({
+			width: 940,
+			height: 528
+		});
+	});
+</script>
 
 <!--
 <div class="row">
