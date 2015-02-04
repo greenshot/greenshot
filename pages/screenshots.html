@@ -12,50 +12,11 @@ tags: menu
 	{% endfor %}
 </div>
 
-<i class="slidesjs-previous slidesjs-navigation">&lt;</i>
-<i class="slidesjs-next slidesjs-navigation">&gt;</i>
-
 <script>
 	$(function(){
 		$("#slides").slidesjs({
 			width: 940,
-			height: 528,
-			pagination: {
-      active: true,
-        // [boolean] Create pagination items.
-        // You cannot use your own pagination. Sorry.
-      effect: "slide"
-        // [string] Can be either "slide" or "fade".
-    }
+			height: 528
 		});
 	});
 </script>
-
-<!--
-<div class="row">
-	<div class="col-md-6 col-md-offset-3">
-		<div id="myCarousel" class="carousel slide" data-interval="3000" data-ride="carousel">
-			< !-- Carousel indicators -- >
-			<ol class="carousel-indicators">
-				{% for screenshot in site.data.screenshots %}<li data-target="#myCarousel" data-slide-to="{{ forloop.index0 }}" {% if forloop.first %}class="active"{% endif %}></li>{% endfor %}
-			</ol>   
-		   < !-- Carousel items -- >
-			<div class="carousel-inner">
-				{% for screenshot in site.data.screenshots %}
-				<div class="{% if forloop.first %}active{% endif %} item" style="background-image: url('/assets/screenshots/{{screenshot.file}}')">
-					<div class="carousel-caption">
-					  <h4>{{screenshot.title}}</h4>
-					</div>
-				</div>
-				{% endfor %}
-			</div>
-			< !-- Carousel nav -- >
-			<a class="carousel-control left" href="#myCarousel" data-slide="prev">
-				<span class="glyphicon glyphicon-chevron-left"></span>
-			</a>
-			<a class="carousel-control right" href="#myCarousel" data-slide="next">
-				<span class="glyphicon glyphicon-chevron-right"></span>
-			</a>
-		</div>
-	</div>
-</div>-->
