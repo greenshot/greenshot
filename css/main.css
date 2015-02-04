@@ -1,0 +1,155 @@
+/*! HTML5 Boilerplate v4.3.0 | MIT License | http://h5bp.com/ */
+
+html,
+button,
+input,
+select,
+textarea {
+    color: #333;
+}
+
+html {
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+body {
+    font-size: 16px;
+    font-family: 'Lato', 'Helvetica', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+header {
+	background-color: #3d3d3d;
+}
+
+header img {
+	margin: 20px;
+}
+
+.content-wrapper {
+	width: 100%;
+	margin: 0;
+}
+
+main .content-wrapper {
+	margin-top: 50px;
+}
+
+nav {
+	margin-left: 20px;
+}
+nav ul {
+    margin: 0;
+    padding: 0;
+}
+
+nav a {
+	font-family: 'Bangers', cursive;
+	font-size: 2em;
+
+    text-decoration: none;
+    color: white;
+}
+
+nav a:visited {
+    color: white;
+}
+
+nav a:hover {
+    color: white;
+    border-bottom: 3px solid #89e916;
+}
+
+h1 {
+	font-family: 'Bangers', cursive;
+	font-size: 2em;
+	color: #6cb711;
+	font-weight: normal;
+}
+
+h2 {
+	margin-top: 2em;
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+table.cta-button {
+	float: left;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-right: 50px;
+}
+
+a.cta {
+	font-family: 'Bangers', cursive;
+	font-size: 2em;
+	color: #ffffff;
+	background-color: #26b3e1;
+	text-decoration: none;
+	padding: 5px 18px 3px 15px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	width: 250px;
+	display: block;
+	text-align: center;
+}
+
+.cta-aside {
+	font-family: 'Bangers', cursive;
+	font-size: 2em;
+	color: #26b3e1;
+	text-decoration: none;
+	padding: 5px 18px 3px 15px;
+}
+
+.cta-description {
+	color: #6d6d6d;
+	font-size: 0.8em;
+	line-height: 0.95em;
+	text-align: center;
+}
+
+
+@media only screen and (min-width: 1000px) {
+
+	.content-wrapper {
+		width: 960px;
+		margin: 0 auto;
+	}
+	
+	header img {
+		margin-top: 70px;
+		margin-bottom: -20px;
+		margin-left: -10px;
+	}
+	
+	nav, nav ul, nav li {
+		display: inline;
+	}
+	
+	nav ul {
+		margin-left: 130px;
+	}
+	
+	nav a {
+		margin-right: 20px;
+	}
+
+}
+
+
+
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.clearfix {
+    *zoom: 1;
+}

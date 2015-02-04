@@ -1,21 +1,16 @@
-<nav class="navbar navbar-default navbar-fixed-top">
-  <div class="container">
-	<div class="navbar-header">
-		<a href="/" ><img src="/assets/greenshot_logo.gif"/></a>
+<header>
+	<div class="content-wrapper">
+		<img src="img/logo.png">
+		<nav>
+			<ul>
+				{% for availablepage in site.pages %}
+					{% if availablepage.tags contains "menu" %}
+					<li>
+						<a {% if page.url == availablepage.url %}class="active"{% endif %} href="{{ availablepage.url }}">{{ availablepage.title }}</a>
+					</li>
+					{% endif %}
+				{% endfor %}
+			</ul>
+		</nav>
 	</div>
-	<button class="btn navbar-toggle" data-toggle="collapse" data-target="#header-bar">
-		<span class="glyphicon glyphicon-chevron-down"/> Menu
-	</button>
-	<div class="navbar-collapse collapse" id="header-bar">
-		<ul class="nav navbar-nav navbar-right">
-			{% for availablepage in site.pages %}
-				{% if availablepage.tags contains "menu" %}
-				<li {% if page.url == availablepage.url %}class="active"{% endif %}>
-					<a href="{{ availablepage.url }}">{{ availablepage.title }}</a>
-				</li>
-				{% endif %}
-			{% endfor %}
-		</ul>
-	</div>
-  </div>
-</nav>
+</header>
