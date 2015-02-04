@@ -39,7 +39,7 @@ footer ul, footer li, footer a {
 	list-style: none;
 }
 
-.slidesjs-next, .slidesjs-previous {
+a.slidesjs-navigation {
 	margin-right: 20px;
 	color: #000000;
 }
