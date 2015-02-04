@@ -126,6 +126,13 @@ a.cta {
 		display: inline-block;
 		float: left;
 	}
+	.body-content {
+		width: 960px;
+	}
+	.body-ad {
+		width: 160px;
+		margin-top: 30px;
+	}
 	
 	header img {
 		margin-top: 70px;
