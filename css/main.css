@@ -24,7 +24,9 @@ header, footer {
 }
 
 footer {
-	margin: 20px 0;
+	padding: 20px 0;
+	color: #ffffff;
+	font-size: 0.8em;
 }
 
 header img {
