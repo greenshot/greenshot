@@ -26,7 +26,7 @@ header img {
 	margin: 20px;
 }
 
-.content-wrapper {
+.content-wrapper, .content-wrapper-body {
 	width: 100%;
 	margin: 0;
 }
@@ -114,7 +114,11 @@ a.cta {
 @media only screen and (min-width: 1000px) {
 
 	.content-wrapper {
-		/*width: 960px;*/
+		width: 960px;
+		margin: 0 auto;
+	}
+	
+	.content-wrapper-body {
 		width: 1320px
 		margin: 0 auto;
 	}
