@@ -114,7 +114,8 @@ a.cta {
 @media only screen and (min-width: 1000px) {
 
 	.content-wrapper {
-		width: 960px;
+		/*width: 960px;*/
+		width: 1320px
 		margin: 0 auto;
 	}
 	
