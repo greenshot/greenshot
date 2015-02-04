@@ -112,14 +112,9 @@ a.cta {
 
 
 @media only screen and (min-width: 1000px) {
-
-	.content-wrapper {
-		width: 960px;
-		margin: 0 auto;
-	}
 	
-	.content-wrapper-body {
-		width: 1360px;
+	.content-wrapper {
+		width: 1160px;
 		margin: 0 auto;
 	}
 	.body-content, .body-ad {
