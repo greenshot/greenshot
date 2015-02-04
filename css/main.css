@@ -122,6 +122,10 @@ a.cta {
 		width: 1320px;
 		margin: 0 auto;
 	}
+	.body-content, .body-ad {
+		display: inline-block;
+		float: left;
+	}
 	
 	header img {
 		margin-top: 70px;
