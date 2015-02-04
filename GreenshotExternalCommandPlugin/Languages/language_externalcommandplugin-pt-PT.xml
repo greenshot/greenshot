@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Portuguese (Portugal)" ietf="pt-PT" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    Configurar comandos externos
+  </resource>
+  <resource name="settings_title">
+  		Definições de comandos externos
+	</resource>
+	<resource name="settings_detail_title">
+  		Configurar comando
+	</resource>
+	<resource name="settings_new">
+  		Novo
+	</resource>
+	<resource name="settings_delete">
+  		Eliminar
+	</resource>
+	<resource name="settings_edit">
+  		Editar
+	</resource>
+    <resource name="label_name">
+      Nome
+    </resource>
+    <resource name="label_command">
+      Comando
+    </resource>
+    <resource name="label_argument">
+      Argumentos
+    </resource>
+    <resource name="label_information">
+      {0} é o nome do ficheiro da sua captura
+    </resource>
+  </resources>
+</language>

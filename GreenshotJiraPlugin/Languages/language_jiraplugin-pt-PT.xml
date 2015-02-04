@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Portuguese (Portugal)" ietf="pt-PT" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Enviar para Jira
+	</resource>
+	<resource name="column_assignee">
+		Responsável
+	</resource>
+	<resource name="column_created">
+		Criado
+	</resource>
+	<resource name="column_id">
+		ID
+	</resource>
+	<resource name="column_reporter">
+		Relatório
+	</resource>
+	<resource name="column_summary">
+		Resumo
+	</resource>
+	<resource name="label_comment">
+		Comentário
+	</resource>
+	<resource name="label_filename">
+		Ficheiro
+	</resource>
+	<resource name="label_jira">
+		JIRA
+	</resource>
+	<resource name="label_jirafilter">
+		Filtro JIRA
+	</resource>
+	<resource name="login_error">
+		Houve um problema ao iniciar sessão: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+  	<resource name="login_title">
+		Por favor insira os seus dados de início de sessão Jira
+	</resource>
+	<resource name="settings_title">
+		Definições Jira
+	</resource>
+  	<resource name="OK">
+		OK
+	</resource>
+  	<resource name="CANCEL">
+		Cancelar
+	</resource>
+  	<resource name="upload_success">
+		Imagem enviada com êxito para o Jira!
+	</resource>
+  	<resource name="upload_failure">
+		Ocorreu um erro ao enviar para o Jira:
+	</resource>
+  	<resource name="label_upload_format">
+  		Formato da imagem
+	</resource>
+  	<resource name="communication_wait">
+  		A transferir dados para o JIRA, por favor aguarde...
+	</resource>
+  </resources>
+</language>

@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Portuguese (Portugal)" ietf="pt-PT" version="0.8.0">
+ <resources>
+	<resource name="plugin_settings">
+		Definições do Confluence
+	</resource>
+	<resource name="login_error">
+		Houve um problema com o início de sessão: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="label_timeout">
+		Tempo limite
+	</resource>
+	<resource name="label_user">
+		Utilizador
+	</resource>
+	<resource name="label_password">
+		Palavra-passe
+	</resource>
+	<resource name="login_title">
+		Por favor introduza os seus dados de início de sessão Confluence
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Cancelar
+	</resource>
+	<resource name="upload_menu_item">
+		Enviar para Confluence
+	</resource>
+	<resource name="upload_success">
+		Imagem enviada com êxito para Confluence!
+	</resource>
+	<resource name="upload_failure">
+		Ocorreu um erro ao enviar para Confluence:
+	</resource>
+	<resource name="open_page_after_upload">
+		Abrir página após envio
+	</resource>
+	<resource name="upload_format">
+		Formato de envio
+	</resource>
+	<resource name="copy_wikimarkup">
+		Copiar marcador Wiki para a Área de Transferência
+	</resource>
+	<resource name="filename">
+		Ficheiro
+	</resource>
+  <resource name="upload">
+		Enviar
+	</resource>
+  <resource name="open_pages">
+		Abrir páginas
+	</resource>
+  <resource name="search_pages">
+		Pesquisar páginas
+	</resource>
+  <resource name="browse_pages">
+		Procurar páginas
+	</resource>
+  <resource name="search_text">
+		Pesquisar texto
+	</resource>
+  <resource name="search">
+		Pesquisar
+	</resource>
+  <resource name="loading">
+		Confluence data is loading, please wait...
+	</resource>
+  <resource name="include_person_spaces">
+    Incluir espaços pessoais na pesquisa e procura
+  </resource>
+   <resource name="communication_wait">
+     A transferir dados para Confluence, por favor aguarde...
+   </resource>
+ </resources>
+</language>

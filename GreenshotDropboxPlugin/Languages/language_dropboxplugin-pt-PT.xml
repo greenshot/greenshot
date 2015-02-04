@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Portuguese (Portugal)" ietf="pt-PT" version="1.0.0">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">
+		 Link para área de transferência
+		</resource>
+		<resource name="label_AfterUploadOpenHistory">
+		 Abrir histórico
+		</resource>
+		<resource name="label_AfterUpload">
+		Após enviar
+		</resource>
+		<resource name="Configure">
+			Configurar Dropbox
+		</resource>
+		<resource name="upload_menu_item">
+		Enviar para Dropbox
+	</resource>
+	<resource name="settings_title">
+		Definições Dropbox
+	</resource>
+		<resource name="upload_success">
+		Imagem enviada com êxito para Dropbox!
+	</resource>
+		<resource name="upload_failure">
+		Ocorreu um erro ao enviar para o Dropbox:
+	</resource>
+		<resource name="label_upload_format">
+			Formato da imagem
+	</resource>
+		<resource name="communication_wait">
+			A comunicar com o Dropbox. Por favor aguarde...
+	</resource>
+  </resources>
+</language>

@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Portuguese (Portugal)" ietf="pt-PT" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Enviar para Imgur
+	</resource>
+	<resource name="settings_title">
+		Definições Imgur
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Cancelar
+	</resource>
+	<resource name="upload_success">
+		Imagem enviada com êxito para Imgur!
+	</resource>
+	<resource name="upload_failure">
+		Ocorreu um erro ao enviar para Imgur:
+	</resource>
+	<resource name="label_upload_format">
+		Formato da imagem
+	</resource>
+	<resource name="communication_wait">
+		A comunicar com o Imgur. Por favor aguarde...
+	</resource>
+	<resource name="delete_question">
+		Tem a certeza que pretende eliminar a imagem {0} do Imgur?
+	</resource>
+	<resource name="clear_question">
+		Tem a certeza que pretende eliminar o histórico local do Imgur?
+	</resource>
+	<resource name="delete_title">
+		Eliminar {0} do Imgur
+	</resource>
+	<resource name="anonymous_access">
+		Usar acesso anónimo
+	</resource>
+	<resource name="use_page_link">
+		Usar link da página em vez do link da imagem na área de transferência
+	</resource>
+	<resource name="history">
+		Histórico
+	</resource>
+	<resource name="configure">
+		Configurar
+	</resource>
+  </resources>
+</language>

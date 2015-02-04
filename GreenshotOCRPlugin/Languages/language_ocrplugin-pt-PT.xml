@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Portuguese (Portugal)" ietf="pt-PT" version="1.0.0">
+  <resources>
+	<resource name="language">Idioma para OCR</resource>
+	<resource name="orient_image">Orientar imagem</resource>
+	<resource name="straighten_image">Endireitar imagem</resource>
+  </resources>
+</language>
