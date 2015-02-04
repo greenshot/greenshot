@@ -20,6 +20,11 @@ body {
 
 header, footer {
 	background-color: #3d3d3d;
+	clear: both;
+}
+
+footer {
+	margin: 20px 0;
 }
 
 header img {
