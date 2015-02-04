@@ -1,6 +1,6 @@
 <header>
 	<div class="content-wrapper">
-		<img src="assets/logo.png">
+		<img src="{{ '/assets/logo.png' | prepend: site.baseurl }}">
 		<nav>
 			<ul>
 				{% for availablepage in site.pages %}
