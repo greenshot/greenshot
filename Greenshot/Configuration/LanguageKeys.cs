@@ -156,6 +156,7 @@ namespace Greenshot.Configuration {
 		error_openfile,
 		error_openlink,
 		error_save,
+		error_save_invalid_chars,
 		help_title,
 		jpegqualitydialog_choosejpegquality,
 		qualitydialog_dontaskagain,

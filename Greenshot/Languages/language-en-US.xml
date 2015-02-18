@@ -164,6 +164,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="error_openfile">The file "{0}" could not be opened.</resource>
 		<resource name="error_openlink">Could not open link '{0}'.</resource>
 		<resource name="error_save">Could not save screenshot, please find a suitable location.</resource>
+    <resource name="error_save_invalid_chars">The generated filename or directory name is not valid. Please fix the filename pattern and then try again.</resource>
 		<resource name="expertsettings">Expert</resource>
 		<resource name="expertsettings_autoreducecolors">Create an 8-bit image if the colors are less than 256 while having a &gt; 8 bits image</resource>
 		<resource name="expertsettings_checkunstableupdates">Check for unstable updates</resource>

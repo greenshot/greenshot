@@ -84,14 +84,7 @@ namespace Greenshot.Destinations {
                 fullPath = captureDetails.Filename;
 				outputSettings.Format = ImageOutput.FormatForFilename(fullPath);
             } else {
-                LOG.InfoFormat("Creating new filename");
-                string pattern = conf.OutputFileFilenamePattern;
-                if (string.IsNullOrEmpty(pattern)) {
-                    pattern = "greenshot ${capturetime}";
-                }
-                string filename = FilenameHelper.GetFilenameFromPattern(pattern, conf.OutputFileFormat, captureDetails);
-                string filepath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
-                fullPath = Path.Combine(filepath, filename);
+                fullPath = CreateNewFilename(captureDetails);
                 // As we generate a file, the configuration tells us if we allow to overwrite
                 overwrite = conf.OutputFileAllowOverwrite;
             }
@@ -129,6 +122,36 @@ namespace Greenshot.Destinations {
 
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
+		}
+
+		private static string CreateNewFilename(ICaptureDetails captureDetails) {
+			string fullPath;
+			LOG.InfoFormat("Creating new filename");
+			string pattern = conf.OutputFileFilenamePattern;
+			if (string.IsNullOrEmpty(pattern)) {
+				pattern = "greenshot ${capturetime}";
+			}
+			string filename = FilenameHelper.GetFilenameFromPattern(pattern, conf.OutputFileFormat, captureDetails);
+			string filepath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
+			try {
+				fullPath = Path.Combine(filepath, filename);
+			} catch (ArgumentException ae) {
+				// configured filename or path not valid, show error message...
+				LOG.InfoFormat("Generated path or filename not valid: {0}, {1}", filepath, filename);
+
+				MessageBox.Show(Language.GetString(LangKey.error_save_invalid_chars), Language.GetString(LangKey.error));
+				// ... lets get the pattern fixed....
+				var dialogResult = new SettingsForm().ShowDialog();
+				if (dialogResult == DialogResult.OK) { 
+					// ... OK -> then try again:
+					fullPath = CreateNewFilename(captureDetails);
+				} else { 
+					// ... cancelled.
+					fullPath = null;
+				}
+				
+			}
+			return fullPath;
 		}
 	}
 }
