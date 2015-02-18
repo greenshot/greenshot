@@ -226,23 +226,55 @@ namespace Greenshot {
 		
 		// Check the settings and somehow visibly mark when something is incorrect
 		private bool CheckSettings() {
+			return CheckFilenamePattern() && CheckStorageLocationPath();
+		}
+
+		private bool CheckFilenamePattern() { 
 			bool settingsOk = true;
-			if(!Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text, false))) {
-				textbox_storagelocation.BackColor = Color.Red;
-				settingsOk = false;
-			} else {
-				// "Added" feature #3547158
-				if (Environment.OSVersion.Version.Major >= 6) {
-					textbox_storagelocation.BackColor = SystemColors.Window;
-				} else {
-					textbox_storagelocation.BackColor = SystemColors.Control;
-				}
+			string filename = FilenameHelper.GetFilenameFromPattern(textbox_screenshotname.Text, coreConfiguration.OutputFileFormat, null);
+			// we allow dynamically created subfolders, need to check for them, too
+			string[] pathParts = filename.Split(Path.DirectorySeparatorChar);
+
+			string filenamePart = pathParts[pathParts.Length-1];
+			settingsOk = FilenameHelper.IsFilenameValid(filenamePart);
+
+			for (int i = 0; (settingsOk && i<pathParts.Length-1); i++) {
+				settingsOk = FilenameHelper.IsDirectoryNameValid(pathParts[i]);
 			}
+
+			DisplayTextBoxValidity(textbox_screenshotname, settingsOk);
+			
 			return settingsOk;
 		}
 
+		private bool CheckStorageLocationPath() {
+			bool settingsOk = true;
+			if(!Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text, false))) {
+				settingsOk = false;
+			} 
+			DisplayTextBoxValidity(textbox_storagelocation, settingsOk);
+			return settingsOk;
+		}
+
+		private void DisplayTextBoxValidity(GreenshotTextBox textbox, bool valid) {
+			if (valid) { 
+				// "Added" feature #3547158
+				if (Environment.OSVersion.Version.Major >= 6) {
+					textbox.BackColor = SystemColors.Window;
+				} else {
+					textbox.BackColor = SystemColors.Control;
+				}
+			} else { 
+				textbox.BackColor = Color.Red;
+			}
+		}
+
+		private void FilenamePatternChanged(object sender, EventArgs e) {
+			CheckFilenamePattern();
+		}
+
 		private void StorageLocationChanged(object sender, EventArgs e) {
-			CheckSettings();
+			CheckStorageLocationPath();
 		}
 
 		/// <summary>
