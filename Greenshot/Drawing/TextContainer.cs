@@ -181,6 +181,8 @@ namespace Greenshot.Drawing {
 				_font.Dispose();
 				_font = null;
 				UpdateFormat();
+			} else { 
+				UpdateAlignment();
 			}
 			UpdateTextBoxFormat();
 			
@@ -303,6 +305,10 @@ namespace Greenshot.Drawing {
 				throw;
 			}
 			
+			UpdateAlignment();
+		}
+
+		private void UpdateAlignment() {
 			_stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
 			_stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
 		}
