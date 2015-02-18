@@ -234,6 +234,7 @@ namespace Greenshot {
 			this.textbox_screenshotname.PropertyName = "OutputFileFilenamePattern";
 			this.textbox_screenshotname.Size = new System.Drawing.Size(233, 20);
 			this.textbox_screenshotname.TabIndex = 3;
+			this.textbox_screenshotname.TextChanged += new System.EventHandler(this.FilenamePatternChanged);
 			// 
 			// label_language
 			// 

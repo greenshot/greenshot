@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Portuguese (Portugal)" ietf="pt-PT" version="1.0.0">
+	<resources>
+	 <resource name="label_HiddenFromSearch">
+			Formulário de pesquisa oculto
+		</resource>
+		<resource name="label_SafetyLevel">
+			Nível de segurança
+		</resource>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	 Link para a área de transferência
+	</resource>
+		<resource name="label_AfterUpload">
+		Após enviar
+		</resource>
+	<resource name="Configure">
+			Configurar o Flickr
+		</resource>
+		<resource name="upload_menu_item">
+		Enviar para o Flickr
+	</resource>
+	<resource name="settings_title">
+		Definições do Flickr
+	</resource>
+		<resource name="upload_success">
+		Imagem enviada com êxito para o Flickr!
+	</resource>
+		<resource name="upload_failure">
+		Ocorreu um erro ao enviar para o Flickr:
+	</resource>
+		<resource name="label_upload_format">
+			Formato de imagem
+	</resource>
+		<resource name="communication_wait">
+			A comunicar com o Flickr. Por favor aguarde...
+	</resource>
+	  <resource name="public">
+	  Público
+	  </resource>
+	<resource name="family">
+	  Família
+	</resource>
+	<resource name="friend">
+	  Amigo
+	</resource>
+  </resources>
+</language>

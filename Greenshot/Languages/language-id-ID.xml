@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Bahasa Indonesia" ietf="id-ID" version="1.1" languagegroup="1">
+<language description="Bahasa Indonesia" ietf="id-ID" version="1.2" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Harap laporkan kesalahan ke</resource>
 		<resource name="about_donations">Jika anda menyukai Greenshot, anda dipersilahkan untuk mendukung kami:</resource>
 		<resource name="about_host">Greenshot dikelola oleh sourceforge.net di</resource>
 		<resource name="about_icons">Ikon dari Yusuke Kamiyamane Fugue ikon set (lisensi Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2007-2014
+		<resource name="about_license">Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2007-2015
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">Tentang Greenshot</resource>
@@ -13,7 +13,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="bugreport_cancel">Tutup</resource>
 		<resource name="bugreport_info">Maaf, kesalahan yang tak terduga terjadi.
 
-Kabar baik bila: anda dapat membantu kami memperbaikinya dengan mengisi laporan kesalahan.
+Kabar baiknya: anda dapat membantu kami memperbaikinya dengan mengisi laporan kesalahan.
 Harap kunjungi laman berikut, buat laporan kesalahan baru dan letakkan konten dari area teks ke wadah deskripsi.
 
 Harap tambah penjelasan yang berarti dan sertakan informasi lain yang penting untuk kami tiru kesalahannya.
@@ -35,8 +35,8 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="colorpicker_htmlcolor">Warna HTML</resource>
 		<resource name="colorpicker_recentcolors">Warna terakhir digunakan</resource>
 		<resource name="colorpicker_red">Merah</resource>
-		<resource name="colorpicker_title">Penyedot warna</resource>
-		<resource name="colorpicker_transparent">Kebeningan</resource>
+		<resource name="colorpicker_title">Pengambil warna</resource>
+		<resource name="colorpicker_transparent">Transparan</resource>
 		<resource name="com_rejected">Destinasi {0} menolak akses Greenshot, mungkin sebuah dialog terbuka. Tutup dialog dan ulangi lagi</resource>
 		<resource name="com_rejected_title">Akses Greenshot ditolak</resource>
 		<resource name="config_unauthorizedaccess_write">Tidak dapat menyimpan berkas konfigurasi Greenshot. Harap cek ijin akses untuk '{0}'.</resource>
@@ -71,7 +71,7 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_align_top">Atas</resource>
 		<resource name="editor_align_vertical">Arah membujur</resource>
 		<resource name="editor_arrange">Susun</resource>
-		<resource name="editor_arrowheads">Mata panah</resource>
+		<resource name="editor_arrowheads">Anak Panah</resource>
 		<resource name="editor_arrowheads_both">Kesemuanya</resource>
 		<resource name="editor_arrowheads_end">Titik akhir</resource>
 		<resource name="editor_arrowheads_none">Nihil</resource>
@@ -91,6 +91,7 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_copyimagetoclipboard">Kopi gambar ke papan klip</resource>
 		<resource name="editor_copypathtoclipboard">Kopi jalur ke papan klip</resource>
 		<resource name="editor_copytoclipboard">Kopi</resource>
+		<resource name="editor_counter">Buat penomor</resource>
 		<resource name="editor_crop">Potong (C)</resource>
 		<resource name="editor_cursortool">Alat seleksi (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Gunting</resource>
@@ -137,12 +138,17 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_opendirinexplorer">Buka direktori di Windows Explorer</resource>
 		<resource name="editor_pastefromclipboard">Tempel</resource>
 		<resource name="editor_pixel_size">Ukuran piksel</resource>
-		<resource name="editor_preview_quality">Kualitas preview</resource>
+		<resource name="editor_preview_quality">Kualitas pratayang</resource>
 		<resource name="editor_print">Cetak</resource>
 		<resource name="editor_redo">Ulang {0}</resource>
 		<resource name="editor_resetsize">Reset ukuran</resource>
+		<resource name="editor_resize">Ubah ukuran</resource>
+		<resource name="editor_resize_aspectratio">Pertahankan aspek rasio</resource>
+		<resource name="editor_resize_height">Tinggi</resource>
 		<resource name="editor_resize_percent">Persen</resource>
 		<resource name="editor_resize_pixel">Piksel</resource>
+		<resource name="editor_resize_settings">Setelan ukuran</resource>
+		<resource name="editor_resize_width">Lebar</resource>
 		<resource name="editor_rotateccw">Putar melawan arah jarum jam (Control + ,)</resource>
 		<resource name="editor_rotatecw">Putar searah jarum jam (Control + .)</resource>
 		<resource name="editor_save">Simpan</resource>
@@ -151,13 +157,20 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_selectall">Pilih semua</resource>
 		<resource name="editor_senttoprinter">Cetakan dikirim ke '{0}'.</resource>
 		<resource name="editor_shadow">Bayangan</resource>
+		<resource name="editor_speechbubble">Buat kotak dialog</resource>
 		<resource name="editor_storedtoclipboard">Gambar tersimpan di papan klip.</resource>
 		<resource name="editor_thickness">Ketebalan garis</resource>
 		<resource name="editor_title">Editor gambar Greenshot</resource>
-		<resource name="editor_torn_edge">Torn edge</resource>
+		<resource name="editor_torn_edge">Sobek sisi</resource>
+		<resource name="editor_tornedge_all">Sobek setiap sisi</resource>
+		<resource name="editor_tornedge_bottom">Sisi bawah</resource>
 		<resource name="editor_tornedge_horizontaltoothrange">Wilayah tooth mendatar</resource>
-		<resource name="editor_tornedge_settings">Pengaturan torn edge</resource>
+		<resource name="editor_tornedge_left">Sisi kiri</resource>
+		<resource name="editor_tornedge_right">Sisi kanan</resource>
+		<resource name="editor_tornedge_settings">Pengaturan penyobek sisi</resource>
+		<resource name="editor_tornedge_shadow">Buat bayangan </resource>
 		<resource name="editor_tornedge_toothsize">Ukuran tooth</resource>
+		<resource name="editor_tornedge_top">Sisi atas</resource>
 		<resource name="editor_tornedge_verticaltoothrange">Wilayah tooth membujur</resource>
 		<resource name="editor_undo">Batal</resource>
 		<resource name="editor_uponelevel">Naik setingkat</resource>
@@ -228,6 +241,7 @@ Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Pola nama berkas</resource>
 		<resource name="settings_general">Umum</resource>
+		<resource name="settings_iconsize">Ukuran ikon</resource>
 		<resource name="settings_iecapture">Tangkap Internet Explorer</resource>
 		<resource name="settings_jpegquality">Kualitas JPEG</resource>
 		<resource name="settings_language">Bahasa</resource>

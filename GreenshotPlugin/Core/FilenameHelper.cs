@@ -428,7 +428,7 @@ namespace GreenshotPlugin.Core {
 		/// Fill the pattern wit the supplied details
 		/// </summary>
 		/// <param name="pattern">Pattern</param>
-		/// <param name="captureDetails">CaptureDetails</param>
+		/// <param name="captureDetails">CaptureDetails, can be null</param>
 		/// <param name="filenameSafeMode">Should the result be made "filename" safe?</param>
 		/// <returns>Filled pattern</returns>
 		public static string FillPattern(string pattern, ICaptureDetails captureDetails, bool filenameSafeMode) {
@@ -461,10 +461,42 @@ namespace GreenshotPlugin.Core {
 				);
 			} catch (Exception e) {
 				// adding additional data for bug tracking
-				e.Data.Add("title", captureDetails.Title);
+				if (captureDetails != null) { 
+					e.Data.Add("title", captureDetails.Title);
+				}
 				e.Data.Add("pattern", pattern);
 				throw;
 			}
+		}
+
+		/// <summary>
+		/// Checks whether a directory name is valid in the current file system
+		/// </summary>
+		/// <param name="directoryName">directory name (not path!)</param>
+		/// <returns>true if directory name is valid</returns>
+		public static bool IsDirectoryNameValid(string directoryName) {
+			var forbiddenChars = Path.GetInvalidPathChars();
+			foreach (var forbiddenChar in forbiddenChars) {
+				if (directoryName == null || directoryName.Contains(forbiddenChar.ToString())) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Checks whether a filename is valid in the current file system
+		/// </summary>
+		/// <param name="filename">name of the file</param>
+		/// <returns>true if filename is valid</returns>
+		public static bool IsFilenameValid(string filename) {
+			var forbiddenChars = Path.GetInvalidFileNameChars();
+			foreach (var forbiddenChar in forbiddenChars) {
+				if (filename == null || filename.Contains(forbiddenChar.ToString())) {
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 }

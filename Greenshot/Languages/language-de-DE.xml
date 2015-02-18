@@ -164,6 +164,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="error_openfile">Die Datei "{0}" konnte nicht geöffnet werden.</resource>
 		<resource name="error_openlink">Konnte Link '{0}' nicht öffnen.</resource>
 		<resource name="error_save">Screenshot konnte nicht gespeichert werden, bitte wählen Sie einen anderen Speicherort.</resource>
+    <resource name="error_save_invalid_chars">Der generierte Datei- oder Verzeichnisname ist nicht gültig. Bitte korrigieren Sie das Dateiname-Muster und versuchen Sie es erneut.</resource>
 		<resource name="expertsettings">Experten</resource>
 		<resource name="expertsettings_autoreducecolors">8-Bit-Bilder erstellen bei weniger als 256 Farben</resource>
 		<resource name="expertsettings_checkunstableupdates">Auch instabile Updates anbieten</resource>
