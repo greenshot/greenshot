@@ -26,6 +26,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.Text;
 
 namespace Greenshot.Core {
@@ -353,6 +354,14 @@ namespace Greenshot.Core {
 	}
 
 	public class EffectConverter : TypeConverter {
+		// Fix to prevent BUG-1753
+		private NumberFormatInfo numberFormatInfo = new NumberFormatInfo();
+
+		public EffectConverter() : base() {
+			numberFormatInfo.NumberDecimalSeparator = ".";
+			numberFormatInfo.NumberGroupSeparator = ",";
+		}
+
 		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
 			if (sourceType == typeof(string)) {
 				return true;
@@ -427,8 +436,11 @@ namespace Greenshot.Core {
 				switch (pair[0]) {
 					case "Darkness" :
 						float darkness;
-						if (float.TryParse(pair[1], out darkness)) {
-							effect.Darkness = darkness;
+						// Fix to prevent BUG-1753
+						if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, numberFormatInfo, out darkness)) {
+							if (darkness <= 1.0) {
+								effect.Darkness = darkness;
+							}
 						}
 						break;
 					case "ShadowSize":
@@ -504,7 +516,8 @@ namespace Greenshot.Core {
 		}
 
 		private void RetrieveDropShadowEffectValues(DropShadowEffect effect, StringBuilder sb) {
-			sb.AppendFormat("Darkness:{0:F2}|ShadowSize:{1}|ShadowOffset:{2},{3}", effect.Darkness, effect.ShadowSize, effect.ShadowOffset.X, effect.ShadowOffset.Y);
+			// Fix to prevent BUG-1753 is to use the numberFormatInfo
+			sb.AppendFormat("Darkness:{0}|ShadowSize:{1}|ShadowOffset:{2},{3}", effect.Darkness.ToString("F2", numberFormatInfo), effect.ShadowSize, effect.ShadowOffset.X, effect.ShadowOffset.Y);
 		}
 		private void RetrieveTornEdgeEffectValues(TornEdgeEffect effect, StringBuilder sb) {
 			sb.AppendFormat("GenerateShadow:{0}|ToothHeight:{1}|HorizontalToothRange:{2}|VerticalToothRange:{3}|Edges:{4},{5},{6},{7}", effect.GenerateShadow, effect.ToothHeight, effect.HorizontalToothRange, effect.VerticalToothRange, effect.Edges[0], effect.Edges[1], effect.Edges[2], effect.Edges[3]);

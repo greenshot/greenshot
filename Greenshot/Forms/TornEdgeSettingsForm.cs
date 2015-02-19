@@ -36,7 +36,8 @@ namespace Greenshot.Forms {
 
 		private void ShowSettings() {
 			shadowCheckbox.Checked = effect.GenerateShadow;
-			shadowDarkness.Value = (int)(effect.Darkness * 40);
+			// Fix to prevent BUG-1753
+			shadowDarkness.Value = Math.Max(shadowDarkness.Minimum, Math.Min(shadowDarkness.Maximum, (int)(effect.Darkness * shadowDarkness.Maximum)));
 			offsetX.Value = effect.ShadowOffset.X;
 			offsetY.Value = effect.ShadowOffset.Y;
 			toothsize.Value = effect.ToothHeight;
