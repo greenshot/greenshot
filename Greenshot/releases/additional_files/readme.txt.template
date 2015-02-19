@@ -15,11 +15,13 @@ Bugs Resolved:
 * BUG-1735: Editor crashed when trying to scale down a screenshot with text element
 * BUG-1741: Fixed a bug in the confluence plug-in, error when searching for nothing, by improving the upload GUI.
 * BUG-1750: Filename pattern is now checked for invalid characters to avoid exception when saving directly.
-* BUG-1752: Fixed horizontal alignment for textboxes
+* BUG-1752: Fixed horizontal alignment for text boxes
+* BUG-1753: Fixed problem with saving/loading of the drop shadow & torn edge effects
 
 Languages:
 * Portuguese (Portugal): application translation updates + new translation for plugin and help, thanks to Luis Neves
 * Indonesian: translation updates, thanks to Afif Brika
+
 
 1.2.4.10-RELEASE-94d66e09eb89
 
