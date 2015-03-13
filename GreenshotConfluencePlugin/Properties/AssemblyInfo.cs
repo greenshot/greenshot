@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -32,7 +32,7 @@ using System.Security;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("Confluence Plugin")]
-[assembly: AssemblyCopyright("Copyright (C) 2007-2014")]
+[assembly: AssemblyCopyright("Copyright (C) 2007-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
