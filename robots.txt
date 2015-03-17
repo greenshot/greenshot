@@ -1,0 +1,3 @@
+# TODO remove before publication on getgreenshot.org, also meta header in head.html
+User-agent: *
+Disallow: /
