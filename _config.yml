@@ -3,6 +3,7 @@ title: Greenshot
 email: getgreenshot@gmail.com
 description: "Greenshot - a free screenshot tool optimized for productivity"
 baseurl: ""
+# TODO change URL to getgreenshot.org
 url: "http://greenshot.github.io"
 twitter_username: greenshot_tool
 github_username: greenshot
