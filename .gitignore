@@ -1,3 +1,4 @@
 /_site
 /*.lock
 **/*.*~
+import-wp.sh
