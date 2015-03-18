@@ -10,13 +10,25 @@ github_username: greenshot
 facebook: Greenshot.Tool
 googleplus: 108405649004966849465
 openhub_project: greenshot
+
 collections:
-- faqs
+  faqs:
+    output: true
+    permalink: /faq/:title/
+    
+    
+defaults:
+ -
+  scope:
+    path: "faq"
+    type: "faqs"
+  values:
+    layout: "faq"    
 
 # Build settings
 markdown: redcarpet
 permalink: pretty
-exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'CNAME', 'LICENSE']
+exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'CNAME', 'LICENSE', '*.sh']
 
 gems:
   - jemoji

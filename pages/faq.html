@@ -2,12 +2,14 @@
 layout: page
 title: FAQ
 tags: menu
+permalink: /faq/
 ---
 
 <div class="row">
 {% assign sorted_faqs = site.faqs | sort:"sort_id" %}
 
 <div class="col-md-6 col-md-offset-3">
+	Got a question? Many people do, so there a good chances to find the answer below.
 	<div id="user_accordion" class="panel-group">
 		{% for faq in sorted_faqs %}
 			<div class="panel panel-primary">
@@ -16,7 +18,8 @@ tags: menu
 				</div>
 				<div id="faq_body_{{ forloop.index }}" class="panel-collapse collapse">
 					<div class="panel-body ">
-						{{ faq.content | markdownify }}
+						{{ faq.content | markdownify | strip_html | truncatewords:20 }}
+						<a href="{{faq.url}}" >read more</a>
 					</div>
 				</div>
 			</div>
