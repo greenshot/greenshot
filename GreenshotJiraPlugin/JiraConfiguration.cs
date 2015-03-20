@@ -21,6 +21,7 @@
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using System.Collections.Generic;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
@@ -28,11 +29,12 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	[IniSection("Jira", Description="Greenshot Jira Plugin configuration")]
 	public class JiraConfiguration : IniSection {
-		public const string DEFAULT_PREFIX = "http://";
-		private const string DEFAULT_URL = DEFAULT_PREFIX + "jira" + Jira.JiraConnector.DEFAULT_POSTFIX;
+		[IniProperty("JiraInstances", Description = "Urls to Jira system")]
+		public IList<string> JiraInstances {
+			get;
+			set;
+		}
 
-		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue=DEFAULT_URL)]
-		public string Url;
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
 		public int Timeout;
 		
@@ -58,5 +60,21 @@ namespace GreenshotJiraPlugin {
 			}
 			return false;
 		}
+
+				/// <summary>
+		/// Supply values we can't put as defaults
+		/// </summary>
+		/// <param name="property">The property to return a default for</param>
+		/// <returns>object with the default value for the supplied property</returns>
+		public override object GetDefault(string property) {
+			switch (property) {
+				case "JiraInstances":
+					IList<string> JiraInstancesDefaults = new List<string>();
+					JiraInstancesDefaults.Add("https://jira");
+					return JiraInstancesDefaults;
+			}
+			return null;
+		}
+
 	}
 }

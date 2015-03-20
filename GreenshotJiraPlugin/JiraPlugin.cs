@@ -18,12 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using Jira;
 using System;
 
 namespace GreenshotJiraPlugin {
@@ -34,11 +34,11 @@ namespace GreenshotJiraPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
 		private PluginAttribute jiraPluginAttributes;
 		private IGreenshotHost host;
-		private JiraConnector jiraConnector = null;
 		private JiraConfiguration config = null;
 		private ComponentResourceManager resources;
-		private static JiraPlugin instance = null;
+		private JiraMonitor _jiraMonitor;
 
+		#region dispose
 		public void Dispose() {
 			Dispose(true);
 			GC.SuppressFinalize(this);
@@ -46,26 +46,20 @@ namespace GreenshotJiraPlugin {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (jiraConnector != null) {
-					jiraConnector.Dispose();
-					jiraConnector = null;
+				if (_jiraMonitor != null) {
+					_jiraMonitor.Dispose();
+					_jiraMonitor = null;
 				}
 			}
 		}
+		#endregion
 
-		public static JiraPlugin Instance {
+		/// <summary>
+		/// Get the JiraMonitor
+		/// </summary>
+		public JiraMonitor JiraMonitor {
 			get {
-				return instance;
-			}
-		}
-
-		public JiraPlugin() {
-			instance = this;
-		}
-		
-		public PluginAttribute JiraPluginAttributes {
-			get {
-				return jiraPluginAttributes;
+				return _jiraMonitor;
 			}
 		}
 
@@ -77,21 +71,6 @@ namespace GreenshotJiraPlugin {
 			yield break;
 		}
 
-		//Needed for a fail-fast
-		public JiraConnector CurrentJiraConnector {
-			get {
-				return jiraConnector;
-			}
-		}
-		
-		public JiraConnector JiraConnector {
-			get {
-				if (jiraConnector == null) {
-					jiraConnector = new JiraConnector(true);
-				}
-				return jiraConnector;
-			}
-		}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
@@ -107,30 +86,23 @@ namespace GreenshotJiraPlugin {
 			// Register configuration (don't need the configuration itself)
 			config = IniConfig.GetIniSection<JiraConfiguration>();
 			resources = new ComponentResourceManager(typeof(JiraPlugin));
+			_jiraMonitor = new JiraMonitor();
+			foreach(var jiraInstance in config.JiraInstances) {
+				// TODO: Username & Password need to be retrieved / stored
+				_jiraMonitor.AddJiraInstance(jiraInstance, "username", "password");
+			}
 			return true;
 		}
 
 		public virtual void Shutdown() {
 			LOG.Debug("Jira Plugin shutdown.");
-			if (jiraConnector != null) {
-				jiraConnector.logout();
-			}
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			string url = config.Url;
-			if (config.ShowConfigDialog()) {
-				// check for re-login
-				if (jiraConnector != null && jiraConnector.isLoggedIn && !string.IsNullOrEmpty(url)) {
-					if (!url.Equals(config.Url)) {
-						jiraConnector.logout();
-						jiraConnector.login();
-					}
-				}
-			}
+			config.ShowConfigDialog();
 		}
 
 		/// <summary>
@@ -142,5 +114,6 @@ namespace GreenshotJiraPlugin {
 			LOG.Debug("Application closing, calling logout of jira!");
 			Shutdown();
 		}
+
 	}
 }
