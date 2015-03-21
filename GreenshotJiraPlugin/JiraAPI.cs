@@ -41,6 +41,16 @@ namespace GreenshotJiraPlugin {
 			private set;
 		}
 
+		public string JiraVersion {
+			get;
+			set;
+		}
+
+		public string ServerTitle {
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// Create the JIRA API for the specified URL, with username & password
 		/// </summary>
@@ -52,6 +62,7 @@ namespace GreenshotJiraPlugin {
 			apiUrl = url.AppendPathSegment(restPath);
 			client = new FlurlClient();
 			client.WithBasicAuth(username, password).WithHeader("X-Atlassian-Token", "nocheck");
+			ServerTitle = "";
 		}
 
 		#region Dispose
@@ -80,6 +91,7 @@ namespace GreenshotJiraPlugin {
 
 		/// <summary>
 		/// Get issue information
+		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e4539
 		/// </summary>
 		/// <param name="issue"></param>
 		/// <returns>dynamic</returns>
@@ -88,7 +100,17 @@ namespace GreenshotJiraPlugin {
 		}
 
 		/// <summary>
+		/// Get server information
+		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e3828
+		/// </summary>
+		/// <returns>dynamic with ServerInfo</returns>
+		public async Task<dynamic> ServerInfo(CancellationToken token = default(CancellationToken)) {
+			return await client.WithUrl(Url.Combine(apiUrl, "serverInfo")).GetJsonAsync();
+		}
+
+		/// <summary>
 		/// Get user information
+		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e5339
 		/// </summary>
 		/// <param name="username"></param>
 		/// <returns>dynamic with user information</returns>
@@ -98,6 +120,7 @@ namespace GreenshotJiraPlugin {
 
 		/// <summary>
 		/// Get currrent user information
+		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e4253
 		/// </summary>
 		/// <returns>dynamic with user information</returns>
 		public async Task<dynamic> Myself(CancellationToken token = default(CancellationToken)) {
@@ -106,6 +129,7 @@ namespace GreenshotJiraPlugin {
 
 		/// <summary>
 		/// Get projects information
+		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e2779
 		/// </summary>
 		/// <returns>IList of dynamic</returns>
 		public async Task<IList<dynamic>> Projects(CancellationToken token = default(CancellationToken)) {
@@ -113,9 +137,10 @@ namespace GreenshotJiraPlugin {
 		}
 
 		/// <summary>
-		/// Upload content to
+		/// Attach content to the specified issue
+		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e3035
 		/// </summary>
-		/// <param name="content"></param>
+		/// <param name="content">HttpContent, Make sure your HttpContent has a mime type...</param>
 		/// <returns></returns>
 		public async Task<HttpResponseMessage> Attach(string issueKey, HttpContent content, CancellationToken token = default(CancellationToken)) {
 			var url = Url.Combine(apiUrl, "issue", issueKey, "attachments");

@@ -30,6 +30,7 @@ using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
@@ -57,7 +58,7 @@ namespace GreenshotJiraPlugin {
 		}
 
 		private string FormatUpload(JiraDetails jira) {
-			return jira.Title.Substring(0, Math.Min(40, jira.Title.Length));
+			return string.Format("{0} - {1}", jira.JiraKey, jira.Title.Substring(0, Math.Min(40, jira.Title.Length)));
 		}
 
 		public override string Description {
@@ -89,7 +90,8 @@ namespace GreenshotJiraPlugin {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (JiraDetails jiraIssue in _jiraPlugin.JiraMonitor.RecentJiras) {
+			// Show only the last 10 JIRAs
+			foreach (JiraDetails jiraIssue in _jiraPlugin.JiraMonitor.RecentJiras.Take(10)) {
 				yield return new JiraDestination(_jiraPlugin, jiraIssue);
 			}
 		}

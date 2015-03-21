@@ -42,7 +42,7 @@ namespace GreenshotJiraPlugin {
 		private readonly int _maxEntries;
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
 
-		public JiraMonitor(int maxEntries = 10) {
+		public JiraMonitor(int maxEntries = 40) {
 			_maxEntries = maxEntries;
 			_monitor = new TitleChangeMonitor();
 			_monitor.TitleChangeEvent += monitor_TitleChangeEvent;
@@ -90,7 +90,7 @@ namespace GreenshotJiraPlugin {
 			get {
 				return (from jiraDetails in _recentJiras.Values
 						orderby jiraDetails.SeenAt descending
-						select jiraDetails).Take(10);
+						select jiraDetails);
 			}
 		}
 
@@ -112,6 +112,9 @@ namespace GreenshotJiraPlugin {
 		/// <param name="password"></param>
 		public async void AddJiraInstance(string url, string username, string password, CancellationToken token = default(CancellationToken)) {
 			var jiraInstance = new JiraAPI(url, username, password);
+			var serverInfo = await jiraInstance.ServerInfo();
+			jiraInstance.ServerTitle = serverInfo.serverTitle;
+			jiraInstance.JiraVersion = serverInfo.version;
 
 			_jiraInstances.Add(jiraInstance);
 			foreach (var project in await jiraInstance.Projects()) {
@@ -122,13 +125,37 @@ namespace GreenshotJiraPlugin {
 		}
 
 		/// <summary>
-		/// 
+		/// A helper method to retrieve the title for a Jira (so we can display this clean) in the background (async)
 		/// </summary>
-		/// <param name="jiraKey"></param>
+		/// <param name="jiraKey">key for the jira to retrieve the title (XYZ-1234)</param>
 		/// <returns>title for the _jira key</returns>
-		public async Task GetTitle(JiraDetails jiraDetails) {
-			var issue = await _projectJiraApiMap[jiraDetails.ProjectKey].Issue(jiraDetails.JiraKey);
-			jiraDetails.Title = issue.fields.summary;
+		private async Task GetTitle(JiraDetails jiraDetails) {
+			try {
+				JiraAPI jiraApi;
+				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi)) {
+					var issue = await jiraApi.Issue(jiraDetails.JiraKey);
+					jiraDetails.Title = issue.fields.summary;
+				}
+			} catch (Exception ex) {
+				Console.WriteLine("Couldn't retrieve JIRA title: {0}", ex.Message);
+			}
+		}
+
+		/// <summary>
+		/// Try to make the title as clean as possible
+		/// </summary>
+		/// <param name="jiraApi"></param>
+		/// <param name="windowsTitle"></param>
+		/// <returns>a clean windows title</returns>
+		private string CleanWindowTitle(JiraAPI jiraAPI, string jiraKey, string windowTitle) {
+			var title = windowTitle.Replace(jiraAPI.ServerTitle, "");
+			// Remove for emails:
+			title = title.Replace("[JIRA]", "");
+			title = Regex.Replace(title, string.Format(@"^[^a-zA-Z0-9]*{0}[^a-zA-Z0-9]*", jiraKey), "");
+
+
+			title = Regex.Replace(title, "^[^a-zA-Z0-9]*(.*)[^a-zA-Z0-9]*$", "$1");
+			return title;
 		}
 
 		/// <summary>
@@ -161,14 +188,14 @@ namespace GreenshotJiraPlugin {
 				var projectKey = jiraKeyParts[0];
 				var jiraId = jiraKeyParts[1];
 
+				JiraAPI jiraAPI;
 				// Check if we have a JIRA instance with a project for this key
-				if (_projectJiraApiMap.ContainsKey(projectKey)) {
+				if (_projectJiraApiMap.TryGetValue(projectKey, out jiraAPI)) {
 					// We have found a project for this _jira key, so it must be a valid & known JIRA
 					JiraDetails currentJiraDetails;
 					if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails)) {
 						// update 
 						currentJiraDetails.SeenAt = DateTimeOffset.Now;
-						currentJiraDetails.Title = windowTitle;
 						// Nothing else to to
 						return;
 					}
@@ -176,7 +203,7 @@ namespace GreenshotJiraPlugin {
 					currentJiraDetails = new JiraDetails() {
 						Id = jiraId,
 						ProjectKey = projectKey,
-						Title = windowTitle
+						Title = CleanWindowTitle(jiraAPI, jiraKey, windowTitle) // Try to make it as clean as possible, although we retrieve the issue title later
 					};
 					_recentJiras.Add(currentJiraDetails.JiraKey, currentJiraDetails);
 
@@ -189,6 +216,8 @@ namespace GreenshotJiraPlugin {
 										select jiraDetails).Take(10).ToDictionary(jd => jd.JiraKey, jd => jd);
 
 					}
+					// Now we can get the title from JIRA itself
+					var updateTitleTask = GetTitle(currentJiraDetails);
 				}
 			}
 		}
