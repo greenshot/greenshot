@@ -23,6 +23,7 @@ using Flurl;
 using Flurl.Http;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -163,6 +164,28 @@ namespace GreenshotJiraPlugin {
 		/// <returns>dynamic</returns>
 		public async Task<dynamic> Search(string jql, CancellationToken token = default(CancellationToken)) {
 			return await client.WithUrl(Url.Combine(apiUrl, "search").SetQueryParam("jql", jql)).GetJsonAsync();
+		}
+
+		/// <summary>
+		/// Retrieve the 48x48 Avatar as a Stream for the supplied user
+		/// </summary>
+		/// <param name="user">dyamic object from User or Myself method</param>
+		/// <param name="token"></param>
+		/// <returns>Stream</returns>
+		public async Task<Stream> Avatar(dynamic user, CancellationToken token = default(CancellationToken)) {
+			var avatarUrl = (string)GetProperty(user.avatarUrls, "48x48");
+			return await client.WithUrl(avatarUrl).GetStreamAsync();
+		}
+
+		/// <summary>
+		/// Private method to get a property from a dynamic, this is used if the property name is not usable in normal compiler code.
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		private static object GetProperty(object target, string name) {
+			var site = System.Runtime.CompilerServices.CallSite<Func<System.Runtime.CompilerServices.CallSite, object, object>>.Create(Microsoft.CSharp.RuntimeBinder.Binder.GetMember(0, name, target.GetType(), new[] { Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo.Create(0, null) }));
+			return site.Target(site, target);
 		}
 	}
 }
