@@ -35,7 +35,6 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	public class JiraMonitor : IDisposable {
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z0-9]+\-[0-9]+");
-		private readonly Regex _jiraBrowseUrlPattern = new Regex(@"((http|https)://[a-zA-Z0-9\.]+(:[0-9]+)?)/browse/[A-Z0-9]+\-[0-9]+");
 		private readonly TitleChangeMonitor _monitor;
 		private readonly IList<JiraAPI> _jiraInstances = new List<JiraAPI>();
 		private readonly IDictionary<string, JiraAPI> _projectJiraApiMap = new Dictionary<string, JiraAPI>();
@@ -169,19 +168,6 @@ namespace GreenshotJiraPlugin {
 			}
 			var jiraKeyMatch = _jiraKeyPattern.Match(windowTitle);
 			if (jiraKeyMatch.Success) {
-				var urlMatch = _jiraBrowseUrlPattern.Match(windowTitle);
-				if (urlMatch.Success) {
-					// Only URL, check if this was configured so we can offer it
-					var baseUrl = urlMatch.Groups[1].Value;
-					//Console.WriteLine("Found a JIRA URL: {0}", baseUrl);
-					foreach (var jiraInstance in _jiraInstances) {
-						if (jiraInstance.BaseUrl == baseUrl) {
-							return;
-						}
-					}
-					//Console.WriteLine("New JIRA url found: {0}", baseUrl);
-					return;
-				}
 				// Found a possible JIRA title
 				var jiraKey = jiraKeyMatch.Value;
 				var jiraKeyParts = jiraKey.Split('-');
@@ -196,7 +182,7 @@ namespace GreenshotJiraPlugin {
 					if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails)) {
 						// update 
 						currentJiraDetails.SeenAt = DateTimeOffset.Now;
-						// Nothing else to to
+						// Nothing else to do
 						return;
 					}
 					// We detected an unknown JIRA, so add it to our list
