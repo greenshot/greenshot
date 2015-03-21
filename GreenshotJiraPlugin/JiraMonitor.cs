@@ -199,7 +199,7 @@ namespace GreenshotJiraPlugin {
 						IList<JiraDetails> clonedList = new List<JiraDetails>(_recentJiras.Values);
 						_recentJiras = (from jiraDetails in clonedList
 										orderby jiraDetails.SeenAt descending
-										select jiraDetails).Take(10).ToDictionary(jd => jd.JiraKey, jd => jd);
+										select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
 
 					}
 					// Now we can get the title from JIRA itself
