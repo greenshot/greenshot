@@ -146,5 +146,23 @@ namespace GreenshotJiraPlugin {
 			var url = Url.Combine(apiUrl, "issue", issueKey, "attachments");
 			return await client.HttpClient.PostAsync(url, content, token);
 		}
+
+		/// <summary>
+		/// Get filter favorites
+		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e1388
+		/// </summary>
+		/// <returns>IList of dynamic</returns>
+		public async Task<IList<dynamic>> Filters(CancellationToken token = default(CancellationToken)) {
+			return await client.WithUrl(Url.Combine(apiUrl, "filter", "favourite")).GetJsonListAsync();
+		}
+
+		/// <summary>
+		/// Search for issues, with a JQL (e.g. from a filter)
+		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e2713
+		/// </summary>
+		/// <returns>dynamic</returns>
+		public async Task<dynamic> Search(string jql, CancellationToken token = default(CancellationToken)) {
+			return await client.WithUrl(Url.Combine(apiUrl, "search").SetQueryParam("jql", jql)).GetJsonAsync();
+		}
 	}
 }
