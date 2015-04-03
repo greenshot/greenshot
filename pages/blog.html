@@ -5,22 +5,6 @@ permalink: /blog/
 tags: menu
 ---
 <div class="container-fluid">
-	<div class="col-md-4">
-		<div class="panel panel-info affix">
-			<div class="panel-heading">
-				<h3 class="panel-title">Table of content</h3>
-			</div>
-			<div class="panel-body">
-				<div class="navbar nav" id="scollspy">
-					<ul class="nav nav-pills nav-stacked">
-						{% for post in site.posts %}
-						<li style="padding-left: 30px;"><a href="#blog_{{ forloop.index }}">{{ post.title }}</a></li>
-						{% endfor %}
-					</ul>
-				</div>
-			</div>
-		</div>
-	</div>
 
 	<div class="col-md-7">
 		{% for post in site.posts %}
@@ -29,10 +13,10 @@ tags: menu
 					<h3 class="panel-title">{{ post.date | date: "%-d %b %Y" }}: {{ post.title }}</h3>
 				</div>
 				<div class="panel-body">
-				{{ post.content }}
+				{{ post.content | markdownify | strip_html | truncatewords:80 }}
 				</div>
 				<div class="panel-footer">
-					Post direct link: <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+					Read more: <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
 				</div>
 			</div>
 		{% endfor %}
