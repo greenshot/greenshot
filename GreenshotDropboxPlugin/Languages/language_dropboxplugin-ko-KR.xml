@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="korean" ietf="ko-KR" version="1.0.0">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">
+		 클립보드로 연결
+		</resource>
+		<resource name="label_AfterUploadOpenHistory">
+		 작업내역 열기
+		</resource>
+		<resource name="label_AfterUpload">
+		업로드 후
+		</resource>
+		<resource name="Configure">
+			Dropbox 설정
+		</resource>
+		<resource name="upload_menu_item">
+		Dropbox로 업로드
+	</resource>
+	<resource name="settings_title">
+		Dropbox 설정
+	</resource>
+		<resource name="upload_success">
+		Dropbox로 이미지 업로드 성공!
+	</resource>
+		<resource name="upload_failure">
+		Dropbox로 업로드시 오류 발생:
+	</resource>
+		<resource name="label_upload_format">
+			이미지 형식
+	</resource>
+		<resource name="communication_wait">
+			Dropbox로 연결 중 잠시 대기...
+	</resource>
+  </resources>
+</language>

@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="korean" ietf="ko-KR" version="1.0.0">
+	<resources>
+	 <resource name="label_HiddenFromSearch">
+			숨김 형식 찾기
+		</resource>
+		<resource name="label_SafetyLevel">
+			보안 레벨
+		</resource>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	 클립보드로 연결
+	</resource>
+		<resource name="label_AfterUpload">
+		업로드 후
+		</resource>
+	<resource name="Configure">
+			Flickr 설정
+		</resource>
+		<resource name="upload_menu_item">
+		 Flickr로 업로드
+	</resource>
+	<resource name="settings_title">
+		Flickr 설정
+	</resource>
+		<resource name="upload_success">
+		Flickr로 이미지 업로드 성공!
+	</resource>
+		<resource name="upload_failure">
+		Flickr로 업로드시 오류 발생:
+	</resource>
+		<resource name="label_upload_format">
+			이미지 형식
+	</resource>
+		<resource name="communication_wait">
+			Flickr와 연결 중 잠시 가다리세요...
+	</resource>
+	  <resource name="public">
+	  공용
+	  </resource>
+	<resource name="family">
+	  가족
+	</resource>
+	<resource name="friend">
+	  친구
+	</resource>
+  </resources>
+</language>

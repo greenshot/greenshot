@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="korean" ietf="ko-KR" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Jira로 업로드
+	</resource>
+	<resource name="column_assignee">
+		수신자
+	</resource>
+	<resource name="column_created">
+		생성
+	</resource>
+	<resource name="column_id">
+		ID
+	</resource>
+	<resource name="column_reporter">
+		리포터
+	</resource>
+	<resource name="column_summary">
+		요약
+	</resource>
+	<resource name="label_comment">
+		주석
+	</resource>
+	<resource name="label_filename">
+		파일명
+	</resource>
+	<resource name="label_jira">
+		JIRA
+	</resource>
+	<resource name="label_jirafilter">
+		JIRA 필터
+	</resource>
+	<resource name="login_error">
+		로그인시 문제가 발생하였습니다: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+  	<resource name="login_title">
+		Jira 로그인 정보를 입력하세요
+	</resource>
+	<resource name="settings_title">
+		Jira 설정
+	</resource>
+  	<resource name="OK">
+		확인
+	</resource>
+  	<resource name="CANCEL">
+		취소
+	</resource>
+  	<resource name="upload_success">
+		Jira로 이미지 업로드 성공!
+	</resource>
+  	<resource name="upload_failure">
+		Jira로 업로드시 오류 발생:
+	</resource>
+  	<resource name="label_upload_format">
+  		이미지 형식
+	</resource>
+  	<resource name="communication_wait">
+  		JIRA로 자료 전송 중 잠시 기다리세요...
+	</resource>
+  </resources>
+</language>

@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="korean" ietf="ko-KR" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Imgur로 업로드
+	</resource>
+	<resource name="settings_title">
+		Imgur 설정
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="OK">
+		확인
+	</resource>
+	<resource name="CANCEL">
+		취소
+	</resource>
+	<resource name="upload_success">
+		Imgur로 이미지 업로드 성공!
+	</resource>
+	<resource name="upload_failure">
+		Imgur로 업로드시 오류 발생:
+	</resource>
+	<resource name="label_upload_format">
+		이미지 형식
+	</resource>
+	<resource name="communication_wait">
+		Imgur와 연결 중 잠시 기다리세요...
+	</resource>
+	<resource name="delete_question">
+		Imgur의 {0}이미지를 삭제하겠습니까?
+	</resource>
+	<resource name="clear_question">
+		Imgur 작업내역을 삭제하겠습니까?
+	</resource>
+	<resource name="delete_title">
+		Imgur {0} 삭제
+	</resource>
+	<resource name="anonymous_access">
+		익명 접근 사용
+	</resource>
+	<resource name="use_page_link">
+		클립보드에서 이미지 링크대신 페이지 링크 사용
+	</resource>
+	<resource name="history">
+		작업내역
+	</resource>
+	<resource name="configure">
+		설정
+	</resource>
+  </resources>
+</language>
