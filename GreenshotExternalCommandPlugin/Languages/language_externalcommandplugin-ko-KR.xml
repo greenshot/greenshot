@@ -2,10 +2,10 @@
 <language description="korean" ietf="ko-KR" version="1.0.0">
   <resources>
   <resource name="contextmenu_configure">
-    외부 명령어 설정
+    외부 편집기 등록
   </resource>
   <resource name="settings_title">
-  		외부 명령어 설정
+  		외부 편집기 등록
 	</resource>
 	<resource name="settings_detail_title">
   		설정 명령어

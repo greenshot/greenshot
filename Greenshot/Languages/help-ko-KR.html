@@ -1,0 +1,372 @@
+
+<html>
+	<head>
+		<title>Greenshot 도움말</title>
+		
+		<style>
+		* {
+			font-family: Tahoma, Arial, Sans-serif;
+		}
+		h1 {font-size:16px;}
+		h2 {font-size:14px;color:#009900;margin-top:24px;}
+		h3 {font-size:12px;margin-top:18px;}
+		small {font-size:10px;}
+		p, li {font-size:12px;line-height:1.5em}
+		a:link, a:hover, a:visited, a:active {color:#009900;}
+		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
+		em {padding-right:0.2em;}
+		</style>
+	</head>
+	<body>
+	<h1>Greenshot 도움말</h1>
+	<!-- 
+	Note to translator: uncomment entry below to have your effort honored 
+	-->
+	<small>Version 1.0 translated by yongdoria dot gmail.com</small>
+	
+	<h2>목차</h2>
+	<ol>
+		<li><a href="#screenshot">캡처 이미지 생성</a></li>
+		<ol>
+			<li><a href="#capture-region">부분구역 캡처</a></li>
+			<li><a href="#capture-last-region">마지막 구역 캡처</a></li>
+			<li><a href="#capture-window">작업 화면 캡처</a></li>
+			<li><a href="#capture-fullscreen">전체 화면 캡처</a></li>
+			<li><a href="#capture-ie">인터넷 익스플로어 캡처</a></li>
+		</ol>
+	
+		<li><a href="#editor">GreenShot 내장 이미지 편집기 사용</a></li>
+		<ol>
+			<li><a href="#editor-shapes">모양 그리기</a></li>
+			<li><a href="#editor-text">문자열 더하기</a></li>
+			<li><a href="#editor-highlight">이미지 강조</a></li>
+			<li><a href="#editor-obfuscate">이미지 모자이크</a></li>
+			<li><a href="#editor-effects">효과 더하기</a></li>
+			<li><a href="#editor-crop">이미지 잘라내기</a></li>
+			<li><a href="#editor-adding-graphics">이미지 더하기</a></li>
+			<li><a href="#editor-reuse-elements">그린 요소 재사용</a></li>
+			<li><a href="#editor-export">이미지 내보내기</a></li>
+		</ol>
+		<li><a href="#settings">대화창 설정</a></li>
+		<ol>
+			<li><a href="#settings-general">일반 설정</a></li>
+			<li><a href="#settings-capture">캡처 설정</a></li>
+			<li><a href="#settings-output">출력 설정</a></li>
+			<li><a href="#settings-destination">저장 폴더 설정</a></li>
+			<li><a href="#settings-printer">인쇄 설정</a></li>
+			<li><a href="#settings-expert">내보내기 설정</a></li>
+		</ol>
+		<li><a href="#help">도움을 원하십니까?</a></li>
+		<ol>
+			<li><a href="#help-donate">기부 소개</a></li>
+			<li><a href="#help-spread">널리 알려주세요</a></li>
+			<li><a href="#help-translate">언어 번역 소개</a></li>
+		</ol>
+	</ol>
+	
+	<a name="screenshot"></a>
+	<h2>캡처 이미지 생성</h2>
+	<p>
+		시스템 트레이의 Greenshot 아이콘을 오른쪽 마우스 클릭 또는 키보드의 [<kbd>Print</kbd>]키를 사용함으로서 캡처 이미지를 생성할 수 있습니다.<br>
+		캡처 이미지 생성을 위한 몇가지 설정이 있습니다:
+	</p>
+	
+	<a name="capture-region"></a>
+	<h3>부분 구역 캡처 [<kbd>Print</kbd>]키</h3>
+	<p>
+		이 모드는 부분 구역을 캡처할 때 사용할 수 있습니다.<br>
+		이 모드를 선택한 후 화면상에 십자점이 나타나면 캡처하고자 하는 구역을 마우스 왼쪽 버튼을 클릭한 후 마우스를 계속 누르고 원하는 구역까지 마우스 끌기를 한 후 마우스키를 해제시키면 부분 구역 이미지를 캡처할 수 있습니다. 
+		
+	</p>
+	<p class="hint">
+		"부분 구역과 <a href="#capture-window">작업 화면</a> 모드" 사이의 전환은 [<kbd>Space</kbd>]키를 사용할 수 있습니다 .
+	</p>
+	<p class="hint">
+		정확히 지정한 구역만 이미지 캡처하기 위하여, 일단 이미지 캡처 구역을 크게 선택하여 이미지를 생성한 후 Greenshot 내장 이미지 편집기의 <a href="#editor-crop">잘라내기</a>기능을 이용하여 정확히 지정된 구역을 선택하여 작업합니다.
+	</p>
+	
+	<a name="capture-last-region"></a>
+	<h3>마지막 구역 캡처 [<kbd>Shift</kbd>]키 + [<kbd>Print</kbd>]키</h3>
+	<p>
+		 <a href="#capture-region">부분 구역</a> 또는 <a href="#capture-window">작업 화면</a> 캡처를 한 후 이 설정기능을 사용하여 바로 직전에 캡처 작업했던 부분 구역 또는 작업 화면 이미지 캡처 작업을 동일하게 수행할 수 있습니다.
+	</p>
+	
+	<a name="capture-window"></a>
+	<h3>작업 화면(창) 캡처[ <kbd>Alt</kbd>]키 + [<kbd>Print</kbd>]키</h3>
+	<p>
+		현재 활성화된 작업 화면(창)에 대한 이미지를 캡처합니다.
+	</p>
+	<p class="hint">
+		윈도우7 또는 비스타 시스템에서 Greenshot이 반투명 창 경계(aero)에 대한 조정 방법을 제어하기 위하여 설정-캡처-작업창캡처-작업창 캡처모드의 작업창 캡처 설정을 사용합니다. 즉 사용자 색상 사용으로 투명도를 대체합니다.
+	</p>
+	<p class="hint">
+		<a href="#settings">설정 대화창</a>은 설정에서 즉시 활성 작업 화면을 캡처하지 않도록 하고 있으며 대화식으로 여러 캡처 방법 중 하나를 선택할 수 있도록 허용합니다. 이 작업 화면 캡처 설정을 선택시  작업 화면을 클릭함으로서 작업 화면을 선택합니다.(<a href="#capture-region">부분 구역 모드</a>에서는 캡처되는 구역이 강조되어 나타납니다)<br>
+		작업화면(창)내 프레임 요소 중 한 요소를 캡처하기를 원한다면 (즉 도구막대없이 브라우저 내용 보기 또는 웹 페이지의 작업 화면 내 프레임셋 중 단일 프레임등) 마우스 커서를 작업 화면에 위치시키고 [<kbd>PgDown</kbd>]키를 누르세요. 이렇게 하면 캡처할 작업 화면의 개별 프레임 요소를 선택할 수 있습니다.
+	</p>
+	<p class="hint">
+		프로그램의 작업 메뉴의 캡처는 다릅니다: "작업 화면 캡처" 단축키 사용은 작업 메뉴를 사라지게 합니다. 그리고 이미지를 생성할 경우 GreenShot 작업 메뉴를 사용한다면 동일하게 나타날 것입니다.. 작업 메뉴를 캡처하고 싶다면 임의로 오른쪽 클릭함으로서 만들수 있으며, 단순히 구역 모드 [<kbd>Print</kbd>]키를 활성화시키고 [<kbd>Space</kbd>]키를 누르세요.
+	</p>
+	
+	<a name="capture-fullscreen"></a>
+	<h3>전체 화면 캡처 [<kbd>Control</kbd>]키 + [<kbd>Print</kbd>]키</h3>
+	<p>
+		전체 화면 이미지를 캡처합니다.
+	</p>
+
+	<a name="capture-ie"></a>
+	<h3>인터넷 익스플로어 캡처 [<kbd>Control</kbd>]키 + [<kbd>Shift</kbd>]키 + [<kbd>Print</kbd>]키</h3>
+	<p>
+		쉽게 현재 작업 중인 인터넷 익스플로어의 웹 페이지 이미지를 캡처할 수 있습니다. 
+		Greenshot 캡처 방법 중 인터넷 익스플로어 캡처를 선택하여 이 작업을 하거나 
+		[<kbd>Crtl</kbd>]키 + [<kbd>Shift</kbd>]키 + [<kbd>Print</kbd>]키를 눌러 이 작업을 실행할 수 있습니다.
+	</p>
+
+	
+	<a name="editor"></a>
+	<h2>GreenShot 내장 이미지 편집기 사용</h2>
+	<p>
+		Greenshot은 쉽게 사용할 수 있는 내장 이미지 편집기를 제공하고 있습니다. 주석이나 다양한 모양등을 캡처한 이미지에 편집을 할 수 있는 특징이 있습니다. 또한 이미지의 특정 부분을 강조하거나 모자이크 처리등을 수행할 수 있습니다. 
+	</p>
+	<p class="hint">
+		Greenshot 내장 이미지 편집기는 캡처한 이미지 뿐만 아니라 이미지 파일이나 클립보드로부터 편집작업을 할 수 있습니다. 간단히 시스템트레이의 GreenShot 아이콘에서 오른쪽 마우스를 눌러 <em>파일 이미지 열기</em>나 <em>클립보드 이미지 열기</em>를 각각 선택합니다.
+	</p>
+	<p class="hint">
+		기본값으로 이미지 캡처시 내장 이미지가 열릴 것입니다. GreenShot 내장 이미지 편집기를 사용하고 싶지 않다면  <a href="#settings">설정 대화창</a>에서 <em>파일 저장 방법</em> 탭으로 들어가 <em>이미지 편집기에서 열기</em>를 해제하면 됩니다.
+	</p>
+	
+	
+	<a name="editor-shapes"></a>
+	<h3>모양 그리기</h3>
+	<p>
+		GreenShot 내장 이미지 편집기 도구막대 왼편의 모양 그리기 도구 중 하나를 선택하거나 상단 메뉴에서 <em>객체</em>를 선택합합니다. 또한 편리하게 사용하기 위하여 각 도구에 할당된 단축키를 이용할 수 있습니다.<br>
+		사용 가능한 객체 모양: 사각형 [<kbd>R</kbd>]키, 타원 [<kbd>E</kbd>]키, 선 [<kbd>L</kbd>]키,
+		화살표 [<kbd>A</kbd>]키, 자유곡선 [<kbd>F</kbd>]키.<br>
+		그리려는 객체를 클릭하여 마우스 버튼을 누른 후 원하는 위치까지 끌기 및 크기 조정을 합니다. 그리고 마우스 버튼을 놓으면 해당 작업이 완료됩니다.
+	</p>
+	<p>
+		GreenShot 객체 편집 중 [<kbd>ESC</kbd>]키를 눌러 편집 상태를 벗어난 후 편집 중인 모양 객체의 크기 및 위치 조정을 할 수 있습니다.<br>
+		작업하는 각 객체는 다양하고 특별하게 변경할 수 있는 요소들이 있습니다.(즉, 선 객체에는 선 두께, 선 색상, 채움 색상등). 객체를 선택한 후 기존 요소에 대한 설정을 변경할 수 있으며 그리기 도구를 선택하여 그릴 때 바뀐 요소들이 그려집니다.
+	</p>
+	<p class="hint">
+		객체를 편집할 때 다수 객체를 선택할 수 있습니다, 다수 객체를 선택하기 위하여 각 객체를 클릭할 때 [<kbd>Shift</kbd>]키를 누르면서 여러개를 선택을 하면 됩니다.
+	</p>
+	<p class="hint">
+		등변(평형) 그리기를 하고 싶다면 즉 직사각형을 정사각형 모양으로 그리고자 한다면 그리는 동안 [<kbd>Shift</kbd>]키를 누른 상태에서 그립니다. 선이나 화살표를 그릴 때는 [<kbd>Shift</kbd>]키를 누른 상태에서 작업을 하면 15도씩 각도를 변경시켜 그릴 수가 있습니다.<br>
+		또한 종회비를 유지하려는 기존 객체의 크기를 변경하고자 할 때도 [<kbd>Shift</kbd>]키를 누른 상태에서 작업을 하면 됩니다.
+	</p>
+	<p class="hint">
+		그리기 또는 크기 조정시 작업하는 객체의 중간 지점이 기준점이 되도록 작업하고자 할 때 [<kbd>Ctrl</kbd>]키를 누르면 됩니다. 즉 예를 들어 선 객체를 선택하여 한쪽 점을 늘리면 선 객체 중간 지점을 중심으로 반대 방향으로 크기가 늘어납니다. 이것은 타원과 관련된 작업을 할 때 유용합니다.
+	</p>
+	
+	<a name="editor-text"></a>
+	<h3>문자열 더하기</h3>
+	<p>
+		문자열 도구 [<kbd>T</kbd>]키는 <a href="#editor-shapes">모양</a> 도구의 사용법과 유사합니다. 입력할 문자열 상자를 원하는 크기로 그리고 문자열을 입력합니다.<br>
+		문자열을 편집할 경우에는 기존 문자열을 더블클릭하면 됩니다.<br>
+		편집 작업을 완료한 경우 [<kbd>Return</kbd>]키나 [<kbd>Enter</kbd>]키를 칩니다.
+	</p>
+	<p class="hint">
+		문자열 상자내 여러줄을 입력하려면 [<kbd>Shift</kbd>]키 + [<kbd>Return</kbd>]키 또는
+		[<kbd>Shift</kbd>]키 + [<kbd>Enter</kbd>]키를 누릅니다.
+	</p>
+	
+	<a name="editor-highlight"></a>
+	<h3>이미지 강조</h3>
+	<p>
+		강조 도구 [<kbd>H</kbd>]키를 선택하여 <a href="#editor-shapes">모양</a>도구에서 그린 객체를 강조 구역을 정의할 수 있습니다.<br>
+		강조를 위한 몇가지 설정이 있으며 상단 왼쪽 도구막대 설정부분을 클릭함으로서 설정을 수정할 수 있습니다:
+	</p>
+	<ul>
+		<li><em>문자열 강조</em>: 밝은 색상을 객체에 적용함으로서 구역을 강조 처리합니다</li>
+		<li><em>구역 강조</em>: 흐림 <a href="#hint-blur">*</a>과 선택된 구역 바깥을 모두 어둡게 처리처리합니다</li>
+		<li><em>그레이스케일</em>: 선택된 구역 바깥을 모두 그레이스케일 처리합니다</li>
+		<li><em>확대</em>: 선택된 구역을 확대하여 처리합니다</li>
+	</ul>
+	
+	<a name="editor-obfuscate"></a>
+	<h3>이미지 모자이크</h3>
+	<p>
+		이미지 중 은행계좌 자료, 암호, 주민등록번호등 개인신상 정보를 포함할 때 이 자료들을 모자이크 처리함으로서 개인정보등을 안전하게 보관할 때 필요한 작업이다.<br>
+		이미지 모자이크 [<kbd>O</kbd>]키는 정확히 <a href="#editor-highlight">강조</a> 도구와 동일합니다.<br>
+		이미지 모자이크 사용 가능한 설정 내용:
+	</p>
+	<ul>
+		<li><em>픽셀화</em>: 선택된 구역에 대하여 픽셀 크기 증가시킵니다</li>
+		<li><em>흐림</em> <a href="#hint-blur">*</a> : 선택된 구역 흐리게 처리합니다</li>
+	</ul>
+	<a name="hint-blur"></a>
+	<p class="hint">
+		* 여러분 컴퓨터의 처리 속도에 따라 내장 이미지 편집기의 흐림 효과를 느리게 처리할 수 있습니다. 흐림 효과를 적용시 컴퓨터의 속도가 느려진다고 생각된다면 도구막대의 <em>품질 미리보기</em> 값을 감소시키거나 <em>흐림 반경</em>값을 감소시킵니다.<br>
+		이런 방벙으로도 느리다면 대신 픽셀화 효과를 사용하여 보시기 바랍니다.
+	</p>
+	<a name="editor-effects"></a>
+	<h3>효과 더하기</h3>
+	<p>
+		이미지에 여러 효과를 더할 수 있습니다. 경계, 그림자 넣기, 경계 잘라내기등을 적용할 수 있습니다.즉 문서에서 다른 내용과 캡처 이미지를 시각적으로 분리하고자 할 때 사용합니다.
+		그레이스케일과 반전 효과는 주로 인쇄하기 전 또는 인쇄시 잉크와 토너를 절약할 때 유용합니다.
+	</p>
+	
+	<a name="editor-crop"></a>
+	<h3>잘라내기</h3>
+	<p>
+		캡처된 이미지의 일부분만 필요하다면 원하는 구역만 잘라내기 위하여 잘라내기 [<kbd>C</kbd>] 도구를 사용합니다.<br>
+		잘라내기 도구를 선택한 후 원하는 구역을 사각 모양으로 선택을 한 후 다른 요소와 같이 선택된 구역의 크기를 재조정할 수 있습니다.<br>
+		선택한 구역이 정환한 경우 도구 막대의 확인 단추를 사용하거나 [<kbd>Enter</kbd>]키를 누릅니다. 취소 버튼을 클릭하거나 [<kbd>ESC</kbd>]키를 누름으로서 잘라내기를 취소할 수 있습니다.
+	</p>
+	<p class="hint">
+		<em>자동 잘라내기</em>: 선택된 이미지를 잘라내기 위하여 단지 GreenShot 내장 이미지 편집기의 상단 <em>편집</em> 메뉴에서 <em>자동 잘라내기</em>를 실행하면 자동으로 잘라내기 구역을 선택하여 줍니다.
+	</p>
+	
+	<a name="editor-rotate"></a>
+	<p class="hint">
+		이미지를 시계방향 또는 반시계방향으로 회전시키기 위하여 회전 도구를 사용합니다.
+	</p>
+	<a name="editor-adding-graphics"></a>
+	<h3>외부 이미지 더하기</h3>
+	<p>
+		GreenShot 내장 이미지 편집기의 작업 화면 안쪽으로 PC에 저장된 이미지를 끌어와 떨어뜨리면 간단히 이미지를 더할 수 있습니다. <em>편집</em> 메뉴의 <em>작업 화면 삽입</em> 명령을 이용하여 다른 작업 화면의 캡처된 이미지를 삽입할 수 있습니다. 이 캡처된 전체 열려진 작업 화면 목록이 보이며 이 중 삽입을 하려는 하나의 이미지를 선택하여 누르면 됩니다.
+	</p>
+	
+	<a name="editor-reuse-elements"></a>
+	<h3>그린 요소 재사용</h3>
+	<p>
+		캡처된 이미지상에서 동일 또는 유사하게 사용되는 것을 찾는다면 즉 브라우저 형을 포함하는 문자열 필드, 또는 몇몇 캡처 이미지상의 동일한 요소의 이미지 모자이크화등이 있다면, 그린 요소 재사용 명령어를 쓸 수 있다.<br>
+		후에 재사용할 요소 모음을 저장하기 위하여 <em>객체</em> 메뉴에서 <em>객체를 파일로 저장</em> 명령어를 실행합니다. 다른 캡처한 이미지에 동일한 요소들을 적용하기 위하여 <em>파일에서 객체 읽어오기</em> 명령어를 실행합니다.
+	</p>
+	
+	<a name="editor-export"></a>
+	<h3>이미지 내보내기</h3>
+	<p>
+		이미지를 편집한 후 필요한 경우 다양한 목적을 위하여 출력물을 내보낼 수 있습니다.
+		최상단 도구막대 또는 단축키를 통하여 <em>파일</em> 메뉴를 통하여 전체 내보내기 설정을 이용할 수 있습니다:
+	</p>
+	<ul>
+		<li><em>저장</em> [<kbd>Control</kbd>]키 + [<kbd>S</kbd>키: 이미지를 파일로 저장합니다. 단, 이미지가 이미 저장되어 있다면 <em>다른 이름으로 저장...</em> 대화창이 나타납니다</li>
+		<li><em>다른 이름으로 저장...</em> [<kbd>Control</kbd>]키 + [<kbd>Shift</kbd>]키 + [<kbd>S</kbd>]키: 파일을 저장하기 위하여 저장폴더 및 파일명을 선택할 수 있습니다</li>
+		<li><em>이미지를 클립보드로 복사</em> [<kbd>Control</kbd>]키 + [<kbd>Shift</kbd>]키 + [<kbd>C</kbd>]키: 이미지를 클립보드로 복사하여 다른 프로그램들이 붙여넣기를 할 수 있도록 해줍니다</li>
+		<li><em>인쇄...</em> [<kbd>Control</kbd>]키 + [<kbd>P</kbd>]키: 이미지를 인쇄기로 출력합니다</li>
+		<li><em>이메일</em> [<kbd>Control</kbd>]키 + [<kbd>E</kbd>]키: 이미지를 이메일로 붙여넣기 하여 보냅니다</li>
+	</ul>
+	<p> 
+		외부 클라우드 저장공간 예를 들어 DropBox, Picasa, Flickr등으로 내보내기 위한 플러그인이 있습니다. 단순히 설치 과정 동안 적당한 플러그인을 선택합니다.
+	</p>
+	<p class="hint">
+		이미지를 저장한 후 내장 이미지 편집기창 하단 상태막대를 오른쪽 마우스를 클릭하면 파일 경로를 클립보드로 복사하거나 윈도우 탐색기에서 폴더 열기를 할 수 있습니다.
+	</p>
+	
+	
+	<a name="settings"></a>
+	<h2>설정 대화창</h2>
+	
+	<a name="settings-general"></a>
+	<h3>일반 설정</h3>
+	<ul>
+		<li><em>사용 언어</em>: 사용자가 사용할 언어.<br>
+			사용할 각국 GreenShot 언어를 다운 받는 곳은 <a target="_blank" href="http://getgreenshot.org/downloads/">이 곳을 누르세요</a>. </li>
+		<li><em>윈도우 구동시 Greenshot 실행</em>: 윈도우를 처음 구동시 GreenShot 프로그램이 자동을 실행됩니다.</li>
+		<li><em>단축키</em>: 이미지를 생성하기 위하여 사용되는 단축키를 지정합니다.</li>
+		<li><em>기본 시스템 프록시 사용</em>: 체크되었을 경우  업데이트를 위한 체크시 기본 시스템 프록시를 사용합니다.</li>
+		<li><em>날짜로 업데이트 체크 간격</em>: 자동으로 업데이트 체크를 합니다. 업데이트를 위한 간격일을 지정하며 0으로 설정할 경우 업데이트 체크를 해제합니다.</li>
+	</ul>
+
+	<a name="settings-capture"></a>
+	<h3>캡처 설정</h3>
+	<ul>
+		<li><em>마우스포인터 캡처</em>: 체크되었을 경우 마우스 포인터를 캡처될 것입니다. 그리고 후에 이 설정을 켜고 끌 수 있습니다.</li>
+		<li><em>소리 재생</em>: 캡처 완료시 소리로 알려줍니다</li>
+		<li><em>캡처 전 밀리초 지연</em>: 캡처가 지연되는 시간을 지정합니다. 1000으로 설정하면 1초 지연 후 이미지를 캡처할 수 있습니다.</li>
+		<li><em>대화형 작업창 캡처 모드 사용</em>: 활성 작업화면(창)을 즉시 캡처하는 대신 이 모드를 선택하면 캡처할 작업화면을 선택할 수 있도록 해줍니다.
+           		작업화면 내 프레임들을 또한 캡처할 수도 있을 것입니다. 자세한 것은 <a href="#capture-window">작업 화면 캡처</a>를 보시기 바랍니다</li>
+		<li>
+			<em>작업창 캡처 모드 (윈도우 비스타 / 윈도우7만)</em>: 에어로 기능이 가능한 윈도우 비스타 또는 윈도우 7에서 GreenShot을 이용한다면 작업 화면 모드에서 캡처할 때 투명 작업 화면 경계를 다룰 지 선택할 수 있습니다. 
+			     캡처하는 배경의 요소들이 투명한 경계를 통하여 밝게 되는 것을 피하고자 할 때 이 설정을 사용합니다.
+			<ul>
+				<li><em>자동</em>: Greenshot이 투명도를 어떻게 다룰지 결정합니다.</li>
+				<li><em>보이는 것</em>: 화면에 보이는대로 투명한 경계를 캡처합니다.</li>
+				<li><em>기본 색상 사용</em>: 투명도 대신 기본 색상을 적용합니다.</li>
+				<li><em>사용자 색상 사용</em>: 투명도 대신 사용자가 선택한 색상을 적용합니다.</li>
+				<li><em>투명도 유지</em>: 배경에 있는 요소들을 캡처하지 않고 투명도를 유지한 채 경계를 캡처합니다.(주의: 투명한 구간이 이미지 편집기에서는 체크 모양으로 보여집니다. 이 체크모양은 파일로 저장되지 않습니다. 이미지의 투명도를 유지하고자 한다면 반드시 PNG 파일로 저장하기 바랍니다.)</li>
+			</ul>
+		</li>
+		<li><em>인터넷 익스플로어 캡처</em>:  익스플로어의 웹 페이지를 쉽게 캡처할 수 있습니다.</li>
+		<li><em>편집기 캡처 크기 일치</em>: 선택시 이미지 편집기 작업 화면이 이미지 크기에 적합하도록 자동으로 크기가 변합니다.</li>
+
+	</ul>
+	
+	<a name="settings-output"></a>
+	<h3>출력 설정</h3>
+	<ul>
+		<li><em>저장할 폴더</em>: 이미지를 캡처한 후 저장할 폴더를 선택할 수 있게 합니다.</li>
+		<li><em>파일명 유형</em>: 저장할 때 이용될 폴더와 파일명을 선택할 수 있게 합니다. 오른쪽의 <em>?</em> 단추를 누르면 다양한 파일명에 대한 지정형식을 배울 수 있습니다.</li>
+		<li><em>JPEG 설정</em>: 저장할 JPG 품질 정보를 선택? 수 있습니다</li>
+	</ul>
+	
+	<a name="settings-destination"></a>
+	<h3>저장할 폴더 설정</h3>
+	<p>
+		기본적으로 Greenshot은 이미지 생성시 선택 가능한 다른 저장폴더를 나타내는 메뉴가 나타나고 동적으로 저장폴더를 선택합니다. 즉시 저장폴더를 바꾸고 싶지 않다면 저장 폴더 메뉴를 나타내지 않고 바로 GreenShot 설정에서 하나 또는 다른 저장방법들로 내보내기 할 수 있습니다.<br/>
+		주의:<a href="#editor-export"> 작업한 이미지를 내보낼 때 GreenShot에 설치된 플러그인에 의한 다양한 저장 방법이 있습니다</a>
+	</p>
+	
+	<a name="settings-printer"></a>
+	<h3>인쇄기 설정</h3>
+	<ul>
+		<li><em>출력물을 페이지 크기에 맞게 축소</em>: 이미지가 페이지 크기를 초과한다면 페이지 크기에 맞게 적절히 줄여 인쇄합니다.</li>
+		<li><em>출력물을 페이지 크기에 맞게 확대</em>: 이미지가 페이지 크기보다 작다면 페이지 크기에 맞게 확대하여 인쇄합니다.</li>
+		<li><em>출력물을 페이지 방향으로 회전</em>: 인쇄하기 위하여 가로 형식 이미지를 90&deg도 회전시켜 인쇄합니다.</li>
+		<li><em>반전 색상으로 인쇄</em>: 검은색 배경에 흰색 문자열이 있는 이미지일 경우 인쇄하기 전 이미지의 색상을 반전하여 인쇄하며, 토너나 잉크를 절약할 때 사용합니다.</li>
+		<li><em>그레이스케일 인쇄</em>: 인쇄하기 전 색상을 그레이스케일로 변환시켜 인쇄합니다.</li>
+	</ul>
+
+	<a name="settings-plugins"></a>
+	<h3>플러그인 설정</h3>
+	<p>
+		Greenshot에서 이용 가능한 다양한 플러그인 목록이 보입니다. 플러그인의 설정에 접근하기 위하여 목록에서 하나를 선택한 후 설정을 클릭합니다.
+	</p>
+	
+	<a name="settings-expert"></a>
+	<h3>고급 설정</h3>
+	<p>
+		고급설정: 이 설정 부분은 여러분이 현재 작업하는 것에 대하여 정확한 지식을 모른다면 변경시키지 마시기 바랍니다. 이 설정의 수정은 비정상적인 결과를 보일 수도 있습니다.
+	</p>
+	
+	
+	<a name="help"></a>
+	<h2>도움을 원하십니까?</h2>
+	
+	<p>
+		현재 개발시 여러분의 도움이 필요하지 않습니다. 그러나 GreenShot과 개발팀의 지원하기 위하여 할 수 있는 다양한 방법이 있습니다.<br>
+		앞서 감사드립니다 :)
+	</p>
+	
+	<a name="help-donate"></a>
+	<h3>기부 소개</h3>
+	<p>
+		우리는 GreenShot에 많은 수고를 하고 있으며 무료이며 오픈 소스인 좋은 프로그램 제작에 많은 시간을 할애하고 있습니다.
+		여러분이 더 생산적으로 만들고자 한다면 또는 여러분이나 여러분 회사가 많은 시간과 돈을 절약하고자 한다면, 그리고 GreenShot과 오픈소스 소프트웨어를 좋아하신다면 기부로서 우리의 노력에 대한 도움을 부탁드립니다.<br>
+		GreenShot 개발팀 지원을 하기 위한 방법은 아래 언급된 GreenShot 홈페이지를 방문해주시기 바랍니다:<br>
+		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+	</p>
+	
+	<a name="help-spread"></a>
+	<h3>널리 알려주세요</h3>
+	<p>
+		Greenshot이 마음에 드시면 사람들에게 널리 알려주시기 바랍니다. 주변의 친구들와 동료에게 GreenShot에 대하여 좋은 프로그램이라고 말씀드려 주세요.<br>
+		소프트웨어 포털에서 GreenShot을 널리 알리거나 여러분의 블로그 또는 홈페이지에 GreenShot 홈페이지를 링크시켜 주시기 바랍니다.
+	</p>
+	
+	<a name="help-translate"></a>
+	<h3>언어 번역 소개</h3>
+	<p>
+		Greenshot에 사용할 언어가 없습니까? 사용할 언어를 넣고 싶다면 반가운 일입니다. http://sourceforge.net에 사용자등록이 되어 있다면  <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">GreenShot 번역 상황</a>에서 번역을 할 수 있습니다.<br>
+		<a target="_blank" href="http://getgreenshot.org/downloads/">GreenShot 다운로드 페이지</a>에서 사용할 언어 번역이 없는지 먼저 확인하세요. 다음으로 <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">GreenShot 번역 상황</a>을 체크해보세요,
+		진행 중인 번역이 있거나 또는 최소 논의 중인 것이 있을 수 있습니다.<br>
+		http://sourceforge.net 사용자 계정을 통해 등록된 언어파일만 다운로드 페이지를 통한 번역만을 제공함을 유의하시기 바랍니다.
+		당신의 언어 번역본을 이해할 수 없을 때 새 Greenshot 버전일 경우에 개선하기 위하여 다른 사용자가 여러분과 연락할 수 있습니다.
+	</p>
+	
+	
+	
+	</body>
+</html>
