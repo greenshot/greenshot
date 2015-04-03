@@ -10,6 +10,7 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 @DETAILVERSION@
 
 Bugs Resolved:
+* BUG-1578, BUG-1657: by default, Imgur plugin no longer passes title and filename to Imgur (for new installations, existing configuration files won't be affected)
 * BUG-1655: Greenshot uses the default proxy, even if the "use default proxy" check-box is not checked.
 * BUG-1730: File type in the Save-As dialog doesn't default to configured output format.
 * BUG-1735: Editor crashed when trying to scale down a screenshot with text element
@@ -21,7 +22,7 @@ Bugs Resolved:
 Languages:
 * Portuguese (Portugal): application translation updates + new translation for plugin and help, thanks to Luis Neves
 * Indonesian: translation updates, thanks to Afif Brika
-* Korean: translation updates, thanks to Jin-Hwan Jeong
+* Korean: translation updates + new translation for plugins, thanks to Jin-Hwan Jeong
 * French: translation updates, thanks to thierry
 
 
