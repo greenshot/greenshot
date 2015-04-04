@@ -1,0 +1,29 @@
+---
+layout: page
+title: Sitemap
+permalink: /sitemap/
+---
+<div>
+  <div>
+    <h2>Pages</h2>
+    <ul>
+    {% for page in site.pages %}
+      <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+    {% endfor %}
+    </ul>
+    <h2>FAQ</h2>
+    <ul>
+    {% for faq in site.faqs %}
+      <li><a href="{{ faq.url }}">{{ faq.title }}</a></li>
+    {% endfor %}
+    </ul>
+  </div>
+  <div>
+    <h2>Blog</h2>
+    <ul>
+    {% for post in site.posts %}
+      <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
