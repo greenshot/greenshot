@@ -1,3 +1,8 @@
+---
+title: Robots.txt
+---
 # TODO remove before publication on getgreenshot.org, also change meta directive in _config.yml
 User-agent: *
 Disallow: /
+
+Sitemap: {{ site.url }}/sitemap.xml
