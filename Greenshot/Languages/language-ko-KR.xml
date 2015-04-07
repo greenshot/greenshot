@@ -117,7 +117,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_highlight_magnify">확대</resource>
 		<resource name="editor_highlight_mode">강조 모드</resource>
 		<resource name="editor_highlight_text">문자열 강조</resource>
-		<resource name="editor_image_shadow">그림자 넣기</resource>
+		<resource name="editor_image_shadow">음영 넣기</resource>
 		<resource name="editor_imagesaved">이미지를 {0}으로 저장.</resource>
 		<resource name="editor_insertwindow">작업 화면 삽입</resource>
 		<resource name="editor_invert">반전</resource>
@@ -283,25 +283,25 @@ ${hostname} PC명
 		<resource name="WindowCaptureMode.Screen">시간 지연</resource>
 
     <!-- 1.2 -->
-    <resource name="editor_dropshadow_darkness">그림자 음영</resource>
-    <resource name="editor_dropshadow_offset">그림자 오프셋</resource>
-    <resource name="editor_dropshadow_settings">그림자 설정</resource>
-    <resource name="editor_dropshadow_thickness">그림자 두께</resource>
-
-    <resource name="editor_tornedge_horizontaltoothrange">Horizontal tooth range</resource>
-    <resource name="editor_tornedge_settings">Torn edges settings</resource>
-    <resource name="editor_tornedge_toothsize">Tooth size</resource>
-    <resource name="editor_tornedge_verticaltoothrange">Vertical tooth range</resource>
-    <resource name="editor_tornedge_all">전체면 찢기</resource>
-    <resource name="editor_tornedge_left">왼쪽면</resource>
-    <resource name="editor_tornedge_right">오른쪽면</resource>
-    <resource name="editor_tornedge_top">상단면</resource>
-    <resource name="editor_tornedge_bottom">하단면</resource>
-    <resource name="editor_tornedge_shadow">그림자 생성</resource>
-    
+    <resource name="editor_dropshadow_darkness">음영 정도</resource>
+    <resource name="editor_dropshadow_offset">음영 오프셋</resource>
+    <resource name="editor_dropshadow_settings">음영 설정</resource>
+    <resource name="editor_dropshadow_thickness">음영 두께</resource>
+	
+    <resource name="editor_tornedge_horizontaltoothrange">수평 범위</resource>
+    <resource name="editor_tornedge_settings">경계 자르기 설정</resource>
+    <resource name="editor_tornedge_toothsize">자르기 크기</resource>
+    <resource name="editor_tornedge_verticaltoothrange">수직 범위</resource>
+    <resource name="editor_tornedge_all">전체 선택</resource>
+    <resource name="editor_tornedge_left">왼쪽</resource>
+    <resource name="editor_tornedge_right">오른쪽</resource>
+    <resource name="editor_tornedge_top">상단</resource>
+    <resource name="editor_tornedge_bottom">하단</resource>
+    <resource name="editor_tornedge_shadow">음영 넣기</resource>
+	
     <resource name="editor_counter">카운터 더하기 (I)</resource>
     <resource name="editor_speechbubble">설명선 더하기(S)</resource>
-
+	
     <resource name="editor_resize">크기조정</resource>
     <resource name="editor_resize_settings">크기조정 설정</resource>
     <resource name="editor_resize_aspectratio">종횡비 유지</resource>
