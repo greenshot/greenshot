@@ -408,6 +408,17 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// This method will be called before writing the configuration
+		/// </summary>
+		public override void BeforeSave() {
+			try {
+				// Store version, this can be used later to fix settings after an update
+				LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+			} catch {
+			}
+		}
+
+		/// <summary>
 		/// This method will be called after reading the configuration, so eventually some corrections can be made
 		/// </summary>
 		public override void AfterLoad() {
