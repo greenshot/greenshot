@@ -57,28 +57,45 @@ namespace Greenshot.Controls {
 
 			if (e.Index > -1) {
 				FontFamily fontFamily = Items[e.Index] as FontFamily;
-				FontStyle fs = FontStyle.Regular;
+				FontStyle fontStyle = FontStyle.Regular;
 				if (!fontFamily.IsStyleAvailable(FontStyle.Regular)) {
 					if (fontFamily.IsStyleAvailable(FontStyle.Bold)) {
-						fs = FontStyle.Bold;
+						fontStyle = FontStyle.Bold;
 					} else if (fontFamily.IsStyleAvailable(FontStyle.Italic)) {
-						fs = FontStyle.Italic;
+						fontStyle = FontStyle.Italic;
 					} else if (fontFamily.IsStyleAvailable(FontStyle.Strikeout)) {
-						fs = FontStyle.Strikeout;
+						fontStyle = FontStyle.Strikeout;
 					} else if (fontFamily.IsStyleAvailable(FontStyle.Underline)) {
-						fs = FontStyle.Underline;
+						fontStyle = FontStyle.Underline;
 					}
 				}
-				using (Font font = new Font(fontFamily, this.Font.Size + 5, fs, GraphicsUnit.Pixel)) {
-					// Make sure the text is visible by centering it in the line
-					using(StringFormat stringFormat = new StringFormat()) {
-						stringFormat.LineAlignment = StringAlignment.Center;
-						e.Graphics.DrawString(fontFamily.Name, font, Brushes.Black, e.Bounds, stringFormat);
-					}
+				try {
+					DrawText(e.Graphics, fontFamily, fontStyle, e.Bounds, fontFamily.Name);
+				} catch {
+					// If the drawing failed, BUG-1770 seems to have a weird case that causes: Font 'Lucida Sans Typewriter' does not support style 'Regular' 
+					DrawText(e.Graphics, FontFamily.GenericSansSerif, FontStyle.Regular, e.Bounds, fontFamily.Name);
 				}
 			}
 			// Uncomment this if you actually like the way the focus rectangle looks
 			//e.DrawFocusRectangle ();
+		}
+
+		/// <summary>
+		/// Helper method to draw the string
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="fontFamily"></param>
+		/// <param name="fontStyle"></param>
+		/// <param name="bounds"></param>
+		/// <param name="text"></param>
+		private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, Rectangle bounds, string text) {
+			using (Font font = new Font(fontFamily, this.Font.Size + 5, fontStyle, GraphicsUnit.Pixel)) {
+				// Make sure the text is visible by centering it in the line
+				using (StringFormat stringFormat = new StringFormat()) {
+					stringFormat.LineAlignment = StringAlignment.Center;
+					graphics.DrawString(text, font, Brushes.Black, bounds, stringFormat);
+				}
+			}
 		}
 
 		void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) {
