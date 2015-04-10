@@ -47,9 +47,9 @@ namespace GreenshotImgurPlugin {
 		public string ImgurToken;
 		[IniProperty("ImgurTokenSecret", Description = "The Imgur token secret", Encrypted=true, ExcludeIfNull=true)]
 		public string ImgurTokenSecret;
-		[IniProperty("AddTitle", Description = "Is the title passed on to Imgur", DefaultValue = "True")]
+		[IniProperty("AddTitle", Description = "Is the title passed on to Imgur", DefaultValue = "False")]
 		public bool AddTitle;
-		[IniProperty("AddFilename", Description = "Is the filename passed on to Imgur", DefaultValue = "True")]
+		[IniProperty("AddFilename", Description = "Is the filename passed on to Imgur", DefaultValue = "False")]
 		public bool AddFilename;
 		[IniProperty("FilenamePattern", Description = "Filename for the Imgur upload", DefaultValue = "${capturetime:d\"yyyyMMdd-HHmm\"}")]
 		public string FilenamePattern;

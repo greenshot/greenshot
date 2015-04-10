@@ -2,14 +2,14 @@
 <language description="한국어" ietf="ko-KR" version="1.0.4" languagegroup="8">
 	<resources>
 		<resource name="about_bugs">버그는 아래 URL로 전달바랍니다.</resource>
-		<resource name="about_donations">Greenshot이 마음에 드신다면 아래 URL로 방문하셔서 지원할 수 있습니다.</resource>
+		<resource name="about_donations">Greenshot이 좋다면 아래 URL로 방문하셔서 지원할 수 있습니다.</resource>
 		<resource name="about_host">Greenshot은 sourceforge.net 관리하에 아래 링크에서 호스팅되고 있습니다</resource>
 		<resource name="about_icons">아이콘은 Yusuke Kamiyamane's Fugue icon set으로부터 제공받은 것입니다. (Creative Commons Attribution 3.0 license)</resource>
 		<resource name="about_license">Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
-		<resource name="about_title">Greenshot(Greenshot)에 관해...</resource>
-		<resource name="application_title">Greenshot - 아주 훌륭한 이미지 캡처 프로그램</resource>
+		<resource name="about_title">Greenshot 프로그램 소개...</resource>
+		<resource name="application_title">Greenshot - 좋은 이미지 캡처 프로그램</resource>
 		<resource name="bugreport_cancel">닫기</resource>
 		<resource name="bugreport_info">미안합니다. 예상치 못한 오류가 발생하였습니다.
 
@@ -51,7 +51,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_capturefullscreen_top">상단</resource>
 		<resource name="contextmenu_captureie">인터넷 익스플로어 캡처</resource>
 		<resource name="contextmenu_captureiefromlist">목록에서 인터넷 익스플로어 캡처</resource>
-		<resource name="contextmenu_capturelastregion">마지막 구간 캡처</resource>
+		<resource name="contextmenu_capturelastregion">직전 저장구역 캡처</resource>
 		<resource name="contextmenu_capturewindow">작업 화면 캡처</resource>
 		<resource name="contextmenu_capturewindowfromlist">목록에서 작업 화면 캡처</resource>
 		<resource name="contextmenu_donate">Greenshot 지원</resource>
@@ -61,7 +61,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_openrecentcapture">저장 폴더 열기</resource>
 		<resource name="contextmenu_quicksettings">빠른 설정</resource>
 		<resource name="contextmenu_settings">설정...</resource>
-		<resource name="destination_exportfailed">{0}으로 내보내는 동안 오류, 다시 시도하시오.</resource>
+		<resource name="destination_exportfailed">{0}으로 내보내는 동안 오류, 다시 시도하세오.</resource>
 		<resource name="editor_align_bottom">하단</resource>
 		<resource name="editor_align_center">중앙</resource>
 		<resource name="editor_align_horizontal">수평 정렬</resource>
@@ -76,16 +76,16 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_arrowheads_end">끝점</resource>
 		<resource name="editor_arrowheads_none">없음</resource>
 		<resource name="editor_arrowheads_start">시작점</resource>
-		<resource name="editor_autocrop">잘라내기</resource>
+		<resource name="editor_autocrop">자동 잘라내기</resource>
 		<resource name="editor_backcolor">채움 색상</resource>
-		<resource name="editor_blur_radius">블러 반경</resource>
+		<resource name="editor_blur_radius">흐림 반경</resource>
 		<resource name="editor_bold">진하게</resource>
 		<resource name="editor_border">경계</resource>
 		<resource name="editor_brightness">밝기</resource>
 		<resource name="editor_cancel">취소</resource>
 		<resource name="editor_clipboardfailed">클립보드에 접근하는 동안 오류. 다시 시도하세요.</resource>
 		<resource name="editor_close">닫기</resource>
-		<resource name="editor_close_on_save">화면 캡처를 저장하겠습니까?</resource>
+		<resource name="editor_close_on_save">화면 캡처를 저장할까요?</resource>
 		<resource name="editor_close_on_save_title">이미지를 저장할까요?</resource>
 		<resource name="editor_confirm">확인</resource>
 		<resource name="editor_copyimagetoclipboard">이미지를 클립보드로 복사</resource>
@@ -102,7 +102,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_drawfreehand">자유도구 그리기 (F)</resource>
 		<resource name="editor_drawhighlighter">강조 (H)</resource>
 		<resource name="editor_drawline">선 그리기 (L)</resource>
-		<resource name="editor_drawrectangle">직사각형 그리기 (R)</resource>
+		<resource name="editor_drawrectangle">사각형 그리기 (R)</resource>
 		<resource name="editor_drawtextbox">문자열 더하기 (T)</resource>
 		<resource name="editor_duplicate">선택된 요소 복제</resource>
 		<resource name="editor_edit">편집</resource>
@@ -112,12 +112,12 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_fontsize">크기</resource>
 		<resource name="editor_forecolor">선 색상</resource>
 		<resource name="editor_grayscale">그레이스케일</resource>
-		<resource name="editor_highlight_area">강조 구역</resource>
+		<resource name="editor_highlight_area">구역 강조</resource>
 		<resource name="editor_highlight_grayscale">그레이스케일</resource>
 		<resource name="editor_highlight_magnify">확대</resource>
 		<resource name="editor_highlight_mode">강조 모드</resource>
-		<resource name="editor_highlight_text">강조 문자열</resource>
-		<resource name="editor_image_shadow">그림자 넣기</resource>
+		<resource name="editor_highlight_text">문자열 강조</resource>
+		<resource name="editor_image_shadow">음영 넣기</resource>
 		<resource name="editor_imagesaved">이미지를 {0}으로 저장.</resource>
 		<resource name="editor_insertwindow">작업 화면 삽입</resource>
 		<resource name="editor_invert">반전</resource>
@@ -126,7 +126,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_magnification_factor">확대 요소</resource>
 		<resource name="editor_match_capture_size">캡처 크기 일치</resource>
 		<resource name="editor_obfuscate">모자이크 (O)</resource>
-		<resource name="editor_obfuscate_blur">블러</resource>
+		<resource name="editor_obfuscate_blur">흐림</resource>
 		<resource name="editor_obfuscate_mode">모자이크 처리</resource>
 		<resource name="editor_obfuscate_pixelize">픽셀라이즈</resource>
 		<resource name="editor_object">객체</resource>
@@ -139,8 +139,8 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_resetsize">초기화 크기</resource>
 		<resource name="editor_resize_percent">백분율</resource>
 		<resource name="editor_resize_pixel">화소</resource>
-		<resource name="editor_rotateccw">반시계방향으로 회전 (CTRL + ",")</resource>
-		<resource name="editor_rotatecw">시계방향으로 회전 (CTRL + ".")</resource>
+		<resource name="editor_rotateccw">반시계방향 회전 (CTRL + ",")</resource>
+		<resource name="editor_rotatecw">시계방향 회전 (CTRL + ".")</resource>
 		<resource name="editor_save">저장</resource>
 		<resource name="editor_save_objects">객체를 파일로 저장</resource>
 		<resource name="editor_saveas">다른 이름으로 저장...</resource>
@@ -149,7 +149,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_shadow">그림자</resource>
 		<resource name="editor_storedtoclipboard">이미지를 클립보드로 저장.</resource>
 		<resource name="editor_thickness">선 두께</resource>
-		<resource name="editor_title">Greenshot 이미지 편집기</resource>
+		<resource name="editor_title">Greenshot 내장 이미지 편집기</resource>
 		<resource name="editor_torn_edge">경계 자르기</resource>
 		<resource name="editor_undo">이전으로 {0}</resource>
 		<resource name="editor_uponelevel">한 단계 위로</resource>
@@ -160,22 +160,22 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="error">오류</resource>
 		<resource name="error_multipleinstances">Greenshot가 이미 실행 중입니다.</resource>
 		<resource name="error_nowriteaccess">{0}파일로 저장할 수 없습니다.
-선택된 저장 위치에 쓸 수 있는지 체크하시오.</resource>
+                                              선택된 저장 위치에 쓸 수 있는지 체크하시오.</resource>
 		<resource name="error_openfile">파일 "{0}" 을 열 수 없습니다.</resource>
 		<resource name="error_openlink">링크 '{0}'을 열 수 없습니다.</resource>
 		<resource name="error_save">저장할 수 없습니다. 적당한 위치를 선택하세요.</resource>
 		<resource name="expertsettings">고급</resource>
-		<resource name="expertsettings_autoreducecolors">8비트 이미지보다 큰 경우 256 색상보다 작은 경우 8비트 이미지를 생성</resource>
-		<resource name="expertsettings_checkunstableupdates">비정규적으로 업데이트 체크</resource>
+		<resource name="expertsettings_autoreducecolors">8비트 이미지보다 큰 경우 256 색상보다 작은 경우 8비트 이미지를 생성합니다</resource>
+		<resource name="expertsettings_checkunstableupdates">간헐적으로 업데이트 체크합니다</resource>
 		<resource name="expertsettings_clipboardformats">클립보드 형식</resource>
 		<resource name="expertsettings_counter">파일명 패턴에서 ${NUM} 숫자</resource>
-		<resource name="expertsettings_enableexpert">저장할 이미지 확장자 선택!</resource>
+		<resource name="expertsettings_enableexpert">고급설정</resource>
 		<resource name="expertsettings_footerpattern">프린터 하단 패턴</resource>
-		<resource name="expertsettings_minimizememoryfootprint">메모리 공간을 최소화하나 실행 결함 있음(추천하지 않음)</resource>
-		<resource name="expertsettings_optimizeforrdp">원격 데스크탑 사용을 위해 최적화를 하세요</resource>
-		<resource name="expertsettings_reuseeditorifpossible">가능하다면 편집기 다시 사용</resource>
-		<resource name="expertsettings_suppresssavedialogatclose">편집기를 닫을 때 저장 대화창을 숨김</resource>
-		<resource name="expertsettings_thumbnailpreview">메뉴에서 작업화면 썸네일 보이기(비스타와 윈도우7)</resource>
+		<resource name="expertsettings_minimizememoryfootprint">메모리 공간을 최소화하나 실행 오류가 있습니다(추천하지 않음)</resource>
+		<resource name="expertsettings_optimizeforrdp">원격 데스크탑 사용을 위하여 최적화합니다</resource>
+		<resource name="expertsettings_reuseeditorifpossible">가능하다면 편집기 다시 사용합니다</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">편집기를 닫을 때 저장 대화창을 숨김니다</resource>
+		<resource name="expertsettings_thumbnailpreview">메뉴에서 작업화면 썸네일 보이기(윈도우 비스타와 윈도우7)</resource>
 		<resource name="exported_to">내보내기:{0}</resource>
 		<resource name="exported_to_error">{0}으로 내보내는 동안 오류 발생:</resource>
 		<resource name="help_title">Greenshot 도움말</resource>
@@ -188,17 +188,17 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="printoptions_allowrotate">출력물을 페이지 방향으로 회전</resource>
 		<resource name="printoptions_allowshrink">출력물을 페이지 크기에 맞게 축소</resource>
     <resource name="printoptions_colors">색상 설정</resource>
-    <resource name="printoptions_dontaskagain">기본설정으로 설정 저장하고 다시 묻지 않음</resource>
+    <resource name="printoptions_dontaskagain">기본설정으로 설정 저장하고 다시 묻지 않습니다</resource>
 		<resource name="printoptions_inverted">반전 색상으로 인쇄</resource>
     <resource name="printoptions_layout">페이지 윤곽 설정</resource>
     <resource name="printoptions_printcolor">전체 색상 인쇄</resource>
     <resource name="printoptions_printgrayscale">그레이스케일 인쇄</resource>
     <resource name="printoptions_printmonochrome">흑백 인쇄</resource>
     <resource name="printoptions_timestamp">페이지 하단에 날짜/시간 인쇄</resource>
-		<resource name="printoptions_title">Greenshot 인쇄 옵션</resource>
+		<resource name="printoptions_title">Greenshot 인쇄 설정</resource>
 		<resource name="qualitydialog_dontaskagain">기본설정 품질로 저장하고 다시 묻지 않음</resource>
 		<resource name="qualitydialog_title">Greenshot 품질</resource>
-		<resource name="quicksettings_destination_file">직접 저장( 사용자 출력물 설정 사용)</resource>
+		<resource name="quicksettings_destination_file">직접 저장</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">이미지가 인쇄될 때마다 인쇄 설정 대화창 보이기</resource>
 		<resource name="settings_alwaysshowqualitydialog">이미지를 저장할 때마다 품질 대화창 보이기</resource>
 		<resource name="settings_applicationsettings">응용프로그램 설정</resource>
@@ -207,14 +207,14 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="settings_capture_mousepointer">마우스포인터 캡처</resource>
 		<resource name="settings_capture_windows_interactive">대화형 작업창 캡처 모드 사용</resource>
 		<resource name="settings_checkperiod">날짜로 업데이트 체크 간격 (0=체크 안함)</resource>
-		<resource name="settings_copypathtoclipboard">이미지를 저장할 때마다 파일 경로를 클립보드로 복사</resource>
+		<resource name="settings_copypathtoclipboard">이미지를 저장할 때마다 파일 경로를 클립보드로 복사합니다</resource>
 		<resource name="settings_configureplugin">설정</resource>
 		<resource name="settings_destination">파일 저장 방법</resource>
 		<resource name="settings_destination_clipboard">클립보드로 복사</resource>
 		<resource name="settings_destination_editor">이미지 편집기에서 열기</resource>
 		<resource name="settings_destination_email">이메일</resource>
 		<resource name="settings_destination_file">직접 저장 (아래 설정 사용)</resource>
-		<resource name="settings_destination_fileas">다른 이름으로 저장 (대화창 보임)</resource>
+		<resource name="settings_destination_fileas">다른 이름으로 저장</resource>
 		<resource name="settings_destination_picker">동적으로 저장할 방법 선택</resource>
 		<resource name="settings_destination_printer">인쇄기로 보내기</resource>
 		<resource name="settings_editor">편집기</resource>
@@ -240,8 +240,8 @@ ${hostname} PC명
 예: 파일명 유형 ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
    기본 저장 위치에 년-월-일 폴더를 생성한 후 즉 2008-06-29폴더명에 현재 시간 파일명(13-40-27)으로 저장됩니다.</resource>
 		<resource name="settings_network">네트워크와 업데이트</resource>
-		<resource name="settings_output">Output</resource>
-		<resource name="settings_playsound">카메라 소리 재생</resource>
+		<resource name="settings_output">출력 파일 설정</resource>
+		<resource name="settings_playsound">소리 재생</resource>
 		<resource name="settings_plugins">플러그인</resource>
 		<resource name="settings_plugins_createdby">생성</resource>
 		<resource name="settings_plugins_dllpath">DLL 경로</resource>
@@ -266,7 +266,7 @@ ${hostname} PC명
 		<resource name="settings_tooltip_storagelocation">기본으로 저장될 위치(데스크탑에 저장하기 위하여 빈칸으로 둠)</resource>
 		<resource name="settings_usedefaultproxy">기본 시스템 프록시 사용</resource>
 		<resource name="settings_visualization">효과</resource>
-		<resource name="settings_waittime">캡처 전 밀리초 지연</resource>
+		<resource name="settings_waittime">캡처 전 밀리초 지연(1000밀리초 = 1초)</resource>
 		<resource name="settings_window_capture_mode">작업창 캡처 모드</resource>
 		<resource name="settings_windowscapture">작업창 캡처</resource>
 		<resource name="tooltip_firststart">여기를 오른쪽 클릭 또는 {0}키를 누릅니다.</resource>
@@ -277,31 +277,31 @@ ${hostname} PC명
 
 전체 Greenshot은 단축키없이 트레이 아이콘 메뉴에서 직접 작동합니다.</resource>
 		<resource name="WindowCaptureMode.Aero">사용자 색상 사용</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">투명 유지</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">투명도 유지</resource>
 		<resource name="WindowCaptureMode.Auto">자동</resource>
 		<resource name="WindowCaptureMode.GDI">기본 색상 사용</resource>
 		<resource name="WindowCaptureMode.Screen">시간 지연</resource>
 
     <!-- 1.2 -->
-    <resource name="editor_dropshadow_darkness">그림자 음영</resource>
-    <resource name="editor_dropshadow_offset">그림자 오프셋</resource>
-    <resource name="editor_dropshadow_settings">물방울그림자 설정</resource>
-    <resource name="editor_dropshadow_thickness">그림자 두께</resource>
-
-    <resource name="editor_tornedge_horizontaltoothrange">Horizontal tooth range</resource>
-    <resource name="editor_tornedge_settings">Torn edges settings</resource>
-    <resource name="editor_tornedge_toothsize">Tooth size</resource>
-    <resource name="editor_tornedge_verticaltoothrange">Vertical tooth range</resource>
-    <resource name="editor_tornedge_all">전체면 찢기</resource>
-    <resource name="editor_tornedge_left">왼쪽면</resource>
-    <resource name="editor_tornedge_right">오른쪽면</resource>
-    <resource name="editor_tornedge_top">상단면</resource>
-    <resource name="editor_tornedge_bottom">하단면</resource>
-    <resource name="editor_tornedge_shadow">그림자 생성</resource>
-    
+    <resource name="editor_dropshadow_darkness">음영 정도</resource>
+    <resource name="editor_dropshadow_offset">음영 오프셋</resource>
+    <resource name="editor_dropshadow_settings">음영 설정</resource>
+    <resource name="editor_dropshadow_thickness">음영 두께</resource>
+	
+    <resource name="editor_tornedge_horizontaltoothrange">수평 범위</resource>
+    <resource name="editor_tornedge_settings">경계 자르기 설정</resource>
+    <resource name="editor_tornedge_toothsize">자르기 크기</resource>
+    <resource name="editor_tornedge_verticaltoothrange">수직 범위</resource>
+    <resource name="editor_tornedge_all">전체 선택</resource>
+    <resource name="editor_tornedge_left">왼쪽</resource>
+    <resource name="editor_tornedge_right">오른쪽</resource>
+    <resource name="editor_tornedge_top">상단</resource>
+    <resource name="editor_tornedge_bottom">하단</resource>
+    <resource name="editor_tornedge_shadow">음영 넣기</resource>
+	
     <resource name="editor_counter">카운터 더하기 (I)</resource>
-    <resource name="editor_speechbubble">부연설명 더하기(S)</resource>
-
+    <resource name="editor_speechbubble">설명선 더하기(S)</resource>
+	
     <resource name="editor_resize">크기조정</resource>
     <resource name="editor_resize_settings">크기조정 설정</resource>
     <resource name="editor_resize_aspectratio">종횡비 유지</resource>

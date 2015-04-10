@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="korean" ietf="ko-KR" version="1.0.0">
+  <resources>
+	<resource name="language">
+		OCR 언어
+	</resource>
+	<resource name="orient_image">
+		가로 이미지
+	</resource>
+	<resource name="straighten_image">
+		세로 이미지
+	</resource>
+  </resources>
+</language>

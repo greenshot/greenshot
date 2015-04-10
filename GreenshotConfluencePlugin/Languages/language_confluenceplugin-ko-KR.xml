@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="korean" ietf="ko-KR" version="0.8.0">
+ <resources>
+	<resource name="plugin_settings">
+		Confluence 설정
+	</resource>
+	<resource name="login_error">
+		로그인하는 동안 문제가 발생하였습니다: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="label_timeout">
+		타임아웃
+	</resource>
+	<resource name="label_user">
+		사용자
+	</resource>
+	<resource name="label_password">
+		암호
+	</resource>
+	<resource name="login_title">
+		Confluence 로그인 정보를 입력하시오
+	</resource>
+	<resource name="OK">
+		확인
+	</resource>
+	<resource name="CANCEL">
+		취소
+	</resource>
+	<resource name="upload_menu_item">
+		Confluence로 업로드
+	</resource>
+	<resource name="upload_success">
+		Confluence로 이미지 업로드 성공!
+	</resource>
+	<resource name="upload_failure">
+		Confluence로 업로드시 오류 발생:
+	</resource>
+	<resource name="open_page_after_upload">
+		업로드 후 페이지 열기
+	</resource>
+	<resource name="upload_format">
+		업로드 형식
+	</resource>
+	<resource name="copy_wikimarkup">
+		 Wikimarkup을 클립보드로 복사
+	</resource>
+	<resource name="filename">
+		파일명
+	</resource>
+  <resource name="upload">
+		업로드
+	</resource>
+  <resource name="open_pages">
+		페이지 열기
+	</resource>
+  <resource name="search_pages">
+		페이지 찾기
+	</resource>
+  <resource name="browse_pages">
+		페이지 탐색
+	</resource>
+  <resource name="search_text">
+		문자열 찾기
+	</resource>
+  <resource name="search">
+		찾기
+	</resource>
+  <resource name="loading">
+		Confluence 자료를 읽어오는 중 잠시 기다리세요...
+	</resource>
+  <resource name="include_person_spaces">
+    찾기 및 탐색시 개인 공간 포함
+  </resource>
+   <resource name="communication_wait">
+     Confluence로 자료 전송 중 잠시 기다리세요...
+   </resource>
+ </resources>
+</language>

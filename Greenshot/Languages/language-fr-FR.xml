@@ -162,6 +162,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_thickness">Épaisseur de ligne</resource>
 		<resource name="editor_title">Greenshot Éditeur d'Image</resource>
 		<resource name="editor_torn_edge">Bordures déchirées</resource>
+		<resource name="editor_tornedge_all">Déchirer tous les côtés</resource>
 		<resource name="editor_tornedge_bottom">Appliquer une déchirure en bas</resource>
 		<resource name="editor_tornedge_horizontaltoothrange">Horizontal : Intervalle des dents</resource>
 		<resource name="editor_tornedge_left">Appliquer une déchirure à gauche</resource>
@@ -184,6 +185,7 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="error_openfile">Le fichier "{0}" n'a pu être ouvert.</resource>
 		<resource name="error_openlink">Ne peut ouvrir le lien '{0}'.</resource>
 		<resource name="error_save">Impossible d'enregistrer la capture d'écran. Veuillez trouver un répertoire adéquat !</resource>
+		<resource name="error_save_invalid_chars">Le nom du répertoire ou le nom du fichier généré n'est pas valide. Corrigez le modèle de nom de fichier, puis essayez à nouveau.</resource>
 		<resource name="expertsettings">Expert</resource>
 		<resource name="expertsettings_autoreducecolors">Image en 8 bits si le nombre de couleurs est &lt; à 256 pour une image &gt; 8 bits</resource>
 		<resource name="expertsettings_checkunstableupdates">Vérifier les mises à jour instables</resource>
@@ -240,6 +242,7 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="settings_editor">Éditeur</resource>
 		<resource name="settings_filenamepattern">Modèle du nom de fichier</resource>
 		<resource name="settings_general">Général</resource>
+		<resource name="settings_iconsize">Taille des icônes</resource>
 		<resource name="settings_iecapture">Capture d'Internet Explorer</resource>
 		<resource name="settings_jpegquality">Qualité JPEG</resource>
 		<resource name="settings_language">Langue</resource>

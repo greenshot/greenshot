@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="korean" ietf="ko-KR" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    외부 편집기 등록
+  </resource>
+  <resource name="settings_title">
+  		외부 편집기 등록
+	</resource>
+	<resource name="settings_detail_title">
+  		설정 명령어
+	</resource>
+	<resource name="settings_new">
+  		새로
+	</resource>
+	<resource name="settings_delete">
+  		삭제
+	</resource>
+	<resource name="settings_edit">
+  		편집
+	</resource>
+    <resource name="label_name">
+      이름
+    </resource>
+    <resource name="label_command">
+      명령어
+    </resource>
+    <resource name="label_argument">
+      인수
+    </resource>
+    <resource name="label_information">
+      {0}은 이미지 파일명입니다
+    </resource>
+  </resources>
+</language>
