@@ -135,7 +135,7 @@ namespace Greenshot.Destinations {
 			string filepath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
 			try {
 				fullPath = Path.Combine(filepath, filename);
-			} catch (ArgumentException ae) {
+			} catch (ArgumentException) {
 				// configured filename or path not valid, show error message...
 				LOG.InfoFormat("Generated path or filename not valid: {0}, {1}", filepath, filename);
 

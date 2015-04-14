@@ -320,7 +320,22 @@ namespace GreenshotPlugin.Core {
 			string footer = "\r\n--" + boundary + "--\r\n";
 			formDataStream.Write(Encoding.UTF8.GetBytes(footer), 0, Encoding.UTF8.GetByteCount(footer));
 		}
-		
+
+		/// <summary>
+		/// Post the parameters "x-www-form-urlencoded"
+		/// </summary>
+		/// <param name="webRequest"></param>
+		/// <returns></returns>
+		public static string UploadFormUrlEncoded(HttpWebRequest webRequest, IDictionary<string, object> parameters) {
+			webRequest.ContentType = "application/x-www-form-urlencoded";
+			string urlEncoded = NetworkHelper.GenerateQueryParameters(parameters);
+			using (var requestStream = webRequest.GetRequestStream())
+			using (var streamWriter = new StreamWriter(requestStream, Encoding.UTF8)) {
+				streamWriter.Write(urlEncoded);
+			}
+			return GetResponse(webRequest);
+		}
+
 		/// <summary>
 		/// Process the web response.
 		/// </summary>
