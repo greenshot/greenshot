@@ -51,6 +51,14 @@ namespace GreenshotPicasaPlugin {
 			if (result.TryGetValue("code", out code)) {
 				GenerateToken(code, settings);
 			}
+			string error;
+			if (result.TryGetValue("error", out error)) {
+				if ("access_denied" == error) {
+					throw new UnauthorizedAccessException("Access denied");
+				} else {
+					throw new Exception(error);
+				}
+			}
 		}
 
 		/// <summary>
