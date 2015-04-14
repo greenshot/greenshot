@@ -10,6 +10,13 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 @DETAILVERSION@
 
 Bugs Resolved:
+* BUG-1769: Switched to OAuth 2 for Picasa Authentication, 
+* BUG-1770: Fix problems when a font doesn't want to draw itself.
+
+
+1.2.5.19-RELEASE-63412d3b9e29
+
+Bugs Resolved:
 * BUG-1578, BUG-1657: by default, Imgur plugin no longer passes title and filename to Imgur (for new installations, existing configuration files won't be affected)
 * BUG-1655: Greenshot uses the default proxy, even if the "use default proxy" check-box is not checked.
 * BUG-1730: File type in the Save-As dialog doesn't default to configured output format.
