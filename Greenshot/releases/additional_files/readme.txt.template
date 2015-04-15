@@ -13,6 +13,9 @@ Bugs Resolved:
 * BUG-1769: Switched to OAuth 2 for Picasa Authentication, 
 * BUG-1770: Fix problems when a font doesn't want to draw itself.
 
+Features:
+* FEATURE-838: Added support for dragging an image from google image search results directly into the editor.
+
 
 1.2.5.19-RELEASE-63412d3b9e29
 
