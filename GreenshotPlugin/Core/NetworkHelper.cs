@@ -337,6 +337,20 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Log the headers of the WebResponse, if IsDebugEnabled
+		/// </summary>
+		/// <param name="response">WebResponse</param>
+		private static void DebugHeaders(WebResponse response) {
+			if (!LOG.IsDebugEnabled) {
+				return;
+			}
+			LOG.DebugFormat("Debug information on the response from {0} :", response.ResponseUri);
+			foreach (string key in response.Headers.AllKeys) {
+				LOG.DebugFormat("Reponse-header: {0}={1}", key, response.Headers[key]);
+			}
+		}
+
+		/// <summary>
 		/// Process the web response.
 		/// </summary>
 		/// <param name="webRequest">The request object.</param>
@@ -348,6 +362,7 @@ namespace GreenshotPlugin.Core {
 				HttpWebResponse response = (HttpWebResponse) webRequest.GetResponse();
 				LOG.InfoFormat("Response status: {0}", response.StatusCode);
 				bool isHttpError = (int) response.StatusCode >= 300;
+				DebugHeaders(response);
 				Stream responseStream = response.GetResponseStream();
 				if (responseStream != null) {
 					using (StreamReader reader = new StreamReader(responseStream, true)) {

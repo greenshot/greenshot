@@ -999,50 +999,114 @@ Greenshot received verification code. You can close this browser / tab if it is 
 	}
 
 	/// <summary>
-	/// Class to hold all the Properties for the OAuth 2 Token request
+	/// Code to simplify OAuth 2
 	/// </summary>
-	public class OAuth2TokenRequest {
-		public string Code {
-			get;
-			set;
-		}
-		public string ClientId {
-			get;
-			set;
-		}
-		public string ClientSecret {
-			get;
-			set;
-		}
-		public string RedirectUri {
-			get;
-			set;
-		}
-		public string GrantType {
-			get;
-			set;
-		}
-	}
+	public static class OAuth2Helper {
+		/// <summary>
+		/// Upload parameters by post
+		/// </summary>
+		/// <param name="url"></param>
+		/// <param name="parameters">Form-Url-Parameters</param>
+		/// <param name="settings">OAuth2Settings</param>
+		/// <returns>response</returns>
+		public static string HttpPost(string url, IDictionary<string, object> parameters, OAuth2Settings settings) {
+			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
+			webRequest.Method = "POST";
+			webRequest.KeepAlive = true;
+			webRequest.Credentials = CredentialCache.DefaultCredentials;
 
-	/// <summary>
-	/// Class to hold all the Properties for the OAuth 2 Token response
-	/// </summary>
-	public class OAuth2TokenResponse {
-		public string AccessToken {
-			get;
-			set;
+			AddOAuth2Credentials(webRequest, settings);
+			return NetworkHelper.UploadFormUrlEncoded(webRequest, parameters);
 		}
-		public string ExpiresIn {
-			get;
-			set;
+
+		/// <summary>
+		/// Generate an OAuth 2 Token by using the supplied code
+		/// </summary>
+		/// <param name="code">Code to get the RefreshToken</param>
+		/// <param name="settings">OAuth2Settings to update with the information that was retrieved</param>
+		public static void GenerateRefreshToken(string code, OAuth2Settings settings) {
+			// Use the returned code to get a refresh code
+			IDictionary<string, object> data = new Dictionary<string, object>();
+			data.Add("code", code);
+			data.Add("client_id", settings.ClientId);
+			data.Add("redirect_uri", settings.RedirectUrl);
+			data.Add("client_secret", settings.ClientSecret);
+			data.Add("grant_type", "authorization_code");
+
+			string accessTokenJsonResult = HttpPost(settings.FormattedTokenUrl, data, settings);
+			IDictionary<string, object> refreshTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
+			// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
+			//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
+			//	"expires_in":3920,
+			//	"token_type":"Bearer",
+			//	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
+			settings.AccessToken = (string)refreshTokenResult["access_token"] as string;
+			settings.RefreshToken = (string)refreshTokenResult["refresh_token"] as string;
+
+			object seconds = refreshTokenResult["expires_in"];
+			if (seconds != null) {
+				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+			}
 		}
-		public string TokenType {
-			get;
-			set;
+
+		/// <summary>
+		/// Go out and retrieve a new access token via refresh-token with the TokenUrl in the settings
+		/// Will upate the access token, refresh token, expire date
+		/// </summary>
+		/// <param name="settings"></param>
+		public static void GenerateAccessToken(OAuth2Settings settings) {
+			IDictionary<string, object> data = new Dictionary<string, object>();
+			data.Add("refresh_token", settings.RefreshToken);
+			data.Add("client_id", settings.ClientId);
+			data.Add("client_secret", settings.ClientSecret);
+			data.Add("grant_type", "refresh_token");
+
+			string accessTokenJsonResult = HttpPost(settings.FormattedTokenUrl, data, settings);
+			// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
+			//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
+			//	"expires_in":3920,
+			//	"token_type":"Bearer",
+
+			IDictionary<string, object> accessTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
+			settings.AccessToken = (string)accessTokenResult["access_token"] as string;
+			object seconds = accessTokenResult["expires_in"];
+			if (seconds != null) {
+				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+			}
 		}
-		public string RefreshToken {
-			get;
-			set;
+
+		/// <summary>
+		/// Authenticate via a local server by using the LocalServerCodeReceiver
+		/// If this works, immediately generate a refresh token afterwards, otherwise this throws an exception
+		/// </summary>
+		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
+		public static void AuthenticateViaLocalServer(OAuth2Settings settings) {
+			var codeReceiver = new LocalServerCodeReceiver();
+			IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
+
+			string code;
+			if (result.TryGetValue("code", out code)) {
+				GenerateRefreshToken(code, settings);
+			}
+			string error;
+			if (result.TryGetValue("error", out error)) {
+				if ("access_denied" == error) {
+					throw new UnauthorizedAccessException("Access denied");
+				} else {
+					throw new Exception(error);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Simple helper to add the Authorization Bearer header
+		/// </summary>
+		/// <param name="webRequest">WebRequest</param>
+		/// <param name="settings">OAuth2Settings</param>
+		public static void AddOAuth2Credentials(HttpWebRequest webRequest, OAuth2Settings settings) {
+			if (!string.IsNullOrEmpty(settings.AccessToken)) {
+				webRequest.Headers.Add("Authorization", "Bearer " + settings.AccessToken);
+			}
 		}
 	}
 }

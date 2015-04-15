@@ -31,14 +31,14 @@ namespace GreenshotImgurPlugin {
 	/// <summary>
 	/// Description of ImgurUtils.
 	/// </summary>
-	public class ImgurUtils {
+	public static class ImgurUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurUtils));
 		private const string IMGUR_ANONYMOUS_API_KEY = "8116a978913f3cf5dfc8e1117a055056";
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
 
-		private ImgurUtils() {
-		}
-
+		/// <summary>
+		/// Load the complete history of the imgur uploads, with the corresponding information
+		/// </summary>
 		public static void LoadHistory() {
 			if (config.runtimeImgurHistory.Count == config.ImgurUploadHistory.Count) {
 				return;
@@ -91,6 +91,14 @@ namespace GreenshotImgurPlugin {
 		}
 
 		/// <summary>
+		/// Use this to make sure Imgur knows from where the upload comes.
+		/// </summary>
+		/// <param name="webRequest"></param>
+		private static void SetClientId(HttpWebRequest webRequest) {
+			webRequest.Headers.Add("Authorization", "Client-ID " + ImgurCredentials.CONSUMER_KEY);
+		}
+
+		/// <summary>
 		/// Do the actual upload to Imgur
 		/// For more details on the available parameters, see: http://api.imgur.com/resources_anon
 		/// </summary>
@@ -118,6 +126,8 @@ namespace GreenshotImgurPlugin {
 				webRequest.Method = "POST";
 				webRequest.ContentType = "image/" + outputSettings.Format.ToString();
 				webRequest.ServicePoint.Expect100Continue = false;
+
+				SetClientId(webRequest);
 				try {
 					using (var requestStream = webRequest.GetRequestStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, requestStream, outputSettings);
@@ -127,7 +137,7 @@ namespace GreenshotImgurPlugin {
 						using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
 							responseString = reader.ReadToEnd();
 						}
-						LogCredits(response);
+						LogRateLimitInfo(response);
 					}
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
@@ -174,6 +184,10 @@ namespace GreenshotImgurPlugin {
 			return ImgurInfo.ParseResponse(responseString);
 		}
 
+		/// <summary>
+		/// Retrieve the thumbnail of an imgur image
+		/// </summary>
+		/// <param name="imgurInfo"></param>
 		public static void RetrieveImgurThumbnail(ImgurInfo imgurInfo) {
 			if (imgurInfo.SmallSquare == null) {
 				LOG.Warn("Imgur URL was null, not retrieving thumbnail.");
@@ -183,25 +197,32 @@ namespace GreenshotImgurPlugin {
 			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(imgurInfo.SmallSquare);
 			webRequest.Method = "GET";
 			webRequest.ServicePoint.Expect100Continue = false;
-
+			SetClientId(webRequest);
 			using (WebResponse response = webRequest.GetResponse()) {
-				LogCredits(response);
+				LogRateLimitInfo(response);
 				Stream responseStream = response.GetResponseStream();
 				imgurInfo.Image = Image.FromStream(responseStream);
 			}
 			return;
 		}
 
+		/// <summary>
+		/// Retrieve information on an imgur image
+		/// </summary>
+		/// <param name="hash"></param>
+		/// <param name="deleteHash"></param>
+		/// <returns>ImgurInfo</returns>
 		public static ImgurInfo RetrieveImgurInfo(string hash, string deleteHash) {
 			string url = config.ImgurApiUrl + "/image/" + hash;
 			LOG.InfoFormat("Retrieving Imgur info for {0} with url {1}", hash, url);
 			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
 			webRequest.Method = "GET";
 			webRequest.ServicePoint.Expect100Continue = false;
+			SetClientId(webRequest);
 			string responseString;
 			try {
 				using (WebResponse response = webRequest.GetResponse()) {
-					LogCredits(response);
+					LogRateLimitInfo(response);
 					using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
 						responseString = reader.ReadToEnd();
 					}
@@ -220,6 +241,10 @@ namespace GreenshotImgurPlugin {
 			return imgurInfo;
 		}
 
+		/// <summary>
+		/// Delete an imgur image, this is done by specifying the delete hash
+		/// </summary>
+		/// <param name="imgurInfo"></param>
 		public static void DeleteImgurImage(ImgurInfo imgurInfo) {
 			LOG.InfoFormat("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
 			
@@ -230,10 +255,10 @@ namespace GreenshotImgurPlugin {
 				//webRequest.Method = "DELETE";
 				webRequest.Method = "GET";
 				webRequest.ServicePoint.Expect100Continue = false;
-	
+				SetClientId(webRequest);
 				string responseString;
 				using (WebResponse response = webRequest.GetResponse()) {
-					LogCredits(response);
+					LogRateLimitInfo(response);
 					using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
 						responseString = reader.ReadToEnd();
 					}
@@ -252,17 +277,42 @@ namespace GreenshotImgurPlugin {
 			config.ImgurUploadHistory.Remove(imgurInfo.Hash);
 			imgurInfo.Image = null;
 		}
-		
-		private static void LogCredits(WebResponse response) {
-			try {
-				int credits = 0;
-				if (int.TryParse(response.Headers["X-RateLimit-Remaining"], out credits)) {
-					config.Credits = credits;
+
+		/// <summary>
+		/// Helper for logging
+		/// </summary>
+		/// <param name="nameValues"></param>
+		/// <param name="key"></param>
+		private static void LogHeader(IDictionary<string, string> nameValues, string key) {
+			if (nameValues.ContainsKey(key)) {
+				LOG.InfoFormat("key={0}", nameValues[key]);
+			}
+		}
+
+		/// <summary>
+		/// Log the current rate-limit information
+		/// </summary>
+		/// <param name="response"></param>
+		private static void LogRateLimitInfo(WebResponse response) {
+			IDictionary<string, string> nameValues = new Dictionary<string, string>();
+			foreach (string key in response.Headers.AllKeys) {
+				if (!nameValues.ContainsKey(key)) {
+					nameValues.Add(key, response.Headers[key]);
 				}
-				LOG.InfoFormat("X-RateLimit-Limit={0}", response.Headers["X-RateLimit-Limit"]);
-				LOG.InfoFormat("X-RateLimit-Remaining={0}", response.Headers["X-RateLimit-Remaining"]);
-				
-			} catch {}
+			}
+			LogHeader(nameValues, "X-RateLimit-Limit");
+			LogHeader(nameValues, "X-RateLimit-Remaining");
+			LogHeader(nameValues, "X-RateLimit-UserLimit");
+			LogHeader(nameValues, "X-RateLimit-UserRemaining");
+			LogHeader(nameValues, "X-RateLimit-UserReset");
+			LogHeader(nameValues, "X-RateLimit-ClientLimit");
+			LogHeader(nameValues, "X-RateLimit-ClientRemaining");
+
+			// Update the credits in the config, this is shown in a form
+			int credits = 0;
+			if (int.TryParse(nameValues["X-RateLimit-Remaining"], out credits)) {
+				config.Credits = credits;
+			}
 		}
 	}
 }
