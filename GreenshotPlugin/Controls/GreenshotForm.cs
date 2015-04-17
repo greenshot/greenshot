@@ -131,6 +131,9 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		protected override void OnLoad(EventArgs e) {
+			// Every GreenshotForm should have it's default icon
+			// And it might not ne needed for a Tool Window, but still for the task manager / switcher it's important
+			Icon = GreenshotResources.getGreenshotIcon();
 			if (!DesignMode) {
 				if (!applyLanguageManually) {
 					ApplyLanguage();
@@ -413,7 +416,7 @@ namespace GreenshotPlugin.Controls {
 					if (section != null) {
 						IniValue iniValue = null;
 						if (!section.Values.TryGetValue(configBindable.PropertyName, out iniValue)) {
-							LOG.WarnFormat("Wrong property '{0}' configured for field '{1}'",configBindable.PropertyName,field.Name);
+							LOG.DebugFormat("Wrong property '{0}' configured for field '{1}'",configBindable.PropertyName,field.Name);
 							continue;
 						}
 

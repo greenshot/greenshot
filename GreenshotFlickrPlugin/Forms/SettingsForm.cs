@@ -37,7 +37,6 @@ namespace GreenshotFlickrPlugin {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			Icon = GreenshotResources.getGreenshotIcon();
 			CancelButton = buttonCancel;
 			AcceptButton = buttonOK;
 		}

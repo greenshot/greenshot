@@ -359,7 +359,6 @@ namespace Greenshot {
 				throw;
 			}
 			notifyIcon.Icon = GreenshotResources.getGreenshotIcon();
-			Icon = GreenshotResources.getGreenshotIcon();
 
 			// Disable access to the settings, for feature #3521446
 			contextmenu_settings.Visible = !_conf.DisableSettings;

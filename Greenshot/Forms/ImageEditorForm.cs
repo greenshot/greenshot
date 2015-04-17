@@ -162,8 +162,6 @@ namespace Greenshot {
 		}
 
 		private void updateUI() {
-			Icon = GreenshotResources.getGreenshotIcon();
-
 			// Disable access to the settings, for feature #3521446
 			preferencesToolStripMenuItem.Visible = !coreConfiguration.DisableSettings;
 			toolStripSeparator12.Visible = !coreConfiguration.DisableSettings;

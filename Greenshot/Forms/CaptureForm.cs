@@ -123,6 +123,7 @@ namespace Greenshot.Forms {
 			LOG.Debug("Closing captureform");
 			WindowDetails.UnregisterIgnoreHandle(Handle);
 		}
+
 		/// <summary>
 		/// This creates the capture form
 		/// </summary>
@@ -130,7 +131,7 @@ namespace Greenshot.Forms {
 		/// <param name="windows"></param>
 		public CaptureForm(ICapture capture, List<WindowDetails> windows) {
 			if (_currentForm != null) {
-				LOG.Debug("Found currentForm, Closing already opened CaptureForm");
+				LOG.Warn("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
 				_currentForm = null;
 				Application.DoEvents();

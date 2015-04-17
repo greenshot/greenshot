@@ -35,7 +35,6 @@ namespace GreenshotPhotobucketPlugin {
 			InitializeComponent();
 			AcceptButton = buttonOK;
 			CancelButton = buttonCancel;
-			Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 		}
 	}
 }

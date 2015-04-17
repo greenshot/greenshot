@@ -18,13 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
+using GreenshotPlugin.Controls;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
 	/// This class is needed for design-time resolving of the language files
 	/// </summary>
-	public class ImgurForm : GreenshotPlugin.Controls.GreenshotForm {
+	public class ImgurForm : GreenshotForm {
 		public ImgurForm() : base() {
 		}
 	}

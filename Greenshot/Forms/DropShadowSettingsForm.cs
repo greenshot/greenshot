@@ -31,7 +31,6 @@ namespace Greenshot.Forms {
 		public DropShadowSettingsForm(DropShadowEffect effect) {
 			this.effect = effect;
 			InitializeComponent();
-			this.Icon = GreenshotResources.getGreenshotIcon();
 			ShowSettings();
 		}
 

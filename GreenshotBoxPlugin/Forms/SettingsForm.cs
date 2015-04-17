@@ -39,8 +39,6 @@ namespace GreenshotBoxPlugin {
 			InitializeComponent();
 			AcceptButton = buttonOK;
 			CancelButton = buttonCancel;
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
-
 		}
 	}
 }

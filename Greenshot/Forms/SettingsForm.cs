@@ -57,7 +57,6 @@ namespace Greenshot {
 
 		protected override void OnLoad(EventArgs e) {
 			base.OnLoad(e);
-			Icon = GreenshotResources.getGreenshotIcon();
 
 			// Fix for Vista/XP differences
 			if (Environment.OSVersion.Version.Major >= 6) {

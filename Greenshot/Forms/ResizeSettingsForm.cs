@@ -37,7 +37,6 @@ namespace Greenshot.Forms {
 		public ResizeSettingsForm(ResizeEffect effect) {
 			this.effect = effect;
 			InitializeComponent();
-			this.Icon = GreenshotResources.getGreenshotIcon();
 			value_pixel = Language.GetString("editor_resize_pixel");
 			value_percent = Language.GetString("editor_resize_percent");
 			combobox_width.Items.Add(value_pixel);
