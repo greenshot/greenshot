@@ -50,12 +50,6 @@ namespace GreenshotBoxPlugin {
 			set;
 		}
 
-		[IniProperty("AddFilename", Description = "Is the filename passed on to Box", DefaultValue = "False")]
-		public bool AddFilename {
-			get;
-			set;
-		}
-
 		[IniProperty("RefreshToken", Description = "Box authorization refresh Token", Encrypted = true)]
 		public string RefreshToken {
 			get;

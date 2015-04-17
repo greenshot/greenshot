@@ -134,18 +134,9 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// The URL to get a Token
 		/// </summary>
-		public string TokenUrlPattern {
+		public string TokenUrl {
 			get;
 			set;
-		}
-
-		/// <summary>
-		/// Get formatted Token url (this will call a FormatWith(this) on the TokenUrlPattern
-		/// </summary>
-		public string FormattedTokenUrl {
-			get {
-				return TokenUrlPattern.FormatWith(this);
-			}
 		}
 
 		/// <summary>
@@ -203,6 +194,15 @@ namespace GreenshotPlugin.Core {
 		/// Put anything in here which is needed for the OAuth 2 implementation of this specific service but isn't generic, e.g. for Google there is a "scope"
 		/// </summary>
 		public IDictionary<string, string> AdditionalAttributes {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// This contains the code returned from the authorization, but only shortly after it was received.
+		/// It will be cleared as soon as it was used.
+		/// </summary>
+		public string Code {
 			get;
 			set;
 		}
@@ -1046,7 +1046,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 						_returnValues.Add(name, nameValueCollection[name]);
 					}
 				}
-			} catch (Exception ex) {
+			} catch (Exception) {
 				context.Response.OutputStream.Close();
 				throw;
 			}
@@ -1072,35 +1072,59 @@ Greenshot received information from CloudServiceName. You can close this browser
 	/// Code to simplify OAuth 2
 	/// </summary>
 	public static class OAuth2Helper {
+		private const string REFRESH_TOKEN = "refresh_token";
+		private const string ACCESS_TOKEN = "access_token";
+		private const string CODE = "code";
+		private const string CLIENT_ID = "client_id";
+		private const string CLIENT_SECRET = "client_secret";
+		private const string GRANT_TYPE = "grant_type";
+		private const string AUTHORIZATION_CODE = "authorization_code";
+		private const string REDIRECT_URI = "redirect_uri";
+		private const string EXPIRES_IN = "expires_in";
+
 		/// <summary>
 		/// Generate an OAuth 2 Token by using the supplied code
 		/// </summary>
 		/// <param name="code">Code to get the RefreshToken</param>
 		/// <param name="settings">OAuth2Settings to update with the information that was retrieved</param>
-		public static void GenerateRefreshToken(string code, OAuth2Settings settings) {
-			// Use the returned code to get a refresh code
+		public static void GenerateRefreshToken(OAuth2Settings settings) {
 			IDictionary<string, object> data = new Dictionary<string, object>();
-			data.Add("code", code);
-			data.Add("client_id", settings.ClientId);
-			data.Add("redirect_uri", settings.RedirectUrl);
-			data.Add("client_secret", settings.ClientSecret);
-			data.Add("grant_type", "authorization_code");
+			// Use the returned code to get a refresh code
+			data.Add(CODE, settings.Code);
+			data.Add(CLIENT_ID, settings.ClientId);
+			data.Add(REDIRECT_URI, settings.RedirectUrl);
+			data.Add(CLIENT_SECRET, settings.ClientSecret);
+			data.Add(GRANT_TYPE, AUTHORIZATION_CODE);
+			foreach (string key in settings.AdditionalAttributes.Keys) {
+				data.Add(key, settings.AdditionalAttributes[key]);
+			}
 
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.FormattedTokenUrl, HTTPMethod.POST);
-			string accessTokenJsonResult = NetworkHelper.UploadFormUrlEncoded(webRequest, data);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HTTPMethod.POST);
+			NetworkHelper.UploadFormUrlEncoded(webRequest, data);
+			string accessTokenJsonResult = NetworkHelper.GetResponseAsString(webRequest, true);
+
 			IDictionary<string, object> refreshTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
+			if (refreshTokenResult.ContainsKey("error")) {
+				if (refreshTokenResult.ContainsKey("error_description")) {
+					throw new Exception(string.Format("{0} - {1}", refreshTokenResult["error"], refreshTokenResult["error_description"]));
+				} else {
+					throw new Exception((string)refreshTokenResult["error"]);
+				}
+			}
+
 			// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
 			//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
 			//	"expires_in":3920,
 			//	"token_type":"Bearer",
 			//	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
-			settings.AccessToken = (string)refreshTokenResult["access_token"] as string;
-			settings.RefreshToken = (string)refreshTokenResult["refresh_token"] as string;
+			settings.AccessToken = (string)refreshTokenResult[ACCESS_TOKEN] as string;
+			settings.RefreshToken = (string)refreshTokenResult[REFRESH_TOKEN] as string;
 
-			object seconds = refreshTokenResult["expires_in"];
+			object seconds = refreshTokenResult[EXPIRES_IN];
 			if (seconds != null) {
 				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
 			}
+			settings.Code = null;
 		}
 
 		/// <summary>
@@ -1110,13 +1134,17 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// <param name="settings"></param>
 		public static void GenerateAccessToken(OAuth2Settings settings) {
 			IDictionary<string, object> data = new Dictionary<string, object>();
-			data.Add("refresh_token", settings.RefreshToken);
-			data.Add("client_id", settings.ClientId);
-			data.Add("client_secret", settings.ClientSecret);
-			data.Add("grant_type", "refresh_token");
+			data.Add(REFRESH_TOKEN, settings.RefreshToken);
+			data.Add(CLIENT_ID, settings.ClientId);
+			data.Add(CLIENT_SECRET, settings.ClientSecret);
+			data.Add(GRANT_TYPE, REFRESH_TOKEN);
+			foreach (string key in settings.AdditionalAttributes.Keys) {
+				data.Add(key, settings.AdditionalAttributes[key]);
+			}
 
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.FormattedTokenUrl, HTTPMethod.POST);
-			string accessTokenJsonResult = NetworkHelper.UploadFormUrlEncoded(webRequest, data);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HTTPMethod.POST);
+			NetworkHelper.UploadFormUrlEncoded(webRequest, data);
+			string accessTokenJsonResult = NetworkHelper.GetResponseAsString(webRequest, true);
 
 			// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
 			//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
@@ -1124,10 +1152,33 @@ Greenshot received information from CloudServiceName. You can close this browser
 			//	"token_type":"Bearer",
 
 			IDictionary<string, object> accessTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
-			settings.AccessToken = (string)accessTokenResult["access_token"] as string;
-			object seconds = accessTokenResult["expires_in"];
+			if (accessTokenResult.ContainsKey("error")) {
+				if ("invalid_grant" == (string)accessTokenResult["error"]) {
+					// Refresh token has also expired, we need a new one!
+					settings.RefreshToken = null;
+					settings.AccessToken = null;
+					settings.AccessTokenExpires = DateTimeOffset.MinValue;
+					settings.Code = null;
+					return;
+				} else {
+					if (accessTokenResult.ContainsKey("error_description")) {
+						throw new Exception(string.Format("{0} - {1}", accessTokenResult["error"], accessTokenResult["error_description"]));
+					} else {
+						throw new Exception((string)accessTokenResult["error"]);
+					}
+				}
+			}
+
+			settings.AccessToken = (string)accessTokenResult[ACCESS_TOKEN] as string;
+			if (accessTokenResult.ContainsKey(REFRESH_TOKEN)) {
+				// Refresh the refresh token :)
+				settings.RefreshToken = (string)accessTokenResult[REFRESH_TOKEN] as string;
+			}
+			object seconds = accessTokenResult[EXPIRES_IN];
 			if (seconds != null) {
 				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+			} else {
+				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
 			}
 		}
 
@@ -1168,8 +1219,9 @@ Greenshot received information from CloudServiceName. You can close this browser
 			loginForm.ShowDialog();
 			if (loginForm.IsOk) {
 				string code;
-				if (loginForm.CallbackParameters.TryGetValue("code", out code) && !string.IsNullOrEmpty(code)) {
-					GenerateRefreshToken(code, settings);
+				if (loginForm.CallbackParameters.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code)) {
+					settings.Code = code;
+					GenerateRefreshToken(settings);
 					return true;
 				}
 			}
@@ -1187,8 +1239,9 @@ Greenshot received information from CloudServiceName. You can close this browser
 			IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
 
 			string code;
-			if (result.TryGetValue("code", out code) && !string.IsNullOrEmpty(code)) {
-				GenerateRefreshToken(code, settings);
+			if (result.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code)) {
+				settings.Code = code;
+				GenerateRefreshToken(settings);
 				return true;
 			}
 			string error;
@@ -1224,16 +1277,24 @@ Greenshot received information from CloudServiceName. You can close this browser
 		public static void CheckAndAuthenticateOrRefresh(OAuth2Settings settings) {
 			// Get Refresh / Access token
 			if (string.IsNullOrEmpty(settings.RefreshToken)) {
-				if (!OAuth2Helper.Authenticate(settings)) {
+				if (!Authenticate(settings)) {
 					throw new Exception("Authentication cancelled");
 				}
 			}
-
 			if (settings.IsAccessTokenExpired) {
-				OAuth2Helper.GenerateAccessToken(settings);
+				GenerateAccessToken(settings);
+				// Get Refresh / Access token
+				if (string.IsNullOrEmpty(settings.RefreshToken)) {
+					if (!Authenticate(settings)) {
+						throw new Exception("Authentication cancelled");
+					}
+					GenerateAccessToken(settings);
+				}
+			}
+			if (settings.IsAccessTokenExpired) {
+				throw new Exception("Authentication failed");
 			}
 		}
-
 
 		/// <summary>
 		/// CreateWebRequest ready for OAuth 2 access
@@ -1245,8 +1306,8 @@ Greenshot received information from CloudServiceName. You can close this browser
 		public static HttpWebRequest CreateOAuth2WebRequest(HTTPMethod method, string url, OAuth2Settings settings) {
 			CheckAndAuthenticateOrRefresh(settings);
 
-			HttpWebRequest webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url, method);
-			OAuth2Helper.AddOAuth2Credentials(webRequest, settings);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, method);
+			AddOAuth2Credentials(webRequest, settings);
 			return webRequest;
 		}
 	}

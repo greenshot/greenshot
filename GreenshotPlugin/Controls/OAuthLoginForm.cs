@@ -60,7 +60,9 @@ namespace GreenshotPlugin.Controls {
 
 			// The script errors are suppressed by using the ExtendedWebBrowser
 			_browser.ScriptErrorsSuppressed = false;
-			_browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(Browser_DocumentCompleted);
+			_browser.DocumentCompleted += Browser_DocumentCompleted;
+			_browser.Navigated += Browser_Navigated;
+			_browser.Navigating += Browser_Navigating;
 			_browser.Navigate(new Uri(authorizationLink));
 		}
 
@@ -75,6 +77,16 @@ namespace GreenshotPlugin.Controls {
 
 		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
 			LOG.DebugFormat("document completed with url: {0}", _browser.Url);
+			CheckUrl();
+		}
+
+		private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
+			LOG.DebugFormat("Navigating to url: {0}", _browser.Url);
+			_addressTextBox.Text = e.Url.ToString();
+		}
+
+		private void Browser_Navigated(object sender, WebBrowserNavigatedEventArgs e) {
+			LOG.DebugFormat("Navigated to url: {0}", _browser.Url);
 			CheckUrl();
 		}
 

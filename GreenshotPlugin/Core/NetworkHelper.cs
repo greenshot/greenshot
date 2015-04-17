@@ -65,7 +65,6 @@ namespace GreenshotPlugin.Core {
 		/// <param name="uri">An Uri to specify the download location</param>
 		/// <returns>string with the file content</returns>
 		public static string GetAsString(Uri uri) {
-			HttpWebRequest webRequest = CreateWebRequest(uri);
 			return GetResponseAsString(CreateWebRequest(uri));				
 		}
 
@@ -391,15 +390,14 @@ namespace GreenshotPlugin.Core {
 		/// Post the parameters "x-www-form-urlencoded"
 		/// </summary>
 		/// <param name="webRequest"></param>
-		/// <returns></returns>
-		public static string UploadFormUrlEncoded(HttpWebRequest webRequest, IDictionary<string, object> parameters) {
+		public static void UploadFormUrlEncoded(HttpWebRequest webRequest, IDictionary<string, object> parameters) {
 			webRequest.ContentType = "application/x-www-form-urlencoded";
 			string urlEncoded = NetworkHelper.GenerateQueryParameters(parameters);
-			using (var requestStream = webRequest.GetRequestStream())
-			using (var streamWriter = new StreamWriter(requestStream, Encoding.UTF8)) {
-				streamWriter.Write(urlEncoded);
+
+			byte[] data = Encoding.UTF8.GetBytes(urlEncoded);
+			using (var requestStream = webRequest.GetRequestStream()) {
+				requestStream.Write(data, 0, data.Length);
 			}
-			return GetResponseAsString(webRequest);
 		}
 
 		/// <summary>
@@ -423,6 +421,15 @@ namespace GreenshotPlugin.Core {
 		/// <returns>The response data.</returns>
 		/// TODO: This method should handle the StatusCode better!
 		public static string GetResponseAsString(HttpWebRequest webRequest) {
+			return GetResponseAsString(webRequest, false);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="webRequest"></param>
+		/// <returns></returns>
+		public static string GetResponseAsString(HttpWebRequest webRequest, bool alsoReturnContentOnError) {
 			string responseData = null;
 			try {
 				HttpWebResponse response = (HttpWebResponse) webRequest.GetResponse();
@@ -444,7 +451,13 @@ namespace GreenshotPlugin.Core {
 					LOG.ErrorFormat("HTTP error {0}", response.StatusCode);
 					using (Stream responseStream = response.GetResponseStream()) {
 						if (responseStream != null) {
-							LOG.ErrorFormat("Content: {0}", new StreamReader(responseStream, true).ReadToEnd());
+							using (StreamReader streamReader = new StreamReader(responseStream, true)) {
+								string errorContent = streamReader.ReadToEnd();
+								if (alsoReturnContentOnError) {
+									return errorContent;
+								}
+								LOG.ErrorFormat("Content: {0}", errorContent);
+							}
 						}
 					}
 				}

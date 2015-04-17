@@ -68,8 +68,8 @@ namespace GreenshotBoxPlugin {
 			// Fill the OAuth2Settings
 			OAuth2Settings settings = new OAuth2Settings();
 
-			settings.AuthUrlPattern = "https://www.box.com/api/oauth2/authorize?client_id={ClientId}&response_type={response_type}&state{State}&redirect_uri={RedirectUrl}";
-			settings.TokenUrlPattern = "https://www.box.com/api/oauth2/token";
+			settings.AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}";
+			settings.TokenUrl = "https://api.box.com/oauth2/token";
 			settings.CloudServiceName = "Box";
 			settings.ClientId = BoxCredentials.ClientId;
 			settings.ClientSecret = BoxCredentials.ClientSecret;
@@ -83,11 +83,9 @@ namespace GreenshotBoxPlugin {
 			settings.AccessTokenExpires = Config.AccessTokenExpires;
 
 			try {
-				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, FilesUri, settings);
+				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, UploadFileUri, settings);
 				IDictionary<string, object> parameters = new Dictionary<string, object>();
-				if (Config.AddFilename) {
-					parameters.Add("filename", image);
-				}
+				parameters.Add("file", image);
 				parameters.Add("parent_id", Config.FolderId);
 
 				NetworkHelper.WriteMultipartFormData(webRequest, parameters);
@@ -111,6 +109,7 @@ namespace GreenshotBoxPlugin {
 				Config.AccessToken = settings.AccessToken;
 				Config.AccessTokenExpires = settings.AccessTokenExpires;
 				Config.IsDirty = true;
+				IniConfig.Save();
 			}
 		}
 	}

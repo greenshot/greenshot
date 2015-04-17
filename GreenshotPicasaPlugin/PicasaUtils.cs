@@ -33,7 +33,7 @@ namespace GreenshotPicasaPlugin {
 		private const string PicasaScope = "https://picasaweb.google.com/data/";
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaUtils));
 		private static readonly PicasaConfiguration Config = IniConfig.GetIniSection<PicasaConfiguration>();
-		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type={response_type}&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope={scope}";
+		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
 		private const string TokenUrl = "https://www.googleapis.com/oauth2/v3/token";
 		private const string UploadUrl = "https://picasaweb.google.com/data/feed/api/user/{0}/albumid/{1}";
 
@@ -49,10 +49,8 @@ namespace GreenshotPicasaPlugin {
 			// Fill the OAuth2Settings
 			OAuth2Settings settings = new OAuth2Settings();
 			settings.AuthUrlPattern = AuthUrl;
-			settings.TokenUrlPattern = TokenUrl;
+			settings.TokenUrl = TokenUrl;
 			settings.CloudServiceName = "Picasa";
-			settings.AdditionalAttributes.Add("response_type", "code");
-			settings.AdditionalAttributes.Add("scope", PicasaScope);
 			settings.ClientId = PicasaCredentials.ClientId;
 			settings.ClientSecret = PicasaCredentials.ClientSecret;
 			settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
@@ -79,6 +77,7 @@ namespace GreenshotPicasaPlugin {
 				Config.AccessToken = settings.AccessToken;
 				Config.AccessTokenExpires = settings.AccessTokenExpires;
 				Config.IsDirty = true;
+				IniConfig.Save();
 			}
 		}
 		
