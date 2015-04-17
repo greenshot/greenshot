@@ -37,12 +37,6 @@ namespace GreenshotPicasaPlugin {
 		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Picasa link to clipboard.", DefaultValue = "true")]
 		public bool AfterUploadLinkToClipBoard;
 
-		[IniProperty("RefreshToken", Description = "Picasa refresh Token", Encrypted = true)]
-		public string RefreshToken {
-			get;
-			set;
-		}
-
 		[IniProperty("AddFilename", Description = "Is the filename passed on to Picasa", DefaultValue = "False")]
 		public bool AddFilename {
 			get;
@@ -57,6 +51,12 @@ namespace GreenshotPicasaPlugin {
 
 		[IniProperty("UploadAlbum", Description = "The picasa album to upload to", DefaultValue = "default")]
 		public string UploadAlbum {
+			get;
+			set;
+		}
+
+		[IniProperty("RefreshToken", Description = "Picasa authorization refresh Token", Encrypted = true)]
+		public string RefreshToken {
 			get;
 			set;
 		}

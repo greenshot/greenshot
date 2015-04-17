@@ -87,7 +87,7 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// When this is set, the form will be brought to the foreground as soon as it is shown.
 		/// </summary>
-		protected bool BringToFront {
+		protected bool ToFront {
 			get;
 			set;
 		}
@@ -162,7 +162,7 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="e">EventArgs</param>
 		protected override void OnShown(EventArgs e) {
 			base.OnShown(e);
-			if (BringToFront) {
+			if (ToFront) {
 				WindowDetails.ToForeground(Handle);
 			}
 		}

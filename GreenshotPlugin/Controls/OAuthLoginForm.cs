@@ -35,31 +35,33 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public partial class OAuthLoginForm : Form {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
-		private string callbackUrl = null;
-		private IDictionary<string, string> callbackParameters = null;
+		private string _callbackUrl = null;
+		private IDictionary<string, string> _callbackParameters = null;
 		
 		public IDictionary<string, string> CallbackParameters {
-			get { return callbackParameters; }
+			get {
+				return _callbackParameters;
+			}
 		}
 		
-		public bool isOk {
+		public bool IsOk {
 			get {
 				return DialogResult == DialogResult.OK;
 			}
 		}
 		
 		public OAuthLoginForm(string browserTitle, Size size, string authorizationLink, string callbackUrl) {
-			this.callbackUrl = callbackUrl;
+			_callbackUrl = callbackUrl;
 			InitializeComponent();
 			ClientSize = size;
 			Icon = GreenshotResources.getGreenshotIcon();
 			Text = browserTitle;
-			addressTextBox.Text = authorizationLink;
+			_addressTextBox.Text = authorizationLink;
 
 			// The script errors are suppressed by using the ExtendedWebBrowser
-			browser.ScriptErrorsSuppressed = false;
-			browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(browser_DocumentCompleted);
-			browser.Navigate(new Uri(authorizationLink));
+			_browser.ScriptErrorsSuppressed = false;
+			_browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(Browser_DocumentCompleted);
+			_browser.Navigate(new Uri(authorizationLink));
 		}
 
 		/// <summary>
@@ -71,33 +73,24 @@ namespace GreenshotPlugin.Controls {
 			WindowDetails.ToForeground(Handle);
 		}
 
-		private void browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
-			LOG.DebugFormat("document completed with url: {0}", browser.Url);
-			checkUrl();
-		}
-		private void webBrowser1_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
-			LOG.DebugFormat("Navigating to url: {0}", browser.Url);
-			addressTextBox.Text = e.Url.ToString();
+		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+			LOG.DebugFormat("document completed with url: {0}", _browser.Url);
+			CheckUrl();
 		}
 
-		private void browser_Navigated(object sender, WebBrowserNavigatedEventArgs e) {
-			LOG.DebugFormat("Navigated to url: {0}", browser.Url);
-			checkUrl();
-		}
-
-		private void checkUrl() {
-			if (browser.Url.ToString().StartsWith(callbackUrl)) {
-				string queryParams = browser.Url.Query;
+		private void CheckUrl() {
+			if (_browser.Url.ToString().StartsWith(_callbackUrl)) {
+				string queryParams = _browser.Url.Query;
 				if (queryParams.Length > 0) {
 					queryParams = NetworkHelper.UrlDecode(queryParams);
 					//Store the Token and Token Secret
-					callbackParameters = NetworkHelper.ParseQueryString(queryParams);
+					_callbackParameters = NetworkHelper.ParseQueryString(queryParams);
 				}
 				DialogResult = DialogResult.OK;
 			}
 		}
 
-		private void addressTextBox_KeyPress(object sender, KeyPressEventArgs e) {
+		private void AddressTextBox_KeyPress(object sender, KeyPressEventArgs e) {
 			//Cancel the key press so the user can't enter a new url
 			e.Handled = true; 
 		}

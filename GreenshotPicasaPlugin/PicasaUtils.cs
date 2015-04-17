@@ -50,10 +50,12 @@ namespace GreenshotPicasaPlugin {
 			OAuth2Settings settings = new OAuth2Settings();
 			settings.AuthUrlPattern = AuthUrl;
 			settings.TokenUrlPattern = TokenUrl;
+			settings.CloudServiceName = "Picasa";
 			settings.AdditionalAttributes.Add("response_type", "code");
 			settings.AdditionalAttributes.Add("scope", PicasaScope);
 			settings.ClientId = PicasaCredentials.ClientId;
 			settings.ClientSecret = PicasaCredentials.ClientSecret;
+			settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
 
 			// Copy the settings from the config, which is kept in memory and on the disk
 			settings.RefreshToken = Config.RefreshToken;
@@ -61,27 +63,14 @@ namespace GreenshotPicasaPlugin {
 			settings.AccessTokenExpires = Config.AccessTokenExpires;
 
 			try {
-				// Get Refresh / Access token
-				if (string.IsNullOrEmpty(settings.RefreshToken)) {
-					OAuth2Helper.AuthenticateViaLocalServer(settings);
-				} 
-
-				if (settings.IsAccessTokenExpired) {
-					OAuth2Helper.GenerateAccessToken(settings);
-				}
-
-				var webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(string.Format(UploadUrl, Config.UploadUser, Config.UploadAlbum));
-				webRequest.Method = "POST";
-				webRequest.KeepAlive = true;
-				webRequest.Credentials = CredentialCache.DefaultCredentials;
-				OAuth2Helper.AddOAuth2Credentials(webRequest, settings);
+				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, string.Format(UploadUrl, Config.UploadUser, Config.UploadAlbum), settings);
 				if (Config.AddFilename) {
 					webRequest.Headers.Add("Slug", NetworkHelper.EscapeDataString(filename));
 				}
 				SurfaceContainer container = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 				container.Upload(webRequest);
 				
-				string response = NetworkHelper.GetResponse(webRequest);
+				string response = NetworkHelper.GetResponseAsString(webRequest);
 
 				return ParseResponse(response);
 			} finally {
@@ -89,6 +78,7 @@ namespace GreenshotPicasaPlugin {
 				Config.RefreshToken = settings.RefreshToken;
 				Config.AccessToken = settings.AccessToken;
 				Config.AccessTokenExpires = settings.AccessTokenExpires;
+				Config.IsDirty = true;
 			}
 		}
 		

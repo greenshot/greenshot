@@ -34,6 +34,17 @@ using System.Text.RegularExpressions;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
+	/// HTTP Method to make sure we have the correct method
+	/// </summary>
+	public enum HTTPMethod {
+		GET,
+		POST,
+		PUT,
+		DELETE,
+		HEAD
+	};
+
+	/// <summary>
 	/// Description of NetworkHelper.
 	/// </summary>
 	public static class NetworkHelper {
@@ -55,10 +66,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>string with the file content</returns>
 		public static string GetAsString(Uri uri) {
 			HttpWebRequest webRequest = CreateWebRequest(uri);
-			webRequest.Method = "GET";
-			webRequest.KeepAlive = true;
-			webRequest.Credentials = CredentialCache.DefaultCredentials;
-			return GetResponse(webRequest);				
+			return GetResponseAsString(CreateWebRequest(uri));				
 		}
 
 		/// <summary>
@@ -143,14 +151,36 @@ namespace GreenshotPlugin.Core {
 		}
 		
 		/// <summary>
-		/// Helper method to create a web request, eventually with proxy
+		/// Helper method to create a web request with a lot of default settings
 		/// </summary>
 		/// <param name="uri">string with uri to connect to</param>
 		/// <returns>WebRequest</returns>
 		public static HttpWebRequest CreateWebRequest(string uri) {
 			return CreateWebRequest(new Uri(uri));
 		}
+
+		/// <summary>
+		/// Helper method to create a web request with a lot of default settings
+		/// </summary>
+		/// <param name="uri">string with uri to connect to</param>
+		/// /// <param name="method">Method to use</param>
+		/// <returns>WebRequest</returns>
+		public static HttpWebRequest CreateWebRequest(string uri, HTTPMethod method) {
+			return CreateWebRequest(new Uri(uri), method);
+		}
 		
+		/// <summary>
+		/// Helper method to create a web request with a lot of default settings
+		/// </summary>
+		/// <param name="uri">Uri with uri to connect to</param>
+		/// <param name="method">Method to use</param>
+		/// <returns>WebRequest</returns>
+		public static HttpWebRequest CreateWebRequest(Uri uri, HTTPMethod method) {
+			HttpWebRequest webRequest = CreateWebRequest(uri);
+			webRequest.Method = method.ToString();
+			return webRequest;
+		}
+
 		/// <summary>
 		/// Helper method to create a web request, eventually with proxy
 		/// </summary>
@@ -164,6 +194,10 @@ namespace GreenshotPlugin.Core {
 				// BUG-1655: Fix that Greenshot always uses the default proxy even if the "use default proxy" checkbox is unset
 				webRequest.Proxy = null;
 			}
+			// Make sure the default credentials are available
+			webRequest.Credentials = CredentialCache.DefaultCredentials;
+
+			// Allow redirect, this is usually needed so that we don't get a problem when a service moves
 			webRequest.AllowAutoRedirect = true;
 			// Set default timeouts
 			webRequest.Timeout = Config.WebRequestTimeout*1000;
@@ -365,7 +399,7 @@ namespace GreenshotPlugin.Core {
 			using (var streamWriter = new StreamWriter(requestStream, Encoding.UTF8)) {
 				streamWriter.Write(urlEncoded);
 			}
-			return GetResponse(webRequest);
+			return GetResponseAsString(webRequest);
 		}
 
 		/// <summary>
@@ -388,7 +422,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="webRequest">The request object.</param>
 		/// <returns>The response data.</returns>
 		/// TODO: This method should handle the StatusCode better!
-		public static string GetResponse(HttpWebRequest webRequest) {
+		public static string GetResponseAsString(HttpWebRequest webRequest) {
 			string responseData = null;
 			try {
 				HttpWebResponse response = (HttpWebResponse) webRequest.GetResponse();
@@ -429,7 +463,7 @@ namespace GreenshotPlugin.Core {
 		public static DateTime GetLastModified(Uri uri) {
 			try {
 				HttpWebRequest webRequest = CreateWebRequest(uri);
-				webRequest.Method = "HEAD";
+				webRequest.Method = HTTPMethod.HEAD.ToString();
 				HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
 				LOG.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
 				return webResponse.LastModified;

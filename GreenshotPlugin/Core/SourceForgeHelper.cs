@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -113,10 +114,9 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <returns>Dictionary<string, Dictionary<string, RssFile>> with files and their RssFile "description"</returns>
 		public static Dictionary<string, Dictionary<string, SourceforgeFile>> readRSS() {
-			HttpWebRequest webRequest;
 			XmlDocument rssDoc = new XmlDocument();
 			try {
-				webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(RSSFEED);
+				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(RSSFEED);
 				XmlTextReader rssReader = new XmlTextReader(webRequest.GetResponse().GetResponseStream());
 	
 				// Load the XML content into a XmlDocument

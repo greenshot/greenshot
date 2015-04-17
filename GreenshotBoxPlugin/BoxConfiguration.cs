@@ -18,9 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using System;
 
 namespace GreenshotBoxPlugin {
 	/// <summary>
@@ -38,10 +40,43 @@ namespace GreenshotBoxPlugin {
 		public bool AfterUploadLinkToClipBoard;
 
 		[IniProperty("UseSharedLink", Description = "Use the shared link, instead of the private, on the clipboard", DefaultValue = "True")]
-		public bool UseSharedLink;
+		public bool UseSharedLink {
+			get;
+			set;
+		}
+		[IniProperty("FolderId", Description = "Folder ID to upload to, only change if you know what you are doing!", DefaultValue = "0")]
+		public string FolderId {
+			get;
+			set;
+		}
 
-		[IniProperty("BoxToken", Description = "Token.", DefaultValue = "")]
-		public string BoxToken;
+		[IniProperty("AddFilename", Description = "Is the filename passed on to Box", DefaultValue = "False")]
+		public bool AddFilename {
+			get;
+			set;
+		}
+
+		[IniProperty("RefreshToken", Description = "Box authorization refresh Token", Encrypted = true)]
+		public string RefreshToken {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Not stored
+		/// </summary>
+		public string AccessToken {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Not stored
+		/// </summary>
+		public DateTimeOffset AccessTokenExpires {
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// A form for token
