@@ -47,7 +47,7 @@ namespace GreenshotPlugin.Controls {
 			trackBarJpegQuality.Value = Settings.JPGQuality;
 			textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
 			textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
-			WindowDetails.ToForeground(Handle);
+			BringToFront = true;
 		}
 		
 		void Button_okClick(object sender, EventArgs e) {

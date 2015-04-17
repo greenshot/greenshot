@@ -38,11 +38,11 @@ namespace GreenshotPlugin.Controls {
 		protected static CoreConfiguration coreConfiguration;
 		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
-		private bool isDesignModeLanguageSet = false;
-		private bool applyLanguageManually = false;
-		private bool storeFieldsManually = false;
-		private IDictionary<string, Control> designTimeControls;
-		private IDictionary<string, ToolStripItem> designTimeToolStripItems;
+		private bool _isDesignModeLanguageSet = false;
+		private bool _applyLanguageManually = false;
+		private bool _storeFieldsManually = false;
+		private IDictionary<string, Control> _designTimeControls;
+		private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
 
 		static GreenshotForm() {
 			if (!IsInDesignMode) {
@@ -68,20 +68,28 @@ namespace GreenshotPlugin.Controls {
 
 		protected bool ManualLanguageApply {
 			get {
-				return applyLanguageManually;
+				return _applyLanguageManually;
 			}
 			set {
-				applyLanguageManually = value;
+				_applyLanguageManually = value;
 			}
 		}
 
 		protected bool ManualStoreFields {
 			get {
-				return storeFieldsManually;
+				return _storeFieldsManually;
 			}
 			set {
-				storeFieldsManually = value;
+				_storeFieldsManually = value;
 			}
+		}
+
+		/// <summary>
+		/// When this is set, the form will be brought to the foreground as soon as it is shown.
+		/// </summary>
+		protected bool BringToFront {
+			get;
+			set;
 		}
 
 		/// <summary>
@@ -89,8 +97,8 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected void InitializeForDesigner() {
 			if (DesignMode) {
-				designTimeControls = new Dictionary<string, Control>();
-				designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
+				_designTimeControls = new Dictionary<string, Control>();
+				_designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
 				try {
 					ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
 					
@@ -119,8 +127,8 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="e"></param>
 		protected override void OnPaint(PaintEventArgs e) {
 			if (DesignMode) {
-				if (!isDesignModeLanguageSet) {
-					isDesignModeLanguageSet = true;
+				if (!_isDesignModeLanguageSet) {
+					_isDesignModeLanguageSet = true;
 					try {
 						ApplyLanguage();
 					} catch (Exception) {
@@ -135,7 +143,7 @@ namespace GreenshotPlugin.Controls {
 			// And it might not ne needed for a Tool Window, but still for the task manager / switcher it's important
 			Icon = GreenshotResources.getGreenshotIcon();
 			if (!DesignMode) {
-				if (!applyLanguageManually) {
+				if (!_applyLanguageManually) {
 					ApplyLanguage();
 				}
 				FillFields();
@@ -149,11 +157,22 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		/// <summary>
+		/// Make sure the form is visible, if this is wanted
+		/// </summary>
+		/// <param name="e">EventArgs</param>
+		protected override void OnShown(EventArgs e) {
+			base.OnShown(e);
+			if (BringToFront) {
+				WindowDetails.ToForeground(Handle);
+			}
+		}
+
+		/// <summary>
 		/// check if the form was closed with an OK, if so store the values in the GreenshotControls
 		/// </summary>
 		/// <param name="e"></param>
 		protected override void OnClosed(EventArgs e) {
-			if (!DesignMode && !storeFieldsManually) {
+			if (!DesignMode && !_storeFieldsManually) {
 				if (DialogResult == DialogResult.OK) {
 					LOG.Info("Form was closed with OK: storing field values.");
 					StoreFields();
@@ -233,17 +252,17 @@ namespace GreenshotPlugin.Controls {
 			if (ce.Component != null && ((IComponent)ce.Component).Site != null) {
 				Control control = ce.Component as Control;
 				if (control != null) {
-					if (!designTimeControls.ContainsKey(control.Name)) {
-						designTimeControls.Add(control.Name, control);
+					if (!_designTimeControls.ContainsKey(control.Name)) {
+						_designTimeControls.Add(control.Name, control);
 					} else {
-						designTimeControls[control.Name] = control;
+						_designTimeControls[control.Name] = control;
 					}
 				} else if (ce.Component is ToolStripItem) {
 					ToolStripItem item = ce.Component as ToolStripItem;
-					if (!designTimeControls.ContainsKey(item.Name)) {
-						designTimeToolStripItems.Add(item.Name, item);
+					if (!_designTimeControls.ContainsKey(item.Name)) {
+						_designTimeToolStripItems.Add(item.Name, item);
 					} else {
-						designTimeToolStripItems[item.Name] = item;
+						_designTimeToolStripItems[item.Name] = item;
 					}
 				}
 			}
@@ -363,10 +382,10 @@ namespace GreenshotPlugin.Controls {
 				}
 	
 				if (DesignMode) {
-					foreach (Control designControl in designTimeControls.Values) {
+					foreach (Control designControl in _designTimeControls.Values) {
 						ApplyLanguage(designControl);
 					}
-					foreach (ToolStripItem designToolStripItem in designTimeToolStripItems.Values) {
+					foreach (ToolStripItem designToolStripItem in _designTimeToolStripItems.Values) {
 						ApplyLanguage(designToolStripItem);
 					}
 				}

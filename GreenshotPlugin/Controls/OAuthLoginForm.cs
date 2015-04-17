@@ -60,7 +60,14 @@ namespace GreenshotPlugin.Controls {
 			browser.ScriptErrorsSuppressed = false;
 			browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(browser_DocumentCompleted);
 			browser.Navigate(new Uri(authorizationLink));
+		}
 
+		/// <summary>
+		/// Make sure the form is visible
+		/// </summary>
+		/// <param name="e">EventArgs</param>
+		protected override void OnShown(EventArgs e) {
+			base.OnShown(e);
 			WindowDetails.ToForeground(Handle);
 		}
 

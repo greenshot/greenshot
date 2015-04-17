@@ -31,7 +31,7 @@ namespace Greenshot.Forms {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			WindowDetails.ToForeground(Handle);
+			BringToFront = true;
 		}
 
 		public BugReportForm(string bugText) : this() {

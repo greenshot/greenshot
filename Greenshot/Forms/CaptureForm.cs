@@ -177,7 +177,7 @@ namespace Greenshot.Forms {
 			ResumeLayout();
 			
 			// Fix missing focus
-			WindowDetails.ToForeground(Handle);
+			BringToFront = true;
 			TopMost = true;
 		}
 		
