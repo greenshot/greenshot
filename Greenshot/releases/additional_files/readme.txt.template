@@ -10,10 +10,11 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 @DETAILVERSION@
 
 Bugs Resolved:
-* BUG-1769: Switched to OAuth 2 for Picasa Authentication, 
+* BUG-1769: Switched to OAuth 2 for Picasa Authentication, OAuth 1.x will be terminated as of 20th of April 2015.
 * BUG-1770: Fix problems when a font doesn't want to draw itself.
+* Bug 1774: Problems logging in to Box.com
 
-Features:
+Features add:
 * FEATURE-838: Added support for dragging an image from google image search results directly into the editor.
 
 
