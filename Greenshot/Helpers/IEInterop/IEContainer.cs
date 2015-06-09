@@ -25,10 +25,10 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 
 using GreenshotPlugin.Core;
-using Greenshot.Interop.IE;
 using Greenshot.IniFile;
 using log4net;
 using IServiceProvider = Greenshot.Interop.IServiceProvider;
+using mshtml;
 
 namespace Greenshot.Helpers.IEInterop {
 	public class DocumentContainer {
@@ -39,7 +39,7 @@ namespace Greenshot.Helpers.IEInterop {
 		private static readonly Guid IID_IWebBrowser2 = new Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E");
 		private static int counter = 0;
 		private int id = counter++;
-		private IHTMLDocument2 document2;
+		private mshtml.IHTMLDocument2 document2;
 		private IHTMLDocument3 document3;
 		private Point sourceLocation;
 		private Point destinationLocation;
@@ -53,6 +53,44 @@ namespace Greenshot.Helpers.IEInterop {
 		private double zoomLevelX = 1;
 		private double zoomLevelY = 1;
 		private List<DocumentContainer> frames = new List<DocumentContainer>();
+
+		/// <summary>
+		/// The public accessible Dispose
+		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
+		/// </summary>
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		// The bulk of the clean-up code is implemented in Dispose(bool)
+
+		/// <summary>
+		/// This Dispose is called from the Dispose and the Destructor.
+		/// When disposing==true all non-managed resources should be freed too!
+		/// </summary>
+		/// <param name="disposing"></param>
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				foreach (var documentContainer in frames) {
+					try {
+						documentContainer.Dispose();
+					} catch (Exception frameEx) {
+						LOG.WarnFormat("Exception while disposing frame {0}", frameEx.Message);
+					}
+				}
+				try {
+					releaseCom(document2);
+				} catch (Exception document2Ex) {
+					LOG.WarnFormat("Exception while disposing document2 {0}", document2Ex.Message);
+				}
+				try {
+					releaseCom(document3);
+				} catch (Exception document3Ex) {
+					LOG.WarnFormat("Exception while disposing document3 {0}", document3Ex.Message);
+				}
+			}
+		}
 
 		private DocumentContainer(IHTMLWindow2 frameWindow, WindowDetails contentWindow, DocumentContainer parent) {
 			//IWebBrowser2 webBrowser2 = frame as IWebBrowser2;
@@ -76,19 +114,30 @@ namespace Greenshot.Helpers.IEInterop {
 			}
 
 			this.parent = parent;
-			// Calculate startLocation for the frames
-			IHTMLWindow2 window2 = document2.parentWindow;
-			IHTMLWindow3 window3 = (IHTMLWindow3)window2;
-			Point contentWindowLocation = contentWindow.WindowRectangle.Location;
-			int x = window3.screenLeft - contentWindowLocation.X;
-			int y = window3.screenTop - contentWindowLocation.Y;
+			try {
+				Point contentWindowLocation = contentWindow.WindowRectangle.Location;
+				int x, y = 0;
+				// Calculate startLocation for the frames
+				IHTMLWindow2 window2 = document2.parentWindow;
+				try {
+					IHTMLWindow3 window3 = (IHTMLWindow3)window2;
+					try {
+						x = window3.screenLeft - contentWindowLocation.X;
+						y = window3.screenTop - contentWindowLocation.Y;
+					} finally {
+						releaseCom(window3);
+					}
+				} finally {
+					// Release IHTMLWindow 2+3 com objects
+					releaseCom(window2);
+				}
 
-			// Release IHTMLWindow 2+3 com objects
-			releaseCom(window2);
-			releaseCom(window3);
-
-			startLocation = new Point(x, y);
-			Init(document2, contentWindow);
+				startLocation = new Point(x, y);
+				Init(document2, contentWindow);
+			} catch {
+				releaseCom(document2);
+				throw;
+			}
 		}
 
 		public DocumentContainer(IHTMLDocument2 document2, WindowDetails contentWindow) {
@@ -175,7 +224,6 @@ namespace Greenshot.Helpers.IEInterop {
 				LOG.Warn("Can't get certain properties for documents, using default. Due to: ", e);
 			}
 
-
 			try {
 				LOG.DebugFormat("Calculated location {0} for {1}", startLocation, document2.title);
 				if (name == null) {
@@ -207,6 +255,7 @@ namespace Greenshot.Helpers.IEInterop {
 							LOG.DebugFormat("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.name, frameData.SourceRectangle);
 							frames.Add(frameData);
 						} else {
+							frameData.Dispose();
 							LOG.DebugFormat("Skipping frame {0}", frameData.Name);
 						}
 						// Clean up frameWindow
@@ -319,7 +368,7 @@ namespace Greenshot.Helpers.IEInterop {
 				sp.QueryService(ref webBrowserApp, ref webBrowser2, out brws);
 				
 				// Get the document from IWebBrowser2.
-				IWebBrowser2 browser = (IWebBrowser2)(brws);
+				Greenshot.Interop.IE.IWebBrowser2 browser = (Greenshot.Interop.IE.IWebBrowser2)(brws);
 				
 				return (IHTMLDocument2)browser.Document;
 			} catch (Exception ex2) {

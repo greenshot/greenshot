@@ -42,9 +42,6 @@ using System.Security;
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
 [assembly: ComVisible(false)]
 
-// Solve Link-Demand issues
-[assembly: SecurityTransparent]
-
 // The assembly version, replaced by build scripts
 [assembly: AssemblyVersion("1.2.0.0")]
 [assembly: AssemblyInformationalVersion("1.2.0.0")]

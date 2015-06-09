@@ -26,13 +26,13 @@ using System.Runtime.InteropServices;
 using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
 using Greenshot.Interop;
-using Greenshot.Interop.IE;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using log4net;
+using mshtml;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -296,6 +296,7 @@ namespace Greenshot.Helpers {
 					LOG.ErrorFormat("Major problem: Problem retrieving Document from {0}", ieWindow.Text);
 					LOG.Error(e);
 				}
+
 			}
 
 			// check if we have something to return
@@ -350,9 +351,10 @@ namespace Greenshot.Helpers {
 			BackgroundForm backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
 			backgroundForm.Show();
 			//BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(LangKey.contextmenu_captureie), language.GetString(LangKey.wait_ie_capture));
+			DocumentContainer documentContainer = null;
 			try {
 				//Get IHTMLDocument2 for the current active window
-				DocumentContainer documentContainer = CreateDocumentContainer(windowToCapture);
+				documentContainer = CreateDocumentContainer(windowToCapture);
 	
 				// Nothing found
 				if (documentContainer == null) {
@@ -458,6 +460,9 @@ namespace Greenshot.Helpers {
 					LOG.Warn("Error while correcting the mouse offset.", ex);
 				}
 			} finally {
+				if (documentContainer != null) {
+					documentContainer.Dispose();
+				}
 				// Always close the background form
 				backgroundForm.CloseDialog();
 			}

@@ -29,7 +29,7 @@ Plugins=NONE
 
 [Dependencies]
 UsesJava=false
-UsesDotNetVersion=3.5
+UsesDotNetVersion=4.51
 
 [Control]
 Icons=1

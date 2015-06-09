@@ -8,10 +8,9 @@
 #include "scripts\products\stringversion.iss"
 #include "scripts\products\winversion.iss"
 #include "scripts\products\fileversion.iss"
-#include "scripts\products\msi20.iss"
 #include "scripts\products\msi31.iss"
 #include "scripts\products\dotnetfxversion.iss"
-#include "scripts\products\dotnetfx35sp1.iss"
+#include "scripts\products\dotnetfx45.iss"
 
 [Files]
 Source: ..\..\bin\Release\Greenshot.exe; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
@@ -329,10 +328,10 @@ Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Fl
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 
-Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
+Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning 
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
-Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
+Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning 
@@ -552,13 +551,8 @@ end;
 
 function hasDotNet() : boolean;
 begin
-	// .NET 4.5 = 4.0 full (with a "Release" key, but this is not interresting!)
-	Result := netfxinstalled(NetFX20, '') or netfxinstalled(NetFX30, '') or netfxinstalled(NetFX35, '') or netfxinstalled(NetFX40Client, '') or netfxinstalled(NetFX40Full, '');
-end;
-
-function hasDotNet35FullOrHigher() : boolean;
-begin
-	Result := netfxinstalled(NetFX35, '') or netfxinstalled(NetFX40Full, '');
+	// .NET 4.5 = 4.0 full (with a "Release" key)
+	Result := netfxinstalled(NetFx45, '');
 end;
 
 function getNGENPath(argument: String) : String;
@@ -581,11 +575,10 @@ begin
 	if not hasDotNet() then
 	begin
 		// Enhance installer, if needed, otherwise .NET installations won't work
-		msi20('2.0');
-		msi31('3.0');
+		msi31('3.1');
 		
-		//install .net 3.5
-		dotnetfx35sp1();
+		//install .net 4.5
+		dotnetfx45(1);
 	end;
 	Result := true;
 end;
