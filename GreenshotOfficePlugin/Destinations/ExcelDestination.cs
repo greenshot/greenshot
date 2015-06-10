@@ -18,16 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
+using Greenshot.Interop.Office;
+using Greenshot.Plugin;
+using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
-
-using GreenshotPlugin.Core;
-using Greenshot.Plugin;
-using Greenshot.Interop.Office;
-using Greenshot.IniFile;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace GreenshotOfficePlugin {
@@ -39,7 +38,7 @@ namespace GreenshotOfficePlugin {
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_WORKBOOK = 1;
 		private static string exePath = null;
-		private string workbookName = null;
+		private string _workbookName = null;
 
 		static ExcelDestination() {
 			exePath = PluginUtils.GetExePath("EXCEL.EXE");
@@ -54,7 +53,7 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public ExcelDestination(string workbookName) {
-			this.workbookName = workbookName;
+			_workbookName = workbookName;
 		}
 
 		public override string Designation {
@@ -65,10 +64,10 @@ namespace GreenshotOfficePlugin {
 
 		public override string Description {
 			get {
-				if (workbookName == null) {
+				if (_workbookName == null) {
 					return "Microsoft Excel";
 				} else {
-					return workbookName;
+					return _workbookName;
 				}
 			}
 		}
@@ -93,7 +92,7 @@ namespace GreenshotOfficePlugin {
 
 		public override Image DisplayIcon {
 			get {
-				if (!string.IsNullOrEmpty(workbookName)) {
+				if (!string.IsNullOrEmpty(_workbookName)) {
 					return PluginUtils.GetCachedExeIcon(exePath, ICON_WORKBOOK);
 				}
 				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
@@ -101,9 +100,9 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (string workbookName in ExcelExporter.GetWorkbooks()) {
-				yield return new ExcelDestination(workbookName);
-			}
+			return from workbookname in ExcelExporter.GetWorkbooks()
+				   orderby workbookname
+				   select new ExcelDestination(workbookname);
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
@@ -114,8 +113,8 @@ namespace GreenshotOfficePlugin {
 				imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 				createdFile = true;
 			}
-			if (workbookName != null) {
-				ExcelExporter.InsertIntoExistingWorkbook(workbookName, imageFile, surface.Image.Size);
+			if (_workbookName != null) {
+				ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, surface.Image.Size);
 			} else {
 				ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
 			}

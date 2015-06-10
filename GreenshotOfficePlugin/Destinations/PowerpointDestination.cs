@@ -29,6 +29,7 @@ using Greenshot.Plugin;
 using Greenshot.Interop.Office;
 using Greenshot.IniFile;
 using System.Text.RegularExpressions;
+using GreenshotOfficePlugin.OfficeExport;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -120,13 +121,16 @@ namespace GreenshotOfficePlugin {
 				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
 			} else {
 				if (!manuallyInitiated) {
-					List<string> presentations = PowerpointExporter.GetPowerpointPresentations();
-					if (presentations != null && presentations.Count > 0) {
-						List<IDestination> destinations = new List<IDestination>();
-						destinations.Add(new PowerpointDestination());
-						foreach (string presentation in presentations) {
-							destinations.Add(new PowerpointDestination(presentation));
+					bool initialValue = false;
+					IList<IDestination> destinations = new List<IDestination>();
+					foreach (var presentation in PowerpointExporter.GetPowerpointPresentations()) {
+						if (!initialValue) {
+							destinations.Add(new PowerpointDestination());
+							initialValue = true;
 						}
+						destinations.Add(new PowerpointDestination(presentation));
+					}
+					if (destinations.Count > 0) {
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return ShowPickerMenu(false, surface, captureDetails, destinations);
 					}

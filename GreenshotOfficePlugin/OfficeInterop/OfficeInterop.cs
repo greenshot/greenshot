@@ -18,7 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Collections;
+using Marshal = System.Runtime.InteropServices.Marshal;
 
 namespace Greenshot.Interop.Office {
 	public enum OfficeVersion : int {
@@ -39,5 +41,24 @@ namespace Greenshot.Interop.Office {
 			get;
 		}
 		void Remove(int index);
+	}
+
+	public static class ComHelper {
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="obj"></param>
+		public static void ReleaseObject<T>(ref T obj)
+		{
+			// Do not catch an exception from this.
+			// You may want to remove these guards depending on
+			// what you think the semantics should be.
+			if (obj != null && Marshal.IsComObject(obj)) {
+				Marshal.ReleaseComObject(obj);
+			}
+			// Since passed "by ref" this assingment will be useful
+			// (It was not useful in the original, and neither was the GC.Collect.)
+			obj = default(T);
+		}
 	}
 }

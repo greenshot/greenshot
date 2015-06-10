@@ -20,6 +20,7 @@
  */
 using Greenshot.IniFile;
 using Greenshot.Interop.Office;
+using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace GreenshotOfficePlugin {
 
@@ -45,7 +46,7 @@ namespace GreenshotOfficePlugin {
 		[IniProperty("PowerpointLockAspectRatio", Description = "For Powerpoint: Lock the aspect ratio of the image", DefaultValue = "True")]
 		public bool PowerpointLockAspectRatio;
 		[IniProperty("PowerpointSlideLayout", Description = "For Powerpoint: Slide layout, changing this to a wrong value will fallback on ppLayoutBlank!!", DefaultValue = "ppLayoutPictureWithCaption")]
-		public PPSlideLayout PowerpointSlideLayout;
+		public PowerPoint.PpSlideLayout PowerpointSlideLayout;
 
 	}
 }
