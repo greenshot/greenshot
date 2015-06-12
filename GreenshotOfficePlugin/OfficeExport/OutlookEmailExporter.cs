@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -33,6 +34,8 @@ using GreenshotPlugin.Core;
 using GreenshotOfficePlugin;
 using Greenshot.IniFile;
 using mshtml;
+using GreenshotOfficePlugin.OfficeExport;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace Greenshot.Interop.Office {
 	/// <summary>
@@ -236,25 +239,27 @@ namespace Greenshot.Interop.Office {
 					// Check for wordmail, if so use the wordexporter
 					// http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
 					// Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
-					IWordDocument wordDocument = null;
+					IDisposableCom<Word.Document> wordDocument = null;
 					if (inspectorOrExplorer is IExplorer) {
 						var explorer = inspectorOrExplorer as IExplorer;
-						wordDocument = explorer.ActiveInlineResponseWordEditor;
+						wordDocument = DisposableCom.Create(explorer.ActiveInlineResponseWordEditor);
 					} else if (inspectorOrExplorer is IInspector) {
 						var inspector = inspectorOrExplorer as IInspector;
 						if (inspector.IsWordMail()) {
-							wordDocument = inspector.WordEditor;
+							wordDocument = DisposableCom.Create(inspector.WordEditor);
 						}
 					}
 					if (wordDocument != null) {
-						try {
-							if (WordExporter.InsertIntoExistingDocument(wordDocument.Application, wordDocument, tmpFile, null, null)) {
-								LOG.Info("Inserted into Wordmail");
-								wordDocument.Dispose();
-								return true;
+						using (wordDocument)
+						using (var application = DisposableCom.Create(wordDocument.ComObject.Application)) {
+							try {
+								if (WordExporter.InsertIntoExistingDocument(application, wordDocument, tmpFile, null, null)) {
+									LOG.Info("Inserted into Wordmail");
+									return true;
+								}
+							} catch (Exception exportException) {
+								LOG.Error("Error exporting to the word editor, trying to do it via another method", exportException);
 							}
-						} catch (Exception exportException) {
-							LOG.Error("Error exporting to the word editor, trying to do it via another method", exportException);
 						}
 					} else if (isAppointment) {
 						LOG.Info("Can't export to an appointment if no word editor is used");

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Interop.Office;
 using Greenshot.Plugin;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;

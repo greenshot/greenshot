@@ -18,8 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace Greenshot.Interop.Office {
 	/// <summary>
@@ -309,7 +311,7 @@ namespace Greenshot.Interop.Office {
 		object HTMLEditor {
 			get;
 		}
-		IWordDocument WordEditor {
+		Word.Document WordEditor {
 			get;
 		}
 		void SetControlItemProperty(object Control, string PropertyName);
@@ -354,7 +356,7 @@ namespace Greenshot.Interop.Office {
 		IItem ActiveInlineResponse {
 			get;
 		}
-		IWordDocument ActiveInlineResponseWordEditor {
+		Word.Document ActiveInlineResponseWordEditor {
 			get;
 		}
 	}

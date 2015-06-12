@@ -21,7 +21,6 @@
 
 using Greenshot.IniFile;
 using Greenshot.Interop;
-using GreenshotOfficePlugin;
 using Microsoft.Office.Core;
 using System;
 using System.Collections.Generic;
@@ -49,10 +48,10 @@ namespace GreenshotOfficePlugin.OfficeExport {
 					yield break;
 				}
 
-				using (var presentations =  ComDisposableFactory.Create(powerpointApplication.ComObject.Presentations)) {
+				using (var presentations =  DisposableCom.Create(powerpointApplication.ComObject.Presentations)) {
 					LOG.DebugFormat("Open Presentations: {0}", presentations.ComObject.Count);
 					for (int i = 1; i <= presentations.ComObject.Count; i++) {
-						using (var presentation = ComDisposableFactory.Create(presentations.ComObject[i])) {
+						using (var presentation = DisposableCom.Create(presentations.ComObject[i])) {
 							if (presentation == null) {
 								continue;
 							}
@@ -86,10 +85,10 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				if (powerpointApplication == null) {
 					return false;
 				}
-				using (var presentations = ComDisposableFactory.Create(powerpointApplication.ComObject.Presentations)) {
+				using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations)) {
 					LOG.DebugFormat("Open Presentations: {0}", presentations.ComObject.Count);
 					for (int i = 1; i <= presentations.ComObject.Count; i++) {
-						using (var presentation = ComDisposableFactory.Create(presentations.ComObject[i])) {
+						using (var presentation = DisposableCom.Create(presentations.ComObject[i])) {
 							if (presentation == null) {
 								continue;
 							}
@@ -117,30 +116,30 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// <param name="tmpFile"></param>
 		/// <param name="imageSize"></param>
 		/// <param name="title"></param>
-		private static void AddPictureToPresentation(ComDisposable<PowerPoint.Presentation> presentation, string tmpFile, Size imageSize, string title) {
+		private static void AddPictureToPresentation(IDisposableCom<PowerPoint.Presentation> presentation, string tmpFile, Size imageSize, string title) {
 			if (presentation != null) {
 				//ISlide slide = presentation.Slides.AddSlide( presentation.Slides.Count + 1, PPSlideLayout.ppLayoutPictureWithCaption);
-				ComDisposable<PowerPoint.Slide> slide = null;
+				IDisposableCom<PowerPoint.Slide> slide = null;
 				try {
 					float left, top;
-					using (var pageSetup = ComDisposableFactory.Create(presentation.ComObject.PageSetup)) {
+					using (var pageSetup = DisposableCom.Create(presentation.ComObject.PageSetup)) {
 						left = (pageSetup.ComObject.SlideWidth / 2) - (imageSize.Width / 2f);
 						top = (pageSetup.ComObject.SlideHeight / 2) - (imageSize.Height / 2f);
 					}
 					float width = imageSize.Width;
 					float height = imageSize.Height;
-					ComDisposable<PowerPoint.Shape> shapeForCaption = null;
+					IDisposableCom<PowerPoint.Shape> shapeForCaption = null;
 					bool hasScaledWidth = false;
 					bool hasScaledHeight = false;
 					try {
-						using (var slides = ComDisposableFactory.Create(presentation.ComObject.Slides)) {
-							slide = ComDisposableFactory.Create(slides.ComObject.Add(slides.ComObject.Count + 1, officeConfiguration.PowerpointSlideLayout));
+						using (var slides = DisposableCom.Create(presentation.ComObject.Slides)) {
+							slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, officeConfiguration.PowerpointSlideLayout));
 						}
 
-						using (var shapes = ComDisposableFactory.Create(slide.ComObject.Shapes))
-						using (var shapeForLocation = ComDisposableFactory.Create(shapes.ComObject[2])) {
+						using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
+						using (var shapeForLocation = DisposableCom.Create(shapes.ComObject[2])) {
 							// Shapes[2] is the image shape on this layout.
-							shapeForCaption = ComDisposableFactory.Create(shapes.ComObject[1]);
+							shapeForCaption = DisposableCom.Create(shapes.ComObject[1]);
 							if (width > shapeForLocation.ComObject.Width) {
 								width = shapeForLocation.ComObject.Width;
 								left = shapeForLocation.ComObject.Left;
@@ -161,12 +160,12 @@ namespace GreenshotOfficePlugin.OfficeExport {
 						}
 					} catch (Exception e) {
 						LOG.Error(e);
-						using (var slides = ComDisposableFactory.Create(presentation.ComObject.Slides)) {
-							slide = ComDisposableFactory.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PowerPoint.PpSlideLayout.ppLayoutBlank));
+						using (var slides = DisposableCom.Create(presentation.ComObject.Slides)) {
+							slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PowerPoint.PpSlideLayout.ppLayoutBlank));
 						}
 					}
-					using (var shapes = ComDisposableFactory.Create(slide.ComObject.Shapes))
-					using (var shape = ComDisposableFactory.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height))) {
+					using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
+					using (var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height))) {
 						if (officeConfiguration.PowerpointLockAspectRatio) {
 							shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
 						} else {
@@ -188,8 +187,8 @@ namespace GreenshotOfficePlugin.OfficeExport {
 						try {
 							using (shapeForCaption) {
 								// Using try/catch to make sure problems with the text range don't give an exception.
-								using (var textFrame = ComDisposableFactory.Create(shapeForCaption.ComObject.TextFrame))
-								using (var textRange = ComDisposableFactory.Create(textFrame.ComObject.TextRange)) {
+								using (var textFrame = DisposableCom.Create(shapeForCaption.ComObject.TextFrame))
+								using (var textRange = DisposableCom.Create(textFrame.ComObject.TextRange)) {
 									textRange.ComObject.Text = title;
 								}
 							}
@@ -199,9 +198,9 @@ namespace GreenshotOfficePlugin.OfficeExport {
 					}
 					// Activate/Goto the slide
 					try {
-						using (var application = ComDisposableFactory.Create(presentation.ComObject.Application)) {
-							using (var activeWindow = ComDisposableFactory.Create(application.ComObject.ActiveWindow)) {
-								using (var view = ComDisposableFactory.Create(activeWindow.ComObject.View)) {
+						using (var application = DisposableCom.Create(presentation.ComObject.Application)) {
+							using (var activeWindow = DisposableCom.Create(application.ComObject.ActiveWindow)) {
+								using (var view = DisposableCom.Create(activeWindow.ComObject.View)) {
 									view.ComObject.GotoSlide(slide.ComObject.SlideNumber);
 								}
 							}
@@ -230,8 +229,8 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				if (powerpointApplication != null) {
 					powerpointApplication.ComObject.Activate();
 					powerpointApplication.ComObject.Visible = MsoTriState.msoTrue;
-					using (var presentations = ComDisposableFactory.Create(powerpointApplication.ComObject.Presentations))
-					using (var presentation = ComDisposableFactory.Create(presentations.ComObject.Add())) {
+					using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
+					using (var presentation = DisposableCom.Create(presentations.ComObject.Add())) {
 						try {
 							AddPictureToPresentation(presentation, tmpFile, imageSize, title);
 							isPictureAdded = true;
@@ -248,7 +247,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// Initialize static outlook variables like version and currentuser
 		/// </summary>
 		/// <param name="powerpointApplication">IPowerpointApplication</param>
-		private static void InitializeVariables(ComDisposable<PowerPoint.Application> powerpointApplication) {
+		private static void InitializeVariables(IDisposableCom<PowerPoint.Application> powerpointApplication) {
 			if (powerpointApplication == null || powerpointApplication.ComObject == null || _powerpointVersion != null) {
 				return;
 			}
@@ -266,10 +265,10 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// Call this to get the running PowerPoint application, returns null if there isn't any.
 		/// </summary>
 		/// <returns>ComDisposable for PowerPoint.Application or null</returns>
-		private static ComDisposable<PowerPoint.Application> GetPowerPointApplication() {
-			ComDisposable<PowerPoint.Application> powerPointApplication = null;
+		private static IDisposableCom<PowerPoint.Application> GetPowerPointApplication() {
+			IDisposableCom<PowerPoint.Application> powerPointApplication = null;
 			try {
-				powerPointApplication = ComDisposableFactory.Create((PowerPoint.Application)Marshal.GetActiveObject("PowerPoint.Application"));
+				powerPointApplication = DisposableCom.Create((PowerPoint.Application)Marshal.GetActiveObject("PowerPoint.Application"));
 			} catch (Exception) {
 				// Ignore, probably no excel running
 				return null;
@@ -284,10 +283,10 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// Call this to get the running PowerPoint application, or create a new instance
 		/// </summary>
 		/// <returns>ComDisposable for PowerPoint.Application</returns>
-		private static ComDisposable<PowerPoint.Application> GetOrCreatePowerPointApplication() {
-			ComDisposable<PowerPoint.Application> powerPointApplication = GetPowerPointApplication();
+		private static IDisposableCom<PowerPoint.Application> GetOrCreatePowerPointApplication() {
+			IDisposableCom<PowerPoint.Application> powerPointApplication = GetPowerPointApplication();
 			if (powerPointApplication == null) {
-				powerPointApplication = ComDisposableFactory.Create(new PowerPoint.Application());
+				powerPointApplication = DisposableCom.Create(new PowerPoint.Application());
 			}
 			InitializeVariables(powerPointApplication);
 			return powerPointApplication;

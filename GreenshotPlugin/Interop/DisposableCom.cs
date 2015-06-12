@@ -23,33 +23,52 @@ using System;
 using System.Runtime.InteropServices;
 
 namespace Greenshot.Interop {
-	public static class ComDisposableFactory {
+	/// <summary>
+	/// A simple com wrapper which helps with "using"
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public interface IDisposableCom<T> : IDisposable {
+		T ComObject {
+			get;
+			set;
+		}
+	}
+
+	/// <summary>
+	/// A factory for IDisposableCom
+	/// </summary>
+	/// <typeparam name="T">Type to wrap</typeparam>
+	public static class DisposableCom {
 		/// <summary>
 		/// Create a ComDisposable for the supplied type object
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="obj"></param>
 		/// <returns></returns>
-		public static ComDisposable<T> Create<T>(T obj) {
+		public static IDisposableCom<T> Create<T>(T obj) {
 			if (obj != null) {
-				return new ComDisposable<T>(obj);
+				return new DisposableComImplementation<T>(obj);
 			}
 			return null;
 		}
 	}
 
-	/// <summary>
-	/// A simple com wrapper which helps with "using"
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public class ComDisposable<T> : IDisposable {
-		public ComDisposable(T obj) {
+
+	internal class DisposableComImplementation<T> : IDisposableCom<T> {
+		public DisposableComImplementation(T obj) {
 			ComObject = obj;
 		}
 
 		public T ComObject {
 			get;
 			set;
+		}
+
+		public static IDisposableCom<U> Create<U>(U obj) {
+			if (obj != null) {
+				return new DisposableComImplementation<U>(obj);
+			}
+			return null;
 		}
 
 		/// <summary>

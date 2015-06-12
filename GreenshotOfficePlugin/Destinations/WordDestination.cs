@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Linq;
+using GreenshotOfficePlugin.OfficeExport;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -98,9 +100,9 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (string wordCaption in WordExporter.GetWordDocuments()) {
-				yield return new WordDestination(wordCaption);
-			}
+			return from caption in WordExporter.GetWordDocuments()
+				   orderby caption
+				   select new WordDestination(caption);
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
@@ -125,13 +127,21 @@ namespace GreenshotOfficePlugin {
 				}
 			} else {
 				if (!manuallyInitiated) {
-					List<string> documents = WordExporter.GetWordDocuments();
-					if (documents != null && documents.Count > 0) {
-						List<IDestination> destinations = new List<IDestination>();
-						destinations.Add(new WordDestination());
-						foreach (string document in documents) {
-							destinations.Add(new WordDestination(document));
+
+					var wordDestinations = from caption in WordExporter.GetWordDocuments()
+									orderby caption
+									select new WordDestination(caption);
+					bool initialValue = false;
+					List<IDestination> destinations = new List<IDestination>();
+					foreach (var wordDestination in wordDestinations) {
+						if (!initialValue) {
+							initialValue = true;
+							destinations.Add(new WordDestination());
 						}
+						destinations.Add(wordDestination);
+					}
+
+					if (destinations.Count > 0) {
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return ShowPickerMenu(false, surface, captureDetails, destinations);
 					}

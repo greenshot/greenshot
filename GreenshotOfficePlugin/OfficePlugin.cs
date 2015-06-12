@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-
-using Greenshot.Plugin;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
