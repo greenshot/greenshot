@@ -53,7 +53,10 @@ namespace Greenshot.Interop {
 		}
 	}
 
-
+	/// <summary>
+	/// Implementation of the IDisposableCom, this is internal to prevent other code to use it directly
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	internal class DisposableComImplementation<T> : IDisposableCom<T> {
 		public DisposableComImplementation(T obj) {
 			ComObject = obj;
@@ -62,13 +65,6 @@ namespace Greenshot.Interop {
 		public T ComObject {
 			get;
 			set;
-		}
-
-		public static IDisposableCom<U> Create<U>(U obj) {
-			if (obj != null) {
-				return new DisposableComImplementation<U>(obj);
-			}
-			return null;
 		}
 
 		/// <summary>

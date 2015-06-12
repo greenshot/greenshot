@@ -23,7 +23,13 @@ using Greenshot.Interop.Office;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace GreenshotOfficePlugin {
-
+	/// <summary>
+	/// Specifies which EmailFormat the email needs to use
+	/// </summary>
+	public enum EmailFormat {
+		Text,
+		HTML
+	}
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>

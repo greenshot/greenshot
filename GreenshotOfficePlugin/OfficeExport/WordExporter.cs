@@ -54,7 +54,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				}
 				using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents)) {
 					for (int i = 1; i <= documents.ComObject.Count; i++) {
-						using (var wordDocument =  DisposableCom.Create(documents.ComObject[i])) {
+						using (var wordDocument =  DisposableCom.Create((Word._Document)documents.ComObject[i])) {
 							using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow)) {
 								if (activeWindow.ComObject.Caption.StartsWith(wordCaption)) {
 									return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile, null, null);
@@ -76,7 +76,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// <param name="adress">link for the image</param>
 		/// <param name="tooltip">tooltip of the image</param>
 		/// <returns></returns>
-		internal static bool InsertIntoExistingDocument(IDisposableCom<Word.Application> wordApplication, IDisposableCom<Word.Document> wordDocument, string tmpFile, string address, string tooltip) {
+		internal static bool InsertIntoExistingDocument(IDisposableCom<Word.Application> wordApplication, IDisposableCom<Word._Document> wordDocument, string tmpFile, string address, string tooltip) {
 			// Bug #1517: image will be inserted into that document, where the focus was last. It will not inserted into the chosen one.
 			// Solution: Make sure the selected document is active, otherwise the insert will be made in a different document!
 			try {

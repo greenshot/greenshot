@@ -20,14 +20,15 @@
  */
 
 using Greenshot.IniFile;
-using Greenshot.Interop.Office;
 using Greenshot.Plugin;
+using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -45,7 +46,7 @@ namespace GreenshotOfficePlugin {
 		private static string mapiClient = "Microsoft Outlook";
 		public const string DESIGNATION = "Outlook";
 		private string outlookInspectorCaption;
-		private OlObjectClass outlookInspectorType;
+		private Outlook.OlObjectClass outlookInspectorType;
 
 		static OutlookDestination() {
 			if (EmailConfigHelper.HasOutlook()) {
@@ -65,7 +66,7 @@ namespace GreenshotOfficePlugin {
 		public OutlookDestination() {
 		}
 
-		public OutlookDestination(string outlookInspectorCaption, OlObjectClass outlookInspectorType) {
+		public OutlookDestination(string outlookInspectorCaption, Outlook.OlObjectClass outlookInspectorType) {
 			this.outlookInspectorCaption = outlookInspectorCaption;
 			this.outlookInspectorType = outlookInspectorType;
 		}
@@ -113,7 +114,7 @@ namespace GreenshotOfficePlugin {
 		public override Image DisplayIcon {
 			get {
 				if (outlookInspectorCaption != null) {
-					if (OlObjectClass.olAppointment.Equals(outlookInspectorType)) {
+					if (Outlook.OlObjectClass.olAppointment.Equals(outlookInspectorType)) {
 						// Make sure we loaded the icon, maybe the configuration has been changed!
 						return PluginUtils.GetCachedExeIcon(exePath, ICON_MEETING);
 					} else {
@@ -126,7 +127,7 @@ namespace GreenshotOfficePlugin {
 		}
 		
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			IDictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
+			IDictionary<string, Outlook.OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 			if (inspectorCaptions != null) {
 				foreach (string inspectorCaption in inspectorCaptions.Keys) {
 					yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
@@ -164,11 +165,11 @@ namespace GreenshotOfficePlugin {
 			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
 
 			if (outlookInspectorCaption != null) {
-				OutlookEmailExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
+				OutlookExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
 				exportInformation.ExportMade = true;
 			} else {
 				if (!manuallyInitiated) {
-					IDictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
+					IDictionary<string, Outlook.OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 					if (inspectorCaptions != null && inspectorCaptions.Count > 0) {
 						List<IDestination> destinations = new List<IDestination>();
 						destinations.Add(new OutlookDestination());
@@ -179,7 +180,7 @@ namespace GreenshotOfficePlugin {
 						return ShowPickerMenu(false, surface, captureDetails, destinations);
 					}
 				} else {
-					exportInformation.ExportMade = OutlookEmailExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC, null);
+					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC, null);
 				}
 			}
 			ProcessExport(exportInformation, surface);
