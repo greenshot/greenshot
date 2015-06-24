@@ -35,7 +35,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
 
 		private static bool IsAfter2003() {
-			return _powerpointVersion.Major > (int)Greenshot.Interop.Office.OfficeVersion.OFFICE_2003;
+			return _powerpointVersion.Major > (int)OfficeVersion.OFFICE_2003;
 		}
 
 		/// <summary>
@@ -244,7 +244,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		}
 
 		/// <summary>
-		/// Initialize static outlook variables like version and currentuser
+		/// Initialize static powerpoint variables like version
 		/// </summary>
 		/// <param name="powerpointApplication">IPowerpointApplication</param>
 		private static void InitializeVariables(IDisposableCom<PowerPoint.Application> powerpointApplication) {
@@ -257,7 +257,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
 				LOG.Warn("Assuming Powerpoint version 1997.");
-				_powerpointVersion = new Version((int)Greenshot.Interop.Office.OfficeVersion.OFFICE_97, 0, 0, 0);
+				_powerpointVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 
@@ -270,7 +270,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 			try {
 				powerPointApplication = DisposableCom.Create((PowerPoint.Application)Marshal.GetActiveObject("PowerPoint.Application"));
 			} catch (Exception) {
-				// Ignore, probably no excel running
+				// Ignore, probably no PowerPoint running
 				return null;
 			}
 			if (powerPointApplication.ComObject != null) {

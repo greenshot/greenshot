@@ -68,7 +68,7 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.OneNote, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Outlook, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -92,6 +92,7 @@
     <Compile Include="Destinations\WordDestination.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="OfficeConfiguration.cs" />
+    <Compile Include="OfficeExport\OfficeVersion.cs" />
     <Compile Include="OfficePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OfficeExport\ExcelExporter.cs" />
@@ -99,8 +100,6 @@
     <Compile Include="OfficeExport\OutlookExporter.cs" />
     <Compile Include="OfficeExport\PowerpointExporter.cs" />
     <Compile Include="OfficeExport\WordExporter.cs" />
-    <Compile Include="OfficeInterop\OfficeInterop.cs" />
-    <Compile Include="OfficeInterop\OneNoteInterop.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">

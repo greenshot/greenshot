@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using Greenshot.IniFile;
-using Greenshot.Interop.Office;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace GreenshotOfficePlugin {

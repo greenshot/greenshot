@@ -30,7 +30,7 @@ using System.Text.RegularExpressions;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
-	/// Description of PowerpointDestination.
+	/// ExcelDestination
 	/// </summary>
 	public class ExcelDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelDestination));

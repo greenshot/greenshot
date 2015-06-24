@@ -38,7 +38,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// </summary>
 		/// <returns></returns>
 		private static bool isAfter2003() {
-			return wordVersion.Major > (int)Greenshot.Interop.Office.OfficeVersion.OFFICE_2003;
+			return wordVersion.Major > (int)OfficeVersion.OFFICE_2003;
 		}
 
 		/// <summary>
@@ -238,7 +238,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 			try {
 				wordApplication = DisposableCom.Create((Word.Application)Marshal.GetActiveObject("Word.Application"));
 			} catch (Exception) {
-				// Ignore, probably no excel running
+				// Ignore, probably no word running
 				return null;
 			}
 			if (wordApplication != null && wordApplication.ComObject != null) {
@@ -248,33 +248,33 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		}
 
 		/// <summary>
-		/// Call this to get the running Excel application, or create a new instance
+		/// Call this to get the running Word application, or create a new instance
 		/// </summary>
 		/// <returns>ComDisposable for Word.Application</returns>
 		private static IDisposableCom<Word.Application> GetOrCreateWordApplication() {
-			IDisposableCom<Word.Application> excelApplication = GetWordApplication();
-			if (excelApplication == null) {
-				excelApplication = DisposableCom.Create(new Word.Application());
+			IDisposableCom<Word.Application> wordApplication = GetWordApplication();
+			if (wordApplication == null) {
+				wordApplication = DisposableCom.Create(new Word.Application());
 			}
-			InitializeVariables(excelApplication);
-			return excelApplication;
+			InitializeVariables(wordApplication);
+			return wordApplication;
 		}
 
 		/// <summary>
-		/// Initialize static outlook variables like version and currentuser
+		/// Initialize static word variables like version
 		/// </summary>
-		/// <param name="excelApplication"></param>
+		/// <param name="wordApplication"></param>
 		private static void InitializeVariables(IDisposableCom<Word.Application> wordApplication) {
 			if (wordApplication == null || wordApplication.ComObject == null || wordVersion != null) {
 				return;
 			}
 			try {
 				wordVersion = new Version(wordApplication.ComObject.Version);
-				LOG.InfoFormat("Using Excel {0}", wordVersion);
+				LOG.InfoFormat("Using Word {0}", wordVersion);
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
 				LOG.Warn("Assuming Word version 1997.");
-				wordVersion = new Version((int)Greenshot.Interop.Office.OfficeVersion.OFFICE_97, 0, 0, 0);
+				wordVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 	}

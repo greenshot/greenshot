@@ -103,7 +103,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 												break;
 											case Outlook.OlObjectClass.olAppointment:
 												Outlook.AppointmentItem appointmentItem = currentItemUntyped;
-												if (outlookVersion.Major >= (int)Greenshot.Interop.Office.OfficeVersion.OFFICE_2010 && conf.OutlookAllowExportInMeetings) {
+												if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2010 && conf.OutlookAllowExportInMeetings) {
 													if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser)) {
 														LOG.DebugFormat("Not exporting, as organizer is set to {1} and currentuser {2} is not him.", appointmentItem.Organizer, _currentUser);
 														continue;
@@ -190,7 +190,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 											break;
 										case Outlook.OlObjectClass.olAppointment:
 											Outlook.AppointmentItem appointmentItem = currentItemUntyped;
-											if (outlookVersion.Major >= (int)Greenshot.Interop.Office.OfficeVersion.OFFICE_2010 && conf.OutlookAllowExportInMeetings) {
+											if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2010 && conf.OutlookAllowExportInMeetings) {
 												if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser)) {
 													LOG.DebugFormat("Not exporting, as organizer is set to {1} and currentuser {2} is not him.", appointmentItem.Organizer, _currentUser);
 													continue;
@@ -281,7 +281,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				}
 
 				string contentID;
-				if (outlookVersion.Major >= (int)Greenshot.Interop.Office.OfficeVersion.OFFICE_2007) {
+				if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 					contentID = Guid.NewGuid().ToString();
 				} else {
 					LOG.Info("Older Outlook (<2007) found, using filename as contentid.");
@@ -326,7 +326,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				// Create the attachment (if inlined the attachment isn't visible as attachment!)
 				using (var attachments = DisposableCom.Create(mailItem.Attachments))
 				using (var attachment = DisposableCom.Create(attachments.ComObject.Add(tmpFile, Outlook.OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName))) {
-					if (outlookVersion.Major >= (int)Greenshot.Interop.Office.OfficeVersion.OFFICE_2007) {
+					if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 						// Add the content id to the attachment, this only works for Outlook >= 2007
 						try {
 							var propertyAccessor = attachment.ComObject.PropertyAccessor;
@@ -409,7 +409,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 						using (var attachments = DisposableCom.Create(newMail.Attachments))
 						using (var attachment = DisposableCom.Create(attachments.ComObject.Add(tmpFile, Outlook.OlAttachmentType.olByValue, 0, attachmentName))) {
 							// add content ID to the attachment
-							if (outlookVersion.Major >= (int)Greenshot.Interop.Office.OfficeVersion.OFFICE_2007) {
+							if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 								try {
 									contentID = Guid.NewGuid().ToString();
 									using (var propertyAccessor = DisposableCom.Create(attachment.ComObject.PropertyAccessor)) {
@@ -546,7 +546,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 			try {
 				outlookApplication = DisposableCom.Create((Outlook.Application)Marshal.GetActiveObject("Outlook.Application"));
 			} catch (Exception) {
-				// Ignore, probably no excel running
+				// Ignore, probably no outlook running
 				return null;
 			}
 			if (outlookApplication != null && outlookApplication.ComObject != null) {
@@ -583,10 +583,10 @@ namespace GreenshotOfficePlugin.OfficeExport {
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
 				LOG.Warn("Assuming outlook version 1997.");
-				outlookVersion = new Version((int)Greenshot.Interop.Office.OfficeVersion.OFFICE_97, 0, 0, 0);
+				outlookVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 			// Preventing retrieval of currentUser if Outlook is older than 2007
-			if (outlookVersion.Major >= (int)Greenshot.Interop.Office.OfficeVersion.OFFICE_2007) {
+			if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 				try {
 					using (var mapiNamespace = DisposableCom.Create(outlookApplication.ComObject.GetNamespace("MAPI"))) {
 						using (var currentUser = DisposableCom.Create(mapiNamespace.ComObject.CurrentUser)) {

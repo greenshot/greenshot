@@ -29,6 +29,9 @@ using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace GreenshotOfficePlugin.OfficeExport {
+	/// <summary>
+	/// Excel exporter
+	/// </summary>
 	public class ExcelExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
 		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
@@ -157,7 +160,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		}
 
 		/// <summary>
-		/// Initialize static outlook variables like version and currentuser
+		/// Initialize static excel variables like version and currentuser
 		/// </summary>
 		/// <param name="excelApplication"></param>
 		private static void InitializeVariables(IDisposableCom<Excel.Application> excelApplication) {
@@ -170,7 +173,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
 				LOG.Warn("Assuming Excel version 1997.");
-				excelVersion = new Version((int)Greenshot.Interop.Office.OfficeVersion.OFFICE_97, 0, 0, 0);
+				excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 	}

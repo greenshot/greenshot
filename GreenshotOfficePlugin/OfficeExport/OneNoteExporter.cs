@@ -19,17 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using Greenshot.Interop;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Xml;
+using OneNote = Microsoft.Office.Interop.OneNote;
 
-namespace Greenshot.Interop.Office {
-
+namespace GreenshotOfficePlugin.OfficeExport {
+	/// <summary>
+	/// OneNote exporter
+	/// More details about OneNote: http://msdn.microsoft.com/en-us/magazine/ff796230.aspx
+	/// </summary>
 	public class OneNoteExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OneNoteExporter));
 		private const string XML_IMAGE_CONTENT = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
@@ -43,12 +47,12 @@ namespace Greenshot.Interop.Office {
 		/// <param name="surfaceToUpload">ISurface</param>
 		/// <returns>bool true if export worked</returns>
 		public static bool ExportToNewPage(ISurface surfaceToUpload) {
-			using(IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
+			using (var oneNoteApplication = GetOrCreateOneNoteApplication()) {
 				OneNotePage newPage = new OneNotePage();
-				string unfiledNotesSectionID = GetSectionID(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
-				if(unfiledNotesSectionID != null) {
+				string unfiledNotesSectionID = GetSectionID(oneNoteApplication, OneNote.SpecialLocation.slUnfiledNotesSection);
+				if (unfiledNotesSectionID != null) {
 					string pageId = "";
-					oneNoteApplication.CreateNewPage(unfiledNotesSectionID, out pageId, NewPageStyle.npsDefault);
+					oneNoteApplication.ComObject.CreateNewPage(unfiledNotesSectionID, out pageId, OneNote.NewPageStyle.npsDefault);
 					newPage.ID = pageId;
 					// Set the new name, this is automatically done in the export to page
 					newPage.Name = surfaceToUpload.CaptureDetails.Title;
@@ -64,10 +68,10 @@ namespace Greenshot.Interop.Office {
 		/// <param name="oneNoteApplication"></param>
 		/// <param name="pageId"></param>
 		/// <param name="title"></param>
-		private static void UpdatePageTitle(IOneNoteApplication oneNoteApplication, string pageId, string title) {
+		private static void UpdatePageTitle(IDisposableCom<OneNote.Application> oneNoteApplication, string pageId, string title) {
 			try {
 				string pageXML = "";
-				oneNoteApplication.GetPageContent(pageId, out pageXML, PageInfo.piAll, XMLSchema.xsCurrent);
+				oneNoteApplication.ComObject.GetPageContent(pageId, out pageXML, OneNote.PageInfo.piAll, OneNote.XMLSchema.xsCurrent);
 				XmlDocument doc = new XmlDocument();
 				doc.LoadXml(pageXML);
 				XmlNamespaceManager namespaceManager = new XmlNamespaceManager(doc.NameTable);
@@ -75,7 +79,7 @@ namespace Greenshot.Interop.Office {
 
 				doc.SelectSingleNode("//one:T", namespaceManager).InnerText = title;
 				// Update the page
-				oneNoteApplication.UpdatePageContent(doc.OuterXml, DateTime.MinValue, XMLSchema.xs2010, true);
+				oneNoteApplication.ComObject.UpdatePageContent(doc.OuterXml, DateTime.MinValue, OneNote.XMLSchema.xs2010, true);
 
 			} catch(Exception ex) {
 				LOG.Warn("Couldn't set page title.", ex);
@@ -89,7 +93,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="page">OneNotePage</param>
 		/// <returns>bool true if everything worked</returns>
 		public static bool ExportToPage(ISurface surfaceToUpload, OneNotePage page) {
-			using(IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
+			using (var oneNoteApplication = GetOrCreateOneNoteApplication()) {
 				return ExportToPage(oneNoteApplication, surfaceToUpload, page);
 			}
 		}
@@ -101,7 +105,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="surfaceToUpload">ISurface</param>
 		/// <param name="page">OneNotePage</param>
 		/// <returns>bool true if everything worked</returns>
-		private static bool ExportToPage(IOneNoteApplication oneNoteApplication, ISurface surfaceToUpload, OneNotePage page) {
+		private static bool ExportToPage(IDisposableCom<OneNote.Application> oneNoteApplication, ISurface surfaceToUpload, OneNotePage page) {
 			if(oneNoteApplication == null) {
 				return false;
 			}
@@ -112,9 +116,9 @@ namespace Greenshot.Interop.Office {
 				string imageXmlStr = string.Format(XML_IMAGE_CONTENT, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
 				string pageChangesXml = string.Format(XML_OUTLINE, new object[] { imageXmlStr, page.ID, ONENOTE_NAMESPACE_2010, page.Name });
 				LOG.InfoFormat("Sending XML: {0}", pageChangesXml);
-				oneNoteApplication.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);
+				oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, OneNote.XMLSchema.xs2010, false);
 				try {
-					oneNoteApplication.NavigateTo(page.ID, null, false);
+					oneNoteApplication.ComObject.NavigateTo(page.ID, null, false);
 				} catch(Exception ex) {
 					LOG.Warn("Unable to navigate to the target page", ex);
 				}
@@ -128,15 +132,15 @@ namespace Greenshot.Interop.Office {
 		/// <param name="oneNoteApplication"></param>
 		/// <param name="specialLocation">SpecialLocation</param>
 		/// <returns>string with section ID</returns>
-		private static string GetSectionID(IOneNoteApplication oneNoteApplication, SpecialLocation specialLocation) {
+		private static string GetSectionID(IDisposableCom<OneNote.Application> oneNoteApplication, OneNote.SpecialLocation specialLocation) {
 			if(oneNoteApplication == null) {
 				return null;
 			}
 			string unfiledNotesPath = "";
-			oneNoteApplication.GetSpecialLocation(specialLocation, out unfiledNotesPath);
+			oneNoteApplication.ComObject.GetSpecialLocation(specialLocation, out unfiledNotesPath);
 
 			string notebookXml = "";
-			oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+			oneNoteApplication.ComObject.GetHierarchy("", OneNote.HierarchyScope.hsPages, out notebookXml, OneNote.XMLSchema.xs2010);
 			if(!string.IsNullOrEmpty(notebookXml)) {
 				LOG.Debug(notebookXml);
 				StringReader reader = null;
@@ -163,16 +167,43 @@ namespace Greenshot.Interop.Office {
 		}
 
 		/// <summary>
+		/// Call this to get the running Excel application, returns null if there isn't any.
+		/// </summary>
+		/// <returns>ComDisposable for Excel.Application or null</returns>
+		private static IDisposableCom<OneNote.Application> GetOneNoteApplication() {
+			IDisposableCom<OneNote.Application> oneNoteApplication = null;
+			try {
+				oneNoteApplication = DisposableCom.Create((OneNote.Application)Marshal.GetActiveObject("OneNote.Application"));
+			} catch (Exception) {
+				// Ignore, probably no OneNote running
+				return null;
+			}
+			return oneNoteApplication;
+		}
+
+		/// <summary>
+		/// Call this to get the running OneNote application, or create a new instance
+		/// </summary>
+		/// <returns>ComDisposable for OneNote.Application</returns>
+		private static IDisposableCom<OneNote.Application> GetOrCreateOneNoteApplication() {
+			IDisposableCom<OneNote.Application> oneNoteApplication = GetOneNoteApplication();
+			if (oneNoteApplication == null) {
+				oneNoteApplication = DisposableCom.Create((OneNote.Application)new OneNote.Application());
+			}
+			return oneNoteApplication;
+		}
+
+		/// <summary>
 		/// Get the captions of all the open word documents
 		/// </summary>
 		/// <returns></returns>
 		public static List<OneNotePage> GetPages() {
 			List<OneNotePage> pages = new List<OneNotePage>();
 			try {
-				using (IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
+				using (var oneNoteApplication = GetOrCreateOneNoteApplication()) {
 					if (oneNoteApplication != null) {
 						string notebookXml = "";
-						oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+						oneNoteApplication.ComObject.GetHierarchy("", OneNote.HierarchyScope.hsPages, out notebookXml, OneNote.XMLSchema.xs2010);
 						if (!string.IsNullOrEmpty(notebookXml)) {
 							LOG.Debug(notebookXml);
 							StringReader reader = null;
@@ -241,5 +272,42 @@ namespace Greenshot.Interop.Office {
 			});
 			return pages;
 		}
+	}
+
+	/// <summary>
+	/// Container for transporting Page information
+	/// </summary>
+	public class OneNotePage {
+		public OneNoteSection Parent { get; set; }
+		public string Name { get; set; }
+		public string ID { get; set; }
+		public bool IsCurrentlyViewed { get; set; }
+		public string DisplayName {
+			get {
+				OneNoteNotebook notebook = Parent.Parent;
+				if (string.IsNullOrEmpty(notebook.Name)) {
+					return string.Format("{0} / {1}", Parent.Name, Name);
+				} else {
+					return string.Format("{0} / {1} / {2}", Parent.Parent.Name, Parent.Name, Name);
+				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Container for transporting section information
+	/// </summary>
+	public class OneNoteSection {
+		public OneNoteNotebook Parent { get; set; }
+		public string Name { get; set; }
+		public string ID { get; set; }
+	}
+
+	/// <summary>
+	/// Container for transporting notebook information
+	/// </summary>
+	public class OneNoteNotebook {
+		public string Name { get; set; }
+		public string ID { get; set; }
 	}
 }
