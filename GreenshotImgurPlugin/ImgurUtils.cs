@@ -138,6 +138,12 @@ namespace GreenshotImgurPlugin {
 						}
 						LogRateLimitInfo(response);
 					}
+				} catch (WebException webEx) {
+					using (var stream = webEx.Response.GetResponseStream())
+					using (var reader = new StreamReader(stream)) {
+						LOG.ErrorFormat("Upload to imgur gave an exeption: {0}", reader.ReadToEnd());
+					}
+					LogRateLimitInfo(webEx.Response);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
 					throw;

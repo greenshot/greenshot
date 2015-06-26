@@ -31,8 +31,8 @@ using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 namespace GreenshotOfficePlugin.OfficeExport {
 	public class PowerpointExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointExporter));
-		private static Version _powerpointVersion;
 		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static Version _powerpointVersion;
 
 		private static bool IsAfter2003() {
 			return _powerpointVersion.Major > (int)OfficeVersion.OFFICE_2003;

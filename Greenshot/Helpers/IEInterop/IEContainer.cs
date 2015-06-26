@@ -18,17 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
+using GreenshotPlugin.Core;
+using log4net;
+using mshtml;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
-using log4net;
 using IServiceProvider = Greenshot.Interop.IServiceProvider;
-using mshtml;
 
 namespace Greenshot.Helpers.IEInterop {
 	public class DocumentContainer {

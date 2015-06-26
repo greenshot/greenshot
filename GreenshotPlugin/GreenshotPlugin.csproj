@@ -71,7 +71,6 @@
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />
-    <Compile Include="Interop\Base.cs" />
     <Compile Include="Interop\DisposableCom.cs" />
     <Compile Include="Interop\ComProgIdAttribute.cs" />
     <Compile Include="Interop\COMWrapper.cs" />
