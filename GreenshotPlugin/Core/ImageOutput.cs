@@ -123,19 +123,16 @@ namespace GreenshotPlugin.Core {
 						imageFormat = ImageFormat.Tiff;
 						break;
 					default:
-						// Problem with non-seekable streams most likely doesn't happen with Windows 7 (OS Version 6.1 and later)
-						// http://stackoverflow.com/questions/8349260/generic-gdi-error-on-one-machine-but-not-the-other
-						if (!stream.CanSeek) {
-							int majorVersion = Environment.OSVersion.Version.Major;
-							int minorVersion = Environment.OSVersion.Version.Minor;
-							if (majorVersion < 6 || (majorVersion == 6 && minorVersion == 0)) {
-								useMemoryStream = true;
-								LOG.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
-							}
-						}
 						imageFormat = ImageFormat.Png;
 						break;
 				}
+				// Problem with non-seekable streams most likely doesn't happen with Windows 7 (OS Version 6.1 and later)
+				// http://stackoverflow.com/questions/8349260/generic-gdi-error-on-one-machine-but-not-the-other
+				if (!stream.CanSeek) {
+					useMemoryStream = true;
+					LOG.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
+				}
+				
 				LOG.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
 
 				// Check if we want to use a memory stream, to prevent a issue which happens with Windows before "7".

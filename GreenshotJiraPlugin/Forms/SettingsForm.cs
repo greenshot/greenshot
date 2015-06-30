@@ -27,6 +27,15 @@ namespace GreenshotJiraPlugin {
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : JiraFormBase {
+		public string Url {
+			get {
+				return textBoxUrl.Text;
+			}
+			set {
+				textBoxUrl.Text = value;
+			}
+		}
+
 		public SettingsForm(JiraConfiguration config) :base () {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.

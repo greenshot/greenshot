@@ -18,9 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.Windows.Forms;
+
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using System;
+using System.Windows.Forms;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
@@ -28,23 +30,53 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	[IniSection("Jira", Description="Greenshot Jira Plugin configuration")]
 	public class JiraConfiguration : IniSection {
-		public const string DEFAULT_PREFIX = "http://";
-		private const string DEFAULT_URL = DEFAULT_PREFIX + "jira" + Jira.JiraConnector.DEFAULT_POSTFIX;
+		[IniProperty("RestUrl", Description = "Rest Url to Jira system", DefaultValue="https://jira")]
+		public string RestUrl {
+			get;
+			set;
+		}
 
-		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue=DEFAULT_URL)]
-		public string Url;
+		[IniProperty("Username", Description = "Username for Jira system")]
+		public string Username {
+			get;
+			set;
+		}
+
+		[IniProperty("Password", Description = "Password for Jira system", Encrypted = true)]
+		public string Password {
+			get;
+			set;
+		}
+
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
-		public int Timeout;
+		public int Timeout {
+			get;
+			set;
+		}
 		
 		[IniProperty("LastUsedJira", Description="Last used Jira")]
-		public string LastUsedJira;
+		public string LastUsedJira {
+			get;
+			set;
+		}
 
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		public OutputFormat UploadFormat {
+			get;
+			set;
+		}
+
+		[IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
+		public int UploadJpegQuality {
+			get;
+			set;
+		}
+
 		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
-		public bool UploadReduceColors;
+		public bool UploadReduceColors {
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// A form for username/password
@@ -58,5 +90,19 @@ namespace GreenshotJiraPlugin {
 			}
 			return false;
 		}
+
+		/// <summary>
+		/// Supply values we can't put as defaults
+		/// </summary>
+		/// <param name="property">The property to return a default for</param>
+		/// <returns>object with the default value for the supplied property</returns>
+		public override object GetDefault(string property) {
+			switch (property) {
+				case "Username":
+					return Environment.UserName;
+			}
+			return null;
+		}
+
 	}
 }

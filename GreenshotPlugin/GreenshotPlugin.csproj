@@ -69,6 +69,7 @@
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
+    <Compile Include="Core\TitleChangeMonitor.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />
     <Compile Include="Interop\DisposableCom.cs" />
