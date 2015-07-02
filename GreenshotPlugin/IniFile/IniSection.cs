@@ -18,14 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
+using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using log4net;
 
-namespace Greenshot.IniFile {
+namespace GreenshotPlugin.IniFile {
 	/// <summary>
 	/// Base class for all IniSections
 	/// </summary>
@@ -34,15 +36,15 @@ namespace Greenshot.IniFile {
 		protected static ILog LOG = LogManager.GetLogger(typeof(IniSection));
 
 		[NonSerialized]
-		private IDictionary<string, IniValue> values = new Dictionary<string, IniValue>();
+		private readonly IDictionary<string, IniValue> _values = new Dictionary<string, IniValue>();
 		[NonSerialized]
-		private IniSectionAttribute iniSectionAttribute = null;
+		private IniSectionAttribute _iniSectionAttribute;
 		public IniSectionAttribute IniSectionAttribute {
 			get {
-				if (iniSectionAttribute == null) {
-					iniSectionAttribute = GetIniSectionAttribute(GetType());
+				if (_iniSectionAttribute == null) {
+					_iniSectionAttribute = GetIniSectionAttribute(GetType());
 				}
-				return iniSectionAttribute;
+				return _iniSectionAttribute;
 			}
 		}
 
@@ -51,7 +53,7 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		public IDictionary<string, IniValue> Values {
 			get {
-				return values;
+				return _values;
 			}
 		}
 

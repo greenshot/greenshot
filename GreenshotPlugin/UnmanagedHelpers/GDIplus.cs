@@ -21,9 +21,7 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Security;
 using log4net;
-using Microsoft.Win32.SafeHandles;
 using System.Reflection;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;

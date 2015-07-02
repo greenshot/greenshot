@@ -20,7 +20,7 @@
  */
 
 using Greenshot.IniFile;
-using Greenshot.Interop;
+using GreenshotPlugin.Interop;
 using Microsoft.Office.Core;
 using System;
 using System.Collections.Generic;
@@ -30,15 +30,15 @@ using Word = Microsoft.Office.Interop.Word;
 namespace GreenshotOfficePlugin.OfficeExport {
 	public class WordExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
-		private static Version wordVersion = null;
-		private static OfficeConfiguration config = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static Version _wordVersion;
+		private static readonly OfficeConfiguration Config = IniConfig.GetIniSection<OfficeConfiguration>();
 
 		/// <summary>
 		/// Check if the used version is higher than Office 2003
 		/// </summary>
 		/// <returns></returns>
-		private static bool isAfter2003() {
-			return wordVersion.Major > (int)OfficeVersion.OFFICE_2003;
+		private static bool IsAfter2003() {
+			return _wordVersion.Major > (int)OfficeVersion.OFFICE_2003;
 		}
 
 		/// <summary>
@@ -73,7 +73,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// <param name="wordApplication"></param>
 		/// <param name="wordDocument"></param>
 		/// <param name="tmpFile"></param>
-		/// <param name="adress">link for the image</param>
+		/// <param name="address"></param>
 		/// <param name="tooltip">tooltip of the image</param>
 		/// <returns></returns>
 		internal static bool InsertIntoExistingDocument(IDisposableCom<Word.Application> wordApplication, IDisposableCom<Word._Document> wordDocument, string tmpFile, string address, string tooltip) {
@@ -81,6 +81,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 			// Solution: Make sure the selected document is active, otherwise the insert will be made in a different document!
 			try {
 				wordDocument.ComObject.Activate();
+// ReSharper disable once EmptyGeneralCatchClause
 			} catch {
 			}
 			using (var selection = DisposableCom.Create(wordApplication.ComObject.Selection)) {
@@ -122,10 +123,12 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				}
 				try {
 					wordApplication.ComObject.Activate();
+// ReSharper disable once EmptyGeneralCatchClause
 				} catch {
 				}
 				try {
 					wordDocument.ComObject.Activate();
+// ReSharper disable once EmptyGeneralCatchClause
 				} catch {
 				}
 				return true;
@@ -142,7 +145,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 			using (var shapes = DisposableCom.Create(selection.ComObject.InlineShapes)) {
 				var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, false, true, Type.Missing));
 				// Lock aspect ratio
-				if (config.WordLockAspectRatio) {
+				if (Config.WordLockAspectRatio) {
 					shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
 				}
 				selection.ComObject.InsertAfter("\r\n");
@@ -187,12 +190,14 @@ namespace GreenshotOfficePlugin.OfficeExport {
 						}
 						try {
 							wordDocument.ComObject.Activate();
+// ReSharper disable once EmptyGeneralCatchClause
 						} catch {
 						}
 						try {
 							using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow)) {
 								activeWindow.ComObject.Activate();
 							}
+// ReSharper disable once EmptyGeneralCatchClause
 						} catch {
 						}
 					}
@@ -215,7 +220,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 							if (document.ComObject.ReadOnly) {
 								continue;
 							}
-							if (isAfter2003()) {
+							if (IsAfter2003()) {
 								if (document.ComObject.Final) {
 									continue;
 								}
@@ -234,7 +239,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// </summary>
 		/// <returns>ComDisposable for Word.Application or null</returns>
 		private static IDisposableCom<Word.Application> GetWordApplication() {
-			IDisposableCom<Word.Application> wordApplication = null;
+			IDisposableCom<Word.Application> wordApplication;
 			try {
 				wordApplication = DisposableCom.Create((Word.Application)Marshal.GetActiveObject("Word.Application"));
 			} catch (Exception) {
@@ -265,16 +270,16 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// </summary>
 		/// <param name="wordApplication"></param>
 		private static void InitializeVariables(IDisposableCom<Word.Application> wordApplication) {
-			if (wordApplication == null || wordApplication.ComObject == null || wordVersion != null) {
+			if (wordApplication == null || wordApplication.ComObject == null || _wordVersion != null) {
 				return;
 			}
 			try {
-				wordVersion = new Version(wordApplication.ComObject.Version);
-				LOG.InfoFormat("Using Word {0}", wordVersion);
+				_wordVersion = new Version(wordApplication.ComObject.Version);
+				LOG.InfoFormat("Using Word {0}", _wordVersion);
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
 				LOG.Warn("Assuming Word version 1997.");
-				wordVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+				_wordVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 	}

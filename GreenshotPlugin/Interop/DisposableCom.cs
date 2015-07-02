@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Interop {
+namespace GreenshotPlugin.Interop {
 	/// <summary>
 	/// A simple com wrapper which helps with "using"
 	/// </summary>
@@ -37,7 +37,6 @@ namespace Greenshot.Interop {
 	/// <summary>
 	/// A factory for IDisposableCom
 	/// </summary>
-	/// <typeparam name="T">Type to wrap</typeparam>
 	public static class DisposableCom {
 		/// <summary>
 		/// Create a ComDisposable for the supplied type object
@@ -46,7 +45,8 @@ namespace Greenshot.Interop {
 		/// <param name="obj"></param>
 		/// <returns></returns>
 		public static IDisposableCom<T> Create<T>(T obj) {
-			if (obj != null) {
+			if (!Equals(obj, default(T)))
+			{
 				return new DisposableComImplementation<T>(obj);
 			}
 			return null;
@@ -80,11 +80,13 @@ namespace Greenshot.Interop {
 		/// </summary>
 		/// <param name="disposing"><see langword="true"/> if this was called from the<see cref="IDisposable"/> interface.</param>
 		private void Dispose(bool disposing) {
-			if (true) {
+			if (disposing)
+			{
 				// Do not catch an exception from this.
 				// You may want to remove these guards depending on
 				// what you think the semantics should be.
-				if (ComObject != null && Marshal.IsComObject(ComObject)) {
+				if (!Equals(ComObject, default(T)) && Marshal.IsComObject(ComObject))
+				{
 					Marshal.ReleaseComObject(ComObject);
 				}
 				ComObject = default(T);

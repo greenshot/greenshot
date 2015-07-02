@@ -23,6 +23,7 @@ using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using System;
 using System.Windows.Forms;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>

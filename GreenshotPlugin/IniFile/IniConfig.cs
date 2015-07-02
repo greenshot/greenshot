@@ -24,6 +24,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using GreenshotPlugin.IniFile;
 using log4net;
 
 namespace Greenshot.IniFile {

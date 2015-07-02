@@ -21,6 +21,7 @@
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotFlickrPlugin {
 	public enum SafetyLevel {

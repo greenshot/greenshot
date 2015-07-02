@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
+using GreenshotPlugin.IniFile;
 using log4net;
 
 namespace Greenshot.IniFile {

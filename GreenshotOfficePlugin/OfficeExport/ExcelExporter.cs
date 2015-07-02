@@ -19,8 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
-using Greenshot.Interop;
+using GreenshotPlugin.Interop;
 using Microsoft.Office.Core;
 using System;
 using System.Collections.Generic;
@@ -34,8 +33,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 	/// </summary>
 	public class ExcelExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
-		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
-		private static Version excelVersion;
+		private static Version _excelVersion;
 
 		/// <summary>
 		/// Get all currently opened workbooks
@@ -63,6 +61,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// </summary>
 		/// <param name="workbookName"></param>
 		/// <param name="tmpFile"></param>
+		/// <param name="imageSize"></param>
 		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize) {
 			using (var excelApplication = GetExcelApplication()) {
 				if (excelApplication == null || excelApplication.ComObject == null) {
@@ -133,10 +132,10 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// </summary>
 		/// <returns>ComDisposable for Excel.Application or null</returns>
 		private static IDisposableCom<Excel.Application> GetExcelApplication() {
-			IDisposableCom<Excel.Application> excelApplication = null;
+			IDisposableCom<Excel.Application> excelApplication;
 			try {
 				excelApplication = DisposableCom.Create((Excel.Application)Marshal.GetActiveObject("Excel.Application"));
-			} catch (Exception) {
+			} catch {
 				// Ignore, probably no excel running
 				return null;
 			}
@@ -164,16 +163,16 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// </summary>
 		/// <param name="excelApplication"></param>
 		private static void InitializeVariables(IDisposableCom<Excel.Application> excelApplication) {
-			if (excelApplication == null || excelApplication.ComObject == null || excelVersion != null) {
+			if (excelApplication == null || excelApplication.ComObject == null || _excelVersion != null) {
 				return;
 			}
 			try {
-				excelVersion = new Version(excelApplication.ComObject.Version);
-				LOG.InfoFormat("Using Excel {0}", excelVersion);
+				_excelVersion = new Version(excelApplication.ComObject.Version);
+				LOG.InfoFormat("Using Excel {0}", _excelVersion);
 			} catch (Exception exVersion) {
 				LOG.Error(exVersion);
 				LOG.Warn("Assuming Excel version 1997.");
-				excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+				_excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 	}

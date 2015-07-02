@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using Greenshot.Interop;
-using GreenshotOCR;
 
 namespace GreenshotOCRCommand {
 	public class Program {

@@ -27,7 +27,6 @@ using System.Windows.Input;
 using System.Windows.Threading;
 
 using Confluence;
-using GreenshotPlugin.Core;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>

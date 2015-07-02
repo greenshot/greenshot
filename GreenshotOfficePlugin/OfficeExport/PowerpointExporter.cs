@@ -20,7 +20,7 @@
  */
 
 using Greenshot.IniFile;
-using Greenshot.Interop;
+using GreenshotPlugin.Interop;
 using Microsoft.Office.Core;
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 namespace GreenshotOfficePlugin.OfficeExport {
 	public class PowerpointExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointExporter));
-		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
 		private static Version _powerpointVersion;
 
 		private static bool IsAfter2003() {
@@ -133,7 +133,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 					bool hasScaledHeight = false;
 					try {
 						using (var slides = DisposableCom.Create(presentation.ComObject.Slides)) {
-							slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, officeConfiguration.PowerpointSlideLayout));
+							slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, OfficeConfig.PowerpointSlideLayout));
 						}
 
 						using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
@@ -166,7 +166,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 					}
 					using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
 					using (var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height))) {
-						if (officeConfiguration.PowerpointLockAspectRatio) {
+						if (OfficeConfig.PowerpointLockAspectRatio) {
 							shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
 						} else {
 							shape.ComObject.LockAspectRatio = MsoTriState.msoFalse;
@@ -266,7 +266,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		/// </summary>
 		/// <returns>ComDisposable for PowerPoint.Application or null</returns>
 		private static IDisposableCom<PowerPoint.Application> GetPowerPointApplication() {
-			IDisposableCom<PowerPoint.Application> powerPointApplication = null;
+			IDisposableCom<PowerPoint.Application> powerPointApplication;
 			try {
 				powerPointApplication = DisposableCom.Create((PowerPoint.Application)Marshal.GetActiveObject("PowerPoint.Application"));
 			} catch (Exception) {

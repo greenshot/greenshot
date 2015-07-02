@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-
-using GreenshotConfluencePlugin;
-using GreenshotPlugin.Core;
+﻿using GreenshotPlugin.Core;
 
 namespace TranslationByMarkupExtension {
     /// <summary>

@@ -21,6 +21,7 @@
 using System;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>

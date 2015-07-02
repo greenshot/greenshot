@@ -22,7 +22,6 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Memento;
-using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using System;
 using System.ComponentModel;

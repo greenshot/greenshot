@@ -22,7 +22,6 @@
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace Greenshot.Controls {

@@ -21,9 +21,7 @@
 
 using System;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.IniFile;
 using log4net;
 
 namespace GreenshotPlugin.Controls {

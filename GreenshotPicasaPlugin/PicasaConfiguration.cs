@@ -21,6 +21,7 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using System;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotPicasaPlugin {
 	/// <summary>
