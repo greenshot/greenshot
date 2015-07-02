@@ -252,7 +252,8 @@ Function PackageInstaller {
 # This function tags the current 
 Function TagCode {
 	Write-Host "Add remote via git, so SSH key works"
-	git remote add tagorigin git@bitbucket.org:greenshot/greenshot.git
+	git remote add tagoriginbitbucket git@bitbucket.org:greenshot/greenshot.git
+	git remote add tagorigingithub git@github.com:greenshot/greenshot.git
 	Write-Host "Setting id_rsa with the content from environment rsakey so we can push a tag"
 	# Write the RSA key contents from the AppVeyor rsakey UI ENV variable to the private key file
 	$key = $env:rsakey
@@ -268,7 +269,8 @@ Function TagCode {
 	Write-Host "Tagging repo with $fileversion"
 	git tag -a $fileversion -m 'Build from AppVeyor'
 	Write-Host "Pushing tag $fileversion to remote"
-	git push tagorigin $fileversion
+	git push tagoriginbitbucket $fileversion
+	git push tagorigingithub $fileversion
 	return
 }
 
