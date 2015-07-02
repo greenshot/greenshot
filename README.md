@@ -24,22 +24,26 @@ About this repository
 This repository has all the sources of Greenshot, but we have multiple branches of which two should be important to know about:
 
 **1.1**
-Greenshot 1.1.x can be found in the 1.1 branch, this branch represents the current release.
+Greenshot 1.1.x can be found in the 1.1 branch, this is obsolee
 
 **1.2**
-Greenshot 1.2.x can be found in the 1.2 branch, this branch will be coming soon.
-But it mostly has a few more bug fixes and changes as are in our Greenshot release, as we collect multiple fixes before releasing.
-1.2 is a "dying" branch, as we want to change a lot of the underlying application for 2.0 and most of Greenshot will need to be rewritten.
-This means pull request with fixes or **small** changes are very welcome!
+Greenshot 1.2.x can be found in the 1.2 branch, this is the current release.
 
-We now have a continuous integration system, you can find the latest unstable 1.2 builds [here](https://ci.appveyor.com/project/Greenshot/greenshot/history)
+**1.3**
+Greenshot 1.3.x can be found in the 1.3 branch, this branch will be coming soon.
+With 1.3 we upgraded the .NET Framework Greenshot uses, from 2.0 to 4.5 (and newer), to solve some installation issues and some bugs.
+We had to release a 1.3, as Greenshot 2 takes longer as planned and we couldn't fix some issues in 1.2
+1.3 is a "dying" branch, as we want to change a lot of the underlying application for 2.0 and most of Greenshot will need to be rewritten.
+Still pull request with fixes or **small** changes are very welcome!
 
-Current build status 1.2 branch: ![Unknown](https://ci.appveyor.com/api/projects/status/yh4jnjbo03qrl60d/branch/1.2?svg=true)
+You can find the latest release and unstable builds [here](https://github.com/greenshot/greenshot/releases)
+
+Current build status 1.3 branch: [![Build status](https://ci.appveyor.com/api/projects/status/xfqbi6xxd1b34gd0/branch/1.3?svg=true)](https://ci.appveyor.com/project/Greenshot/greenshot-mlwxt/branch/1.3)
 
 
 Developing for Greenshot
 ------------------------
-We develop Greenshot with Visual Studio Express 2013 and tested our solution on Visual Studio Professional 2012.
+We develop Greenshot with Visual Studio 2012 and tested our solution on Visual Studio Professional 2012.
 It should be possible to compile Greenshot directly after a checkout, eventually Visual Studio needs to upgrade the solution.
 What doesn't work are the plug-in for cloud storage (like Box, Dropbox, Imgur, Picasa and Photobucket) as these need "API keys".
 These keys are not in our Greenshot repository, if you want to develop on one of the plug-ins you will need to create you own keys by registering with theses services as a developer.
