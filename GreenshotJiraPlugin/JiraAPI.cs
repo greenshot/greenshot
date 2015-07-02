@@ -75,6 +75,7 @@ namespace GreenshotJiraPlugin {
 			_client = new HttpClient(handler) {
 				BaseAddress = new Uri(baseurl)
 			};
+			_client.DefaultRequestHeaders.TryAddWithoutValidation("X-Atlassian-Token", "nocheck");
 		}
 
 		/// <summary>
