@@ -801,7 +801,7 @@ namespace Greenshot.Helpers {
 					windowCaptureMode = WindowCaptureMode.Screen;
 
 					// Change to GDI, if allowed
-					if (!windowToCapture.isMetroApp && WindowCapture.IsGdiAllowed(process)) {
+					if (!windowToCapture.IsMetroApp && WindowCapture.IsGdiAllowed(process)) {
 						if (!dwmEnabled && isWPF(process)) {
 							// do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
 							LOG.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
@@ -812,12 +812,12 @@ namespace Greenshot.Helpers {
 
 					// Change to DWM, if enabled and allowed
 					if (dwmEnabled) {
-						if (windowToCapture.isMetroApp || WindowCapture.IsDwmAllowed(process)) {
+						if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process)) {
 							windowCaptureMode = WindowCaptureMode.Aero;
 						}
 					}
 				} else if (windowCaptureMode == WindowCaptureMode.Aero || windowCaptureMode == WindowCaptureMode.AeroTransparent) {
-					if (!dwmEnabled || (!windowToCapture.isMetroApp && !WindowCapture.IsDwmAllowed(process))) {
+					if (!dwmEnabled || (!windowToCapture.IsMetroApp && !WindowCapture.IsDwmAllowed(process))) {
 						// Take default screen
 						windowCaptureMode = WindowCaptureMode.Screen;
 						// Change to GDI, if allowed
@@ -896,7 +896,7 @@ namespace Greenshot.Helpers {
 							break;
 						case WindowCaptureMode.Aero:
 						case WindowCaptureMode.AeroTransparent:
-							if (windowToCapture.isMetroApp || WindowCapture.IsDwmAllowed(process)) {
+							if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process)) {
 								tmpCapture = windowToCapture.CaptureDWMWindow(captureForWindow, windowCaptureMode, isAutoMode);
 							}
 							if (tmpCapture != null) {

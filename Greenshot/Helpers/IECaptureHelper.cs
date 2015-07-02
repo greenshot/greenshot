@@ -347,10 +347,30 @@ namespace Greenshot.Helpers {
 			if (windowToCapture == null) {
 				windowToCapture = WindowDetails.GetActiveWindow();
 			}
+
+			bool isScreenCapture = configuration.IECaptureMode == WindowCaptureMode.Screen;
+			WindowDetails topWindow = null;
+			Point oldTopWindowLocation = Point.Empty;
+
+			// Check if we capture from the screen, if this is the case we need to make sure the window is visible.
+			if (isScreenCapture) {
+				topWindow = windowToCapture;
+				while (topWindow.HasParent) {
+					topWindow = topWindow.GetParent();
+				}
+				// TODO: Z-Order needs to be restored!
+				topWindow.ToForeground();
+				oldTopWindowLocation = topWindow.Location;
+				Point newLocation;
+				if (!topWindow.Maximised && topWindow.GetVisibleLocation(out newLocation)) {
+					topWindow.Location = newLocation;
+				}
+			}
+
 			// Show backgroundform after retrieving the active window..
 			BackgroundForm backgroundForm = null;
 			// do not show the please wait when we capture from the screen
-			if (configuration.IECaptureMode != WindowCaptureMode.Screen) {
+			if (!isScreenCapture) {
 				backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
 				backgroundForm.Show();
 			}
@@ -471,6 +491,9 @@ namespace Greenshot.Helpers {
 					// Always close the background form
 					backgroundForm.CloseDialog();
 				}
+				if (topWindow != null && !topWindow.Maximised) {
+					topWindow.Location = oldTopWindowLocation;
+				}
 			}
 			return capture;
 		}
@@ -569,6 +592,7 @@ namespace Greenshot.Helpers {
 		private static Bitmap CapturePage(DocumentContainer documentContainer, ICapture capture, Size pageSize) {
 			WindowDetails contentWindowDetails = documentContainer.ContentWindow;
 
+
 			//Create a target bitmap to draw into with the calculated page size
 			Bitmap returnBitmap = new Bitmap(pageSize.Width, pageSize.Height, PixelFormat.Format24bppRgb);
 			using (Graphics graphicsTarget = Graphics.FromImage(returnBitmap)) {
@@ -579,18 +603,19 @@ namespace Greenshot.Helpers {
 
 				// Get the base document & draw it
 				DrawDocument(documentContainer, contentWindowDetails, graphicsTarget);
-				
+
 				// Loop over the frames and clear their source area so we don't see any artefacts
-				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
-					using(Brush brush = new SolidBrush(clearColor)) {
+				foreach (DocumentContainer frameDocument in documentContainer.Frames) {
+					using (Brush brush = new SolidBrush(clearColor)) {
 						graphicsTarget.FillRectangle(brush, frameDocument.SourceRectangle);
 					}
 				}
 				// Loop over the frames and capture their content
-				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
+				foreach (DocumentContainer frameDocument in documentContainer.Frames) {
 					DrawDocument(frameDocument, contentWindowDetails, graphicsTarget);
 				}
 			}
+
 			return returnBitmap;
 		}
 

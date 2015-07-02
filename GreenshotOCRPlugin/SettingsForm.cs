@@ -42,11 +42,10 @@ namespace GreenshotOCR {
 			// Preventing Tracker #3234560, although this should not happen...
 			string languageFromConfig = "ENGLISH";
 			if (config.Language != null) {
-				languageFromConfig = config.Language.Replace("miLANG_", "");
+				languageFromConfig = config.Language;
 			}
 			foreach(string availableLanguage in languages) {
-				var currentLanguage = availableLanguage.Replace("miLANG_", "");
-				string displayLanguage = currentLanguage.Substring(0, 1).ToUpper() + currentLanguage.Substring(1).ToLower();
+				string displayLanguage = availableLanguage.Substring(0, 1).ToUpper() + availableLanguage.Substring(1).ToLower();
 				comboBox_languages.Items.Add(displayLanguage);
 				if (availableLanguage.Equals(languageFromConfig, StringComparison.CurrentCultureIgnoreCase)) {
 					comboBox_languages.SelectedIndex = index;
