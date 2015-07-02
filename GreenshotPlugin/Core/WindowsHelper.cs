@@ -904,6 +904,14 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Simple screen capture for the Window
+		/// </summary>
+		/// <returns></returns>
+		public Bitmap CaptureFromScreen() {
+			return WindowCapture.CaptureRectangle(WindowRectangle);
+		}
+
+		/// <summary>
 		/// Capture DWM Window
 		/// </summary>
 		/// <param name="capture">Capture to fill</param>
@@ -911,6 +919,21 @@ namespace GreenshotPlugin.Core {
 		/// <param name="autoMode">True if auto modus is used</param>
 		/// <returns>ICapture with the capture</returns>
 		public ICapture CaptureDWMWindow(ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode) {
+			capture.Image = DwmCapture(windowCaptureMode, autoMode, capture.ScreenBounds);
+			// Make sure the capture location is the location of the window, not the copy
+			capture.Location = Location;
+
+			return capture;
+		}
+
+		/// <summary>
+		/// Capture DWM Window
+		/// </summary>
+		/// <param name="capture">Capture to fill</param>
+		/// <param name="windowCaptureMode">Wanted WindowCaptureMode</param>
+		/// <param name="autoMode">True if auto modus is used</param>
+		/// <returns>ICapture with the capture</returns>
+		public Bitmap DwmCapture(WindowCaptureMode windowCaptureMode, bool autoMode, Rectangle screenbounds) {
 			IntPtr thumbnailHandle = IntPtr.Zero;
 			Form tempForm = null;
 			bool tempFormShown = false;
@@ -1002,9 +1025,11 @@ namespace GreenshotPlugin.Core {
 				tempForm.Show();
 				tempFormShown = true;
 
-				// Intersect with screen
-				captureRectangle.Intersect(capture.ScreenBounds);
-				
+				if (screenbounds != Rectangle.Empty) {
+					// Intersect with screen
+					captureRectangle.Intersect(screenbounds);
+				}
+
 				// Destination bitmap for the capture
 				Bitmap capturedBitmap = null;
 				bool frozen = false;
@@ -1052,7 +1077,7 @@ namespace GreenshotPlugin.Core {
 							Color colorizationColor = DWM.ColorizationColor;
 							// Modify by losing the transparency and increasing the intensity (as if the background color is white)
 							colorizationColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
-							tempForm.BackColor = colorizationColor; 
+							tempForm.BackColor = colorizationColor;
 						}
 						// Make sure everything is visible
 						tempForm.Refresh();
@@ -1087,10 +1112,8 @@ namespace GreenshotPlugin.Core {
 						UnfreezeWindow();
 					}
 				}
-				
-				capture.Image = capturedBitmap;
-				// Make sure the capture location is the location of the window, not the copy
-				capture.Location = Location;
+
+				return capturedBitmap;
 			} finally {
 				if (thumbnailHandle != IntPtr.Zero) {
 					// Unregister (cleanup), as we are finished we don't need the form or the thumbnail anymore
@@ -1104,8 +1127,6 @@ namespace GreenshotPlugin.Core {
 					tempForm = null;
 				}
 			}
-
-			return capture;
 		}
 
 		/// <summary>

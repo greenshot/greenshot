@@ -143,7 +143,7 @@ namespace Greenshot.Helpers {
 						} else if (configuration.WindowClassesToCheckForIE != null && configuration.WindowClassesToCheckForIE.Contains(ieWindow.ClassName)) {
 							List<string> singleWindowText = new List<string>();
 							try {
-								IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
+								IHTMLDocument2 document2 = GetHTMLDocument(ieWindow);
 								string title = document2.title;
 								Marshal.ReleaseComObject(document2);
 								if (string.IsNullOrEmpty(title)) {
@@ -177,7 +177,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="mainWindow"></param>
 		/// <returns></returns>
-		private static IHTMLDocument2 getHTMLDocument(WindowDetails mainWindow) {
+		private static IHTMLDocument2 GetHTMLDocument(WindowDetails mainWindow) {
 			WindowDetails ieServer;
 			if ("Internet Explorer_Server".Equals(mainWindow.ClassName)) {
 				ieServer = mainWindow;
@@ -249,7 +249,7 @@ namespace Greenshot.Helpers {
 
 				try {
 					// Get the Document
-					IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
+					IHTMLDocument2 document2 = GetHTMLDocument(ieWindow);
 					if (document2 == null) {
 						continue;
 					}
@@ -348,8 +348,12 @@ namespace Greenshot.Helpers {
 				windowToCapture = WindowDetails.GetActiveWindow();
 			}
 			// Show backgroundform after retrieving the active window..
-			BackgroundForm backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
-			backgroundForm.Show();
+			BackgroundForm backgroundForm = null;
+			// do not show the please wait when we capture from the screen
+			if (configuration.IECaptureMode != WindowCaptureMode.Screen) {
+				backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
+				backgroundForm.Show();
+			}
 			//BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(LangKey.contextmenu_captureie), language.GetString(LangKey.wait_ie_capture));
 			DocumentContainer documentContainer = null;
 			try {
@@ -373,7 +377,7 @@ namespace Greenshot.Helpers {
 				Bitmap returnBitmap = null;
 				try {
 					Size pageSize = PrepareCapture(documentContainer, capture);
-					returnBitmap = capturePage(documentContainer, capture, pageSize);
+					returnBitmap = CapturePage(documentContainer, capture, pageSize);
 				} catch (Exception captureException) {
 					LOG.Error("Exception found, ignoring and returning nothing! Error was: ", captureException);
 				}
@@ -463,8 +467,10 @@ namespace Greenshot.Helpers {
 				if (documentContainer != null) {
 					documentContainer.Dispose();
 				}
-				// Always close the background form
-				backgroundForm.CloseDialog();
+				if (backgroundForm != null) {
+					// Always close the background form
+					backgroundForm.CloseDialog();
+				}
 			}
 			return capture;
 		}
@@ -560,7 +566,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="documentContainer">The document wrapped in a container</param>
 		/// <returns>Bitmap with the page content as an image</returns>
-		private static Bitmap capturePage(DocumentContainer documentContainer, ICapture capture, Size pageSize) {
+		private static Bitmap CapturePage(DocumentContainer documentContainer, ICapture capture, Size pageSize) {
 			WindowDetails contentWindowDetails = documentContainer.ContentWindow;
 
 			//Create a target bitmap to draw into with the calculated page size
@@ -572,7 +578,7 @@ namespace Greenshot.Helpers {
 				graphicsTarget.Clear(clearColor);
 
 				// Get the base document & draw it
-				drawDocument(documentContainer, contentWindowDetails, graphicsTarget);
+				DrawDocument(documentContainer, contentWindowDetails, graphicsTarget);
 				
 				// Loop over the frames and clear their source area so we don't see any artefacts
 				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
@@ -582,7 +588,7 @@ namespace Greenshot.Helpers {
 				}
 				// Loop over the frames and capture their content
 				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
-					drawDocument(frameDocument, contentWindowDetails, graphicsTarget);
+					DrawDocument(frameDocument, contentWindowDetails, graphicsTarget);
 				}
 			}
 			return returnBitmap;
@@ -594,7 +600,7 @@ namespace Greenshot.Helpers {
 		/// <param name="frameDocument"></param>
 		/// <param name="contentWindowDetails">Needed for referencing the location of the frame</param>
 		/// <returns>Bitmap with the capture</returns>
-		private static void drawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget) {
+		private static void DrawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget) {
 			documentContainer.setAttribute("scroll", 1);
 
 			//Get Browser Window Width & Height
@@ -642,7 +648,12 @@ namespace Greenshot.Helpers {
 					// Draw the captured fragment to the target, but "crop" the scrollbars etc while capturing 
 					Size viewPortSize = new Size(viewportWidth, viewportHeight);
 					Rectangle clientRectangle = new Rectangle(documentContainer.SourceLocation, viewPortSize);
-					Image fragment = contentWindowDetails.PrintWindow();
+					Image fragment;
+					if (configuration.IECaptureMode == WindowCaptureMode.Screen) {
+						fragment = contentWindowDetails.CaptureFromScreen();
+					} else {
+						fragment = contentWindowDetails.PrintWindow();
+					}
 					if (fragment != null) {
 						LOG.DebugFormat("Captured fragment size: {0}x{1}", fragment.Width, fragment.Height);
 						try {

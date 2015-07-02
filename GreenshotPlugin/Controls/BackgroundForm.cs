@@ -84,7 +84,9 @@ namespace GreenshotPlugin.Controls {
 		private void Timer_checkforcloseTick(object sender, EventArgs e) {
 			if (shouldClose) {
 				timer_checkforclose.Stop();
-				BeginInvoke(new EventHandler( delegate {Close();}));
+				if (Visible) {
+					BeginInvoke(new EventHandler(delegate { Close(); }));
+				}
 			}
 		}
 		
