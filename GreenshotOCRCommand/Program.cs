@@ -1,5 +1,27 @@
-﻿using System;
+﻿/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System;
 using System.IO;
+using MODI;
 
 namespace GreenshotOCRCommand {
 	public class Program {
@@ -12,9 +34,9 @@ namespace GreenshotOCRCommand {
 				return -1;
 			}
 			string filename = args[0];
-			ModiLanguage language = ModiLanguage.ENGLISH;
+			var language = MiLANGUAGES.miLANG_ENGLISH;
 			if (args.Length >= 2) {
-				language = (ModiLanguage)Enum.Parse(typeof(ModiLanguage), args[1]);
+				language = (MiLANGUAGES)Enum.Parse(typeof(MiLANGUAGES), "miLANG_" + args[1].Replace("miLANG_", ""));
 			}
 			bool orientimage = true;
 			if (args.Length >= 3) {
@@ -26,20 +48,22 @@ namespace GreenshotOCRCommand {
 			}
 			try {
 				if (File.Exists(filename) || "-c".Equals(filename)) {
-					using (ModiDocu modiDocument = COMWrapper.GetOrCreateInstance<ModiDocu>()) {
-						if (modiDocument == null) {
+					using (var document = DisposableCom.Create(new Document())) {
+						if (document == null) {
 							Console.WriteLine("MODI not installed");
 							return -2;
 						}
 						if ("-c".Equals(filename)) {
 							return 0;
 						}
-						modiDocument.Create(filename);
-						modiDocument.OCR(language, orientimage, straightenImage);
-						IImage modiImage = modiDocument.Images[0];
-						ILayout layout = modiImage.Layout;
-						Console.WriteLine(layout.Text);
-						modiDocument.Close(false);
+						document.ComObject.Create(filename);
+						document.ComObject.OCR(language, orientimage, straightenImage);
+						using (var image = DisposableCom.Create((IImage)document.ComObject.Images[0])) {
+							using (var layout = DisposableCom.Create(image.ComObject.Layout)) {
+								Console.WriteLine(layout.ComObject.Text);
+							}
+						}
+						document.ComObject.Close(false);
 						return 0;
 					}
 				}

@@ -184,7 +184,8 @@ namespace GreenshotOfficePlugin.OfficeExport
 					// Check inline "panel" for Outlook 2013
 					using (var activeExplorer = DisposableCom.Create((Outlook._Explorer)outlookApplication.ComObject.ActiveExplorer()))
 					{
-						if (activeExplorer != null)
+						// Only if we have one and if the capture is the one we selected
+						if (activeExplorer != null && activeExplorer.ComObject.Caption.StartsWith(inspectorCaption))
 						{
 							var untypedInlineResponse = activeExplorer.ComObject.ActiveInlineResponse;
 							using (DisposableCom.Create(untypedInlineResponse))

@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,34 +29,10 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.Core;
 
+using MODI;
 //using Microsoft.Win32;
 
 namespace GreenshotOCR {
-	// Needed for the drop down, available languages for OCR
-	public enum ModiLanguage {
-		CHINESE_SIMPLIFIED = 2052,
-		CHINESE_TRADITIONAL = 1028,
-		CZECH = 5,
-		DANISH = 6,
-		DUTCH = 19,
-		ENGLISH = 9,
-		FINNISH = 11,
-		FRENCH = 12,
-		GERMAN = 7,
-		GREEK = 8,
-		HUNGARIAN = 14,
-		ITALIAN = 16,
-		JAPANESE = 17,
-		KOREAN = 18,
-		NORWEGIAN = 20,
-		POLISH = 21,
-		PORTUGUESE = 22,
-		RUSSIAN = 25,
-		SPANISH = 10,
-		SWEDISH = 29,
-		TURKISH = 31,
-		SYSDEFAULT = 2048
-	}
 	/// <summary>
 	/// OCR Plugin Greenshot
 	/// </summary>
@@ -133,7 +110,7 @@ namespace GreenshotOCR {
 				MessageBox.Show("Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.");
 				return;
 			}
-			SettingsForm settingsForm = new SettingsForm(Enum.GetNames(typeof(ModiLanguage)), config);
+			SettingsForm settingsForm = new SettingsForm(Enum.GetNames(typeof(MiLANGUAGES)), config);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
 				// "Re"set hotkeys

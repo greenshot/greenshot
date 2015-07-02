@@ -57,10 +57,12 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>lib\Interop.MODI.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Compile Include="DisposableCom.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
