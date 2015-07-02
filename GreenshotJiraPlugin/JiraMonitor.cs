@@ -110,7 +110,8 @@ namespace GreenshotJiraPlugin {
 		/// <param name="username"></param>
 		/// <param name="password"></param>
 		public async void AddJiraInstance(string url, string username, string password, CancellationToken token = default(CancellationToken)) {
-			var jiraInstance = new JiraAPI(url, username, password);
+			var jiraInstance = new JiraAPI(url);
+			jiraInstance.SetBasicAuthentication(username, password);
 			var serverInfo = await jiraInstance.ServerInfo();
 			jiraInstance.ServerTitle = serverInfo.serverTitle;
 			jiraInstance.JiraVersion = serverInfo.version;

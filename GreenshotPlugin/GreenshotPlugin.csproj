@@ -49,15 +49,20 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="Accessibility" />
+    <Reference Include="Accessibility">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
     <Reference Include="CustomMarshalers" />
     <Reference Include="log4net">
       <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\AnimatingForm.cs">
@@ -67,6 +72,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Core\CaptureHandler.cs" />
+    <Compile Include="Core\DynamicJson.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\TitleChangeMonitor.cs" />

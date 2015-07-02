@@ -175,7 +175,6 @@ namespace GreenshotJiraPlugin {
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.LanguageKey = "settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
