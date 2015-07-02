@@ -63,7 +63,7 @@ namespace GreenshotOCR {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			exportInformation.ExportMade = plugin.DoOCR(surface) != null;
+			exportInformation.ExportMade = plugin.DoOcr(surface) != null;
 			return exportInformation;
 		}
 	}

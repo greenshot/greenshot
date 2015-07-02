@@ -23,51 +23,75 @@ using System;
 using System.IO;
 using MODI;
 
-namespace GreenshotOCRCommand {
-	public class Program {
-		private const string USAGE = "<-c> | <path to image.bmp> [language] [orientimage] [straightenImage]";
-		public static int Main(string[] args) {
+namespace GreenshotOCRCommand
+{
+	public class Program
+	{
+		private const string Usage = "<-c> | <path to image.bmp> [language] [orientimage] [straightenImage]";
+		public static int Main(string[] args)
+		{
 			// to test
-			//args = new string[] { @"C:\localdata\test.bmp"};
-			if (args.Length == 0) {
-				Console.WriteLine(USAGE);
+			// args = new[] { @"C:\localdata\test.bmp", "english" };
+			if (args.Length == 0)
+			{
+				Console.WriteLine(Usage);
 				return -1;
 			}
 			string filename = args[0];
 			var language = MiLANGUAGES.miLANG_ENGLISH;
-			if (args.Length >= 2) {
-				language = (MiLANGUAGES)Enum.Parse(typeof(MiLANGUAGES), "miLANG_" + args[1].Replace("miLANG_", ""));
+			if (args.Length >= 2)
+			{
+				try
+				{
+					language = (MiLANGUAGES)Enum.Parse(typeof(MiLANGUAGES), "miLANG_" + args[1].ToUpperInvariant().Replace("miLANG_", ""));
+				}
+// ReSharper disable once EmptyGeneralCatchClause
+				catch
+				{
+					// Ignore and take english
+				}
 			}
 			bool orientimage = true;
-			if (args.Length >= 3) {
+			if (args.Length >= 3)
+			{
 				orientimage = bool.Parse(args[2]);
 			}
 			bool straightenImage = true;
-			if (args.Length >= 4) {
+			if (args.Length >= 4)
+			{
 				straightenImage = bool.Parse(args[3]);
 			}
-			try {
-				if (File.Exists(filename) || "-c".Equals(filename)) {
-					using (var document = DisposableCom.Create(new Document())) {
-						if (document == null) {
+			try
+			{
+				if (File.Exists(filename) || "-c".Equals(filename))
+				{
+					using (var document = DisposableCom.Create(new Document()))
+					{
+						if (document == null)
+						{
 							Console.WriteLine("MODI not installed");
 							return -2;
 						}
-						if ("-c".Equals(filename)) {
+						if ("-c".Equals(filename))
+						{
 							return 0;
 						}
 						document.ComObject.Create(filename);
 						document.ComObject.OCR(language, orientimage, straightenImage);
-						using (var image = DisposableCom.Create((IImage)document.ComObject.Images[0])) {
-							using (var layout = DisposableCom.Create(image.ComObject.Layout)) {
+						using (var image = DisposableCom.Create((IImage)document.ComObject.Images[0]))
+						{
+							using (var layout = DisposableCom.Create(image.ComObject.Layout))
+							{
 								Console.WriteLine(layout.ComObject.Text);
 							}
 						}
-						document.ComObject.Close(false);
+						document.ComObject.Close();
 						return 0;
 					}
 				}
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				Console.WriteLine(ex.Message);
 			}
 			return -1;
