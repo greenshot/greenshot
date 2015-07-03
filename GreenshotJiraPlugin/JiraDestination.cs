@@ -28,13 +28,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Windows.Forms;
-using System.Linq;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
-	/// Description of JiraDestination.
+	/// Jira destination.
 	/// </summary>
 	public class JiraDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
@@ -100,7 +100,7 @@ namespace GreenshotJiraPlugin {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
+			string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			if (_jira != null) {
 				try {
