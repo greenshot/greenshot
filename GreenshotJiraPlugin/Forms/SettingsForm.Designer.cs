@@ -57,6 +57,8 @@ namespace GreenshotJiraPlugin {
 			this.textBoxPassword = new GreenshotPlugin.Controls.GreenshotTextBox();
 			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
 			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.label_pattern = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.pattern_textbox = new GreenshotPlugin.Controls.GreenshotTextBox();
 			this.SuspendLayout();
 			// 
 			// buttonOK
@@ -64,7 +66,7 @@ namespace GreenshotJiraPlugin {
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.buttonOK.LanguageKey = "OK";
-			this.buttonOK.Location = new System.Drawing.Point(224, 139);
+			this.buttonOK.Location = new System.Drawing.Point(224, 157);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 10;
@@ -75,11 +77,10 @@ namespace GreenshotJiraPlugin {
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.buttonCancel.LanguageKey = "CANCEL";
-			this.buttonCancel.Location = new System.Drawing.Point(305, 139);
+			this.buttonCancel.Location = new System.Drawing.Point(305, 157);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 11;
-			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// label_url
@@ -159,11 +160,32 @@ namespace GreenshotJiraPlugin {
 			this.label_upload_format.TabIndex = 9;
 			this.label_upload_format.Text = "Upload format";
 			// 
+			// label_pattern
+			// 
+			this.label_pattern.LanguageKey = "label_pattern";
+			this.label_pattern.Location = new System.Drawing.Point(12, 124);
+			this.label_pattern.Name = "label_pattern";
+			this.label_pattern.Size = new System.Drawing.Size(146, 20);
+			this.label_pattern.TabIndex = 12;
+			this.label_pattern.Text = "Filename pattern";
+			// 
+			// pattern_textbox
+			// 
+			this.pattern_textbox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.pattern_textbox.Location = new System.Drawing.Point(164, 124);
+			this.pattern_textbox.Name = "pattern_textbox";
+			this.pattern_textbox.PropertyName = "FilenamePattern";
+			this.pattern_textbox.SectionName = "Jira";
+			this.pattern_textbox.Size = new System.Drawing.Size(214, 20);
+			this.pattern_textbox.TabIndex = 13;
+			// 
 			// SettingsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(387, 174);
+			this.ClientSize = new System.Drawing.Size(387, 192);
+			this.Controls.Add(this.label_pattern);
+			this.Controls.Add(this.pattern_textbox);
 			this.Controls.Add(this.label_upload_format);
 			this.Controls.Add(this.combobox_uploadimageformat);
 			this.Controls.Add(this.label_url);
@@ -194,5 +216,7 @@ namespace GreenshotJiraPlugin {
 		private GreenshotPlugin.Controls.GreenshotLabel label_password;
 		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
 		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
+		private GreenshotPlugin.Controls.GreenshotLabel label_pattern;
+		private GreenshotPlugin.Controls.GreenshotTextBox pattern_textbox;
 	}
 }

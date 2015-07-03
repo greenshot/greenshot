@@ -41,7 +41,7 @@
 		Jira Einstellungen
 	</resource>
 	<resource name="label_url">
-		Url
+		JIRA Basis Url
 	</resource>
   	<resource name="OK">
 		OK
@@ -60,6 +60,15 @@
 	</resource>
   	<resource name="communication_wait">
   		Übermittle Daten zu Jira. Bitte warten...
+	</resource>
+	<resource name="label_pattern">
+		Dateiname-Muster
+	</resource>
+	<resource name="label_username">
+		Benutzername
+	</resource>
+	<resource name="label_password">
+		Passwort
 	</resource>
   </resources>
 </language>
