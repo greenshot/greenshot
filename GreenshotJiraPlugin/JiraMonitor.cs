@@ -35,7 +35,7 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	public class JiraMonitor : IDisposable {
 		private static ILog LOG = LogManager.GetLogger(typeof(JiraMonitor));
-		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z0-9]+\-[0-9]+");
+		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly TitleChangeMonitor _monitor;
 		private readonly IList<JiraAPI> _jiraInstances = new List<JiraAPI>();
 		private readonly IDictionary<string, JiraAPI> _projectJiraApiMap = new Dictionary<string, JiraAPI>();
