@@ -137,6 +137,7 @@ namespace GreenshotJiraPlugin {
 			this.textBoxPassword.Name = "textBoxPassword";
 			this.textBoxPassword.PropertyName = "Password";
 			this.textBoxPassword.SectionName = "Jira";
+			this.textBoxPassword.PasswordChar = '*';
 			this.textBoxPassword.Size = new System.Drawing.Size(214, 20);
 			this.textBoxPassword.TabIndex = 8;
 			// 

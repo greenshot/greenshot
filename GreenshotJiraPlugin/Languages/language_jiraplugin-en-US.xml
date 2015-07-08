@@ -61,5 +61,14 @@
   	<resource name="communication_wait">
   		Transferring data to JIRA, please wait...
 	</resource>
+	<resource name="label_pattern">
+		Filename pattern
+	</resource>
+	<resource name="label_username">
+		Username
+	</resource>
+	<resource name="label_password">
+		Password
+	</resource>
   </resources>
 </language>

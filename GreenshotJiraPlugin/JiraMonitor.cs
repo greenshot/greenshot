@@ -20,10 +20,10 @@
  */
 
 using GreenshotPlugin.Core;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +34,7 @@ namespace GreenshotJiraPlugin {
 	/// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
 	/// </summary>
 	public class JiraMonitor : IDisposable {
+		private static ILog LOG = LogManager.GetLogger(typeof(JiraMonitor));
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z0-9]+\-[0-9]+");
 		private readonly TitleChangeMonitor _monitor;
 		private readonly IList<JiraAPI> _jiraInstances = new List<JiraAPI>();
@@ -178,6 +179,7 @@ namespace GreenshotJiraPlugin {
 				JiraAPI jiraAPI;
 				// Check if we have a JIRA instance with a project for this key
 				if (_projectJiraApiMap.TryGetValue(projectKey, out jiraAPI)) {
+					LOG.InfoFormat("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", projectKey, jiraAPI.ServerTitle);
 					// We have found a project for this _jira key, so it must be a valid & known JIRA
 					JiraDetails currentJiraDetails;
 					if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails)) {
@@ -205,6 +207,8 @@ namespace GreenshotJiraPlugin {
 					}
 					// Now we can get the title from JIRA itself
 					var updateTitleTask = GetTitle(currentJiraDetails);
+				} else {
+					LOG.InfoFormat("Couldn't match possible JIRA key {0} to projects in a configured JIRA instance, ignoring", projectKey);
 				}
 			}
 		}
