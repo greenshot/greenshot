@@ -50,7 +50,7 @@ namespace Greenshot.Drawing {
 					cursor.Dispose();
 				}
 				// Clone cursor (is this correct??)
-				cursor = new Cursor(value.CopyHandle());
+				cursor = new Cursor(value.Handle);
 				Width = value.Size.Width;
 				Height = value.Size.Height;
 			}
@@ -90,6 +90,7 @@ namespace Greenshot.Drawing {
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.Default;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
+			graphics.CompositingMode = CompositingMode.SourceCopy;
 			cursor.DrawStretched(graphics, Bounds);
 		}
 
