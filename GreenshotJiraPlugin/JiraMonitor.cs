@@ -179,7 +179,7 @@ namespace GreenshotJiraPlugin {
 				JiraAPI jiraAPI;
 				// Check if we have a JIRA instance with a project for this key
 				if (_projectJiraApiMap.TryGetValue(projectKey, out jiraAPI)) {
-					LOG.InfoFormat("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", projectKey, jiraAPI.ServerTitle);
+					LOG.InfoFormat("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", jiraKey, jiraAPI.ServerTitle);
 					// We have found a project for this _jira key, so it must be a valid & known JIRA
 					JiraDetails currentJiraDetails;
 					if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails)) {
