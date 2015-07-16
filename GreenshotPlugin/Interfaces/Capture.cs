@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace Greenshot.Plugin {
 	/// <summary>
@@ -121,7 +122,7 @@ namespace Greenshot.Plugin {
 			set;
 		}
 		
-		Icon Cursor {
+		Cursor Cursor {
 			get;
 			set;
 		}

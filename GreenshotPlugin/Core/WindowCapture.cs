@@ -171,17 +171,17 @@ namespace GreenshotPlugin.Core {
 			_image = null;
 		}
 
-		private Icon _cursor;
+		private Cursor _cursor;
 		/// <summary>
 		/// Get/Set the image for the Cursor
 		/// </summary>
-		public Icon Cursor {
+		public Cursor Cursor {
 			get {return _cursor;}
 			set {
 				if (_cursor != null) {
 					_cursor.Dispose();
 				}
-				_cursor = (Icon)value.Clone();
+				_cursor = new Cursor(value.Handle);
 			}
 		}
 		
@@ -481,30 +481,17 @@ namespace GreenshotPlugin.Core {
 			}
 			int x,y;
 			CursorInfo cursorInfo = new CursorInfo(); 
-			IconInfo iconInfo;
 			cursorInfo.cbSize = Marshal.SizeOf(cursorInfo);
 			if (User32.GetCursorInfo(out cursorInfo)) {
-				if (cursorInfo.flags == User32.CURSOR_SHOWING) { 
-					using (SafeIconHandle safeIcon = User32.CopyIcon(cursorInfo.hCursor)) {
-						if (User32.GetIconInfo(safeIcon, out iconInfo)) {
-							Point cursorLocation = User32.GetCursorLocation();
-							// Allign cursor location to Bitmap coordinates (instead of Screen coordinates)
-							x = cursorLocation.X - iconInfo.xHotspot - capture.ScreenBounds.X;
-							y = cursorLocation.Y - iconInfo.yHotspot - capture.ScreenBounds.Y;
-							// Set the location
-							capture.CursorLocation = new Point(x, y);
-	
-							using (Icon icon = Icon.FromHandle(safeIcon.DangerousGetHandle())) {
-								capture.Cursor = icon;
-							}
-	
-							if (iconInfo.hbmMask != IntPtr.Zero) {
-								DeleteObject(iconInfo.hbmMask);
-							}
-							if (iconInfo.hbmColor != IntPtr.Zero) {
-								DeleteObject(iconInfo.hbmColor);
-							}
-						}
+				if (cursorInfo.flags == User32.CURSOR_SHOWING) {
+					using (Cursor cursor = new Cursor(cursorInfo.hCursor)) {
+						capture.Cursor = cursor;
+						Point cursorLocation = User32.GetCursorLocation();
+						// Allign cursor location to Bitmap coordinates (instead of Screen coordinates)
+						x = cursorLocation.X - cursor.HotSpot.X - capture.ScreenBounds.X;
+						y = cursorLocation.Y - cursor.HotSpot.Y - capture.ScreenBounds.Y;
+						// Set the location
+						capture.CursorLocation = new Point(x, y);
 					}
 				}
 			}

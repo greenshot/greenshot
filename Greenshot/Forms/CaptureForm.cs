@@ -705,8 +705,9 @@ namespace Greenshot.Forms {
 			//graphics.BitBlt((Bitmap)buffer, Point.Empty);
 			graphics.DrawImageUnscaled(_capture.Image, Point.Empty);
 			// Only draw Cursor if it's (partly) visible
-			if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(_capture.CursorLocation, _capture.Cursor.Size))) {
-				graphics.DrawIcon(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
+			Rectangle cursorBounds = new Rectangle(_capture.CursorLocation, _capture.Cursor.Size);
+			if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(cursorBounds)) {
+				_capture.Cursor.DrawStretched(graphics, cursorBounds);
 			}
 
 			if (_mouseDown || _captureMode == CaptureMode.Window || isAnimating(_windowAnimator)) {

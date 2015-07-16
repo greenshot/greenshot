@@ -202,11 +202,22 @@ namespace GreenshotImgurPlugin {
 			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(imgurInfo.SmallSquare, HTTPMethod.GET);
 			webRequest.ServicePoint.Expect100Continue = false;
 			SetClientId(webRequest);
-			using (WebResponse response = webRequest.GetResponse()) {
-				LogRateLimitInfo(response);
-				Stream responseStream = response.GetResponseStream();
-				imgurInfo.Image = Image.FromStream(responseStream);
+			try {
+				using (WebResponse response = webRequest.GetResponse()) {
+					LogRateLimitInfo(response);
+				}
+			} catch (WebException webEx) {
+				using (var stream = webEx.Response.GetResponseStream())
+				using (var reader = new StreamReader(stream)) {
+					LOG.ErrorFormat("Retrieve from imgur gave an exeption, here is the reply from the server: {0}", reader.ReadToEnd());
+				}
+				LogRateLimitInfo(webEx.Response);
+				throw;
+			} catch (Exception ex) {
+				LOG.Error("Upload to imgur gave an exeption: ", ex);
+				throw;
 			}
+
 			return;
 		}
 
@@ -285,7 +296,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="key"></param>
 		private static void LogHeader(IDictionary<string, string> nameValues, string key) {
 			if (nameValues.ContainsKey(key)) {
-				LOG.InfoFormat("key={0}", nameValues[key]);
+				LOG.InfoFormat("{0}={1}", key, nameValues[key]);
 			}
 		}
 
@@ -310,8 +321,11 @@ namespace GreenshotImgurPlugin {
 
 			// Update the credits in the config, this is shown in a form
 			int credits = 0;
-			if (int.TryParse(nameValues["X-RateLimit-Remaining"], out credits)) {
-				config.Credits = credits;
+			if (nameValues.ContainsKey("X-RateLimit-Remaining")) {
+				string remaining = nameValues["X-RateLimit-Remaining"];
+				if (int.TryParse(remaining, out credits)) {
+					config.Credits = credits;
+				}
 			}
 		}
 	}
