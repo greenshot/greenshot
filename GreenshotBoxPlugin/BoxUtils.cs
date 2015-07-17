@@ -24,6 +24,7 @@ using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
@@ -46,7 +47,7 @@ namespace GreenshotBoxPlugin {
 		/// <param name="settings">OAuth2Settings</param>
 		/// <returns>response</returns>
 		public static string HttpPut(string url, string content, OAuth2Settings settings) {
-			var webRequest= OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.PUT, url, settings);
+			var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HttpMethod.Post, url, settings);
 
 			byte[] data = Encoding.UTF8.GetBytes(content);
 			using (var requestStream = webRequest.GetRequestStream()) {
@@ -83,7 +84,7 @@ namespace GreenshotBoxPlugin {
 			settings.AccessTokenExpires = Config.AccessTokenExpires;
 
 			try {
-				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, UploadFileUri, settings);
+				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HttpMethod.Post, UploadFileUri, settings);
 				IDictionary<string, object> parameters = new Dictionary<string, object>();
 				parameters.Add("file", image);
 				parameters.Add("parent_id", Config.FolderId);
@@ -95,11 +96,13 @@ namespace GreenshotBoxPlugin {
 				LOG.DebugFormat("Box response: {0}", response);
 
 				var upload = JsonSerializer.Deserialize<Upload>(response);
-				if (upload == null || upload.Entries == null || upload.Entries.Count == 0) return null;
+				if (upload == null || upload.Entries == null || upload.Entries.Count == 0) {
+					return null;
+				}
 
 				if (Config.UseSharedLink) {
 					string filesResponse = HttpPut(string.Format(FilesUri, upload.Entries[0].Id), "{\"shared_link\": {\"access\": \"open\"}}", settings);
-					var file = JsonSerializer.Deserialize<FileEntry>(filesResponse);
+					var file = DynamicJson.Parse(filesResponse);
 					return file.SharedLink.Url;
 				}
 				return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", upload.Entries[0].Id);

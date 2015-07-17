@@ -1,6 +1,6 @@
 ﻿/*--------------------------------------------------------------------------
 * DynamicJson
-* ver 1.2.0.0 (May. 21th, 2010)
+* ver 1.3.0.0 (May. 21th, 2010)
 *
 * created and maintained by neuecc <ils@neue.cc>
 * licensed under Microsoft Public License(Ms-PL)

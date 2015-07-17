@@ -843,7 +843,7 @@ namespace GreenshotPlugin.Core {
 			if (useGDIBlur) {
 				// Use GDI Blur
 				Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
-				GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize+1, false);
+				GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize, true);
 			} else {
 				// try normal software blur
 				//returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);

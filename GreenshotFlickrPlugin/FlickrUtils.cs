@@ -27,6 +27,7 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
+using System.Net.Http;
 
 namespace GreenshotFlickrPlugin {
 	/// <summary>
@@ -89,12 +90,12 @@ namespace GreenshotFlickrPlugin {
 				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
 				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, FLICKR_UPLOAD_URL, signedParameters, otherParameters, null);
+				string response = oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_UPLOAD_URL, signedParameters, otherParameters, null);
 				string photoId = GetPhotoId(response);
 
 				// Get Photo Info
 				signedParameters = new Dictionary<string, object> { { "photo_id", photoId } };
-				string photoInfo = oAuth.MakeOAuthRequest(HTTPMethod.POST, FLICKR_GET_INFO_URL, signedParameters, null, null);
+				string photoInfo = oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, signedParameters, null, null);
 				return GetUrl(photoInfo);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);

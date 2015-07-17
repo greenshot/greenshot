@@ -18,12 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using System.Net.Http;
 
 namespace GreenshotDropboxPlugin {
 	/// <summary>
@@ -49,7 +51,7 @@ namespace GreenshotDropboxPlugin {
 
 			try {
 				SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-				string uploadResponse = oAuth.MakeOAuthRequest(HTTPMethod.POST, "https://api-content.dropbox.com/1/files_put/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, imageToUpload);
+				string uploadResponse = oAuth.MakeOAuthRequest(HttpMethod.Post, "https://api-content.dropbox.com/1/files_put/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, imageToUpload);
 				LOG.DebugFormat("Upload response: {0}", uploadResponse);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
@@ -65,13 +67,11 @@ namespace GreenshotDropboxPlugin {
 
 			// Try to get a URL to the uploaded image
 			try {
-				string responseString = oAuth.MakeOAuthRequest(HTTPMethod.GET, "https://api.dropbox.com/1/shares/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, null);
+				string responseString = oAuth.MakeOAuthRequest(HttpMethod.Get, "https://api.dropbox.com/1/shares/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, null);
 				if (responseString != null) {
 					LOG.DebugFormat("Parsing output: {0}", responseString);
-					IDictionary<string, object> returnValues = JSONHelper.JsonDecode(responseString);
-					if (returnValues.ContainsKey("url")) {
-						return returnValues["url"] as string;
-					}
+					var result = DynamicJson.Parse(responseString);
+					return result.url;
 				}
 			} catch (Exception ex) {
 				LOG.Error("Can't parse response.", ex);

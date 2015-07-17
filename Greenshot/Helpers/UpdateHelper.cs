@@ -1,4 +1,8 @@
-﻿/*
+﻿using Greenshot.Configuration;
+using Greenshot.IniFile;
+using GreenshotPlugin.Core;
+using log4net;
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -22,12 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using Greenshot.Configuration;
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
-using log4net;
 
 namespace Greenshot.Experimental {
 	/// <summary>
@@ -38,7 +38,7 @@ namespace Greenshot.Experimental {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const string STABLE_DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
 		private const string VERSION_HISTORY_LINK = "http://getgreenshot.org/version-history/";
-		private static object lockObject = new object();
+		private static AsyncLock _asyncLock = new AsyncLock();
 		private static SourceforgeFile latestGreenshot;
 		private static SourceforgeFile currentGreenshot;
 		private static string downloadLink = STABLE_DOWNLOAD_LINK;
@@ -47,20 +47,20 @@ namespace Greenshot.Experimental {
 		/// Is an update check needed?
 		/// </summary>
 		/// <returns>bool true if yes</returns>
-		public static bool IsUpdateCheckNeeded() {
-			lock (lockObject) {
+		public static async Task<bool> IsUpdateCheckNeeded() {
+			using (await _asyncLock.LockAsync()) {
 				if (conf.UpdateCheckInterval == 0) {
 					return false;
 				}
-				if (conf.LastUpdateCheck != null) {
-					DateTime checkTime = conf.LastUpdateCheck;
+				if (conf.LastUpdateCheck != default(DateTimeOffset)) {
+					var checkTime = conf.LastUpdateCheck;
 					checkTime = checkTime.AddDays(conf.UpdateCheckInterval);
-					if (DateTime.Now.CompareTo(checkTime) < 0) {
+					if (DateTimeOffset.Now.CompareTo(checkTime) < 0) {
 						LOG.DebugFormat("No need to check RSS feed for updates, feed check will be after {0}", checkTime);
 						return false;
 					}
 					LOG.DebugFormat("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
-					if (!SourceForgeHelper.isRSSModifiedAfter(conf.LastUpdateCheck)) {
+					if (!await SourceForgeHelper.isRSSModifiedAfter(conf.LastUpdateCheck)) {
 						LOG.DebugFormat("RSS feed has not been updated since after {0}", conf.LastUpdateCheck);
 						return false;
 					}
@@ -72,8 +72,8 @@ namespace Greenshot.Experimental {
 		/// <summary>
 		/// Read the RSS feed to see if there is a Greenshot update
 		/// </summary>
-		public static void CheckAndAskForUpdate() {
-			lock (lockObject) {
+		public static async Task CheckAndAskForUpdate() {
+			using (await _asyncLock.LockAsync()) {
 				Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
 				// Test like this:
 				// currentVersion = new Version("0.8.1.1198");
@@ -82,11 +82,13 @@ namespace Greenshot.Experimental {
 					latestGreenshot = null;
 					ProcessRSSInfo(currentVersion);
 					if (latestGreenshot != null) {
-						MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
-						MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-						MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, "'" + latestGreenshot.File + "'"), ToolTipIcon.Info);
+						MainForm.Instance.BeginInvoke( new Action(() => {
+							MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
+							MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
+							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, "'" + latestGreenshot.File + "'"), ToolTipIcon.Info);
+						}));
 					}
-					conf.LastUpdateCheck = DateTime.Now;
+					conf.LastUpdateCheck = DateTimeOffset.Now;
 				} catch (Exception e) {
 					LOG.Error("An error occured while checking for updates, the error will be ignored: ", e);
 				}
@@ -113,9 +115,9 @@ namespace Greenshot.Experimental {
 			}
 		}
 
-		private static void ProcessRSSInfo(Version currentVersion) {
+		private static async void ProcessRSSInfo(Version currentVersion) {
 			// Reset latest Greenshot
-			Dictionary<string, Dictionary<string, SourceforgeFile>> rssFiles = SourceForgeHelper.readRSS();
+			IDictionary<string, IDictionary<string, SourceforgeFile>> rssFiles = await SourceForgeHelper.readRSS();
 
 			if (rssFiles == null) {
 				return;
@@ -175,29 +177,6 @@ namespace Greenshot.Experimental {
 					}
 				}
 			}
-
-//			// check for language file updates
-//			// Directory to store the language files
-//			string languageFilePath = Path.GetDirectoryName(Language.GetInstance().GetHelpFilePath());
-//			LOG.DebugFormat("Language file path: {0}", languageFilePath);
-//			foreach(string fileType in rssFiles.Keys) {
-//				foreach(string file in rssFiles[fileType].Keys) {
-//					RssFile rssFile = rssFiles[fileType][file];
-//					if (fileType.Equals("Translations")) {
-//						LOG.DebugFormat("Found translation {0} with language {1} published at {2} : {3}", file, rssFile.Language, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
-//						string languageFile = Path.Combine(languageFilePath, file);
-//						if (!File.Exists(languageFile)) {
-//							LOG.DebugFormat("Found not installed language: {0}", rssFile.Language);
-//							// Example to download language files
-//							//string languageFileContent = GreenshotPlugin.Core.NetworkHelper.DownloadFileAsString(new Uri(rssFile.Link), Encoding.UTF8);
-//							//TextWriter writer = new StreamWriter(languageFile, false, Encoding.UTF8);
-//							//LOG.InfoFormat("Writing {0}", languageFile);
-//							//writer.Write(languageFileContent);
-//							//writer.Close();
-//						}
-//					}
-//				}
-//			}
 		}
 	}
 }

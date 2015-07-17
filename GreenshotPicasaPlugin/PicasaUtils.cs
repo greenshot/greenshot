@@ -22,6 +22,7 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
+using System.Net.Http;
 using System.Xml;
 
 namespace GreenshotPicasaPlugin {
@@ -60,7 +61,7 @@ namespace GreenshotPicasaPlugin {
 			settings.AccessTokenExpires = Config.AccessTokenExpires;
 
 			try {
-				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, string.Format(UploadUrl, Config.UploadUser, Config.UploadAlbum), settings);
+				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HttpMethod.Post, string.Format(UploadUrl, Config.UploadUser, Config.UploadAlbum), settings);
 				if (Config.AddFilename) {
 					webRequest.Headers.Add("Slug", NetworkHelper.EscapeDataString(filename));
 				}
