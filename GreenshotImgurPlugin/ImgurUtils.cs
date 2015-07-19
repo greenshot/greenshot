@@ -26,6 +26,7 @@ using System.Net;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using System.Net.Http;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -122,7 +123,7 @@ namespace GreenshotImgurPlugin {
 			if (config.AnonymousAccess) {
 				// add key, we only use the other parameters for the AnonymousAccess
 				otherParameters.Add("key", IMGUR_ANONYMOUS_API_KEY);
-				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(otherParameters), HTTPMethod.POST);
+				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(config.ImgurApiUrl + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(otherParameters), HttpMethod.Post);
 				webRequest.ContentType = "image/" + outputSettings.Format.ToString();
 				webRequest.ServicePoint.Expect100Continue = false;
 
@@ -172,7 +173,7 @@ namespace GreenshotImgurPlugin {
 				}
 				try {
 					otherParameters.Add("image", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-					responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.imgur.com/2/account/images.xml", uploadParameters, otherParameters, null);
+					responseString = oAuth.MakeOAuthRequest(HttpMethod.Post, "http://api.imgur.com/2/account/images.xml", uploadParameters, otherParameters, null);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);
 					throw;
@@ -199,7 +200,7 @@ namespace GreenshotImgurPlugin {
 				return;
 			}
 			LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo.SmallSquare);
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(imgurInfo.SmallSquare, HTTPMethod.GET);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(imgurInfo.SmallSquare, HttpMethod.Get);
 			webRequest.ServicePoint.Expect100Continue = false;
 			SetClientId(webRequest);
 			try {
@@ -230,7 +231,7 @@ namespace GreenshotImgurPlugin {
 		public static ImgurInfo RetrieveImgurInfo(string hash, string deleteHash) {
 			string url = config.ImgurApiUrl + "/image/" + hash;
 			LOG.InfoFormat("Retrieving Imgur info for {0} with url {1}", hash, url);
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HttpMethod.Get);
 			webRequest.ServicePoint.Expect100Continue = false;
 			SetClientId(webRequest);
 			string responseString;
@@ -264,7 +265,7 @@ namespace GreenshotImgurPlugin {
 			
 			try {
 				string url = config.ImgurApiUrl + "/delete/" + imgurInfo.DeleteHash;
-				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
+				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HttpMethod.Get);
 				webRequest.ServicePoint.Expect100Continue = false;
 				SetClientId(webRequest);
 				string responseString;

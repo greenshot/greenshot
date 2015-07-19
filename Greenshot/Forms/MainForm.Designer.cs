@@ -73,7 +73,6 @@ namespace Greenshot.Forms {
 			this.toolStripCloseSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.contextmenu_exit = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
-			this.backgroundWorkerTimer = new System.Windows.Forms.Timer(this.components);
 			this.contextMenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -255,12 +254,6 @@ namespace Greenshot.Forms {
 			this.notifyIcon.Text = "Greenshot";
 			this.notifyIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.NotifyIconClickTest);
 			// 
-			// backgroundWorkerTimer
-			// 
-			this.backgroundWorkerTimer.Enabled = true;
-			this.backgroundWorkerTimer.Interval = 300000;
-			this.backgroundWorkerTimer.Tick += new System.EventHandler(this.BackgroundWorkerTimerTick);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -282,7 +275,6 @@ namespace Greenshot.Forms {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_capturewindowfromlist;
 		private System.Windows.Forms.ToolStripSeparator toolStripListCaptureSeparator;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_openrecentcapture;
-		private System.Windows.Forms.Timer backgroundWorkerTimer;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_captureie;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_donate;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_openfile;

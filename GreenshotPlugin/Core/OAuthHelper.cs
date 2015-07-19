@@ -28,6 +28,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -274,11 +275,11 @@ namespace GreenshotPlugin.Core {
 		private string _loginTitle = "Authorize Greenshot access";
 
 		#region PublicProperties
-		public HTTPMethod RequestTokenMethod {
+		public HttpMethod RequestTokenMethod {
 			get;
 			set;
 		}
-		public HTTPMethod AccessTokenMethod {
+		public HttpMethod AccessTokenMethod {
 			get;
 			set;
 		}
@@ -379,8 +380,8 @@ namespace GreenshotPlugin.Core {
 			_consumerKey = consumerKey;
 			_consumerSecret = consumerSecret;
 			UseMultipartFormData = true;
-			RequestTokenMethod = HTTPMethod.GET;
-			AccessTokenMethod = HTTPMethod.GET;
+			RequestTokenMethod = HttpMethod.Get;
+			AccessTokenMethod = HttpMethod.Get;
 			SignatureType = OAuthSignatureTypes.HMACSHA1;
 			AutoLogin = true;
 		}
@@ -604,7 +605,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+		public string MakeOAuthRequest(HttpMethod method, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
 			return MakeOAuthRequest(method, requestURL, requestURL, null, parametersToSign, additionalParameters, postData);
 		}
 
@@ -618,7 +619,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+		public string MakeOAuthRequest(HttpMethod method, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
 			return MakeOAuthRequest(method, requestURL, requestURL, headers, parametersToSign, additionalParameters, postData);
 		}
 
@@ -632,7 +633,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string signUrl, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+		public string MakeOAuthRequest(HttpMethod method, string signUrl, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
 			return MakeOAuthRequest(method, signUrl, requestURL, null, parametersToSign, additionalParameters, postData);
 		}
 
@@ -647,7 +648,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string signUrl, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+		public string MakeOAuthRequest(HttpMethod method, string signUrl, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
 			if (parametersToSign == null) {
 				parametersToSign = new Dictionary<string, object>();
 			}
@@ -710,7 +711,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="method">Method (POST,PUT,GET)</param>
 		/// <param name="requestURL">Url to call</param>
 		/// <param name="parameters">IDictionary<string, string></param>
-		private void Sign(HTTPMethod method, string requestURL, IDictionary<string, object> parameters) {
+		private void Sign(HttpMethod method, string requestURL, IDictionary<string, object> parameters) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -807,7 +808,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="parameters"></param>
 		/// <param name="postData">IBinaryParameter</param>
 		/// <returns>Response from server</returns>
-		private string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parameters, IBinaryContainer postData) {
+		private string MakeRequest(HttpMethod method, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parameters, IBinaryContainer postData) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -832,7 +833,7 @@ namespace GreenshotPlugin.Core {
 				requestParameters = parameters;
 			}
 
-			if (HTTPMethod.GET == method || postData != null) {
+			if (HttpMethod.Get == method || postData != null) {
 				if (requestParameters.Count > 0) {
 					// Add the parameters to the request
 					requestURL += "?" + NetworkHelper.GenerateQueryParameters(requestParameters);
@@ -854,7 +855,7 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 
-			if ((HTTPMethod.POST == method || HTTPMethod.PUT == method) && postData == null && requestParameters.Count > 0) {
+			if ((HttpMethod.Post == method || HttpMethod.Put == method) && postData == null && requestParameters.Count > 0) {
 				if (UseMultipartFormData) {
 					NetworkHelper.WriteMultipartFormData(webRequest, requestParameters);
 				} else {
@@ -1098,7 +1099,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
 
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HTTPMethod.POST);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HttpMethod.Post);
 			NetworkHelper.UploadFormUrlEncoded(webRequest, data);
 			string accessTokenJsonResult = NetworkHelper.GetResponseAsString(webRequest, true);
 
@@ -1141,7 +1142,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
 
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HTTPMethod.POST);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HttpMethod.Post);
 			NetworkHelper.UploadFormUrlEncoded(webRequest, data);
 			string accessTokenJsonResult = NetworkHelper.GetResponseAsString(webRequest, true);
 
@@ -1298,11 +1299,11 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// <summary>
 		/// CreateWebRequest ready for OAuth 2 access
 		/// </summary>
-		/// <param name="method">HTTPMethod</param>
+		/// <param name="method">HttpMethod</param>
 		/// <param name="url"></param>
 		/// <param name="settings">OAuth2Settings</param>
 		/// <returns>HttpWebRequest</returns>
-		public static HttpWebRequest CreateOAuth2WebRequest(HTTPMethod method, string url, OAuth2Settings settings) {
+		public static HttpWebRequest CreateOAuth2WebRequest(HttpMethod method, string url, OAuth2Settings settings) {
 			CheckAndAuthenticateOrRefresh(settings);
 
 			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, method);

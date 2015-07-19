@@ -19,6 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Configuration;
+using Greenshot.Destinations;
+using Greenshot.Experimental;
+using Greenshot.Forms;
+using Greenshot.Help;
+using Greenshot.Helpers;
+using Greenshot.IniFile;
+using Greenshot.Plugin;
+using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,18 +42,8 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Greenshot.Configuration;
-using Greenshot.Destinations;
-using Greenshot.Experimental;
-using Greenshot.Help;
-using Greenshot.Helpers;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
-using log4net;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
@@ -387,6 +389,7 @@ namespace Greenshot.Forms
 		private SettingsForm _settingsForm;
 		// Make sure we have only one about form
 		private AboutForm _aboutForm;
+		private readonly System.Threading.Timer _backgroundWorkerTimer;
 		// Timer for the double click test
 		private readonly Timer _doubleClickTimer = new Timer();
 
@@ -490,6 +493,8 @@ namespace Greenshot.Forms
 			{
 				PsAPI.EmptyWorkingSet();
 			}
+			// Checking for updates etc in the background
+			_backgroundWorkerTimer = new System.Threading.Timer(async (_) => await BackgroundWorkerTimerTick(), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
 		}
 
 		/// <summary>
@@ -1733,20 +1738,13 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void BackgroundWorkerTimerTick(object sender, EventArgs e)
-		{
-			if (_conf.MinimizeWorkingSetSize)
-			{
+		private async Task BackgroundWorkerTimerTick() {
+			if (_conf.MinimizeWorkingSetSize) {
 				PsAPI.EmptyWorkingSet();
 			}
-			if (UpdateHelper.IsUpdateCheckNeeded())
-			{
+			if (await UpdateHelper.IsUpdateCheckNeeded()) {
 				LOG.Debug("BackgroundWorkerTimerTick checking for update");
-				// Start update check in the background
-				var backgroundTask = new Thread(UpdateHelper.CheckAndAskForUpdate);
-				backgroundTask.Name = "Update check";
-				backgroundTask.IsBackground = true;
-				backgroundTask.Start();
+				await UpdateHelper.CheckAndAskForUpdate();
 			}
 		}
 	}

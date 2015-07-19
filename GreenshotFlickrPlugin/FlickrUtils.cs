@@ -19,14 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Xml;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Net.Http;
 
 namespace GreenshotFlickrPlugin {
 	/// <summary>
@@ -80,22 +80,27 @@ namespace GreenshotFlickrPlugin {
 			}
 			try {
 				IDictionary<string, object> signedParameters = new Dictionary<string, object>();
-				signedParameters.Add("content_type", "2");	// Screenshot
+				signedParameters.Add("content_type", "2");	// content = screenshot
 				signedParameters.Add("tags", "Greenshot");
 				signedParameters.Add("is_public", config.IsPublic ? "1" : "0");
 				signedParameters.Add("is_friend", config.IsFriend ? "1" : "0");
 				signedParameters.Add("is_family", config.IsFamily ? "1" : "0");
+				signedParameters.Add("format", "json");
 				signedParameters.Add("safety_level", string.Format("{0}", (int)config.SafetyLevel));
 				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
 				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, FLICKR_UPLOAD_URL, signedParameters, otherParameters, null);
-				string photoId = GetPhotoId(response);
+				string response = oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_UPLOAD_URL, signedParameters, otherParameters, null);
+				string photoId = DynamicJson.Parse(response).photoid;
 
 				// Get Photo Info
-				signedParameters = new Dictionary<string, object> { { "photo_id", photoId } };
-				string photoInfo = oAuth.MakeOAuthRequest(HTTPMethod.POST, FLICKR_GET_INFO_URL, signedParameters, null, null);
-				return GetUrl(photoInfo);
+				signedParameters = new Dictionary<string, object> { { "photo_id", photoId }, { "format", "json" } };
+				response = oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, signedParameters, null, null);
+				var photoInfo = DynamicJson.Parse(response);
+				if (config.UsePageLink) {
+					return photoInfo.url;
+				}
+				return string.Format("FLICKR_FARM_URL", photoInfo.farm, photoInfo.server, photoId, photoInfo.secret);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
 				throw;
@@ -107,57 +112,6 @@ namespace GreenshotFlickrPlugin {
 					config.FlickrTokenSecret = oAuth.TokenSecret;
 				}
 			}
-		}
-
-		private static string GetUrl(string response) {
-			try {
-				XmlDocument doc = new XmlDocument();
-				doc.LoadXml(response);
-				if (config.UsePageLink) {
-					XmlNodeList nodes = doc.GetElementsByTagName("url");
-					if (nodes.Count > 0) {
-						var xmlNode = nodes.Item(0);
-						if (xmlNode != null) {
-							return xmlNode.InnerText;
-						}
-					}
-				} else {
-					XmlNodeList nodes = doc.GetElementsByTagName("photo");
-					if (nodes.Count > 0) {
-						var item = nodes.Item(0);
-						if (item != null) {
-							if (item.Attributes != null) {
-								string farmId = item.Attributes["farm"].Value;
-								string serverId = item.Attributes["server"].Value;
-								string photoId = item.Attributes["id"].Value;
-								string secret = item.Attributes["secret"].Value;
-								return string.Format(FLICKR_FARM_URL, farmId, serverId, photoId, secret);
-							}
-						}
-
-					}
-				}
-			} catch (Exception ex) {
-				LOG.Error("Error parsing Flickr Response.", ex);
-			}
-			return null;
-		}
-
-		private static string GetPhotoId(string response) {
-			try {
-				XmlDocument doc = new XmlDocument();
-				doc.LoadXml(response);
-				XmlNodeList nodes = doc.GetElementsByTagName("photoid");
-				if (nodes.Count > 0) {
-					var xmlNode = nodes.Item(0);
-					if (xmlNode != null) {
-						return xmlNode.InnerText;
-					}
-				}
-			} catch (Exception ex) {
-				LOG.Error("Error parsing Flickr Response.", ex);
-			}
-			return null;
 		}
 	}
 }

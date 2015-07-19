@@ -29,21 +29,11 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace GreenshotPlugin.Core {
-	/// <summary>
-	/// HTTP Method to make sure we have the correct method
-	/// </summary>
-	public enum HTTPMethod {
-		GET,
-		POST,
-		PUT,
-		DELETE,
-		HEAD
-	};
-
 	/// <summary>
 	/// Description of NetworkHelper.
 	/// </summary>
@@ -57,40 +47,6 @@ namespace GreenshotPlugin.Core {
 			delegate {
 				return true;
 			};
-		}
-
-		/// <summary>
-		/// Download a uri response as string
-		/// </summary>
-		/// <param name="uri">An Uri to specify the download location</param>
-		/// <returns>string with the file content</returns>
-		public static string GetAsString(Uri uri) {
-			return GetResponseAsString(CreateWebRequest(uri));				
-		}
-
-		/// <summary>
-		/// Download the FavIcon as a Bitmap
-		/// </summary>
-		/// <param name="baseUri"></param>
-		/// <returns>Bitmap with the FavIcon</returns>
-		public static Bitmap DownloadFavIcon(Uri baseUri) {
-			Uri url = new Uri(baseUri, new Uri("favicon.ico"));
-			try {
-				HttpWebRequest request = CreateWebRequest(url);
-				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-				if (request.HaveResponse) {
-					using (Stream responseStream = response.GetResponseStream()) {
-						if (responseStream != null) {
-							using (Image image = Image.FromStream(responseStream)) {
-								return (image.Height > 16 && image.Width > 16) ? new Bitmap(image, 16, 16) : new Bitmap(image);
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
-				LOG.Error("Problem downloading the FavIcon from: " + baseUri, e);
-			}
-			return null;
 		}
 
 		/// <summary>
@@ -164,7 +120,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="uri">string with uri to connect to</param>
 		/// /// <param name="method">Method to use</param>
 		/// <returns>WebRequest</returns>
-		public static HttpWebRequest CreateWebRequest(string uri, HTTPMethod method) {
+		public static HttpWebRequest CreateWebRequest(string uri, HttpMethod method) {
 			return CreateWebRequest(new Uri(uri), method);
 		}
 		
@@ -174,7 +130,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="uri">Uri with uri to connect to</param>
 		/// <param name="method">Method to use</param>
 		/// <returns>WebRequest</returns>
-		public static HttpWebRequest CreateWebRequest(Uri uri, HTTPMethod method) {
+		public static HttpWebRequest CreateWebRequest(Uri uri, HttpMethod method) {
 			HttpWebRequest webRequest = CreateWebRequest(uri);
 			webRequest.Method = method.ToString();
 			return webRequest;
@@ -466,26 +422,6 @@ namespace GreenshotPlugin.Core {
 			}
 
 			return responseData;
-		}
-
-		/// <summary>
-		/// Get LastModified for a URI
-		/// </summary>
-		/// <param name="uri">Uri</param>
-		/// <returns>DateTime</returns>
-		public static DateTime GetLastModified(Uri uri) {
-			try {
-				HttpWebRequest webRequest = CreateWebRequest(uri);
-				webRequest.Method = HTTPMethod.HEAD.ToString();
-				HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-				LOG.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
-				return webResponse.LastModified;
-			} catch (Exception wE) {
-				LOG.WarnFormat("Problem requesting HTTP - HEAD on uri {0}", uri);
-				LOG.Warn(wE.Message);
-				// Pretend it is old
-				return DateTime.MinValue;
-			}
 		}
 	}
 

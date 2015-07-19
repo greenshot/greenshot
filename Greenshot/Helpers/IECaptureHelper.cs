@@ -33,6 +33,7 @@ using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using log4net;
 using mshtml;
+using System.Threading;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -592,7 +593,6 @@ namespace Greenshot.Helpers {
 		private static Bitmap CapturePage(DocumentContainer documentContainer, ICapture capture, Size pageSize) {
 			WindowDetails contentWindowDetails = documentContainer.ContentWindow;
 
-
 			//Create a target bitmap to draw into with the calculated page size
 			Bitmap returnBitmap = new Bitmap(pageSize.Width, pageSize.Height, PixelFormat.Format24bppRgb);
 			using (Graphics graphicsTarget = Graphics.FromImage(returnBitmap)) {
@@ -675,6 +675,7 @@ namespace Greenshot.Helpers {
 					Rectangle clientRectangle = new Rectangle(documentContainer.SourceLocation, viewPortSize);
 					Image fragment;
 					if (configuration.IECaptureMode == WindowCaptureMode.Screen) {
+						Thread.Sleep(20);
 						fragment = contentWindowDetails.CaptureFromScreen();
 					} else {
 						fragment = contentWindowDetails.PrintWindow();

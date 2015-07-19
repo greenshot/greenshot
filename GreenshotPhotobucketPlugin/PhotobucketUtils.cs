@@ -25,6 +25,7 @@ using System.Xml;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using System.Net.Http;
 
 namespace GreenshotPhotobucketPlugin {
 	/// <summary>
@@ -73,7 +74,7 @@ namespace GreenshotPhotobucketPlugin {
 			unsignedParameters.Add("uploadfile", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 			try {
 				string apiUrl = "http://api.photobucket.com/album/!/upload";
-				responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, unsignedParameters, null);
+				responseString = oAuth.MakeOAuthRequest(HttpMethod.Post, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, unsignedParameters, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw;
@@ -109,8 +110,8 @@ namespace GreenshotPhotobucketPlugin {
 			oAuth.RequestTokenUrl = "http://api.photobucket.com/login/request";
 			oAuth.BrowserSize = new Size(1010, 400);
 			// Photobucket is very particular about the used methods!
-			oAuth.RequestTokenMethod = HTTPMethod.POST;
-			oAuth.AccessTokenMethod = HTTPMethod.POST;
+			oAuth.RequestTokenMethod = HttpMethod.Post;
+			oAuth.AccessTokenMethod = HttpMethod.Post;
 
 			oAuth.LoginTitle = "Photobucket authorization";
 			if (string.IsNullOrEmpty(config.SubDomain) || string.IsNullOrEmpty(config.Token) || string.IsNullOrEmpty(config.Username)) {
@@ -156,7 +157,7 @@ namespace GreenshotPhotobucketPlugin {
 			IDictionary<string, object> signedParameters = new Dictionary<string, object>();
 			try {
 				string apiUrl = string.Format("http://api.photobucket.com/album/{0}", config.Username);
-				responseString = oAuth.MakeOAuthRequest(HTTPMethod.GET, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, null, null);
+				responseString = oAuth.MakeOAuthRequest(HttpMethod.Get, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, null, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw;

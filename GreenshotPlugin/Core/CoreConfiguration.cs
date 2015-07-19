@@ -177,10 +177,10 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("ExcludeDestinations", Description = "Comma separated list of destinations which should be disabled.")]
 		public List<string> ExcludeDestinations;
 
-		[IniProperty("UpdateCheckInterval", Description="How many days between every update check? (0=no checks)", DefaultValue="1")]
+		[IniProperty("UpdateCheckInterval", Description="How many days between every update check? (0=no checks)", DefaultValue="7")]
 		public int UpdateCheckInterval;
 		[IniProperty("LastUpdateCheck", Description="Last update check")]
-		public DateTime LastUpdateCheck;
+		public DateTimeOffset LastUpdateCheck;
 
 		[IniProperty("DisableSettings", Description = "Enable/disable the access to the settings, can only be changed manually in this .ini", DefaultValue = "False")]
 		public bool DisableSettings;
