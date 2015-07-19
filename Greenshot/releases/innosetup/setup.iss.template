@@ -552,7 +552,7 @@ end;
 function hasDotNet() : boolean;
 begin
 	// .NET 4.5 = 4.0 full (with a "Release" key)
-	Result := dotnetfx45(NetFx45, 0);
+	Result := not netfxinstalled(NetFx45, '') or (netfxspversion(NetFx45, '') < MinVersion);
 end;
 
 function getNGENPath(argument: String) : String;
