@@ -1,4 +1,4 @@
-﻿;Copyright 2007-2013 John T. Haller of PortableApps.com
+﻿;Copyright 2007-2015 John T. Haller of PortableApps.com
 ;Website: http://PortableApps.com/
 
 ;This software is OSI Certified Open Source Software.
@@ -24,8 +24,8 @@
 ;as published at PortableApps.com/development. It may also be used with commercial
 ;software by contacting PortableApps.com.
 
-!define PORTABLEAPPSINSTALLERVERSION "3.0.6.0"
-!define PORTABLEAPPS.COMFORMATVERSION "3.0.6"
+!define PORTABLEAPPSINSTALLERVERSION "3.0.19.0"
+!define PORTABLEAPPS.COMFORMATVERSION "3.0.19"
 
 !if ${__FILE__} == "PortableApps.comInstallerPlugin.nsi"
 	!include PortableApps.comInstallerPluginConfig.nsh
@@ -52,7 +52,7 @@ VIProductVersion "${VERSION}"
 VIAddVersionKey ProductName "${PORTABLEAPPNAME}"
 VIAddVersionKey Comments "${INSTALLERCOMMENTS}"
 VIAddVersionKey CompanyName "PortableApps.com"
-VIAddVersionKey LegalCopyright "PortableApps.com Installer Copyright 2007-2012 PortableApps.com."
+VIAddVersionKey LegalCopyright "2007-2015 PortableApps.com, PortableApps.com Installer ${PORTABLEAPPSINSTALLERVERSION}"
 VIAddVersionKey FileDescription "${PORTABLEAPPNAME}"
 VIAddVersionKey FileVersion "${VERSION}"
 VIAddVersionKey ProductVersion "${VERSION}"
@@ -64,6 +64,7 @@ VIAddVersionKey PortableApps.comFormatVersion "${PORTABLEAPPS.COMFORMATVERSION}"
 VIAddVersionKey PortableApps.comAppID "${APPID}"
 !ifdef DownloadURL ;advertise the needed bits to the PA.c Updater
 	VIAddVersionKey PortableApps.comDownloadURL "${DownloadURL}"
+	VIAddVersionKey PortableApps.comDownloadKnockURL "${DownloadKnockURL}"
 	VIAddVersionKey PortableApps.comDownloadName "${DownloadName}"
 	VIAddVersionKey PortableApps.comDownloadFileName "${DownloadFileName}"
 	VIAddVersionKey PortableApps.comDownloadMD5 "${DownloadMD5}"
@@ -80,7 +81,7 @@ RequestExecutionLevel user
 AllowRootDirInstall true
 
 ;=== Include
-!include MUI.nsh
+!include MUI2.nsh
 !include FileFunc.nsh
 !include LogicLib.nsh
 !ifdef PRESERVEFILE1
@@ -91,6 +92,7 @@ AllowRootDirInstall true
 !endif
 !include TextFunc.nsh
 !include WordFunc.nsh
+!include PortableApps.comInstallerDriveFreeSpaceCustom.nsh
 !include PortableApps.comInstallerDumpLogToFile.nsh
 !include PortableApps.comInstallerTBProgress.nsh
 
@@ -142,7 +144,7 @@ BrandingText "PortableApps.com®"
 !define MUI_FINISHPAGE_TEXT "$(finish)"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PreFinish
 !define MUI_FINISHPAGE_TITLE_3LINES
-!define MUI_FINISHPAGE_CANCEL_ENABLED
+;!define MUI_FINISHPAGE_CANCEL_ENABLED ;Disabled due to bug in MUI2
 !ifndef PLUGINNAME
 	!define MUI_FINISHPAGE_RUN_NOTCHECKED
 	!define MUI_FINISHPAGE_RUN "$INSTDIR\${FINISHPAGERUN}"
@@ -285,6 +287,9 @@ Var INTERNALEULAVERSION
 Var InstallingStatusString
 Var bolAppUpgrade
 Var bolLogFile
+Var PAcLocaleID
+Var strLastDirectory
+Var strTimeStore
 
 ;=== Custom Code
 !ifdef USESCUSTOMCODE
@@ -327,16 +332,45 @@ Function .onInit
 	InitPluginsDir
 
 	!ifdef INSTALLERMULTILINGUAL
-		ReadEnvStr $0 "PortableApps.comLocaleID"
-		${Switch} $0
+		ReadEnvStr $PAcLocaleID "PortableApps.comLocaleID"
+		${Switch} $PAcLocaleID
 			; Use the Case statements formed earlier.
 			!include "${LangAutoDetectFile}"
 			!delfile "${LangAutoDetectFile}"
 			!undef LangAutoDetectFile
-				StrCpy $LANGUAGE $0
+				StrCpy $LANGUAGE $PAcLocaleID
 				${Break}
 			${Default}
-				!insertmacro MUI_LANGDLL_DISPLAY
+				${GetOptions} $CMDLINE "/DESTINATION=" $0
+				${IfNot} ${Errors}
+				${AndIf} ${FileExists} `$0\PortableApps.com\PortableAppsPlatform.exe`
+					;Automated platform install but doesn't support the exact language
+					
+					;Language Fallbacks, if none, then English
+					${If} $PAcLocaleID == 3082 ;SpanishInternational
+					${AndIf} ${USES_SPANISH} == "true"
+						StrCpy $LANGUAGE 1034 ;Spanish
+					${Else}
+						${If} $PAcLocaleID == 1034 ;Spanish
+						${AndIf} ${USES_SPANISHINTERNATIONAL} == "true"
+							StrCpy $LANGUAGE 3082 ;SpanishInternational
+						${Else}
+							${If} $PAcLocaleID == 1046 ;PortugueseBR
+							${AndIf} ${USES_PORTUGUESE} == "true"
+								StrCpy $LANGUAGE 2070 ;Portuguese
+							${Else}
+								${If} $PAcLocaleID == 2070 ;Portuguese
+								${AndIf} ${USES_PORTUGUESEBR} == "true"
+									StrCpy $LANGUAGE 1046 ;PortugueseBR
+								${Else}
+									StrCpy $LANGUAGE 1033 ;English as last fallback
+								${EndIf}
+							${EndIf}
+						${EndIf}
+					${EndIf}
+				${Else}
+					!insertmacro MUI_LANGDLL_DISPLAY
+				${EndIf}
 		${EndSwitch}
 	!endif
 
@@ -430,6 +464,7 @@ Function .onInit
 						${AndIf} $R0 == "true"
 							;Duplicate of the size calculation code, to be functionalized later
 							SectionGetSize ${MAINSECTIONIDX} $1 ;=== Space Required for App
+							
 							!ifdef MAINSECTIONTITLE
 								SectionGetFlags ${OPTIONALSECTIONIDX} $9
 								IntOp $9 $9 & ${SF_SELECTED}
@@ -439,10 +474,17 @@ Function .onInit
 								${EndIf}
 							!endif
 							${GetRoot} $INSTDIR $2
-							${DriveSpace} `$2\` "/D=F /S=M" $3 ;=== Space Free on Device
+							;${DriveSpace} `$2\` "/D=F /S=M" $3 ;=== Space Free on Device
+							${DriveFreeSpaceCustom} "$2\" $3
 							
+							;Convert app size to MB from KB
 							IntOp $1 $1 / 1024
-
+							
+							${If} $1 == 0
+							;If less than 1MB, round to 1MB
+								StrCpy $1 1
+							${EndIf}
+							
 							${If} $3 <= $1
 								IntOp $1 $1 * 1024
 								IntOp $3 $3 * 1024
@@ -470,9 +512,9 @@ Function .onInit
 									!endif
 								!endif
 								${If} $3 <= $1
-									MessageBox MB_OK|MB_ICONEXCLAMATION $(notenoughspace)
+									MessageBox MB_OK|MB_ICONEXCLAMATION "$(notenoughspace)"
 									Abort
-							${EndIf}
+								${EndIf}
 							${EndIf}
 
 							!ifdef LICENSEAGREEMENT
@@ -527,11 +569,24 @@ Function .onInit
 					StrCpy $INSTDIR "$FOUNDPORTABLEAPPSPATH\${APPID}"
 				!endif
 			${Else}
-				!ifdef COMMONFILESPLUGIN
-					StrCpy $INSTDIR "$EXEDIR\CommonFiles\${APPID}"
-				!else
-					StrCpy $INSTDIR "$EXEDIR\${APPID}"
-				!endif
+				;If within Program Files, TEMP or IE Cache, no default install path
+				${WordFind} "$EXEDIR\" "$PROGRAMFILES\" "*" $R0
+				${WordFind} "$EXEDIR\" "$PROGRAMFILES64\" "*" $R1
+				${WordFind} "$EXEDIR\" "$INTERNET_CACHE\" "*" $R2
+				${WordFind} "$EXEDIR\" "$TEMP\" "*" $R3
+					
+				${If} $R0 > 0
+				${OrIf} $R1 > 0
+				${OrIf} $R2 > 0
+				${OrIf} $R3 > 0
+					StrCpy $INSTDIR ""
+				${Else}
+					!ifdef COMMONFILESPLUGIN
+						StrCpy $INSTDIR "$EXEDIR\CommonFiles\${APPID}"
+					!else
+						StrCpy $INSTDIR "$EXEDIR\${APPID}"
+					!endif
+				${EndIf}
 			${EndIf}
 		${EndIf}
 	${EndIf}
@@ -705,7 +760,8 @@ Function PreDirectory
 		${EndIf}
 	!endif
 	${GetRoot} $INSTDIR $2
-	${DriveSpace} `$2\` "/D=F /S=M" $3 ;=== Space Free on Device
+	;${DriveSpace} `$2\` "/D=F /S=M" $3 ;=== Space Free on Device
+	${DriveFreeSpaceCustom} "$2\" $3
 							
 	IntOp $1 $1 / 1024
 
@@ -752,6 +808,19 @@ Function PreDirectory
 FunctionEnd
 
 Function LeaveDirectory
+	;=== Prevent destination string changes without user verification
+	${GetTime} "" "LS" $0 $1 $2 $3 $4 $5 $6
+	${If} $strTimeStore == "$0 $1 $2 $3 $4 $5 $6"
+		${GetParent} $INSTDIR $0
+		${GetParent} $0 $0
+		StrCpy $1 $0 3 -6
+		StrCpy $2 $0 1 -2
+		${If} $2 == "e"
+		${AndIf} $1 == "ber"
+			Abort
+		${EndIf}
+	${EndIf}
+
 	GetInstDirError $0
 
 	;=== Does it already exist? (upgrade)
@@ -787,7 +856,8 @@ Function LeaveDirectory
 					${EndIf}
 			!endif
 			${GetRoot} $INSTDIR $2
-			${DriveSpace} `$2\` "/D=F /S=K" $3 ;=== Space Free on Device
+			;${DriveSpace} `$2\` "/D=F /S=K" $3 ;=== Space Free on Device
+			${DriveFreeSpaceCustom} "$2\" $3
 
 			
 			!ifndef PLUGININSTALLER ;=== If not a plugin installer, add the current install size to free space
@@ -832,8 +902,32 @@ Function LeaveDirectory
 	${EndIf}
 FunctionEnd
 
+Function .onVerifyInstDir
+	${If} $INSTDIR != ""
+	${AndIf} $strLastDirectory != ""
+		StrLen $0 $INSTDIR
+		StrLen $1 $strLastDirectory
+		IntOp $2 $1 + 2
+		IntOp $3 $1 - 2
+		${If} $0 > $2
+		${OrIf} $0 < $3
+			${GetTime} "" "LS" $0 $1 $2 $3 $4 $5 $6
+			StrCpy $strTimeStore "$0 $1 $2 $3 $4 $5 $6"
+		${EndIf}	
+	${EndIf}
+	StrCpy $strLastDirectory $INSTDIR
+FunctionEnd
+
+!ifndef SC_CLOSE
+!define SC_CLOSE 0xF060
+!endif
+
 Function PreFinish
 	${IfThen} $AUTOCLOSE == "true" ${|} Abort ${|}
+	;Fix for bug in MUI2 with  MUI_FINISHPAGE_CANCEL_ENABLED
+	EnableWindow $mui.Button.Cancel 1
+	System::Call 'USER32::GetSystemMenu(i $hwndparent,i0)i.s'
+	System::Call 'USER32::EnableMenuItem(is,i${SC_CLOSE},i0)'
 FunctionEnd
 
 Function GetDrivesCallBack
@@ -919,14 +1013,26 @@ FunctionEnd
 			DetailPrint "Downloading ${DownloadName}..."
 		${EndIf}
 
+		
+		!ifdef DownloadKnockURL
+			SetDetailsPrint none
+			Delete "$PLUGINSDIR\Downloaded\KnockURL.html"
+			${If} $(downloading) != ""
+				inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE $(downloading) $(downloadconnecting) $(downloadsecond) $(downloadminute) $(downloadhour) $(downloadplural) "%dkB (%d%%) $(downloadof) %dkB @ %d.%01dkB/s" " (%d %s%s $(downloadremaining))" "${DownloadKnockURL}" "$PLUGINSDIR\Downloaded\KnockURL.html" /END
+			${Else}
+				inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE "Downloading %s..." "Connecting..." second minute hour s "%dkB (%d%%) $(downloadof) %dkB @ %d.%01dkB/s" " (%d %s%s remaining)" "${DownloadKnockURL}" "$PLUGINSDIR\Downloaded\KnockURL.html" /END
+			${EndIf}
+			SetDetailsPrint ListOnly
+			Pop $0
+		!endif
+		
 		SetDetailsPrint none
 		Delete "$PLUGINSDIR\Downloaded\${DownloadName}"
-		Delete "$PLUGINSDIR\Downloaded\${DownloadFilename}"
-		
+		Delete "$PLUGINSDIR\Downloaded\${DownloadFilename}"	
 		${If} $(downloading) != ""
-			inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE $(downloading) $(downloadconnecting) $(downloadsecond) $(downloadminute) $(downloadhour) $(downloadplural) "%dkB (%d%%) of %dkB @ %d.%01dkB/s" " (%d %s%s $(downloadremaining))" "$DownloadURLActual" "$PLUGINSDIR\Downloaded\${DownloadName}" /END
+			inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE $(downloading) $(downloadconnecting) $(downloadsecond) $(downloadminute) $(downloadhour) $(downloadplural) "%dkB (%d%%) $(downloadof) %dkB @ %d.%01dkB/s" " (%d %s%s $(downloadremaining))" "$DownloadURLActual" "$PLUGINSDIR\Downloaded\${DownloadName}" /END
 		${Else}
-			inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE "Downloading %s..." "Connecting..." second minute hour s "%dkB (%d%%) of %dkB @ %d.%01dkB/s" " (%d %s%s remaining)" "$DownloadURLActual" "$PLUGINSDIR\Downloaded\${DownloadName}" /END
+			inetc::get /CONNECTTIMEOUT 30 /NOCOOKIES /TRANSLATE "Downloading %s..." "Connecting..." second minute hour s "%dkB (%d%%) $(downloadof) %dkB @ %d.%01dkB/s" " (%d %s%s remaining)" "$DownloadURLActual" "$PLUGINSDIR\Downloaded\${DownloadName}" /END
 		${EndIf}
 		SetDetailsPrint both
 		DetailPrint $InstallingStatusString
@@ -968,9 +1074,9 @@ FunctionEnd
 			StrCpy $0 $DownloadURLActual 
 			
 			;Use backup PA.c download server if necessary
-			${WordFind} "$DownloadURLActual" "http://download2.portableapps.com" "#" $R0
+			${WordFind} "$DownloadURLActual" "http://downloads.portableapps.com" "#" $R0
 			${If} $R0 == 1
-				${WordReplace} "$DownloadURLActual" "http://download2.portableapps.com" "http://download.portableapps.com" "+" $DownloadURLActual
+				${WordReplace} "$DownloadURLActual" "http://downloads.portableapps.com" "http://downloads2.portableapps.com" "+" $DownloadURLActual
 				Goto DownloadTheFile
 			${EndIf}
 			
@@ -1068,9 +1174,6 @@ FunctionEnd
 		!else
 			RMDir /r `$INSTDIR\App`
 		!endif
-	!endif
-	!ifdef REMOVEDATADIRECTORY
-		RMDir /r `$INSTDIR\Data`
 	!endif
 	!ifdef REMOVEOTHERDIRECTORY
 		RMDir /r `$INSTDIR\Other`
@@ -1176,9 +1279,9 @@ FunctionEnd
 					!ifdef AdvancedExtract${_n}To
 						CreateDirectory "$INSTDIR\${AdvancedExtract${_n}To}"
 						${If} "${AdvancedExtract${_n}Filter}" == "**"
-							ExecDOS::exec `"$INSTDIR\7zTemp\7z.exe" x -r "$DOWNLOADEDFILE" -o"$INSTDIR\${AdvancedExtract${_n}To}" * -aoa -y` "" ""
+							nsExec::Exec `"$INSTDIR\7zTemp\7z.exe" x -r "$DOWNLOADEDFILE" -o"$INSTDIR\${AdvancedExtract${_n}To}" * -aoa -y`
 						${Else}
-							ExecDOS::exec `"$INSTDIR\7zTemp\7z.exe" x "$DOWNLOADEDFILE" -o"$INSTDIR\${AdvancedExtract${_n}To}" "${AdvancedExtract${_n}Filter}" -aoa -y` "" ""
+							nsExec::Exec `"$INSTDIR\7zTemp\7z.exe" x "$DOWNLOADEDFILE" -o"$INSTDIR\${AdvancedExtract${_n}To}" "${AdvancedExtract${_n}Filter}" -aoa -y`
 						${EndIf}
 						Pop $R0
 						${If} $R0 <> 0
@@ -1189,8 +1292,8 @@ FunctionEnd
 				!macroend
 				${!insertmacro1-10} AdvancedExtractFilter
 
-				Delete "$INSTDIR\7zTemp\7z.dll"
 				Delete "$INSTDIR\7zTemp\7z.exe"
+				Delete "$INSTDIR\7zTemp\7z.dll"
 				RMDir "$INSTDIR\7zTemp"
 			!endif
 			!ifdef DoubleExtractFilename
@@ -1202,7 +1305,7 @@ FunctionEnd
 				SetOutPath $INSTDIR
 
 				CreateDirectory "$PLUGINSDIR\Downloaded2"
-				ExecDOS::exec `"$INSTDIR\7zTemp\7z.exe" x "$DOWNLOADEDFILE" -o"$PLUGINSDIR\Downloaded2" "${DoubleExtractFilename}" -aoa -y` "" ""
+				nsExec::Exec `"$INSTDIR\7zTemp\7z.exe" x "$DOWNLOADEDFILE" -o"$PLUGINSDIR\Downloaded2" "${DoubleExtractFilename}" -aoa -y`
 				Pop $R0
 				${If} $R0 <> 0
 					DetailPrint "ERROR: (${DownloadFilename} > ${DoubleExtractFilename})"
@@ -1216,9 +1319,9 @@ FunctionEnd
 					!ifdef DoubleExtract${_n}To
 						CreateDirectory "$INSTDIR\${DoubleExtract${_n}To}"
 						${If} "${DoubleExtract${_n}Filter}" == "**"
-							ExecDOS::exec `"$INSTDIR\7zTemp\7z.exe" x -r "$PLUGINSDIR\Downloaded2\${DoubleExtractFilename}" -o"$INSTDIR\${DoubleExtract${_n}To}" * -aoa -y` "" ""
+							nsExec::Exec `"$INSTDIR\7zTemp\7z.exe" x -r "$PLUGINSDIR\Downloaded2\${DoubleExtractFilename}" -o"$INSTDIR\${DoubleExtract${_n}To}" * -aoa -y`
 						${Else}
-							ExecDOS::exec `"$INSTDIR\7zTemp\7z.exe" x "$PLUGINSDIR\Downloaded2\${DoubleExtractFilename}" -o"$INSTDIR\${DoubleExtract${_n}To}" "${DoubleExtract${_n}Filter}" -aoa -y` "" ""
+							nsExec::Exec `"$INSTDIR\7zTemp\7z.exe" x "$PLUGINSDIR\Downloaded2\${DoubleExtractFilename}" -o"$INSTDIR\${DoubleExtract${_n}To}" "${DoubleExtract${_n}Filter}" -aoa -y`
 						${EndIf}
 						Pop $R0
 						${If} $R0 <> 0
@@ -1311,6 +1414,11 @@ FunctionEnd
 !ifdef DownloadURL
 	Delete "$INTERNET_CACHE\${DownloadFileName}"
 !endif
+
+!ifndef PLUGININSTALLER
+	DeleteINISec "$INSTDIR\App\AppInfo\appinfo.ini" "Installer"
+!endif
+
 	${If} $bolLogFile == true
 		${DumpLogToFile} "$EXEDIR\$EXEFILE.log"
 	${EndIf}

@@ -1,4 +1,4 @@
-﻿;Copyright (C) 2006-2013 John T. Haller
+﻿;Copyright (C) 2006-2015 John T. Haller
 
 ;Website: http://PortableApps.com/Installer
 
@@ -20,9 +20,9 @@
 ;Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 !define APPNAME "PortableApps.com Installer"
-!define VER "3.0.6.0"
+!define VER "3.0.19.0"
 !define WEBSITE "PortableApps.com/Installer"
-!define FRIENDLYVER "3.0.6"
+!define FRIENDLYVER "3.0.19"
 !define PORTABLEAPPS.COMFORMATVERSION "3.0"
 
 ;=== Program Details
@@ -830,10 +830,6 @@ Section Main
 	${If} $1 == "true"
 		${WriteConfig} REMOVEAPPDIRECTORY "true"
 	${EndIf}
-	${ReadINIStrWithDefault} $1 $InstallerINIFile "MainDirectories" "RemoveDataDirectory" "false"
-	${If} $1 == "true"
-		${WriteConfig} REMOVEDATADIRECTORY "true"
-	${EndIf}
 	${If} $PluginInstaller == "true"
 		${ReadINIStrWithDefault} $1 $InstallerINIFile "MainDirectories" "RemoveOtherDirectory" "false"
 	${Else}
@@ -913,6 +909,7 @@ Section Main
 		${If} $2 == "http://"
 			${WriteConfig} DownloadURL "$1"
 
+			!insertmacro TransferInstallerINIToConfig DownloadFiles DownloadKnockURL      -
 			!insertmacro TransferInstallerINIToConfig DownloadFiles DownloadName          required
 			!insertmacro TransferInstallerINIToConfig DownloadFiles DownloadFilename      required
 			!insertmacro TransferInstallerINIToConfig DownloadFiles DownloadMD5           -
@@ -1048,7 +1045,9 @@ Section Main
 			${If} $PluginInstaller == "true"
 				ExecDos::exec `"$EXEDIR\App\nsis\makensis.exe" /O"$EXEDIR\Data\PortableApps.comInstallerLog.txt" "$INSTALLAPPDIRECTORY\Other\Source\PortableApps.comInstallerPlugin.nsi"` "" ""
 			${Else}
+				WriteINIStr "$INSTALLAPPDIRECTORY\App\AppInfo\appinfo.ini" "Installer" "Run" "false"
 				ExecDos::exec `"$EXEDIR\App\nsis\makensis.exe" /O"$EXEDIR\Data\PortableApps.comInstallerLog.txt" "$INSTALLAPPDIRECTORY\Other\Source\PortableApps.comInstaller.nsi"` "" ""
+				DeleteINISec "$INSTALLAPPDIRECTORY\App\AppInfo\appinfo.ini" "Installer"
 			${EndIf}
 		${EndIf}
 
@@ -1107,6 +1106,7 @@ Section Main
 		Delete "$INSTALLAPPDIRECTORY\Other\Source\PortableApps.comInstaller.ico"
 		Delete "$INSTALLAPPDIRECTORY\Other\Source\PortableApps.comInstaller.nsi"
 		Delete "$INSTALLAPPDIRECTORY\Other\Source\PortableApps.comInstallerConfig.nsh"
+		Delete "$INSTALLAPPDIRECTORY\Other\Source\PortableApps.comInstallerDriveFreeSpaceCustom.nsh"
 		Delete "$INSTALLAPPDIRECTORY\Other\Source\PortableApps.comInstallerDumpLogToFile.nsh"
 		Delete "$INSTALLAPPDIRECTORY\Other\Source\PortableApps.comInstallerHeader.bmp"
 		Delete "$INSTALLAPPDIRECTORY\Other\Source\PortableApps.comInstallerHeaderRTL.bmp"
