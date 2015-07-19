@@ -1,4 +1,5 @@
 ﻿using Greenshot.Configuration;
+using Greenshot.Forms;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using log4net;
