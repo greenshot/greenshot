@@ -29,6 +29,7 @@ using System.Windows.Forms;
 
 using Greenshot.Configuration;
 using Greenshot.Destinations;
+using Greenshot.Forms;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -480,7 +481,7 @@ namespace Greenshot {
 				MainForm.RegisterHotkeys();
 
 				// Make sure the current language & settings are reflected in the Main-context menu
-				MainForm.Instance.UpdateUI();
+				MainForm.Instance.UpdateUi();
 				DialogResult = DialogResult.OK;
 			} else {
 				tabcontrol.SelectTab(tab_output);

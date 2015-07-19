@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
+using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using log4net;

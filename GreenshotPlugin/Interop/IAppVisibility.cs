@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Runtime.InteropServices;
 
 namespace Greenshot.Interop {
 	// This is used for Windows 8 to see if the App Launcher is active
 	// See http://msdn.microsoft.com/en-us/library/windows/desktop/jj554119%28v=vs.85%29.aspx
-	[ComProgId("clsid:7E5FE3D9-985F-4908-91F9-EE19F9FD1514")]
 	[ComImport, Guid("2246EA2D-CAEA-4444-A3C4-6DE827E44313"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IAppVisibility {
 		MONITOR_APP_VISIBILITY GetAppVisibilityOnMonitor(IntPtr hMonitor);

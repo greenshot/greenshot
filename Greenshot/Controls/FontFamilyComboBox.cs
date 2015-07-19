@@ -89,7 +89,7 @@ namespace Greenshot.Controls {
 		/// <param name="bounds"></param>
 		/// <param name="text"></param>
 		private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, Rectangle bounds, string text) {
-			using (Font font = new Font(fontFamily, this.Font.Size + 5, fontStyle, GraphicsUnit.Pixel)) {
+			using (Font font = new Font(fontFamily, Font.Size + 5, fontStyle, GraphicsUnit.Pixel)) {
 				// Make sure the text is visible by centering it in the line
 				using (StringFormat stringFormat = new StringFormat()) {
 					stringFormat.LineAlignment = StringAlignment.Center;

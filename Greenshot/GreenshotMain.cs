@@ -22,6 +22,8 @@ using System;
 using System.Reflection;
 
 // Remove AppendPrivatePath warning:
+using Greenshot.Forms;
+
 #pragma warning disable 0618
 namespace Greenshot {
 	/// <summary>

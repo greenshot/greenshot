@@ -20,6 +20,7 @@
  */
 
 using Greenshot.IniFile;
+using Greenshot.Interop.IE;
 using GreenshotPlugin.Core;
 using log4net;
 using mshtml;
@@ -39,7 +40,7 @@ namespace Greenshot.Helpers.IEInterop {
 		private static readonly Guid IID_IWebBrowser2 = new Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E");
 		private static int counter = 0;
 		private int id = counter++;
-		private mshtml.IHTMLDocument2 document2;
+		private IHTMLDocument2 document2;
 		private IHTMLDocument3 document3;
 		private Point sourceLocation;
 		private Point destinationLocation;
@@ -368,7 +369,7 @@ namespace Greenshot.Helpers.IEInterop {
 				sp.QueryService(ref webBrowserApp, ref webBrowser2, out brws);
 				
 				// Get the document from IWebBrowser2.
-				Greenshot.Interop.IE.IWebBrowser2 browser = (Greenshot.Interop.IE.IWebBrowser2)(brws);
+				IWebBrowser2 browser = (IWebBrowser2)(brws);
 				
 				return (IHTMLDocument2)browser.Document;
 			} catch (Exception ex2) {

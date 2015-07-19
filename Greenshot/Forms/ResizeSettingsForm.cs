@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Core;
@@ -50,8 +51,8 @@ namespace Greenshot.Forms {
 			textbox_height.Text = effect.Height.ToString();
 			newWidth = effect.Width;
 			newHeight = effect.Height;
-			combobox_width.SelectedIndexChanged += new System.EventHandler(this.combobox_SelectedIndexChanged);
-			combobox_height.SelectedIndexChanged += new System.EventHandler(this.combobox_SelectedIndexChanged);
+			combobox_width.SelectedIndexChanged += new EventHandler(combobox_SelectedIndexChanged);
+			combobox_height.SelectedIndexChanged += new EventHandler(combobox_SelectedIndexChanged);
 
 			checkbox_aspectratio.Checked = effect.MaintainAspectRatio;
 		}
@@ -150,7 +151,7 @@ namespace Greenshot.Forms {
 			}
 		}
 
-		private void textbox_Validating(object sender, System.ComponentModel.CancelEventArgs e) {
+		private void textbox_Validating(object sender, CancelEventArgs e) {
 			validate(sender);
 		}
 

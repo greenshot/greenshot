@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Drawing.Imaging;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using System;
@@ -54,7 +55,7 @@ namespace Greenshot.Forms {
 				if (defaultImage != null) {
 					defaultImage.Dispose();
 				}
-				defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
+				defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
 			}
 			Image = defaultImage;
 		}

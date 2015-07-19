@@ -347,7 +347,7 @@ namespace Greenshot {
 		/// <param name="eventArgs"></param>
 		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs) {
 			if (InvokeRequired) {
-				this.Invoke(new SurfaceMessageReceivedThreadSafeDelegate(SurfaceMessageReceived), new object[] { sender, eventArgs });
+				Invoke(new SurfaceMessageReceivedThreadSafeDelegate(SurfaceMessageReceived), new object[] { sender, eventArgs });
 			} else {
 				string dateTime = DateTime.Now.ToLongTimeString();
 				// TODO: Fix that we only open files, like in the tooltip
@@ -1051,12 +1051,12 @@ namespace Greenshot {
 			int stepLabels = surface.CountStepLabels(null);
 		    Image icon;
 			if (stepLabels <= 20) {
-			    icon = ((System.Drawing.Image)(resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
+			    icon = ((Image)(resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
 			} else {
-			    icon = ((System.Drawing.Image)(resources.GetObject("btnStepLabel20+.Image")));
+			    icon = ((Image)(resources.GetObject("btnStepLabel20+.Image")));
 			}
-            this.btnStepLabel.Image = icon;
-            this.addCounterToolStripMenuItem.Image = icon;
+            btnStepLabel.Image = icon;
+            addCounterToolStripMenuItem.Image = icon;
 
 		    FieldAggregator props = surface.FieldAggregator;
 			// if a confirmable element is selected, we must disable most of the controls

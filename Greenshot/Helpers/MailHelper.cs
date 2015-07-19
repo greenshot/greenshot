@@ -78,7 +78,7 @@ namespace Greenshot.Helpers {
 
 			if (tmpFile != null) {
 				// Store the list of currently active windows, so we can make sure we show the email window later!
-				List<WindowDetails> windowsBefore = WindowDetails.GetVisibleWindows();
+				var windowsBefore = WindowDetails.GetVisibleWindows();
 				bool isEmailSend = false;
 				//if (EmailConfigHelper.HasOutlook() && (conf.OutputEMailFormat == EmailFormat.OUTLOOK_HTML || conf.OutputEMailFormat == EmailFormat.OUTLOOK_TXT)) {
 				//	isEmailSend = OutlookExporter.ExportToOutlook(tmpFile, captureDetails);

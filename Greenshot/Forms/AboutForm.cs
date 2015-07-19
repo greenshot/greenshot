@@ -28,7 +28,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
-
+using Greenshot.Forms;
 using Greenshot.Helpers;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
