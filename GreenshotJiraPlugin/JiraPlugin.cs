@@ -33,26 +33,10 @@ namespace GreenshotJiraPlugin {
 	public class JiraPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
 		private PluginAttribute jiraPluginAttributes;
-		private IGreenshotHost host;
+		private IGreenshotHost _host;
 		private JiraConfiguration config = null;
 		private ComponentResourceManager resources;
 		private JiraMonitor _jiraMonitor;
-
-		#region dispose
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (_jiraMonitor != null) {
-					_jiraMonitor.Dispose();
-					_jiraMonitor = null;
-				}
-			}
-		}
-		#endregion
 
 		/// <summary>
 		/// Get the JiraMonitor
@@ -79,29 +63,42 @@ namespace GreenshotJiraPlugin {
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotHost)pluginHost;
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+			_host = (IGreenshotHost)pluginHost;
 			jiraPluginAttributes = myAttributes;
 
 			// Register configuration (don't need the configuration itself)
 			config = IniConfig.GetIniSection<JiraConfiguration>();
 			resources = new ComponentResourceManager(typeof(JiraPlugin));
-			if (!string.IsNullOrEmpty(config.Password)) {
-				_jiraMonitor = new JiraMonitor();
-				_jiraMonitor.AddJiraInstance(config.RestUrl, config.Username, config.Password);
-			}
+			InitializeMonitor();
 			return true;
 		}
 
-		public virtual void Shutdown() {
+		public void InitializeMonitor()
+		{
+			if (_jiraMonitor != null)
+			{
+				_jiraMonitor.Dispose();
+			}
+			if (!string.IsNullOrEmpty(config.Password))
+			{
+				_jiraMonitor = new JiraMonitor();
+				_jiraMonitor.AddJiraInstance(config.RestUrl, config.Username, config.Password);
+			}
+		}
+
+		public void Shutdown() {
 			LOG.Debug("Jira Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
-			config.ShowConfigDialog();
+		public void Configure() {
+			if (config.ShowConfigDialog())
+			{
+				InitializeMonitor();
+			}
 		}
 
 		/// <summary>
@@ -113,6 +110,42 @@ namespace GreenshotJiraPlugin {
 			LOG.Debug("Application closing, calling logout of jira!");
 			Shutdown();
 		}
+
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					if (_jiraMonitor != null)
+					{
+						_jiraMonitor.Dispose();
+						_jiraMonitor = null;
+					}
+				}
+
+				disposedValue = true;
+			}
+		}
+
+		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+		// ~JiraPlugin() {
+		//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+		//   Dispose(false);
+		// }
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+			// TODO: uncomment the following line if the finalizer is overridden above.
+			// GC.SuppressFinalize(this);
+		}
+		#endregion
 
 	}
 }

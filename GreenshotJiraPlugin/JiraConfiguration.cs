@@ -78,10 +78,23 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
 		public bool ShowConfigDialog() {
+			var before = new
+			{
+				RestUrl = RestUrl,
+				Password = Password,
+				Username = Username
+			};
+
 			SettingsForm settingsForm = new SettingsForm(this);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
-				return true;
+				var after = new
+				{
+					RestUrl = RestUrl,
+					Password = Password,
+					Username = Username
+				};
+				return !before.Equals(after);
 			}
 			return false;
 		}
