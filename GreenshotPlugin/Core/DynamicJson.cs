@@ -168,7 +168,7 @@ namespace GreenshotPlugin.Core
         private static string CreateJsonString(XStreamingElement element)
         {
             using (var ms = new MemoryStream())
-            using (var writer = JsonReaderWriterFactory.CreateJsonWriter(ms, Encoding.Unicode))
+            using (var writer = JsonReaderWriterFactory.CreateJsonWriter(ms, Encoding.Unicode, false))
             {
                 element.WriteTo(writer);
                 writer.Flush();

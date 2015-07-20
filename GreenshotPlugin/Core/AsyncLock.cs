@@ -27,7 +27,7 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// A simple class to make it possible to lock a resource while waiting
 	/// </summary>
-	public class AsyncLock {
+	public class AsyncLock : IDisposable {
 		private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
 		public async Task<IDisposable> LockAsync() {
@@ -45,5 +45,36 @@ namespace GreenshotPlugin.Core {
 				_semaphoreSlim.Release();
 			}
 		}
+
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					// TODO: dispose managed state (managed objects).
+					_semaphoreSlim.Dispose();
+				}
+
+				disposedValue = true;
+			}
+		}
+
+		~AsyncLock() {
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(false);
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		#endregion
 	}
 }

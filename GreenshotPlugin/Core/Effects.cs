@@ -70,7 +70,7 @@ namespace Greenshot.Core {
 			set;
 		}
 
-		public virtual void Reset() {
+		public void Reset() {
 			Darkness = 0.6f;
 			ShadowSize = 7;
 			ShadowOffset = new Point(-1, -1);
@@ -110,7 +110,7 @@ namespace Greenshot.Core {
 			set;
 		}
 
-		public override void Reset() {
+		public new void Reset() {
 			base.Reset();
 			ShadowSize = 7;
 			ToothHeight = 12;
@@ -163,7 +163,7 @@ namespace Greenshot.Core {
 	/// AdjustEffect
 	/// </summary>
 	public class AdjustEffect : IEffect {
-		public AdjustEffect() : base() {
+		public AdjustEffect() {
 			Reset();
 		}
 		public float Contrast {
@@ -193,7 +193,7 @@ namespace Greenshot.Core {
 	/// </summary>
 	public class ReduceColorsEffect : IEffect {
 		private static ILog LOG = LogManager.GetLogger(typeof(ReduceColorsEffect));
-		public ReduceColorsEffect() : base() {
+		public ReduceColorsEffect() {
 			Reset();
 		}
 		public int Colors {

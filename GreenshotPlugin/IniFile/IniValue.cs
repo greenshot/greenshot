@@ -230,7 +230,7 @@ namespace Greenshot.IniFile {
 		/// Set the value to the value in the ini file, or default
 		/// </summary>
 		/// <returns></returns>
-		public void SetValueFromProperties(Dictionary<string, string> properties) {
+		public void SetValueFromProperties(IDictionary<string, string> properties) {
 			string propertyName = attributes.Name;
 			string defaultValue = attributes.DefaultValue;
 			string propertyValue = null;
@@ -274,7 +274,7 @@ namespace Greenshot.IniFile {
 				object dictionary = Activator.CreateInstance(valueType);
 				MethodInfo addMethodInfo = valueType.GetMethod("Add");
 				bool addedElements = false;
-				Dictionary<string, string> properties = IniConfig.PropertiesForSection(containingIniSection);
+				IDictionary<string, string> properties = IniConfig.PropertiesForSection(containingIniSection);
 				foreach (string key in properties.Keys) {
 					if (key != null && key.StartsWith(propertyName + ".")) {
 						// What "key" do we need to store it under?

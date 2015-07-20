@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Reflection;
 
@@ -36,10 +37,10 @@ namespace Greenshot {
 
 		static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
 			Assembly ayResult = null;
-			string sShortAssemblyName = args.Name.Split(',')[0];
+			string _shortAssemblyName = args.Name.Split(',')[0];
 			Assembly[] ayAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 			foreach (Assembly ayAssembly in ayAssemblies) {
-				if (sShortAssemblyName == ayAssembly.FullName.Split(',')[0]) {
+				if (_shortAssemblyName == ayAssembly.FullName.Split(',')[0]) {
 					ayResult = ayAssembly;
 					break;
 				}

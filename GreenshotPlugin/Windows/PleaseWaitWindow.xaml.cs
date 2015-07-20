@@ -26,59 +26,78 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms.Integration;
 
-namespace GreenshotPlugin.Windows {
+namespace GreenshotPlugin.Windows
+{
 	/// <summary>
 	/// Interaction logic for PleaseWaitWindow.xaml
 	/// </summary>
-	public partial class PleaseWaitWindow : Window, IProgress<int>, INotifyPropertyChanged {
+	public partial class PleaseWaitWindow : Window, IProgress<int>, INotifyPropertyChanged, IDisposable
+	{
 		public event PropertyChangedEventHandler PropertyChanged;
 		private int _progressValue = 0;
 		private bool _isIndeterminate = true;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private string _text;
 
-		public CancellationToken Token {
-			get {
+		public CancellationToken Token
+		{
+			get
+			{
 				return _cancellationTokenSource.Token;
 			}
 		}
 
-		public string Text {
-			get {
+		public string Text
+		{
+			get
+			{
 				return _text;
 			}
-			set {
-				if (_text != value) {
+			set
+			{
+				if (_text != value)
+				{
 					_text = value;
-					if (PropertyChanged != null) {
+					if (PropertyChanged != null)
+					{
 						PropertyChanged(this, new PropertyChangedEventArgs("Text"));
 					}
 				}
 			}
 		}
 
-		public bool IsIndeterminate {
-			get {
+		public bool IsIndeterminate
+		{
+			get
+			{
 				return _isIndeterminate;
 			}
-			set {
-				if (_isIndeterminate != value) {
+			set
+			{
+				if (_isIndeterminate != value)
+				{
 					_isIndeterminate = value;
-					if (PropertyChanged != null) {
+					if (PropertyChanged != null)
+					{
 						PropertyChanged(this, new PropertyChangedEventArgs("IsIndeterminate"));
 					}
 				}
 			}
 		}
 
-		public int ProgressValue {
-			get {
+		public int ProgressValue
+		{
+			get
+			{
 				return _progressValue;
 			}
-			set {
-				if (_progressValue != value) {
+			set
+			{
+				if (_progressValue != value)
+				{
 					_progressValue = value;
-					if (PropertyChanged != null) {
+					if (PropertyChanged != null)
+					{
 						PropertyChanged(this, new PropertyChangedEventArgs("ProgressValue"));
 					}
 				}
@@ -93,32 +112,63 @@ namespace GreenshotPlugin.Windows {
 		/// <param name="asyncFunction">async Function to run</param>
 		/// <param name="isIndeterminate">Tell if there is a progress reporting</param>
 		/// <returns>Task to wait for</returns>
-		public static async Task CreateAndShowAsync(string title, string text, Func<IProgress<int>, CancellationToken, Task> asyncFunction, bool isIndeterminate = true) {
-			var pleaseWaitWindow = new PleaseWaitWindow();
-			ElementHost.EnableModelessKeyboardInterop(pleaseWaitWindow);
-			pleaseWaitWindow.Title = title;
-			pleaseWaitWindow.Text = text;
-			pleaseWaitWindow.IsIndeterminate = isIndeterminate;
-			pleaseWaitWindow.Show();
-			await asyncFunction(pleaseWaitWindow, pleaseWaitWindow.Token).ConfigureAwait(false);
-			pleaseWaitWindow.Close();
+		public static async Task CreateAndShowAsync(string title, string text, Func<IProgress<int>, CancellationToken, Task> asyncFunction, bool isIndeterminate = true)
+		{
+			using (var pleaseWaitWindow = new PleaseWaitWindow())
+			{
+				ElementHost.EnableModelessKeyboardInterop(pleaseWaitWindow);
+				pleaseWaitWindow.Title = title;
+				pleaseWaitWindow.Text = text;
+				pleaseWaitWindow.IsIndeterminate = isIndeterminate;
+				pleaseWaitWindow.Show();
+				await asyncFunction(pleaseWaitWindow, pleaseWaitWindow.Token).ConfigureAwait(false);
+				pleaseWaitWindow.Close();
+			}
 		}
 
-		private PleaseWaitWindow() {
+		private PleaseWaitWindow()
+		{
 			DataContext = this;
 			InitializeComponent();
 		}
 
-		public void Report(int value) {
-			if (!Dispatcher.CheckAccess()) {
+		public void Report(int value)
+		{
+			if (!Dispatcher.CheckAccess())
+			{
 				Dispatcher.Invoke(() => Report(value));
 				return;
 			}
 			ProgressValue = value;
 		}
 
-		private void Button_Click(object sender, RoutedEventArgs e) {
+		private void Button_Click(object sender, RoutedEventArgs e)
+		{
 			_cancellationTokenSource.Cancel();
 		}
+
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					_cancellationTokenSource.Dispose();
+				}
+
+				disposedValue = true;
+			}
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+		}
+		#endregion
 	}
 }

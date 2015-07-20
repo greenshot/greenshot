@@ -903,7 +903,7 @@ namespace GreenshotPlugin.Core {
 	/// OAuth 2.0 verification code receiver that runs a local server on a free port
 	/// and waits for a call with the authorization verification code.
 	/// </summary>
-	public class LocalServerCodeReceiver {
+	public class LocalServerCodeReceiver : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(LocalServerCodeReceiver));
 		private readonly ManualResetEvent _ready = new ManualResetEvent(true);
 
@@ -1066,6 +1066,30 @@ Greenshot received information from CloudServiceName. You can close this browser
 				listener.Stop();
 			}
 		}
+
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					_ready.Dispose();
+				}
+
+				disposedValue = true;
+			}
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+		}
+		#endregion
 	}
 
 	/// <summary>
@@ -1235,8 +1259,11 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
 		/// <returns>true if completed</returns>
 		private static bool AuthenticateViaLocalServer(OAuth2Settings settings) {
-			var codeReceiver = new LocalServerCodeReceiver();
-			IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
+			IDictionary<string, string> result;
+			using (var codeReceiver = new LocalServerCodeReceiver())
+			{
+				result = codeReceiver.ReceiveCode(settings);
+			}
 
 			string code;
 			if (result.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code)) {

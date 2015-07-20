@@ -163,7 +163,7 @@ namespace GreenshotJiraPlugin {
 		/// Handle title changes, check for JIRA
 		/// </summary>
 		/// <param name="eventArgs"></param>
-		private void monitor_TitleChangeEvent(TitleChangeEventArgs eventArgs) {
+		private void monitor_TitleChangeEvent(object sender, TitleChangeEventArgs eventArgs) {
 			string windowTitle = eventArgs.Title;
 			if (string.IsNullOrEmpty(windowTitle)) {
 				return;

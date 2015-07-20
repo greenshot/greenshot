@@ -33,11 +33,11 @@ namespace Greenshot.IniFile {
 		/**
 		 * Read an ini file to a Dictionary, each key is a section and the value is a Dictionary with name and values.
 		 */
-		public static Dictionary<string, Dictionary<string, string>> read(string path, Encoding encoding) {
-			Dictionary<string, Dictionary<string, string>> ini = new Dictionary<string, Dictionary<string, string>>();
-			using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1024)) {
-				using (StreamReader reader = new StreamReader(fileStream, encoding)) {
-					Dictionary<string, string> nameValues = new Dictionary<string, string>();
+		public static IDictionary<string, IDictionary<string, string>> read(string path, Encoding encoding) {
+			IDictionary<string, IDictionary<string, string>> ini = new Dictionary<string, IDictionary<string, string>>();
+			using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1024)) {
+				using (var reader = new StreamReader(fileStream, encoding)) {
+					IDictionary<string, string> nameValues = new Dictionary<string, string>();
 					while (!reader.EndOfStream) {
 						string line = reader.ReadLine();
 						if (line != null) {

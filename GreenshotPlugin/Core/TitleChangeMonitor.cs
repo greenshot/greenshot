@@ -43,8 +43,8 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Delegate for the title change event
 	/// </summary>
-	/// <param name="eventArgs"></param>
-	public delegate void TitleChangeEventDelegate(TitleChangeEventArgs eventArgs);
+	/// <param name="e"></param>
+	public delegate void TitleChangeEventDelegate(object sender, TitleChangeEventArgs e);
 
 	/// <summary>
 	/// Monitor all title changes
@@ -83,7 +83,7 @@ namespace GreenshotPlugin.Core {
 			if (eventType == WinEvent.EVENT_OBJECT_NAMECHANGE) {
 				string newTitle = GetText(hWnd);
 				if (TitleChangeEvent != null) {
-					TitleChangeEvent(new TitleChangeEventArgs { HWnd = hWnd, Title = newTitle });
+					TitleChangeEvent(this, new TitleChangeEventArgs { HWnd = hWnd, Title = newTitle });
 				}
 			}
 		}
@@ -102,32 +102,44 @@ namespace GreenshotPlugin.Core {
 			return title.ToString();
 		}
 
-		#region Dispose
-		/// <summary>
-		/// Dispose
-		/// </summary>
-		public void Dispose() {
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					// free managed resources
+					if (_hook != IntPtr.Zero)
+					{
+						User32.UnhookWinEvent(_hook);
+					}
+				}
+				// free native resources if there are any.
+				if (_gcHandle != null)
+				{
+					_gcHandle.Free();
+					_gcHandle = default(GCHandle);
+				}
+				disposedValue = true;
+			}
+		}
+
+		~TitleChangeMonitor() {
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(false);
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
-
-		/// <summary>
-		/// Dispose all managed resources
-		/// </summary>
-		/// <param name="disposing">when true is passed all managed resources are disposed.</param>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				// free managed resources
-				if (_hook != IntPtr.Zero) {
-					User32.UnhookWinEvent(_hook);
-				}
-			}
-			// free native resources if there are any.
-			if (_gcHandle != null) {
-				_gcHandle.Free();
-				_gcHandle = default(GCHandle);
-			}
-		}
 		#endregion
+
 	}
 }

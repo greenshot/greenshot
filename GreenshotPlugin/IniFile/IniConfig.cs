@@ -52,17 +52,17 @@ namespace Greenshot.IniFile {
 		/// <summary>
 		/// A Dictionary with all the sections stored by section name
 		/// </summary>
-		private static Dictionary<string, IniSection> sectionMap = new Dictionary<string, IniSection>();
+		private static IDictionary<string, IniSection> sectionMap = new Dictionary<string, IniSection>();
 
 		/// <summary>
 		/// A Dictionary with the properties for a section stored by section name
 		/// </summary>
-		private static Dictionary<string, Dictionary<string, string>> sections = new Dictionary<string, Dictionary<string, string>>();
+		private static IDictionary<string, IDictionary<string, string>> sections = new Dictionary<string, IDictionary<string, string>>();
 
 		/// <summary>
 		/// A Dictionary with the fixed-properties for a section stored by section name
 		/// </summary>
-		private static Dictionary<string, Dictionary<string, string>> fixedProperties = null;
+		private static IDictionary<string, IDictionary<string, string>> fixedProperties = null;
 		
 		/// <summary>
 		/// Stores if we checked for portable
@@ -230,7 +230,7 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		public static void Reload() {
 			// Clear the current properties
-			sections = new Dictionary<string, Dictionary<string, string>>();
+			sections = new Dictionary<string, IDictionary<string, string>>();
 			// Load the defaults
 			Read(CreateIniLocation(configName + DEFAULTS_POSTFIX + INI_EXTENSION, true));
 			// Load the normal
@@ -260,7 +260,7 @@ namespace Greenshot.IniFile {
 		private static void FixProperties(IniSection section) {
 			// Make properties unchangeable
 			if (fixedProperties != null) {
-				Dictionary<string, string> fixedPropertiesForSection = null;
+				IDictionary<string, string> fixedPropertiesForSection = null;
 				if (fixedProperties.TryGetValue(section.IniSectionAttribute.Name, out fixedPropertiesForSection)) {
 					foreach (string fixedPropertyKey in fixedPropertiesForSection.Keys) {
 						if (section.Values.ContainsKey(fixedPropertyKey)) {
@@ -275,23 +275,23 @@ namespace Greenshot.IniFile {
 		/// Read the ini file into the Dictionary
 		/// </summary>
 		/// <param name="iniLocation">Path & Filename of ini file</param>
-		private static Dictionary<string, Dictionary<string, string>> Read(string iniLocation) {
+		private static IDictionary<string, IDictionary<string, string>> Read(string iniLocation) {
 			if (!File.Exists(iniLocation)) {
 				LOG.Info("Can't find file: " + iniLocation);
 				return null;
 			}
 			LOG.InfoFormat("Loading ini-file: {0}", iniLocation);
 			//LOG.Info("Reading ini-properties from file: " + iniLocation);
-			Dictionary<string, Dictionary<string, string>> newSections = IniReader.read(iniLocation, Encoding.UTF8);
+			var newSections = IniReader.read(iniLocation, Encoding.UTF8);
 			// Merge the newly loaded properties to the already available
 			foreach(string section in newSections.Keys) {
-				Dictionary<string, string> newProperties = newSections[section];
+				var newProperties = newSections[section];
 				if (!sections.ContainsKey(section)) {
 					// This section is not yet loaded, simply add the complete section
 					sections.Add(section, newProperties);
 				} else {
 					// Overwrite or add every property from the newly loaded section to the available one
-					Dictionary<string, string> currentProperties = sections[section];
+					var currentProperties = sections[section];
 					foreach(string propertyName in newProperties.Keys) {
 						string propertyValue = newProperties[propertyName];
 						if (currentProperties.ContainsKey(propertyName)) {
@@ -370,11 +370,11 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		/// <param name="section"></param>
 		/// <returns></returns>
-		public static Dictionary<string, string> PropertiesForSection(IniSection section) {
+		public static IDictionary<string, string> PropertiesForSection(IniSection section) {
 			Type iniSectionType = section.GetType();
 			string sectionName = section.IniSectionAttribute.Name;
 			// Get the properties for the section
-			Dictionary<string, string> properties = null;
+			IDictionary<string, string> properties = null;
 			if (sections.ContainsKey(sectionName)) {
 				properties = sections[sectionName];
 			} else {
@@ -437,7 +437,7 @@ namespace Greenshot.IniFile {
 							writer.WriteLine("; The reason could be that the section {0} just hasn't been used, a plugin has an error and can't claim it or maybe the whole section {0} is obsolete.", sectionName);
 							// Write section name
 							writer.WriteLine("[{0}]", sectionName);
-							Dictionary<string, string> properties = sections[sectionName];
+							var properties = sections[sectionName];
 							// Loop and write properties
 							foreach (string propertyName in properties.Keys) {
 								writer.WriteLine("{0}={1}", propertyName, properties[propertyName]);

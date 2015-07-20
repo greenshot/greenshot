@@ -198,7 +198,7 @@ namespace GreenshotPlugin.Core {
 				if (outputSettings.Format == OutputFormat.greenshot) {
 					using (MemoryStream tmpStream = new MemoryStream()) {
 						long bytesWritten = surface.SaveElementsToStream(tmpStream);
-						using (BinaryWriter writer = new BinaryWriter(tmpStream)) {
+						using (BinaryWriter writer = new BinaryWriter(tmpStream, Encoding.UTF8, true)) {
 							writer.Write(bytesWritten);
 							Version v = Assembly.GetExecutingAssembly().GetName().Version;
 							byte[] marker = Encoding.ASCII.GetBytes(String.Format("Greenshot{0:00}.{1:00}", v.Major, v.Minor));

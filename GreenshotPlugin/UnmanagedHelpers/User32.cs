@@ -142,8 +142,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool ShowScrollBar(IntPtr hwnd, ScrollBarDirection scrollBar, bool show);
 		[DllImport("user32", SetLastError = true)]
 		public static extern int SetScrollPos(IntPtr hWnd, Orientation nBar, int nPos, bool bRedraw);
-		[DllImport("user32", SetLastError=true)]
-		public static extern bool PostMessage(IntPtr hWnd, uint msg, int wParam, int lParam);
 		[DllImport("user32", SetLastError = true)]
 		public static extern RegionResult GetWindowRgn(IntPtr hWnd, SafeHandle hRgn);
 		[DllImport("user32", SetLastError = true)]
@@ -219,11 +217,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr CreateIconIndirect(ref IconInfo icon);
 
 		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, DesktopAccessRight dwDesiredAccess);
+		internal static extern IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, DesktopAccessRight dwDesiredAccess);
 		[DllImport("user32", SetLastError = true)]
-		public static extern bool SetThreadDesktop(IntPtr hDesktop);
+		internal static extern bool SetThreadDesktop(IntPtr hDesktop);
 		[DllImport("user32", SetLastError = true)]
-		public static extern bool CloseDesktop(IntPtr hDesktop);
+		internal static extern bool CloseDesktop(IntPtr hDesktop);
 
 
 		#endregion
