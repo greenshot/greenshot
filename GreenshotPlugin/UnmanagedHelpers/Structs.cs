@@ -22,188 +22,250 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
+namespace GreenshotPlugin.UnmanagedHelpers
+{
 	[StructLayout(LayoutKind.Sequential), Serializable()]
-	public struct SIZE {
+	public struct SIZE
+	{
 		public int width;
 		public int height;
-		public SIZE(Size size) : this(size.Width, size.Height) {
-			
+		public SIZE(Size size) : this(size.Width, size.Height)
+		{
+
 		}
-		public SIZE(int width, int height) {
+		public SIZE(int width, int height)
+		{
 			this.width = width;
 			this.height = height;
 		}
-		public Size ToSize() {
+		public Size ToSize()
+		{
 			return new Size(width, height);
+		}
+		public bool IsEmpty()
+		{
+			return width * height == 0;
 		}
 	}
 	[StructLayout(LayoutKind.Sequential), Serializable()]
-	public struct POINT {
+	public struct POINT
+	{
 		public int X;
 		public int Y;
 
-		public POINT(int x, int y) {
+		public POINT(int x, int y)
+		{
 			X = x;
 			Y = y;
 		}
-		public POINT(Point point) {
+		public POINT(Point point)
+		{
 			X = point.X;
 			Y = point.Y;
 		}
 
-		public static implicit operator Point(POINT p) {
+		public static implicit operator Point(POINT p)
+		{
 			return new Point(p.X, p.Y);
 		}
 
-		public static implicit operator POINT(Point p) {
+		public static implicit operator POINT(Point p)
+		{
 			return new POINT(p.X, p.Y);
 		}
 
-		public Point ToPoint() {
+		public Point ToPoint()
+		{
 			return new Point(X, Y);
 		}
 
-		override public string ToString() {
+		override public string ToString()
+		{
 			return X + "," + Y;
 		}
 	}
 
 	[StructLayout(LayoutKind.Sequential), Serializable()]
-	public struct RECT {
+	public struct RECT
+	{
 		private int _Left;
 		private int _Top;
 		private int _Right;
 		private int _Bottom;
 
 		public RECT(RECT rectangle)
-			: this(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom) {
+			: this(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom)
+		{
 		}
 		public RECT(Rectangle rectangle)
-			: this(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom) {
+			: this(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom)
+		{
 		}
-		public RECT(int Left, int Top, int Right, int Bottom) {
+		public RECT(int Left, int Top, int Right, int Bottom)
+		{
 			_Left = Left;
 			_Top = Top;
 			_Right = Right;
 			_Bottom = Bottom;
 		}
 
-		public int X {
-			get {
+		public int X
+		{
+			get
+			{
 				return _Left;
 			}
-			set {
+			set
+			{
 				_Left = value;
 			}
 		}
-		public int Y {
-			get {
+		public int Y
+		{
+			get
+			{
 				return _Top;
 			}
-			set {
+			set
+			{
 				_Top = value;
 			}
 		}
-		public int Left {
-			get {
+		public int Left
+		{
+			get
+			{
 				return _Left;
 			}
-			set {
+			set
+			{
 				_Left = value;
 			}
 		}
-		public int Top {
-			get {
+		public int Top
+		{
+			get
+			{
 				return _Top;
 			}
-			set {
+			set
+			{
 				_Top = value;
 			}
 		}
-		public int Right {
-			get {
+		public int Right
+		{
+			get
+			{
 				return _Right;
 			}
-			set {
+			set
+			{
 				_Right = value;
 			}
 		}
-		public int Bottom {
-			get {
+		public int Bottom
+		{
+			get
+			{
 				return _Bottom;
 			}
-			set {
+			set
+			{
 				_Bottom = value;
 			}
 		}
-		public int Height {
-			get {
+		public int Height
+		{
+			get
+			{
 				return _Bottom - _Top;
 			}
-			set {
+			set
+			{
 				_Bottom = value - _Top;
 			}
 		}
-		public int Width {
-			get {
+		public int Width
+		{
+			get
+			{
 				return _Right - _Left;
 			}
-			set {
+			set
+			{
 				_Right = value + _Left;
 			}
 		}
-		public Point Location {
-			get {
+		public Point Location
+		{
+			get
+			{
 				return new Point(Left, Top);
 			}
-			set {
+			set
+			{
 				_Left = value.X;
 				_Top = value.Y;
 			}
 		}
-		public Size Size {
-			get {
+		public Size Size
+		{
+			get
+			{
 				return new Size(Width, Height);
 			}
-			set {
+			set
+			{
 				_Right = value.Width + _Left;
 				_Bottom = value.Height + _Top;
 			}
 		}
 
-		public static implicit operator Rectangle(RECT Rectangle) {
+		public static implicit operator Rectangle(RECT Rectangle)
+		{
 			return new Rectangle(Rectangle.Left, Rectangle.Top, Rectangle.Width, Rectangle.Height);
 		}
-		public static implicit operator RECT(Rectangle Rectangle) {
+		public static implicit operator RECT(Rectangle Rectangle)
+		{
 			return new RECT(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom);
 		}
-		public static bool operator ==(RECT Rectangle1, RECT Rectangle2) {
+		public static bool operator ==(RECT Rectangle1, RECT Rectangle2)
+		{
 			return Rectangle1.Equals(Rectangle2);
 		}
-		public static bool operator !=(RECT Rectangle1, RECT Rectangle2) {
+		public static bool operator !=(RECT Rectangle1, RECT Rectangle2)
+		{
 			return !Rectangle1.Equals(Rectangle2);
 		}
 
-		public override string ToString() {
+		public override string ToString()
+		{
 			return "{Left: " + _Left + "; " + "Top: " + _Top + "; Right: " + _Right + "; Bottom: " + _Bottom + "}";
 		}
 
-		public override int GetHashCode() {
+		public override int GetHashCode()
+		{
 			return ToString().GetHashCode();
 		}
 
-		public bool Equals(RECT Rectangle) {
+		public bool Equals(RECT Rectangle)
+		{
 			return Rectangle.Left == _Left && Rectangle.Top == _Top && Rectangle.Right == _Right && Rectangle.Bottom == _Bottom;
 		}
 
-		public Rectangle ToRectangle() {
+		public Rectangle ToRectangle()
+		{
 			return new Rectangle(Left, Top, Width, Height);
 		}
-		public override bool Equals(object Object) {
-			if (Object is RECT) {
+		public override bool Equals(object Object)
+		{
+			if (Object is RECT)
+			{
 				return Equals((RECT)Object);
-			} else if (Object is Rectangle) {
+			}
+			else if (Object is Rectangle)
+			{
 				return Equals(new RECT((Rectangle)Object));
 			}
 
@@ -215,7 +277,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A floating point GDI Plus width/hight based rectangle.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct RECTF {
+	public struct RECTF
+	{
 		/// <summary>
 		/// The X corner location of the rectangle.
 		/// </summary>
@@ -243,7 +306,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="y">The Y corner location of the rectangle.</param>
 		/// <param name="width">The width of the rectangle.</param>
 		/// <param name="height">The height of the rectangle.</param>
-		public RECTF(float x, float y, float width, float height) {
+		public RECTF(float x, float y, float width, float height)
+		{
 			X = x;
 			Y = y;
 			Width = width;
@@ -254,7 +318,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// Creates a new GDI Plus rectangle from a System.Drawing.RectangleF.
 		/// </summary>
 		/// <param name="rect">The rectangle to base this GDI Plus rectangle on.</param>
-		public RECTF(RectangleF rect) {
+		public RECTF(RectangleF rect)
+		{
 			X = rect.X;
 			Y = rect.Y;
 			Width = rect.Width;
@@ -265,7 +330,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// Creates a new GDI Plus rectangle from a System.Drawing.Rectangle.
 		/// </summary>
 		/// <param name="rect">The rectangle to base this GDI Plus rectangle on.</param>
-		public RECTF(Rectangle rect) {
+		public RECTF(Rectangle rect)
+		{
 			X = rect.X;
 			Y = rect.Y;
 			Width = rect.Width;
@@ -276,7 +342,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// Returns a RectangleF for this GDI Plus rectangle.
 		/// </summary>
 		/// <returns>A System.Drawing.RectangleF structure.</returns>
-		public RectangleF ToRectangle() {
+		public RectangleF ToRectangle()
+		{
 			return new RectangleF(X, Y, Width, Height);
 		}
 
@@ -285,7 +352,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="rect">The GDI Plus rectangle to get the RectangleF for.</param>
 		/// <returns>A System.Drawing.RectangleF structure.</returns>
-		public static RectangleF ToRectangle(RECTF rect) {
+		public static RectangleF ToRectangle(RECTF rect)
+		{
 			return rect.ToRectangle();
 		}
 
@@ -294,7 +362,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="rect">The RectangleF to get the GDI Plus rectangle for.</param>
 		/// <returns>A GDI Plus rectangle structure.</returns>
-		public static RECTF FromRectangle(RectangleF rect) {
+		public static RECTF FromRectangle(RectangleF rect)
+		{
 			return new RECTF(rect);
 		}
 
@@ -303,7 +372,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="rect">The Rectangle to get the GDI Plus rectangle for.</param>
 		/// <returns>A GDI Plus rectangle structure.</returns>
-		public static RECTF FromRectangle(Rectangle rect) {
+		public static RECTF FromRectangle(Rectangle rect)
+		{
 			return new RECTF(rect);
 		}
 	}
@@ -314,7 +384,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/ms632610%28v=vs.85%29.aspx
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential), Serializable()]
-	public struct WindowInfo {
+	public struct WindowInfo
+	{
 		public uint cbSize;
 		public RECT rcWindow;
 		public RECT rcClient;
@@ -326,7 +397,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public ushort atomWindowType;
 		public ushort wCreatorVersion;
 		// Allows automatic initialization of "cbSize" with "new WINDOWINFO(null/true/false)".
-		public WindowInfo(Boolean? filler) : this() {
+		public WindowInfo(Boolean? filler) : this()
+		{
 			cbSize = (UInt32)(Marshal.SizeOf(typeof(WindowInfo)));
 		}
 	}
@@ -335,7 +407,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Contains information about the placement of a window on the screen.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential), Serializable()]
-	public struct WindowPlacement {
+	public struct WindowPlacement
+	{
 		/// <summary>
 		/// The length of the structure, in bytes. Before calling the GetWindowPlacement or SetWindowPlacement functions, set this member to sizeof(WINDOWPLACEMENT).
 		/// <para>
@@ -372,8 +445,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <summary>
 		/// Gets the default (empty) value.
 		/// </summary>
-		public static WindowPlacement Default {
-			get {
+		public static WindowPlacement Default
+		{
+			get
+			{
 				WindowPlacement result = new WindowPlacement();
 				result.Length = Marshal.SizeOf(result);
 				return result;
@@ -382,7 +457,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct CursorInfo {
+	public struct CursorInfo
+	{
 		public Int32 cbSize;
 		public Int32 flags;
 		public IntPtr hCursor;
@@ -390,7 +466,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct IconInfo {
+	public struct IconInfo
+	{
 		public bool fIcon;
 		public Int32 xHotspot;
 		public Int32 yHotspot;
@@ -399,7 +476,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	[Serializable, StructLayout(LayoutKind.Sequential)]
-	public struct SCROLLINFO {
+	public struct SCROLLINFO
+	{
 		public int cbSize;
 		public int fMask;
 		public int nMin;
@@ -408,5 +486,4 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public int nPos;
 		public int nTrackPos;
 	}
-
 }

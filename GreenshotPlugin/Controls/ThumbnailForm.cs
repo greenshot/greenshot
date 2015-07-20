@@ -76,10 +76,17 @@ namespace GreenshotPlugin.Controls {
 			DWM.DwmRegisterThumbnail(Handle, window.Handle, out thumbnailHandle);
 			if (thumbnailHandle != IntPtr.Zero) {
 				SIZE sourceSize;
-				DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
+				int hresult = DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
+                if (hresult != 0 || sourceSize.IsEmpty())
+				{
+					UnregisterThumbnail();
+					return;
+				}
+
 				int thumbnailHeight = 200;
 				int thumbnailWidth = (int)(thumbnailHeight * ((float)sourceSize.width / (float)sourceSize.height));
-				if (parentControl != null && thumbnailWidth > parentControl.Width) {
+				if (parentControl != null && thumbnailWidth > parentControl.Width)
+				{
 					thumbnailWidth = parentControl.Width;
 					thumbnailHeight = (int)(thumbnailWidth * ((float)sourceSize.height / (float)sourceSize.width));
 				}
@@ -92,15 +99,18 @@ namespace GreenshotPlugin.Controls {
 				props.SourceClientAreaOnly = false;
 				props.Destination = new RECT(0, 0, thumbnailWidth, thumbnailHeight);
 				DWM.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
-				if (parentControl != null) {
+				if (parentControl != null)
+				{
 					AlignToControl(parentControl);
 				}
 
-				if (!Visible) {
+				if (!Visible)
+				{
 					Show();
 				}
 				// Make sure it's on "top"!
-				if (parentControl != null) {
+				if (parentControl != null)
+				{
 					User32.SetWindowPos(Handle, parentControl.Handle, 0, 0, 0, 0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
 				}
 			}

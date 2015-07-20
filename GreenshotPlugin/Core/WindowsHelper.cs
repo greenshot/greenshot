@@ -1983,6 +1983,11 @@ namespace GreenshotPlugin.Core
 				{
 					continue;
 				}
+				// Skip some windows 10 apps, this is currently undocumented
+				if ((window.ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_WINDOWS10) != 0)
+				{
+					continue;
+				}
 				// Skip preview windows, like the one from Firefox
 				if ((window.WindowStyle & WindowStyleFlags.WS_VISIBLE) == 0)
 				{

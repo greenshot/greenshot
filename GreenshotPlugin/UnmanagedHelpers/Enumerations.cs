@@ -103,6 +103,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 		//WS_EX_OVERLAPPEDWINDOW = (WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE),
 		//WS_EX_PALETTEWINDOW    = (WS_EX_WINDOWEDGE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST),
+		// TODO: Check what the following is, this was needed to exclude Windows 10 entries that didn't make sense
+		WS_EX_WINDOWS10 =   0x00200000,
 
 		WS_EX_LAYERED      = 0x00080000,
 		WS_EX_NOINHERITLAYOUT  = 0x00100000, // Disable inheritence of mirroring by children
