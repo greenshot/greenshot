@@ -113,11 +113,13 @@ namespace GreenshotImgurPlugin {
 					client.DefaultRequestHeaders.ExpectContinue = false;
 					using (var uploadStream = new MemoryStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, uploadStream, outputSettings);
+						uploadStream.Seek(0, SeekOrigin.Begin);
 						using (var content = new StreamContent(uploadStream)) {
 							content.Headers.Add("Content-Type", "image/" + outputSettings.Format.ToString());
 							var response = await client.PostAsync(uploadUri, content, token).ConfigureAwait(false);
 							await response.HandleErrorAsync(token).ConfigureAwait(false);
 							LogRateLimitInfo(response.Headers);
+							responseString = await response.GetAsStringAsync().ConfigureAwait(false);
 						}
 					}
 				}

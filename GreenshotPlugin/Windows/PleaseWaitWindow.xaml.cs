@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms.Integration;
+using System.Windows.Threading;
 
 namespace GreenshotPlugin.Windows
 {
@@ -127,7 +128,7 @@ namespace GreenshotPlugin.Windows
 				pleaseWaitWindow.IsIndeterminate = isIndeterminate;
 				pleaseWaitWindow.Show();
 				result = await asyncFunction(pleaseWaitWindow, token).ConfigureAwait(false);
-				pleaseWaitWindow.Close();
+				var task = pleaseWaitWindow.Dispatcher.BeginInvoke(new Action(() => pleaseWaitWindow.Close()));
 			}
 			return result;
 		}

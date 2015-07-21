@@ -170,13 +170,13 @@ namespace GreenshotImgurPlugin {
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
 					return ImgurUtils.UploadToImgurAsync(surfaceToUpload, outputSettings, captureDetails.Title, filename, pleaseWaitToken);
-				});
+				}).ConfigureAwait(false);
 
 				if (imgurInfo != null && config.AnonymousAccess) {
 					LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
 					config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
 					config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
-					await CheckHistory();
+					await CheckHistory().ConfigureAwait(false);
 				}
 
 				if (imgurInfo != null) {
