@@ -127,8 +127,17 @@ namespace GreenshotPlugin.Core {
 
 		public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 
-		public virtual Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token) {
-			throw new NotSupportedException();
+		/// <summary>
+		/// Wrapper around synchronous code, to make it async
+		/// </summary>
+		/// <param name="manuallyInitiated"></param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <param name="token"></param>
+		/// <returns></returns>
+		public async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token) {
+			var task = Task.Run(() => ExportCapture(manuallyInitiated, surface, captureDetails), token);
+			return await task;
 		}
 
 		/// <summary>
