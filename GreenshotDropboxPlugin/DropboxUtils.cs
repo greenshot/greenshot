@@ -42,16 +42,16 @@ namespace GreenshotDropboxPlugin {
 			OAuthSession oAuth = new OAuthSession(DropBoxCredentials.CONSUMER_KEY, DropBoxCredentials.CONSUMER_SECRET);
 			oAuth.BrowserSize = new Size(1080, 650);
 			oAuth.CheckVerifier = false;
-			oAuth.AccessTokenUrl = "https://api.dropbox.com/1/oauth/access_token";
-			oAuth.AuthorizeUrl = "https://api.dropbox.com/1/oauth/authorize";
-			oAuth.RequestTokenUrl = "https://api.dropbox.com/1/oauth/request_token";
+			oAuth.AccessTokenUrl = new Uri("https://api.dropbox.com/1/oauth/access_token");
+			oAuth.AuthorizeUrl = new Uri("https://api.dropbox.com/1/oauth/authorize");
+			oAuth.RequestTokenUrl = new Uri("https://api.dropbox.com/1/oauth/request_token");
 			oAuth.LoginTitle = "Dropbox authorization";
 			oAuth.Token = config.DropboxToken;
 			oAuth.TokenSecret = config.DropboxTokenSecret;
 
 			try {
 				SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-				string uploadResponse = oAuth.MakeOAuthRequest(HttpMethod.Post, "https://api-content.dropbox.com/1/files_put/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, imageToUpload);
+				string uploadResponse = oAuth.MakeOAuthRequest(HttpMethod.Post, new Uri("https://api-content.dropbox.com/1/files_put/sandbox/" + Uri.EscapeDataString(filename)), null, null, imageToUpload);
 				LOG.DebugFormat("Upload response: {0}", uploadResponse);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
@@ -67,7 +67,7 @@ namespace GreenshotDropboxPlugin {
 
 			// Try to get a URL to the uploaded image
 			try {
-				string responseString = oAuth.MakeOAuthRequest(HttpMethod.Get, "https://api.dropbox.com/1/shares/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, null);
+				string responseString = oAuth.MakeOAuthRequest(HttpMethod.Get, new Uri("https://api.dropbox.com/1/shares/sandbox/" + Uri.EscapeDataString(filename)), null, null, null);
 				if (responseString != null) {
 					LOG.DebugFormat("Parsing output: {0}", responseString);
 					var result = DynamicJson.Parse(responseString);

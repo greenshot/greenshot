@@ -29,6 +29,8 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using System.Threading.Tasks;
+using GreenshotPlugin.Windows;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -45,7 +47,6 @@ namespace GreenshotImgurPlugin {
 
 		public void Dispose() {
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		protected virtual void Dispose(bool disposing) {
@@ -59,9 +60,6 @@ namespace GreenshotImgurPlugin {
 					itemPlugInConfig = null;
 				}
 			}
-		}
-
-		public ImgurPlugin() {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
@@ -79,7 +77,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			this.host = (IGreenshotHost)pluginHost;
 			Attributes = myAttributes;
 
@@ -92,8 +90,8 @@ namespace GreenshotImgurPlugin {
 
 			historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.history));
 			historyMenuItem.Tag = host;
-			historyMenuItem.Click += delegate {
-				ImgurHistory.ShowHistory();
+			historyMenuItem.Click += async (sender , e) => {
+				await ImgurHistory.ShowHistoryAsync();
 			};
 			itemPlugInRoot.DropDownItems.Add(historyMenuItem);
 
@@ -108,11 +106,7 @@ namespace GreenshotImgurPlugin {
 			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 
 			// retrieve history in the background
-			Thread backgroundTask = new Thread (new ThreadStart(CheckHistory));
-			backgroundTask.Name = "Imgur History";
-			backgroundTask.IsBackground = true;
-			backgroundTask.SetApartmentState(ApartmentState.STA);
-			backgroundTask.Start();
+			var historyTask = CheckHistory();
 			return true;
 		}
 
@@ -125,9 +119,9 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 
-		private void CheckHistory() {
+		private async Task CheckHistory() {
 			try {
-				ImgurUtils.LoadHistory();
+				await ImgurUtils.LoadHistory();
 				host.GreenshotForm.BeginInvoke((MethodInvoker)delegate {
 					if (config.ImgurUploadHistory.Count > 0) {
 						historyMenuItem.Enabled = true;
@@ -168,25 +162,22 @@ namespace GreenshotImgurPlugin {
 		/// <param name="captureDetails"></param>
 		/// <param name="image"></param>
 		/// <param name="uploadURL">out string for the url</param>
-		/// <returns>true if the upload succeeded</returns>
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadURL) {
+		/// <returns>URL if the upload succeeded</returns>
+		public async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload, CancellationToken token = default(CancellationToken)) {
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+			string uploadURL = null;
 			try {
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
-				ImgurInfo imgurInfo = null;
+				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
+					return ImgurUtils.UploadToImgurAsync(surfaceToUpload, outputSettings, captureDetails.Title, filename, pleaseWaitToken);
+				});
 
-				// Run upload in the background
-				new PleaseWaitForm().ShowAndWait("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait),
-					delegate() {
-						imgurInfo = ImgurUtils.UploadToImgur(surfaceToUpload, outputSettings, captureDetails.Title, filename);
-						if (imgurInfo != null && config.AnonymousAccess) {
-							LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
-							config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
-							config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
-							CheckHistory();
-						}
-					}
-				);
+				if (imgurInfo != null && config.AnonymousAccess) {
+					LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
+					config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
+					config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
+					await CheckHistory();
+				}
 
 				if (imgurInfo != null) {
 					// TODO: Optimize a second call for export
@@ -206,14 +197,13 @@ namespace GreenshotImgurPlugin {
 						LOG.Error("Can't write to clipboard: ", ex);
 						uploadURL = null;
 					}
-					return true;
 				}
 			} catch (Exception e) {
 				LOG.Error("Error uploading.", e);
 				MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
+				uploadURL = null;
 			}
-			uploadURL = null;
-			return false;
+			return uploadURL;
 		}
 	}
 }

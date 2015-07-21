@@ -27,8 +27,20 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
+using System.Threading.Tasks;
 
 namespace GreenshotPlugin.Core {
+
+	/// <summary>
+	/// Helper to make it possible to introduce Async destinations
+	/// </summary>
+	public abstract class AsyncAbstractDestination : AbstractDestination {
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+			var exportTask = ExportCaptureAsync(manuallyInitiated, surface, captureDetails, default(CancellationToken));
+			return exportTask.GetAwaiter().GetResult();
+		}
+	}
+
 	/// <summary>
 	/// Description of AbstractDestination.
 	/// </summary>
@@ -114,6 +126,10 @@ namespace GreenshotPlugin.Core {
 		}
 
 		public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
+
+		public virtual Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token) {
+			throw new NotSupportedException();
+		}
 
 		/// <summary>
 		/// A small helper method to perform some default destination actions, like inform the surface of the export

@@ -99,7 +99,7 @@ namespace GreenshotJiraPlugin {
 		/// Error handling
 		/// </summary>
 		/// <param name="responseMessage"></param>
-		protected async virtual Task HandleErrorAsync(HttpMethod method, HttpResponseMessage responseMessage, CancellationToken token = default(CancellationToken)) {
+		protected async virtual Task HandleErrorAsync(HttpResponseMessage responseMessage, CancellationToken token = default(CancellationToken)) {
 			// For all other cases we let the default exception be generated
 			Exception throwException = null;
 			string errorContent = null;
@@ -170,7 +170,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>dynamic</returns>
 		public async Task<dynamic> Issue(string issue, CancellationToken token = default(CancellationToken)) {
 			var responseMessage = await _client.GetAsync(Format("issue", issue), token);
-			await HandleErrorAsync(HttpMethod.Get, responseMessage, token);
+			await HandleErrorAsync(responseMessage, token);
 			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync());
 		}
 
@@ -181,7 +181,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>dynamic with ServerInfo</returns>
 		public async Task<dynamic> ServerInfo(CancellationToken token = default(CancellationToken)) {
 			var responseMessage = await _client.GetAsync(Format("serverInfo"), token);
-			await HandleErrorAsync(HttpMethod.Get, responseMessage, token);
+			await HandleErrorAsync(responseMessage, token);
 			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync());
 		}
 
@@ -193,7 +193,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>dynamic with user information</returns>
 		public async Task<dynamic> User(string username, CancellationToken token = default(CancellationToken)) {
 			var responseMessage = await _client.GetAsync(Format("user") + string.Format("?{0}={1}", "username", username), token);
-			await HandleErrorAsync(HttpMethod.Get, responseMessage, token);
+			await HandleErrorAsync(responseMessage, token);
 			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync());
 		}
 
@@ -204,7 +204,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>dynamic with user information</returns>
 		public async Task<dynamic> Myself(CancellationToken token = default(CancellationToken)) {
 			var responseMessage = await _client.GetAsync(Format("myself"), token);
-			await HandleErrorAsync(HttpMethod.Get, responseMessage, token);
+			await HandleErrorAsync(responseMessage, token);
 			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync());
 		}
 
@@ -215,7 +215,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>dynamic array</returns>
 		public async Task<dynamic> Projects(CancellationToken token = default(CancellationToken)) {
 			var responseMessage = await _client.GetAsync(Format("project"), token);
-			await HandleErrorAsync(HttpMethod.Get, responseMessage, token);
+			await HandleErrorAsync(responseMessage, token);
 			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync());
 		}
 
@@ -227,7 +227,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns></returns>
 		public async Task<HttpResponseMessage> Attach(string issueKey, HttpContent content, CancellationToken token = default(CancellationToken)) {
 			var responseMessage = await _client.PostAsync(Format("issue", issueKey, "attachments"), content, token);
-			await HandleErrorAsync(HttpMethod.Get, responseMessage, token);
+			await HandleErrorAsync(responseMessage, token);
 			return responseMessage;
 		}
 
@@ -238,7 +238,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>IList of dynamic</returns>
 		public async Task<dynamic> Filters(CancellationToken token = default(CancellationToken)) {
 			var responseMessage = await _client.GetAsync(Format("filter", "favourite"), token);
-			await HandleErrorAsync(HttpMethod.Get, responseMessage, token);
+			await HandleErrorAsync(responseMessage, token);
 			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync());
 		}
 
@@ -249,7 +249,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>dynamic</returns>
 		public async Task<dynamic> Search(string jql, CancellationToken token = default(CancellationToken)) {
 			var responseMessage = await _client.GetAsync(Format("search", "favourite") + string.Format("&jql=", WebUtility.UrlEncode(jql)), token);
-			await HandleErrorAsync(HttpMethod.Get, responseMessage, token);
+			await HandleErrorAsync(responseMessage, token);
 			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync());
 		}
 
@@ -262,7 +262,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<Stream> Avatar(dynamic user, CancellationToken token = default(CancellationToken)) {
 			var avatarUrl = (string)GetProperty(user.avatarUrls, "48x48");
 			var responseMessage = await _client.GetAsync(avatarUrl, token);
-			await HandleErrorAsync(HttpMethod.Get, responseMessage, token);
+			await HandleErrorAsync(responseMessage, token);
 			return await responseMessage.Content.ReadAsStreamAsync();
 		}
 

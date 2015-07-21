@@ -23,12 +23,14 @@ using System.Drawing;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace GreenshotImgurPlugin  {
 	/// <summary>
 	/// Description of ImgurDestination.
 	/// </summary>
-	public class ImgurDestination : AbstractDestination {
+	public class ImgurDestination : AsyncAbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
 		private ImgurPlugin plugin = null;
@@ -56,10 +58,10 @@ namespace GreenshotImgurPlugin  {
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public async override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = null;
-			exportInformation.ExportMade = plugin.Upload(captureDetails, surface, out uploadURL);
+			string uploadURL = await plugin.UploadAsync(captureDetails, surface, token);
+			exportInformation.ExportMade = !string.IsNullOrEmpty(uploadURL);
 			exportInformation.Uri = uploadURL;
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

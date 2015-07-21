@@ -18,32 +18,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
+using System.Threading.Tasks;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : ImgurForm {
+		private readonly ImgurConfiguration _config;
 		public SettingsForm(ImgurConfiguration config) : base() {
+			_config = config;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			CancelButton = buttonCancel;
 			AcceptButton = buttonOK;
-			
-			ImgurUtils.LoadHistory();
 
-			if (config.runtimeImgurHistory.Count > 0) {
+			Load += SettingsForm_Load;
+		}
+
+		private async void SettingsForm_Load(object sender, EventArgs e) {
+			await ImgurUtils.LoadHistory();
+
+			if (_config.runtimeImgurHistory.Count > 0) {
 				historyButton.Enabled = true;
 			} else {
 				historyButton.Enabled = false;
 			}
 		}
 		
-		void ButtonHistoryClick(object sender, EventArgs e) {
-			ImgurHistory.ShowHistory();
+		async void ButtonHistoryClick(object sender, EventArgs e) {
+			await ImgurHistory.ShowHistoryAsync();
 		}
 	}
 }

@@ -112,18 +112,24 @@ namespace GreenshotPlugin.Windows
 		/// <param name="asyncFunction">async Function to run</param>
 		/// <param name="isIndeterminate">Tell if there is a progress reporting</param>
 		/// <returns>Task to wait for</returns>
-		public static async Task CreateAndShowAsync(string title, string text, Func<IProgress<int>, CancellationToken, Task> asyncFunction, bool isIndeterminate = true)
+		public static async Task<T> CreateAndShowAsync<T>(string title, string text, Func<IProgress<int>, CancellationToken, Task<T>> asyncFunction, CancellationToken token = default(CancellationToken), bool isIndeterminate = true)
 		{
+
+			T result;
 			using (var pleaseWaitWindow = new PleaseWaitWindow())
 			{
+				if (token == default(CancellationToken)) {
+					token = pleaseWaitWindow.Token;
+				}
 				ElementHost.EnableModelessKeyboardInterop(pleaseWaitWindow);
 				pleaseWaitWindow.Title = title;
 				pleaseWaitWindow.Text = text;
 				pleaseWaitWindow.IsIndeterminate = isIndeterminate;
 				pleaseWaitWindow.Show();
-				await asyncFunction(pleaseWaitWindow, pleaseWaitWindow.Token).ConfigureAwait(false);
+				result = await asyncFunction(pleaseWaitWindow, token).ConfigureAwait(false);
 				pleaseWaitWindow.Close();
 			}
+			return result;
 		}
 
 		private PleaseWaitWindow()

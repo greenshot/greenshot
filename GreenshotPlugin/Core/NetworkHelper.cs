@@ -208,38 +208,6 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// A wrapper around the EscapeDataString, as the limit is 32766 characters
-		/// See: http://msdn.microsoft.com/en-us/library/system.uri.escapedatastring%28v=vs.110%29.aspx
-		/// </summary>
-		/// <param name="text"></param>
-		/// <returns>escaped data string</returns>
-		public static string EscapeDataString(string text) {
-			if (!string.IsNullOrEmpty(text)) {
-				StringBuilder result = new StringBuilder();
-				int currentLocation = 0;
-				while (currentLocation < text.Length) {
-					string process = text.Substring(currentLocation, Math.Min(16384, text.Length - currentLocation));
-					result.Append(Uri.EscapeDataString(process));
-					currentLocation = currentLocation + 16384;
-				}
-				return result.ToString();
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// UrlDecodes a string without requiring System.Web
-		/// </summary>
-		/// <param name="text">String to decode.</param>
-		/// <returns>decoded string</returns>
-		public static string UrlDecode(string text) {
-			// pre-process for + sign space formatting since System.Uri doesn't handle it
-			// plus literals are encoded as %2b normally so this should be safe
-			text = text.Replace("+", " ");
-			return Uri.UnescapeDataString(text);
-		}
-
-		/// <summary>
 		/// ParseQueryString without the requirement for System.Web
 		/// </summary>
 		/// <param name="queryString"></param>

@@ -74,10 +74,10 @@ namespace GreenshotImgurPlugin
 			set {page = value;}
 		}
 
-		private string smallSquare;
-		public string SmallSquare {
-			get {return smallSquare;}
-			set {smallSquare = value;}
+		private Uri _smallSquare;
+		public Uri SmallSquare {
+			get {return _smallSquare;}
+			set {_smallSquare = value;}
 		}
 
 		private string largeThumbnail;
@@ -173,7 +173,10 @@ namespace GreenshotImgurPlugin
 				}
 				nodes = doc.GetElementsByTagName("small_square");
 				if(nodes.Count > 0) {
-					imgurInfo.SmallSquare = nodes.Item(0).InnerText;
+					var smallSquareUrl = nodes.Item(0).InnerText;
+					if (string.IsNullOrEmpty(smallSquareUrl)) {
+						imgurInfo.SmallSquare = new Uri(smallSquareUrl);
+					}
 				}
 				nodes = doc.GetElementsByTagName("large_thumbnail");
 				if(nodes.Count > 0) {

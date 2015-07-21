@@ -73,8 +73,9 @@ namespace GreenshotPhotobucketPlugin {
 			// Add image
 			unsignedParameters.Add("uploadfile", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 			try {
-				string apiUrl = "http://api.photobucket.com/album/!/upload";
-				responseString = oAuth.MakeOAuthRequest(HttpMethod.Post, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, unsignedParameters, null);
+				var signUri = new Uri("http://api.photobucket.com/album/!/upload");
+				var requestUri = new Uri("http://api.photobucket.com/album/!/upload".Replace("api.photobucket.com", config.SubDomain));
+				responseString = oAuth.MakeOAuthRequest(HttpMethod.Post, signUri, requestUri, signedParameters, unsignedParameters, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw;
@@ -104,10 +105,10 @@ namespace GreenshotPhotobucketPlugin {
 			oAuth.AutoLogin = autoLogin;
 			oAuth.CheckVerifier = false;
 			// This url is configured in the Photobucket API settings in the Photobucket site!!
-			oAuth.CallbackUrl = "http://getgreenshot.org";
-			oAuth.AccessTokenUrl = "http://api.photobucket.com/login/access";
-			oAuth.AuthorizeUrl = "http://photobucket.com/apilogin/login";
-			oAuth.RequestTokenUrl = "http://api.photobucket.com/login/request";
+			oAuth.CallbackUrl = new Uri("http://getgreenshot.org");
+			oAuth.AccessTokenUrl = new Uri("http://api.photobucket.com/login/access");
+			oAuth.AuthorizeUrl = new Uri("http://photobucket.com/apilogin/login");
+			oAuth.RequestTokenUrl = new Uri("http://api.photobucket.com/login/request");
 			oAuth.BrowserSize = new Size(1010, 400);
 			// Photobucket is very particular about the used methods!
 			oAuth.RequestTokenMethod = HttpMethod.Post;
@@ -156,8 +157,9 @@ namespace GreenshotPhotobucketPlugin {
 			}
 			IDictionary<string, object> signedParameters = new Dictionary<string, object>();
 			try {
-				string apiUrl = string.Format("http://api.photobucket.com/album/{0}", config.Username);
-				responseString = oAuth.MakeOAuthRequest(HttpMethod.Get, apiUrl, apiUrl.Replace("api.photobucket.com", config.SubDomain), signedParameters, null, null);
+				var signUri = new Uri(string.Format("http://api.photobucket.com/album/{0}", config.Username));
+				var requestUri = new Uri(string.Format("http://api.photobucket.com/album/{0}".Replace("api.photobucket.com", config.SubDomain), config.Username));
+				responseString = oAuth.MakeOAuthRequest(HttpMethod.Get, signUri, requestUri, signedParameters, null, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw;

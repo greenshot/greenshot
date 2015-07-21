@@ -125,9 +125,9 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get formatted Auth url (this will call a FormatWith(this) on the AuthUrlPattern
 		/// </summary>
-		public string FormattedAuthUrl {
+		public Uri FormattedAuthUrl {
 			get {
-				return AuthUrlPattern.FormatWith(this);
+				return new Uri(AuthUrlPattern.FormatWith(this));
 			}
 		}
 
@@ -143,7 +143,7 @@ namespace GreenshotPlugin.Core {
 		/// This is the redirect URL, in some implementations this is automatically set (LocalServerCodeReceiver)
 		/// In some implementations this could be e.g. urn:ietf:wg:oauth:2.0:oob or urn:ietf:wg:oauth:2.0:oob:auto
 		/// </summary>
-		public string RedirectUrl {
+		public Uri RedirectUrl {
 			get;
 			set;
 		}
@@ -240,7 +240,7 @@ namespace GreenshotPlugin.Core {
 		protected const string UNRESERVED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
 
 		private string _userAgent = "Greenshot";
-		private string _callbackUrl = "http://getgreenshot.org";
+		private Uri _callbackUrl = new Uri("http://getgreenshot.org");
 		private bool _checkVerifier = true;
 		private bool _useHttpHeadersForAuthorization = true;
 		private IDictionary<string, string> _accessTokenResponseParameters;
@@ -283,15 +283,15 @@ namespace GreenshotPlugin.Core {
 			get;
 			set;
 		}
-		public string RequestTokenUrl {
+		public Uri RequestTokenUrl {
 			get;
 			set;
 		}
-		public string AuthorizeUrl {
+		public Uri AuthorizeUrl {
 			get;
 			set;
 		}
-		public string AccessTokenUrl {
+		public Uri AccessTokenUrl {
 			get;
 			set;
 		}
@@ -321,7 +321,7 @@ namespace GreenshotPlugin.Core {
 				_userAgent = value;
 			}
 		}
-		public string CallbackUrl {
+		public Uri CallbackUrl {
 			get {
 				return _callbackUrl;
 			}
@@ -422,36 +422,12 @@ namespace GreenshotPlugin.Core {
 			StringBuilder sb = new StringBuilder();
 			foreach (string key in queryParameters.Keys) {
 				if (queryParameters[key] is string) {
-					sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode3986(string.Format("{0}",queryParameters[key])));
+					sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, Uri.EscapeDataString(string.Format("{0}", queryParameters[key])));
 				}
 			}
 			sb.Remove(sb.Length - 1, 1);
 
 			return sb.ToString();
-		}
-
-		/// <summary>
-		/// This is a different Url Encode implementation since the default .NET one outputs the percent encoding in lower case.
-		/// While this is not a problem with the percent encoding spec, it is used in upper case throughout OAuth
-		/// The resulting string is for UTF-8 encoding!
-		/// </summary>
-		/// <param name="value">The value to Url encode</param>
-		/// <returns>Returns a Url encoded string (unicode) with UTF-8 encoded % values</returns>
-		public static string UrlEncode3986(string value) {
-			StringBuilder result = new StringBuilder();
-
-			foreach (char symbol in value) {
-				if (UNRESERVED_CHARS.IndexOf(symbol) != -1) {
-					result.Append(symbol);
-				} else {
-					byte[] utf8Bytes = Encoding.UTF8.GetBytes(symbol.ToString());
-					foreach(byte utf8Byte in utf8Bytes) {
-						result.AppendFormat("%{0:X2}", utf8Byte);
-					}
-				}
-			}
-
-			return result.ToString();
 		}
 
 		/// <summary>
@@ -484,7 +460,7 @@ namespace GreenshotPlugin.Core {
 			Sign(RequestTokenMethod, RequestTokenUrl, parameters);
 			string response = MakeRequest(RequestTokenMethod, RequestTokenUrl, null, parameters, null);
 			if (!string.IsNullOrEmpty(response)) {
-				response = NetworkHelper.UrlDecode(response);
+				response = Uri.UnescapeDataString(response.Replace("+", " "));
 				LOG.DebugFormat("Request token response: {0}", response);
 				_requestTokenResponseParameters = NetworkHelper.ParseQueryString(response);
 				string value;
@@ -542,7 +518,7 @@ namespace GreenshotPlugin.Core {
 			Sign(AccessTokenMethod, AccessTokenUrl, parameters);
 			string response = MakeRequest(AccessTokenMethod, AccessTokenUrl, null, parameters, null);
 			if (!string.IsNullOrEmpty(response)) {
-				response = NetworkHelper.UrlDecode(response);
+				response = Uri.UnescapeDataString(response.Replace("+", " "));
 				LOG.DebugFormat("Access token response: {0}", response);
 				_accessTokenResponseParameters = NetworkHelper.ParseQueryString(response);
 				string tokenValue;
@@ -590,9 +566,9 @@ namespace GreenshotPlugin.Core {
 		/// Get the link to the authorization page for this application.
 		/// </summary>
 		/// <returns>The url with a valid request token, or a null string.</returns>
-		private string AuthorizationLink {
+		private Uri AuthorizationLink {
 			get {
-				return AuthorizeUrl + "?" + OAUTH_TOKEN_KEY + "=" + Token + "&" + OAUTH_CALLBACK_KEY + "=" + UrlEncode3986(CallbackUrl);
+				return new Uri(AuthorizeUrl + "?" + OAUTH_TOKEN_KEY + "=" + Token + "&" + OAUTH_CALLBACK_KEY + "=" + Uri.EscapeDataString(CallbackUrl.AbsoluteUri));
 			}
 		}
 
@@ -600,55 +576,55 @@ namespace GreenshotPlugin.Core {
 		/// Submit a web request using oAuth.
 		/// </summary>
 		/// <param name="method">GET or POST</param>
-		/// <param name="requestURL">The full url, including the querystring for the signing/request</param>
+		/// <param name="requestUri">The full url, including the querystring for the signing/request</param>
 		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HttpMethod method, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return MakeOAuthRequest(method, requestURL, requestURL, null, parametersToSign, additionalParameters, postData);
+		public string MakeOAuthRequest(HttpMethod method, Uri requestUri, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			return MakeOAuthRequest(method, requestUri, requestUri, null, parametersToSign, additionalParameters, postData);
 		}
 
 		/// <summary>
 		/// Submit a web request using oAuth.
 		/// </summary>
 		/// <param name="method">GET or POST</param>
-		/// <param name="requestURL">The full url, including the querystring for the signing/request</param>
+		/// <param name="requestUri">The full url, including the querystring for the signing/request</param>
 		/// <param name="headers">Header values</param>
 		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HttpMethod method, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return MakeOAuthRequest(method, requestURL, requestURL, headers, parametersToSign, additionalParameters, postData);
+		public string MakeOAuthRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			return MakeOAuthRequest(method, requestUri, requestUri, headers, parametersToSign, additionalParameters, postData);
 		}
 
 		/// <summary>
 		/// Submit a web request using oAuth.
 		/// </summary>
 		/// <param name="method">GET or POST</param>
-		/// <param name="signUrl">The full url, including the querystring for the signing</param>
-		/// <param name="requestURL">The full url, including the querystring for the request</param>
+		/// <param name="signUri">The full url, including the querystring for the signing</param>
+		/// <param name="requestUri">The full url, including the querystring for the request</param>
 		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HttpMethod method, string signUrl, string requestURL, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return MakeOAuthRequest(method, signUrl, requestURL, null, parametersToSign, additionalParameters, postData);
+		public string MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			return MakeOAuthRequest(method, signUri, requestUri, null, parametersToSign, additionalParameters, postData);
 		}
 
 		/// <summary>
 		/// Submit a web request using oAuth.
 		/// </summary>
 		/// <param name="method">GET or POST</param>
-		/// <param name="signUrl">The full url, including the querystring for the signing</param>
-		/// <param name="requestURL">The full url, including the querystring for the request</param>
+		/// <param name="signUri">The full url, including the querystring for the signing</param>
+		/// <param name="requestUri">The full url, including the querystring for the request</param>
 		/// <param name="headers">Headers for the request</param>
 		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HttpMethod method, string signUrl, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+		public string MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
 			if (parametersToSign == null) {
 				parametersToSign = new Dictionary<string, object>();
 			}
@@ -662,7 +638,7 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 				try {
-					Sign(method, signUrl, parametersToSign);
+					Sign(method, signUri, parametersToSign);
 					
 					// Join all parameters
 					IDictionary<string, object> newParameters = new Dictionary<string, object>();
@@ -674,7 +650,7 @@ namespace GreenshotPlugin.Core {
 							newParameters.Add(parameter);
 						}
 					}
-					return MakeRequest(method, requestURL, headers, newParameters, postData);
+					return MakeRequest(method, requestUri, headers, newParameters, postData);
 				} catch (WebException wEx) {
 					lastException = wEx;
 					if (wEx.Response != null) {
@@ -711,7 +687,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="method">Method (POST,PUT,GET)</param>
 		/// <param name="requestURL">Url to call</param>
 		/// <param name="parameters">IDictionary<string, string></param>
-		private void Sign(HttpMethod method, string requestURL, IDictionary<string, object> parameters) {
+		private void Sign(HttpMethod method, Uri requestUri, IDictionary<string, object> parameters) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -722,13 +698,7 @@ namespace GreenshotPlugin.Core {
 			signatureBase.Append(method.ToString()).Append("&");
 
 			// Add normalized URL
-			Uri url = new Uri(requestURL);
-			string normalizedUrl = string.Format(CultureInfo.InvariantCulture, "{0}://{1}", url.Scheme, url.Host);
-			if (!((url.Scheme == "http" && url.Port == 80) || (url.Scheme == "https" && url.Port == 443))) {
-				normalizedUrl += ":" + url.Port;
-			}
-			normalizedUrl += url.AbsolutePath;
-			signatureBase.Append(UrlEncode3986(normalizedUrl)).Append("&");
+			signatureBase.Append(Uri.EscapeDataString(requestUri.Normalize().ToString())).Append("&");
 
 			// Add normalized parameters
 			parameters.Add(OAUTH_VERSION_KEY, OAUTH_VERSION);
@@ -747,7 +717,7 @@ namespace GreenshotPlugin.Core {
 					break;
 			}
 			parameters.Add(OAUTH_CONSUMER_KEY_KEY, _consumerKey);
-			if (CallbackUrl != null && RequestTokenUrl != null && requestURL.StartsWith(RequestTokenUrl)) {
+			if (CallbackUrl != null && RequestTokenUrl != null && requestUri.Equals(RequestTokenUrl)) {
 				parameters.Add(OAUTH_CALLBACK_KEY, CallbackUrl);
 			}
 			if (!string.IsNullOrEmpty(Verifier)) {
@@ -756,9 +726,9 @@ namespace GreenshotPlugin.Core {
 			if (!string.IsNullOrEmpty(Token)) {
 				parameters.Add(OAUTH_TOKEN_KEY, Token);
 			}
-			signatureBase.Append(UrlEncode3986(GenerateNormalizedParametersString(parameters)));
+			signatureBase.Append(Uri.EscapeDataString(GenerateNormalizedParametersString(parameters)));
 			LOG.DebugFormat("Signature base: {0}", signatureBase);
-			string key = string.Format(CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(_consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret));
+			string key = string.Format(CultureInfo.InvariantCulture, "{0}&{1}", Uri.EscapeDataString(_consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : Uri.EscapeDataString(TokenSecret));
 			switch (SignatureType) {
 				case OAuthSignatureTypes.RSASHA1:
 					// Code comes from here: http://www.dotnetfunda.com/articles/article1932-rest-service-call-using-oauth-10-authorization-with-rsa-sha1.aspx
@@ -781,7 +751,7 @@ namespace GreenshotPlugin.Core {
 						// Convert to Base64 string
 						string base64string = Convert.ToBase64String(rsaSignature);
 						// Return the Encoded UTF8 string
-						parameters.Add(OAUTH_SIGNATURE_KEY, UrlEncode3986(base64string));
+						parameters.Add(OAUTH_SIGNATURE_KEY, Uri.EscapeDataString(base64string));
 					}
 					break;
 				case OAuthSignatureTypes.PLAINTEXT:
@@ -803,12 +773,12 @@ namespace GreenshotPlugin.Core {
 		/// Any additional parameters added after the Sign call are not in the signature, this could be by design!
 		/// </summary>
 		/// <param name="method"></param>
-		/// <param name="requestURL"></param>
+		/// <param name="requestUri"></param>
 		/// <param name="headers"></param>
 		/// <param name="parameters"></param>
 		/// <param name="postData">IBinaryParameter</param>
 		/// <returns>Response from server</returns>
-		private string MakeRequest(HttpMethod method, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parameters, IBinaryContainer postData) {
+		private string MakeRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parameters, IBinaryContainer postData) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
@@ -820,7 +790,7 @@ namespace GreenshotPlugin.Core {
 				requestParameters = new Dictionary<string, object>();
 				foreach (string parameterKey in parameters.Keys) {
 					if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
-						authHeader.AppendFormat(CultureInfo.InvariantCulture, "{0}=\"{1}\", ", parameterKey, UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
+						authHeader.AppendFormat(CultureInfo.InvariantCulture, "{0}=\"{1}\", ", parameterKey, Uri.EscapeDataString(string.Format("{0}", parameters[parameterKey])));
 					} else if (!requestParameters.ContainsKey(parameterKey)) {
 						requestParameters.Add(parameterKey, parameters[parameterKey]);
 					}
@@ -836,11 +806,11 @@ namespace GreenshotPlugin.Core {
 			if (HttpMethod.Get == method || postData != null) {
 				if (requestParameters.Count > 0) {
 					// Add the parameters to the request
-					requestURL += "?" + NetworkHelper.GenerateQueryParameters(requestParameters);
+					requestUri.ExtendQuery(requestParameters);
 				}
 			}
 			// Create webrequest
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(requestURL, method);
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(requestUri, method);
 			webRequest.ServicePoint.Expect100Continue = false;
 			webRequest.UserAgent = _userAgent;
 
@@ -863,9 +833,9 @@ namespace GreenshotPlugin.Core {
 					foreach (string parameterKey in requestParameters.Keys) {
 						if (parameters[parameterKey] is IBinaryContainer) {
 							IBinaryContainer binaryParameter = parameters[parameterKey] as IBinaryContainer;
-							form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(binaryParameter.ToBase64String(Base64FormattingOptions.None)));
+							form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", Uri.EscapeDataString(parameterKey), Uri.EscapeDataString(binaryParameter.ToBase64String(Base64FormattingOptions.None)));
 						} else {
-							form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey), UrlEncode3986(string.Format("{0}",parameters[parameterKey])));
+							form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", Uri.EscapeDataString(parameterKey), Uri.EscapeDataString(string.Format("{0}", parameters[parameterKey])));
 						}
 					}
 					// Remove trailing &
@@ -951,17 +921,17 @@ Greenshot received information from CloudServiceName. You can close this browser
 			}
 		}
 
-		private string _redirectUri;
+		private Uri _redirectUri;
 		/// <summary>
 		/// The URL to redirect to
 		/// </summary>
-		protected string RedirectUri {
+		protected Uri RedirectUri {
 			get {
-				if (!string.IsNullOrEmpty(_redirectUri)) {
+				if (_redirectUri != null) {
 					return _redirectUri;
 				}
 
-				return _redirectUri = string.Format(_loopbackCallback, GetRandomUnusedPort());
+				return _redirectUri = new Uri(string.Format(_loopbackCallback, GetRandomUnusedPort()));
 			}
 		}
 
@@ -980,14 +950,14 @@ Greenshot received information from CloudServiceName. You can close this browser
 			oauth2Settings.RedirectUrl = RedirectUri;
 			_cloudServiceName = oauth2Settings.CloudServiceName;
 			using (var listener = new HttpListener()) {
-				listener.Prefixes.Add(oauth2Settings.RedirectUrl);
+				listener.Prefixes.Add(oauth2Settings.RedirectUrl.AbsoluteUri);
 				try {
 					listener.Start();
 
 					// Get the formatted FormattedAuthUrl
-					string authorizationUrl = oauth2Settings.FormattedAuthUrl;
-					LOG.DebugFormat("Open a browser with: {0}", authorizationUrl);
-					Process.Start(authorizationUrl);
+					var authorizationUrl = oauth2Settings.FormattedAuthUrl;
+					LOG.DebugFormat("Open a browser with: {0}", authorizationUrl.AbsoluteUri);
+					Process.Start(authorizationUrl.AbsoluteUri);
 
 					// Wait to get the authorization code response.
 					var context = listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);

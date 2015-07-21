@@ -21,6 +21,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Greenshot.Plugin {
@@ -185,5 +187,14 @@ namespace Greenshot.Plugin {
 		/// <param name="captureDetails"></param>
 		/// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>
 		ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
+
+		/// <summary>
+		/// Async version of the ExportCapture
+		/// </summary>
+		/// <param name="manuallyInitiated">true if the user selected this destination from a GUI, false if it was called as part of a process</param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>
+		Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token);
 	}
 }

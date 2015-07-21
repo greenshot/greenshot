@@ -63,7 +63,7 @@ namespace GreenshotPicasaPlugin {
 			try {
 				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HttpMethod.Post, string.Format(UploadUrl, Config.UploadUser, Config.UploadAlbum), settings);
 				if (Config.AddFilename) {
-					webRequest.Headers.Add("Slug", NetworkHelper.EscapeDataString(filename));
+					webRequest.Headers.Add("Slug", Uri.EscapeDataString(filename));
 				}
 				SurfaceContainer container = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 				container.Upload(webRequest);

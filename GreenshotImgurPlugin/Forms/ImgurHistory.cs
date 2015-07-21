@@ -26,6 +26,8 @@ using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotPlugin.Windows;
+using System.Threading.Tasks;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -37,9 +39,9 @@ namespace GreenshotImgurPlugin {
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
 		private static ImgurHistory instance;
 		
-		public static void ShowHistory() {
+		public static async Task ShowHistoryAsync() {
 			// Make sure the history is loaded, will be done only once
-			ImgurUtils.LoadHistory();
+			await ImgurUtils.LoadHistory();
 			if (instance == null) {
 				instance = new ImgurHistory();
 			}
@@ -57,7 +59,7 @@ namespace GreenshotImgurPlugin {
 			CancelButton = finishedButton;
 			// Init sorting
 			columnSorter = new GreenshotColumnSorter();
-			this.listview_imgur_uploads.ListViewItemSorter = columnSorter;
+			listview_imgur_uploads.ListViewItemSorter = columnSorter;
 			columnSorter.SortColumn = 3;
 			columnSorter.Order = SortOrder.Descending;
 			redraw();
@@ -117,7 +119,7 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 
-		private void DeleteButtonClick(object sender, EventArgs e) {
+		private async void DeleteButtonClick(object sender, EventArgs e) {
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
 					ImgurInfo imgurInfo = (ImgurInfo)listview_imgur_uploads.SelectedItems[i].Tag;
@@ -125,15 +127,10 @@ namespace GreenshotImgurPlugin {
 					if (result == DialogResult.Yes) {
 						// Should fix Bug #3378699 
 						pictureBox1.Image = pictureBox1.ErrorImage;
-						try {
-							new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
-								delegate() {
-									ImgurUtils.DeleteImgurImage(imgurInfo);
-								}
-							);
-						} catch (Exception ex) {
-							LOG.Warn("Problem communicating with Imgur: ", ex);
-						}
+
+						await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
+							return ImgurUtils.DeleteImgurImageAsync(imgurInfo, pleaseWaitToken);
+						});
 
 						imgurInfo.Dispose();
 					}

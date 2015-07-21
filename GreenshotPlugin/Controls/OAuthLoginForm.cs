@@ -18,12 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using GreenshotPlugin.Core;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Web;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using log4net;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -31,7 +34,7 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public partial class OAuthLoginForm : Form {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
-		private string _callbackUrl = null;
+		private Uri _callbackUrl = null;
 		private IDictionary<string, string> _callbackParameters = null;
 		
 		public IDictionary<string, string> CallbackParameters {
@@ -45,21 +48,21 @@ namespace GreenshotPlugin.Controls {
 				return DialogResult == DialogResult.OK;
 			}
 		}
-		
-		public OAuthLoginForm(string browserTitle, Size size, string authorizationLink, string callbackUrl) {
+
+		public OAuthLoginForm(string browserTitle, Size size, Uri authorizationLink, Uri callbackUrl) {
 			_callbackUrl = callbackUrl;
 			InitializeComponent();
 			ClientSize = size;
 			Icon = GreenshotResources.getGreenshotIcon();
 			Text = browserTitle;
-			_addressTextBox.Text = authorizationLink;
+			_addressTextBox.Text = authorizationLink.ToString();
 
 			// The script errors are suppressed by using the ExtendedWebBrowser
 			_browser.ScriptErrorsSuppressed = false;
 			_browser.DocumentCompleted += Browser_DocumentCompleted;
 			_browser.Navigated += Browser_Navigated;
 			_browser.Navigating += Browser_Navigating;
-			_browser.Navigate(new Uri(authorizationLink));
+			_browser.Navigate(authorizationLink);
 		}
 
 		/// <summary>
@@ -87,12 +90,12 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		private void CheckUrl() {
-			if (_browser.Url.ToString().StartsWith(_callbackUrl)) {
+			if (_browser.Url.AbsoluteUri.StartsWith(_callbackUrl.AbsoluteUri)) {
 				string queryParams = _browser.Url.Query;
 				if (queryParams.Length > 0) {
-					queryParams = NetworkHelper.UrlDecode(queryParams);
 					//Store the Token and Token Secret
-					_callbackParameters = NetworkHelper.ParseQueryString(queryParams);
+					var nvc = HttpUtility.ParseQueryString(Uri.UnescapeDataString(queryParams.Replace("+", " ")));
+					_callbackParameters = nvc.AllKeys.ToDictionary(k => k, k => nvc[k]);
 				}
 				DialogResult = DialogResult.OK;
 			}

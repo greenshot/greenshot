@@ -36,16 +36,16 @@ namespace GreenshotFlickrPlugin {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrUtils));
 		private static FlickrConfiguration config = IniConfig.GetIniSection<FlickrConfiguration>();
 		private const string FLICKR_API_BASE_URL = "https://api.flickr.com/services/";
-		private const string FLICKR_UPLOAD_URL = FLICKR_API_BASE_URL + "upload/";
+		private static readonly Uri FLICKR_UPLOAD_URI = new Uri(FLICKR_API_BASE_URL + "upload/");
 		// OAUTH
-		private const string FLICKR_OAUTH_BASE_URL = FLICKR_API_BASE_URL + "oauth/";
-		private const string FLICKR_ACCESS_TOKEN_URL = FLICKR_OAUTH_BASE_URL + "access_token";
-		private const string FLICKR_AUTHORIZE_URL = FLICKR_OAUTH_BASE_URL + "authorize";
-		private const string FLICKR_REQUEST_TOKEN_URL = FLICKR_OAUTH_BASE_URL + "request_token";
+		private static readonly Uri FLICKR_OAUTH_BASE_URL = new Uri(FLICKR_API_BASE_URL + "oauth/");
+		private static readonly Uri FLICKR_ACCESS_TOKEN_URL = new Uri(FLICKR_OAUTH_BASE_URL + "access_token");
+		private static readonly Uri FLICKR_AUTHORIZE_URL = new Uri(FLICKR_OAUTH_BASE_URL + "authorize");
+		private static readonly Uri FLICKR_REQUEST_TOKEN_URL = new Uri(FLICKR_OAUTH_BASE_URL + "request_token");
 		private const string FLICKR_FARM_URL = "https://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg";
 		// REST
 		private const string FLICKR_REST_URL = FLICKR_API_BASE_URL + "rest/";
-		private const string FLICKR_GET_INFO_URL = FLICKR_REST_URL + "?method=flickr.photos.getInfo";
+		private static readonly Uri FLICKR_GET_INFO_URL = new Uri(FLICKR_REST_URL + "?method=flickr.photos.getInfo");
 
 		/// <summary>
 		/// Do the actual upload to Flickr
@@ -90,7 +90,7 @@ namespace GreenshotFlickrPlugin {
 				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
 				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-				string response = oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_UPLOAD_URL, signedParameters, otherParameters, null);
+				string response = oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_UPLOAD_URI, signedParameters, otherParameters, null);
 				string photoId = DynamicJson.Parse(response).photoid;
 
 				// Get Photo Info
