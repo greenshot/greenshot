@@ -19,12 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
@@ -83,7 +83,7 @@ namespace GreenshotJiraPlugin {
 			if (!string.IsNullOrEmpty(config.Password))
 			{
 				_jiraMonitor = new JiraMonitor();
-				_jiraMonitor.AddJiraInstance(config.RestUrl, config.Username, config.Password);
+				_jiraMonitor.AddJiraInstance(new Uri(config.RestUrl), config.Username, config.Password);
 			}
 		}
 

@@ -134,7 +134,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// The URL to get a Token
 		/// </summary>
-		public string TokenUrl {
+		public Uri TokenUrl {
 			get;
 			set;
 		}

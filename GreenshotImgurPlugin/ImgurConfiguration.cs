@@ -31,8 +31,8 @@ namespace GreenshotImgurPlugin {
 	/// </summary>
 	[IniSection("Imgur", Description="Greenshot Imgur Plugin configuration")]
 	public class ImgurConfiguration : IniSection {
-		[IniProperty("ImgurApiUrl", Description="Url to Imgur system.", DefaultValue="http://api.imgur.com/2")]
-		public string ImgurApiUrl;
+		[IniProperty("ApiUrl", Description = "Url to Imgur API.", DefaultValue = "https://api.imgur.com/3")]
+		public string ApiUrl;
 		
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
 		public OutputFormat UploadFormat;
@@ -40,10 +40,14 @@ namespace GreenshotImgurPlugin {
 		public int UploadJpegQuality;
 		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
 		public bool UploadReduceColors;
-		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
+		[IniProperty("CopyUrlToClipboard", Description = "Copy the URL to the clipboard", DefaultValue = "true")]
+		public bool CopyUrlToClipboard;
+		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link (in clipboard and notification)", DefaultValue = "False")]
 		public bool UsePageLink;
 		[IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue="true")]
 		public bool AnonymousAccess;
+		[IniProperty("TrackHistory", Description = "Track the upload history", DefaultValue = "true")]
+		public bool TrackHistory;
 		[IniProperty("ImgurToken", Description = "The Imgur token", Encrypted=true, ExcludeIfNull=true)]
 		public string ImgurToken;
 		[IniProperty("ImgurTokenSecret", Description = "The Imgur token secret", Encrypted=true, ExcludeIfNull=true)]
@@ -59,7 +63,7 @@ namespace GreenshotImgurPlugin {
 		public Dictionary<string, string> ImgurUploadHistory;
 		
 		// Not stored, only run-time!
-		public Dictionary<string, ImgurInfo> runtimeImgurHistory = new Dictionary<string, ImgurInfo>();
+		public Dictionary<string, ImageInfo> runtimeImgurHistory = new Dictionary<string, ImageInfo>();
 		public int Credits {
 			get;
 			set;

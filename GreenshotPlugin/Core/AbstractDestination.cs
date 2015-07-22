@@ -135,7 +135,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="captureDetails"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token) {
+		public virtual async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token) {
 			var task = Task.Run(() => ExportCapture(manuallyInitiated, surface, captureDetails), token);
 			return await task;
 		}

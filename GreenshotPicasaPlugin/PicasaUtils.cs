@@ -34,7 +34,7 @@ namespace GreenshotPicasaPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaUtils));
 		private static readonly PicasaConfiguration Config = IniConfig.GetIniSection<PicasaConfiguration>();
 		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
-		private const string TokenUrl = "https://www.googleapis.com/oauth2/v3/token";
+		private static readonly Uri TokenUrl = new Uri("https://www.googleapis.com/oauth2/v3/token");
 		private const string UploadUrl = "https://picasaweb.google.com/data/feed/api/user/{0}/albumid/{1}";
 
 		/// <summary>

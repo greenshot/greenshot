@@ -4,7 +4,7 @@
         Title="{Binding Title}" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <StackPanel>
 		<Label Content="{Binding Text}" HorizontalAlignment="Center"/>
-		<ProgressBar  Minimum="0" Maximum="100" Margin="20" Height="15" IsIndeterminate="{Binding IsIndeterminate}" Value="{Binding ProgressValue}"/>
+		<ProgressBar  Minimum="0" Maximum="100" Margin="20" Height="15" IsIndeterminate="{Binding IsIndeterminate}" Value="{Binding ProgressValue}" Foreground="{Binding Color}"/>
 		<StackPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
 			<Button Content="Cancel" Margin="5" HorizontalAlignment="Right" Width="100" Click="Button_Click"/>
 		</StackPanel>

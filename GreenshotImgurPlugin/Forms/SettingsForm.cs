@@ -41,7 +41,7 @@ namespace GreenshotImgurPlugin {
 		}
 
 		private async void SettingsForm_Load(object sender, EventArgs e) {
-			await ImgurUtils.LoadHistory();
+			await ImgurUtils.LoadHistory().ConfigureAwait(false);
 
 			if (_config.runtimeImgurHistory.Count > 0) {
 				historyButton.Enabled = true;
@@ -51,7 +51,7 @@ namespace GreenshotImgurPlugin {
 		}
 		
 		async void ButtonHistoryClick(object sender, EventArgs e) {
-			await ImgurHistory.ShowHistoryAsync();
+			await ImgurHistory.ShowHistoryAsync().ConfigureAwait(false);
 		}
 	}
 }

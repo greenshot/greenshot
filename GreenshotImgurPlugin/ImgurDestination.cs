@@ -60,7 +60,7 @@ namespace GreenshotImgurPlugin  {
 
 		public async override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = await plugin.UploadAsync(captureDetails, surface, token);
+			string uploadURL = await plugin.UploadAsync(captureDetails, surface, token).ConfigureAwait(false);
 			exportInformation.ExportMade = !string.IsNullOrEmpty(uploadURL);
 			exportInformation.Uri = uploadURL;
 			ProcessExport(exportInformation, surface);

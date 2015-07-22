@@ -21,6 +21,7 @@
 
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -70,7 +71,7 @@ namespace GreenshotBoxPlugin {
 			OAuth2Settings settings = new OAuth2Settings();
 
 			settings.AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}";
-			settings.TokenUrl = "https://api.box.com/oauth2/token";
+			settings.TokenUrl = new Uri("https://api.box.com/oauth2/token");
 			settings.CloudServiceName = "Box";
 			settings.ClientId = BoxCredentials.ClientId;
 			settings.ClientSecret = BoxCredentials.ClientSecret;

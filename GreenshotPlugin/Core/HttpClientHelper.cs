@@ -99,108 +99,7 @@ namespace GreenshotPlugin.Core {
 			return client;
 		}
 
-		/// <summary>
-		/// ReadAsStringAsync
-		/// </summary>
-		/// <param name="response"></param>
-		/// <param name="throwErrorOnNonSuccess"></param>
-		/// <returns></returns>
-		public static async Task<string> GetAsStringAsync(this HttpResponseMessage response, bool throwErrorOnNonSuccess = true) {
-			if (response.IsSuccessStatusCode) {
-				return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-			}
-			if (throwErrorOnNonSuccess) {
-				response.EnsureSuccessStatusCode();
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// Download a uri response as string
-		/// </summary>
-		/// <param name="uri">An Uri to specify the download location</param>
-		/// <returns>HttpResponseMessage</returns>
-		public static async Task<HttpResponseMessage> GetAsync(this Uri uri, bool throwError = true, CancellationToken token = default(CancellationToken)) {
-			using (var client = uri.CreateHttpClient()) {
-				try {
-					return await client.GetAsync(uri, token);
-				} catch (Exception ex) {
-					LOG.Warn(ex);
-					throw;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Download a uri response as string
-		/// </summary>
-		/// <param name="uri">An Uri to specify the download location</param>
-		/// <returns>string with the content</returns>
-		public static async Task<string> GetAsStringAsync(this Uri uri, bool throwError = true, CancellationToken token = default(CancellationToken)) {
-			using (var client = uri.CreateHttpClient())
-			using (var response = await client.GetAsync(uri, HttpCompletionOption.ResponseContentRead, token)) {
-				return await response.GetAsStringAsync(throwError).ConfigureAwait(false);
-			}
-		}
-
-		/// <summary>
-		/// Get the content as a MemoryStream
-		/// </summary>
-		/// <param name="response"></param>
-		/// <param name="throwErrorOnNonSuccess"></param>
-		/// <returns>MemoryStream</returns>
-		public static async Task<MemoryStream> GetAsMemoryStreamAsync(this HttpResponseMessage response, bool throwErrorOnNonSuccess = true, CancellationToken token = default(CancellationToken)) {
-			if (response.IsSuccessStatusCode) {
-				using (var contentStream = await response.Content.ReadAsStreamAsync()) {
-					var memoryStream = new MemoryStream();
-					await contentStream.CopyToAsync(memoryStream, 4096, token);
-					return memoryStream;
-				}
-			}
-			try {
-				response.EnsureSuccessStatusCode();
-			} catch (Exception ex) {
-				LOG.WarnFormat("{0} -> {1}", response.RequestMessage.RequestUri, ex.Message);
-				if (throwErrorOnNonSuccess) {
-					throw;
-				}
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// Simplified error handling, this makes sure the uri & response are logged
-		/// </summary>
-		/// <param name="responseMessage"></param>
-		public static async Task HandleErrorAsync(this HttpResponseMessage responseMessage, CancellationToken token = default(CancellationToken)) {
-			Exception throwException = null;
-			string errorContent = null;
-			Uri requestUri = null;
-			try {
-				if (!responseMessage.IsSuccessStatusCode) {
-					requestUri = responseMessage.RequestMessage.RequestUri;
-					try {
-						// try reading the content, so this is not lost
-						errorContent = await responseMessage.Content.ReadAsStringAsync();
-						LOG.WarnFormat("Error loading {0}: {1}", requestUri, errorContent);
-					} catch {
-						// Ignore
-					}
-					responseMessage.EnsureSuccessStatusCode();
-				}
-			} catch (Exception ex) {
-				throwException = ex;
-				throwException.Data.Add("uri", requestUri);
-			}
-			if (throwException != null) {
-				if (errorContent != null) {
-					throwException.Data.Add("response", errorContent);
-				}
-				throw throwException;
-			}
-			return;
-		}
-
+		
 		/// <summary>
 		/// Set Basic Authentication for the current client
 		/// </summary>
@@ -231,6 +130,136 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Add default request header without validation
+		/// </summary>
+		/// <param name="scheme">name</param>
+		/// <param name="authorization">value</param>
+		public static HttpClient AddDefaultRequestHeader(this HttpClient client, string name, string value) {
+			client.DefaultRequestHeaders.TryAddWithoutValidation("X-Atlassian-Token", "nocheck");
+			return client;
+		}
+
+		/// <summary>
+		/// ReadAsStringAsync
+		/// </summary>
+		/// <param name="response"></param>
+		/// <param name="throwErrorOnNonSuccess"></param>
+		/// <returns></returns>
+		public static async Task<string> GetAsStringAsync(this HttpResponseMessage response, bool throwErrorOnNonSuccess = true) {
+			if (response.IsSuccessStatusCode) {
+				return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+			}
+			if (throwErrorOnNonSuccess) {
+				response.EnsureSuccessStatusCode();
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// GetAsJsonAsync
+		/// </summary>
+		/// <param name="response"></param>
+		/// <param name="throwErrorOnNonSuccess"></param>
+		/// <returns>dynamic (DyanmicJson)</returns>
+		public static async Task<dynamic> GetAsJsonAsync(this HttpResponseMessage response, bool throwErrorOnNonSuccess = true) {
+			if (response.IsSuccessStatusCode) {
+				var jsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+				return DynamicJson.Parse(jsonString);
+			}
+			if (throwErrorOnNonSuccess) {
+				response.EnsureSuccessStatusCode();
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Download a uri response as string
+		/// </summary>
+		/// <param name="uri">An Uri to specify the download location</param>
+		/// <returns>HttpResponseMessage</returns>
+		public static async Task<HttpResponseMessage> GetAsync(this Uri uri, CancellationToken token = default(CancellationToken)) {
+			using (var client = uri.CreateHttpClient()) {
+				try {
+					return await client.GetAsync(uri, token).ConfigureAwait(false);
+				} catch (Exception ex) {
+					LOG.Warn(ex);
+					throw;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Download a uri response as string
+		/// </summary>
+		/// <param name="uri">An Uri to specify the download location</param>
+		/// <returns>string with the content</returns>
+		public static async Task<string> GetAsStringAsync(this Uri uri, bool throwError = true, CancellationToken token = default(CancellationToken)) {
+			using (var client = uri.CreateHttpClient())
+			using (var response = await client.GetAsync(uri, HttpCompletionOption.ResponseContentRead, token).ConfigureAwait(false)) {
+				return await response.GetAsStringAsync(throwError).ConfigureAwait(false);
+			}
+		}
+
+		/// <summary>
+		/// Get the content as a MemoryStream
+		/// </summary>
+		/// <param name="response"></param>
+		/// <param name="throwErrorOnNonSuccess"></param>
+		/// <returns>MemoryStream</returns>
+		public static async Task<MemoryStream> GetAsMemoryStreamAsync(this HttpResponseMessage response, bool throwErrorOnNonSuccess = true, CancellationToken token = default(CancellationToken)) {
+			if (response.IsSuccessStatusCode) {
+				using (var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false)) {
+					var memoryStream = new MemoryStream();
+					await contentStream.CopyToAsync(memoryStream, 4096, token).ConfigureAwait(false);
+					return memoryStream;
+				}
+			}
+			try {
+				response.EnsureSuccessStatusCode();
+			} catch (Exception ex) {
+				LOG.WarnFormat("{0} -> {1}", response.RequestMessage.RequestUri, ex.Message);
+				if (throwErrorOnNonSuccess) {
+					throw;
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Simplified error handling, this makes sure the uri & response are logged
+		/// </summary>
+		/// <param name="responseMessage"></param>
+		public static async Task HandleErrorAsync(this HttpResponseMessage responseMessage, CancellationToken token = default(CancellationToken)) {
+			Exception throwException = null;
+			string errorContent = null;
+			Uri requestUri = null;
+			try {
+				if (!responseMessage.IsSuccessStatusCode) {
+					requestUri = responseMessage.RequestMessage.RequestUri;
+					try {
+						// try reading the content, so this is not lost
+						errorContent = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+						LOG.WarnFormat("Error loading {0}: {1}", requestUri, errorContent);
+					} catch {
+						// Ignore
+					}
+					responseMessage.EnsureSuccessStatusCode();
+				}
+			} catch (Exception ex) {
+				throwException = ex;
+				throwException.Data.Add("uri", requestUri);
+			}
+			if (throwException != null) {
+				if (errorContent != null) {
+					throwException.Data.Add("response", errorContent);
+				}
+				throw throwException;
+			}
+			return;
+		}
+
+
+		/// <summary>
 		/// Head method
 		/// </summary>
 		/// <param name="uri"></param>
@@ -238,7 +267,7 @@ namespace GreenshotPlugin.Core {
 		public static async Task<HttpContentHeaders> HeadAsync(this Uri uri, CancellationToken token = default(CancellationToken)) {
 			using (var client = uri.CreateHttpClient())
 			using (var request = new HttpRequestMessage(HttpMethod.Head, uri)) {
-				var response = await client.SendAsync(request, token);
+				var response = await client.SendAsync(request, token).ConfigureAwait(false);
 				return response.Content.Headers;
 			}
 		}
@@ -250,7 +279,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>DateTime</returns>
 		public static async Task<DateTimeOffset> LastModifiedAsync(this Uri uri, CancellationToken token = default(CancellationToken)) {
 			try {
-				var headers = await uri.HeadAsync(token);
+				var headers = await uri.HeadAsync(token).ConfigureAwait(false);
 				if (headers.LastModified.HasValue) {
 					return headers.LastModified.Value;
 				}

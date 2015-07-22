@@ -110,15 +110,15 @@ namespace GreenshotJiraPlugin {
 		/// <param name="url"></param>
 		/// <param name="username"></param>
 		/// <param name="password"></param>
-		public async void AddJiraInstance(string url, string username, string password, CancellationToken token = default(CancellationToken)) {
-			var jiraInstance = new JiraAPI(url);
+		public async void AddJiraInstance(Uri uri, string username, string password, CancellationToken token = default(CancellationToken)) {
+			var jiraInstance = new JiraAPI(uri);
 			jiraInstance.SetBasicAuthentication(username, password);
-			var serverInfo = await jiraInstance.ServerInfo();
+			var serverInfo = await jiraInstance.ServerInfo().ConfigureAwait(false);
 			jiraInstance.ServerTitle = serverInfo.serverTitle;
 			jiraInstance.JiraVersion = serverInfo.version;
 
 			_jiraInstances.Add(jiraInstance);
-			foreach (var project in await jiraInstance.Projects()) {
+			foreach (var project in await jiraInstance.Projects().ConfigureAwait(false)) {
 				if (!_projectJiraApiMap.ContainsKey(project.key)) {
 					_projectJiraApiMap.Add(project.key, jiraInstance);
 				}
@@ -134,11 +134,11 @@ namespace GreenshotJiraPlugin {
 			try {
 				JiraAPI jiraApi;
 				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi)) {
-					var issue = await jiraApi.Issue(jiraDetails.JiraKey);
+					var issue = await jiraApi.Issue(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.Title = issue.fields.summary;
 				}
 			} catch (Exception ex) {
-				Console.WriteLine("Couldn't retrieve JIRA title: {0}", ex.Message);
+				LOG.WarnFormat("Couldn't retrieve JIRA title: {0}", ex.Message);
 			}
 		}
 

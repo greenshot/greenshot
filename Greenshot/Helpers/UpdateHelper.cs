@@ -49,7 +49,7 @@ namespace Greenshot.Experimental {
 		/// </summary>
 		/// <returns>bool true if yes</returns>
 		public static async Task<bool> IsUpdateCheckNeeded() {
-			using (await _asyncLock.LockAsync()) {
+			using (await _asyncLock.LockAsync().ConfigureAwait(false)) {
 				if (conf.UpdateCheckInterval == 0) {
 					return false;
 				}
@@ -61,7 +61,7 @@ namespace Greenshot.Experimental {
 						return false;
 					}
 					LOG.DebugFormat("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
-					if (!await SourceForgeHelper.isRSSModifiedAfter(conf.LastUpdateCheck)) {
+					if (!await SourceForgeHelper.isRSSModifiedAfter(conf.LastUpdateCheck).ConfigureAwait(false)) {
 						LOG.DebugFormat("RSS feed has not been updated since after {0}", conf.LastUpdateCheck);
 						return false;
 					}
@@ -74,7 +74,7 @@ namespace Greenshot.Experimental {
 		/// Read the RSS feed to see if there is a Greenshot update
 		/// </summary>
 		public static async Task CheckAndAskForUpdate() {
-			using (await _asyncLock.LockAsync()) {
+			using (await _asyncLock.LockAsync().ConfigureAwait(false)) {
 				Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
 				// Test like this:
 				// currentVersion = new Version("0.8.1.1198");
@@ -118,7 +118,7 @@ namespace Greenshot.Experimental {
 
 		private static async void ProcessRSSInfo(Version currentVersion) {
 			// Reset latest Greenshot
-			IDictionary<string, IDictionary<string, SourceforgeFile>> rssFiles = await SourceForgeHelper.readRSS();
+			var rssFiles = await SourceForgeHelper.readRSS().ConfigureAwait(false);
 
 			if (rssFiles == null) {
 				return;

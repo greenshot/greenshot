@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms.Integration;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace GreenshotPlugin.Windows
@@ -39,12 +40,27 @@ namespace GreenshotPlugin.Windows
 		private bool _isIndeterminate = true;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private string _text;
+		private Brush _color = Brushes.Green;
 
 		public CancellationToken Token
 		{
 			get
 			{
 				return _cancellationTokenSource.Token;
+			}
+		}
+
+		public Brush Color {
+			get {
+				return _color;
+			}
+			set {
+				if (_color != value) {
+					_color = value;
+					if (PropertyChanged != null) {
+						PropertyChanged(this, new PropertyChangedEventArgs("Color"));
+					}
+				}
 			}
 		}
 
@@ -116,7 +132,7 @@ namespace GreenshotPlugin.Windows
 		public static async Task<T> CreateAndShowAsync<T>(string title, string text, Func<IProgress<int>, CancellationToken, Task<T>> asyncFunction, CancellationToken token = default(CancellationToken), bool isIndeterminate = true)
 		{
 
-			T result;
+			T result = default(T);
 			using (var pleaseWaitWindow = new PleaseWaitWindow())
 			{
 				if (token == default(CancellationToken)) {
@@ -127,8 +143,15 @@ namespace GreenshotPlugin.Windows
 				pleaseWaitWindow.Text = text;
 				pleaseWaitWindow.IsIndeterminate = isIndeterminate;
 				pleaseWaitWindow.Show();
-				result = await asyncFunction(pleaseWaitWindow, token).ConfigureAwait(false);
-				var task = pleaseWaitWindow.Dispatcher.BeginInvoke(new Action(() => pleaseWaitWindow.Close()));
+				try {
+					result = await asyncFunction(pleaseWaitWindow, token).ConfigureAwait(false);
+				} catch (Exception ex) {
+					pleaseWaitWindow.Text = ex.Message;
+					pleaseWaitWindow.Color = Brushes.Red;
+					throw;
+				} finally {
+					var task = pleaseWaitWindow.Dispatcher.BeginInvoke(new Action(() => pleaseWaitWindow.Close()));
+				}
 			}
 			return result;
 		}

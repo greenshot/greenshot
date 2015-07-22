@@ -18,16 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
+using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Windows;
 using System;
 using System.Globalization;
 using System.Text;
-using System.Windows.Forms;
-
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
-using GreenshotPlugin.Windows;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -37,16 +37,12 @@ namespace GreenshotImgurPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
 		private GreenshotColumnSorter columnSorter;
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
-		private static ImgurHistory instance;
 		
 		public static async Task ShowHistoryAsync() {
 			// Make sure the history is loaded, will be done only once
-			await ImgurUtils.LoadHistory();
-			if (instance == null) {
-				instance = new ImgurHistory();
-			}
-			instance.Show();
-			instance.redraw();
+			await ImgurUtils.LoadHistory().ConfigureAwait(false);
+			await ImgurUtils.RetrieveImgurCredits().ConfigureAwait(false);
+			new ImgurHistory().ShowDialog();
 		}
 		
 		private ImgurHistory() {
@@ -72,9 +68,14 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 
+		protected override void OnShown(EventArgs e) {
+			redraw();
+			base.OnShown(e);
+		}
+
 		private void redraw() {
 			// Should fix Bug #3378699 
-			pictureBox1.Image = pictureBox1.ErrorImage;
+			pictureBox1.Image = null;
 			listview_imgur_uploads.BeginUpdate();
 			listview_imgur_uploads.Items.Clear();
 			listview_imgur_uploads.Columns.Clear();
@@ -82,8 +83,8 @@ namespace GreenshotImgurPlugin {
 			foreach (string column in columns) {
 				listview_imgur_uploads.Columns.Add(column);
 			}
-			foreach (ImgurInfo imgurInfo in config.runtimeImgurHistory.Values) {
-				ListViewItem item = new ListViewItem(imgurInfo.Hash);
+			foreach (ImageInfo imgurInfo in config.runtimeImgurHistory.Values) {
+				ListViewItem item = new ListViewItem(imgurInfo.Id);
 				item.Tag = imgurInfo;
 				item.SubItems.Add(imgurInfo.Title);
 				item.SubItems.Add(imgurInfo.DeleteHash);
@@ -91,7 +92,7 @@ namespace GreenshotImgurPlugin {
 				listview_imgur_uploads.Items.Add(item);
 			}
 			for (int i = 0; i < columns.Length; i++) {
-				listview_imgur_uploads.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.ColumnContent);
+				listview_imgur_uploads.Columns[i].Width = -2;
 			}
 	
 			listview_imgur_uploads.EndUpdate();
@@ -102,17 +103,17 @@ namespace GreenshotImgurPlugin {
 		}
 
 		private void Listview_imgur_uploadsSelectedIndexChanged(object sender, EventArgs e) {
-			pictureBox1.Image = pictureBox1.ErrorImage;
+			pictureBox1.Image = null;
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				deleteButton.Enabled = true;
 				openButton.Enabled = true;
 				clipboardButton.Enabled = true;
 				if (listview_imgur_uploads.SelectedItems.Count == 1) {
-					ImgurInfo imgurInfo = (ImgurInfo)listview_imgur_uploads.SelectedItems[0].Tag;
+					ImageInfo imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[0].Tag;
 					pictureBox1.Image = imgurInfo.Image;
 				}
 			} else {
-				pictureBox1.Image = pictureBox1.ErrorImage;
+				pictureBox1.Image = null;
 				deleteButton.Enabled = false;
 				openButton.Enabled = false;
 				clipboardButton.Enabled = false;
@@ -122,20 +123,21 @@ namespace GreenshotImgurPlugin {
 		private async void DeleteButtonClick(object sender, EventArgs e) {
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
-					ImgurInfo imgurInfo = (ImgurInfo)listview_imgur_uploads.SelectedItems[i].Tag;
-					DialogResult result = MessageBox.Show(Language.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title), Language.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Hash), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+					ImageInfo imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
+					DialogResult result = MessageBox.Show(Language.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title), Language.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Id), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 					if (result == DialogResult.Yes) {
 						// Should fix Bug #3378699 
-						pictureBox1.Image = pictureBox1.ErrorImage;
+						pictureBox1.Image = null;
 
 						await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
 							return ImgurUtils.DeleteImgurImageAsync(imgurInfo, pleaseWaitToken);
-						});
+						}).ConfigureAwait(false);
 
 						imgurInfo.Dispose();
 					}
 				}
 			}
+
 			redraw();
 		}
 
@@ -143,11 +145,11 @@ namespace GreenshotImgurPlugin {
 			StringBuilder links = new StringBuilder();
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
-					ImgurInfo imgurInfo = (ImgurInfo)listview_imgur_uploads.SelectedItems[i].Tag;
+					ImageInfo imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
 					if (config.UsePageLink) {
-						links.AppendLine(imgurInfo.Page);
+						links.AppendLine(imgurInfo.Page.AbsoluteUri);
 					} else {
-						links.AppendLine(imgurInfo.Original);
+						links.AppendLine(imgurInfo.Original.AbsoluteUri);
 					}
 				}
 			}
@@ -167,8 +169,8 @@ namespace GreenshotImgurPlugin {
 		private void OpenButtonClick(object sender, EventArgs e) {
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
-					ImgurInfo imgurInfo = (ImgurInfo)listview_imgur_uploads.SelectedItems[i].Tag;
-					System.Diagnostics.Process.Start(imgurInfo.Page);
+					ImageInfo imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
+					System.Diagnostics.Process.Start(imgurInfo.Page.AbsoluteUri);
 				}
 			}
 		}
@@ -192,10 +194,5 @@ namespace GreenshotImgurPlugin {
 			this.listview_imgur_uploads.Sort();
 		}
 
-		
-		void ImgurHistoryFormClosing(object sender, FormClosingEventArgs e)
-		{
-			instance = null;
-		}
 	}
 }

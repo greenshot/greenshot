@@ -105,7 +105,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="updateTime">DateTime</param>
 		/// <returns>true if the feed is newer</returns>
 		public static async Task<bool> isRSSModifiedAfter(DateTimeOffset updateTime) {
-			DateTimeOffset lastModified = await RSSFEED.LastModifiedAsync();
+			DateTimeOffset lastModified = await RSSFEED.LastModifiedAsync().ConfigureAwait(false);
 			return updateTime.CompareTo(lastModified) < 0;
 		}
 
@@ -114,12 +114,12 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <returns>Dictionary<string, Dictionary<string, RssFile>> with files and their RssFile "description"</returns>
 		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> readRSS() {
-			IDictionary<string, IDictionary<string, SourceforgeFile>> rssFiles = new Dictionary<string, IDictionary<string, SourceforgeFile>>();
-			var rssContent = await RSSFEED.GetAsync(false);
+			var rssFiles = new Dictionary<string, IDictionary<string, SourceforgeFile>>();
+			var rssContent = await RSSFEED.GetAsync().ConfigureAwait(false);
 			if (rssContent == null) {
 				return rssFiles;
 			}
-			var stream = await rssContent.GetAsMemoryStreamAsync(false);
+			var stream = await rssContent.GetAsMemoryStreamAsync(false).ConfigureAwait(false);
 			if (stream == null) {
 				return rssFiles;
 			}

@@ -18,19 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Windows;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Threading;
-using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
 using System.Threading.Tasks;
-using GreenshotPlugin.Windows;
+using System.Windows.Forms;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -91,7 +92,7 @@ namespace GreenshotImgurPlugin {
 			historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.history));
 			historyMenuItem.Tag = host;
 			historyMenuItem.Click += async (sender , e) => {
-				await ImgurHistory.ShowHistoryAsync();
+				await ImgurHistory.ShowHistoryAsync().ConfigureAwait(false);
 			};
 			itemPlugInRoot.DropDownItems.Add(historyMenuItem);
 
@@ -121,7 +122,7 @@ namespace GreenshotImgurPlugin {
 
 		private async Task CheckHistory() {
 			try {
-				await ImgurUtils.LoadHistory();
+				await ImgurUtils.LoadHistory().ConfigureAwait(false);
 				host.GreenshotForm.BeginInvoke((MethodInvoker)delegate {
 					if (config.ImgurUploadHistory.Count > 0) {
 						historyMenuItem.Enabled = true;
@@ -172,26 +173,25 @@ namespace GreenshotImgurPlugin {
 					return ImgurUtils.UploadToImgurAsync(surfaceToUpload, outputSettings, captureDetails.Title, filename, pleaseWaitToken);
 				}).ConfigureAwait(false);
 
-				if (imgurInfo != null && config.AnonymousAccess) {
-					LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
-					config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
-					config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
-					await CheckHistory().ConfigureAwait(false);
-				}
-
 				if (imgurInfo != null) {
-					// TODO: Optimize a second call for export
-					using (Image tmpImage = surfaceToUpload.GetImageForExport()) {
-						imgurInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
-					}
+					await CheckHistory().ConfigureAwait(false);
 					IniConfig.Save();
 					try {
 						if (config.UsePageLink) {
-							uploadURL = imgurInfo.Page;
-							ClipboardHelper.SetClipboardData(imgurInfo.Page);
+							if (imgurInfo.Page.AbsoluteUri != null) {
+								uploadURL = imgurInfo.Page.AbsoluteUri;
+								if (config.CopyUrlToClipboard) {
+									ClipboardHelper.SetClipboardData(imgurInfo.Page.AbsoluteUri);
+								}
+							}
 						} else {
-							uploadURL = imgurInfo.Original;
-							ClipboardHelper.SetClipboardData(imgurInfo.Original);
+							if (imgurInfo.Original.AbsoluteUri != null) {
+
+								uploadURL = imgurInfo.Original.AbsoluteUri;
+								if (config.CopyUrlToClipboard) {
+									ClipboardHelper.SetClipboardData(imgurInfo.Original.AbsoluteUri);
+								}
+							}
 						}
 					} catch (Exception ex) {
 						LOG.Error("Can't write to clipboard: ", ex);

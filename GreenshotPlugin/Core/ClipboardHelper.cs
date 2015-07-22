@@ -136,7 +136,7 @@ EndSelection:<<<<<<<4
 				int retryCount = 5;
 				while (retryCount >= 0) {
 					try {
-						Clipboard.SetDataObject(ido, copy);
+						PluginUtils.Host.MainMenu.Invoke(new Action(() => Clipboard.SetDataObject(ido, copy)), null);
 						break;
 					} catch (Exception ee) {
 						if (retryCount == 0) {
@@ -158,6 +158,10 @@ EndSelection:<<<<<<<4
 			}
 		}
 
+		private static IDataObject InternalGetDataObject() {
+			return Clipboard.GetDataObject();
+		}
+
 		/// <summary>
 		/// The GetDataObject will lock/try/catch clipboard operations making it save and not show exceptions.
 		/// </summary>
@@ -166,7 +170,9 @@ EndSelection:<<<<<<<4
 				int retryCount = 2;
 				while (retryCount >= 0) {
 					try {
-						return Clipboard.GetDataObject();
+						return (IDataObject)PluginUtils.Host.MainMenu.Invoke(new Func<IDataObject>(() => {
+							return InternalGetDataObject();
+						}), null);
 					} catch (Exception ee) {
 						if (retryCount == 0) {
 							string messageText = null;

@@ -155,7 +155,6 @@ namespace GreenshotImgurPlugin
 			this.Controls.Add(this.listview_imgur_uploads);
 			this.LanguageKey = "imgur.history";
 			this.Name = "ImgurHistory";
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImgurHistoryFormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();

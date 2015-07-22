@@ -494,7 +494,7 @@ namespace Greenshot.Forms
 				PsAPI.EmptyWorkingSet();
 			}
 			// Checking for updates etc in the background
-			_backgroundWorkerTimer = new System.Threading.Timer(async (_) => await BackgroundWorkerTimerTick(), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
+			_backgroundWorkerTimer = new System.Threading.Timer(async (_) => await BackgroundWorkerTimerTick().ConfigureAwait(false), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
 		}
 
 		/// <summary>
@@ -1742,9 +1742,9 @@ namespace Greenshot.Forms
 			if (_conf.MinimizeWorkingSetSize) {
 				PsAPI.EmptyWorkingSet();
 			}
-			if (await UpdateHelper.IsUpdateCheckNeeded()) {
+			if (await UpdateHelper.IsUpdateCheckNeeded().ConfigureAwait(false)) {
 				LOG.Debug("BackgroundWorkerTimerTick checking for update");
-				await UpdateHelper.CheckAndAskForUpdate();
+				await UpdateHelper.CheckAndAskForUpdate().ConfigureAwait(false);
 			}
 		}
 	}
