@@ -23,10 +23,19 @@ using System.Drawing;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
+using System.IO;
+using GreenshotPlugin.Controls;
+using Greenshot.IniFile;
+using System;
+using System.Windows.Forms;
+using System.Threading;
+using System.Threading.Tasks;
+using GreenshotPlugin.Windows;
 
 namespace GreenshotBoxPlugin {
 	public class BoxDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(BoxDestination));
+		private static BoxConfiguration _config = IniConfig.GetIniSection<BoxConfiguration>();
 
 		private readonly BoxPlugin _plugin;
 		public BoxDestination(BoxPlugin plugin) {
@@ -52,9 +61,9 @@ namespace GreenshotBoxPlugin {
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string uploadUrl = _plugin.Upload(captureDetails, surface);
+			string uploadUrl = await UploadAsync(captureDetails, surface, token);
 			if (uploadUrl != null) {
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploadUrl;
@@ -62,5 +71,37 @@ namespace GreenshotBoxPlugin {
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
+
+		/// <summary>
+		/// This will be called when the menu item in the Editor is clicked
+		/// </summary>
+		private async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload, CancellationToken token = default(CancellationToken))
+		{
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+			try
+			{
+				string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+				SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
+
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), (progress, pleaseWaitToken) => {
+					// TODO: Change to async
+					return Task.Run(() => BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename));
+                }).ConfigureAwait(false);
+
+				if (url != null && _config.AfterUploadLinkToClipBoard)
+				{
+					ClipboardHelper.SetClipboardData(url);
+				}
+
+				return url;
+			}
+			catch (Exception ex)
+			{
+				LOG.Error("Error uploading.", ex);
+				MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
+				return null;
+			}
+		}
+
 	}
 }

@@ -26,6 +26,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -105,7 +107,7 @@ namespace GreenshotOfficePlugin {
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
 			Size imageSize = Size.Empty;
@@ -128,7 +130,7 @@ namespace GreenshotOfficePlugin {
 					}
 					if (destinations.Count > 0) {
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return ShowPickerMenu(false, surface, captureDetails, destinations);
+						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token);
 					}
 				} else if (!exportInformation.ExportMade) {
 					exportInformation.ExportMade = PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);

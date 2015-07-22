@@ -20,6 +20,10 @@
  */
 using System.ComponentModel;
 using System.Drawing;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -41,6 +45,21 @@ namespace GreenshotPlugin.Core {
 
 		public static Image getGreenshotImage() {
 			return getImage("Greenshot.Image");
+		}
+
+		/// <summary>
+		/// Extension method to convert an Icon to ImageSource (used for WPF)
+		/// </summary>
+		/// <param name="icon"></param>
+		/// <returns>BitmapSource</returns>
+		public static BitmapSource ToBitmapSource(this Icon icon)
+		{
+			var bitmapSource = Imaging.CreateBitmapSourceFromHIcon(
+				icon.Handle,
+				Int32Rect.Empty,
+				BitmapSizeOptions.FromEmptyOptions());
+
+			return bitmapSource;
 		}
 	}
 }

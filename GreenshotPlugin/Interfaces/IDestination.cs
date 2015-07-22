@@ -195,6 +195,6 @@ namespace Greenshot.Plugin {
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>
-		Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token);
+		Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken));
 	}
 }

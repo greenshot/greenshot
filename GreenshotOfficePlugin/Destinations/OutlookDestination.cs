@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
@@ -142,7 +144,7 @@ namespace GreenshotOfficePlugin {
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			// Outlook logic
 			string tmpFile = captureDetails.Filename;
@@ -177,7 +179,7 @@ namespace GreenshotOfficePlugin {
 							destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return ShowPickerMenu(false, surface, captureDetails, destinations);
+						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token);
 					}
 				} else {
 					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC, null);

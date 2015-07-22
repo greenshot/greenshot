@@ -44,11 +44,18 @@ namespace GreenshotJiraPlugin {
 			set;
 		}
 
+		public Uri JiraBaseUri
+		{
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// Create the JiraAPI object, here the HttpClient is configured
 		/// </summary>
 		/// <param name="baseurl">Base URL</param>
 		public JiraAPI(Uri baseUri, bool useProxy = true, bool useDefaultCredentials = true, bool useCookieContainer = true) {
+			JiraBaseUri = baseUri;
 			_client = baseUri.CreateHttpClient();
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
 		}

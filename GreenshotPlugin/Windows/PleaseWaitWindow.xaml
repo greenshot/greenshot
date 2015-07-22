@@ -1,6 +1,6 @@
 ﻿<Window x:Class="GreenshotPlugin.Windows.PleaseWaitWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" ShowInTaskbar="True"
         Title="{Binding Title}" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <StackPanel>
 		<Label Content="{Binding Text}" HorizontalAlignment="Center"/>

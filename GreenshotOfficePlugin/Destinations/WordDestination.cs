@@ -28,6 +28,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Linq;
 using GreenshotOfficePlugin.OfficeExport;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -104,7 +106,7 @@ namespace GreenshotOfficePlugin {
 				   select new WordDestination(caption);
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
@@ -142,7 +144,7 @@ namespace GreenshotOfficePlugin {
 
 					if (destinations.Count > 0) {
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return ShowPickerMenu(false, surface, captureDetails, destinations);
+						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token);
 					}
 				}
 				try {

@@ -254,15 +254,15 @@ namespace Greenshot {
 				ToolStripMenuItem defaultItem = new ToolStripMenuItem(toolstripDestination.Description);
 				defaultItem.Tag = toolstripDestination;
 				defaultItem.Image = toolstripDestination.DisplayIcon;
-				defaultItem.Click += delegate {
-					toolstripDestination.ExportCapture(true, surface, surface.CaptureDetails);
+				defaultItem.Click += async (sender, e) => {
+					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
 				};
 				
 				// The ButtonClick, this is for the icon, gets the current default item
-				destinationButton.ButtonClick += delegate(object sender, EventArgs e) {
-					toolstripDestination.ExportCapture(true, surface, surface.CaptureDetails);
+				destinationButton.ButtonClick += async (sender, e) => {
+					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
 				};
-				
+
 				// Generate the entries for the drop down
 				destinationButton.DropDownOpening += delegate(object sender, EventArgs e) {
 					ClearItems(destinationButton.DropDownItems);
@@ -277,8 +277,8 @@ namespace Greenshot {
 							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description);
 							destinationMenuItem.Tag = closureFixedDestination;
 							destinationMenuItem.Image = closureFixedDestination.DisplayIcon;
-							destinationMenuItem.Click += delegate {
-								closureFixedDestination.ExportCapture(true, surface, surface.CaptureDetails);
+							destinationMenuItem.Click += async (sender2, e2) => {
+								await closureFixedDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
 							};
 							destinationButton.DropDownItems.Add(destinationMenuItem);
 						}
@@ -294,8 +294,8 @@ namespace Greenshot {
 				destinationButton.Size = new Size(23, 22);
 				destinationButton.Text = toolstripDestination.Description;
 				destinationButton.Image = toolstripDestination.DisplayIcon;
-				destinationButton.Click += delegate(object sender, EventArgs e) {
-					toolstripDestination.ExportCapture(true, surface, surface.CaptureDetails);
+				destinationButton.Click += async (sender2, e2) => {
+					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
 				};
 			}
 		}
@@ -876,7 +876,10 @@ namespace Greenshot {
 					}
 
 					if (destination.EditorShortcutKeys == keys) {
-						destination.ExportCapture(true, surface, surface.CaptureDetails);
+						BeginInvoke(new Action(async () =>
+						{
+							await destination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
+						}));
 						return true;
 					}
 				}

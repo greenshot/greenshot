@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotPlugin.Core;
 using System;
 using System.ComponentModel;
 using System.Threading;
@@ -160,6 +161,7 @@ namespace GreenshotPlugin.Windows
 		{
 			DataContext = this;
 			InitializeComponent();
+			Icon = GreenshotResources.getGreenshotIcon().ToBitmapSource();
 		}
 
 		public void Report(int value)
