@@ -295,7 +295,7 @@ namespace GreenshotPlugin.Core
 					}
 					menu.Tag = clickedDestination.Designation;
 					// Export
-					exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
+					exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails).ConfigureAwait(false);
 					if (exportInformation != null && exportInformation.ExportMade)
 					{
 						LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
@@ -317,7 +317,7 @@ namespace GreenshotPlugin.Core
 						menu.Tag = null;
 
 						// This prevents the problem that the context menu shows in the task-bar
-						await ShowMenuAtCursorAsync(menu, token);
+						await ShowMenuAtCursorAsync(menu, token).ConfigureAwait(false);
 					}
 				}
 				);
@@ -341,7 +341,7 @@ namespace GreenshotPlugin.Core
 			};
 			menu.Items.Add(closeItem);
 
-			await ShowMenuAtCursorAsync(menu, token);
+			await ShowMenuAtCursorAsync(menu, token).ConfigureAwait(false);
 			return exportInformation;
 		}
 
@@ -377,7 +377,7 @@ namespace GreenshotPlugin.Core
 				{
 					if (menu.Visible)
 					{
-						await Task.Delay(200);
+						await Task.Delay(200).ConfigureAwait(false);
 					}
 					else
 					{
@@ -385,7 +385,7 @@ namespace GreenshotPlugin.Core
 						break;
 					}
 				}
-			});
+			}).ConfigureAwait(false);
 		}
 
 		/// <summary>
