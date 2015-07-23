@@ -72,10 +72,7 @@ namespace GreenshotImgurPlugin  {
 		/// <param name="token">CancellationToken</param>
 		/// <returns>Task with ExportInformation</returns>
 		public async override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = await UploadAsync(captureDetails, surface, token).ConfigureAwait(false);
-			exportInformation.ExportMade = !string.IsNullOrEmpty(uploadURL);
-			exportInformation.Uri = uploadURL;
+			var exportInformation = await UploadAsync(captureDetails, surface, token).ConfigureAwait(false);
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
@@ -87,62 +84,47 @@ namespace GreenshotImgurPlugin  {
 		/// <param name="image"></param>
 		/// <param name="uploadURL">out string for the url</param>
 		/// // <param name="token"></param>
-		/// <returns>Task with URL if the upload succeeded</returns>
-		private async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload, CancellationToken token = default(CancellationToken))
+		/// <returns>Task with ExportInformation</returns>
+		private async Task<ExportInformation> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload, CancellationToken token = default(CancellationToken))
 		{
+			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			string uploadURL = null;
-			try
-			{
+			try {
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
 					return ImgurUtils.UploadToImgurAsync(surfaceToUpload, outputSettings, captureDetails.Title, filename, pleaseWaitToken);
 				}).ConfigureAwait(false);
 
-				if (imgurInfo != null)
-				{
+				if (imgurInfo != null) {
 					await plugin.CheckHistory().ConfigureAwait(false);
 					IniConfig.Save();
-					try
-					{
-						if (config.UsePageLink)
-						{
-							if (imgurInfo.Page.AbsoluteUri != null)
-							{
-								uploadURL = imgurInfo.Page.AbsoluteUri;
-								if (config.CopyUrlToClipboard)
-								{
-									ClipboardHelper.SetClipboardData(imgurInfo.Page.AbsoluteUri);
-								}
-							}
+					if (config.UsePageLink) {
+						if (imgurInfo.Page.AbsoluteUri != null) {
+							exportInformation.Uri = imgurInfo.Page.AbsoluteUri;
 						}
-						else
-						{
-							if (imgurInfo.Original.AbsoluteUri != null)
-							{
-
-								uploadURL = imgurInfo.Original.AbsoluteUri;
-								if (config.CopyUrlToClipboard)
-								{
-									ClipboardHelper.SetClipboardData(imgurInfo.Original.AbsoluteUri);
-								}
-							}
-						}
+					} else if (imgurInfo.Original.AbsoluteUri != null) {
+						exportInformation.Uri = imgurInfo.Original.AbsoluteUri;
 					}
-					catch (Exception ex)
-					{
+					try {
+						if (config.CopyUrlToClipboard) {
+							ClipboardHelper.SetClipboardData(uploadURL);
+						}
+					} catch (Exception ex) {
 						LOG.Error("Can't write to clipboard: ", ex);
-						uploadURL = null;
 					}
 				}
-			}
-			catch (Exception e)
-			{
+			} catch (TaskCanceledException) {
+				exportInformation.ExportMade = false;
+				exportInformation.ErrorMessage = "User cancelled upload";
+				LOG.Info(exportInformation.ErrorMessage);
+			} catch (Exception e) {
 				LOG.Error("Error uploading.", e);
+				exportInformation.ExportMade = false;
+				exportInformation.ErrorMessage = e.Message;
 				MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
-				uploadURL = null;
 			}
-			return uploadURL;
+			return exportInformation;
 		}
 	}
 }
