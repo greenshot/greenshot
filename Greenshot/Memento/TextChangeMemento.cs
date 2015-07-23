@@ -18,32 +18,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
-using Greenshot.Drawing;
 using Greenshot.Configuration;
+using Greenshot.Plugin.Drawing;
 
 namespace Greenshot.Memento {
 	/// <summary>
 	/// The TextChangeMemento makes it possible to undo-redo an IDrawableContainer move
 	/// </summary>
 	public class TextChangeMemento : IMemento  {
-		private TextContainer textContainer;
+		private ITextContainer _textContainer;
 		private string oldText;
 		
-		public TextChangeMemento(TextContainer textContainer) {
-			this.textContainer = textContainer;
+		public TextChangeMemento(ITextContainer textContainer) {
+			_textContainer = textContainer;
 			oldText = textContainer.Text;
-		}
-
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				textContainer = null;
-			}
 		}
 
 		public LangKey ActionLanguageKey {
@@ -53,9 +43,9 @@ namespace Greenshot.Memento {
 		}
 
 		public bool Merge(IMemento otherMemento) {
-			TextChangeMemento other = otherMemento as TextChangeMemento;
+			var other = otherMemento as TextChangeMemento;
 			if (other != null) {
-				if (other.textContainer.Equals(textContainer)) {
+				if (other._textContainer.Equals(_textContainer)) {
 					// Match, do not store anything as the initial state is what we want.
 					return true;
 				}
@@ -65,12 +55,37 @@ namespace Greenshot.Memento {
 
 		public IMemento Restore() {
 			// Before
-			textContainer.Invalidate();
-			TextChangeMemento oldState = new TextChangeMemento(textContainer);
-			textContainer.ChangeText(oldText, false);
+			_textContainer.Invalidate();
+			var oldState = new TextChangeMemento(_textContainer);
+			_textContainer.ChangeText(oldText, false);
 			// After
-			textContainer.Invalidate();
+			_textContainer.Invalidate();
 			return oldState;
 		}
+
+		#region IDisposable Support
+		private bool _disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!_disposedValue)
+			{
+				if (disposing)
+				{
+					// dispose managed state (managed objects).
+				}
+				_textContainer = null;
+
+				_disposedValue = true;
+			}
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+		}
+		#endregion
 	}
 }

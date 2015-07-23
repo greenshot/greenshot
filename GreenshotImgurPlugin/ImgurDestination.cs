@@ -122,7 +122,7 @@ namespace GreenshotImgurPlugin  {
 				LOG.Error("Error uploading.", e);
 				exportInformation.ExportMade = false;
 				exportInformation.ErrorMessage = e.Message;
-				MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
+				MessageBox.Show(Designation, Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return exportInformation;
 		}

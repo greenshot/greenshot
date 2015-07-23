@@ -18,47 +18,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using Greenshot.Plugin.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Configuration;
 
-namespace Greenshot.Memento {
+namespace Greenshot.Memento
+{
 	/// <summary>
 	/// The ChangeFieldHolderMemento makes it possible to undo-redo an IDrawableContainer move
 	/// </summary>
-	public class ChangeFieldHolderMemento : IMemento  {
-		private IDrawableContainer drawableContainer;
-		private Field fieldToBeChanged;
-		private object oldValue;
-		
-		public ChangeFieldHolderMemento(IDrawableContainer drawableContainer, Field fieldToBeChanged) {
-			this.drawableContainer = drawableContainer;
-			this.fieldToBeChanged = fieldToBeChanged;
-			oldValue = fieldToBeChanged.Value;
+	public class ChangeFieldHolderMemento : IMemento
+	{
+		private readonly Field _fieldToBeChanged;
+		private readonly object _oldValue;
+		private IDrawableContainer _drawableContainer;
+
+		public ChangeFieldHolderMemento(IDrawableContainer drawableContainer, Field fieldToBeChanged)
+		{
+			_drawableContainer = drawableContainer;
+			_fieldToBeChanged = fieldToBeChanged;
+			_oldValue = fieldToBeChanged.Value;
 		}
 
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing) {
-			//if (disposing) { }
-			drawableContainer = null;
-		}
-
-		public LangKey ActionLanguageKey {
-			get {
+		public LangKey ActionLanguageKey
+		{
+			get
+			{
 				return LangKey.none;
 			}
 		}
 
-		public bool Merge(IMemento otherMemento) {
+		public bool Merge(IMemento otherMemento)
+		{
 			ChangeFieldHolderMemento other = otherMemento as ChangeFieldHolderMemento;
-			if (other != null) {
-				if (other.drawableContainer.Equals(drawableContainer)) {
-					if (other.fieldToBeChanged.Equals(fieldToBeChanged)) {
+			if (other != null)
+			{
+				if (other._drawableContainer.Equals(_drawableContainer))
+				{
+					if (other._fieldToBeChanged.Equals(_fieldToBeChanged))
+					{
 						// Match, do not store anything as the initial state is what we want.
 						return true;
 					}
@@ -67,14 +67,40 @@ namespace Greenshot.Memento {
 			return false;
 		}
 
-		public IMemento Restore() {
+		public IMemento Restore()
+		{
 			// Before
-			drawableContainer.Invalidate();
-			ChangeFieldHolderMemento oldState = new ChangeFieldHolderMemento(drawableContainer, fieldToBeChanged);
-			fieldToBeChanged.Value = oldValue;
+			_drawableContainer.Invalidate();
+			var oldState = new ChangeFieldHolderMemento(_drawableContainer, _fieldToBeChanged);
+			_fieldToBeChanged.Value = _oldValue;
 			// After
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 			return oldState;
 		}
+
+		#region IDisposable Support
+		private bool _disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!_disposedValue)
+			{
+				if (disposing)
+				{
+					// dispose managed state (managed objects).
+				}
+				_drawableContainer = null;
+
+				_disposedValue = true;
+			}
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+		}
+		#endregion
 	}
 }

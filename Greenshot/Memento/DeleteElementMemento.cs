@@ -18,63 +18,87 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Plugin.Drawing;
+using Greenshot.Plugin;
 
-namespace Greenshot.Memento {
+namespace Greenshot.Memento
+{
 	/// <summary>
 	/// The DeleteElementMemento makes it possible to undo deleting an element
 	/// </summary>
-	public class DeleteElementMemento : IMemento  {
-		private IDrawableContainer drawableContainer;
-		private Surface surface;
+	public class DeleteElementMemento : IMemento
+	{
+		private ISurface _surface;
+		private IDrawableContainer _drawableContainer;
 
-		public DeleteElementMemento(Surface surface, IDrawableContainer drawableContainer) {
-			this.surface = surface;
-			this.drawableContainer = drawableContainer;
+		public DeleteElementMemento(ISurface surface, IDrawableContainer drawableContainer)
+		{
+			_surface = surface;
+			_drawableContainer = drawableContainer;
 		}
 
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (drawableContainer != null) {
-					drawableContainer.Dispose();
-					drawableContainer = null;
-				}
-			}
-		}
-
-		public LangKey ActionLanguageKey {
-			get {
+		public LangKey ActionLanguageKey
+		{
+			get
+			{
 				//return LangKey.editor_deleteelement;
 				return LangKey.none;
 			}
 		}
 
-		public bool Merge(IMemento otherMemento) {
+		public bool Merge(IMemento otherMemento)
+		{
 			return false;
 		}
 
-		public IMemento Restore() {
+		public IMemento Restore()
+		{
 			// Before
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 
-			AddElementMemento oldState = new AddElementMemento(surface, drawableContainer);
-			surface.AddElement(drawableContainer, false);
+			var oldState = new AddElementMemento(_surface, _drawableContainer);
+			_surface.AddElement(_drawableContainer, false);
 			// The container has a selected flag which represents the state at the moment it was deleted.
-			if (drawableContainer.Selected) {
-				surface.SelectElement(drawableContainer);
+			if (_drawableContainer.Selected)
+			{
+				_surface.SelectElement(_drawableContainer);
 			}
 
 			// After
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 			return oldState;
 		}
+
+		#region IDisposable Support
+		private bool _disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!_disposedValue)
+			{
+				if (disposing)
+				{
+					if (_drawableContainer != null)
+					{
+						_drawableContainer = null;
+					}
+					_surface = null;
+				}
+
+				_disposedValue = true;
+			}
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+		}
+		#endregion
 	}
 }

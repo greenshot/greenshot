@@ -71,7 +71,7 @@ namespace Greenshot.Helpers {
 		/// When disposing==true all non-managed resources should be freed too!
 		/// </summary>
 		/// <param name="disposing"></param>
-		protected virtual void Dispose(bool disposing) {
+		protected void Dispose(bool disposing) {
 			if (disposing) {
 				// Cleanup
 			}

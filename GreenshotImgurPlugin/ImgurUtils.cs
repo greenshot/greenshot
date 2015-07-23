@@ -95,7 +95,6 @@ namespace GreenshotImgurPlugin {
 		/// <param name="filename">Filename</param>
 		/// <returns>ImgurInfo with details</returns>
 		public static async Task<ImageInfo> UploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, CancellationToken token = default(CancellationToken)) {
-			IDictionary<string, object> uploadParameters = new Dictionary<string, object>();
 			IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 			// add title
 			if (title != null && config.AddTitle) {
@@ -107,7 +106,7 @@ namespace GreenshotImgurPlugin {
 			}
 			dynamic imageJson = null;
 			if (config.AnonymousAccess) {
-				var uploadUri = new Uri(config.ApiUrl + "/upload.json?" + NetworkHelper.GenerateQueryParameters(otherParameters));
+				var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
 				using (var client = uploadUri.CreateHttpClient()) {
 					client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
 					client.DefaultRequestHeaders.ExpectContinue = false;
@@ -115,7 +114,7 @@ namespace GreenshotImgurPlugin {
 						ImageOutput.SaveToStream(surfaceToUpload, uploadStream, outputSettings);
 						uploadStream.Seek(0, SeekOrigin.Begin);
 						using (var content = new StreamContent(uploadStream)) {
-							content.Headers.Add("Content-Type", "image/" + outputSettings.Format.ToString());
+							content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 							var response = await client.PostAsync(uploadUri, content, token).ConfigureAwait(false);
 							await response.HandleErrorAsync(token).ConfigureAwait(false);
 							imageJson = await response.GetAsJsonAsync().ConfigureAwait(false);
@@ -146,7 +145,7 @@ namespace GreenshotImgurPlugin {
 				}
 				try {
 					otherParameters.Add("image", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-					var responseString = oAuth.MakeOAuthRequest(HttpMethod.Post, IMGUR_IMAGES_URI, uploadParameters, otherParameters, null);
+					var responseString = oAuth.MakeOAuthRequest(HttpMethod.Post, IMGUR_IMAGES_URI, null, otherParameters, null);
 					imageJson = DynamicJson.Parse(responseString);
 				} catch (Exception ex) {
 					LOG.Error("Upload to imgur gave an exeption: ", ex);

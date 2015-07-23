@@ -31,36 +31,26 @@ namespace Greenshot.Memento {
 	/// The DrawableContainerBoundsChangeMemento makes it possible to undo-redo an IDrawableContainer resize & move
 	/// </summary>
 	public class DrawableContainerBoundsChangeMemento : IMemento  {
-		List<Point> points = new List<Point>();
-		List<Size> sizes = new List<Size>();
-		List<IDrawableContainer> listOfdrawableContainer;
+		private IList<Point> _points = new List<Point>();
+		private IList<Size> _sizes = new List<Size>();
+		private IList<IDrawableContainer> _listOfdrawableContainer;
 		
 		private void StoreBounds() {
-			foreach(IDrawableContainer drawableContainer in listOfdrawableContainer) {
-				points.Add(drawableContainer.Location);
-				sizes.Add(drawableContainer.Size);
+			foreach(IDrawableContainer drawableContainer in _listOfdrawableContainer) {
+				_points.Add(drawableContainer.Location);
+				_sizes.Add(drawableContainer.Size);
 			}
 		}
 
-		public DrawableContainerBoundsChangeMemento(List<IDrawableContainer> listOfdrawableContainer) {
-			this.listOfdrawableContainer = listOfdrawableContainer;
+		public DrawableContainerBoundsChangeMemento(IList<IDrawableContainer> listOfdrawableContainer) {
+			_listOfdrawableContainer = listOfdrawableContainer;
 			StoreBounds();
 		}
 
 		public DrawableContainerBoundsChangeMemento(IDrawableContainer drawableContainer) {
-			listOfdrawableContainer = new List<IDrawableContainer>();
-			listOfdrawableContainer.Add(drawableContainer);
+			_listOfdrawableContainer = new List<IDrawableContainer>();
+			_listOfdrawableContainer.Add(drawableContainer);
 			StoreBounds();
-		}
-
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing) {
-			// if (disposing) { }
-			listOfdrawableContainer = null;
 		}
 
 		public LangKey ActionLanguageKey {
@@ -72,7 +62,7 @@ namespace Greenshot.Memento {
 		public bool Merge(IMemento otherMemento) {
 			DrawableContainerBoundsChangeMemento other = otherMemento as DrawableContainerBoundsChangeMemento;
 			if (other != null) {
-				if (Objects.CompareLists<IDrawableContainer>(listOfdrawableContainer, other.listOfdrawableContainer)) {
+				if (Objects.CompareLists<IDrawableContainer>(_listOfdrawableContainer, other._listOfdrawableContainer)) {
 					// Lists are equal, as we have the state already we can ignore the new memento
 					return true;
 				}
@@ -81,20 +71,45 @@ namespace Greenshot.Memento {
 		}
 
 		public IMemento Restore() {
-			DrawableContainerBoundsChangeMemento oldState = new DrawableContainerBoundsChangeMemento(listOfdrawableContainer);
-			for(int index = 0; index < listOfdrawableContainer.Count; index++) {
-				IDrawableContainer drawableContainer = listOfdrawableContainer[index];
+			DrawableContainerBoundsChangeMemento oldState = new DrawableContainerBoundsChangeMemento(_listOfdrawableContainer);
+			for(int index = 0; index < _listOfdrawableContainer.Count; index++) {
+				IDrawableContainer drawableContainer = _listOfdrawableContainer[index];
 				// Before
 				drawableContainer.Invalidate();
-				drawableContainer.Left = points[index].X;
-				drawableContainer.Top = points[index].Y;
-				drawableContainer.Width = sizes[index].Width;
-				drawableContainer.Height = sizes[index].Height;
+				drawableContainer.Left = _points[index].X;
+				drawableContainer.Top = _points[index].Y;
+				drawableContainer.Width = _sizes[index].Width;
+				drawableContainer.Height = _sizes[index].Height;
 				// After
 				drawableContainer.Invalidate();
 				drawableContainer.Parent.Modified = true;
 			}
 			return oldState;
 		}
+
+		#region IDisposable Support
+		private bool _disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!_disposedValue)
+			{
+				if (disposing)
+				{
+					// dispose managed state (managed objects).
+				}
+				_listOfdrawableContainer = null;
+
+				_disposedValue = true;
+			}
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+		}
+		#endregion
 	}
 }

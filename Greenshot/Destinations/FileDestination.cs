@@ -18,17 +18,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
-
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using log4net;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Windows;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -57,9 +59,9 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override Keys EditorShortcutKeys {
+		public override System.Windows.Forms.Keys EditorShortcutKeys {
 			get {
-				return Keys.Control | Keys.S;
+				return System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S;
 			}
 		}
 		
@@ -69,25 +71,25 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			bool outputMade;
-            bool overwrite;
-            string fullPath;
+			bool overwrite;
+			string fullPath;
 			// Get output settings from the configuration
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
 
 			if (captureDetails != null && captureDetails.Filename != null) {
-                // As we save a pre-selected file, allow to overwrite.
-                overwrite = true;
-                LOG.InfoFormat("Using previous filename");
-                fullPath = captureDetails.Filename;
+				// As we save a pre-selected file, allow to overwrite.
+				overwrite = true;
+				LOG.InfoFormat("Using previous filename");
+				fullPath = captureDetails.Filename;
 				outputSettings.Format = ImageOutput.FormatForFilename(fullPath);
-            } else {
-                fullPath = CreateNewFilename(captureDetails);
-                // As we generate a file, the configuration tells us if we allow to overwrite
-                overwrite = conf.OutputFileAllowOverwrite;
-            }
+			} else {
+				fullPath = CreateNewFilename(captureDetails);
+				// As we generate a file, the configuration tells us if we allow to overwrite
+				overwrite = conf.OutputFileAllowOverwrite;
+			}
 			if (conf.OutputFilePromptQuality) {
 				QualityDialog qualityDialog = new QualityDialog(outputSettings);
 				qualityDialog.ShowDialog();
@@ -96,7 +98,13 @@ namespace Greenshot.Destinations {
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
 			try {
-				ImageOutput.Save(surface, fullPath, overwrite, outputSettings, conf.OutputFileCopyPathToClipboard);
+				TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+				Task<string> task = Task.Factory.StartNew(() => ImageOutput.Save(surface, fullPath, overwrite, outputSettings), default(CancellationToken), TaskCreationOptions.None, scheduler);
+				fullPath = await task;
+				if (conf.OutputFileCopyPathToClipboard)
+				{
+					ClipboardHelper.SetClipboardData(fullPath);
+				}
 				outputMade = true;
 			} catch (ArgumentException ex1) {
 				// Our generated filename exists, display 'save-as'
@@ -107,7 +115,7 @@ namespace Greenshot.Destinations {
 			} catch (Exception ex2) {
 				LOG.Error("Error saving screenshot!", ex2);
 				// Show the problem
-				MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
+				MessageBox.Show(Designation, Language.GetString(LangKey.error_save) + " " + ex2.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 				// when save failed we present a SaveWithDialog
 				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
 				outputMade = (fullPath != null);
@@ -139,10 +147,10 @@ namespace Greenshot.Destinations {
 				// configured filename or path not valid, show error message...
 				LOG.InfoFormat("Generated path or filename not valid: {0}, {1}", filepath, filename);
 
-				MessageBox.Show(Language.GetString(LangKey.error_save_invalid_chars), Language.GetString(LangKey.error));
+				MessageBox.Show(Language.GetString(LangKey.error_save_invalid_chars), Language.GetString(LangKey.error), MessageBoxButton.OK, MessageBoxImage.Error);
 				// ... lets get the pattern fixed....
 				var dialogResult = new SettingsForm().ShowDialog();
-				if (dialogResult == DialogResult.OK) { 
+				if (dialogResult == System.Windows.Forms.DialogResult.OK) { 
 					// ... OK -> then try again:
 					fullPath = CreateNewFilename(captureDetails);
 				} else { 

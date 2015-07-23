@@ -18,33 +18,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using Greenshot.Configuration;
-using Greenshot.Drawing;
 using Greenshot.Plugin.Drawing;
+using Greenshot.Plugin;
 
 namespace Greenshot.Memento {
 	/// <summary>
 	/// The AddElementMemento makes it possible to undo adding an element
 	/// </summary>
 	public class AddElementMemento : IMemento  {
-		private IDrawableContainer drawableContainer;
-		private Surface surface;
+		private IDrawableContainer _drawableContainer;
+		private ISurface _surface;
 		
-		public AddElementMemento(Surface surface, IDrawableContainer drawableContainer) {
-			this.surface = surface;
-			this.drawableContainer = drawableContainer;
-		}
-
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing) {
-			//if (disposing) { }
-			drawableContainer = null;
-			surface = null;
+		public AddElementMemento(ISurface surface, IDrawableContainer drawableContainer) {
+			_surface = surface;
+			_drawableContainer = drawableContainer;
 		}
 
 		public LangKey ActionLanguageKey {
@@ -59,17 +49,43 @@ namespace Greenshot.Memento {
 
 		public IMemento Restore() {
 			// Before
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 			// Store the selected state, as it's overwritten by the RemoveElement
-			bool selected = drawableContainer.Selected;
+			bool selected = _drawableContainer.Selected;
 
-			DeleteElementMemento oldState = new DeleteElementMemento(surface, drawableContainer);
-			surface.RemoveElement(drawableContainer, false);
-			drawableContainer.Selected = true;
+			var oldState = new DeleteElementMemento(_surface, _drawableContainer);
+			_surface.RemoveElement(_drawableContainer, false);
+			_drawableContainer.Selected = true;
 
 			// After
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 			return oldState;
 		}
+
+		#region IDisposable Support
+		private bool _disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!_disposedValue)
+			{
+				if (disposing)
+				{
+					// dispose managed state (managed objects).
+				}
+				_drawableContainer = null;
+				_surface = null;
+
+				_disposedValue = true;
+			}
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+		}
+		#endregion
 	}
 }

@@ -83,7 +83,8 @@ namespace GreenshotJiraPlugin {
 			if (!string.IsNullOrEmpty(config.Password))
 			{
 				_jiraMonitor = new JiraMonitor();
-				_jiraMonitor.AddJiraInstance(new Uri(config.RestUrl), config.Username, config.Password);
+				// Async call, will continue in the background!
+				var backgroundTask = _jiraMonitor.AddJiraInstance(new Uri(config.RestUrl), config.Username, config.Password).ConfigureAwait(false);
 			}
 		}
 

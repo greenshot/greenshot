@@ -86,14 +86,8 @@ namespace GreenshotImgurPlugin {
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
 		public bool ShowConfigDialog() {
-			SettingsForm settingsForm = null;
-
-			new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
-				delegate() {
-					settingsForm = new SettingsForm(this);
-				}
-			);
-			DialogResult result = settingsForm.ShowDialog();
+			var settingsForm = new SettingsForm(this);
+			var result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
 				return true;
 			}

@@ -33,6 +33,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Encoder = System.Drawing.Imaging.Encoder;
 
@@ -285,6 +287,7 @@ namespace GreenshotPlugin.Core {
 		public static bool CreateImageFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out Image imageToSave) {
 			bool disposeImage = false;
 
+			// TODO: Check no elements
 			if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly) {
 				// We save the image of the surface, this should not be disposed
 				imageToSave = surface.Image;
@@ -412,32 +415,52 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Saves image to specific path with specified quality
 		/// </summary>
-		public static void Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings, bool copyPathToClipboard) {
+		/// <param name="surface"></param>
+		/// <param name="fullPath"></param>
+		/// <param name="allowOverwrite"></param>
+		/// <param name="outputSettings"></param>
+		/// <param name="copyPathToClipboard"></param>
+		/// <returns>Full save path</returns>
+		public static string Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings) {
+			fullPath = CheckFullPath(fullPath, allowOverwrite);
+			LOG.DebugFormat("Saving surface to {0}", fullPath);
+			// Create the stream and call SaveToStream
+			using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) {
+				SaveToStream(surface, stream, outputSettings);
+			}
+
+			return fullPath;
+		}
+
+		/// <summary>
+		/// Check the supplied path, an if overwrite is neeeded
+		/// </summary>
+		/// <param name="fullPath"></param>
+		/// <param name="allowOverwrite"></param>
+		/// <returns></returns>
+		private static string CheckFullPath(string fullPath, bool allowOverwrite)
+		{
 			fullPath = FilenameHelper.MakeFQFilenameSafe(fullPath);
 			string path = Path.GetDirectoryName(fullPath);
 
 			// check whether path exists - if not create it
-			if (path != null) {
+			if (path != null)
+			{
 				DirectoryInfo di = new DirectoryInfo(path);
-				if (!di.Exists) {
+				if (!di.Exists)
+				{
 					Directory.CreateDirectory(di.FullName);
 				}
 			}
 
-			if (!allowOverwrite && File.Exists(fullPath)) {
+			if (!allowOverwrite && File.Exists(fullPath))
+			{
 				ArgumentException throwingException = new ArgumentException("File '" + fullPath + "' already exists.");
 				throwingException.Data.Add("fullPath", fullPath);
 				throw throwingException;
 			}
-			LOG.DebugFormat("Saving surface to {0}", fullPath);
-			// Create the stream and call SaveToStream
-			using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) {
-				SaveToStream(surface, stream, outputSettings);
-			}
 
-			if (copyPathToClipboard) {
-				ClipboardHelper.SetClipboardData(fullPath);
-			}
+			return fullPath;
 		}
 
 		/// <summary>
@@ -468,19 +491,21 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Path to filename</returns>
 		public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails) {
 			string returnValue = null;
-			using (SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails)) {
+			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails)) {
 				DialogResult dialogResult = saveImageFileDialog.ShowDialog();
 				if (dialogResult.Equals(DialogResult.OK)) {
 					try {
 						string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-						SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
+						var outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
 						if (conf.OutputFilePromptQuality) {
-							QualityDialog qualityDialog = new QualityDialog(outputSettings);
+							var qualityDialog = new QualityDialog(outputSettings);
 							qualityDialog.ShowDialog();
 						}
 						// TODO: For now we always overwrite, should be changed
-						Save(surface, fileNameWithExtension, true, outputSettings, conf.OutputFileCopyPathToClipboard);
-						returnValue = fileNameWithExtension;
+						returnValue = Save(surface, fileNameWithExtension, true, outputSettings);
+						if (conf.OutputFileCopyPathToClipboard) {
+							ClipboardHelper.SetClipboardData(returnValue);
+						}
 						IniConfig.Save();
 					} catch (ExternalException) {
 						MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
@@ -516,7 +541,7 @@ namespace GreenshotPlugin.Core {
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
 			try {
-				Save(surface, tmpFile, true, outputSettings, false);
+				tmpFile = Save(surface, tmpFile, true, outputSettings);
 				tmpFileCache.Add(tmpFile, tmpFile);
 			} catch (Exception e) {
 				// Show the problem
@@ -561,16 +586,16 @@ namespace GreenshotPlugin.Core {
 			if (destinationPath == null) {
 				destinationPath = Path.GetTempPath();
 			}
-			string tmpPath = Path.Combine(destinationPath, tmpFile);
-			LOG.Debug("Creating TMP File : " + tmpPath);
+			string tmpFullPath = Path.Combine(destinationPath, tmpFile);
+			LOG.Debug("Creating TMP File : " + tmpFullPath);
 
 			try {
-				Save(surface, tmpPath, true, outputSettings, false);
-				tmpFileCache.Add(tmpPath, tmpPath);
+				tmpFullPath = Save(surface, tmpFullPath, true, outputSettings);
+				tmpFileCache.Add(tmpFullPath, tmpFullPath);
 			} catch (Exception) {
 				return null;
 			}
-			return tmpPath;
+			return tmpFullPath;
 		}
 
 		/// <summary>

@@ -240,7 +240,7 @@ namespace Greenshot.Helpers {
 
 		#region Private Methods
 
-		protected virtual void Dispose(bool disposing) {
+		protected void Dispose(bool disposing) {
 			if (!disposing) {
 				return;
 			}

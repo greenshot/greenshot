@@ -21,7 +21,6 @@
 
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
 using System;
@@ -31,9 +30,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
 
 namespace GreenshotJiraPlugin
 {
@@ -49,13 +49,13 @@ namespace GreenshotJiraPlugin
 
 		public JiraDestination(JiraPlugin jiraPlugin)
 		{
-			this._jiraPlugin = jiraPlugin;
+			_jiraPlugin = jiraPlugin;
 		}
 
 		public JiraDestination(JiraPlugin jiraPlugin, JiraDetails jira)
 		{
-			this._jiraPlugin = jiraPlugin;
-			this._jira = jira;
+			_jiraPlugin = jiraPlugin;
+			_jira = jira;
 		}
 
 		public override string Designation
@@ -105,7 +105,7 @@ namespace GreenshotJiraPlugin
 		{
 			get
 			{
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(JiraPlugin));
+				var resources = new ComponentResourceManager(typeof(JiraPlugin));
 				return (Image)resources.GetObject("Jira");
 			}
 		}
@@ -115,7 +115,7 @@ namespace GreenshotJiraPlugin
 			if (isActive)
 			{
 				// Show only the last 10 JIRAs
-				foreach (JiraDetails jiraIssue in _jiraPlugin.JiraMonitor.RecentJiras.Take(10))
+				foreach (var jiraIssue in _jiraPlugin.JiraMonitor.RecentJiras.Take(10))
 				{
 					yield return new JiraDestination(_jiraPlugin, jiraIssue);
 				}
@@ -124,23 +124,22 @@ namespace GreenshotJiraPlugin
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
 		{
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			var exportInformation = new ExportInformation(this.Designation, this.Description);
 			string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			if (_jira != null)
 			{
 				try
 				{
 					var jiraApi = _jiraPlugin.JiraMonitor.GetJiraApiForKey(_jira);
 					var multipartFormDataContent = new MultipartFormDataContent();
-					using (MemoryStream stream = new MemoryStream())
+					using (var stream = new MemoryStream())
 					{
 						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
 						stream.Position = 0;
-						surfaceToUpload.UploadURL = string.Format("{0}/browse/{1}", jiraApi.JiraBaseUri, _jira.JiraKey);
-                        using (var streamContent = new StreamContent(stream))
+						using (var streamContent = new StreamContent(stream))
 						{
-							streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/" + outputSettings.Format);
+							streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 							multipartFormDataContent.Add(streamContent, "file", filename);
 							// Run upload in the background
 							await PleaseWaitWindow.CreateAndShowAsync(Description, Language.GetString("jira", LangKey.communication_wait), (progress, pleaseWaitToken) => {
@@ -151,11 +150,16 @@ namespace GreenshotJiraPlugin
 
 					LOG.Debug("Uploaded to Jira.");
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = surfaceToUpload.UploadURL;
+					exportInformation.Uri = string.Format("{0}/browse/{1}", jiraApi.JiraBaseUri, _jira.JiraKey); ;
+				}
+				catch (TaskCanceledException tcEx)
+				{
+					exportInformation.ExportMade = true;
+					exportInformation.ErrorMessage = tcEx.Message;
 				}
 				catch (Exception e)
 				{
-					MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
+					MessageBox.Show(Designation, Language.GetString("jira", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}
 			ProcessExport(exportInformation, surfaceToUpload);

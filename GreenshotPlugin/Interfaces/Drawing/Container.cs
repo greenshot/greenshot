@@ -105,7 +105,8 @@ namespace Greenshot.Plugin.Drawing {
 			set;
 		}
 		void FitToText();
-	}
+		void ChangeText(string newText, bool allowUndoable);
+    }
 
 	public interface IImageContainer: IDrawableContainer {
 		Image Image {

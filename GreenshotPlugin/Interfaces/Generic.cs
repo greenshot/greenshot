@@ -26,6 +26,7 @@ using Greenshot.Plugin.Drawing;
 using System.IO;
 using System.Collections.Generic;
 using Greenshot.Core;
+using System.Drawing.Drawing2D;
 
 namespace Greenshot.Plugin {
 	/// <summary>
@@ -127,7 +128,15 @@ namespace Greenshot.Plugin {
 		/// </summary>
 		/// <returns>Bitmap</returns>
 		Image GetImageForExport();
-		
+
+		/// <summary>
+		/// The background here is the captured image.
+		/// This is called from the SurfaceBackgroundChangeMemento.
+		/// </summary>
+		/// <param name="previous"></param>
+		/// <param name="matrix"></param>
+		void UndoBackgroundChange(Image previous, Matrix matrix);
+
 		/// <summary>
 		/// Add a TextContainer, at the given location, to the Surface.
 		/// The TextContainer will be "re"sized to the text size.
@@ -185,11 +194,13 @@ namespace Greenshot.Plugin {
 			get;
 			set;
 		}
+		void AddElement(IDrawableContainer elementToAdd, bool makeUndoable);
 		void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable);
 		void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
 		void ApplyBitmapEffect(IEffect effect);
 		void RemoveCursor();
-		bool HasCursor {
+
+        bool HasCursor {
 			get;
 		}
 

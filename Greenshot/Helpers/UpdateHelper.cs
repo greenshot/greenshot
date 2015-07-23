@@ -81,7 +81,7 @@ namespace Greenshot.Experimental {
 	
 				try {
 					latestGreenshot = null;
-					ProcessRSSInfo(currentVersion);
+					await ProcessRSSInfoAsync(currentVersion).ConfigureAwait(false);
 					if (latestGreenshot != null) {
 						MainForm.Instance.BeginInvoke( new Action(() => {
 							MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
@@ -116,7 +116,7 @@ namespace Greenshot.Experimental {
 			}
 		}
 
-		private static async void ProcessRSSInfo(Version currentVersion) {
+		private static async Task ProcessRSSInfoAsync(Version currentVersion) {
 			// Reset latest Greenshot
 			var rssFiles = await SourceForgeHelper.readRSS().ConfigureAwait(false);
 
