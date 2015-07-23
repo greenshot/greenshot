@@ -890,7 +890,7 @@ namespace Greenshot {
 			this.btnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSave.LanguageKey = "editor_save";
 			this.btnSave.Name = "btnSave";
-			this.btnSave.Click += new System.EventHandler(this.BtnSaveClick);
+			this.btnSave.Click += BtnSaveClickAsync;
 			// 
 			// btnClipboard
 			// 
@@ -1612,7 +1612,7 @@ namespace Greenshot {
 			this.LanguageKey = "editor_title";
 			this.Name = "ImageEditorForm";
 			this.Activated += new System.EventHandler(this.ImageEditorFormActivated);
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImageEditorFormFormClosing);
+			this.FormClosing += ImageEditorFormFormClosingAsync;
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ImageEditorFormKeyDown);
 			this.Resize += new System.EventHandler(this.ImageEditorFormResize);
 			this.topToolStripContainer.BottomToolStripPanel.ResumeLayout(true);

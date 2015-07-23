@@ -202,22 +202,6 @@ namespace Greenshot.Plugin {
 		List<IDestination> GetAllDestinations();
 
 		/// <summary>
-		/// Export a surface to the destination with has the supplied designation
-		/// </summary>
-		/// <param name="manuallyInitiated"></param>
-		/// <param name="designation"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails);
-
-		/// <summary>
-		/// Make region capture with specified Handler
-		/// </summary>
-		/// <param name="captureMouseCursor">bool false if the mouse should not be captured, true if the configuration should be checked</param>
-		/// <param name="destination">IDestination destination</param>
-		void CaptureRegion(bool captureMouseCursor, IDestination destination);
-
-		/// <summary>
 		/// Use the supplied capture, and handle it as if it's captured.
 		/// </summary>
 		/// <param name="captureToImport">ICapture to import</param>

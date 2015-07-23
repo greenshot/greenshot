@@ -36,6 +36,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -83,80 +84,80 @@ namespace Greenshot.Helpers {
 				PsAPI.EmptyWorkingSet();
 			}
 		}
-		public static void CaptureClipboard() {
+		public static async Task CaptureClipboardAsync(CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard)) {
-				captureHelper.MakeCapture();
+				await captureHelper.MakeCaptureAsync(token);
 			}
 		}
-		public static void CaptureRegion(bool captureMouse) {
+		public static async Task CaptureRegionAsync(bool captureMouse, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse)) {
-				captureHelper.MakeCapture();
+				await captureHelper.MakeCaptureAsync(token);
 			}
 		}
-		public static void CaptureRegion(bool captureMouse, IDestination destination) {
+		public static async Task CaptureRegionAsync(bool captureMouse, IDestination destination, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination)) {
-				captureHelper.MakeCapture();			
+				await captureHelper.MakeCaptureAsync(token);
 			}
 		}
-		public static void CaptureRegion(bool captureMouse, Rectangle region) {
+		public static async Task CaptureRegionAsync(bool captureMouse, Rectangle region, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse)) {
-				captureHelper.MakeCapture(region);
+				await captureHelper.MakeCaptureAsync(region, token);
 			}
 		}
-		public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode) {
+		public static async Task CaptureFullscreenAsync(bool captureMouse, ScreenCaptureMode screenCaptureMode, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse)) {
 				captureHelper._screenCaptureMode = screenCaptureMode;
-				captureHelper.MakeCapture();
+				await captureHelper.MakeCaptureAsync(token);
 			}
 		}
-		public static void CaptureLastRegion(bool captureMouse) {
+		public static async Task CaptureLastRegionAsync(bool captureMouse, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.LastRegion, captureMouse)) {
-				captureHelper.MakeCapture();
+				await captureHelper.MakeCaptureAsync(token);
 			}
 		}
 
-		public static void CaptureIE(bool captureMouse, WindowDetails windowToCapture) {
+		public static async Task CaptureIEAsync(bool captureMouse, WindowDetails windowToCapture, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse)) {
 				captureHelper.SelectedCaptureWindow = windowToCapture;
-				captureHelper.MakeCapture();
+				await captureHelper.MakeCaptureAsync(token);
 			}
 		}
 
-		public static void CaptureWindow(bool captureMouse) {
+		public static async Task CaptureWindowAsync(bool captureMouse, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow, captureMouse)) {
-				captureHelper.MakeCapture();
+				await captureHelper.MakeCaptureAsync(token);
 			}
 		}
 
-		public static void CaptureWindow(WindowDetails windowToCapture) {
+		public static async Task CaptureWindowAsync(WindowDetails windowToCapture, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow)) {
 				captureHelper.SelectedCaptureWindow = windowToCapture;
-				captureHelper.MakeCapture();
+				await captureHelper.MakeCaptureAsync(token);
 			}
 		}
 
-		public static void CaptureWindowInteractive(bool captureMouse) {
+		public static async Task CaptureWindowInteractiveAsync(bool captureMouse, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Window)) {
-				captureHelper.MakeCapture();
+				await captureHelper.MakeCaptureAsync(token);
 			}
 		}
 
-		public static void CaptureFile(string filename) {
+		public static async Task CaptureFileAsync(string filename, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File)) {
-				captureHelper.MakeCapture(filename);
+				await captureHelper.MakeCaptureAsync(filename, token);
 			}
 		}
 
-		public static void CaptureFile(string filename, IDestination destination) {
+		public static async Task CaptureFileAsync(string filename, IDestination destination, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File)) {
-				captureHelper.AddDestination(destination).MakeCapture(filename);
+				await captureHelper.AddDestination(destination).MakeCaptureAsync(filename, token);
 			}
 		}
 
-		public static void ImportCapture(ICapture captureToImport) {
+		public static async Task ImportCaptureAsync(ICapture captureToImport, CancellationToken token = default(CancellationToken)) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File)) {
 				captureHelper._capture = captureToImport;
-				captureHelper.HandleCapture();
+				await captureHelper.HandleCaptureAsync(token);
 			}
 		}
 
@@ -192,9 +193,9 @@ namespace Greenshot.Helpers {
 			}
 		}
 		
-		private void DoCaptureFeedback() {
+		private async Task DoCaptureFeedbackAsync(CancellationToken token = default(CancellationToken)) {
 			if(conf.PlayCameraSound) {
-				SoundHelper.Play();
+				await SoundHelper.Play(token);
 			}
 		}
 
@@ -202,25 +203,25 @@ namespace Greenshot.Helpers {
 		/// Make Capture with file name
 		/// </summary>
 		/// <param name="filename">filename</param>
-		private void MakeCapture(string filename) {
+		private async Task MakeCaptureAsync(string filename, CancellationToken token = default(CancellationToken)) {
 			_capture.CaptureDetails.Filename = filename;
-			MakeCapture();
+			await MakeCaptureAsync(token);
 		}
 
 		/// <summary>
 		/// Make Capture for region
 		/// </summary>
 		/// <param name="filename">filename</param>
-		private void MakeCapture(Rectangle region) {
+		private async Task MakeCaptureAsync(Rectangle region, CancellationToken token = default(CancellationToken)) {
 			_captureRect = region;
-			MakeCapture();
+			await MakeCaptureAsync(token);
 		}
 
 
 		/// <summary>
 		/// Make Capture with specified destinations
 		/// </summary>
-		private void MakeCapture() {
+		private async Task MakeCaptureAsync(CancellationToken token = default(CancellationToken)) {
 			Thread retrieveWindowDetailsThread = null;
 
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
@@ -273,7 +274,7 @@ namespace Greenshot.Helpers {
 					_capture = WindowCapture.CaptureScreen(_capture);
 					_capture.CaptureDetails.AddMetaData("source", "Screen");
 					SetDPI();
-					CaptureWithFeedback();
+					await CaptureWithFeedbackAsync(token);
 					break;
 				case CaptureMode.ActiveWindow:
 					if (CaptureActiveWindow()) {
@@ -287,13 +288,13 @@ namespace Greenshot.Helpers {
 						_capture.CaptureDetails.Title = "Screen";
 					}
 					SetDPI();
-					HandleCapture();
+					await HandleCaptureAsync(token);
 					break;
 				case CaptureMode.IE:
 					if (IECaptureHelper.CaptureIE(_capture, SelectedCaptureWindow) != null) {
 						_capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
 						SetDPI();
-						HandleCapture();
+						await HandleCaptureAsync(token);
 					}
 					break;
 				case CaptureMode.FullScreen:
@@ -324,7 +325,7 @@ namespace Greenshot.Helpers {
 						_capture = WindowCapture.CaptureScreen(_capture);
 					}
 					SetDPI();
-					HandleCapture();
+					await HandleCaptureAsync(token);
 					break;
 				case CaptureMode.Clipboard:
 					Image clipboardImage = ClipboardHelper.GetImage();
@@ -345,7 +346,7 @@ namespace Greenshot.Helpers {
 							_capture.CaptureDetails.ClearDestinations();
 							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 						}
-						HandleCapture();
+						await HandleCaptureAsync(token);
 					} else {
 						MessageBox.Show(Language.GetString("clipboard_noimage"));
 					}
@@ -392,7 +393,7 @@ namespace Greenshot.Helpers {
 							_capture.CaptureDetails.ClearDestinations();
 							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 						}
-						HandleCapture();
+						await HandleCaptureAsync(token);
 					}
 					break;
 				case CaptureMode.LastRegion:
@@ -418,7 +419,7 @@ namespace Greenshot.Helpers {
 
 						_capture.CaptureDetails.AddMetaData("source", "screen");
 						SetDPI();
-						HandleCapture();
+						await HandleCaptureAsync(token);
 					}
 					break;
 				case CaptureMode.Region:
@@ -427,12 +428,12 @@ namespace Greenshot.Helpers {
 						_capture = WindowCapture.CaptureScreen(_capture);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
 						SetDPI();
-						CaptureWithFeedback();
+						await CaptureWithFeedbackAsync(token);
 					} else {
 						_capture = WindowCapture.CaptureRectangle(_capture, _captureRect);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
 						SetDPI();
-						HandleCapture();
+						await HandleCaptureAsync(token);
 					}
 					break;
 				default:
@@ -603,7 +604,7 @@ namespace Greenshot.Helpers {
 		}
 
 
-		private void HandleCapture() {
+		private async Task HandleCaptureAsync(CancellationToken token = default(CancellationToken)) {
 			// Flag to see if the image was "exported" so the FileEditor doesn't
 			// ask to save the file as long as nothing is done.
 			bool outputMade = false;
@@ -617,7 +618,7 @@ namespace Greenshot.Helpers {
 				if (_capture.CaptureDetails != null && _capture.Image != null) {
 					((Bitmap)_capture.Image).SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
 				}
-				DoCaptureFeedback();
+				await DoCaptureFeedbackAsync(token);
 			}
 
 			LOG.Debug("A capture of: " + _capture.CaptureDetails.Title);
@@ -652,7 +653,7 @@ namespace Greenshot.Helpers {
 			bool canDisposeSurface = true;
 
 			if (captureDetails.HasDestination(PickerDestination.DESIGNATION)) {
-				DestinationHelper.ExportCapture(false, PickerDestination.DESIGNATION, surface, captureDetails);
+				await DestinationHelper.ExportCaptureAsync(false, PickerDestination.DESIGNATION, surface, captureDetails, token);
 				captureDetails.CaptureDestinations.Clear();
 				canDisposeSurface = false;
 			}
@@ -956,7 +957,7 @@ namespace Greenshot.Helpers {
 		}
 
 		#region capture with feedback
-		private void CaptureWithFeedback() {
+		private async Task CaptureWithFeedbackAsync(CancellationToken token = default(CancellationToken)) {
 			// The following, to be precise the HideApp, causes the app to close as described in BUG-1620 
 			// Added check for metro (Modern UI) apps, which might be maximized and cover the screen.
 			
@@ -991,7 +992,7 @@ namespace Greenshot.Helpers {
 						Rectangle tmpRectangle = _captureRect;
 						tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
 						conf.LastCapturedRegion = tmpRectangle;
-						HandleCapture();
+						await HandleCaptureAsync(token);
 					}
 				}
 			}

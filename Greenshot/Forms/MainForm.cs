@@ -576,10 +576,7 @@ namespace Greenshot.Forms
 						LOG.InfoFormat("Open file requested: {0}", filename);
 						if (File.Exists(filename))
 						{
-							BeginInvoke((MethodInvoker)delegate
-							{
-								CaptureHelper.CaptureFile(filename);
-							});
+							BeginInvoke(new Action(async () => await CaptureHelper.CaptureFileAsync(filename)));
 						}
 						else
 						{
@@ -809,7 +806,8 @@ namespace Greenshot.Forms
 		#region key handlers
 		void CaptureRegion()
 		{
-			CaptureHelper.CaptureRegion(true);
+			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+			Task task = Task.Factory.StartNew(async () => await CaptureHelper.CaptureRegionAsync(true), default(CancellationToken), TaskCreationOptions.None, scheduler);
 		}
 
 		void CaptureFile()
@@ -820,39 +818,46 @@ namespace Greenshot.Forms
 			{
 				if (File.Exists(openFileDialog.FileName))
 				{
-					CaptureHelper.CaptureFile(openFileDialog.FileName);
+					Task.Run(async () => {
+						await CaptureHelper.CaptureFileAsync(openFileDialog.FileName);
+					});
 				}
 			}
 		}
 
 		void CaptureFullScreen()
 		{
-			CaptureHelper.CaptureFullscreen(true, _conf.ScreenCaptureMode);
+			Task.Run(async () => {
+				await CaptureHelper.CaptureFullscreenAsync(true, _conf.ScreenCaptureMode);
+			});
 		}
 
 		void CaptureLastRegion()
 		{
-			CaptureHelper.CaptureLastRegion(true);
+			Task.Run(async () => {
+				await CaptureHelper.CaptureLastRegionAsync(true);
+			});
 		}
 
 		void CaptureIE()
 		{
 			if (_conf.IECapture)
 			{
-				CaptureHelper.CaptureIE(true, null);
+				Task.Run(async () => {
+					await CaptureHelper.CaptureIEAsync(true, null);
+				});
 			}
 		}
 
 		void CaptureWindow()
 		{
-			if (_conf.CaptureWindowsInteractive)
-			{
-				CaptureHelper.CaptureWindowInteractive(true);
-			}
-			else
-			{
-				CaptureHelper.CaptureWindow(true);
-			}
+			Task.Run(async () => {
+				if (_conf.CaptureWindowsInteractive) {
+					await CaptureHelper.CaptureWindowInteractiveAsync(true);
+				} else {
+					await CaptureHelper.CaptureWindowAsync(true);
+				}
+			});
 		}
 		#endregion
 
@@ -990,7 +995,7 @@ namespace Greenshot.Forms
 			captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
 			captureScreenItem.Click += delegate
 			{
-				BeginInvoke((MethodInvoker)(() => CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen)));
+				BeginInvoke(new Action(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen)));
 			};
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			foreach (var screen in Screen.AllScreens)
@@ -1016,10 +1021,7 @@ namespace Greenshot.Forms
 				captureScreenItem = new ToolStripMenuItem(deviceAlignment);
 				captureScreenItem.Click += delegate
 				{
-					BeginInvoke((MethodInvoker)delegate
-					{
-						CaptureHelper.CaptureRegion(false, screenToCapture.Bounds);
-					});
+					BeginInvoke(new Action(async () => await CaptureHelper.CaptureRegionAsync(false, screenToCapture.Bounds)));
 				};
 				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			}
@@ -1117,12 +1119,12 @@ namespace Greenshot.Forms
 
 		void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			BeginInvoke((MethodInvoker)(() => CaptureHelper.CaptureRegion(false)));
+			BeginInvoke(new Action(async () => await CaptureHelper.CaptureRegionAsync(false)));
 		}
 
 		void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			BeginInvoke((MethodInvoker)(() => CaptureHelper.CaptureClipboard()));
+			BeginInvoke(new Action(async () => await CaptureHelper.CaptureClipboardAsync()));
 		}
 
 		void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
@@ -1132,28 +1134,28 @@ namespace Greenshot.Forms
 
 		void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			BeginInvoke((MethodInvoker)(() => CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode)));
+			BeginInvoke(new Action(async () => await CaptureHelper.CaptureFullscreenAsync(false, _conf.ScreenCaptureMode)));
 		}
 
 		void Contextmenu_capturelastregionClick(object sender, EventArgs e)
 		{
-			BeginInvoke((MethodInvoker)(() => CaptureHelper.CaptureLastRegion(false)));
+			BeginInvoke(new Action(async () => await CaptureHelper.CaptureLastRegionAsync(false)));
 		}
 
 		void Contextmenu_capturewindow_Click(object sender, EventArgs e)
 		{
-			BeginInvoke((MethodInvoker)(() => CaptureHelper.CaptureWindowInteractive(false)));
+			BeginInvoke(new Action(async () => await CaptureHelper.CaptureWindowInteractiveAsync(false)));
 		}
 
 		void Contextmenu_capturewindowfromlist_Click(object sender, EventArgs e)
 		{
 			var clickedItem = (ToolStripMenuItem)sender;
-			BeginInvoke((MethodInvoker)(() =>
+			BeginInvoke(new Action(async () => 
 			{
 				try
 				{
 					var windowToCapture = (WindowDetails)clickedItem.Tag;
-					CaptureHelper.CaptureWindow(windowToCapture);
+					await CaptureHelper.CaptureWindowAsync(windowToCapture);
 				}
 				catch (Exception exception)
 				{
@@ -1176,7 +1178,7 @@ namespace Greenshot.Forms
 			}
 			var clickedItem = (ToolStripMenuItem)sender;
 			var tabData = (KeyValuePair<WindowDetails, int>)clickedItem.Tag;
-			BeginInvoke((MethodInvoker)(() =>
+			BeginInvoke(new Action(async () =>
 			{
 				var ieWindowToCapture = tabData.Key;
 				if (ieWindowToCapture != null && (!ieWindowToCapture.Visible || ieWindowToCapture.Iconic))
@@ -1193,7 +1195,7 @@ namespace Greenshot.Forms
 				}
 				try
 				{
-					CaptureHelper.CaptureIE(false, ieWindowToCapture);
+					await CaptureHelper.CaptureIEAsync(false, ieWindowToCapture);
 				}
 				catch (Exception exception)
 				{
@@ -1494,7 +1496,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void NotifyIconClickTest(object sender, MouseEventArgs e)
+		private async void NotifyIconClickTest(object sender, MouseEventArgs e)
 		{
 			if (e.Button != MouseButtons.Left)
 			{
@@ -1504,7 +1506,7 @@ namespace Greenshot.Forms
 			if (_conf.DoubleClickAction == ClickActions.DO_NOTHING)
 			{
 				// As there isn't a double-click we can start the Left click
-				NotifyIconClick(_conf.LeftClickAction);
+				await NotifyIconClickAsync(_conf.LeftClickAction);
 				// ready with the test
 				return;
 			}
@@ -1514,7 +1516,7 @@ namespace Greenshot.Forms
 				// User clicked a second time before the timer tick: Double-click!
 				_doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
 				_doubleClickTimer.Stop();
-				NotifyIconClick(_conf.DoubleClickAction);
+				await NotifyIconClickAsync(_conf.DoubleClickAction);
 			}
 			else
 			{
@@ -1531,20 +1533,17 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void NotifyIconSingleClickTest(object sender, EventArgs e)
+		private async void NotifyIconSingleClickTest(object sender, EventArgs e)
 		{
 			_doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
 			_doubleClickTimer.Stop();
-			BeginInvoke((MethodInvoker)delegate
-			{
-				NotifyIconClick(_conf.LeftClickAction);
-			});
+			await NotifyIconClickAsync(_conf.LeftClickAction);
 		}
 
 		/// <summary>
 		/// Handle the notify icon click
 		/// </summary>
-		private void NotifyIconClick(ClickActions clickAction)
+		private async Task NotifyIconClickAsync(ClickActions clickAction)
 		{
 			switch (clickAction)
 			{
@@ -1584,7 +1583,7 @@ namespace Greenshot.Forms
 				case ClickActions.OPEN_LAST_IN_EDITOR:
 					if (File.Exists(_conf.OutputFileAsFullpath))
 					{
-						CaptureHelper.CaptureFile(_conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+						await CaptureHelper.CaptureFileAsync(_conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 					}
 					break;
 				case ClickActions.OPEN_SETTINGS:

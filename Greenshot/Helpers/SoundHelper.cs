@@ -18,24 +18,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
 using System;
+using System.IO;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
-
-using GreenshotPlugin.UnmanagedHelpers;
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
-using System.IO;
-/// <summary>
-/// Create to fix the sometimes wrongly played sample, especially after first start from IDE
-/// See: http://www.codeproject.com/KB/audio-video/soundplayerbug.aspx?msg=2487569
-/// </summary>
-using log4net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Helpers {
 	/// <summary>
-	/// Description of SoundHelper.
+	/// Soundhelper
+	/// Create to fix the sometimes wrongly played sample, especially after first start from IDE
+	/// See: http://www.codeproject.com/KB/audio-video/soundplayerbug.aspx?msg=2487569
 	/// </summary>
 	public static class SoundHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(SoundHelper));
@@ -66,19 +66,18 @@ namespace Greenshot.Helpers {
 			}
 		}
 		
-		public static void Play() {
+		/// <summary>
+		/// Play the sound async (is wrapeed)
+		/// </summary>
+		/// <returns></returns>
+		public static async Task Play(CancellationToken token = default(CancellationToken)) {
             if (soundBuffer != null) {
-                //Thread playSoundThread = new Thread(delegate() {
                 SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
                 try {
-                    WinMM.PlaySound(gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags);
+					await Task.Run(() => WinMM.PlaySound(gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags), token).ConfigureAwait(false);
                 } catch (Exception e) {
                     LOG.Error("Error in play.", e);
                 }
-                //});
-                //playSoundThread.Name = "Play camera sound";
-                //playSoundThread.IsBackground = true;
-                //playSoundThread.Start();
             }
 	    }
 

@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.ComponentModel;
 using System.Drawing;
 using Greenshot.IniFile;
@@ -32,7 +33,7 @@ using System.Windows;
 
 namespace GreenshotImgurPlugin  {
 	/// <summary>
-	/// Description of ImgurDestination.
+	/// Implementation of the Imgur destination.
 	/// </summary>
 	public class ImgurDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
@@ -62,6 +63,14 @@ namespace GreenshotImgurPlugin  {
 			}
 		}
 
+		/// <summary>
+		/// Implementation of the export capture functionality
+		/// </summary>
+		/// <param name="manuallyInitiated"></param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <param name="token">CancellationToken</param>
+		/// <returns>Task with ExportInformation</returns>
 		public async override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			string uploadURL = await UploadAsync(captureDetails, surface, token).ConfigureAwait(false);
@@ -77,7 +86,8 @@ namespace GreenshotImgurPlugin  {
 		/// <param name="captureDetails"></param>
 		/// <param name="image"></param>
 		/// <param name="uploadURL">out string for the url</param>
-		/// <returns>URL if the upload succeeded</returns>
+		/// // <param name="token"></param>
+		/// <returns>Task with URL if the upload succeeded</returns>
 		private async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload, CancellationToken token = default(CancellationToken))
 		{
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);

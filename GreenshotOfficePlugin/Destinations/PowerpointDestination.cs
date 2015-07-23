@@ -130,7 +130,7 @@ namespace GreenshotOfficePlugin {
 					}
 					if (destinations.Count > 0) {
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token);
+						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
 					}
 				} else if (!exportInformation.ExportMade) {
 					exportInformation.ExportMade = PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);

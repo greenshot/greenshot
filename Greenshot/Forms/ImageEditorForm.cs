@@ -41,6 +41,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Greenshot {
@@ -255,12 +256,12 @@ namespace Greenshot {
 				defaultItem.Tag = toolstripDestination;
 				defaultItem.Image = toolstripDestination.DisplayIcon;
 				defaultItem.Click += async (sender, e) => {
-					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
+					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails).ConfigureAwait(false);
 				};
 				
 				// The ButtonClick, this is for the icon, gets the current default item
 				destinationButton.ButtonClick += async (sender, e) => {
-					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
+					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails).ConfigureAwait(false);
 				};
 
 				// Generate the entries for the drop down
@@ -278,7 +279,7 @@ namespace Greenshot {
 							destinationMenuItem.Tag = closureFixedDestination;
 							destinationMenuItem.Image = closureFixedDestination.DisplayIcon;
 							destinationMenuItem.Click += async (sender2, e2) => {
-								await closureFixedDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
+								await closureFixedDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails).ConfigureAwait(false);
 							};
 							destinationButton.DropDownItems.Add(destinationMenuItem);
 						}
@@ -295,7 +296,7 @@ namespace Greenshot {
 				destinationButton.Text = toolstripDestination.Description;
 				destinationButton.Image = toolstripDestination.DisplayIcon;
 				destinationButton.Click += async (sender2, e2) => {
-					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
+					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails).ConfigureAwait(false);
 				};
 			}
 		}
@@ -477,12 +478,16 @@ namespace Greenshot {
 		#endregion
 		
 		#region filesystem options
-		void BtnSaveClick(object sender, EventArgs e) {
+
+		async Task SaveAsync() {
 			string destinationDesignation = FileDestination.DESIGNATION;
 			if (surface.LastSaveFullPath == null) {
 				destinationDesignation = FileWithDialogDestination.DESIGNATION;
 			}
-			DestinationHelper.ExportCapture(true, destinationDesignation, surface, surface.CaptureDetails);
+			await DestinationHelper.ExportCaptureAsync(true, destinationDesignation, surface, surface.CaptureDetails);
+		}
+		async void BtnSaveClickAsync(object sender, EventArgs e) {
+			await SaveAsync();
 		}
 		
 		void BtnClipboardClick(object sender, EventArgs e) {
@@ -723,7 +728,7 @@ namespace Greenshot {
 			updateUndoRedoSurfaceDependencies();
 		}
 
-		void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e) {
+		async void ImageEditorFormFormClosingAsync(object sender, FormClosingEventArgs e) {
 			if (surface.Modified && !editorConfiguration.SuppressSaveDialogAtClose) {
 				// Make sure the editor is visible
 				WindowDetails.ToForeground(Handle);
@@ -739,7 +744,7 @@ namespace Greenshot {
 					return;
 				}
 				if (result.Equals(DialogResult.Yes)) {
-					BtnSaveClick(sender,e);
+					await SaveAsync();
 					// Check if the save was made, if not it was cancelled so we cancel the closing
 					if (surface.Modified) {
 						e.Cancel = true;
@@ -878,7 +883,7 @@ namespace Greenshot {
 					if (destination.EditorShortcutKeys == keys) {
 						BeginInvoke(new Action(async () =>
 						{
-							await destination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
+							await destination.ExportCaptureAsync(true, surface, surface.CaptureDetails).ConfigureAwait(false);
 						}));
 						return true;
 					}

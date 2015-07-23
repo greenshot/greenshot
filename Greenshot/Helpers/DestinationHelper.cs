@@ -25,6 +25,8 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using log4net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -123,6 +125,20 @@ namespace Greenshot.Helpers {
 				if (designation.Equals(destination.Designation)) {
 					return destination;
 				}
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// A simple helper method which will call ExportCapture for the destination with the specified designation
+		/// </summary>
+		/// <param name="designation"></param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		public static async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			IDestination destination = GetDestination(designation);
+			if (destination != null && destination.isActive) {
+				return await destination.ExportCaptureAsync(manuallyInitiated, surface, captureDetails, token).ConfigureAwait(false);
 			}
 			return null;
 		}

@@ -146,27 +146,14 @@ namespace Greenshot.Helpers {
 			return DestinationHelper.GetAllDestinations();
 		}
 
-		public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
-			return DestinationHelper.ExportCapture(manuallyInitiated, designation, surface, captureDetails);
-		}
-
-		/// <summary>
-		/// Make Capture with specified Handler
-		/// </summary>
-		/// <param name="captureMouseCursor">bool false if the mouse should not be captured, true if the configuration should be checked</param>
-		/// <param name="destination">IDestination</param>
-		public void CaptureRegion(bool captureMouseCursor, IDestination destination) {
-			CaptureHelper.CaptureRegion(captureMouseCursor, destination);
-		}
-
 		/// <summary>
 		/// Use the supplied image, and handle it as if it's captured.
 		/// </summary>
 		/// <param name="imageToImport">Image to handle</param>
 		public void ImportCapture(ICapture captureToImport) {
-			MainForm.Instance.BeginInvoke((MethodInvoker)delegate {
-				CaptureHelper.ImportCapture(captureToImport);
-			});
+			MainForm.Instance.BeginInvoke(new Action(async () => {
+				await CaptureHelper.ImportCaptureAsync(captureToImport).ConfigureAwait(false);
+			}));
 		}
 		
 		/// <summary>

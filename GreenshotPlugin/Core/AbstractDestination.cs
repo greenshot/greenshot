@@ -163,7 +163,8 @@ namespace GreenshotPlugin.Core
 		/// <returns></returns>
 		public virtual async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
 		{
-			var task = Task.Run(() => ExportCapture(manuallyInitiated, surface, captureDetails), token);
+			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+			var task = Task.Factory.StartNew(() => ExportCapture(manuallyInitiated, surface, captureDetails), token, TaskCreationOptions.None, scheduler);
 			return await task;
 		}
 
@@ -295,7 +296,7 @@ namespace GreenshotPlugin.Core
 					}
 					menu.Tag = clickedDestination.Designation;
 					// Export
-					exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails).ConfigureAwait(false);
+					exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
 					if (exportInformation != null && exportInformation.ExportMade)
 					{
 						LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
@@ -317,7 +318,7 @@ namespace GreenshotPlugin.Core
 						menu.Tag = null;
 
 						// This prevents the problem that the context menu shows in the task-bar
-						await ShowMenuAtCursorAsync(menu, token).ConfigureAwait(false);
+						await ShowMenuAtCursorAsync(menu, token);
 					}
 				}
 				);
@@ -341,7 +342,7 @@ namespace GreenshotPlugin.Core
 			};
 			menu.Items.Add(closeItem);
 
-			await ShowMenuAtCursorAsync(menu, token).ConfigureAwait(false);
+			await ShowMenuAtCursorAsync(menu, token);
 			return exportInformation;
 		}
 
@@ -371,21 +372,18 @@ namespace GreenshotPlugin.Core
 			menu.Focus();
 
 			// Wait for the menu to close, so we can dispose it.
-			await Task.Run(async () =>
+			while (!token.IsCancellationRequested)
 			{
-				while (!token.IsCancellationRequested)
+				if (menu.Visible)
 				{
-					if (menu.Visible)
-					{
-						await Task.Delay(200).ConfigureAwait(false);
-					}
-					else
-					{
-						menu.Dispose();
-						break;
-					}
+					await Task.Delay(400);
 				}
-			}).ConfigureAwait(false);
+				else
+				{
+					menu.Dispose();
+					break;
+				}
+			}
 		}
 
 		/// <summary>

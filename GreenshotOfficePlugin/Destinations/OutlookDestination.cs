@@ -179,7 +179,7 @@ namespace GreenshotOfficePlugin {
 							destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token);
+						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
 					}
 				} else {
 					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC, null);

@@ -63,7 +63,7 @@ namespace GreenshotBoxPlugin {
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string uploadUrl = await UploadAsync(captureDetails, surface, token);
+			string uploadUrl = await UploadAsync(captureDetails, surface, token).ConfigureAwait(false);
 			if (uploadUrl != null) {
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploadUrl;

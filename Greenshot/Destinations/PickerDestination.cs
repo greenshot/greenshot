@@ -77,7 +77,7 @@ namespace Greenshot.Destinations {
 			}
 
 			// No Processing, this is done in the selected destination (if anything was selected)
-			return await ShowPickerMenuAsync(true, surface, captureDetails, destinations, token);
+			return await ShowPickerMenuAsync(true, surface, captureDetails, destinations, token).ConfigureAwait(false);
 		}
 	}
 }
