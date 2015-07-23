@@ -163,7 +163,7 @@ namespace GreenshotPlugin.Core {
 		public bool IECapture;
 		[IniProperty("IEFieldCapture", Description="Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor.", DefaultValue="False")]
 		public bool IEFieldCapture;
-		[IniProperty("IECaptureMode", Description = "The capture mode used to capture IE (Screen, GDI).", DefaultValue = "GDI")]
+		[IniProperty("IECaptureMode", Description = "The capture mode used to capture IE (Screen, GDI).", DefaultValue = "Screen")]
 		public WindowCaptureMode IECaptureMode;
 		[IniProperty("WindowClassesToCheckForIE", Description = "Comma separated list of Window-Classes which need to be checked for a IE instance!", DefaultValue = "AfxFrameOrView70,IMWindowClass")]
 		public List<string> WindowClassesToCheckForIE;
