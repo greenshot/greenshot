@@ -23,6 +23,7 @@ using GreenshotPlugin.Controls;
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
@@ -806,7 +807,8 @@ namespace GreenshotPlugin.Core {
 			if (HttpMethod.Get == method || postData != null) {
 				if (requestParameters.Count > 0) {
 					// Add the parameters to the request
-					requestUri.ExtendQuery(requestParameters);
+					var query = NetworkHelper.GenerateQueryParameters(requestParameters);
+					requestUri = new Uri(string.Format("{0}?{1}", requestUri.AbsoluteUri, query));
 				}
 			}
 			// Create webrequest

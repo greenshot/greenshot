@@ -53,7 +53,7 @@ namespace GreenshotImgurPlugin {
 				return;
 			}
 			// Load the ImUr history
-			List<string> hashes = new List<string>();
+			IList<string> hashes = new List<string>();
 			foreach(string hash in config.ImgurUploadHistory.Keys) {
 				hashes.Add(hash);
 			}
@@ -66,7 +66,7 @@ namespace GreenshotImgurPlugin {
 					continue;
 				}
 				try {
-					ImageInfo imgurInfo = await RetrieveImgurInfoAsync(hash, config.ImgurUploadHistory[hash]).ConfigureAwait(false);
+					var imgurInfo = await RetrieveImgurInfoAsync(hash, config.ImgurUploadHistory[hash]).ConfigureAwait(false);
 					if (imgurInfo != null) {
 						await RetrieveImgurThumbnailAsync(imgurInfo).ConfigureAwait(false);
 						config.runtimeImgurHistory.Add(hash, imgurInfo);
@@ -93,25 +93,25 @@ namespace GreenshotImgurPlugin {
 		/// <param name="title"></param>
 		/// <param name="filename"></param>
 		/// <returns>PicasaResponse</returns>
-		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, object> otherParameters, CancellationToken token = default(CancellationToken)) {
+		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, CancellationToken token = default(CancellationToken)) {
 			// Fill the OAuth2Settings
-			OAuth2Settings settings = new OAuth2Settings();
-			settings.AuthUrlPattern = AuthUrl;
-			settings.TokenUrl = TokenUrl;
-			settings.CloudServiceName = "Imgur";
-			settings.ClientId = ImgurCredentials.CONSUMER_KEY;
-			settings.ClientSecret = ImgurCredentials.CONSUMER_SECRET;
-			settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
+			var oauth2Settings = new OAuth2Settings();
+			oauth2Settings.AuthUrlPattern = AuthUrl;
+			oauth2Settings.TokenUrl = TokenUrl;
+			oauth2Settings.CloudServiceName = "Imgur";
+			oauth2Settings.ClientId = ImgurCredentials.CONSUMER_KEY;
+			oauth2Settings.ClientSecret = ImgurCredentials.CONSUMER_SECRET;
+			oauth2Settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
 
 			// Copy the settings from the config, which is kept in memory and on the disk
-			settings.RefreshToken = config.RefreshToken;
-			settings.AccessToken = config.AccessToken;
-			settings.AccessTokenExpires = config.AccessTokenExpires;
+			oauth2Settings.RefreshToken = config.RefreshToken;
+			oauth2Settings.AccessToken = config.AccessToken;
+			oauth2Settings.AccessTokenExpires = config.AccessTokenExpires;
 
 			try {
 				DynamicJson imageJson;
 				var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, settings)) {
+				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, oauth2Settings)) {
 					using (var uploadStream = new MemoryStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, uploadStream, outputSettings);
 						uploadStream.Seek(0, SeekOrigin.Begin);
@@ -134,15 +134,15 @@ namespace GreenshotImgurPlugin {
 				return imageInfo;
 			} finally {
 				// Copy the settings back to the config, so they are stored.
-				config.RefreshToken = settings.RefreshToken;
-				config.AccessToken = settings.AccessToken;
-				config.AccessTokenExpires = settings.AccessTokenExpires;
+				config.RefreshToken = oauth2Settings.RefreshToken;
+				config.AccessToken = oauth2Settings.AccessToken;
+				config.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
 				config.IsDirty = true;
 				IniConfig.Save();
 			}
 		}
 
-		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, object> otherParameters, CancellationToken token = default(CancellationToken)) {
+		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, CancellationToken token = default(CancellationToken)) {
 			dynamic imageJson = null;
 			var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
 			using (var client = uploadUri.CreateHttpClient()) {
@@ -181,7 +181,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="filename">Filename</param>
 		/// <returns>ImgurInfo with details</returns>
 		public static async Task<ImageInfo> UploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, CancellationToken token = default(CancellationToken)) {
-			IDictionary<string, object> otherParameters = new Dictionary<string, object>();
+			IDictionary<string, string> otherParameters = new Dictionary<string, string>();
 			// add title
 			if (title != null && config.AddTitle) {
 				otherParameters.Add("title", title);

@@ -386,29 +386,6 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		///     Adds query string value to an existing url, both absolute and relative URI's are supported.
-		/// </summary>
-		/// <example>
-		/// <code>
-		///     // returns "www.domain.com/test?param1=val1&amp;param2=val2&amp;param3=val3"
-		///     new Uri("www.domain.com/test?param1=val1").ExtendQuery(new { param2 = "val2", param3 = "val3" }); 
-		/// 
-		///     // returns "/test?param1=val1&amp;param2=val2&amp;param3=val3"
-		///     new Uri("/test?param1=val1").ExtendQuery(new { param2 = "val2", param3 = "val3" }); 
-		/// </code>
-		/// </example>
-		/// <param name="uri"></param>
-		/// <param name="values"></param>
-		/// <returns></returns>
-		public static Uri ExtendQuery(this Uri uri, object values) {
-			return ExtendQuery(uri, values.GetType().GetProperties().ToDictionary
-			(
-				propInfo => propInfo.Name,
-				propInfo => { var value = propInfo.GetValue(values); return value != null ? value.ToString() : null; }
-			));
-		}
-
-		/// <summary>
 		/// Normalize the URI by replacing http...80 and https...443 without the port.
 		/// </summary>
 		/// <param name="uri">Uri to normalize</param>
