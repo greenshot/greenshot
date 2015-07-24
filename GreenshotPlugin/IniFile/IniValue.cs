@@ -204,7 +204,7 @@ namespace Greenshot.IniFile {
 				writer.WriteLine("{0}=", attributes.Name);
 				return;
 			}
-			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+			if (IsGenericDirectory(valueType)) {
 				// Handle dictionaries.
 				Type valueType1 = valueType.GetGenericArguments()[0];
 				Type valueType2 = valueType.GetGenericArguments()[1];
@@ -266,13 +266,13 @@ namespace Greenshot.IniFile {
 				}
 			}
 			// Now set the value
-			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+			if (IsGenericDirectory(valueType)) {
 				// Logic for Dictionary<,>
 				Type type1 = valueType.GetGenericArguments()[0];
 				Type type2 = valueType.GetGenericArguments()[1];
 				//LOG.Info(String.Format("Found Dictionary<{0},{1}>", type1.Name, type2.Name));
-				object dictionary = Activator.CreateInstance(valueType);
-				MethodInfo addMethodInfo = valueType.GetMethod("Add");
+				var dictionary = CreateInstance(valueType);
+				MethodInfo addMethodInfo = dictionary.GetType().GetMethod("Add");
 				bool addedElements = false;
 				IDictionary<string, string> properties = IniConfig.PropertiesForSection(containingIniSection);
 				foreach (string key in properties.Keys) {
@@ -338,9 +338,10 @@ namespace Greenshot.IniFile {
 				Value = defaultValueFromConfig;
 				return;
 			}
-			if (ValueType != typeof(string)) {
+
+			if (ValueType != typeof(string) && !ValueType.IsByRef) {
 				try {
-					Value = Activator.CreateInstance(ValueType);
+					Value = CreateInstance(ValueType);
 				} catch (Exception) {
 					LOG.WarnFormat("Couldn't create instance of {0} for {1}, using default value.", ValueType.FullName, attributes.Name);
 					Value = default(ValueType);
@@ -349,6 +350,30 @@ namespace Greenshot.IniFile {
 				Value = default(ValueType);
 			}
 		}
+
+		private static bool IsGenericDirectory(Type valueType)
+		{
+			return valueType.IsGenericType && (valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>) || valueType.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+		}
+		private static bool IsGenericList(Type valueType)
+		{
+			return valueType.IsGenericType && (valueType.GetGenericTypeDefinition() == typeof(List<>) || valueType.GetGenericTypeDefinition() == typeof(IList<>));
+		}
+
+		private static object CreateInstance(Type valueType)
+		{
+			if (IsGenericDirectory(valueType))
+			{
+				Type type1 = valueType.GetGenericArguments()[0];
+				Type type2 = valueType.GetGenericArguments()[1];
+				return Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(type1, type2));
+			}
+			else if (IsGenericList(valueType))
+			{
+				return Activator.CreateInstance(typeof(List<>).MakeGenericType(valueType.GetGenericArguments()[0]));
+			}
+			return Activator.CreateInstance(valueType);
+        }
 
 		/// <summary>
 		/// Convert a string to a value of type "valueType"
@@ -366,16 +391,16 @@ namespace Greenshot.IniFile {
 			if (string.IsNullOrEmpty(valueString)) {
 				return null;
 			}
-
-			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>)) {
+			if (IsGenericList(valueType)) {
 				string arraySeparator = separator;
-				object list = Activator.CreateInstance(valueType);
+				var list = CreateInstance(valueType);
+
 				// Logic for List<>
 				string[] arrayValues = valueString.Split(new string[] { arraySeparator }, StringSplitOptions.None);
 				if (arrayValues == null || arrayValues.Length == 0) {
 					return list;
 				}
-				MethodInfo addMethodInfo = valueType.GetMethod("Add");
+				MethodInfo addMethodInfo = list.GetType().GetMethod("Add");
 
 				foreach (string arrayValue in arrayValues) {
 					if (arrayValue != null && arrayValue.Length > 0) {

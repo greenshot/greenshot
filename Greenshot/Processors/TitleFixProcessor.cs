@@ -36,7 +36,7 @@ namespace Greenshot.Processors  {
 		private static CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public TitleFixProcessor() {
-			List<string> corruptKeys = new List<string>();
+			IList<string> corruptKeys = new List<string>();
 			foreach(string key in config.ActiveTitleFixes) {
 				if (!config.TitleFixMatcher.ContainsKey(key)) {
 					LOG.WarnFormat("Key {0} not found, configuration is broken! Disabling this key!");
@@ -45,7 +45,7 @@ namespace Greenshot.Processors  {
 			}
 			
 			// Fix configuration if needed
-			if(corruptKeys.Count > 0) {
+			if (corruptKeys.Count > 0) {
 				foreach(string corruptKey in corruptKeys) {
 					// Removing any reference to the key
 					config.ActiveTitleFixes.Remove(corruptKey);

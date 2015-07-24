@@ -277,13 +277,13 @@ namespace Greenshot.Helpers {
 							continue;
 						}
 						if (conf.ExcludePlugins != null && conf.ExcludePlugins.Contains(pluginAttribute.Name)) {
-							LOG.WarnFormat("Exclude list: {0}", conf.ExcludePlugins.ToArray());
+							LOG.WarnFormat("Exclude list: {0}", String.Join(",", conf.ExcludePlugins));
 							LOG.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							continue;
 						}
 						if (conf.IncludePlugins != null && conf.IncludePlugins.Count > 0 && !conf.IncludePlugins.Contains(pluginAttribute.Name)) {
 							// Whitelist is set
-							LOG.WarnFormat("Include list: {0}", conf.IncludePlugins.ToArray());
+							LOG.WarnFormat("Include list: {0}", String.Join(",", conf.IncludePlugins));
 							LOG.WarnFormat("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							continue;
 						}

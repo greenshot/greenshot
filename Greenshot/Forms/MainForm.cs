@@ -22,7 +22,6 @@
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Experimental;
-using Greenshot.Forms;
 using Greenshot.Help;
 using Greenshot.Helpers;
 using Greenshot.IniFile;
@@ -37,6 +36,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -61,7 +61,7 @@ namespace Greenshot.Forms
 		public static void Start(string[] args)
 		{
 			bool isAlreadyRunning = false;
-			List<string> filesToOpen = new List<string>();
+			IList<string> filesToOpen = new List<string>();
 
 			// Set the Thread name, is better than "1"
 			Thread.CurrentThread.Name = Application.ProductName;
@@ -73,7 +73,6 @@ namespace Greenshot.Forms
 
 			Application.ThreadException += Application_ThreadException;
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
 			// Initialize the IniConfig
 			IniConfig.Init();
 
@@ -1660,7 +1659,8 @@ namespace Greenshot.Forms
 			LOG.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
 
 			// Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
-			List<Form> formsToClose = new List<Form>();
+			var formsToClose = new List<Form>();
+
 			foreach (Form form in Application.OpenForms)
 			{
 				if (form.Handle != Handle && !form.GetType().Equals(typeof(ImageEditorForm)))
@@ -1668,18 +1668,10 @@ namespace Greenshot.Forms
 					formsToClose.Add(form);
 				}
 			}
-			foreach (Form form in formsToClose)
+			foreach (var form in formsToClose)
 			{
-				try
-				{
-					LOG.InfoFormat("Closing form: {0}", form.Name);
-					Form formCapturedVariable = form;
-					Invoke((MethodInvoker)delegate { formCapturedVariable.Close(); });
-				}
-				catch (Exception e)
-				{
-					LOG.Error("Error closing form!", e);
-				}
+				LOG.InfoFormat("Closing form: {0}", form.Name);
+				BeginInvoke(new Action(() => form.Close()));
 			}
 
 			// Make sure hotkeys are disabled
