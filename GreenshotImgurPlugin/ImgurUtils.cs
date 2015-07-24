@@ -247,7 +247,8 @@ namespace GreenshotImgurPlugin {
 				client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
 				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.GetAsync(imageUri, token).ConfigureAwait(false);
-				if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Redirect) {
+				// retrieving image data seems to throw a 403 (Unauthorized) if it has been deleted
+				if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Redirect || response.StatusCode == HttpStatusCode.Unauthorized) {
 					return null;
 				}
 				await response.HandleErrorAsync(token).ConfigureAwait(false);
@@ -294,12 +295,12 @@ namespace GreenshotImgurPlugin {
 		/// <param name="imgurInfo"></param>
 		public static async Task<string> DeleteImgurImageAsync(ImageInfo imgurInfo, CancellationToken token = default(CancellationToken)) {
 			LOG.InfoFormat("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
-			Uri deleteUri = new Uri(config.ApiUrl + "/delete/" + imgurInfo.DeleteHash);
+			Uri deleteUri = new Uri(string.Format(config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
 			string responseString;
 			using (var client = deleteUri.CreateHttpClient()) {
 				client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
 				client.DefaultRequestHeaders.ExpectContinue = false;
-				var response = await client.GetAsync(deleteUri, token).ConfigureAwait(false);
+				var response = await client.DeleteAsync(deleteUri, token).ConfigureAwait(false);
 				if (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.BadRequest) {
 					await response.HandleErrorAsync(token).ConfigureAwait(false);
 				}

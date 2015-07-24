@@ -90,7 +90,7 @@ namespace GreenshotImgurPlugin
 			_historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.history));
 			_historyMenuItem.Tag = _host;
 			_historyMenuItem.Click += async (sender, e) => {
-				await ImgurHistory.ShowHistoryAsync().ConfigureAwait(false);
+				await ImgurHistory.ShowHistoryAsync();
 			};
 			itemPlugInRoot.DropDownItems.Add(_historyMenuItem);
 

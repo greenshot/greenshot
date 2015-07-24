@@ -40,8 +40,8 @@ namespace GreenshotImgurPlugin {
 		
 		public static async Task ShowHistoryAsync() {
 			// Make sure the history is loaded, will be done only once
-			await ImgurUtils.LoadHistory().ConfigureAwait(false);
-			await ImgurUtils.RetrieveImgurCredits().ConfigureAwait(false);
+			await ImgurUtils.LoadHistory();
+			await ImgurUtils.RetrieveImgurCredits();
 			new ImgurHistory().ShowDialog();
 		}
 		
@@ -131,7 +131,7 @@ namespace GreenshotImgurPlugin {
 
 						await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
 							return ImgurUtils.DeleteImgurImageAsync(imgurInfo, pleaseWaitToken);
-						}).ConfigureAwait(false);
+						});
 
 						imgurInfo.Dispose();
 					}

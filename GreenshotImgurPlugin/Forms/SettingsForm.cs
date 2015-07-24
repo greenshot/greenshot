@@ -51,7 +51,7 @@ namespace GreenshotImgurPlugin {
 		}
 		
 		async void ButtonHistoryClick(object sender, EventArgs e) {
-			await ImgurHistory.ShowHistoryAsync().ConfigureAwait(false);
+			await ImgurHistory.ShowHistoryAsync();
 		}
 	}
 }
