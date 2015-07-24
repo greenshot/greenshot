@@ -18,19 +18,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.ComponentModel;
-using System.Drawing;
+
+using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Windows;
 using log4net;
-using System.IO;
-using GreenshotPlugin.Controls;
-using Greenshot.IniFile;
 using System;
-using System.Windows.Forms;
+using System.ComponentModel;
+using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenshotPlugin.Windows;
+using System.Windows;
 
 namespace GreenshotBoxPlugin {
 	public class BoxDestination : AbstractDestination {
@@ -41,7 +40,7 @@ namespace GreenshotBoxPlugin {
 		public BoxDestination(BoxPlugin plugin) {
 			_plugin = plugin;
 		}
-		
+
 		public override string Designation {
 			get {
 				return "Box";
@@ -62,46 +61,28 @@ namespace GreenshotBoxPlugin {
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string uploadUrl = await UploadAsync(captureDetails, surface, token).ConfigureAwait(false);
-			if (uploadUrl != null) {
+			var exportInformation = new ExportInformation(Designation, Description);
+			try {
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), (progress, pleaseWaitToken) => {
+					return BoxUtils.UploadToBoxAsync(surface, captureDetails, token);
+				}).ConfigureAwait(false);
+
+				if (url != null && _config.AfterUploadLinkToClipBoard) {
+					ClipboardHelper.SetClipboardData(url);
+				}
+
 				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadUrl;
+				exportInformation.Uri = url;
+			} catch (TaskCanceledException tcEx) {
+				exportInformation.ErrorMessage = tcEx.Message;
+				LOG.Info(tcEx.Message);
+			} catch (Exception e) {
+				exportInformation.ErrorMessage = e.Message;
+				LOG.Warn(e);
+				MessageBox.Show(Designation, Language.GetString("box", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
-
-		/// <summary>
-		/// This will be called when the menu item in the Editor is clicked
-		/// </summary>
-		private async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload, CancellationToken token = default(CancellationToken))
-		{
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-			try
-			{
-				string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-				SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), (progress, pleaseWaitToken) => {
-					// TODO: Change to async
-					return Task.Run(() => BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename));
-                }).ConfigureAwait(false);
-
-				if (url != null && _config.AfterUploadLinkToClipBoard)
-				{
-					ClipboardHelper.SetClipboardData(url);
-				}
-
-				return url;
-			}
-			catch (Exception ex)
-			{
-				LOG.Error("Error uploading.", ex);
-				MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
-				return null;
-			}
-		}
-
 	}
 }

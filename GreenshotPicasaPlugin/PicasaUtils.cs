@@ -22,7 +22,10 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
+using System.IO;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace GreenshotPicasaPlugin {
@@ -32,7 +35,7 @@ namespace GreenshotPicasaPlugin {
 	public static class PicasaUtils {
 		private const string PicasaScope = "https://picasaweb.google.com/data/";
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaUtils));
-		private static readonly PicasaConfiguration Config = IniConfig.GetIniSection<PicasaConfiguration>();
+		private static readonly PicasaConfiguration _config = IniConfig.GetIniSection<PicasaConfiguration>();
 		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
 		private static readonly Uri TokenUrl = new Uri("https://www.googleapis.com/oauth2/v3/token");
 		private const string UploadUrl = "https://picasaweb.google.com/data/feed/api/user/{0}/albumid/{1}";
@@ -41,13 +44,13 @@ namespace GreenshotPicasaPlugin {
 		/// Do the actual upload to Picasa
 		/// </summary>
 		/// <param name="surfaceToUpload">Image to upload</param>
-		/// <param name="outputSettings"></param>
-		/// <param name="title"></param>
-		/// <param name="filename"></param>
-		/// <returns>PicasaResponse</returns>
-		public static string UploadToPicasa(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
+		/// <param name="captureDetails">ICaptureDetails</param>
+		/// <returns>url</returns>
+		public static async Task<string> UploadToPicasa(ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
 			// Fill the OAuth2Settings
-			OAuth2Settings settings = new OAuth2Settings();
+			var settings = new OAuth2Settings();
 			settings.AuthUrlPattern = AuthUrl;
 			settings.TokenUrl = TokenUrl;
 			settings.CloudServiceName = "Picasa";
@@ -56,31 +59,40 @@ namespace GreenshotPicasaPlugin {
 			settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
 
 			// Copy the settings from the config, which is kept in memory and on the disk
-			settings.RefreshToken = Config.RefreshToken;
-			settings.AccessToken = Config.AccessToken;
-			settings.AccessTokenExpires = Config.AccessTokenExpires;
+			settings.RefreshToken = _config.RefreshToken;
+			settings.AccessToken = _config.AccessToken;
+			settings.AccessTokenExpires = _config.AccessTokenExpires;
 
 			try {
-				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HttpMethod.Post, string.Format(UploadUrl, Config.UploadUser, Config.UploadAlbum), settings);
-				if (Config.AddFilename) {
-					webRequest.Headers.Add("Slug", Uri.EscapeDataString(filename));
+				string response;
+				var uploadUri = new Uri(string.Format(UploadUrl, _config.UploadUser, _config.UploadAlbum));
+				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, settings)) {
+					if (_config.AddFilename) {
+						httpClient.AddDefaultRequestHeader("Slug", Uri.EscapeDataString(filename));
+					}
+					using (var uploadStream = new MemoryStream()) {
+						ImageOutput.SaveToStream(surfaceToUpload, uploadStream, outputSettings);
+						uploadStream.Seek(0, SeekOrigin.Begin);
+						using (var content = new StreamContent(uploadStream)) {
+							content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+							var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
+							await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+							response = await responseMessage.GetAsStringAsync().ConfigureAwait(false);
+						}
+					}
 				}
-				SurfaceContainer container = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-				container.Upload(webRequest);
-				
-				string response = NetworkHelper.GetResponseAsString(webRequest);
 
 				return ParseResponse(response);
 			} finally {
 				// Copy the settings back to the config, so they are stored.
-				Config.RefreshToken = settings.RefreshToken;
-				Config.AccessToken = settings.AccessToken;
-				Config.AccessTokenExpires = settings.AccessTokenExpires;
-				Config.IsDirty = true;
+				_config.RefreshToken = settings.RefreshToken;
+				_config.AccessToken = settings.AccessToken;
+				_config.AccessTokenExpires = settings.AccessTokenExpires;
+				_config.IsDirty = true;
 				IniConfig.Save();
 			}
 		}
-		
+
 		/// <summary>
 		/// Parse the upload URL from the response
 		/// </summary>
@@ -91,12 +103,12 @@ namespace GreenshotPicasaPlugin {
 				return null;
 			}
 			try {
-				XmlDocument doc = new XmlDocument();
+				var doc = new XmlDocument();
 				doc.LoadXml(response);
-				XmlNodeList nodes = doc.GetElementsByTagName("link", "*");
-				if(nodes.Count > 0) {
+				var nodes = doc.GetElementsByTagName("link", "*");
+				if (nodes.Count > 0) {
 					string url = null;
-					foreach(XmlNode node in nodes) {
+					foreach (XmlNode node in nodes) {
 						if (node.Attributes != null) {
 							url = node.Attributes["href"].Value;
 							string rel = node.Attributes["rel"].Value;
@@ -108,7 +120,7 @@ namespace GreenshotPicasaPlugin {
 					}
 					return url;
 				}
-			} catch(Exception e) {
+			} catch (Exception e) {
 				LOG.ErrorFormat("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return null;

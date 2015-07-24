@@ -274,14 +274,14 @@ namespace GreenshotPlugin.Core
 							menu.Focus();
 						}
 					};
-					foreach (IDestination destination in destinations) {
+					foreach (var destination in destinations) {
 						// Fix foreach loop variable for the delegate
-						ToolStripMenuItem item = destination.GetMenuItem(addDynamics, menu, async (sender, e) => {
-							ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
+						var item = destination.GetMenuItem(addDynamics, menu, async (sender, e) => {
+							var toolStripMenuItem = sender as ToolStripMenuItem;
 							if (toolStripMenuItem == null) {
 								return;
 							}
-							IDestination clickedDestination = (IDestination)toolStripMenuItem.Tag;
+							var clickedDestination = (IDestination)toolStripMenuItem.Tag;
 							if (clickedDestination == null) {
 								return;
 							}

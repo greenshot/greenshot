@@ -34,6 +34,8 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Linq;
 using System.Globalization;
+using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace GreenshotPlugin.Core {
 
@@ -225,6 +227,21 @@ namespace GreenshotPlugin.Core {
 			return null;
 		}
 
+
+		/// <summary>
+		/// Simple extension to post Form-URLEncoded Content
+		/// </summary>
+		/// <param name="uri">Uri to post to</param>
+		/// <param name="formContent">Dictionary with the values</param>
+		/// <param name="token">Cancellationtoken</param>
+		/// <returns>HttpResponseMessage</returns>
+		public static async Task<HttpResponseMessage> PostFormUrlEncodedAsync(this Uri uri, IDictionary<string, string> formContent, CancellationToken token = default(CancellationToken)) {
+			var content = new FormUrlEncodedContent(formContent);
+			using (var client = uri.CreateHttpClient()) {
+				return await client.PostAsync(uri, content);
+			}
+		}
+
 		/// <summary>
 		/// Simplified error handling, this makes sure the uri & response are logged
 		/// </summary>
@@ -258,6 +275,49 @@ namespace GreenshotPlugin.Core {
 			return;
 		}
 
+		/// <summary>
+		/// Download the uri to Bitmap
+		/// </summary>
+		/// <param name="url">Of an image</param>
+		/// <returns>Bitmap</returns>
+		public static async Task<Image> DownloadImageAsync(this Uri uri) {
+			try {
+				Exception initialException;
+				string content;
+				using (var response = await uri.GetAsync())
+				using (var stream = await response.GetAsMemoryStreamAsync()) {
+					try {
+						using (Image image = Image.FromStream(stream)) {
+							return ImageHelper.Clone(image, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+						}
+					} catch (Exception ex) {
+						// This might be okay, maybe it was just a search result
+						initialException = ex;
+					}
+					stream.Seek(0, SeekOrigin.Begin);
+					// If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+					using (var streamReader = new StreamReader(stream, Encoding.UTF8, true)) {
+						content = await streamReader.ReadLineAsync();
+					}
+				}
+				Regex imageUrlRegex = new Regex(@"(http|https)://.*(\.png|\.gif|\.jpg|\.tiff|\.jpeg|\.bmp)");
+				Match match = imageUrlRegex.Match(content);
+				if (match.Success) {
+					Uri contentUri = new Uri(match.Value);
+					using (var response = await contentUri.GetAsync())
+					using (var stream = await response.GetAsMemoryStreamAsync()) {
+						using (Image image = Image.FromStream(stream)) {
+							return ImageHelper.Clone(image, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+						}
+					}
+				}
+				throw initialException;
+			} catch (Exception e) {
+				LOG.ErrorFormat("Problem downloading the image from: {0}", uri);
+				LOG.Error(e);
+			}
+			return null;
+		}
 
 		/// <summary>
 		/// Head method

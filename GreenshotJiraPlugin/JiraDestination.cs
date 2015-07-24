@@ -151,14 +151,12 @@ namespace GreenshotJiraPlugin
 					LOG.Debug("Uploaded to Jira.");
 					exportInformation.ExportMade = true;
 					exportInformation.Uri = string.Format("{0}/browse/{1}", jiraApi.JiraBaseUri, _jira.JiraKey); ;
-				}
-				catch (TaskCanceledException tcEx)
-				{
-					exportInformation.ExportMade = true;
+				} catch (TaskCanceledException tcEx) {
 					exportInformation.ErrorMessage = tcEx.Message;
-				}
-				catch (Exception e)
-				{
+					LOG.Info(tcEx.Message);
+				} catch (Exception e) {
+					exportInformation.ErrorMessage = e.Message;
+					LOG.Warn(e);
 					MessageBox.Show(Designation, Language.GetString("jira", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}

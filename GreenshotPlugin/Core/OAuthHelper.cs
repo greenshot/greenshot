@@ -23,7 +23,6 @@ using GreenshotPlugin.Controls;
 using log4net;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
@@ -34,6 +33,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -983,7 +983,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// </summary>
 		/// <param name="result">IAsyncResult</param>
 		private void ListenerCallback(IAsyncResult result) {
-			HttpListener listener = (HttpListener)result.AsyncState;
+			var listener = (HttpListener)result.AsyncState;
 
 			//If not listening return immediately as this method is called one last time after Close()
 			if (!listener.IsListening) {
@@ -991,16 +991,16 @@ Greenshot received information from CloudServiceName. You can close this browser
 			}
 
 			// Use EndGetContext to complete the asynchronous operation.
-			HttpListenerContext context = listener.EndGetContext(result);
+			var context = listener.EndGetContext(result);
 
 
 			// Handle request
-			HttpListenerRequest request = context.Request;
+			var request = context.Request;
 			try {
-				NameValueCollection nameValueCollection = request.QueryString;
+				var nameValueCollection = request.QueryString;
 
 				// Get response object.
-				using (HttpListenerResponse response = context.Response) {
+				using (var response = context.Response) {
 					// Write a "close" response.
 					byte[] buffer = System.Text.Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
 					// Write to response stream.
@@ -1081,44 +1081,44 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// </summary>
 		/// <param name="code">Code to get the RefreshToken</param>
 		/// <param name="settings">OAuth2Settings to update with the information that was retrieved</param>
-		public static void GenerateRefreshToken(OAuth2Settings settings) {
-			IDictionary<string, object> data = new Dictionary<string, object>();
+		private static async Task GenerateRefreshTokenAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+			IDictionary<string, string> data = new Dictionary<string, string>();
 			// Use the returned code to get a refresh code
 			data.Add(CODE, settings.Code);
 			data.Add(CLIENT_ID, settings.ClientId);
-			data.Add(REDIRECT_URI, settings.RedirectUrl);
+			data.Add(REDIRECT_URI, settings.RedirectUrl.AbsoluteUri);
 			data.Add(CLIENT_SECRET, settings.ClientSecret);
 			data.Add(GRANT_TYPE, AUTHORIZATION_CODE);
 			foreach (string key in settings.AdditionalAttributes.Keys) {
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
 
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HttpMethod.Post);
-			NetworkHelper.UploadFormUrlEncoded(webRequest, data);
-			string accessTokenJsonResult = NetworkHelper.GetResponseAsString(webRequest, true);
+			dynamic refreshTokenResult;
+			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token)) {
+				refreshTokenResult = await responseMessage.GetAsJsonAsync();
+			}
 
-			IDictionary<string, object> refreshTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
-			if (refreshTokenResult.ContainsKey("error")) {
-				if (refreshTokenResult.ContainsKey("error_description")) {
-					throw new Exception(string.Format("{0} - {1}", refreshTokenResult["error"], refreshTokenResult["error_description"]));
+			if (refreshTokenResult.IsDefined("error")) {
+				if (refreshTokenResult.IsDefined("error_description")) {
+					throw new Exception(string.Format("{0} - {1}", refreshTokenResult.error, refreshTokenResult.error_description));
 				} else {
-					throw new Exception((string)refreshTokenResult["error"]);
+					throw new Exception(refreshTokenResult.error);
 				}
-			}
+			} else {
+				// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
+				//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
+				//	"expires_in":3920,
+				//	"token_type":"Bearer",
+				//	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
+				settings.AccessToken = (string)refreshTokenResult.access_token;
+				settings.RefreshToken = (string)refreshTokenResult.refresh_token;
 
-			// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
-			//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
-			//	"expires_in":3920,
-			//	"token_type":"Bearer",
-			//	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
-			settings.AccessToken = (string)refreshTokenResult[ACCESS_TOKEN] as string;
-			settings.RefreshToken = (string)refreshTokenResult[REFRESH_TOKEN] as string;
-
-			object seconds = refreshTokenResult[EXPIRES_IN];
-			if (seconds != null) {
-				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+				if (refreshTokenResult.IsDefined("expires_in")) {
+					double expiresIn = refreshTokenResult.expires_in;
+					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(expiresIn);
+				}
+				settings.Code = null;
 			}
-			settings.Code = null;
 		}
 
 		/// <summary>
@@ -1126,8 +1126,8 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// Will upate the access token, refresh token, expire date
 		/// </summary>
 		/// <param name="settings"></param>
-		public static void GenerateAccessToken(OAuth2Settings settings) {
-			IDictionary<string, object> data = new Dictionary<string, object>();
+		private static async Task GenerateAccessTokenAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+			IDictionary<string, string> data = new Dictionary<string, string>();
 			data.Add(REFRESH_TOKEN, settings.RefreshToken);
 			data.Add(CLIENT_ID, settings.ClientId);
 			data.Add(CLIENT_SECRET, settings.ClientSecret);
@@ -1136,18 +1136,14 @@ Greenshot received information from CloudServiceName. You can close this browser
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
 
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HttpMethod.Post);
-			NetworkHelper.UploadFormUrlEncoded(webRequest, data);
-			string accessTokenJsonResult = NetworkHelper.GetResponseAsString(webRequest, true);
+			dynamic accessTokenResult;
+			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token)) {
+				accessTokenResult = await responseMessage.GetAsJsonAsync();
+			}
 
-			// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
-			//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
-			//	"expires_in":3920,
-			//	"token_type":"Bearer",
-
-			IDictionary<string, object> accessTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
-			if (accessTokenResult.ContainsKey("error")) {
-				if ("invalid_grant" == (string)accessTokenResult["error"]) {
+			if (accessTokenResult.IsDefined("error")) {
+				var error = (string)accessTokenResult.error;
+				if ("invalid_grant" == error) {
 					// Refresh token has also expired, we need a new one!
 					settings.RefreshToken = null;
 					settings.AccessToken = null;
@@ -1155,24 +1151,26 @@ Greenshot received information from CloudServiceName. You can close this browser
 					settings.Code = null;
 					return;
 				} else {
-					if (accessTokenResult.ContainsKey("error_description")) {
-						throw new Exception(string.Format("{0} - {1}", accessTokenResult["error"], accessTokenResult["error_description"]));
+					if (accessTokenResult.IsDefined("error_description")) {
+						throw new Exception(string.Format("{0} - {1}", error, accessTokenResult.error_description));
 					} else {
-						throw new Exception((string)accessTokenResult["error"]);
+						throw new Exception(error);
 					}
 				}
-			}
-
-			settings.AccessToken = (string)accessTokenResult[ACCESS_TOKEN] as string;
-			if (accessTokenResult.ContainsKey(REFRESH_TOKEN)) {
-				// Refresh the refresh token :)
-				settings.RefreshToken = (string)accessTokenResult[REFRESH_TOKEN] as string;
-			}
-			object seconds = accessTokenResult[EXPIRES_IN];
-			if (seconds != null) {
-				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
 			} else {
-				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
+				// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
+				//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
+				//	"expires_in":3920,
+				//	"token_type":"Bearer"
+				settings.AccessToken = (string)accessTokenResult.access_token;
+				if (accessTokenResult.IsDefined("refresh_token")) {
+					// Refresh the refresh token :)
+					settings.RefreshToken = (string)accessTokenResult.refresh_token;
+				}
+				if (accessTokenResult.IsDefined("expires_in")) {
+					double expiresIn = accessTokenResult.expires_in;
+					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(expiresIn);
+				}
 			}
 		}
 
@@ -1180,15 +1178,16 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// Authenticate by using the mode specified in the settings
 		/// </summary>
 		/// <param name="settings">OAuth2Settings</param>
+		/// <param name="token">CancellationToken</param>
 		/// <returns>false if it was canceled, true if it worked, exception if not</returns>
-		public static bool Authenticate(OAuth2Settings settings) {
+		private static async Task<bool> AuthenticateAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
 			bool completed = true;
 			switch (settings.AuthorizeMode) {
 				case OAuth2AuthorizeMode.LocalServer:
-					completed = AuthenticateViaLocalServer(settings);
+					completed = await AuthenticateViaLocalServerAsync(settings, token);
 					break;
 				case OAuth2AuthorizeMode.EmbeddedBrowser:
-					completed = AuthenticateViaEmbeddedBrowser(settings);
+					completed = await AuthenticateViaEmbeddedBrowserAsync(settings, token);
 					break;
 				default:
 					throw new NotImplementedException(string.Format("Authorize mode '{0}' is not 'yet' implemented.", settings.AuthorizeMode));
@@ -1202,7 +1201,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// </summary>
 		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
 		/// <returns>true if completed, false if canceled</returns>
-		private static bool AuthenticateViaEmbeddedBrowser(OAuth2Settings settings) {
+		private static async Task<bool> AuthenticateViaEmbeddedBrowserAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
 			if (string.IsNullOrEmpty(settings.CloudServiceName)) {
 				throw new ArgumentNullException("CloudServiceName");
 			}
@@ -1215,7 +1214,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 				string code;
 				if (loginForm.CallbackParameters.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code)) {
 					settings.Code = code;
-					GenerateRefreshToken(settings);
+					await GenerateRefreshTokenAsync(settings, token);
 					return true;
 				}
 			}
@@ -1228,7 +1227,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// </summary>
 		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
 		/// <returns>true if completed</returns>
-		private static bool AuthenticateViaLocalServer(OAuth2Settings settings) {
+		private static async Task<bool> AuthenticateViaLocalServerAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
 			IDictionary<string, string> result;
 			using (var codeReceiver = new LocalServerCodeReceiver())
 			{
@@ -1238,7 +1237,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 			string code;
 			if (result.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code)) {
 				settings.Code = code;
-				GenerateRefreshToken(settings);
+				await GenerateRefreshTokenAsync(settings, token);
 				return true;
 			}
 			string error;
@@ -1257,35 +1256,24 @@ Greenshot received information from CloudServiceName. You can close this browser
 		}
 
 		/// <summary>
-		/// Simple helper to add the Authorization Bearer header
-		/// </summary>
-		/// <param name="webRequest">WebRequest</param>
-		/// <param name="settings">OAuth2Settings</param>
-		public static void AddOAuth2Credentials(HttpWebRequest webRequest, OAuth2Settings settings) {
-			if (!string.IsNullOrEmpty(settings.AccessToken)) {
-				webRequest.Headers.Add("Authorization", "Bearer " + settings.AccessToken);
-			}
-		}
-
-		/// <summary>
 		/// Check and authenticate or refresh tokens 
 		/// </summary>
 		/// <param name="settings">OAuth2Settings</param>
-		public static void CheckAndAuthenticateOrRefresh(OAuth2Settings settings) {
+		private static async Task CheckAndAuthenticateOrRefreshAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
 			// Get Refresh / Access token
 			if (string.IsNullOrEmpty(settings.RefreshToken)) {
-				if (!Authenticate(settings)) {
+				if (!await AuthenticateAsync(settings, token)) {
 					throw new Exception("Authentication cancelled");
 				}
 			}
 			if (settings.IsAccessTokenExpired) {
-				GenerateAccessToken(settings);
+				await GenerateAccessTokenAsync(settings, token);
 				// Get Refresh / Access token
 				if (string.IsNullOrEmpty(settings.RefreshToken)) {
-					if (!Authenticate(settings)) {
+					if (!await AuthenticateAsync(settings, token)) {
 						throw new Exception("Authentication cancelled");
 					}
-					GenerateAccessToken(settings);
+					await GenerateAccessTokenAsync(settings, token);
 				}
 			}
 			if (settings.IsAccessTokenExpired) {
@@ -1294,18 +1282,20 @@ Greenshot received information from CloudServiceName. You can close this browser
 		}
 
 		/// <summary>
-		/// CreateWebRequest ready for OAuth 2 access
+		/// create HttpClient ready for OAuth 2 access
 		/// </summary>
 		/// <param name="method">HttpMethod</param>
-		/// <param name="url"></param>
+		/// <param name="uri"></param>
 		/// <param name="settings">OAuth2Settings</param>
-		/// <returns>HttpWebRequest</returns>
-		public static HttpWebRequest CreateOAuth2WebRequest(HttpMethod method, string url, OAuth2Settings settings) {
-			CheckAndAuthenticateOrRefresh(settings);
+		/// <returns>HttpClient</returns>
+		public static async Task<HttpClient> CreateOAuth2HttpClientAsync(Uri uri, OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+			await CheckAndAuthenticateOrRefreshAsync(settings, token);
 
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, method);
-			AddOAuth2Credentials(webRequest, settings);
-			return webRequest;
+			var httpClient = uri.CreateHttpClient();
+			if (!string.IsNullOrEmpty(settings.AccessToken)) {
+				httpClient.SetBearer(settings.AccessToken);
+			}
+			return httpClient;
 		}
 	}
 }

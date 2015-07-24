@@ -20,14 +20,19 @@
  */
 
 using Greenshot.IniFile;
+using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Windows;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotBoxPlugin {
 
@@ -36,26 +41,9 @@ namespace GreenshotBoxPlugin {
 	/// </summary>
 	public static class BoxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxUtils));
-		private static readonly BoxConfiguration Config = IniConfig.GetIniSection<BoxConfiguration>();
-		private const string UploadFileUri = "https://upload.box.com/api/2.0/files/content";
+		private static readonly BoxConfiguration _config = IniConfig.GetIniSection<BoxConfiguration>();
+		private static readonly Uri UploadFileUri = new Uri("https://upload.box.com/api/2.0/files/content");
 		private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
-
-		/// <summary>
-		/// Put string
-		/// </summary>
-		/// <param name="url"></param>
-		/// <param name="content"></param>
-		/// <param name="settings">OAuth2Settings</param>
-		/// <returns>response</returns>
-		public static string HttpPut(string url, string content, OAuth2Settings settings) {
-			var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HttpMethod.Post, url, settings);
-
-			byte[] data = Encoding.UTF8.GetBytes(content);
-			using (var requestStream = webRequest.GetRequestStream()) {
-				requestStream.Write(data, 0, data.Length);
-			}
-			return NetworkHelper.GetResponseAsString(webRequest);
-		}
 
 		/// <summary>
 		/// Do the actual upload to Box
@@ -65,7 +53,9 @@ namespace GreenshotBoxPlugin {
 		/// <param name="title">Title of box upload</param>
 		/// <param name="filename">Filename of box upload</param>
 		/// <returns>url to uploaded image</returns>
-		public static string UploadToBox(SurfaceContainer image, string title, string filename) {
+		public static async Task<string> UploadToBoxAsync(ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 
 			// Fill the OAuth2Settings
 			OAuth2Settings settings = new OAuth2Settings();
@@ -80,39 +70,58 @@ namespace GreenshotBoxPlugin {
 			settings.AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser;
 
 			// Copy the settings from the config, which is kept in memory and on the disk
-			settings.RefreshToken = Config.RefreshToken;
-			settings.AccessToken = Config.AccessToken;
-			settings.AccessTokenExpires = Config.AccessTokenExpires;
+			settings.RefreshToken = _config.RefreshToken;
+			settings.AccessToken = _config.AccessToken;
+			settings.AccessTokenExpires = _config.AccessTokenExpires;
 
 			try {
-				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HttpMethod.Post, UploadFileUri, settings);
-				IDictionary<string, object> parameters = new Dictionary<string, object>();
-				parameters.Add("file", image);
-				parameters.Add("parent_id", Config.FolderId);
+				string response;
+				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(UploadFileUri, settings, token)) {
 
-				NetworkHelper.WriteMultipartFormData(webRequest, parameters);
+					using (var stream = new MemoryStream()) {
+						var multiPartContent = new MultipartFormDataContent();
+						var formData = new Dictionary<string, string>();
+						formData.Add("parent_id", _config.FolderId);
+						formData.Add("filename", filename);
+						var formContent = new FormUrlEncodedContent(formData);
+						multiPartContent.Add(formContent);
 
-				var response = NetworkHelper.GetResponseAsString(webRequest);
+						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+						stream.Position = 0;
+						using (var streamContent = new StreamContent(stream)) {
+							streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+							multiPartContent.Add(streamContent);
+							using (var responseMessage = await httpClient.PostAsync(UploadFileUri, multiPartContent, token)) {
+								await responseMessage.HandleErrorAsync(token);
+								response = await responseMessage.GetAsStringAsync();
+							}
+						}
+					}
+					LOG.DebugFormat("Box response: {0}", response);
 
-				LOG.DebugFormat("Box response: {0}", response);
+					var upload = JsonSerializer.Deserialize<Upload>(response);
+					if (upload == null || upload.Entries == null || upload.Entries.Count == 0) {
+						return null;
+					}
 
-				var upload = JsonSerializer.Deserialize<Upload>(response);
-				if (upload == null || upload.Entries == null || upload.Entries.Count == 0) {
-					return null;
+					if (_config.UseSharedLink) {
+						Uri uri = new Uri(string.Format(FilesUri, upload.Entries[0].Id));
+						var content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8);
+						using (var responseMessage = await httpClient.PutAsync(uri, content, token)) {
+							await responseMessage.HandleErrorAsync(token);
+							var file = await responseMessage.GetAsJsonAsync();
+							return file.SharedLink.Url;
+						}
+					}
+					return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", upload.Entries[0].Id);
+
 				}
-
-				if (Config.UseSharedLink) {
-					string filesResponse = HttpPut(string.Format(FilesUri, upload.Entries[0].Id), "{\"shared_link\": {\"access\": \"open\"}}", settings);
-					var file = DynamicJson.Parse(filesResponse);
-					return file.SharedLink.Url;
-				}
-				return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", upload.Entries[0].Id);
 			} finally {
 				// Copy the settings back to the config, so they are stored.
-				Config.RefreshToken = settings.RefreshToken;
-				Config.AccessToken = settings.AccessToken;
-				Config.AccessTokenExpires = settings.AccessTokenExpires;
-				Config.IsDirty = true;
+				_config.RefreshToken = settings.RefreshToken;
+				_config.AccessToken = settings.AccessToken;
+				_config.AccessTokenExpires = settings.AccessTokenExpires;
+				_config.IsDirty = true;
 				IniConfig.Save();
 			}
 		}

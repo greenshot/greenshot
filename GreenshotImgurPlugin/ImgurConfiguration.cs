@@ -24,6 +24,7 @@ using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
+using System;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -32,38 +33,119 @@ namespace GreenshotImgurPlugin {
 	[IniSection("Imgur", Description="Greenshot Imgur Plugin configuration")]
 	public class ImgurConfiguration : IniSection {
 		[IniProperty("ApiUrl", Description = "Url to Imgur API.", DefaultValue = "https://api.imgur.com/3")]
-		public string ApiUrl;
+		public string ApiUrl {
+			get;
+			set;
+		}
 		
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
-		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
-		public bool UploadReduceColors;
-		[IniProperty("CopyUrlToClipboard", Description = "Copy the URL to the clipboard", DefaultValue = "true")]
-		public bool CopyUrlToClipboard;
-		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link (in clipboard and notification)", DefaultValue = "False")]
-		public bool UsePageLink;
-		[IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue="true")]
-		public bool AnonymousAccess;
-		[IniProperty("TrackHistory", Description = "Track the upload history", DefaultValue = "true")]
-		public bool TrackHistory;
-		[IniProperty("ImgurToken", Description = "The Imgur token", Encrypted=true, ExcludeIfNull=true)]
-		public string ImgurToken;
-		[IniProperty("ImgurTokenSecret", Description = "The Imgur token secret", Encrypted=true, ExcludeIfNull=true)]
-		public string ImgurTokenSecret;
-		[IniProperty("AddTitle", Description = "Is the title passed on to Imgur", DefaultValue = "False")]
-		public bool AddTitle;
-		[IniProperty("AddFilename", Description = "Is the filename passed on to Imgur", DefaultValue = "False")]
-		public bool AddFilename;
-		[IniProperty("FilenamePattern", Description = "Filename for the Imgur upload", DefaultValue = "${capturetime:d\"yyyyMMdd-HHmm\"}")]
-		public string FilenamePattern;
+		public OutputFormat UploadFormat {
+			get;
+			set;
+		}
 
-		[IniProperty("ImgurUploadHistory", Description="Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
-		public Dictionary<string, string> ImgurUploadHistory;
+		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
+		public int UploadJpegQuality {
+			get;
+			set;
+		}
+
+		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
+		public bool UploadReduceColors {
+			get;
+			set;
+		}
+
+		[IniProperty("CopyUrlToClipboard", Description = "Copy the URL to the clipboard", DefaultValue = "true")]
+		public bool CopyUrlToClipboard {
+			get;
+			set;
+		}
+
+		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link (in clipboard and notification)", DefaultValue = "False")]
+		public bool UsePageLink {
+			get;
+			set;
+		}
+
+		[IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue="true")]
+		public bool AnonymousAccess {
+			get;
+			set;
+		}
+
+		[IniProperty("TrackHistory", Description = "Track the upload history", DefaultValue = "true")]
+		public bool TrackHistory {
+			get;
+			set;
+		}
+
+		[IniProperty("ImgurToken", Description = "The Imgur token", Encrypted=true, ExcludeIfNull=true)]
+		public string ImgurToken {
+			get;
+			set;
+		}
+
+		[IniProperty("ImgurTokenSecret", Description = "The Imgur token secret", Encrypted=true, ExcludeIfNull=true)]
+		public string ImgurTokenSecret {
+			get;
+			set;
+		}
+
+		[IniProperty("AddTitle", Description = "Is the title passed on to Imgur", DefaultValue = "False")]
+		public bool AddTitle {
+			get;
+			set;
+		}
+
+		[IniProperty("AddFilename", Description = "Is the filename passed on to Imgur", DefaultValue = "False")]
+		public bool AddFilename {
+			get;
+			set;
+		}
+
+		[IniProperty("FilenamePattern", Description = "Filename for the Imgur upload", DefaultValue = "${capturetime:d\"yyyyMMdd-HHmm\"}")]
+		public string FilenamePattern {
+			get;
+			set;
+		}
+
+		[IniProperty("ImgurUploadHistory", Description = "Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
+		public Dictionary<string, string> ImgurUploadHistory {
+			get;
+			set;
+		}
 		
+
+		[IniProperty("RefreshToken", Description = "Imgur authorization refresh Token", Encrypted = true)]
+		public string RefreshToken {
+			get;
+			set;
+		}
+
+
 		// Not stored, only run-time!
+		/// <summary>
+		/// AccessToken, not stored
+		/// </summary>
+		public string AccessToken {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// AccessTokenExpires, not stored
+		/// </summary>
+		public DateTimeOffset AccessTokenExpires {
+			get;
+			set;
+		}
+
 		public Dictionary<string, ImageInfo> runtimeImgurHistory = new Dictionary<string, ImageInfo>();
+
+		/// <summary>
+		/// Available credits
+		/// </summary>
 		public int Credits {
 			get;
 			set;

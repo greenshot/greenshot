@@ -17,22 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.ComponentModel;
-using System.Drawing;
+
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Windows;
+using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace GreenshotPicasaPlugin {
 	public class PicasaDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaDestination));
-		private static PicasaConfiguration config = IniConfig.GetIniSection<PicasaConfiguration>();
+		private static PicasaConfiguration _config = IniConfig.GetIniSection<PicasaConfiguration>();
 
-		private PicasaPlugin plugin = null;
-		public PicasaDestination(PicasaPlugin plugin) {
-			this.plugin = plugin;
-		}
-		
 		public override string Designation {
 			get {
 				return "Picasa";
@@ -47,18 +48,38 @@ namespace GreenshotPicasaPlugin {
 
 		public override Image DisplayIcon {
 			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(PicasaPlugin));
+				var resources = new ComponentResourceManager(typeof(PicasaPlugin));
 				return (Image)resources.GetObject("Picasa");
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = null;
-			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
-			if (uploaded) {
-				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadURL;
+		/// <summary>
+		/// export the capture to Picasa
+		/// </summary>
+		/// <param name="manuallyInitiated"></param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <param name="token"></param>
+		/// <returns></returns>
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(this.Designation, this.Description);
+
+			try {
+				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), (progress, pleaseWaitToken) => {
+					return PicasaUtils.UploadToPicasa(surface, captureDetails, token);
+				}).ConfigureAwait(false);
+
+				if (!string.IsNullOrEmpty(uploadURL)) {
+					exportInformation.ExportMade = true;
+					exportInformation.Uri = uploadURL;
+				}
+			} catch (TaskCanceledException tcEx) {
+				exportInformation.ErrorMessage = tcEx.Message;
+				LOG.Info(tcEx.Message);
+			} catch (Exception e) {
+				exportInformation.ErrorMessage = e.Message;
+				LOG.Warn(e);
+				MessageBox.Show(Designation, Language.GetString("picasa", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

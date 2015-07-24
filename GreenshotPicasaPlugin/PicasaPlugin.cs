@@ -17,16 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.IniFile;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
 
 namespace GreenshotPicasaPlugin {
 	/// <summary>
@@ -58,7 +57,7 @@ namespace GreenshotPicasaPlugin {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			yield return new PicasaDestination(this);
+			yield return new PicasaDestination();
 		}
 
 
@@ -123,29 +122,5 @@ namespace GreenshotPicasaPlugin {
 			Configure();
 		}
 
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality);
-			try {
-				string url = null;
-				new PleaseWaitForm().ShowAndWait(PicasaPlugin.Attributes.Name, Language.GetString("picasa", LangKey.communication_wait), 
-					delegate() {
-						string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-						string contentType = "image/" + config.UploadFormat.ToString();
-						url = PicasaUtils.UploadToPicasa(surfaceToUpload, outputSettings, captureDetails.Title, filename);
-					}
-				);
-				uploadUrl = url;
-
-				if (uploadUrl != null && config.AfterUploadLinkToClipBoard) {
-					ClipboardHelper.SetClipboardData(uploadUrl);
-				}
-				return true;
-			} catch (Exception e) {
-				LOG.Error("Error uploading.", e);
-				MessageBox.Show(Language.GetString("picasa", LangKey.upload_failure) + " " + e.Message);
-			}
-			uploadUrl = null;
-			return false;
-		}
 	}
 }

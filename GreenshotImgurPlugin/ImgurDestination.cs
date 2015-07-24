@@ -72,28 +72,13 @@ namespace GreenshotImgurPlugin  {
 		/// <param name="token">CancellationToken</param>
 		/// <returns>Task with ExportInformation</returns>
 		public async override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = await UploadAsync(captureDetails, surface, token).ConfigureAwait(false);
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-
-		/// <summary>
-		/// Upload the capture to imgur
-		/// </summary>
-		/// <param name="captureDetails"></param>
-		/// <param name="image"></param>
-		/// <param name="uploadURL">out string for the url</param>
-		/// // <param name="token"></param>
-		/// <returns>Task with ExportInformation</returns>
-		private async Task<ExportInformation> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload, CancellationToken token = default(CancellationToken))
-		{
 			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			string uploadURL = null;
 			try {
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
-					return ImgurUtils.UploadToImgurAsync(surfaceToUpload, outputSettings, captureDetails.Title, filename, pleaseWaitToken);
+					return ImgurUtils.UploadToImgurAsync(surface, outputSettings, captureDetails.Title, filename, pleaseWaitToken);
 				}).ConfigureAwait(false);
 
 				if (imgurInfo != null) {
@@ -114,16 +99,15 @@ namespace GreenshotImgurPlugin  {
 						LOG.Error("Can't write to clipboard: ", ex);
 					}
 				}
-			} catch (TaskCanceledException) {
-				exportInformation.ExportMade = false;
-				exportInformation.ErrorMessage = "User cancelled upload";
-				LOG.Info(exportInformation.ErrorMessage);
+			} catch (TaskCanceledException tcEx) {
+				exportInformation.ErrorMessage = tcEx.Message;
+				LOG.Info(tcEx.Message);
 			} catch (Exception e) {
-				LOG.Error("Error uploading.", e);
-				exportInformation.ExportMade = false;
 				exportInformation.ErrorMessage = e.Message;
+				LOG.Warn(e);
 				MessageBox.Show(Designation, Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
+			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

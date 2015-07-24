@@ -415,7 +415,7 @@ namespace Greenshot.Drawing {
 			MouseDoubleClick += SurfaceDoubleClick;
 			Paint += SurfacePaint;
 			AllowDrop = true;
-			DragDrop += OnDragDrop;
+			DragDrop += OnDragDropAsync;
 			DragEnter += OnDragEnter;
 			// bind selected & elements to this, otherwise they can't inform of modifications
 			selectedElements.Parent = this;
@@ -797,13 +797,14 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnDragDrop(object sender, DragEventArgs e) {
+		private async void OnDragDropAsync(object sender, DragEventArgs e) {
 			Point mouse = PointToClient(new Point(e.X, e.Y));
 			if (e.Data.GetDataPresent("Text")) {
 				string possibleUrl = ClipboardHelper.GetText(e.Data);
 				// Test if it's an url and try to download the image so we have it in the original form
 				if (possibleUrl != null && possibleUrl.StartsWith("http")) {
-					using (Image image = NetworkHelper.DownloadImage(possibleUrl)) {
+					Uri imageUri = new Uri(possibleUrl);
+					using (var image = await imageUri.DownloadImageAsync()) {
 						if (image != null) {
 							AddImageContainer(image, mouse.X, mouse.Y);
 							return;
