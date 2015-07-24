@@ -205,27 +205,6 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
-		/// Helper method to add events which set the tag, this way we can see why there might be a close.
-		/// </summary>
-		/// <param name="menuItem">Item to add the events to</param>
-		/// <param name="menu">Menu to set the tag</param>
-		/// <param name="tagValue">Value for the tag</param>
-		private void AddTagEvents(ToolStripMenuItem menuItem, ContextMenuStrip menu, string tagValue)
-		{
-			if (menuItem != null && menu != null)
-			{
-				menuItem.MouseDown += delegate (object source, MouseEventArgs eventArgs) {
-					LOG.DebugFormat("Setting tag to '{0}'", tagValue);
-					menu.Tag = tagValue;
-				};
-				menuItem.MouseUp += delegate (object source, MouseEventArgs eventArgs) {
-					LOG.Debug("Deleting tag");
-					menu.Tag = null;
-				};
-			}
-		}
-
-		/// <summary>
 		/// This method will create and show the destination picker menu
 		/// </summary>
 		/// <param name="addDynamics">Boolean if the dynamic values also need to be added</param>
@@ -237,90 +216,101 @@ namespace GreenshotPlugin.Core
 		{
 			// Generate an empty ExportInformation object, for when nothing was selected.
 			var exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
-			bool success = false;
-			bool exit = false;
 			string usedDestination = null;
-			do {
+			var canExitSemaphore = new SemaphoreSlim(0, 1);
+			bool exit = false;
+
+			do
+			{
 				// Create menu, and show it
-				using (var menu = new ContextMenuStrip()) {
+				using (var menu = new ContextMenuStrip())
+				{
 					menu.ImageScalingSize = configuration.IconSize;
-					menu.Tag = null;
 					menu.Closing += (source, eventArgs) => {
-						LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
-						switch (eventArgs.CloseReason) {
-							case ToolStripDropDownCloseReason.AppFocusChange:
-								if (menu.Tag == null) {
-									// Do not allow the close if the tag is not set, this means the user clicked somewhere else.
-									eventArgs.Cancel = true;
-								} else {
-									LOG.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
-								}
-								break;
-							case ToolStripDropDownCloseReason.ItemClicked:
-							case ToolStripDropDownCloseReason.CloseCalled:
-								// The ContextMenuStrip can be "closed" for these reasons.
-								break;
+						switch (eventArgs.CloseReason)
+						{
 							case ToolStripDropDownCloseReason.Keyboard:
+								LOG.Debug("Keyboard used to close menu");
+								canExitSemaphore.Release();
 								exit = true;
 								break;
-							default:
+							case ToolStripDropDownCloseReason.AppFocusChange:
+								LOG.DebugFormat("Ignoring Close reason: {0}", eventArgs.CloseReason);
 								eventArgs.Cancel = true;
 								break;
 						}
 					};
-					menu.MouseEnter +=(source, eventArgs) => {
+					menu.MouseEnter += (source, eventArgs) => {
 						// in case the menu has been unfocused, focus again so that dropdown menus will still open on mouseenter
-						if (!menu.ContainsFocus) {
+						if (!menu.ContainsFocus)
+						{
 							menu.Focus();
 						}
 					};
-					foreach (var destination in destinations) {
+					foreach (var destination in destinations)
+					{
 						// Fix foreach loop variable for the delegate
 						var item = destination.GetMenuItem(addDynamics, menu, async (sender, e) => {
 							var toolStripMenuItem = sender as ToolStripMenuItem;
-							if (toolStripMenuItem == null) {
+							if (toolStripMenuItem == null)
+							{
 								return;
 							}
 							var clickedDestination = (IDestination)toolStripMenuItem.Tag;
-							if (clickedDestination == null) {
+							if (clickedDestination == null)
+							{
 								return;
 							}
-							menu.Tag = clickedDestination.Designation;
-							// Export
-							exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
-							if (exportInformation != null && exportInformation.ExportMade) {
-								LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
-								usedDestination = clickedDestination.Designation;
-								success = true;
-								menu.Close();
-							} else {
-								LOG.Info("Export cancelled or failed, showing menu again");
-								// Make sure a click besides the menu don't close it.
-								menu.Tag = null;
+							LOG.DebugFormat("Destination {0} was clicked", clickedDestination.Description);
+							// try to export
+							try
+							{
+								exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
+								if (exportInformation != null && exportInformation.ExportMade)
+								{
+									LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
+									usedDestination = clickedDestination.Designation;
+									exit = true;
+								}
+								else
+								{
+									LOG.Info("Export cancelled or failed, showing menu again");
+								}
+							}
+							finally
+							{
+								canExitSemaphore.Release();
 							}
 						}
 						);
-						if (item != null) {
+						if (item != null)
+						{
 							menu.Items.Add(item);
 						}
 					}
 					//  Add Close item
 					menu.Items.Add(new ToolStripSeparator());
-					var closeItem = new ToolStripMenuItem(Language.GetString("editor_close"));
-					closeItem.Image = GreenshotResources.getImage("Close.Image");
+					var closeItem = new ToolStripMenuItem
+					{
+						Text = Language.GetString("editor_close"),
+						Image = GreenshotResources.getImage("Close.Image")
+					};
 					closeItem.Click += (source, eventArgs) => {
+						LOG.Debug("Close clicked");
+						canExitSemaphore.Release();
 						exit = true;
-						menu.Close();
 					};
 					menu.Items.Add(closeItem);
 
-					await ShowMenuAtCursorAsync(menu, token);
+					ShowMenuAtCursor(menu);
+					// Await the menu closing semaphore
+					await canExitSemaphore.WaitAsync(token);
 				}
-				// Check if it worked, or if exit was clicked
-			} while (!exit && !success);
+			} while (!exit);
 
 			// Dispose as the close is clicked
-			if (!"Editor".Equals(usedDestination)) {
+			if (!"Editor".Equals(usedDestination))
+			{
 				surface.Dispose();
 				surface = null;
 			}
@@ -332,7 +322,7 @@ namespace GreenshotPlugin.Core
 		/// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
 		/// </summary>
 		/// <param name="menu"></param>
-		private static async Task ShowMenuAtCursorAsync(ContextMenuStrip menu, CancellationToken token = default(CancellationToken))
+		private static void ShowMenuAtCursor(ContextMenuStrip menu)
 		{
 			// find a suitable location
 			Point location = Cursor.Position;
@@ -352,12 +342,6 @@ namespace GreenshotPlugin.Core
 			User32.SetForegroundWindow(PluginUtils.Host.NotifyIcon.ContextMenuStrip.Handle);
 			menu.Show(location);
 			menu.Focus();
-
-			// Wait for the menu to close, so we can dispose it.
-			while (!token.IsCancellationRequested && menu.Visible)
-			{
-				await Task.Delay(400);
-			}
 		}
 
 		/// <summary>
@@ -373,7 +357,6 @@ namespace GreenshotPlugin.Core
 				Tag = this,
 				Text = Description,
 			};
-			AddTagEvents(basisMenuItem, menu, Description);
 			basisMenuItem.Click -= destinationClickHandler;
 			basisMenuItem.Click += destinationClickHandler;
 
@@ -411,7 +394,6 @@ namespace GreenshotPlugin.Core
 									destinationMenuItem.Tag = subDestination;
 									destinationMenuItem.Image = subDestination.DisplayIcon;
 									destinationMenuItem.Click += destinationClickHandler;
-									AddTagEvents(destinationMenuItem, menu, subDestination.Description);
 									basisMenuItem.DropDownItems.Add(destinationMenuItem);
 								}
 							}

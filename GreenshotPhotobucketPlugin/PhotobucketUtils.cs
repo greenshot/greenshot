@@ -105,7 +105,6 @@ namespace GreenshotPhotobucketPlugin {
 			oAuth.AutoLogin = autoLogin;
 			oAuth.CheckVerifier = false;
 			// This url is configured in the Photobucket API settings in the Photobucket site!!
-			oAuth.CallbackUrl = new Uri("http://getgreenshot.org");
 			oAuth.AccessTokenUrl = new Uri("http://api.photobucket.com/login/access");
 			oAuth.AuthorizeUrl = new Uri("http://photobucket.com/apilogin/login");
 			oAuth.RequestTokenUrl = new Uri("http://api.photobucket.com/login/request");

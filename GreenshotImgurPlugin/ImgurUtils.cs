@@ -42,7 +42,7 @@ namespace GreenshotImgurPlugin {
 		private const string PAGE_URL_PATTERN = "http://imgur.com/{0}";
 		private const string IMAGE_URL_PATTERN = "http://i.imgur.com/{0}.png";
 		private const string SMALL_URL_PATTERN = "http://i.imgur.com/{0}s.png";
-		private const string AuthUrl = "https://api.imgur.com/oauth2/authorize?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}";
+		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}";
 		private static readonly Uri TokenUrl = new Uri("https://api.imgur.com/oauth2/token");
 
 		/// <summary>
@@ -96,12 +96,14 @@ namespace GreenshotImgurPlugin {
 		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, CancellationToken token = default(CancellationToken)) {
 			// Fill the OAuth2Settings
 			var oauth2Settings = new OAuth2Settings();
-			oauth2Settings.AuthUrlPattern = AuthUrl;
+			oauth2Settings.AuthUrlPattern = AuthUrlPattern;
 			oauth2Settings.TokenUrl = TokenUrl;
-			oauth2Settings.CloudServiceName = "Imgur";
+			oauth2Settings.RedirectUrl = "https://imgur.com";
+            oauth2Settings.CloudServiceName = "Imgur";
 			oauth2Settings.ClientId = ImgurCredentials.CONSUMER_KEY;
 			oauth2Settings.ClientSecret = ImgurCredentials.CONSUMER_SECRET;
-			oauth2Settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
+			oauth2Settings.AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser;
+			oauth2Settings.BrowserSize = new Size(680, 880);
 
 			// Copy the settings from the config, which is kept in memory and on the disk
 			oauth2Settings.RefreshToken = config.RefreshToken;
@@ -123,15 +125,7 @@ namespace GreenshotImgurPlugin {
 						}
 					}
 				}
-				var imageInfo = (ImageInfo)CreateImageInfo(imageJson);
-				if (config.TrackHistory) {
-					config.ImgurUploadHistory.Add(imageInfo.Id, imageInfo.DeleteHash);
-					config.runtimeImgurHistory.Add(imageInfo.Id, imageInfo);
-					using (Image tmpImage = surfaceToUpload.GetImageForExport()) {
-						imageInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
-					}
-				}
-				return imageInfo;
+				return (ImageInfo)CreateImageInfo(imageJson);
 			} finally {
 				// Copy the settings back to the config, so they are stored.
 				config.RefreshToken = oauth2Settings.RefreshToken;
@@ -158,19 +152,10 @@ namespace GreenshotImgurPlugin {
 						imageJson = await response.GetAsJsonAsync().ConfigureAwait(false);
 					}
 				}
-				var imageInfo = (ImageInfo)CreateImageInfo(imageJson);
-				if (config.TrackHistory) {
-					config.ImgurUploadHistory.Add(imageInfo.Id, imageInfo.DeleteHash);
-					config.runtimeImgurHistory.Add(imageInfo.Id, imageInfo);
-					using (Image tmpImage = surfaceToUpload.GetImageForExport()) {
-						imageInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
-					}
-				}
-				return imageInfo;
-
+				return (ImageInfo)CreateImageInfo(imageJson);
 			}
-
 		}
+
 		/// <summary>
 		/// Do the actual upload to Imgur
 		/// For more details on the available parameters, see: http://api.imgur.com/resources_anon
@@ -192,12 +177,12 @@ namespace GreenshotImgurPlugin {
 			}
 			ImageInfo imageInfo = null;
 			if (config.AnonymousAccess) {
-				imageInfo = await AnnonymousUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, token);
+				imageInfo = await AnnonymousUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, token).ConfigureAwait(false);
 			} else {
-				imageInfo = await AuthenticatedUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, token);
+				imageInfo = await AuthenticatedUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, token).ConfigureAwait(false);
 			}
 
-			if (config.TrackHistory) {
+			if (imageInfo != null && config.TrackHistory) {
 				config.ImgurUploadHistory.Add(imageInfo.Id, imageInfo.DeleteHash);
 				config.runtimeImgurHistory.Add(imageInfo.Id, imageInfo);
 				using (Image tmpImage = surfaceToUpload.GetImageForExport()) {

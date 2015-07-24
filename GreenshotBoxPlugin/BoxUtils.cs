@@ -65,7 +65,7 @@ namespace GreenshotBoxPlugin {
 			settings.CloudServiceName = "Box";
 			settings.ClientId = BoxCredentials.ClientId;
 			settings.ClientSecret = BoxCredentials.ClientSecret;
-			settings.RedirectUrl = new System.Uri("https://www.box.com/home/");
+			settings.RedirectUrl = "https://www.box.com/home";
 			settings.BrowserSize = new Size(1060, 600);
 			settings.AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser;
 

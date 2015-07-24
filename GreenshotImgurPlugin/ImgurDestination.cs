@@ -79,9 +79,11 @@ namespace GreenshotImgurPlugin  {
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
 					return ImgurUtils.UploadToImgurAsync(surface, outputSettings, captureDetails.Title, filename, pleaseWaitToken);
-				}).ConfigureAwait(false);
+				});
 
 				if (imgurInfo != null) {
+					exportInformation.ExportMade = true;
+
 					await plugin.CheckHistory().ConfigureAwait(false);
 					IniConfig.Save();
 					if (config.UsePageLink) {

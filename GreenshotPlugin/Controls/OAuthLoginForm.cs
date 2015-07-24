@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public partial class OAuthLoginForm : Form {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
-		private Uri _callbackUrl = null;
+		private readonly string _callbackUrl;
 		private IDictionary<string, string> _callbackParameters = null;
 		
 		public IDictionary<string, string> CallbackParameters {
@@ -49,7 +49,7 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 
-		public OAuthLoginForm(string browserTitle, Size size, Uri authorizationLink, Uri callbackUrl) {
+		public OAuthLoginForm(string browserTitle, Size size, Uri authorizationLink, string callbackUrl) {
 			_callbackUrl = callbackUrl;
 			InitializeComponent();
 			ClientSize = size;
@@ -90,7 +90,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		private void CheckUrl() {
-			if (_browser.Url.AbsoluteUri.StartsWith(_callbackUrl.AbsoluteUri)) {
+			if (_browser.Url.AbsoluteUri.StartsWith(_callbackUrl)) {
 				string queryParams = _browser.Url.Query;
 				if (queryParams.Length > 0) {
 					//Store the Token and Token Secret

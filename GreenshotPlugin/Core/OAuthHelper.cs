@@ -66,6 +66,7 @@ namespace GreenshotPlugin.Core {
 			// Create a default state
 			State = Guid.NewGuid().ToString();
 			AuthorizeMode = OAuth2AuthorizeMode.Unknown;
+			RedirectUrl = "http://getgreenshot.org";
 		}
 
 		public OAuth2AuthorizeMode AuthorizeMode {
@@ -144,7 +145,7 @@ namespace GreenshotPlugin.Core {
 		/// This is the redirect URL, in some implementations this is automatically set (LocalServerCodeReceiver)
 		/// In some implementations this could be e.g. urn:ietf:wg:oauth:2.0:oob or urn:ietf:wg:oauth:2.0:oob:auto
 		/// </summary>
-		public Uri RedirectUrl {
+		public string RedirectUrl {
 			get;
 			set;
 		}
@@ -241,7 +242,7 @@ namespace GreenshotPlugin.Core {
 		protected const string UNRESERVED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
 
 		private string _userAgent = "Greenshot";
-		private Uri _callbackUrl = new Uri("http://getgreenshot.org");
+		private string _callbackUrl = "http://getgreenshot.org";
 		private bool _checkVerifier = true;
 		private bool _useHttpHeadersForAuthorization = true;
 		private IDictionary<string, string> _accessTokenResponseParameters;
@@ -322,7 +323,7 @@ namespace GreenshotPlugin.Core {
 				_userAgent = value;
 			}
 		}
-		public Uri CallbackUrl {
+		public string CallbackUrl {
 			get {
 				return _callbackUrl;
 			}
@@ -569,7 +570,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>The url with a valid request token, or a null string.</returns>
 		private Uri AuthorizationLink {
 			get {
-				return new Uri(AuthorizeUrl + "?" + OAUTH_TOKEN_KEY + "=" + Token + "&" + OAUTH_CALLBACK_KEY + "=" + Uri.EscapeDataString(CallbackUrl.AbsoluteUri));
+				return new Uri(AuthorizeUrl + "?" + OAUTH_TOKEN_KEY + "=" + Token + "&" + OAUTH_CALLBACK_KEY + "=" + Uri.EscapeDataString(CallbackUrl));
 			}
 		}
 
@@ -947,12 +948,12 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// </summary>
 		/// <param name="authorizationUrl"></param>
 		/// <returns>Dictionary with values</returns>
-		public IDictionary<string, string> ReceiveCode(OAuth2Settings oauth2Settings) {
+		public async Task<IDictionary<string, string>> ReceiveCodeAsync(OAuth2Settings oauth2Settings, CancellationToken token = default(CancellationToken)) {
 			// Set the redirect URL on the settings
-			oauth2Settings.RedirectUrl = RedirectUri;
+			oauth2Settings.RedirectUrl = Uri.EscapeDataString(RedirectUri.AbsoluteUri);
 			_cloudServiceName = oauth2Settings.CloudServiceName;
 			using (var listener = new HttpListener()) {
-				listener.Prefixes.Add(oauth2Settings.RedirectUrl.AbsoluteUri);
+				listener.Prefixes.Add(RedirectUri.AbsoluteUri);
 				try {
 					listener.Start();
 
@@ -965,8 +966,9 @@ Greenshot received information from CloudServiceName. You can close this browser
 					var context = listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
 					_ready.Reset();
 
-					while (!context.AsyncWaitHandle.WaitOne(1000, true)) {
+					while (!token.IsCancellationRequested && !context.AsyncWaitHandle.WaitOne(1)) {
 						LOG.Debug("Waiting for response");
+						await Task.Delay(1000).ConfigureAwait(false);
 					}
 				} catch (Exception) {
 					// Make sure we can clean up, also if the thead is aborted
@@ -1004,7 +1006,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 				// Get response object.
 				using (var response = context.Response) {
 					// Write a "close" response.
-					byte[] buffer = System.Text.Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
+					byte[] buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
 					// Write to response stream.
 					response.ContentLength64 = buffer.Length;
 					using (var stream = response.OutputStream) {
@@ -1088,7 +1090,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 			// Use the returned code to get a refresh code
 			data.Add(CODE, settings.Code);
 			data.Add(CLIENT_ID, settings.ClientId);
-			data.Add(REDIRECT_URI, settings.RedirectUrl.AbsoluteUri);
+			data.Add(REDIRECT_URI, settings.RedirectUrl);
 			data.Add(CLIENT_SECRET, settings.ClientSecret);
 			data.Add(GRANT_TYPE, AUTHORIZATION_CODE);
 			foreach (string key in settings.AdditionalAttributes.Keys) {
@@ -1186,10 +1188,10 @@ Greenshot received information from CloudServiceName. You can close this browser
 			bool completed = true;
 			switch (settings.AuthorizeMode) {
 				case OAuth2AuthorizeMode.LocalServer:
-					completed = await AuthenticateViaLocalServerAsync(settings, token);
+					completed = await AuthenticateViaLocalServerAsync(settings, token).ConfigureAwait(false);
 					break;
 				case OAuth2AuthorizeMode.EmbeddedBrowser:
-					completed = await AuthenticateViaEmbeddedBrowserAsync(settings, token);
+					completed = await AuthenticateViaEmbeddedBrowserAsync(settings, token).ConfigureAwait(false);
 					break;
 				default:
 					throw new NotImplementedException(string.Format("Authorize mode '{0}' is not 'yet' implemented.", settings.AuthorizeMode));
@@ -1233,7 +1235,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 			IDictionary<string, string> result;
 			using (var codeReceiver = new LocalServerCodeReceiver())
 			{
-				result = codeReceiver.ReceiveCode(settings);
+				result = await codeReceiver.ReceiveCodeAsync(settings, token);
 			}
 
 			string code;
@@ -1264,18 +1266,18 @@ Greenshot received information from CloudServiceName. You can close this browser
 		private static async Task CheckAndAuthenticateOrRefreshAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
 			// Get Refresh / Access token
 			if (string.IsNullOrEmpty(settings.RefreshToken)) {
-				if (!await AuthenticateAsync(settings, token)) {
+				if (!await AuthenticateAsync(settings, token).ConfigureAwait(false)) {
 					throw new Exception("Authentication cancelled");
 				}
 			}
 			if (settings.IsAccessTokenExpired) {
-				await GenerateAccessTokenAsync(settings, token);
+				await GenerateAccessTokenAsync(settings, token).ConfigureAwait(false);
 				// Get Refresh / Access token
 				if (string.IsNullOrEmpty(settings.RefreshToken)) {
-					if (!await AuthenticateAsync(settings, token)) {
+					if (!await AuthenticateAsync(settings, token).ConfigureAwait(false)) {
 						throw new Exception("Authentication cancelled");
 					}
-					await GenerateAccessTokenAsync(settings, token);
+					await GenerateAccessTokenAsync(settings, token).ConfigureAwait(false);
 				}
 			}
 			if (settings.IsAccessTokenExpired) {
@@ -1291,7 +1293,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// <param name="settings">OAuth2Settings</param>
 		/// <returns>HttpClient</returns>
 		public static async Task<HttpClient> CreateOAuth2HttpClientAsync(Uri uri, OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
-			await CheckAndAuthenticateOrRefreshAsync(settings, token);
+			await CheckAndAuthenticateOrRefreshAsync(settings, token).ConfigureAwait(false);
 
 			var httpClient = uri.CreateHttpClient();
 			if (!string.IsNullOrEmpty(settings.AccessToken)) {
