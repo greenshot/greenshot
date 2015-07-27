@@ -31,6 +31,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Greenshot.Drawing {
@@ -534,7 +535,7 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public virtual void ShowContextMenu(MouseEventArgs e, Surface surface) {
+		public virtual async Task ShowContextMenuAsync(MouseEventArgs e, Surface surface, CancellationToken token = default(CancellationToken)) {
 			bool hasMenu = false;
 			foreach (var drawableContainer in this) {
 				var container = (DrawableContainer) drawableContainer;
@@ -545,18 +546,11 @@ namespace Greenshot.Drawing {
 				break;
 			}
 			if (hasMenu) {
-				ContextMenuStrip menu = new ContextMenuStrip();
-				AddContextMenuItems(menu, surface);
-				if (menu.Items.Count > 0) {
-					menu.Show(surface, e.Location);
-					while (true) {
-						if (menu.Visible) {
-							Application.DoEvents();
-							Thread.Sleep(100);
-						} else {
-							menu.Dispose();
-							break;
-						}
+				using (var menu = new ContextMenuStrip()) {
+					AddContextMenuItems(menu, surface);
+					if (menu.Items.Count > 0) {
+						menu.Show(surface, e.Location);
+						await menu.WaitForClosedAsync(token);
 					}
 				}
 			}

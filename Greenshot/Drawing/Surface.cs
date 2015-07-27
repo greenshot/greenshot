@@ -997,7 +997,7 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void SurfaceMouseDown(object sender, MouseEventArgs e) {
+		async void SurfaceMouseDown(object sender, MouseEventArgs e) {
 			_mouseStart = e.Location;
 		
 			// check contextmenu
@@ -1014,7 +1014,7 @@ namespace Greenshot.Drawing {
 					}
 				}
 				if (selectedList != null && selectedList.Count > 0) {
-					selectedList.ShowContextMenu(e, this);
+					await selectedList.ShowContextMenuAsync(e, this);
 				}
 				return;
 			}

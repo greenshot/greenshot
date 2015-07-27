@@ -231,8 +231,8 @@ namespace GreenshotPlugin.Core
 						{
 							case ToolStripDropDownCloseReason.Keyboard:
 								LOG.Debug("Keyboard used to close menu");
-								canExitSemaphore.Release();
 								exit = true;
+								canExitSemaphore.Release();
 								break;
 							case ToolStripDropDownCloseReason.AppFocusChange:
 								LOG.DebugFormat("Ignoring Close reason: {0}", eventArgs.CloseReason);
@@ -263,22 +263,16 @@ namespace GreenshotPlugin.Core
 							}
 							LOG.DebugFormat("Destination {0} was clicked", clickedDestination.Description);
 							// try to export
-							try
-							{
+							try {
 								exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
-								if (exportInformation != null && exportInformation.ExportMade)
-								{
+								if (exportInformation != null && exportInformation.ExportMade) {
 									LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
 									usedDestination = clickedDestination.Designation;
 									exit = true;
-								}
-								else
-								{
+								} else {
 									LOG.Info("Export cancelled or failed, showing menu again");
 								}
-							}
-							finally
-							{
+							} finally {
 								canExitSemaphore.Release();
 							}
 						}
@@ -297,18 +291,19 @@ namespace GreenshotPlugin.Core
 					};
 					closeItem.Click += (source, eventArgs) => {
 						LOG.Debug("Close clicked");
-						canExitSemaphore.Release();
 						exit = true;
+						canExitSemaphore.Release();
 					};
 					menu.Items.Add(closeItem);
 
-					ShowMenuAtCursor(menu);
-					// Await the menu closing semaphore
+					menu.ShowAtCursor();
+					await menu.WaitForClosedAsync(token);
+					// Await the can exit semaphore
 					await canExitSemaphore.WaitAsync(token);
 				}
 			} while (!exit);
 
-			// Dispose as the close is clicked
+			// Dispose as the close is clicked, but only if we didn't export to the editor.
 			if (!"Editor".Equals(usedDestination))
 			{
 				surface.Dispose();
@@ -316,32 +311,6 @@ namespace GreenshotPlugin.Core
 			}
 
 			return exportInformation;
-		}
-
-		/// <summary>
-		/// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
-		/// </summary>
-		/// <param name="menu"></param>
-		private static void ShowMenuAtCursor(ContextMenuStrip menu)
-		{
-			// find a suitable location
-			Point location = Cursor.Position;
-			Rectangle menuRectangle = new Rectangle(location, menu.Size);
-
-			menuRectangle.Intersect(WindowCapture.GetScreenBounds());
-			if (menuRectangle.Height < menu.Height)
-			{
-				location.Offset(-40, -(menuRectangle.Height - menu.Height));
-			}
-			else
-			{
-				location.Offset(-40, -10);
-			}
-
-			// This prevents the problem that the context menu shows in the task-bar
-			User32.SetForegroundWindow(PluginUtils.Host.NotifyIcon.ContextMenuStrip.Handle);
-			menu.Show(location);
-			menu.Focus();
 		}
 
 		/// <summary>

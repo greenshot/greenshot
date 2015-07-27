@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="Core\AsyncLock.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
+    <Compile Include="Core\ControlExtension.cs" />
     <Compile Include="Core\DynamicJson.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
