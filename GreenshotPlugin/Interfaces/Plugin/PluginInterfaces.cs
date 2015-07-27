@@ -26,6 +26,8 @@ using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Core;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Greenshot.Plugin {
 	[Serializable]
@@ -72,7 +74,7 @@ namespace Greenshot.Plugin {
 	}
 
 	// Delegates for hooking up events.
-	public delegate void HotKeyHandler();
+	public delegate void HotKeyHandler(CancellationToken token);
 
 	public class SurfaceOutputSettings {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();

@@ -114,7 +114,7 @@ namespace Greenshot.Destinations {
 			// There is not much that can work async for the MapiMailMessage
 			await Task.Factory.StartNew(() => {
 				MapiMailMessage.SendImage(surface, captureDetails);
-			}, default(CancellationToken), TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+			}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 
 			exportInformation.ExportMade = true;
 			ProcessExport(exportInformation, surface);

@@ -34,6 +34,9 @@ namespace Greenshot.Core {
 	/// Interface to describe an effect
 	/// </summary>
 	public interface IEffect {
+		string Name {
+			get;
+		}
 		/// <summary>
 		/// Apply this IEffect to the supplied sourceImage.
 		/// In the process of applying the supplied matrix will be modified to represent the changes.
@@ -56,6 +59,11 @@ namespace Greenshot.Core {
 	public class DropShadowEffect : IEffect {
 		public DropShadowEffect() {
 			Reset();
+		}
+		public virtual string Name {
+			get {
+				return Language.GetString("editor_image_shadow");
+			}
 		}
 		public float Darkness {
 			get;
@@ -88,6 +96,11 @@ namespace Greenshot.Core {
 	public class TornEdgeEffect : DropShadowEffect {
 		public TornEdgeEffect() : base() {
 			Reset();
+		}
+		public override string Name {
+			get {
+				return Language.GetString("editor_torn_edge");
+			}
 		}
 		public int ToothHeight {
 			get;
@@ -134,6 +147,11 @@ namespace Greenshot.Core {
 	/// GrayscaleEffect
 	/// </summary>
 	public class GrayscaleEffect : IEffect {
+		public string Name {
+			get {
+				return Language.GetString("editor_grayscale");
+			}
+		}
 		public Image Apply(Image sourceImage, Matrix matrix) {
 			return ImageHelper.CreateGrayscale(sourceImage);
 		}
@@ -151,6 +169,11 @@ namespace Greenshot.Core {
         public MonochromeEffect(byte threshold) {
             this.threshold = threshold;
         }
+		public string Name {
+			get {
+				return "Effect";
+			}
+		}
 		public void Reset() {
 			// TODO: Modify the threshold to have a default, which is reset here
 		}
@@ -165,6 +188,11 @@ namespace Greenshot.Core {
 	public class AdjustEffect : IEffect {
 		public AdjustEffect() {
 			Reset();
+		}
+		public string Name {
+			get {
+				return "Effect";
+			}
 		}
 		public float Contrast {
 			get;
@@ -196,6 +224,11 @@ namespace Greenshot.Core {
 		public ReduceColorsEffect() {
 			Reset();
 		}
+		public string Name {
+			get {
+				return "Effect";
+			}
+		}
 		public int Colors {
 			get;
 			set;
@@ -225,6 +258,11 @@ namespace Greenshot.Core {
 		public Image Apply(Image sourceImage, Matrix matrix) {
 			return ImageHelper.CreateNegative(sourceImage);
 		}
+		public string Name {
+			get {
+				return "Effect";
+			}
+		}
 		public void Reset() {
 			// No settings to reset
 		}
@@ -236,6 +274,11 @@ namespace Greenshot.Core {
 	public class BorderEffect : IEffect {
 		public BorderEffect() {
 			Reset();
+		}
+		public string Name {
+			get {
+				return Language.GetString("editor_border");
+			}
 		}
 		public Color Color {
 			get;
@@ -260,6 +303,15 @@ namespace Greenshot.Core {
 	public class RotateEffect : IEffect {
 		public RotateEffect(int angle) {
 			Angle = angle;
+		}
+		public string Name {
+			get {
+				if (Angle == 90) {
+					return Language.GetString("editor_rotatecw");
+				} else {
+					return Language.GetString("editor_rotateccw");
+				}
+			}
 		}
 		public int Angle {
 			get;
@@ -294,6 +346,11 @@ namespace Greenshot.Core {
 			Height = height;
 			MaintainAspectRatio = maintainAspectRatio;
 		}
+		public string Name {
+			get {
+				return Language.GetString("editor_resize");
+			}
+		}
 		public int Width {
 			get;
 			set;
@@ -325,6 +382,12 @@ namespace Greenshot.Core {
 			Bottom = bottom;
 			BackgroundColor = Color.Empty;	// Uses the default background color depending on the format
 		}
+		public string Name {
+			get {
+				return "Effect";
+			}
+		}
+
 		public int Left {
 			get;
 			set;

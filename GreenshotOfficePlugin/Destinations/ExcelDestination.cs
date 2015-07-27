@@ -122,7 +122,7 @@ namespace GreenshotOfficePlugin {
 					} else {
 						ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
 					}
-				}, default(CancellationToken), TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 				exportInformation.ExportMade = true;
 			} catch (Exception ex) {
 				exportInformation.ErrorMessage = ex.Message;

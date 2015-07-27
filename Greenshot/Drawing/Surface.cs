@@ -29,6 +29,7 @@ using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Windows;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Greenshot.Drawing {
@@ -869,32 +872,31 @@ namespace Greenshot.Drawing {
 		/// Apply a bitmap effect to the surface
 		/// </summary>
 		/// <param name="effect"></param>
-		public void ApplyBitmapEffect(IEffect effect) {
-			BackgroundForm backgroundForm = new BackgroundForm("Effect", "Please wait");
-			backgroundForm.Show();
-			Application.DoEvents();
-			try {
-				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-				Matrix matrix = new Matrix();
-				Image newImage = ImageHelper.ApplyEffect(Image, effect, matrix);
-				if (newImage != null) {
-					// Make sure the elements move according to the offset the effect made the bitmap move
-					_elements.Transform(matrix);
-					// Make undoable
-					MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
-					SetImage(newImage, false);
-					Invalidate();
-					if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
-						_surfaceSizeChanged(this, null);
+		public async Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken token = default(CancellationToken)) {
+			await PleaseWaitWindow.CreateAndShowAsync(effect.Name, "Please wait", (progress, pleaseWaitToken) => {
+				TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+				return Task.Factory.StartNew(() => {
+					var imageRectangle = new Rectangle(Point.Empty, Image.Size);
+					var matrix = new Matrix();
+					var newImage = ImageHelper.ApplyEffect(Image, effect, matrix);
+					if (newImage != null) {
+						// Make sure the elements move according to the offset the effect made the bitmap move
+						_elements.Transform(matrix);
+						// Make undoable
+						MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+						SetImage(newImage, false);
+						Invalidate();
+						if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size))) {
+							_surfaceSizeChanged(this, null);
+						}
+						return true;
+					} else {
+						// clean up matrix, as it hasn't been used in the undo stack.
+						matrix.Dispose();
 					}
-				} else {
-					// clean up matrix, as it hasn't been used in the undo stack.
-					matrix.Dispose();
-				}
-			} finally {
-				// Always close the background form
-				backgroundForm.CloseDialog();
-			}
+					return false;
+				}, token, TaskCreationOptions.None, scheduler);
+			});
 		}
 
 		/// <summary>

@@ -803,16 +803,16 @@ namespace Greenshot.Forms
 		#endregion
 
 		#region key handlers
-		void CaptureRegion()
+		void CaptureRegion(CancellationToken token = default(CancellationToken))
 		{
 			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
 			{
-				await CaptureHelper.CaptureRegionAsync(true);
-			}, default(CancellationToken), TaskCreationOptions.None, scheduler);
+				await CaptureHelper.CaptureRegionAsync(true, token);
+			}, token, TaskCreationOptions.None, scheduler);
 		}
 
-		void CaptureFile()
+		void CaptureFile(CancellationToken token = default(CancellationToken))
 		{
 			var openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf";
@@ -823,56 +823,56 @@ namespace Greenshot.Forms
 					TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 					var task = Task.Factory.StartNew(async () =>
 					{
-						await CaptureHelper.CaptureFileAsync(openFileDialog.FileName);
-					}, default(CancellationToken), TaskCreationOptions.None, scheduler);
+						await CaptureHelper.CaptureFileAsync(openFileDialog.FileName, token);
+					}, token, TaskCreationOptions.None, scheduler);
 				}
 			}
 		}
 
-		void CaptureFullScreen()
+		void CaptureFullScreen(CancellationToken token = default(CancellationToken))
 		{
 			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
 			{
-				await CaptureHelper.CaptureFullscreenAsync(true, _conf.ScreenCaptureMode);
-			}, default(CancellationToken), TaskCreationOptions.None, scheduler);
+				await CaptureHelper.CaptureFullscreenAsync(true, _conf.ScreenCaptureMode, token);
+			}, token, TaskCreationOptions.None, scheduler);
 		}
 
-		void CaptureLastRegion()
+		void CaptureLastRegion(CancellationToken token = default(CancellationToken))
 		{
 			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
 			{
-				await CaptureHelper.CaptureLastRegionAsync(true);
-			}, default(CancellationToken), TaskCreationOptions.None, scheduler);
+				await CaptureHelper.CaptureLastRegionAsync(true, token);
+			}, token, TaskCreationOptions.None, scheduler);
 		}
 
-		void CaptureIE()
+		void CaptureIE(CancellationToken token = default(CancellationToken))
 		{
 			if (_conf.IECapture)
 			{
 				TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 				var task = Task.Factory.StartNew(async () =>
 				{
-					await CaptureHelper.CaptureIEAsync(true, null);
-				}, default(CancellationToken), TaskCreationOptions.None, scheduler);
+					await CaptureHelper.CaptureIEAsync(true, null, token);
+				}, token, TaskCreationOptions.None, scheduler);
 			}
 		}
 
-		void CaptureWindow()
+		void CaptureWindow(CancellationToken token = default(CancellationToken))
 		{
 			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
 			{
 				if (_conf.CaptureWindowsInteractive)
 				{
-					await CaptureHelper.CaptureWindowInteractiveAsync(true);
+					await CaptureHelper.CaptureWindowInteractiveAsync(true, token);
 				}
 				else
 				{
-					await CaptureHelper.CaptureWindowAsync(true);
+					await CaptureHelper.CaptureWindowAsync(true, token);
 				}
-			}, default(CancellationToken), TaskCreationOptions.None, scheduler);
+			}, token, TaskCreationOptions.None, scheduler);
 		}
 		#endregion
 

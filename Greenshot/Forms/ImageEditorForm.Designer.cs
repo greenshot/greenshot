@@ -458,36 +458,36 @@ namespace Greenshot {
 			// 
 			this.addBorderToolStripMenuItem.LanguageKey = "editor_border";
 			this.addBorderToolStripMenuItem.Name = "addBorderToolStripMenuItem";
-			this.addBorderToolStripMenuItem.Click += new System.EventHandler(this.AddBorderToolStripMenuItemClick);
+			this.addBorderToolStripMenuItem.Click += async (sender, e) => await this.AddBorderToolStripMenuItemClickAsync();
 			// 
 			// addDropshadowToolStripMenuItem
 			// 
 			this.addDropshadowToolStripMenuItem.LanguageKey = "editor_image_shadow";
 			this.addDropshadowToolStripMenuItem.Name = "addDropshadowToolStripMenuItem";
-			this.addDropshadowToolStripMenuItem.Click += new System.EventHandler(this.AddDropshadowToolStripMenuItemClick);
+			this.addDropshadowToolStripMenuItem.Click += async (sender, e) => await AddDropshadowToolStripMenuItemClickAsync();
 			// 
 			// tornEdgesToolStripMenuItem
 			// 
 			this.tornEdgesToolStripMenuItem.LanguageKey = "editor_torn_edge";
 			this.tornEdgesToolStripMenuItem.Name = "tornEdgesToolStripMenuItem";
-			this.tornEdgesToolStripMenuItem.Click += new System.EventHandler(this.TornEdgesToolStripMenuItemClick);
+			this.tornEdgesToolStripMenuItem.Click += async (sender, e) => await TornEdgesToolStripMenuItemClickAsync();
 			// 
 			// grayscaleToolStripMenuItem
 			// 
 			this.grayscaleToolStripMenuItem.LanguageKey = "editor_grayscale";
 			this.grayscaleToolStripMenuItem.Name = "grayscaleToolStripMenuItem";
-			this.grayscaleToolStripMenuItem.Click += new System.EventHandler(this.GrayscaleToolStripMenuItemClick);
+			this.grayscaleToolStripMenuItem.Click += async (sender, e) => await GrayscaleToolStripMenuItemClickAsync();
 			// 
 			// invertToolStripMenuItem
 			// 
 			this.invertToolStripMenuItem.LanguageKey = "editor_invert";
 			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
-			this.invertToolStripMenuItem.Click += new System.EventHandler(this.InvertToolStripMenuItemClick);
+			this.invertToolStripMenuItem.Click += async (sender, e) => await InvertToolStripMenuItemClickAsync();
 			// 
 			// btnResize
 			// 
 			this.btnResize.Name = "btnResize";
-			this.btnResize.Click += new System.EventHandler(this.BtnResizeClick);
+			this.btnResize.Click += async (sender, e) => await BtnResizeClickAsync();
 			this.btnResize.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnResize.Image = ((System.Drawing.Image)(resources.GetObject("btnResize.Image")));
 			this.btnResize.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -513,7 +513,7 @@ namespace Greenshot {
 			this.rotateCwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCwToolstripButton.LanguageKey = "editor_rotatecw";
 			this.rotateCwToolstripButton.Name = "rotateCwToolstripButton";
-			this.rotateCwToolstripButton.Click += new System.EventHandler(this.RotateCwToolstripButtonClick);
+			this.rotateCwToolstripButton.Click += async (sender, e) => await RotateCwToolstripButtonClickAsync();
 			// 
 			// rotateCcwToolstripButton
 			// 
@@ -522,7 +522,7 @@ namespace Greenshot {
 			this.rotateCcwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCcwToolstripButton.LanguageKey = "editor_rotateccw";
 			this.rotateCcwToolstripButton.Name = "rotateCcwToolstripButton";
-			this.rotateCcwToolstripButton.Click += new System.EventHandler(this.RotateCcwToolstripButtonClick);
+			this.rotateCcwToolstripButton.Click += async (sender, e) => await RotateCcwToolstripButtonClickAsync();
 			// 
 			// menuStrip1
 			// 
@@ -1613,8 +1613,8 @@ namespace Greenshot {
 			this.Name = "ImageEditorForm";
 			this.Activated += new System.EventHandler(this.ImageEditorFormActivated);
 			this.FormClosing += ImageEditorFormFormClosingAsync;
-			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ImageEditorFormKeyDown);
-			this.Resize += new System.EventHandler(this.ImageEditorFormResize);
+			this.KeyDown += async (sender, e) => await ImageEditorFormKeyDownAsync(sender, e);
+			this.Resize += ImageEditorFormResize;
 			this.topToolStripContainer.BottomToolStripPanel.ResumeLayout(true);
 			this.topToolStripContainer.ContentPanel.ResumeLayout(true);
 			this.topToolStripContainer.LeftToolStripPanel.ResumeLayout(true);

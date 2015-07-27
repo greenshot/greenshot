@@ -29,6 +29,7 @@ using System.Windows.Forms;
 using Greenshot.Plugin;
 using log4net;
 using GreenshotPlugin.Core;
+using System.Threading;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -522,10 +523,10 @@ namespace GreenshotPlugin.Controls {
 			if (m.Msg == WM_HOTKEY) {
 				// Call handler
 				if (isWindows7OrOlder) {
-					keyHandlers[(int)m.WParam]();
+					keyHandlers[(int)m.WParam](default(CancellationToken));
 				} else {
 					if (eventDelay.Check()) {
-						keyHandlers[(int)m.WParam]();
+						keyHandlers[(int)m.WParam](default(CancellationToken));
 					}
 				}
 				return true;

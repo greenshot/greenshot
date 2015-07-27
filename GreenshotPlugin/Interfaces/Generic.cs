@@ -27,6 +27,8 @@ using System.IO;
 using System.Collections.Generic;
 using Greenshot.Core;
 using System.Drawing.Drawing2D;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Plugin {
 	/// <summary>
@@ -197,7 +199,7 @@ namespace Greenshot.Plugin {
 		void AddElement(IDrawableContainer elementToAdd, bool makeUndoable);
 		void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable);
 		void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
-		void ApplyBitmapEffect(IEffect effect);
+		Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken token = default(CancellationToken));
 		void RemoveCursor();
 
         bool HasCursor {

@@ -82,7 +82,7 @@ namespace Greenshot.Destinations {
 				// There is not much that can work async for the Clipboard
 				await Task.Factory.StartNew(() => {
 					ClipboardHelper.SetClipboardData(surface);
-				}, default(CancellationToken), TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 				exportInformation.ExportMade = true;
 			} catch (Exception) {
 				exportInformation.ErrorMessage = Language.GetString(LangKey.editor_clipboardfailed);

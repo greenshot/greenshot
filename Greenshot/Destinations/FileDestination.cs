@@ -99,7 +99,7 @@ namespace Greenshot.Destinations {
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
 			try {
 				TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-				Task<string> task = Task.Factory.StartNew(() => ImageOutput.Save(surface, fullPath, overwrite, outputSettings), default(CancellationToken), TaskCreationOptions.None, scheduler);
+				Task<string> task = Task.Factory.StartNew(() => ImageOutput.Save(surface, fullPath, overwrite, outputSettings), token, TaskCreationOptions.None, scheduler);
 				fullPath = await task;
 				if (conf.OutputFileCopyPathToClipboard)
 				{

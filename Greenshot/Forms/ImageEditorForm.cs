@@ -767,7 +767,7 @@ namespace Greenshot {
 			}
 		}
 
-		void ImageEditorFormKeyDown(object sender, KeyEventArgs e) {
+		async Task ImageEditorFormKeyDownAsync(object sender, KeyEventArgs e, CancellationToken token = default(CancellationToken)) {
 			// LOG.Debug("Got key event "+e.KeyCode + ", " + e.Modifiers);
 			// avoid conflict with other shortcuts and
 			// make sure there's no selected element claiming input focus
@@ -819,28 +819,28 @@ namespace Greenshot {
 						RedoToolStripMenuItemClick(sender, e);
 						break;
 					case Keys.Q:	// Dropshadow Ctrl + Q
-						AddDropshadowToolStripMenuItemClick(sender, e);
+						await AddDropshadowToolStripMenuItemClickAsync(token);
 						break;
 					case Keys.B:	// Border Ctrl + B
-						AddBorderToolStripMenuItemClick(sender, e);
+						await AddBorderToolStripMenuItemClickAsync(token);
 						break;
 					case Keys.T:	// Torn edge Ctrl + T
-						TornEdgesToolStripMenuItemClick(sender, e);
+						await TornEdgesToolStripMenuItemClickAsync(token);
 						break;
 					case Keys.I:	// Invert Ctrl + I
-						InvertToolStripMenuItemClick(sender, e);
+						await InvertToolStripMenuItemClickAsync(token);
 						break;
 					case Keys.G:	// Grayscale Ctrl + G
-						GrayscaleToolStripMenuItemClick(sender, e);
+						await GrayscaleToolStripMenuItemClickAsync(token);
 						break;
 					case Keys.Delete:	// Grayscale Ctrl + Delete
 						ClearToolStripMenuItemClick(sender, e);
 						break;
 					case Keys.Oemcomma:	// Rotate CCW Ctrl + ,
-						RotateCcwToolstripButtonClick(sender, e);
+						await RotateCcwToolstripButtonClickAsync(token);
 						break;
 					case Keys.OemPeriod:	// Rotate CW Ctrl + .
-						RotateCwToolstripButtonClick(sender, e);
+						await RotateCwToolstripButtonClickAsync(token);
 						break;
 				}
 			}
@@ -1267,14 +1267,14 @@ namespace Greenshot {
 			}
 		}
 
-		void AutoCropToolStripMenuItemClick(object sender, EventArgs e) {
+		private void AutoCropToolStripMenuItemClick(object sender, EventArgs e) {
 			if (surface.AutoCrop()) {
 				refreshFieldControls();
 			}
 		}
 
-		void AddBorderToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(new BorderEffect());
+		private async Task AddBorderToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+			await surface.ApplyBitmapEffectAsync(new BorderEffect(), token);
 			updateUndoRedoSurfaceDependencies();
 		}
 
@@ -1283,12 +1283,11 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) {
-			DropShadowEffect dropShadowEffect = editorConfiguration.DropShadowEffectSettings;
-			// TODO: Use the dropshadow settings form to make it possible to change the default values
-			DialogResult result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
+		private async Task AddDropshadowToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+			var dropShadowEffect = editorConfiguration.DropShadowEffectSettings;
+			var result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
 			if (result == DialogResult.OK) {
-				surface.ApplyBitmapEffect(dropShadowEffect);
+				await surface.ApplyBitmapEffectAsync(dropShadowEffect, token);
 				updateUndoRedoSurfaceDependencies();
 			}
 		}
@@ -1298,12 +1297,11 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void BtnResizeClick(object sender, EventArgs e) {
-			ResizeEffect resizeEffect = new ResizeEffect(surface.Image.Width, surface.Image.Height, true);
-			// TODO: Use the Resize SettingsForm to make it possible to change the default values
-			DialogResult result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
+		private async Task BtnResizeClickAsync(CancellationToken token = default(CancellationToken)) {
+			var resizeEffect = new ResizeEffect(surface.Image.Width, surface.Image.Height, true);
+			var result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
 			if (result == DialogResult.OK) {
-				surface.ApplyBitmapEffect(resizeEffect);
+				await surface.ApplyBitmapEffectAsync(resizeEffect, token);
 				updateUndoRedoSurfaceDependencies();
 			}
 		}
@@ -1313,18 +1311,17 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) {
-			TornEdgeEffect tornEdgeEffect = editorConfiguration.TornEdgeEffectSettings;
-			// TODO: Use the dropshadow settings form to make it possible to change the default values
-			DialogResult result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
+		private async Task TornEdgesToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+			var tornEdgeEffect = editorConfiguration.TornEdgeEffectSettings;
+			var result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
 			if (result == DialogResult.OK) {
-				surface.ApplyBitmapEffect(tornEdgeEffect);
+				await surface.ApplyBitmapEffectAsync(tornEdgeEffect, token);
 				updateUndoRedoSurfaceDependencies();
 			}
 		}
 
-		void GrayscaleToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(new GrayscaleEffect());
+		private async Task GrayscaleToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+			await surface.ApplyBitmapEffectAsync(new GrayscaleEffect(), token);
 			updateUndoRedoSurfaceDependencies();
 		}
 
@@ -1333,18 +1330,18 @@ namespace Greenshot {
 			updateUndoRedoSurfaceDependencies();
 		}
 
-		void RotateCwToolstripButtonClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(new RotateEffect(90));
+		private async Task RotateCwToolstripButtonClickAsync(CancellationToken token = default(CancellationToken)) {
+			await surface.ApplyBitmapEffectAsync(new RotateEffect(90), token);
 			updateUndoRedoSurfaceDependencies();
 		}
-		
-		void RotateCcwToolstripButtonClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(new RotateEffect(270));
+
+		private async Task RotateCcwToolstripButtonClickAsync(CancellationToken token = default(CancellationToken)) {
+			await surface.ApplyBitmapEffectAsync(new RotateEffect(270), token);
 			updateUndoRedoSurfaceDependencies();
 		}
-		
-		void InvertToolStripMenuItemClick(object sender, EventArgs e) {
-			surface.ApplyBitmapEffect(new InvertEffect());
+
+		private async Task InvertToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+			await surface.ApplyBitmapEffectAsync(new InvertEffect(), token);
 			updateUndoRedoSurfaceDependencies();
 		}
 

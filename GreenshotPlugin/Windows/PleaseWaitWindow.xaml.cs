@@ -20,6 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
 using System;
 using System.ComponentModel;
 using System.Threading;
@@ -162,6 +163,12 @@ namespace GreenshotPlugin.Windows
 			DataContext = this;
 			InitializeComponent();
 			Icon = GreenshotResources.getGreenshotIcon().ToBitmapSource();
+			Loaded += (sender, eArgs) => {
+				WindowStartupLocation = WindowStartupLocation.Manual;
+				var cursor = User32.GetCursorLocation();
+				Left = cursor.X - (Width / 2);
+				Top = cursor.Y - (Height / 2);
+			};
 		}
 
 		public void Report(int value)

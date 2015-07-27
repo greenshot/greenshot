@@ -157,8 +157,7 @@ namespace GreenshotOfficePlugin {
 						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
 						LOG.Error(ex);
-						// TODO: Change to general logic in ProcessExport
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
+						exportInformation.ErrorMessage = Language.GetFormattedString("destination_exportfailed", Description);
 					}
 				}
 			}
