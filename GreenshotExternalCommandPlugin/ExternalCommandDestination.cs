@@ -28,6 +28,7 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ExternalCommand {
 	/// <summary>
@@ -65,10 +66,9 @@ namespace ExternalCommand {
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
-
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(this.Designation, this.Description);
+			var outputSettings = new SurfaceOutputSettings();
 			
 			if (presetCommand != null) {
 				if (!config.runInbackground.ContainsKey(presetCommand)) {
@@ -80,20 +80,16 @@ namespace ExternalCommand {
 					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
 				}
 
-				string output;
-				string error;
+				TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+				var task = Task.Factory.StartNew(async () => {
+					await CallExternalCommandAsync(exportInformation, presetCommand, fullPath, token);
+					ProcessExport(exportInformation, surface);
+				}, token, TaskCreationOptions.None, scheduler);
+			
 				if (runInBackground) {
-					Thread commandThread = new Thread(delegate() {
-						CallExternalCommand(exportInformation, presetCommand, fullPath, out output, out error);
-						ProcessExport(exportInformation, surface);
-					});
-					commandThread.Name = "Running " + presetCommand;
-					commandThread.IsBackground = true;
-					commandThread.SetApartmentState(ApartmentState.STA);
-					commandThread.Start();
 					exportInformation.ExportMade = true;
 				} else {
-					CallExternalCommand(exportInformation, presetCommand, fullPath, out output, out error);
+					await task;
 					ProcessExport(exportInformation, surface);
 				}
 			}
@@ -109,17 +105,16 @@ namespace ExternalCommand {
 		/// <param name="fullPath"></param>
 		/// <param name="output"></param>
 		/// <param name="error"></param>
-		private void CallExternalCommand(ExportInformation exportInformation, string commando, string fullPath, out string output, out string error) {
-			output = null;
-			error = null;
+		private async Task CallExternalCommandAsync(ExportInformation exportInformation, string commando, string fullPath, CancellationToken token = default(CancellationToken)) {
 			try {
-				if (CallExternalCommand(presetCommand, fullPath, out output, out error) == 0) {
+				var result = await CallExternalCommandAsync(presetCommand, fullPath, token);
+				if (result.ExitCode == 0) {
 					exportInformation.ExportMade = true;
-					if (!string.IsNullOrEmpty(output)) {
-						MatchCollection uriMatches = URI_REGEXP.Matches(output);
+					if (!string.IsNullOrEmpty(result.StandardOutput)) {
+						MatchCollection uriMatches = URI_REGEXP.Matches(result.StandardOutput);
 						// Place output on the clipboard before the URI, so if one is found this overwrites
 						if (config.OutputToClipboard) {
-							ClipboardHelper.SetClipboardData(output);
+							ClipboardHelper.SetClipboardData(result.StandardOutput);
 						}
 						if (uriMatches != null && uriMatches.Count >= 0) {
 							exportInformation.Uri = uriMatches[0].Groups[1].Value;
@@ -130,9 +125,9 @@ namespace ExternalCommand {
 						}
 					}
 				} else {
-					LOG.WarnFormat("Error calling external command: {0} ", output);
+					LOG.WarnFormat("Error calling external command: {0} ", result.StandardError);
 					exportInformation.ExportMade = false;
-					exportInformation.ErrorMessage = error;
+					exportInformation.ErrorMessage = result.StandardError;
 				}
 			} catch (Exception ex) {
 				LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
@@ -146,23 +141,24 @@ namespace ExternalCommand {
 		/// </summary>
 		/// <param name="commando"></param>
 		/// <param name="fullPath"></param>
-		/// <param name="output"></param>
-		/// <param name="error"></param>
 		/// <returns></returns>
-		private int CallExternalCommand(string commando, string fullPath, out string output, out string error) {
+		private async Task<ProcessResult> CallExternalCommandAsync(string commando, string fullPath, CancellationToken token = default(CancellationToken)) {
+			Win32Exception w32ex = null;
 			try {
-				return CallExternalCommand(commando, fullPath, null, out output, out error);
-			} catch (Win32Exception w32ex) {
-				try {
-					return CallExternalCommand(commando, fullPath, "runas", out output, out error);
-				} catch {
-					w32ex.Data.Add("commandline", config.commandlines[presetCommand]);
-					w32ex.Data.Add("arguments", config.arguments[presetCommand]);
-					throw;
-				}
+				return await CallExternalCommandAsync(commando, fullPath, null, token);
+			} catch (Win32Exception ex) {
+				// Retry later
+				w32ex = ex;
 			} catch (Exception ex) {
 				ex.Data.Add("commandline", config.commandlines[presetCommand]);
 				ex.Data.Add("arguments", config.arguments[presetCommand]);
+				throw;
+			}
+			try {
+				return await CallExternalCommandAsync(commando, fullPath, "runas", token);
+			} catch {
+				w32ex.Data.Add("commandline", config.commandlines[presetCommand]);
+				w32ex.Data.Add("arguments", config.arguments[presetCommand]);
 				throw;
 			}
 		}
@@ -176,11 +172,12 @@ namespace ExternalCommand {
 		/// <param name="output"></param>
 		/// <param name="error"></param>
 		/// <returns></returns>
-		private int CallExternalCommand(string commando, string fullPath, string verb, out string output, out string error) {
+		private async Task<ProcessResult> CallExternalCommandAsync(string commando, string fullPath, string verb, CancellationToken token = default(CancellationToken)) {
 			string commandline = config.commandlines[commando];
 			string arguments = config.arguments[commando];
-			output = null;
-			error = null;
+			var result = new ProcessResult {
+				ExitCode = -1
+			};
 			if (!string.IsNullOrEmpty(commandline)) {
 				using (Process process = new Process()) {
 					process.StartInfo.FileName = commandline;
@@ -197,24 +194,26 @@ namespace ExternalCommand {
 					}
 					LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 					process.Start();
-					process.WaitForExit();
+					await process.WaitForExitAsync(token);
 					if (config.RedirectStandardOutput) {
-						output = process.StandardOutput.ReadToEnd();
+						var output = process.StandardOutput.ReadToEnd();
 						if (config.ShowStandardOutputInLog && output != null && output.Trim().Length > 0) {
+							result.StandardOutput = output;
 							LOG.InfoFormat("Output:\n{0}", output);
 						}
 					}
 					if (config.RedirectStandardError) {
-						error = process.StandardError.ReadToEnd();
-						if (error != null && error.Trim().Length > 0) {
-							LOG.WarnFormat("Error:\n{0}", error);
+						var standardError = process.StandardError.ReadToEnd();
+						if (standardError != null && standardError.Trim().Length > 0) {
+							result.StandardError = standardError;
+							LOG.WarnFormat("Error:\n{0}", standardError);
 						}
 					}
 					LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-					return process.ExitCode;
+					return result;
 				}
 			}
-			return -1;
+			return result;
 		}
 
         public static string FormatArguments(string arguments, string fullpath)
@@ -222,4 +221,23 @@ namespace ExternalCommand {
             return String.Format(arguments, fullpath);
         }
     }
+
+	/// <summary>
+	/// Used to transport exit code and the standard error & output
+	/// </summary>
+	internal class ProcessResult {
+		public string StandardOutput {
+			get;
+			set;
+		}
+		public string StandardError {
+			get;
+			set;
+		}
+		public int ExitCode {
+			get;
+			set;
+		}
+
+	}
 }

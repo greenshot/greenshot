@@ -86,6 +86,7 @@
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\HttpClientHelper.cs" />
+    <Compile Include="Core\ProcessExtensions.cs" />
     <Compile Include="Core\TitleChangeMonitor.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />

@@ -27,6 +27,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotFlickrPlugin {
 	/// <summary>
@@ -56,8 +58,8 @@ namespace GreenshotFlickrPlugin {
 		/// <param name="title"></param>
 		/// <param name="filename"></param>
 		/// <returns>url to image</returns>
-		public static string UploadToFlickr(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
-			OAuthSession oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret);
+		public static async Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, CancellationToken token = default(CancellationToken)) {
+			var oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret);
 			oAuth.BrowserSize = new Size(520, 800);
 			oAuth.CheckVerifier = false;
 			oAuth.AccessTokenUrl = FLICKR_ACCESS_TOKEN_URL;

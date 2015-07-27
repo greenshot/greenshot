@@ -28,6 +28,8 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using log4net;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -107,9 +109,13 @@ namespace Greenshot.Destinations {
 			}
 		}
 		
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			MapiMailMessage.SendImage(surface, captureDetails);
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(Designation, Description);
+			// There is not much that can work async for the MapiMailMessage
+			await Task.Factory.StartNew(() => {
+				MapiMailMessage.SendImage(surface, captureDetails);
+			}, default(CancellationToken), TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+
 			exportInformation.ExportMade = true;
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

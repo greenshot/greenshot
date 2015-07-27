@@ -18,19 +18,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.ComponentModel;
 using System.Drawing;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
+using Greenshot.IniFile;
+using System.IO;
+using System;
+using System.Windows;
+using System.Threading;
+using System.Threading.Tasks;
+using GreenshotPlugin.Windows;
 
 namespace GreenshotFlickrPlugin {
 	public class FlickrDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(FlickrDestination));
-		private FlickrPlugin plugin;
-		public FlickrDestination(FlickrPlugin plugin) {
-			this.plugin = plugin;
-		}
+		private static FlickrConfiguration _config = IniConfig.GetIniSection<FlickrConfiguration>();
 
 		public override string Designation {
 			get {
@@ -51,13 +56,25 @@ namespace GreenshotFlickrPlugin {
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string uploadURL;
-			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
-			if (uploaded) {
-				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadURL;
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(Designation, Description);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+			try {
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), (progress, pleaseWaitToken) => {
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+					return FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename);
+				});
+
+				if (url != null) {
+					exportInformation.ExportMade = true;
+					exportInformation.Uri = url;
+					if (_config.AfterUploadLinkToClipBoard) {
+						ClipboardHelper.SetClipboardData(url);
+					}
+				}
+			} catch (Exception e) {
+				LOG.Error("Error uploading.", e);
+				MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

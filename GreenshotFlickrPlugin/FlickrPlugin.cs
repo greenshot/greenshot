@@ -61,7 +61,7 @@ namespace GreenshotFlickrPlugin
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			yield return new FlickrDestination(this);
+			yield return new FlickrDestination();
 		}
 
 
@@ -123,34 +123,6 @@ namespace GreenshotFlickrPlugin
 	
 		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
 			_config.ShowConfigDialog();
-		}
-
-		public bool Upload(ICaptureDetails captureDetails, ISurface surface, out String uploadUrl) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-			uploadUrl = null;
-			try {
-				string flickrUrl = null;
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("flickr", LangKey.communication_wait), 
-					delegate {
-						string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-						flickrUrl = FlickrUtils.UploadToFlickr(surface, outputSettings, captureDetails.Title, filename);
-					}
-				);
-					
-				if (flickrUrl == null) {
-					return false;
-				}
-				uploadUrl = flickrUrl;
-
-				if (_config.AfterUploadLinkToClipBoard) {
-					ClipboardHelper.SetClipboardData(flickrUrl);
-				}
-				return true;
-			} catch (Exception e) {
-				LOG.Error("Error uploading.", e);
-				MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
-			}
-			return false;
 		}
 	}
 }

@@ -66,6 +66,7 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public OutlookDestination() {
+			// Destination new message
 		}
 
 		public OutlookDestination(string outlookInspectorCaption, Outlook.OlObjectClass outlookInspectorType) {
@@ -145,7 +146,7 @@ namespace GreenshotOfficePlugin {
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			var exportInformation = new ExportInformation(this.Designation, this.Description);
 			// Outlook logic
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
@@ -170,17 +171,15 @@ namespace GreenshotOfficePlugin {
 				OutlookExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
 				exportInformation.ExportMade = true;
 			} else {
-				if (!manuallyInitiated) {
-					IDictionary<string, Outlook.OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
-					if (inspectorCaptions != null && inspectorCaptions.Count > 0) {
-						List<IDestination> destinations = new List<IDestination>();
-						destinations.Add(new OutlookDestination());
-						foreach (string inspectorCaption in inspectorCaptions.Keys) {
-							destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
-						}
-						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
+				IDictionary<string, Outlook.OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
+				if (!manuallyInitiated && inspectorCaptions != null && inspectorCaptions.Count > 0) {
+					List<IDestination> destinations = new List<IDestination>();
+					destinations.Add(new OutlookDestination());
+					foreach (string inspectorCaption in inspectorCaptions.Keys) {
+						destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
 					}
+					// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
+					return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
 				} else {
 					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC, null);
 				}

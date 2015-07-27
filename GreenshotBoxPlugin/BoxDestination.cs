@@ -65,7 +65,7 @@ namespace GreenshotBoxPlugin {
 			try {
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), (progress, pleaseWaitToken) => {
 					return BoxUtils.UploadToBoxAsync(surface, captureDetails, token);
-				}).ConfigureAwait(false);
+				});
 
 				if (url != null && _config.AfterUploadLinkToClipBoard) {
 					ClipboardHelper.SetClipboardData(url);

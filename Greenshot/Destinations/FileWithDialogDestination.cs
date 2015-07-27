@@ -27,6 +27,8 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
 using log4net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -67,11 +69,11 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string savedTo = null;
+			string savedTo = await Task.Factory.StartNew(() => ImageOutput.SaveWithDialog(surface, captureDetails), default(CancellationToken), TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+
 			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
-			savedTo = ImageOutput.SaveWithDialog(surface, captureDetails);
 			if (savedTo != null) {
 				exportInformation.ExportMade = true;
 				exportInformation.Filepath = savedTo;

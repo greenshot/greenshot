@@ -27,6 +27,8 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
 using log4net;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -66,15 +68,26 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="manuallyInitiated"></param>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <param name="token"></param>
+		/// <returns></returns>
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(Designation, Description);
 			try {
-				ClipboardHelper.SetClipboardData(surface);
+				// There is not much that can work async for the Clipboard
+				await Task.Factory.StartNew(() => {
+					ClipboardHelper.SetClipboardData(surface);
+				}, default(CancellationToken), TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 				exportInformation.ExportMade = true;
 			} catch (Exception) {
-				// TODO: Change to general logic in ProcessExport
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
+				exportInformation.ErrorMessage = Language.GetString(LangKey.editor_clipboardfailed);
 			}
+
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}

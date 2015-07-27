@@ -23,6 +23,12 @@ using System.IO;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using Greenshot.Core;
+using System.Diagnostics;
+using System.Runtime.InteropServices.ComTypes;
+using System;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace GreenshotOCR {
 	/// <summary>
@@ -30,11 +36,11 @@ namespace GreenshotOCR {
 	/// </summary>
 	public class OCRDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OCRDestination));
-		private static OCRConfiguration config = IniConfig.GetIniSection<OCRConfiguration>();
+		private static OCRConfiguration _config = IniConfig.GetIniSection<OCRConfiguration>();
 		private const int MIN_WIDTH = 130;
 		private const int MIN_HEIGHT = 130;
-		private OcrPlugin plugin;
-		
+		private string _ocrCommand;
+
 		public override string Designation {
 			get {
 				return "OCR";
@@ -57,14 +63,83 @@ namespace GreenshotOCR {
 			}
 		}
 
-		public OCRDestination(OcrPlugin plugin) {
-			this.plugin = plugin;
+		public OCRDestination(string ocrCommand) {
+			_ocrCommand = ocrCommand;
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			exportInformation.ExportMade = plugin.DoOcr(surface) != null;
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(this.Designation, this.Description);
+			exportInformation.ExportMade = await DoOcrAsync(surface, token) != null;
 			return exportInformation;
 		}
+
+		/// <summary>
+		/// Handling of the CaptureTaken "event" from the ICaptureHost
+		/// We do the OCR here!
+		/// </summary>
+		/// <param name="surface">Has the Image</param>
+		private async Task<string> DoOcrAsync(ISurface surface, CancellationToken token = default(CancellationToken)) {
+			var outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true);
+			outputSettings.ReduceColors = true;
+			// We only want the background
+			outputSettings.SaveBackgroundOnly = true;
+			// Force Grayscale output
+			outputSettings.Effects.Add(new GrayscaleEffect());
+
+			// Also we need to check the size, resize if needed to 130x130 this is the minimum
+			if (surface.Image.Width < MIN_WIDTH || surface.Image.Height < MIN_HEIGHT) {
+				int addedWidth = MIN_WIDTH - surface.Image.Width;
+				if (addedWidth < 0) {
+					addedWidth = 0;
+				}
+				int addedHeight = MIN_HEIGHT - surface.Image.Height;
+				if (addedHeight < 0) {
+					addedHeight = 0;
+				}
+				IEffect effect = new ResizeCanvasEffect(addedWidth / 2, addedWidth / 2, addedHeight / 2, addedHeight / 2);
+				outputSettings.Effects.Add(effect);
+			}
+			string filePath = ImageOutput.SaveToTmpFile(surface, outputSettings, null);
+
+			LOG.Debug("Saved tmp file to: " + filePath);
+
+			string text = "";
+			try {
+				var processStartInfo = new ProcessStartInfo(_ocrCommand, "\"" + filePath + "\" " + _config.Language + " " + _config.Orientimage + " " + _config.StraightenImage) {
+					CreateNoWindow = true,
+					RedirectStandardOutput = true,
+					UseShellExecute = false
+				};
+				using (Process process = Process.Start(processStartInfo)) {
+					if (process != null) {
+						await process.WaitForExitAsync(token);
+						if (process.ExitCode == 0) {
+							text = process.StandardOutput.ReadToEnd();
+						}
+					}
+				}
+			} catch (Exception e) {
+				LOG.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
+			} finally {
+				if (File.Exists(filePath)) {
+					LOG.Debug("Cleaning up tmp file: " + filePath);
+					File.Delete(filePath);
+				}
+			}
+
+			if (text.Trim().Length == 0) {
+				LOG.Info("No text returned");
+				return null;
+			}
+
+			try {
+				LOG.DebugFormat("Pasting OCR Text to Clipboard: {0}", text);
+				ClipboardHelper.SetClipboardData(text);
+			} catch (Exception e) {
+				LOG.Error("Problem pasting text to clipboard: ", e);
+			}
+			return text;
+		}
+
 	}
 }

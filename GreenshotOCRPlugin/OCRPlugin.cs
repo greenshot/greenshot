@@ -19,10 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Core;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -62,12 +60,10 @@ namespace GreenshotOCR {
 	/// </summary>
 	public class OcrPlugin : IGreenshotPlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
-		private const int MinWidth = 130;
-		private const int MinHeight = 130;
 		private string _ocrCommand;
 		private static OCRConfiguration _config;
 		private PluginAttribute _myAttributes;
-		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
+		private System.Windows.Forms.ToolStripMenuItem _ocrMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 
 		public void Dispose() {
 			Dispose(true);
@@ -84,7 +80,7 @@ namespace GreenshotOCR {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			yield return new OCRDestination(this);
+			yield return new OCRDestination(_ocrCommand);
 		}
 		public IEnumerable<IProcessor> Processors() {
 			yield break;
@@ -132,7 +128,7 @@ namespace GreenshotOCR {
 		/// </summary>
 		public virtual void Configure() {
 			if (!HasModi()) {
-				MessageBox.Show("Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.");
+				MessageBox.Show("Greenshot OCR", "Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 			}
 			var settingsForm = new SettingsForm(Enum.GetNames(typeof(ModiLanguage)), _config);
@@ -141,80 +137,6 @@ namespace GreenshotOCR {
 				// "Re"set hotkeys
 				IniConfig.Save();
 			}
-		}
-
-
-		/// <summary>
-		/// Handling of the CaptureTaken "event" from the ICaptureHost
-		/// We do the OCR here!
-		/// </summary>
-		/// <param name="surface">Has the Image</param>
-		public string DoOcr(ISurface surface) {
-			var outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true);
-			outputSettings.ReduceColors = true;
-			// We only want the background
-			outputSettings.SaveBackgroundOnly = true;
-			// Force Grayscale output
-			outputSettings.Effects.Add(new GrayscaleEffect());
-
-			// Also we need to check the size, resize if needed to 130x130 this is the minimum
-			if (surface.Image.Width < MinWidth || surface.Image.Height < MinHeight) {
-				int addedWidth = MinWidth - surface.Image.Width;
-				if (addedWidth < 0) {
-					addedWidth = 0;
-				}
-				int addedHeight = MinHeight - surface.Image.Height;
-				if (addedHeight < 0) {
-					addedHeight = 0;
-				}
-				IEffect effect = new ResizeCanvasEffect(addedWidth / 2, addedWidth / 2, addedHeight / 2, addedHeight / 2);
-				outputSettings.Effects.Add(effect);
-			}
-			string filePath = ImageOutput.SaveToTmpFile(surface, outputSettings, null);
-
-			LOG.Debug("Saved tmp file to: " + filePath);
-
-			string text = "";
-			try {
-				var processStartInfo = new ProcessStartInfo(_ocrCommand, "\"" + filePath + "\" " + _config.Language + " " + _config.Orientimage + " " + _config.StraightenImage)
-				{
-					CreateNoWindow = true,
-					RedirectStandardOutput = true,
-					UseShellExecute = false
-				};
-				using (Process process = Process.Start(processStartInfo)) {
-					if (process != null)
-					{
-						process.WaitForExit(30 * 1000);
-						if (process.ExitCode == 0) {
-							text = process.StandardOutput.ReadToEnd();
-						}
-					}
-				}
-			} catch (Exception e) {
-				LOG.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
-			} finally {
-				if (File.Exists(filePath)) {
-					LOG.Debug("Cleaning up tmp file: " + filePath);
-					File.Delete(filePath);
-				}
-			}
-
-			if (text.Trim().Length == 0) {
-				LOG.Info("No text returned");
-				return null;
-			}
-
-			try {
-				LOG.DebugFormat("Pasting OCR Text to Clipboard: {0}", text);
-				// Paste to Clipboard (the Plugin currently doesn't have access to the ClipboardHelper from Greenshot
-				IDataObject ido = new DataObject();
-				ido.SetData(DataFormats.Text, true, text);
-				Clipboard.SetDataObject(ido, true);
-			} catch (Exception e) {
-				LOG.Error("Problem pasting text to clipboard: ", e);
-			}
-			return text;
 		}
 
 		/// <summary>
@@ -226,6 +148,7 @@ namespace GreenshotOCR {
 				using (var process = Process.Start(_ocrCommand, "-c")) {
 					if (process != null)
 					{
+						// TODO: Can change to async...
 						process.WaitForExit();
 						return process.ExitCode == 0;
 					}

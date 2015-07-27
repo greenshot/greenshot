@@ -30,6 +30,9 @@ using Greenshot.Plugin;
 using Greenshot.Helpers;
 using Greenshot.IniFile;
 using log4net;
+using System.Threading;
+using System.Threading.Tasks;
+using System;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -119,25 +122,32 @@ namespace Greenshot.Destinations {
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			PrinterSettings printerSettings = null;
-			if (!string.IsNullOrEmpty(printerName)) {
-				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
-					printerSettings = printHelper.PrintTo(printerName);
-				}
-			} else if (!manuallyInitiated) {
-				PrinterSettings settings = new PrinterSettings();
-				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
-					printerSettings = printHelper.PrintTo(settings.PrinterName);
-				}
-			} else {
-				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
-					printerSettings = printHelper.PrintWithDialog();
-				}
-			}
-			if (printerSettings != null) {
-				exportInformation.ExportMade = true;
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(Designation, Description);
+			try {
+				await Task.Factory.StartNew(() => {
+					PrinterSettings printerSettings = null;
+					if (!string.IsNullOrEmpty(printerName)) {
+						using (var printHelper = new PrintHelper(surface, captureDetails)) {
+							printerSettings = printHelper.PrintTo(printerName);
+						}
+					} else if (!manuallyInitiated) {
+						var settings = new PrinterSettings();
+						using (var printHelper = new PrintHelper(surface, captureDetails)) {
+							printerSettings = printHelper.PrintTo(settings.PrinterName);
+						}
+					} else {
+						using (var printHelper = new PrintHelper(surface, captureDetails)) {
+							printerSettings = printHelper.PrintWithDialog();
+						}
+					}
+					if (printerSettings != null) {
+						exportInformation.ExportMade = true;
+					}
+				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+
+			} catch (Exception ex) {
+				exportInformation.ErrorMessage = ex.Message;
 			}
 
 			ProcessExport(exportInformation, surface);

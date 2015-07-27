@@ -26,6 +26,8 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
 using log4net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -84,7 +86,7 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			// Make sure we collect the garbage before opening the screenshot
 			GC.Collect();
@@ -103,13 +105,14 @@ namespace Greenshot.Destinations {
 				}
 				if (!exportInformation.ExportMade) {
 					try {
-						ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
+						var editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
 
 						if (!string.IsNullOrEmpty(captureDetails.Filename)) {
 							editorForm.SetImagePath(captureDetails.Filename);
 						}
 						editorForm.Show();
 						editorForm.Activate();
+						await Task.Delay(300);
 						LOG.Debug("Finished opening Editor");
 						exportInformation.ExportMade = true;
 					} catch (Exception e) {
