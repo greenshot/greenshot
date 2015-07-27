@@ -142,19 +142,5 @@ namespace Greenshot.Helpers {
 			}
 			return null;
 		}
-
-		/// <summary>
-		/// A simple helper method which will call ExportCapture for the destination with the specified designation
-		/// </summary>
-		/// <param name="designation"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		public static ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
-			IDestination destination = GetDestination(designation);
-			if (destination != null && destination.isActive) {
-				return destination.ExportCapture(manuallyInitiated, surface, captureDetails);
-			}
-			return null;
-		}
 	}
 }

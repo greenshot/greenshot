@@ -328,7 +328,7 @@ namespace Greenshot {
 					continue;
 				}
 				
-				ToolStripMenuItem item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick);
+				ToolStripMenuItem item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClickAsync);
 				if (item != null) {
 					item.ShortcutKeys = destination.EditorShortcutKeys;
 					fileStripMenuItem.DropDownItems.Add(item);
@@ -490,15 +490,15 @@ namespace Greenshot {
 			await SaveAsync();
 		}
 		
-		void BtnClipboardClick(object sender, EventArgs e) {
-			DestinationHelper.ExportCapture(true, ClipboardDestination.DESIGNATION, surface, surface.CaptureDetails);
+		async void BtnClipboardClick(object sender, EventArgs e) {
+			await DestinationHelper.ExportCaptureAsync(true, ClipboardDestination.DESIGNATION, surface, surface.CaptureDetails);
 		}
 
 		void BtnPrintClick(object sender, EventArgs e) {
 			// The BeginInvoke is a solution for the printdialog not having focus
-			BeginInvoke((MethodInvoker) delegate {
-				DestinationHelper.ExportCapture(true, PrinterDestination.DESIGNATION, surface, surface.CaptureDetails);
-			});
+			BeginInvoke(new Action(async () => {
+				await DestinationHelper.ExportCaptureAsync(true, PrinterDestination.DESIGNATION, surface, surface.CaptureDetails);
+			}));
 		}
 
 		void CloseToolStripMenuItemClick(object sender, EventArgs e) {
@@ -1193,7 +1193,7 @@ namespace Greenshot {
 			}
 		}
 
-		void DestinationToolStripMenuItemClick(object sender, EventArgs e) {
+		async void DestinationToolStripMenuItemClickAsync(object sender, EventArgs e) {
 			IDestination clickedDestination = null;
 			if (sender is Control) {
 				Control clickedControl = sender as Control;
@@ -1207,7 +1207,7 @@ namespace Greenshot {
 				clickedDestination = (IDestination)clickedMenuItem.Tag;
 			}
 			if (clickedDestination != null) {
-				ExportInformation exportInformation = clickedDestination.ExportCapture(true, surface, surface.CaptureDetails);
+				ExportInformation exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails);
 				if (exportInformation != null && exportInformation.ExportMade) {
 					surface.Modified = false;
 				}

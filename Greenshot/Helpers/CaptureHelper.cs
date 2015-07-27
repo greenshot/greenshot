@@ -361,7 +361,7 @@ namespace Greenshot.Helpers {
 								ISurface surface = new Surface();
 								surface = ImageOutput.LoadGreenshotSurface(filename, surface);
 								surface.CaptureDetails = _capture.CaptureDetails;
-								DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, _capture.CaptureDetails);
+								await DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCaptureAsync(true, surface, _capture.CaptureDetails, token);
 								break;
 							}
 						} catch (Exception e) {
@@ -668,13 +668,13 @@ namespace Greenshot.Helpers {
 			if (destinationCount > 0) {
 				// Flag to detect if we need to create a temp file for the email
 				// or use the file that was written
-				foreach(IDestination destination in captureDetails.CaptureDestinations) {
+				foreach(var destination in captureDetails.CaptureDestinations) {
 					if (PickerDestination.DESIGNATION.Equals(destination.Designation)) {
 						continue;
 					}
 					LOG.InfoFormat("Calling destination {0}", destination.Description);
 
-					ExportInformation exportInformation = destination.ExportCapture(false, surface, captureDetails);
+					var exportInformation = await destination.ExportCaptureAsync(false, surface, captureDetails, token);
 					if (EditorDestination.DESIGNATION.Equals(destination.Designation) && exportInformation.ExportMade) {
 						canDisposeSurface = false;
 					}
