@@ -100,6 +100,18 @@ namespace Greenshot {
 				thread.Start();
 			};
 
+			// Events
+			addBorderToolStripMenuItem.Click += async (sender, e) => await AddBorderToolStripMenuItemClickAsync();
+			addDropshadowToolStripMenuItem.Click += async (sender, e) => await AddDropshadowToolStripMenuItemClickAsync();
+			KeyDown += async (sender, e) => await ImageEditorFormKeyDownAsync(sender, e);
+			rotateCwToolstripButton.Click += async (sender, e) => await RotateCwToolstripButtonClickAsync();
+			tornEdgesToolStripMenuItem.Click += async (sender, e) => await TornEdgesToolStripMenuItemClickAsync();
+			grayscaleToolStripMenuItem.Click += async (sender, e) => await GrayscaleToolStripMenuItemClickAsync();
+			invertToolStripMenuItem.Click += async (sender, e) => await InvertToolStripMenuItemClickAsync();
+			btnResize.Click += async (sender, e) => await BtnResizeClickAsync();
+			rotateCcwToolstripButton.Click += async (sender, e) => await RotateCcwToolstripButtonClickAsync();
+
+
 			// Make sure the editor is placed on the same location as the last editor was on close
 			WindowDetails thisForm = new WindowDetails(Handle);
 			thisForm.WindowPlacement = editorConfiguration.GetEditorPlacement();
@@ -120,7 +132,7 @@ namespace Greenshot {
 		/// </summary>
 		private void RemoveSurface() {
 			if (surface != null) {
-				panel1.Controls.Remove(surface as Control);
+				surfacePanel.Controls.Remove(surface as Control);
 				surface.Dispose();
 				surface = null;
 			}
@@ -137,11 +149,11 @@ namespace Greenshot {
 
 			RemoveSurface();
 
-			panel1.Height = 10;
-			panel1.Width = 10;
+			surfacePanel.Height = 10;
+			surfacePanel.Width = 10;
 			surface = newSurface as Surface;
-			panel1.Controls.Add(surface as Surface);
-			Image backgroundForTransparency = GreenshotResources.getImage("Checkerboard.Image");
+			surfacePanel.Controls.Add(surface as Surface);
+			var backgroundForTransparency = GreenshotResources.getImage("Checkerboard.Image");
 			surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 
 			surface.MovingElementChanged += delegate {
@@ -153,7 +165,7 @@ namespace Greenshot {
 			surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
 			SurfaceSizeChanged(Surface, null);
 
-			bindFieldControls();
+			BindFieldControls();
 			refreshEditorControls();
 			// Fix title
 			if (surface != null && surface.CaptureDetails != null && surface.CaptureDetails.Title != null) {
@@ -175,7 +187,7 @@ namespace Greenshot {
 			// resizing the panel is futile, since it is docked. however, it seems
 			// to fix the bug (?) with the vscrollbar not being able to shrink to
 			// a smaller size than the initial panel size (as set by the forms designer)
-			panel1.Height = 10;
+			surfacePanel.Height = 10;
 
 			fontFamilyComboBox.PropertyChanged += FontPropertyChanged;
 			
@@ -379,7 +391,7 @@ namespace Greenshot {
 				// Set editor's initial size to the size of the surface plus the size of the chrome
 				Size imageSize = Surface.Image.Size;
 				Size currentFormSize = Size;
-				Size currentImageClientSize = panel1.ClientSize;
+				Size currentImageClientSize = surfacePanel.ClientSize;
 				int minimumFormWidth = 650;
 				int minimumFormHeight = 530;
 				int newWidth = Math.Max(minimumFormWidth, (currentFormSize.Width - currentImageClientSize.Width) + imageSize.Width);
@@ -852,7 +864,7 @@ namespace Greenshot {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void PanelMouseWheel(object sender, MouseEventArgs e) {
-			panel1.Focus();
+			surfacePanel.Focus();
 		}
 		#endregion
 		
@@ -971,9 +983,9 @@ namespace Greenshot {
 		}
 		
 		void StatusLabelClicked(object sender, MouseEventArgs e) {
-			ToolStrip ss = (StatusStrip)((ToolStripStatusLabel)sender).Owner;
-			if(ss.ContextMenuStrip != null) {
-				ss.ContextMenuStrip.Show(ss, e.X, e.Y);
+			var statusStrip = (StatusStrip)((ToolStripStatusLabel)sender).Owner;
+			if(statusStrip.ContextMenuStrip != null) {
+				statusStrip.ContextMenuStrip.Show(statusStrip, e.X, e.Y);
 			}
 		}
 		
@@ -982,17 +994,17 @@ namespace Greenshot {
 		}
 		
 		void OpenDirectoryMenuItemClick(object sender, EventArgs e) {
-			ProcessStartInfo psi = new ProcessStartInfo("explorer");
+			var psi = new ProcessStartInfo("explorer");
 			psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
 			psi.UseShellExecute = false;
-			using (Process p = new Process()) {
+			using (var p = new Process()) {
 				p.StartInfo = psi;
 				p.Start();
 			}
 		}
 		#endregion
 		
-		private void bindFieldControls() {
+		private void BindFieldControls() {
 			new BidirectionalBinding(btnFillColor, "SelectedColor", surface.FieldAggregator.GetField(FieldType.FILL_COLOR), "Value", NotNullValidator.GetInstance());
 			new BidirectionalBinding(btnLineColor, "SelectedColor", surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
 			new BidirectionalBinding(lineThicknessUpDown, "Value", surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
@@ -1057,16 +1069,16 @@ namespace Greenshot {
 		/// </summary>
 		private void refreshEditorControls() {
 			int stepLabels = surface.CountStepLabels(null);
-		    Image icon;
+			Image icon;
 			if (stepLabels <= 20) {
-			    icon = ((Image)(resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
+				icon = ((Image)(resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
 			} else {
-			    icon = ((Image)(resources.GetObject("btnStepLabel20+.Image")));
+				icon = ((Image)(resources.GetObject("btnStepLabel20+.Image")));
 			}
-            btnStepLabel.Image = icon;
-            addCounterToolStripMenuItem.Image = icon;
+			btnStepLabel.Image = icon;
+			addCounterToolStripMenuItem.Image = icon;
 
-		    FieldAggregator props = surface.FieldAggregator;
+			FieldAggregator props = surface.FieldAggregator;
 			// if a confirmable element is selected, we must disable most of the controls
 			// since we demand confirmation or cancel for confirmable element
 			if (props.HasFieldValue(FieldType.FLAGS) && ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS) & FieldType.Flag.CONFIRMABLE) == FieldType.Flag.CONFIRMABLE) {
@@ -1346,11 +1358,11 @@ namespace Greenshot {
 		}
 
 		private void ImageEditorFormResize(object sender, EventArgs e) {
-			if (Surface == null || Surface.Image == null || panel1 == null) {
+			if (Surface == null || Surface.Image == null || surfacePanel == null) {
 				return;
 			}
 			Size imageSize = Surface.Image.Size;
-			Size currentClientSize = panel1.ClientSize;
+			Size currentClientSize = surfacePanel.ClientSize;
 			var canvas = Surface as Control;
 			Panel panel = (Panel)canvas.Parent;
 			if (panel == null) {

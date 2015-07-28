@@ -55,7 +55,7 @@ namespace Greenshot {
 			this.dimensionsLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-			this.panel1 = new GreenshotPlugin.Controls.NonJumpingPanel();
+			this.surfacePanel = new GreenshotPlugin.Controls.NonJumpingPanel();
 			this.toolsToolStrip = new Greenshot.Controls.ToolStripEx();
 			this.btnCursor = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -267,7 +267,7 @@ namespace Greenshot {
 			this.tableLayoutPanel1.BackColor = System.Drawing.SystemColors.Control;
 			this.tableLayoutPanel1.ColumnCount = 1;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this.surfacePanel, 0, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -279,14 +279,14 @@ namespace Greenshot {
 			// 
 			// panel1
 			// 
-			this.panel1.AutoScroll = true;
-			this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel1.Location = new System.Drawing.Point(3, 3);
-			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(755, 379);
-			this.panel1.TabIndex = 2;
+			this.surfacePanel.AutoScroll = true;
+			this.surfacePanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+			this.surfacePanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.surfacePanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.surfacePanel.Location = new System.Drawing.Point(3, 3);
+			this.surfacePanel.Name = "surfacePanel";
+			this.surfacePanel.Size = new System.Drawing.Size(755, 379);
+			this.surfacePanel.TabIndex = 2;
 			// 
 			// toolsToolStrip
 			// 
@@ -458,36 +458,30 @@ namespace Greenshot {
 			// 
 			this.addBorderToolStripMenuItem.LanguageKey = "editor_border";
 			this.addBorderToolStripMenuItem.Name = "addBorderToolStripMenuItem";
-			this.addBorderToolStripMenuItem.Click += async (sender, e) => await this.AddBorderToolStripMenuItemClickAsync();
 			// 
 			// addDropshadowToolStripMenuItem
 			// 
 			this.addDropshadowToolStripMenuItem.LanguageKey = "editor_image_shadow";
 			this.addDropshadowToolStripMenuItem.Name = "addDropshadowToolStripMenuItem";
-			this.addDropshadowToolStripMenuItem.Click += async (sender, e) => await AddDropshadowToolStripMenuItemClickAsync();
 			// 
 			// tornEdgesToolStripMenuItem
 			// 
 			this.tornEdgesToolStripMenuItem.LanguageKey = "editor_torn_edge";
 			this.tornEdgesToolStripMenuItem.Name = "tornEdgesToolStripMenuItem";
-			this.tornEdgesToolStripMenuItem.Click += async (sender, e) => await TornEdgesToolStripMenuItemClickAsync();
 			// 
 			// grayscaleToolStripMenuItem
 			// 
 			this.grayscaleToolStripMenuItem.LanguageKey = "editor_grayscale";
 			this.grayscaleToolStripMenuItem.Name = "grayscaleToolStripMenuItem";
-			this.grayscaleToolStripMenuItem.Click += async (sender, e) => await GrayscaleToolStripMenuItemClickAsync();
 			// 
 			// invertToolStripMenuItem
 			// 
 			this.invertToolStripMenuItem.LanguageKey = "editor_invert";
 			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
-			this.invertToolStripMenuItem.Click += async (sender, e) => await InvertToolStripMenuItemClickAsync();
 			// 
 			// btnResize
 			// 
 			this.btnResize.Name = "btnResize";
-			this.btnResize.Click += async (sender, e) => await BtnResizeClickAsync();
 			this.btnResize.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnResize.Image = ((System.Drawing.Image)(resources.GetObject("btnResize.Image")));
 			this.btnResize.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -513,7 +507,6 @@ namespace Greenshot {
 			this.rotateCwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCwToolstripButton.LanguageKey = "editor_rotatecw";
 			this.rotateCwToolstripButton.Name = "rotateCwToolstripButton";
-			this.rotateCwToolstripButton.Click += async (sender, e) => await RotateCwToolstripButtonClickAsync();
 			// 
 			// rotateCcwToolstripButton
 			// 
@@ -522,7 +515,6 @@ namespace Greenshot {
 			this.rotateCcwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCcwToolstripButton.LanguageKey = "editor_rotateccw";
 			this.rotateCcwToolstripButton.Name = "rotateCcwToolstripButton";
-			this.rotateCcwToolstripButton.Click += async (sender, e) => await RotateCcwToolstripButtonClickAsync();
 			// 
 			// menuStrip1
 			// 
@@ -1613,7 +1605,6 @@ namespace Greenshot {
 			this.Name = "ImageEditorForm";
 			this.Activated += new System.EventHandler(this.ImageEditorFormActivated);
 			this.FormClosing += ImageEditorFormFormClosingAsync;
-			this.KeyDown += async (sender, e) => await ImageEditorFormKeyDownAsync(sender, e);
 			this.Resize += ImageEditorFormResize;
 			this.topToolStripContainer.BottomToolStripPanel.ResumeLayout(true);
 			this.topToolStripContainer.ContentPanel.ResumeLayout(true);
@@ -1765,7 +1756,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnRect;
 		private System.Windows.Forms.ToolStripContainer topToolStripContainer;
 		private Greenshot.Controls.ToolStripEx destinationsToolStrip;
-		private GreenshotPlugin.Controls.NonJumpingPanel panel1;
+		private GreenshotPlugin.Controls.NonJumpingPanel surfacePanel;
 		private Greenshot.Controls.ToolStripColorButton btnFillColor;
 		private Greenshot.Controls.ToolStripColorButton btnLineColor;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem autoCropToolStripMenuItem;

@@ -327,6 +327,10 @@ namespace Greenshot.Drawing {
 				return _transparencyBackgroundBrush;
 			}
 			set {
+				if (_transparencyBackgroundBrush != null)
+				{
+					_transparencyBackgroundBrush.Dispose();
+				}
 				_transparencyBackgroundBrush = value;
 			}
 		}

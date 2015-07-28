@@ -29,14 +29,14 @@ namespace Greenshot.Drawing.Fields.Binding {
 	/// behavior (e.g. when binding to a 
 	/// </summary>
 	public class BidirectionalBinding {
-		private INotifyPropertyChanged controlObject;
-		private INotifyPropertyChanged fieldObject;
-		private string controlPropertyName;
-		private string fieldPropertyName;
-		private bool updatingControl = false;
-		private bool updatingField = false;
-		private IBindingConverter converter;
-		private IBindingValidator validator;
+		private INotifyPropertyChanged _controlObject;
+		private INotifyPropertyChanged _fieldObject;
+		private string _controlPropertyName;
+		private string _fieldPropertyName;
+		private bool _updatingControl = false;
+		private bool _updatingField = false;
+		private IBindingConverter _converter;
+		private IBindingValidator _validator;
 		
 		/// <summary>
 		/// Whether or not null values are passed on to the other object.
@@ -51,13 +51,13 @@ namespace Greenshot.Drawing.Fields.Binding {
 		/// <param name="object2">Object containing 2nd property to bind</param>
 		/// <param name="property2">Property of 2nd object to bind</param>
 		public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName) {
-			this.controlObject = controlObject;
-			this.fieldObject = fieldObject;
-			this.controlPropertyName = controlPropertyName;
-			this.fieldPropertyName = fieldPropertyName;
+			_controlObject = controlObject;
+			_fieldObject = fieldObject;
+			_controlPropertyName = controlPropertyName;
+			_fieldPropertyName = fieldPropertyName;
 			
-			this.controlObject.PropertyChanged += ControlPropertyChanged;
-			this.fieldObject.PropertyChanged += FieldPropertyChanged;
+			_controlObject.PropertyChanged += ControlPropertyChanged;
+			_fieldObject.PropertyChanged += FieldPropertyChanged;
 		}
 		
 		/// <summary>
@@ -69,7 +69,7 @@ namespace Greenshot.Drawing.Fields.Binding {
 		/// <param name="fieldPropertyName">Property of 2nd object to bind</param>
 		/// <param name="converter">taking care of converting the synchronized value to the correct target format and back</param>
 		public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName, IBindingConverter converter) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName) {
-			this.converter = converter;
+			_converter = converter;
 		}
 		
 		/// <summary>
@@ -82,7 +82,7 @@ namespace Greenshot.Drawing.Fields.Binding {
 		/// <param name="fieldPropertyName">Property of 2nd object to bind</param>
 		/// <param name="validator">validator to intercept synchronization if the value does not match certain criteria</param>
 		public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName, IBindingValidator validator) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName) {
-			this.validator = validator;
+			_validator = validator;
 		}
 		
 		/// <summary>
@@ -96,22 +96,22 @@ namespace Greenshot.Drawing.Fields.Binding {
 		/// <param name="converter">taking care of converting the synchronized value to the correct target format and back</param>
 		/// <param name="validator">validator to intercept synchronization if the value does not match certain criteria</param>
 		public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName, IBindingConverter converter, IBindingValidator validator) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName, converter) {
-			this.validator = validator;
+			_validator = validator;
 		}
 		
 		public void ControlPropertyChanged(object sender, PropertyChangedEventArgs e) {
-			if (!updatingControl && e.PropertyName.Equals(controlPropertyName)) {
-				updatingField = true;
-				synchronize(controlObject, controlPropertyName, fieldObject, fieldPropertyName);
-				updatingField = false;
+			if (!_updatingControl && e.PropertyName.Equals(_controlPropertyName)) {
+				_updatingField = true;
+				synchronize(_controlObject, _controlPropertyName, _fieldObject, _fieldPropertyName);
+				_updatingField = false;
 			}
 		}
 		
 		public void FieldPropertyChanged(object sender, PropertyChangedEventArgs e) {
-			if (!updatingField && e.PropertyName.Equals(fieldPropertyName)) {
-				updatingControl = true;
-				synchronize(fieldObject, fieldPropertyName, controlObject, controlPropertyName);
-				updatingControl = false;
+			if (!_updatingField && e.PropertyName.Equals(_fieldPropertyName)) {
+				_updatingControl = true;
+				synchronize(_fieldObject, _fieldPropertyName, _controlObject, _controlPropertyName);
+				_updatingControl = false;
 			}
 		}
 		
@@ -121,11 +121,11 @@ namespace Greenshot.Drawing.Fields.Binding {
 			
 			if (sourcePropertyInfo != null && targetPropertyInfo != null && targetPropertyInfo.CanWrite) {
 				object bValue = sourcePropertyInfo.GetValue(sourceObject, null);
-				if (converter != null && bValue != null) {
-					bValue = converter.convert(bValue);
+				if (_converter != null && bValue != null) {
+					bValue = _converter.convert(bValue);
 				}
 				try {
-					if (validator == null || validator.validate(bValue)) {
+					if (_validator == null || _validator.validate(bValue)) {
 						targetPropertyInfo.SetValue(targetObject, bValue, null);
 					}
 				} catch (Exception e) {
@@ -149,8 +149,8 @@ namespace Greenshot.Drawing.Fields.Binding {
 		}
 		
 		public IBindingConverter Converter {
-			get { return converter; }
-			set { converter = value; }
+			get { return _converter; }
+			set { _converter = value; }
 		}
 		
 	}	

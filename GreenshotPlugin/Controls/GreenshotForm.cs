@@ -36,7 +36,7 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public class GreenshotForm : Form, IGreenshotLanguageBindable {
 		private static ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
-		protected static CoreConfiguration coreConfiguration;
+		protected readonly static CoreConfiguration coreConfiguration = IsInDesignMode ? IniConfig.GetIniSection<CoreConfiguration>() : null;
 		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
 		private bool _isDesignModeLanguageSet = false;
@@ -44,12 +44,6 @@ namespace GreenshotPlugin.Controls {
 		private bool _storeFieldsManually = false;
 		private IDictionary<string, Control> _designTimeControls;
 		private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
-
-		static GreenshotForm() {
-			if (!IsInDesignMode) {
-				coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
-			}
-		}
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
