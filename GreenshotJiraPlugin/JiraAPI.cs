@@ -94,14 +94,15 @@ namespace GreenshotJiraPlugin {
 		#endregion
 
 		private string Format(string path1) {
-			return string.Format("{0}/{1}", restPath, path1);
+			return string.Format("{0}{1}/{2}", JiraBaseUri.AbsoluteUri, restPath, path1);
 		}
 
 		private string Format(string path1, string path2) {
-			return string.Format("{0}/{1}/{2}", restPath, path1, path2);
+			return string.Format("{0}{1}/{2}/{3}", JiraBaseUri.AbsoluteUri, restPath, path1, path2);
 		}
+
 		private string Format(string path1, string path2, string path3) {
-			return string.Format("{0}/{1}/{2}/{3}", restPath, path1, path2, path3);
+			return string.Format("{0}{1}/{2}/{3}/{4}", JiraBaseUri.AbsoluteUri, restPath, path1, path2, path3);
 		}
 
 		/// <summary>

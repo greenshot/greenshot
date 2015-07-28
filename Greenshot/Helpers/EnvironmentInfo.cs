@@ -92,27 +92,27 @@ namespace Greenshot.Helpers {
 					environment.Append(", ");
 				}
 				// Get some important information for fixing GDI related Problems
-				environment.Append("GDI object count: " + User32.GetGuiResourcesGDICount());
+				environment.AppendFormat("GDI object count: {0}", User32.GetGuiResourcesGDICount());
 				if (newline) {
 					environment.AppendLine();
 				} else {
 					environment.Append(", ");
 				}
-				environment.Append("User object count: " + User32.GetGuiResourcesUserCount());
+				environment.AppendFormat("User object count: {0}", User32.GetGuiResourcesUserCount());
 			} else {
 				if (newline) {
 					environment.AppendLine();
 				} else {
 					environment.Append(", ");
 				}
-				environment.Append("OS: " + Environment.OSVersion.Platform.ToString());
+				environment.AppendFormat("OS: {0}", Environment.OSVersion.Platform);
 			}
 			if (newline) {
 				environment.AppendLine();
 			} else {
 				environment.Append(", ");
 			}
-			environment.Append("Surface count: " + Surface.Count);
+			environment.AppendFormat("Surface count: {0}", Surface.Count);
 
 			return environment.ToString();
 		}

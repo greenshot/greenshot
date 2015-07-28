@@ -34,6 +34,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.Security.Permissions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Greenshot.Forms {
@@ -63,7 +65,8 @@ namespace Greenshot.Forms {
 		private Point _mouseMovePos = Point.Empty;
 		private Point _cursorPos = Point.Empty;
 		private CaptureMode _captureMode = CaptureMode.None;
-		private readonly List<WindowDetails> _windows = new List<WindowDetails>();
+		private readonly Task<IList<WindowDetails>> _retrieveWindowsTask;
+		private IList<WindowDetails> _windows;
 		private WindowDetails _selectedCaptureWindow;
 		private bool _mouseDown;
 		private Rectangle _captureRect = Rectangle.Empty;
@@ -117,6 +120,17 @@ namespace Greenshot.Forms {
 		private void ClosedHandler(object sender, EventArgs e) {
 			_currentForm = null;
 			LOG.Debug("Remove CaptureForm from currentForm");
+			if (_selectedCaptureWindow != null) {
+				LOG.DebugFormat("Selected window: {0}", _selectedCaptureWindow);
+				_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
+				_capture.CaptureDetails.AddMetaData("windowtitle", _selectedCaptureWindow.Text);
+				if (_captureMode == CaptureMode.Window) {
+					// Here we want to capture the window which is under the mouse
+					_captureRect = _selectedCaptureWindow.WindowRectangle;
+					// As the ClientRectangle is not in Bitmap coordinates, we need to correct.
+					_captureRect.Offset(-_capture.ScreenBounds.Location.X, -_capture.ScreenBounds.Location.Y);
+				}
+			}
 		}
 
 		private void ClosingHandler(object sender, EventArgs e) {
@@ -129,7 +143,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="capture"></param>
 		/// <param name="windows"></param>
-		public CaptureForm(ICapture capture, List<WindowDetails> windows) {
+		public CaptureForm(ICapture capture, Task<IList<WindowDetails>> retrieveWindowsTask) {
 			if (_currentForm != null) {
 				LOG.Warn("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
@@ -145,7 +159,7 @@ namespace Greenshot.Forms {
 			FormClosed += ClosedHandler;
 
 			_capture = capture;
-			_windows = windows;
+			_retrieveWindowsTask = retrieveWindowsTask;
 			_captureMode = capture.CaptureDetails.CaptureMode;
 
 			//
@@ -404,7 +418,7 @@ namespace Greenshot.Forms {
 		/// <summary>
 		/// update the frame, this only invalidates
 		/// </summary>
-		protected override void Animate() {
+		protected async override Task Animate(CancellationToken token = default(CancellationToken)) {
 			Point lastPos = _cursorPos;
 			_cursorPos = _mouseMovePos;
 
@@ -429,9 +443,13 @@ namespace Greenshot.Forms {
 			
 			// Iterate over the found windows and check if the current location is inside a window
 			Point cursorPosition = Cursor.Position;
-			_selectedCaptureWindow = null;
-			lock (_windows) {
-				foreach (WindowDetails window in _windows) {
+			if (_windows == null && (_captureMode == CaptureMode.Window || _mouseDown)) {
+				_windows = await _retrieveWindowsTask.ConfigureAwait(true);
+			}
+			
+			if (_windows != null && _windows.Count > 0) {
+				_selectedCaptureWindow = null;
+				foreach (var window in _windows) {
 					if (window.Contains(cursorPosition)) {
 						// Only go over the children if we are in window mode
 						if (CaptureMode.Window == _captureMode) {
@@ -444,16 +462,6 @@ namespace Greenshot.Forms {
 				}
 			}
 
-			if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow)) {
-				_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
-				_capture.CaptureDetails.AddMetaData("windowtitle", _selectedCaptureWindow.Text);
-				if (_captureMode == CaptureMode.Window) {
-					// Here we want to capture the window which is under the mouse
-					_captureRect = _selectedCaptureWindow.WindowRectangle;
-					// As the ClientRectangle is not in Bitmap coordinates, we need to correct.
-					_captureRect.Offset(-_capture.ScreenBounds.Location.X, -_capture.ScreenBounds.Location.Y);
-				}
-			}
 
 			Rectangle invalidateRectangle;
 			if (_mouseDown && (_captureMode != CaptureMode.Window)) {
@@ -506,16 +514,16 @@ namespace Greenshot.Forms {
 						Invalidate(invalidateRectangle);
 					}
 				}
-			} else {
-				if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow)) {
-					// Window changes, make new animation from current to target
-					_windowAnimator.ChangeDestination(_captureRect, FramesForMillis(700));
-				}
+			} else if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow)) {
+				// Window changes, make new animation from current to target
+				_windowAnimator.ChangeDestination(_captureRect, FramesForMillis(700));
 			}
+
 			// always animate the Window area through to the last frame, so we see the fade-in/out untill the end
 			// Using a safety "offset" to make sure the text is invalidated too
 			const int safetySize = 30;
-			// Check if the 
+
+			// Check if we are animating 
 			if (isAnimating(_windowAnimator)) {
 				invalidateRectangle = _windowAnimator.Current;
 				invalidateRectangle.Inflate(safetySize, safetySize);

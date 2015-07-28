@@ -576,7 +576,7 @@ namespace GreenshotPlugin.Core
 			if (_childWindows == null)
 			{
 				_childWindows = new List<WindowDetails>();
-				foreach (WindowDetails childWindow in new WindowsEnumerator().GetWindows(_hWnd, null).Items)
+				foreach (var childWindow in new WindowsEnumerator().GetWindows(_hWnd, null).Items)
 				{
 					_childWindows.Add(childWindow);
 					if (levelsToGo > 0)
@@ -735,6 +735,7 @@ namespace GreenshotPlugin.Core
 		private string _className = null;
 		/// <summary>
 		/// Gets the window's class name.
+		/// Some information on classes can be found here: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633574%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
 		/// </summary>
 		public string ClassName
 		{
@@ -2096,6 +2097,14 @@ namespace GreenshotPlugin.Core
 				}
 				return false;
 			}
+		}
+
+		/// <summary>
+		/// Used for logging
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString() {
+			return string.Format("{0} - {1} '{2}', {3}", ClassName, Process.ProcessName, Text, WindowRectangle);
 		}
 	}
 	#endregion

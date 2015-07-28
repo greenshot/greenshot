@@ -35,6 +35,8 @@ using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using System.Security.Permissions;
 using log4net;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Greenshot {
 	/// <summary>
@@ -226,9 +228,10 @@ namespace Greenshot {
 		/// <summary>
 		/// Called from the AnimatingForm, for every frame
 		/// </summary>
-		protected override void Animate() {
+		protected override Task Animate(CancellationToken token = default(CancellationToken)) {
+			var nullTask = Task.FromResult<object>(null);
 			if (gBitmap == null) {
-				return;
+				return nullTask;
 			}
 			if (!isTerminalServerSession) {
 				// Color cycle
@@ -236,7 +239,7 @@ namespace Greenshot {
 					waitFrames--;
 					// Check if there is something else to do, if not we return so we don't occupy the CPU
 					if (!hasAnimationsLeft) {
-						return;
+						return nullTask;
 					}
 				} else if (scrollCount < (pixelColors.Count + colorFlow.Count)) {
 					// Scroll colors, the scrollCount is the amount of pixels + the amount of colors to cycle.
@@ -255,11 +258,11 @@ namespace Greenshot {
 					scrollCount = 0;
 					// Check if there is something else to do, if not we return so we don't occupy the CPU
 					if (!hasAnimationsLeft) {
-						return;
+						return nullTask;
 					}
 				}
 			} else if (!hasAnimationsLeft) {
-				return;
+				return nullTask;
 			}
 
 			// Draw the "G"
@@ -289,6 +292,7 @@ namespace Greenshot {
 				}
 			}
 			pictureBox1.Invalidate();
+			return nullTask;
 		}
 
 		/// <summary>

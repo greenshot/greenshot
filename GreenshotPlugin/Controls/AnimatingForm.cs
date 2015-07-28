@@ -20,9 +20,11 @@
  */
 
 using System;
-using System.Windows.Forms;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Timers;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -32,7 +34,7 @@ namespace GreenshotPlugin.Controls {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AnimatingForm));
 		private const int DEFAULT_VREFRESH = 60;
 		private int vRefresh = 0;
-		private Timer timer = null;
+		private System.Timers.Timer timer = null;
 
 		/// <summary>
 		/// This flag specifies if any animation is used
@@ -49,7 +51,7 @@ namespace GreenshotPlugin.Controls {
 			get {
 				if (vRefresh == 0) {
 					// get te hDC of the desktop to get the VREFRESH
-					using (SafeWindowDCHandle desktopHandle = SafeWindowDCHandle.fromDesktop()) {
+					using (var desktopHandle = SafeWindowDCHandle.fromDesktop()) {
 						vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
 					}
 				}
@@ -67,7 +69,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected bool isTerminalServerSession {
 			get {
-				return coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession;
+				return coreConfiguration.OptimizeForRDP || System.Windows.Forms.SystemInformation.TerminalServerSession;
 			}
 		}
 
@@ -90,9 +92,10 @@ namespace GreenshotPlugin.Controls {
 		protected AnimatingForm() {
 			Load += delegate {
 				if (EnableAnimation) {
-					timer = new Timer();
+					timer = new System.Timers.Timer();
 					timer.Interval = 1000 / VRefresh;
-					timer.Tick += new EventHandler(timer_Tick);
+					timer.Elapsed += timer_Tick;
+					timer.SynchronizingObject = this;
 					timer.Start();
 				}
 			};
@@ -101,6 +104,7 @@ namespace GreenshotPlugin.Controls {
 			FormClosing += delegate {
 				if (timer != null) {
 					timer.Stop();
+					timer.Dispose();
 				}
 			};
 		}
@@ -109,10 +113,9 @@ namespace GreenshotPlugin.Controls {
 		/// The tick handler initiates the animation.
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void timer_Tick(object sender, EventArgs e) {
+		async void timer_Tick(object sender, ElapsedEventArgs e) {
 			try {
-				Animate();
+				await Animate();
 			} catch (Exception ex) {
 				LOG.Warn("An exception occured while animating:", ex);
 			}
@@ -121,7 +124,7 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// This method will be called every frame, so implement your animation/redraw logic here.
 		/// </summary>
-		protected virtual void Animate() {
+		protected virtual Task Animate(CancellationToken token = default(CancellationToken)) {
 			throw new NotImplementedException();
 		}
 	}

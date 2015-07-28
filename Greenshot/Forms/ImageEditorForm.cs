@@ -93,11 +93,28 @@ namespace Greenshot {
 			//
 			ManualLanguageApply = true;
 			InitializeComponent();
-			
-			Load += delegate {
-				var thread = new Thread(delegate() {AddDestinations();});
-				thread.Name = "add destinations";
-				thread.Start();
+
+			Load += (sender, eventArgs) => {
+				// Create export buttons via dispatcher
+				BeginInvoke(new Action(() => {
+					foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
+						if (destination.Priority <= 2) {
+							continue;
+						}
+						if (!destination.isActive) {
+							continue;
+						}
+						if (destination.DisplayIcon == null) {
+							continue;
+						}
+						try {
+							AddDestinationButton(destination);
+						} catch (Exception addingException) {
+							LOG.WarnFormat("Problem adding destination {0}", destination.Designation);
+							LOG.Warn("Exception: ", addingException);
+						}
+					}
+				}));
 			};
 
 			// Events
@@ -113,7 +130,7 @@ namespace Greenshot {
 
 
 			// Make sure the editor is placed on the same location as the last editor was on close
-			WindowDetails thisForm = new WindowDetails(Handle);
+			var thisForm = new WindowDetails(Handle);
 			thisForm.WindowPlacement = editorConfiguration.GetEditorPlacement();
 
 			// init surface
@@ -227,32 +244,6 @@ namespace Greenshot {
 					e.Graphics.DrawRectangle(cbBorderPen, r);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Get all the destinations and display them in the file menu and the buttons
-		/// </summary>
-		void AddDestinations() {
-			Invoke((MethodInvoker)delegate {
-				// Create export buttons 
-				foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
-					if (destination.Priority <= 2) {
-						continue;
-					}
-					if (!destination.isActive) {
-						continue;
-					}
-					if (destination.DisplayIcon == null) {
-						continue;
-					}
-					try {
-						AddDestinationButton(destination);
-					} catch (Exception addingException) {
-						LOG.WarnFormat("Problem adding destination {0}", destination.Designation);
-						LOG.Warn("Exception: ", addingException);
-					}
-				}
-			});
 		}
 
 		void AddDestinationButton(IDestination toolstripDestination) {
@@ -1069,16 +1060,16 @@ namespace Greenshot {
 		/// </summary>
 		private void refreshEditorControls() {
 			int stepLabels = surface.CountStepLabels(null);
-			Image icon;
+		    Image icon;
 			if (stepLabels <= 20) {
-				icon = ((Image)(resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
+			    icon = ((Image)(resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
 			} else {
-				icon = ((Image)(resources.GetObject("btnStepLabel20+.Image")));
+			    icon = ((Image)(resources.GetObject("btnStepLabel20+.Image")));
 			}
-			btnStepLabel.Image = icon;
-			addCounterToolStripMenuItem.Image = icon;
+            btnStepLabel.Image = icon;
+            addCounterToolStripMenuItem.Image = icon;
 
-			FieldAggregator props = surface.FieldAggregator;
+		    FieldAggregator props = surface.FieldAggregator;
 			// if a confirmable element is selected, we must disable most of the controls
 			// since we demand confirmation or cancel for confirmable element
 			if (props.HasFieldValue(FieldType.FLAGS) && ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS) & FieldType.Flag.CONFIRMABLE) == FieldType.Flag.CONFIRMABLE) {

@@ -47,7 +47,6 @@ namespace Greenshot.Helpers {
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
-		private List<WindowDetails> _windows = new List<WindowDetails>();
 		private WindowDetails _selectedCaptureWindow;
 		private Rectangle _captureRect = Rectangle.Empty;
 		private readonly bool _captureMouseCursor;
@@ -76,7 +75,6 @@ namespace Greenshot.Helpers {
 				// Cleanup
 			}
 			// Unfortunately we can't dispose the capture, this might still be used somewhere else.
-			_windows = null;
 			_selectedCaptureWindow = null;
 			_capture = null;
 			// Empty working set after capturing
@@ -222,7 +220,8 @@ namespace Greenshot.Helpers {
 		/// Make Capture with specified destinations
 		/// </summary>
 		private async Task MakeCaptureAsync(CancellationToken token = default(CancellationToken)) {
-			Thread retrieveWindowDetailsThread = null;
+			LOG.Debug("Starting MakeCaptureAsync");
+			var retrieveWindowDetailsTask = Task.FromResult<IList<WindowDetails>>(new List<WindowDetails>());
 
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
 			// forcefully removes the balloon!
@@ -235,16 +234,20 @@ namespace Greenshot.Helpers {
 
 			// Get the windows details in a seperate thread, only for those captures that have a Feedback
 			// As currently the "elements" aren't used, we don't need them yet
+			bool prepareNeeded = false;
 			switch (_captureMode) {
 				case CaptureMode.Region:
 					// Check if a region is pre-supplied!
 					if (Rectangle.Empty.Equals(_captureRect)) {
-						retrieveWindowDetailsThread = PrepareForCaptureWithFeedback();
+						prepareNeeded = true;
 					}
 					break;
 				case CaptureMode.Window:
-					retrieveWindowDetailsThread = PrepareForCaptureWithFeedback();
+					prepareNeeded = true;
 					break;
+			}
+			if (prepareNeeded) {
+				retrieveWindowDetailsTask = PrepareForCaptureWithFeedbackAsync(token);
 			}
 
 			// Add destinations if no-one passed a handler
@@ -254,7 +257,7 @@ namespace Greenshot.Helpers {
 
 			// Delay for the Context menu
 			if (conf.CaptureDelay > 0) {
-				Thread.Sleep(conf.CaptureDelay);
+				await Task.Delay(conf.CaptureDelay);
 			} else {
 				conf.CaptureDelay = 0;
 			}
@@ -274,7 +277,7 @@ namespace Greenshot.Helpers {
 					_capture = WindowCapture.CaptureScreen(_capture);
 					_capture.CaptureDetails.AddMetaData("source", "Screen");
 					SetDPI();
-					await CaptureWithFeedbackAsync(token);
+					await CaptureWithFeedbackAsync(retrieveWindowDetailsTask, token);
 					break;
 				case CaptureMode.ActiveWindow:
 					if (CaptureActiveWindow()) {
@@ -428,7 +431,7 @@ namespace Greenshot.Helpers {
 						_capture = WindowCapture.CaptureScreen(_capture);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
 						SetDPI();
-						await CaptureWithFeedbackAsync(token);
+						await CaptureWithFeedbackAsync(retrieveWindowDetailsTask, token);
 					} else {
 						_capture = WindowCapture.CaptureRectangle(_capture, _captureRect);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
@@ -441,66 +444,49 @@ namespace Greenshot.Helpers {
 					break;
 			}
 			// Wait for thread, otherwise we can't dipose the CaptureHelper
-			if (retrieveWindowDetailsThread != null) {
-				retrieveWindowDetailsThread.Join();
-			}
+			await retrieveWindowDetailsTask;
 			if (_capture != null) {
 				LOG.Debug("Disposing capture");
 				_capture.Dispose();
 			}
+			LOG.Debug("Ended MakeCaptureAsync");
+
 		}
 				
 		/// <summary>
 		/// Pre-Initialization for CaptureWithFeedback, this will get all the windows before we change anything
 		/// </summary>
-		private Thread PrepareForCaptureWithFeedback() {
-			_windows = new List<WindowDetails>();
-			
-			// If the App Launcher is visisble, no other windows are active
-			WindowDetails appLauncherWindow = WindowDetails.GetAppLauncher();
+		private async Task<IList<WindowDetails>> PrepareForCaptureWithFeedbackAsync(CancellationToken token = default(CancellationToken)) {
+
+			var result = new List<WindowDetails>();
+			var appLauncherWindow = WindowDetails.GetAppLauncher();
 			if (appLauncherWindow != null && appLauncherWindow.Visible) {
-				_windows.Add(appLauncherWindow);
-				return null;
+				result.Add(appLauncherWindow);
+				// TODO: do not return when Windows 10???
+				return result;
 			}
+			LOG.Debug("start retrieving WindowDetails");
+			await Task.Delay(2000).ConfigureAwait(false); ;
+			await Task.Factory.StartNew(() => {
+				var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
+									 where window.Visible && (window.WindowRectangle.Width != 0 && window.WindowRectangle.Height != 0)
+									 select window;
 
-			Thread getWindowDetailsThread = new Thread(RetrieveWindowDetails);
-			getWindowDetailsThread.Name = "Retrieve window details";
-			getWindowDetailsThread.IsBackground = true;
-			getWindowDetailsThread.Start();
-			return getWindowDetailsThread;
-		}
+				// Start Enumeration of "active" windows
+				foreach (var window in visibleWindows) {
+					LOG.DebugFormat("Adding {0}", window);
+					// Make sure the details are retrieved once
+					window.FreezeDetails();
 
-		private void RetrieveWindowDetails() {
-			LOG.Debug("start RetrieveWindowDetails");
-			// Start Enumeration of "active" windows
-			foreach (WindowDetails window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows()))
-			{
-				// Window should be visible and not ourselves
-				if (!window.Visible) {
-					continue;
+					// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
+					int goLevelDeep = conf.WindowCaptureAllChildLocations ? 20 : 3;
+					window.GetChildren(goLevelDeep);
+					result.Add(window);
 				}
+			}, token).ConfigureAwait(false);
 
-				// Skip empty 
-				Rectangle windowRectangle = window.WindowRectangle;
-				Size windowSize = windowRectangle.Size;
-				if (windowSize.Width == 0 || windowSize.Height == 0) {
-					continue;
-				}
-
-				// Make sure the details are retrieved once
-				window.FreezeDetails();
-
-				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
-				int goLevelDeep = 3;
-				if (conf.WindowCaptureAllChildLocations) {
-					goLevelDeep = 20;
-				}
-				window.GetChildren(goLevelDeep);
-				lock (_windows) {
-					_windows.Add(window);
-				}
-			}
-			LOG.Debug("end RetrieveWindowDetails");
+			LOG.Debug("end retrieving WindowDetails");
+			return result;
 		}
 
 		private void AddConfiguredDestination() {
@@ -957,17 +943,10 @@ namespace Greenshot.Helpers {
 		}
 
 		#region capture with feedback
-		private async Task CaptureWithFeedbackAsync(CancellationToken token = default(CancellationToken)) {
-			// The following, to be precise the HideApp, causes the app to close as described in BUG-1620 
-			// Added check for metro (Modern UI) apps, which might be maximized and cover the screen.
-			
-			//foreach(WindowDetails app in WindowDetails.GetMetroApps()) {
-			//	if (app.Maximised) {
-			//		app.HideApp();
-			//	}
-			//}
+		private async Task CaptureWithFeedbackAsync(Task<IList<WindowDetails>> retrieveWindowsTask, CancellationToken token = default(CancellationToken)) {
+			LOG.Debug("CaptureWithFeedbackAsync start");
 
-			using (CaptureForm captureForm = new CaptureForm(_capture, _windows)) {
+			using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask)) {
 				// Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
 				DialogResult result = DialogResult.Cancel;
 				try {

@@ -58,7 +58,7 @@ namespace GreenshotFlickrPlugin {
 		/// <param name="title"></param>
 		/// <param name="filename"></param>
 		/// <returns>url to image</returns>
-		public static async Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, CancellationToken token = default(CancellationToken)) {
+		public static Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, CancellationToken token = default(CancellationToken)) {
 			var oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret);
 			oAuth.BrowserSize = new Size(520, 800);
 			oAuth.CheckVerifier = false;
@@ -70,7 +70,7 @@ namespace GreenshotFlickrPlugin {
 			oAuth.TokenSecret = config.FlickrTokenSecret;
 			if (string.IsNullOrEmpty(oAuth.Token)) {
 				if (!oAuth.Authorize()) {
-					return null;
+					return Task.FromResult<string>(null);
 				}
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
 					config.FlickrToken = oAuth.Token;
@@ -102,7 +102,7 @@ namespace GreenshotFlickrPlugin {
 				if (config.UsePageLink) {
 					return photoInfo.url;
 				}
-				return string.Format("FLICKR_FARM_URL", photoInfo.farm, photoInfo.server, photoId, photoInfo.secret);
+				return Task.FromResult<string>(string.Format("FLICKR_FARM_URL", photoInfo.farm, photoInfo.server, photoId, photoInfo.secret));
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
 				throw;
