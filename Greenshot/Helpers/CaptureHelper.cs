@@ -466,7 +466,6 @@ namespace Greenshot.Helpers {
 				return result;
 			}
 			LOG.Debug("start retrieving WindowDetails");
-			await Task.Delay(2000).ConfigureAwait(false); ;
 			await Task.Factory.StartNew(() => {
 				var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
 									 where window.Visible && (window.WindowRectangle.Width != 0 && window.WindowRectangle.Height != 0)
@@ -483,7 +482,7 @@ namespace Greenshot.Helpers {
 					window.GetChildren(goLevelDeep);
 					result.Add(window);
 				}
-			}, token).ConfigureAwait(false);
+			}, token, TaskCreationOptions.None, TaskScheduler.Default).ConfigureAwait(false);
 
 			LOG.Debug("end retrieving WindowDetails");
 			return result;

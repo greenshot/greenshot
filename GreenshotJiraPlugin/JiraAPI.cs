@@ -32,7 +32,7 @@ namespace GreenshotJiraPlugin {
 	/// Jira API, using the FlurlClient
 	/// </summary>
 	public class JiraAPI : IDisposable {
-		private const string restPath = "/rest/api/2";
+		private const string restPath = "rest/api/2";
 		private readonly HttpClient _client;
 		public string JiraVersion {
 			get;

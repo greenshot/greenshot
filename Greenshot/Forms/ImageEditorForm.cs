@@ -246,16 +246,16 @@ namespace Greenshot {
 			}
 		}
 
-		void AddDestinationButton(IDestination toolstripDestination) {
+		private void AddDestinationButton(IDestination toolstripDestination) {
+			var destinationButton = new ToolStripSplitButton();
 			if (toolstripDestination.isDynamic) {
-				ToolStripSplitButton destinationButton = new ToolStripSplitButton();
 				//ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
 				destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
 				destinationButton.Size = new Size(23, 22);
 				destinationButton.Text = toolstripDestination.Description;
 				destinationButton.Image = toolstripDestination.DisplayIcon;
 
-				ToolStripMenuItem defaultItem = new ToolStripMenuItem(toolstripDestination.Description);
+				var defaultItem = new ToolStripMenuItem(toolstripDestination.Description);
 				defaultItem.Tag = toolstripDestination;
 				defaultItem.Image = toolstripDestination.DisplayIcon;
 				defaultItem.Click += async (sender, e) => {
@@ -288,12 +288,7 @@ namespace Greenshot {
 						}
 					}
 				};
-
-				destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
-				
 			} else {
-				ToolStripButton destinationButton = new ToolStripButton();
-				destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
 				destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
 				destinationButton.Size = new Size(23, 22);
 				destinationButton.Text = toolstripDestination.Description;
@@ -302,6 +297,7 @@ namespace Greenshot {
 					await toolstripDestination.ExportCaptureAsync(true, surface, surface.CaptureDetails).ConfigureAwait(false);
 				};
 			}
+			destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
 		}
 		
 		/// <summary>
