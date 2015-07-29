@@ -1557,7 +1557,7 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// Handle the notify icon click
 		/// </summary>
-		private async Task NotifyIconClickAsync(ClickActions clickAction)
+		private async Task NotifyIconClickAsync(ClickActions clickAction, CancellationToken token = default(CancellationToken))
 		{
 			switch (clickAction)
 			{
@@ -1597,7 +1597,7 @@ namespace Greenshot.Forms
 				case ClickActions.OPEN_LAST_IN_EDITOR:
 					if (File.Exists(coreConfiguration.OutputFileAsFullpath))
 					{
-						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION), token);
 					}
 					break;
 				case ClickActions.OPEN_SETTINGS:
@@ -1606,6 +1606,18 @@ namespace Greenshot.Forms
 				case ClickActions.SHOW_CONTEXT_MENU:
 					MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
 					oMethodInfo.Invoke(notifyIcon, null);
+					break;
+				case ClickActions.CAPTURE_REGION:
+					CaptureRegion(token);
+					break;
+				case ClickActions.CAPTURE_SCREEN:
+					CaptureFullScreen(token);
+					break;
+				case ClickActions.CAPTURE_WINDOW:
+					CaptureWindow(token);
+					break;
+				case ClickActions.CAPTURE_LAST_REGION:
+					CaptureLastRegion(token);
 					break;
 			}
 		}
