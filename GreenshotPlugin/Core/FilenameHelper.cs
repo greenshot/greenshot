@@ -213,22 +213,22 @@ namespace GreenshotPlugin.Core {
 			if (processVars != null && processVars.Contains(variable)) {
 				replaceValue = (string)processVars[variable];
 				if (filenameSafeMode) {
-					replaceValue = MakePathSafe(replaceValue);
+					replaceValue = MakeFilenameSafe(replaceValue);
 				}
 			} else if (userVars != null && userVars.Contains(variable)) {
 				replaceValue = (string)userVars[variable];
 				if (filenameSafeMode) {
-					replaceValue = MakePathSafe(replaceValue);
+					replaceValue = MakeFilenameSafe(replaceValue);
 				}
 			} else if (machineVars != null && machineVars.Contains(variable)) {
 				replaceValue = (string)machineVars[variable];
 				if (filenameSafeMode) {
-					replaceValue = MakePathSafe(replaceValue);
+					replaceValue = MakeFilenameSafe(replaceValue);
 				}
 			} else if (captureDetails != null && captureDetails.MetaData != null && captureDetails.MetaData.ContainsKey(variable)) {
 				replaceValue = captureDetails.MetaData[variable];
 				if (filenameSafeMode) {
-					replaceValue = MakePathSafe(replaceValue);
+					replaceValue = MakeFilenameSafe(replaceValue);
 				}
 			} else {
 				// Handle other variables
