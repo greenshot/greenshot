@@ -34,9 +34,6 @@ namespace Greenshot.Forms {
 				if (components != null) {
 					components.Dispose();
 				}
-				if (_copyData != null) {
-					_copyData.Dispose();
-				}
 			}
 			base.Dispose(disposing);
 		}
@@ -173,7 +170,7 @@ namespace Greenshot.Forms {
 			this.contextmenu_captureclipboard.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_captureclipboard.Image")));
 			this.contextmenu_captureclipboard.Name = "contextmenu_captureclipboard";
 			this.contextmenu_captureclipboard.Size = new System.Drawing.Size(170, 22);
-			this.contextmenu_captureclipboard.Click += new System.EventHandler(this.CaptureClipboardToolStripMenuItemClick);
+			this.contextmenu_captureclipboard.Click += CaptureClipboardToolStripMenuItemClick;
 			// 
 			// contextmenu_openfile
 			// 

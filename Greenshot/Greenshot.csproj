@@ -46,6 +46,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="WindowsBase" />
@@ -225,11 +226,13 @@
     </Compile>
     <None Include="App.config" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Helpers\Arguments.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\Colors.cs" />
-    <Compile Include="Helpers\CopyData.cs" />
     <Compile Include="Helpers\GeometryHelper.cs" />
     <Compile Include="Helpers\DestinationHelper.cs" />
+    <Compile Include="Helpers\GreenshotClient.cs" />
+    <Compile Include="Helpers\GreenshotServer.cs" />
     <Compile Include="Helpers\IECaptureHelper.cs" />
     <Compile Include="Helpers\IEInterop\IEContainer.cs" />
     <Compile Include="Helpers\ProcessorHelper.cs" />

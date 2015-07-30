@@ -54,16 +54,27 @@ namespace Greenshot.Forms
 	public partial class MainForm : BaseForm
 	{
 		private static ILog LOG;
+		private const string MutexId = @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
 		private static Mutex _applicationMutex;
 		public static string LogFileLocation = null;
 
 		public static void Start(string[] args)
 		{
-			bool isAlreadyRunning = false;
-			IList<string> filesToOpen = new List<string>();
 
 			// Set the Thread name, is better than "1"
 			Thread.CurrentThread.Name = Application.ProductName;
+
+			// Read arguments
+			var arguments = new Arguments(args);
+			// Don't continue if the Help was requested
+			if (arguments.IsHelp) {
+				return;
+			}
+
+			// Setting the INI-directory
+			if (!String.IsNullOrWhiteSpace(arguments.IniDirectory)) {
+				IniConfig.IniDirectory = arguments.IniDirectory;
+			}
 
 			// Init Log4NET
 			LogFileLocation = LogHelper.InitializeLog4NET();
@@ -80,233 +91,35 @@ namespace Greenshot.Forms
 
 			// Read configuration
 			coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+
 			try
 			{
 				// Fix for Bug 2495900, Multi-user Environment
 				// check whether there's an local instance running already
-
-				try
-				{
-					// Added Mutex Security, hopefully this prevents the UnauthorizedAccessException more gracefully
-					// See an example in Bug #3131534
-					SecurityIdentifier sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-					MutexSecurity mutexsecurity = new MutexSecurity();
-					mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
-					mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
-					mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
-
-					bool created;
-					// 1) Create Mutex
-					_applicationMutex = new Mutex(false, @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", out created, mutexsecurity);
-					// 2) Get the right to it, this returns false if it's already locked
-					if (!_applicationMutex.WaitOne(0, false))
-					{
-						LOG.Debug("Greenshot seems already to be running!");
-						isAlreadyRunning = true;
-						// Clean up
-						_applicationMutex.Close();
-						_applicationMutex = null;
-					}
-				}
-				catch (AbandonedMutexException e)
-				{
-					// Another Greenshot instance didn't cleanup correctly!
-					// we can ignore the exception, it happend on the "waitone" but still the mutex belongs to us
-					LOG.Warn("Greenshot didn't cleanup correctly!", e);
-				}
-				catch (UnauthorizedAccessException e)
-				{
-					LOG.Warn("Greenshot is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
-					isAlreadyRunning = true;
-				}
-				catch (Exception e)
-				{
-					LOG.Warn("Problem obtaining the Mutex, assuming it was already taken!", e);
-					isAlreadyRunning = true;
-				}
-
-				if (args.Length > 0 && LOG.IsDebugEnabled)
-				{
-					StringBuilder argumentString = new StringBuilder();
-					for (int argumentNr = 0; argumentNr < args.Length; argumentNr++)
-					{
-						argumentString.Append("[").Append(args[argumentNr]).Append("] ");
-					}
-					LOG.Debug("Greenshot arguments: " + argumentString);
-				}
-
-				for (int argumentNr = 0; argumentNr < args.Length; argumentNr++)
-				{
-					string argument = args[argumentNr];
-					// Help
-					if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?"))
-					{
-						// Try to attach to the console
-						bool attachedToConsole = Kernel32.AttachConsole(Kernel32.ATTACHCONSOLE_ATTACHPARENTPROCESS);
-						// If attach didn't work, open a console
-						if (!attachedToConsole)
-						{
-							Kernel32.AllocConsole();
-						}
-						StringBuilder helpOutput = new StringBuilder();
-						helpOutput.AppendLine();
-						helpOutput.AppendLine("Greenshot commandline options:");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
-						helpOutput.AppendLine("\t/help");
-						helpOutput.AppendLine("\t\tThis help.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
-						helpOutput.AppendLine("\t/exit");
-						helpOutput.AppendLine("\t\tTries to close all running instances.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
-						helpOutput.AppendLine("\t/reload");
-						helpOutput.AppendLine("\t\tReload the configuration of Greenshot.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
-						helpOutput.AppendLine("\t/language [language code]");
-						helpOutput.AppendLine("\t\tSet the language of Greenshot, e.g. greenshot /language en-US.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
-						helpOutput.AppendLine("\t/inidirectory [directory]");
-						helpOutput.AppendLine("\t\tSet the directory where the greenshot.ini should be stored & read.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
-						helpOutput.AppendLine("\t[filename]");
-						helpOutput.AppendLine("\t\tOpen the bitmap files in the running Greenshot instance or start a new instance");
-						Console.WriteLine(helpOutput.ToString());
-
-						// If attach didn't work, wait for key otherwise the console will close to quickly
-						if (!attachedToConsole)
-						{
-							Console.ReadKey();
-						}
-						FreeMutex();
-						return;
+				if (!LockAppMutex()) {
+					// Other instance is running, call a Greenshot client or exit etc
+					
+					if (arguments.FilesToOpen.Count > 0) {
+						GreenshotClient.OpenFiles(arguments.FilesToOpen);
 					}
 
-					if (argument.ToLower().Equals("/exit"))
-					{
-						// unregister application on uninstall (allow uninstall)
-						try
-						{
-							LOG.Info("Sending all instances the exit command.");
-							// Pass Exit to running instance, if any
-							SendData(new CopyDataTransport(CommandEnum.Exit));
-						}
-						catch (Exception e)
-						{
-							LOG.Warn("Exception by exit.", e);
-						}
-						FreeMutex();
-						return;
+					if (arguments.IsExit) {
+						GreenshotClient.Exit();
 					}
 
-					// Reload the configuration
-					if (argument.ToLower().Equals("/reload"))
-					{
-						// Modify configuration
-						LOG.Info("Reloading configuration!");
-						// Update running instances
-						SendData(new CopyDataTransport(CommandEnum.ReloadConfig));
-						FreeMutex();
-						return;
+					if (arguments.IsReload) {
+						GreenshotClient.ReloadConfig();
 					}
 
-					// Stop running
-					if (argument.ToLower().Equals("/norun"))
-					{
-						// Make an exit possible
-						FreeMutex();
-						return;
-					}
-
-					// Language
-					if (argument.ToLower().Equals("/language"))
-					{
-						coreConfiguration.Language = args[++argumentNr];
-						IniConfig.Save();
-						continue;
-					}
-
-					// Setting the INI-directory
-					if (argument.ToLower().Equals("/inidirectory"))
-					{
-						IniConfig.IniDirectory = args[++argumentNr];
-						continue;
-					}
-
-					// Files to open
-					filesToOpen.Add(argument);
-				}
-
-				// Finished parsing the command line arguments, see if we need to do anything
-				CopyDataTransport transport = new CopyDataTransport();
-				if (filesToOpen.Count > 0)
-				{
-					foreach (string fileToOpen in filesToOpen)
-					{
-						transport.AddCommand(CommandEnum.OpenFile, fileToOpen);
-					}
-				}
-
-				if (isAlreadyRunning)
-				{
-					// We didn't initialize the language yet, do it here just for the message box
-					if (filesToOpen.Count > 0)
-					{
-						SendData(transport);
-					}
-					else
-					{
-						StringBuilder instanceInfo = new StringBuilder();
-						bool matchedThisProcess = false;
-						int index = 1;
-						int currentProcessId;
-						using (Process currentProcess = Process.GetCurrentProcess())
-						{
-							currentProcessId = currentProcess.Id;
-						}
-						foreach (Process greenshotProcess in Process.GetProcessesByName("greenshot"))
-						{
-							try
-							{
-								instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(greenshotProcess.Id));
-								if (currentProcessId == greenshotProcess.Id)
-								{
-									matchedThisProcess = true;
-								}
-							}
-							catch (Exception ex)
-							{
-								LOG.Debug(ex);
-							}
-							greenshotProcess.Dispose();
-						}
-						if (!matchedThisProcess)
-						{
-							using (Process currentProcess = Process.GetCurrentProcess())
-							{
-								instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
-							}
-						}
-
-						// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
-						using (var dummyForm = new Form())
-						{
-							dummyForm.Icon = GreenshotResources.getGreenshotIcon();
-							dummyForm.ShowInTaskbar = true;
-							dummyForm.FormBorderStyle = FormBorderStyle.None;
-							dummyForm.Location = new Point(int.MinValue, int.MinValue);
-							dummyForm.Load += (sender, eventArgs) => dummyForm.Size = Size.Empty;
-							dummyForm.Show();
-							MessageBox.Show(dummyForm, Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-						}
-					}
+					ShowOtherInstances();
 					FreeMutex();
-					Application.Exit();
 					return;
+				}
+
+				if (!String.IsNullOrWhiteSpace(arguments.Language)) {
+					// Set language
+					coreConfiguration.Language = arguments.Language;
+					IniConfig.Save();
 				}
 
 				// From here on we continue starting Greenshot
@@ -322,16 +135,9 @@ namespace Greenshot.Forms
 					IniConfig.Save();
 				}
 
-				// Check if it's the first time launch?
-				if (coreConfiguration.IsFirstLaunch)
-				{
-					coreConfiguration.IsFirstLaunch = false;
-					IniConfig.Save();
-					transport.AddCommand(CommandEnum.FirstLaunch);
-				}
 				// Should fix BUG-1633
 				Application.DoEvents();
-				_instance = new MainForm(transport);
+				_instance = new MainForm(arguments);
 				Application.Run();
 			}
 			catch (Exception ex)
@@ -342,20 +148,93 @@ namespace Greenshot.Forms
 		}
 
 		/// <summary>
-		/// Send DataTransport Object via Window-messages
+		/// Helper method to show the other running instances
 		/// </summary>
-		/// <param name="dataTransport">DataTransport with data for a running instance</param>
-		private static void SendData(CopyDataTransport dataTransport)
-		{
-			string appName = Application.ProductName;
-			CopyData copyData = new CopyData();
-			copyData.Channels.Add(appName);
-			copyData.Channels[appName].Send(dataTransport);
+		private static void ShowOtherInstances() {
+			var instanceInfo = new StringBuilder();
+			bool matchedThisProcess = false;
+			int index = 1;
+			int currentProcessId;
+			using (var currentProcess = Process.GetCurrentProcess()) {
+				currentProcessId = currentProcess.Id;
+			}
+			foreach (var greenshotProcess in Process.GetProcessesByName("greenshot")) {
+				try {
+					instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(greenshotProcess.Id));
+					if (currentProcessId == greenshotProcess.Id) {
+						matchedThisProcess = true;
+					}
+				} catch (Exception ex) {
+					LOG.Debug(ex);
+				}
+				greenshotProcess.Dispose();
+			}
+			if (!matchedThisProcess) {
+				using (Process currentProcess = Process.GetCurrentProcess()) {
+					instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
+				}
+			}
+
+			// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
+			using (var dummyForm = new Form()) {
+				dummyForm.Icon = GreenshotResources.getGreenshotIcon();
+				dummyForm.ShowInTaskbar = true;
+				dummyForm.FormBorderStyle = FormBorderStyle.None;
+				dummyForm.Location = new Point(int.MinValue, int.MinValue);
+				dummyForm.Load += (sender, eventArgs) => dummyForm.Size = Size.Empty;
+				dummyForm.Show();
+				// Make sure the language files are loaded, so we can show the error message "Greenshot is already running" in the right language.
+
+				MessageBox.Show(dummyForm, Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+			}
 		}
 
+		/// <summary>
+		/// This tries to get the AppMutex, which takes care of having multiple Greenshot instances running
+		/// </summary>
+		/// <returns>true if it worked, false if another instance is already running</returns>
+		private static bool LockAppMutex() {
+			bool lockSuccess = true;
+			// check whether there's an local instance running already, but use local so this works in a multi-user environment
+			try {
+				// Added Mutex Security, hopefully this prevents the UnauthorizedAccessException more gracefully
+				// See an example in Bug #3131534
+				SecurityIdentifier sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+				MutexSecurity mutexsecurity = new MutexSecurity();
+				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
+				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
+				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
+
+				bool created;
+				// 1) Create Mutex
+				_applicationMutex = new Mutex(false, MutexId, out created, mutexsecurity);
+				// 2) Get the right to it, this returns false if it's already locked
+				if (!_applicationMutex.WaitOne(0, false)) {
+					LOG.Debug("Greenshot seems already to be running!");
+					lockSuccess = false;
+					// Clean up
+					_applicationMutex.Close();
+					_applicationMutex = null;
+				}
+			} catch (AbandonedMutexException e) {
+				// Another Greenshot instance didn't cleanup correctly!
+				// we can ignore the exception, it happend on the "waitone" but still the mutex belongs to us
+				LOG.Warn("Greenshot didn't cleanup correctly!", e);
+			} catch (UnauthorizedAccessException e) {
+				LOG.Warn("Greenshot is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
+				lockSuccess = false;
+			} catch (Exception ex) {
+				LOG.Warn("Problem obtaining the Mutex, assuming it was already taken!", ex);
+				lockSuccess = false;
+			}
+			return lockSuccess;
+		}
+
+		/// <summary>
+		/// Free the application mutex
+		/// </summary>
 		private static void FreeMutex()
 		{
-			// Remove the application mutex
 			if (_applicationMutex != null)
 			{
 				try
@@ -379,18 +258,21 @@ namespace Greenshot.Forms
 			}
 		}
 
-		private readonly CopyData _copyData;
-
 		// Thumbnail preview
 		private ThumbnailForm _thumbnailForm;
 		// Make sure we have only one settings form
 		private SettingsForm _settingsForm;
 		// Make sure we have only one about form
 		private AboutForm _aboutForm;
+		// Timer for the background update check (and more?)
 		private readonly System.Threading.Timer _backgroundWorkerTimer;
 		// Timer for the double click test
 		private readonly Timer _doubleClickTimer = new Timer();
+		private GreenshotServer server;
 
+		/// <summary>
+		/// Instance of the NotifyIcon, needed to open balloon-tips
+		/// </summary>
 		public NotifyIcon NotifyIcon
 		{
 			get
@@ -399,7 +281,7 @@ namespace Greenshot.Forms
 			}
 		}
 
-		public MainForm(CopyDataTransport dataTransport)
+		public MainForm(Arguments arguments)
 		{
 			_instance = this;
 
@@ -451,6 +333,7 @@ namespace Greenshot.Forms
 			{
 				coreConfiguration.OutputDestinations.Add(EditorDestination.DESIGNATION);
 			}
+
 			if (coreConfiguration.DisableQuickSettings)
 			{
 				contextmenu_quicksettings.Visible = false;
@@ -460,6 +343,7 @@ namespace Greenshot.Forms
 				// Do after all plugins & finding the destination, otherwise they are missing!
 				InitializeQuickSettingsMenu();
 			}
+
 			SoundHelper.Initialize();
 
 			coreConfiguration.PropertyChanged += OnIconSizeChanged;
@@ -469,23 +353,23 @@ namespace Greenshot.Forms
 			// Setting it to true this late prevents Problems with the context menu
 			notifyIcon.Visible = !coreConfiguration.HideTrayicon;
 
+			// Check if it's the first time launch?
+			if (coreConfiguration.IsFirstLaunch) {
+				coreConfiguration.IsFirstLaunch = false;
+				IniConfig.Save();
+				LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
+				try {
+					notifyIcon.BalloonTipClicked += BalloonTipClicked;
+					notifyIcon.BalloonTipClosed += BalloonTipClosed;
+					notifyIcon.ShowBalloonTip(2000, "Greenshot", Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
+				} catch (Exception ex) {
+					LOG.Warn("Exception while showing first launch: ", ex);
+				}
+			}
+
 			// Make sure we never capture the mainform
 			WindowDetails.RegisterIgnoreHandle(Handle);
 
-			// Create a new instance of the class: copyData = new CopyData();
-			_copyData = new CopyData();
-
-			// Assign the handle:
-			_copyData.AssignHandle(Handle);
-			// Create the channel to send on:
-			_copyData.Channels.Add("Greenshot");
-			// Hook up received event:
-			_copyData.CopyDataReceived += CopyDataDataReceived;
-
-			if (dataTransport != null)
-			{
-				HandleDataTransport(dataTransport);
-			}
 			// Make Greenshot use less memory after startup
 			if (coreConfiguration.MinimizeWorkingSetSize)
 			{
@@ -493,20 +377,20 @@ namespace Greenshot.Forms
 			}
 			// Checking for updates etc in the background
 			_backgroundWorkerTimer = new System.Threading.Timer(async (_) => await BackgroundWorkerTimerTick().ConfigureAwait(false), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
+
+			Load += async (sender, eventArguments) => {
+				server = new GreenshotServer();
+				await server.StartAsync();
+				// Use the client to connect to myself, maybe a bit overdone but it saves code
+				GreenshotClient.OpenFiles(arguments.FilesToOpen);
+			};
 		}
 
 		/// <summary>
-		/// DataReceivedEventHandler
+		/// Handler for the BalloonTip clicked event
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="copyDataReceivedEventArgs"></param>
-		private void CopyDataDataReceived(object sender, CopyDataReceivedEventArgs copyDataReceivedEventArgs)
-		{
-			// Cast the data to the type of object we sent:
-			var dataTransport = (CopyDataTransport)copyDataReceivedEventArgs.Data;
-			HandleDataTransport(dataTransport);
-		}
-
+		/// <param name="e"></param>
 		private void BalloonTipClicked(object sender, EventArgs e)
 		{
 			try
@@ -519,75 +403,20 @@ namespace Greenshot.Forms
 			}
 		}
 
+		/// <summary>
+		/// Handler for the BalloonTip closed event
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void BalloonTipClosed(object sender, EventArgs e)
 		{
 			notifyIcon.BalloonTipClicked -= BalloonTipClicked;
 			notifyIcon.BalloonTipClosed -= BalloonTipClosed;
 		}
 
-		private void HandleDataTransport(CopyDataTransport dataTransport)
-		{
-			foreach (KeyValuePair<CommandEnum, string> command in dataTransport.Commands)
-			{
-				LOG.Debug("Data received, Command = " + command.Key + ", Data: " + command.Value);
-				switch (command.Key)
-				{
-					case CommandEnum.Exit:
-						LOG.Info("Exit requested");
-						Exit();
-						break;
-					case CommandEnum.FirstLaunch:
-						LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-						try
-						{
-							notifyIcon.BalloonTipClicked += BalloonTipClicked;
-							notifyIcon.BalloonTipClosed += BalloonTipClosed;
-							notifyIcon.ShowBalloonTip(2000, "Greenshot", Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
-						}
-						catch (Exception ex)
-						{
-							LOG.Warn("Exception while showing first launch: ", ex);
-						}
-						break;
-					case CommandEnum.ReloadConfig:
-						LOG.Info("Reload requested");
-						try
-						{
-							IniConfig.Reload();
-							Invoke((MethodInvoker)delegate
-							{
-								// Even update language when needed
-								UpdateUi();
-								// Update the hotkey
-								// Make sure the current hotkeys are disabled
-								HotkeyControl.UnregisterHotkeys();
-								RegisterHotkeys();
-							});
-						}
-						catch (Exception ex)
-						{
-							LOG.Warn("Exception while reloading configuration: ", ex);
-						}
-						break;
-					case CommandEnum.OpenFile:
-						string filename = command.Value;
-						LOG.InfoFormat("Open file requested: {0}", filename);
-						if (File.Exists(filename))
-						{
-							BeginInvoke(new Action(async () => await CaptureHelper.CaptureFileAsync(filename)));
-						}
-						else
-						{
-							LOG.Warn("No such file: " + filename);
-						}
-						break;
-					default:
-						LOG.Error("Unknown command!");
-						break;
-				}
-			}
-		}
-
+		/// <summary>
+		/// Get the ContextMenuStrip
+		/// </summary>
 		public ContextMenuStrip MainMenu
 		{
 			get { return contextMenu; }
@@ -771,6 +600,19 @@ namespace Greenshot.Forms
 			return success;
 		}
 		#endregion
+
+		/// <summary>
+		/// Helper method to reload the configuration
+		/// </summary>
+		public void ReloadConfig() {
+			IniConfig.Reload();
+			// Even update language when needed
+			UpdateUi();
+			// Update the hotkey
+			// Make sure the current hotkeys are disabled
+			HotkeyControl.UnregisterHotkeys();
+			RegisterHotkeys();
+		}
 
 		public void UpdateUi()
 		{
@@ -1136,9 +978,9 @@ namespace Greenshot.Forms
 			BeginInvoke(new Action(async () => await CaptureHelper.CaptureRegionAsync(false)));
 		}
 
-		void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
+		async void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			BeginInvoke(new Action(async () => await CaptureHelper.CaptureClipboardAsync()));
+			await CaptureHelper.CaptureClipboardAsync();
 		}
 
 		void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
