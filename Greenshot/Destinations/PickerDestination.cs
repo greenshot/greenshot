@@ -65,7 +65,7 @@ namespace Greenshot.Destinations {
 		/// <param name="captureDetails">Details of the capture</param>
 		/// <returns>true if export was made</returns>
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			List<IDestination> destinations = new List<IDestination>();
+			IList<IDestination> destinations = new List<IDestination>();
 			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
 				if ("Picker".Equals(destination.Designation)) {
 					continue;
@@ -77,7 +77,7 @@ namespace Greenshot.Destinations {
 			}
 
 			// No Processing, this is done in the selected destination (if anything was selected)
-			return await ShowPickerMenuAsync(true, surface, captureDetails, destinations, token).ConfigureAwait(false);
+			return await ShowPickerMenuAsync(true, surface, captureDetails, destinations, token);
 		}
 	}
 }

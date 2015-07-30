@@ -78,6 +78,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 							if (activeExplorer != null)
 							{
 								var untypedInlineResponse = activeExplorer.ComObject.ActiveInlineResponse;
+								string caption = activeExplorer.ComObject.Caption;
 								using (DisposableCom.Create(untypedInlineResponse))
 								{
 									var inlineResponseClass = (Outlook.OlObjectClass)untypedInlineResponse.Class;
@@ -87,7 +88,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 											var mailItem = (Outlook.MailItem)untypedInlineResponse;
 											if (!mailItem.Sent)
 											{
-												inspectorCaptions.Add(activeExplorer.ComObject.Caption, inlineResponseClass);
+												inspectorCaptions.Add(caption, inlineResponseClass);
 											}
 											break;
 										case Outlook.OlObjectClass.olAppointment:
@@ -96,7 +97,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 											{
 												if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
 												{
-													inspectorCaptions.Add(activeExplorer.ComObject.Caption, inlineResponseClass);
+													inspectorCaptions.Add(caption, inlineResponseClass);
 												}
 											}
 											break;
@@ -114,6 +115,12 @@ namespace GreenshotOfficePlugin.OfficeExport
 							{
 								using (var inspector = DisposableCom.Create(inspectors.ComObject[i]))
 								{
+									string caption = inspector.ComObject.Caption;
+									// Fix double entries in the directory, TODO: store on something uniq
+									if (inspectorCaptions.ContainsKey(caption)) {
+										continue;
+									}
+
 									var currentItemUntyped = inspector.ComObject.CurrentItem;
 									using (DisposableCom.Create(currentItemUntyped))
 									{
@@ -126,7 +133,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 												{
 													continue;
 												}
-												inspectorCaptions.Add(inspector.ComObject.Caption, currentItemClass);
+												inspectorCaptions.Add(caption, currentItemClass);
 												break;
 											case Outlook.OlObjectClass.olAppointment:
 												Outlook.AppointmentItem appointmentItem = currentItemUntyped;
@@ -143,7 +150,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 													// skip, can't export to olAppointment
 													continue;
 												}
-												inspectorCaptions.Add(inspector.ComObject.Caption, currentItemClass);
+												inspectorCaptions.Add(caption, currentItemClass);
 												break;
 											default:
 												continue;

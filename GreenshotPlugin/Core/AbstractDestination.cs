@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -227,15 +228,14 @@ namespace GreenshotPlugin.Core
 				{
 					menu.ImageScalingSize = configuration.IconSize;
 					menu.Closing += (source, eventArgs) => {
+						LOG.DebugFormat("Menu closing event with reason {0}", eventArgs.CloseReason);
 						switch (eventArgs.CloseReason)
 						{
 							case ToolStripDropDownCloseReason.Keyboard:
-								LOG.Debug("Keyboard used to close menu");
 								exit = true;
 								canExitSemaphore.Release();
 								break;
 							case ToolStripDropDownCloseReason.AppFocusChange:
-								LOG.DebugFormat("Ignoring Close reason: {0}", eventArgs.CloseReason);
 								eventArgs.Cancel = true;
 								break;
 						}
@@ -257,18 +257,19 @@ namespace GreenshotPlugin.Core
 								return;
 							}
 							var clickedDestination = (IDestination)toolStripMenuItem.Tag;
-							if (clickedDestination == null)
-							{
-								return;
-							}
-							LOG.DebugFormat("Destination {0} was clicked", clickedDestination.Description);
+
 							// try to export
 							try {
+								if (clickedDestination == null) {
+									return;
+								}
+								LOG.DebugFormat("Destination {0} was clicked", clickedDestination.Description);
 								exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
 								if (exportInformation != null && exportInformation.ExportMade) {
 									LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
 									usedDestination = clickedDestination.Designation;
 									exit = true;
+									menu.Close();
 								} else {
 									LOG.Info("Export cancelled or failed, showing menu again");
 								}
@@ -331,7 +332,7 @@ namespace GreenshotPlugin.Core
 
 			if (isDynamic && addDynamics)
 			{
-				basisMenuItem.DropDownOpening += delegate (object source, EventArgs eventArgs) {
+				basisMenuItem.DropDownOpening += (source, eventArgs) => {
 					if (basisMenuItem.DropDownItems.Count == 0)
 					{
 						List<IDestination> subDestinations = new List<IDestination>();
@@ -357,13 +358,14 @@ namespace GreenshotPlugin.Core
 							}
 							else
 							{
-								foreach (IDestination subDestination in subDestinations)
+								foreach (var subDestination in subDestinations)
 								{
 									destinationMenuItem = new ToolStripMenuItem(subDestination.Description);
 									destinationMenuItem.Tag = subDestination;
 									destinationMenuItem.Image = subDestination.DisplayIcon;
 									destinationMenuItem.Click += destinationClickHandler;
 									basisMenuItem.DropDownItems.Add(destinationMenuItem);
+
 								}
 							}
 						}

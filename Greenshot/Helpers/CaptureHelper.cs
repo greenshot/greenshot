@@ -331,7 +331,7 @@ namespace Greenshot.Helpers {
 					await HandleCaptureAsync(token);
 					break;
 				case CaptureMode.Clipboard:
-					Image clipboardImage = ClipboardHelper.GetImage();
+					var clipboardImage = ClipboardHelper.GetImage();
 					if (clipboardImage != null) {
 						if (_capture != null) {
 							_capture.Image = clipboardImage;
@@ -614,7 +614,7 @@ namespace Greenshot.Helpers {
 			}
 
 			// Create Surface with capture, this way elements can be added automatically (like the mouse cursor)
-			Surface surface = new Surface(_capture);
+			var surface = new Surface(_capture);
 			surface.Modified = !outputMade;
 
 			// Register notify events if this is wanted			
@@ -623,7 +623,7 @@ namespace Greenshot.Helpers {
 				
 			}
 			// Let the processors do their job
-			foreach(IProcessor processor in ProcessorHelper.GetAllProcessors()) {
+			foreach(var processor in ProcessorHelper.GetAllProcessors()) {
 				if (processor.isActive) {
 					LOG.InfoFormat("Calling processor {0}", processor.Description);
 					processor.ProcessCapture(surface, _capture.CaptureDetails);
@@ -634,7 +634,7 @@ namespace Greenshot.Helpers {
 			_capture.Image = null;
 
 			// Get CaptureDetails as we need it even after the capture is disposed
-			ICaptureDetails captureDetails = _capture.CaptureDetails;
+			var captureDetails = _capture.CaptureDetails;
 			bool canDisposeSurface = true;
 
 			if (captureDetails.HasDestination(PickerDestination.DESIGNATION)) {

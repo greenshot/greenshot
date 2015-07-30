@@ -146,6 +146,7 @@ namespace GreenshotOfficePlugin {
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var exportInformation = new ExportInformation(this.Designation, this.Description);
 			// Outlook logic
 			string tmpFile = captureDetails.Filename;
@@ -168,8 +169,10 @@ namespace GreenshotOfficePlugin {
 			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
 
 			if (outlookInspectorCaption != null) {
-				OutlookExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
-				exportInformation.ExportMade = true;
+				await Task.Factory.StartNew(() => {
+					OutlookExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
+					exportInformation.ExportMade = true;
+				}, token, TaskCreationOptions.None, scheduler);
 			} else {
 				IDictionary<string, Outlook.OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 				if (!manuallyInitiated && inspectorCaptions != null && inspectorCaptions.Count > 0) {
@@ -181,11 +184,14 @@ namespace GreenshotOfficePlugin {
 					// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 					return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
 				} else {
-					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC, null);
+					await Task.Factory.StartNew(() => {
+						exportInformation.ExportMade = OutlookExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC, null);
+					}, token, TaskCreationOptions.None, scheduler);
 				}
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
+
 		}
 	}
 }
