@@ -119,6 +119,7 @@ namespace GreenshotPlugin.Windows
 					{
 						PropertyChanged(this, new PropertyChangedEventArgs("ProgressValue"));
 					}
+					IsIndeterminate = false;
 				}
 			}
 		}
@@ -133,7 +134,6 @@ namespace GreenshotPlugin.Windows
 		/// <returns>Task to wait for</returns>
 		public static async Task<T> CreateAndShowAsync<T>(string title, string text, Func<IProgress<int>, CancellationToken, Task<T>> asyncFunction, CancellationToken token = default(CancellationToken), bool isIndeterminate = true)
 		{
-
 			T result = default(T);
 			using (var pleaseWaitWindow = new PleaseWaitWindow())
 			{

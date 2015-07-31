@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GreenshotImgurPlugin
@@ -87,10 +86,13 @@ namespace GreenshotImgurPlugin
 			var itemPlugInRoot = new ToolStripMenuItem("Imgur");
 			itemPlugInRoot.Image = (Image)_resources.GetObject("Imgur");
 
-			_historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.history));
-			_historyMenuItem.Tag = _host;
-			_historyMenuItem.Click += async (sender, e) => {
-				await ImgurHistory.ShowHistoryAsync();
+			_historyMenuItem = new ToolStripMenuItem {
+				Text = Language.GetString("imgur", LangKey.history),
+				Tag = _host,
+				Enabled = config.TrackHistory
+			};
+			_historyMenuItem.Click += (sender, e) => {
+				ImgurHistory.ShowHistory();
 			};
 			itemPlugInRoot.DropDownItems.Add(_historyMenuItem);
 
@@ -101,9 +103,6 @@ namespace GreenshotImgurPlugin
 
 			PluginUtils.AddToContextMenu(_host, itemPlugInRoot);
 			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
-
-			// retrieve history in the background
-			var historyTask = CheckHistory().ConfigureAwait(false);
 			return true;
 		}
 
@@ -116,25 +115,6 @@ namespace GreenshotImgurPlugin
 			}
 		}
 
-		public async Task CheckHistory() {
-			try {
-				await ImgurUtils.LoadHistory().ConfigureAwait(false);
-				_host.GreenshotForm.BeginInvoke(new Action(() =>
-				{
-					if (config.ImgurUploadHistory.Count > 0)
-					{
-						_historyMenuItem.Enabled = true;
-					}
-					else
-					{
-						_historyMenuItem.Enabled = false;
-					}
-				}));
-			} catch (Exception ex) {
-				LOG.Error("Error loading history", ex);
-			};
-		}
-
 		public void Shutdown() {
 			LOG.Debug("Imgur Plugin shutdown.");
 			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
@@ -145,6 +125,7 @@ namespace GreenshotImgurPlugin
 		/// </summary>
 		public void Configure() {
 			config.ShowConfigDialog();
+			_historyMenuItem.Enabled = config.TrackHistory;
 		}
 
 		/// <summary>

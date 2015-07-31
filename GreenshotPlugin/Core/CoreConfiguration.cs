@@ -706,8 +706,8 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		[IniProperty("WebRequestTimeout", Description = "The connect timeout value for webrequets, these are seconds", DefaultValue = "10")]
-		public int WebRequestTimeout
+		[IniProperty("HttpConnectionTimeout", Description = "The connect timeout value for http-connections, these are seconds", DefaultValue = "120")]
+		public int HttpConnectionTimeout
 		{
 			get;
 			set;
@@ -987,9 +987,9 @@ namespace GreenshotPlugin.Core
 				OutputFileReduceColorsTo = 256;
 			}
 
-			if (WebRequestTimeout < 1)
+			if (HttpConnectionTimeout < 1)
 			{
-				WebRequestTimeout = 10;
+				HttpConnectionTimeout = 10;
 			}
 			if (WebRequestReadWriteTimeout < 1)
 			{

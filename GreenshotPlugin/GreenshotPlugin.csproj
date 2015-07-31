@@ -88,8 +88,10 @@
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\HttpClientHelper.cs" />
     <Compile Include="Core\ProcessExtensions.cs" />
+    <Compile Include="Core\ProgressStream.cs" />
     <Compile Include="Core\TitleChangeMonitor.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Core\StreamDelegate.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />
     <Compile Include="Interfaces\IGreenshotContract.cs" />
     <Compile Include="Interop\DisposableCom.cs" />

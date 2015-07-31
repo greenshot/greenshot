@@ -46,46 +46,6 @@ namespace GreenshotImgurPlugin {
 		private static readonly Uri TokenUrl = new Uri("https://api.imgur.com/oauth2/token");
 
 		/// <summary>
-		/// Load the complete history of the imgur uploads, with the corresponding information
-		/// </summary>
-		public static async Task LoadHistory(CancellationToken token = default(CancellationToken)) {
-			if (config.runtimeImgurHistory.Count == config.ImgurUploadHistory.Count) {
-				return;
-			}
-			// Load the ImUr history
-			IList<string> hashes = new List<string>();
-			foreach(string hash in config.ImgurUploadHistory.Keys) {
-				hashes.Add(hash);
-			}
-			
-			bool saveNeeded = false;
-
-			foreach(string hash in hashes) {
-				if (config.runtimeImgurHistory.ContainsKey(hash)) {
-					// Already loaded
-					continue;
-				}
-				try {
-					var imgurInfo = await RetrieveImgurInfoAsync(hash, config.ImgurUploadHistory[hash]).ConfigureAwait(false);
-					if (imgurInfo != null) {
-						await RetrieveImgurThumbnailAsync(imgurInfo).ConfigureAwait(false);
-						config.runtimeImgurHistory.Add(hash, imgurInfo);
-					} else {
-						LOG.DebugFormat("Deleting not found ImgUr {0} from config.", hash);
-						config.ImgurUploadHistory.Remove(hash);
-						saveNeeded = true;
-					}
-				} catch (Exception e) {
-					LOG.Error("Problem loading ImgUr history for hash " + hash, e);
-				}
-			}
-			if (saveNeeded) {
-				// Save needed changes
-				IniConfig.Save();
-			}
-		}
-
-		/// <summary>
 		/// Do the actual upload to Picasa
 		/// </summary>
 		/// <param name="surfaceToUpload">Image to upload</param>
@@ -93,7 +53,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="title"></param>
 		/// <param name="filename"></param>
 		/// <returns>PicasaResponse</returns>
-		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, CancellationToken token = default(CancellationToken)) {
+		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			// Fill the OAuth2Settings
 			var oauth2Settings = new OAuth2Settings();
 			oauth2Settings.AuthUrlPattern = AuthUrlPattern;
@@ -114,14 +74,17 @@ namespace GreenshotImgurPlugin {
 				DynamicJson imageJson;
 				var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
 				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, oauth2Settings)) {
-					using (var uploadStream = new MemoryStream()) {
-						ImageOutput.SaveToStream(surfaceToUpload, uploadStream, outputSettings);
-						uploadStream.Seek(0, SeekOrigin.Begin);
-						using (var content = new StreamContent(uploadStream)) {
-							content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-							var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-							await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-							imageJson = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+					using (var imageStream = new MemoryStream()) {
+						ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+						imageStream.Seek(0, SeekOrigin.Begin);
+						using (var uploadStream = new ProgressStream(imageStream, progress)) {
+							uploadStream.TotalBytesToReceive = imageStream.Length;
+							using (var content = new StreamContent(uploadStream)) {
+								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
+								await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+								imageJson = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+							}
 						}
 					}
 				}
@@ -136,21 +99,24 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 
-		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, CancellationToken token = default(CancellationToken)) {
+		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			dynamic imageJson = null;
 			var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
 			using (var client = uploadUri.CreateHttpClient()) {
 				client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
 				client.DefaultRequestHeaders.ExpectContinue = false;
-				using (var uploadStream = new MemoryStream()) {
-					ImageOutput.SaveToStream(surfaceToUpload, uploadStream, outputSettings);
-					uploadStream.Seek(0, SeekOrigin.Begin);
-					using (var content = new StreamContent(uploadStream)) {
-						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-						var response = await client.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-						await response.HandleErrorAsync(token).ConfigureAwait(false);
-						imageJson = await response.GetAsJsonAsync().ConfigureAwait(false);
-					}
+				using (var imageStream = new MemoryStream()) {
+						ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+						imageStream.Seek(0, SeekOrigin.Begin);
+						using (var uploadStream = new ProgressStream(imageStream, progress)) {
+							uploadStream.TotalBytesToReceive = uploadStream.Length;
+							using (var content = new StreamContent(uploadStream)) {
+								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+								var response = await client.PostAsync(uploadUri, content, token).ConfigureAwait(false);
+								await response.HandleErrorAsync(token).ConfigureAwait(false);
+								imageJson = await response.GetAsJsonAsync().ConfigureAwait(false);
+							}
+						}
 				}
 				return (ImageInfo)CreateImageInfo(imageJson);
 			}
@@ -165,7 +131,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="title">Title</param>
 		/// <param name="filename">Filename</param>
 		/// <returns>ImgurInfo with details</returns>
-		public static async Task<ImageInfo> UploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, CancellationToken token = default(CancellationToken)) {
+		public static async Task<ImageInfo> UploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			IDictionary<string, string> otherParameters = new Dictionary<string, string>();
 			// add title
 			if (title != null && config.AddTitle) {
@@ -177,9 +143,9 @@ namespace GreenshotImgurPlugin {
 			}
 			ImageInfo imageInfo = null;
 			if (config.AnonymousAccess) {
-				imageInfo = await AnnonymousUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, token).ConfigureAwait(false);
+				imageInfo = await AnnonymousUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
 			} else {
-				imageInfo = await AuthenticatedUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, token).ConfigureAwait(false);
+				imageInfo = await AuthenticatedUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
 			}
 
 			if (imageInfo != null && config.TrackHistory) {

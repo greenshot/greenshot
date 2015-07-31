@@ -19,16 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
-using System.Drawing;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using System.Threading.Tasks;
-using System.Threading;
-using System;
-using System.IO;
 using GreenshotPlugin.Windows;
+using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace GreenshotImgurPlugin  {
@@ -78,14 +78,12 @@ namespace GreenshotImgurPlugin  {
 			try {
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
-					return ImgurUtils.UploadToImgurAsync(surface, outputSettings, captureDetails.Title, filename, pleaseWaitToken);
+					return ImgurUtils.UploadToImgurAsync(surface, outputSettings, captureDetails.Title, filename, progress, pleaseWaitToken);
 				});
 
 				if (imgurInfo != null) {
 					exportInformation.ExportMade = true;
 
-					await plugin.CheckHistory().ConfigureAwait(false);
-					IniConfig.Save();
 					if (config.UsePageLink) {
 						if (imgurInfo.Page.AbsoluteUri != null) {
 							exportInformation.Uri = imgurInfo.Page.AbsoluteUri;

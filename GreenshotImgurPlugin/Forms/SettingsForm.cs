@@ -36,22 +36,11 @@ namespace GreenshotImgurPlugin {
 			InitializeComponent();
 			CancelButton = buttonCancel;
 			AcceptButton = buttonOK;
-
-			Load += SettingsForm_Load;
-		}
-
-		private async void SettingsForm_Load(object sender, EventArgs e) {
-			await ImgurUtils.LoadHistory().ConfigureAwait(false);
-
-			if (_config.runtimeImgurHistory.Count > 0) {
-				historyButton.Enabled = true;
-			} else {
-				historyButton.Enabled = false;
-			}
+			historyButton.Enabled = config.TrackHistory;
 		}
 		
-		async void ButtonHistoryClick(object sender, EventArgs e) {
-			await ImgurHistory.ShowHistoryAsync();
+		void ButtonHistoryClick(object sender, EventArgs e) {
+			ImgurHistory.ShowHistory();
 		}
 	}
 }

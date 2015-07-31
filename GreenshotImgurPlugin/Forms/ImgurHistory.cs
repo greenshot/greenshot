@@ -24,8 +24,10 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -37,12 +39,11 @@ namespace GreenshotImgurPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
 		private GreenshotColumnSorter columnSorter;
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
-		
-		public static async Task ShowHistoryAsync() {
-			// Make sure the history is loaded, will be done only once
-			await ImgurUtils.LoadHistory();
-			await ImgurUtils.RetrieveImgurCredits();
-			new ImgurHistory().ShowDialog();
+		private static readonly string[] _columns = { "hash", "title", "deleteHash", "Date" };
+		private static ImgurHistory instance = new ImgurHistory();
+
+		public static void ShowHistory() {
+			instance.ShowDialog();
 		}
 		
 		private ImgurHistory() {
@@ -58,48 +59,71 @@ namespace GreenshotImgurPlugin {
 			listview_imgur_uploads.ListViewItemSorter = columnSorter;
 			columnSorter.SortColumn = 3;
 			columnSorter.Order = SortOrder.Descending;
-			redraw();
-			if (listview_imgur_uploads.Items.Count > 0) {
-				listview_imgur_uploads.Items[0].Selected = true;
-			}
 			ApplyLanguage();
-			if (config.Credits > 0) {
-				this.Text = this.Text + " (" + config.Credits + " credits)";
+			ClearWindow();
+			Shown += async (sender, eventArgs) => {
+				this.Text = Language.GetString("imgur.history") + " Loading...";
+				BeginRedrawWindow();
+				ClearWindow();
+				EndRedrawWindow();
+				await LoadHistory();
+				await ImgurUtils.RetrieveImgurCredits();
+				if (config.Credits > 0) {
+					this.Text = Language.GetString("imgur.history") + " (" + config.Credits + " credits)";
+				}
+			};
+		}
+
+		/// <summary>
+		/// Redraw all
+		/// </summary>
+		private void Redraw() {
+			BeginRedrawWindow();
+			ClearWindow();
+			foreach (var imgurInfo in config.runtimeImgurHistory.Values) {
+				AddImgurItem(imgurInfo);
 			}
+			EndRedrawWindow();
 		}
 
-		protected override void OnShown(EventArgs e) {
-			redraw();
-			base.OnShown(e);
-		}
-
-		private void redraw() {
-			// Should fix Bug #3378699 
-			pictureBox1.Image = null;
-			listview_imgur_uploads.BeginUpdate();
+		private void ClearWindow() {
+			BeginRedrawWindow();
 			listview_imgur_uploads.Items.Clear();
 			listview_imgur_uploads.Columns.Clear();
-			string[] columns = { "hash", "title", "deleteHash", "Date"};
-			foreach (string column in columns) {
+			foreach (var column in _columns) {
 				listview_imgur_uploads.Columns.Add(column);
 			}
-			foreach (ImageInfo imgurInfo in config.runtimeImgurHistory.Values) {
-				ListViewItem item = new ListViewItem(imgurInfo.Id);
-				item.Tag = imgurInfo;
-				item.SubItems.Add(imgurInfo.Title);
-				item.SubItems.Add(imgurInfo.DeleteHash);
-				item.SubItems.Add(imgurInfo.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", DateTimeFormatInfo.InvariantInfo));
-				listview_imgur_uploads.Items.Add(item);
-			}
-			for (int i = 0; i < columns.Length; i++) {
-				listview_imgur_uploads.Columns[i].Width = -2;
-			}
-	
-			listview_imgur_uploads.EndUpdate();
-			listview_imgur_uploads.Refresh();
+			EndRedrawWindow();
+		}
+
+		private void BeginRedrawWindow() {
+			// Should fix Bug #3378699 
+			pictureBox1.Image = null;
 			deleteButton.Enabled = false;
 			openButton.Enabled = false;
-			clipboardButton.Enabled = false;
+			clipboardButton.Enabled = false; 
+
+			listview_imgur_uploads.BeginUpdate();
+		}
+
+		private void EndRedrawWindow() {
+			listview_imgur_uploads.EndUpdate();
+			listview_imgur_uploads.Refresh();
+		}
+
+		private void AddImgurItem(ImageInfo imgurInfo) {
+			listview_imgur_uploads.BeginUpdate();
+			var item = new ListViewItem(imgurInfo.Id);
+			item.Tag = imgurInfo;
+			item.SubItems.Add(imgurInfo.Title);
+			item.SubItems.Add(imgurInfo.DeleteHash);
+			item.SubItems.Add(imgurInfo.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", DateTimeFormatInfo.InvariantInfo));
+			listview_imgur_uploads.Items.Add(item);
+			for (int i = 0; i < _columns.Length; i++) {
+				listview_imgur_uploads.Columns[i].Width = -2;
+			}
+			listview_imgur_uploads.EndUpdate();
+			listview_imgur_uploads.Refresh();
 		}
 
 		private void Listview_imgur_uploadsSelectedIndexChanged(object sender, EventArgs e) {
@@ -109,7 +133,7 @@ namespace GreenshotImgurPlugin {
 				openButton.Enabled = true;
 				clipboardButton.Enabled = true;
 				if (listview_imgur_uploads.SelectedItems.Count == 1) {
-					ImageInfo imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[0].Tag;
+					var imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[0].Tag;
 					pictureBox1.Image = imgurInfo.Image;
 				}
 			} else {
@@ -123,8 +147,8 @@ namespace GreenshotImgurPlugin {
 		private async void DeleteButtonClick(object sender, EventArgs e) {
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
-					ImageInfo imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
-					DialogResult result = MessageBox.Show(Language.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title), Language.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Id), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+					var imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
+					var result = MessageBox.Show(Language.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title), Language.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Id), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 					if (result == DialogResult.Yes) {
 						// Should fix Bug #3378699 
 						pictureBox1.Image = null;
@@ -138,14 +162,14 @@ namespace GreenshotImgurPlugin {
 				}
 			}
 
-			redraw();
+			Redraw();
 		}
 
 		private void ClipboardButtonClick(object sender, EventArgs e) {
-			StringBuilder links = new StringBuilder();
+			var links = new StringBuilder();
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
-					ImageInfo imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
+					var imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
 					if (config.UsePageLink) {
 						links.AppendLine(imgurInfo.Page.AbsoluteUri);
 					} else {
@@ -157,20 +181,20 @@ namespace GreenshotImgurPlugin {
 		}
 
 		private void ClearHistoryButtonClick(object sender, EventArgs e) {
-			DialogResult result = MessageBox.Show(Language.GetString("imgur", LangKey.clear_question), "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+			var result = MessageBox.Show(Language.GetString("imgur", LangKey.clear_question), "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 			if (result == DialogResult.Yes) {
 				config.runtimeImgurHistory.Clear();
 				config.ImgurUploadHistory.Clear();
 				IniConfig.Save();
-				redraw();
+				Redraw();
 			}
 		}
 
 		private void OpenButtonClick(object sender, EventArgs e) {
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
-					ImageInfo imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
-					System.Diagnostics.Process.Start(imgurInfo.Page.AbsoluteUri);
+					var imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
+					Process.Start(imgurInfo.Page.AbsoluteUri);
 				}
 			}
 		}
@@ -194,5 +218,39 @@ namespace GreenshotImgurPlugin {
 			this.listview_imgur_uploads.Sort();
 		}
 
+		/// <summary>
+		/// Load the complete history of the imgur uploads, with the corresponding information
+		/// </summary>
+		private async Task LoadHistory(CancellationToken token = default(CancellationToken)) {
+			bool saveNeeded = false;
+
+			// Load the ImUr history
+			foreach (string hash in config.ImgurUploadHistory.Keys) {
+				if (config.runtimeImgurHistory.ContainsKey(hash)) {
+					// Already loaded, only add it to the view
+					AddImgurItem(config.runtimeImgurHistory[hash]);
+					continue;
+				}
+				try {
+					var imgurInfo = await ImgurUtils.RetrieveImgurInfoAsync(hash, config.ImgurUploadHistory[hash]);
+					if (imgurInfo != null) {
+						await ImgurUtils.RetrieveImgurThumbnailAsync(imgurInfo);
+						config.runtimeImgurHistory.Add(hash, imgurInfo);
+						// Already loaded, only add it to the view
+						AddImgurItem(imgurInfo);
+					} else {
+						LOG.DebugFormat("Deleting not found ImgUr {0} from config.", hash);
+						config.ImgurUploadHistory.Remove(hash);
+						saveNeeded = true;
+					}
+				} catch (Exception e) {
+					LOG.Error("Problem loading ImgUr history for hash " + hash, e);
+				}
+			}
+			if (saveNeeded) {
+				// Save needed changes
+				IniConfig.Save();
+			}
+		}
 	}
 }

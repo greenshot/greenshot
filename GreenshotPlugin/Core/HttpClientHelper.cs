@@ -85,19 +85,21 @@ namespace GreenshotPlugin.Core {
 		/// <returns>HttpClient</returns>
 		public static HttpClient CreateHttpClient(this Uri uri) {
 			var cookies = new CookieContainer();
+
 			var handler = new HttpClientHandler {
 				CookieContainer = cookies,
 				UseCookies = true,
 				UseDefaultCredentials = true,
 				Credentials = CredentialCache.DefaultCredentials,
 				AllowAutoRedirect = true,
+				AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
 				// BUG-1655: Fix that Greenshot always uses the default proxy even if the "use default proxy" checkbox is unset
 				Proxy = Config.UseProxy ? CreateProxy(uri) : null,
 				UseProxy = Config.UseProxy,
 			};
 
 			var client = new HttpClient(handler);
-			client.Timeout = TimeSpan.FromSeconds(Config.WebRequestTimeout);
+			client.Timeout = TimeSpan.FromSeconds(Config.HttpConnectionTimeout);
 			return client;
 		}
 

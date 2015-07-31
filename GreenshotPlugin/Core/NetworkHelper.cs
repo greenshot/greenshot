@@ -155,7 +155,7 @@ namespace GreenshotPlugin.Core {
 			// Allow redirect, this is usually needed so that we don't get a problem when a service moves
 			webRequest.AllowAutoRedirect = true;
 			// Set default timeouts
-			webRequest.Timeout = Config.WebRequestTimeout*1000;
+			webRequest.Timeout = Config.HttpConnectionTimeout*1000;
 			webRequest.ReadWriteTimeout = Config.WebRequestReadWriteTimeout*1000;
 			return webRequest;
 		}
