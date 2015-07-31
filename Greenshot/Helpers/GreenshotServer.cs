@@ -58,7 +58,7 @@ namespace Greenshot.Helpers {
 
 		public async Task StartAsync(CancellationToken token = default(CancellationToken)) {
 			LOG.Debug("Starting Greenshot server");
-			await Task.Factory.StartNew(() => {
+			await Task.Run(() => {
 				_host = new ServiceHost(this, new[] { new Uri(PIPE_BASE_ENDPOINT) });
 				_host.AddServiceEndpoint(typeof(IGreenshotContract), new NetNamedPipeBinding(), PIPE_ADDRESS_ENDPOINT + Identity);
 				_host.Open();
@@ -68,7 +68,7 @@ namespace Greenshot.Helpers {
 
 		public async Task ShutdownAsync(CancellationToken token = default(CancellationToken)) {
 			LOG.Debug("Stopping Greenshot server");
-			await Task.Factory.StartNew(() => {
+			await Task.Run(() => {
 				if (_host != null) {
 					_host.Close();
 					_host = null;

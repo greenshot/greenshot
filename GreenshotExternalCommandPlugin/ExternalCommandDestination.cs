@@ -80,18 +80,8 @@ namespace ExternalCommand {
 					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
 				}
 
-				TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-				var task = Task.Factory.StartNew(async () => {
-					await CallExternalCommandAsync(exportInformation, presetCommand, fullPath, token);
-					ProcessExport(exportInformation, surface);
-				}, token, TaskCreationOptions.None, scheduler);
-			
-				if (runInBackground) {
-					exportInformation.ExportMade = true;
-				} else {
-					await task;
-					ProcessExport(exportInformation, surface);
-				}
+				await CallExternalCommandAsync(exportInformation, presetCommand, fullPath, runInBackground, token);
+				ProcessExport(exportInformation, surface);
 			}
 			return exportInformation;
 		}
@@ -105,10 +95,12 @@ namespace ExternalCommand {
 		/// <param name="fullPath"></param>
 		/// <param name="output"></param>
 		/// <param name="error"></param>
-		private async Task CallExternalCommandAsync(ExportInformation exportInformation, string commando, string fullPath, CancellationToken token = default(CancellationToken)) {
+		private async Task CallExternalCommandAsync(ExportInformation exportInformation, string commando, string fullPath, bool runInBackground, CancellationToken token = default(CancellationToken)) {
 			try {
-				var result = await CallExternalCommandAsync(presetCommand, fullPath, token);
-				if (result.ExitCode == 0) {
+				var result = await CallExternalCommandAsync(presetCommand, fullPath, runInBackground, token);
+				if (runInBackground) {
+					exportInformation.ExportMade = true;
+				} else if (result.ExitCode == 0) {
 					exportInformation.ExportMade = true;
 					if (!string.IsNullOrEmpty(result.StandardOutput)) {
 						MatchCollection uriMatches = URI_REGEXP.Matches(result.StandardOutput);
@@ -130,7 +122,7 @@ namespace ExternalCommand {
 					exportInformation.ErrorMessage = result.StandardError;
 				}
 			} catch (Exception ex) {
-				LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
+				LOG.WarnFormat("Error calling external command: {0} ", ex.Message);
 				exportInformation.ExportMade = false;
 				exportInformation.ErrorMessage = ex.Message;
 			}
@@ -142,10 +134,10 @@ namespace ExternalCommand {
 		/// <param name="commando"></param>
 		/// <param name="fullPath"></param>
 		/// <returns></returns>
-		private async Task<ProcessResult> CallExternalCommandAsync(string commando, string fullPath, CancellationToken token = default(CancellationToken)) {
+		private async Task<ProcessResult> CallExternalCommandAsync(string commando, string fullPath, bool runInBackground, CancellationToken token = default(CancellationToken)) {
 			Win32Exception w32ex = null;
 			try {
-				return await CallExternalCommandAsync(commando, fullPath, null, token);
+				return await CallExternalCommandAsync(commando, fullPath, null, runInBackground, token);
 			} catch (Win32Exception ex) {
 				// Retry later
 				w32ex = ex;
@@ -155,7 +147,7 @@ namespace ExternalCommand {
 				throw;
 			}
 			try {
-				return await CallExternalCommandAsync(commando, fullPath, "runas", token);
+				return await CallExternalCommandAsync(commando, fullPath, "runas", runInBackground, token);
 			} catch {
 				w32ex.Data.Add("commandline", config.commandlines[presetCommand]);
 				w32ex.Data.Add("arguments", config.arguments[presetCommand]);
@@ -172,7 +164,7 @@ namespace ExternalCommand {
 		/// <param name="output"></param>
 		/// <param name="error"></param>
 		/// <returns></returns>
-		private async Task<ProcessResult> CallExternalCommandAsync(string commando, string fullPath, string verb, CancellationToken token = default(CancellationToken)) {
+		private async Task<ProcessResult> CallExternalCommandAsync(string commando, string fullPath, string verb, bool runInBackground, CancellationToken token = default(CancellationToken)) {
 			string commandline = config.commandlines[commando];
 			string arguments = config.arguments[commando];
 			var result = new ProcessResult {
@@ -194,22 +186,30 @@ namespace ExternalCommand {
 					}
 					LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 					process.Start();
-					await process.WaitForExitAsync(token);
-					if (config.RedirectStandardOutput) {
-						var output = process.StandardOutput.ReadToEnd();
-						if (config.ShowStandardOutputInLog && output != null && output.Trim().Length > 0) {
-							result.StandardOutput = output;
-							LOG.InfoFormat("Output:\n{0}", output);
+					var processTask = Task.Run(async () =>
+					{
+						await process.WaitForExitAsync(token).ConfigureAwait(false);
+						if (config.RedirectStandardOutput) {
+							var output = process.StandardOutput.ReadToEnd();
+							if (config.ShowStandardOutputInLog && output != null && output.Trim().Length > 0) {
+								result.StandardOutput = output;
+								LOG.InfoFormat("Output:\n{0}", output);
+							}
 						}
-					}
-					if (config.RedirectStandardError) {
-						var standardError = process.StandardError.ReadToEnd();
-						if (standardError != null && standardError.Trim().Length > 0) {
-							result.StandardError = standardError;
-							LOG.WarnFormat("Error:\n{0}", standardError);
+						if (config.RedirectStandardError) {
+							var standardError = process.StandardError.ReadToEnd();
+							if (standardError != null && standardError.Trim().Length > 0) {
+								result.StandardError = standardError;
+								LOG.WarnFormat("Error:\n{0}", standardError);
+							}
 						}
+						LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+						return process.ExitCode;
+					}, token).ConfigureAwait(false);
+					if (!runInBackground) {
+						await processTask;
+						result.ExitCode = process.ExitCode;
 					}
-					LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 					return result;
 				}
 			}
