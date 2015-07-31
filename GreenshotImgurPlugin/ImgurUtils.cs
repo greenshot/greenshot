@@ -76,7 +76,7 @@ namespace GreenshotImgurPlugin {
 				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, oauth2Settings)) {
 					using (var imageStream = new MemoryStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
-						imageStream.Seek(0, SeekOrigin.Begin);
+						imageStream.Position = 0;
 						using (var uploadStream = new ProgressStream(imageStream, progress)) {
 							uploadStream.TotalBytesToReceive = imageStream.Length;
 							using (var content = new StreamContent(uploadStream)) {
@@ -107,7 +107,7 @@ namespace GreenshotImgurPlugin {
 				client.DefaultRequestHeaders.ExpectContinue = false;
 				using (var imageStream = new MemoryStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
-						imageStream.Seek(0, SeekOrigin.Begin);
+						imageStream.Position = 0;
 						using (var uploadStream = new ProgressStream(imageStream, progress)) {
 							uploadStream.TotalBytesToReceive = uploadStream.Length;
 							using (var content = new StreamContent(uploadStream)) {

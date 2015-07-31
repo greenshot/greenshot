@@ -53,7 +53,7 @@ namespace GreenshotBoxPlugin {
 		/// <param name="title">Title of box upload</param>
 		/// <param name="filename">Filename of box upload</param>
 		/// <returns>url to uploaded image</returns>
-		public static async Task<string> UploadToBoxAsync(ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+		public static async Task<string> UploadToBoxAsync(ISurface surfaceToUpload, ICaptureDetails captureDetails, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 
@@ -88,12 +88,14 @@ namespace GreenshotBoxPlugin {
 
 						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
 						stream.Position = 0;
-						using (var streamContent = new StreamContent(stream)) {
-							streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-							multiPartContent.Add(streamContent);
-							using (var responseMessage = await httpClient.PostAsync(UploadFileUri, multiPartContent, token)) {
-								await responseMessage.HandleErrorAsync(token);
-								response = await responseMessage.GetAsStringAsync();
+						using (var uploadStream = new ProgressStream(stream, progress)) {
+							using (var streamContent = new StreamContent(uploadStream)) {
+								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+								multiPartContent.Add(streamContent);
+								using (var responseMessage = await httpClient.PostAsync(UploadFileUri, multiPartContent, token)) {
+									await responseMessage.HandleErrorAsync(token);
+									response = await responseMessage.GetAsStringAsync();
+								}
 							}
 						}
 					}

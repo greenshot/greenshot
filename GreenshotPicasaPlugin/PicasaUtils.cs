@@ -46,7 +46,7 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="surfaceToUpload">Image to upload</param>
 		/// <param name="captureDetails">ICaptureDetails</param>
 		/// <returns>url</returns>
-		public static async Task<string> UploadToPicasa(ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+		public static async Task<string> UploadToPicasa(ISurface surfaceToUpload, ICaptureDetails captureDetails, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
 			// Fill the OAuth2Settings
@@ -70,14 +70,16 @@ namespace GreenshotPicasaPlugin {
 					if (_config.AddFilename) {
 						httpClient.AddDefaultRequestHeader("Slug", Uri.EscapeDataString(filename));
 					}
-					using (var uploadStream = new MemoryStream()) {
-						ImageOutput.SaveToStream(surfaceToUpload, uploadStream, outputSettings);
-						uploadStream.Seek(0, SeekOrigin.Begin);
-						using (var content = new StreamContent(uploadStream)) {
-							content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-							var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-							await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-							response = await responseMessage.GetAsStringAsync().ConfigureAwait(false);
+					using (var stream = new MemoryStream()) {
+						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+						stream.Position = 0;
+						using (var uploadStream = new ProgressStream(stream, progress)) {
+							using (var content = new StreamContent(uploadStream)) {
+								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
+								await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+								response = await responseMessage.GetAsStringAsync().ConfigureAwait(false);
+							}
 						}
 					}
 				}

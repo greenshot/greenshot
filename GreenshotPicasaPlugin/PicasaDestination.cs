@@ -66,7 +66,7 @@ namespace GreenshotPicasaPlugin {
 
 			try {
 				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), (progress, pleaseWaitToken) => {
-					return PicasaUtils.UploadToPicasa(surface, captureDetails, token);
+					return PicasaUtils.UploadToPicasa(surface, captureDetails, progress, token);
 				}).ConfigureAwait(false);
 
 				if (!string.IsNullOrEmpty(uploadURL)) {
