@@ -30,6 +30,7 @@ using Greenshot.Plugin;
 using log4net;
 using GreenshotPlugin.Core;
 using System.Threading;
+using Greenshot.IniFile;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -39,12 +40,12 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public class HotkeyControl : GreenshotTextBox {
 		private static ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
-
+		private static readonly CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 		private static EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
 		private static bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
 
 		// Holds the list of hotkeys
-		private static Dictionary<int, HotKeyHandler> keyHandlers = new Dictionary<int, HotKeyHandler>();
+		private static Dictionary<int, Action> keyHandlers = new Dictionary<int, Action>();
 		private static int hotKeyCounter = 1;
 		private const uint WM_HOTKEY = 0x312;
 		private static IntPtr hotkeyHWND;
@@ -448,8 +449,8 @@ namespace GreenshotPlugin.Controls {
 			hotkeyHWND = hWnd;
 		}
 
-		public static int RegisterHotKey(string hotkey, HotKeyHandler handler) {
-			return RegisterHotKey(HotkeyModifiersFromString(hotkey), HotkeyFromString(hotkey),handler);
+		public static int RegisterHotKey(string hotkey, Action hotkeyAction) {
+			return RegisterHotKey(HotkeyModifiersFromString(hotkey), HotkeyFromString(hotkey),hotkeyAction);
 		}
 
 		/// <summary>
@@ -460,7 +461,7 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="virtualKeyCode">The virtual key code</param>
 		/// <param name="handler">A HotKeyHandler, this will be called to handle the hotkey press</param>
 		/// <returns>the hotkey number, -1 if failed</returns>
-		public static int RegisterHotKey(Keys modifierKeyCode, Keys virtualKeyCode, HotKeyHandler handler) {
+		public static int RegisterHotKey(Keys modifierKeyCode, Keys virtualKeyCode, Action hotkeyAction) {
 			if (virtualKeyCode == Keys.None) {
 				LOG.Warn("Trying to register a Keys.none hotkey, ignoring");
 				return 0;
@@ -484,7 +485,7 @@ namespace GreenshotPlugin.Controls {
 				modifiers |= (uint)Modifiers.NO_REPEAT;
 			}
 			if (RegisterHotKey(hotkeyHWND, hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
-				keyHandlers.Add(hotKeyCounter, handler);
+				keyHandlers.Add(hotKeyCounter, hotkeyAction);
 				return hotKeyCounter++;
 			} else {
 				LOG.Warn(String.Format("Couldn't register hotkey modifier {0} virtualKeyCode {1}", modifierKeyCode, virtualKeyCode));
@@ -521,17 +522,36 @@ namespace GreenshotPlugin.Controls {
 		/// <returns>true if the message was handled</returns>
 		public static bool HandleMessages(ref Message m) {
 			if (m.Msg == WM_HOTKEY) {
-				// Call handler
-				if (isWindows7OrOlder) {
-					keyHandlers[(int)m.WParam](default(CancellationToken));
-				} else {
-					if (eventDelay.Check()) {
-						keyHandlers[(int)m.WParam](default(CancellationToken));
+				if (!ShouldIgnoreHotkeyForCurrentProcess) {
+					// Call handler
+					if (isWindows7OrOlder) {
+						keyHandlers[(int)m.WParam]();
+					} else {
+						if (eventDelay.Check()) {
+							keyHandlers[(int)m.WParam]();
+						}
 					}
+					return true;
 				}
-				return true;
 			}
 			return false;
+		}
+
+		/// <summary>
+		/// Return true if the current active process should not be captured
+		/// </summary>
+		private static bool ShouldIgnoreHotkeyForCurrentProcess {
+			get {
+				var processList = coreConfiguration.IgnoreHotkeyProcessList;
+				if (processList != null && processList.Count > 0) {
+					var currentProcessPath = WindowDetails.GetActiveWindow().ProcessPath;
+					if (!string.IsNullOrEmpty(currentProcessPath)) {
+						var shouldIgnore = coreConfiguration.IgnoreHotkeyProcessList.Contains(currentProcessPath.ToLowerInvariant());
+						return shouldIgnore;
+					}
+				}
+				return false;
+			}
 		}
 
 		public static string GetKeyName(Keys givenKey) {

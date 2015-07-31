@@ -721,6 +721,15 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
+		/// FEATURE-709 / FEATURE-419: Add the possibility to ignore the hotkeys
+		/// </summary>
+		[IniProperty("IgnoreHotkeyProcessList", Description = "Ignore the hotkey if currently one of the specified processes is active")]
+		public IList<string> IgnoreHotkeyProcessList {
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Specifies what THIS build is
 		/// </summary>
 		public BuildStates BuildState
@@ -994,6 +1003,12 @@ namespace GreenshotPlugin.Core
 			if (WebRequestReadWriteTimeout < 1)
 			{
 				WebRequestReadWriteTimeout = 100;
+			}
+			// Make sure the path is lowercase
+			if (IgnoreHotkeyProcessList != null && IgnoreHotkeyProcessList.Count > 0) {
+				for (int i = 0; i < IgnoreHotkeyProcessList.Count; i++ ) {
+					IgnoreHotkeyProcessList[i] = IgnoreHotkeyProcessList[i].ToLowerInvariant();
+				}
 			}
 		}
 

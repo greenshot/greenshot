@@ -438,15 +438,15 @@ namespace Greenshot.Forms
 		/// <param name="failedKeys"></param>
 		/// <param name="functionName"></param>
 		/// <param name="hotkeyString"></param>
-		/// <param name="handler"></param>
+		/// <param name="hotkeyAction"></param>
 		/// <returns></returns>
-		private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, HotKeyHandler handler)
+		private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, Action hotkeyAction)
 		{
 			Keys modifierKeyCode = HotkeyControl.HotkeyModifiersFromString(hotkeyString);
 			Keys virtualKeyCode = HotkeyControl.HotkeyFromString(hotkeyString);
 			if (!Keys.None.Equals(virtualKeyCode))
 			{
-				if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0)
+				if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, hotkeyAction) < 0)
 				{
 					LOG.DebugFormat("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
 					if (failedKeys.Length > 0)
@@ -465,12 +465,12 @@ namespace Greenshot.Forms
 			return true;
 		}
 
-		private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, HotKeyHandler handler, bool ignoreFailedRegistration)
+		private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, Action hotkeyAction, bool ignoreFailedRegistration)
 		{
 			IniValue hotkeyValue = coreConfiguration.Values[configurationKey];
 			try
 			{
-				bool success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+				bool success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), hotkeyAction);
 				if (!success && ignoreFailedRegistration)
 				{
 					LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue);
@@ -486,7 +486,7 @@ namespace Greenshot.Forms
 				// when getting an exception the key wasn't found: reset the hotkey value
 				hotkeyValue.UseValueOrDefault(null);
 				hotkeyValue.ContainingIniSection.IsDirty = true;
-				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), hotkeyAction);
 			}
 		}
 
@@ -529,27 +529,27 @@ namespace Greenshot.Forms
 				return false;
 			}
 			bool success = true;
-			StringBuilder failedKeys = new StringBuilder();
+			var failedKeys = new StringBuilder();
 
-			if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", _instance.CaptureRegion, ignoreFailedRegistration))
+			if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", () => _instance.CaptureRegion(), ignoreFailedRegistration))
 			{
 				success = false;
 			}
-			if (!RegisterWrapper(failedKeys, "CaptureWindow", "WindowHotkey", _instance.CaptureWindow, ignoreFailedRegistration))
+			if (!RegisterWrapper(failedKeys, "CaptureWindow", "WindowHotkey", () => _instance.CaptureWindow(), ignoreFailedRegistration))
 			{
 				success = false;
 			}
-			if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", _instance.CaptureFullScreen, ignoreFailedRegistration))
+			if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", () => _instance.CaptureFullScreen(), ignoreFailedRegistration))
 			{
 				success = false;
 			}
-			if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", _instance.CaptureLastRegion, ignoreFailedRegistration))
+			if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", () => _instance.CaptureLastRegion(), ignoreFailedRegistration))
 			{
 				success = false;
 			}
 			if (coreConfiguration.IECapture)
 			{
-				if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", _instance.CaptureIE, ignoreFailedRegistration))
+				if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", () => _instance.CaptureIE(), ignoreFailedRegistration))
 				{
 					success = false;
 				}
