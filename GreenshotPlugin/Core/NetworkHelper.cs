@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using log4net;
 using System;
@@ -39,7 +39,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class NetworkHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(NetworkHelper));
-		private static readonly CoreConfiguration Config = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration Config = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 
 		static NetworkHelper() {
 			// Disable certificate checking

@@ -24,11 +24,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System.Threading.Tasks;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.Core
 {
@@ -38,7 +38,7 @@ namespace GreenshotPlugin.Core
 	public abstract class AbstractDestination : IDestination
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
-		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration configuration = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 
 		public virtual int CompareTo(object obj)
 		{

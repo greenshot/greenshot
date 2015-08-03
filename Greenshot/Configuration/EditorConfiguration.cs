@@ -18,121 +18,100 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 
-using Greenshot.Drawing.Fields;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Core;
+using GreenshotPlugin.UnmanagedHelpers;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Configuration {
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
-	[IniSection("Editor", Description="Greenshot editor configuration")]
-	public class EditorConfiguration : IniSection {
-		[IniProperty("RecentColors", Separator="|", Description="Last used colors")]
-		public List<Color> RecentColors;
-
-		[IniProperty("LastFieldValue", Separator="|", Description="Field values, make sure the last used settings are re-used")]
-		public Dictionary<string, object> LastUsedFieldValues;
-
-		[IniProperty("MatchSizeToCapture", Description="Match the editor window size to the capture", DefaultValue="True")]
-		public bool MatchSizeToCapture;
-		[IniProperty("WindowPlacementFlags", Description="Placement flags", DefaultValue="0")]
-		public WindowPlacementFlags WindowPlacementFlags;
-		[IniProperty("WindowShowCommand", Description="Show command", DefaultValue="Normal")]
-		public ShowWindowCommand ShowWindowCommand;
-		[IniProperty("WindowMinPosition", Description="Position of minimized window", DefaultValue="-1,-1")]
-		public Point WindowMinPosition;
-		[IniProperty("WindowMaxPosition", Description="Position of maximized window", DefaultValue="-1,-1")]
-		public Point WindowMaxPosition;
-		[IniProperty("WindowNormalPosition", Description="Position of normal window", DefaultValue="100,100,400,400")]
-		public Rectangle WindowNormalPosition;
-		[IniProperty("ReuseEditor", Description = "Reuse already open editor", DefaultValue = "false")]
-		public bool ReuseEditor;
-		[IniProperty("FreehandSensitivity", Description = "The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line.", DefaultValue = "3")]
-		public int FreehandSensitivity;
-		[IniProperty("SuppressSaveDialogAtClose", Description="Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue="False")]
-		public bool SuppressSaveDialogAtClose;
-
-		[IniProperty("DropShadowEffectSettings", Description = "Settings for the drop shadow effect.")]
-		public DropShadowEffect DropShadowEffectSettings;
-
-		[IniProperty("TornEdgeEffectSettings", Description = "Settings for the torn edge effect.")]
-		public TornEdgeEffect TornEdgeEffectSettings;
-
-		public override void AfterLoad() {
-			base.AfterLoad();
-			if (RecentColors == null) {
-				RecentColors = new List<Color>();
-			}
+	[IniSection("Editor"), Description("Greenshot editor configuration")]
+	public interface EditorConfiguration : IIniSection<EditorConfiguration>, INotifyPropertyChanged {
+		[Description("Last used colors")]
+		IList<Color> RecentColors {
+			get;
+			set;
 		}
 
-		/// <param name="requestingType">Type of the class for which to create the field</param>
-		/// <param name="fieldType">FieldType of the field to construct</param>
-		/// <param name="scope">FieldType of the field to construct</param>
-		/// <returns>a new Field of the given fieldType, with the scope of it's value being restricted to the Type scope</returns>
-		public Field CreateField(Type requestingType, FieldType fieldType, object preferredDefaultValue) {
-			string requestingTypeName = requestingType.Name;
-			string requestedField = requestingTypeName + "." + fieldType.Name;
-			object fieldValue = preferredDefaultValue;
-			
-			// Check if the configuration exists
-			if (LastUsedFieldValues == null) {
-				LastUsedFieldValues = new Dictionary<string, object>();
-			}
-			
-			// Check if settings for the requesting type exist, if not create!
-			if (LastUsedFieldValues.ContainsKey(requestedField)) {
-				// Check if a value is set (not null)!
-				if (LastUsedFieldValues[requestedField] != null) {
-					fieldValue = LastUsedFieldValues[requestedField];
-				} else {
-					// Overwrite null value
-					LastUsedFieldValues[requestedField] = fieldValue;
-				}
-			} else {
-				LastUsedFieldValues.Add(requestedField, fieldValue);
-			}
-			Field returnField = new Field(fieldType, requestingType);
-			returnField.Value = fieldValue;
-			return returnField;
-		}
-		
-		public void UpdateLastFieldValue(Field field) {
-			string requestedField = field.Scope + "." + field.FieldType.Name;
-			// Check if the configuration exists
-			if (LastUsedFieldValues == null) {
-				LastUsedFieldValues = new Dictionary<string, object>();
-			}
-			// check if settings for the requesting type exist, if not create!
-			if (LastUsedFieldValues.ContainsKey(requestedField)) {
-				LastUsedFieldValues[requestedField] = field.myValue;
-			} else {
-				LastUsedFieldValues.Add(requestedField, field.myValue);
-			}
+		[DataMember(Name = "LastFieldValue"), Description("Field values, make sure the last used settings are re-used")]
+		IDictionary<string, object> LastUsedFieldValues {
+			get;
+			set;
 		}
 
-		public WindowPlacement GetEditorPlacement() {
-			WindowPlacement placement = WindowPlacement.Default;
-			placement.NormalPosition = new RECT(WindowNormalPosition);
-			placement.MaxPosition = new POINT(WindowMaxPosition);
-			placement.MinPosition = new POINT(WindowMinPosition);
-			placement.ShowCmd = ShowWindowCommand;
-			placement.Flags = WindowPlacementFlags;
-			return placement;
+		[Description("Match the editor window size to the capture"), DefaultValue(true)]
+		bool MatchSizeToCapture {
+			get;
+			set;
 		}
 
-		public void SetEditorPlacement(WindowPlacement placement) {
-			WindowNormalPosition = placement.NormalPosition.ToRectangle();
-			WindowMaxPosition = placement.MaxPosition.ToPoint();
-			WindowMinPosition = placement.MinPosition.ToPoint();
-			ShowWindowCommand = placement.ShowCmd;
-			WindowPlacementFlags = placement.Flags;
+		[Description("Placement flags")]
+		WindowPlacementFlags WindowPlacementFlags {
+			get;
+			set;
 		}
+
+		[Description("Show command"), DefaultValue(ShowWindowCommand.Normal)]
+		ShowWindowCommand ShowWindowCommand {
+			get;
+			set;
+		}
+
+		[Description("Position of minimized window"), DefaultValue("-1,-1")]
+		Point WindowMinPosition {
+			get;
+			set;
+		}
+
+		[Description("Position of maximized window"), DefaultValue("-1,-1")]
+		Point WindowMaxPosition {
+			get;
+			set;
+		}
+
+		[Description("Position of normal window"), DefaultValue("100,100,400,400")]
+		Rectangle WindowNormalPosition {
+			get;
+			set;
+		}
+
+		[Description("Reuse already open editor"), DefaultValue(false)]
+		bool ReuseEditor {
+			get;
+			set;
+		}
+
+		[Description("The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line."), DefaultValue(3)]
+		int FreehandSensitivity {
+			get;
+			set;
+		}
+
+		[Description("Suppressed the 'do you want to save' dialog when closing the editor."), DefaultValue(false)]
+		bool SuppressSaveDialogAtClose {
+			get;
+			set;
+		}
+
+
+		[Description("Settings for the drop shadow effect."), TypeConverter(typeof(EffectConverter))]
+		DropShadowEffect DropShadowEffectSettings {
+			get;
+			set;
+		}
+
+
+		[Description("Settings for the torn edge effect."), TypeConverter(typeof(EffectConverter))]
+		TornEdgeEffect TornEdgeEffectSettings {
+			get;
+			set;
+		}
+
 	}
 }

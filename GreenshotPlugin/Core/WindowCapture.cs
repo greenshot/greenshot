@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
@@ -415,7 +415,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class WindowCapture {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(WindowCapture));
-		private static readonly CoreConfiguration Configuration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration Configuration = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 
 		/// <summary>
 		/// Used to cleanup the unmanged resource in the iconInfo for the CaptureCursor method

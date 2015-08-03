@@ -19,18 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
+using GreenshotPlugin.Core;
+using log4net;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-
-using Greenshot.Plugin;
-using log4net;
-using GreenshotPlugin.Core;
-using System.Threading;
-using Greenshot.IniFile;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -40,7 +37,7 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public class HotkeyControl : GreenshotTextBox {
 		private static ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
-		private static readonly CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration coreConfiguration = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private static EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
 		private static bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
 

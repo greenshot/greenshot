@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -36,6 +35,7 @@ using System.Linq;
 using System.Globalization;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.Core {
 
@@ -43,7 +43,7 @@ namespace GreenshotPlugin.Core {
 	/// Supply the HttpClient "helper" methods as extension methods, if possible.
 	/// </summary>
 	public static class HttpClientHelper {
-		private static readonly CoreConfiguration Config = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration Config = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(HttpClientHelper));
 
 		/// <summary>

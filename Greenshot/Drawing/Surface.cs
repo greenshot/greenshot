@@ -51,7 +51,7 @@ namespace Greenshot.Drawing {
 	public class Surface : Control, ISurface {
 		private static ILog LOG = LogManager.GetLogger(typeof(Surface));
 		public static int Count = 0;
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 
 		// Property to identify the Surface ID
 		private Guid _uniqueId = Guid.NewGuid();

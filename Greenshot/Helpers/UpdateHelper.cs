@@ -1,9 +1,4 @@
-﻿using Greenshot.Configuration;
-using Greenshot.Forms;
-using Greenshot.IniFile;
-using GreenshotPlugin.Core;
-using log4net;
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -23,8 +18,14 @@ using log4net;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Dapplo.Config.Ini;
+using Dapplo.Config.Support;
+using Greenshot.Configuration;
+using Greenshot.Forms;
+using GreenshotPlugin.Core;
+using log4net;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace Greenshot.Experimental {
 	/// </summary>
 	public static class UpdateHelper {
 		private static ILog LOG = LogManager.GetLogger(typeof(UpdateHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private const string STABLE_DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
 		private const string VERSION_HISTORY_LINK = "http://getgreenshot.org/version-history/";
 		private static AsyncLock _asyncLock = new AsyncLock();
@@ -116,6 +117,24 @@ namespace Greenshot.Experimental {
 			}
 		}
 
+		/// <summary>
+		/// Specifies what THIS build is
+		/// </summary>
+		private static BuildStates BuildState {
+			get {
+				string informationalVersion = Application.ProductVersion;
+				if (informationalVersion != null) {
+					if (informationalVersion.ToLowerInvariant().Contains("-rc")) {
+						return BuildStates.RELEASE_CANDIDATE;
+					}
+					if (informationalVersion.ToLowerInvariant().Contains("-unstable")) {
+						return BuildStates.UNSTABLE;
+					}
+				}
+				return BuildStates.RELEASE;
+			}
+		}
+
 		private static async Task ProcessRSSInfoAsync(Version currentVersion) {
 			// Reset latest Greenshot
 			var rssFiles = await SourceForgeHelper.readRSS().ConfigureAwait(false);
@@ -144,7 +163,7 @@ namespace Greenshot.Experimental {
 						// the current version is a release or release candidate AND check unstable is turned off.
 						if (rssFile.isUnstable) {
 							// Skip if we shouldn't check unstables
-							if ((conf.BuildState == BuildStates.RELEASE) && !conf.CheckForUnstable) {
+							if ((BuildState == BuildStates.RELEASE) && !conf.CheckForUnstable) {
 								continue;
 							}
 						}
@@ -152,7 +171,7 @@ namespace Greenshot.Experimental {
 						// if the file is a release candidate, we will skip it when:
 						// the current version is a release AND check unstable is turned off.
 						if (rssFile.isReleaseCandidate) {
-							if (conf.BuildState == BuildStates.RELEASE && !conf.CheckForUnstable) {
+							if (BuildState == BuildStates.RELEASE && !conf.CheckForUnstable) {
 								continue;
 							}
 						}

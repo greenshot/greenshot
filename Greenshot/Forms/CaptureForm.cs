@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using Greenshot.Drawing;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -46,7 +46,7 @@ namespace Greenshot.Forms {
 		private enum FixMode {None, Initiated, Horizontal, Vertical};
 
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureForm));
-		private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration Conf = IniConfig.Get("Greenshot", "greenshot").Get<CoreConfiguration>();
 		private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
 		private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
 		private static CaptureForm _currentForm;

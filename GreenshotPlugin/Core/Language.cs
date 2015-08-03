@@ -24,9 +24,9 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Greenshot.IniFile;
 using log4net;
 using Microsoft.Win32;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.Core {
 	public delegate void LanguageChangedHandler(object sender, EventArgs e);
@@ -57,10 +57,6 @@ namespace GreenshotPlugin.Core {
 		/// Static initializer for the language code
 		/// </summary>
 		static Language() {
-			if (!IniConfig.isInitialized) {
-				LOG.Warn("IniConfig hasn't been initialized yet! (Design mode?)");
-				IniConfig.Init("greenshot", "greenshot");
-			}
 			if (!LogHelper.isInitialized) {
 				LOG.Warn("Log4net hasn't been initialized yet! (Design mode?)");
 				LogHelper.InitializeLog4NET();
@@ -99,7 +95,7 @@ namespace GreenshotPlugin.Core {
 				LOG.Warn("Couldn't read the installed language groups.", e);
 			}
 
-			coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+			coreConfig = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 			ScanFiles();
 			if (!string.IsNullOrEmpty(coreConfig.Language)) {
 				CurrentLanguage = coreConfig.Language;

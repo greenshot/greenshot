@@ -35,9 +35,9 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
-using Greenshot.IniFile;
 using System.Text.RegularExpressions;
 using log4net;
+using Dapplo.Config.Ini;
 
 namespace Greenshot {
 	/// <summary>
@@ -45,7 +45,7 @@ namespace Greenshot {
 	/// </summary>
 	public partial class SettingsForm : BaseForm {
 		private static ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot","greenshot").Get<EditorConfiguration>();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
 
@@ -304,9 +304,7 @@ namespace Greenshot {
 		/// </summary>
 		private void DisplayDestinations() {
 			bool destinationsEnabled = true;
-			if (coreConfiguration.Values.ContainsKey("Destinations")) {
-				destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-			}
+			destinationsEnabled = !coreConfiguration.IsWriteProtected(x => x.OutputDestinations);
 			checkbox_picker.Checked = false;
 
 			listview_destinations.Items.Clear();
@@ -359,26 +357,26 @@ namespace Greenshot {
 				combobox_language.SelectedValue = Language.CurrentLanguage;
 			}
 			// Disable editing when the value is fixed
-			combobox_language.Enabled = !coreConfiguration.Values["Language"].IsFixed;
+			combobox_language.Enabled = !coreConfiguration.IsWriteProtected(x => x.Language);
 
 			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
 			// Disable editing when the value is fixed
-			textbox_storagelocation.Enabled = !coreConfiguration.Values["OutputFilePath"].IsFixed;
+			textbox_storagelocation.Enabled = !coreConfiguration.IsWriteProtected(x => x.OutputFilePath);
 
 			SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
 			// Disable editing when the value is fixed
-			combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.Values["WindowCaptureMode"].IsFixed;
+			combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.IsWriteProtected(x => x.WindowCaptureMode);
 			radiobuttonWindowCapture.Checked = !coreConfiguration.CaptureWindowsInteractive;
 
 			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
-			trackBarJpegQuality.Enabled = !coreConfiguration.Values["OutputFileJpegQuality"].IsFixed;
+			trackBarJpegQuality.Enabled = !coreConfiguration.IsWriteProtected(x => x.OutputFileJpegQuality);
 			textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality+"%";
 
 			DisplayDestinations();
 
 			numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >=0?coreConfiguration.CaptureDelay:0;
-			numericUpDownWaitTime.Enabled = !coreConfiguration.Values["CaptureDelay"].IsFixed;
-			if (IniConfig.IsPortable) {
+			numericUpDownWaitTime.Enabled = !coreConfiguration.IsWriteProtected(x => x.CaptureDelay);
+			if (PortableHelper.IsPortable) {
 				checkbox_autostartshortcut.Visible = false;
 				checkbox_autostartshortcut.Checked = false;
 			} else {
@@ -399,7 +397,7 @@ namespace Greenshot {
 			}
 			
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
-			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
+			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.IsWriteProtected(x => x.UpdateCheckInterval);
 			numericUpdownIconSize.Value = (coreConfiguration.IconSize.Width /16) * 16;
 			CheckDestinationSettings();
 		}
@@ -445,8 +443,7 @@ namespace Greenshot {
 			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
-			Size previousValue = coreConfiguration.IconSize;
-			coreConfiguration.IconSize = new Size((int)numericUpdownIconSize.Value, (int)numericUpdownIconSize.Value);
+			coreConfiguration.IconSize = CoreConfigurationChecker.FixIconSize(new Size((int)numericUpdownIconSize.Value, (int)numericUpdownIconSize.Value));
 
 			try {
 				if (checkbox_autostartshortcut.Checked) {
@@ -558,9 +555,7 @@ namespace Greenshot {
 			bool clipboardDestinationChecked = false;
 			bool pickerSelected = checkbox_picker.Checked;
 			bool destinationsEnabled = true;
-			if (coreConfiguration.Values.ContainsKey("Destinations")) {
-				destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-			}
+			destinationsEnabled = !coreConfiguration.IsWriteProtected(x => x.OutputDestinations);
 			listview_destinations.Enabled = destinationsEnabled;
 			
 			foreach(int index in listview_destinations.CheckedIndices) {

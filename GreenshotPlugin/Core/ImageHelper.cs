@@ -24,10 +24,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using Greenshot.IniFile;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Core;
 using log4net;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.Core {
 	internal enum ExifOrientations : byte {
@@ -47,7 +47,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class ImageHelper {
 		private static ILog LOG = LogManager.GetLogger(typeof(ImageHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private const int EXIF_ORIENTATION_ID = 0x0112;
 
 		/// <summary>

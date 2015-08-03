@@ -44,7 +44,7 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public class MapiMailMessage : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(MapiMailMessage));
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 
 		/// <summary>
 		/// Helper Method for creating an Email with Attachment

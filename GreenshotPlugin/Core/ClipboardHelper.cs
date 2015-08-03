@@ -19,20 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
+using Greenshot.Plugin;
+using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
-using GreenshotPlugin.UnmanagedHelpers;
-using System.Runtime.InteropServices;
-using log4net;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -41,7 +41,7 @@ namespace GreenshotPlugin.Core {
 	public static class ClipboardHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ClipboardHelper));
 		private static readonly Object clipboardLockObject = new Object();
-		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration config = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";
 		private static readonly string FORMAT_PNG = "PNG";
 		private static readonly string FORMAT_PNG_OFFICEART = "PNG+Office Art";

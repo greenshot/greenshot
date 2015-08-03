@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
@@ -37,7 +37,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class PluginUtils {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginUtils));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 		private static IDictionary<string, Image> exeIconCache = new Dictionary<string, Image>();
 
@@ -134,12 +134,12 @@ namespace GreenshotPlugin.Core {
 				return null;
 			}
 			try {
-				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, conf.UseLargeIcons)) {
+				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, CoreConfigurationChecker.UseLargeIcons(conf.IconSize))) {
 					if (appIcon != null) {
 						return appIcon.ToBitmap();
 					}
 				}
-				using (Icon appIcon = Shell32.GetFileIcon(path, conf.UseLargeIcons ? Shell32.IconSize.Large : Shell32.IconSize.Small, false)) {
+				using (Icon appIcon = Shell32.GetFileIcon(path, CoreConfigurationChecker.UseLargeIcons(conf.IconSize) ? Shell32.IconSize.Large : Shell32.IconSize.Small, false)) {
 					if (appIcon != null) {
 						return appIcon.ToBitmap();
 					}

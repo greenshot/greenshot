@@ -36,7 +36,7 @@ namespace Greenshot.Destinations {
 	/// </summary>
 	public class ClipboardDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(ClipboardDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		public const string DESIGNATION = "Clipboard";
 
 		public override string Designation {

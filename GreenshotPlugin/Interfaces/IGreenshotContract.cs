@@ -45,6 +45,6 @@ namespace GreenshotPlugin.Interfaces {
 		/// </summary>
 		/// <param name="filename"></param>
 		[OperationContract]
-		Task OpenFile(string filename);
+		void OpenFile(string filename);
 	}
 }

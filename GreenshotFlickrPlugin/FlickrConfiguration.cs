@@ -18,10 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.Windows.Forms;
-using Greenshot.IniFile;
+
+using Dapplo.Config.Converters;
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using System.ComponentModel;
+using System.Runtime.Serialization;
+using System.Windows.Forms;
 
 namespace GreenshotFlickrPlugin {
 	public enum SafetyLevel {
@@ -32,39 +35,73 @@ namespace GreenshotFlickrPlugin {
 	/// <summary>
 	/// Description of FlickrConfiguration.
 	/// </summary>
-	[IniSection("Flickr", Description = "Greenshot Flickr Plugin configuration")]
-	public class FlickrConfiguration : IniSection {
-		[IniProperty("flickrIsPublic", Description = "IsPublic.", DefaultValue = "true")]
-		public bool IsPublic;
+	[IniSection("Flickr"), Description("Greenshot Flickr Plugin configuration")]
+	public class FlickrConfiguration : IIniSection<FlickrConfiguration> {
+		[DataMember(Name = "flickrIsPublic"), Description("IsPublic."), DefaultValue(true)]
+		bool IsPublic {
+			get;
+			set;
+		}
 
-		[IniProperty("flickrIsFamily", Description = "IsFamily.", DefaultValue = "true")]
-		public bool IsFamily;
+		[DataMember(Name = "flickrIsFamily"), Description("IsFamily."), DefaultValue(true)]
+		bool IsFamily {
+			get;
+			set;
+		}
 
-		[IniProperty("flickrIsFriend", Description = "IsFriend.", DefaultValue = "true")]
-		public bool IsFriend;
+		[DataMember(Name = "flickrIsFriend"), Description("IsFriend."), DefaultValue(true)]
+		bool IsFriend {
+			get;
+			set;
+		}
 
-		[IniProperty("SafetyLevel", Description = "Safety level", DefaultValue = "Safe")]
-		public SafetyLevel SafetyLevel;
+		[Description("Safety level"), DefaultValue(SafetyLevel.Safe)]
+		SafetyLevel SafetyLevel {
+			get;
+			set;
+		}
 
-		[IniProperty("HiddenFromSearch", Description = "Hidden from search", DefaultValue = "false")]
-		public bool HiddenFromSearch;
-	   
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+		[Description("Hidden from search"), DefaultValue(false)]
+		bool HiddenFromSearch {
+			get;
+			set;
+		}
 
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
+		OutputFormat UploadFormat {
+			get;
+			set;
+		}
 
-		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send flickr link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard;
+		[Description("JPEG file save quality in %."), DefaultValue(80)]
+		int UploadJpegQuality {
+			get;
+			set;
+		}
 
-		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
-		public bool UsePageLink;
+		[Description("After upload send flickr link to clipboard."), DefaultValue(true)]
+		bool AfterUploadLinkToClipBoard {
+			get;
+			set;
+		}
+
+		[Description("Use pagelink instead of direct link on the clipboard"), DefaultValue(false)]
+		bool UsePageLink {
+			get;
+			set;
+		}
 		
-		[IniProperty("FlickrToken", Description = "The Flickr token", Encrypted = true, ExcludeIfNull = true)]
-		public string FlickrToken;
-		[IniProperty("FlickrTokenSecret", Description = "The Flickr token secret", Encrypted = true, ExcludeIfNull = true)]
-		public string FlickrTokenSecret;
+		[Description("The Flickr token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string FlickrToken {
+			get;
+			set;
+		}
+
+		[Description("The Flickr token secret"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string FlickrTokenSecret {
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// A form for token

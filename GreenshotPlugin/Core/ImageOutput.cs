@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using log4net;
@@ -33,8 +33,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Encoder = System.Drawing.Imaging.Encoder;
 
@@ -44,7 +42,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class ImageOutput {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageOutput));
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
 		private static Cache<string, string> tmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
 
@@ -506,7 +504,6 @@ namespace GreenshotPlugin.Core {
 						if (conf.OutputFileCopyPathToClipboard) {
 							ClipboardHelper.SetClipboardData(returnValue);
 						}
-						IniConfig.Save();
 					} catch (ExternalException) {
 						MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
 					}

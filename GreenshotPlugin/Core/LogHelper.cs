@@ -18,17 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.IO;
-using System.Reflection;
-using System.Windows.Forms;
 
-using Greenshot.IniFile;
 using log4net;
 using log4net.Appender;
 using log4net.Config;
 using log4net.Repository.Hierarchy;
-using System;
 using log4net.Util;
+using System;
+using System.IO;
+using System.Reflection;
+using System.Windows;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -48,22 +47,24 @@ namespace GreenshotPlugin.Core {
 		// Initialize Log4J
 		public static string InitializeLog4NET() {
 			// Setup log4j, currently the file is called log4net.xml
-			string pafLog4NetFilename = Path.Combine(Application.StartupPath, @"App\Greenshot\" + LOG4NET_PORTABLE_FILE);
-			string log4netFilename = Path.Combine(Application.StartupPath, LOG4NET_FILE);
+			var startupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+			string pafLog4NetFilename = Path.Combine(startupPath, @"App\Greenshot\" + LOG4NET_PORTABLE_FILE);
+			string log4netFilename = Path.Combine(startupPath, LOG4NET_FILE);
 			
 			if (File.Exists(log4netFilename)) {
 				try {
 					XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
 					isLog4NetConfigured = true;
 				} catch (Exception ex) {
-					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButton.OK, MessageBoxImage.Warning);
 				}
 			} else if (File.Exists(pafLog4NetFilename)) {
 				try {
 					XmlConfigurator.Configure(new FileInfo(pafLog4NetFilename)); 
 					isLog4NetConfigured = true;
 				} catch (Exception ex) {
-					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButton.OK, MessageBoxImage.Warning);
 				}
 			}
 
@@ -73,10 +74,9 @@ namespace GreenshotPlugin.Core {
 					using (Stream stream = assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml")) {
 						XmlConfigurator.Configure(stream);
 						isLog4NetConfigured = true;
-						IniConfig.ForceIniInStartupPath();
 					}
 				} catch (Exception ex){
-					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButton.OK, MessageBoxImage.Warning);
 				}
 			}
 

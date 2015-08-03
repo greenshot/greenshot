@@ -18,12 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Windows.Forms;
+
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
-using System.Drawing;
 using GreenshotPlugin.UnmanagedHelpers;
+using System;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -31,7 +32,7 @@ namespace GreenshotPlugin.Controls {
 	/// Didn't make it completely "generic" yet, but at least most logic is in here so we don't have it in the mainform.
 	/// </summary>
 	public class ThumbnailForm : FormWithoutActivation {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 
 		private IntPtr thumbnailHandle = IntPtr.Zero;
 		private Rectangle parentMenuBounds = Rectangle.Empty;

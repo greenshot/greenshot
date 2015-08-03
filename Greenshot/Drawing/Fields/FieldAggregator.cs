@@ -178,9 +178,27 @@ namespace Greenshot.Drawing.Fields {
 
 						drawableContainerField.Value = field.Value;
 						// update last used from DC field, so that scope is honored
-						editorConfiguration.UpdateLastFieldValue(drawableContainerField);
+						UpdateLastFieldValue(drawableContainerField);
 					}
 				}
+			}
+		}
+
+		/// <summary>
+		/// Update the last field value in the configuration
+		/// </summary>
+		/// <param name="field"></param>
+		private static void UpdateLastFieldValue(Field field) {
+			string requestedField = field.Scope + "." + field.FieldType.Name;
+			// Check if the configuration exists
+			if (editorConfiguration.LastUsedFieldValues == null) {
+				editorConfiguration.LastUsedFieldValues = new Dictionary<string, object>();
+			}
+			// check if settings for the requesting type exist, if not create!
+			if (editorConfiguration.LastUsedFieldValues.ContainsKey(requestedField)) {
+				editorConfiguration.LastUsedFieldValues[requestedField] = field.myValue;
+			} else {
+				editorConfiguration.LastUsedFieldValues.Add(requestedField, field.myValue);
 			}
 		}
 

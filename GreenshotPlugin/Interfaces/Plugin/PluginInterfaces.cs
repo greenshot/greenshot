@@ -24,10 +24,10 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using Greenshot.Core;
 using System.Threading.Tasks;
 using System.Threading;
+using Dapplo.Config.Ini;
 
 namespace Greenshot.Plugin {
 	[Serializable]
@@ -77,7 +77,7 @@ namespace Greenshot.Plugin {
 	public delegate void HotKeyHandler(CancellationToken token);
 
 	public class SurfaceOutputSettings {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private bool reduceColors;
 		private bool disableReduceColors;
 		private List<IEffect> effects = new List<IEffect>();

@@ -20,8 +20,6 @@
  */
 
 using System.Linq;
-using Greenshot.IniFile;
-using Greenshot.Interop;
 using Greenshot.Plugin;
 using GreenshotPlugin.Interop;
 using GreenshotPlugin.UnmanagedHelpers;
@@ -35,6 +33,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
+using Greenshot.Interop;
 
 namespace GreenshotPlugin.Core
 {
@@ -183,7 +183,7 @@ namespace GreenshotPlugin.Core
 		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
 
 		private static ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
-		private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration Conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private static readonly List<IntPtr> _ignoreHandles = new List<IntPtr>();
 		private static readonly List<string> _excludeProcessesFromFreeze = new List<string>();
 		private static readonly IDisposableCom<IAppVisibility> _appVisibility;
@@ -381,7 +381,7 @@ namespace GreenshotPlugin.Core
 			IntPtr ICON_SMALL2 = new IntPtr(2);
 
 			IntPtr iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
-			if (Conf.UseLargeIcons)
+			if (CoreConfigurationChecker.UseLargeIcons(Conf.IconSize))
 			{
 				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
 				if (iconHandle == IntPtr.Zero)
