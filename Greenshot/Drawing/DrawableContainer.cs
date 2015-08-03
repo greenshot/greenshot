@@ -19,11 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
 using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
@@ -45,7 +45,7 @@ namespace Greenshot.Drawing {
 	[Serializable]
 	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
-		protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+		protected static readonly EditorConfiguration EditorConfig = IniConfig.Get("Greenshot", "greenshot").Get<EditorConfiguration>();
 		private bool isMadeUndoable;
 		private const int M11 = 0;
 		private const int M12 = 1;

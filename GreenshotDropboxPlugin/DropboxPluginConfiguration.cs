@@ -18,42 +18,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.Windows.Forms;
-using Greenshot.IniFile;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 
+using Dapplo.Config.Converters;
+using Dapplo.Config.Ini;
+using GreenshotPlugin.Core;
+using System.ComponentModel;
 
 namespace GreenshotDropboxPlugin {
 	/// <summary>
 	/// Description of ImgurConfiguration.
 	/// </summary>
-	[IniSection("Dropbox", Description = "Greenshot Dropbox Plugin configuration")]
-	public class DropboxPluginConfiguration : IniSection {
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+	[IniSection("Dropbox"), Description("Greenshot Dropbox Plugin configuration")]
+	public class DropboxPluginConfiguration : IIniSection<DropboxPluginConfiguration> {
+		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
+		OutputFormat UploadFormat {
+			get;
+			set;
+		}
 
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		[Description("JPEG file save quality in %."), DefaultValue(80)]
+		int UploadJpegQuality {
+			get;
+			set;
+		}
 
-		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Dropbox link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard;
+		[Description("After upload send Dropbox link to clipboard."), DefaultValue(true)]
+		bool AfterUploadLinkToClipBoard {
+			get;
+			set;
+		}
 
-		[IniProperty("DropboxToken", Description = "The Dropbox token", Encrypted = true, ExcludeIfNull = true)]
-		public string DropboxToken;
-		[IniProperty("DropboxTokenSecret", Description = "The Dropbox token secret", Encrypted = true, ExcludeIfNull = true)]
-		public string DropboxTokenSecret;
-	
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			DialogResult result = new SettingsForm().ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
+		[Description("The Dropbox token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string DropboxToken {
+			get;
+			set;
+		}
+		[Description("The Dropbox token secret"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string DropboxTokenSecret {
+			get;
+			set;
 		}
 	}
 }

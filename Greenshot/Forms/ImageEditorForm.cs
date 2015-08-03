@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using Greenshot.Configuration;
 using Greenshot.Core;
 using Greenshot.Destinations;
@@ -28,7 +29,6 @@ using Greenshot.Drawing.Fields.Binding;
 using Greenshot.Forms;
 using Greenshot.Help;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -50,7 +50,7 @@ namespace Greenshot {
 	/// </summary>
 	public partial class ImageEditorForm : BaseForm, IImageEditor {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageEditorForm));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<EditorConfiguration>();
 		private static List<string> ignoreDestinations = new List<string>() { PickerDestination.DESIGNATION, EditorDestination.DESIGNATION };
 		private static List<IImageEditor> editorList = new List<IImageEditor>();
 
@@ -131,7 +131,7 @@ namespace Greenshot {
 
 			// Make sure the editor is placed on the same location as the last editor was on close
 			var thisForm = new WindowDetails(Handle);
-			thisForm.WindowPlacement = editorConfiguration.GetEditorPlacement();
+			thisForm.WindowPlacement = GetEditorPlacement();
 
 			// init surface
 			Surface = iSurface;
@@ -142,6 +142,31 @@ namespace Greenshot {
 
 			// Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
 			hideToolstripItems();
+		}
+
+		/// <summary>
+		/// Helper for getting the editor placement
+		/// </summary>
+		/// <returns>WindowPlacement</returns>
+		private static WindowPlacement GetEditorPlacement() {
+			WindowPlacement placement = WindowPlacement.Default;
+			placement.NormalPosition = new RECT(editorConfiguration.WindowNormalPosition);
+			placement.MaxPosition = new POINT(editorConfiguration.WindowMaxPosition);
+			placement.MinPosition = new POINT(editorConfiguration.WindowMinPosition);
+			placement.ShowCmd = editorConfiguration.ShowWindowCommand;
+			placement.Flags = editorConfiguration.WindowPlacementFlags;
+			return placement;
+		}
+
+		/// <summary>
+		/// Helper for setting the editor placement
+		/// </summary>
+		public static void SetEditorPlacement(WindowPlacement placement) {
+			editorConfiguration.WindowNormalPosition = placement.NormalPosition.ToRectangle();
+			editorConfiguration.WindowMaxPosition = placement.MaxPosition.ToPoint();
+			editorConfiguration.WindowMinPosition = placement.MinPosition.ToPoint();
+			editorConfiguration.ShowWindowCommand = placement.ShowCmd;
+			editorConfiguration.WindowPlacementFlags = placement.Flags;
 		}
 
 		/// <summary>
@@ -752,9 +777,8 @@ namespace Greenshot {
 				}
 			}
 			// persist our geometry string.
-			editorConfiguration.SetEditorPlacement(new WindowDetails(Handle).WindowPlacement);
-			IniConfig.Save();
-			
+			SetEditorPlacement(new WindowDetails(Handle).WindowPlacement);
+		
 			// remove from the editor list
 			editorList.Remove(this);
 

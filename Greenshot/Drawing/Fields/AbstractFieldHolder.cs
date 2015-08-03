@@ -18,14 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.Serialization;
 
 using Greenshot.Configuration;
-using Greenshot.IniFile;
 using log4net;
+using Dapplo.Config.Ini;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>
@@ -34,7 +35,7 @@ namespace Greenshot.Drawing.Fields {
 	[Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot","greenshot").Get<EditorConfiguration>();
 
 		/// <summary>
 		/// called when a field's value has changed
@@ -69,7 +70,38 @@ namespace Greenshot.Drawing.Fields {
 		}
 
 		public void AddField(Type requestingType, FieldType fieldType, object fieldValue) {
-			AddField(editorConfiguration.CreateField(requestingType, fieldType, fieldValue));
+			AddField(CreateField(requestingType, fieldType, fieldValue));
+		}
+
+		/// <param name="requestingType">Type of the class for which to create the field</param>
+		/// <param name="fieldType">FieldType of the field to construct</param>
+		/// <param name="scope">FieldType of the field to construct</param>
+		/// <returns>a new Field of the given fieldType, with the scope of it's value being restricted to the Type scope</returns>
+		private static Field CreateField(Type requestingType, FieldType fieldType, object preferredDefaultValue) {
+			string requestingTypeName = requestingType.Name;
+			string requestedField = requestingTypeName + "." + fieldType.Name;
+			object fieldValue = preferredDefaultValue;
+
+			// Check if the configuration exists
+			if (editorConfiguration.LastUsedFieldValues == null) {
+				editorConfiguration.LastUsedFieldValues = new Dictionary<string, object>();
+			}
+
+			// Check if settings for the requesting type exist, if not create!
+			if (editorConfiguration.LastUsedFieldValues.ContainsKey(requestedField)) {
+				// Check if a value is set (not null)!
+				if (editorConfiguration.LastUsedFieldValues[requestedField] != null) {
+					fieldValue = editorConfiguration.LastUsedFieldValues[requestedField];
+				} else {
+					// Overwrite null value
+					editorConfiguration.LastUsedFieldValues[requestedField] = fieldValue;
+				}
+			} else {
+				editorConfiguration.LastUsedFieldValues.Add(requestedField, fieldValue);
+			}
+			Field returnField = new Field(fieldType, requestingType);
+			returnField.Value = fieldValue;
+			return returnField;
 		}
 
 		public virtual void AddField(Field field) {

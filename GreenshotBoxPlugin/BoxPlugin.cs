@@ -76,7 +76,7 @@ namespace GreenshotBoxPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute)
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute)
 		{
 			_host = pluginHost;
 			Attributes = pluginAttribute;
@@ -105,7 +105,7 @@ namespace GreenshotBoxPlugin
 			}
 		}
 
-		public virtual void Shutdown()
+		public void Shutdown()
 		{
 			LOG.Debug("Box Plugin shutdown.");
 		}
@@ -113,9 +113,9 @@ namespace GreenshotBoxPlugin
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
-			_config.ShowConfigDialog();
+			ShowConfigDialog();
 		}
 
 		/// <summary>
@@ -131,7 +131,20 @@ namespace GreenshotBoxPlugin
 
 		public void ConfigMenuClick(object sender, EventArgs eventArgs)
 		{
-			_config.ShowConfigDialog();
+			ShowConfigDialog();
+		}
+
+
+		/// <summary>
+		/// A form for token
+		/// </summary>
+		/// <returns>bool true if OK was pressed, false if cancel</returns>
+		private bool ShowConfigDialog() {
+			DialogResult result = new SettingsForm(_config).ShowDialog();
+			if (result == DialogResult.OK) {
+				return true;
+			}
+			return false;
 		}
 	}
 }

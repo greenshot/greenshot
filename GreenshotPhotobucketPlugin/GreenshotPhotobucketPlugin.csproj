@@ -19,6 +19,8 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\Greenshot\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
@@ -34,6 +36,9 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
+    <Reference Include="Dapplo.Config">
+      <HintPath>..\Greenshot\packages\Dapplo.Config.0.1.48.0\lib\net45\Dapplo.Config.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
     </Reference>
@@ -78,6 +83,7 @@
       <DependentUpon>PhotobucketPlugin.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
@@ -104,4 +110,11 @@ mkdir "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
 copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
 	</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
 </Project>

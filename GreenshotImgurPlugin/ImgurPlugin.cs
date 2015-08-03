@@ -98,7 +98,7 @@ namespace GreenshotImgurPlugin
 
 			_itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
 			_itemPlugInConfig.Tag = _host;
-			_itemPlugInConfig.Click += (sender, e) =>config.ShowConfigDialog();
+			_itemPlugInConfig.Click += (sender, e) => ShowConfigDialog();
 			itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
 
 			PluginUtils.AddToContextMenu(_host, itemPlugInRoot);
@@ -124,7 +124,7 @@ namespace GreenshotImgurPlugin
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public void Configure() {
-			config.ShowConfigDialog();
+			ShowConfigDialog();
 			_historyMenuItem.Enabled = config.TrackHistory;
 		}
 
@@ -136,6 +136,20 @@ namespace GreenshotImgurPlugin
 		public void Closing(object sender, FormClosingEventArgs e) {
 			LOG.Debug("Application closing, de-registering Imgur Plugin!");
 			Shutdown();
+		}
+
+
+		/// <summary>
+		/// A form for username/password
+		/// </summary>
+		/// <returns>bool true if OK was pressed, false if cancel</returns>
+		private bool ShowConfigDialog() {
+			var settingsForm = new SettingsForm(config);
+			var result = settingsForm.ShowDialog();
+			if (result == DialogResult.OK) {
+				return true;
+			}
+			return false;
 		}
 	}
 }

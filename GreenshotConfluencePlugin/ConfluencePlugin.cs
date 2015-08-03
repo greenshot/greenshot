@@ -93,7 +93,7 @@ namespace GreenshotConfluencePlugin {
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 			if(_config.IsDirty) {

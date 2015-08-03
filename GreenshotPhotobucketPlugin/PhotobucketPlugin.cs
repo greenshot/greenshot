@@ -73,7 +73,7 @@ namespace GreenshotPhotobucketPlugin {
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			this.host = (IGreenshotHost)pluginHost;
 			Attributes = myAttributes;
 
@@ -84,7 +84,7 @@ namespace GreenshotPhotobucketPlugin {
 			itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure));
 			itemPlugInConfig.Tag = host;
 			itemPlugInConfig.Click += delegate {
-				config.ShowConfigDialog();
+				ShowConfigDialog();
 			};
 			itemPlugInConfig.Image = (Image)resources.GetObject("Photobucket");
 
@@ -108,7 +108,27 @@ namespace GreenshotPhotobucketPlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			config.ShowConfigDialog();
+			ShowConfigDialog();
+		}
+
+
+		/// <summary>
+		/// A form for username/password
+		/// </summary>
+		/// <returns>bool true if OK was pressed, false if cancel</returns>
+		private bool ShowConfigDialog() {
+			SettingsForm settingsForm = null;
+
+			new PleaseWaitForm().ShowAndWait(PhotobucketPlugin.Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait),
+				delegate() {
+					settingsForm = new SettingsForm(config);
+				}
+			);
+			DialogResult result = settingsForm.ShowDialog();
+			if (result == DialogResult.OK) {
+				return true;
+			}
+			return false;
 		}
 
 		/// <summary>

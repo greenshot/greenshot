@@ -18,15 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using log4net;
 using System.Collections.Generic;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.Core {
 	public static class FilenameHelper {
@@ -41,7 +42,7 @@ namespace GreenshotPlugin.Core {
 
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
 		private const int MAX_TITLE_LENGTH = 80;
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private const string UNSAFE_REPLACEMENT = "_";
 
 		/// <summary>
@@ -313,7 +314,6 @@ namespace GreenshotPlugin.Core {
 						break;
 					case "NUM":
 						conf.OutputFileIncrementingNumber++;
-						IniConfig.Save();
 						replaceValue = conf.OutputFileIncrementingNumber.ToString();
 						if (padWidth == 0) {
 							padWidth = -6;

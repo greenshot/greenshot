@@ -19,8 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Extension;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,18 +30,28 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
-using GreenshotPlugin.IniFile;
 
 namespace GreenshotPlugin.Core
 {
+	/// <summary>
+	/// Supporting clipboard formats
+	/// </summary>
 	public enum ClipboardFormat
 	{
 		PNG, DIB, HTML, HTMLDATAURL, BITMAP, DIBV5
 	}
+
+	/// <summary>
+	/// Supporting output formats
+	/// </summary>
 	public enum OutputFormat
 	{
 		bmp, gif, jpg, png, tiff, greenshot
 	}
+
+	/// <summary>
+	/// All available window capture modes
+	/// </summary>
 	public enum WindowCaptureMode
 	{
 		Screen, GDI, Aero, AeroTransparent, Auto
@@ -52,6 +64,10 @@ namespace GreenshotPlugin.Core
 		RELEASE
 	}
 
+	/// <summary>
+	/// Specify what click actions there are, and Greenshot can respond to.
+	/// Used in the double/left/right-click actions
+	/// </summary>
 	public enum ClickActions
 	{
 		DO_NOTHING,
@@ -66,655 +82,617 @@ namespace GreenshotPlugin.Core
 	}
 
 	/// <summary>
+	/// Used to tag certain configuration files with a value.
+	/// </summary>
+	public enum ConfigTags {
+		// This specifies the language key for the translation of a setting
+		LanguageKey
+	}
+
+	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
-	[IniSection("Core", Description = "Greenshot core configuration")]
-	public class CoreConfiguration : IniSection, INotifyPropertyChanged
+	[IniSection("Core"), Description("Greenshot core configuration")]
+	public interface CoreConfiguration : IIniSection<CoreConfiguration>, INotifyPropertyChanged, ITagging<CoreConfiguration>
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		[IniProperty("Language", Description = "The language in IETF format (e.g. en-US)")]
-		public string Language
+		[Description("The language in IETF format (e.g. en-US)")]
+		string Language
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("RegionHotkey", Description = "Hotkey for starting the region capture", DefaultValue = "PrintScreen")]
-		public string RegionHotkey
+		[Description("Hotkey for starting the region capture"), DefaultValue("PrintScreen")]
+		string RegionHotkey
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("WindowHotkey", Description = "Hotkey for starting the window capture", DefaultValue = "Alt + PrintScreen")]
-		public string WindowHotkey
+		[Description("Hotkey for starting the window capture"), DefaultValue("Alt + PrintScreen")]
+		string WindowHotkey
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("FullscreenHotkey", Description = "Hotkey for starting the fullscreen capture", DefaultValue = "Ctrl + PrintScreen")]
-		public string FullscreenHotkey
+		[Description("Hotkey for starting the fullscreen capture"), DefaultValue("Ctrl + PrintScreen")]
+		string FullscreenHotkey
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("LastregionHotkey", Description = "Hotkey for starting the last region capture", DefaultValue = "Shift + PrintScreen")]
-		public string LastregionHotkey
+		[Description("Hotkey for starting the last region capture"), DefaultValue("Shift + PrintScreen")]
+		string LastregionHotkey
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("IEHotkey", Description = "Hotkey for starting the IE capture", DefaultValue = "Shift + Ctrl + PrintScreen")]
-		public string IEHotkey
+		[Description("Hotkey for starting the IE capture"), DefaultValue("Shift + Ctrl + PrintScreen")]
+		string IEHotkey
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("IsFirstLaunch", Description = "Is this the first time launch?", DefaultValue = "true")]
-		public bool IsFirstLaunch
+		[Description("Is this the first time launch?"), DefaultValue("true")]
+		bool IsFirstLaunch
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("Destinations", Separator = ",", Description = "Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker", DefaultValue = "Picker")]
-		public IList<string> OutputDestinations
+		[Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker"), DefaultValue("Picker")]
+		IList<string> OutputDestinations
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ClipboardFormats", Separator = ",", Description = "Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB", DefaultValue = "PNG,DIB")]
-		public IList<ClipboardFormat> ClipboardFormats
+		[Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB"), DefaultValue("PNG,DIB")]
+		IList<ClipboardFormat> ClipboardFormats
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("CaptureMousepointer", Description = "Should the mouse be captured?", DefaultValue = "true")]
-		public bool CaptureMousepointer
+		[Description("Should the mouse be captured?"), DefaultValue("true")]
+		bool CaptureMousepointer
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("CaptureWindowsInteractive", Description = "Use interactive window selection to capture? (false=Capture active window)", DefaultValue = "false")]
-		public bool CaptureWindowsInteractive
+		[Description("Use interactive window selection to capture? (false=Capture active window)"), DefaultValue("false")]
+		bool CaptureWindowsInteractive
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("CaptureDelay", Description = "Capture delay in millseconds.", DefaultValue = "100")]
-		public int CaptureDelay
+		[Description("Capture delay in millseconds."), DefaultValue("100")]
+		int CaptureDelay
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ScreenCaptureMode", Description = "The capture mode used to capture a screen. (Auto, FullScreen, Fixed)", DefaultValue = "Auto")]
-		public ScreenCaptureMode ScreenCaptureMode
+		[Description("The capture mode used to capture a screen. (Auto, FullScreen, Fixed)"), DefaultValue("Auto")]
+		ScreenCaptureMode ScreenCaptureMode
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ScreenToCapture", Description = "The screen number to capture when using ScreenCaptureMode Fixed.", DefaultValue = "1")]
-		public int ScreenToCapture
+		[Description("The screen number to capture when using ScreenCaptureMode Fixed."), DefaultValue("1")]
+		int ScreenToCapture
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("WindowCaptureMode", Description = "The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto).", DefaultValue = "Auto")]
-		public WindowCaptureMode WindowCaptureMode
+		[Description("The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto)."), DefaultValue("Auto")]
+		WindowCaptureMode WindowCaptureMode
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("WindowCaptureAllChildLocations", Description = "Enable/disable capture all children, very slow but will make it possible to use this information in the editor.", DefaultValue = "False")]
-		public bool WindowCaptureAllChildLocations
+		[Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor."), DefaultValue("False")]
+		bool WindowCaptureAllChildLocations
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("DWMBackgroundColor", Description = "The background color for a DWM window capture.")]
-		public Color DWMBackgroundColor
+		[Description("The background color for a DWM window capture.")]
+		Color DWMBackgroundColor
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("PlayCameraSound", LanguageKey = "settings_playsound", Description = "Play a camera sound after taking a capture.", DefaultValue = "false")]
-		public bool PlayCameraSound
+		[Description("Play a camera sound after taking a capture."), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "settings_playsound")]
+		bool PlayCameraSound
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ShowTrayNotification", LanguageKey = "settings_shownotify", Description = "Show a notification from the systray when a capture is taken.", DefaultValue = "true")]
-		public bool ShowTrayNotification
+		[Description("Show a notification from the systray when a capture is taken."), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "settings_shownotify")]
+		bool ShowTrayNotification
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFilePath", Description = "Output file path.")]
-		public string OutputFilePath
+		[Description("Output file path.")]
+		string OutputFilePath
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileAllowOverwrite", Description = "If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.", DefaultValue = "true")]
-		public bool OutputFileAllowOverwrite
+		[Description("If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog."), DefaultValue("true")]
+		bool OutputFileAllowOverwrite
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileFilenamePattern", Description = "Filename pattern for screenshot.", DefaultValue = "${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
-		public string OutputFileFilenamePattern
+		[Description("Filename pattern for screenshot."), DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
+		string OutputFileFilenamePattern
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileFormat", Description = "Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)", DefaultValue = "png")]
-		public OutputFormat OutputFileFormat
+		[Description("Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)"), DefaultValue("png")]
+		OutputFormat OutputFileFormat
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileReduceColors", Description = "If set to true, than the colors of the output file are reduced to 256 (8-bit) colors", DefaultValue = "false")]
-		public bool OutputFileReduceColors
+		[Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors"), DefaultValue("false")]
+		bool OutputFileReduceColors
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileAutoReduceColors", Description = "If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used.", DefaultValue = "false")]
-		public bool OutputFileAutoReduceColors
+		[Description("If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used."), DefaultValue("false")]
+		bool OutputFileAutoReduceColors
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileReduceColorsTo", Description = "Amount of colors to reduce to, when reducing", DefaultValue = "256")]
-		public int OutputFileReduceColorsTo
+		[Description("Amount of colors to reduce to, when reducing"), DefaultValue("256")]
+		int OutputFileReduceColorsTo
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileCopyPathToClipboard", Description = "When saving a screenshot, copy the path to the clipboard?", DefaultValue = "true")]
-		public bool OutputFileCopyPathToClipboard
+		[Description("When saving a screenshot, copy the path to the clipboard?"), DefaultValue("true")]
+		bool OutputFileCopyPathToClipboard
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileAsFullpath", Description = "SaveAs Full path?")]
-		public string OutputFileAsFullpath
+		[Description("SaveAs Full path?")]
+		string OutputFileAsFullpath
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
-		public int OutputFileJpegQuality
+		[Description("JPEG file save quality in %."), DefaultValue("80")]
+		int OutputFileJpegQuality
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFilePromptQuality", Description = "Ask for the quality before saving?", DefaultValue = "false")]
-		public bool OutputFilePromptQuality
+		[Description("Ask for the quality before saving?"), DefaultValue("false")]
+		bool OutputFilePromptQuality
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputFileIncrementingNumber", Description = "The number for the ${NUM} in the filename pattern, is increased automatically after each save.", DefaultValue = "1")]
-		public uint OutputFileIncrementingNumber
+		[Description("The number for the ${NUM} in the filename pattern, is increased automatically after each save."), DefaultValue("1")]
+		uint OutputFileIncrementingNumber
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintPromptOptions", LanguageKey = "settings_alwaysshowprintoptionsdialog", Description = "Ask for print options when printing?", DefaultValue = "true")]
-		public bool OutputPrintPromptOptions
+		[Description("Ask for print options when printing?"), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "settings_alwaysshowprintoptionsdialog")]
+		bool OutputPrintPromptOptions
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintAllowRotate", LanguageKey = "printoptions_allowrotate", Description = "Allow rotating the picture for fitting on paper?", DefaultValue = "false")]
-		public bool OutputPrintAllowRotate
+		[Description("Allow rotating the picture for fitting on paper?"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_allowrotate")]
+		bool OutputPrintAllowRotate
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintAllowEnlarge", LanguageKey = "printoptions_allowenlarge", Description = "Allow growing the picture for fitting on paper?", DefaultValue = "false")]
-		public bool OutputPrintAllowEnlarge
+		[Description("Allow growing the picture for fitting on paper?"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_allowenlarge")]
+		bool OutputPrintAllowEnlarge
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintAllowShrink", LanguageKey = "printoptions_allowshrink", Description = "Allow shrinking the picture for fitting on paper?", DefaultValue = "true")]
-		public bool OutputPrintAllowShrink
+		[Description("Allow shrinking the picture for fitting on paper?"), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "printoptions_allowshrink")]
+		bool OutputPrintAllowShrink
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintCenter", LanguageKey = "printoptions_allowcenter", Description = "Center image when printing?", DefaultValue = "true")]
-		public bool OutputPrintCenter
+		[Description("Center image when printing?"), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "printoptions_allowcenter")]
+		bool OutputPrintCenter
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintInverted", LanguageKey = "printoptions_inverted", Description = "Print image inverted (use e.g. for console captures)", DefaultValue = "false")]
-		public bool OutputPrintInverted
+		[Description("Print image inverted (use e.g. for console captures)"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_inverted")]
+		bool OutputPrintInverted
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintGrayscale", LanguageKey = "printoptions_printgrayscale", Description = "Force grayscale printing", DefaultValue = "false")]
-		public bool OutputPrintGrayscale
+		[Description("Force grayscale printing"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_printgrayscale")]
+		bool OutputPrintGrayscale
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintMonochrome", LanguageKey = "printoptions_printmonochrome", Description = "Force monorchrome printing", DefaultValue = "false")]
-		public bool OutputPrintMonochrome
+		[Description("Force monorchrome printing"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_printmonochrome")]
+		bool OutputPrintMonochrome
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintMonochromeThreshold", Description = "Threshold for monochrome filter (0 - 255), lower value means less black", DefaultValue = "127")]
-		public byte OutputPrintMonochromeThreshold
+		[Description("Threshold for monochrome filter (0 - 255), lower value means less black"), DefaultValue("127")]
+		byte OutputPrintMonochromeThreshold
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintFooter", LanguageKey = "printoptions_timestamp", Description = "Print footer on print?", DefaultValue = "true")]
-		public bool OutputPrintFooter
+		[Description("Print footer on print?"), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "printoptions_timestamp")]
+		bool OutputPrintFooter
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OutputPrintFooterPattern", Description = "Footer pattern", DefaultValue = "${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
-		public string OutputPrintFooterPattern
+		[Description("Footer pattern"), DefaultValue("${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
+		string OutputPrintFooterPattern
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("NotificationSound", Description = "The wav-file to play when a capture is taken, loaded only once at the Greenshot startup", DefaultValue = "default")]
-		public string NotificationSound
+		[Description("The wav-file to play when a capture is taken, loaded only once at the Greenshot startup"), DefaultValue("default")]
+		string NotificationSound
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("UseProxy", Description = "Use your global proxy?", DefaultValue = "True")]
-		public bool UseProxy
+		[Description("Use your global proxy?"), DefaultValue("True")]
+		bool UseProxy
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("IECapture", Description = "Enable/disable IE capture", DefaultValue = "True")]
-		public bool IECapture
+		[Description("Enable/disable IE capture"), DefaultValue("True")]
+		bool IECapture
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("IEFieldCapture", Description = "Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor.", DefaultValue = "False")]
-		public bool IEFieldCapture
+		[Description("Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor."), DefaultValue("False")]
+		bool IEFieldCapture
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("IECaptureMode", Description = "The capture mode used to capture IE (Screen, GDI).", DefaultValue = "Screen")]
-		public WindowCaptureMode IECaptureMode
+		[Description("The capture mode used to capture IE (Screen, GDI)."), DefaultValue("Screen")]
+		WindowCaptureMode IECaptureMode
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("WindowClassesToCheckForIE", Description = "Comma separated list of Window-Classes which need to be checked for a IE instance!", DefaultValue = "AfxFrameOrView70,IMWindowClass")]
-		public IList<string> WindowClassesToCheckForIE
+		[Description("Comma separated list of Window-Classes which need to be checked for a IE instance!"), DefaultValue("AfxFrameOrView70,IMWindowClass")]
+		IList<string> WindowClassesToCheckForIE
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("AutoCropDifference", Description = "Sets how to compare the colors for the autocrop detection, the higher the more is 'selected'. Possible values are from 0 to 255, where everything above ~150 doesn't make much sense!", DefaultValue = "10")]
-		public int AutoCropDifference
+		[Description("Sets how to compare the colors for the autocrop detection, the higher the more is 'selected'. Possible values are from 0 to 255, where everything above ~150 doesn't make much sense!"), DefaultValue("10")]
+		int AutoCropDifference
 		{
 			get;
 			set;
 		}
 
 
-		[IniProperty("IncludePlugins", Description = "Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
-		public IList<string> IncludePlugins
+		[Description("Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
+		IList<string> IncludePlugins
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ExcludePlugins", Description = "Comma separated list of Plugins which are NOT allowed.")]
-		public IList<string> ExcludePlugins
+		[Description("Comma separated list of Plugins which are NOT allowed.")]
+		IList<string> ExcludePlugins
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ExcludeDestinations", Description = "Comma separated list of destinations which should be disabled.")]
-		public IList<string> ExcludeDestinations
+		[Description("Comma separated list of destinations which should be disabled.")]
+		IList<string> ExcludeDestinations
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("UpdateCheckInterval", Description = "How many days between every update check? (0=no checks)", DefaultValue = "7")]
-		public int UpdateCheckInterval
+		[Description("How many days between every update check? (0=no checks)"), DefaultValue("7")]
+		int UpdateCheckInterval
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("LastUpdateCheck", Description = "Last update check")]
-		public DateTimeOffset LastUpdateCheck
+		[Description("Last update check")]
+		DateTimeOffset LastUpdateCheck
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("DisableSettings", Description = "Enable/disable the access to the settings, can only be changed manually in this .ini", DefaultValue = "False")]
-		public bool DisableSettings
+		[Description("Enable/disable the access to the settings, can only be changed manually in this .ini"), DefaultValue("False")]
+		bool DisableSettings
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("DisableQuickSettings", Description = "Enable/disable the access to the quick settings, can only be changed manually in this .ini", DefaultValue = "False")]
-		public bool DisableQuickSettings
+		[Description("Enable/disable the access to the quick settings, can only be changed manually in this .ini"), DefaultValue("False")]
+		bool DisableQuickSettings
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("DisableTrayicon", Description = "Disable the trayicon, can only be changed manually in this .ini", DefaultValue = "False")]
-		public bool HideTrayicon
+		[Description("Disable the trayicon, can only be changed manually in this .ini"), DefaultValue("False")]
+		bool HideTrayicon
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("HideExpertSettings", Description = "Hide expert tab in the settings, can only be changed manually in this .ini", DefaultValue = "False")]
-		public bool HideExpertSettings
+		[Description("Hide expert tab in the settings, can only be changed manually in this .ini"), DefaultValue("False")]
+		bool HideExpertSettings
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ThumnailPreview", Description = "Enable/disable thumbnail previews", DefaultValue = "True")]
-		public bool ThumnailPreview
+		[Description("Enable/disable thumbnail previews"), DefaultValue("True")]
+		bool ThumnailPreview
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("NoGDICaptureForProduct", Description = "List of productnames for which GDI capturing is skipped (using fallback).", DefaultValue = "IntelliJ IDEA")]
-		public List<string> NoGDICaptureForProduct
+		[Description("List of productnames for which GDI capturing is skipped (using fallback)."), DefaultValue("IntelliJ IDEA")]
+		IList<string> NoGDICaptureForProduct
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("NoDWMCaptureForProduct", Description = "List of productnames for which DWM capturing is skipped (using fallback).", DefaultValue = "Citrix ICA Client")]
-		public List<string> NoDWMCaptureForProduct
+		[Description("List of productnames for which DWM capturing is skipped (using fallback)."), DefaultValue("Citrix ICA Client")]
+		IList<string> NoDWMCaptureForProduct
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OptimizeForRDP", Description = "Make some optimizations for usage with remote desktop", DefaultValue = "False")]
-		public bool OptimizeForRDP
+		[Description("Make some optimizations for usage with remote desktop"), DefaultValue("False")]
+		bool OptimizeForRDP
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("MinimizeWorkingSetSize", Description = "Optimize memory footprint, but with a performance penalty!", DefaultValue = "False")]
-		public bool MinimizeWorkingSetSize
+		[Description("Optimize memory footprint, but with a performance penalty!"), DefaultValue("False")]
+		bool MinimizeWorkingSetSize
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("WindowCaptureRemoveCorners", Description = "Remove the corners from a window capture", DefaultValue = "True")]
-		public bool WindowCaptureRemoveCorners
+		[Description("Remove the corners from a window capture"), DefaultValue("True")]
+		bool WindowCaptureRemoveCorners
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("CheckForUnstable", Description = "Also check for unstable version updates", DefaultValue = "False")]
-		public bool CheckForUnstable
+		[Description("Also check for unstable version updates"), DefaultValue("False")]
+		bool CheckForUnstable
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ActiveTitleFixes", Description = "The fixes that are active.")]
-		public IList<string> ActiveTitleFixes
+		[Description("The fixes that are active.")]
+		IList<string> ActiveTitleFixes
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("TitleFixMatcher", Description = "The regular expressions to match the title with.")]
-		public IDictionary<string, string> TitleFixMatcher
+		[Description("The regular expressions to match the title with.")]
+		IDictionary<string, string> TitleFixMatcher
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("TitleFixReplacer", Description = "The replacements for the matchers.")]
-		public IDictionary<string, string> TitleFixReplacer
+		[Description("The replacements for the matchers.")]
+		IDictionary<string, string> TitleFixReplacer
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ExperimentalFeatures", Description = "A list of experimental features, this allows us to test certain features before releasing them.", ExcludeIfNull = true)]
-		public IList<string> ExperimentalFeatures
+		[Description("Enable a special DIB clipboard reader"), DefaultValue("True")]
+		bool EnableSpecialDIBClipboardReader
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("EnableSpecialDIBClipboardReader", Description = "Enable a special DIB clipboard reader", DefaultValue = "True")]
-		public bool EnableSpecialDIBClipboardReader
+
+		[Description("The cutshape which is used to remove the window corners, is mirrorred for all corners"), DefaultValue("5,3,2,1,1")]
+		IList<int> WindowCornerCutShape
 		{
 			get;
 			set;
 		}
-
 
-		[IniProperty("WindowCornerCutShape", Description = "The cutshape which is used to remove the window corners, is mirrorred for all corners", DefaultValue = "5,3,2,1,1")]
-		public IList<int> WindowCornerCutShape
+		[Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)"), DefaultValue("SHOW_CONTEXT_MENU")]
+		ClickActions LeftClickAction
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("LeftClickAction", Description = "Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)", DefaultValue = "SHOW_CONTEXT_MENU")]
-		public ClickActions LeftClickAction
+		[Description("Specify what action is made if the tray icon is double clicked"), DefaultValue("OPEN_LAST_IN_EXPLORER")]
+		ClickActions DoubleClickAction
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("DoubleClickAction", Description = "Specify what action is made if the tray icon is double clicked", DefaultValue = "OPEN_LAST_IN_EXPLORER")]
-		public ClickActions DoubleClickAction
+		[Description("Sets if the zoomer is enabled"), DefaultValue("True")]
+		bool ZoomerEnabled
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ZoomerEnabled", Description = "Sets if the zoomer is enabled", DefaultValue = "True")]
-		public bool ZoomerEnabled
+		[Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)"), DefaultValue("1")]
+		float ZoomerOpacity
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ZoomerOpacity", Description = "Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)", DefaultValue = "1")]
-		public float ZoomerOpacity
+		[Description("Maximum length of submenu items in the context menu, making this longer might cause context menu issues on dual screen systems."), DefaultValue("25")]
+		int MaxMenuItemLength
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("MaxMenuItemLength", Description = "Maximum length of submenu items in the context menu, making this longer might cause context menu issues on dual screen systems.", DefaultValue = "25")]
-		public int MaxMenuItemLength
+		[Description("The 'to' field for the email destination (settings for Outlook can be found under the Office section)"), DefaultValue("")]
+		string MailApiTo
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("MailApiTo", Description = "The 'to' field for the email destination (settings for Outlook can be found under the Office section)", DefaultValue = "")]
-		public string MailApiTo
+		[Description("The 'CC' field for the email destination (settings for Outlook can be found under the Office section)"), DefaultValue("")]
+		string MailApiCC
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("MailApiCC", Description = "The 'CC' field for the email destination (settings for Outlook can be found under the Office section)", DefaultValue = "")]
-		public string MailApiCC
+		[Description("The 'BCC' field for the email destination (settings for Outlook can be found under the Office section)"), DefaultValue("")]
+		string MailApiBCC
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("MailApiBCC", Description = "The 'BCC' field for the email destination (settings for Outlook can be found under the Office section)", DefaultValue = "")]
-		public string MailApiBCC
+		[Description("Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!"), DefaultValue("")]
+		string OptimizePNGCommand
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OptimizePNGCommand", Description = "Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!", DefaultValue = "")]
-		public string OptimizePNGCommand
+		[Description("Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot."), DefaultValue("\"{0}\"")]
+		string OptimizePNGCommandArguments
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("OptimizePNGCommandArguments", Description = "Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot.", DefaultValue = "\"{0}\"")]
-		public string OptimizePNGCommandArguments
+		[Description("Version of Greenshot which created this .ini")]
+		string LastSaveWithVersion
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("LastSaveWithVersion", Description = "Version of Greenshot which created this .ini")]
-		public string LastSaveWithVersion
+		[Description("When reading images from files or clipboard, use the EXIF information to correct the orientation"), DefaultValue("True")]
+		bool ProcessEXIFOrientation
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("ProcessEXIFOrientation", Description = "When reading images from files or clipboard, use the EXIF information to correct the orientation", DefaultValue = "True")]
-		public bool ProcessEXIFOrientation
+		[Description("The last used region, for reuse in the capture last region")]
+		Rectangle LastCapturedRegion
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
-		public Rectangle LastCapturedRegion
-		{
+		[Description("Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling"), DefaultValue("16,16")]
+		Size IconSize {
 			get;
 			set;
-		}
-
-		private Size _iconSize;
-		[IniProperty("IconSize", Description = "Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling", DefaultValue = "16,16")]
-		public Size IconSize
-		{
-			get
-			{
-				return _iconSize;
-			}
-			set
-			{
-				Size newSize = value;
-				if (newSize != Size.Empty)
-				{
-					if (newSize.Width < 16)
-					{
-						newSize.Width = 16;
-					}
-					else if (newSize.Width > 256)
-					{
-						newSize.Width = 256;
-					}
-					newSize.Width = (newSize.Width / 16) * 16;
-					if (newSize.Height < 16)
-					{
-						newSize.Height = 16;
-					}
-					else if (IconSize.Height > 256)
-					{
-						newSize.Height = 256;
-					}
-					newSize.Height = (newSize.Height / 16) * 16;
-				}
-				if (_iconSize != newSize)
-				{
-					_iconSize = value;
-					if (PropertyChanged != null)
-					{
-						PropertyChanged(this, new PropertyChangedEventArgs("IconSize"));
-					}
-				}
-			}
 		}
 
-		[IniProperty("HttpConnectionTimeout", Description = "The connect timeout value for http-connections, these are seconds", DefaultValue = "120")]
-		public int HttpConnectionTimeout
+		[Description("The connect timeout value for http-connections, these are seconds"), DefaultValue("120")]
+		int HttpConnectionTimeout
 		{
 			get;
 			set;
 		}
 
-		[IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for webrequets, these are seconds", DefaultValue = "100")]
-		public int WebRequestReadWriteTimeout
+		[Description("The read/write timeout value for webrequets, these are seconds"), DefaultValue("100")]
+		int WebRequestReadWriteTimeout
 		{
 			get;
 			set;
@@ -723,93 +701,43 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// FEATURE-709 / FEATURE-419: Add the possibility to ignore the hotkeys
 		/// </summary>
-		[IniProperty("IgnoreHotkeyProcessList", Description = "Ignore the hotkey if currently one of the specified processes is active")]
-		public IList<string> IgnoreHotkeyProcessList {
+		[Description("Ignore the hotkey if currently one of the specified processes is active")]
+		IList<string> IgnoreHotkeyProcessList {
 			get;
 			set;
 		}
+	}
 
-		/// <summary>
-		/// Specifies what THIS build is
-		/// </summary>
-		public BuildStates BuildState
-		{
-			get
-			{
-				string informationalVersion = Application.ProductVersion;
-				if (informationalVersion != null)
-				{
-					if (informationalVersion.ToLowerInvariant().Contains("-rc"))
-					{
-						return BuildStates.RELEASE_CANDIDATE;
-					}
-					if (informationalVersion.ToLowerInvariant().Contains("-unstable"))
-					{
-						return BuildStates.UNSTABLE;
-					}
-				}
-				return BuildStates.RELEASE;
-			}
-		}
-
-		public bool UseLargeIcons
-		{
-			get
-			{
-				return IconSize.Width >= 32 || IconSize.Height >= 32;
-			}
-		}
-
-		/// <summary>
-		/// A helper method which returns true if the supplied experimental feature is enabled
-		/// </summary>
-		/// <param name="experimentalFeature"></param>
-		/// <returns></returns>
-		public bool isExperimentalFeatureEnabled(string experimentalFeature)
-		{
-			return (ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature));
-		}
-
+	public static class CoreConfigurationChecker {
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(CoreConfigurationChecker));
 		/// <summary>
 		/// Supply values we can't put as defaults
 		/// </summary>
 		/// <param name="property">The property to return a default for</param>
 		/// <returns>object with the default value for the supplied property</returns>
-		public override object GetDefault(string property)
-		{
-			switch (property)
-			{
+		public static object GetDefault(string property) {
+			switch (property) {
 				case "PluginWhitelist":
 				case "PluginBacklist":
 					return new List<string>();
 				case "OutputFileAsFullpath":
-					if (IniConfig.IsPortable)
-					{
+					if (PortableHelper.IsPortable) {
 						return Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png");
-					}
-					else
-					{
+					} else {
 						return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
 					}
 				case "OutputFilePath":
-					if (IniConfig.IsPortable)
-					{
+					if (PortableHelper.IsPortable) {
 						string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
-						if (!Directory.Exists(pafOutputFilePath))
-						{
-							try
-							{
+						if (!Directory.Exists(pafOutputFilePath)) {
+							try {
 								Directory.CreateDirectory(pafOutputFilePath);
 								return pafOutputFilePath;
-							}
-							catch (Exception ex)
-							{
+							} catch (Exception ex) {
 								LOG.Warn(ex);
 								// Problem creating directory, fallback to Desktop
 							}
-						}
-						else
-						{
+						} else {
 							return pafOutputFilePath;
 						}
 					}
@@ -817,19 +745,19 @@ namespace GreenshotPlugin.Core
 				case "DWMBackgroundColor":
 					return Color.Transparent;
 				case "ActiveTitleFixes":
-					List<string> activeDefaults = new List<string>();
+					IList<string> activeDefaults = new List<string>();
 					activeDefaults.Add("Firefox");
 					activeDefaults.Add("IE");
 					activeDefaults.Add("Chrome");
 					return activeDefaults;
 				case "TitleFixMatcher":
-					Dictionary<string, string> matcherDefaults = new Dictionary<string, string>();
+					IDictionary<string, string> matcherDefaults = new Dictionary<string, string>();
 					matcherDefaults.Add("Firefox", " - Mozilla Firefox.*");
 					matcherDefaults.Add("IE", " - (Microsoft|Windows) Internet Explorer.*");
 					matcherDefaults.Add("Chrome", " - Google Chrome.*");
 					return matcherDefaults;
 				case "TitleFixReplacer":
-					Dictionary<string, string> replacerDefaults = new Dictionary<string, string>();
+					IDictionary<string, string> replacerDefaults = new Dictionary<string, string>();
 					replacerDefaults.Add("Firefox", "");
 					replacerDefaults.Add("IE", "");
 					replacerDefaults.Add("Chrome", "");
@@ -845,172 +773,167 @@ namespace GreenshotPlugin.Core
 		/// <param name="propertyName">The name of the property</param>
 		/// <param name="propertyValue">The string value of the property</param>
 		/// <returns>string with the propertyValue, modified or not...</returns>
-		public override string PreCheckValue(string propertyName, string propertyValue)
-		{
+		public static string PreCheckValue(string propertyName, string propertyValue) {
 			// Changed the separator, now we need to correct this
-			if ("Destinations".Equals(propertyName))
-			{
-				if (propertyValue != null)
-				{
+			if ("Destinations".Equals(propertyName)) {
+				if (propertyValue != null) {
 					return propertyValue.Replace('|', ',');
 				}
 			}
-			if ("OutputFilePath".Equals(propertyName))
-			{
-				if (string.IsNullOrEmpty(propertyValue))
-				{
+			if ("OutputFilePath".Equals(propertyName)) {
+				if (string.IsNullOrEmpty(propertyValue)) {
 					return null;
 				}
 			}
-			return base.PreCheckValue(propertyName, propertyValue);
+			return propertyValue;
 		}
 
 		/// <summary>
 		/// This method will be called before writing the configuration
 		/// </summary>
-		public override void BeforeSave()
-		{
-			try
-			{
+		public static void BeforeSave(CoreConfiguration coreConfiguration) {
+			try {
 				// Store version, this can be used later to fix settings after an update
-				LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+				coreConfiguration.LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+			} catch {
 			}
-			catch
-			{
-			}
+		}
+
+		public static bool UseLargeIcons(Size iconSize) {
+			return iconSize.Width >= 32 || iconSize.Height >= 32;
 		}
 
 		/// <summary>
-		/// This method will be called after reading the configuration, so eventually some corrections can be made
+		/// Helper method to limit the icon size, keep it sensible
 		/// </summary>
-		public override void AfterLoad()
-		{
+		/// <param name="iconSize">Size</param>
+		/// <returns>Size</returns>
+		public static Size FixIconSize(Size iconSize) {
+			// check the icon size value
+			if (iconSize != Size.Empty) {
+				if (iconSize.Width < 16) {
+					iconSize.Width = 16;
+				} else if (iconSize.Width > 256) {
+					iconSize.Width = 256;
+				}
+				iconSize.Width = (iconSize.Width / 16) * 16;
+				if (iconSize.Height < 16) {
+					iconSize.Height = 16;
+				} else if (iconSize.Height > 256) {
+					iconSize.Height = 256;
+				}
+				iconSize.Height = (iconSize.Height / 16) * 16;
+			}
+			return iconSize;
+		}
+
+		public static void AfterLoad(CoreConfiguration coreConfiguration) {
 			// Comment with releases
 			// CheckForUnstable = true;
 
-			if (string.IsNullOrEmpty(LastSaveWithVersion))
-			{
-				try
-				{
+			// check the icon size value
+			Size iconSize = FixIconSize(coreConfiguration.IconSize);
+			if (iconSize != coreConfiguration.IconSize) {
+				coreConfiguration.IconSize = iconSize;
+			}
+
+			if (string.IsNullOrEmpty(coreConfiguration.LastSaveWithVersion)) {
+				try {
 					// Store version, this can be used later to fix settings after an update
-					LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
-				}
-				catch
-				{
+					coreConfiguration.LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+				} catch {
 
 				}
 				// Disable the AutoReduceColors as it causes issues with Mozzila applications and some others
-				OutputFileAutoReduceColors = false;
+				coreConfiguration.OutputFileAutoReduceColors = false;
 			}
 
 			// Enable OneNote if upgrading from 1.1
-			if (ExcludeDestinations != null && ExcludeDestinations.Contains("OneNote"))
-			{
-				if (LastSaveWithVersion != null && LastSaveWithVersion.StartsWith("1.1"))
-				{
-					ExcludeDestinations.Remove("OneNote");
-				}
-				else
-				{
+			if (coreConfiguration.ExcludeDestinations != null && coreConfiguration.ExcludeDestinations.Contains("OneNote")) {
+				if (coreConfiguration.LastSaveWithVersion != null && coreConfiguration.LastSaveWithVersion.StartsWith("1.1")) {
+					coreConfiguration.ExcludeDestinations.Remove("OneNote");
+				} else {
 					// TODO: Remove with the release
-					ExcludeDestinations.Remove("OneNote");
+					coreConfiguration.ExcludeDestinations.Remove("OneNote");
 				}
 			}
 
-			if (OutputDestinations == null)
-			{
-				OutputDestinations = new List<string>();
+			if (coreConfiguration.OutputDestinations == null) {
+				coreConfiguration.OutputDestinations = new List<string>();
 			}
 
 			// Make sure there is an output!
-			if (OutputDestinations.Count == 0)
-			{
-				OutputDestinations.Add("Editor");
+			if (coreConfiguration.OutputDestinations.Count == 0) {
+				coreConfiguration.OutputDestinations.Add("Editor");
 			}
 
 			// Prevent both settings at once, bug #3435056
-			if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard)
-			{
-				OutputFileCopyPathToClipboard = false;
+			if (coreConfiguration.OutputDestinations.Contains("Clipboard") && coreConfiguration.OutputFileCopyPathToClipboard) {
+				coreConfiguration.OutputFileCopyPathToClipboard = false;
 			}
 
 			// Make sure we have clipboard formats, otherwise a paste doesn't make sense!
-			if (ClipboardFormats == null || ClipboardFormats.Count == 0)
-			{
-				ClipboardFormats = new List<ClipboardFormat>();
-				ClipboardFormats.Add(ClipboardFormat.PNG);
-				ClipboardFormats.Add(ClipboardFormat.HTML);
-				ClipboardFormats.Add(ClipboardFormat.DIB);
+			if (coreConfiguration.ClipboardFormats == null || coreConfiguration.ClipboardFormats.Count == 0) {
+				coreConfiguration.ClipboardFormats = new List<ClipboardFormat>();
+				coreConfiguration.ClipboardFormats.Add(ClipboardFormat.PNG);
+				coreConfiguration.ClipboardFormats.Add(ClipboardFormat.HTML);
+				coreConfiguration.ClipboardFormats.Add(ClipboardFormat.DIB);
 			}
 
 			// Make sure the lists are lowercase, to speedup the check
-			if (NoGDICaptureForProduct != null)
-			{
+			if (coreConfiguration.NoGDICaptureForProduct != null) {
 				// Fix error in configuration
-				if (NoGDICaptureForProduct.Count >= 2)
-				{
-					if ("intellij".Equals(NoGDICaptureForProduct[0]) && "idea".Equals(NoGDICaptureForProduct[1]))
-					{
-						NoGDICaptureForProduct.RemoveRange(0, 2);
-						NoGDICaptureForProduct.Add("Intellij Idea");
-						IsDirty = true;
+				if (coreConfiguration.NoGDICaptureForProduct.Count >= 2) {
+					if ("intellij".Equals(coreConfiguration.NoGDICaptureForProduct[0]) && "idea".Equals(coreConfiguration.NoGDICaptureForProduct[1])) {
+						coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
+						coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
+						coreConfiguration.NoGDICaptureForProduct.Add("Intellij Idea");
 					}
 				}
-				for (int i = 0; i < NoGDICaptureForProduct.Count; i++)
-				{
-					NoGDICaptureForProduct[i] = NoGDICaptureForProduct[i].ToLower();
+				for (int i = 0; i < coreConfiguration.NoGDICaptureForProduct.Count; i++) {
+					coreConfiguration.NoGDICaptureForProduct[i] = coreConfiguration.NoGDICaptureForProduct[i].ToLower();
 				}
 			}
-			if (NoDWMCaptureForProduct != null)
-			{
+			if (coreConfiguration.NoDWMCaptureForProduct != null) {
 				// Fix error in configuration
-				if (NoDWMCaptureForProduct.Count >= 3)
-				{
-					if ("citrix".Equals(NoDWMCaptureForProduct[0]) && "ica".Equals(NoDWMCaptureForProduct[1]) && "client".Equals(NoDWMCaptureForProduct[2]))
-					{
-						NoDWMCaptureForProduct.RemoveRange(0, 3);
-						NoDWMCaptureForProduct.Add("Citrix ICA Client");
-						IsDirty = true;
+				if (coreConfiguration.NoDWMCaptureForProduct.Count >= 3) {
+					if ("citrix".Equals(coreConfiguration.NoDWMCaptureForProduct[0]) && "ica".Equals(coreConfiguration.NoDWMCaptureForProduct[1]) && "client".Equals(coreConfiguration.NoDWMCaptureForProduct[2])) {
+						coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
+						coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
+						coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
+						coreConfiguration.NoDWMCaptureForProduct.Add("Citrix ICA Client");
 					}
 				}
-				for (int i = 0; i < NoDWMCaptureForProduct.Count; i++)
-				{
-					NoDWMCaptureForProduct[i] = NoDWMCaptureForProduct[i].ToLower();
+				for (int i = 0; i < coreConfiguration.NoDWMCaptureForProduct.Count; i++) {
+					coreConfiguration.NoDWMCaptureForProduct[i] = coreConfiguration.NoDWMCaptureForProduct[i].ToLower();
 				}
 			}
 
-			if (AutoCropDifference < 0)
-			{
-				AutoCropDifference = 0;
+			if (coreConfiguration.AutoCropDifference < 0) {
+				coreConfiguration.AutoCropDifference = 0;
 			}
-			if (AutoCropDifference > 255)
-			{
-				AutoCropDifference = 255;
+			if (coreConfiguration.AutoCropDifference > 255) {
+				coreConfiguration.AutoCropDifference = 255;
 			}
-			if (OutputFileReduceColorsTo < 2)
-			{
-				OutputFileReduceColorsTo = 2;
+			if (coreConfiguration.OutputFileReduceColorsTo < 2) {
+				coreConfiguration.OutputFileReduceColorsTo = 2;
 			}
-			if (OutputFileReduceColorsTo > 256)
-			{
-				OutputFileReduceColorsTo = 256;
+			if (coreConfiguration.OutputFileReduceColorsTo > 256) {
+				coreConfiguration.OutputFileReduceColorsTo = 256;
 			}
 
-			if (HttpConnectionTimeout < 1)
-			{
-				HttpConnectionTimeout = 10;
+			if (coreConfiguration.HttpConnectionTimeout < 1) {
+				coreConfiguration.HttpConnectionTimeout = 10;
 			}
-			if (WebRequestReadWriteTimeout < 1)
-			{
-				WebRequestReadWriteTimeout = 100;
+			if (coreConfiguration.WebRequestReadWriteTimeout < 1) {
+				coreConfiguration.WebRequestReadWriteTimeout = 100;
 			}
 			// Make sure the path is lowercase
-			if (IgnoreHotkeyProcessList != null && IgnoreHotkeyProcessList.Count > 0) {
-				for (int i = 0; i < IgnoreHotkeyProcessList.Count; i++ ) {
-					IgnoreHotkeyProcessList[i] = IgnoreHotkeyProcessList[i].ToLowerInvariant();
+			if (coreConfiguration.IgnoreHotkeyProcessList != null && coreConfiguration.IgnoreHotkeyProcessList.Count > 0) {
+				for (int i = 0; i < coreConfiguration.IgnoreHotkeyProcessList.Count; i++) {
+					coreConfiguration.IgnoreHotkeyProcessList[i] = coreConfiguration.IgnoreHotkeyProcessList[i].ToLowerInvariant();
 				}
 			}
 		}
-
 	}
 }

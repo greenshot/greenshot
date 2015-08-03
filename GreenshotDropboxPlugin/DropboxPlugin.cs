@@ -72,7 +72,7 @@ namespace GreenshotDropboxPlugin {
 		/// </summary>
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			this.host = (IGreenshotHost)pluginHost;
 			Attributes = myAttributes;
 
@@ -105,7 +105,20 @@ namespace GreenshotDropboxPlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			config.ShowConfigDialog();
+			ShowConfigDialog();
+		}
+
+
+		/// <summary>
+		/// A form for token
+		/// </summary>
+		/// <returns>bool true if OK was pressed, false if cancel</returns>
+		private bool ShowConfigDialog() {
+			DialogResult result = new SettingsForm().ShowDialog();
+			if (result == DialogResult.OK) {
+				return true;
+			}
+			return false;
 		}
 
 		/// <summary>
@@ -119,7 +132,7 @@ namespace GreenshotDropboxPlugin {
 		}
 
 		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
-			config.ShowConfigDialog();
+			ShowConfigDialog();
 		}
 
 		/// <summary>

@@ -17,46 +17,56 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.Windows.Forms;
-using Greenshot.IniFile;
+
+using Dapplo.Config.Converters;
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
 using System;
-using GreenshotPlugin.IniFile;
+using System.ComponentModel;
 
 namespace GreenshotPicasaPlugin {
 	/// <summary>
 	/// Description of PicasaConfiguration.
 	/// </summary>
-	[IniSection("Picasa", Description = "Greenshot Picasa Plugin configuration")]
-	public class PicasaConfiguration : IniSection {
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+	[IniSection("Picasa"), Description("Greenshot Picasa Plugin configuration")]
+	public class PicasaConfiguration : IIniSection<PicasaConfiguration> {
+		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
+		OutputFormat UploadFormat {
+			get;
+			set;
+		}
 
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		[Description("JPEG file save quality in %."), DefaultValue(80)]
+		int UploadJpegQuality {
+			get;
+			set;
+		}
 
-		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Picasa link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard;
+		[Description("After upload send Picasa link to clipboard."), DefaultValue(true)]
+		public bool AfterUploadLinkToClipBoard {
+			get;
+			set;
+		}
 
-		[IniProperty("AddFilename", Description = "Is the filename passed on to Picasa", DefaultValue = "False")]
+		[Description("Is the filename passed on to Picasa"), DefaultValue(false)]
 		public bool AddFilename {
 			get;
 			set;
 		}
 
-		[IniProperty("UploadUser", Description = "The picasa user to upload to", DefaultValue = "default")]
+		[Description("The picasa user to upload to"), DefaultValue("default")]
 		public string UploadUser {
 			get;
 			set;
 		}
 
-		[IniProperty("UploadAlbum", Description = "The picasa album to upload to", DefaultValue = "default")]
+		[Description("The picasa album to upload to"), DefaultValue("default")]
 		public string UploadAlbum {
 			get;
 			set;
 		}
 
-		[IniProperty("RefreshToken", Description = "Picasa authorization refresh Token", Encrypted = true)]
+		[Description("Picasa authorization refresh Token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
 		public string RefreshToken {
 			get;
 			set;
@@ -65,6 +75,7 @@ namespace GreenshotPicasaPlugin {
 		/// <summary>
 		/// Not stored
 		/// </summary>
+		[IniPropertyBehavior(Read = false, Write = false)]
 		public string AccessToken {
 			get;
 			set;
@@ -73,22 +84,10 @@ namespace GreenshotPicasaPlugin {
 		/// <summary>
 		/// Not stored
 		/// </summary>
+		[IniPropertyBehavior(Read = false, Write = false)]
 		public DateTimeOffset AccessTokenExpires {
 			get;
 			set;
 		}
-
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			DialogResult result = new SettingsForm(this).ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
-		}
-
 	}
 }

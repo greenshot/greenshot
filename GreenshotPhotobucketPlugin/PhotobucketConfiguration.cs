@@ -18,57 +18,73 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.Windows.Forms;
-using Greenshot.IniFile;
+
+using Dapplo.Config.Converters;
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace GreenshotPhotobucketPlugin {
 	/// <summary>
 	/// Description of PhotobucketConfiguration.
 	/// </summary>
-	[IniSection("Photobucket", Description="Greenshot Photobucket Plugin configuration")]
-	public class PhotobucketConfiguration : IniSection {
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
-		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
-		public bool UploadReduceColors;
-		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
-		public bool UsePageLink;
-		[IniProperty("Token", Description = "The Photobucket token", Encrypted=true, ExcludeIfNull=true)]
-		public string Token;
-		[IniProperty("TokenSecret", Description = "The Photobucket token secret", Encrypted=true, ExcludeIfNull=true)]
-		public string TokenSecret;
-		[IniProperty("SubDomain", Description = "The Photobucket api subdomain", Encrypted = true, ExcludeIfNull = true)]
-		public string SubDomain;
-		[IniProperty("Username", Description = "The Photobucket api username", ExcludeIfNull = true)]
-		public string Username;
-		
-		public int Credits {
+	[IniSection("Photobucket"), Description("Greenshot Photobucket Plugin configuration")]
+	public interface PhotobucketConfiguration : IIniSection<PhotobucketConfiguration> {
+		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
+		OutputFormat UploadFormat {
 			get;
 			set;
 		}
 
-			/// <summary>
-		/// A form for username/password
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			SettingsForm settingsForm = null;
+		[Description("JPEG file save quality in %."), DefaultValue(80)]
+		int UploadJpegQuality {
+			get;
+			set;
+		}
 
-			new PleaseWaitForm().ShowAndWait(PhotobucketPlugin.Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait), 
-				delegate() {
-					settingsForm = new SettingsForm(this);
-				}
-			);
-			DialogResult result = settingsForm.ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
+		[Description("Reduce color amount of the uploaded image to 256"), DefaultValue(false)]
+		bool UploadReduceColors {
+			get;
+			set;
+		}
+
+		[Description("Use pagelink instead of direct link on the clipboard"), DefaultValue(false)]
+		bool UsePageLink {
+			get;
+			set;
+		}
+
+		[Description("The Photobucket token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string Token {
+			get;
+			set;
+		}
+
+		[Description("The Photobucket token secret"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string TokenSecret {
+			get;
+			set;
+		}
+
+		[Description("The Photobucket api subdomain"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string SubDomain {
+			get;
+			set;
+		}
+
+		[Description("The Photobucket api username")]
+		string Username {
+			get;
+			set;
+		}
+
+
+		[IniPropertyBehavior(Read = false, Write = false)]
+		int Credits {
+			get;
+			set;
 		}
 	}
 }

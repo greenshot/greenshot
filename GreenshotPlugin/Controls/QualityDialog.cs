@@ -18,17 +18,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
+
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
+using GreenshotPlugin.Core;
+using System;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// Description of JpegQualityDialog.
 	/// </summary>
 	public partial class QualityDialog : GreenshotForm {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		public SurfaceOutputSettings Settings {
 			get;
 			set;
@@ -56,7 +57,6 @@ namespace GreenshotPlugin.Controls {
 				conf.OutputFileJpegQuality = Settings.JPGQuality;
 				conf.OutputFilePromptQuality = false;
 				conf.OutputFileReduceColors = Settings.ReduceColors;
-				IniConfig.Save();
 			}
 		}
 		

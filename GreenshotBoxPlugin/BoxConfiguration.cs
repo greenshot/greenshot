@@ -19,40 +19,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Windows.Forms;
-using Greenshot.IniFile;
+using Dapplo.Config.Converters;
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
 using System;
-using GreenshotPlugin.IniFile;
+using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace GreenshotBoxPlugin {
 	/// <summary>
 	/// Description of ImgurConfiguration.
 	/// </summary>
-	[IniSection("Box", Description = "Greenshot Box Plugin configuration")]
-	public class BoxConfiguration : IniSection {
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
-
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
-
-		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Box link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard;
-
-		[IniProperty("UseSharedLink", Description = "Use the shared link, instead of the private, on the clipboard", DefaultValue = "True")]
-		public bool UseSharedLink {
-			get;
-			set;
-		}
-		[IniProperty("FolderId", Description = "Folder ID to upload to, only change if you know what you are doing!", DefaultValue = "0")]
-		public string FolderId {
+	[IniSection("Box"), Description("Greenshot Box Plugin configuration")]
+	public interface BoxConfiguration : IIniSection<BoxConfiguration> {
+		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
+		OutputFormat UploadFormat {
 			get;
 			set;
 		}
 
-		[IniProperty("RefreshToken", Description = "Box authorization refresh Token", Encrypted = true)]
-		public string RefreshToken {
+		[Description("JPEG file save quality in %."), DefaultValue(80)]
+		int UploadJpegQuality {
+			get;
+			set;
+		}
+
+		[Description("After upload send Box link to clipboard."), DefaultValue(true)]
+		bool AfterUploadLinkToClipBoard {
+			get;
+			set;
+		}
+
+		[Description("Use the shared link, instead of the private, on the clipboard"), DefaultValue(true)]
+		bool UseSharedLink {
+			get;
+			set;
+		}
+
+		[Description("Folder ID to upload to, only change if you know what you are doing!"), DefaultValue("0")]
+		string FolderId {
+			get;
+			set;
+		}
+
+		[Description("Box authorization refresh Token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string RefreshToken {
 			get;
 			set;
 		}
@@ -60,7 +71,8 @@ namespace GreenshotBoxPlugin {
 		/// <summary>
 		/// Not stored
 		/// </summary>
-		public string AccessToken {
+		[IniPropertyBehavior(Read = false, Write = false)]
+		string AccessToken {
 			get;
 			set;
 		}
@@ -68,22 +80,10 @@ namespace GreenshotBoxPlugin {
 		/// <summary>
 		/// Not stored
 		/// </summary>
-		public DateTimeOffset AccessTokenExpires {
+		[IniPropertyBehavior(Read = false, Write = false)]
+		DateTimeOffset AccessTokenExpires {
 			get;
 			set;
 		}
-
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			DialogResult result = new SettingsForm(this).ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
-		}
-
 	}
 }

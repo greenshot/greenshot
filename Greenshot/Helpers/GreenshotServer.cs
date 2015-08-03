@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
 using GreenshotPlugin.Interfaces;
 using log4net;
 using System;
@@ -82,13 +81,14 @@ namespace Greenshot.Helpers {
 		}
 
 		public void ReloadConfig() {
-			Greenshot.Forms.MainForm.Instance.BeginInvoke(new Action(() => Greenshot.Forms.MainForm.Instance.ReloadConfig()));
+			Greenshot.Forms.MainForm.Instance.BeginInvoke(new Action(async () => await Greenshot.Forms.MainForm.Instance.ReloadConfig()));
 		}
 
-		public async Task OpenFile(string filename) {
+		public void OpenFile(string filename) {
 			LOG.InfoFormat("Open file requested for: {0}", filename);
+
 			if (File.Exists(filename)) {
-				await CaptureHelper.CaptureFileAsync(filename);
+				Greenshot.Forms.MainForm.Instance.BeginInvoke(new Action(async () => await CaptureHelper.CaptureFileAsync(filename)));
 			} else {
 				LOG.Warn("No such file: " + filename);
 			}

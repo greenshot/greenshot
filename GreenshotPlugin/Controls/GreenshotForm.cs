@@ -23,12 +23,11 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Reflection;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
-using GreenshotPlugin.IniFile;
 using log4net;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -36,7 +35,8 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public class GreenshotForm : Form, IGreenshotLanguageBindable {
 		private static ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
-		protected static CoreConfiguration coreConfiguration = IsInDesignMode ? IniConfig.GetIniSection<CoreConfiguration>() : null;
+		protected static readonly IniConfig iniConfig = IniConfig.Get("Greenshot", "greenshot");
+		protected static CoreConfiguration coreConfiguration = IsInDesignMode ? iniConfig.Get<CoreConfiguration>() : null;
 		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
 		private bool _isDesignModeLanguageSet = false;
@@ -319,11 +319,11 @@ namespace GreenshotPlugin.Controls {
 			GreenshotComboBox comboxBox = applyTo as GreenshotComboBox;
 			if (configBindable != null && comboxBox != null) {
 				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
-					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
-					if (section != null) {
+					var iniValue = iniConfig.Get(configBindable.SectionName).GetIniValue(configBindable.PropertyName);
+					if (iniValue != null) {
 						// Only update the language, so get the actual value and than repopulate
 						Enum currentValue = (Enum)comboxBox.GetSelectedEnum();
-						comboxBox.Populate(section.Values[configBindable.PropertyName].ValueType);
+						comboxBox.Populate(iniValue.ValueType);
 						comboxBox.SetValue(currentValue);
 					}
 				}
@@ -426,24 +426,29 @@ namespace GreenshotPlugin.Controls {
 					continue;
 				}
 				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
-					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
-					if (section != null) {
-						IniValue iniValue = null;
-						if (!section.Values.TryGetValue(configBindable.PropertyName, out iniValue)) {
-							LOG.DebugFormat("Wrong property '{0}' configured for field '{1}'",configBindable.PropertyName,field.Name);
-							continue;
-						}
+					IIniSection section;
+					if (!iniConfig.TryGet(configBindable.SectionName, out section)) {
+						LOG.DebugFormat("Wrong section '{0}' configured for field '{1}'", configBindable.SectionName, field.Name);
+						continue;
+					}
 
+					IniValue iniValue;
+					if (!section.TryGetIniValue(configBindable.PropertyName, out iniValue)) {
+						LOG.DebugFormat("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
+						continue;
+					}
+					if (iniValue != null) {
+						bool writeProtected = section.IsWriteProtected(configBindable.PropertyName);
 						CheckBox checkBox = controlObject as CheckBox;
 						if (checkBox != null) {
 							checkBox.Checked = (bool)iniValue.Value;
-							checkBox.Enabled = !iniValue.IsFixed;
+							checkBox.Enabled = !writeProtected;
 							continue;
 						}
                         RadioButton radíoButton = controlObject as RadioButton;
 						if (radíoButton != null) {
 							radíoButton.Checked = (bool)iniValue.Value;
-							radíoButton.Enabled = !iniValue.IsFixed;
+							radíoButton.Enabled = !writeProtected;
 							continue;
 						}
 
@@ -454,12 +459,12 @@ namespace GreenshotPlugin.Controls {
 								string hotkeyValue = (string)iniValue.Value;
 								if (!string.IsNullOrEmpty(hotkeyValue)) {
 									hotkeyControl.SetHotkey(hotkeyValue);
-									hotkeyControl.Enabled = !iniValue.IsFixed;
+									hotkeyControl.Enabled = !writeProtected;
 								}
 								continue;
 							}
 							textBox.Text = iniValue.ToString();
-							textBox.Enabled = !iniValue.IsFixed;
+							textBox.Enabled = !writeProtected;
 							continue;
 						} 
 
@@ -467,7 +472,7 @@ namespace GreenshotPlugin.Controls {
 						if (comboxBox != null) {
 							comboxBox.Populate(iniValue.ValueType);
 							comboxBox.SetValue((Enum)iniValue.Value);
-							comboxBox.Enabled = !iniValue.IsFixed;
+							comboxBox.Enabled = !writeProtected;
 							continue;
 						}
 					}
@@ -483,60 +488,58 @@ namespace GreenshotPlugin.Controls {
 		/// Store all GreenshotControl values to the configuration
 		/// </summary>
 		protected void StoreFields() {
-			bool iniDirty = false;
 			foreach (FieldInfo field in GetCachedFields(GetType())) {
-				Object controlObject = field.GetValue(this);
+				object controlObject = field.GetValue(this);
 				if (controlObject == null) {
 					continue;
 				}
-				IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
+				var configBindable = controlObject as IGreenshotConfigBindable;
 				if (configBindable == null) {
 					continue;
 				}
+				IIniSection section;
+				if (!iniConfig.TryGet(configBindable.SectionName, out section)) {
+					LOG.DebugFormat("Wrong section '{0}' configured for field '{1}'", configBindable.SectionName, field.Name);
+					continue;
+				}
 
-				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
-					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
-					if (section != null) {
-						IniValue iniValue = null;
-						if (!section.Values.TryGetValue(configBindable.PropertyName, out iniValue)) {
-							continue;
+				IniValue iniValue;
+				if (!section.TryGetIniValue(configBindable.PropertyName, out iniValue)) {
+					LOG.DebugFormat("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
+					continue;
+				}
+
+				if (section != null) {
+					var checkBox = controlObject as CheckBox;
+					if (checkBox != null) {
+						iniValue.Value = checkBox.Checked;
+						continue;
+					}
+                    var radioButton = controlObject as RadioButton;
+					if (radioButton != null) {
+						iniValue.Value = radioButton.Checked;
+						continue;
+					}
+					var textBox = controlObject as TextBox;
+					if (textBox != null) {
+                        var hotkeyControl = controlObject as HotkeyControl;
+                        if (hotkeyControl != null) {
+                            iniValue.Value = hotkeyControl.ToString();
+                            continue;
+                        }
+						try {
+							iniValue.Converter.ConvertFrom(textBox.Text);
+						} catch {
+							iniValue.ResetToDefault();
 						}
-						CheckBox checkBox = controlObject as CheckBox;
-						if (checkBox != null) {
-							iniValue.Value = checkBox.Checked;
-							iniDirty = true;
-							continue;
-						}
-                        RadioButton radioButton = controlObject as RadioButton;
-						if (radioButton != null) {
-							iniValue.Value = radioButton.Checked;
-							iniDirty = true;
-							continue;
-						}
-						TextBox textBox = controlObject as TextBox;
-						if (textBox != null) {
-                            HotkeyControl hotkeyControl = controlObject as HotkeyControl;
-                            if (hotkeyControl != null) {
-                                iniValue.Value = hotkeyControl.ToString();
-                                iniDirty = true;
-                                continue;
-                            }
-							iniValue.UseValueOrDefault(textBox.Text);
-							iniDirty = true;
-							continue;
-						}
-						GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
-						if (comboxBox != null) {
-							iniValue.Value = comboxBox.GetSelectedEnum();
-							iniDirty = true;
-							continue;
-						}
-						
+						continue;
+					}
+					var comboxBox = controlObject as GreenshotComboBox;
+					if (comboxBox != null) {
+						iniValue.Value = comboxBox.GetSelectedEnum();
+						continue;
 					}
 				}
-			}
-			if (iniDirty) {
-				IniConfig.Save();
 			}
 		}
 	}

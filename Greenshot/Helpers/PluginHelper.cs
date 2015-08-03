@@ -37,7 +37,7 @@ namespace Greenshot.Helpers {
 	[Serializable]
 	public class PluginHelper : IGreenshotHost {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 
 		private static string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
 		private static string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);

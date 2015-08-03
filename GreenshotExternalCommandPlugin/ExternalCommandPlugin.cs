@@ -34,7 +34,7 @@ namespace ExternalCommand {
 	/// </summary>
 	public class ExternalCommandPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
-		private static CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration coreConfig = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private IGreenshotHost host;
 		private PluginAttribute myAttributes;
@@ -99,7 +99,7 @@ namespace ExternalCommand {
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			LOG.DebugFormat("Initialize called of {0}", myAttributes.Name);
 
 			List<string> commandsToDelete = new List<string>();

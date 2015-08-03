@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -71,7 +70,7 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			this.host = (IGreenshotHost)pluginHost;
 			Attributes = myAttributes;
 
@@ -105,7 +104,7 @@ namespace GreenshotPicasaPlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			config.ShowConfigDialog();
+			ShowConfigDialog();
 		}
 
 		/// <summary>
@@ -118,8 +117,21 @@ namespace GreenshotPicasaPlugin {
 			Shutdown();
 		}
 
+
+		/// <summary>
+		/// A form for token
+		/// </summary>
+		/// <returns>bool true if OK was pressed, false if cancel</returns>
+		public bool ShowConfigDialog() {
+			DialogResult result = new SettingsForm(config).ShowDialog();
+			if (result == DialogResult.OK) {
+				return true;
+			}
+			return false;
+		}
+
 		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
-			Configure();
+			ShowConfigDialog();
 		}
 
 	}

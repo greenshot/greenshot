@@ -24,8 +24,8 @@ using System.Windows.Forms;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using log4net;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public class SaveImageFileDialog : IDisposable {
 		private static ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		protected SaveFileDialog saveFileDialog;
 		private FilterOption[] filterOptions;
 		private DirectoryInfo eagerlyCreatedDirectory;

@@ -74,7 +74,7 @@ namespace GreenshotFlickrPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute) {
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute) {
 			_host = pluginHost;
 			Attributes = pluginAttribute;
 

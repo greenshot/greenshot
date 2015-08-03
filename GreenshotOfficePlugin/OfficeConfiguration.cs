@@ -18,8 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using Greenshot.IniFile;
-using GreenshotPlugin.IniFile;
+
+using Dapplo.Config.Ini;
+using System.ComponentModel;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace GreenshotOfficePlugin {
@@ -33,26 +34,53 @@ namespace GreenshotOfficePlugin {
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
-	[IniSection("Office", Description="Greenshot Office configuration")]
-	public class OfficeConfiguration : IniSection {
-		[IniProperty("OutlookEmailFormat", Description = "Default type for emails. (Text, HTML)", DefaultValue="HTML")]
-		public EmailFormat OutlookEmailFormat;
-		[IniProperty("EmailSubjectPattern", Description = "Email subject pattern, works like the OutputFileFilenamePattern", DefaultValue = "${title}")]
-		public string EmailSubjectPattern;
-		[IniProperty("EmailTo", Description = "Default value for the to in emails that are created", DefaultValue = "")]
-		public string EmailTo;
-		[IniProperty("EmailCC", Description = "Default value for the CC in emails that are created", DefaultValue = "")]
-		public string EmailCC;
-		[IniProperty("EmailBCC", Description = "Default value for the BCC in emails that are created", DefaultValue = "")]
-		public string EmailBCC;
-		[IniProperty("OutlookAllowExportInMeetings", Description = "For Outlook: Allow export in meeting items", DefaultValue = "False")]
-		public bool OutlookAllowExportInMeetings;
-		[IniProperty("WordLockAspectRatio", Description = "For Word: Lock the aspect ratio of the image", DefaultValue = "True")]
-		public bool WordLockAspectRatio;
-		[IniProperty("PowerpointLockAspectRatio", Description = "For Powerpoint: Lock the aspect ratio of the image", DefaultValue = "True")]
-		public bool PowerpointLockAspectRatio;
-		[IniProperty("PowerpointSlideLayout", Description = "For Powerpoint: Slide layout, changing this to a wrong value will fallback on ppLayoutBlank!!", DefaultValue = "ppLayoutPictureWithCaption")]
-		public PowerPoint.PpSlideLayout PowerpointSlideLayout;
+	[IniSection("Office"), Description("Greenshot Office configuration")]
+	public class OfficeConfiguration : IIniSection<OfficeConfiguration> {
+		[Description("Default type for emails. (Text, HTML)"), DefaultValue(EmailFormat.HTML)]
+		EmailFormat OutlookEmailFormat {
+			get;
+			set;
+		}
+		[Description("Email subject pattern, works like the OutputFileFilenamePattern"), DefaultValue("${title}")]
+		string EmailSubjectPattern {
+			get;
+			set;
+		}
+		[Description("Default value for the to in emails that are created")]
+		string EmailTo {
+			get;
+			set;
+		}
+		[Description("Default value for the CC in emails that are created")]
+		string EmailCC {
+			get;
+			set;
+		}
+		[Description("Default value for the BCC in emails that are created")]
+		string EmailBCC {
+			get;
+			set;
+		}
+		[Description("For Outlook: Allow export in meeting items"), DefaultValue(false)]
+		bool OutlookAllowExportInMeetings {
+			get;
+			set;
+		}
+		[Description("For Word: Lock the aspect ratio of the image"), DefaultValue(true)]
+		bool WordLockAspectRatio {
+			get;
+			set;
+		}
+		[Description("For Powerpoint: Lock the aspect ratio of the image"), DefaultValue(true)]
+		bool PowerpointLockAspectRatio {
+			get;
+			set;
+		}
+		[Description("For Powerpoint: Slide layout, changing this to a wrong value will fallback on ppLayoutBlank!!"), DefaultValue(PowerPoint.PpSlideLayout.ppLayoutPictureWithCaption)]
+		PowerPoint.PpSlideLayout PowerpointSlideLayout {
+			get;
+			set;
+		}
 
 	}
 }

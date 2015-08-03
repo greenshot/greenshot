@@ -18,107 +18,107 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.Collections.Generic;
-using System.Windows.Forms;
-using Greenshot.IniFile;
-using GreenshotPlugin.Controls;
+
+using Dapplo.Config.Converters;
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
 	/// Description of ImgurConfiguration.
 	/// </summary>
-	[IniSection("Imgur", Description="Greenshot Imgur Plugin configuration")]
-	public class ImgurConfiguration : IniSection {
-		[IniProperty("ApiUrl", Description = "Url to Imgur API.", DefaultValue = "https://api.imgur.com/3")]
-		public string ApiUrl {
-			get;
-			set;
-		}
-		
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat {
+	[IniSection("Imgur"), Description("Greenshot Imgur Plugin configuration")]
+	public interface ImgurConfiguration : IIniSection<ImgurConfiguration> {
+		[Description("Url to Imgur API."), DefaultValue("https://api.imgur.com/3")]
+		string ApiUrl {
 			get;
 			set;
 		}
 
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality {
+		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
+		OutputFormat UploadFormat {
 			get;
 			set;
 		}
 
-		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
-		public bool UploadReduceColors {
+		[Description("JPEG file save quality in %."), DefaultValue(80)]
+		int UploadJpegQuality {
 			get;
 			set;
 		}
 
-		[IniProperty("CopyUrlToClipboard", Description = "Copy the URL to the clipboard", DefaultValue = "true")]
-		public bool CopyUrlToClipboard {
+		[Description("Reduce color amount of the uploaded image to 256"), DefaultValue(false)]
+		bool UploadReduceColors {
 			get;
 			set;
 		}
 
-		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link (in clipboard and notification)", DefaultValue = "False")]
-		public bool UsePageLink {
+		[Description("Copy the URL to the clipboard"), DefaultValue(true)]
+		bool CopyUrlToClipboard {
 			get;
 			set;
 		}
 
-		[IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue="true")]
-		public bool AnonymousAccess {
+		[Description("Use pagelink instead of direct link (in clipboard and notification)"), DefaultValue(false)]
+		bool UsePageLink {
 			get;
 			set;
 		}
 
-		[IniProperty("TrackHistory", Description = "Track the upload history", DefaultValue = "true")]
-		public bool TrackHistory {
+		[Description("Use anonymous access to Imgur"), DefaultValue(true)]
+		bool AnonymousAccess {
 			get;
 			set;
 		}
 
-		[IniProperty("ImgurToken", Description = "The Imgur token", Encrypted=true, ExcludeIfNull=true)]
-		public string ImgurToken {
+		[Description("Track the upload history"), DefaultValue(true)]
+		bool TrackHistory {
 			get;
 			set;
 		}
 
-		[IniProperty("ImgurTokenSecret", Description = "The Imgur token secret", Encrypted=true, ExcludeIfNull=true)]
-		public string ImgurTokenSecret {
+		[Description("The Imgur token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string ImgurToken {
 			get;
 			set;
 		}
 
-		[IniProperty("AddTitle", Description = "Is the title passed on to Imgur", DefaultValue = "False")]
-		public bool AddTitle {
+		[Description("The Imgur token secret"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string ImgurTokenSecret {
 			get;
 			set;
 		}
 
-		[IniProperty("AddFilename", Description = "Is the filename passed on to Imgur", DefaultValue = "False")]
-		public bool AddFilename {
+		[Description("Is the title passed on to Imgur"), DefaultValue(false)]
+		bool AddTitle {
 			get;
 			set;
 		}
 
-		[IniProperty("FilenamePattern", Description = "Filename for the Imgur upload", DefaultValue = "${capturetime:d\"yyyyMMdd-HHmm\"}")]
-		public string FilenamePattern {
+		[Description("Is the filename passed on to Imgur"), DefaultValue(false)]
+		bool AddFilename {
 			get;
 			set;
 		}
 
-		[IniProperty("ImgurUploadHistory", Description = "Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
-		public Dictionary<string, string> ImgurUploadHistory {
+		[Description("Filename for the Imgur upload"), DefaultValue("${capturetime:d\"yyyyMMdd-HHmm\"}")]
+		string FilenamePattern {
 			get;
 			set;
 		}
-		
 
-		[IniProperty("RefreshToken", Description = "Imgur authorization refresh Token", Encrypted = true)]
-		public string RefreshToken {
+		[Description("Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
+		IDictionary<string, string> ImgurUploadHistory {
+			get;
+			set;
+		}
+
+
+		[Description("Imgur authorization refresh Token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string RefreshToken {
 			get;
 			set;
 		}
@@ -128,7 +128,8 @@ namespace GreenshotImgurPlugin {
 		/// <summary>
 		/// AccessToken, not stored
 		/// </summary>
-		public string AccessToken {
+		[IniPropertyBehavior(Read = false, Write = false)]
+		string AccessToken {
 			get;
 			set;
 		}
@@ -136,44 +137,28 @@ namespace GreenshotImgurPlugin {
 		/// <summary>
 		/// AccessTokenExpires, not stored
 		/// </summary>
-		public DateTimeOffset AccessTokenExpires {
+		[IniPropertyBehavior(Read = false, Write = false)]
+		DateTimeOffset AccessTokenExpires {
 			get;
 			set;
 		}
 
-		public Dictionary<string, ImageInfo> runtimeImgurHistory = new Dictionary<string, ImageInfo>();
+		/// <summary>
+		/// runtimeImgurHistory, not stored
+		/// </summary>
+		[IniPropertyBehavior(Read = false, Write = false)]
+		IDictionary<string, ImageInfo> runtimeImgurHistory {
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// Available credits
 		/// </summary>
-		public int Credits {
+		[IniPropertyBehavior(Read = false, Write = false)]
+		int Credits {
 			get;
 			set;
-		}
-
-		/// <summary>
-		/// Supply values we can't put as defaults
-		/// </summary>
-		/// <param name="property">The property to return a default for</param>
-		/// <returns>object with the default value for the supplied property</returns>
-		public override object GetDefault(string property) {
-			switch(property) {
-				case "ImgurUploadHistory":
-					return new Dictionary<string, string>();
-			}
-			return null;
-		}
-			/// <summary>
-		/// A form for username/password
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			var settingsForm = new SettingsForm(this);
-			var result = settingsForm.ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
 		}
 	}
 }

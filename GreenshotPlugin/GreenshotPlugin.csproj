@@ -35,6 +35,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\Greenshot\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
@@ -54,6 +56,10 @@
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="CustomMarshalers" />
+    <Reference Include="Dapplo.Config, Version=0.1.48.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Greenshot\packages\Dapplo.Config.0.1.48.0\lib\net45\Dapplo.Config.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
     </Reference>
@@ -80,13 +86,13 @@
     <Compile Include="Controls\GreenshotRadioButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Core\AsyncLock.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\ControlExtension.cs" />
     <Compile Include="Core\DynamicJson.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\HttpClientHelper.cs" />
+    <Compile Include="Core\PortableHelper.cs" />
     <Compile Include="Core\ProcessExtensions.cs" />
     <Compile Include="Core\ProgressStream.cs" />
     <Compile Include="Core\TitleChangeMonitor.cs" />
@@ -208,11 +214,6 @@
     <Compile Include="Core\SourceForgeHelper.cs" />
     <Compile Include="Core\WindowCapture.cs" />
     <Compile Include="Core\WindowsHelper.cs" />
-    <Compile Include="IniFile\IniAttributes.cs" />
-    <Compile Include="IniFile\IniConfig.cs" />
-    <Compile Include="IniFile\IniReader.cs" />
-    <Compile Include="IniFile\IniSection.cs" />
-    <Compile Include="IniFile\IniValue.cs" />
     <Compile Include="Interfaces\Capture.cs" />
     <Compile Include="Interfaces\Drawing\Container.cs" />
     <Compile Include="Interfaces\Forms\ImageEditor.cs" />
@@ -261,4 +262,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
 </Project>

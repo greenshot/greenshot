@@ -28,10 +28,11 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
 namespace GreenshotPlugin.Core {
+	/// <summary>
+	/// Write extension method for the string here
+	/// </summary>
 	public static class StringExtensions {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(StringExtensions));
-		private const string RGBIV = "dlgjowejgogkklwj";
-		private const string KEY = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 
 		/// <summary>
 		/// Format a string with the specified object
@@ -89,63 +90,6 @@ namespace GreenshotPlugin.Core {
 			});
 
 			return string.Format(provider, rewrittenFormat, values.ToArray());
-		}
-
-		/// <summary>
-		/// A simply rijndael aes encryption, can be used to store passwords
-		/// </summary>
-		/// <param name="ClearText">the string to call upon</param>
-		/// <returns>an encryped string in base64 form</returns>
-		public static string Encrypt(this string ClearText) {
-			string returnValue = ClearText;
-			try {
-				byte[] clearTextBytes = Encoding.ASCII.GetBytes(ClearText);
-				SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
-	
-				using (MemoryStream ms = new MemoryStream()) {
-					byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
-					byte[] key = Encoding.ASCII.GetBytes(KEY);
-					using (CryptoStream cs = new CryptoStream(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write)) {
-						cs.Write(clearTextBytes, 0, clearTextBytes.Length);
-						cs.FlushFinalBlock();
-
-						returnValue = Convert.ToBase64String(ms.ToArray());
-					}
-				}
-			} catch (Exception ex) {
-				LOG.ErrorFormat("Error encrypting, error: ", ex.Message);
-			}
-			return returnValue;
-		}
-
-		/// <summary>
-		/// A simply rijndael aes decryption, can be used to store passwords
-		/// </summary>
-		/// <param name="EncryptedText">a base64 encoded rijndael encrypted string</param>
-		/// <returns>Decrypeted text</returns>
-		public static string Decrypt(this string EncryptedText) {
-			string returnValue = EncryptedText;
-			try {
-				byte[] encryptedTextBytes = Convert.FromBase64String(EncryptedText);
-				using (MemoryStream ms = new MemoryStream()) {
-					SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
-	
-	
-					byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
-					byte[] key = Encoding.ASCII.GetBytes(KEY);
-
-					using (CryptoStream cs = new CryptoStream(ms, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write)) {
-						cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
-						cs.FlushFinalBlock();
-						returnValue = Encoding.ASCII.GetString(ms.ToArray());
-					}
-	
-				}
-			} catch (Exception ex) {
-				LOG.ErrorFormat("Error decrypting {0}, error: ", EncryptedText, ex.Message);
-			}
-
-			return returnValue;
 		}
 
 		/// <summary>

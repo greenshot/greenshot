@@ -19,12 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Experimental;
 using Greenshot.Help;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -71,26 +71,37 @@ namespace Greenshot.Forms
 				return;
 			}
 
+			Application.ThreadException += Application_ThreadException;
+			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
 			// Setting the INI-directory
+			string iniDirectory = null;
+			// Specified the ini directory directly
 			if (!String.IsNullOrWhiteSpace(arguments.IniDirectory)) {
-				IniConfig.IniDirectory = arguments.IniDirectory;
+				iniDirectory = arguments.IniDirectory;
 			}
+			// Portable mode
+			if (PortableHelper.IsPortable) {
+				iniDirectory = PortableHelper.PortableIniFileLocation;
+			}
+
+			// Initialize the string encryption, TODO: Move to build server
+			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
+			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
+			var iniConfig = new IniConfig("Greenshot", "greenshot", iniDirectory);
+			// Register method to fix some values
+			iniConfig.AfterLoad<CoreConfiguration>((coreConfig) => CoreConfigurationChecker.AfterLoad(coreConfig));
 
 			// Init Log4NET
 			LogFileLocation = LogHelper.InitializeLog4NET();
 			// Get logger
 			LOG = LogManager.GetLogger(typeof(MainForm));
 
-			Application.ThreadException += Application_ThreadException;
-			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-			// Initialize the IniConfig
-			IniConfig.Init();
-
 			// Log the startup
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 
 			// Read configuration
-			coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+			Task.Run(async () => coreConfiguration = await iniConfig.RegisterAndGetAsync<CoreConfiguration>()).Wait();
 
 			try
 			{
@@ -119,7 +130,6 @@ namespace Greenshot.Forms
 				if (!String.IsNullOrWhiteSpace(arguments.Language)) {
 					// Set language
 					coreConfiguration.Language = arguments.Language;
-					IniConfig.Save();
 				}
 
 				// From here on we continue starting Greenshot
@@ -132,7 +142,7 @@ namespace Greenshot.Forms
 					LanguageDialog languageDialog = LanguageDialog.GetInstance();
 					languageDialog.ShowDialog();
 					coreConfiguration.Language = languageDialog.SelectedLanguage;
-					IniConfig.Save();
+					Task.Run(async () => await iniConfig.WriteAsync()).Wait();
 				}
 
 				// Should fix BUG-1633
@@ -356,7 +366,6 @@ namespace Greenshot.Forms
 			// Check if it's the first time launch?
 			if (coreConfiguration.IsFirstLaunch) {
 				coreConfiguration.IsFirstLaunch = false;
-				IniConfig.Save();
 				LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
 				try {
 					notifyIcon.BalloonTipClicked += BalloonTipClicked;
@@ -467,25 +476,23 @@ namespace Greenshot.Forms
 
 		private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, Action hotkeyAction, bool ignoreFailedRegistration)
 		{
-			IniValue hotkeyValue = coreConfiguration.Values[configurationKey];
+			IniValue hotkeyValue = coreConfiguration.GetIniValue(configurationKey);
 			try
 			{
 				bool success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), hotkeyAction);
 				if (!success && ignoreFailedRegistration)
 				{
-					LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue);
-					coreConfiguration.Values[configurationKey].Value = Keys.None.ToString();
-					coreConfiguration.IsDirty = true;
+					LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue.Value);
+					hotkeyValue.Value = Keys.None.ToString();
 				}
 				return success;
 			}
 			catch (Exception ex)
 			{
 				LOG.Warn(ex);
-				LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyValue.Value, hotkeyValue.Attributes.DefaultValue);
+				LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyValue.Value, hotkeyValue.DefaultValue);
 				// when getting an exception the key wasn't found: reset the hotkey value
-				hotkeyValue.UseValueOrDefault(null);
-				hotkeyValue.ContainingIniSection.IsDirty = true;
+				hotkeyValue.ResetToDefault();
 				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), hotkeyAction);
 			}
 		}
@@ -555,20 +562,8 @@ namespace Greenshot.Forms
 				}
 			}
 
-			if (!success)
-			{
-				if (!ignoreFailedRegistration)
-				{
-					success = HandleFailedHotkeyRegistration(failedKeys.ToString());
-				}
-				else
-				{
-					// if failures have been ignored, the config has probably been updated
-					if (coreConfiguration.IsDirty)
-					{
-						IniConfig.Save();
-					}
-				}
+			if (!success && !ignoreFailedRegistration) {
+				success = HandleFailedHotkeyRegistration(failedKeys.ToString());
 			}
 			return success || ignoreFailedRegistration;
 		}
@@ -604,8 +599,8 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// Helper method to reload the configuration
 		/// </summary>
-		public void ReloadConfig() {
-			IniConfig.Reload();
+		public async Task ReloadConfig() {
+			await iniConfig.ReloadAsync();
 			// Even update language when needed
 			UpdateUi();
 			// Update the hotkey
@@ -1185,7 +1180,7 @@ namespace Greenshot.Forms
 			}
 
 			// Only add if the value is not fixed
-			if (!coreConfiguration.Values["CaptureMousepointer"].IsFixed)
+			if (!coreConfiguration.IsWriteProtected(x => x.CaptureMousepointer))
 			{
 				// For the capture mousecursor option
 				ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem();
@@ -1197,7 +1192,7 @@ namespace Greenshot.Forms
 				contextmenu_quicksettings.DropDownItems.Add(captureMouseItem);
 			}
 			ToolStripMenuSelectList selectList;
-			if (!coreConfiguration.Values["Destinations"].IsFixed)
+			if (!coreConfiguration.IsWriteProtected(x => x.OutputDestinations))
 			{
 				// screenshot destination
 				selectList = new ToolStripMenuSelectList("destinations", true);
@@ -1211,7 +1206,7 @@ namespace Greenshot.Forms
 				contextmenu_quicksettings.DropDownItems.Add(selectList);
 			}
 
-			if (!coreConfiguration.Values["WindowCaptureMode"].IsFixed)
+			if (!coreConfiguration.IsWriteProtected(x => x.WindowCaptureMode))
 			{
 				// Capture Modes
 				selectList = new ToolStripMenuSelectList("capturemodes", false);
@@ -1229,16 +1224,16 @@ namespace Greenshot.Forms
 			selectList = new ToolStripMenuSelectList("printoptions", true);
 			selectList.Text = Language.GetString(LangKey.settings_printoptions);
 
-			IniValue iniValue;
-			foreach (string propertyName in coreConfiguration.Values.Keys)
+			var outputPrintValues =
+				from iniValue in coreConfiguration.GetIniValues()
+				where !coreConfiguration.IsWriteProtected(iniValue.PropertyName) && iniValue.PropertyName.StartsWith("OutputPrint")
+				select iniValue;
+
+			foreach (var iniValue in outputPrintValues)
 			{
-				if (propertyName.StartsWith("OutputPrint"))
-				{
-					iniValue = coreConfiguration.Values[propertyName];
-					if (iniValue.Attributes.LanguageKey != null && !iniValue.IsFixed)
-					{
-						selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
-					}
+				var languageKey = coreConfiguration.GetTagValue(iniValue.IniPropertyName, ConfigTags.LanguageKey) as string;
+				if (languageKey != null) {
+					selectList.AddItem(Language.GetString(languageKey), iniValue, (bool)iniValue.Value);
 				}
 			}
 			if (selectList.DropDownItems.Count > 0)
@@ -1251,15 +1246,22 @@ namespace Greenshot.Forms
 			selectList = new ToolStripMenuSelectList("effects", true);
 			selectList.Text = Language.GetString(LangKey.settings_visualization);
 
-			iniValue = coreConfiguration.Values["PlayCameraSound"];
-			if (!iniValue.IsFixed)
-			{
-				selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+			IniValue currentIniValue;
+			if (coreConfiguration.TryGetIniValue(x => x.PlayCameraSound, out currentIniValue)) {
+				if (!coreConfiguration.IsWriteProtected(x => x.PlayCameraSound)) {
+					var languageKey = coreConfiguration.GetTagValue(x => x.PlayCameraSound, ConfigTags.LanguageKey) as string;
+					if (languageKey != null) {
+						selectList.AddItem(Language.GetString(languageKey), currentIniValue, (bool)currentIniValue.Value);
+					}
+				}
 			}
-			iniValue = coreConfiguration.Values["ShowTrayNotification"];
-			if (!iniValue.IsFixed)
-			{
-				selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
+			if (coreConfiguration.TryGetIniValue(x => x.ShowTrayNotification, out currentIniValue)) {
+				if (!coreConfiguration.IsWriteProtected(x => x.ShowTrayNotification)) {
+					var languageKey = coreConfiguration.GetTagValue(x => x.ShowTrayNotification, ConfigTags.LanguageKey) as string;
+					if (languageKey != null) {
+						selectList.AddItem(Language.GetString(languageKey), currentIniValue, (bool)currentIniValue.Value);
+					}
+				}
 			}
 			if (selectList.DropDownItems.Count > 0)
 			{
@@ -1285,7 +1287,6 @@ namespace Greenshot.Forms
 			if (iniValue != null)
 			{
 				iniValue.Value = item.Checked;
-				IniConfig.Save();
 			}
 		}
 
@@ -1324,7 +1325,6 @@ namespace Greenshot.Forms
 			{
 				coreConfiguration.OutputDestinations.Add(PickerDestination.DESIGNATION);
 			}
-			IniConfig.Save();
 
 			// Rebuild the quick settings menu with the new settings.
 			InitializeQuickSettingsMenu();
@@ -1573,7 +1573,7 @@ namespace Greenshot.Forms
 			// Store any open configuration changes
 			try
 			{
-				IniConfig.Save();
+				Task.Run(async () => await iniConfig.WriteAsync()).Wait();
 			}
 			catch (Exception e)
 			{
