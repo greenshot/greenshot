@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -31,13 +31,14 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GreenshotImgurPlugin {
+namespace GreenshotImgurPlugin
+{
 	/// <summary>
 	/// Description of ImgurUtils.
 	/// </summary>
 	public static class ImgurUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurUtils));
-		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
+		private static ImgurConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ImgurConfiguration>();
 		private static readonly Uri IMGUR_IMAGES_URI = new Uri("http://api.imgur.com/2/account/images.json");
 		private const string PAGE_URL_PATTERN = "http://imgur.com/{0}";
 		private const string IMAGE_URL_PATTERN = "http://i.imgur.com/{0}.png";
@@ -94,8 +95,6 @@ namespace GreenshotImgurPlugin {
 				config.RefreshToken = oauth2Settings.RefreshToken;
 				config.AccessToken = oauth2Settings.AccessToken;
 				config.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
-				config.IsDirty = true;
-				IniConfig.Save();
 			}
 		}
 

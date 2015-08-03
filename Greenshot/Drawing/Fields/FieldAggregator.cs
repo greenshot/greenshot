@@ -23,11 +23,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 using Greenshot.Configuration;
-using Greenshot.IniFile;
 using Greenshot.Plugin.Drawing;
 using log4net;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Drawing.Fields {
+namespace Greenshot.Drawing.Fields
+{
 	/// <summary>
 	/// Represents the current set of properties for the editor.
 	/// When one of EditorProperties' properties is updated, the change will be promoted
@@ -47,7 +48,7 @@ namespace Greenshot.Drawing.Fields {
 		enum Status {IDLE, BINDING, UPDATING};
 		
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FieldAggregator));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<EditorConfiguration>();
 
 		public FieldAggregator() {
 			foreach(FieldType fieldType in FieldType.Values) {

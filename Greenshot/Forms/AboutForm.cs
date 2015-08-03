@@ -32,13 +32,14 @@ using Greenshot.Forms;
 using Greenshot.Helpers;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using System.Security.Permissions;
 using log4net;
 using System.Threading.Tasks;
 using System.Threading;
+using Dapplo.Config.Ini;
 
-namespace Greenshot {
+namespace Greenshot
+{
 	/// <summary>
 	/// The about form
 	/// </summary>
@@ -154,7 +155,7 @@ namespace Greenshot {
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
-			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OSInfo.Bits + " bit)");
+			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (PortableHelper.IsPortable ? " Portable" : "") + (" (" + OSInfo.Bits + " bit)");
 
 			//Random rand = new Random();
 
@@ -325,11 +326,13 @@ namespace Greenshot {
 						}
 						break;
 					case Keys.I:
-						try {
-							using (Process.Start("\"" + IniConfig.ConfigLocation + "\"")) {
+						var iniLocation = IniConfig.Get("Greenshot", "greenshot").IniLocation;
+						try
+						{
+                            using (Process.Start("\"" + iniLocation + "\"")) {
 							}
 						} catch (Exception) {
-							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + iniLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 						}
 						break;
 					default:

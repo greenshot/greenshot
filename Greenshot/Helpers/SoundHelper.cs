@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;

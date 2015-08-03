@@ -18,18 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Dapplo.Config.Ini;
+using Greenshot.Plugin;
+using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
 
-namespace GreenshotPhotobucketPlugin {
+namespace GreenshotPhotobucketPlugin
+{
 	/// <summary>
 	/// This is the GreenshotPhotobucketPlugin base code
 	/// </summary>
@@ -78,7 +80,7 @@ namespace GreenshotPhotobucketPlugin {
 			Attributes = myAttributes;
 
 			// Get configuration
-			config = IniConfig.GetIniSection<PhotobucketConfiguration>();
+			config = IniConfig.Get("Greenshot", "greenshot").Get<PhotobucketConfiguration>();
 			resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
 			
 			itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure));

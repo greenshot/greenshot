@@ -23,7 +23,7 @@ using Greenshot.Configuration;
 using Greenshot.Core;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;

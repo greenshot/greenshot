@@ -18,13 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Drawing;
 
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPhotobucketPlugin  {
 	/// <summary>
@@ -32,7 +33,7 @@ namespace GreenshotPhotobucketPlugin  {
 	/// </summary>
 	public class PhotobucketDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
-		private static PhotobucketConfiguration config = IniConfig.GetIniSection<PhotobucketConfiguration>();
+		private static PhotobucketConfiguration config = IniConfig.Get("Greenshot","greenshot").Get<PhotobucketConfiguration>();
 		private PhotobucketPlugin plugin = null;
 		private string albumPath = null;
 

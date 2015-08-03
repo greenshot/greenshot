@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Interop.IE;
 using GreenshotPlugin.Core;
 using log4net;
@@ -31,7 +31,8 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using IServiceProvider = Greenshot.Interop.IServiceProvider;
 
-namespace Greenshot.Helpers.IEInterop {
+namespace Greenshot.Helpers.IEInterop
+{
 	public class DocumentContainer {
 		private static ILog LOG = LogManager.GetLogger(typeof(DocumentContainer));
 		private static CoreConfiguration configuration = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();

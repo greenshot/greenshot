@@ -18,20 +18,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using Greenshot.IniFile;
-using GreenshotPlugin.IniFile;
+
+using Dapplo.Config.Ini;
+using System.ComponentModel;
 
 namespace GreenshotOCR {
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
-	[IniSection("OCR", Description="Greenshot OCR Plugin configuration")]
-	public class OCRConfiguration : IniSection {
-		[IniProperty("Language", Description="Language for OCR", DefaultValue="ENGLISH")]
-		public string Language;
-		[IniProperty("orientimage", Description="Orient image?", DefaultValue="true")]
-		public bool Orientimage;
-		[IniProperty("straightenImage", Description="Straighten image?", DefaultValue="true")]
-		public bool StraightenImage;
+	[IniSection("OCR"), Description("Greenshot OCR Plugin configuration")]
+	public interface OCRConfiguration : IIniSection<OCRConfiguration> {
+		[Description("Language for OCR"), DefaultValue("ENGLISH")]
+		string Language
+		{
+			get;
+			set;
+		}
+
+		[Description("Orient image?"), DefaultValue(true)]
+		bool Orientimage
+		{
+			get;
+			set;
+		}
+
+		[Description("Straighten image?"), DefaultValue(true)]
+		bool StraightenImage
+		{
+			get;
+			set;
+		}
 	}
 }

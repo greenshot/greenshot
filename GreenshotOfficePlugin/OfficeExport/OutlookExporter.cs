@@ -26,10 +26,10 @@ using System.IO;
 using GreenshotPlugin.Interop;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
-using Greenshot.IniFile;
 using mshtml;
 using Word = Microsoft.Office.Interop.Word;
 using Outlook = Microsoft.Office.Interop.Outlook;
+using Dapplo.Config.Ini;
 
 namespace GreenshotOfficePlugin.OfficeExport
 {
@@ -39,7 +39,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 	public class OutlookExporter
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookExporter));
-		private static readonly OfficeConfiguration Conf = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly OfficeConfiguration Conf = IniConfig.Get("Greenshot", "greenshot").Get<OfficeConfiguration>();
 		private static readonly string SignaturePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
 		private static Version _outlookVersion;
 		private static string _currentUser;

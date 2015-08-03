@@ -27,11 +27,12 @@ using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using Greenshot.Core;
 using log4net;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Helpers {
+namespace Greenshot.Helpers
+{
 	/// <summary>
 	/// Description of PrintHelper.
 	/// </summary>

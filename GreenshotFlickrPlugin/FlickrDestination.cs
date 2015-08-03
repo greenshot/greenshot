@@ -24,18 +24,19 @@ using System.Drawing;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
-using Greenshot.IniFile;
 using System.IO;
 using System;
 using System.Windows;
 using System.Threading;
 using System.Threading.Tasks;
 using GreenshotPlugin.Windows;
+using Dapplo.Config.Ini;
 
-namespace GreenshotFlickrPlugin {
+namespace GreenshotFlickrPlugin
+{
 	public class FlickrDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(FlickrDestination));
-		private static FlickrConfiguration _config = IniConfig.GetIniSection<FlickrConfiguration>();
+		private static FlickrConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<FlickrConfiguration>();
 
 		public override string Designation {
 			get {

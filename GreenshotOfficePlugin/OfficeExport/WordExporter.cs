@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Interop;
 using Microsoft.Office.Core;
 using System;
@@ -27,11 +27,12 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Word = Microsoft.Office.Interop.Word;
 
-namespace GreenshotOfficePlugin.OfficeExport {
+namespace GreenshotOfficePlugin.OfficeExport
+{
 	public class WordExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
 		private static Version _wordVersion;
-		private static readonly OfficeConfiguration Config = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly OfficeConfiguration Config = IniConfig.Get("Greenshot", "greenshot").Get<OfficeConfiguration>();
 
 		/// <summary>
 		/// Check if the used version is higher than Office 2003

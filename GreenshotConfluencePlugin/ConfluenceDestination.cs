@@ -26,18 +26,19 @@ using System.IO;
 using System.Threading;
 using System.Windows;
 using Confluence;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using Dapplo.Config.Ini;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin
+{
 	/// <summary>
 	/// Description of ConfluenceDestination.
 	/// </summary>
 	public class ConfluenceDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
-		private static readonly ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+		private static readonly ConfluenceConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ConfluenceConfiguration>();
 		private static readonly CoreConfiguration coreConfig = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private static Image confluenceIcon = null;
 		private Confluence.Page page;

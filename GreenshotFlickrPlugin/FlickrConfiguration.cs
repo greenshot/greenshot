@@ -32,11 +32,12 @@ namespace GreenshotFlickrPlugin {
 		Moderate = 2,
 		Restricted = 3
 	}
+
 	/// <summary>
 	/// Description of FlickrConfiguration.
 	/// </summary>
 	[IniSection("Flickr"), Description("Greenshot Flickr Plugin configuration")]
-	public class FlickrConfiguration : IIniSection<FlickrConfiguration> {
+	public interface FlickrConfiguration : IIniSection<FlickrConfiguration> {
 		[DataMember(Name = "flickrIsPublic"), Description("IsPublic."), DefaultValue(true)]
 		bool IsPublic {
 			get;
@@ -101,18 +102,6 @@ namespace GreenshotFlickrPlugin {
 		string FlickrTokenSecret {
 			get;
 			set;
-		}
-
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			DialogResult result = new SettingsForm(this).ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
 		}
 	}
 }

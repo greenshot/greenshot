@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
@@ -31,14 +31,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GreenshotImgurPlugin {
+namespace GreenshotImgurPlugin
+{
 	/// <summary>
 	/// Description of ImgurHistory.
 	/// </summary>
 	public partial class ImgurHistory : ImgurForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
 		private GreenshotColumnSorter columnSorter;
-		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
+		private static ImgurConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ImgurConfiguration>();
 		private static readonly string[] _columns = { "hash", "title", "deleteHash", "Date" };
 		private static ImgurHistory instance = new ImgurHistory();
 
@@ -185,7 +186,6 @@ namespace GreenshotImgurPlugin {
 			if (result == DialogResult.Yes) {
 				config.runtimeImgurHistory.Clear();
 				config.ImgurUploadHistory.Clear();
-				IniConfig.Save();
 				Redraw();
 			}
 		}
@@ -249,7 +249,7 @@ namespace GreenshotImgurPlugin {
 			}
 			if (saveNeeded) {
 				// Save needed changes
-				IniConfig.Save();
+				// IniConfig.Save();
 			}
 		}
 	}

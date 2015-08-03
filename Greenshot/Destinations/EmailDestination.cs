@@ -26,7 +26,7 @@ using Greenshot.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using log4net;
 using System.Threading.Tasks;
 using System.Threading;

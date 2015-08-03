@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -35,7 +35,7 @@ namespace GreenshotPicasaPlugin {
 	public static class PicasaUtils {
 		private const string PicasaScope = "https://picasaweb.google.com/data/";
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaUtils));
-		private static readonly PicasaConfiguration _config = IniConfig.GetIniSection<PicasaConfiguration>();
+		private static readonly PicasaConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<PicasaConfiguration>();
 		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
 		private static readonly Uri TokenUrl = new Uri("https://www.googleapis.com/oauth2/v3/token");
 		private const string UploadUrl = "https://picasaweb.google.com/data/feed/api/user/{0}/albumid/{1}";
@@ -90,8 +90,6 @@ namespace GreenshotPicasaPlugin {
 				_config.RefreshToken = settings.RefreshToken;
 				_config.AccessToken = settings.AccessToken;
 				_config.AccessTokenExpires = settings.AccessTokenExpires;
-				_config.IsDirty = true;
-				IniConfig.Save();
 			}
 		}
 

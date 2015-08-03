@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
@@ -31,10 +31,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace GreenshotBoxPlugin {
+namespace GreenshotBoxPlugin
+{
 	public class BoxDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(BoxDestination));
-		private static BoxConfiguration _config = IniConfig.GetIniSection<BoxConfiguration>();
+		private static BoxConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<BoxConfiguration>();
 
 		private readonly BoxPlugin _plugin;
 		public BoxDestination(BoxPlugin plugin) {

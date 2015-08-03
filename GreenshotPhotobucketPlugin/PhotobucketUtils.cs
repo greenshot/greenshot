@@ -18,14 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Xml;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.Net.Http;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPhotobucketPlugin {
 	/// <summary>
@@ -33,7 +34,7 @@ namespace GreenshotPhotobucketPlugin {
 	/// </summary>
 	public static class PhotobucketUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketUtils));
-		private static readonly PhotobucketConfiguration config = IniConfig.GetIniSection<PhotobucketConfiguration>();
+		private static readonly PhotobucketConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<PhotobucketConfiguration>();
 		private static List<string> albumsCache = null;
 
 		/// <summary>
@@ -133,7 +134,6 @@ namespace GreenshotPhotobucketPlugin {
 				if (oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters["username"] != null) {
 					config.Username = oAuth.AccessTokenResponseParameters["username"];
 				}
-				IniConfig.Save();
 			}
 			oAuth.Token = config.Token;
 			oAuth.TokenSecret = config.TokenSecret;

@@ -29,7 +29,7 @@ namespace GreenshotDropboxPlugin {
 	/// Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Dropbox"), Description("Greenshot Dropbox Plugin configuration")]
-	public class DropboxPluginConfiguration : IIniSection<DropboxPluginConfiguration> {
+	public interface DropboxPluginConfiguration : IIniSection<DropboxPluginConfiguration> {
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat {
 			get;

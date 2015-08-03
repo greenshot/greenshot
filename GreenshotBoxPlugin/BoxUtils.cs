@@ -19,10 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Windows;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -34,14 +33,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GreenshotBoxPlugin {
+namespace GreenshotBoxPlugin
+{
 
 	/// <summary>
 	/// Description of ImgurUtils.
 	/// </summary>
 	public static class BoxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxUtils));
-		private static readonly BoxConfiguration _config = IniConfig.GetIniSection<BoxConfiguration>();
+		private static readonly BoxConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<BoxConfiguration>();
 		private static readonly Uri UploadFileUri = new Uri("https://upload.box.com/api/2.0/files/content");
 		private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
 
@@ -123,8 +123,7 @@ namespace GreenshotBoxPlugin {
 				_config.RefreshToken = settings.RefreshToken;
 				_config.AccessToken = settings.AccessToken;
 				_config.AccessTokenExpires = settings.AccessTokenExpires;
-				_config.IsDirty = true;
-				IniConfig.Save();
+				// TODO: Save? IniConfig.Save();
 			}
 		}
 	}

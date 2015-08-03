@@ -24,7 +24,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -77,7 +77,7 @@ namespace GreenshotDropboxPlugin {
 			Attributes = myAttributes;
 
 			// Register configuration (don't need the configuration itself)
-			config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+			config = IniConfig.Get("Greenshot", "greenshot").Get<DropboxPluginConfiguration>();
 			resources = new ComponentResourceManager(typeof(DropboxPlugin));
 
 			itemPlugInConfig = new ToolStripMenuItem();

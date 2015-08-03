@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.Net.Http;
@@ -33,7 +33,7 @@ namespace GreenshotDropboxPlugin {
 	/// </summary>
 	public class DropboxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxUtils));
-		private static DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+		private static DropboxPluginConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<DropboxPluginConfiguration>();
 
 		private DropboxUtils() {
 		}

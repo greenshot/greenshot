@@ -22,12 +22,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin
+{
 	public partial class ConfluenceSearch : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceSearch));
-		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+		private static ConfluenceConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ConfluenceConfiguration>();
 		private ConfluenceUpload confluenceUpload;
 		
 		public List<Confluence.Space> Spaces {

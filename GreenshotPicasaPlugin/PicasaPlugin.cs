@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -75,7 +76,7 @@ namespace GreenshotPicasaPlugin {
 			Attributes = myAttributes;
 
 			// Get configuration
-			config = IniConfig.GetIniSection<PicasaConfiguration>();
+			config = IniConfig.Get("Greenshot", "greenshot").Get<PicasaConfiguration>();
 			resources = new ComponentResourceManager(typeof(PicasaPlugin));
 
 			itemPlugInRoot = new ToolStripMenuItem();

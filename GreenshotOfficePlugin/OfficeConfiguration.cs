@@ -35,7 +35,7 @@ namespace GreenshotOfficePlugin {
 	/// Description of CoreConfiguration.
 	/// </summary>
 	[IniSection("Office"), Description("Greenshot Office configuration")]
-	public class OfficeConfiguration : IIniSection<OfficeConfiguration> {
+	public interface OfficeConfiguration : IIniSection<OfficeConfiguration> {
 		[Description("Default type for emails. (Text, HTML)"), DefaultValue(EmailFormat.HTML)]
 		EmailFormat OutlookEmailFormat {
 			get;

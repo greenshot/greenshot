@@ -19,14 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin
+{
 	/// <summary>
 	/// This is the JiraPlugin base code
 	/// </summary>
@@ -68,7 +69,7 @@ namespace GreenshotJiraPlugin {
 			jiraPluginAttributes = myAttributes;
 
 			// Register configuration (don't need the configuration itself)
-			config = IniConfig.GetIniSection<JiraConfiguration>();
+			config = IniConfig.Get("Greenshot", "greenshot").Get<JiraConfiguration>();
 			resources = new ComponentResourceManager(typeof(JiraPlugin));
 			InitializeMonitor();
 			return true;
@@ -96,11 +97,56 @@ namespace GreenshotJiraPlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public void Configure() {
-			if (config.ShowConfigDialog())
+			if (ShowConfigDialog())
 			{
 				InitializeMonitor();
 			}
 		}
+
+		/// <summary>
+		/// A form for username/password
+		/// </summary>
+		/// <returns>bool true if OK was pressed, false if cancel</returns>
+		public bool ShowConfigDialog()
+		{
+			var before = new
+			{
+				RestUrl = config.RestUrl,
+				Password = config.Password,
+				Username = config.Username
+			};
+
+			var settingsForm = new SettingsForm(config);
+			DialogResult result = settingsForm.ShowDialog();
+			if (result == DialogResult.OK)
+			{
+				var after = new
+				{
+					RestUrl = config.RestUrl,
+					Password = config.Password,
+					Username = config.Username
+				};
+				return !before.Equals(after);
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Supply values we can't put as defaults
+		/// </summary>
+		/// <param name="property">The property to return a default for</param>
+		/// <returns>object with the default value for the supplied property</returns>
+		public object GetDefault(string property)
+		{
+			switch (property)
+			{
+				case "Username":
+					return Environment.UserName;
+			}
+			return null;
+		}
+
+
 
 		/// <summary>
 		/// This will be called when Greenshot is shutting down

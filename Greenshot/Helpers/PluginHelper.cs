@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -27,10 +28,11 @@ using System.Windows.Forms;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using log4net;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Helpers {
+namespace Greenshot.Helpers
+{
 	/// <summary>
 	/// The PluginHelper takes care of all plugin related functionality
 	/// </summary>
@@ -221,7 +223,7 @@ namespace Greenshot.Helpers {
 		public void LoadPlugins() {
 			List<string> pluginFiles = new List<string>();
 
-			if (IniConfig.IsPortable) {
+			if (PortableHelper.IsPortable) {
 				findPluginsOnPath(pluginFiles, pafPath);
 			} else {
 				findPluginsOnPath(pluginFiles, pluginPath);

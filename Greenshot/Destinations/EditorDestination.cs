@@ -25,7 +25,7 @@ using System.Drawing;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using log4net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,7 +36,7 @@ namespace Greenshot.Destinations {
 	/// </summary>
 	public class EditorDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<EditorConfiguration>();
 		public const string DESIGNATION = "Editor";
 		private IImageEditor editor = null;
 		private static Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();

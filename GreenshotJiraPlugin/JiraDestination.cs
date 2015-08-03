@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
@@ -35,13 +35,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin
+{
 	/// <summary>
 	/// Jira destination.
 	/// </summary>
 	public class JiraDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
-		private static JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+		private static JiraConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<JiraConfiguration>();
 		private JiraPlugin _jiraPlugin = null;
 		private JiraDetails _jira = null;
 

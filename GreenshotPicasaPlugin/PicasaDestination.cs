@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
@@ -32,7 +32,7 @@ using System.Windows;
 namespace GreenshotPicasaPlugin {
 	public class PicasaDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaDestination));
-		private static PicasaConfiguration _config = IniConfig.GetIniSection<PicasaConfiguration>();
+		private static PicasaConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<PicasaConfiguration>();
 
 		public override string Designation {
 			get {

@@ -27,11 +27,11 @@ using System.Windows.Forms;
 
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using Greenshot.Drawing;
 using log4net;
 
-namespace Greenshot.Helpers {
+namespace Greenshot.Helpers
+{
 	/// <summary>
 	/// Description of EnvironmentInfo.
 	/// </summary>
@@ -57,7 +57,7 @@ namespace Greenshot.Helpers {
 		public static string EnvironmentToString(bool newline) {
 			StringBuilder environment = new StringBuilder();
 			environment.Append("Software version: " + Application.ProductVersion);
-			if (IniConfig.IsPortable) {
+			if (PortableHelper.IsPortable) {
 				environment.Append(" Portable");
 			}
 			environment.Append(" (" + OSInfo.Bits + " bit)");
@@ -162,7 +162,8 @@ namespace Greenshot.Helpers {
 			exceptionText.AppendLine(ExceptionToString(exception));
 			exceptionText.AppendLine("Configuration dump:");
 			using (TextWriter writer = new StringWriter(exceptionText)) {
-				IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>().Write(writer, true);
+				// TODO: Create summary of properties
+				//var iniConfig = IniConfig.Get("Greenshot","greenshot").WriteToStreamAsync();
 			}
 
 			return exceptionText.ToString();

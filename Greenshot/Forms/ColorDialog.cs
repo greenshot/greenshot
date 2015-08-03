@@ -19,23 +19,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using Greenshot.Configuration;
 using Greenshot.Controls;
-using Greenshot.IniFile;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;
 
-namespace Greenshot {
+namespace Greenshot
+{
 	/// <summary>
 	/// Description of ColorDialog.
 	/// </summary>
 	public partial class ColorDialog : BaseForm {
 		private static ColorDialog uniqueInstance;
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<EditorConfiguration>();
 
 		private ColorDialog() {
 			SuspendLayout();
@@ -158,7 +160,7 @@ namespace Greenshot {
 			editorConfiguration.RecentColors.Remove(c);
 			editorConfiguration.RecentColors.Insert(0, c);
 			if (editorConfiguration.RecentColors.Count > 12) {
-				editorConfiguration.RecentColors.RemoveRange(12, editorConfiguration.RecentColors.Count - 12);
+				editorConfiguration.RecentColors = editorConfiguration.RecentColors.Take(12).ToList();
 			}
 			UpdateRecentColorsButtonRow();
 		}

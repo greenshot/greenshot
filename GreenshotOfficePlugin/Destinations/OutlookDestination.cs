@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
@@ -32,7 +32,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
-namespace GreenshotOfficePlugin {
+namespace GreenshotOfficePlugin
+{
 	/// <summary>
 	/// Description of OutlookDestination.
 	/// </summary>
@@ -41,8 +42,8 @@ namespace GreenshotOfficePlugin {
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_MEETING = 2;
 
-		private static Image mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
-		private static OfficeConfiguration conf = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static Image mailIcon = GreenshotResources.getImage("Email.Image");
+		private static OfficeConfiguration conf = IniConfig.Get("Greenshot", "greenshot").Get<OfficeConfiguration>();
 		private static string exePath = null;
 		private static bool isActiveFlag = false;
 		private static string mapiClient = "Microsoft Outlook";

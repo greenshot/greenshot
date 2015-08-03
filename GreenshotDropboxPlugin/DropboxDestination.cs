@@ -18,15 +18,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-namespace GreenshotDropboxPlugin {
+using Dapplo.Config.Ini;
+
+namespace GreenshotDropboxPlugin
+{
 	class DropboxDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxDestination));
-		private static DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+		private static DropboxPluginConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<DropboxPluginConfiguration>();
 
 		private DropboxPlugin plugin = null;
 		public DropboxDestination(DropboxPlugin plugin) {

@@ -20,7 +20,7 @@
  */
 
 using Confluence;
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -28,7 +28,8 @@ using System.Collections.Generic;
 using System.Windows;
 using TranslationByMarkupExtension;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin
+{
 	/// <summary>
 	/// This is the ConfluencePlugin base code
 	/// </summary>
@@ -51,7 +52,7 @@ namespace GreenshotConfluencePlugin {
 				if (_config.Url.Contains("soap-axis")) {
 					_confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
 				} else {
-					_confluenceConnector = new ConfluenceConnector(_config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX2, _config.Timeout);
+					_confluenceConnector = new ConfluenceConnector(_config.Url + ConfluenceConnector.DEFAULT_POSTFIX2, _config.Timeout);
 				}
 			}
 		}
@@ -95,10 +96,8 @@ namespace GreenshotConfluencePlugin {
 		/// <param name="myAttributes">My own attributes</param>
 		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-			if(_config.IsDirty) {
-				IniConfig.Save();
-			}
+			// TODO: Register async!!
+			_config = IniConfig.Get("Greenshot", "greenshot").Get<ConfluenceConfiguration>();
 			try {
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
 				//resources = new ComponentResourceManager(typeof(ConfluencePlugin));
@@ -128,7 +127,7 @@ namespace GreenshotConfluencePlugin {
 			if (dialogResult.HasValue && dialogResult.Value) {
 				// copy the new object to the old...
 				clonedConfig.CloneTo(_config);
-				IniConfig.Save();
+				// TODO: Save? IniConfig.Save();
 				if (_confluenceConnector != null) {
 					if (!url.Equals(_config.Url)) {
 						if (_confluenceConnector.isLoggedIn) {

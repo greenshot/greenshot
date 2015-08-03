@@ -18,111 +18,96 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Config.Ini;
+using System.ComponentModel;
 
-namespace ExternalCommand {
+namespace ExternalCommand
+{
 	/// <summary>
 	/// Description of FlickrConfiguration.
 	/// </summary>
-	[IniSection("ExternalCommand", Description="Greenshot ExternalCommand Plugin configuration")]
-	public class ExternalCommandConfiguration : IniSection {
-		[IniProperty("Commands", Description="The commands that are available.")]
-		public List<string> commands;
-
-		[IniProperty("RedirectStandardError", Description = "Redirect the standard error of all external commands, used to output as warning to the greenshot.log.", DefaultValue = "true")]
-		public bool RedirectStandardError;
-
-		[IniProperty("RedirectStandardOutput", Description = "Redirect the standard output of all external commands, used for different other functions (more below).", DefaultValue = "true")]
-		public bool RedirectStandardOutput;
-
-		[IniProperty("ShowStandardOutputInLog", Description = "Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be usefull for debugging.", DefaultValue = "false")]
-		public bool ShowStandardOutputInLog;
-
-		[IniProperty("ParseForUri", Description = "Depends on 'RedirectStandardOutput': Parse the output and take the first found URI, if a URI is found than clicking on the notify bubble goes there.", DefaultValue = "true")]
-		public bool ParseOutputForUri;
-
-		[IniProperty("OutputToClipboard", Description = "Depends on 'RedirectStandardOutput': Place the standard output on the clipboard.", DefaultValue = "false")]
-		public bool OutputToClipboard;
-
-		[IniProperty("UriToClipboard", Description = "Depends on 'RedirectStandardOutput' & 'ParseForUri': If an URI is found in the standard input, place it on the clipboard. (This overwrites the output from OutputToClipboard setting.)", DefaultValue = "true")]
-		public bool UriToClipboard;
-
-		[IniProperty("Commandline", Description="The commandline for the output command.")]
-		public Dictionary<string, string> commandlines;
-
-		[IniProperty("Argument", Description="The arguments for the output command.")]
-		public Dictionary<string, string> arguments;
-
-		[IniProperty("RunInbackground", Description = "Should the command be started in the background.")]
-		public Dictionary<string, bool> runInbackground;
-
-		private const string MSPAINT = "MS Paint";
-		private static string paintPath;
-		private static bool hasPaint = false;
-
-		private const string PAINTDOTNET = "Paint.NET";
-		private static string paintDotNetPath;
-		private static bool hasPaintDotNet = false;
-		static ExternalCommandConfiguration() {
-			try {
-				paintPath = PluginUtils.GetExePath("pbrush.exe");
-				hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
-				paintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
-				hasPaintDotNet = !string.IsNullOrEmpty(paintDotNetPath) && File.Exists(paintDotNetPath);
-			} catch {
-			}
+	[IniSection("ExternalCommand"), Description("Greenshot ExternalCommand Plugin configuration")]
+	public interface ExternalCommandConfiguration : IIniSection<ExternalCommandConfiguration> {
+		[Description("The commands that are available.")]
+		IList<string> Commands
+		{
+			get;
+			set;
 		}
 
-		/// <summary>
-		/// Supply values we can't put as defaults
-		/// </summary>
-		/// <param name="property">The property to return a default for</param>
-		/// <returns>object with the default value for the supplied property</returns>
-		public override object GetDefault(string property) {
-			switch(property) {
-				case "Commands":
-					List<string> commandDefaults = new List<string>();
-					if (hasPaintDotNet) {
-						commandDefaults.Add(PAINTDOTNET);
-					}
-					if (hasPaint) {
-						commandDefaults.Add(MSPAINT);
-					}
-					return commandDefaults; 
-				case "Commandline":
-					Dictionary<string, string> commandlineDefaults = new Dictionary<string, string>();
-					if (hasPaintDotNet) {
-						commandlineDefaults.Add(PAINTDOTNET, paintDotNetPath);
-					}
-					if (hasPaint) {
-						commandlineDefaults.Add(MSPAINT, paintPath);
-					}
-					return commandlineDefaults; 
-				case "Argument":
-					Dictionary<string, string> argumentDefaults = new Dictionary<string, string>();
-					if (hasPaintDotNet) {
-						argumentDefaults.Add(PAINTDOTNET, "\"{0}\"");
-					}
-					if (hasPaint) {
-						argumentDefaults.Add(MSPAINT, "\"{0}\"");
-					}
-					return argumentDefaults;
-				case "RunInbackground":
-					Dictionary<string, bool> runInBackground = new Dictionary<string, bool>();
-					if (hasPaintDotNet) {
-						runInBackground.Add(PAINTDOTNET, true);
-					}
-					if (hasPaint) {
-						runInBackground.Add(MSPAINT, true);
-					}
-					return runInBackground;
-			}
-			return null;
+		[Description("Redirect the standard error of all external commands, used to output as warning to the greenshot.log."), DefaultValue(true)]
+		bool RedirectStandardError
+		{
+			get;
+			set;
+		}
+
+		[Description("Redirect the standard output of all external commands, used for different other functions (more below)."), DefaultValue(true)]
+		bool RedirectStandardOutput
+		{
+			get;
+			set;
+		}
+
+		[Description("Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be usefull for debugging."), DefaultValue(false)]
+		bool ShowStandardOutputInLog
+		{
+			get;
+			set;
+		}
+
+		[Description("Depends on 'RedirectStandardOutput': Parse the output and take the first found URI, if a URI is found than clicking on the notify bubble goes there."), DefaultValue(true)]
+		bool ParseOutputForUri
+		{
+			get;
+			set;
+		}
+
+		[Description("Depends on 'RedirectStandardOutput': Place the standard output on the clipboard."), DefaultValue(false)]
+		bool OutputToClipboard
+		{
+			get;
+			set;
+		}
+
+		[Description("Depends on 'RedirectStandardOutput' & 'ParseForUri': If an URI is found in the standard input, place it on the clipboard. (This overwrites the output from OutputToClipboard setting.)"), DefaultValue(true)]
+		bool UriToClipboard
+		{
+			get;
+			set;
+		}
+
+		[Description("The commandline for the output command.")]
+		IDictionary<string, string> Commandline
+		{
+			get;
+			set;
+		}
+
+		[Description("The arguments for the output command.")]
+		IDictionary<string, string> Argument
+		{
+			get;
+			set;
+		}
+
+		[Description("Should the command be started in the background.")]
+		IDictionary<string, bool> RunInbackground
+		{
+			get;
+			set;
+		}
+
+		[Description("Are defaults added."), DefaultValue(false)]
+		bool DefaultsAdded
+		{
+			get;
+			set;
 		}
 	}
 }

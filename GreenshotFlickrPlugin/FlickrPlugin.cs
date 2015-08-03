@@ -23,13 +23,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using log4net;
+using Dapplo.Config.Ini;
 
 namespace GreenshotFlickrPlugin
 {
@@ -80,7 +78,7 @@ namespace GreenshotFlickrPlugin
 
 
 			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.GetIniSection<FlickrConfiguration>();
+			_config = IniConfig.Get("Greenshot", "greenshot").Get<FlickrConfiguration>();
 			_resources = new ComponentResourceManager(typeof(FlickrPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem();
@@ -100,15 +98,15 @@ namespace GreenshotFlickrPlugin
 			}
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			LOG.Debug("Flickr Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
-			_config.ShowConfigDialog();
+		public void Configure() {
+			ShowConfigDialog();
 		}
 
 		/// <summary>
@@ -122,7 +120,22 @@ namespace GreenshotFlickrPlugin
 		}
 	
 		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
-			_config.ShowConfigDialog();
+			ShowConfigDialog();
 		}
+
+		/// <summary>
+		/// A form for token
+		/// </summary>
+		/// <returns>bool true if OK was pressed, false if cancel</returns>
+		private bool ShowConfigDialog()
+		{
+			DialogResult result = new SettingsForm(_config).ShowDialog();
+			if (result == DialogResult.OK)
+			{
+				return true;
+			}
+			return false;
+		}
+
 	}
 }

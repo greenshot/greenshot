@@ -19,98 +19,60 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
-using System;
-using System.Windows.Forms;
-using GreenshotPlugin.IniFile;
+using Dapplo.Config.Ini;
+using System.ComponentModel;
+using Dapplo.Config.Converters;
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin
+{
 	/// <summary>
 	/// Description of JiraConfiguration.
 	/// </summary>
-	[IniSection("Jira", Description="Greenshot Jira Plugin configuration")]
-	public class JiraConfiguration : IniSection {
-		[IniProperty("RestUrl", Description = "Rest Url to Jira system", DefaultValue="https://jira")]
-		public string RestUrl {
+	[IniSection("Jira"), Description("Greenshot Jira Plugin configuration")]
+	public interface JiraConfiguration : IIniSection<JiraConfiguration> {
+        [Description("Rest Url to Jira system"), DefaultValue("https://jira")]
+		string RestUrl {
 			get;
 			set;
 		}
 
-		[IniProperty("Username", Description = "Username for Jira system")]
-		public string Username {
+		[Description("Username for Jira system")]
+		string Username {
 			get;
 			set;
 		}
 
-		[IniProperty("Password", Description = "Password for Jira system", Encrypted = true)]
-		public string Password {
+		[Description("Password for Jira system"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string Password {
 			get;
 			set;
 		}
 
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat {
+		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
+		OutputFormat UploadFormat
+		{
 			get;
 			set;
 		}
 
-		[IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
-		public int UploadJpegQuality {
+		[Description("JPEG file save quality in %."), DefaultValue(80)]
+		int UploadJpegQuality
+		{
 			get;
 			set;
 		}
 
-		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
-		public bool UploadReduceColors {
+		[Description("Reduce color amount of the uploaded image to 256"), DefaultValue(false)]
+		bool UploadReduceColors {
 			get;
 			set;
 		}
 
-		[IniProperty("FilenamePattern", Description = "Pattern for the filename that is used for uploading to JIRA", DefaultValue = "${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title:s0,10}")]
-		public string FilenamePattern {
+		[Description("Pattern for the filename that is used for uploading to JIRA"), DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title:s0,10}")]
+		string FilenamePattern {
 			get;
 			set;
 		}
-
-		/// <summary>
-		/// A form for username/password
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			var before = new
-			{
-				RestUrl = RestUrl,
-				Password = Password,
-				Username = Username
-			};
-
-			SettingsForm settingsForm = new SettingsForm(this);
-			DialogResult result = settingsForm.ShowDialog();
-			if (result == DialogResult.OK) {
-				var after = new
-				{
-					RestUrl = RestUrl,
-					Password = Password,
-					Username = Username
-				};
-				return !before.Equals(after);
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// Supply values we can't put as defaults
-		/// </summary>
-		/// <param name="property">The property to return a default for</param>
-		/// <returns>object with the default value for the supplied property</returns>
-		public override object GetDefault(string property) {
-			switch (property) {
-				case "Username":
-					return Environment.UserName;
-			}
-			return null;
-		}
-
 	}
 }

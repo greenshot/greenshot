@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using GreenshotPlugin.Interop;
 using Microsoft.Office.Core;
 using System;
@@ -28,10 +28,11 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
-namespace GreenshotOfficePlugin.OfficeExport {
+namespace GreenshotOfficePlugin.OfficeExport
+{
 	public class PowerpointExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointExporter));
-		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly OfficeConfiguration OfficeConfig = IniConfig.Get("Greenshot", "greenshot").Get<OfficeConfiguration>();
 		private static Version _powerpointVersion;
 
 		private static bool IsAfter2003() {

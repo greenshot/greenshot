@@ -30,12 +30,13 @@ using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using log4net;
 using mshtml;
 using System.Threading;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Helpers {
+namespace Greenshot.Helpers
+{
 	/// <summary>
 	/// The code for this helper comes from: http://www.codeproject.com/KB/graphics/IECapture.aspx
 	/// The code is modified with some of the suggestions in different comments and there still were leaks which I fixed.

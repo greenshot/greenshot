@@ -18,17 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Drawing;
 using System.IO;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.Core;
 using System.Diagnostics;
-using System.Runtime.InteropServices.ComTypes;
 using System;
 using System.Threading.Tasks;
 using System.Threading;
+using Dapplo.Config.Ini;
 
 namespace GreenshotOCR {
 	/// <summary>
@@ -36,7 +36,7 @@ namespace GreenshotOCR {
 	/// </summary>
 	public class OCRDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OCRDestination));
-		private static OCRConfiguration _config = IniConfig.GetIniSection<OCRConfiguration>();
+		private static OCRConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<OCRConfiguration>();
 		private const int MIN_WIDTH = 130;
 		private const int MIN_HEIGHT = 130;
 		private string _ocrCommand;

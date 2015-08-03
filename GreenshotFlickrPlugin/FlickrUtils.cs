@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
@@ -30,13 +30,14 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GreenshotFlickrPlugin {
+namespace GreenshotFlickrPlugin
+{
 	/// <summary>
 	/// Description of FlickrUtils.
 	/// </summary>
 	public class FlickrUtils {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrUtils));
-		private static FlickrConfiguration config = IniConfig.GetIniSection<FlickrConfiguration>();
+		private static FlickrConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<FlickrConfiguration>();
 		private const string FLICKR_API_BASE_URL = "https://api.flickr.com/services/";
 		private static readonly Uri FLICKR_UPLOAD_URI = new Uri(FLICKR_API_BASE_URL + "upload/");
 		// OAUTH
@@ -78,7 +79,7 @@ namespace GreenshotFlickrPlugin {
 				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
 					config.FlickrTokenSecret = oAuth.TokenSecret;
 				}
-				IniConfig.Save();
+				// TODO: IniConfig.Save();
 			}
 			try {
 				IDictionary<string, object> signedParameters = new Dictionary<string, object>();

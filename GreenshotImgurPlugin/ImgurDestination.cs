@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
@@ -31,13 +31,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace GreenshotImgurPlugin  {
+namespace GreenshotImgurPlugin
+{
 	/// <summary>
 	/// Implementation of the Imgur destination.
 	/// </summary>
 	public class ImgurDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
-		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
+		private static ImgurConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ImgurConfiguration>();
 		private ImgurPlugin plugin = null;
 
 		public ImgurDestination(ImgurPlugin plugin) {

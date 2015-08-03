@@ -95,6 +95,7 @@ namespace Confluence {
 	public class ConfluenceConnector : IDisposable {
 		public const string DEFAULT_POSTFIX1 = "/rpc/soap-axis/confluenceservice-v1?wsdl";
 		public const string DEFAULT_POSTFIX2 = "/rpc/soap-axis/confluenceservice-v2?wsdl";
+
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.confluence.rpc.AuthenticationFailedException";
         private const string V2_FAILED = "AXIS";

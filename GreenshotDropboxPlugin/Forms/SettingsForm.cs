@@ -20,15 +20,16 @@
  */
 
 using GreenshotDropboxPlugin.Forms;
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 
-namespace GreenshotDropboxPlugin {
+namespace GreenshotDropboxPlugin
+{
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : DropboxForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private static DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+		private static DropboxPluginConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<DropboxPluginConfiguration>();
 
 		public SettingsForm() {
 			//

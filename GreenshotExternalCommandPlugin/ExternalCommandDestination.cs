@@ -18,26 +18,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Threading;
-using Greenshot.IniFile;
+
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace ExternalCommand {
+namespace ExternalCommand
+{
 	/// <summary>
 	/// Description of OCRDestination.
 	/// </summary>
 	public class ExternalCommandDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
 		private static Regex URI_REGEXP = new Regex(@"(file|ftp|gopher|https?|ldap|mailto|net\.pipe|net\.tcp|news|nntp|telnet|uuid):((((?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
-		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static ExternalCommandConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ExternalCommandConfiguration>();
 		private string presetCommand;
 		
 		public ExternalCommandDestination(string commando) {
@@ -71,10 +73,10 @@ namespace ExternalCommand {
 			var outputSettings = new SurfaceOutputSettings();
 			
 			if (presetCommand != null) {
-				if (!config.runInbackground.ContainsKey(presetCommand)) {
-					config.runInbackground.Add(presetCommand, true);
+				if (!config.RunInbackground.ContainsKey(presetCommand)) {
+					config.RunInbackground.Add(presetCommand, true);
 				}
-				bool runInBackground = config.runInbackground[presetCommand];
+				bool runInBackground = config.RunInbackground[presetCommand];
 				string fullPath = captureDetails.Filename;
 				if (fullPath == null) {
 					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
@@ -142,15 +144,15 @@ namespace ExternalCommand {
 				// Retry later
 				w32ex = ex;
 			} catch (Exception ex) {
-				ex.Data.Add("commandline", config.commandlines[presetCommand]);
-				ex.Data.Add("arguments", config.arguments[presetCommand]);
+				ex.Data.Add("commandline", config.Commandline[presetCommand]);
+				ex.Data.Add("arguments", config.Argument[presetCommand]);
 				throw;
 			}
 			try {
 				return await CallExternalCommandAsync(commando, fullPath, "runas", runInBackground, token);
 			} catch {
-				w32ex.Data.Add("commandline", config.commandlines[presetCommand]);
-				w32ex.Data.Add("arguments", config.arguments[presetCommand]);
+				w32ex.Data.Add("commandline", config.Commandline[presetCommand]);
+				w32ex.Data.Add("arguments", config.Argument[presetCommand]);
 				throw;
 			}
 		}
@@ -165,8 +167,8 @@ namespace ExternalCommand {
 		/// <param name="error"></param>
 		/// <returns></returns>
 		private async Task<ProcessResult> CallExternalCommandAsync(string commando, string fullPath, string verb, bool runInBackground, CancellationToken token = default(CancellationToken)) {
-			string commandline = config.commandlines[commando];
-			string arguments = config.arguments[commando];
+			string commandline = config.Commandline[commando];
+			string arguments = config.Argument[commando];
 			var result = new ProcessResult {
 				ExitCode = -1
 			};

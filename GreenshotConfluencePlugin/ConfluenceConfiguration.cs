@@ -29,10 +29,7 @@ namespace GreenshotConfluencePlugin {
 	/// </summary>
 	[IniSection("Confluence"), Description("Greenshot Confluence Plugin configuration")]
 	public interface ConfluenceConfiguration : IIniSection<ConfluenceConfiguration> {
-		public const string DEFAULT_PREFIX = "http://";
-		private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence";
-
-		[Description("Url to Confluence system, including wsdl."), DefaultValue(DEFAULT_URL)]
+		[Description("Url to Confluence system, including wsdl."), DefaultValue("https://confluence")]
 		string Url {
 			get;
 			set;

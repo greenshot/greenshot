@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
@@ -108,7 +108,7 @@ namespace GreenshotOCR {
 				return false;
 			}
 			// Load configuration
-			_config = IniConfig.GetIniSection<OCRConfiguration>();
+			_config = IniConfig.Get("Greenshot","greenshot").Get<OCRConfiguration>();
 			
 			if (_config.Language != null) {
 				_config.Language = _config.Language.Replace("miLANG_","").Replace("_"," ");
@@ -135,7 +135,6 @@ namespace GreenshotOCR {
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
 				// "Re"set hotkeys
-				IniConfig.Save();
 			}
 		}
 

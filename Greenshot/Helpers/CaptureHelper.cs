@@ -24,7 +24,6 @@ using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Forms;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
@@ -37,8 +36,10 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using System.Threading.Tasks;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Helpers {
+namespace Greenshot.Helpers
+{
 	/// <summary>
 	/// CaptureHelper contains all the capture logic 
 	/// </summary>

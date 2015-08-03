@@ -29,7 +29,7 @@ namespace GreenshotPicasaPlugin {
 	/// Description of PicasaConfiguration.
 	/// </summary>
 	[IniSection("Picasa"), Description("Greenshot Picasa Plugin configuration")]
-	public class PicasaConfiguration : IIniSection<PicasaConfiguration> {
+	public interface PicasaConfiguration : IIniSection<PicasaConfiguration> {
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat {
 			get;
@@ -43,31 +43,31 @@ namespace GreenshotPicasaPlugin {
 		}
 
 		[Description("After upload send Picasa link to clipboard."), DefaultValue(true)]
-		public bool AfterUploadLinkToClipBoard {
+		bool AfterUploadLinkToClipBoard {
 			get;
 			set;
 		}
 
 		[Description("Is the filename passed on to Picasa"), DefaultValue(false)]
-		public bool AddFilename {
+		bool AddFilename {
 			get;
 			set;
 		}
 
 		[Description("The picasa user to upload to"), DefaultValue("default")]
-		public string UploadUser {
+		string UploadUser {
 			get;
 			set;
 		}
 
 		[Description("The picasa album to upload to"), DefaultValue("default")]
-		public string UploadAlbum {
+		string UploadAlbum {
 			get;
 			set;
 		}
 
 		[Description("Picasa authorization refresh Token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		public string RefreshToken {
+		string RefreshToken {
 			get;
 			set;
 		}
@@ -76,7 +76,7 @@ namespace GreenshotPicasaPlugin {
 		/// Not stored
 		/// </summary>
 		[IniPropertyBehavior(Read = false, Write = false)]
-		public string AccessToken {
+		string AccessToken {
 			get;
 			set;
 		}
@@ -85,7 +85,7 @@ namespace GreenshotPicasaPlugin {
 		/// Not stored
 		/// </summary>
 		[IniPropertyBehavior(Read = false, Write = false)]
-		public DateTimeOffset AccessTokenExpires {
+		DateTimeOffset AccessTokenExpires {
 			get;
 			set;
 		}

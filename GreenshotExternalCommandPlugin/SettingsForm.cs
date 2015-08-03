@@ -19,18 +19,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace ExternalCommand {
+namespace ExternalCommand
+{
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : ExternalCommandForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static ExternalCommandConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ExternalCommandConfiguration>();
 
 		public SettingsForm() {
 			//
@@ -43,7 +44,8 @@ namespace ExternalCommand {
 		}
 
 		void ButtonOkClick(object sender, EventArgs e) {
-			IniConfig.Save();
+			// TODO: Save?
+			//IniConfig.Save();
 		}
 
 		void ButtonAddClick(object sender, EventArgs e) {
@@ -56,21 +58,21 @@ namespace ExternalCommand {
 		void ButtonDeleteClick(object sender, EventArgs e) {
 			foreach(ListViewItem item in listView1.SelectedItems) {
 				string commando = item.Tag as string;
-				config.commands.Remove(commando);
-				config.commandlines.Remove(commando);
-				config.arguments.Remove(commando);
+				config.Commands.Remove(commando);
+				config.Commandline.Remove(commando);
+				config.Argument.Remove(commando);
 			}
 			UpdateView();
 		}
 
 		void UpdateView() {
 			listView1.Items.Clear();
-			if(config.commands != null) {
+			if(config.Commands != null) {
 				listView1.ListViewItemSorter = new ListviewComparer();
 				ImageList imageList = new ImageList();
 				listView1.SmallImageList = imageList;
 				int imageNr = 0;
-				foreach(string commando in config.commands) {
+				foreach(string commando in config.Commands) {
 					ListViewItem item = null;
 					Image iconForExe = IconCache.IconForCommand(commando);
 					if(iconForExe != null) {

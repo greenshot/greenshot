@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
@@ -80,7 +80,7 @@ namespace GreenshotImgurPlugin
 			Attributes = myAttributes;
 
 			// Get configuration
-			config = IniConfig.GetIniSection<ImgurConfiguration>();
+			config = IniConfig.Get("Greenshot", "greenshot").Get<ImgurConfiguration>();
 			_resources = new ComponentResourceManager(typeof(ImgurPlugin));
 			
 			var itemPlugInRoot = new ToolStripMenuItem("Imgur");

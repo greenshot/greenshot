@@ -19,13 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
-namespace ExternalCommand {
+namespace ExternalCommand
+{
 	/// <summary>
 	/// Description of SettingsFormDetail.
 	/// </summary>
@@ -34,7 +36,7 @@ namespace ExternalCommand {
 		private int commandIndex;
 
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
-		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static ExternalCommandConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ExternalCommandConfiguration>();
 
 		public SettingsFormDetail(string commando) {
 			InitializeComponent();
@@ -44,9 +46,9 @@ namespace ExternalCommand {
 
 			if(commando != null) {
 				textBox_name.Text = commando;
-				textBox_commandline.Text = config.commandlines[commando];
-				textBox_arguments.Text = config.arguments[commando];
-				commandIndex = config.commands.FindIndex(delegate(string s) { return s == commando; });
+				textBox_commandline.Text = config.Commandline[commando];
+				textBox_arguments.Text = config.Argument[commando];
+				commandIndex = config.Commands.IndexOf(commando);
 			} else {
 				textBox_arguments.Text = "\"{0}\"";
 			}
@@ -58,15 +60,15 @@ namespace ExternalCommand {
 			string commandLine = textBox_commandline.Text;
 			string arguments = textBox_arguments.Text;
 			if(commando != null) {
-				config.commands[commandIndex] = commandName;
-				config.commandlines.Remove(commando);
-				config.commandlines.Add(commandName, commandLine);
-				config.arguments.Remove(commando);
-				config.arguments.Add(commandName, arguments);
+				config.Commands[commandIndex] = commandName;
+				config.Commandline.Remove(commando);
+				config.Commandline.Add(commandName, commandLine);
+				config.Argument.Remove(commando);
+				config.Argument.Add(commandName, arguments);
 			} else {
-				config.commands.Add(commandName);
-				config.commandlines.Add(commandName, commandLine);
-				config.arguments.Add(commandName, arguments);
+				config.Commands.Add(commandName);
+				config.Commandline.Add(commandName, commandLine);
+				config.Argument.Add(commandName, arguments);
 			}
 		}
 
@@ -103,7 +105,7 @@ namespace ExternalCommand {
 				buttonOk.Enabled = false;
 			}
 			// Check if commandname is unique
-			if(commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.commands.Contains(textBox_name.Text)) {
+			if(commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.Commands.Contains(textBox_name.Text)) {
 				buttonOk.Enabled = false;
 				textBox_name.BackColor = Color.Red;
 			}

@@ -20,15 +20,16 @@
  */
 
 using System.Drawing.Imaging;
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Forms {
+namespace Greenshot.Forms
+{
 	/// <summary>
 	/// the ToolStripMenuSelectList makes it possible to have a single or multi-check menu
 	/// </summary>

@@ -24,10 +24,11 @@ using System.Text.RegularExpressions;
 
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using log4net;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Processors  {
+namespace Greenshot.Processors
+{
 	/// <summary>
 	/// Description of TitleFixProcessor.
 	/// </summary>
@@ -52,7 +53,6 @@ namespace Greenshot.Processors  {
 					config.TitleFixMatcher.Remove(corruptKey);
 					config.TitleFixReplacer.Remove(corruptKey);
 				}
-				config.IsDirty = true;
 			}
 		}
 		

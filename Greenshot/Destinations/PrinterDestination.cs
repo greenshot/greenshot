@@ -28,13 +28,14 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
 using log4net;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Destinations {
+namespace Greenshot.Destinations
+{
 	/// <summary>
 	/// Description of PrinterDestination.
 	/// </summary>

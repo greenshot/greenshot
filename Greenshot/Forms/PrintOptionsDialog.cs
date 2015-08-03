@@ -18,11 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Windows.Forms;
-using Greenshot.IniFile;
 
-namespace Greenshot.Forms {
+namespace Greenshot.Forms
+{
 	/// <summary>
 	/// Description of PrintOptionsDialog.
 	/// </summary>
@@ -39,7 +40,7 @@ namespace Greenshot.Forms {
 		void Button_okClick(object sender, EventArgs e) {
 			// update config
 			coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
-			IniConfig.Save();
+			// TODO: Save?? IniConfig.Save();
 			DialogResult = DialogResult.OK;
 		}
 

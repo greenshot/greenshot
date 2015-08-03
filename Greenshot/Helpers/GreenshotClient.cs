@@ -36,14 +36,14 @@ namespace Greenshot.Helpers {
 			}
 		}
 
-		public async static void OpenFiles(IList<string> filesToOpen) {
+		public static void OpenFiles(IList<string> filesToOpen) {
 			if (filesToOpen == null || filesToOpen.Count == 0) {
 				return;
 			}
 			using (var factory = ChannelFactory) {
 				var client = factory.CreateChannel();
 				foreach (string filename in filesToOpen) {
-					await client.OpenFile(filename);
+					client.OpenFile(filename);
 				}
 			}
 		}

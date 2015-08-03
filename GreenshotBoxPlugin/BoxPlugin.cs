@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -82,7 +82,8 @@ namespace GreenshotBoxPlugin
 			Attributes = pluginAttribute;
 
 			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.GetIniSection<BoxConfiguration>();
+			// TODO: Register async!!!
+			_config = IniConfig.Get("Greenshot", "greenshot").Get<BoxConfiguration>();
 			_resources = new ComponentResourceManager(typeof(BoxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
