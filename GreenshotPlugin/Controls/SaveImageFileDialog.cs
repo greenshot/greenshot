@@ -18,7 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
+using System.Linq;
 using System.IO;
 using System.Windows.Forms;
 
@@ -195,7 +197,7 @@ namespace GreenshotPlugin.Controls {
 		private void CleanUp() {
 			// fix for bug #3379053
 			try {
-				if(eagerlyCreatedDirectory != null && eagerlyCreatedDirectory.GetFiles().Length == 0  && eagerlyCreatedDirectory.GetDirectories().Length == 0) {
+				if (eagerlyCreatedDirectory != null && eagerlyCreatedDirectory.EnumerateFiles().Count() == 0 && eagerlyCreatedDirectory.EnumerateDirectories().Count() == 0) {
 					eagerlyCreatedDirectory.Delete();
 					eagerlyCreatedDirectory = null;
 				}

@@ -159,11 +159,11 @@ namespace GreenshotPlugin.Core {
 									version = Regex.Replace(version, @"^[a-zA-Z_]*\.", "");
 									version = Regex.Replace(version, @"\.[a-zA-Z_]*$", "");
 
-									try {
-										rssFile.Version = new Version(version);
-									} catch (Exception) {
+									Version fileVersion;
+									if (!Version.TryParse(version, out fileVersion)) {
 										LOG.DebugFormat("Found invalid version {0} in file {1}", version, file);
 									}
+									rssFile.Version = fileVersion;
 								}
 							} else if (type.Equals("Translations")) {
 								string culture = Regex.Replace(file, @"[a-zA-Z]+-(..-..)\.(xml|html)", "$1");

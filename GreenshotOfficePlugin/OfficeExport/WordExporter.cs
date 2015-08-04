@@ -274,11 +274,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			if (wordApplication == null || wordApplication.ComObject == null || _wordVersion != null) {
 				return;
 			}
-			try {
-				_wordVersion = new Version(wordApplication.ComObject.Version);
-				LOG.InfoFormat("Using Word {0}", _wordVersion);
-			} catch (Exception exVersion) {
-				LOG.Error(exVersion);
+			if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion)) {
 				LOG.Warn("Assuming Word version 1997.");
 				_wordVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}

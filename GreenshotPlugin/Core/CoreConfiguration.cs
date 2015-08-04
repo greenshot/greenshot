@@ -137,7 +137,7 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Is this the first time launch?"), DefaultValue("true")]
+		[Description("Is this the first time launch?"), DefaultValue(true)]
 		bool IsFirstLaunch
 		{
 			get;
@@ -158,14 +158,14 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Should the mouse be captured?"), DefaultValue("true")]
+		[Description("Should the mouse be captured?"), DefaultValue(true)]
 		bool CaptureMousepointer
 		{
 			get;
 			set;
 		}
 
-		[Description("Use interactive window selection to capture? (false=Capture active window)"), DefaultValue("false")]
+		[Description("Use interactive window selection to capture? (false=Capture active window)"), DefaultValue(false)]
 		bool CaptureWindowsInteractive
 		{
 			get;
@@ -200,7 +200,7 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor."), DefaultValue("False")]
+		[Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor."), DefaultValue(false)]
 		bool WindowCaptureAllChildLocations
 		{
 			get;
@@ -214,14 +214,14 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Play a camera sound after taking a capture."), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "settings_playsound")]
+		[Description("Play a camera sound after taking a capture."), DefaultValue(false), Tag(ConfigTags.LanguageKey, "settings_playsound")]
 		bool PlayCameraSound
 		{
 			get;
 			set;
 		}
 
-		[Description("Show a notification from the systray when a capture is taken."), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "settings_shownotify")]
+		[Description("Show a notification from the systray when a capture is taken."), DefaultValue(true), Tag(ConfigTags.LanguageKey, "settings_shownotify")]
 		bool ShowTrayNotification
 		{
 			get;
@@ -235,7 +235,7 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog."), DefaultValue("true")]
+		[Description("If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog."), DefaultValue(true)]
 		bool OutputFileAllowOverwrite
 		{
 			get;
@@ -256,14 +256,14 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors"), DefaultValue("false")]
+		[Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors"), DefaultValue(false)]
 		bool OutputFileReduceColors
 		{
 			get;
 			set;
 		}
 
-		[Description("If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used."), DefaultValue("false")]
+		[Description("If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used."), DefaultValue(false)]
 		bool OutputFileAutoReduceColors
 		{
 			get;
@@ -277,7 +277,7 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("When saving a screenshot, copy the path to the clipboard?"), DefaultValue("true")]
+		[Description("When saving a screenshot, copy the path to the clipboard?"), DefaultValue(true)]
 		bool OutputFileCopyPathToClipboard
 		{
 			get;
@@ -298,7 +298,7 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Ask for the quality before saving?"), DefaultValue("false")]
+		[Description("Ask for the quality before saving?"), DefaultValue(false)]
 		bool OutputFilePromptQuality
 		{
 			get;
@@ -312,56 +312,56 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Ask for print options when printing?"), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "settings_alwaysshowprintoptionsdialog")]
+		[Description("Ask for print options when printing?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "settings_alwaysshowprintoptionsdialog")]
 		bool OutputPrintPromptOptions
 		{
 			get;
 			set;
 		}
 
-		[Description("Allow rotating the picture for fitting on paper?"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_allowrotate")]
+		[Description("Allow rotating the picture for fitting on paper?"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_allowrotate")]
 		bool OutputPrintAllowRotate
 		{
 			get;
 			set;
 		}
 
-		[Description("Allow growing the picture for fitting on paper?"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_allowenlarge")]
+		[Description("Allow growing the picture for fitting on paper?"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_allowenlarge")]
 		bool OutputPrintAllowEnlarge
 		{
 			get;
 			set;
 		}
 
-		[Description("Allow shrinking the picture for fitting on paper?"), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "printoptions_allowshrink")]
+		[Description("Allow shrinking the picture for fitting on paper?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "printoptions_allowshrink")]
 		bool OutputPrintAllowShrink
 		{
 			get;
 			set;
 		}
 
-		[Description("Center image when printing?"), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "printoptions_allowcenter")]
+		[Description("Center image when printing?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "printoptions_allowcenter")]
 		bool OutputPrintCenter
 		{
 			get;
 			set;
 		}
 
-		[Description("Print image inverted (use e.g. for console captures)"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_inverted")]
+		[Description("Print image inverted (use e.g. for console captures)"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_inverted")]
 		bool OutputPrintInverted
 		{
 			get;
 			set;
 		}
 
-		[Description("Force grayscale printing"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_printgrayscale")]
+		[Description("Force grayscale printing"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_printgrayscale")]
 		bool OutputPrintGrayscale
 		{
 			get;
 			set;
 		}
 
-		[Description("Force monorchrome printing"), DefaultValue("false"), Tag(ConfigTags.LanguageKey, "printoptions_printmonochrome")]
+		[Description("Force monorchrome printing"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_printmonochrome")]
 		bool OutputPrintMonochrome
 		{
 			get;
@@ -375,7 +375,7 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Print footer on print?"), DefaultValue("true"), Tag(ConfigTags.LanguageKey, "printoptions_timestamp")]
+		[Description("Print footer on print?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "printoptions_timestamp")]
 		bool OutputPrintFooter
 		{
 			get;
@@ -396,21 +396,21 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Use your global proxy?"), DefaultValue("True")]
+		[Description("Use your global proxy?"), DefaultValue(true)]
 		bool UseProxy
 		{
 			get;
 			set;
 		}
 
-		[Description("Enable/disable IE capture"), DefaultValue("True")]
+		[Description("Enable/disable IE capture"), DefaultValue(true)]
 		bool IECapture
 		{
 			get;
 			set;
 		}
 
-		[Description("Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor."), DefaultValue("False")]
+		[Description("Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor."), DefaultValue(false)]
 		bool IEFieldCapture
 		{
 			get;
@@ -474,35 +474,35 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Enable/disable the access to the settings, can only be changed manually in this .ini"), DefaultValue("False")]
+		[Description("Enable/disable the access to the settings, can only be changed manually in this .ini"), DefaultValue(false)]
 		bool DisableSettings
 		{
 			get;
 			set;
 		}
 
-		[Description("Enable/disable the access to the quick settings, can only be changed manually in this .ini"), DefaultValue("False")]
+		[Description("Enable/disable the access to the quick settings, can only be changed manually in this .ini"), DefaultValue(false)]
 		bool DisableQuickSettings
 		{
 			get;
 			set;
 		}
 
-		[Description("Disable the trayicon, can only be changed manually in this .ini"), DefaultValue("False")]
+		[Description("Disable the trayicon, can only be changed manually in this .ini"), DefaultValue(false)]
 		bool HideTrayicon
 		{
 			get;
 			set;
 		}
 
-		[Description("Hide expert tab in the settings, can only be changed manually in this .ini"), DefaultValue("False")]
+		[Description("Hide expert tab in the settings, can only be changed manually in this .ini"), DefaultValue(false)]
 		bool HideExpertSettings
 		{
 			get;
 			set;
 		}
 
-		[Description("Enable/disable thumbnail previews"), DefaultValue("True")]
+		[Description("Enable/disable thumbnail previews"), DefaultValue(true)]
 		bool ThumnailPreview
 		{
 			get;
@@ -523,28 +523,28 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Make some optimizations for usage with remote desktop"), DefaultValue("False")]
+		[Description("Make some optimizations for usage with remote desktop"), DefaultValue(false)]
 		bool OptimizeForRDP
 		{
 			get;
 			set;
 		}
 
-		[Description("Optimize memory footprint, but with a performance penalty!"), DefaultValue("False")]
+		[Description("Optimize memory footprint, but with a performance penalty!"), DefaultValue(false)]
 		bool MinimizeWorkingSetSize
 		{
 			get;
 			set;
 		}
 
-		[Description("Remove the corners from a window capture"), DefaultValue("True")]
+		[Description("Remove the corners from a window capture"), DefaultValue(true)]
 		bool WindowCaptureRemoveCorners
 		{
 			get;
 			set;
 		}
 
-		[Description("Also check for unstable version updates"), DefaultValue("False")]
+		[Description("Also check for unstable version updates"), DefaultValue(false)]
 		bool CheckForUnstable
 		{
 			get;
@@ -572,7 +572,7 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Enable a special DIB clipboard reader"), DefaultValue("True")]
+		[Description("Enable a special DIB clipboard reader"), DefaultValue(true)]
 		bool EnableSpecialDIBClipboardReader
 		{
 			get;
@@ -601,7 +601,7 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Sets if the zoomer is enabled"), DefaultValue("True")]
+		[Description("Sets if the zoomer is enabled"), DefaultValue(true)]
 		bool ZoomerEnabled
 		{
 			get;
@@ -664,7 +664,7 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("When reading images from files or clipboard, use the EXIF information to correct the orientation"), DefaultValue("True")]
+		[Description("When reading images from files or clipboard, use the EXIF information to correct the orientation"), DefaultValue(true)]
 		bool ProcessEXIFOrientation
 		{
 			get;
@@ -684,14 +684,14 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("The connect timeout value for http-connections, these are seconds"), DefaultValue("120")]
+		[Description("The connect timeout value for http-connections, these are seconds"), DefaultValue(120)]
 		int HttpConnectionTimeout
 		{
 			get;
 			set;
 		}
 
-		[Description("The read/write timeout value for webrequets, these are seconds"), DefaultValue("100")]
+		[Description("The read/write timeout value for webrequets, these are seconds"), DefaultValue(100)]
 		int WebRequestReadWriteTimeout
 		{
 			get;
@@ -865,10 +865,10 @@ namespace GreenshotPlugin.Core
 
 			// Make sure there is an output!
 			if (coreConfiguration.OutputDestinations.Count == 0) {
-				coreConfiguration.OutputDestinations.Add("Editor");
+				coreConfiguration.OutputDestinations.Add("Picker");
 			}
 
-			// Prevent both settings at once, bug #3435056
+			// Prevent both settings (path to clipboard & image to clipboard) at once, bug #3435056
 			if (coreConfiguration.OutputDestinations.Contains("Clipboard") && coreConfiguration.OutputFileCopyPathToClipboard) {
 				coreConfiguration.OutputFileCopyPathToClipboard = false;
 			}

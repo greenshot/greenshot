@@ -215,6 +215,7 @@ namespace GreenshotPlugin.Core {
 				using (var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false)) {
 					var memoryStream = new MemoryStream();
 					await contentStream.CopyToAsync(memoryStream, 4096, token).ConfigureAwait(false);
+					memoryStream.Position = 0;
 					return memoryStream;
 				}
 			}

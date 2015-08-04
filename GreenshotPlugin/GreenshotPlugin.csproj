@@ -56,9 +56,9 @@
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="CustomMarshalers" />
-    <Reference Include="Dapplo.Config, Version=0.1.49.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\Greenshot\packages\Dapplo.Config.0.1.49.0\lib\net45\Dapplo.Config.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Dapplo.Config, Version=0.1.54.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Greenshot\packages\Dapplo.Config.0.1.54.0\lib\net45\Dapplo.Config.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>

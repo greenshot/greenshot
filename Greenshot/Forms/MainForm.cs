@@ -98,7 +98,10 @@ namespace Greenshot.Forms
 			LOG = LogManager.GetLogger(typeof(MainForm));
 
 			// Read configuration
-			Task.Run(async () => coreConfiguration = await iniConfig.RegisterAndGetAsync<CoreConfiguration>()).Wait();
+			Task.Run(async () => {
+				coreConfiguration = await iniConfig.RegisterAndGetAsync<CoreConfiguration>();
+				await iniConfig.RegisterAndGetAsync<EditorConfiguration>();
+			}).Wait();
 
 			// Log the startup
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));

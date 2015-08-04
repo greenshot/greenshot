@@ -32,6 +32,7 @@ using log4net;
 using Dapplo.Config.Ini;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Greenshot.Helpers
 {
@@ -46,7 +47,7 @@ namespace Greenshot.Helpers
 		private static string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
 		private static string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
 		private static string pafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
-		private static IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new SortedDictionary<PluginAttribute, IGreenshotPlugin>();
+		private static IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new ConcurrentDictionary<PluginAttribute, IGreenshotPlugin>();
 		private static readonly PluginHelper instance = new PluginHelper();
 		public static PluginHelper Instance {
 			get {
@@ -208,7 +209,7 @@ namespace Greenshot.Helpers
 		private void FindPluginsOnPath(IList<string> pluginFiles, String path) {
 			if (Directory.Exists(path)) {
 				try {
-					foreach (string pluginFile in Directory.GetFiles(path, "*.gsp", SearchOption.AllDirectories)) {
+					foreach (string pluginFile in Directory.EnumerateFiles(path, "*.gsp", SearchOption.AllDirectories)) {
 						pluginFiles.Add(pluginFile);
 					}
 				} catch (UnauthorizedAccessException) {

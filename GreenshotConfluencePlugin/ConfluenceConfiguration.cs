@@ -72,7 +72,7 @@ namespace GreenshotConfluencePlugin {
 			get;
 			set;
 		}
-		[Description("Include personal spaces in the search & browse spaces list"), DefaultValue("false")]
+		[Description("Include personal spaces in the search & browse spaces list"), DefaultValue(false)]
 		bool IncludePersonSpaces {
 			get;
 			set;

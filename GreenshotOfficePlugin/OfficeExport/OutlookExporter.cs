@@ -785,14 +785,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			{
 				return;
 			}
-			try
-			{
-				_outlookVersion = new Version(outlookApplication.ComObject.Version);
-				LOG.InfoFormat("Using Outlook {0}", _outlookVersion);
-			}
-			catch (Exception exVersion)
-			{
-				LOG.Error(exVersion);
+			if (!Version.TryParse(outlookApplication.ComObject.Version, out _outlookVersion)) {
 				LOG.Warn("Assuming outlook version 1997.");
 				_outlookVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}

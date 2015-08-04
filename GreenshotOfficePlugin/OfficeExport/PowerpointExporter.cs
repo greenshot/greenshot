@@ -252,11 +252,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			if (powerpointApplication == null || powerpointApplication.ComObject == null || _powerpointVersion != null) {
 				return;
 			}
-			try {
-				_powerpointVersion = new Version(powerpointApplication.ComObject.Version);
-				LOG.InfoFormat("Using Powerpoint {0}", _powerpointVersion);
-			} catch (Exception exVersion) {
-				LOG.Error(exVersion);
+			if (!Version.TryParse(powerpointApplication.ComObject.Version, out _powerpointVersion)) {
 				LOG.Warn("Assuming Powerpoint version 1997.");
 				_powerpointVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}

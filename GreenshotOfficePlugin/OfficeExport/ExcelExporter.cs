@@ -166,11 +166,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 			if (excelApplication == null || excelApplication.ComObject == null || _excelVersion != null) {
 				return;
 			}
-			try {
-				_excelVersion = new Version(excelApplication.ComObject.Version);
-				LOG.InfoFormat("Using Excel {0}", _excelVersion);
-			} catch (Exception exVersion) {
-				LOG.Error(exVersion);
+			if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion)) {
 				LOG.Warn("Assuming Excel version 1997.");
 				_excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}

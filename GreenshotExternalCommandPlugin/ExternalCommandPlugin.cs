@@ -119,7 +119,7 @@ namespace ExternalCommand
 		/// <param name="pluginAttribute">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken())
 		{
-			LOG.DebugFormat("Initialize called of {0}", myAttributes.Name);
+			LOG.DebugFormat("Initialize called of {0}", pluginAttributes.Name);
 			var iniConfig = IniConfig.Get("Greenshot", "greenshot");
 
 			// Make sure the defaults are set

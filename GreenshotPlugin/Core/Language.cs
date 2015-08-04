@@ -335,7 +335,10 @@ namespace GreenshotPlugin.Core {
 						languageFile.Ietf = ReformatIETF(node.Attributes["ietf"].Value);
 					}
 					if (node.Attributes["version"] != null) {
-						languageFile.Version = new Version(node.Attributes["version"].Value);
+						Version languageVersion;
+						if (Version.TryParse(node.Attributes["version"].Value, out languageVersion)) {
+							languageFile.Version = languageVersion;
+						}
 					}
 					if (node.Attributes["prefix"] != null) {
 						languageFile.Prefix = node.Attributes["prefix"].Value.ToLower();
@@ -367,7 +370,7 @@ namespace GreenshotPlugin.Core {
 				}
 				LOG.InfoFormat("Searching language directory '{0}' for language files with pattern '{1}'", languagePath, LANGUAGE_FILENAME_PATTERN);
 				try {
-					foreach (string languageFilepath in Directory.GetFiles(languagePath, LANGUAGE_FILENAME_PATTERN, SearchOption.AllDirectories)) {
+					foreach (string languageFilepath in Directory.EnumerateFiles(languagePath, LANGUAGE_FILENAME_PATTERN, SearchOption.AllDirectories)) {
 						//LOG.DebugFormat("Found language file: {0}", languageFilepath);
 						LanguageFile languageFile = LoadFileInfo(languageFilepath);
 						if (languageFile == null) {
@@ -442,7 +445,7 @@ namespace GreenshotPlugin.Core {
 				// Now find the help files
 				LOG.InfoFormat("Searching language directory '{0}' for help files with pattern '{1}'", languagePath, HELP_FILENAME_PATTERN);
 				try {
-					foreach (string helpFilepath in Directory.GetFiles(languagePath, HELP_FILENAME_PATTERN, SearchOption.AllDirectories)) {
+					foreach (string helpFilepath in Directory.EnumerateFiles(languagePath, HELP_FILENAME_PATTERN, SearchOption.AllDirectories)) {
 						LOG.DebugFormat("Found help file: {0}", helpFilepath);
 						string helpFilename = Path.GetFileName(helpFilepath);
 						string ietf = ReformatIETF(helpFilename.Replace(".html", "").Replace("help-", ""));
