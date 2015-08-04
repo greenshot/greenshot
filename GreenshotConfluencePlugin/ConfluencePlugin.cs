@@ -25,6 +25,8 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using TranslationByMarkupExtension;
 
@@ -94,10 +96,9 @@ namespace GreenshotConfluencePlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			// Register configuration (don't need the configuration itself)
-			// TODO: Register async!!
-			_config = IniConfig.Get("Greenshot", "greenshot").Get<ConfluenceConfiguration>();
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
+			// Register / get the confluence configuration
+			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<ConfluenceConfiguration>();
 			try {
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
 				//resources = new ComponentResourceManager(typeof(ConfluencePlugin));
@@ -108,7 +109,7 @@ namespace GreenshotConfluencePlugin
 			return true;
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			LOG.Debug("Confluence Plugin shutdown.");
 			if (_confluenceConnector != null) {
 				_confluenceConnector.logout();
@@ -119,7 +120,7 @@ namespace GreenshotConfluencePlugin
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			ConfluenceConfiguration clonedConfig = _config.Clone();
 			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
 			string url = _config.Url;

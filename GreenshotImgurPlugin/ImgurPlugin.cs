@@ -22,11 +22,12 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GreenshotImgurPlugin
@@ -75,12 +76,13 @@ namespace GreenshotImgurPlugin
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			_host = (IGreenshotHost)pluginHost;
-			Attributes = myAttributes;
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
+			// Register / get the imgur configuration
+			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<ImgurConfiguration>();
 
-			// Get configuration
-			config = IniConfig.Get("Greenshot", "greenshot").Get<ImgurConfiguration>();
+			_host = (IGreenshotHost)pluginHost;
+			Attributes = pluginAttributes;
+
 			_resources = new ComponentResourceManager(typeof(ImgurPlugin));
 			
 			var itemPlugInRoot = new ToolStripMenuItem("Imgur");

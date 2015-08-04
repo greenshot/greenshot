@@ -25,6 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GreenshotOCR {
@@ -92,8 +94,9 @@ namespace GreenshotOCR {
 		/// <param name="greenshotHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost greenshotHost, PluginAttribute myAttributes) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
 			LOG.Debug("Initialize called of " + myAttributes.Name);
+
 			_myAttributes = myAttributes;
 
 			var dllPath = Path.GetDirectoryName(myAttributes.DllFile);
@@ -107,8 +110,8 @@ namespace GreenshotOCR {
 				LOG.Warn("No MODI found!");
 				return false;
 			}
-			// Load configuration
-			_config = IniConfig.Get("Greenshot","greenshot").Get<OCRConfiguration>();
+			// Register / get the ocr configuration
+			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<OCRConfiguration>(token);
 			
 			if (_config.Language != null) {
 				_config.Language = _config.Language.Replace("miLANG_","").Replace("_"," ");
@@ -120,13 +123,13 @@ namespace GreenshotOCR {
 		/// Implementation of the IGreenshotPlugin.Shutdown
 		/// </summary>
 		public void Shutdown() {
-			LOG.Debug("Shutdown of " + _myAttributes.Name);
+			LOG.DebugFormat("Shutdown of {0}", _myAttributes.Name);
 		}
 		
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			if (!HasModi()) {
 				MessageBox.Show("Greenshot OCR", "Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;

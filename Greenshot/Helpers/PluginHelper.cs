@@ -30,6 +30,8 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
 using Dapplo.Config.Ini;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Helpers
 {
@@ -203,7 +205,7 @@ namespace Greenshot.Helpers
 		/// </summary>
 		/// <param name="pluginFiles"></param>
 		/// <param name="path"></param>
-		private void findPluginsOnPath(List<string> pluginFiles, String path) {
+		private void FindPluginsOnPath(IList<string> pluginFiles, String path) {
 			if (Directory.Exists(path)) {
 				try {
 					foreach (string pluginFile in Directory.GetFiles(path, "*.gsp", SearchOption.AllDirectories)) {
@@ -220,18 +222,18 @@ namespace Greenshot.Helpers
 		/// <summary>
 		/// Load the plugins
 		/// </summary>
-		public void LoadPlugins() {
-			List<string> pluginFiles = new List<string>();
+		public async Task LoadPluginsAsync(CancellationToken token = default(CancellationToken)) {
+			IList<string> pluginFiles = new List<string>();
 
 			if (PortableHelper.IsPortable) {
-				findPluginsOnPath(pluginFiles, pafPath);
+				FindPluginsOnPath(pluginFiles, pafPath);
 			} else {
-				findPluginsOnPath(pluginFiles, pluginPath);
-				findPluginsOnPath(pluginFiles, applicationPath);
+				FindPluginsOnPath(pluginFiles, pluginPath);
+				FindPluginsOnPath(pluginFiles, applicationPath);
 			}
 
-			Dictionary<string, PluginAttribute> tmpAttributes = new Dictionary<string, PluginAttribute>();
-			Dictionary<string, Assembly> tmpAssemblies = new Dictionary<string, Assembly>();
+			IDictionary<string, PluginAttribute> tmpAttributes = new Dictionary<string, PluginAttribute>();
+			IDictionary<string, Assembly> tmpAssemblies = new Dictionary<string, Assembly>();
 			// Loop over the list of available files and get the Plugin Attributes
 			foreach (string pluginFile in pluginFiles) {
 				//LOG.DebugFormat("Checking the following file for plugins: {0}", pluginFile);
@@ -299,6 +301,7 @@ namespace Greenshot.Helpers
 					LOG.Warn("Can't load file: " + pluginFile, e);
 				}
 			}
+			var initializeTasks = new List<Task<bool>>();
 			foreach(string pluginName in tmpAttributes.Keys) {
 				try {
 					PluginAttribute pluginAttribute = tmpAttributes[pluginName];
@@ -308,24 +311,30 @@ namespace Greenshot.Helpers
 						LOG.ErrorFormat("Can't find the in the PluginAttribute referenced type {0} in \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
 						continue;
 					}
-					try {
-						IGreenshotPlugin plugin = (IGreenshotPlugin)Activator.CreateInstance(entryType);
-						if (plugin != null) {
-							if (plugin.Initialize(this, pluginAttribute)) {
-								plugins.Add(pluginAttribute, plugin);
+					var initializeTask = Task.Run(async () => {
+						try {
+							IGreenshotPlugin plugin = (IGreenshotPlugin)Activator.CreateInstance(entryType);
+							if (plugin != null) {
+								if (await plugin.InitializeAsync(this, pluginAttribute, token)) {
+									plugins.Add(pluginAttribute, plugin);
+									return true;
+								} else {
+									LOG.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
+								}
 							} else {
-								LOG.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
+								LOG.ErrorFormat("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
 							}
-						} else {
-							LOG.ErrorFormat("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
+						} catch (Exception e) {
+							LOG.Error("Can't load Plugin: " + pluginAttribute.Name, e);
 						}
-					} catch(Exception e) {
-						LOG.Error("Can't load Plugin: " + pluginAttribute.Name, e);
-					}
+						return false;
+					});
+					initializeTasks.Add(initializeTask);
 				} catch(Exception e) {
 					LOG.Error("Can't load Plugin: " + pluginName, e);
 				}
 			}
+			await Task.WhenAll(initializeTasks);
 		}
 		#endregion
 	}

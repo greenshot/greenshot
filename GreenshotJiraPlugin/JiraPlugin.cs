@@ -24,6 +24,8 @@ using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GreenshotJiraPlugin
@@ -64,12 +66,12 @@ namespace GreenshotJiraPlugin
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
+			// Register / get the jira configuration
+			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<JiraConfiguration>();
 			_host = (IGreenshotHost)pluginHost;
-			jiraPluginAttributes = myAttributes;
+			jiraPluginAttributes = pluginAttributes;
 
-			// Register configuration (don't need the configuration itself)
-			config = IniConfig.Get("Greenshot", "greenshot").Get<JiraConfiguration>();
 			resources = new ComponentResourceManager(typeof(JiraPlugin));
 			InitializeMonitor();
 			return true;

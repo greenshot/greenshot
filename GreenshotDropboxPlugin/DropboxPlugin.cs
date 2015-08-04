@@ -28,6 +28,8 @@ using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotDropboxPlugin {
 	/// <summary>
@@ -72,21 +74,22 @@ namespace GreenshotDropboxPlugin {
 		/// </summary>
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
+			// Register / get the dropbox configuration
+			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<DropboxPluginConfiguration>();
 			this.host = (IGreenshotHost)pluginHost;
-			Attributes = myAttributes;
+			Attributes = pluginAttributes;
 
 			// Register configuration (don't need the configuration itself)
-			config = IniConfig.Get("Greenshot", "greenshot").Get<DropboxPluginConfiguration>();
 			resources = new ComponentResourceManager(typeof(DropboxPlugin));
 
 			itemPlugInConfig = new ToolStripMenuItem();
 			itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
-			itemPlugInConfig.Tag = host;
+			itemPlugInConfig.Tag = pluginHost;
 			itemPlugInConfig.Click += new System.EventHandler(ConfigMenuClick);
 			itemPlugInConfig.Image = (Image)resources.GetObject("Dropbox");
 
-			PluginUtils.AddToContextMenu(host, itemPlugInConfig);
+			PluginUtils.AddToContextMenu(pluginHost, itemPlugInConfig);
 			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 			return true;
 		}
@@ -97,14 +100,14 @@ namespace GreenshotDropboxPlugin {
 			}
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			LOG.Debug("Dropbox Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			ShowConfigDialog();
 		}
 

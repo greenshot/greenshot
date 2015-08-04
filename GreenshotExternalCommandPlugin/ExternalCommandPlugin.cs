@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ExternalCommand
@@ -40,7 +42,6 @@ namespace ExternalCommand
 		private const string PAINTDOTNET = "Paint.NET";
 		private static CoreConfiguration coreConfig;
 		private static ExternalCommandConfiguration config;
-		private IGreenshotHost host;
 		private PluginAttribute myAttributes;
 		private ToolStripMenuItem itemPlugInRoot;
 
@@ -116,7 +117,7 @@ namespace ExternalCommand
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken())
 		{
 			LOG.DebugFormat("Initialize called of {0}", myAttributes.Name);
 			var iniConfig = IniConfig.Get("Greenshot", "greenshot");
@@ -124,8 +125,7 @@ namespace ExternalCommand
 			// Make sure the defaults are set
 			iniConfig.AfterLoad<ExternalCommandConfiguration>((conf) => AfterLoad(conf));
 			coreConfig = iniConfig.Get<CoreConfiguration>();
-			// TODO: Async register!
-			config = iniConfig.Get<ExternalCommandConfiguration>();
+			config = await iniConfig.RegisterAndGetAsync<ExternalCommandConfiguration>();
 
 			IList<string> commandsToDelete = new List<string>();
 			// Check configuration
@@ -146,17 +146,16 @@ namespace ExternalCommand
 				config.Commands.Remove(command);
 			}
 
-			this.host = pluginHost;
-			this.myAttributes = myAttributes;
+			myAttributes = pluginAttributes;
 
 
 			itemPlugInRoot = new ToolStripMenuItem();
-			itemPlugInRoot.Tag = host;
+			itemPlugInRoot.Tag = pluginHost;
 			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
 			OnLanguageChanged(this, null);
 			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
 
-			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
+			PluginUtils.AddToContextMenu(pluginHost, itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;
 			coreConfig.PropertyChanged += OnIconSizeChanged;
 			return true;

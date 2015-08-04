@@ -19,9 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GreenshotOfficePlugin {
@@ -30,8 +33,6 @@ namespace GreenshotOfficePlugin {
 	/// </summary>
 	public class OfficePlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
-		public static PluginAttribute Attributes;
-		private IGreenshotHost host;
 
 		public void Dispose() {
 			Dispose(true);
@@ -104,20 +105,20 @@ namespace GreenshotOfficePlugin {
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotHost)pluginHost;
-			Attributes = myAttributes;
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
+			// Register the office configuration
+			await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<OfficeConfiguration>();
 			return true;
 		}
 		
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			LOG.Debug("Office Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 		}
 
 		/// <summary>

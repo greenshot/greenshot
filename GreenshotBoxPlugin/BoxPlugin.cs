@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GreenshotBoxPlugin
@@ -37,8 +39,6 @@ namespace GreenshotBoxPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
 		private static BoxConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
@@ -76,14 +76,9 @@ namespace GreenshotBoxPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute)
-		{
-			_host = pluginHost;
-			Attributes = pluginAttribute;
-
-			// Register configuration (don't need the configuration itself)
-			// TODO: Register async!!!
-			_config = IniConfig.Get("Greenshot", "greenshot").Get<BoxConfiguration>();
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
+			// Register / get the box configuration
+			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<BoxConfiguration>();
 			_resources = new ComponentResourceManager(typeof(BoxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
@@ -93,7 +88,7 @@ namespace GreenshotBoxPlugin
 			};
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
-			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			PluginUtils.AddToContextMenu(pluginHost, _itemPlugInConfig);
 			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}

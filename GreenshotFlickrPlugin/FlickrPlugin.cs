@@ -28,6 +28,8 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
 using Dapplo.Config.Ini;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace GreenshotFlickrPlugin
 {
@@ -72,13 +74,13 @@ namespace GreenshotFlickrPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
+			// Register / get the flickr configuration
+			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<FlickrConfiguration>();
 			_host = pluginHost;
-			Attributes = pluginAttribute;
+			Attributes = pluginAttributes;
 
 
-			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.Get("Greenshot", "greenshot").Get<FlickrConfiguration>();
 			_resources = new ComponentResourceManager(typeof(FlickrPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem();

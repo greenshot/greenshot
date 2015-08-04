@@ -28,6 +28,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GreenshotPhotobucketPlugin
@@ -75,12 +77,12 @@ namespace GreenshotPhotobucketPlugin
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
 			this.host = (IGreenshotHost)pluginHost;
 			Attributes = myAttributes;
 
-			// Get configuration
-			config = IniConfig.Get("Greenshot", "greenshot").Get<PhotobucketConfiguration>();
+			// Register / get the photobucket configuration
+			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<PhotobucketConfiguration>();
 			resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
 			
 			itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure));
@@ -101,7 +103,7 @@ namespace GreenshotPhotobucketPlugin
 			}
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			LOG.Debug("Photobucket Plugin shutdown.");
 			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
 		}
@@ -109,7 +111,7 @@ namespace GreenshotPhotobucketPlugin
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			ShowConfigDialog();
 		}
 
@@ -119,13 +121,7 @@ namespace GreenshotPhotobucketPlugin
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
 		private bool ShowConfigDialog() {
-			SettingsForm settingsForm = null;
-
-			new PleaseWaitForm().ShowAndWait(PhotobucketPlugin.Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait),
-				delegate() {
-					settingsForm = new SettingsForm(config);
-				}
-			);
+			SettingsForm settingsForm = new SettingsForm(config);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
 				return true;

@@ -832,6 +832,7 @@ namespace GreenshotPlugin.Core
 			// CheckForUnstable = true;
 
 			// check the icon size value
+			var ics = coreConfiguration.IconSize;
 			Size iconSize = FixIconSize(coreConfiguration.IconSize);
 			if (iconSize != coreConfiguration.IconSize) {
 				coreConfiguration.IconSize = iconSize;

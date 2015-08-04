@@ -224,7 +224,7 @@ namespace Greenshot.Plugin {
 		/// <param name="host">The IPluginHost that will be hosting the plugin</param>
 		/// <param name="pluginAttribute">The PluginAttribute for the actual plugin</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		bool Initialize(IGreenshotHost host, PluginAttribute pluginAttribute);
+		Task<bool> InitializeAsync(IGreenshotHost host, PluginAttribute pluginAttribute, CancellationToken token = new CancellationToken());
 
 		/// <summary>
 		/// Unload of the plugin

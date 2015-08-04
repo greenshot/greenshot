@@ -88,7 +88,7 @@ namespace Greenshot.Forms
 			// Initialize the string encryption, TODO: Move to build server
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
-			var iniConfig = new IniConfig("Greenshot", "greenshot", iniDirectory);
+			iniConfig = new IniConfig("Greenshot", "greenshot", iniDirectory);
 			// Register method to fix some values
 			iniConfig.AfterLoad<CoreConfiguration>((coreConfig) => CoreConfigurationChecker.AfterLoad(coreConfig));
 
@@ -97,11 +97,12 @@ namespace Greenshot.Forms
 			// Get logger
 			LOG = LogManager.GetLogger(typeof(MainForm));
 
+			// Read configuration
+			Task.Run(async () => coreConfiguration = await iniConfig.RegisterAndGetAsync<CoreConfiguration>()).Wait();
+
 			// Log the startup
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 
-			// Read configuration
-			Task.Run(async () => coreConfiguration = await iniConfig.RegisterAndGetAsync<CoreConfiguration>()).Wait();
 
 			try
 			{
@@ -327,7 +328,7 @@ namespace Greenshot.Forms
 			ProcessorHelper.GetAllProcessors();
 
 			// Load all the plugins
-			PluginHelper.Instance.LoadPlugins();
+			Task.Run(async () => await PluginHelper.Instance.LoadPluginsAsync()).Wait();
 
 			// Check destinations, remove all that don't exist
 			foreach (string destination in coreConfiguration.OutputDestinations.ToArray())

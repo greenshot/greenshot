@@ -25,6 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GreenshotPicasaPlugin {
@@ -34,8 +36,6 @@ namespace GreenshotPicasaPlugin {
 	public class PicasaPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaPlugin));
 		private static PicasaConfiguration config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost host;
 		private ComponentResourceManager resources;
 		private ToolStripMenuItem itemPlugInRoot;
 
@@ -71,20 +71,18 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotHost)pluginHost;
-			Attributes = myAttributes;
-
-			// Get configuration
-			config = IniConfig.Get("Greenshot", "greenshot").Get<PicasaConfiguration>();
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
+			// Register / get the picasa configuration
+			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<PicasaConfiguration>();
+			
 			resources = new ComponentResourceManager(typeof(PicasaPlugin));
 
 			itemPlugInRoot = new ToolStripMenuItem();
 			itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
-			itemPlugInRoot.Tag = host;
+			itemPlugInRoot.Tag = pluginHost;
 			itemPlugInRoot.Image = (Image)resources.GetObject("Picasa");
 			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
-			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
+			PluginUtils.AddToContextMenu(pluginHost, itemPlugInRoot);
 			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 			return true;
 		}
@@ -95,7 +93,7 @@ namespace GreenshotPicasaPlugin {
 			}
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			LOG.Debug("Picasa Plugin shutdown.");
 			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
@@ -104,7 +102,7 @@ namespace GreenshotPicasaPlugin {
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			ShowConfigDialog();
 		}
 
