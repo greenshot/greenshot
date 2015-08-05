@@ -139,7 +139,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="scheme">name</param>
 		/// <param name="authorization">value</param>
 		public static HttpClient AddDefaultRequestHeader(this HttpClient client, string name, string value) {
-			client.DefaultRequestHeaders.TryAddWithoutValidation("X-Atlassian-Token", "nocheck");
+			client.DefaultRequestHeaders.TryAddWithoutValidation(name, value);
 			return client;
 		}
 
