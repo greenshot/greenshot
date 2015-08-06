@@ -18,12 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using Greenshot.Plugin;
 using log4net;
+using System.Linq;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -32,43 +34,13 @@ namespace GreenshotPlugin.Core {
 	public static class InterfaceUtils {
 		private static ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
 
-		public static List<Type> GetSubclassesOf(Type type, bool excludeSystemTypes) {
-			List<Type> list = new List<Type>();
-			foreach(Assembly currentAssembly in Thread.GetDomain().GetAssemblies()) {
-				try {
-					Type[] types = currentAssembly.GetTypes();
-					if (!excludeSystemTypes || (excludeSystemTypes && !currentAssembly.FullName.StartsWith("System."))) {
-						foreach(Type currentType in types) {
-							if (type.IsInterface) {
-								if (currentType.GetInterface(type.FullName) != null) {
-									list.Add(currentType);
-								}
-							} else if (currentType.IsSubclassOf(type)) {
-								list.Add(currentType);
-							}
-						}
-					}
-				} catch (Exception ex) {
-					LOG.WarnFormat("Problem getting subclasses of type: {0}, message: {1}", type.FullName, ex.Message);
-				}
-			}
-			return list;
-		}
-
-		public static List<IProcessor> GetProcessors() {
-			List<IProcessor> processors = new List<IProcessor>();
-			foreach(Type processorType in GetSubclassesOf(typeof(IProcessor), true)) {
-				if (!processorType.IsAbstract) {
-					IProcessor processor = (IProcessor)Activator.CreateInstance(processorType);
-					if (processor.isActive) {
-						LOG.DebugFormat("Found processor {0} with designation {1}", processorType.Name, processor.Designation);
-						processors.Add(processor);						
-					} else {
-						LOG.DebugFormat("Ignoring processor {0} with designation {1}", processorType.Name, processor.Designation);
-					}
-				}
-			}
-			return processors;
+		public static IEnumerable<Type> GetSubclassesOf(Type implementingType, bool excludeSystemTypes) {
+			var subClasses = from assembly in AppDomain.CurrentDomain.GetAssemblies()
+				   where !assembly.FullName.StartsWith("System") && !assembly.FullName.StartsWith("mscorlib") && !assembly.FullName.StartsWith("Microsoft")
+				   from type in assembly.GetTypes()
+				   where type.IsClass && !type.IsAbstract && implementingType.IsAssignableFrom(type)
+				   select type;
+			return subClasses;
 		}
 	}
 }

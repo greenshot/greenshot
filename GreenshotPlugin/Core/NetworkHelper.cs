@@ -48,63 +48,7 @@ namespace GreenshotPlugin.Core {
 				return true;
 			};
 		}
-
-		/// <summary>
-		/// Download the uri into a memorystream, without catching exceptions
-		/// </summary>
-		/// <param name="url">Of an image</param>
-		/// <returns>MemoryStream which is already seeked to 0</returns>
-		public static MemoryStream GetAsMemoryStream(string url) {
-			HttpWebRequest request = CreateWebRequest(url);
-			using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
-				MemoryStream memoryStream = new MemoryStream();
-				using (Stream responseStream = response.GetResponseStream()) {
-					if (responseStream != null) {
-						responseStream.CopyTo(memoryStream);
-					}
-					// Make sure it can be used directly
-					memoryStream.Seek(0, SeekOrigin.Begin);
-				}
-				return memoryStream;
-			}
-		}
-
-		/// <summary>
-		/// Download the uri to Bitmap
-		/// </summary>
-		/// <param name="url">Of an image</param>
-		/// <returns>Bitmap</returns>
-		public static Image DownloadImage(string url) {
-			try {
-				string content;
-				using (MemoryStream memoryStream = GetAsMemoryStream(url)) {
-					try {
-						using (Image image = Image.FromStream(memoryStream)) {
-							return ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
-						}
-					} catch (Exception) {
-						// If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
-						using (StreamReader streamReader = new StreamReader(memoryStream, Encoding.UTF8, true)) {
-							content = streamReader.ReadLine();
-						}
-						Regex imageUrlRegex = new Regex(@"(http|https)://.*(\.png|\.gif|\.jpg|\.tiff|\.jpeg|\.bmp)");
-						Match match = imageUrlRegex.Match(content);
-						if (match.Success) {
-							using (MemoryStream memoryStream2 = GetAsMemoryStream(match.Value)) {
-								using (Image image = Image.FromStream(memoryStream2)) {
-									return ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
-								}
-							}
-						}
-						throw;
-					}
-				}
-			} catch (Exception e) {
-				LOG.Error("Problem downloading the image from: " + url, e);
-			}
-			return null;
-		}
-		
+	
 		/// <summary>
 		/// Helper method to create a web request with a lot of default settings
 		/// </summary>

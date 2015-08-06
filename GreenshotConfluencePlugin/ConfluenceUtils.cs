@@ -19,12 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Automation;
-
-using GreenshotPlugin.Core;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
@@ -32,11 +32,11 @@ namespace GreenshotConfluencePlugin {
 	/// </summary>
 	public class ConfluenceUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceUtils));
+		private static readonly Regex pageIdRegex = new Regex(@"pageId=(\d+)", RegexOptions.Compiled);
+		private static readonly Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)", RegexOptions.Compiled);
 
-		public static List<Confluence.Page> GetCurrentPages() {
-			List<Confluence.Page> pages = new List<Confluence.Page>();
-			Regex pageIdRegex = new Regex(@"pageId=(\d+)");
-			Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
+		public async static Task<IList<PageDetails>> GetCurrentPages() {
+			IList<PageDetails> pages = new List<PageDetails>();
 			foreach(string browserurl in GetBrowserUrls()) {
 				string url = null;
 				try {
@@ -47,62 +47,67 @@ namespace GreenshotConfluencePlugin {
 				}
 				MatchCollection pageIdMatch = pageIdRegex.Matches(url);
 				if (pageIdMatch != null && pageIdMatch.Count > 0) {
-					long pageId = long.Parse(pageIdMatch[0].Groups[1].Value);
+					PageDetails details = new PageDetails {
+						Id = pageIdMatch[0].Groups[1].Value
+					};
 					try {
 						bool pageDouble = false;
-						foreach(Confluence.Page page in pages) {
-							if (page.id == pageId) {
+						foreach(var page in pages) {
+							if (page.Id == details.Id) {
 								pageDouble = true;
-								LOG.DebugFormat("Skipping double page with ID {0}", pageId);
+								LOG.DebugFormat("Skipping double page with ID {0}", details.Id);
 								break;
 							}
 						}
 						if (!pageDouble) {
-							Confluence.Page page = ConfluencePlugin.ConfluenceConnector.getPage(pageId);
+							PageDetails page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(details.Id);
 							LOG.DebugFormat("Adding page {0}", page.Title);
-							pages.Add(page);
+							pages.Add(details);
 						}
 						continue;
 					} catch (Exception ex) {
 						// Preventing security problems
-						LOG.DebugFormat("Couldn't get page details for PageID {0}", pageId);
+						LOG.DebugFormat("Couldn't get page details for PageID {0}", details.Id);
 						LOG.Warn(ex);
 					}
 				}
-				MatchCollection spacePageMatch = spacePageRegex.Matches(url);
-				if (spacePageMatch != null && spacePageMatch.Count > 0) {
-					if (spacePageMatch[0].Groups.Count >= 2) {
-						string space = spacePageMatch[0].Groups[1].Value;
-						string title = spacePageMatch[0].Groups[2].Value;
-						if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space)) {
-							continue;
-						}
-						if (title.EndsWith("#")) {
-							title = title.Substring(0, title.Length-1);
-						}
-						try {
-							bool pageDouble = false;
-							foreach(Confluence.Page page in pages) {
-								if (page.Title.Equals(title)) {
-									LOG.DebugFormat("Skipping double page with title {0}", title);
-									pageDouble = true;
-									break;
-								}
-							}
-							if (!pageDouble) {
-								Confluence.Page page = ConfluencePlugin.ConfluenceConnector.getPage(space, title);
-								LOG.DebugFormat("Adding page {0}", page.Title);
-								pages.Add(page);
+				//MatchCollection spacePageMatch = spacePageRegex.Matches(url);
+				//if (spacePageMatch != null && spacePageMatch.Count > 0) {
+				//	if (spacePageMatch[0].Groups.Count >= 2) {
+				//		string space = spacePageMatch[0].Groups[1].Value;
+				//		string title = spacePageMatch[0].Groups[2].Value;
+				//		if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space)) {
+				//			continue;
+				//		}
+				//		if (title.EndsWith("#")) {
+				//			title = title.Substring(0, title.Length-1);
+				//		}
+				//		PageDetails details = new PageDetails {
+				//			Title = title
+				//		};
+				//		try {
+				//			bool pageDouble = false;
+				//			foreach (var page in pages) {
+				//				if (page.Title == details.Title) {
+				//					LOG.DebugFormat("Skipping double page with title {0}", title);
+				//					pageDouble = true;
+				//					break;
+				//				}
+				//			}
+				//			if (!pageDouble) {
+				//				PageDetails page = ConfluencePlugin.ConfluenceConnector.getPage(space, title);
+				//				LOG.DebugFormat("Adding page {0}", page.Title);
+				//				pages.Add(page);
 								
-							}
-							continue;
-						} catch (Exception ex) {
-							// Preventing security problems
-							LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
-							LOG.Warn(ex);
-						}
-					}
-				}
+				//			}
+				//			continue;
+				//		} catch (Exception ex) {
+				//			// Preventing security problems
+				//			LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
+				//			LOG.Warn(ex);
+				//		}
+				//	}
+				//}
 			}
 			return pages;
 		}		

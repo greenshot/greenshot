@@ -28,12 +28,13 @@ namespace GreenshotConfluencePlugin {
 	/// Description of ConfluenceConfiguration.
 	/// </summary>
 	[IniSection("Confluence"), Description("Greenshot Confluence Plugin configuration")]
-	public interface ConfluenceConfiguration : IIniSection<ConfluenceConfiguration> {
-		[Description("Url to Confluence system, including wsdl."), DefaultValue("https://confluence")]
-		string Url {
+	public interface ConfluenceConfiguration : IIniSection<ConfluenceConfiguration>, INotifyPropertyChanged {
+		[Description("Rest Url to Jira system"), DefaultValue("https://confluence")]
+		string RestUrl {
 			get;
 			set;
 		}
+
 		[Description("Session timeout in minutes"), DefaultValue("30")]
 		int Timeout {
 			get;
@@ -57,6 +58,13 @@ namespace GreenshotConfluencePlugin {
 			get;
 			set;
 		}
+
+		[Description("Pattern for the filename that is used for uploading to Confluence"), DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title:s0,10}")]
+		string FilenamePattern {
+			get;
+			set;
+		}
+
 		[Description("Open the page where the picture is uploaded after upload"), DefaultValue(true)]
 		bool OpenPageAfterUpload {
 			get;

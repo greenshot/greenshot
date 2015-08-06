@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
-	/// Jira API, using the FlurlClient
+	/// Jira API, using the HttpClient
 	/// </summary>
 	public class JiraAPI : IDisposable {
 		private const string restPath = "rest/api/2";

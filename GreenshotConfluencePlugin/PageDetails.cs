@@ -18,35 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-using System;
-using System.Reflection;
-using System.Linq;
-
-// Remove AppendPrivatePath warning:
-using Greenshot.Forms;
-
-#pragma warning disable 0618
-namespace Greenshot {
-	/// <summary>
-	/// Description of Main.
-	/// </summary>
-	public class GreenshotMain {
-		static GreenshotMain() {
-			//AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+namespace GreenshotConfluencePlugin {
+	public class PageDetails {
+		public string Title {
+			get;
+			set;
 		}
-
-		static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
-			string _shortAssemblyName = args.Name.Split(',')[0];
-			var foundAssembly = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-					where _shortAssemblyName == assembly.FullName.Split(',')[0]
-					select assembly).FirstOrDefault();
-			return foundAssembly;
-		}
-
-		[STAThread]
-		public static void Main(string[] args) {
-			MainForm.Start(args);
+		public string Id {
+			get;
+			set;
 		}
 	}
 }

@@ -33,6 +33,7 @@ using Dapplo.Config.Ini;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace Greenshot.Helpers
 {
@@ -85,7 +86,7 @@ namespace Greenshot.Helpers
 
 		// Add plugins to the Listview
 		public void FillListview(ListView listview) {
-			foreach(PluginAttribute pluginAttribute in plugins.Keys) {
+			foreach (PluginAttribute pluginAttribute in plugins.Keys.OrderBy(x => x.Name)) {
 				ListViewItem item = new ListViewItem(pluginAttribute.Name);
 				item.SubItems.Add(pluginAttribute.Version);
 				item.SubItems.Add(pluginAttribute.CreatedBy);
@@ -314,7 +315,7 @@ namespace Greenshot.Helpers
 					}
 					var initializeTask = Task.Run(async () => {
 						try {
-							IGreenshotPlugin plugin = (IGreenshotPlugin)Activator.CreateInstance(entryType);
+							var plugin = (IGreenshotPlugin)Activator.CreateInstance(entryType);
 							if (plugin != null) {
 								if (await plugin.InitializeAsync(this, pluginAttribute, token)) {
 									plugins.Add(pluginAttribute, plugin);

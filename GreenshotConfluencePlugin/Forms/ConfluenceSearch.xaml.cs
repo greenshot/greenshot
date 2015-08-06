@@ -23,35 +23,36 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using Dapplo.Config.Ini;
+using System.Threading.Tasks;
 
 namespace GreenshotConfluencePlugin
 {
 	public partial class ConfluenceSearch : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceSearch));
 		private static ConfluenceConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ConfluenceConfiguration>();
-		private ConfluenceUpload confluenceUpload;
+		private ConfluenceUpload _confluenceUpload;
 		
-		public List<Confluence.Space> Spaces {
+		public dynamic Spaces {
 			get {
-				return confluenceUpload.Spaces;
+				return _confluenceUpload.Spaces;
 			}
 		}
 
-		private ObservableCollection<Confluence.Page> pages = new ObservableCollection<Confluence.Page>();
-		public ObservableCollection<Confluence.Page> Pages {
+		private ObservableCollection<PageDetails> pages = new ObservableCollection<PageDetails>();
+		public ObservableCollection<PageDetails> Pages {
 			get {
 				return pages;
 			}
 		}
 
 		public ConfluenceSearch(ConfluenceUpload confluenceUpload) {
-			this.confluenceUpload = confluenceUpload;
+			this._confluenceUpload = confluenceUpload;
 			this.DataContext = this;
 			InitializeComponent();
 			if (config.SearchSpaceKey == null) {
 				this.SpaceComboBox.SelectedItem = Spaces[0];
 			} else {
-				foreach(Confluence.Space space in Spaces) {
+				foreach(var space in Spaces) {
 					if (space.Key.Equals(config.SearchSpaceKey)) {
 						this.SpaceComboBox.SelectedItem = space;
 					}
@@ -65,29 +66,29 @@ namespace GreenshotConfluencePlugin
 		
 		void SelectionChanged() {
 			if (PageListView.HasItems && PageListView.SelectedItems.Count > 0) {
-				confluenceUpload.SelectedPage = (Confluence.Page)PageListView.SelectedItem;
+				_confluenceUpload.SelectedPage = (PageDetails)PageListView.SelectedItem;
 			} else {
-				confluenceUpload.SelectedPage = null;
+				_confluenceUpload.SelectedPage = null;
 			}
 		}
 		
-		void Search_Click(object sender, RoutedEventArgs e) {
-			doSearch();
+		async void Search_Click(object sender, RoutedEventArgs e) {
+			await doSearch();
 		}
 
-		void doSearch() {
+		async Task doSearch() {
 			string spaceKey = (string)SpaceComboBox.SelectedValue;
 			config.SearchSpaceKey = spaceKey;
-			List<Confluence.Page> searchResult = ConfluencePlugin.ConfluenceConnector.searchPages(searchText.Text, spaceKey);
+			var searchResult = await ConfluencePlugin.ConfluenceAPI.SearchAsync(searchText.Text);
 			pages.Clear();
-			foreach(Confluence.Page page in searchResult) {
+			foreach(var page in searchResult) {
 				pages.Add(page);
 			}
 		}
 
-		void SearchText_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
+		async void SearchText_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
 			if (e.Key == System.Windows.Input.Key.Return && Search.IsEnabled) {
-        		doSearch();
+        		await doSearch();
         		e.Handled = true;
 			}
 		}

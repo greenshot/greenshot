@@ -18,9 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Collections.Generic;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -33,7 +32,7 @@ namespace GreenshotConfluencePlugin {
 		public Page PickerPage {
 			get {
 				if (pickerPage == null) {
-					List<Confluence.Page> pages = ConfluenceUtils.GetCurrentPages();
+					IList<PageDetails> pages = null; // TODO: ConfluenceUtils.GetCurrentPages();
 					if (pages != null && pages.Count > 0) {
 						pickerPage = new ConfluencePagePicker(this, pages);
 					}
@@ -62,8 +61,8 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		private Confluence.Page selectedPage = null;
-		public Confluence.Page SelectedPage {
+		private PageDetails selectedPage = null;
+		public PageDetails SelectedPage {
 			get {
 				return selectedPage;
 			}
@@ -87,15 +86,9 @@ namespace GreenshotConfluencePlugin {
 			set;
 		}
 		
-		private static DateTime lastLoad = DateTime.Now;
-		private static List<Confluence.Space> spaces;
-		public List<Confluence.Space> Spaces {
+		public dynamic Spaces {
 			get {
-				updateSpaces();
-				while (spaces == null) {
-					Thread.Sleep(300);
-				}
-				return spaces;
+				return ConfluencePlugin.Spaces;
 			}
 		}
 
@@ -103,27 +96,13 @@ namespace GreenshotConfluencePlugin {
 			this.Filename = filename;
 			InitializeComponent();
 			this.DataContext = this;
-			updateSpaces();
+			//var ignoreTask = updateSpaces();
 			if (PickerPage == null) {
 				PickerTab.Visibility = System.Windows.Visibility.Collapsed;
 				SearchTab.IsSelected = true;
 			}
 		}
 		
-		void updateSpaces() {
-			if (spaces != null && DateTime.Now.AddMinutes(-60).CompareTo(lastLoad) > 0) {
-				// Reset
-				spaces = null;
-			}
-			// Check if load is needed
-			if (spaces == null) {
-				(new Thread(() => {
-				     spaces = ConfluencePlugin.ConfluenceConnector.getSpaceSummaries();
-				     lastLoad = DateTime.Now;
-				  }) { Name = "Loading spaces for confluence"}).Start();
-			}
-		}
-
 		void Upload_Click(object sender, RoutedEventArgs e) {
 			DialogResult = true;
 		}

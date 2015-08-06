@@ -41,21 +41,19 @@ namespace Greenshot.Helpers {
 					continue;
 				}
 				try {
-					if (!ProcessorType.IsAbstract) {
-						IProcessor Processor;
-						try {
-							Processor = (IProcessor)Activator.CreateInstance(ProcessorType);
-						} catch (Exception e) {
-							LOG.ErrorFormat("Can't create instance of {0}", ProcessorType);
-							LOG.Error(e);
-							continue;
-						}
-						if (Processor.isActive) {
-							LOG.DebugFormat("Found Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
-							RegisterProcessor(Processor);
-						} else {
-							LOG.DebugFormat("Ignoring Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
-						}
+					IProcessor Processor;
+					try {
+						Processor = (IProcessor)Activator.CreateInstance(ProcessorType);
+					} catch (Exception e) {
+						LOG.ErrorFormat("Can't create instance of {0}", ProcessorType);
+						LOG.Error(e);
+						continue;
+					}
+					if (Processor.isActive) {
+						LOG.DebugFormat("Found Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
+						RegisterProcessor(Processor);
+					} else {
+						LOG.DebugFormat("Ignoring Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
 					}
 				} catch (Exception ex) {
 					LOG.ErrorFormat("Error loading processor {0}, message: ", ProcessorType.FullName, ex.Message);

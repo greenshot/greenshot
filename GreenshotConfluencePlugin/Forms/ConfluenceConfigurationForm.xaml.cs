@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using System.Windows;
 
 namespace GreenshotConfluencePlugin {
@@ -26,16 +27,10 @@ namespace GreenshotConfluencePlugin {
 	/// Interaction logic for ConfluenceConfigurationForm.xaml
 	/// </summary>
 	public partial class ConfluenceConfigurationForm : Window {
-		private ConfluenceConfiguration config;
-		public ConfluenceConfiguration Config {
-			get {
-				return config;
-			}
-		}
+		private static ConfluenceConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ConfluenceConfiguration>();
 		
-		public ConfluenceConfigurationForm(ConfluenceConfiguration config) {
+		public ConfluenceConfigurationForm() {
 			this.DataContext = config;
-			this.config = config;
 			InitializeComponent();
 		}
 		

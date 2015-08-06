@@ -46,6 +46,7 @@
       <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -54,7 +55,7 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
@@ -79,7 +80,6 @@
       <DependentUpon>ConfluenceConfigurationForm.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Confluence.cs" />
     <Compile Include="Forms\ConfluencePagePicker.xaml.cs">
       <DependentUpon>ConfluencePagePicker.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -96,7 +96,9 @@
       <DependentUpon>ConfluenceUpload.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ConfluenceAPI.cs" />
     <Compile Include="LanguageKeys.cs" />
+    <Compile Include="PageDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Support\ITranslationProvider.cs" />
     <Compile Include="Support\LanguageChangedEventManager.cs" />
@@ -104,15 +106,7 @@
     <Compile Include="Support\TranslateExtension.cs" />
     <Compile Include="Support\TranslationData.cs" />
     <Compile Include="Support\TranslationManager.cs" />
-    <Compile Include="Web References\confluence\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <None Include="packages.config" />
-    <None Include="Web References\confluence\RemoteSearchResult1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
     <Resource Include="Images\Confluence.ico" />
     <None Include="Languages\language_confluenceplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -123,20 +117,6 @@
     <None Include="Languages\language_confluenceplugin-nl-NL.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Web References\confluence\confluenceservice-v1.wsdl" />
-    <None Include="Web References\confluence\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <WebReferences Include="Web References\" />
-    <WebReferenceUrl Include="http://confluence/rpc/soap-axis/confluenceservice-v1%3fwsdl">
-      <UrlBehavior>Static</UrlBehavior>
-      <UpdateFromURL>http://confluence/rpc/soap-axis/confluenceservice-v1%3fwsdl</UpdateFromURL>
-      <RelPath>Web References\confluence</RelPath>
-      <Namespace>Confluence</Namespace>
-    </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
     <Page Include="Forms\ConfluenceConfigurationForm.xaml">

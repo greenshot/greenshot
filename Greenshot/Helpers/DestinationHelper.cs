@@ -46,21 +46,19 @@ namespace Greenshot.Helpers
 				if (!"Greenshot.Destinations".Equals(destinationType.Namespace)) {
 					continue;
 				}
-				if (!destinationType.IsAbstract) {
-					IDestination destination;
-					try {
-						destination = (IDestination)Activator.CreateInstance(destinationType);
-					} catch (Exception e) {
-						LOG.ErrorFormat("Can't create instance of {0}", destinationType);
-						LOG.Error(e);
-						continue;
-					}
-					if (destination.isActive) {
-						LOG.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
-						RegisterDestination(destination);
-					} else {
-						LOG.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
-					}
+				IDestination destination;
+				try {
+					destination = (IDestination)Activator.CreateInstance(destinationType);
+				} catch (Exception e) {
+					LOG.ErrorFormat("Can't create instance of {0}", destinationType);
+					LOG.Error(e);
+					continue;
+				}
+				if (destination.isActive) {
+					LOG.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
+					RegisterDestination(destination);
+				} else {
+					LOG.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
 				}
 			}
 		}

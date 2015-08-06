@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Confluence;
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
@@ -27,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Forms;
 using TranslationByMarkupExtension;
 
 namespace GreenshotConfluencePlugin
@@ -37,8 +36,8 @@ namespace GreenshotConfluencePlugin
 	/// </summary>
 	public class ConfluencePlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
-		private static ConfluenceConnector _confluenceConnector;
 		private static ConfluenceConfiguration _config;
+		private static ConfluenceAPI _confluenceApi;
 
 		public void Dispose() {
 			Dispose(true);
@@ -47,38 +46,6 @@ namespace GreenshotConfluencePlugin
 
 		protected virtual void Dispose(bool disposing) {
 			//if (disposing) {}
-		}
-
-		private static void CreateConfluenceConntector() {
-			if (_confluenceConnector == null) {
-				if (_config.Url.Contains("soap-axis")) {
-					_confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
-				} else {
-					_confluenceConnector = new ConfluenceConnector(_config.Url + ConfluenceConnector.DEFAULT_POSTFIX2, _config.Timeout);
-				}
-			}
-		}
-
-		public static ConfluenceConnector ConfluenceConnectorNoLogin {
-			get {
-				return _confluenceConnector;
-			}
-		}
-
-		public static ConfluenceConnector ConfluenceConnector {
-			get {
-				if (_confluenceConnector == null) {
-					CreateConfluenceConntector();
-				}
-				try {
-					if (_confluenceConnector != null && !_confluenceConnector.isLoggedIn) {
-						_confluenceConnector.login();
-					}
-				} catch (Exception e) {
-					MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
-				}
-				return _confluenceConnector;
-			}
 		}
 
 		public IEnumerable<IDestination> Destinations() {
@@ -106,36 +73,87 @@ namespace GreenshotConfluencePlugin
 				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return false;
 			}
+
 			return true;
 		}
 
 		public void Shutdown() {
 			LOG.Debug("Confluence Plugin shutdown.");
-			if (_confluenceConnector != null) {
-				_confluenceConnector.logout();
-				_confluenceConnector = null;
+			if (_confluenceApi != null) {
+				_confluenceApi.Dispose();
+				_confluenceApi = null;
 			}
+		}
+
+		public static ConfluenceAPI ConfluenceAPI {
+			get {
+				return _confluenceApi;
+			}
+		}
+
+		public static dynamic Spaces {
+			get;
+			set;
+		}
+
+		public async static Task<ConfluenceAPI> GetConfluenceAPI() {
+			ConfluenceAPI confluenceApi = null;
+			if (!string.IsNullOrEmpty(_config.RestUrl)) {
+				try {
+					// Get the system name, so the user knows where to login to
+					CredentialsDialog dialog = new CredentialsDialog(_config.RestUrl);
+					dialog.Name = "Confluence";
+					while (dialog.Show(dialog.Name) == DialogResult.OK) {
+						confluenceApi = new ConfluenceAPI(new Uri(_config.RestUrl));
+						confluenceApi.SetBasicAuthentication(dialog.Name, dialog.Password);
+						try {
+							Spaces = await confluenceApi.GetSpacesAsync().ConfigureAwait(false);
+							if (dialog.SaveChecked) {
+								dialog.Confirm(true);
+							}
+							return _confluenceApi;
+						} catch {
+							confluenceApi.Dispose();
+							confluenceApi = null;
+							try {
+								dialog.Confirm(false);
+							} catch (ApplicationException e) {
+								// exception handling ...
+								LOG.Error("Problem using the credentials dialog", e);
+							}
+							// For every windows version after XP show an incorrect password baloon
+							dialog.IncorrectPassword = true;
+							// Make sure the dialog is display, the password was false!
+							dialog.AlwaysDisplay = true;
+						}
+					}
+				} catch (ApplicationException e) {
+					// exception handling ...
+					LOG.Error("Problem using the credentials dialog", e);
+				}
+			}
+			return confluenceApi;
+
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public void Configure() {
-			ConfluenceConfiguration clonedConfig = _config.Clone();
-			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
-			string url = _config.Url;
+			var oldConfig = new {
+				Url = _config.RestUrl
+			};
+
+			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm();
+			string url = _config.RestUrl;
 			Nullable<bool> dialogResult = configForm.ShowDialog();
 			if (dialogResult.HasValue && dialogResult.Value) {
-				// copy the new object to the old...
-				clonedConfig.CloneTo(_config);
-				// TODO: Save? IniConfig.Save();
-				if (_confluenceConnector != null) {
-					if (!url.Equals(_config.Url)) {
-						if (_confluenceConnector.isLoggedIn) {
-							_confluenceConnector.logout();
-						}
-						_confluenceConnector = null;
-					}
+				var newConfig = new {
+					Url = _config.RestUrl
+				};
+				if (!newConfig.Equals(oldConfig)) {
+					_confluenceApi.Dispose();
+					_confluenceApi = null;
 				}
 			}
 		}
