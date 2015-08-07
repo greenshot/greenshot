@@ -8,9 +8,5 @@
 		<TreeView Name="ConfluenceTreeView" MaxHeight="500"
 			Height="Auto" Width="Auto" Margin="10,10,0,13"
 			VerticalAlignment="Top" HorizontalAlignment="Left" />
-		<Border Name="ShowBusy" BorderBrush="Black" BorderThickness="1" Background="#80000000" Visibility="Visible">
-			<TextBlock Margin="0" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"
-				FontSize="18" FontWeight="Bold" Foreground="#7EFFFFFF" Text="{l:Translate loading}"/>
-		</Border>
 	</Grid>
 </Page>

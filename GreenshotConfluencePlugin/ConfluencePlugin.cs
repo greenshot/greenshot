@@ -73,7 +73,9 @@ namespace GreenshotConfluencePlugin
 				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return false;
 			}
-
+			_confluenceApi = await GetConfluenceAPI();
+			LOG.Info("Loading spaces");
+			var ignoreTask = _confluenceApi.LoadSpacesAsync().ContinueWith((_) => LOG.Info("Finished loading spaces")).ConfigureAwait(false);
 			return true;
 		}
 
@@ -91,28 +93,26 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public static dynamic Spaces {
-			get;
-			set;
-		}
-
 		public async static Task<ConfluenceAPI> GetConfluenceAPI() {
 			ConfluenceAPI confluenceApi = null;
 			if (!string.IsNullOrEmpty(_config.RestUrl)) {
 				try {
 					// Get the system name, so the user knows where to login to
 					CredentialsDialog dialog = new CredentialsDialog(_config.RestUrl);
-					dialog.Name = "Confluence";
+					dialog.Name = null;
 					while (dialog.Show(dialog.Name) == DialogResult.OK) {
 						confluenceApi = new ConfluenceAPI(new Uri(_config.RestUrl));
 						confluenceApi.SetBasicAuthentication(dialog.Name, dialog.Password);
 						try {
-							Spaces = await confluenceApi.GetSpacesAsync().ConfigureAwait(false);
+							// Try loading content for id 0, should be null (or something) but not give an exception
+							await confluenceApi.GetContentAsync(1).ConfigureAwait(false);
+							LOG.DebugFormat("Confluence access for User {0} worked", dialog.Name);
 							if (dialog.SaveChecked) {
 								dialog.Confirm(true);
 							}
-							return _confluenceApi;
+							return confluenceApi;
 						} catch {
+							LOG.DebugFormat("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
 							confluenceApi.Dispose();
 							confluenceApi = null;
 							try {

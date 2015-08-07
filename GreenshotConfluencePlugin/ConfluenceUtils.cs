@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotConfluencePlugin.Model;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
@@ -33,10 +34,11 @@ namespace GreenshotConfluencePlugin {
 	public class ConfluenceUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceUtils));
 		private static readonly Regex pageIdRegex = new Regex(@"pageId=(\d+)", RegexOptions.Compiled);
-		private static readonly Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)", RegexOptions.Compiled);
+		private static readonly Regex displayRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)", RegexOptions.Compiled);
+		private static readonly Regex viewPageRegex = new Regex(@"pages\/viewpage.action\?title=(.+)&spaceKey=(.+)", RegexOptions.Compiled);
 
-		public async static Task<IList<PageDetails>> GetCurrentPages() {
-			IList<PageDetails> pages = new List<PageDetails>();
+		public async static Task<IList<Content>> GetCurrentPages() {
+			IList<Content> pages = new List<Content>();
 			foreach(string browserurl in GetBrowserUrls()) {
 				string url = null;
 				try {
@@ -47,67 +49,94 @@ namespace GreenshotConfluencePlugin {
 				}
 				MatchCollection pageIdMatch = pageIdRegex.Matches(url);
 				if (pageIdMatch != null && pageIdMatch.Count > 0) {
-					PageDetails details = new PageDetails {
-						Id = pageIdMatch[0].Groups[1].Value
-					};
+					long contentId;
+					if (!long.TryParse(pageIdMatch[0].Groups[1].Value, out contentId)) {
+						continue;
+					}
 					try {
 						bool pageDouble = false;
-						foreach(var page in pages) {
-							if (page.Id == details.Id) {
+						foreach (var page in pages) {
+							if (page.Id == contentId) {
 								pageDouble = true;
-								LOG.DebugFormat("Skipping double page with ID {0}", details.Id);
+								LOG.DebugFormat("Skipping double page with ID {0}", contentId);
 								break;
 							}
 						}
 						if (!pageDouble) {
-							PageDetails page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(details.Id);
+							var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(contentId).ConfigureAwait(false);
 							LOG.DebugFormat("Adding page {0}", page.Title);
-							pages.Add(details);
+							pages.Add(page);
 						}
 						continue;
 					} catch (Exception ex) {
 						// Preventing security problems
-						LOG.DebugFormat("Couldn't get page details for PageID {0}", details.Id);
+						LOG.DebugFormat("Couldn't get page details for PageID {0}", contentId);
 						LOG.Warn(ex);
 					}
 				}
-				//MatchCollection spacePageMatch = spacePageRegex.Matches(url);
-				//if (spacePageMatch != null && spacePageMatch.Count > 0) {
-				//	if (spacePageMatch[0].Groups.Count >= 2) {
-				//		string space = spacePageMatch[0].Groups[1].Value;
-				//		string title = spacePageMatch[0].Groups[2].Value;
-				//		if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space)) {
-				//			continue;
-				//		}
-				//		if (title.EndsWith("#")) {
-				//			title = title.Substring(0, title.Length-1);
-				//		}
-				//		PageDetails details = new PageDetails {
-				//			Title = title
-				//		};
-				//		try {
-				//			bool pageDouble = false;
-				//			foreach (var page in pages) {
-				//				if (page.Title == details.Title) {
-				//					LOG.DebugFormat("Skipping double page with title {0}", title);
-				//					pageDouble = true;
-				//					break;
-				//				}
-				//			}
-				//			if (!pageDouble) {
-				//				PageDetails page = ConfluencePlugin.ConfluenceConnector.getPage(space, title);
-				//				LOG.DebugFormat("Adding page {0}", page.Title);
-				//				pages.Add(page);
-								
-				//			}
-				//			continue;
-				//		} catch (Exception ex) {
-				//			// Preventing security problems
-				//			LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
-				//			LOG.Warn(ex);
-				//		}
-				//	}
-				//}
+				MatchCollection spacePageMatch = displayRegex.Matches(url);
+				if (spacePageMatch != null && spacePageMatch.Count > 0) {
+					if (spacePageMatch[0].Groups.Count >= 2) {
+						string space = spacePageMatch[0].Groups[1].Value;
+						string title = spacePageMatch[0].Groups[2].Value;
+						if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space)) {
+							continue;
+						}
+						try {
+							bool pageDouble = false;
+							foreach (var page in pages) {
+								if (page.Title == title) {
+									LOG.DebugFormat("Skipping double page with title {0}", title);
+									pageDouble = true;
+									break;
+								}
+							}
+							if (!pageDouble) {
+								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title).ConfigureAwait(false); ;
+								LOG.DebugFormat("Adding page {0}", content.Title);
+								pages.Add(content);
+
+							}
+							continue;
+						} catch (Exception ex) {
+							// Preventing security problems
+							LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
+							LOG.Warn(ex);
+						}
+					}
+				}
+				MatchCollection viewPageMatch = viewPageRegex.Matches(url);
+				if (viewPageMatch != null && viewPageMatch.Count > 0) {
+					if (viewPageMatch[0].Groups.Count >= 2) {
+						string title = viewPageMatch[0].Groups[1].Value;
+						string space = viewPageMatch[0].Groups[2].Value;
+						if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space)) {
+							continue;
+						}
+						try {
+							bool pageDouble = false;
+							foreach (var page in pages) {
+								if (page.Title == title) {
+									LOG.DebugFormat("Skipping double page with title {0}", title);
+									pageDouble = true;
+									break;
+								}
+							}
+							if (!pageDouble) {
+								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title).ConfigureAwait(false); ;
+								if (content != null) {
+									LOG.DebugFormat("Adding page {0}", content.Title);
+									pages.Add(content);
+								}
+							}
+							continue;
+						} catch (Exception ex) {
+							// Preventing security problems
+							LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
+							LOG.Warn(ex);
+						}
+					}
+				}
 			}
 			return pages;
 		}		

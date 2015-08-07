@@ -24,6 +24,7 @@ using log4net;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 
 namespace GreenshotPlugin.Core {
@@ -66,6 +67,30 @@ namespace GreenshotPlugin.Core {
 			User32.SetForegroundWindow(PluginUtils.Host.NotifyIcon.ContextMenuStrip.Handle);
 			toolStripDropDown.Show(location);
 			toolStripDropDown.Focus();
+		}
+
+		/// <summary>
+		/// Extension to await for the ShowDialog of a WPF Window
+		/// </summary>
+		/// <param name="window"></param>
+		/// <param name="token"></param>
+		/// <returns></returns>
+		public static async Task<bool?> ShowDialogAsync(this Window window, CancellationToken token = default(CancellationToken)) {
+			var taskCompletionSource = new TaskCompletionSource<bool>();
+			// show the dialog asynchronously 
+			// (presumably on the next iteration of the message loop)
+			using (token.Register(() => taskCompletionSource.TrySetCanceled(), useSynchronizationContext: true)) {
+				RoutedEventHandler loadedHandler = (s, e) => taskCompletionSource.TrySetResult(true);
+
+				window.Loaded += loadedHandler;
+				try {
+					SynchronizationContext.Current.Post((_) => window.ShowDialog(), null);
+					await taskCompletionSource.Task;
+				} finally {
+					window.Loaded -= loadedHandler;
+				}
+			}
+			return window.DialogResult;
 		}
 	}
 }

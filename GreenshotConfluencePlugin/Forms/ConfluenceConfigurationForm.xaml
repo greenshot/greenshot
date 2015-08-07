@@ -15,7 +15,7 @@
 		<CheckBox IsChecked="{Binding CopyWikiMarkupForImageToClipboard}" Content="{l:Translate copy_wikimarkup}"/>
 		<StackPanel Orientation="Horizontal">
 			<Label Content="{l:Translate label_url}" />
-			<TextBox Text="{Binding Url}"/>
+			<TextBox Text="{Binding RestUrl}"/>
 		</StackPanel>
 		<StackPanel Orientation="Horizontal">
 			<Label Content="{l:Translate label_timeout}" />

@@ -495,7 +495,7 @@ namespace GreenshotPlugin.Controls {
 					continue;
 				}
 				var configBindable = controlObject as IGreenshotConfigBindable;
-				if (configBindable == null) {
+				if (configBindable == null || string.IsNullOrEmpty(configBindable.PropertyName)) {
 					continue;
 				}
 				IIniSection section;

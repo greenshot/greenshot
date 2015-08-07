@@ -358,14 +358,14 @@ namespace GreenshotPlugin.Core {
 			}
 
 			// do substring
-			if (startIndex != 0 || endIndex != 0) {
+			if (replaceValue != null && startIndex != 0 || endIndex != 0) {
 				if (startIndex < 0) {
 					startIndex = replaceValue.Length + startIndex;
 				}
 				if (endIndex < 0) {
 					endIndex = replaceValue.Length + endIndex;
 				}
-				if (endIndex != 0) {
+				if (endIndex != 0 && replaceValue.Length >= (startIndex + endIndex)) {
 					try {
 						replaceValue = replaceValue.Substring(startIndex, endIndex);
 					} catch {

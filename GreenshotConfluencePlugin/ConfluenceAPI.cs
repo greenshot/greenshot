@@ -19,11 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config;
+using Dapplo.Config.Support;
+using GreenshotConfluencePlugin.Model;
 using GreenshotPlugin.Core;
 using System;
-using System.IO;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,7 +37,7 @@ namespace GreenshotConfluencePlugin {
 	/// Confluence API, using the FlurlClient
 	/// </summary>
 	public class ConfluenceAPI : IDisposable {
-		private const string restPath = "rest/api/";
+		private const string restPath = "rest/api";
 		private readonly HttpClient _client;
 		public string ConfluenceVersion {
 			get;
@@ -50,6 +55,11 @@ namespace GreenshotConfluencePlugin {
 			set;
 		}
 
+		public IConfluenceModel Model {
+			get;
+			private set;
+		}
+
 		/// <summary>
 		/// Create the ConfluenceAPI object, here the HttpClient is configured
 		/// </summary>
@@ -58,6 +68,8 @@ namespace GreenshotConfluencePlugin {
 			ConfluenceBaseUri = baseUri;
 			_client = baseUri.CreateHttpClient();
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
+			Model = ProxyBuilder.CreateProxy<IConfluenceModel>().PropertyObject;
+			Model.ContentCachedById = new ConcurrentDictionary<long, Content>();
 		}
 
 		/// <summary>
@@ -93,28 +105,43 @@ namespace GreenshotConfluencePlugin {
 		}
 		#endregion
 
-		private string Format(string path1) {
-			return string.Format("{0}{1}/{2}", ConfluenceBaseUri.AbsoluteUri, restPath, path1);
+		private Uri Format(params object[] segments) {
+			var sb = new StringBuilder(string.Format("{0}{1}", ConfluenceBaseUri.AbsoluteUri, restPath));
+			foreach(var segment in segments) {
+				sb.AppendFormat("/{0}", segment);
+			}
+			return new Uri(sb.ToString());
 		}
-
-		private string Format(string path1, string path2) {
-			return string.Format("{0}{1}/{2}/{3}", ConfluenceBaseUri.AbsoluteUri, restPath, path1, path2);
-		}
-
-		private string Format(string path1, string path2, string path3) {
-			return string.Format("{0}{1}/{2}/{3}/{4}", ConfluenceBaseUri.AbsoluteUri, restPath, path1, path2, path3);
-		}
-
 
 		/// <summary>
-		/// Get the spaces
+		/// Load the spaces into the Model
 		/// </summary>
-		/// <param name="key"></param>
+		/// <param name="start">the start of the spaces collection, can be used for paging together with the limit</param>
+		/// <param name="limit">the maximum number of spaces to read</param>
 		/// <returns>Spaces</returns>
-		public async Task<dynamic> GetSpacesAsync(CancellationToken token = default(CancellationToken)) {
-			var responseMessage = await _client.GetAsync(Format("space?expand=space"), token).ConfigureAwait(false);
-			await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
+		public async Task LoadSpacesAsync(int start = 0,int limit = 500, CancellationToken token = default(CancellationToken)) {
+			bool finished = false;
+			// Loop until we have all we need
+			int loaded = 0;
+			do {
+				var spacesUri = Format("space").ExtendQuery(new Dictionary<string, object> { { "start", start }, { "limit", limit } });
+				dynamic jsonResponse;
+				using (var responseMessage = await _client.GetAsync(spacesUri, token).ConfigureAwait(false)) {
+					await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+					jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+				}
+				foreach (var spaceJson in jsonResponse.results) {
+					if (spaceJson._expandable.IsDefined("homepage")) {
+						var space = (Space)Space.CreateFrom(spaceJson);
+						Model.Spaces.SafelyAddOrOverwrite(space.SpaceKey, space);
+					}
+					loaded++;
+				}
+				int returned = Convert.ToInt32(jsonResponse.size);
+				int returnedLimit = Convert.ToInt32(jsonResponse.limit);
+				start = start + returned;
+				finished = loaded >= limit || returned < returnedLimit;
+			} while (!finished);
 		}
 
 		/// <summary>
@@ -122,10 +149,23 @@ namespace GreenshotConfluencePlugin {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns>Content</returns>
-		public async Task<dynamic> GetContentAsync(string id, CancellationToken token = default(CancellationToken)) {
-			var responseMessage = await _client.GetAsync(Format("content", id), token).ConfigureAwait(false);
-			await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
+		public async Task<Content> GetContentAsync(long id, bool useCache = true, CancellationToken token = default(CancellationToken)) {
+			Content resultContent;
+			if (useCache && Model.ContentCachedById.TryGetValue(id, out resultContent)) {
+				return resultContent;
+			}
+			using (var responseMessage = await _client.GetAsync(Format("content", id), token).ConfigureAwait(false)) {
+				if (responseMessage.StatusCode == HttpStatusCode.NotFound) {
+					return null;
+				}
+				await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+				resultContent = Content.CreateFromContent(jsonResponse);
+			}
+			if (useCache) {
+				Model.ContentCachedById.SafelyAddOrOverwrite(resultContent.Id, resultContent);
+			}
+			return resultContent;
 		}
 
 		/// <summary>
@@ -133,10 +173,21 @@ namespace GreenshotConfluencePlugin {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns>list of content</returns>
-		public async Task<dynamic> GetChildrenAsync(string contentId, CancellationToken token = default(CancellationToken)) {
-			var responseMessage = await _client.GetAsync(Format("content", contentId, "child?expand=page"), token).ConfigureAwait(false);
-			await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
+		public async Task<IList<Content>> GetChildrenAsync(long contentId, bool useCache = true, CancellationToken token = default(CancellationToken)) {
+			IList<Content> children = new List<Content>();
+			Uri childUri = Format("content", contentId, "child").ExtendQuery(new Dictionary<string, object> { { "expand", "page" }});
+			using (var responseMessage = await _client.GetAsync(childUri, token).ConfigureAwait(false)) {
+				await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+				foreach (var pageContent in jsonResponse.page.results) {
+					Content child = Content.CreateFromContent(pageContent);
+					children.Add(child);
+					if (useCache) {
+						Model.ContentCachedById.SafelyAddOrOverwrite(child.Id, child);
+					}
+				}
+			}
+			return children;
 		}
 
 		/// <summary>
@@ -144,57 +195,72 @@ namespace GreenshotConfluencePlugin {
 		/// </summary>
 		/// <param name="cql">Confluence Query Language</param>
 		/// <returns>list of content</returns>
-		public async Task<dynamic> SearchAsync(string cql, CancellationToken token = default(CancellationToken)) {
-			var responseMessage = await _client.GetAsync(Format(string.Format("content/search?cql={0}", Uri.EscapeUriString(cql))), token).ConfigureAwait(false);
-			await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
+		private async Task<dynamic> SearchAsync(string cql, CancellationToken token = default(CancellationToken)) {
+			Uri searchdUri = Format("content", "search").ExtendQuery(new Dictionary<string, string> { { "cql", cql } });
+			using (var responseMessage = await _client.GetAsync(searchdUri, token).ConfigureAwait(false)) {
+				await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
+			}
+		}
+		
+		/// <summary>
+		/// Search content
+		/// </summary>
+		/// <param name="spaceKey">Key of the space to search with</param>
+		/// <param name="title">Title of the page to search for</param>
+		/// <returns>list of content</returns>
+		public async Task<Content> SearchPageAsync(string spaceKey, string title, CancellationToken token = default(CancellationToken)) {
+			Content foundPage;
+			if (Model.ContentCachedBySpaceAndTitle.TryGetValue(spaceKey + "." + title, out foundPage)) {
+				return foundPage;
+			}
+			int loaded = 0;
+			int start = 0;
+			int limit = 100;
+			bool finished = false;
+			do {
+				Uri searchUri = Format("content").ExtendQuery(new Dictionary<string, object> {
+					{ "start", start },
+					{"limit", limit },
+					{"type", "page"},
+					{"spaceKey", spaceKey},
+					{"title", title},
+				});
+				dynamic jsonResponse;
+				using (var responseMessage = await _client.GetAsync(searchUri, token).ConfigureAwait(false)) {
+					await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+					jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+				}
+				foreach (var pageContent in jsonResponse.results) {
+					foundPage = Content.CreateFromContent(pageContent);
+					if (foundPage.Title == title) {
+						Model.ContentCachedBySpaceAndTitle.SafelyAddOrOverwrite(spaceKey + "." + title, foundPage);
+						return foundPage;
+					}
+					loaded++;
+				}
+				int returned = Convert.ToInt32(jsonResponse.size);
+				int returnedLimit = Convert.ToInt32(jsonResponse.limit);
+				start = start + returned;
+				finished = loaded >= limit || returned < returnedLimit;
+			} while (!finished);
+
+			return null;
 		}
 
 		/// <summary>
 		/// Attacht the stream as filename to the confluence content with the supplied id
 		/// </summary>
-		/// <param name="id"></param>
-		/// <param name="filename"></param>
+		/// <param name="id">content id</param>
 		/// <param name="content">HttpContent like StreamContent or ByteArrayContent</param>
-		public async Task<HttpResponseMessage> AttachToContentAsync(string id, HttpContent content, CancellationToken token = default(CancellationToken)) {
-			var responseMessage = await _client.PostAsync(Format("content", id, "attachments"), content, token).ConfigureAwait(false);
-			await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-			return responseMessage;
+		/// <returns>attachment id</returns>
+		public async Task<string> AttachToContentAsync(long id, HttpContent content, CancellationToken token = default(CancellationToken)) {
+			using (var responseMessage = await _client.PostAsync(Format("content", id, "child", "attachment"), content, token).ConfigureAwait(false)) {
+				await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+				return jsonResponse.results[0].id;
+			}
 		}
-
-		/// <summary>
-		/// Get server information
-		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e3828
-		/// </summary>
-		/// <returns>dynamic with ServerInfo</returns>
-		public async Task<dynamic> ServerInfo(CancellationToken token = default(CancellationToken)) {
-			var responseMessage = await _client.GetAsync(Format("serverInfo"), token).ConfigureAwait(false);
-			await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
-		}
-
-		/// <summary>
-		/// Get user information
-		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e5339
-		/// </summary>
-		/// <param name="username"></param>
-		/// <returns>dynamic with user information</returns>
-		public async Task<dynamic> User(string username, CancellationToken token = default(CancellationToken)) {
-			var responseMessage = await _client.GetAsync(Format("user") + string.Format("?{0}={1}", "username", username), token).ConfigureAwait(false);
-			await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
-		}
-
-		/// <summary>
-		/// Get currrent user information
-		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e4253
-		/// </summary>
-		/// <returns>dynamic with user information</returns>
-		public async Task<dynamic> Myself(CancellationToken token = default(CancellationToken)) {
-			var responseMessage = await _client.GetAsync(Format("myself"), token).ConfigureAwait(false);
-			await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-			return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
-		}
-
 	}
+
 }

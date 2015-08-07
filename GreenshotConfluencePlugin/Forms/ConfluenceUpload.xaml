@@ -8,10 +8,7 @@
             <TabItem Header="{l:Translate open_pages}" Name="PickerTab">
 				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=PickerPage}" Height="500"/>
 			</TabItem>
-            <TabItem Header="{l:Translate search_pages}" Name="SearchTab">
-				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=SearchPage}" Height="500"/>
-			</TabItem>
-            <TabItem Header="{l:Translate browse_pages}">
+			<TabItem Header="{l:Translate browse_pages}" Name="BrowseTab">
 				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=BrowsePage}" Height="500"/>
 			</TabItem>
 		</TabControl>

@@ -369,7 +369,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="uri"></param>
 		/// <param name="values"></param>
 		/// <returns></returns>
-		public static Uri ExtendQuery(this Uri uri, IDictionary<string, string> values) {
+		public static Uri ExtendQuery<T>(this Uri uri, IDictionary<string, T> values) {
 			var baseUrl = uri.ToString();
 			var queryString = string.Empty;
 			if (baseUrl.Contains("?")) {
@@ -379,8 +379,8 @@ namespace GreenshotPlugin.Core {
 			}
 
 			NameValueCollection queryCollection = HttpUtility.ParseQueryString(queryString);
-			foreach (var kvp in values ?? new Dictionary<string, string>()) {
-				queryCollection[kvp.Key] = kvp.Value;
+			foreach (var kvp in values ?? new Dictionary<string, T>()) {
+				queryCollection[kvp.Key] = kvp.Value.ToString();
 			}
 			var uriKind = uri.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative;
 			return queryCollection.Count == 0

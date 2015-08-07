@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
+using GreenshotConfluencePlugin.Model;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
 using System;
@@ -44,7 +45,7 @@ namespace GreenshotConfluencePlugin
 		private static readonly ConfluenceConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ConfluenceConfiguration>();
 		private static readonly CoreConfiguration coreConfig = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 		private static Image confluenceIcon = null;
-		private PageDetails _page;
+		private Content _content;
 		public static bool IsInitialized {
 			get;
 			private set;
@@ -68,8 +69,8 @@ namespace GreenshotConfluencePlugin
 		public ConfluenceDestination() {
 		}
 
-		public ConfluenceDestination(PageDetails page) {
-			_page = page;
+		public ConfluenceDestination(Content content) {
+			_content = content;
 		}
 		
 		public override string Designation {
@@ -80,10 +81,10 @@ namespace GreenshotConfluencePlugin
 
 		public override string Description {
 			get {
-				if (_page == null) {
+				if (_content == null) {
 					return Language.GetString("confluence", LangKey.upload_menu_item);
 				} else {
-					return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
+					return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _content.Title + "\"";
 				}
 			}
 		}
@@ -107,60 +108,61 @@ namespace GreenshotConfluencePlugin
 		}
 		
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			yield break;
-			//IList<PageDetails> currentPages = ConfluenceUtils.GetCurrentPages();
-			//if (currentPages == null || currentPages.Count == 0) {
-			//	yield break;
-			//}
-			//foreach (var currentPage in currentPages) {
-			//	yield return new ConfluenceDestination(currentPage);
-			//}
+			IList<Content> currentPages = Task.Run(async () => await ConfluenceUtils.GetCurrentPages()).GetAwaiter().GetResult();
+			if (currentPages == null || currentPages.Count == 0) {
+				yield break;
+			}
+			foreach (var currentPage in currentPages) {
+				yield return new ConfluenceDestination(currentPage);
+			}
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			var exportInformation = new ExportInformation(this.Designation, this.Description);
 			string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			if (_page == null) {
+			if (_content == null) {
+
 				ConfluenceUpload confluenceUpload = new ConfluenceUpload(filename);
-				Nullable<bool> dialogResult = confluenceUpload.ShowDialog();
+				Nullable<bool> dialogResult = await confluenceUpload.ShowDialogAsync(token);
 				if (dialogResult.HasValue && dialogResult.Value) {
-					_page = confluenceUpload.SelectedPage;
+					_content = confluenceUpload.SelectedPage;
 					filename = confluenceUpload.Filename;
 				}
 			}
+
 			string extension = "." + config.UploadFormat;
 			if (!filename.ToLower().EndsWith(extension)) {
 				filename = filename + extension;
 			}
-			if (_page != null) {
+			if (_content != null) {
 				try {
-					var confluenceApi = await ConfluencePlugin.GetConfluenceAPI();
-					var multipartFormDataContent = new MultipartFormDataContent();
-					using (var stream = new MemoryStream()) {
-						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
-						stream.Position = 0;
-						// Run upload in the background
-						await PleaseWaitWindow.CreateAndShowAsync(Description, Language.GetString("jira", LangKey.communication_wait), (progress, pleaseWaitToken) => {
+					var confluenceApi = ConfluencePlugin.ConfluenceAPI;
+					// Run upload in the background
+					await PleaseWaitWindow.CreateAndShowAsync(Description, Language.GetString("confluence", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+						var multipartFormDataContent = new MultipartFormDataContent();
+						using (var stream = new MemoryStream()) {
+							ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+							stream.Position = 0;
 							using (var uploadStream = new ProgressStream(stream, progress)) {
 								using (var streamContent = new StreamContent(uploadStream)) {
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 									multipartFormDataContent.Add(streamContent, "file", filename);
-									return confluenceApi.AttachToContentAsync(_page.Id, multipartFormDataContent);
+									return await confluenceApi.AttachToContentAsync(_content.Id, multipartFormDataContent);
 								}
 							}
-						});
-					}
+						}
+					});
 
-					LOG.Debug("Uploaded to Jira.");
+					LOG.Debug("Uploaded to Confluence.");
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = string.Format("{0}/browse/{1}", confluenceApi.ConfluenceBaseUri, _page.Id);
+					exportInformation.Uri = string.Format("{0}/pages/viewpage.action?pageId={1}", confluenceApi.ConfluenceBaseUri, _content.Id);
 					if (config.CopyWikiMarkupForImageToClipboard) {
 						ClipboardHelper.SetClipboardData("!" + filename + "!");
 					}
 					if (config.OpenPageAfterUpload) {
 						try {
-							Process.Start("URI");
+							Process.Start(exportInformation.Uri);
 						} catch { }
 					}
 				} catch (TaskCanceledException tcEx) {

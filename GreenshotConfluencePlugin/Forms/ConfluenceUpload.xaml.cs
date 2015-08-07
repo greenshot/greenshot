@@ -19,7 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotConfluencePlugin.Model;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -32,22 +34,12 @@ namespace GreenshotConfluencePlugin {
 		public Page PickerPage {
 			get {
 				if (pickerPage == null) {
-					IList<PageDetails> pages = null; // TODO: ConfluenceUtils.GetCurrentPages();
+					IList<Content> pages = Task.Run(async () => await ConfluenceUtils.GetCurrentPages()).Result;
 					if (pages != null && pages.Count > 0) {
 						pickerPage = new ConfluencePagePicker(this, pages);
 					}
 				}
 				return pickerPage;
-			}
-		}
-
-		private Page searchPage = null;
-		public Page SearchPage {
-			get {
-				if (searchPage == null) {
-					searchPage = new ConfluenceSearch(this);
-				}
-				return searchPage;
 			}
 		}
 
@@ -61,8 +53,8 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		private PageDetails selectedPage = null;
-		public PageDetails SelectedPage {
+		private Content selectedPage = null;
+		public Content SelectedPage {
 			get {
 				return selectedPage;
 			}
@@ -85,21 +77,13 @@ namespace GreenshotConfluencePlugin {
 			get;
 			set;
 		}
-		
-		public dynamic Spaces {
-			get {
-				return ConfluencePlugin.Spaces;
-			}
-		}
 
 		public ConfluenceUpload(string filename) {
-			this.Filename = filename;
+			Filename = filename;
 			InitializeComponent();
-			this.DataContext = this;
-			//var ignoreTask = updateSpaces();
+			DataContext = this;
 			if (PickerPage == null) {
-				PickerTab.Visibility = System.Windows.Visibility.Collapsed;
-				SearchTab.IsSelected = true;
+				BrowseTab.IsSelected = true;
 			}
 		}
 		

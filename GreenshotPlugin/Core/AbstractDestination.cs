@@ -339,11 +339,14 @@ namespace GreenshotPlugin.Core
 						// Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
 						try
 						{
+							basisMenuItem.Enabled = false;
 							subDestinations.AddRange(DynamicDestinations());
 						}
 						catch (Exception ex)
 						{
 							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
+						} finally {
+							basisMenuItem.Enabled = true;
 						}
 						if (subDestinations.Count > 0)
 						{

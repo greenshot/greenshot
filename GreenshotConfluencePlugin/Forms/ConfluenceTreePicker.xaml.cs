@@ -19,9 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
+using GreenshotConfluencePlugin.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -33,6 +36,7 @@ namespace GreenshotConfluencePlugin {
 	/// </summary>
 	public partial class ConfluenceTreePicker : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceTreePicker));
+		private static readonly ConfluenceConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ConfluenceConfiguration>();
 		private ConfluenceUpload _confluenceUpload;
 
 		public ConfluenceTreePicker(ConfluenceUpload confluenceUpload) {
@@ -40,69 +44,65 @@ namespace GreenshotConfluencePlugin {
 			InitializeComponent();
 		}
 
-		async void pageTreeViewItem_DoubleClick(object sender, MouseButtonEventArgs eventArgs) {
-			LOG.Debug("spaceTreeViewItem_MouseLeftButtonDown is called!");
-			TreeViewItem clickedItem = eventArgs.Source as TreeViewItem;
+		void pageTreeViewItem_Click(object sender, RoutedEventArgs eventArgs) {
+			LOG.Debug("pageTreeViewItem_Click is called!");
+			TreeViewItem clickedItem = sender as TreeViewItem;
 			if (clickedItem ==null) {
 				return;
 			}
-			var page = clickedItem.Tag as PageDetails;
+			var page = clickedItem.Tag as Content;
 			if (page == null) {
 				return;
 			}
+			_confluenceUpload.SelectedPage = page;
+			LOG.Debug("Page selected: " + page.Title);
+
 			if (!clickedItem.HasItems) {
 				LOG.Debug("Loading pages for page: " + page.Title);
-				var pages = await ConfluencePlugin.ConfluenceAPI.GetChildrenAsync(page.Id);
-				ShowBusy.Visibility = Visibility.Visible;
-				foreach (var childPage in pages) {
-					LOG.Debug("Adding page: " + childPage.Title);
-					TreeViewItem pageTreeViewItem = new TreeViewItem();
-					pageTreeViewItem.Header = childPage.Title;
-					pageTreeViewItem.Tag = childPage;
-					clickedItem.Items.Add(pageTreeViewItem);
-					pageTreeViewItem.PreviewMouseDoubleClick += new MouseButtonEventHandler(pageTreeViewItem_DoubleClick);
-					pageTreeViewItem.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(pageTreeViewItem_Click);
-				}
-				ShowBusy.Visibility = Visibility.Collapsed;
+				Task.Factory.StartNew(async () => {
+					var pages = await ConfluencePlugin.ConfluenceAPI.GetChildrenAsync(page.Id);
+					foreach (var childPage in pages) {
+						LOG.Debug("Adding page: " + childPage.Title);
+						TreeViewItem pageTreeViewItem = new TreeViewItem();
+						pageTreeViewItem.Header = childPage.Title;
+						pageTreeViewItem.Tag = childPage;
+						clickedItem.Items.Add(pageTreeViewItem);
+						pageTreeViewItem.MouseUp += pageTreeViewItem_Click;
+					}
+					if (clickedItem.HasItems) {
+						clickedItem.ExpandSubtree();
+					}
+				}, default(CancellationToken), TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 			}
+			eventArgs.Handled = true;
 		}
 		
-		void pageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs) {
-			LOG.Debug("pageTreeViewItem_PreviewMouseDoubleClick is called!");
-			var clickedItem = eventArgs.Source as TreeViewItem;
-			if (clickedItem ==null) {
-				return;
-			}
-			var page = clickedItem.Tag as PageDetails;
-			_confluenceUpload.SelectedPage = page;
-			if (page != null) {
-				LOG.Debug("Page selected: " + page.Title);
-			}
-		}
-
-		async void Page_Loaded(object sender, RoutedEventArgs e) {
+		void Page_Loaded(object sender, RoutedEventArgs e) {
 			_confluenceUpload.SelectedPage = null;
-			ShowBusy.Visibility = Visibility.Visible;
-			foreach (var space in _confluenceUpload.Spaces) {
+			foreach (var space in ConfluencePlugin.ConfluenceAPI.Model.Spaces.Values) {
+				if (space.IsPersonal && !config.IncludePersonSpaces) {
+					continue;
+				}
+
 				var spaceTreeViewItem = new TreeViewItem();
 				spaceTreeViewItem.Header = space.Name;
 				spaceTreeViewItem.Tag = space;
+				ConfluenceTreeView.Items.Add(spaceTreeViewItem);
 
-				// Get homepage
-				try {
-					var page = await ConfluencePlugin.ConfluenceAPI.GetChildrenAsync(space);
-					var pageTreeViewItem = new TreeViewItem();
-					pageTreeViewItem.Header = page.Title;
-					pageTreeViewItem.Tag = page;
-					pageTreeViewItem.PreviewMouseDoubleClick += pageTreeViewItem_DoubleClick;
-					pageTreeViewItem.PreviewMouseLeftButtonDown += pageTreeViewItem_Click;
-					spaceTreeViewItem.Items.Add(pageTreeViewItem);
-					ConfluenceTreeView.Items.Add(spaceTreeViewItem);
-				} catch (Exception ex) {
-					LOG.Error("Can't get homepage for space : " + space.Name + " (" + ex.Message + ")");
-				}
+				// Get homepage, in background
+				var loadPageTask = Task.Factory.StartNew(async () => {
+					var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(space.ContentId);
+					if (page != null) {
+						var pageTreeViewItem = new TreeViewItem();
+						pageTreeViewItem.Header = page.Title;
+						pageTreeViewItem.Tag = page;
+						pageTreeViewItem.MouseUp += pageTreeViewItem_Click;
+						spaceTreeViewItem.Items.Add(pageTreeViewItem);
+					} else {
+						spaceTreeViewItem.IsEnabled = false;
+					}
+				}, default(CancellationToken), TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 			}
-			ShowBusy.Visibility = Visibility.Collapsed;
 		}
 	}
 }

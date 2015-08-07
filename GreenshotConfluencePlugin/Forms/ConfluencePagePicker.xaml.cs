@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotConfluencePlugin.Model;
 using System.Collections.Generic;
 
 namespace GreenshotConfluencePlugin {
@@ -29,7 +30,7 @@ namespace GreenshotConfluencePlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePagePicker));
 		private ConfluenceUpload confluenceUpload = null;
 
-		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, IList<PageDetails> pagesToPick) {
+		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, IList<Content> pagesToPick) {
 			this.confluenceUpload = confluenceUpload;
 			this.DataContext = pagesToPick;
 			InitializeComponent();
@@ -41,7 +42,7 @@ namespace GreenshotConfluencePlugin {
 		
 		void SelectionChanged() {
 			if (PageListView.HasItems && PageListView.SelectedItems.Count > 0) {
-				confluenceUpload.SelectedPage = (PageDetails)PageListView.SelectedItem;
+				confluenceUpload.SelectedPage = (Content)PageListView.SelectedItem;
 				// Make sure the uploader knows we selected an already opened page
 				confluenceUpload.isOpenPageSelected = true;
 			} else {

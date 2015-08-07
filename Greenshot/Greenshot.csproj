@@ -36,9 +36,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.Config, Version=0.1.54.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Dapplo.Config, Version=0.1.57.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\Dapplo.Config.0.1.54.0\lib\net45\Dapplo.Config.dll</HintPath>
+      <HintPath>packages\Dapplo.Config.0.1.57.0\lib\net45\Dapplo.Config.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>Lib\log4net.dll</HintPath>
