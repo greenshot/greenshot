@@ -22,6 +22,7 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.OAuth;
 using log4net;
 using System;
 using System.Collections.Generic;

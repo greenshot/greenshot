@@ -19,14 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.OAuth;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Xml;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using System.Net.Http;
-using Dapplo.Config.Ini;
+using System.Xml;
 
 namespace GreenshotPhotobucketPlugin {
 	/// <summary>

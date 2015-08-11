@@ -25,13 +25,10 @@ using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -47,25 +44,6 @@ namespace GreenshotPlugin.Core {
 			delegate {
 				return true;
 			};
-		}
-	
-		/// <summary>
-		/// Helper method to create a web request with a lot of default settings
-		/// </summary>
-		/// <param name="uri">string with uri to connect to</param>
-		/// <returns>WebRequest</returns>
-		public static HttpWebRequest CreateWebRequest(string uri) {
-			return CreateWebRequest(new Uri(uri));
-		}
-
-		/// <summary>
-		/// Helper method to create a web request with a lot of default settings
-		/// </summary>
-		/// <param name="uri">string with uri to connect to</param>
-		/// /// <param name="method">Method to use</param>
-		/// <returns>WebRequest</returns>
-		public static HttpWebRequest CreateWebRequest(string uri, HttpMethod method) {
-			return CreateWebRequest(new Uri(uri), method);
 		}
 		
 		/// <summary>
@@ -88,7 +66,7 @@ namespace GreenshotPlugin.Core {
 		public static HttpWebRequest CreateWebRequest(Uri uri) {
 			HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(uri);
 			if (Config.UseProxy) {
-				webRequest.Proxy = CreateProxy(uri);
+				webRequest.Proxy = uri.CreateProxy();
 			} else {
 				// BUG-1655: Fix that Greenshot always uses the default proxy even if the "use default proxy" checkbox is unset
 				webRequest.Proxy = null;
@@ -102,98 +80,6 @@ namespace GreenshotPlugin.Core {
 			webRequest.Timeout = Config.HttpConnectionTimeout*1000;
 			webRequest.ReadWriteTimeout = Config.WebRequestReadWriteTimeout*1000;
 			return webRequest;
-		}
-
-		/// <summary>
-		/// Create a IWebProxy Object which can be used to access the Internet
-		/// This method will check the configuration if the proxy is allowed to be used.
-		/// Usages can be found in the DownloadFavIcon or Jira and Confluence plugins
-		/// </summary>
-		/// <param name="uri"></param>
-		/// <returns>IWebProxy filled with all the proxy details or null if none is set/wanted</returns>
-		public static IWebProxy CreateProxy(Uri uri) {
-			IWebProxy proxyToUse = null;
-			if (Config.UseProxy) {
-				proxyToUse = WebRequest.DefaultWebProxy;
-				if (proxyToUse != null) {
-					proxyToUse.Credentials = CredentialCache.DefaultCredentials;
-					if (LOG.IsDebugEnabled) {
-						// check the proxy for the Uri
-						if (!proxyToUse.IsBypassed(uri)) {
-							Uri proxyUri = proxyToUse.GetProxy(uri);
-							if (proxyUri != null) {
-								LOG.Debug("Using proxy: " + proxyUri + " for " + uri);
-							} else {
-								LOG.Debug("No proxy found!");
-							}
-						} else {
-							LOG.Debug("Proxy bypass for: " + uri);
-						}
-					}
-				} else {
-					LOG.Debug("No proxy found!");
-				}
-			}
-			return proxyToUse;
-		}
-		
-		/// <summary>
-		/// UrlEncodes a string without the requirement for System.Web
-		/// </summary>
-		/// <param name="text"></param>
-		/// <returns></returns>
-		// [Obsolete("Use System.Uri.EscapeDataString instead")]
-		public static string UrlEncode(string text) {
-			if (!string.IsNullOrEmpty(text)) {
-				// Sytem.Uri provides reliable parsing, but doesn't encode spaces.
-				return Uri.EscapeDataString(text).Replace("%20", "+");
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// ParseQueryString without the requirement for System.Web
-		/// </summary>
-		/// <param name="queryString"></param>
-		/// <returns>IDictionary string, string</returns>
-		public static IDictionary<string, string> ParseQueryString(string queryString) {
-			IDictionary<string, string> parameters = new SortedDictionary<string, string>();
-			// remove anything other than query string from uri
-			if (queryString.Contains("?")) {
-				queryString = queryString.Substring(queryString.IndexOf('?') + 1);
-			}
-			foreach (string vp in Regex.Split(queryString, "&")) {
-				if (string.IsNullOrEmpty(vp)) {
-					continue;
-				}
-				string[] singlePair = Regex.Split(vp, "=");
-				if (parameters.ContainsKey(singlePair[0])) {
-					parameters.Remove(singlePair[0]);
-				}
-				parameters.Add(singlePair[0], singlePair.Length == 2 ? singlePair[1] : string.Empty);
-			}
-			return parameters;
-		}
-		
-		/// <summary>
-		/// Generate the query paramters
-		/// </summary>
-		/// <param name="queryParameters">the list of query parameters</param>
-		/// <returns>a string with the query parameters</returns>
-		public static string GenerateQueryParameters(IDictionary<string, object> queryParameters) {
-			if (queryParameters == null || queryParameters.Count == 0) {
-				return string.Empty;
-			}
-
-			queryParameters = new SortedDictionary<string, object>(queryParameters);
-
-			StringBuilder sb = new StringBuilder();
-			foreach(string key in queryParameters.Keys) {
-				sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode(string.Format("{0}",queryParameters[key])));
-			}
-			sb.Remove(sb.Length-1,1);
-
-			return sb.ToString();
 		}
 
 		/// <summary>
@@ -252,20 +138,6 @@ namespace GreenshotPlugin.Core {
 			// Add the end of the request.  Start with a newline
 			string footer = "\r\n--" + boundary + "--\r\n";
 			formDataStream.Write(Encoding.UTF8.GetBytes(footer), 0, Encoding.UTF8.GetByteCount(footer));
-		}
-
-		/// <summary>
-		/// Post the parameters "x-www-form-urlencoded"
-		/// </summary>
-		/// <param name="webRequest"></param>
-		public static void UploadFormUrlEncoded(HttpWebRequest webRequest, IDictionary<string, object> parameters) {
-			webRequest.ContentType = "application/x-www-form-urlencoded";
-			string urlEncoded = NetworkHelper.GenerateQueryParameters(parameters);
-
-			byte[] data = Encoding.UTF8.GetBytes(urlEncoded);
-			using (var requestStream = webRequest.GetRequestStream()) {
-				requestStream.Write(data, 0, data.Length);
-			}
 		}
 
 		/// <summary>

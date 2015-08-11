@@ -19,23 +19,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using System.Linq;
-using System.Globalization;
-using System.Drawing;
-using System.Text.RegularExpressions;
-using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.Core {
 
@@ -52,7 +51,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="uri"></param>
 		/// <returns>IWebProxy filled with all the proxy details or null if none is set/wanted</returns>
-		private static IWebProxy CreateProxy(Uri uri) {
+		public static IWebProxy CreateProxy(this Uri uri) {
 			IWebProxy proxyToUse = null;
 			if (Config.UseProxy) {
 				proxyToUse = WebRequest.DefaultWebProxy;
@@ -94,7 +93,7 @@ namespace GreenshotPlugin.Core {
 				AllowAutoRedirect = true,
 				AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
 				// BUG-1655: Fix that Greenshot always uses the default proxy even if the "use default proxy" checkbox is unset
-				Proxy = Config.UseProxy ? CreateProxy(uri) : null,
+				Proxy = Config.UseProxy ? uri.CreateProxy() : null,
 				UseProxy = Config.UseProxy,
 			};
 
@@ -323,6 +322,21 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Simple append segment for a base Uri
+		/// NOTE: Currently does NOT take the query parameters into account
+		/// </summary>
+		/// <param name="baseUri">Uri to extend</param>
+		/// <param name="segments"></param>
+		/// <returns>Uri</returns>
+		public static Uri AppendSegments(this Uri baseUri, params object[] segments) {
+			var sb = new StringBuilder(string.Format("{0}", baseUri.AbsoluteUri));
+			foreach (var segment in segments) {
+				sb.AppendFormat("/{0}", segment);
+			}
+			return new Uri(sb.ToString());
+		}
+
+		/// <summary>
 		/// Head method
 		/// </summary>
 		/// <param name="uri"></param>
@@ -330,8 +344,9 @@ namespace GreenshotPlugin.Core {
 		public static async Task<HttpContentHeaders> HeadAsync(this Uri uri, CancellationToken token = default(CancellationToken)) {
 			using (var client = uri.CreateHttpClient())
 			using (var request = new HttpRequestMessage(HttpMethod.Head, uri)) {
-				var response = await client.SendAsync(request, token).ConfigureAwait(false);
-				return response.Content.Headers;
+				var responseMessage = await client.SendAsync(request, token).ConfigureAwait(false);
+				responseMessage.EnsureSuccessStatusCode();
+				return responseMessage.Content.Headers;
 			}
 		}
 
@@ -352,6 +367,30 @@ namespace GreenshotPlugin.Core {
 			}
 			// Pretend it is old
 			return DateTimeOffset.MinValue;
+		}
+
+		/// <summary>
+		/// ParseQueryString without the requirement for System.Web
+		/// </summary>
+		/// <param name="queryString"></param>
+		/// <returns>IDictionary string, string</returns>
+		public static IDictionary<string, string> ParseQueryString(string queryString) {
+			var parameters = new SortedDictionary<string, string>();
+			// remove anything other than query string from uri
+			if (queryString.Contains("?")) {
+				queryString = queryString.Substring(queryString.IndexOf('?') + 1);
+			}
+			foreach (string vp in Regex.Split(queryString, "&")) {
+				if (string.IsNullOrEmpty(vp)) {
+					continue;
+				}
+				string[] singlePair = Regex.Split(vp, "=");
+				if (parameters.ContainsKey(singlePair[0])) {
+					parameters.Remove(singlePair[0]);
+				}
+				parameters.Add(singlePair[0], singlePair.Length == 2 ? singlePair[1] : string.Empty);
+			}
+			return parameters;
 		}
 
 		/// <summary>

@@ -38,7 +38,7 @@ namespace GreenshotPlugin.Core {
 		private static ILog LOG = LogManager.GetLogger(typeof(Language));
 		private static List<string> languagePaths = new List<string>();
 		private static IDictionary<string, List<LanguageFile>> languageFiles = new Dictionary<string, List<LanguageFile>>();
-		private static IDictionary<string, string> helpFiles = new Dictionary<string, string>();
+		private static IDictionary<string, Uri> helpFiles = new Dictionary<string, Uri>();
 		private const string DEFAULT_LANGUAGE = "en-US";
 		private const string HELP_FILENAME_PATTERN = @"help-*.html";
 		private const string LANGUAGE_FILENAME_PATTERN = @"language*.xml";
@@ -277,7 +277,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Return the path to the help-file
 		/// </summary>
-		public static string HelpFilePath {
+		public static Uri HelpFileUri {
 			get {
 				if (helpFiles.ContainsKey(currentLanguage)) {
 					return helpFiles[currentLanguage];
@@ -450,7 +450,7 @@ namespace GreenshotPlugin.Core {
 						string helpFilename = Path.GetFileName(helpFilepath);
 						string ietf = ReformatIETF(helpFilename.Replace(".html", "").Replace("help-", ""));
 						if (!helpFiles.ContainsKey(ietf)) {
-							helpFiles.Add(ietf, helpFilepath);
+							helpFiles.Add(ietf, new Uri(string.Format(@"file://{0}", helpFilepath)));
 						} else {
 							LOG.WarnFormat("skipping help file {0}, already a file with the same IETF {1} found!", helpFilepath, ietf);
 						}

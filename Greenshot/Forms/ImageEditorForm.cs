@@ -725,8 +725,8 @@ namespace Greenshot {
 		#endregion
 		
 		#region help
-		void HelpToolStripMenuItem1Click(object sender, EventArgs e) {
-			HelpFileLoader.LoadHelp();
+		async void HelpToolStripMenuItem1Click(object sender, EventArgs e) {
+			await HelpFileLoader.LoadHelpAsync();
 		}
 
 		void AboutToolStripMenuItemClick(object sender, EventArgs e) {

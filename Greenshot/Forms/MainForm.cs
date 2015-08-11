@@ -1149,7 +1149,7 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		void Contextmenu_helpClick(object sender, EventArgs e)
 		{
-			HelpFileLoader.LoadHelp();
+			var ignoreTask = HelpFileLoader.LoadHelpAsync();
 		}
 
 		/// <summary>
@@ -1450,8 +1450,10 @@ namespace Greenshot.Forms
 					ShowSetting();
 					break;
 				case ClickActions.SHOW_CONTEXT_MENU:
-					MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-					oMethodInfo.Invoke(notifyIcon, null);
+					BeginInvoke(new Action( () => {
+						MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
+						oMethodInfo.Invoke(notifyIcon, null);
+					}));
 					break;
 				case ClickActions.CAPTURE_REGION:
 					CaptureRegion(token);

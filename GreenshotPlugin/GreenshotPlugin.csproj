@@ -207,7 +207,6 @@
     <Compile Include="Core\Language.cs" />
     <Compile Include="Core\LogHelper.cs" />
     <Compile Include="Core\NetworkHelper.cs" />
-    <Compile Include="Core\OAuthHelper.cs" />
     <Compile Include="Core\Objects.cs" />
     <Compile Include="Core\PluginUtils.cs" />
     <Compile Include="Core\QuantizerHelper.cs" />
@@ -221,6 +220,12 @@
     <Compile Include="Interfaces\IDestination.cs" />
     <Compile Include="Interfaces\IProcessor.cs" />
     <Compile Include="Interfaces\Plugin\PluginInterfaces.cs" />
+    <Compile Include="OAuth\LocalServerCodeReceiver.cs" />
+    <Compile Include="OAuth\OAuth2AuthorizeMode.cs" />
+    <Compile Include="OAuth\OAuth2Helper.cs" />
+    <Compile Include="OAuth\OAuth2Settings.cs" />
+    <Compile Include="OAuth\OAuthSession.cs" />
+    <Compile Include="OAuth\OAuthSignatureTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnmanagedHelpers\DWM.cs" />
     <Compile Include="UnmanagedHelpers\Enumerations.cs" />
