@@ -26,6 +26,12 @@ using System.Drawing;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Dapplo.Config.Ini;
+using System.Threading.Tasks;
+using System.Threading;
+using GreenshotPlugin.Windows;
+using System.IO;
+using System;
+using System.Windows;
 
 namespace GreenshotPhotobucketPlugin  {
 	/// <summary>
@@ -33,7 +39,7 @@ namespace GreenshotPhotobucketPlugin  {
 	/// </summary>
 	public class PhotobucketDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
-		private static PhotobucketConfiguration config = IniConfig.Get("Greenshot","greenshot").Get<PhotobucketConfiguration>();
+		private static PhotobucketConfiguration _config = IniConfig.Get("Greenshot","greenshot").Get<PhotobucketConfiguration>();
 		private PhotobucketPlugin plugin = null;
 		private string albumPath = null;
 
@@ -77,10 +83,11 @@ namespace GreenshotPhotobucketPlugin  {
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
 			List<string> albums = null;
-			try {
-				albums = PhotobucketUtils.RetrievePhotobucketAlbums();
-			} catch {
-			}
+			// TODO: Get list of albums, as this is async it won't work here without eventually causing deadlocks
+			//try {
+			//	albums = PhotobucketUtils.RetrievePhotobucketAlbums().Result;
+			//} catch {
+			//}
 
 			if (albums == null || albums.Count == 0) {
 				yield break;
@@ -97,13 +104,38 @@ namespace GreenshotPhotobucketPlugin  {
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = null;
-			bool uploaded = plugin.Upload(captureDetails, surface, albumPath, out uploadURL);
-			if (uploaded) {
-				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadURL;
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(Designation, Description);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+			try {
+				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+					return await PhotobucketUtils.UploadToPhotobucket(surface, outputSettings, albumPath, captureDetails.Title, filename);
+				});
+
+				// This causes an exeption if the upload failed :)
+				LOG.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
+				string uploadURL = null;
+				try {
+					if (_config.UsePageLink) {
+						uploadURL = photobucketInfo.Page;
+					} else {
+						uploadURL = photobucketInfo.Original;
+					}
+				} catch (Exception ex) {
+					LOG.Error("Can't write to clipboard: ", ex);
+				}
+
+				if (uploadURL != null) {
+					exportInformation.ExportMade = true;
+					exportInformation.Uri = uploadURL;
+					if (_config.AfterUploadLinkToClipBoard) {
+						ClipboardHelper.SetClipboardData(uploadURL);
+					}
+				}
+			} catch (Exception e) {
+				LOG.Error("Error uploading.", e);
+				MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

@@ -60,7 +60,7 @@ namespace GreenshotFlickrPlugin
 		/// <param name="title"></param>
 		/// <param name="filename"></param>
 		/// <returns>url to image</returns>
-		public static Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, CancellationToken token = default(CancellationToken)) {
+		public static async Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, CancellationToken token = default(CancellationToken)) {
 			var oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret);
 			oAuth.BrowserSize = new Size(520, 800);
 			oAuth.CheckVerifier = false;
@@ -71,8 +71,8 @@ namespace GreenshotFlickrPlugin
 			oAuth.Token = config.FlickrToken;
 			oAuth.TokenSecret = config.FlickrTokenSecret;
 			if (string.IsNullOrEmpty(oAuth.Token)) {
-				if (!oAuth.Authorize()) {
-					return Task.FromResult<string>(null);
+				if (!await oAuth.AuthorizeAsync()) {
+					return null;
 				}
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
 					config.FlickrToken = oAuth.Token;
@@ -94,17 +94,17 @@ namespace GreenshotFlickrPlugin
 				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
 				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-				string response = oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_UPLOAD_URI, signedParameters, otherParameters, null);
+				string response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_UPLOAD_URI, signedParameters, otherParameters, null);
 				string photoId = DynamicJson.Parse(response).photoid;
 
 				// Get Photo Info
 				signedParameters = new Dictionary<string, object> { { "photo_id", photoId }, { "format", "json" } };
-				response = oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, signedParameters, null, null);
+				response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, signedParameters, null, null);
 				var photoInfo = DynamicJson.Parse(response);
 				if (config.UsePageLink) {
 					return photoInfo.url;
 				}
-				return Task.FromResult<string>(string.Format("FLICKR_FARM_URL", photoInfo.farm, photoInfo.server, photoId, photoInfo.secret));
+				return string.Format("FLICKR_FARM_URL", photoInfo.farm, photoInfo.server, photoId, photoInfo.secret);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
 				throw;

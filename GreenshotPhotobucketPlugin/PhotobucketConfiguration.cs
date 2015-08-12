@@ -56,6 +56,12 @@ namespace GreenshotPhotobucketPlugin {
 			set;
 		}
 
+		[Description("Place upload link on the clipboard"), DefaultValue(true)]
+		bool AfterUploadLinkToClipBoard {
+			get;
+			set;
+		}
+
 		[Description("The Photobucket token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
 		string Token {
 			get;

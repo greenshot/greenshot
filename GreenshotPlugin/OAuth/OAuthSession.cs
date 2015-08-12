@@ -32,6 +32,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotPlugin.OAuth {
 	/// <summary>
@@ -65,10 +66,8 @@ namespace GreenshotPlugin.OAuth {
 
 		protected const string UNRESERVED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
 
-		private string _userAgent = "Greenshot";
 		private string _callbackUrl = "http://getgreenshot.org";
 		private bool _checkVerifier = true;
-		private bool _useHttpHeadersForAuthorization = true;
 		private IDictionary<string, string> _accessTokenResponseParameters;
 		private IDictionary<string, string> _requestTokenResponseParameters;
 		private readonly IDictionary<string, object> _requestTokenParameters = new Dictionary<string, object>();
@@ -138,15 +137,6 @@ namespace GreenshotPlugin.OAuth {
 			set;
 		}
 
-		public bool UseMultipartFormData { get; set; }
-		public string UserAgent {
-			get {
-				return _userAgent;
-			}
-			set {
-				_userAgent = value;
-			}
-		}
 		public string CallbackUrl {
 			get {
 				return _callbackUrl;
@@ -181,14 +171,6 @@ namespace GreenshotPlugin.OAuth {
 				_loginTitle = value;
 			}
 		}
-		public bool UseHTTPHeadersForAuthorization {
-			get {
-				return _useHttpHeadersForAuthorization;
-			}
-			set {
-				_useHttpHeadersForAuthorization = value;
-			}
-		}
 
 		public bool AutoLogin {
 			get;
@@ -205,7 +187,6 @@ namespace GreenshotPlugin.OAuth {
 		public OAuthSession(string consumerKey, string consumerSecret) {
 			_consumerKey = consumerKey;
 			_consumerSecret = consumerSecret;
-			UseMultipartFormData = true;
 			RequestTokenMethod = HttpMethod.Get;
 			AccessTokenMethod = HttpMethod.Get;
 			SignatureType = OAuthSignatureTypes.HMACSHA1;
@@ -278,13 +259,13 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// Get the request token using the consumer key and secret.  Also initializes tokensecret
 		/// </summary>
-		private void GetRequestToken() {
+		private async Task GetRequestTokenAsync() {
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
 			foreach (var value in _requestTokenParameters) {
 				parameters.Add(value);
 			}
 			Sign(RequestTokenMethod, RequestTokenUrl, parameters);
-			string response = MakeRequest(RequestTokenMethod, RequestTokenUrl, null, parameters, null);
+			string response = await MakeRequest(RequestTokenMethod, RequestTokenUrl, null, parameters, null).ConfigureAwait(false);
 			if (!string.IsNullOrEmpty(response)) {
 				response = Uri.UnescapeDataString(response.Replace("+", " "));
 				LOG.DebugFormat("Request token response: {0}", response);
@@ -301,7 +282,7 @@ namespace GreenshotPlugin.OAuth {
 		/// Authorize the token by showing the dialog
 		/// </summary>
 		/// <returns>The request token.</returns>
-		private String GetAuthorizeToken() {
+		private string GetAuthorizeToken() {
 			if (string.IsNullOrEmpty(Token)) {
 				Exception e = new Exception("The request token is not set");
 				throw e;
@@ -334,7 +315,7 @@ namespace GreenshotPlugin.OAuth {
 		/// Get the access token
 		/// </summary>
 		/// <returns>The access token.</returns>		
-		private String GetAccessToken() {
+		private async Task<string> GetAccessTokenAsync() {
 			if (string.IsNullOrEmpty(Token) || (CheckVerifier && string.IsNullOrEmpty(Verifier))) {
 				Exception e = new Exception("The request token and verifier were not set");
 				throw e;
@@ -342,7 +323,7 @@ namespace GreenshotPlugin.OAuth {
 
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
 			Sign(AccessTokenMethod, AccessTokenUrl, parameters);
-			string response = MakeRequest(AccessTokenMethod, AccessTokenUrl, null, parameters, null);
+			string response = await MakeRequest(AccessTokenMethod, AccessTokenUrl, null, parameters, null).ConfigureAwait(false);
 			if (!string.IsNullOrEmpty(response)) {
 				response = Uri.UnescapeDataString(response.Replace("+", " "));
 				LOG.DebugFormat("Access token response: {0}", response);
@@ -364,13 +345,13 @@ namespace GreenshotPlugin.OAuth {
 		/// This method goes through the whole authorize process, including a Authorization window.
 		/// </summary>
 		/// <returns>true if the process is completed</returns>
-		public bool Authorize() {
+		public async Task<bool> AuthorizeAsync() {
 			Token = null;
 			TokenSecret = null;
 			Verifier = null;
 			LOG.Debug("Creating Token");
 			try {
-				GetRequestToken();
+				await GetRequestTokenAsync().ConfigureAwait(false);
 			} catch (Exception ex) {
 				LOG.Error(ex);
 				throw new NotSupportedException("Service is not available: " + ex.Message);
@@ -380,8 +361,8 @@ namespace GreenshotPlugin.OAuth {
 				return false;
 			}
 			try {
-				Thread.Sleep(1000);
-				return GetAccessToken() != null;
+				await Task.Delay(1000).ConfigureAwait(false);
+				return GetAccessTokenAsync() != null;
 			} catch (Exception ex) {
 				LOG.Error(ex);
 				throw;
@@ -407,8 +388,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HttpMethod method, Uri requestUri, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return MakeOAuthRequest(method, requestUri, requestUri, null, parametersToSign, additionalParameters, postData);
+		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri requestUri, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			return await MakeOAuthRequest(method, requestUri, requestUri, null, parametersToSign, additionalParameters, postData).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -421,8 +402,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return MakeOAuthRequest(method, requestUri, requestUri, headers, parametersToSign, additionalParameters, postData);
+		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			return await MakeOAuthRequest(method, requestUri, requestUri, headers, parametersToSign, additionalParameters, postData).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -435,8 +416,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return MakeOAuthRequest(method, signUri, requestUri, null, parametersToSign, additionalParameters, postData);
+		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+			return await MakeOAuthRequest(method, signUri, requestUri, null, parametersToSign, additionalParameters, postData).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -450,7 +431,7 @@ namespace GreenshotPlugin.OAuth {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
 			if (parametersToSign == null) {
 				parametersToSign = new Dictionary<string, object>();
 			}
@@ -459,7 +440,7 @@ namespace GreenshotPlugin.OAuth {
 			while (retries-- > 0) {
 				// If we are not trying to get a Authorization or Accestoken, and we don't have a token, create one
 				if (string.IsNullOrEmpty(Token)) {
-					if (!AutoLogin || !Authorize()) {
+					if (!AutoLogin || !await AuthorizeAsync().ConfigureAwait(false)) {
 						throw new Exception("Not authorized");
 					}
 				}
@@ -476,7 +457,7 @@ namespace GreenshotPlugin.OAuth {
 							newParameters.Add(parameter);
 						}
 					}
-					return MakeRequest(method, requestUri, headers, newParameters, postData);
+					return await MakeRequest(method, requestUri, headers, newParameters, postData).ConfigureAwait(false);
 				} catch (WebException wEx) {
 					lastException = wEx;
 					if (wEx.Response != null) {
@@ -604,29 +585,24 @@ namespace GreenshotPlugin.OAuth {
 		/// <param name="parameters"></param>
 		/// <param name="postData">IBinaryParameter</param>
 		/// <returns>Response from server</returns>
-		private string MakeRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parameters, IBinaryContainer postData) {
+		private async Task<string> MakeRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parameters, IBinaryContainer postData, CancellationToken token = default(CancellationToken)) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
 			IDictionary<string, object> requestParameters;
-			// Add oAuth values as HTTP headers, if this is allowed
-			StringBuilder authHeader = null;
-			if (UseHTTPHeadersForAuthorization) {
-				authHeader = new StringBuilder();
-				requestParameters = new Dictionary<string, object>();
-				foreach (string parameterKey in parameters.Keys) {
-					if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
-						authHeader.AppendFormat(CultureInfo.InvariantCulture, "{0}=\"{1}\", ", parameterKey, Uri.EscapeDataString(string.Format("{0}", parameters[parameterKey])));
-					} else if (!requestParameters.ContainsKey(parameterKey)) {
-						requestParameters.Add(parameterKey, parameters[parameterKey]);
-					}
+			// Add oAuth values as HTTP headers
+			StringBuilder authHeader = new StringBuilder();
+			requestParameters = new Dictionary<string, object>();
+			foreach (string parameterKey in parameters.Keys) {
+				if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
+					authHeader.AppendFormat(CultureInfo.InvariantCulture, "{0}=\"{1}\", ", parameterKey, Uri.EscapeDataString(string.Format("{0}", parameters[parameterKey])));
+				} else if (!requestParameters.ContainsKey(parameterKey)) {
+					requestParameters.Add(parameterKey, parameters[parameterKey]);
 				}
-				// Remove trailing comma and space and add it to the headers
-				if (authHeader.Length > 0) {
-					authHeader.Remove(authHeader.Length - 2, 2);
-				}
-			} else {
-				requestParameters = parameters;
+			}
+			// Remove trailing comma and space and add it to the headers
+			if (authHeader.Length > 0) {
+				authHeader.Remove(authHeader.Length - 2, 2);
 			}
 
 			if (HttpMethod.Get == method || postData != null) {
@@ -635,60 +611,35 @@ namespace GreenshotPlugin.OAuth {
 					requestUri = requestUri.ExtendQuery(requestParameters);
 				}
 			}
-			// Create webrequest
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(requestUri, method);
-			webRequest.ServicePoint.Expect100Continue = false;
-			webRequest.UserAgent = _userAgent;
-
-			if (UseHTTPHeadersForAuthorization && authHeader != null) {
-				LOG.DebugFormat("Authorization: OAuth {0}", authHeader);
-				webRequest.Headers.Add("Authorization: OAuth " + authHeader);
-			}
-
-			if (headers != null) {
-				foreach (string key in headers.Keys) {
-					webRequest.Headers.Add(key, headers[key]);
-				}
-			}
-
-			if ((HttpMethod.Post == method || HttpMethod.Put == method) && postData == null && requestParameters.Count > 0) {
-				if (UseMultipartFormData) {
-					NetworkHelper.WriteMultipartFormData(webRequest, requestParameters);
-				} else {
-					StringBuilder form = new StringBuilder();
-					foreach (string parameterKey in requestParameters.Keys) {
-						if (parameters[parameterKey] is IBinaryContainer) {
-							IBinaryContainer binaryParameter = parameters[parameterKey] as IBinaryContainer;
-							form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", Uri.EscapeDataString(parameterKey), Uri.EscapeDataString(binaryParameter.ToBase64String(Base64FormattingOptions.None)));
-						} else {
-							form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", Uri.EscapeDataString(parameterKey), Uri.EscapeDataString(string.Format("{0}", parameters[parameterKey])));
-						}
-					}
-					// Remove trailing &
-					if (form.Length > 0) {
-						form.Remove(form.Length - 1, 1);
-					}
-					webRequest.ContentType = "application/x-www-form-urlencoded";
-					byte[] data = Encoding.UTF8.GetBytes(form.ToString());
-					using (var requestStream = webRequest.GetRequestStream()) {
-						requestStream.Write(data, 0, data.Length);
-					}
-				}
-			} else if (postData != null) {
-				postData.Upload(webRequest);
-			} else {
-				webRequest.ContentLength = 0;
-			}
-
 			string responseData;
-			try {
-				responseData = NetworkHelper.GetResponseAsString(webRequest);
-				LOG.DebugFormat("Response: {0}", responseData);
-			} catch (Exception ex) {
-				LOG.Error("Couldn't retrieve response: ", ex);
-				throw;
-			} finally {
-				webRequest = null;
+			using (var httpClient = requestUri.CreateHttpClient()) {
+				// TODO: Auth headers could be passed/stored different, maybe only one httpclient pro session?
+				httpClient.SetAuthorization("OAuth", authHeader.ToString());
+				httpClient.AddDefaultRequestHeader("User-Agent", "Greenshot");
+				foreach (string key in headers.Keys) {
+					httpClient.AddDefaultRequestHeader(key, headers[key]);
+				}
+
+				HttpResponseMessage responseMessage;
+				if ((HttpMethod.Post == method || HttpMethod.Put == method) && postData == null && requestParameters.Count > 0) {
+					var multipartFormDataContent = new MultipartFormDataContent();
+					// TODO: Add requestParameters
+					responseMessage = await httpClient.PostAsync(requestUri, multipartFormDataContent).ConfigureAwait(false);
+				} else if (postData != null) {
+					// TODO: Add postData
+					var content = new StringContent("");
+					responseMessage = await httpClient.PostAsync(requestUri, content).ConfigureAwait(false);
+				} else {
+					responseMessage = await httpClient.GetAsync(requestUri, token).ConfigureAwait(false);
+				}
+
+				try {
+					responseData = await responseMessage.GetAsStringAsync().ConfigureAwait(false);
+					LOG.DebugFormat("Response: {0}", responseData);
+				} catch (Exception ex) {
+					LOG.Error("Couldn't retrieve response: ", ex);
+					throw;
+				}
 			}
 
 			return responseData;

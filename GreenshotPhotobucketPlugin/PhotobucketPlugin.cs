@@ -21,13 +21,11 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -137,48 +135,6 @@ namespace GreenshotPhotobucketPlugin
 		public void Closing(object sender, FormClosingEventArgs e) {
 			LOG.Debug("Application closing, de-registering Photobucket Plugin!");
 			Shutdown();
-		}
-		
-		/// <summary>
-		/// Upload the capture to Photobucket
-		/// </summary>
-		/// <param name="captureDetails"></param>
-		/// <param name="surfaceToUpload">ISurface</param>
-		/// <param name="uploadURL">out string for the url</param>
-		/// <returns>true if the upload succeeded</returns>
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, string albumPath, out string uploadURL) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			try {
-				string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-				PhotobucketInfo photobucketInfo = null;
-			
-				// Run upload in the background
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait), 
-					delegate() {
-						photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename);
-					}
-				);
-				// This causes an exeption if the upload failed :)
-				LOG.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
-				uploadURL = null;
-				try {
-					if (config.UsePageLink) {
-						uploadURL = photobucketInfo.Page;
-						Clipboard.SetText(photobucketInfo.Page);
-					} else {
-						uploadURL = photobucketInfo.Original;
-						Clipboard.SetText(photobucketInfo.Original);
-					}
-				} catch (Exception ex) {
-					LOG.Error("Can't write to clipboard: ", ex);
-				}
-				return true;
-			} catch (Exception e) {
-				LOG.Error(e);
-				MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
-			}
-			uploadURL = null;
-			return false;
 		}
 	}
 }

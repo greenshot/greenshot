@@ -61,9 +61,9 @@ namespace GreenshotFlickrPlugin
 			var exportInformation = new ExportInformation(Designation, Description);
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try {
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), (progress, pleaseWaitToken) => {
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-					return FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename);
+					return await FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename);
 				});
 
 				if (url != null) {

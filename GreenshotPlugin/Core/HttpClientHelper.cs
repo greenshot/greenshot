@@ -85,7 +85,7 @@ namespace GreenshotPlugin.Core {
 		public static HttpClient CreateHttpClient(this Uri uri) {
 			var cookies = new CookieContainer();
 
-			var handler = new HttpClientHandler {
+			var handler = new WebRequestHandler {
 				CookieContainer = cookies,
 				UseCookies = true,
 				UseDefaultCredentials = true,
@@ -243,6 +243,7 @@ namespace GreenshotPlugin.Core {
 				return await client.PostAsync(uri, content);
 			}
 		}
+
 
 		/// <summary>
 		/// Simplified error handling, this makes sure the uri & response are logged

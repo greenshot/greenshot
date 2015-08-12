@@ -19,17 +19,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
-using System.Drawing;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Dapplo.Config.Ini;
+using GreenshotPlugin.Windows;
+using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace GreenshotDropboxPlugin
 {
 	class DropboxDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxDestination));
-		private static DropboxPluginConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<DropboxPluginConfiguration>();
+		private static DropboxPluginConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<DropboxPluginConfiguration>();
 
 		private DropboxPlugin plugin = null;
 		public DropboxDestination(DropboxPlugin plugin) {
@@ -54,17 +60,27 @@ namespace GreenshotDropboxPlugin
 				return (Image)resources.GetObject("Dropbox");
 			}
 		}
-		
-		public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = null;
-			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
-			if (uploaded) {
-				exportInformation.Uri = uploadURL;
-				exportInformation.ExportMade = true;
-				if (config.AfterUploadLinkToClipBoard) {
-					ClipboardHelper.SetClipboardData(uploadURL);
+
+
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(Designation, Description);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+			try {
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+					return await DropboxUtils.UploadToDropbox(surface, outputSettings, filename);
+				});
+
+				if (url != null) {
+					exportInformation.ExportMade = true;
+					exportInformation.Uri = url;
+					if (_config.AfterUploadLinkToClipBoard) {
+						ClipboardHelper.SetClipboardData(url);
+					}
 				}
+			} catch (Exception e) {
+				LOG.Error("Error uploading.", e);
+				MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

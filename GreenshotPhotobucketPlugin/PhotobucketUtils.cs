@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace GreenshotPhotobucketPlugin {
@@ -43,14 +44,14 @@ namespace GreenshotPhotobucketPlugin {
 		/// For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
 		/// </summary>
 		/// <returns>PhotobucketResponse</returns>
-		public static PhotobucketInfo UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename) {
+		public static async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename) {
 			string responseString;
 			
 			if (string.IsNullOrEmpty(albumPath)) {
 				albumPath = "!";
 			}
 
-			OAuthSession oAuth = createSession(true);
+			OAuthSession oAuth = await createSession(true);
 			if (oAuth == null) {
 				return null;
 			}
@@ -77,7 +78,7 @@ namespace GreenshotPhotobucketPlugin {
 			try {
 				var signUri = new Uri("http://api.photobucket.com/album/!/upload");
 				var requestUri = new Uri("http://api.photobucket.com/album/!/upload".Replace("api.photobucket.com", config.SubDomain));
-				responseString = oAuth.MakeOAuthRequest(HttpMethod.Post, signUri, requestUri, signedParameters, unsignedParameters, null);
+				responseString = await oAuth.MakeOAuthRequest(HttpMethod.Post, signUri, requestUri, signedParameters, unsignedParameters, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw;
@@ -102,7 +103,7 @@ namespace GreenshotPhotobucketPlugin {
 		/// Helper method to create an OAuth session object for contacting the Photobucket API
 		/// </summary>
 		/// <returns>OAuthSession</returns>
-		private static OAuthSession createSession(bool autoLogin) {
+		private static async Task<OAuthSession> createSession(bool autoLogin) {
 			OAuthSession oAuth = new OAuthSession(PhotobucketCredentials.ConsumerKey, PhotobucketCredentials.ConsumerSecret);
 			oAuth.AutoLogin = autoLogin;
 			oAuth.CheckVerifier = false;
@@ -120,7 +121,7 @@ namespace GreenshotPhotobucketPlugin {
 				if (!autoLogin) {
 					return null;
 				}
-				if (!oAuth.Authorize()) {
+				if (!await oAuth.AuthorizeAsync()) {
 					return null;
 				}
 				if (!string.IsNullOrEmpty(oAuth.Token)) {
@@ -144,14 +145,14 @@ namespace GreenshotPhotobucketPlugin {
 		/// <summary>
 		/// Get list of photobucket albums
 		/// </summary>
-		/// <returns>List<string></returns>
-		public static List<string> RetrievePhotobucketAlbums() {
+		/// <returns>List of strings</returns>
+		public static async Task<List<string>> RetrievePhotobucketAlbums() {
 			if (albumsCache != null) {
 				return albumsCache;
 			}
 			string responseString;
 
-			OAuthSession oAuth = createSession(false);
+			OAuthSession oAuth = await createSession(false);
 			if (oAuth == null) {
 				return null;
 			}
@@ -159,7 +160,7 @@ namespace GreenshotPhotobucketPlugin {
 			try {
 				var signUri = new Uri(string.Format("http://api.photobucket.com/album/{0}", config.Username));
 				var requestUri = new Uri(string.Format("http://api.photobucket.com/album/{0}".Replace("api.photobucket.com", config.SubDomain), config.Username));
-				responseString = oAuth.MakeOAuthRequest(HttpMethod.Get, signUri, requestUri, signedParameters, null, null);
+				responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, signUri, requestUri, signedParameters, null, null);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw;
