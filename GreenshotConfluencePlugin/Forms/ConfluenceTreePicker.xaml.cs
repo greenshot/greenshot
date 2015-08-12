@@ -79,7 +79,8 @@ namespace GreenshotConfluencePlugin {
 		
 		void Page_Loaded(object sender, RoutedEventArgs e) {
 			_confluenceUpload.SelectedPage = null;
-			foreach (var space in ConfluencePlugin.ConfluenceAPI.Model.Spaces.Values) {
+			foreach (var spaceLV in ConfluencePlugin.ConfluenceAPI.Model.Spaces.Values) {
+				var space = spaceLV;	// Capture loop variable for the lambda later
 				if (space.IsPersonal && !config.IncludePersonSpaces) {
 					continue;
 				}

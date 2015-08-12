@@ -70,7 +70,7 @@ namespace Greenshot.Destinations {
 				if ("Picker".Equals(destination.Designation)) {
 					continue;
 				}
-				if (!destination.isActive) {
+				if (!destination.IsActive) {
 					continue;
 				}
 				destinations.Add(destination);

@@ -38,11 +38,11 @@ namespace GreenshotPlugin.Core
 	public abstract class AbstractDestination : IDestination
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
-		private static CoreConfiguration configuration = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static readonly CoreConfiguration configuration = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
 
 		public virtual int CompareTo(object obj)
 		{
-			IDestination other = obj as IDestination;
+			var other = obj as IDestination;
 			if (other == null)
 			{
 				return 1;
@@ -93,18 +93,7 @@ namespace GreenshotPlugin.Core
 			yield break;
 		}
 
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			//if (disposing) {}
-		}
-
-		public virtual bool isDynamic
+		public virtual bool IsDynamic
 		{
 			get
 			{
@@ -112,7 +101,7 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		public virtual bool useDynamicsOnly
+		public virtual bool UseDynamicsOnly
 		{
 			get
 			{
@@ -120,7 +109,7 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		public virtual bool isLinkable
+		public virtual bool IsLinkable
 		{
 			get
 			{
@@ -128,7 +117,7 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		public virtual bool isActive
+		public virtual bool IsActive
 		{
 			get
 			{
@@ -141,33 +130,14 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
-		/// Default ExportCapture, which calls the ExportCaptureAsync synchronously
-		/// Should be able to delete this when all code has been made async
-		/// </summary>
-		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <returns>ExportInformation</returns>
-		public virtual ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-		{
-			var exportTask = ExportCaptureAsync(manuallyInitiated, surface, captureDetails);
-			return exportTask.GetAwaiter().GetResult();
-		}
-
-		/// <summary>
-		/// Wrapper around synchronous code, to make it async, should be overridden
+		/// The async ExportCaptureAsync should be overriden, here you will need to make your export
 		/// </summary>
 		/// <param name="manuallyInitiated"></param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <param name="token"></param>
-		/// <returns></returns>
-		public virtual async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
-		{
-			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-			var task = Task.Factory.StartNew(() => ExportCapture(manuallyInitiated, surface, captureDetails), token, TaskCreationOptions.None, scheduler);
-			return await task;
-		}
+		/// <returns>Task with ExportInformation</returns>
+		public abstract Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken));
 
 		/// <summary>
 		/// A small helper method to perform some default destination actions, like inform the surface of the export
@@ -330,7 +300,7 @@ namespace GreenshotPlugin.Core
 			basisMenuItem.Click -= destinationClickHandler;
 			basisMenuItem.Click += destinationClickHandler;
 
-			if (isDynamic && addDynamics)
+			if (IsDynamic && addDynamics)
 			{
 				basisMenuItem.DropDownOpening += (source, eventArgs) => {
 					if (basisMenuItem.DropDownItems.Count == 0)
@@ -352,7 +322,7 @@ namespace GreenshotPlugin.Core
 						{
 							ToolStripMenuItem destinationMenuItem = null;
 
-							if (useDynamicsOnly && subDestinations.Count == 1)
+							if (UseDynamicsOnly && subDestinations.Count == 1)
 							{
 								basisMenuItem.Tag = subDestinations[0];
 								basisMenuItem.Text = subDestinations[0].Description;
@@ -378,5 +348,28 @@ namespace GreenshotPlugin.Core
 
 			return basisMenuItem;
 		}
+
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+				}
+
+				disposedValue = true;
+			}
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+		}
+		#endregion
 	}
 }

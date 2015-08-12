@@ -79,15 +79,15 @@ namespace GreenshotOfficePlugin {
 			}
 		}
 		
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
 		}
 
-		public override bool isActive {
+		public override bool IsActive {
 			get {
-				return base.isActive && exePath != null;
+				return base.IsActive && exePath != null;
 			}
 		}
 

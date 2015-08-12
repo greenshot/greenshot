@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotOfficePlugin {
 	public class OneNoteDestination : AbstractDestination {
@@ -74,15 +76,15 @@ namespace GreenshotOfficePlugin {
 			}
 		}
 		
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
 		}
 
-		public override bool isActive {
+		public override bool IsActive {
 			get {
-				return base.isActive && exePath != null;
+				return base.IsActive && exePath != null;
 			}
 		}
 
@@ -93,13 +95,13 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (OneNotePage page in OneNoteExporter.GetPages()) {
+			foreach (var page in OneNoteExporter.GetPages()) {
 				yield return new OneNoteDestination(page);
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+		public override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+			var exportInformation = new ExportInformation(this.Designation, this.Description);
 
 			if (page == null) {
 				try {
@@ -116,7 +118,7 @@ namespace GreenshotOfficePlugin {
 					LOG.Error(ex);
 				}
 			}
-			return exportInformation;
+			return Task.FromResult(exportInformation);
 		}
 	}
 }

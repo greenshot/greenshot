@@ -101,7 +101,7 @@ namespace Greenshot {
 						if (destination.Priority <= 2) {
 							continue;
 						}
-						if (!destination.isActive) {
+						if (!destination.IsActive) {
 							continue;
 						}
 						if (destination.DisplayIcon == null) {
@@ -273,7 +273,7 @@ namespace Greenshot {
 
 		private void AddDestinationButton(IDestination toolstripDestination) {
 			var destinationButton = new ToolStripSplitButton();
-			if (toolstripDestination.isDynamic) {
+			if (toolstripDestination.IsDynamic) {
 				//ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
 				destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
 				destinationButton.Size = new Size(23, 22);
@@ -348,7 +348,7 @@ namespace Greenshot {
 				if (ignoreDestinations.Contains(destination.Designation)) {
 					continue;
 				}
-				if (!destination.isActive) {
+				if (!destination.IsActive) {
 					continue;
 				}
 				
@@ -895,11 +895,12 @@ namespace Greenshot {
 				// Go through the destinations to check the EditorShortcut Keys
 				// this way the menu entries don't need to be enabled.
 				// This also fixes bugs #3526974 & #3527020
-				foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
+				foreach (IDestination destinationLV in DestinationHelper.GetAllDestinations()) {
+					var destination = destinationLV;	// Capture the loop variable
 					if (ignoreDestinations.Contains(destination.Designation)) {
 						continue;
 					}
-					if (!destination.isActive) {
+					if (!destination.IsActive) {
 						continue;
 					}
 

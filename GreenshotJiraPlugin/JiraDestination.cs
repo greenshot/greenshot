@@ -75,13 +75,13 @@ namespace GreenshotJiraPlugin
 			}
 		}
 
-		public override bool isActive {
+		public override bool IsActive {
 			get {
-				return base.isActive && _jiraPlugin.JiraMonitor != null && _jiraPlugin.JiraMonitor.HasJiraInstances;
+				return base.IsActive && _jiraPlugin.JiraMonitor != null && _jiraPlugin.JiraMonitor.HasJiraInstances;
 			}
 		}
 
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
@@ -94,7 +94,7 @@ namespace GreenshotJiraPlugin
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			if (isActive) {
+			if (IsActive) {
 				// Show only the last 10 JIRAs
 				foreach (var jiraIssue in _jiraPlugin.JiraMonitor.RecentJiras.Take(10)) {
 					yield return new JiraDestination(_jiraPlugin, jiraIssue);

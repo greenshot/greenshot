@@ -133,7 +133,7 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Returns if the destination is active
 		/// </summary>
-		bool isActive {
+		bool IsActive {
 			get;
 		}
 
@@ -161,32 +161,23 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Returns true if this destination can be dynamic
 		/// </summary>
-		bool isDynamic {
+		bool IsDynamic {
 			get;
 		}
 
 		/// <summary>
 		/// Returns if the destination is active
 		/// </summary>
-		bool useDynamicsOnly {
+		bool UseDynamicsOnly {
 			get;
 		}
 
 		/// <summary>
 		/// Returns true if this destination returns a link
 		/// </summary>
-		bool isLinkable {
+		bool IsLinkable {
 			get;
 		}
-
-		/// <summary>
-		/// If a capture is made, and the destination is enabled, this method is called.
-		/// </summary>
-		/// <param name="manuallyInitiated">true if the user selected this destination from a GUI, false if it was called as part of a process</param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>
-		ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 
 		/// <summary>
 		/// Async version of the ExportCapture

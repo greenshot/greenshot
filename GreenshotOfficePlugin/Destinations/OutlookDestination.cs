@@ -97,13 +97,13 @@ namespace GreenshotOfficePlugin
 			}
 		}
 
-		public override bool isActive {
+		public override bool IsActive {
 			get {
-				return base.isActive && isActiveFlag;
+				return base.IsActive && isActiveFlag;
 			}
 		}
 
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}

@@ -226,8 +226,8 @@ namespace GreenshotPlugin.OAuth {
 
 			queryParameters = new SortedDictionary<string, object>(queryParameters);
 
-			StringBuilder sb = new StringBuilder();
-			foreach (string key in queryParameters.Keys) {
+			var sb = new StringBuilder();
+			foreach (var key in queryParameters.Keys) {
 				if (queryParameters[key] is string) {
 					sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, Uri.EscapeDataString(string.Format("{0}", queryParameters[key])));
 				}
@@ -243,8 +243,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <returns></returns>
 		public static string GenerateTimeStamp() {
 			// Default implementation of UNIX time of the current UTC time
-			TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
-			return Convert.ToInt64(ts.TotalSeconds).ToString();
+			TimeSpan timespan = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+			return Convert.ToInt64(timespan.TotalSeconds).ToString();
 		}
 
 		/// <summary>
@@ -284,11 +284,10 @@ namespace GreenshotPlugin.OAuth {
 		/// <returns>The request token.</returns>
 		private string GetAuthorizeToken() {
 			if (string.IsNullOrEmpty(Token)) {
-				Exception e = new Exception("The request token is not set");
-				throw e;
+				throw new Exception("The request token is not set");
 			}
 			LOG.DebugFormat("Opening AuthorizationLink: {0}", AuthorizationLink);
-			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
+			var oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
 			oAuthLoginForm.ShowDialog();
 			if (oAuthLoginForm.IsOk) {
 				if (oAuthLoginForm.CallbackParameters != null) {
@@ -317,8 +316,7 @@ namespace GreenshotPlugin.OAuth {
 		/// <returns>The access token.</returns>		
 		private async Task<string> GetAccessTokenAsync() {
 			if (string.IsNullOrEmpty(Token) || (CheckVerifier && string.IsNullOrEmpty(Verifier))) {
-				Exception e = new Exception("The request token and verifier were not set");
-				throw e;
+				throw new Exception("The request token and verifier were not set");
 			}
 
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
@@ -396,20 +394,6 @@ namespace GreenshotPlugin.OAuth {
 		/// Submit a web request using oAuth.
 		/// </summary>
 		/// <param name="method">GET or POST</param>
-		/// <param name="requestUri">The full url, including the querystring for the signing/request</param>
-		/// <param name="headers">Header values</param>
-		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
-		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
-		/// <param name="postData">Data to post (MemoryStream)</param>
-		/// <returns>The web server response.</returns>
-		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return await MakeOAuthRequest(method, requestUri, requestUri, headers, parametersToSign, additionalParameters, postData).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// Submit a web request using oAuth.
-		/// </summary>
-		/// <param name="method">GET or POST</param>
 		/// <param name="signUri">The full url, including the querystring for the signing</param>
 		/// <param name="requestUri">The full url, including the querystring for the request</param>
 		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
@@ -461,12 +445,12 @@ namespace GreenshotPlugin.OAuth {
 				} catch (WebException wEx) {
 					lastException = wEx;
 					if (wEx.Response != null) {
-						HttpWebResponse response = wEx.Response as HttpWebResponse;
+						var response = wEx.Response as HttpWebResponse;
 						if (response != null && response.StatusCode == HttpStatusCode.Unauthorized) {
 							Token = null;
 							TokenSecret = null;
 							// Remove oauth keys, so they aren't added double
-							List<string> keysToDelete = new List<string>();
+							var keysToDelete = new List<string>();
 							foreach (string parameterKey in parametersToSign.Keys) {
 								if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
 									keysToDelete.Add(parameterKey);

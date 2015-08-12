@@ -34,7 +34,8 @@ namespace GreenshotConfluencePlugin {
 		public Page PickerPage {
 			get {
 				if (pickerPage == null) {
-					IList<Content> pages = Task.Run(async () => await ConfluenceUtils.GetCurrentPages()).Result;
+					// TODO: Do not run async code from synchronous code
+					var pages = Task.Run(async () => await ConfluenceUtils.GetCurrentPages()).Result;
 					if (pages != null && pages.Count > 0) {
 						pickerPage = new ConfluencePagePicker(this, pages);
 					}

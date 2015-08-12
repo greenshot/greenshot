@@ -54,7 +54,7 @@ namespace Greenshot.Helpers
 					LOG.Error(e);
 					continue;
 				}
-				if (destination.isActive) {
+				if (destination.IsActive) {
 					LOG.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
 					RegisterDestination(destination);
 				} else {
@@ -137,7 +137,7 @@ namespace Greenshot.Helpers
 		/// <param name="captureDetails"></param>
 		public static async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			IDestination destination = GetDestination(designation);
-			if (destination != null && destination.isActive) {
+			if (destination != null && destination.IsActive) {
 				return await destination.ExportCaptureAsync(manuallyInitiated, surface, captureDetails, token).ConfigureAwait(false);
 			}
 			return null;

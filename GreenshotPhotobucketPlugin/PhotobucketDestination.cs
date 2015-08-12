@@ -40,16 +40,18 @@ namespace GreenshotPhotobucketPlugin  {
 	public class PhotobucketDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
 		private static PhotobucketConfiguration _config = IniConfig.Get("Greenshot","greenshot").Get<PhotobucketConfiguration>();
-		private PhotobucketPlugin plugin = null;
 		private string albumPath = null;
+
+		public PhotobucketDestination()
+		{
+		}
 
 		/// <summary>
 		/// Create a Photobucket destination, which also has the path to the album in it
 		/// </summary>
 		/// <param name="plugin"></param>
 		/// <param name="albumPath">path to the album, null for default</param>
-		public PhotobucketDestination(PhotobucketPlugin plugin, string albumPath) {
-			this.plugin = plugin;
+		public PhotobucketDestination(string albumPath) {
 			this.albumPath = albumPath;
 		}
 		
@@ -70,12 +72,12 @@ namespace GreenshotPhotobucketPlugin  {
 
 		public override Image DisplayIcon {
 			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
+				var resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
 				return (Image)resources.GetObject("Photobucket");
 			}
 		}
 		
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
@@ -93,7 +95,7 @@ namespace GreenshotPhotobucketPlugin  {
 				yield break;
 			}
 			foreach (string album in albums) {
-				yield return new PhotobucketDestination(plugin, album);
+				yield return new PhotobucketDestination(album);
 			}
 		}
 
@@ -108,7 +110,7 @@ namespace GreenshotPhotobucketPlugin  {
 			var exportInformation = new ExportInformation(Designation, Description);
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try {
-				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("photobucket", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 					return await PhotobucketUtils.UploadToPhotobucket(surface, outputSettings, albumPath, captureDetails.Title, filename);
 				});

@@ -81,7 +81,7 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool isActive {
+		public override bool IsActive {
 			get {
 				if (isActiveFlag) {
 					// Disable if the office plugin is installed and the client is outlook
@@ -93,7 +93,7 @@ namespace Greenshot.Destinations {
 						}
 					}
 				}
-				return base.isActive && isActiveFlag;
+				return base.IsActive && isActiveFlag;
 			}
 		}
 

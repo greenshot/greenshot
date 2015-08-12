@@ -89,15 +89,15 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
 		}
 		
-		public override bool isActive {
+		public override bool IsActive {
 			get {
-				return base.isActive && !string.IsNullOrEmpty(config.RestUrl);
+				return base.IsActive && !string.IsNullOrEmpty(config.RestUrl);
 			}
 		}
 
@@ -108,6 +108,7 @@ namespace GreenshotConfluencePlugin
 		}
 		
 		public override IEnumerable<IDestination> DynamicDestinations() {
+			// TODO: Fix async, this should not be called from synchronous code but should run as a task which adds to the context menu
 			IList<Content> currentPages = Task.Run(async () => await ConfluenceUtils.GetCurrentPages()).GetAwaiter().GetResult();
 			if (currentPages == null || currentPages.Count == 0) {
 				yield break;

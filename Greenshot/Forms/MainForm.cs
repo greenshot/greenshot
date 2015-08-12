@@ -855,7 +855,7 @@ namespace Greenshot.Forms
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			foreach (var screen in Screen.AllScreens)
 			{
-				var screenToCapture = screen;
+				var screenToCapture = screen;	// Capture loop variable
 				string deviceAlignment = "";
 				if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
 				{
@@ -1527,8 +1527,9 @@ namespace Greenshot.Forms
 					formsToClose.Add(form);
 				}
 			}
-			foreach (var form in formsToClose)
+			foreach (var formLV in formsToClose)
 			{
+				var form = formLV;	// Capture the loop variable for the lambda
 				LOG.InfoFormat("Closing form: {0}", form.Name);
 				BeginInvoke(new Action(() => form.Close()));
 			}
