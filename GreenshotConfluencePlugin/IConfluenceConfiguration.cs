@@ -29,7 +29,7 @@ namespace GreenshotConfluencePlugin {
 	/// </summary>
 	[IniSection("Confluence"), Description("Greenshot Confluence Plugin configuration")]
 	public interface IConfluenceConfiguration : IIniSection<IConfluenceConfiguration>, INotifyPropertyChanged {
-		[Description("Rest Url to Jira system"), DefaultValue("https://confluence")]
+		[Description("Rest Url to Confluence system"), DefaultValue("https://confluence")]
 		string RestUrl {
 			get;
 			set;

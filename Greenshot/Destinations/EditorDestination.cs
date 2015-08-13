@@ -19,14 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
+using Greenshot.Configuration;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.Configuration;
-using GreenshotPlugin.Core;
-using Greenshot.Plugin;
-using Dapplo.Config.Ini;
-using log4net;
 using System.Threading;
 using System.Threading.Tasks;
 

@@ -442,13 +442,17 @@ namespace GreenshotPlugin.Controls {
 						bool writeProtected = section.IsWriteProtected(configBindable.PropertyName);
 						CheckBox checkBox = controlObject as CheckBox;
 						if (checkBox != null) {
-							checkBox.Checked = (bool)iniValue.Value;
+							if (iniValue.Value != null) {
+								checkBox.Checked = (bool)iniValue.Value;
+							}
 							checkBox.Enabled = !writeProtected;
 							continue;
 						}
                         RadioButton radíoButton = controlObject as RadioButton;
 						if (radíoButton != null) {
-							radíoButton.Checked = (bool)iniValue.Value;
+							if (iniValue.Value != null) {
+								radíoButton.Checked = (bool)iniValue.Value;
+							}
 							radíoButton.Enabled = !writeProtected;
 							continue;
 						}
@@ -457,14 +461,18 @@ namespace GreenshotPlugin.Controls {
 						if (textBox != null) {
 							HotkeyControl hotkeyControl = controlObject as HotkeyControl;
 							if (hotkeyControl != null) {
-								string hotkeyValue = (string)iniValue.Value;
-								if (!string.IsNullOrEmpty(hotkeyValue)) {
-									hotkeyControl.SetHotkey(hotkeyValue);
-									hotkeyControl.Enabled = !writeProtected;
+								if (iniValue.Value != null) {
+									string hotkeyValue = (string)iniValue.Value;
+									if (!string.IsNullOrEmpty(hotkeyValue)) {
+										hotkeyControl.SetHotkey(hotkeyValue);
+									}
 								}
+								hotkeyControl.Enabled = !writeProtected;
 								continue;
 							}
-							textBox.Text = iniValue.ToString();
+							if (iniValue.Value != null) {
+								textBox.Text = Convert.ToString(iniValue.Value);
+							}
 							textBox.Enabled = !writeProtected;
 							continue;
 						} 
@@ -472,7 +480,9 @@ namespace GreenshotPlugin.Controls {
 						GreenshotComboBox comboxBox = controlObject as GreenshotComboBox;
 						if (comboxBox != null) {
 							comboxBox.Populate(iniValue.ValueType);
-							comboxBox.SetValue((Enum)iniValue.Value);
+							if (iniValue.Value != null) {
+								comboxBox.SetValue((Enum)iniValue.Value);
+							}
 							comboxBox.Enabled = !writeProtected;
 							continue;
 						}
@@ -529,7 +539,7 @@ namespace GreenshotPlugin.Controls {
                             continue;
                         }
 						try {
-							iniValue.Converter.ConvertFrom(textBox.Text);
+							iniValue.Value = textBox.Text;
 						} catch {
 							iniValue.ResetToDefault();
 						}

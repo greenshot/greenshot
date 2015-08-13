@@ -96,7 +96,7 @@ namespace Greenshot {
 
 			Load += (sender, eventArgs) => {
 				// Create export buttons via dispatcher
-				this.AsyncInvoke(async () => {
+				this.AsyncInvoke(() => {
 					foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
 						if (destination.Priority <= 2) {
 							continue;
@@ -351,11 +351,11 @@ namespace Greenshot {
 				if (!destination.IsActive) {
 					continue;
 				}
-				
-				ToolStripMenuItem item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClickAsync);
+
+				ToolStripMenuItem item = destination.CreateMenuItem(true, DestinationToolStripMenuItemClickAsync);
 				if (item != null) {
-					item.ShortcutKeys = destination.EditorShortcutKeys;
 					fileStripMenuItem.DropDownItems.Add(item);
+					item.ShortcutKeys = destination.EditorShortcutKeys;
 				}
 			}
 			// add the elements after the destinations

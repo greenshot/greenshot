@@ -1066,7 +1066,7 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		void Contextmenu_donateClick(object sender, EventArgs e)
 		{
-			this.AsyncInvoke(async () => Process.Start("http://getgreenshot.org/support/"));
+			this.AsyncInvoke(() => Process.Start("http://getgreenshot.org/support/"));
 		}
 
 		/// <summary>
@@ -1076,7 +1076,7 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		void Contextmenu_settingsClick(object sender, EventArgs e)
 		{
-			this.AsyncInvoke(async () => ShowSetting());
+			this.AsyncInvoke(() => ShowSetting());
 		}
 
 		/// <summary>
@@ -1450,7 +1450,7 @@ namespace Greenshot.Forms
 					ShowSetting();
 					break;
 				case ClickActions.SHOW_CONTEXT_MENU:
-					this.AsyncInvoke(async () => {
+					this.AsyncInvoke(() => {
 						MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
 						oMethodInfo.Invoke(notifyIcon, null);
 					});

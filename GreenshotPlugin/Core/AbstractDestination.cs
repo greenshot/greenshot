@@ -93,23 +93,24 @@ namespace GreenshotPlugin.Core
 			yield break;
 		}
 
+		/// <summary>
+		/// Async add the dropdown items
+		/// </summary>
+		/// <param name="baseItem"></param>
+		/// <param name="destinationClickHandler"></param>
+		/// <param name="token"></param>
+		/// <returns>Task</returns>
+		public virtual async Task AddDynamicDestinations(ToolStripMenuItem baseItem, EventHandler destinationClickHandler, CancellationToken token = default(CancellationToken)) {
+			await Task.Factory.StartNew(() => {
+				foreach (var destination in DynamicDestinations()) {
+					var menuItem = CreateFor(destination);
+					menuItem.Click += destinationClickHandler;
+					baseItem.DropDownItems.Add(menuItem);
+				}
+			}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+		}
+
 		public virtual bool IsDynamic
-		{
-			get
-			{
-				return false;
-			}
-		}
-
-		public virtual bool UseDynamicsOnly
-		{
-			get
-			{
-				return false;
-			}
-		}
-
-		public virtual bool IsLinkable
 		{
 			get
 			{
@@ -197,35 +198,44 @@ namespace GreenshotPlugin.Core
 				// Create menu, and show it
 				using (var menu = new ContextMenuStrip())
 				{
+					// Make sure that when the menu is closed, the taskCompletionSource is cancelled
 					menu.Closed += (sender, args) => taskCompletionSource.TrySetResult(null);
 
 					menu.ImageScalingSize = configuration.IconSize;
+
+					// In some cases the closing event needs to be ignored.
 					menu.Closing += (source, eventArgs) => {
 						LOG.DebugFormat("Menu closing event with reason {0}", eventArgs.CloseReason);
 						switch (eventArgs.CloseReason)
 						{
 							case ToolStripDropDownCloseReason.Keyboard:
+								// User used Alt+F4 or ESC, this should be like calling close.
 								exit = true;
 								canExitSemaphore.Release();
 								eventArgs.Cancel = true;
 								taskCompletionSource.TrySetResult(null);
 								break;
 							case ToolStripDropDownCloseReason.AppFocusChange:
+								// User clicked outside of the menu, just ignore this
 								eventArgs.Cancel = true;
 								break;
 						}
 					};
+
+					// Make sure that the menu has focus if the mouse is over it.
+					// This makes is possible that dropdown menus will still open on mouseenter
 					menu.MouseEnter += (source, eventArgs) => {
-						// in case the menu has been unfocused, focus again so that dropdown menus will still open on mouseenter
 						if (!menu.ContainsFocus)
 						{
 							menu.Focus();
 						}
 					};
+
+					// Create entries for the destinations
 					foreach (var destination in destinations)
 					{
 						// Fix foreach loop variable for the delegate
-						var item = destination.GetMenuItem(addDynamics, menu, async (sender, e) => {
+						var item = destination.CreateMenuItem(addDynamics, async (sender, e) => {
 							var toolStripMenuItem = sender as ToolStripMenuItem;
 							if (toolStripMenuItem == null)
 							{
@@ -246,13 +256,14 @@ namespace GreenshotPlugin.Core
 									exit = true;
 									menu.Close();
 								} else {
+									// Export didn't work, but as we didn't set exit=true the menu will be shown again.
 									LOG.Info("Export cancelled or failed, showing menu again");
 								}
 							} finally {
 								canExitSemaphore.Release();
 							}
-						}
-						);
+						});
+
 						if (item != null)
 						{
 							menu.Items.Add(item);
@@ -275,7 +286,10 @@ namespace GreenshotPlugin.Core
 					};
 					menu.Items.Add(closeItem);
 
+					// Show the context menu we just created at the cursor
 					menu.ShowAtCursor();
+
+					// wait on the closing event
 					await taskCompletionSource.Task;
 					// Await the can exit semaphore
 					await canExitSemaphore.WaitAsync(token);
@@ -293,68 +307,41 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
-		/// Return a menu item
+		/// Return a menu item, can override
 		/// </summary>
 		/// <param name="destinationClickHandler"></param>
 		/// <returns>ToolStripMenuItem</returns>
-		public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler)
+		public virtual ToolStripMenuItem CreateMenuItem(bool addDynamics, EventHandler destinationClickHandler)
 		{
-			var basisMenuItem = new ToolStripMenuItem
-			{
-				Image = DisplayIcon,
-				Tag = this,
-				Text = Description,
-			};
+			var basisMenuItem = CreateFor(this);
 			basisMenuItem.Click -= destinationClickHandler;
 			basisMenuItem.Click += destinationClickHandler;
 
 			if (IsDynamic && addDynamics)
 			{
-				basisMenuItem.DropDownOpening += (source, eventArgs) => {
-					if (basisMenuItem.DropDownItems.Count == 0)
-					{
-						List<IDestination> subDestinations = new List<IDestination>();
-						// Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
-						try
-						{
-							basisMenuItem.Enabled = false;
-							subDestinations.AddRange(DynamicDestinations());
+				Task.Factory.StartNew(async () => {
+					await AddDynamicDestinations(basisMenuItem, destinationClickHandler).ContinueWith((t) => {
+						if (t.Exception != null) {
+							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, t.Exception.Message);
 						}
-						catch (Exception ex)
-						{
-							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
-						} finally {
-							basisMenuItem.Enabled = true;
-						}
-						if (subDestinations.Count > 0)
-						{
-							ToolStripMenuItem destinationMenuItem = null;
-
-							if (UseDynamicsOnly && subDestinations.Count == 1)
-							{
-								basisMenuItem.Tag = subDestinations[0];
-								basisMenuItem.Text = subDestinations[0].Description;
-								basisMenuItem.Click -= destinationClickHandler;
-								basisMenuItem.Click += destinationClickHandler;
-							}
-							else
-							{
-								foreach (var subDestination in subDestinations)
-								{
-									destinationMenuItem = new ToolStripMenuItem(subDestination.Description);
-									destinationMenuItem.Tag = subDestination;
-									destinationMenuItem.Image = subDestination.DisplayIcon;
-									destinationMenuItem.Click += destinationClickHandler;
-									basisMenuItem.DropDownItems.Add(destinationMenuItem);
-
-								}
-							}
-						}
-					}
-				};
+						basisMenuItem.Invalidate();
+					});
+				}, default(CancellationToken), TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 			}
-
 			return basisMenuItem;
+		}
+
+		/// <summary>
+		/// Helper to consistantly create Menu items the same way
+		/// </summary>
+		/// <param name="destination"></param>
+		/// <returns>ToolStripMenuItem</returns>
+		protected ToolStripMenuItem CreateFor(IDestination destination) {
+			return new ToolStripMenuItem {
+				Text = destination.Description,
+				Tag = destination,
+				Image = destination.DisplayIcon
+			};
 		}
 
 		#region IDisposable Support
