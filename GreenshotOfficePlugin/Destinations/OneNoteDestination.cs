@@ -101,7 +101,10 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(this.Designation, this.Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 
 			if (page == null) {
 				try {

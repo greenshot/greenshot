@@ -62,7 +62,10 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="token"></param>
 		/// <returns></returns>
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(this.Designation, this.Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 
 			try {
 				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), (progress, pleaseWaitToken) => {
@@ -71,7 +74,7 @@ namespace GreenshotPicasaPlugin {
 
 				if (!string.IsNullOrEmpty(uploadURL)) {
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = uploadURL;
+					exportInformation.ExportedToUri = new Uri(uploadURL);
 				}
 			} catch (TaskCanceledException tcEx) {
 				exportInformation.ErrorMessage = tcEx.Message;

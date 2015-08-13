@@ -62,7 +62,10 @@ namespace GreenshotBoxPlugin
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(Designation, Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			try {
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), (progress, pleaseWaitToken) => {
 					return BoxUtils.UploadToBoxAsync(surface, captureDetails, progress, token);
@@ -73,7 +76,7 @@ namespace GreenshotBoxPlugin
 				}
 
 				exportInformation.ExportMade = true;
-				exportInformation.Uri = url;
+				exportInformation.ExportedToUri = new Uri(url);
 			} catch (TaskCanceledException tcEx) {
 				exportInformation.ErrorMessage = tcEx.Message;
 				LOG.Info(tcEx.Message);

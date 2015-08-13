@@ -149,9 +149,9 @@ namespace GreenshotPlugin.Core
 		{
 			if (exportInformation != null && exportInformation.ExportMade)
 			{
-				if (!string.IsNullOrEmpty(exportInformation.Uri))
+				if (exportInformation.ExportedToUri != null)
 				{
-					surface.UploadURL = exportInformation.Uri;
+					surface.UploadUri = exportInformation.ExportedToUri;
 					surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUri, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
 				}
 				else if (!string.IsNullOrEmpty(exportInformation.Filepath))
@@ -187,7 +187,10 @@ namespace GreenshotPlugin.Core
 		public async Task<ExportInformation> ShowPickerMenuAsync(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations, CancellationToken token = default(CancellationToken))
 		{
 			// Generate an empty ExportInformation object, for when nothing was selected.
-			var exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			string usedDestination = null;
 			var canExitSemaphore = new SemaphoreSlim(0, 1);
 			bool exit = false;
@@ -248,13 +251,14 @@ namespace GreenshotPlugin.Core
 								if (clickedDestination == null) {
 									return;
 								}
+								menu.Close();
+
 								LOG.DebugFormat("Destination {0} was clicked", clickedDestination.Description);
 								exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
 								if (exportInformation != null && exportInformation.ExportMade) {
 									LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
 									usedDestination = clickedDestination.Designation;
 									exit = true;
-									menu.Close();
 								} else {
 									// Export didn't work, but as we didn't set exit=true the menu will be shown again.
 									LOG.Info("Export cancelled or failed, showing menu again");

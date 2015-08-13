@@ -81,7 +81,7 @@ namespace GreenshotPlugin.Core {
 				return;
 			}
 			if (eventType == WinEvent.EVENT_OBJECT_NAMECHANGE) {
-				string newTitle = GetText(hWnd);
+				var newTitle = GetText(hWnd);
 				if (TitleChangeEvent != null) {
 					TitleChangeEvent(this, new TitleChangeEventArgs { HWnd = hWnd, Title = newTitle });
 				}
@@ -94,7 +94,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="hWnd">IntPtr for the window</param>
 		/// <returns>string</returns>
 		private static string GetText(IntPtr hWnd) {
-			StringBuilder title = new StringBuilder(260, 260);
+			var title = new StringBuilder(260, 260);
 			int length = User32.GetWindowText(hWnd, title, title.Capacity);
 			if (length == 0) {
 				return null;

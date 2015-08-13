@@ -77,7 +77,10 @@ namespace Greenshot.Destinations {
 		/// <param name="token"></param>
 		/// <returns></returns>
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(Designation, Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			try {
 				// There is not much that can work async for the Clipboard
 				await Task.Factory.StartNew(() => {

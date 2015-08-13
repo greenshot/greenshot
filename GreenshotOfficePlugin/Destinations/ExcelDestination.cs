@@ -108,7 +108,10 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(this.Designation, this.Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			bool createdFile = false;
 			string imageFile = captureDetails.Filename;
 			try {

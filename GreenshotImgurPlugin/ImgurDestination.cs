@@ -73,8 +73,11 @@ namespace GreenshotImgurPlugin
 		/// <param name="token">CancellationToken</param>
 		/// <returns>Task with ExportInformation</returns>
 		public async override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
+			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			string uploadURL = null;
 			try {
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
@@ -87,10 +90,10 @@ namespace GreenshotImgurPlugin
 
 					if (config.UsePageLink) {
 						if (imgurInfo.Page.AbsoluteUri != null) {
-							exportInformation.Uri = imgurInfo.Page.AbsoluteUri;
+							exportInformation.ExportedToUri = new Uri(imgurInfo.Page.AbsoluteUri);
 						}
 					} else if (imgurInfo.Original.AbsoluteUri != null) {
-						exportInformation.Uri = imgurInfo.Original.AbsoluteUri;
+						exportInformation.ExportedToUri = new Uri(imgurInfo.Original.AbsoluteUri);
 					}
 					try {
 						if (config.CopyUrlToClipboard) {

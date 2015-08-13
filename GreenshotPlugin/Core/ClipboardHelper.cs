@@ -468,6 +468,16 @@ EndSelection:<<<<<<<4
 			ido.SetData(DataFormats.Text, true, text);
 			SetDataObject(ido, true);
 		}
+
+		/// <summary>
+		/// Set Uri to the clipboard
+		/// </summary>
+		/// <param name="uri"></param>
+		public static void SetClipboardData(Uri uri) {
+			IDataObject ido = new DataObject();
+			ido.SetData(DataFormats.Text, true, uri.AbsoluteUri);
+			SetDataObject(ido, true);
+		}
 		
 		private static string getHTMLString(ISurface surface, string filename) {
 			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_STRING));

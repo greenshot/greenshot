@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -73,7 +74,9 @@ namespace GreenshotJiraPlugin
 			jiraPluginAttributes = pluginAttributes;
 
 			resources = new ComponentResourceManager(typeof(JiraPlugin));
-			InitializeMonitor();
+
+			// Make sure the InitializeMonitor is called after the message loop is initialized!
+			_host.GreenshotForm.AsyncInvoke(() => InitializeMonitor());
 			return true;
 		}
 

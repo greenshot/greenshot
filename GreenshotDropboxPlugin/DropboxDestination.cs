@@ -63,7 +63,10 @@ namespace GreenshotDropboxPlugin
 
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(Designation, Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try {
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
@@ -73,7 +76,7 @@ namespace GreenshotDropboxPlugin
 
 				if (url != null) {
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = url;
+					exportInformation.ExportedToUri = new Uri(url);
 					if (_config.AfterUploadLinkToClipBoard) {
 						ClipboardHelper.SetClipboardData(url);
 					}

@@ -103,31 +103,34 @@ namespace GreenshotJiraPlugin
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(this.Designation, this.Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			if (_jira != null) {
 				try {
 					var jiraApi = _jiraPlugin.JiraMonitor.GetJiraApiForKey(_jira);
-					var multipartFormDataContent = new MultipartFormDataContent();
-					using (var stream = new MemoryStream()) {
-						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
-						stream.Position = 0;
-						// Run upload in the background
-						await PleaseWaitWindow.CreateAndShowAsync(Description, Language.GetString("jira", LangKey.communication_wait), (progress, pleaseWaitToken) => {
+					// Run upload in the background
+					await PleaseWaitWindow.CreateAndShowAsync(Description, Language.GetString("jira", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+						var multipartFormDataContent = new MultipartFormDataContent();
+						using (var stream = new MemoryStream()) {
+							ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+							stream.Position = 0;
 							using (var uploadStream = new ProgressStream(stream, progress)) {
 								using (var streamContent = new StreamContent(uploadStream)) {
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 									multipartFormDataContent.Add(streamContent, "file", filename);
-									return jiraApi.Attach(_jira.JiraKey, multipartFormDataContent);
+									return await jiraApi.Attach(_jira.JiraKey, multipartFormDataContent);
 								}
 							}
-						});
-					}
+						}
+					});
 
 					LOG.Debug("Uploaded to Jira.");
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = string.Format("{0}/browse/{1}", jiraApi.JiraBaseUri, _jira.JiraKey); ;
+					exportInformation.ExportedToUri = jiraApi.JiraBaseUri.AppendSegments("browse", _jira.JiraKey);
 				} catch (TaskCanceledException tcEx) {
 					exportInformation.ErrorMessage = tcEx.Message;
 					LOG.Info(tcEx.Message);

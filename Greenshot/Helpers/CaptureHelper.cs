@@ -512,7 +512,7 @@ namespace Greenshot.Helpers
 					string errorMessage = null;
 
 					try {
-						ProcessStartInfo psi = new ProcessStartInfo("explorer.exe");
+						var psi = new ProcessStartInfo("explorer.exe");
 						psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
 						psi.UseShellExecute = false;
 						using (Process p = new Process()) {
@@ -528,10 +528,10 @@ namespace Greenshot.Helpers
 							string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
 							string explorerPath = Path.Combine(windowsPath, "explorer.exe");
 							if (File.Exists(explorerPath)) {
-								ProcessStartInfo psi = new ProcessStartInfo(explorerPath);
+								var psi = new ProcessStartInfo(explorerPath);
 								psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
 								psi.UseShellExecute = false;
-								using (Process p = new Process()) {
+								using (var p = new Process()) {
 									p.StartInfo = psi;
 									p.Start();
 								}
@@ -544,8 +544,8 @@ namespace Greenshot.Helpers
 						MessageBox.Show(string.Format("{0}\r\nexplorer.exe {1}", errorMessage, surface.LastSaveFullPath), "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 				}
-			} else if (surface != null && !string.IsNullOrEmpty(surface.UploadURL)) {
-				Process.Start(surface.UploadURL);
+			} else if (surface != null && surface.UploadUri != null) {
+				Process.Start(surface.UploadUri.AbsoluteUri);
 			}
 			LOG.DebugFormat("Deregistering the BalloonTipClicked");
 			RemoveEventHandler(sender, e);

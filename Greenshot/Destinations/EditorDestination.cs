@@ -88,7 +88,10 @@ namespace Greenshot.Destinations {
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			// Make sure we collect the garbage before opening the screenshot
 			GC.Collect();
 			GC.WaitForPendingFinalizers();

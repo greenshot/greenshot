@@ -27,74 +27,36 @@ using System.Windows.Forms;
 
 namespace Greenshot.Plugin {
 	public class ExportInformation {
-		private string uri = null;
-		private string filepath = null;
-
-		private bool exportMade = false;
-		private string destinationDesignation = null;
-		private string destinationDescription = null;
-
-		private string errorMessage = null;
-
-		public ExportInformation(string destinationDesignation, string destinationDescription) {
-			this.destinationDesignation = destinationDesignation;
-			this.destinationDescription = destinationDescription;
-		}
-		public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade): this(destinationDesignation, destinationDescription) {
-			this.exportMade = exportMade;
-		}
-
 		public string DestinationDesignation {
-			get {
-				return destinationDesignation;
-			}
+			get;
+			set;
 		}
 		public string DestinationDescription {
-			get {
-				return destinationDescription;
-			}
-			set {
-				destinationDescription = value;
-			}
+			get;
+			set;
 		}
 
 		/// <summary>
 		/// Set to true to specify if the export worked.
 		/// </summary>
 		public bool ExportMade {
-			get {
-				return exportMade;
-			}
-			set {
-				exportMade = value;
-			}
+			get;
+			set;
 		}
 
-		public string Uri {
-			get {
-				return uri;
-			}
-			set {
-				uri = value;
-			}
+		public Uri ExportedToUri {
+			get;
+			set;
 		}
 
 		public string ErrorMessage {
-			get {
-				return errorMessage;
-			}
-			set {
-				errorMessage = value;
-			}
+			get;
+			set;
 		}
 
 		public string Filepath {
-			get {
-				return filepath;
-			}
-			set {
-				filepath = value;
-			}
+			get;
+			set;
 		}
 	}
 

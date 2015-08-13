@@ -119,7 +119,10 @@ namespace GreenshotConfluencePlugin
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(this.Designation, this.Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			if (_content == null) {
@@ -157,13 +160,14 @@ namespace GreenshotConfluencePlugin
 
 					LOG.Debug("Uploaded to Confluence.");
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = string.Format("{0}/pages/viewpage.action?pageId={1}", confluenceApi.ConfluenceBaseUri, _content.Id);
+					var exportedUri = confluenceApi.ConfluenceBaseUri.AppendSegments("pages", "viewpage.action").ExtendQuery(new Dictionary<string, object> { { "pageId", _content.Id } });
+					exportInformation.ExportedToUri = exportedUri;
 					if (config.CopyWikiMarkupForImageToClipboard) {
 						ClipboardHelper.SetClipboardData("!" + filename + "!");
 					}
 					if (config.OpenPageAfterUpload) {
 						try {
-							Process.Start(exportInformation.Uri);
+							Process.Start(exportInformation.ExportedToUri.AbsoluteUri);
 						} catch { }
 					}
 				} catch (TaskCanceledException tcEx) {

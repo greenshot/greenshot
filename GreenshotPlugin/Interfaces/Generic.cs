@@ -192,7 +192,7 @@ namespace Greenshot.Plugin {
 			get;
 			set;
 		}
-		string UploadURL {
+		Uri UploadUri {
 			get;
 			set;
 		}

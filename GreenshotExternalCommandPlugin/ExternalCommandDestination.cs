@@ -69,7 +69,10 @@ namespace ExternalCommand
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(this.Designation, this.Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			var outputSettings = new SurfaceOutputSettings();
 			
 			if (presetCommand != null) {
@@ -111,10 +114,10 @@ namespace ExternalCommand
 							ClipboardHelper.SetClipboardData(result.StandardOutput);
 						}
 						if (uriMatches != null && uriMatches.Count >= 0) {
-							exportInformation.Uri = uriMatches[0].Groups[1].Value;
-							LOG.InfoFormat("Got URI : {0} ", exportInformation.Uri);
+							exportInformation.ExportedToUri = new Uri(uriMatches[0].Groups[1].Value);
+							LOG.InfoFormat("Got URI : {0} ", exportInformation.ExportedToUri);
 							if (config.UriToClipboard) {
-								ClipboardHelper.SetClipboardData(exportInformation.Uri);
+								ClipboardHelper.SetClipboardData(exportInformation.ExportedToUri);
 							}
 						}
 					}

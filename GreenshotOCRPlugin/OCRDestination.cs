@@ -68,7 +68,10 @@ namespace GreenshotOCR {
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(this.Designation, this.Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			exportInformation.ExportMade = await DoOcrAsync(surface, token) != null;
 			return exportInformation;
 		}

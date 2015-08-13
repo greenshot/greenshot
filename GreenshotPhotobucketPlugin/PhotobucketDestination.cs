@@ -107,7 +107,10 @@ namespace GreenshotPhotobucketPlugin  {
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation(Designation, Description);
+			var exportInformation = new ExportInformation {
+				DestinationDesignation = Designation,
+				DestinationDescription = Description
+			};
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try {
 				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("photobucket", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
@@ -130,7 +133,7 @@ namespace GreenshotPhotobucketPlugin  {
 
 				if (uploadURL != null) {
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = uploadURL;
+					exportInformation.ExportedToUri = new Uri(uploadURL);
 					if (_config.AfterUploadLinkToClipBoard) {
 						ClipboardHelper.SetClipboardData(uploadURL);
 					}
