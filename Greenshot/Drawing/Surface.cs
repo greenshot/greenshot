@@ -877,9 +877,9 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="effect"></param>
 		public async Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken token = default(CancellationToken)) {
-			await PleaseWaitWindow.CreateAndShowAsync(effect.Name, "Please wait", (progress, pleaseWaitToken) => {
+			await PleaseWaitWindow.CreateAndShowAsync(effect.Name, "Please wait", async (progress, pleaseWaitToken) => {
 				TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-				return Task.Factory.StartNew(() => {
+				return await Task.Factory.StartNew(() => {
 					var imageRectangle = new Rectangle(Point.Empty, Image.Size);
 					var matrix = new Matrix();
 					var newImage = ImageHelper.ApplyEffect(Image, effect, matrix);

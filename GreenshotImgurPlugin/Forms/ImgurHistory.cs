@@ -154,8 +154,8 @@ namespace GreenshotImgurPlugin
 						// Should fix Bug #3378699 
 						pictureBox1.Image = null;
 
-						await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait), (progress, pleaseWaitToken) => {
-							return ImgurUtils.DeleteImgurImageAsync(imgurInfo, pleaseWaitToken);
+						await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+							return await ImgurUtils.DeleteImgurImageAsync(imgurInfo, pleaseWaitToken);
 						});
 
 						imgurInfo.Dispose();

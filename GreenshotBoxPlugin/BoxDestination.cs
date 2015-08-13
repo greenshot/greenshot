@@ -67,8 +67,8 @@ namespace GreenshotBoxPlugin
 				DestinationDescription = Description
 			};
 			try {
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), (progress, pleaseWaitToken) => {
-					return BoxUtils.UploadToBoxAsync(surface, captureDetails, progress, token);
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+					return await BoxUtils.UploadToBoxAsync(surface, captureDetails, progress, token);
 				});
 
 				if (url != null && _config.AfterUploadLinkToClipBoard) {
