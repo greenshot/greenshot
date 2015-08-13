@@ -35,7 +35,7 @@ namespace Greenshot.Destinations {
 	/// </summary>
 	public class PickerDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(PickerDestination));
-		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		public const string DESIGNATION = "Picker";
 
 		public override string Designation {

@@ -36,7 +36,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class NetworkHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(NetworkHelper));
-		private static readonly CoreConfiguration Config = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static readonly ICoreConfiguration Config = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 
 		static NetworkHelper() {
 			// Disable certificate checking

@@ -38,7 +38,7 @@ namespace GreenshotBoxPlugin
 	public class BoxPlugin : IGreenshotPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
-		private static BoxConfiguration _config;
+		private static IBoxConfiguration _config;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
@@ -78,7 +78,7 @@ namespace GreenshotBoxPlugin
 		/// <param name="pluginAttribute">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the box configuration
-			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<BoxConfiguration>();
+			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IBoxConfiguration>();
 			_resources = new ComponentResourceManager(typeof(BoxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem

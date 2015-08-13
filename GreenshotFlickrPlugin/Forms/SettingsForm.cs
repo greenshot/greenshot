@@ -28,7 +28,7 @@ namespace GreenshotFlickrPlugin {
 	public partial class SettingsForm : FlickrForm {
 		private string flickrFrob = string.Empty;
 
-		public SettingsForm(FlickrConfiguration config) {
+		public SettingsForm(IFlickrConfiguration config) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

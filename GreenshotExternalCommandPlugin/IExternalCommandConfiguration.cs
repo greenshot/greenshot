@@ -32,7 +32,7 @@ namespace ExternalCommand
 	/// Description of FlickrConfiguration.
 	/// </summary>
 	[IniSection("ExternalCommand"), Description("Greenshot ExternalCommand Plugin configuration")]
-	public interface ExternalCommandConfiguration : IIniSection<ExternalCommandConfiguration> {
+	public interface IExternalCommandConfiguration : IIniSection<IExternalCommandConfiguration> {
 		[Description("The commands that are available.")]
 		IList<string> Commands
 		{

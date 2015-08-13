@@ -30,7 +30,7 @@ namespace GreenshotJiraPlugin
 	/// Description of JiraConfiguration.
 	/// </summary>
 	[IniSection("Jira"), Description("Greenshot Jira Plugin configuration")]
-	public interface JiraConfiguration : IIniSection<JiraConfiguration> {
+	public interface IJiraConfiguration : IIniSection<IJiraConfiguration> {
         [Description("Rest Url to Jira system"), DefaultValue("https://jira")]
 		string RestUrl {
 			get;

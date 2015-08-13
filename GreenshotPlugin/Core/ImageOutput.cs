@@ -42,7 +42,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class ImageOutput {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageOutput));
-		private static readonly CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static readonly ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
 		private static Cache<string, string> tmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
 

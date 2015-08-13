@@ -43,7 +43,7 @@ namespace Greenshot.Helpers
 	[Serializable]
 	public class PluginHelper : IGreenshotHost {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginHelper));
-		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 
 		private static string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
 		private static string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
@@ -157,9 +157,9 @@ namespace Greenshot.Helpers
 		/// </summary>
 		/// <param name="imageToImport">Image to handle</param>
 		public void ImportCapture(ICapture captureToImport) {
-			MainForm.Instance.BeginInvoke(new Action(async () => {
+			MainForm.Instance.AsyncInvoke(async () => {
 				await CaptureHelper.ImportCaptureAsync(captureToImport).ConfigureAwait(false);
-			}));
+			});
 		}
 		
 		/// <summary>

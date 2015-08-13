@@ -31,7 +31,7 @@ namespace GreenshotImgurPlugin {
 	/// Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Imgur"), Description("Greenshot Imgur Plugin configuration")]
-	public interface ImgurConfiguration : IIniSection<ImgurConfiguration> {
+	public interface IImgurConfiguration : IIniSection<IImgurConfiguration> {
 		[Description("Url to Imgur API."), DefaultValue("https://api.imgur.com/3")]
 		string ApiUrl {
 			get;

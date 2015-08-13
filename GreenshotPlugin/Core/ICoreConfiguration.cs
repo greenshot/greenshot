@@ -42,14 +42,6 @@ namespace GreenshotPlugin.Core
 	}
 
 	/// <summary>
-	/// Supporting output formats
-	/// </summary>
-	public enum OutputFormat
-	{
-		bmp, gif, jpg, png, tiff, greenshot
-	}
-
-	/// <summary>
 	/// All available window capture modes
 	/// </summary>
 	public enum WindowCaptureMode
@@ -93,7 +85,7 @@ namespace GreenshotPlugin.Core
 	/// Description of CoreConfiguration.
 	/// </summary>
 	[IniSection("Core"), Description("Greenshot core configuration")]
-	public interface CoreConfiguration : IIniSection<CoreConfiguration>, INotifyPropertyChanged, ITagging<CoreConfiguration>
+	public interface ICoreConfiguration : IOutputSettings, IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>
 	{
 		[Description("The language in IETF format (e.g. en-US)")]
 		string Language
@@ -249,34 +241,6 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)"), DefaultValue("png")]
-		OutputFormat OutputFileFormat
-		{
-			get;
-			set;
-		}
-
-		[Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors"), DefaultValue(false)]
-		bool OutputFileReduceColors
-		{
-			get;
-			set;
-		}
-
-		[Description("If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used."), DefaultValue(false)]
-		bool OutputFileAutoReduceColors
-		{
-			get;
-			set;
-		}
-
-		[Description("Amount of colors to reduce to, when reducing"), DefaultValue("256")]
-		int OutputFileReduceColorsTo
-		{
-			get;
-			set;
-		}
-
 		[Description("When saving a screenshot, copy the path to the clipboard?"), DefaultValue(true)]
 		bool OutputFileCopyPathToClipboard
 		{
@@ -286,20 +250,6 @@ namespace GreenshotPlugin.Core
 
 		[Description("SaveAs Full path?")]
 		string OutputFileAsFullpath
-		{
-			get;
-			set;
-		}
-
-		[Description("JPEG file save quality in %."), DefaultValue("80")]
-		int OutputFileJpegQuality
-		{
-			get;
-			set;
-		}
-
-		[Description("Ask for the quality before saving?"), DefaultValue(false)]
-		bool OutputFilePromptQuality
 		{
 			get;
 			set;
@@ -643,20 +593,6 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!"), DefaultValue("")]
-		string OptimizePNGCommand
-		{
-			get;
-			set;
-		}
-
-		[Description("Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot."), DefaultValue("\"{0}\"")]
-		string OptimizePNGCommandArguments
-		{
-			get;
-			set;
-		}
-
 		[Description("Version of Greenshot which created this .ini")]
 		string LastSaveWithVersion
 		{
@@ -791,7 +727,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// This method will be called before writing the configuration
 		/// </summary>
-		public static void BeforeSave(CoreConfiguration coreConfiguration) {
+		public static void BeforeSave(ICoreConfiguration coreConfiguration) {
 			try {
 				// Store version, this can be used later to fix settings after an update
 				coreConfiguration.LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
@@ -827,7 +763,7 @@ namespace GreenshotPlugin.Core
 			return iconSize;
 		}
 
-		public static void AfterLoad(CoreConfiguration coreConfiguration) {
+		public static void AfterLoad(ICoreConfiguration coreConfiguration) {
 			// Comment with releases
 			// CheckForUnstable = true;
 

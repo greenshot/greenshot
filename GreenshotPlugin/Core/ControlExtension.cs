@@ -21,6 +21,7 @@
 
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
+using System;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +31,16 @@ using System.Windows.Forms;
 namespace GreenshotPlugin.Core {
 	public static class ControlExtension {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ControlExtension));
+
+		/// <summary>
+		/// Very simple extention which makes it easier to call BeginInvoke on a control with a lambda
+		/// </summary>
+		/// <param name="control"></param>
+		/// <param name="action">Lambda</param>
+		public static void AsyncInvoke(this Control control, Action action) {
+			control.BeginInvoke(action);
+		}
+
 		/// <summary>
 		/// Waits asynchronously for the Toolstrip to close
 		/// </summary>

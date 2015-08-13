@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -19,32 +19,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
+using GreenshotPlugin.Core;
 using System.ComponentModel;
 
-namespace GreenshotOCR {
+namespace GreenshotDropboxPlugin {
 	/// <summary>
-	/// Description of CoreConfiguration.
+	/// Description of ImgurConfiguration.
 	/// </summary>
-	[IniSection("OCR"), Description("Greenshot OCR Plugin configuration")]
-	public interface OCRConfiguration : IIniSection<OCRConfiguration> {
-		[Description("Language for OCR"), DefaultValue("ENGLISH")]
-		string Language
-		{
+	[IniSection("Dropbox"), Description("Greenshot Dropbox Plugin configuration")]
+	public interface IDropboxConfiguration : IIniSection<IDropboxConfiguration> {
+		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
+		OutputFormat UploadFormat {
 			get;
 			set;
 		}
 
-		[Description("Orient image?"), DefaultValue(true)]
-		bool Orientimage
-		{
+		[Description("JPEG file save quality in %."), DefaultValue(80)]
+		int UploadJpegQuality {
 			get;
 			set;
 		}
 
-		[Description("Straighten image?"), DefaultValue(true)]
-		bool StraightenImage
-		{
+		[Description("After upload send Dropbox link to clipboard."), DefaultValue(true)]
+		bool AfterUploadLinkToClipBoard {
+			get;
+			set;
+		}
+
+		[Description("The Dropbox token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string DropboxToken {
+			get;
+			set;
+		}
+		[Description("The Dropbox token secret"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string DropboxTokenSecret {
 			get;
 			set;
 		}

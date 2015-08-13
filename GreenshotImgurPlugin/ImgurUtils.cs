@@ -39,7 +39,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public static class ImgurUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurUtils));
-		private static ImgurConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ImgurConfiguration>();
+		private static IImgurConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IImgurConfiguration>();
 		private static readonly Uri IMGUR_IMAGES_URI = new Uri("http://api.imgur.com/2/account/images.json");
 		private const string PAGE_URL_PATTERN = "http://imgur.com/{0}";
 		private const string IMAGE_URL_PATTERN = "http://i.imgur.com/{0}.png";

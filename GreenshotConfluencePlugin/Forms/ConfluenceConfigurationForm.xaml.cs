@@ -27,7 +27,7 @@ namespace GreenshotConfluencePlugin {
 	/// Interaction logic for ConfluenceConfigurationForm.xaml
 	/// </summary>
 	public partial class ConfluenceConfigurationForm : Window {
-		private static ConfluenceConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ConfluenceConfiguration>();
+		private static IConfluenceConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IConfluenceConfiguration>();
 		
 		public ConfluenceConfigurationForm() {
 			this.DataContext = config;

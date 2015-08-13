@@ -41,7 +41,7 @@ namespace Greenshot.Destinations
 	/// </summary>
 	public class PrinterDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(PrinterDestination));
-		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		public const string DESIGNATION = "Printer";
 		public string printerName = null;
 

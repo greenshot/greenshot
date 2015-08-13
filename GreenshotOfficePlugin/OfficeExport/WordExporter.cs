@@ -32,7 +32,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 	public class WordExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
 		private static Version _wordVersion;
-		private static readonly OfficeConfiguration Config = IniConfig.Get("Greenshot", "greenshot").Get<OfficeConfiguration>();
+		private static readonly IOfficeConfiguration Config = IniConfig.Get("Greenshot", "greenshot").Get<IOfficeConfiguration>();
 
 		/// <summary>
 		/// Check if the used version is higher than Office 2003

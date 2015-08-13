@@ -48,7 +48,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OCRConfiguration.cs" />
+    <Compile Include="IOCRConfiguration.cs" />
     <Compile Include="OCRDestination.cs" />
     <Compile Include="OCRForm.cs">
       <SubType>Form</SubType>

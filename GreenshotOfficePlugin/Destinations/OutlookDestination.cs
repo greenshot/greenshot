@@ -43,7 +43,7 @@ namespace GreenshotOfficePlugin
 		private const int ICON_MEETING = 2;
 
 		private static Image mailIcon = GreenshotResources.getImage("Email.Image");
-		private static OfficeConfiguration conf = IniConfig.Get("Greenshot", "greenshot").Get<OfficeConfiguration>();
+		private static IOfficeConfiguration conf = IniConfig.Get("Greenshot", "greenshot").Get<IOfficeConfiguration>();
 		private static string exePath = null;
 		private static bool isActiveFlag = false;
 		private static string mapiClient = "Microsoft Outlook";

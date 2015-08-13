@@ -40,8 +40,8 @@ namespace ExternalCommand
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
 		private const string MSPAINT = "MS Paint";
 		private const string PAINTDOTNET = "Paint.NET";
-		private static CoreConfiguration coreConfig;
-		private static ExternalCommandConfiguration config;
+		private static ICoreConfiguration coreConfig;
+		private static IExternalCommandConfiguration config;
 		private PluginAttribute myAttributes;
 		private ToolStripMenuItem itemPlugInRoot;
 
@@ -123,9 +123,9 @@ namespace ExternalCommand
 			var iniConfig = IniConfig.Get("Greenshot", "greenshot");
 
 			// Make sure the defaults are set
-			iniConfig.AfterLoad<ExternalCommandConfiguration>((conf) => AfterLoad(conf));
-			coreConfig = iniConfig.Get<CoreConfiguration>();
-			config = await iniConfig.RegisterAndGetAsync<ExternalCommandConfiguration>();
+			iniConfig.AfterLoad<IExternalCommandConfiguration>((conf) => AfterLoad(conf));
+			coreConfig = iniConfig.Get<ICoreConfiguration>();
+			config = await iniConfig.RegisterAndGetAsync<IExternalCommandConfiguration>();
 
 			IList<string> commandsToDelete = new List<string>();
 			// Check configuration
@@ -217,7 +217,7 @@ namespace ExternalCommand
 		/// </summary>
 		/// <param name="property">The property to return a default for</param>
 		/// <returns>object with the default value for the supplied property</returns>
-		public void AfterLoad(ExternalCommandConfiguration config)
+		public void AfterLoad(IExternalCommandConfiguration config)
 		{
 			if (!config.DefaultsAdded)
 			{

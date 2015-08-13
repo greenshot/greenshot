@@ -37,7 +37,7 @@ namespace GreenshotFlickrPlugin {
 	/// Description of FlickrConfiguration.
 	/// </summary>
 	[IniSection("Flickr"), Description("Greenshot Flickr Plugin configuration")]
-	public interface FlickrConfiguration : IIniSection<FlickrConfiguration> {
+	public interface IFlickrConfiguration : IIniSection<IFlickrConfiguration> {
 		[DataMember(Name = "flickrIsPublic"), Description("IsPublic."), DefaultValue(true)]
 		bool IsPublic {
 			get;

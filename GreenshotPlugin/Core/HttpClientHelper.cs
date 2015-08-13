@@ -42,7 +42,7 @@ namespace GreenshotPlugin.Core {
 	/// Supply the HttpClient "helper" methods as extension methods, if possible.
 	/// </summary>
 	public static class HttpClientHelper {
-		private static readonly CoreConfiguration Config = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static readonly ICoreConfiguration Config = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(HttpClientHelper));
 
 		/// <summary>

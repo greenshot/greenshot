@@ -49,7 +49,7 @@ namespace GreenshotPlugin.Core {
 		private static List<string> unsupportedLanguageGroups = new List<string>();
 		private static IDictionary<string, string> resources = new Dictionary<string, string>();
 		private static string currentLanguage = null;
-		private static CoreConfiguration coreConfig = null;
+		private static ICoreConfiguration coreConfig = null;
 
 		public static event LanguageChangedHandler LanguageChanged;
 
@@ -95,7 +95,7 @@ namespace GreenshotPlugin.Core {
 				LOG.Warn("Couldn't read the installed language groups.", e);
 			}
 
-			coreConfig = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+			coreConfig = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 			ScanFiles();
 			if (!string.IsNullOrEmpty(coreConfig.Language)) {
 				CurrentLanguage = coreConfig.Language;

@@ -85,7 +85,7 @@ namespace GreenshotPlugin.Controls {
 			if (shouldClose) {
 				timer_checkforclose.Stop();
 				if (Visible) {
-					BeginInvoke(new EventHandler(delegate { Close(); }));
+					this.AsyncInvoke(() => Close());
 				}
 			}
 		}

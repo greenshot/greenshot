@@ -71,7 +71,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfluenceConfiguration.cs" />
+    <Compile Include="IConfluenceConfiguration.cs" />
     <Compile Include="ConfluenceDestination.cs" />
     <Compile Include="ConfluencePlugin.cs" />
     <Compile Include="ConfluenceUtils.cs" />

@@ -381,33 +381,6 @@ namespace GreenshotPlugin.OAuth {
 		/// Submit a web request using oAuth.
 		/// </summary>
 		/// <param name="method">GET or POST</param>
-		/// <param name="requestUri">The full url, including the querystring for the signing/request</param>
-		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
-		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
-		/// <param name="postData">Data to post (MemoryStream)</param>
-		/// <returns>The web server response.</returns>
-		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri requestUri, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return await MakeOAuthRequest(method, requestUri, requestUri, null, parametersToSign, additionalParameters, postData).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// Submit a web request using oAuth.
-		/// </summary>
-		/// <param name="method">GET or POST</param>
-		/// <param name="signUri">The full url, including the querystring for the signing</param>
-		/// <param name="requestUri">The full url, including the querystring for the request</param>
-		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
-		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
-		/// <param name="postData">Data to post (MemoryStream)</param>
-		/// <returns>The web server response.</returns>
-		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return await MakeOAuthRequest(method, signUri, requestUri, null, parametersToSign, additionalParameters, postData).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// Submit a web request using oAuth.
-		/// </summary>
-		/// <param name="method">GET or POST</param>
 		/// <param name="signUri">The full url, including the querystring for the signing</param>
 		/// <param name="requestUri">The full url, including the querystring for the request</param>
 		/// <param name="headers">Headers for the request</param>
@@ -415,7 +388,7 @@ namespace GreenshotPlugin.OAuth {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
+		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, string> headers = null, IDictionary<string, object> parametersToSign = null, IDictionary<string, object> additionalParameters = null, IBinaryContainer postData = null) {
 			if (parametersToSign == null) {
 				parametersToSign = new Dictionary<string, object>();
 			}

@@ -38,7 +38,7 @@ namespace GreenshotFlickrPlugin
 	/// </summary>
 	public class FlickrPlugin : IGreenshotPlugin {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrPlugin));
-		private static FlickrConfiguration _config;
+		private static IFlickrConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
@@ -76,7 +76,7 @@ namespace GreenshotFlickrPlugin
 		/// <param name="pluginAttribute">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the flickr configuration
-			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<FlickrConfiguration>();
+			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IFlickrConfiguration>();
 			_host = pluginHost;
 			Attributes = pluginAttributes;
 

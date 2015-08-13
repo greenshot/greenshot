@@ -82,7 +82,7 @@ namespace Greenshot.Drawing {
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 				graphics.CompositingQuality = CompositingQuality.Default;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.None;
 				graphics.DrawIcon(icon, Bounds);
 			}
 		}

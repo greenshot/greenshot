@@ -74,7 +74,7 @@
     <Compile Include="ImgurDestination.cs" />
     <Compile Include="ImgurInfo.cs" />
     <Compile Include="ImgurPlugin.cs" />
-    <Compile Include="ImgurConfiguration.cs" />
+    <Compile Include="IImgurConfiguration.cs" />
     <Compile Include="ImgurUtils.cs" />
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -69,7 +69,8 @@ namespace Greenshot.Drawing {
 						int steps = 5;
 						int currentStep = 1;
 						while (currentStep <= steps) {
-							using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
+							var shadowColor = Color.FromArgb(alpha, 100, 100, 100);
+							using (Pen shadowCapPen = new Pen(shadowColor, lineThickness)) {
 								SetArrowHeads(heads, shadowCapPen);
 
 								graphics.DrawLine(shadowCapPen,

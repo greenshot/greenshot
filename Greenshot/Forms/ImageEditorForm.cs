@@ -50,7 +50,7 @@ namespace Greenshot {
 	/// </summary>
 	public partial class ImageEditorForm : BaseForm, IImageEditor {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageEditorForm));
-		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<EditorConfiguration>();
+		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<IEditorConfiguration>();
 		private static List<string> ignoreDestinations = new List<string>() { PickerDestination.DESIGNATION, EditorDestination.DESIGNATION };
 		private static List<IImageEditor> editorList = new List<IImageEditor>();
 
@@ -96,7 +96,7 @@ namespace Greenshot {
 
 			Load += (sender, eventArgs) => {
 				// Create export buttons via dispatcher
-				BeginInvoke(new Action(() => {
+				this.AsyncInvoke(async () => {
 					foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
 						if (destination.Priority <= 2) {
 							continue;
@@ -114,7 +114,7 @@ namespace Greenshot {
 							LOG.Warn("Exception: ", addingException);
 						}
 					}
-				}));
+				});
 			};
 
 			// Events
@@ -480,14 +480,6 @@ namespace Greenshot {
 
 		#region plugin interfaces
 		
-		/**
-		 * Interfaces for plugins, see GreenshotInterface for more details!
-		 */
-		
-		public Image GetImageForExport() {
-			return surface.GetImageForExport();
-		}
-		
 		public ICaptureDetails CaptureDetails {
 			get { return surface.CaptureDetails; }
 		}
@@ -520,9 +512,9 @@ namespace Greenshot {
 
 		void BtnPrintClick(object sender, EventArgs e) {
 			// The BeginInvoke is a solution for the printdialog not having focus
-			BeginInvoke(new Action(async () => {
+			this.AsyncInvoke(async () => {
 				await DestinationHelper.ExportCaptureAsync(true, PrinterDestination.DESIGNATION, surface, surface.CaptureDetails);
-			}));
+			});
 		}
 
 		void CloseToolStripMenuItemClick(object sender, EventArgs e) {
@@ -905,10 +897,10 @@ namespace Greenshot {
 					}
 
 					if (destination.EditorShortcutKeys == keys) {
-						BeginInvoke(new Action(async () =>
+						this.AsyncInvoke(async () =>
 						{
 							await destination.ExportCaptureAsync(true, surface, surface.CaptureDetails).ConfigureAwait(false);
-						}));
+						});
 						return true;
 					}
 				}

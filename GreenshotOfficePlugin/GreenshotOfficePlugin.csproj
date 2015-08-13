@@ -109,7 +109,7 @@
     <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\WordDestination.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="OfficeConfiguration.cs" />
+    <Compile Include="IOfficeConfiguration.cs" />
     <Compile Include="OfficeExport\OfficeVersion.cs" />
     <Compile Include="OfficePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

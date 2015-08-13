@@ -57,7 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DropBoxCredentials.cs" />
-    <Compile Include="DropboxPluginConfiguration.cs" />
+    <Compile Include="IDropboxConfiguration.cs" />
     <Compile Include="DropboxDestination.cs" />
     <Compile Include="DropboxPlugin.cs" />
     <Compile Include="DropboxUtils.cs" />

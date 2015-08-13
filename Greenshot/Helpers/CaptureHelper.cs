@@ -45,7 +45,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class CaptureHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureHelper));
-		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
 		private WindowDetails _selectedCaptureWindow;
@@ -466,26 +466,22 @@ namespace Greenshot.Helpers
 				// TODO: do not return when Windows 10???
 				return result;
 			}
-			LOG.Debug("start retrieving WindowDetails");
-			await Task.Factory.StartNew(() => {
+			await Task.Run(() => {
+				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
+				int goLevelDeep = conf.WindowCaptureAllChildLocations ? 20 : 3;
 				var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
 									 where window.Visible && (window.WindowRectangle.Width != 0 && window.WindowRectangle.Height != 0)
 									 select window;
 
 				// Start Enumeration of "active" windows
 				foreach (var window in visibleWindows) {
-					LOG.DebugFormat("Adding {0}", window);
 					// Make sure the details are retrieved once
 					window.FreezeDetails();
 
-					// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
-					int goLevelDeep = conf.WindowCaptureAllChildLocations ? 20 : 3;
 					window.GetChildren(goLevelDeep);
 					result.Add(window);
 				}
-			}, token, TaskCreationOptions.None, TaskScheduler.Default).ConfigureAwait(false);
-
-			LOG.Debug("end retrieving WindowDetails");
+			}, token).ConfigureAwait(false);
 			return result;
 		}
 

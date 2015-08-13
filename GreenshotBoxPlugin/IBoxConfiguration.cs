@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -19,28 +19,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
+using System;
 using System.ComponentModel;
+using System.Windows.Forms;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotBoxPlugin {
 	/// <summary>
-	/// Description of ConfluenceConfiguration.
+	/// Description of ImgurConfiguration.
 	/// </summary>
-	[IniSection("Confluence"), Description("Greenshot Confluence Plugin configuration")]
-	public interface ConfluenceConfiguration : IIniSection<ConfluenceConfiguration>, INotifyPropertyChanged {
-		[Description("Rest Url to Jira system"), DefaultValue("https://confluence")]
-		string RestUrl {
-			get;
-			set;
-		}
-
-		[Description("Session timeout in minutes"), DefaultValue("30")]
-		int Timeout {
-			get;
-			set;
-		}
-
+	[IniSection("Box"), Description("Greenshot Box Plugin configuration")]
+	public interface IBoxConfiguration : IIniSection<IBoxConfiguration> {
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat {
 			get;
@@ -53,35 +44,44 @@ namespace GreenshotConfluencePlugin {
 			set;
 		}
 
-		[Description("Reduce color amount of the uploaded image to 256"), DefaultValue(false)]
-		bool UploadReduceColors {
+		[Description("After upload send Box link to clipboard."), DefaultValue(true)]
+		bool AfterUploadLinkToClipBoard {
 			get;
 			set;
 		}
 
-		[Description("Pattern for the filename that is used for uploading to Confluence"), DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title:s0,10}")]
-		string FilenamePattern {
+		[Description("Use the shared link, instead of the private, on the clipboard"), DefaultValue(true)]
+		bool UseSharedLink {
 			get;
 			set;
 		}
 
-		[Description("Open the page where the picture is uploaded after upload"), DefaultValue(true)]
-		bool OpenPageAfterUpload {
+		[Description("Folder ID to upload to, only change if you know what you are doing!"), DefaultValue("0")]
+		string FolderId {
 			get;
 			set;
 		}
-		[Description("Copy the Wikimarkup for the recently uploaded image to the Clipboard"), DefaultValue(true)]
-		bool CopyWikiMarkupForImageToClipboard {
+
+		[Description("Box authorization refresh Token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
+		string RefreshToken {
 			get;
 			set;
 		}
-		[Description("Key of last space that was searched for")]
-		string SearchSpaceKey {
+
+		/// <summary>
+		/// Not stored
+		/// </summary>
+		[IniPropertyBehavior(Read = false, Write = false)]
+		string AccessToken {
 			get;
 			set;
 		}
-		[Description("Include personal spaces in the search & browse spaces list"), DefaultValue(false)]
-		bool IncludePersonSpaces {
+
+		/// <summary>
+		/// Not stored
+		/// </summary>
+		[IniPropertyBehavior(Read = false, Write = false)]
+		DateTimeOffset AccessTokenExpires {
 			get;
 			set;
 		}

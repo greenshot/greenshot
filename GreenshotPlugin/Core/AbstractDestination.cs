@@ -38,7 +38,7 @@ namespace GreenshotPlugin.Core
 	public abstract class AbstractDestination : IDestination
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
-		private static readonly CoreConfiguration configuration = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static readonly ICoreConfiguration configuration = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 
 		public virtual int CompareTo(object obj)
 		{
@@ -193,9 +193,12 @@ namespace GreenshotPlugin.Core
 
 			do
 			{
+				var taskCompletionSource = new TaskCompletionSource<object>();
 				// Create menu, and show it
 				using (var menu = new ContextMenuStrip())
 				{
+					menu.Closed += (sender, args) => taskCompletionSource.TrySetResult(null);
+
 					menu.ImageScalingSize = configuration.IconSize;
 					menu.Closing += (source, eventArgs) => {
 						LOG.DebugFormat("Menu closing event with reason {0}", eventArgs.CloseReason);
@@ -204,6 +207,8 @@ namespace GreenshotPlugin.Core
 							case ToolStripDropDownCloseReason.Keyboard:
 								exit = true;
 								canExitSemaphore.Release();
+								eventArgs.Cancel = true;
+								taskCompletionSource.TrySetResult(null);
 								break;
 							case ToolStripDropDownCloseReason.AppFocusChange:
 								eventArgs.Cancel = true;
@@ -253,8 +258,11 @@ namespace GreenshotPlugin.Core
 							menu.Items.Add(item);
 						}
 					}
+					// Add separator, enabled = false so we can't click it.
+					menu.Items.Add(new ToolStripSeparator {
+						Enabled = false
+					});
 					//  Add Close item
-					menu.Items.Add(new ToolStripSeparator());
 					var closeItem = new ToolStripMenuItem
 					{
 						Text = Language.GetString("editor_close"),
@@ -268,7 +276,7 @@ namespace GreenshotPlugin.Core
 					menu.Items.Add(closeItem);
 
 					menu.ShowAtCursor();
-					await menu.WaitForClosedAsync(token);
+					await taskCompletionSource.Task;
 					// Await the can exit semaphore
 					await canExitSemaphore.WaitAsync(token);
 				}

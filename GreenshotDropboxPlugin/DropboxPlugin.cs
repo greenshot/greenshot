@@ -37,7 +37,7 @@ namespace GreenshotDropboxPlugin {
 	/// </summary>
 	public class DropboxPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
-		private static DropboxPluginConfiguration config;
+		private static IDropboxConfiguration config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost host;
 		private ComponentResourceManager resources;
@@ -76,7 +76,7 @@ namespace GreenshotDropboxPlugin {
 		/// <param name="pluginAttribute">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the dropbox configuration
-			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<DropboxPluginConfiguration>();
+			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IDropboxConfiguration>();
 			this.host = (IGreenshotHost)pluginHost;
 			Attributes = pluginAttributes;
 

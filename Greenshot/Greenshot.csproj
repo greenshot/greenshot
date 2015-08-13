@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Configuration\EditorConfiguration.cs" />
+    <Compile Include="Configuration\IEditorConfiguration.cs" />
     <Compile Include="Configuration\LanguageKeys.cs" />
     <Compile Include="Controls\BindableToolStripComboBox.cs">
       <SubType>Component</SubType>

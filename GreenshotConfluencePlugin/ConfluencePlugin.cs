@@ -36,7 +36,7 @@ namespace GreenshotConfluencePlugin
 	/// </summary>
 	public class ConfluencePlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
-		private static ConfluenceConfiguration _config;
+		private static IConfluenceConfiguration _config;
 		private static ConfluenceAPI _confluenceApi;
 
 		public void Dispose() {
@@ -65,7 +65,7 @@ namespace GreenshotConfluencePlugin
 		/// <param name="myAttributes">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the confluence configuration
-			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<ConfluenceConfiguration>();
+			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IConfluenceConfiguration>();
 			try {
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
 				//resources = new ComponentResourceManager(typeof(ConfluencePlugin));

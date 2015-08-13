@@ -35,7 +35,7 @@ namespace GreenshotDropboxPlugin
 {
 	class DropboxDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxDestination));
-		private static DropboxPluginConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<DropboxPluginConfiguration>();
+		private static IDropboxConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<IDropboxConfiguration>();
 
 		private DropboxPlugin plugin = null;
 		public DropboxDestination(DropboxPlugin plugin) {

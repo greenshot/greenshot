@@ -42,7 +42,7 @@ namespace GreenshotJiraPlugin
 	/// </summary>
 	public class JiraDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
-		private static JiraConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<JiraConfiguration>();
+		private static IJiraConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IJiraConfiguration>();
 		private JiraPlugin _jiraPlugin = null;
 		private JiraDetails _jira = null;
 

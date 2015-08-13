@@ -32,7 +32,7 @@ namespace Greenshot.Configuration {
 	/// Description of CoreConfiguration.
 	/// </summary>
 	[IniSection("Editor"), Description("Greenshot editor configuration")]
-	public interface EditorConfiguration : IIniSection<EditorConfiguration>, INotifyPropertyChanged {
+	public interface IEditorConfiguration : IIniSection<IEditorConfiguration>, INotifyPropertyChanged {
 		[Description("Last used colors")]
 		IList<Color> RecentColors {
 			get;

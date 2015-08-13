@@ -38,7 +38,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public class ImgurDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
-		private static ImgurConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ImgurConfiguration>();
+		private static IImgurConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IImgurConfiguration>();
 		private ImgurPlugin plugin = null;
 
 		public ImgurDestination(ImgurPlugin plugin) {

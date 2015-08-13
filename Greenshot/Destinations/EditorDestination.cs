@@ -36,7 +36,7 @@ namespace Greenshot.Destinations {
 	/// </summary>
 	public class EditorDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<EditorConfiguration>();
+		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<IEditorConfiguration>();
 		public const string DESIGNATION = "Editor";
 		private IImageEditor editor = null;
 		private static Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();

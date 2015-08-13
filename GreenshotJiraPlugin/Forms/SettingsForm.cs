@@ -36,7 +36,7 @@ namespace GreenshotJiraPlugin {
 			}
 		}
 
-		public SettingsForm(JiraConfiguration config) :base () {
+		public SettingsForm(IJiraConfiguration config) :base () {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

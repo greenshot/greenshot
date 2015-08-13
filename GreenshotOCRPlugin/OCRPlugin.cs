@@ -63,7 +63,7 @@ namespace GreenshotOCR {
 	public class OcrPlugin : IGreenshotPlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
 		private string _ocrCommand;
-		private static OCRConfiguration _config;
+		private static IOCRConfiguration _config;
 		private PluginAttribute _myAttributes;
 		private System.Windows.Forms.ToolStripMenuItem _ocrMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 
@@ -111,7 +111,7 @@ namespace GreenshotOCR {
 				return false;
 			}
 			// Register / get the ocr configuration
-			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<OCRConfiguration>(token);
+			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IOCRConfiguration>(token);
 			
 			if (_config.Language != null) {
 				_config.Language = _config.Language.Replace("miLANG_","").Replace("_"," ");

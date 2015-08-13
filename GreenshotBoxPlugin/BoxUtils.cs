@@ -42,7 +42,7 @@ namespace GreenshotBoxPlugin
 	/// </summary>
 	public static class BoxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxUtils));
-		private static readonly BoxConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<BoxConfiguration>();
+		private static readonly IBoxConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<IBoxConfiguration>();
 		private static readonly Uri UploadFileUri = new Uri("https://upload.box.com/api/2.0/files/content");
 		private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
 

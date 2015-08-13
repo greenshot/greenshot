@@ -37,7 +37,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public class ImgurPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
-		private static ImgurConfiguration config;
+		private static IImgurConfiguration config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
@@ -78,7 +78,7 @@ namespace GreenshotImgurPlugin
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the imgur configuration
-			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<ImgurConfiguration>();
+			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IImgurConfiguration>();
 
 			_host = (IGreenshotHost)pluginHost;
 			Attributes = pluginAttributes;

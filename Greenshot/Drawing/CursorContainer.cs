@@ -90,7 +90,6 @@ namespace Greenshot.Drawing {
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.Default;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
-			graphics.CompositingMode = CompositingMode.SourceCopy;
 			cursor.DrawStretched(graphics, Bounds);
 		}
 

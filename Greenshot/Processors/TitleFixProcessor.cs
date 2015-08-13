@@ -34,7 +34,7 @@ namespace Greenshot.Processors
 	/// </summary>
 	public class TitleFixProcessor : AbstractProcessor {
 		private static ILog LOG = LogManager.GetLogger(typeof(TitleFixProcessor));
-		private static CoreConfiguration config = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration config = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		
 		public TitleFixProcessor() {
 			IList<string> corruptKeys = new List<string>();

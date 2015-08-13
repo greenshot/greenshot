@@ -82,7 +82,7 @@
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="JiraAPI.cs" />
-    <Compile Include="JiraConfiguration.cs" />
+    <Compile Include="IJiraConfiguration.cs" />
     <Compile Include="JiraDestination.cs" />
     <Compile Include="JiraDetails.cs" />
     <Compile Include="JiraMonitor.cs" />

@@ -38,7 +38,7 @@ namespace Greenshot.Destinations {
 	/// </summary>
 	public class FileDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(FileDestination));
-		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		public const string DESIGNATION = "FileNoDialog";
 
 		public override string Designation {

@@ -37,7 +37,7 @@ namespace Greenshot
 	/// </summary>
 	public partial class ColorDialog : BaseForm {
 		private static ColorDialog uniqueInstance;
-		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<EditorConfiguration>();
+		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<IEditorConfiguration>();
 
 		private ColorDialog() {
 			SuspendLayout();

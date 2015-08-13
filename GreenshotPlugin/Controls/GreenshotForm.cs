@@ -37,7 +37,7 @@ namespace GreenshotPlugin.Controls {
 	public class GreenshotForm : Form, IGreenshotLanguageBindable {
 		private static ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
 		protected static IniConfig iniConfig;
-		protected static CoreConfiguration coreConfiguration;
+		protected static ICoreConfiguration coreConfiguration;
 		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
 		private bool _isDesignModeLanguageSet = false;

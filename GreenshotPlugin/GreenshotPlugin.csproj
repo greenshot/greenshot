@@ -93,6 +93,7 @@
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\HttpClientHelper.cs" />
+    <Compile Include="Core\IOutputSettings.cs" />
     <Compile Include="Core\PortableHelper.cs" />
     <Compile Include="Core\ProcessExtensions.cs" />
     <Compile Include="Core\ProgressStream.cs" />
@@ -191,7 +192,7 @@
     <Compile Include="Core\BinaryStructHelper.cs" />
     <Compile Include="Core\Cache.cs" />
     <Compile Include="Core\ClipboardHelper.cs" />
-    <Compile Include="Core\CoreConfiguration.cs" />
+    <Compile Include="Core\ICoreConfiguration.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
     <Compile Include="Core\Effects.cs" />
     <Compile Include="Core\StringExtensions.cs" />

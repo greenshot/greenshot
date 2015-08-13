@@ -48,7 +48,7 @@ namespace Greenshot.Drawing.Fields
 		enum Status {IDLE, BINDING, UPDATING};
 		
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FieldAggregator));
-		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<EditorConfiguration>();
+		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<IEditorConfiguration>();
 
 		public FieldAggregator() {
 			foreach(FieldType fieldType in FieldType.Values) {

@@ -35,7 +35,7 @@ namespace Greenshot.Drawing.Fields {
 	[Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
-		private static EditorConfiguration editorConfiguration = IniConfig.Get("Greenshot","greenshot").Get<EditorConfiguration>();
+		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot","greenshot").Get<IEditorConfiguration>();
 
 		/// <summary>
 		/// called when a field's value has changed

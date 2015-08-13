@@ -95,7 +95,7 @@ namespace GreenshotOfficePlugin
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken())
 		{
 			// Register the office configuration
-			await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<OfficeConfiguration>();
+			await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IOfficeConfiguration>();
 			return true;
 		}
 

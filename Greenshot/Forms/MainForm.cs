@@ -90,7 +90,7 @@ namespace Greenshot.Forms
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 			iniConfig = new IniConfig("Greenshot", "greenshot", iniDirectory);
 			// Register method to fix some values
-			iniConfig.AfterLoad<CoreConfiguration>((coreConfig) => CoreConfigurationChecker.AfterLoad(coreConfig));
+			iniConfig.AfterLoad<ICoreConfiguration>((coreConfig) => CoreConfigurationChecker.AfterLoad(coreConfig));
 
 			// Init Log4NET
 			LogFileLocation = LogHelper.InitializeLog4NET();
@@ -99,8 +99,8 @@ namespace Greenshot.Forms
 
 			// Read configuration
 			Task.Run(async () => {
-				coreConfiguration = await iniConfig.RegisterAndGetAsync<CoreConfiguration>();
-				await iniConfig.RegisterAndGetAsync<EditorConfiguration>();
+				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
+				await iniConfig.RegisterAndGetAsync<IEditorConfiguration>();
 			}).Wait();
 
 			// Log the startup
@@ -848,9 +848,9 @@ namespace Greenshot.Forms
 			var allScreensBounds = WindowCapture.GetScreenBounds();
 
 			captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
-			captureScreenItem.Click += delegate
+			captureScreenItem.Click += (item, eventArgs) =>
 			{
-				BeginInvoke(new Action(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen)));
+				this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen));
 			};
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			foreach (var screen in Screen.AllScreens)
@@ -874,9 +874,9 @@ namespace Greenshot.Forms
 					deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
 				}
 				captureScreenItem = new ToolStripMenuItem(deviceAlignment);
-				captureScreenItem.Click += delegate
+				captureScreenItem.Click += (item, eventArgs) =>
 				{
-					BeginInvoke(new Action(async () => await CaptureHelper.CaptureRegionAsync(false, screenToCapture.Bounds)));
+					this.AsyncInvoke(async () => await CaptureHelper.CaptureRegionAsync(false, screenToCapture.Bounds));
 				};
 				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			}
@@ -974,7 +974,7 @@ namespace Greenshot.Forms
 
 		void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			BeginInvoke(new Action(async () => await CaptureHelper.CaptureRegionAsync(false)));
+			this.AsyncInvoke(async () => await CaptureHelper.CaptureRegionAsync(false));
 		}
 
 		async void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
@@ -984,28 +984,28 @@ namespace Greenshot.Forms
 
 		void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			BeginInvoke((MethodInvoker)(() => CaptureFile()));
+			this.AsyncInvoke(() => CaptureFile());
 		}
 
 		void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			BeginInvoke(new Action(async () => await CaptureHelper.CaptureFullscreenAsync(false, coreConfiguration.ScreenCaptureMode)));
+			this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, coreConfiguration.ScreenCaptureMode));
 		}
 
 		void Contextmenu_capturelastregionClick(object sender, EventArgs e)
 		{
-			BeginInvoke(new Action(async () => await CaptureHelper.CaptureLastRegionAsync(false)));
+			this.AsyncInvoke(async () => await CaptureHelper.CaptureLastRegionAsync(false));
 		}
 
 		void Contextmenu_capturewindow_Click(object sender, EventArgs e)
 		{
-			BeginInvoke(new Action(async () => await CaptureHelper.CaptureWindowInteractiveAsync(false)));
+			this.AsyncInvoke(async () => await CaptureHelper.CaptureWindowInteractiveAsync(false));
 		}
 
 		void Contextmenu_capturewindowfromlist_Click(object sender, EventArgs e)
 		{
 			var clickedItem = (ToolStripMenuItem)sender;
-			BeginInvoke(new Action(async () => 
+			this.AsyncInvoke(async () => 
 			{
 				try
 				{
@@ -1016,7 +1016,7 @@ namespace Greenshot.Forms
 				{
 					LOG.Error(exception);
 				}
-			}));
+			});
 		}
 
 		void Contextmenu_captureie_Click(object sender, EventArgs e)
@@ -1066,7 +1066,7 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		void Contextmenu_donateClick(object sender, EventArgs e)
 		{
-			BeginInvoke((MethodInvoker)(() => Process.Start("http://getgreenshot.org/support/")));
+			this.AsyncInvoke(async () => Process.Start("http://getgreenshot.org/support/"));
 		}
 
 		/// <summary>
@@ -1076,7 +1076,7 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		void Contextmenu_settingsClick(object sender, EventArgs e)
 		{
-			BeginInvoke((MethodInvoker)(() => ShowSetting()));
+			this.AsyncInvoke(async () => ShowSetting());
 		}
 
 		/// <summary>
@@ -1450,10 +1450,10 @@ namespace Greenshot.Forms
 					ShowSetting();
 					break;
 				case ClickActions.SHOW_CONTEXT_MENU:
-					BeginInvoke(new Action( () => {
+					this.AsyncInvoke(async () => {
 						MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
 						oMethodInfo.Invoke(notifyIcon, null);
-					}));
+					});
 					break;
 				case ClickActions.CAPTURE_REGION:
 					CaptureRegion(token);
@@ -1531,7 +1531,7 @@ namespace Greenshot.Forms
 			{
 				var form = formLV;	// Capture the loop variable for the lambda
 				LOG.InfoFormat("Closing form: {0}", form.Name);
-				BeginInvoke(new Action(() => form.Close()));
+				this.AsyncInvoke(() => form.Close());
 			}
 
 			// Make sure hotkeys are disabled

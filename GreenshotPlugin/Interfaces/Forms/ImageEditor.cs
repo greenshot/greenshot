@@ -35,14 +35,6 @@ namespace Greenshot.Plugin {
 		}
 
 		/// <summary>
-		/// Get the current Image from the Editor for Exporting (save/upload etc)
-		/// This is actually a wrapper which calls Surface.GetImageForExport().
-		/// Don't forget to call image.Dispose() when finished!!!
-		/// </summary>
-		/// <returns>Bitmap</returns>
-		Image GetImageForExport();
-		
-		/// <summary>
 		/// Get the ToolStripMenuItem where plugins can place their Menu entrys
 		/// </summary>
 		/// <returns>ToolStripMenuItem</returns>

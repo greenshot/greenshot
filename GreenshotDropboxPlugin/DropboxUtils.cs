@@ -34,7 +34,7 @@ namespace GreenshotDropboxPlugin {
 	/// </summary>
 	public class DropboxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxUtils));
-		private static DropboxPluginConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<DropboxPluginConfiguration>();
+		private static IDropboxConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IDropboxConfiguration>();
 
 		private DropboxUtils() {
 		}
@@ -52,7 +52,7 @@ namespace GreenshotDropboxPlugin {
 
 			try {
 				SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-				string uploadResponse = await oAuth.MakeOAuthRequest(HttpMethod.Post, new Uri("https://api-content.dropbox.com/1/files_put/sandbox/" + Uri.EscapeDataString(filename)), null, null, imageToUpload);
+				string uploadResponse = await oAuth.MakeOAuthRequest(HttpMethod.Post, new Uri("https://api-content.dropbox.com/1/files_put/sandbox/" + Uri.EscapeDataString(filename)), null, null, null, null, imageToUpload);
 				LOG.DebugFormat("Upload response: {0}", uploadResponse);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
@@ -68,7 +68,7 @@ namespace GreenshotDropboxPlugin {
 
 			// Try to get a URL to the uploaded image
 			try {
-				string responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, new Uri("https://api.dropbox.com/1/shares/sandbox/" + Uri.EscapeDataString(filename)), null, null, null);
+				string responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, new Uri("https://api.dropbox.com/1/shares/sandbox/" + Uri.EscapeDataString(filename)), null);
 				if (responseString != null) {
 					LOG.DebugFormat("Parsing output: {0}", responseString);
 					var result = DynamicJson.Parse(responseString);

@@ -38,7 +38,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class PrintHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PrintHelper));
-		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 
 		private ISurface surface;
 		private ICaptureDetails captureDetails;

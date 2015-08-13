@@ -37,7 +37,7 @@ namespace Greenshot.Experimental {
 	/// </summary>
 	public static class UpdateHelper {
 		private static ILog LOG = LogManager.GetLogger(typeof(UpdateHelper));
-		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		private const string STABLE_DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
 		private const string VERSION_HISTORY_LINK = "http://getgreenshot.org/version-history/";
 		private static AsyncLock _asyncLock = new AsyncLock();
@@ -84,11 +84,11 @@ namespace Greenshot.Experimental {
 					latestGreenshot = null;
 					await ProcessRSSInfoAsync(currentVersion).ConfigureAwait(false);
 					if (latestGreenshot != null) {
-						MainForm.Instance.BeginInvoke( new Action(() => {
+						MainForm.Instance.AsyncInvoke(() => {
 							MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
 							MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
 							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, "'" + latestGreenshot.File + "'"), ToolTipIcon.Info);
-						}));
+						});
 					}
 					conf.LastUpdateCheck = DateTimeOffset.Now;
 				} catch (Exception e) {

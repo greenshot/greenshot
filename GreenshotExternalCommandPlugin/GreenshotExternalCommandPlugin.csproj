@@ -56,7 +56,7 @@
     <Compile Include="ExternalCommandPlugin.cs" />
     <Compile Include="IconCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ExternalCommandConfiguration.cs" />
+    <Compile Include="IExternalCommandConfiguration.cs" />
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>

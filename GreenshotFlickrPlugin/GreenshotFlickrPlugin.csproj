@@ -69,7 +69,7 @@
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FlickrPlugin.cs" />
-    <Compile Include="FlickrConfiguration.cs" />
+    <Compile Include="IFlickrConfiguration.cs" />
     <Compile Include="FlickrUtils.cs" />
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

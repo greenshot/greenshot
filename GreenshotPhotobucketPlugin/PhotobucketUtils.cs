@@ -78,7 +78,7 @@ namespace GreenshotPhotobucketPlugin {
 			try {
 				var signUri = new Uri("http://api.photobucket.com/album/!/upload");
 				var requestUri = new Uri("http://api.photobucket.com/album/!/upload".Replace("api.photobucket.com", config.SubDomain));
-				responseString = await oAuth.MakeOAuthRequest(HttpMethod.Post, signUri, requestUri, signedParameters, unsignedParameters, null);
+				responseString = await oAuth.MakeOAuthRequest(HttpMethod.Post, signUri, requestUri, null, signedParameters, unsignedParameters);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw;
@@ -160,7 +160,7 @@ namespace GreenshotPhotobucketPlugin {
 			try {
 				var signUri = new Uri(string.Format("http://api.photobucket.com/album/{0}", config.Username));
 				var requestUri = new Uri(string.Format("http://api.photobucket.com/album/{0}".Replace("api.photobucket.com", config.SubDomain), config.Username));
-				responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, signUri, requestUri, signedParameters, null, null);
+				responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, signUri, requestUri, null, signedParameters);
 			} catch (Exception ex) {
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw;

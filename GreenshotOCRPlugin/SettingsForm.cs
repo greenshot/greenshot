@@ -25,9 +25,9 @@ namespace GreenshotOCR {
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : OCRForm {
-		private OCRConfiguration config;
+		private IOCRConfiguration config;
 
-		public SettingsForm(string [] languages, OCRConfiguration config) {
+		public SettingsForm(string [] languages, IOCRConfiguration config) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

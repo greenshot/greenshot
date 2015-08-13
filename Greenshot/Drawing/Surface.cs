@@ -51,7 +51,7 @@ namespace Greenshot.Drawing {
 	public class Surface : Control, ISurface {
 		private static ILog LOG = LogManager.GetLogger(typeof(Surface));
 		public static int Count = 0;
-		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 
 		// Property to identify the Surface ID
 		private Guid _uniqueId = Guid.NewGuid();
@@ -1194,10 +1194,10 @@ namespace Greenshot.Drawing {
 			// otherwise we would have a problem drawing the image to the surface... :(
 			using (Graphics graphics = Graphics.FromImage(clone)) {
 				// Do not set the following, the containers need to decide themselves
-				//graphics.SmoothingMode = SmoothingMode.HighQuality;
-				//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				//graphics.CompositingQuality = CompositingQuality.HighQuality;
-				//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				_elements.Draw(graphics, clone, renderMode, new Rectangle(Point.Empty, clone.Size));
 			}
 			return clone;

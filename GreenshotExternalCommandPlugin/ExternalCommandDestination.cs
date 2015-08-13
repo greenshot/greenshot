@@ -39,7 +39,7 @@ namespace ExternalCommand
 	public class ExternalCommandDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
 		private static Regex URI_REGEXP = new Regex(@"(file|ftp|gopher|https?|ldap|mailto|net\.pipe|net\.tcp|news|nntp|telnet|uuid):((((?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
-		private static ExternalCommandConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<ExternalCommandConfiguration>();
+		private static IExternalCommandConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IExternalCommandConfiguration>();
 		private string presetCommand;
 		
 		public ExternalCommandDestination(string commando) {

@@ -38,7 +38,7 @@ namespace GreenshotFlickrPlugin
 	/// </summary>
 	public class FlickrUtils {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrUtils));
-		private static FlickrConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<FlickrConfiguration>();
+		private static IFlickrConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IFlickrConfiguration>();
 		private const string FLICKR_API_BASE_URL = "https://api.flickr.com/services/";
 		private static readonly Uri FLICKR_UPLOAD_URI = new Uri(FLICKR_API_BASE_URL + "upload/");
 		// OAUTH
@@ -92,14 +92,14 @@ namespace GreenshotFlickrPlugin
 				signedParameters.Add("format", "json");
 				signedParameters.Add("safety_level", string.Format("{0}", (int)config.SafetyLevel));
 				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
-				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
-				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-				string response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_UPLOAD_URI, signedParameters, otherParameters, null);
+				IDictionary<string, object> unsignedParameters = new Dictionary<string, object>();
+				unsignedParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
+				string response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_UPLOAD_URI, null, null, signedParameters, unsignedParameters);
 				string photoId = DynamicJson.Parse(response).photoid;
 
 				// Get Photo Info
 				signedParameters = new Dictionary<string, object> { { "photo_id", photoId }, { "format", "json" } };
-				response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, signedParameters, null, null);
+				response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, null, null, signedParameters);
 				var photoInfo = DynamicJson.Parse(response);
 				if (config.UsePageLink) {
 					return photoInfo.url;

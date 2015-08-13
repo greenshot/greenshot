@@ -36,7 +36,7 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public class SaveImageFileDialog : IDisposable {
 		private static ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
-		private static CoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		protected SaveFileDialog saveFileDialog;
 		private FilterOption[] filterOptions;
 		private DirectoryInfo eagerlyCreatedDirectory;

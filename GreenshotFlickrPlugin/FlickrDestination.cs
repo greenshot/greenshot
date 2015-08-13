@@ -36,7 +36,7 @@ namespace GreenshotFlickrPlugin
 {
 	public class FlickrDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(FlickrDestination));
-		private static FlickrConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<FlickrConfiguration>();
+		private static IFlickrConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<IFlickrConfiguration>();
 
 		public override string Designation {
 			get {

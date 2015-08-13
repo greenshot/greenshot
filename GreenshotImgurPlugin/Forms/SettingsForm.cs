@@ -27,8 +27,8 @@ namespace GreenshotImgurPlugin {
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : ImgurForm {
-		private readonly ImgurConfiguration _config;
-		public SettingsForm(ImgurConfiguration config) : base() {
+		private readonly IImgurConfiguration _config;
+		public SettingsForm(IImgurConfiguration config) : base() {
 			_config = config;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.

@@ -37,7 +37,7 @@ namespace GreenshotJiraPlugin
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
 		private PluginAttribute jiraPluginAttributes;
 		private IGreenshotHost _host;
-		private JiraConfiguration config = null;
+		private IJiraConfiguration config = null;
 		private ComponentResourceManager resources;
 		private JiraMonitor _jiraMonitor;
 
@@ -68,7 +68,7 @@ namespace GreenshotJiraPlugin
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the jira configuration
-			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<JiraConfiguration>();
+			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IJiraConfiguration>();
 			_host = (IGreenshotHost)pluginHost;
 			jiraPluginAttributes = pluginAttributes;
 

@@ -28,7 +28,7 @@ namespace GreenshotBoxPlugin {
 	public partial class SettingsForm : BoxForm {
 		string boxTicket = string.Empty;
 
-		public SettingsForm(BoxConfiguration config) {
+		public SettingsForm(IBoxConfiguration config) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

@@ -41,7 +41,7 @@ namespace GreenshotPlugin.Core {
 	public static class ClipboardHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ClipboardHelper));
 		private static readonly Object clipboardLockObject = new Object();
-		private static readonly CoreConfiguration config = IniConfig.Get("Greenshot","greenshot").Get<CoreConfiguration>();
+		private static readonly ICoreConfiguration config = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";
 		private static readonly string FORMAT_PNG = "PNG";
 		private static readonly string FORMAT_PNG_OFFICEART = "PNG+Office Art";
