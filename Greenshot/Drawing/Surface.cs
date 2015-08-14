@@ -833,10 +833,10 @@ namespace Greenshot.Drawing {
 		/// Auto crop the image
 		/// </summary>
 		/// <returns>true if cropped</returns>
-		public bool AutoCrop() {
+		public bool AutoCrop(int autoCropDifference) {
 			Rectangle cropRectangle;
 			using (Image tmpImage = GetImageForExport()) {
-				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, conf.AutoCropDifference);
+				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, autoCropDifference);
 			}
 			if (!IsCropPossible(ref cropRectangle)) {
 				return false;

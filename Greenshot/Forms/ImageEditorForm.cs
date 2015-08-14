@@ -1284,7 +1284,13 @@ namespace Greenshot {
 		}
 
 		private void AutoCropToolStripMenuItemClick(object sender, EventArgs e) {
-			if (surface.AutoCrop()) {
+			if (editorConfiguration.AutoCropDifference < 0) {
+				editorConfiguration.AutoCropDifference = 0;
+			}
+			if (editorConfiguration.AutoCropDifference > 255) {
+				editorConfiguration.AutoCropDifference = 255;
+			}
+			if (surface.AutoCrop(editorConfiguration.AutoCropDifference)) {
 				refreshFieldControls();
 			}
 		}

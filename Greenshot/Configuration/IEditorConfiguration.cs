@@ -113,5 +113,10 @@ namespace Greenshot.Configuration {
 			set;
 		}
 
+		[Description("Sets how to compare the colors for the autocrop detection, the higher the more is 'selected'. Possible values are from 0 to 255, where everything above ~150 doesn't make much sense!"), DefaultValue("10")]
+		int AutoCropDifference {
+			get;
+			set;
+		}
 	}
 }

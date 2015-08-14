@@ -41,14 +41,6 @@ namespace GreenshotPlugin.Core
 		PNG, DIB, HTML, HTMLDATAURL, BITMAP, DIBV5
 	}
 
-	/// <summary>
-	/// All available window capture modes
-	/// </summary>
-	public enum WindowCaptureMode
-	{
-		Screen, GDI, Aero, AeroTransparent, Auto
-	}
-
 	public enum BuildStates
 	{
 		UNSTABLE,
@@ -85,14 +77,12 @@ namespace GreenshotPlugin.Core
 	/// Description of CoreConfiguration.
 	/// </summary>
 	[IniSection("Core"), Description("Greenshot core configuration")]
-	public interface ICoreConfiguration : IOutputSettings, IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>
+	public interface ICoreConfiguration :
+		// More configurations
+		IOutputConfiguration, IPrinterConfiguration, IExtensionConfiguration, IUIConfiguration, ICaptureConfiguration, IMiscConfiguration,
+		// Ini-Framework
+		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>
 	{
-		[Description("The language in IETF format (e.g. en-US)")]
-		string Language
-		{
-			get;
-			set;
-		}
 
 		[Description("Hotkey for starting the region capture"), DefaultValue("PrintScreen")]
 		string RegionHotkey
@@ -129,13 +119,6 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Is this the first time launch?"), DefaultValue(true)]
-		bool IsFirstLaunch
-		{
-			get;
-			set;
-		}
-
 		[Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker"), DefaultValue("Picker")]
 		IList<string> OutputDestinations
 		{
@@ -145,76 +128,6 @@ namespace GreenshotPlugin.Core
 
 		[Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB"), DefaultValue("PNG,DIB")]
 		IList<ClipboardFormat> ClipboardFormats
-		{
-			get;
-			set;
-		}
-
-		[Description("Should the mouse be captured?"), DefaultValue(true)]
-		bool CaptureMousepointer
-		{
-			get;
-			set;
-		}
-
-		[Description("Use interactive window selection to capture? (false=Capture active window)"), DefaultValue(false)]
-		bool CaptureWindowsInteractive
-		{
-			get;
-			set;
-		}
-
-		[Description("Capture delay in millseconds."), DefaultValue("100")]
-		int CaptureDelay
-		{
-			get;
-			set;
-		}
-
-		[Description("The capture mode used to capture a screen. (Auto, FullScreen, Fixed)"), DefaultValue("Auto")]
-		ScreenCaptureMode ScreenCaptureMode
-		{
-			get;
-			set;
-		}
-
-		[Description("The screen number to capture when using ScreenCaptureMode Fixed."), DefaultValue("1")]
-		int ScreenToCapture
-		{
-			get;
-			set;
-		}
-
-		[Description("The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto)."), DefaultValue("Auto")]
-		WindowCaptureMode WindowCaptureMode
-		{
-			get;
-			set;
-		}
-
-		[Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor."), DefaultValue(false)]
-		bool WindowCaptureAllChildLocations
-		{
-			get;
-			set;
-		}
-
-		[Description("The background color for a DWM window capture.")]
-		Color DWMBackgroundColor
-		{
-			get;
-			set;
-		}
-
-		[Description("Play a camera sound after taking a capture."), DefaultValue(false), Tag(ConfigTags.LanguageKey, "settings_playsound")]
-		bool PlayCameraSound
-		{
-			get;
-			set;
-		}
-
-		[Description("Show a notification from the systray when a capture is taken."), DefaultValue(true), Tag(ConfigTags.LanguageKey, "settings_shownotify")]
-		bool ShowTrayNotification
 		{
 			get;
 			set;
@@ -262,149 +175,8 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		[Description("Ask for print options when printing?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "settings_alwaysshowprintoptionsdialog")]
-		bool OutputPrintPromptOptions
-		{
-			get;
-			set;
-		}
-
-		[Description("Allow rotating the picture for fitting on paper?"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_allowrotate")]
-		bool OutputPrintAllowRotate
-		{
-			get;
-			set;
-		}
-
-		[Description("Allow growing the picture for fitting on paper?"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_allowenlarge")]
-		bool OutputPrintAllowEnlarge
-		{
-			get;
-			set;
-		}
-
-		[Description("Allow shrinking the picture for fitting on paper?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "printoptions_allowshrink")]
-		bool OutputPrintAllowShrink
-		{
-			get;
-			set;
-		}
-
-		[Description("Center image when printing?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "printoptions_allowcenter")]
-		bool OutputPrintCenter
-		{
-			get;
-			set;
-		}
-
-		[Description("Print image inverted (use e.g. for console captures)"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_inverted")]
-		bool OutputPrintInverted
-		{
-			get;
-			set;
-		}
-
-		[Description("Force grayscale printing"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_printgrayscale")]
-		bool OutputPrintGrayscale
-		{
-			get;
-			set;
-		}
-
-		[Description("Force monorchrome printing"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_printmonochrome")]
-		bool OutputPrintMonochrome
-		{
-			get;
-			set;
-		}
-
-		[Description("Threshold for monochrome filter (0 - 255), lower value means less black"), DefaultValue("127")]
-		byte OutputPrintMonochromeThreshold
-		{
-			get;
-			set;
-		}
-
-		[Description("Print footer on print?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "printoptions_timestamp")]
-		bool OutputPrintFooter
-		{
-			get;
-			set;
-		}
-
-		[Description("Footer pattern"), DefaultValue("${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
-		string OutputPrintFooterPattern
-		{
-			get;
-			set;
-		}
-
-		[Description("The wav-file to play when a capture is taken, loaded only once at the Greenshot startup"), DefaultValue("default")]
-		string NotificationSound
-		{
-			get;
-			set;
-		}
-
 		[Description("Use your global proxy?"), DefaultValue(true)]
 		bool UseProxy
-		{
-			get;
-			set;
-		}
-
-		[Description("Enable/disable IE capture"), DefaultValue(true)]
-		bool IECapture
-		{
-			get;
-			set;
-		}
-
-		[Description("Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor."), DefaultValue(false)]
-		bool IEFieldCapture
-		{
-			get;
-			set;
-		}
-
-		[Description("The capture mode used to capture IE (Screen, GDI)."), DefaultValue("Screen")]
-		WindowCaptureMode IECaptureMode
-		{
-			get;
-			set;
-		}
-
-		[Description("Comma separated list of Window-Classes which need to be checked for a IE instance!"), DefaultValue("AfxFrameOrView70,IMWindowClass")]
-		IList<string> WindowClassesToCheckForIE
-		{
-			get;
-			set;
-		}
-
-		[Description("Sets how to compare the colors for the autocrop detection, the higher the more is 'selected'. Possible values are from 0 to 255, where everything above ~150 doesn't make much sense!"), DefaultValue("10")]
-		int AutoCropDifference
-		{
-			get;
-			set;
-		}
-
-
-		[Description("Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
-		IList<string> IncludePlugins
-		{
-			get;
-			set;
-		}
-
-		[Description("Comma separated list of Plugins which are NOT allowed.")]
-		IList<string> ExcludePlugins
-		{
-			get;
-			set;
-		}
-
-		[Description("Comma separated list of destinations which should be disabled.")]
-		IList<string> ExcludeDestinations
 		{
 			get;
 			set;
@@ -420,202 +192,6 @@ namespace GreenshotPlugin.Core
 		[Description("Last update check")]
 		DateTimeOffset LastUpdateCheck
 		{
-			get;
-			set;
-		}
-
-		[Description("Enable/disable the access to the settings, can only be changed manually in this .ini"), DefaultValue(false)]
-		bool DisableSettings
-		{
-			get;
-			set;
-		}
-
-		[Description("Enable/disable the access to the quick settings, can only be changed manually in this .ini"), DefaultValue(false)]
-		bool DisableQuickSettings
-		{
-			get;
-			set;
-		}
-
-		[Description("Disable the trayicon, can only be changed manually in this .ini"), DefaultValue(false)]
-		bool HideTrayicon
-		{
-			get;
-			set;
-		}
-
-		[Description("Hide expert tab in the settings, can only be changed manually in this .ini"), DefaultValue(false)]
-		bool HideExpertSettings
-		{
-			get;
-			set;
-		}
-
-		[Description("Enable/disable thumbnail previews"), DefaultValue(true)]
-		bool ThumnailPreview
-		{
-			get;
-			set;
-		}
-
-		[Description("List of productnames for which GDI capturing is skipped (using fallback)."), DefaultValue("IntelliJ IDEA")]
-		IList<string> NoGDICaptureForProduct
-		{
-			get;
-			set;
-		}
-
-		[Description("List of productnames for which DWM capturing is skipped (using fallback)."), DefaultValue("Citrix ICA Client")]
-		IList<string> NoDWMCaptureForProduct
-		{
-			get;
-			set;
-		}
-
-		[Description("Make some optimizations for usage with remote desktop"), DefaultValue(false)]
-		bool OptimizeForRDP
-		{
-			get;
-			set;
-		}
-
-		[Description("Optimize memory footprint, but with a performance penalty!"), DefaultValue(false)]
-		bool MinimizeWorkingSetSize
-		{
-			get;
-			set;
-		}
-
-		[Description("Remove the corners from a window capture"), DefaultValue(true)]
-		bool WindowCaptureRemoveCorners
-		{
-			get;
-			set;
-		}
-
-		[Description("Also check for unstable version updates"), DefaultValue(false)]
-		bool CheckForUnstable
-		{
-			get;
-			set;
-		}
-
-		[Description("The fixes that are active.")]
-		IList<string> ActiveTitleFixes
-		{
-			get;
-			set;
-		}
-
-		[Description("The regular expressions to match the title with.")]
-		IDictionary<string, string> TitleFixMatcher
-		{
-			get;
-			set;
-		}
-
-		[Description("The replacements for the matchers.")]
-		IDictionary<string, string> TitleFixReplacer
-		{
-			get;
-			set;
-		}
-
-		[Description("Enable a special DIB clipboard reader"), DefaultValue(true)]
-		bool EnableSpecialDIBClipboardReader
-		{
-			get;
-			set;
-		}
-
-
-		[Description("The cutshape which is used to remove the window corners, is mirrorred for all corners"), DefaultValue("5,3,2,1,1")]
-		IList<int> WindowCornerCutShape
-		{
-			get;
-			set;
-		}
-
-		[Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)"), DefaultValue("SHOW_CONTEXT_MENU")]
-		ClickActions LeftClickAction
-		{
-			get;
-			set;
-		}
-
-		[Description("Specify what action is made if the tray icon is double clicked"), DefaultValue("OPEN_LAST_IN_EXPLORER")]
-		ClickActions DoubleClickAction
-		{
-			get;
-			set;
-		}
-
-		[Description("Sets if the zoomer is enabled"), DefaultValue(true)]
-		bool ZoomerEnabled
-		{
-			get;
-			set;
-		}
-
-		[Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)"), DefaultValue("1")]
-		float ZoomerOpacity
-		{
-			get;
-			set;
-		}
-
-		[Description("Maximum length of submenu items in the context menu, making this longer might cause context menu issues on dual screen systems."), DefaultValue("25")]
-		int MaxMenuItemLength
-		{
-			get;
-			set;
-		}
-
-		[Description("The 'to' field for the email destination (settings for Outlook can be found under the Office section)"), DefaultValue("")]
-		string MailApiTo
-		{
-			get;
-			set;
-		}
-
-		[Description("The 'CC' field for the email destination (settings for Outlook can be found under the Office section)"), DefaultValue("")]
-		string MailApiCC
-		{
-			get;
-			set;
-		}
-
-		[Description("The 'BCC' field for the email destination (settings for Outlook can be found under the Office section)"), DefaultValue("")]
-		string MailApiBCC
-		{
-			get;
-			set;
-		}
-
-		[Description("Version of Greenshot which created this .ini")]
-		string LastSaveWithVersion
-		{
-			get;
-			set;
-		}
-
-		[Description("When reading images from files or clipboard, use the EXIF information to correct the orientation"), DefaultValue(true)]
-		bool ProcessEXIFOrientation
-		{
-			get;
-			set;
-		}
-
-		[Description("The last used region, for reuse in the capture last region")]
-		Rectangle LastCapturedRegion
-		{
-			get;
-			set;
-		}
-
-		[Description("Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling"), DefaultValue("16,16")]
-		Size IconSize {
 			get;
 			set;
 		}
@@ -644,6 +220,9 @@ namespace GreenshotPlugin.Core
 		}
 	}
 
+	/// <summary>
+	/// TODO: This is not used
+	/// </summary>
 	public static class CoreConfigurationChecker {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CoreConfigurationChecker));
 		/// <summary>
@@ -846,12 +425,6 @@ namespace GreenshotPlugin.Core
 				}
 			}
 
-			if (coreConfiguration.AutoCropDifference < 0) {
-				coreConfiguration.AutoCropDifference = 0;
-			}
-			if (coreConfiguration.AutoCropDifference > 255) {
-				coreConfiguration.AutoCropDifference = 255;
-			}
 			if (coreConfiguration.OutputFileReduceColorsTo < 2) {
 				coreConfiguration.OutputFileReduceColorsTo = 2;
 			}

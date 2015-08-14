@@ -1,4 +1,5 @@
-﻿/*
+﻿using GreenshotPlugin.Core;
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -24,12 +25,6 @@ using System.Drawing;
 using System.Windows.Forms;
 
 namespace Greenshot.Plugin {
-	/// <summary>
-	/// The capture mode for Greenshot
-	/// </summary>
-	public enum CaptureMode { None, Region, FullScreen, ActiveWindow, Window, LastRegion, Clipboard, File, IE, Import}; //, Video };
-	public enum ScreenCaptureMode { Auto, FullScreen, Fixed};
-
 	/// <summary>
 	/// Details for the capture, like the window title and date/time etc.
 	/// </summary>

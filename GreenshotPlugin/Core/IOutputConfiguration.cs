@@ -30,8 +30,10 @@ namespace GreenshotPlugin.Core {
 		bmp, gif, jpg, png, tiff, greenshot
 	}
 
-
-	public interface IOutputSettings {
+	/// <summary>
+	/// This interface represents all the output settings
+	/// </summary>
+	public interface IOutputConfiguration {
 		[Description("Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)"), DefaultValue(OutputFormat.png)]
 		OutputFormat OutputFileFormat {
 			get;

@@ -93,7 +93,12 @@
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\HttpClientHelper.cs" />
-    <Compile Include="Core\IOutputSettings.cs" />
+    <Compile Include="Core\ICaptureConfiguration.cs" />
+    <Compile Include="Core\IExtensionConfiguration.cs" />
+    <Compile Include="Core\IMiscConfiguration.cs" />
+    <Compile Include="Core\IOutputConfiguration.cs" />
+    <Compile Include="Core\IPrinterConfiguration.cs" />
+    <Compile Include="Core\IUIConfiguration.cs" />
     <Compile Include="Core\PortableHelper.cs" />
     <Compile Include="Core\ProcessExtensions.cs" />
     <Compile Include="Core\ProgressStream.cs" />
@@ -168,12 +173,6 @@
     </Compile>
     <Compile Include="Controls\OAuthLoginForm.Designer.cs">
       <DependentUpon>OAuthLoginForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\PleaseWaitForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\PleaseWaitForm.Designer.cs">
-      <DependentUpon>PleaseWaitForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\QualityDialog.cs">
       <SubType>Form</SubType>

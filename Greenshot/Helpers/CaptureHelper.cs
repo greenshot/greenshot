@@ -403,10 +403,6 @@ namespace Greenshot.Helpers
 				case CaptureMode.LastRegion:
 					if (!conf.LastCapturedRegion.IsEmpty) {
 						_capture = WindowCapture.CaptureRectangle(_capture, conf.LastCapturedRegion);
-						// TODO: Reactive / check if the elements code is activated
-						//if (windowDetailsThread != null) {
-						//	windowDetailsThread.Join();
-						//}
 
 						// Set capture title, fixing bug #3569703
 						foreach (WindowDetails window in WindowDetails.GetVisibleWindows()) {

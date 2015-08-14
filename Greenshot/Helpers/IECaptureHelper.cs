@@ -373,6 +373,7 @@ namespace Greenshot.Helpers
 			BackgroundForm backgroundForm = null;
 			// do not show the please wait when we capture from the screen
 			if (!isScreenCapture) {
+				// TODO: Use PleaseWaitWindow
 				backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
 				backgroundForm.Show();
 			}
@@ -676,6 +677,7 @@ namespace Greenshot.Helpers
 					Rectangle clientRectangle = new Rectangle(documentContainer.SourceLocation, viewPortSize);
 					Image fragment;
 					if (configuration.IECaptureMode == WindowCaptureMode.Screen) {
+						// TODO: Task.Delay??
 						Thread.Sleep(20);
 						fragment = contentWindowDetails.CaptureFromScreen();
 					} else {
