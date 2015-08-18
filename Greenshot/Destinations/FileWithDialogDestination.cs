@@ -65,7 +65,7 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				return GreenshotResources.getImage("Save.Image");
+				return GreenshotResources.GetImage("Save.Image");
 			}
 		}
 

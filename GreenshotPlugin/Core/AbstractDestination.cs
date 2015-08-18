@@ -281,7 +281,7 @@ namespace GreenshotPlugin.Core
 					var closeItem = new ToolStripMenuItem
 					{
 						Text = Language.GetString("editor_close"),
-						Image = GreenshotResources.getImage("Close.Image")
+						Image = GreenshotResources.GetImage("Close.Image")
 					};
 					closeItem.Click += (source, eventArgs) => {
 						LOG.Debug("Close clicked");

@@ -39,7 +39,7 @@ namespace Greenshot.Destinations {
 		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<IEditorConfiguration>();
 		public const string DESIGNATION = "Editor";
 		private IImageEditor editor = null;
-		private static Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();
+		private static Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 
 		public EditorDestination() {
 		}

@@ -74,8 +74,11 @@ namespace GreenshotConfluencePlugin
 				return false;
 			}
 			_confluenceApi = await GetConfluenceAPI();
-			LOG.Info("Loading spaces");
-			var ignoreTask = _confluenceApi.LoadSpacesAsync().ContinueWith((_) => LOG.Info("Finished loading spaces")).ConfigureAwait(false);
+			if (_confluenceApi != null)
+			{
+				LOG.Info("Loading spaces");
+				var ignoreTask = _confluenceApi.LoadSpacesAsync().ContinueWith((_) => LOG.Info("Finished loading spaces")).ConfigureAwait(false);
+			}
 			return true;
 		}
 

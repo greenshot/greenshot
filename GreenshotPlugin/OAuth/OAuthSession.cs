@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using log4net;
@@ -26,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -61,20 +63,12 @@ namespace GreenshotPlugin.OAuth {
 		protected const string PlainTextSignatureType = "PLAINTEXT";
 		protected const string RSASHA1SignatureType = "RSA-SHA1";
 
-
 		protected static Random random = new Random();
-
-		protected const string UNRESERVED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
 
 		private string _callbackUrl = "http://getgreenshot.org";
 		private bool _checkVerifier = true;
 		private IDictionary<string, string> _accessTokenResponseParameters;
 		private IDictionary<string, string> _requestTokenResponseParameters;
-		private readonly IDictionary<string, object> _requestTokenParameters = new Dictionary<string, object>();
-
-		public IDictionary<string, object> RequestTokenParameters {
-			get { return _requestTokenParameters; }
-		}
 
 		/// <summary>
 		/// Parameters of the last called getAccessToken
@@ -84,6 +78,7 @@ namespace GreenshotPlugin.OAuth {
 				return _accessTokenResponseParameters;
 			}
 		}
+
 		/// <summary>
 		/// Parameters of the last called getRequestToken
 		/// </summary>
@@ -104,6 +99,7 @@ namespace GreenshotPlugin.OAuth {
 			get;
 			set;
 		}
+
 		public HttpMethod AccessTokenMethod {
 			get;
 			set;
@@ -112,26 +108,32 @@ namespace GreenshotPlugin.OAuth {
 			get;
 			set;
 		}
+
 		public Uri AuthorizeUrl {
 			get;
 			set;
 		}
+
 		public Uri AccessTokenUrl {
 			get;
 			set;
 		}
+
 		public string Token {
 			get;
 			set;
 		}
+
 		public string TokenSecret {
 			get;
 			set;
 		}
+
 		public string Verifier {
 			get;
 			set;
 		}
+
 		public OAuthSignatureTypes SignatureType {
 			get;
 			set;
@@ -145,6 +147,7 @@ namespace GreenshotPlugin.OAuth {
 				_callbackUrl = value;
 			}
 		}
+
 		public bool CheckVerifier {
 			get {
 				return _checkVerifier;
@@ -261,9 +264,6 @@ namespace GreenshotPlugin.OAuth {
 		/// </summary>
 		private async Task GetRequestTokenAsync() {
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
-			foreach (var value in _requestTokenParameters) {
-				parameters.Add(value);
-			}
 			Sign(RequestTokenMethod, RequestTokenUrl, parameters);
 			string response = await MakeRequest(RequestTokenMethod, RequestTokenUrl, null, parameters, null).ConfigureAwait(false);
 			if (!string.IsNullOrEmpty(response)) {
@@ -388,7 +388,7 @@ namespace GreenshotPlugin.OAuth {
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
 		/// <param name="postData">Data to post (MemoryStream)</param>
 		/// <returns>The web server response.</returns>
-		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, string> headers = null, IDictionary<string, object> parametersToSign = null, IDictionary<string, object> additionalParameters = null, IBinaryContainer postData = null) {
+		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, string> headers = null, IDictionary<string, object> parametersToSign = null, IDictionary<string, object> additionalParameters = null, HttpContent content = null) {
 			if (parametersToSign == null) {
 				parametersToSign = new Dictionary<string, object>();
 			}
@@ -414,7 +414,7 @@ namespace GreenshotPlugin.OAuth {
 							newParameters.Add(parameter);
 						}
 					}
-					return await MakeRequest(method, requestUri, headers, newParameters, postData).ConfigureAwait(false);
+					return await MakeRequest(method, requestUri, headers, newParameters, content).ConfigureAwait(false);
 				} catch (WebException wEx) {
 					lastException = wEx;
 					if (wEx.Response != null) {
@@ -456,7 +456,7 @@ namespace GreenshotPlugin.OAuth {
 				throw new ArgumentNullException("parameters");
 			}
 			// Build the signature base
-			StringBuilder signatureBase = new StringBuilder();
+			var signatureBase = new StringBuilder();
 
 			// Add Method to signature base
 			signatureBase.Append(method.ToString()).Append("&");
@@ -500,18 +500,18 @@ namespace GreenshotPlugin.OAuth {
 					string certFilePath = _consumerKey; // The .P12 certificate file path Example: "C:/mycertificate/MCOpenAPI.p12
 					string password = _consumerSecret; // password to read certificate .p12 file
 					// Read the Certification from .P12 file.
-					X509Certificate2 cert = new X509Certificate2(certFilePath.ToString(), password);
+					var cert = new X509Certificate2(certFilePath.ToString(), password);
 					// Retrieve the Private key from Certificate.
-					RSACryptoServiceProvider RSAcrypt = (RSACryptoServiceProvider)cert.PrivateKey;
+					var rsaCrypt = (RSACryptoServiceProvider)cert.PrivateKey;
 					// Create a RSA-SHA1 Hash object
-					using (SHA1Managed shaHASHObject = new SHA1Managed()) {
+					using (var shaHASHObject = new SHA1Managed()) {
 						// Create Byte Array of Signature base string
 						byte[] data = Encoding.ASCII.GetBytes(signatureBase.ToString());
 						// Create Hashmap of Signature base string
 						byte[] hash = shaHASHObject.ComputeHash(data);
 						// Create Sign Hash of base string
 						// NOTE - 'SignHash' gives correct data. Don't use SignData method
-						byte[] rsaSignature = RSAcrypt.SignHash(hash, CryptoConfig.MapNameToOID("SHA1"));
+						byte[] rsaSignature = rsaCrypt.SignHash(hash, CryptoConfig.MapNameToOID("SHA1"));
 						// Convert to Base64 string
 						string base64string = Convert.ToBase64String(rsaSignature);
 						// Return the Encoded UTF8 string
@@ -524,7 +524,7 @@ namespace GreenshotPlugin.OAuth {
 				case OAuthSignatureTypes.HMACSHA1:
 				default:
 					// Generate Signature and add it to the parameters
-					HMACSHA1 hmacsha1 = new HMACSHA1();
+					var hmacsha1 = new HMACSHA1();
 					hmacsha1.Key = Encoding.UTF8.GetBytes(key);
 					string signature = ComputeHash(hmacsha1, signatureBase.ToString());
 					parameters.Add(OAUTH_SIGNATURE_KEY, signature);
@@ -542,13 +542,13 @@ namespace GreenshotPlugin.OAuth {
 		/// <param name="parameters"></param>
 		/// <param name="postData">IBinaryParameter</param>
 		/// <returns>Response from server</returns>
-		private async Task<string> MakeRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parameters, IBinaryContainer postData, CancellationToken token = default(CancellationToken)) {
+		private async Task<string> MakeRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parameters, HttpContent content, CancellationToken token = default(CancellationToken)) {
 			if (parameters == null) {
 				throw new ArgumentNullException("parameters");
 			}
 			IDictionary<string, object> requestParameters;
 			// Add oAuth values as HTTP headers
-			StringBuilder authHeader = new StringBuilder();
+			var authHeader = new StringBuilder();
 			requestParameters = new Dictionary<string, object>();
 			foreach (string parameterKey in parameters.Keys) {
 				if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
@@ -562,7 +562,7 @@ namespace GreenshotPlugin.OAuth {
 				authHeader.Remove(authHeader.Length - 2, 2);
 			}
 
-			if (HttpMethod.Get == method || postData != null) {
+			if (HttpMethod.Get == method || content != null) {
 				if (requestParameters.Count > 0) {
 					// Add the parameters to the request
 					requestUri = requestUri.ExtendQuery(requestParameters);
@@ -578,14 +578,14 @@ namespace GreenshotPlugin.OAuth {
 				}
 
 				HttpResponseMessage responseMessage;
-				if ((HttpMethod.Post == method || HttpMethod.Put == method) && postData == null && requestParameters.Count > 0) {
+				if (content != null)
+				{
+					responseMessage = await httpClient.PostAsync(requestUri, content).ConfigureAwait(false);
+				}
+				else if ((HttpMethod.Post == method || HttpMethod.Put == method) && requestParameters.Count > 0) {
 					var multipartFormDataContent = new MultipartFormDataContent();
 					// TODO: Add requestParameters
 					responseMessage = await httpClient.PostAsync(requestUri, multipartFormDataContent).ConfigureAwait(false);
-				} else if (postData != null) {
-					// TODO: Add postData
-					var content = new StringContent("");
-					responseMessage = await httpClient.PostAsync(requestUri, content).ConfigureAwait(false);
 				} else {
 					responseMessage = await httpClient.GetAsync(requestUri, token).ConfigureAwait(false);
 				}

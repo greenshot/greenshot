@@ -53,7 +53,7 @@ namespace GreenshotPlugin.Controls {
 			_callbackUrl = callbackUrl;
 			InitializeComponent();
 			ClientSize = size;
-			Icon = GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.GetGreenshotIcon();
 			Text = browserTitle;
 			_addressTextBox.Text = authorizationLink.ToString();
 

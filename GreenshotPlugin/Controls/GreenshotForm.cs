@@ -137,7 +137,7 @@ namespace GreenshotPlugin.Controls {
 		protected override void OnLoad(EventArgs e) {
 			// Every GreenshotForm should have it's default icon
 			// And it might not ne needed for a Tool Window, but still for the task manager / switcher it's important
-			Icon = GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.GetGreenshotIcon();
 			if (!DesignMode) {
 				if (!_applyLanguageManually) {
 					ApplyLanguage();

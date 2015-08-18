@@ -56,7 +56,7 @@ namespace Greenshot.Forms {
 		/// Initialize the background brush
 		/// </summary>
 		static CaptureForm() {
-			Image backgroundForTransparency = GreenshotResources.getImage("Checkerboard.Image");
+			Image backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
 			BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 		}
 

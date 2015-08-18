@@ -27,6 +27,8 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -71,7 +73,20 @@ namespace GreenshotDropboxPlugin
 			try {
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-					return await DropboxUtils.UploadToDropbox(surface, outputSettings, filename);
+					using (var stream = new MemoryStream())
+					{
+						ImageOutput.SaveToStream(surface, stream, outputSettings);
+						stream.Position = 0;
+						using (var uploadStream = new ProgressStream(stream, progress))
+						{
+							using (var streamContent = new StreamContent(uploadStream))
+							{
+								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+								return await DropboxUtils.UploadToDropbox(streamContent, filename);
+							}
+						}
+					}
+
 				});
 
 				if (url != null) {

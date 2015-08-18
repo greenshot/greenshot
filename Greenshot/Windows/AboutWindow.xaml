@@ -1,0 +1,28 @@
+﻿<Window x:Class="Greenshot.Windows.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About Greenshot" Height="460" Width="749" Background="#FF3D3D3D" WindowStyle="ToolWindow" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+	<Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" Height="100" VerticalAlignment="Top" Background="White" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+            <Label Content="Greenshot" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Width="486.73" FontSize="64" Foreground="#FF747474" FontFamily="Segoe UI Light" Height="99"/>
+        </Border>
+        <Image HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="1" Name="BottomLeftIcon"/>
+        <StackPanel Background="#00000000" Grid.Column="1" Grid.Row="1">
+            <Label Content="Found a bug?" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="White" FontSize="26.667" />
+            <Label Content="Go to http://getgreenshot.org/tickets/" HorizontalAlignment="Left" Height="26" Margin="10,5,0,0" Foreground="White"/>
+            <Label Content="Wanna support us?" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="White" FontSize="26.667" />
+            <Label Content="Go to http://getgreenshot.org/support/" HorizontalAlignment="Left" Margin="10,5,0,0" Foreground="White"/>
+            <Label Content="Why is it free?" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="White" FontSize="26.667" Height="45.47" Width="175.55"/>
+            <TextBlock HorizontalAlignment="Left" Margin="11.679,5,0,0" TextWrapping="Wrap" Height="43.47" Width="612" Foreground="White"><Run Text="Because we love making the world a better place. For more information visit our website or read the "/><Run Text="GNU General Public License" TextDecorations="Underline"/><Run Text="."/></TextBlock>
+            <TextBlock HorizontalAlignment="Center" Margin="11.679,5,0,0" TextWrapping="Wrap" Height="29.47" Width="612" Foreground="White"><Run Language="de-de" Text="Copyright (C) 2007-2015 "/><Run Language="de-de" Text="Thomas Braun" TextDecorations="Underline"/><Run Language="de-de" Text=", "/><Run Language="de-de" Text="Jens Klingen" TextDecorations="Underline"/><Run Language="de-de" Text=", "/><Run Language="de-de" Text="Robin Krom" TextDecorations="Underline"/></TextBlock>
+        </StackPanel>
+	</Grid>
+</Window>

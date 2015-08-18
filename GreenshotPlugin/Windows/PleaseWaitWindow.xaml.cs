@@ -162,7 +162,7 @@ namespace GreenshotPlugin.Windows
 		{
 			DataContext = this;
 			InitializeComponent();
-			Icon = GreenshotResources.getGreenshotIcon().ToBitmapSource();
+			Icon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
 			Loaded += (sender, eArgs) => {
 				WindowStartupLocation = WindowStartupLocation.Manual;
 				var cursor = User32.GetCursorLocation();

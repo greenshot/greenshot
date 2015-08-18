@@ -26,6 +26,7 @@ using Greenshot.Experimental;
 using Greenshot.Help;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
+using Greenshot.Windows;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
@@ -44,6 +45,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.Integration;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
@@ -191,7 +193,7 @@ namespace Greenshot.Forms
 
 			// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
 			using (var dummyForm = new Form()) {
-				dummyForm.Icon = GreenshotResources.getGreenshotIcon();
+				dummyForm.Icon = GreenshotResources.GetGreenshotIcon();
 				dummyForm.ShowInTaskbar = true;
 				dummyForm.FormBorderStyle = FormBorderStyle.None;
 				dummyForm.Location = new Point(int.MinValue, int.MinValue);
@@ -276,8 +278,6 @@ namespace Greenshot.Forms
 		private ThumbnailForm _thumbnailForm;
 		// Make sure we have only one settings form
 		private SettingsForm _settingsForm;
-		// Make sure we have only one about form
-		private AboutForm _aboutForm;
 		// Timer for the background update check (and more?)
 		private readonly System.Threading.Timer _backgroundWorkerTimer;
 		// Timer for the double click test
@@ -312,7 +312,7 @@ namespace Greenshot.Forms
 				ex.Data.Add("more information here", "http://support.microsoft.com/kb/943140");
 				throw;
 			}
-			notifyIcon.Icon = GreenshotResources.getGreenshotIcon();
+			notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
 
 			// Disable access to the settings, for feature #3521446
 			contextmenu_settings.Visible = !coreConfiguration.DisableSettings;
@@ -1122,24 +1122,9 @@ namespace Greenshot.Forms
 		/// </summary>
 		public void ShowAbout()
 		{
-			if (_aboutForm != null)
-			{
-				WindowDetails.ToForeground(_aboutForm.Handle);
-			}
-			else
-			{
-				try
-				{
-					using (_aboutForm = new AboutForm())
-					{
-						_aboutForm.ShowDialog(this);
-					}
-				}
-				finally
-				{
-					_aboutForm = null;
-				}
-			}
+			var aboutWindow = new AboutWindow();
+			ElementHost.EnableModelessKeyboardInterop(aboutWindow);
+			aboutWindow.Show();
 		}
 
 		/// <summary>

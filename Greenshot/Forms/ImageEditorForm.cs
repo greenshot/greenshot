@@ -195,7 +195,7 @@ namespace Greenshot {
 			surfacePanel.Width = 10;
 			surface = newSurface as Surface;
 			surfacePanel.Controls.Add(surface as Surface);
-			var backgroundForTransparency = GreenshotResources.getImage("Checkerboard.Image");
+			var backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
 			surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 
 			surface.MovingElementChanged += delegate {

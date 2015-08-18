@@ -80,7 +80,7 @@ namespace Greenshot.Destinations
 
 		public override Image DisplayIcon {
 			get {
-				return GreenshotResources.getImage("Printer.Image");
+				return GreenshotResources.GetImage("Printer.Image");
 			}
 		}
 
