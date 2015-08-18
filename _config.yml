@@ -18,6 +18,9 @@ collections:
   faqs:
     output: true
     permalink: /faq/:title/
+  posts:
+    output: true
+    permalink: /:year/:month/:day/:title/ 
 
 defaults:
  -
@@ -26,12 +29,6 @@ defaults:
     type: "faqs"
   values:
     layout: "faq"
-
-  scope:
-    type: "posts"
-  values:
-    permalink: /:year/:month/:day/:title/
-
 
 # Build settings
 markdown: redcarpet
