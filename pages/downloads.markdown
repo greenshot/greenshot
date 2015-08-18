@@ -34,7 +34,7 @@ tags: menu
 <div class="two-col right-box">
 <h2>Download translations</h2>
 <p>If you want to use Greenshot in another language, simply download the appropriate language file and save it to the "Languages" subdirectory of Greenshot's installation directory.<br />
-<strong>Note:</strong> <img src="/wp-content/themes/greenshot/images/flags/us.gif" width="16" height="11" alt="EN" /> English and <img src="/wp-content/themes/greenshot/images/flags/de.gif" width="16" height="11" alt="DE" /> German language files are included in the program by default.</p>
+<strong>Note:</strong> <img src="/assets/wp-content/themes/greenshot/images/flags/us.gif" width="16" height="11" alt="EN" /> English and <img src="/assets/wp-content/themes/greenshot/images/flags/de.gif" width="16" height="11" alt="DE" /> German language files are included in the program by default.</p>
 <p><?=$langs?></p>
 <p><?=$helps?></p>
 </div>

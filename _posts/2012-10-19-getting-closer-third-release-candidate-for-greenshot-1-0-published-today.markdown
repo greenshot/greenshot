@@ -32,7 +32,7 @@ Read the <a href="/2012/10/20/release-candidate-4-is-available/">RC4 release pos
 For Greenshot 1.0 RC3 we took a bit more time than planned, we want to make Greenshot 1.0 as good as possible and this time was needed.<br />
 As we made a lot of changes the risk for new bugs is higher,  but if found these will be fixed quickly with RC4 / <ins datetime="2012-10-21T18:35:56+00:00">RC5</ins>.<br />
 The final release should be shortly after <del datetime="2012-10-21T18:35:56+00:00">RC4</del> <ins datetime="2012-10-21T18:35:56+00:00">RC5</ins>.</p>
-<p><a href="http://getgreenshot.org/version-history/" target="_blank">Download the latest Greenshot release candidate from our version history page</a>.</p>
+<p><a href="/version-history/" target="_blank">Download the latest Greenshot release candidate from our version history page</a>.</p>
 <p>The exact details of the changes in Greenshot 1.0 RC3 are listed below, but here are the biggest:<br />
 * Performance improvements, in several areas but mainly noticeable directly after captures.<br />
 * The upload plugins now use our own code, this made it possible to get a consistent experience when authorizing with different platforms<br />

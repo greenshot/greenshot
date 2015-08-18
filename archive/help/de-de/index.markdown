@@ -279,7 +279,7 @@ comments: []
 <h3>Allgemeine Einstellungen</h3>
 <ul>
 <li><em>Sprache</em>: Die Sprache, in der Sie Greenshot verwenden möchten.<br><br />
-			<a target="_blank" href="http://getgreenshot.org/downloads/">Hier</a> können Sie weitere Sprachen für Greenshot herunterladen. </li>
+			<a target="_blank" href="/downloads/">Hier</a> können Sie weitere Sprachen für Greenshot herunterladen. </li>
 <li><em>Greenshot mit Windows starten</em>: Das Programm wird automatisch gestartet wenn das System hochfährt.</li>
 <li><em>Tastenkombinationen</em>: Konfigurieren Sie die Tastenkombinationen für das Erstellen von Screenshots</li>
 <li><em>Standard-Proxyserver des Betriebssystems verwenden</em>: Wenn ausgewählt, wird der im Betriebssystem eingetragene Standard-Proxyserver verwendet, um nach Updates zu suchen.</li>
@@ -353,7 +353,7 @@ comments: []
 		Anerkennung durch eine Spende zukommen zu lassen.<br><br />
 		Bitte werfen Sie einen Blick auf unsere Webseite, um zu sehen, wie Sie das<br />
 		Greenshot Entwicker-Team unterstützen können:<br />
-		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a target="_blank" href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Weitersagen</h3>
@@ -371,7 +371,7 @@ comments: []
 		Wenn Sie registrierter Nutzer bei sourceforge.net sind, können Sie Übersetzungen<br />
 		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a> hochladen.<br><br />
 		Bitte stellen Sie vorher sicher, dass keine Übersetzung für Ihre Sprache auf unserer<br />
-		<a target="_blank" href="http://getgreenshot.org/downloads/">Download-Seite</a> existiert. Prüfen Sie auch <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a>, ob<br />
+		<a target="_blank" href="/downloads/">Download-Seite</a> existiert. Prüfen Sie auch <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a>, ob<br />
 		evtl. eine Übersetzung in Arbeit oder in Vorbereitung ist.<br><br />
 		Bitte bedenken Sie, dass wir eine Überstzung nur auf unserer Download-Seite zur<br />
 		Verfügung stellen werden, wenn Sie über ein sourceforge.net Benutzerkonto bereit gestellt<br />

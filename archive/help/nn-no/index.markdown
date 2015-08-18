@@ -277,7 +277,7 @@ comments: []
 <h3>Generelle innstillingar</h3>
 <ul>
 <li><em>Språk</em>: Språket du ønskjer å bruke i Greenshot.<br><br />
-			Du kan laste ned tilleggsspråk <a target="_blank" href="http://getgreenshot.org/downloads/">her</a>. </li>
+			Du kan laste ned tilleggsspråk <a target="_blank" href="/downloads/">her</a>. </li>
 <li><em>Start Greenshot med systemet</em>: Aktiverar Greenshot når Windows startar</li>
 <li><em>Snøggtastar</em>: Redigerar snøggtastane knytt til skjermknipsing</li>
 <li><em>Bruk systemets standardproxy</em>: Om dette er huka av, vil Greenshot bruke systemet sin proxyserver for å sjå etter oppdateringar.</li>
@@ -377,7 +377,7 @@ comments: []
 		du rett og slett likar ideen om open kjeldekode er du velkomen til å ære innsatsen<br />
 		vår med ein donasjon.<br><br />
 		På heimesida vår finn du informasjon om korleis du kan støtte utviklarane:<br><br />
-		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a target="_blank" href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Spre ryktet</h3>
@@ -395,7 +395,7 @@ comments: []
 		Om du er registrert på sourceforge.net kan du sende inn omsetjingar til vår<br />
 		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">omsetjings-tracker</a>.<br><br />
 		Kontroller fyrst om det alt finst ei omsetjing på<br />
-		<a target="_blank" href="http://getgreenshot.org/downloads/">nedlastingssida</a>.<br />
+		<a target="_blank" href="/downloads/">nedlastingssida</a>.<br />
 		Sjekk òg <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">omsetjings-trackeren</a>,<br />
 		då den kan innehalde ein omsetjing under arbeid eller diskusjon.<br><br />
 		Ver merksam på at me bare tilbyr omsetjingar på nedlastingssida vår om den har<br />

@@ -344,7 +344,7 @@ comments: []
         con una donaci&oacute;n.<br><br />
 	Por favor visite nuestra p&aacute;gina web para ver como usted puede apoyar al<br />
         equipo de desarrollo de Greenshot:<br><br />
-	<a href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+	<a href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Corra la voz</h3>

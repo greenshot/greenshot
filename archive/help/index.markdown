@@ -283,7 +283,7 @@ comments: []
 <h3>General settings</h3>
 <ul>
 <li><em>Language</em>: The language you prefer to be used.<br><br />
-			You can download additional language files for Greenshot <a target="_blank" href="http://getgreenshot.org/downloads/">here</a>. </li>
+			You can download additional language files for Greenshot <a target="_blank" href="/downloads/">here</a>. </li>
 <li><em>Launch Greenshot on startup</em>: Start the program when the system has been booted.</li>
 <li><em>Hotkeys</em>: Customize the hotkeys to be used to create screenshots.</li>
 <li><em>Use default system proxy</em>: If checked, Greenshot uses the default system proxy to check for updates.</li>
@@ -352,7 +352,7 @@ comments: []
 		a lot of time and money, or if you simply like Greenshot and<br />
 		the idea of open source software: please consider honoring our effort by donating.<br><br />
 		Please have a look at our home page to see how you can support the Greenshot development team:<br><br />
-		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a target="_blank" href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Spread the word</h3>
@@ -369,7 +369,7 @@ comments: []
 		If you are a registered user at sourceforge.net, you can submit translations to our<br />
 		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>.<br><br />
 		Please make sure there is no existing translation for your language on our<br />
-		<a target="_blank" href="http://getgreenshot.org/downloads/">downloads page</a>. Also check our <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>,<br />
+		<a target="_blank" href="/downloads/">downloads page</a>. Also check our <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>,<br />
 		there might be a translation in progress, or at least in discussion.<br><br />
 		Please note that we will only provide a translation on our downloads page if it has<br />
 		been submitted through your sourceforge.net user account. Since we most probably are<br />

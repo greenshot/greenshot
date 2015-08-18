@@ -14,6 +14,7 @@ author_url: http://getgreenshot.org/
 wordpress_id: 1124
 wordpress_url: http://getgreenshot.org/?p=1124
 
+
 categories:
 - Announcements
 tags:
@@ -27,5 +28,5 @@ When we started <a href="https://facebook.com/Greenshot.Tool" target="_blank">Gr
 <p>Well, we do understand that even a company like Facebook needs to generate some revenue, but not on our expense. We are not some creepy marketing agency, baiting for social likes and shares in order to sell stuff afterwards. We are a small open source project driven by few people in their spare time, giving away quality software for free – there is no such thing as a marketing budget, obviously.</p>
 <p>Sure, we could continue to use Facebook for free – but it really does a bad job for publishing information.</p>
 <p>That’s why we decided that we will no longer actively maintain Greenshot’s Facebook page. The page will still be available, and of course you are welcome to like and share – but there won’t be any more updates, also comments and messages are deactivated. We hope that’s okay for you. If not, sorry for the inconvenience – it’s nothing personal, really.</p>
-<p>We suggest to follow up on our <a href="http://getgreenshot.org/blog/">blog on getgreenshot.org</a> (there’s an <a href="http://getgreenshot.org/feed/" target="_blank">RSS feed</a> also), or to follow <a href="https://twitter.com/greenshot_tool/" target="_blank">Greenshot on Twitter</a>.<br>
+<p>We suggest to follow up on our <a href="/blog/">blog on getgreenshot.org</a> (there’s an <a href="/feed/" target="_blank">RSS feed</a> also), or to follow <a href="https://twitter.com/greenshot_tool/" target="_blank">Greenshot on Twitter</a>.<br>
 For bugs, feature requests or support requests, please use our <a href="https://getgreenshot.org/tickets" target="_blank">ticketing system</a>.</p>

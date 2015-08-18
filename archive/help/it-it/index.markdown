@@ -356,7 +356,7 @@ comments: []
 		molto tempo e denaro, o se semplicemente ti piace Greenshot e l'idea<br />
 		di software open source: per cortesia, considera di onorare i nostri sforzi con una donazione.<br><br />
 		Per cortesia dai un'occhiata alla nostra home page per vedere come puoi aiutare il team di sviluppo di Greenshot:<br><br />
-		<a href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Spargi la parola</h3>

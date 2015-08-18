@@ -26,7 +26,7 @@ tags:
 comments: []
 ---
 <p>Well, that one was short-lived ;-)<br />
-The <a href="http://getgreenshot.org/2012/10/19/getting-closer-third-release-candidate-for-greenshot-1-0-published-today/" title="Getting closer… third release candidate for Greenshot 1.0 published today">third release candidate</a> (released only yesterday) introduced two annoying bugs regarding several upload plugins (OAuth authentication process was broken) and the external command plugin (not working).<br />
+The <a href="/2012/10/19/getting-closer-third-release-candidate-for-greenshot-1-0-published-today/" title="Getting closer… third release candidate for Greenshot 1.0 published today">third release candidate</a> (released only yesterday) introduced two annoying bugs regarding several upload plugins (OAuth authentication process was broken) and the external command plugin (not working).<br />
 Those are fixed now, and the fourth release candidate is now available on our <a href="/version-history/" target="_blank">version history</a>.</p>
 <p>Here are the release notes:<br />
 <code><br />

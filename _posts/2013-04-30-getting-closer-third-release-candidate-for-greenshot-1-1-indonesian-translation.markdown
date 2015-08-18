@@ -27,10 +27,10 @@ tags:
 comments: []
 ---
 <p>Today we have uploaded the third release candidate for version 1.1. We are very optimistic that this is the last release candidate and that we will release the final version of Greenshot 1.1 very soon.</p>
-<p>The current release candidate fixes a bug when using the "Highlight Area" feature of the image editor. Furthermore, we are happy to announce a new language in the family of Greenshot translations: Indonesian is included from now on, you can download it for existing installations of previous versions from our <a href="http://getgreenshot.org/downloads/">downloads page</a>.<br />
+<p>The current release candidate fixes a bug when using the "Highlight Area" feature of the image editor. Furthermore, we are happy to announce a new language in the family of Greenshot translations: Indonesian is included from now on, you can download it for existing installations of previous versions from our <a href="/downloads/">downloads page</a>.<br />
 Thanks a lot to Afif Brika, who created and submitted the translation.</p>
-<p>By the way: a lot of translations are not up to date with version 1.1 yet. If you would like to enhance an existing translation (or even submit a new language), have a look at this <a href="http://getgreenshot.org/2012/08/10/introducing-the-brand-new-greenshot-language-editor-translators-wanted/">blog post</a>. Thanks :)</p>
-<p>Enough talk for now, you can download the latest version from our <a href="http://getgreenshot.org/version-history/">version history page</a>, and here is the changelog:</p>
+<p>By the way: a lot of translations are not up to date with version 1.1 yet. If you would like to enhance an existing translation (or even submit a new language), have a look at this <a href="/2012/08/10/introducing-the-brand-new-greenshot-language-editor-translators-wanted/">blog post</a>. Thanks :)</p>
+<p>Enough talk for now, you can download the latest version from our <a href="/version-history/">version history page</a>, and here is the changelog:</p>
 <p><code><br />
 1.1.3 build 2596 Release Candidate 3</p>
 <p>Features added since 1.1.2:<br />

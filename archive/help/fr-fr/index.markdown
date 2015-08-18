@@ -232,7 +232,7 @@ comments: []
 <h3>R&eacute;glages g&eacute;n&eacute;raux</h3>
 <ul>
 <li><em>Langue</em>: La langue qu&rsquo;on pr&eacute;f&egrave;re utiliser.<br><br />
-			On peut t&eacute;l&eacute;charger des fichiers de langue additionnelle pour Greenshot <a target="_blank" href="http://getgreenshot.org/downloads/">Ici</a>. </li>
+			On peut t&eacute;l&eacute;charger des fichiers de langue additionnelle pour Greenshot <a target="_blank" href="/downloads/">Ici</a>. </li>
 <li><em>Enregistrer des raccourcis</em>: si s&eacute;lectionn&eacute; Greenshot peut &ecirc;tre utilis&eacute; avec la touche <kbd>Impr &Eacute;cran</kbd>.</li>
 <li><em>Lancer Greenshot au d&eacute;marrage</em>: D&eacute;marre le programme lorsque le syst&egrave;me d&rsquo;exploitation a &eacute;t&eacute; lanc&eacute;.</li>
 <li><em>d&eacute;clencher un flash</em>: Retour visuel lorsqu&rsquo;on effectue une capture.</li>
@@ -270,7 +270,7 @@ comments: []
 		ou si vous aimez simplement Greenshot et le principe des logiciels de source libre, vous pouvez encourager nos efforts par une donation.<br />
 		<br><br />
 		Jetez un &oelig;il sur notre page de garde pour voir comment vous pouvez supporter l&rsquo;&eacute;quipe de developpement de Greenshot:<br><br />
-		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a target="_blank" href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Diffuser l&rsquo;information</h3>
@@ -287,7 +287,7 @@ comments: []
 		Si vous &ecirc;tes un utilisateur enregistr&eacute; de sourceforge.net, vous pouvez soumettre  votre traduction &agrave; notre<br />
 		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>.<br><br />
 		Assurez&#45;vous qu&rsquo;aucune traduction n&rsquo;existe dans votre langue sur notre<br />
-		<a target="_blank" href="http://getgreenshot.org/downloads/">downloads page</a>. V&eacute;rifiez &eacute;galement notre <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>,<br />
+		<a target="_blank" href="/downloads/">downloads page</a>. V&eacute;rifiez &eacute;galement notre <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>,<br />
 	  pour v&eacute;rifier qu&rsquo;il n&rsquo;y a aucune traduction en cours ou en discussion.<br><br />
 		Notez bien que nous ne fournirons cette traduction seulement si elle a &eacute;t&eacute; soumise via un compte d&rsquo;utilisateur sourceforge.net.<br />
 		Du fait que selon toute probabilit&eacute; nous serons incapables de comprendre<br>votre traduction ; il est logique que d&rsquo;autres<br />

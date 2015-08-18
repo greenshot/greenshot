@@ -213,7 +213,7 @@ comments: []
 <h3>Általános beállítások</h3>
 <ul>
 <li><em>Nyelv</em>: A használni kívánt nyelv kiválasztása.<br><br />
-			Letölthet további nyelvi fájlokat a Greenshot oldaláról <a target="_blank" href="http://getgreenshot.org/downloads/">itt</a>. </li>
+			Letölthet további nyelvi fájlokat a Greenshot oldaláról <a target="_blank" href="/downloads/">itt</a>. </li>
 <li><em>Gyorsbillentyûk használata</em>: Ha be van jelölve, indíthatod a Greenshot programot a <kbd>Print + Scrn</kbd> billentyûvel.</li>
 <li><em>Program indítása a Windows indulásakor</em>: a Greenshot program elindul Windows indulásakor.</li>
 <li><em>Fényképezõ vaku</em>: Vizuális visszajelzés képernyõkép készítésekor.</li>
@@ -251,7 +251,7 @@ comments: []
 		vagy ha csak úgy, szereted a Greenshot programot és ha van egy jó ötleted a programhoz,<br />
 		kérlek tartsd tiszteletben az erõfeszítésünket és fontold meg az adományozást.<br><br />
 		Kérjük tekintse meg honlapunkat, hogy hogyan tudná segíteni a Greenshot fejlesztõi csapatot.:<br><br />
-		<a target="_blank" href="http://getgreenshot.org/?locale=default&page=support">http://getgreenshot.org/?locale=default&amp;page=support</a>
+		<a target="_blank" href="/?locale=default&page=support">http://getgreenshot.org/?locale=default&amp;page=support</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Szájhagyomány útján :)</h3>
@@ -265,7 +265,7 @@ comments: []
 <p>
 		Greenshot nem érhetõ el a kívánt nyelvet? Ha úgy érzi, fordítsa le a szoftvert és küldje el nekünk, szívesen fogadjuk.<br />
 		Ha Ön regisztrál a sourceforge.net -en fel tudja tölteni a fordítást a <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">keresõnkre</a>.<br><br />
-		Kérjük, gyõzõdjön meg róla, hogy nincs e létezõ fordítása az Ön nyelvét a <a target="_blank" href="http://getgreenshot.org/downloads/">letöltési oldalunkon</a>.<br />
+		Kérjük, gyõzõdjön meg róla, hogy nincs e létezõ fordítása az Ön nyelvét a <a target="_blank" href="/downloads/">letöltési oldalunkon</a>.<br />
 		Nézze meg a <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">keresõnkben</a>, hogy fordítás nincs e folyamatban vagy elbírálás alatt.<br />
 		Felhívjuk figyelmét, hogy csak akkor tudjuk a fordítását elfogadni, ha a sourceforge.net -en saját felhasználói fiókján keresztül tölti fel.<br />
 		Nagy valószínûséggel nem értjük meg az Ön fordítását, jó esetben a többi soundforge felhasználó eléri az Ön fejlesztését<br />

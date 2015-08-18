@@ -276,7 +276,7 @@ comments: []
 		dużo czasu i pieniędzy, czy po prostu podobnie jak Greenshot, popierasz ideę<br />
 		oprogramowania open source:. rozważ uhonorowanie naszych wysiłków, przekazując darowiznę<br><br />
 		Proszę spojrzeć na naszą stronę domową, aby zobaczyć, jak można wspierać zespół rozwoju Greenshot<br><br />
-		<a href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Rozpowszechnianie</h3>

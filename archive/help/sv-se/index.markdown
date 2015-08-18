@@ -238,7 +238,7 @@ comments: []
 <ul>
 <li><em>Språk</em>: Det språk du föredrar.
 <p class="hint">
-				Du kan ladda ner ytterligare språkfiler för Greenshot <a target="_blank" href="http://getgreenshot.org/downloads/">här</a>.
+				Du kan ladda ner ytterligare språkfiler för Greenshot <a target="_blank" href="/downloads/">här</a>.
 			</p>
 </li>
 <li><em>Starta Greenshot när datorn startas</em>: Starta programmet när systemet startat upp.</li>
@@ -322,7 +322,7 @@ comments: []
 <p>
 		Vi lägger ner mycket arbete på Greenshot och spenderar en hel del tid till att tillhandahålla ett bra program helt gratis och med öppen källkod. Om du tycker att programmet gör dig mer produktiv, om det sparar dig (eller ditt företag) en massa tid och pengar, eller om du helt enkelt bara tycker om Greenshot och tanken på mjukvara med öppen källkod: överväg att belöna vårt arbete genom att donera.<br><br />
 		Ta en titt på vår hemsida för få reda på hur du kan stödja Greenshots utvecklingsteam:<br><br />
-		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a target="_blank" href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Sprid ordet</h3>
@@ -336,7 +336,7 @@ comments: []
 		Är inte Greenshot tillgängligt på ditt språk? Om du känner dig trygg med att översätta mjukvara är du mer än välkommen att göra så.<br />
 		Om du är en registrerad användare på sourceforge.net kan du skicka in översättningar till vår <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">översättnings-tracker</a>.<br><br />
 		Se till så att det inte finns någon existerande översättning till ditt språk på vår<br />
-		<a target="_blank" href="http://getgreenshot.org/downloads/">nerladdningssida</a>. Kolla också vår <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">översättnings-tracker</a>,<br />
+		<a target="_blank" href="/downloads/">nerladdningssida</a>. Kolla också vår <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">översättnings-tracker</a>,<br />
 		det kan finnas pågående översättningar, eller i alla fall i planeringsstadiet.<br><br />
 		Observera att vi enbart tillhandahåller en översättning på vår nerladdningssida om den blivit inskickad via ditt konto på sourceforge.net. Eftersom vi sannolikt inte har möjlighet att förstå din översättning är det bra om andra användare på sourceforge kan kontakta dig angående förbättringar eller ändringar om en ny version av Greenshot släpps.
 	</p>

@@ -25,7 +25,7 @@ AddTitle=False
 AddFilename=False
 </code>
 
-As always, feel free to study the details of this release in the recent change log below and the respective tickets in our <a href="https://greenshot.atlassian.net/">JIRA</a>, or just go ahead and grab the latest release from our <a href="http://getgreenshot.org/downloads/" title="Downloads">downloads page</a>.
+As always, feel free to study the details of this release in the recent change log below and the respective tickets in our <a href="https://greenshot.atlassian.net/">JIRA</a>, or just go ahead and grab the latest release from our <a href="/downloads/" title="Downloads">downloads page</a>.
 
 <code>
 All details to our tickets can be found here: https://greenshot.atlassian.net

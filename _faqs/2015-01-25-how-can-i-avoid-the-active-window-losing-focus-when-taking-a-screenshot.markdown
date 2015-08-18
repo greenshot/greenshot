@@ -25,5 +25,5 @@ comments: []
 <p>Interacting with other programs or parts of the Windows user interface will take away focus from an application window, in this case right-clicking the Windows systray makes the previous window inactive and also hide opened menus, selection list options, etc. Microsoft Windows is designed to work like that, there is nothing we can do about it, but using the hotkeys is a great workaround.</p>
 <p>Hint: you can see the currently assigned hotkeys directly in Greenshot's systray menu. You can also assign other keys/combinations in the settings dialog.</p>
 <p><strong>See also:</strong><br />
-<a href="http://getgreenshot.org/faq/why-does-the-print-key-not-work-in-some-windows/"><br />
+<a href="/faq/why-does-the-print-key-not-work-in-some-windows/"><br />
 Why does the Print key not work in some windows?</a></p>

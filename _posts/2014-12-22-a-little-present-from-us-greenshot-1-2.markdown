@@ -27,7 +27,7 @@ tags:
 comments: []
 
 ---
-<p><a href="http://getgreenshot.org/2014/12/22/a-little-present-from-us-greenshot-1-2/speech-bubbles/" rel="attachment wp-att-1127"><img src="http://getgreenshot.org/wp-content/uploads/2014/12/speech-bubbles-300x276.png" alt="Speech bubbles in Greenshot editor" width="300" height="276" class="alignright size-medium wp-image-1127" /></a></p>
+<p><a href="/2014/12/22/a-little-present-from-us-greenshot-1-2/speech-bubbles/" rel="attachment wp-att-1127"><img src="/assets/wp-content/uploads/2014/12/speech-bubbles-300x276.png" alt="Speech bubbles in Greenshot editor" width="300" height="276" class="alignright size-medium wp-image-1127" /></a></p>
 <p>Finally! For those of you who celebrate Christmas, here is a little Christmas present from us. For the rest, here is a little present for you, for no particular reason :)</p>
 <p>If have a look at our blog regularly or follow us on Twitter or another social media channel, you probably have noticed that we have been eagerly working on release candidates for Greenshot 1.2. The new version comes just in time before 2015 is about to start; after three release candidates and a lot of bug fixes, improvements and enhancements in between.</p>
 <p>So, what's new, you ask? Here we go, just to name a few:</p>
@@ -37,7 +37,7 @@ comments: []
 <li><strong>Torn edge and border settings</strong>: we have improved both features by providing extra settings for them, e.g. you can select which edges of your image should be torn.</li>
 <li><strong>Region mode accessibility</strong>: it is now possible to select a screenshot region with the keyboard, which allows exact and easy fine-tuning of a selected region, and of course allows the feature to be used at all for people having problems with handling a pointing device like mouse or touchpad.</li>
 </ul>
-<p><a href="http://getgreenshot.org/2014/12/22/a-little-present-from-us-greenshot-1-2/incrementing-labels/" rel="attachment wp-att-1128"><img src="http://getgreenshot.org/wp-content/uploads/2014/12/incrementing-labels-300x185.png" alt="Incrementing labels in Greenshot editor" width="300" height="185" class="alignleft size-medium wp-image-1128" /></a> Of course, that's not all - way too much to describe everything in detail here... we have also fixed quite some bugs and usability issues and we have a new language aboard, welcome Latvian (kudos to Kārlis Kalviškis for supplying the translation) as well as updates for many other languages.</p>
+<p><a href="/2014/12/22/a-little-present-from-us-greenshot-1-2/incrementing-labels/" rel="attachment wp-att-1128"><img src="/assets/wp-content/uploads/2014/12/incrementing-labels-300x185.png" alt="Incrementing labels in Greenshot editor" width="300" height="185" class="alignleft size-medium wp-image-1128" /></a> Of course, that's not all - way too much to describe everything in detail here... we have also fixed quite some bugs and usability issues and we have a new language aboard, welcome Latvian (kudos to Kārlis Kalviškis for supplying the translation) as well as updates for many other languages.</p>
 <p>Thanks again to everyone who keeps supporting us by submitting translations, feature requests, bug reports and donations! We really appreciate your support a lot, your help keeps the project going. :)</p>
 <p>So much for now, we're getting ready for Christmas and new year's eve now. Have a good time everybody, and have fun with Greenshot - the latest version is always available at http://getgreenshot.org/downloads/<br />
 And of course, here is the complete change log:</p>

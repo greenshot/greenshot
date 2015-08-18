@@ -252,7 +252,7 @@ comments: []
 <h3>Общие</h3>
 <ul>
 <li><em>Язык (Language)</em>: Язык интерфейса.<br><br />
-			Вы можете скачать дополнительные языковые файлы <a target="_blank" href="http://getgreenshot.org/downloads/">здесь</a>.</li>
+			Вы можете скачать дополнительные языковые файлы <a target="_blank" href="/downloads/">здесь</a>.</li>
 <li><em>Автозагрузка</em>: Запуск программы при загрузке системы.</li>
 <li><em>Горячие клавиши</em>: Настройка горячих клавиш, которые будут использоваться для создания скриншотов.</li>
 <li><em>Использовать прокси-сервер системы по умолчанию</em>: Если флажок установлен, Greenshot использует прокси-сервер по умолчанию системы для проверки обновлений.</li>
@@ -319,7 +319,7 @@ comments: []
 		сберегает вам или вашей компании время и деньги, или если Greenshot вам просто нравится, вы можете пожертвовать<br />
 		некоторую сумму денег, чтобы поддержать дальнейшую разработку, <br><br />
                                 перейдите на нашу домашнюю страницу, чтобы узнать, как вы можете поддержать команду разработчиков Greenshot:<br><br />
-		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a target="_blank" href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Расскажите о Greenshot</h3>
@@ -335,7 +335,7 @@ comments: []
 		If you are a registered user at sourceforge.net, you can submit translations to our<br />
 		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>.<br><br />
 		Please make sure there is no existing translation for your language on our<br />
-		<a target="_blank" href="http://getgreenshot.org/downloads/">downloads page</a>. Also check our <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>,<br />
+		<a target="_blank" href="/downloads/">downloads page</a>. Also check our <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>,<br />
 		there might be a translation in progress, or at least in discussion.<br><br />
 		Please note that we will only provide a translation on our downloads page if it has<br />
 		been submitted through your sourceforge.net user account. Since we most probably are<br />

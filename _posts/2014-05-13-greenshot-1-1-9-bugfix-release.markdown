@@ -30,7 +30,7 @@ comments: []
 <li>repaired upload to Box, which was broken in the previous version</li>
 <li>updated Flickr plugin to be prepared for a breaking change in the Flickr API effective as of June, 27th</li>
 </ul>
-<p>Please see the change log below for more details about what's new. As always, you should make sure to download Greenshot from our <a href="http://getgreenshot.org/downloads/" title="Downloads">download page</a>, rather than being confident in 3rd party download portals to deliver the original version.</p>
+<p>Please see the change log below for more details about what's new. As always, you should make sure to download Greenshot from our <a href="/downloads/" title="Downloads">download page</a>, rather than being confident in 3rd party download portals to deliver the original version.</p>
 <p><code><br />
 CHANGE LOG:</p>
 <p>1.1.9.13-g01ce82d Windows 8.1 & Box bug-fix Release</p>

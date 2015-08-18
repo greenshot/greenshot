@@ -275,7 +275,7 @@ comments: []
 		of als u eenvoudig Greenshot en het idee van open source software goed vindt:<br />
 		Overweeg een donatie ter eren van onze inspanningen.<br><br />
 		Kijk AUB op onze home page om te lezen hoe u het Greenshot ontwikkelteam kunt ondersteunen:<br><br />
-		<a href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Vertel het door</h3>

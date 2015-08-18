@@ -242,7 +242,7 @@ comments: []
 <h3>Genel ayarlar</h3>
 <ul>
 <li><em>Dil</em>: Programı kullanmayı tercih ettiğiniz dil.<br><br />
-			Greenshot için kullanılabilecek diğer dilleri <a target="_blank" href="http://getgreenshot.org/downloads/">buradan indirebilirsiniz</a>. </li>
+			Greenshot için kullanılabilecek diğer dilleri <a target="_blank" href="/downloads/">buradan indirebilirsiniz</a>. </li>
 <li><em>Kısayol tuşlarını devral</em>: İşaretlediğinizde, Greenshot <kbd>Print</kbd> tuşu ile kullanılabilir.</li>
 <li><em>Windows başlangıcında çalıştır</em>: Bilgisayar başlatıldığında programı çalıştır.</li>
 <li><em>Flaş etkisi</em>: Ekran yakalarken görsel flaş çakması etkisi oluşturur</li>
@@ -279,7 +279,7 @@ comments: []
 		veya kurumunuza para ve zaman kazandırıyorsa ya da Greenshot ve açık kaynak felsefesinden<br />
 		hoşlanıyorsanız lütfen bağış yaparak emeklerimize saygı gösterin.<br><br />
 		Greenshot geliştirici takımını nasıl destekleyeceğinizi görmek için web sitemize bakın:<br><br />
-		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a target="_blank" href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Yayılmasına yardım edin</h3>
@@ -295,7 +295,7 @@ comments: []
 		Eğer kayıtlı bir sourceforge.net üyesi iseniz, çevirilerinizi<br />
 		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">çeviri izleyicimize</a> gönderbilirsiniz.<br><br />
 		Öncesinde<br />
-		<a target="_blank" href="http://getgreenshot.org/downloads/">indirme sayfasından</a> dilinizde bir çeviri olmadığından emin olun. Ayrıca <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">çeviri izleyicimizden</a> de durumu denetleyin.<br />
+		<a target="_blank" href="/downloads/">indirme sayfasından</a> dilinizde bir çeviri olmadığından emin olun. Ayrıca <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">çeviri izleyicimizden</a> de durumu denetleyin.<br />
 		Dilinizde bir çeviri çalışması planlanıyor veya yapılıyor olabilir.<br><br />
 		Çevirileri indirme sayfalarımızda ancak sourceforge.net kullanıcı hesabınızla gönderdiyseniz<br />
 		yayınlayacağız. Böylece bizler çevirinizi büyük olasılıkla anlayamayacağımız için diğer sourceforge.<br />

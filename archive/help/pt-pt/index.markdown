@@ -312,7 +312,7 @@ comments: []
 <h3>Definições Gerais</h3>
 <ul>
 <li><em>Idioma</em>: O idioma preferido a utilizar.<br><br />
-			Pode transferir ficheiros de idiomas adicionais para o Greenshot <a target="_blank" href="http://getgreenshot.org/downloads/">aqui</a>. </li>
+			Pode transferir ficheiros de idiomas adicionais para o Greenshot <a target="_blank" href="/downloads/">aqui</a>. </li>
 <li><em>Iniciar o Greenshot no arranque</em>: Inicia o programa no arranque do sistema.</li>
 <li><em>Teclas de Atalho</em>: Personaliza as teclas de atalho a serem usadas para criar capturas.</li>
 <li><em>Usar proxy padrão do sistema</em>: Se seleccionado, o Greenshot usa proxy padrão do sistema para procurar actualizações.</li>
@@ -397,7 +397,7 @@ comments: []
 		muito tempo e dinheiro, ou se simplesmente gosta do Greenshot e<br />
 		da ideia de sotware de código aberto: por favor considere compensar o nosso esforço, doando.<br><br />
 		Por favor visite a nossa página web para ver como pode apoiar a equipa de desenvolvimento do Greenshot:<br><br />
-		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+		<a target="_blank" href="/support/">http://getgreenshot.org/support/</a>
 	</p>
 <p>	<a name="help-spread"></a></p>
 <h3>Passe a palavra</h3>
@@ -414,7 +414,7 @@ comments: []
 		Se é um utilizador registado no sourceforge.net, pode enviar traduções para o nosso<br />
 		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">monitor de traduções</a>.<br><br />
 		Por favor certifique-se de que não existe tradução para o seu idioma na nossa<br />
-		<a target="_blank" href="http://getgreenshot.org/downloads/">página de transferências</a>. Veja também no nosso <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">monitor de traduções</a>,<br />
+		<a target="_blank" href="/downloads/">página de transferências</a>. Veja também no nosso <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">monitor de traduções</a>,<br />
 		se existe alguma tradução a decorrer, ou pelo menos em discussão.<br><br />
 		Tenha em atenção que só disponibilizaremos uma tradução na nossa página de transferências se ela<br />
 		tiver sido enviada através da sua conta no sourceforge.net. Uma vez que o mais provável é nós<br />
