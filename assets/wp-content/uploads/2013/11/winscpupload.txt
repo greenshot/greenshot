@@ -1,0 +1,23 @@
+﻿# WinSCP script for uploading a single file
+# see http://winscp.net/eng/docs/scripting for documentation on WinSCP scripting
+
+# Automatically abort script on errors
+option batch abort
+
+# Disable overwrite confirmations that conflict with the previous
+option confirm off
+
+# Connect to server (change this to match your connection settings)
+open sftp://user:pass@example.com -hostkey="ssh-rsa 1024 xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx"
+
+# Change remote directory (change this to the desired directory on your server)
+cd /remote/path/to/directory/
+
+# Upload the file to current working directory
+put %1% 
+
+# Disconnect
+close
+
+# Exit WinSCP
+exit
