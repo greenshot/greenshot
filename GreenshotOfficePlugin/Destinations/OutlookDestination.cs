@@ -23,6 +23,7 @@ using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
+using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -41,6 +42,7 @@ namespace GreenshotOfficePlugin
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_MEETING = 2;
+		private const string OUTLOOK_PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE";
 
 		private static Image mailIcon = GreenshotResources.GetImage("Email.Image");
 		private static IOfficeConfiguration conf = IniConfig.Get("Greenshot", "greenshot").Get<IOfficeConfiguration>();
@@ -52,7 +54,7 @@ namespace GreenshotOfficePlugin
 		private Outlook.OlObjectClass outlookInspectorType;
 
 		static OutlookDestination() {
-			if (EmailConfigHelper.HasOutlook()) {
+			if (HasOutlook()) {
 				isActiveFlag = true;
 			}
 			exePath = PluginUtils.GetExePath("OUTLOOK.EXE");
@@ -196,6 +198,30 @@ namespace GreenshotOfficePlugin
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 
+		}
+
+		private static string GetOutlookExePath() {
+			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(OUTLOOK_PATH_KEY, false)) {
+				if (key != null) {
+					// "" is the default key, which should point to the outlook location
+					return (string)key.GetValue("");
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Check if Outlook is installed
+		/// </summary>
+		/// <returns>Returns true if outlook is installed</returns>
+		private static bool HasOutlook() {
+			string outlookPath = GetOutlookExePath();
+			if (outlookPath != null) {
+				if (File.Exists(outlookPath)) {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 }

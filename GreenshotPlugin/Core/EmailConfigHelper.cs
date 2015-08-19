@@ -26,7 +26,6 @@ namespace GreenshotPlugin.Core {
 	/// Description of EmailConfigHelper.
 	/// </summary>
 	public static class EmailConfigHelper {
-		private const string OUTLOOK_PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE";
 		private const string MAPI_CLIENT_KEY = @"SOFTWARE\Clients\Mail";
 		private const string MAPI_LOCATION_KEY = @"SOFTWARE\Microsoft\Windows Messaging Subsystem";
 		private const string MAPI_KEY = @"MAPI";
@@ -54,30 +53,6 @@ namespace GreenshotPlugin.Core {
 					return false;
 				}
 			}
-		}
-		
-		public static string GetOutlookExePath() {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(OUTLOOK_PATH_KEY, false)) {
-				if (key != null) {
-					// "" is the default key, which should point to the outlook location
-					return (string)key.GetValue("");
-				}
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// Check if Outlook is installed
-		/// </summary>
-		/// <returns>Returns true if outlook is installed</returns>
-		public static bool HasOutlook() {
-			string outlookPath = GetOutlookExePath();
-			if (outlookPath != null) {
-				if (File.Exists(outlookPath)) {
-					return true;
-				}
-			}
-			return false;
 		}
 	}
 }
