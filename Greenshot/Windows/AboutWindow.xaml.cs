@@ -34,7 +34,6 @@ namespace Greenshot.Windows
 			Icon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
 			InitializeComponent();
 			Closing += Window_Closing;
-			BottomLeftIcon.Source = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
         }
 
 		/// <summary>
