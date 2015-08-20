@@ -1122,9 +1122,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		public void ShowAbout()
 		{
-			var aboutWindow = new AboutWindow();
-			ElementHost.EnableModelessKeyboardInterop(aboutWindow);
-			aboutWindow.Show();
+			AboutWindow.Create();
 		}
 
 		/// <summary>

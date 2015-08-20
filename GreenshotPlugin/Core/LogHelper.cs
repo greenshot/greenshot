@@ -38,7 +38,7 @@ namespace GreenshotPlugin.Core {
 		private const string LOG4NET_PORTABLE_FILE = "log4net-portable.xml";
 		private static bool isLog4NetConfigured = false;
 		private const string INIT_MESSAGE = "Greenshot initialization of log system failed";
-		public static bool isInitialized {
+		public static bool IsInitialized {
 			get {
 				return isLog4NetConfigured;
 			}

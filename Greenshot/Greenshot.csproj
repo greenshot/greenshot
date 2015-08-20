@@ -152,12 +152,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Drawing\TextContainer.cs" />
-    <Compile Include="Forms\AboutForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\AboutForm.Designer.cs">
-      <DependentUpon>AboutForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\BaseForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -178,9 +172,6 @@
     </Compile>
     <Compile Include="Forms\ImageEditorForm.Designer.cs">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\AnimatingBaseForm.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\ResizeSettingsForm.cs">
       <SubType>Form</SubType>

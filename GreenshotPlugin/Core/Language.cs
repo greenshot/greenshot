@@ -57,7 +57,7 @@ namespace GreenshotPlugin.Core {
 		/// Static initializer for the language code
 		/// </summary>
 		static Language() {
-			if (!LogHelper.isInitialized) {
+			if (!LogHelper.IsInitialized) {
 				LOG.Warn("Log4net hasn't been initialized yet! (Design mode?)");
 				LogHelper.InitializeLog4NET();
 			}
@@ -469,11 +469,11 @@ namespace GreenshotPlugin.Core {
 		/// <param name="prefix"></param>
 		/// <param name="key"></param>
 		/// <returns>true if available</returns>
-		public static bool hasKey(string prefix, Enum key) {
+		public static bool HasKey(string prefix, Enum key) {
 			if (key == null) {
 				return false;
 			}
-			return hasKey(prefix + "." + key.ToString());
+			return HasKey(prefix + "." + key.ToString());
 		}
 
 		/// <summary>
@@ -481,11 +481,11 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns>true if available</returns>
-		public static bool hasKey(Enum key) {
+		public static bool HasKey(Enum key) {
 			if (key == null) {
 				return false;
 			}
-			return hasKey(key.ToString());
+			return HasKey(key.ToString());
 		}
 
 		/// <summary>
@@ -494,8 +494,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="prefix"></param>
 		/// <param name="key"></param>
 		/// <returns>true if available</returns>
-		public static bool hasKey(string prefix, string key) {
-			return hasKey(prefix + "." + key);
+		public static bool HasKey(string prefix, string key) {
+			return HasKey(prefix + "." + key);
 		}
 
 		/// <summary>
@@ -503,7 +503,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns>true if available</returns>
-		public static bool hasKey(string key) {
+		public static bool HasKey(string key) {
 			if (key == null) {
 				return false;
 			}
@@ -534,7 +534,7 @@ namespace GreenshotPlugin.Core {
 		public static string Translate(object key) {
 			string typename = key.GetType().Name;
 			string enumKey = typename + "." + key.ToString();
-			if (hasKey(enumKey)) {
+			if (HasKey(enumKey)) {
 				return GetString(enumKey);
 			}
 			return key.ToString();

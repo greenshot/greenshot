@@ -27,7 +27,7 @@ namespace TranslationByMarkupExtension {
         /// See <see cref="ITranslationProvider.Translate" />
         /// </summary>
         public object Translate(string key) {
-        	if (Language.hasKey("confluence", key)) {
+        	if (Language.HasKey("confluence", key)) {
 				return Language.GetString("confluence", key);
         	}
             return key;
