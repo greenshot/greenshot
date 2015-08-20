@@ -20,8 +20,13 @@
  */
 
 using GreenshotPlugin.Core;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 
 namespace Greenshot.Windows
 {
@@ -34,6 +39,44 @@ namespace Greenshot.Windows
 			Icon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
 			InitializeComponent();
 			Closing += Window_Closing;
+
+			// Create glimmer "Color-Cycle" animation
+
+			var dots = new Ellipse[]{
+				L1C1,L1C2, L1C3, L1C4, L1C5,
+				L2C1, L2C2,
+				L3C1,L3C2,
+				L4C1, L4C2,
+				L5C1,
+				L6C1, L6C2, L6C3, L6C4,
+				L7C1, L7C2,
+				L8C1, L8C2, L8C3};
+
+			int delayOffset = 15;
+			int initialDelay = 5000;
+			foreach(var ellipse in dots) {
+				var storyBoard = new Storyboard();
+				storyBoard.BeginTime = TimeSpan.FromMilliseconds(initialDelay);
+				storyBoard.RepeatBehavior = RepeatBehavior.Forever;
+				storyBoard.Duration = TimeSpan.FromSeconds(10);
+
+				var goBright = new ColorAnimation();
+				goBright.From = Color.FromArgb(0xff, 0x8a, 0xff, 0x00);
+				goBright.To = Colors.White;
+				goBright.Duration = TimeSpan.FromMilliseconds(200);
+				storyBoard.Children.Add(goBright);
+				var goNormal = new ColorAnimation();
+				goNormal.To = Color.FromArgb(0xff, 0x8a, 0xff, 0x00);
+				goNormal.From = Colors.White;
+				goNormal.Duration = TimeSpan.FromMilliseconds(200);
+				storyBoard.Children.Add(goNormal);
+				Storyboard.SetTarget(goBright, ellipse);
+				Storyboard.SetTargetProperty(goBright, new PropertyPath("(Shape.Fill).(SolidColorBrush.Color)"));
+				Storyboard.SetTarget(goNormal, ellipse);
+				Storyboard.SetTargetProperty(goNormal, new PropertyPath("(Shape.Fill).(SolidColorBrush.Color)"));
+				ellipse.BeginStoryboard(storyBoard);
+				initialDelay += delayOffset;
+			}
         }
 
 		/// <summary>
