@@ -1012,6 +1012,7 @@ namespace Greenshot {
 			new BidirectionalBinding(btnFillColor, "SelectedColor", surface.FieldAggregator.GetField(FieldType.FILL_COLOR), "Value", NotNullValidator.GetInstance());
 			new BidirectionalBinding(btnLineColor, "SelectedColor", surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
 			new BidirectionalBinding(lineThicknessUpDown, "Value", surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
+			new BidirectionalBinding(counterUpDown, "Value", surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
 			new BidirectionalBinding(blurRadiusUpDown, "Value", surface.FieldAggregator.GetField(FieldType.BLUR_RADIUS), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
 			new BidirectionalBinding(magnificationFactorUpDown, "Value", surface.FieldAggregator.GetField(FieldType.MAGNIFICATION_FACTOR), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
 			new BidirectionalBinding(pixelSizeUpDown, "Value", surface.FieldAggregator.GetField(FieldType.PIXEL_SIZE), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
@@ -1053,7 +1054,10 @@ namespace Greenshot {
 				shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
 				btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
 					&& ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS)&FieldType.Flag.CONFIRMABLE) == FieldType.Flag.CONFIRMABLE;
-				
+
+				counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS)
+					&& ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS) & FieldType.Flag.COUNTER) == FieldType.Flag.COUNTER;
+
 				obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
 				highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
 			} else {

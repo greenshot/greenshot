@@ -152,6 +152,8 @@ namespace Greenshot {
 			this.btnLineColor = new Greenshot.Controls.ToolStripColorButton();
 			this.lineThicknessLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
 			this.lineThicknessUpDown = new Greenshot.Controls.ToolStripNumericUpDown();
+			this.counterLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
+			this.counterUpDown = new Greenshot.Controls.ToolStripNumericUpDown();
 			this.fontFamilyComboBox = new Greenshot.Controls.FontFamilyComboBox();
 			this.fontSizeLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
 			this.fontSizeUpDown = new Greenshot.Controls.ToolStripNumericUpDown();
@@ -1045,7 +1047,9 @@ namespace Greenshot {
 									this.toolStripSeparator,
 									this.toolStripSeparator10,
 									this.btnConfirm,
-									this.btnCancel});
+									this.btnCancel,
+									this.counterLabel,
+									this.counterUpDown});
 			// 
 			// obfuscateModeButton
 			// 
@@ -1167,6 +1171,23 @@ namespace Greenshot {
 									0});
 			this.lineThicknessUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.lineThicknessUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
+			// 
+			// counterLabel
+			// 
+			this.counterLabel.LanguageKey = "editor_counter_startvalue";
+			this.counterLabel.Name = "counterLabel";
+			// 
+			// counterUpDown
+			// 
+			this.counterUpDown.DecimalPlaces = 0;
+			this.counterUpDown.Increment = 1;
+			this.counterUpDown.Maximum = 100;
+			this.counterUpDown.Minimum = 0;
+			this.counterUpDown.Name = "counterUpDown";
+			this.counterUpDown.Text = "1";
+			this.counterUpDown.Value = 1;
+			this.counterUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
+			this.counterUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
 			// fontFamilyComboBox
 			// 
@@ -1682,6 +1703,8 @@ namespace Greenshot {
 		private Greenshot.Controls.ToolStripEx propertiesToolStrip;
 		private GreenshotPlugin.Controls.GreenshotToolStripLabel lineThicknessLabel;
 		private Greenshot.Controls.ToolStripNumericUpDown lineThicknessUpDown;
+		private GreenshotPlugin.Controls.GreenshotToolStripLabel counterLabel;
+		private Greenshot.Controls.ToolStripNumericUpDown counterUpDown;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator15;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator16;

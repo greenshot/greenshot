@@ -48,10 +48,12 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// Description of Surface.
 	/// </summary>
-	public class Surface : Control, ISurface {
+	public class Surface : Control, ISurface, INotifyPropertyChanged {
 		private static ILog LOG = LogManager.GetLogger(typeof(Surface));
 		public static int Count = 0;
 		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
+
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		// Property to identify the Surface ID
 		private Guid _uniqueId = Guid.NewGuid();
@@ -220,13 +222,30 @@ namespace Greenshot.Drawing {
 			_stepLabels.Remove(stepLabel);
 		}
 
+		private int _counterStart = 1;
+
+		/// <summary>
+		/// The start value of the counter objects
+		/// </summary>
+		public int CounterStart {
+			get {
+				return _counterStart;
+			}
+			set {
+				if (PropertyChanged != null && _counterStart != value) {
+					_counterStart = value;
+					PropertyChanged(this, new PropertyChangedEventArgs("CounterStart"));
+					Invalidate();
+				}
+			}
+		}
 		/// <summary>
 		/// Count all the VISIBLE steplabels in the surface, up to the supplied one
 		/// </summary>
 		/// <param name="stopAtContainer">can be null, if not the counting stops here</param>
 		/// <returns>number of steplabels before the supplied container</returns>
 		public int CountStepLabels(IDrawableContainer stopAtContainer) {
-			int number = 1;
+			int number = CounterStart;
 			foreach (var possibleThis in _stepLabels) {
 				if (possibleThis == stopAtContainer) {
 					break;

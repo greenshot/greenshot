@@ -69,13 +69,14 @@ namespace Greenshot.Drawing.Fields {
 			SHADOW, 
 			PREPARED_FILTER_OBFUSCATE,
 			PREPARED_FILTER_HIGHLIGHT, 
-			FLAGS
+			FLAGS,
 		};
 		
 		[Flags]
 		public enum Flag {
 			NONE = 0,
-			CONFIRMABLE = 1
+			CONFIRMABLE = 1,
+			COUNTER = 2
 		}
 		
 		
