@@ -65,63 +65,32 @@ namespace Greenshot.Windows
 			Icon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
 			InitializeComponent();
 			Closing += Window_Closing;
+			Version v = Assembly.GetExecutingAssembly().GetName().Version;
+			VersionLabel.Content = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (PortableHelper.IsPortable ? " Portable" : "") + (" (" + Helpers.OSInfo.Bits + " bit)");
+
+			GreenshotPlugin.Core.Language.LanguageChanged += Language_LanguageChanged;
+			Loaded += AboutWindow_Loaded;
+
+			SetTranslations();
+		}
+
+		private void Language_LanguageChanged(object sender, EventArgs e)
+		{
+			SetTranslations();
+		}
+
+		void SetTranslations()
+		{
 			Title = GreenshotPlugin.Core.Language.GetString(LangKey.about_title);
 			AboutBugs.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_bugs);
 			AboutDonations.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_donations);
 			AboutIcons.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_icons);
 			AboutLicense.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_license);
-			if (GreenshotPlugin.Core.Language.HasKey(LangKey.about_translation)) {
+			if (GreenshotPlugin.Core.Language.HasKey(LangKey.about_translation))
+			{
 				AboutTranslation.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_translation);
 			}
-			Version v = Assembly.GetExecutingAssembly().GetName().Version;
-			VersionLabel.Content = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (PortableHelper.IsPortable ? " Portable" : "") + (" (" + Helpers.OSInfo.Bits + " bit)");
 
-			Loaded += AboutWindow_Loaded;
-		}
-
-		/// <summary>
-		/// Create glimmer "Color-Cycle" animation
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void AboutWindow_Loaded(object sender, RoutedEventArgs e) {
-			// Create glimmer "Color-Cycle" animation
-
-			var dots = new Ellipse[]{
-				L1C1,L1C2, L1C3, L1C4, L1C5,
-				L2C1, L2C2,
-				L3C1,L3C2,
-				L4C1, L4C2,
-				L5C1,
-				L6C1, L6C2, L6C3, L6C4,
-				L7C1, L7C2,
-				L8C1, L8C2, L8C3};
-
-			int delayOffset = 15;
-			int initialDelay = 5000;
-			foreach (var ellipse in dots) {
-				var storyBoard = new Storyboard();
-				storyBoard.BeginTime = TimeSpan.FromMilliseconds(initialDelay);
-				storyBoard.RepeatBehavior = RepeatBehavior.Forever;
-				storyBoard.Duration = TimeSpan.FromSeconds(10);
-
-				var goBright = new ColorAnimation();
-				goBright.From = Color.FromArgb(0xff, 0x8a, 0xff, 0x00);
-				goBright.To = Colors.White;
-				goBright.Duration = TimeSpan.FromMilliseconds(400);
-				storyBoard.Children.Add(goBright);
-				var goNormal = new ColorAnimation();
-				goNormal.To = Color.FromArgb(0xff, 0x8a, 0xff, 0x00);
-				goNormal.From = Colors.White;
-				goNormal.Duration = TimeSpan.FromMilliseconds(400);
-				storyBoard.Children.Add(goNormal);
-				Storyboard.SetTarget(goBright, ellipse);
-				Storyboard.SetTargetProperty(goBright, new PropertyPath("(Shape.Fill).(SolidColorBrush.Color)"));
-				Storyboard.SetTarget(goNormal, ellipse);
-				Storyboard.SetTargetProperty(goNormal, new PropertyPath("(Shape.Fill).(SolidColorBrush.Color)"));
-				ellipse.BeginStoryboard(storyBoard);
-				initialDelay += delayOffset;
-			}
 		}
 
 		/// <summary>
@@ -132,6 +101,7 @@ namespace Greenshot.Windows
 		void Window_Closing(object sender, CancelEventArgs e)
 		{
 			_aboutWindow = null;
+			GreenshotPlugin.Core.Language.LanguageChanged -= Language_LanguageChanged;
 		}
 
 		/// <summary>
