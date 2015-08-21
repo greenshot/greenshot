@@ -76,6 +76,15 @@ namespace Greenshot.Windows
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 			VersionLabel.Content = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (PortableHelper.IsPortable ? " Portable" : "") + (" (" + Helpers.OSInfo.Bits + " bit)");
 
+			Loaded += AboutWindow_Loaded;
+		}
+
+		/// <summary>
+		/// Create glimmer "Color-Cycle" animation
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void AboutWindow_Loaded(object sender, RoutedEventArgs e) {
 			// Create glimmer "Color-Cycle" animation
 
 			var dots = new Ellipse[]{
@@ -90,8 +99,7 @@ namespace Greenshot.Windows
 
 			int delayOffset = 15;
 			int initialDelay = 5000;
-			foreach (var ellipse in dots)
-			{
+			foreach (var ellipse in dots) {
 				var storyBoard = new Storyboard();
 				storyBoard.BeginTime = TimeSpan.FromMilliseconds(initialDelay);
 				storyBoard.RepeatBehavior = RepeatBehavior.Forever;
@@ -169,12 +177,16 @@ namespace Greenshot.Windows
 					}
 					break;
 				case Key.Escape:
-					DialogResult = true;
+					Close();
 					break;
 				case Key.E:
 					MessageBox.Show(Helpers.EnvironmentInfo.EnvironmentToString(true));
 					break;
 			}
+		}
+
+		private void Close_Click(object sender, RoutedEventArgs e) {
+			Close();
 		}
 	}
 }
