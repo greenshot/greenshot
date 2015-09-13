@@ -26,6 +26,7 @@ using System.ServiceModel.Syndication;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+using GreenshotPlugin.Extensions;
 
 namespace GreenshotPlugin.Core {
 	public class SourceforgeFile {

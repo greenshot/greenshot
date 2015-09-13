@@ -28,6 +28,8 @@ using System.Windows.Forms;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
+
 using log4net;
 using Dapplo.Config.Ini;
 using System.Threading;

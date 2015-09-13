@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -267,9 +265,9 @@ namespace GreenshotPlugin.OAuth {
 			Sign(RequestTokenMethod, RequestTokenUrl, parameters);
 			string response = await MakeRequest(RequestTokenMethod, RequestTokenUrl, null, parameters, null).ConfigureAwait(false);
 			if (!string.IsNullOrEmpty(response)) {
-				response = Uri.UnescapeDataString(response.Replace("+", " "));
+				var responseUri = new Uri(Uri.UnescapeDataString(response.Replace("+", " ")));
 				LOG.DebugFormat("Request token response: {0}", response);
-				_requestTokenResponseParameters = HttpClientHelper.ParseQueryString(response);
+				_requestTokenResponseParameters = responseUri.QueryToDictionary();
 				string value;
 				if (_requestTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out value)) {
 					Token = value;
@@ -323,9 +321,10 @@ namespace GreenshotPlugin.OAuth {
 			Sign(AccessTokenMethod, AccessTokenUrl, parameters);
 			string response = await MakeRequest(AccessTokenMethod, AccessTokenUrl, null, parameters, null).ConfigureAwait(false);
 			if (!string.IsNullOrEmpty(response)) {
-				response = Uri.UnescapeDataString(response.Replace("+", " "));
+
+				var responseUri = new Uri(Uri.UnescapeDataString(response.Replace("+", " ")));
 				LOG.DebugFormat("Access token response: {0}", response);
-				_accessTokenResponseParameters = HttpClientHelper.ParseQueryString(response);
+				_accessTokenResponseParameters = responseUri.QueryToDictionary();
 				string tokenValue;
 				if (_accessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue) && tokenValue != null) {
 					Token = tokenValue;

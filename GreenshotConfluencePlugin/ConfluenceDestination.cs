@@ -23,6 +23,8 @@ using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotConfluencePlugin.Model;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
+
 using GreenshotPlugin.Windows;
 using System;
 using System.Collections.Generic;

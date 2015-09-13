@@ -32,6 +32,8 @@ using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
+
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;

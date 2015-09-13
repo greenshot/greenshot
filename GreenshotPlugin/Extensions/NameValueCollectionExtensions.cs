@@ -19,28 +19,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Specialized;
+using System.Text;
 
-namespace GreenshotPlugin.Core {
-	public static class ProcessExtensions {
+namespace GreenshotPlugin.Extensions
+{
+	public static class NameValueCollectionExtensions
+	{
 		/// <summary>
-		/// Waits asynchronously for the process to exit.
+		/// Create a query string from a NameValueCollection
 		/// </summary>
-		/// <param name="process">The process to wait for cancellation.</param>
-		/// <param name="cancellationToken">A cancellation token. If invoked, the task will return 
-		/// immediately as canceled.</param>
-		/// <returns>A Task representing waiting for the process to end.</returns>
-		public static Task WaitForExitAsync(this Process process, CancellationToken cancellationToken = default(CancellationToken)) {
-			var taskCompletionSource = new TaskCompletionSource<object>();
-			process.EnableRaisingEvents = true;
-			process.Exited += (sender, args) => taskCompletionSource.TrySetResult(null);
-			if (cancellationToken != default(CancellationToken)) {
-				cancellationToken.Register(taskCompletionSource.SetCanceled);
+		/// <param name="nameValueCollection"></param>
+		/// <returns>?name1=value1&name2=value2 etc...</returns>
+		public static string ToQueryString(this NameValueCollection nameValueCollection)
+		{
+			var queryBuilder = new StringBuilder();
+
+			for (int i = 0; i < nameValueCollection.Count; i++)
+			{
+				var key = nameValueCollection.AllKeys[i];
+				queryBuilder.AppendFormat(i < nameValueCollection.Count - 1 ? "{0}={1}&" : "{0}={1}", key, nameValueCollection[key]);
 			}
 
-			return taskCompletionSource.Task;
+			return queryBuilder.ToString();
 		}
 	}
 }

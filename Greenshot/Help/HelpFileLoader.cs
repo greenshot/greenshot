@@ -20,8 +20,8 @@
  */
 
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using System.Diagnostics;
-using System.Net;
 using log4net;
 using System;
 using System.Threading.Tasks;

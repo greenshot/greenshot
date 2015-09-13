@@ -24,6 +24,8 @@ using Dapplo.Config.Support;
 using Greenshot.Configuration;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
+
 using log4net;
 using System;
 using System.Diagnostics;

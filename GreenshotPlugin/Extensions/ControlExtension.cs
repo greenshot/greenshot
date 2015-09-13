@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
@@ -28,8 +29,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Core {
-	public static class ControlExtension {
+namespace GreenshotPlugin.Extensions
+{
+	public static class ControlExtension
+	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ControlExtension));
 
 		/// <summary>
@@ -37,7 +40,8 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="control"></param>
 		/// <param name="action">Lambda</param>
-		public static void AsyncInvoke(this Control control, Action action) {
+		public static void AsyncInvoke(this Control control, Action action)
+		{
 			control.BeginInvoke(action);
 		}
 
@@ -48,10 +52,12 @@ namespace GreenshotPlugin.Core {
 		/// <param name="cancellationToken">A cancellation token. If invoked, the task will return 
 		/// immediately as canceled.</param>
 		/// <returns>A Task representing waiting for the ToolStripDropDown to close.</returns>
-		public static Task WaitForClosedAsync(this ToolStripDropDown toolStripDropDown, CancellationToken cancellationToken = default(CancellationToken)) {
+		public static Task WaitForClosedAsync(this ToolStripDropDown toolStripDropDown, CancellationToken cancellationToken = default(CancellationToken))
+		{
 			var taskCompletionSource = new TaskCompletionSource<object>();
 			toolStripDropDown.Closed += (sender, args) => taskCompletionSource.TrySetResult(null);
-			if (cancellationToken != default(CancellationToken)) {
+			if (cancellationToken != default(CancellationToken))
+			{
 				cancellationToken.Register(taskCompletionSource.SetCanceled);
 			}
 
@@ -62,15 +68,19 @@ namespace GreenshotPlugin.Core {
 		/// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
 		/// </summary>
 		/// <param name="toolStripDropDown"></param>
-		public static void ShowAtCursor(this ToolStripDropDown toolStripDropDown) {
+		public static void ShowAtCursor(this ToolStripDropDown toolStripDropDown)
+		{
 			// find a suitable location
 			var location = Cursor.Position;
 			var rectangle = new Rectangle(location, toolStripDropDown.Size);
 
 			rectangle.Intersect(WindowCapture.GetScreenBounds());
-			if (rectangle.Height < toolStripDropDown.Height) {
+			if (rectangle.Height < toolStripDropDown.Height)
+			{
 				location.Offset(-40, -(rectangle.Height - toolStripDropDown.Height));
-			} else {
+			}
+			else
+			{
 				location.Offset(-40, -10);
 			}
 
@@ -86,18 +96,23 @@ namespace GreenshotPlugin.Core {
 		/// <param name="window"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public static async Task<bool?> ShowDialogAsync(this Window window, CancellationToken token = default(CancellationToken)) {
+		public static async Task<bool?> ShowDialogAsync(this Window window, CancellationToken token = default(CancellationToken))
+		{
 			var taskCompletionSource = new TaskCompletionSource<bool>();
 			// show the dialog asynchronously 
 			// (presumably on the next iteration of the message loop)
-			using (token.Register(() => taskCompletionSource.TrySetCanceled(), useSynchronizationContext: true)) {
+			using (token.Register(() => taskCompletionSource.TrySetCanceled(), useSynchronizationContext: true))
+			{
 				RoutedEventHandler loadedHandler = (s, e) => taskCompletionSource.TrySetResult(true);
 
 				window.Loaded += loadedHandler;
-				try {
+				try
+				{
 					SynchronizationContext.Current.Post((_) => window.ShowDialog(), null);
 					await taskCompletionSource.Task;
-				} finally {
+				}
+				finally
+				{
 					window.Loaded -= loadedHandler;
 				}
 			}

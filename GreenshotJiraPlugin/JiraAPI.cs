@@ -20,6 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using System;
 using System.IO;
 using System.Net;

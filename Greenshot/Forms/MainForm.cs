@@ -29,7 +29,9 @@ using Greenshot.Plugin;
 using Greenshot.Windows;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.UnmanagedHelpers;
+
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -45,7 +47,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.Integration;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms

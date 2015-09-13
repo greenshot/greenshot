@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

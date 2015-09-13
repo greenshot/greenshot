@@ -21,13 +21,11 @@
 
 using System;
 using System.IO;
-using System.Security.Cryptography;
-using System.Text;
 using log4net;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Extensions {
 	/// <summary>
 	/// Write extension method for the string here
 	/// </summary>

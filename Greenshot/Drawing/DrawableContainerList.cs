@@ -25,6 +25,8 @@ using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

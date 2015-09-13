@@ -19,16 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Drawing;
-using System.IO;
+using Dapplo.Config.Ini;
+using Greenshot.Core;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.Core;
-using System.Diagnostics;
+using GreenshotPlugin.Extensions;
 using System;
-using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Threading;
-using Dapplo.Config.Ini;
+using System.Threading.Tasks;
 
 namespace GreenshotOCR {
 	/// <summary>

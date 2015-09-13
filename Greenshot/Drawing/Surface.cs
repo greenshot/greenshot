@@ -27,7 +27,7 @@ using Dapplo.Config.Ini;
 using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Controls;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
 using log4net;

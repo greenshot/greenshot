@@ -23,6 +23,7 @@ using Dapplo.Config;
 using Dapplo.Config.Support;
 using GreenshotConfluencePlugin.Model;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
