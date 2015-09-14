@@ -26,7 +26,9 @@ using GreenshotPlugin.OAuth;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -44,7 +46,7 @@ namespace GreenshotPhotobucketPlugin {
 		/// For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
 		/// </summary>
 		/// <returns>PhotobucketResponse</returns>
-		public static async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename) {
+		public static async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename, IProgress<int> progress = null) {
 			string responseString;
 			
 			if (string.IsNullOrEmpty(albumPath)) {
@@ -74,29 +76,50 @@ namespace GreenshotPhotobucketPlugin {
 			}
 			IDictionary<string, object> unsignedParameters = new Dictionary<string, object>();
 			// Add image
-			unsignedParameters.Add("uploadfile", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-			try {
-				var signUri = new Uri("http://api.photobucket.com/album/!/upload");
-				var requestUri = new Uri("http://api.photobucket.com/album/!/upload".Replace("api.photobucket.com", config.SubDomain));
-				responseString = await oAuth.MakeOAuthRequest(HttpMethod.Post, signUri, requestUri, null, signedParameters, unsignedParameters);
-			} catch (Exception ex) {
-				LOG.Error("Error uploading to Photobucket.", ex);
-				throw;
-			} finally {
-				if (!string.IsNullOrEmpty(oAuth.Token)) {
-					config.Token = oAuth.Token;
-				}
-				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
-					config.TokenSecret = oAuth.TokenSecret;
+
+			using (var stream = new MemoryStream())
+			{
+				ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+				stream.Position = 0;
+				using (var uploadStream = new ProgressStream(stream, progress))
+				{
+					using (var streamContent = new StreamContent(uploadStream))
+					{
+						streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+						unsignedParameters.Add("uploadfile", streamContent);
+						try
+						{
+							var signUri = new Uri("http://api.photobucket.com/album/!/upload");
+							var requestUri = new Uri("http://api.photobucket.com/album/!/upload".Replace("api.photobucket.com", config.SubDomain));
+							responseString = await oAuth.MakeOAuthRequest(HttpMethod.Post, signUri, requestUri, null, signedParameters, unsignedParameters);
+						}
+						catch (Exception ex)
+						{
+							LOG.Error("Error uploading to Photobucket.", ex);
+							throw;
+						}
+						finally
+						{
+							if (!string.IsNullOrEmpty(oAuth.Token))
+							{
+								config.Token = oAuth.Token;
+							}
+							if (!string.IsNullOrEmpty(oAuth.TokenSecret))
+							{
+								config.TokenSecret = oAuth.TokenSecret;
+							}
+						}
+					}
 				}
 			}
+
 			if (responseString == null) {
 				return null;
 			}
 			LOG.Info(responseString);
-			PhotobucketInfo PhotobucketInfo = PhotobucketInfo.FromUploadResponse(responseString);
+			var photobucketInfo = PhotobucketInfo.FromUploadResponse(responseString);
 			LOG.Debug("Upload to Photobucket was finished");
-			return PhotobucketInfo;
+			return photobucketInfo;
 		}
 		
 		/// <summary>

@@ -25,6 +25,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotPlugin.Extensions
 {
@@ -77,6 +79,22 @@ namespace GreenshotPlugin.Extensions
 		{
 			client.DefaultRequestHeaders.TryAddWithoutValidation(name, value);
 			return client;
+		}
+
+		/// <summary>
+		/// Post method
+		/// </summary>
+		/// <param name="client">HttpClient</param>
+		/// <param name="uri"></param>
+		/// <returns>HttpResponseMessage</returns>
+		public static async Task<HttpResponseMessage> PostAsync(this HttpClient client, Uri uri, CancellationToken token = default(CancellationToken))
+		{
+			using (var request = new HttpRequestMessage(HttpMethod.Post, uri))
+			{
+				var responseMessage = await client.SendAsync(request, token).ConfigureAwait(false);
+				responseMessage.EnsureSuccessStatusCode();
+				return responseMessage;
+			}
 		}
 
 		/// <summary>

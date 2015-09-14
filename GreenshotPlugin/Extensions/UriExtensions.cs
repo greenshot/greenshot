@@ -184,6 +184,19 @@ namespace GreenshotPlugin.Extensions
 		}
 
 		/// <summary>
+		/// Post method
+		/// </summary>
+		/// <param name="uri"></param>
+		/// <returns>HttpResponseMessage</returns>
+		public static async Task<HttpResponseMessage> PostAsync(this Uri uri, CancellationToken token = default(CancellationToken))
+		{
+			using (var client = uri.CreateHttpClient())
+			{
+				return await client.PostAsync(uri, token);
+			}
+		}
+
+		/// <summary>
 		/// Simple extension to post Form-URLEncoded Content
 		/// </summary>
 		/// <param name="uri">Uri to post to</param>

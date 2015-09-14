@@ -115,7 +115,7 @@ namespace GreenshotPhotobucketPlugin  {
 			try {
 				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("photobucket", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-					return await PhotobucketUtils.UploadToPhotobucket(surface, outputSettings, albumPath, captureDetails.Title, filename);
+					return await PhotobucketUtils.UploadToPhotobucket(surface, outputSettings, albumPath, captureDetails.Title, filename, progress);
 				});
 
 				// This causes an exeption if the upload failed :)
