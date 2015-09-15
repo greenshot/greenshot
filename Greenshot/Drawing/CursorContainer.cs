@@ -44,7 +44,7 @@ namespace Greenshot.Drawing {
 			Load(filename);
 		}
 
-		public override Cursor Cursor {
+		public Cursor Cursor {
 			set {
 				if (cursor != null) {
 					cursor.Dispose();

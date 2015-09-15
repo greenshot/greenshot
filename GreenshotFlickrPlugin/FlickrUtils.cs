@@ -122,7 +122,7 @@ namespace GreenshotFlickrPlugin
 				response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, FLICKR_GET_INFO_URL, null, signedParameters);
 				var photoInfo = DynamicJson.Parse(response);
 				if (config.UsePageLink) {
-					return photoInfo.url;
+					return photoInfo.photo.urls.url[0].content;
 				}
 				return string.Format(FLICKR_FARM_URL, photoInfo.photo.farm, photoInfo.photo.server, photoId, photoInfo.photo.secret);
 			} catch (Exception ex) {
