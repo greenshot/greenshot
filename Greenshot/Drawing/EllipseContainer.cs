@@ -64,9 +64,9 @@ namespace Greenshot.Drawing {
 		/// <param name="renderMode"></param>
 		public static void DrawEllipse(Rectangle rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow) {
 
-			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
+			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));
 			// draw shadow before anything else
-			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
+			if (shadow && (lineVisible || ColorHelper.IsVisible(fillColor))) {
 				int basealpha = 100;
 				int alpha = basealpha;
 				int steps = 5;
@@ -82,7 +82,7 @@ namespace Greenshot.Drawing {
 				}
 			}
 			//draw the original shape
-			if (Colors.IsVisible(fillColor)) {
+			if (ColorHelper.IsVisible(fillColor)) {
 				using (Brush brush = new SolidBrush(fillColor)) {
 					graphics.FillEllipse(brush, rect);
 				}

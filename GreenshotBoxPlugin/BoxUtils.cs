@@ -95,8 +95,7 @@ namespace GreenshotBoxPlugin
 								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 								multiPartContent.Add(streamContent);
 								using (var responseMessage = await httpClient.PostAsync(UploadFileUri, multiPartContent, token)) {
-									await responseMessage.HandleErrorAsync(token);
-									response = await responseMessage.GetAsStringAsync();
+									response = await responseMessage.GetAsStringAsync(token);
 								}
 							}
 						}
@@ -112,8 +111,7 @@ namespace GreenshotBoxPlugin
 						Uri uri = new Uri(string.Format(FilesUri, upload.Entries[0].Id));
 						var content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8);
 						using (var responseMessage = await httpClient.PutAsync(uri, content, token)) {
-							await responseMessage.HandleErrorAsync(token);
-							var file = await responseMessage.GetAsJsonAsync();
+							var file = await responseMessage.GetAsJsonAsync(token);
 							return file.SharedLink.Url;
 						}
 					}

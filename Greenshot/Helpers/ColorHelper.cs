@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Drawing;
 
 namespace Greenshot.Helpers {
-	public static class Colors {
+	public static class ColorHelper {
 		public static bool IsVisible(Color c) {
 			return c != null && !c.Equals(Color.Empty) && !c.Equals(Color.Transparent) && c.A > 0;
 		}

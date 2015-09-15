@@ -69,8 +69,8 @@ namespace Greenshot.Drawing {
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
-			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
+			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));
+			if (shadow && (lineVisible || ColorHelper.IsVisible(fillColor))) {
 				//draw shadow first
 				int basealpha = 100;
 				int alpha = basealpha;
@@ -92,7 +92,7 @@ namespace Greenshot.Drawing {
 			}
 
 
-			if (Colors.IsVisible(fillColor)) {
+			if (ColorHelper.IsVisible(fillColor)) {
 				using (Brush brush = new SolidBrush(fillColor)) {
 					graphics.FillRectangle(brush, rect);
 				}

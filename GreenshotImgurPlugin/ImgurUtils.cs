@@ -256,7 +256,7 @@ namespace GreenshotImgurPlugin
 				if (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.BadRequest) {
 					await response.HandleErrorAsync(token).ConfigureAwait(false);
 				}
-				responseString = await response.GetAsStringAsync().ConfigureAwait(false);
+				responseString = await response.GetAsStringAsync(token, false).ConfigureAwait(false);
 				LOG.InfoFormat("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured

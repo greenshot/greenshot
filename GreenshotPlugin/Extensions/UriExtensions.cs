@@ -261,7 +261,7 @@ namespace GreenshotPlugin.Extensions
 			using (var client = uri.CreateHttpClient())
 			using (var response = await client.GetAsync(uri, HttpCompletionOption.ResponseContentRead, token).ConfigureAwait(false))
 			{
-				return await response.GetAsStringAsync(throwError).ConfigureAwait(false);
+				return await response.GetAsStringAsync(token, throwError).ConfigureAwait(false);
 			}
 		}
 

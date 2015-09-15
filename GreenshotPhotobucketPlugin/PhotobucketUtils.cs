@@ -22,6 +22,7 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.OAuth;
 using System;
 using System.Collections.Generic;
@@ -53,16 +54,16 @@ namespace GreenshotPhotobucketPlugin {
 				albumPath = "!";
 			}
 
-			OAuthSession oAuth = await createSession(true);
+			var uploadUri = new Uri("http://api.photobucket.com/album").AppendSegments(albumPath, "upload");
+			var oAuth = await createSession(true);
 			if (oAuth == null) {
 				return null;
 			}
-			IDictionary<string, object> signedParameters = new Dictionary<string, object>();
-			// add album
-			if (albumPath == null) {
-				signedParameters.Add("id", config.Username);
-			} else {
-				signedParameters.Add("id", albumPath);
+			var signedParameters = new Dictionary<string, object>();
+			// add username if the albumpath is for the user
+			// see "Alternative Identifier Specifications" here: https://pic.photobucket.com/dev_help/WebHelpPublic/Content/Getting%20Started/Conventions.htm#ObjectIdentifiers
+			if (albumPath == "!" && oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters.ContainsKey("username")) {
+				signedParameters.Add("id", oAuth.AccessTokenResponseParameters["username"]);
 			}
 			// add type
 			signedParameters.Add("type", "image");
@@ -74,7 +75,7 @@ namespace GreenshotPhotobucketPlugin {
 			if (filename != null) {
 				signedParameters.Add("filename", filename);
 			}
-			IDictionary<string, object> unsignedParameters = new Dictionary<string, object>();
+			var unsignedParameters = new Dictionary<string, object>();
 			// Add image
 
 			using (var stream = new MemoryStream())
@@ -86,11 +87,16 @@ namespace GreenshotPhotobucketPlugin {
 					using (var streamContent = new StreamContent(uploadStream))
 					{
 						streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+						streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") {
+							Name = "\"uploadfile\"",
+							FileName = "\"" + filename + "\"",
+						};
 						unsignedParameters.Add("uploadfile", streamContent);
+
 						try
 						{
-							var signUri = new Uri("http://api.photobucket.com/album/!/upload");
-							var requestUri = new Uri("http://api.photobucket.com/album/!/upload".Replace("api.photobucket.com", config.SubDomain));
+							var signUri = uploadUri;
+							var requestUri = string.IsNullOrEmpty(config.SubDomain) ? uploadUri : new Uri(uploadUri.AbsoluteUri.Replace("api.photobucket.com", config.SubDomain));
 							responseString = await oAuth.MakeOAuthRequest(HttpMethod.Post, signUri, requestUri, null, signedParameters, unsignedParameters);
 						}
 						catch (Exception ex)

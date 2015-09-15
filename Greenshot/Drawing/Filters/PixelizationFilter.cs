@@ -64,7 +64,7 @@ namespace Greenshot.Drawing.Filters {
 									}
 								}
 							}
-							Color currentAvgColor = Colors.Mix(colors);
+							Color currentAvgColor = ColorHelper.Mix(colors);
 							for (int yy = y; yy <= y + pixelSize; yy++) {
 								if (yy >= src.Top && yy < src.Bottom) {
 									for (int xx = x; xx <= x + pixelSize; xx++) {

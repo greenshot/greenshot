@@ -220,7 +220,7 @@ namespace Greenshot.Drawing {
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
-			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
+			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
 			if (Selected && renderMode == RenderMode.EDIT) {
@@ -232,7 +232,7 @@ namespace Greenshot.Drawing {
 			GraphicsPath tail = CreateTail();
 
 			//draw shadow first
-			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
+			if (shadow && (lineVisible || ColorHelper.IsVisible(fillColor))) {
 				const int basealpha = 100;
 				int alpha = basealpha;
 				const int steps = 5;
@@ -265,7 +265,7 @@ namespace Greenshot.Drawing {
 			}
 			graphics.Restore(state);
 
-			if (Colors.IsVisible(fillColor)) {
+			if (ColorHelper.IsVisible(fillColor)) {
 				//draw the bubbleshape
 				state = graphics.Save();
 				using (Brush brush = new SolidBrush(fillColor)) {
@@ -288,7 +288,7 @@ namespace Greenshot.Drawing {
 				graphics.Restore(state);
 			}
 
-			if (Colors.IsVisible(fillColor)) {
+			if (ColorHelper.IsVisible(fillColor)) {
 				// Draw the tail border
 				state = graphics.Save();
 				using (Brush brush = new SolidBrush(fillColor)) {

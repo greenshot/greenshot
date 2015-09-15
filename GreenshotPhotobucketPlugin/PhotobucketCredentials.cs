@@ -25,7 +25,7 @@ namespace GreenshotPhotobucketPlugin {
 	/// You can set your own values here
 	/// </summary>
 	public static class PhotobucketCredentials {
-		public static string ConsumerKey = "@credentials_photobucket_consumer_key@";
-		public static string ConsumerSecret = "@credentials_photobucket_consumer_secret@";
+		public static string ConsumerKey = "149833145";
+		public static string ConsumerSecret = "ebd828180b11103c010c7e71c66f6bcb";
 	}
 }

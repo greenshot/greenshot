@@ -20,6 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
+using log4net;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -30,22 +31,20 @@ namespace GreenshotPlugin.Extensions
 {
 	public static class HttpResponseMessageExtensions
 	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(HttpResponseMessageExtensions));
 		/// <summary>
 		/// ReadAsStringAsync
 		/// </summary>
 		/// <param name="response"></param>
 		/// <param name="throwErrorOnNonSuccess"></param>
 		/// <returns></returns>
-		public static async Task<string> GetAsStringAsync(this HttpResponseMessage response, bool throwErrorOnNonSuccess = true)
+		public static async Task<string> GetAsStringAsync(this HttpResponseMessage response, CancellationToken token = default(CancellationToken), bool throwErrorOnNonSuccess = true)
 		{
 			if (response.IsSuccessStatusCode)
 			{
 				return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 			}
-			if (throwErrorOnNonSuccess)
-			{
-				response.EnsureSuccessStatusCode();
-			}
+			await response.HandleErrorAsync(token, throwErrorOnNonSuccess).ConfigureAwait(false);
 			return null;
 		}
 
@@ -55,17 +54,14 @@ namespace GreenshotPlugin.Extensions
 		/// <param name="response"></param>
 		/// <param name="throwErrorOnNonSuccess"></param>
 		/// <returns>dynamic (DyanmicJson)</returns>
-		public static async Task<dynamic> GetAsJsonAsync(this HttpResponseMessage response, bool throwErrorOnNonSuccess = true)
+		public static async Task<dynamic> GetAsJsonAsync(this HttpResponseMessage response, CancellationToken token = default(CancellationToken), bool throwErrorOnNonSuccess = true)
 		{
 			if (response.IsSuccessStatusCode)
 			{
 				var jsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 				return DynamicJson.Parse(jsonString);
 			}
-			if (throwErrorOnNonSuccess)
-			{
-				response.EnsureSuccessStatusCode();
-			}
+			await response.HandleErrorAsync(token, throwErrorOnNonSuccess).ConfigureAwait(false);
 			return null;
 		}
 
@@ -87,17 +83,7 @@ namespace GreenshotPlugin.Extensions
 					return memoryStream;
 				}
 			}
-			try
-			{
-				response.EnsureSuccessStatusCode();
-			}
-			catch (Exception)
-			{
-				if (throwErrorOnNonSuccess)
-				{
-					throw;
-				}
-			}
+			await response.HandleErrorAsync(token, throwErrorOnNonSuccess).ConfigureAwait(false);
 			return null;
 		}
 
@@ -105,7 +91,7 @@ namespace GreenshotPlugin.Extensions
 		/// Simplified error handling, this makes sure the uri & response are logged
 		/// </summary>
 		/// <param name="responseMessage"></param>
-		public static async Task HandleErrorAsync(this HttpResponseMessage responseMessage, CancellationToken token = default(CancellationToken))
+		public static async Task<string> HandleErrorAsync(this HttpResponseMessage responseMessage, CancellationToken token = default(CancellationToken), bool throwErrorOnNonSuccess = true)
 		{
 			Exception throwException = null;
 			string errorContent = null;
@@ -131,16 +117,17 @@ namespace GreenshotPlugin.Extensions
 			{
 				throwException = ex;
 				throwException.Data.Add("uri", requestUri);
-			}
-			if (throwException != null)
-			{
-				if (errorContent != null)
-				{
+				LOG.ErrorFormat("Communicating with {0} caused an error: {1}", requestUri, ex.Message);
+				if (errorContent != null) {
 					throwException.Data.Add("response", errorContent);
+					LOG.ErrorFormat("The response was {0}", errorContent);
 				}
+			}
+			if (throwErrorOnNonSuccess && throwException != null)
+			{
 				throw throwException;
 			}
-			return;
+			return errorContent;
 		}
 	}
 }

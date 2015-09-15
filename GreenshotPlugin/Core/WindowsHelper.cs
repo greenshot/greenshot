@@ -1574,14 +1574,15 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Get the region for a window
 		/// </summary>
-		private Region GetRegion()
+		public Region GetRegion(out RegionResult regionResult)
 		{
+			regionResult = RegionResult.REGION_NULLREGION;
 			using (SafeRegionHandle region = GDI32.CreateRectRgn(0, 0, 0, 0))
 			{
 				if (!region.IsInvalid)
 				{
-					RegionResult result = User32.GetWindowRgn(Handle, region);
-					if (result != RegionResult.REGION_ERROR && result != RegionResult.REGION_NULLREGION)
+					regionResult = User32.GetWindowRgn(Handle, region);
+					if (regionResult != RegionResult.REGION_ERROR && regionResult != RegionResult.REGION_NULLREGION)
 					{
 						return Region.FromHrgn(region.DangerousGetHandle());
 					}
@@ -1694,7 +1695,8 @@ namespace GreenshotPlugin.Core
 			// Start the capture
 			Exception exceptionOccured = null;
 			Image returnImage = null;
-			using (Region region = GetRegion())
+			RegionResult regionResult;
+			using (Region region = GetRegion(out regionResult))
 			{
 				PixelFormat pixelFormat = PixelFormat.Format24bppRgb;
 				// Only use 32 bpp ARGB when the window has a region

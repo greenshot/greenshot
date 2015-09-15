@@ -79,8 +79,7 @@ namespace GreenshotPicasaPlugin {
 							using (var content = new StreamContent(uploadStream)) {
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-								await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-								response = await responseMessage.GetAsStringAsync().ConfigureAwait(false);
+								response = await responseMessage.GetAsStringAsync(token).ConfigureAwait(false);
 							}
 						}
 					}

@@ -310,6 +310,6 @@ All Greenshot features still work directly from the tray icon context menu witho
     <resource name="editor_resize_width">Width</resource>
     <resource name="editor_resize_height">Height</resource>
 	<resource name="settings_iconsize">Icon size</resource>
-    
+	<resource name="editor_counter_startvalue">Count start</resource>    
   </resources>
 </language>

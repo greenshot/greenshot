@@ -333,71 +333,6 @@ namespace GreenshotPlugin.Core {
 	}
 
 	/// <summary>
-	/// Implementation of the PointAnimator
-	/// </summary>
-	public class PointAnimator : AnimatorBase<Point> {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PointAnimator));
-		public PointAnimator(Point first, Point last, int frames)
-			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
-		}
-		public PointAnimator(Point first, Point last, int frames, EasingType easingType)
-			: base(first, last, frames, easingType, EasingMode.EaseIn) {
-		}
-		public PointAnimator(Point first, Point last, int frames, EasingType easingType, EasingMode easingMode)
-			: base(first, last, frames, easingType, easingMode) {
-		}
-		
-		/// <summary>
-		/// Calculate the next frame value
-		/// </summary>
-		/// <returns>Point</returns>
-		public override Point Next() {
-			if (NextFrame) {
-				double easingValue = EasingValue;
-				double dx = last.X - first.X;
-				double dy = last.Y - first.Y;
-
-				int x = first.X + (int)(easingValue * dx);
-				int y = first.Y + (int)(easingValue * dy);
-				current = new Point(x, y);
-			}
-			return current;
-		}
-	}
-
-	/// <summary>
-	/// Implementation of the SizeAnimator
-	/// </summary>
-	public class SizeAnimator : AnimatorBase<Size> {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(SizeAnimator));
-		public SizeAnimator(Size first, Size last, int frames)
-			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
-		}
-		public SizeAnimator(Size first, Size last, int frames, EasingType easingType)
-			: base(first, last, frames, easingType, EasingMode.EaseIn) {
-		}
-		public SizeAnimator(Size first, Size last, int frames, EasingType easingType, EasingMode easingMode)
-			: base(first, last, frames, easingType, easingMode) {
-		}
-
-		/// <summary>
-		/// Calculate the next frame values
-		/// </summary>
-		/// <returns>Size</returns>
-		public override Size Next() {
-			if (NextFrame) {
-				double easingValue = EasingValue;
-				double dw = last.Width - first.Width;
-				double dh = last.Height - first.Height;
-				int width = first.Width + (int)(easingValue * dw);
-				int height = first.Height + (int)(easingValue * dh);
-				current = new Size(width, height);
-			}
-			return current;
-		}
-	}
-
-	/// <summary>
 	/// Implementation of the ColorAnimator
 	/// </summary>
 	public class ColorAnimator : AnimatorBase<Color> {
@@ -428,35 +363,6 @@ namespace GreenshotPlugin.Core {
 				int g = first.G + (int)(easingValue * dg);
 				int b = first.B + (int)(easingValue * db);
 				current = Color.FromArgb(a,r,g,b);
-			}
-			return current;
-		}
-	}
-
-	/// <summary>
-	/// Implementation of the IntAnimator
-	/// </summary>
-	public class IntAnimator : AnimatorBase<int> {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(IntAnimator));
-		public IntAnimator(int first, int last, int frames)
-			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
-		}
-		public IntAnimator(int first, int last, int frames, EasingType easingType)
-			: base(first, last, frames, easingType, EasingMode.EaseIn) {
-		}
-		public IntAnimator(int first, int last, int frames, EasingType easingType, EasingMode easingMode)
-			: base(first, last, frames, easingType, easingMode) {
-		}
-
-		/// <summary>
-		/// Calculate the next frame values
-		/// </summary>
-		/// <returns>int</returns>
-		public override int Next() {
-			if (NextFrame) {
-				double easingValue = EasingValue;
-				double delta = last - first;
-				current = first + (int)(easingValue * delta);
 			}
 			return current;
 		}

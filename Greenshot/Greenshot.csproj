@@ -231,7 +231,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\Arguments.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
-    <Compile Include="Helpers\Colors.cs" />
+    <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="Helpers\GeometryHelper.cs" />
     <Compile Include="Helpers\DestinationHelper.cs" />
     <Compile Include="Helpers\GreenshotClient.cs" />

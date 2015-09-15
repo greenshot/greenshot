@@ -376,7 +376,6 @@ namespace GreenshotPlugin.OAuth
 			{
 				var uriBuilder = new UriBuilder("http://getgreenshot.org");
 				uriBuilder.Query = Uri.UnescapeDataString(response.Replace("+", " "));
-				LOG.DebugFormat("Access token response: {0}", response);
 				_accessTokenResponseParameters = uriBuilder.Uri.QueryToDictionary();
 				string tokenValue;
 				if (_accessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue) && tokenValue != null)
@@ -391,6 +390,26 @@ namespace GreenshotPlugin.OAuth
 			}
 
 			return Token;
+		}
+
+		/// <summary>
+		/// Helper method to call a method (function) on a STA Thread.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="func"></param>
+		/// <returns>Task</returns>
+		private static Task<T> StartSTATask<T>(Func<T> func) {
+			var tcs = new TaskCompletionSource<T>();
+			Thread thread = new Thread(() => {
+				try {
+					tcs.SetResult(func());
+				} catch (Exception e) {
+					tcs.SetException(e);
+				}
+			});
+			thread.SetApartmentState(ApartmentState.STA);
+			thread.Start();
+			return tcs.Task;
 		}
 
 		/// <summary>
@@ -412,7 +431,9 @@ namespace GreenshotPlugin.OAuth
 				LOG.Error(ex);
 				throw new NotSupportedException("Service is not available: " + ex.Message);
 			}
-			if (string.IsNullOrEmpty(GetAuthorizeToken()))
+			// Run the WebBrowser on a STA thread!
+			var token = await StartSTATask(GetAuthorizeToken);
+			if (string.IsNullOrEmpty(token))
 			{
 				LOG.Debug("User didn't authenticate!");
 				return false;
@@ -420,7 +441,7 @@ namespace GreenshotPlugin.OAuth
 			try
 			{
 				await Task.Delay(1000).ConfigureAwait(false);
-				return GetAccessTokenAsync() != null;
+				return await GetAccessTokenAsync() != null;
 			}
 			catch (Exception ex)
 			{
@@ -691,13 +712,14 @@ namespace GreenshotPlugin.OAuth
 					foreach (var key in requestParameters.Keys)
 					{
 						var requestObject = requestParameters[key];
-						if (requestParameters is HttpContent)
+						var formattedKey = string.Format("\"{0}\"", key);
+						if (requestObject is HttpContent)
 						{
-							multipartFormDataContent.Add(requestObject as HttpContent, key);
+							multipartFormDataContent.Add(requestObject as HttpContent, formattedKey);
 						}
 						else
 						{
-							multipartFormDataContent.Add(new StringContent(requestObject as string), key);
+							multipartFormDataContent.Add(new StringContent(requestObject as string), formattedKey);
 						}
 					}
 					responseMessage = await httpClient.PostAsync(requestUri, multipartFormDataContent).ConfigureAwait(false);
@@ -716,7 +738,7 @@ namespace GreenshotPlugin.OAuth
 
 				try
 				{
-					responseData = await responseMessage.GetAsStringAsync().ConfigureAwait(false);
+					responseData = await responseMessage.GetAsStringAsync(token).ConfigureAwait(false);
 					LOG.DebugFormat("Response: {0}", responseData);
 				}
 				catch (Exception ex)
