@@ -270,7 +270,7 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// the cursor container, needed with serialization as we need a direct acces to it.
 		/// </summary>
-		private IDrawableContainer _cursorContainer;
+		private ICursorContainer _cursorContainer;
 
 		/// <summary>
 		/// the capture details, needed with serialization
@@ -486,14 +486,25 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="capture"></param>
 		public Surface(ICapture capture) : this(capture.Image) {
-			// check if cursor is captured, and visible
-			if (capture.Cursor != null && capture.CursorVisible) {
-				Rectangle cursorRect = new Rectangle(capture.CursorLocation, capture.Cursor.Size);
-				Rectangle captureRect = new Rectangle(Point.Empty, capture.Image.Size);
+			// check if cursor is captured
+			if (capture.Cursor != null) {
+				var cursorRect = new Rectangle(capture.CursorLocation, capture.Cursor.Size);
+				var captureRect = new Rectangle(Point.Empty, capture.Image.Size);
+
+				// Store the cursor, even if it wasn't visible, just in case the user wants to add it later
+				_cursorContainer = new CursorContainer(this);
+				_cursorContainer.Cursor = capture.Cursor;
+				_cursorContainer.Left = capture.CursorLocation.X;
+				_cursorContainer.Top = capture.CursorLocation.Y;
+
 				// check if cursor is on the capture, otherwise we leave it out.
 				if (cursorRect.IntersectsWith(captureRect)) {
-					_cursorContainer = AddCursorContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
-					SelectElement(_cursorContainer);
+
+					// Only add it / make it selectable if is was visible
+					if (capture.CursorVisible) {
+						AddElement(_cursorContainer);
+						SelectElement(_cursorContainer);
+					}
 				}
 			}
 			// Make sure the image is NOT disposed, we took the reference directly into ourselves
