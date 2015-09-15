@@ -84,12 +84,7 @@ namespace GreenshotPhotobucketPlugin  {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			List<string> albums = null;
-			// TODO: Get list of albums, as this is async it won't work here without eventually causing deadlocks
-			//try {
-			//	albums = PhotobucketUtils.RetrievePhotobucketAlbums().Result;
-			//} catch {
-			//}
+			var albums = Task.Run(async () => await PhotobucketUtils.RetrievePhotobucketAlbums()).GetAwaiter().GetResult();
 
 			if (albums == null || albums.Count == 0) {
 				yield break;

@@ -71,7 +71,7 @@ namespace GreenshotDropboxPlugin
 			};
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try {
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("dropbox", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 					using (var stream = new MemoryStream())
 					{

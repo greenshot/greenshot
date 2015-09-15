@@ -661,7 +661,7 @@ namespace GreenshotPlugin.OAuth
 			IDictionary<string, object> requestParameters;
 			// Add oAuth values as HTTP headers
 			var authHeader = new StringBuilder();
-			requestParameters = new Dictionary<string, object>();
+			requestParameters = new SortedDictionary<string, object>();
 			foreach (string parameterKey in parameters.Keys)
 			{
 				if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX))
@@ -690,6 +690,7 @@ namespace GreenshotPlugin.OAuth
 			string responseData;
 			using (var httpClient = requestUri.CreateHttpClient())
 			{
+				httpClient.DefaultRequestHeaders.ExpectContinue = false;
 				// TODO: Auth headers could be passed/stored different, maybe only one httpclient pro session?
 				httpClient.SetAuthorization("OAuth", authHeader.ToString());
 				httpClient.AddDefaultRequestHeader("User-Agent", "Greenshot");

@@ -213,7 +213,6 @@
     <Compile Include="Core\JSONHelper.cs" />
     <Compile Include="Core\Language.cs" />
     <Compile Include="Core\LogHelper.cs" />
-    <Compile Include="Core\NetworkHelper.cs" />
     <Compile Include="Core\Objects.cs" />
     <Compile Include="Core\PluginUtils.cs" />
     <Compile Include="Core\QuantizerHelper.cs" />

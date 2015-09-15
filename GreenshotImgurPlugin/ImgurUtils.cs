@@ -110,7 +110,6 @@ namespace GreenshotImgurPlugin
 						ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
 						imageStream.Position = 0;
 						using (var uploadStream = new ProgressStream(imageStream, progress)) {
-							uploadStream.TotalBytesToReceive = uploadStream.Length;
 							using (var content = new StreamContent(uploadStream)) {
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var response = await client.PostAsync(uploadUri, content, token).ConfigureAwait(false);

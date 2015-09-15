@@ -22,6 +22,7 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.OAuth;
 using System;
 using System.Drawing;
@@ -32,26 +33,28 @@ namespace GreenshotDropboxPlugin {
 	/// <summary>
 	/// Description of DropboxUtils.
 	/// </summary>
-	public class DropboxUtils {
+	public static class DropboxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxUtils));
 		private static IDropboxConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IDropboxConfiguration>();
-
-		private DropboxUtils() {
-		}
+		private static readonly Uri DROPBOX_API_URI = new Uri("https://api.dropbox.com/1");
+		private static readonly Uri DROPBOX_OAUTH_URI = DROPBOX_API_URI.AppendSegments("oauth");
+		private static readonly Uri DROPBOX_API_CONTENT_URI = new Uri("https://api-content.dropbox.com/1/files_put/sandbox/");
+		private static readonly Uri DROPBOX_SHARES_URI = DROPBOX_API_URI.AppendSegments("shares", "sandbox");
 
 		public static async Task<string> UploadToDropbox(HttpContent content, string filename) {
 			OAuthSession oAuth = new OAuthSession(DropBoxCredentials.CONSUMER_KEY, DropBoxCredentials.CONSUMER_SECRET);
 			oAuth.BrowserSize = new Size(1080, 650);
 			oAuth.CheckVerifier = false;
-			oAuth.AccessTokenUrl = new Uri("https://api.dropbox.com/1/oauth/access_token");
-			oAuth.AuthorizeUrl = new Uri("https://api.dropbox.com/1/oauth/authorize");
-			oAuth.RequestTokenUrl = new Uri("https://api.dropbox.com/1/oauth/request_token");
+
+			oAuth.AccessTokenUrl = DROPBOX_OAUTH_URI.AppendSegments("access_token");
+			oAuth.AuthorizeUrl = DROPBOX_OAUTH_URI.AppendSegments("authorize");
+			oAuth.RequestTokenUrl = DROPBOX_OAUTH_URI.AppendSegments("request_token");
 			oAuth.LoginTitle = "Dropbox authorization";
 			oAuth.Token = config.DropboxToken;
 			oAuth.TokenSecret = config.DropboxTokenSecret;
 
 			try {
-				string uploadResponse = await oAuth.MakeOAuthRequest(HttpMethod.Post, new Uri("https://api-content.dropbox.com/1/files_put/sandbox/" + Uri.EscapeDataString(filename)), null, null, null, null, content);
+				string uploadResponse = await oAuth.MakeOAuthRequest(HttpMethod.Post, DROPBOX_API_CONTENT_URI.AppendSegments(Uri.EscapeDataString(filename)), null, null, null, null, content);
 				LOG.DebugFormat("Upload response: {0}", uploadResponse);
 			} catch (Exception ex) {
 				LOG.Error("Upload error: ", ex);
@@ -67,7 +70,7 @@ namespace GreenshotDropboxPlugin {
 
 			// Try to get a URL to the uploaded image
 			try {
-				string responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, new Uri("https://api.dropbox.com/1/shares/sandbox/" + Uri.EscapeDataString(filename)), null);
+				string responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, DROPBOX_SHARES_URI.AppendSegments(Uri.EscapeDataString(filename)), null);
 				if (responseString != null) {
 					LOG.DebugFormat("Parsing output: {0}", responseString);
 					var result = DynamicJson.Parse(responseString);

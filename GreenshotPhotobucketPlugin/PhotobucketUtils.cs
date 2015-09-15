@@ -49,12 +49,8 @@ namespace GreenshotPhotobucketPlugin {
 		/// <returns>PhotobucketResponse</returns>
 		public static async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename, IProgress<int> progress = null) {
 			string responseString;
-			
-			if (string.IsNullOrEmpty(albumPath)) {
-				albumPath = "!";
-			}
 
-			var uploadUri = new Uri("http://api.photobucket.com/album").AppendSegments(albumPath, "upload");
+			var uploadUri = new Uri("http://api.photobucket.com/album/!/upload");
 			var oAuth = await createSession(true);
 			if (oAuth == null) {
 				return null;
@@ -62,8 +58,10 @@ namespace GreenshotPhotobucketPlugin {
 			var signedParameters = new Dictionary<string, object>();
 			// add username if the albumpath is for the user
 			// see "Alternative Identifier Specifications" here: https://pic.photobucket.com/dev_help/WebHelpPublic/Content/Getting%20Started/Conventions.htm#ObjectIdentifiers
-			if (albumPath == "!" && oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters.ContainsKey("username")) {
+			if (string.IsNullOrEmpty(albumPath) && oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters.ContainsKey("username")) {
 				signedParameters.Add("id", oAuth.AccessTokenResponseParameters["username"]);
+			} else {
+				signedParameters.Add("id", albumPath);
 			}
 			// add type
 			signedParameters.Add("type", "image");
@@ -181,11 +179,11 @@ namespace GreenshotPhotobucketPlugin {
 			}
 			string responseString;
 
-			OAuthSession oAuth = await createSession(false);
+			var oAuth = await createSession(false);
 			if (oAuth == null) {
 				return null;
 			}
-			IDictionary<string, object> signedParameters = new Dictionary<string, object>();
+			var signedParameters = new Dictionary<string, object>();
 			try {
 				var signUri = new Uri(string.Format("http://api.photobucket.com/album/{0}", config.Username));
 				var requestUri = new Uri(string.Format("http://api.photobucket.com/album/{0}".Replace("api.photobucket.com", config.SubDomain), config.Username));
@@ -205,9 +203,9 @@ namespace GreenshotPhotobucketPlugin {
 				return null;
 			}
 			try {
-				XmlDocument doc = new XmlDocument();
+				var doc = new XmlDocument();
 				doc.LoadXml(responseString);
-				List<string> albums = new List<string>();
+				var albums = new List<string>();
 				recurseAlbums(albums, null, doc.GetElementsByTagName("content").Item(0).ChildNodes);
 				LOG.DebugFormat("Albums: {0}", string.Join(",", albums.ToArray()));
 				albumsCache = albums;

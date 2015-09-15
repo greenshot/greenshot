@@ -54,6 +54,8 @@ namespace GreenshotPlugin.Core {
 		public ProgressStream(Stream innerStream, IProgress<int> progress) : base(innerStream)
         {
 			_progress = progress;
+			TotalBytesToReceive = innerStream.Length;
+			TotalBytesToSend = innerStream.Length;
         }
 
         public override int Read(byte[] buffer, int offset, int count)

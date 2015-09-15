@@ -66,7 +66,7 @@ namespace GreenshotFlickrPlugin
 			try {
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-					return await FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename);
+					return await FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename, progress, token);
 				});
 
 				if (url != null) {
