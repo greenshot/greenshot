@@ -2,23 +2,25 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\CommonProject.properties" />
   <PropertyGroup>
-    <ProjectGuid>{1893A2E4-A78A-4713-A8E7-E70058DABEE0}</ProjectGuid>
+    <NoWarn>1685</NoWarn>
+    <ProjectGuid>{A9D7B3E5-6E59-488C-9E8B-AD240B246A0E}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotPicasaPlugin</RootNamespace>
-    <AssemblyName>GreenshotPicasaPlugin</AssemblyName>
+    <RootNamespace>GreenshotEditorPlugin</RootNamespace>
+    <AssemblyName>GreenshotEditorPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkProfile />
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\Greenshot\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
@@ -41,77 +43,48 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Greenshot\lib\log4net.dll</HintPath>
+      <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PicasaCredentials.cs" />
-    <Compile Include="Forms\PicasaForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.Designer.cs">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="LanguageKeys.cs" />
-    <Compile Include="PicasaConfiguration.cs" />
-    <Compile Include="PicasaDestination.cs" />
-    <Compile Include="PicasaPlugin.cs" />
-    <Compile Include="PicasaUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="PicasaPlugin.resx">
-      <DependentUpon>PicasaPlugin.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Languages\language_picasaplugin-en-US.xml" />
-    <Content Include="Picasa.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Languages\language_picasaplugin-fr-FR.xml" />
-    <None Include="Languages\language_picasaplugin-it-IT.xml" />
-    <None Include="Languages\language_picasaplugin-ru-RU.xml" />
-    <None Include="Languages\language_picasaplugin-uk-UA.xml" />
-    <None Include="Languages\language_picasaplugin-zh-CN.xml" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Languages\language_editorplugin-en-US.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>if exist "$(ProjectDir)PicasaCredentials.orig.cs" (
-   rename "$(ProjectDir)PicasaCredentials.cs" "PicasaCredentials.private.cs"
-   rename "$(ProjectDir)PicasaCredentials.orig.cs" "PicasaCredentials.cs"
-)
-
-mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
-copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).dll" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
+    <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
 copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
 mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
-copy "$(ProjectDir)Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
-</PostBuildEvent>
-    <PreBuildEvent>
-if exist "$(ProjectDir)PicasaCredentials.private.cs" (
-   rename "$(ProjectDir)PicasaCredentials.cs" "PicasaCredentials.orig.cs"
-   rename "$(ProjectDir)PicasaCredentials.private.cs" "PicasaCredentials.cs"
-)</PreBuildEvent>
+copy "$(ProjectDir)Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -72,19 +72,12 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
-copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
-copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName).config" "$(SolutionDir)bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
+mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName).config" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\GreenshotOCRPlugin"
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

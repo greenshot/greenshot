@@ -49,7 +49,7 @@
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)"
-copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"</PostBuildEvent>
+    <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"</PostBuildEvent>
   </PropertyGroup>
 </Project>

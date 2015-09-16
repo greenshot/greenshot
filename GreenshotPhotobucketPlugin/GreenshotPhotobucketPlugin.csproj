@@ -37,8 +37,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
     <Reference Include="Dapplo.Config, Version=0.1.59.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Greenshot\packages\Dapplo.Config.0.1.59.0\lib\net45\Dapplo.Config.dll</HintPath>
+      <HintPath>..\packages\Dapplo.Config.0.1.59.0\lib\net45\Dapplo.Config.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
@@ -108,11 +108,11 @@ if exist "$(ProjectDir)PhotobucketCredentials.orig.cs" (
    rename "$(ProjectDir)PhotobucketCredentials.cs" "PhotobucketCredentials.private.cs"
    rename "$(ProjectDir)PhotobucketCredentials.orig.cs" "PhotobucketCredentials.cs"
 )
-mkdir "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)"
-copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
-copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)bin\$(Configuration)\Plugins\$(ProjectName)\"
-mkdir "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
-copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
+copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
+copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
 	</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

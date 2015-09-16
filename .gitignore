@@ -17,7 +17,7 @@ fugue/
 /Greenshot/releases/additional_files/readme.txt
 /*.error
 /Greenshot/releases/innosetup/setup.iss
-/Greenshot/packages
+/packages
 /Greenshot/releases/appinfo.ini
 /Greenshot/Backup*
 
