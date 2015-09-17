@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using Greenshot.Plugin;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,11 +7,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("GreenshotEditorPlugin")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Greenshot editor plugin")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GreenshotEditorPlugin")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCompany("Greenshot")]
+[assembly: AssemblyProduct("Editor Plugin")]
+[assembly: AssemblyCopyright("Copyright © 2007-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -22,6 +23,9 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("a9d7b3e5-6e59-488c-9e8b-ad240b246a0e")]
 
+// The PluginAttribute describes the "entryType" and if the plugin is configurable
+[assembly: PluginAttribute("GreenshotEditorPlugin.EditorPlugin", false)]
+
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
@@ -32,5 +36,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.3.0.0")]
+[assembly: AssemblyFileVersion("1.3.0.0")]

@@ -87,10 +87,28 @@
     <Compile Include="Controls\AnimatingForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Controls\ColorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\ColorDialog.Designer.cs">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\GreenshotRadioButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\MovableShowColorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\MovableShowColorForm.Designer.cs">
+      <DependentUpon>MovableShowColorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Pipette.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Core\BuildInDestinationEnum.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
+    <Compile Include="Core\DestinationHelper.cs" />
+    <Compile Include="Core\HelpFileLoader.cs" />
     <Compile Include="Extensions\ControlExtension.cs" />
     <Compile Include="Core\DynamicJson.cs" />
     <Compile Include="Core\EventDelay.cs" />
@@ -108,6 +126,8 @@
     <Compile Include="Extensions\ProcessExtensions.cs" />
     <Compile Include="Core\ProgressStream.cs" />
     <Compile Include="Core\TitleChangeMonitor.cs" />
+    <Compile Include="Extensions\RectangleExtensions.cs" />
+    <Compile Include="Extensions\SizeExtentions.cs" />
     <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Core\StreamDelegate.cs" />
@@ -247,6 +267,9 @@
     <Compile Include="Windows\PleaseWaitWindow.xaml.cs">
       <DependentUpon>PleaseWaitWindow.xaml</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Controls\ColorDialog.resx">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="log4net-embedded.xml" />
     <EmbeddedResource Include="Core\GreenshotResources.resx">
       <DependentUpon>GreenshotResources.cs</DependentUpon>

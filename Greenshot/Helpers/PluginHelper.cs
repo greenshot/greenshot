@@ -74,6 +74,16 @@ namespace Greenshot.Helpers
 			}
 		}
 
+		public void ShowAbout()
+		{
+			MainForm.Instance.ShowAbout();
+		}
+
+		public void ShowSettings()
+		{
+			MainForm.Instance.ShowSetting();
+		}
+
 		public bool HasPlugins() {
 			return (plugins != null && plugins.Count > 0);
 		}

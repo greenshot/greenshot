@@ -27,6 +27,7 @@ using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using Greenshot.Core;
 using log4net;
 using Dapplo.Config.Ini;
@@ -208,14 +209,14 @@ namespace Greenshot.Helpers
 				RectangleF printRect = new RectangleF(0, 0, imageRect.Width, imageRect.Height);
 				// scale the image to fit the page better
 				if (conf.OutputPrintAllowEnlarge || conf.OutputPrintAllowShrink) {
-					SizeF resizedRect = ScaleHelper.GetScaledSize(imageRect.Size, pageRect.Size, false);
+					SizeF resizedRect = imageRect.Size.Scale(pageRect.Size, false);
 					if ((conf.OutputPrintAllowShrink && resizedRect.Width < printRect.Width) || conf.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width) {
 						printRect.Size = resizedRect;
 					}
 				}
 
 				// align the image
-				printRect = ScaleHelper.GetAlignedRectangle(printRect, new RectangleF(0, 0, pageRect.Width, pageRect.Height), alignment);
+				printRect = printRect.Align(new RectangleF(0, 0, pageRect.Width, pageRect.Height), alignment);
 				if (conf.OutputPrintFooter) {
 					//printRect = new RectangleF(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
 					using (Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular)) {

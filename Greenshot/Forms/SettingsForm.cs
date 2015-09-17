@@ -45,7 +45,7 @@ namespace Greenshot {
 	/// </summary>
 	public partial class SettingsForm : BaseForm {
 		private static ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
-		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot","greenshot").Get<IEditorConfiguration>();
+		//private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot","greenshot").Get<IEditorConfiguration>();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
 
@@ -318,7 +318,7 @@ namespace Greenshot {
 					imageList.Images.Add(currentDestination.DisplayIcon);
 					imageNr++;
 				}
-				if (PickerDestination.DESIGNATION.Equals(currentDestination.Designation)) {
+				if (BuildInDestinationEnum.Picker.ToString().Equals(currentDestination.Designation)) {
 					checkbox_picker.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
 					checkbox_picker.Text = currentDestination.Description;
 				} else {
@@ -428,7 +428,7 @@ namespace Greenshot {
 
 			List<string> destinations = new List<string>();
 			if (checkbox_picker.Checked) {
-				destinations.Add(PickerDestination.DESIGNATION);
+				destinations.Add(BuildInDestinationEnum.Picker.ToString());
 			}
 			foreach(int index in listview_destinations.CheckedIndices) {
 				ListViewItem item = listview_destinations.Items[index];

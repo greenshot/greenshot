@@ -26,6 +26,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <Prefer32Bit>false</Prefer32Bit>
@@ -54,6 +55,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
@@ -61,6 +63,118 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\BindableToolStripButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\BindableToolStripDropDownButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\CustomToolStripProfessionalRenderer.cs" />
+    <Compile Include="Controls\FontFamilyComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\MenuStripEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\NonJumpingPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ToolStripColorButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ToolStripEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ToolStripNumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Drawing\ArrowContainer.cs" />
+    <Compile Include="Drawing\CropContainer.cs" />
+    <Compile Include="Drawing\CursorContainer.cs" />
+    <Compile Include="Drawing\DrawableContainer.cs" />
+    <Compile Include="Drawing\DrawableContainerList.cs" />
+    <Compile Include="Drawing\EllipseContainer.cs" />
+    <Compile Include="Drawing\Fields\AbstractFieldHolder.cs" />
+    <Compile Include="Drawing\Fields\AbstractFieldHolderWithChildren.cs" />
+    <Compile Include="Drawing\Fields\Binding\AbstractBindingConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\BidirectionalBinding.cs" />
+    <Compile Include="Drawing\Fields\Binding\DecimalDoublePercentageConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\DecimalFloatConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\DecimalIntConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\IBindingConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\IBindingValidator.cs" />
+    <Compile Include="Drawing\Fields\Binding\NotNullValidator.cs" />
+    <Compile Include="Drawing\Fields\Field.cs" />
+    <Compile Include="Drawing\Fields\FieldAggregator.cs" />
+    <Compile Include="Drawing\Fields\FieldType.cs" />
+    <Compile Include="Drawing\Fields\IFieldHolder.cs" />
+    <Compile Include="Drawing\FilterContainer.cs" />
+    <Compile Include="Drawing\Filters\AbstractFilter.cs" />
+    <Compile Include="Drawing\Filters\BlurFilter.cs" />
+    <Compile Include="Drawing\Filters\BrightnessFilter.cs" />
+    <Compile Include="Drawing\Filters\GrayscaleFilter.cs" />
+    <Compile Include="Drawing\Filters\HighlightFilter.cs" />
+    <Compile Include="Drawing\Filters\IFilter.cs" />
+    <Compile Include="Drawing\Filters\MagnifierFilter.cs" />
+    <Compile Include="Drawing\Filters\PixelizationFilter.cs" />
+    <Compile Include="Drawing\FreehandContainer.cs" />
+    <Compile Include="Drawing\Gripper.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Drawing\HighlightContainer.cs" />
+    <Compile Include="Drawing\IconContainer.cs" />
+    <Compile Include="Drawing\ImageContainer.cs" />
+    <Compile Include="Drawing\LineContainer.cs" />
+    <Compile Include="Drawing\ObfuscateContainer.cs" />
+    <Compile Include="Drawing\RectangleContainer.cs" />
+    <Compile Include="EditorPlugin.cs" />
+    <Compile Include="Forms\DropShadowSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\DropShadowSettingsForm.Designer.cs">
+      <DependentUpon>DropShadowSettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ResizeSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ResizeSettingsForm.Designer.cs">
+      <DependentUpon>ResizeSettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\TornEdgeSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TornEdgeSettingsForm.Designer.cs">
+      <DependentUpon>TornEdgeSettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ColorHelper.cs" />
+    <Compile Include="Helpers\GeometryHelper.cs" />
+    <Compile Include="Helpers\ScaleHelper.cs" />
+    <Compile Include="Drawing\SpeechbubbleContainer.cs" />
+    <Compile Include="Drawing\StepLabelContainer.cs" />
+    <Compile Include="Drawing\Surface.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Drawing\TextContainer.cs" />
+    <Compile Include="EditorDestination.cs" />
+    <Compile Include="Forms\BaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ImageEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ImageEditorForm.Designer.cs">
+      <DependentUpon>ImageEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
+    <Compile Include="IEditorConfiguration.cs" />
+    <Compile Include="LangKey.cs" />
+    <Compile Include="Memento\AddElementMemento.cs" />
+    <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
+    <Compile Include="Memento\DeleteElementMemento.cs" />
+    <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
+    <Compile Include="Memento\IMemento.cs" />
+    <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
+    <Compile Include="Memento\TextChangeMemento.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +189,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <EmbeddedResource Include="Forms\ImageEditorForm.resx">
+      <DependentUpon>ImageEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Languages\language_editorplugin-en-US.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>

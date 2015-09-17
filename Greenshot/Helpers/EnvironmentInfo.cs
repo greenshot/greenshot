@@ -27,7 +27,6 @@ using System.Windows.Forms;
 
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
-using Greenshot.Drawing;
 using log4net;
 
 namespace Greenshot.Helpers
@@ -112,7 +111,8 @@ namespace Greenshot.Helpers
 			} else {
 				environment.Append(", ");
 			}
-			environment.AppendFormat("Surface count: {0}", Surface.Count);
+			// TODO: Is this needed?
+			// environment.AppendFormat("Surface count: {0}", Surface.Count);
 
 			return environment.ToString();
 		}

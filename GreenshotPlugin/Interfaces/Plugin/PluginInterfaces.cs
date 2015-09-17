@@ -215,6 +215,16 @@ namespace Greenshot.Plugin {
 		/// <param name="imageToCapture">Image to create capture for</param>
 		/// <returns>ICapture</returns>
 		ICapture GetCapture(Image imageToCapture);
+
+		/// <summary>
+		/// Show the Greenshot About
+		/// </summary>
+		void ShowAbout();
+
+		/// <summary>
+		/// Show the settings
+		/// </summary>
+        void ShowSettings();
 	}
 
 	public interface IGreenshotPlugin : IDisposable {

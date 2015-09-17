@@ -21,12 +21,12 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Configuration;
-using Greenshot.Destinations;
 using Greenshot.Experimental;
-using Greenshot.Help;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using Greenshot.Windows;
+//using GreenshotEditorPlugin;
+using GreenshotEditorPlugin.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
@@ -103,7 +103,6 @@ namespace Greenshot.Forms
 			// Read configuration
 			Task.Run(async () => {
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
-				await iniConfig.RegisterAndGetAsync<IEditorConfiguration>();
 			}).Wait();
 
 			// Log the startup
@@ -326,11 +325,6 @@ namespace Greenshot.Forms
 
 			UpdateUi();
 
-			// This forces the registration of all destinations inside Greenshot itself.
-			DestinationHelper.GetAllDestinations();
-			// This forces the registration of all processors inside Greenshot itself.
-			ProcessorHelper.GetAllProcessors();
-
 			// Load all the plugins
 			Task.Run(async () => await PluginHelper.Instance.LoadPluginsAsync()).Wait();
 
@@ -346,7 +340,7 @@ namespace Greenshot.Forms
 			// we should have at least one!
 			if (coreConfiguration.OutputDestinations.Count == 0)
 			{
-				coreConfiguration.OutputDestinations.Add(EditorDestination.DESIGNATION);
+				coreConfiguration.OutputDestinations.Add(BuildInDestinationEnum.Editor.ToString());
 			}
 
 			if (coreConfiguration.DisableQuickSettings)
@@ -1284,7 +1278,7 @@ namespace Greenshot.Forms
 			IDestination selectedDestination = (IDestination)item.Data;
 			if (item.Checked)
 			{
-				if (selectedDestination.Designation.Equals(PickerDestination.DESIGNATION))
+				if (selectedDestination.Designation.Equals(BuildInDestinationEnum.Picker.ToString()))
 				{
 					// If the item is the destination picker, remove all others
 					coreConfiguration.OutputDestinations.Clear();
@@ -1292,7 +1286,7 @@ namespace Greenshot.Forms
 				else
 				{
 					// If the item is not the destination picker, remove the picker
-					coreConfiguration.OutputDestinations.Remove(PickerDestination.DESIGNATION);
+					coreConfiguration.OutputDestinations.Remove(BuildInDestinationEnum.Picker.ToString());
 				}
 				// Checked an item, add if the destination is not yet selected
 				if (!coreConfiguration.OutputDestinations.Contains(selectedDestination.Designation))
@@ -1311,7 +1305,7 @@ namespace Greenshot.Forms
 			// Check if something was selected, if not make the picker the default
 			if (coreConfiguration.OutputDestinations == null || coreConfiguration.OutputDestinations.Count == 0)
 			{
-				coreConfiguration.OutputDestinations.Add(PickerDestination.DESIGNATION);
+				coreConfiguration.OutputDestinations.Add(BuildInDestinationEnum.Picker.ToString());
 			}
 
 			// Rebuild the quick settings menu with the new settings.
@@ -1427,7 +1421,7 @@ namespace Greenshot.Forms
 				case ClickActions.OPEN_LAST_IN_EDITOR:
 					if (File.Exists(coreConfiguration.OutputFileAsFullpath))
 					{
-						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION), token);
+						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()), token);
 					}
 					break;
 				case ClickActions.OPEN_SETTINGS:

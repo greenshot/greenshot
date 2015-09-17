@@ -39,11 +39,10 @@ namespace Greenshot.Destinations {
 	public class FileDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(FileDestination));
 		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
-		public const string DESIGNATION = "FileNoDialog";
 
 		public override string Designation {
 			get {
-				return DESIGNATION;
+				return BuildInDestinationEnum.FileNoDialog.ToString();
 			}
 		}
 

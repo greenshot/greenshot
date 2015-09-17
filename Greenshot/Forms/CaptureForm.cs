@@ -20,11 +20,11 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Drawing;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
@@ -438,7 +438,7 @@ namespace Greenshot.Forms {
 			}
 
 			if (_captureMode == CaptureMode.Region && _mouseDown) {
-				_captureRect = GuiRectangle.GetGuiRectangle(_cursorPos.X, _cursorPos.Y, _mX - _cursorPos.X, _mY - _cursorPos.Y);
+				_captureRect = new Rectangle(_cursorPos.X, _cursorPos.Y, _mX - _cursorPos.X, _mY - _cursorPos.Y).MakeGuiRectangle();
 			}
 			
 			// Iterate over the found windows and check if the current location is inside a window
@@ -499,18 +499,18 @@ namespace Greenshot.Forms {
 					allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
 					if (verticalMove) {
 						// Before
-						invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, lastPos.Y - 2, Width + 2, 45);
+						invalidateRectangle = new Rectangle(allScreenBounds.Left, lastPos.Y - 2, Width + 2, 45).MakeGuiRectangle();
 						Invalidate(invalidateRectangle);
 						// After
-						invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, _cursorPos.Y - 2, Width + 2, 45);
+						invalidateRectangle = new Rectangle(allScreenBounds.Left, _cursorPos.Y - 2, Width + 2, 45).MakeGuiRectangle();
 						Invalidate(invalidateRectangle);
 					}
 					if (horizontalMove) {
 						// Before
-						invalidateRectangle = GuiRectangle.GetGuiRectangle(lastPos.X - 2, allScreenBounds.Top, 75, Height + 2);
+						invalidateRectangle = new Rectangle(lastPos.X - 2, allScreenBounds.Top, 75, Height + 2).MakeGuiRectangle();
 						Invalidate(invalidateRectangle);
 						// After
-						invalidateRectangle = GuiRectangle.GetGuiRectangle(_cursorPos.X - 2, allScreenBounds.Top, 75, Height + 2);
+						invalidateRectangle = new Rectangle(_cursorPos.X - 2, allScreenBounds.Top, 75, Height + 2).MakeGuiRectangle();
 						Invalidate(invalidateRectangle);
 					}
 				}

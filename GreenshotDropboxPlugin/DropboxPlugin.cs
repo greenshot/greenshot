@@ -18,20 +18,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+using Dapplo.Config.Ini;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
-using Dapplo.Config.Ini;
-using Greenshot.Plugin;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace GreenshotDropboxPlugin {
+namespace GreenshotDropboxPlugin
+{
 	/// <summary>
 	/// This is the Dropbox base code
 	/// </summary>

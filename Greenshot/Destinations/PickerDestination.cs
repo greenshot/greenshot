@@ -36,11 +36,10 @@ namespace Greenshot.Destinations {
 	public class PickerDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(PickerDestination));
 		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
-		public const string DESIGNATION = "Picker";
 
 		public override string Designation {
 			get {
-				return DESIGNATION;
+				return BuildInDestinationEnum.Picker.ToString();
 			}
 		}
 

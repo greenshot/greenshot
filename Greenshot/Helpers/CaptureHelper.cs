@@ -19,12 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Linq;
+using Dapplo.Config.Ini;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
-using Greenshot.Drawing;
 using Greenshot.Forms;
 using Greenshot.Plugin;
+using GreenshotEditorPlugin;
+using GreenshotEditorPlugin.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
@@ -33,10 +34,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
-using System.Windows.Forms;
 using System.Threading.Tasks;
-using Dapplo.Config.Ini;
+using System.Windows.Forms;
 
 namespace Greenshot.Helpers
 {
@@ -342,13 +343,13 @@ namespace Greenshot.Helpers
 						_capture.CaptureDetails.Title = "Clipboard";
 						_capture.CaptureDetails.AddMetaData("source", "Clipboard");
 						// Force Editor, keep picker
-						if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION)) {
+						if (_capture.CaptureDetails.HasDestination(BuildInDestinationEnum.Picker.ToString())) {
 							_capture.CaptureDetails.ClearDestinations();
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()));
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Picker.ToString()));
 						} else {
 							_capture.CaptureDetails.ClearDestinations();
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()));
 						}
 						await HandleCaptureAsync(token);
 					} else {
@@ -365,18 +366,18 @@ namespace Greenshot.Helpers
 								ISurface surface = new Surface();
 								surface = ImageOutput.LoadGreenshotSurface(filename, surface);
 								surface.CaptureDetails = _capture.CaptureDetails;
-								await DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCaptureAsync(true, surface, _capture.CaptureDetails, token);
+								await DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()).ExportCaptureAsync(true, surface, _capture.CaptureDetails, token);
 								break;
 							}
 						} catch (Exception e) {
 							LOG.Error(e.Message, e);
-							MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+							MessageBox.Show(Language.GetFormattedString(Configuration.LangKey.error_openfile, filename));
 						}
 						try {
 							fileImage = ImageHelper.LoadImage(filename);
 						} catch (Exception e) {
 							LOG.Error(e.Message, e);
-							MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+							MessageBox.Show(Language.GetFormattedString(Configuration.LangKey.error_openfile, filename));
 						}
 					}
 					if (fileImage != null) {
@@ -389,13 +390,13 @@ namespace Greenshot.Helpers
 							_capture = new Capture(fileImage);
 						}
 						// Force Editor, keep picker, this is currently the only usefull destination
-						if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION)) {
+						if (_capture.CaptureDetails.HasDestination(BuildInDestinationEnum.Picker.ToString())) {
 							_capture.CaptureDetails.ClearDestinations();
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()));
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Picker.ToString()));
 						} else {
 							_capture.CaptureDetails.ClearDestinations();
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()));
 						}
 						await HandleCaptureAsync(token);
 					}
@@ -630,8 +631,8 @@ namespace Greenshot.Helpers
 			var captureDetails = _capture.CaptureDetails;
 			bool canDisposeSurface = true;
 
-			if (captureDetails.HasDestination(PickerDestination.DESIGNATION)) {
-				await DestinationHelper.ExportCaptureAsync(false, PickerDestination.DESIGNATION, surface, captureDetails, token);
+			if (captureDetails.HasDestination(BuildInDestinationEnum.Picker.ToString())) {
+				await DestinationHelper.ExportCaptureAsync(false, BuildInDestinationEnum.Picker.ToString(), surface, captureDetails, token);
 				captureDetails.CaptureDestinations.Clear();
 				canDisposeSurface = false;
 			}
@@ -647,13 +648,13 @@ namespace Greenshot.Helpers
 				// Flag to detect if we need to create a temp file for the email
 				// or use the file that was written
 				foreach(var destination in captureDetails.CaptureDestinations) {
-					if (PickerDestination.DESIGNATION.Equals(destination.Designation)) {
+					if (BuildInDestinationEnum.Picker.ToString().Equals(destination.Designation)) {
 						continue;
 					}
 					LOG.InfoFormat("Calling destination {0}", destination.Description);
 
 					var exportInformation = await destination.ExportCaptureAsync(false, surface, captureDetails, token);
-					if (EditorDestination.DESIGNATION.Equals(destination.Designation) && exportInformation.ExportMade) {
+					if (BuildInDestinationEnum.Editor.ToString().Equals(destination.Designation) && exportInformation.ExportMade) {
 						canDisposeSurface = false;
 					}
 				}
@@ -685,7 +686,7 @@ namespace Greenshot.Helpers
 				// This is done mainly for a screen capture, but some applications like Excel and TOAD have weird behaviour!
 				_selectedCaptureWindow.Restore();
 			}
-			_selectedCaptureWindow = SelectCaptureWindow(_selectedCaptureWindow);
+			_selectedCaptureWindow = _selectedCaptureWindow.WindowToCapture();
 			if (_selectedCaptureWindow == null) {
 				LOG.Warn("No window to capture, after SelectCaptureWindow!");
 				// Nothing to capture, code up in the stack will capture the full screen
@@ -695,28 +696,6 @@ namespace Greenshot.Helpers
 			conf.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
 			bool returnValue = CaptureWindow(_selectedCaptureWindow, _capture, conf.WindowCaptureMode) != null;
 			return returnValue;
-		}
-
-		/// <summary>
-		/// Select the window to capture, this has logic which takes care of certain special applications
-		/// like TOAD or Excel
-		/// </summary>
-		/// <param name="windowToCapture">WindowDetails with the target Window</param>
-		/// <returns>WindowDetails with the target Window OR a replacement</returns>
-		public static WindowDetails SelectCaptureWindow(WindowDetails windowToCapture) {
-			Rectangle windowRectangle = windowToCapture.WindowRectangle;
-			if (windowRectangle.Width == 0 || windowRectangle.Height == 0) {
-				LOG.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
-				// Trying workaround, the size 0 arrises with e.g. Toad.exe, has a different Window when minimized
-				WindowDetails linkedWindow = WindowDetails.GetLinkedWindow(windowToCapture);
-				if (linkedWindow != null) {
-					windowRectangle = linkedWindow.WindowRectangle;
-					windowToCapture = linkedWindow;
-				} else {
-					return null;
-				}
-			}
-			return windowToCapture;
 		}
 		
 		/// <summary>
