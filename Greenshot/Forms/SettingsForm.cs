@@ -45,7 +45,7 @@ namespace Greenshot {
 	/// </summary>
 	public partial class SettingsForm : BaseForm {
 		private static ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
-		//private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot","greenshot").Get<IEditorConfiguration>();
+		//private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
 

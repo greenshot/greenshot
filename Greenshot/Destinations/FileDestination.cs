@@ -38,7 +38,7 @@ namespace Greenshot.Destinations {
 	/// </summary>
 	public class FileDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(FileDestination));
-		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
 		public override string Designation {
 			get {

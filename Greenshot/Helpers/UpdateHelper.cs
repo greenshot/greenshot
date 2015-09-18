@@ -39,7 +39,7 @@ namespace Greenshot.Experimental {
 	/// </summary>
 	public static class UpdateHelper {
 		private static ILog LOG = LogManager.GetLogger(typeof(UpdateHelper));
-		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private const string STABLE_DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
 		private const string VERSION_HISTORY_LINK = "http://getgreenshot.org/version-history/";
 		private static AsyncLock _asyncLock = new AsyncLock();

@@ -183,7 +183,7 @@ namespace GreenshotPlugin.Core
 		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
 
 		private static ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
-		private static readonly ICoreConfiguration Conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly List<IntPtr> _ignoreHandles = new List<IntPtr>();
 		private static readonly List<string> _excludeProcessesFromFreeze = new List<string>();
 		private static readonly IDisposableCom<IAppVisibility> _appVisibility;

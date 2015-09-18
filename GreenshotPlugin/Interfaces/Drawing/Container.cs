@@ -142,11 +142,11 @@ namespace Greenshot.Plugin.Drawing
         {
             if (linkedProperty == null)
             {
-                foreach (PropertyInfo propertyInfo in typeForAttribute.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                foreach (var propertyInfo in typeForAttribute.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                 {
-                    foreach (Attribute attribute in propertyInfo.GetCustomAttributes(true))
+                    foreach (var attribute in propertyInfo.GetCustomAttributes(true))
                     {
-                        FieldAttribute fieldAttribute = attribute as FieldAttribute;
+                        var fieldAttribute = attribute as FieldAttribute;
                         if (fieldAttribute != null && fieldAttribute.FieldType == fieldType)
                         {
                             linkedProperty = propertyInfo;
@@ -179,10 +179,7 @@ namespace Greenshot.Plugin.Drawing
         /// <param name="value">value to set</param>
         public void SetValue(IFieldHolder target, object value)
         {
-            if (linkedProperty == null)
-            {
-                Reflect(target.GetType());
-            }
+            Reflect(target.GetType());
             if (LinkedProperty.CanWrite)
             {
                 LinkedProperty.SetValue(target, value, null);
@@ -196,10 +193,7 @@ namespace Greenshot.Plugin.Drawing
         /// <returns>value</returns>
         public object GetValue(IFieldHolder target)
         {
-            if (linkedProperty == null)
-            {
-                Reflect(target.GetType());
-            }
+            Reflect(target.GetType());
             if (LinkedProperty.CanRead)
             {
                 return LinkedProperty.GetValue(target, null);

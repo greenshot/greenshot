@@ -45,7 +45,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class IECaptureHelper {
 		private static ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
-		private static readonly ICoreConfiguration configuration = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
 
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex) {

@@ -163,7 +163,7 @@ namespace Greenshot.Helpers
 			exceptionText.AppendLine("Configuration dump:");
 			using (TextWriter writer = new StringWriter(exceptionText)) {
 				// TODO: Create summary of properties
-				//var iniConfig = IniConfig.Get("Greenshot","greenshot").WriteToStreamAsync();
+				//var iniConfig = IniConfig.Current.WriteToStreamAsync();
 			}
 
 			return exceptionText.ToString();

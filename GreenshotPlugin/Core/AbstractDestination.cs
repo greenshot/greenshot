@@ -38,7 +38,7 @@ namespace GreenshotPlugin.Core
 	public abstract class AbstractDestination : IDestination
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
-		private static readonly ICoreConfiguration configuration = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
 
 		public virtual int CompareTo(object obj)
 		{

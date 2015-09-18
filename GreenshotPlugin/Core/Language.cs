@@ -95,7 +95,7 @@ namespace GreenshotPlugin.Core {
 				LOG.Warn("Couldn't read the installed language groups.", e);
 			}
 
-			coreConfig = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
+			coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 			ScanFiles();
 			if (!string.IsNullOrEmpty(coreConfig.Language)) {
 				CurrentLanguage = coreConfig.Language;

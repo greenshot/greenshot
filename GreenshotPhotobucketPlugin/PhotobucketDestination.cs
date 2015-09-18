@@ -39,7 +39,7 @@ namespace GreenshotPhotobucketPlugin  {
 	/// </summary>
 	public class PhotobucketDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
-		private static PhotobucketConfiguration _config = IniConfig.Get("Greenshot","greenshot").Get<PhotobucketConfiguration>();
+		private static PhotobucketConfiguration _config = IniConfig.Current.Get<PhotobucketConfiguration>();
 		private string albumPath = null;
 
 		public PhotobucketDestination()

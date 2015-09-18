@@ -29,28 +29,34 @@ using System.Reflection;
 
 namespace GreenshotEditorPlugin.Drawing.Fields
 {
-    /// <summary>
-    /// Basic IFieldHolder implementation, providing access to a set of fields
-    /// </summary>
-    [Serializable]
-	public abstract class AbstractFieldHolder : IFieldHolder {
+	/// <summary>
+	/// Basic IFieldHolder implementation, providing access to a set of fields
+	/// </summary>
+	[Serializable]
+	public abstract class AbstractFieldHolder : IFieldHolder
+	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
-		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot","greenshot").Get<IEditorConfiguration>();
+		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 
 		protected IDictionary<FieldTypes, FieldAttribute> fieldAttributes = new Dictionary<FieldTypes, FieldAttribute>();
-		public IDictionary<FieldTypes, FieldAttribute> FieldAttributes {
-			get {
+		public IDictionary<FieldTypes, FieldAttribute> FieldAttributes
+		{
+			get
+			{
 				return fieldAttributes;
 			}
 		}
 
 		[NonSerialized]
 		private PropertyChangedEventHandler propertyChanged;
-		public event PropertyChangedEventHandler PropertyChanged {
-			add {
+		public event PropertyChangedEventHandler PropertyChanged
+		{
+			add
+			{
 				propertyChanged += value;
 			}
-			remove {
+			remove
+			{
 				propertyChanged -= value;
 			}
 		}
@@ -58,20 +64,27 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 		/// <summary>
 		/// Initializes all the fields in "this", using the editor configuration for caching and writing default values
 		/// </summary>
-		protected void InitFieldAttributes() {
+		protected void InitFieldAttributes()
+		{
 			// Build cache if needed
-			if (fieldAttributes.Count == 0) {
-				foreach (var propertyInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
-					foreach (Attribute attribute in propertyInfo.GetCustomAttributes(true)) {
+			if (fieldAttributes.Count == 0)
+			{
+				foreach (var propertyInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+				{
+					foreach (Attribute attribute in propertyInfo.GetCustomAttributes(true))
+					{
 						var fieldAttribute = attribute as FieldAttribute;
-						if (fieldAttribute != null) {
-							if (fieldAttributes.ContainsKey(fieldAttribute.FieldType)) {
+						if (fieldAttribute != null)
+						{
+							if (fieldAttributes.ContainsKey(fieldAttribute.FieldType))
+							{
 								throw new NotSupportedException(string.Format("Can't have two fields of type {0}", fieldAttribute.FieldType));
 							}
 							// Cache value (this is not directly needed, as get/set value will solve this, but is quicker!)
 							fieldAttribute.LinkedProperty = propertyInfo;
 							// Overwrite scope if it's not set
-							if (fieldAttribute.Scope == null) {
+							if (fieldAttribute.Scope == null)
+							{
 								fieldAttribute.Scope = GetType().Name;
 							}
 							fieldAttributes.Add(fieldAttribute.FieldType, fieldAttribute);
@@ -81,34 +94,68 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 			}
 
 			// Fill the attributes with their default or cached value
-			foreach (FieldAttribute fieldAttribute in fieldAttributes.Values) {
-				object defaultValue = fieldAttribute.GetValue(this);
-
-				// TODO: Fix this
-				//object fieldValue = editorConfiguration.CreateCachedValue(fieldAttribute.Scope, fieldAttribute.FieldType, defaultValue);
-				//fieldAttribute.SetValue(this, fieldValue);
+			foreach (FieldAttribute fieldAttribute in fieldAttributes.Values)
+			{
+				object defaultValue = CreateCachedValue(fieldAttribute);
+				fieldAttribute.SetValue(this, defaultValue);
 			}
+		}
+
+		/// <summary>
+		/// Get the default value from the field, check if we have cached it and if not store it in the cache
+		/// </summary>
+		/// <param name="fieldAttribute"></param>
+		/// <returns>object</returns>
+		private object CreateCachedValue(FieldAttribute fieldAttribute)
+		{
+			object defaultValue = fieldAttribute.GetValue(this);
+			string key = string.Format("{0}-{1}", fieldAttribute.Scope, fieldAttribute.FieldType);
+			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
+			{
+				defaultValue = editorConfiguration.LastUsedFieldValues[key];
+            }
+			else
+			{
+				editorConfiguration.LastUsedFieldValues.Add(key, defaultValue);
+			}
+			return defaultValue;
+		}
+
+		/// <summary>
+		/// Update the value in the cache
+		/// </summary>
+		/// <param name="fieldAttribute"></param>
+		private void UpdateCachedValue(FieldAttribute fieldAttribute)
+		{
+			string key = string.Format("{0}-{1}", fieldAttribute.Scope, fieldAttribute.FieldType);
+			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
+			{
+				editorConfiguration.LastUsedFieldValues[key] = fieldAttribute.GetValue(this);
+            }
 		}
 
 		/// <summary>
 		/// Call this to propegate the changed event and update the editor configuration
 		/// </summary>
 		/// <param name="fieldType"></param>
-		protected void OnFieldPropertyChanged(FieldTypes fieldType) {
+		protected void OnFieldPropertyChanged(FieldTypes fieldType)
+		{
 			FieldAttribute fieldAttribute = FieldAttributes[fieldType];
-			if (fieldAttribute != null) {
-                // TODO: Implement
-                //editorConfiguration.UpdateCachedValue(fieldAttribute.Scope, fieldType, fieldAttribute.GetValue(this));
-            }
-            OnPropertyChanged(fieldType.ToString());
+			if (fieldAttribute != null)
+			{
+				UpdateCachedValue(fieldAttribute);
+			}
+			OnPropertyChanged(fieldType.ToString());
 		}
 
 		/// <summary>
 		/// Call this to send an PropertyChanged event
 		/// </summary>
 		/// <param name="propertyName"></param>
-		protected void OnPropertyChanged(string propertyName) {
-			if (propertyChanged != null) {
+		protected void OnPropertyChanged(string propertyName)
+		{
+			if (propertyChanged != null)
+			{
 				propertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
 			Invalidate();
