@@ -172,6 +172,17 @@ namespace Greenshot.Plugin.Drawing
             }
         }
 
+		/// <summary>
+		/// Return the type of the property this attribute is linked to.
+		/// </summary>
+		public Type PropertyType
+		{
+			get
+			{
+				return LinkedProperty.PropertyType;
+			}
+		}
+
         /// <summary>
         /// Change the field value on the IFieldHolder
         /// </summary>

@@ -48,7 +48,6 @@ namespace GreenshotPlugin.Controls
 		private ColorDialog() {
 			SuspendLayout();
 			InitializeComponent();
-			SuspendLayout();
 			CreateColorPalette(5, 5, 15, 15);
 			CreateLastUsedColorButtonRow(5, 190, 15, 15);
 			ResumeLayout();

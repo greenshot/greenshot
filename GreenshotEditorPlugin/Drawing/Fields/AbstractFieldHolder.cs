@@ -110,13 +110,17 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 		{
 			object defaultValue = fieldAttribute.GetValue(this);
 			string key = string.Format("{0}-{1}", fieldAttribute.Scope, fieldAttribute.FieldType);
+			var converter = TypeDescriptor.GetConverter(fieldAttribute.PropertyType);
 			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
 			{
-				defaultValue = editorConfiguration.LastUsedFieldValues[key];
+				string cachedValue = editorConfiguration.LastUsedFieldValues[key];
+				if (converter.CanConvertFrom(typeof(string))) {
+					defaultValue = converter.ConvertFromInvariantString(cachedValue);
+				}
             }
 			else
 			{
-				editorConfiguration.LastUsedFieldValues.Add(key, defaultValue);
+				editorConfiguration.LastUsedFieldValues.Add(key, converter.ConvertToInvariantString(defaultValue));
 			}
 			return defaultValue;
 		}
@@ -130,7 +134,8 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 			string key = string.Format("{0}-{1}", fieldAttribute.Scope, fieldAttribute.FieldType);
 			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
 			{
-				editorConfiguration.LastUsedFieldValues[key] = fieldAttribute.GetValue(this);
+				var converter = TypeDescriptor.GetConverter(fieldAttribute.PropertyType);
+				editorConfiguration.LastUsedFieldValues[key] = converter.ConvertToInvariantString(fieldAttribute.GetValue(this));
             }
 		}
 

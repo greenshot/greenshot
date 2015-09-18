@@ -88,7 +88,7 @@ namespace Greenshot.Destinations {
 					// TODO: Change this! It always creates an exception, as the plugin has not been loaded the type is not there :(
 					Type outlookdestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin");
 					if (outlookdestination != null) {
-						if (mapiClient.ToLower().Contains("microsoft outlook")) {
+						if (mapiClient == null || mapiClient.ToLower().Contains("microsoft outlook")) {
 							isActiveFlag = false;
 						}
 					}
