@@ -20,11 +20,8 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Configuration;
-using Greenshot.Destinations;
 using Greenshot.Forms;
 using Greenshot.Plugin;
-using GreenshotEditorPlugin;
 using GreenshotEditorPlugin.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
@@ -46,7 +43,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class CaptureHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureHelper));
-		private static ICoreConfiguration conf = IniConfig.Get("Greenshot","greenshot").Get<ICoreConfiguration>();
+		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
 		private WindowDetails _selectedCaptureWindow;
@@ -362,11 +359,9 @@ namespace Greenshot.Helpers
 
 					if (!string.IsNullOrEmpty(filename)) {
 						try {
+                            // Editor format
 							if (filename.ToLower().EndsWith("." + OutputFormat.greenshot)) {
-								ISurface surface = new Surface();
-								surface = ImageOutput.LoadGreenshotSurface(filename, surface);
-								surface.CaptureDetails = _capture.CaptureDetails;
-								await DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()).ExportCaptureAsync(true, surface, _capture.CaptureDetails, token);
+								await DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()).ExportCaptureAsync(true, null, _capture.CaptureDetails, token);
 								break;
 							}
 						} catch (Exception e) {

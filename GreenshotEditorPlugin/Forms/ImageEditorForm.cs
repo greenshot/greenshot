@@ -49,7 +49,7 @@ namespace GreenshotEditorPlugin.Forms
 	/// </summary>
 	public partial class ImageEditorForm : BaseForm, IImageEditor {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageEditorForm));
-		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<IEditorConfiguration>();
+		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private static List<string> ignoreDestinations = new List<string>() { BuildInDestinationEnum.Picker.ToString(), BuildInDestinationEnum.Editor.ToString() };
 		private static List<IImageEditor> editorList = new List<IImageEditor>();
 

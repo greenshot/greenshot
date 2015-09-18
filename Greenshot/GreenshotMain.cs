@@ -33,7 +33,7 @@ namespace Greenshot {
 	/// </summary>
 	public class GreenshotMain {
 		static GreenshotMain() {
-			//AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 		}
 
 		static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {

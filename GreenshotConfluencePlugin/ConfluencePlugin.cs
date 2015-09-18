@@ -65,7 +65,7 @@ namespace GreenshotConfluencePlugin
 		/// <param name="myAttributes">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the confluence configuration
-			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IConfluenceConfiguration>();
+			_config = await IniConfig.Current.RegisterAndGetAsync<IConfluenceConfiguration>();
 			try {
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
 				//resources = new ComponentResourceManager(typeof(ConfluencePlugin));

@@ -78,7 +78,7 @@ namespace GreenshotBoxPlugin
 		/// <param name="pluginAttribute">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the box configuration
-			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IBoxConfiguration>();
+			_config = await IniConfig.Current.RegisterAndGetAsync<IBoxConfiguration>();
 			_resources = new ComponentResourceManager(typeof(BoxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem

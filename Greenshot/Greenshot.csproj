@@ -288,6 +288,7 @@
     <ProjectReference Include="..\GreenshotEditorPlugin\GreenshotEditorPlugin.csproj">
       <Project>{a9d7b3e5-6e59-488c-9e8b-ad240b246a0e}</Project>
       <Name>GreenshotEditorPlugin</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>

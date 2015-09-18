@@ -37,7 +37,7 @@ namespace GreenshotOCR {
 	/// </summary>
 	public class OCRDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OCRDestination));
-		private static IOCRConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<IOCRConfiguration>();
+		private static IOCRConfiguration _config = IniConfig.Current.Get<IOCRConfiguration>();
 		private const int MIN_WIDTH = 130;
 		private const int MIN_HEIGHT = 130;
 		private string _ocrCommand;

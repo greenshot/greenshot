@@ -45,7 +45,7 @@ namespace GreenshotEditorPlugin.Drawing {
 	[Serializable]
 	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
-		protected static readonly IEditorConfiguration EditorConfig = IniConfig.Get("Greenshot", "greenshot").Get<IEditorConfiguration>();
+		protected static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
 		private bool isMadeUndoable;
 		private const int M11 = 0;
 		private const int M12 = 1;

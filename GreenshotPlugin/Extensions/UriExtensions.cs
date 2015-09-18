@@ -41,7 +41,7 @@ namespace GreenshotPlugin.Extensions
 {
 	public static class UriExtensions
 	{
-		private static readonly ICoreConfiguration Config = IniConfig.Get("Greenshot", "greenshot").Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration Config = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(UriExtensions));
 
 		/// <summary>

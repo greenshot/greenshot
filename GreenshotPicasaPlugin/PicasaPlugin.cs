@@ -73,7 +73,7 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="pluginAttribute">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the picasa configuration
-			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<PicasaConfiguration>();
+			config = await IniConfig.Current.RegisterAndGetAsync<PicasaConfiguration>();
 			
 			resources = new ComponentResourceManager(typeof(PicasaPlugin));
 

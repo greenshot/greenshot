@@ -31,7 +31,7 @@ namespace ExternalCommand
 	/// </summary>
 	public partial class SettingsForm : ExternalCommandForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private static IExternalCommandConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IExternalCommandConfiguration>();
+		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 
 		public SettingsForm() {
 			//

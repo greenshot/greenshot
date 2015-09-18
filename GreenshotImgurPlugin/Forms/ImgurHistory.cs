@@ -39,7 +39,7 @@ namespace GreenshotImgurPlugin
 	public partial class ImgurHistory : ImgurForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
 		private GreenshotColumnSorter columnSorter;
-		private static IImgurConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IImgurConfiguration>();
+		private static IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
 		private static readonly string[] _columns = { "hash", "title", "deleteHash", "Date" };
 		private static ImgurHistory instance = new ImgurHistory();
 

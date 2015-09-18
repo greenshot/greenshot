@@ -68,6 +68,9 @@ Source: ..\..\Languages\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {ap
 
 ;Office Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotOfficePlugin\GreenshotOfficePlugin.gsp; DestDir: {app}\Plugins\GreenshotOfficePlugin; Components: plugins\office; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+;Editor Plugin
+Source: ..\..\bin\Release\Plugins\GreenshotEditorPlugin\GreenshotEditorPlugin.gsp; DestDir: {app}\Plugins\GreenshotEditorPlugin; Components: plugins\editor; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: ..\..\bin\Release\Languages\Plugins\GreenshotEditorPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotEditorPlugin; Components: plugins\editor; Flags: overwritereadonly ignoreversion replacesameversion;
 ;OCR Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotOCRPlugin\GreenshotOCRPlugin.gsp; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Plugins\GreenshotOCRPlugin\GreenshotOCRCommand.exe; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
@@ -100,8 +103,6 @@ Source: ..\..\bin\Release\Languages\Plugins\GreenshotConfluencePlugin\*; DestDir
 ;ExternalCommand Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotExternalCommandPlugin\GreenshotExternalCommandPlugin.gsp; DestDir: {app}\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotExternalCommandPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
-;Network Import Plugin
-;Source: ..\..\bin\Release\Plugins\GreenshotNetworkImportPlugin\*; DestDir: {app}\Plugins\GreenshotNetworkImportPlugin; Components: plugins\networkimport; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
 ChangesAssociations=yes
@@ -180,7 +181,7 @@ Name: startup; Description: {cm:startup}
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
-en.office=Microsoft Office Plug-in
+de.editor=Editor
 de.externalcommand=Externes Kommando Plug-in
 de.imgur=Imgur Plug-in (Siehe: http://imgur.com)
 de.jira=Jira Plug-in
@@ -189,21 +190,24 @@ de.ocr=OCR Plug-in (benötigt Microsoft Office Document Imaging (MODI))
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
+en.office=Microsoft Office Plug-in
 
 en.confluence=Confluence plug-in
 en.default=Default installation
-en.office=Microsoft Office plug-in
+en.editor=Editor
 en.externalcommand=Open with external command plug-in
 en.imgur=Imgur plug-in (See: http://imgur.com)
 en.jira=Jira plug-in
 en.language=Additional languages
 en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
+en.office=Microsoft Office plug-in
 en.optimize=Optimizing performance, this may take a while.
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
 
 es.confluence=Extensión para Confluence
 es.default=${default}
+es.editor=Editor
 es.externalcommand=Extensión para abrir con programas externos
 es.imgur=Extensión para Imgur (Ver http://imgur.com)
 es.jira=Extensión para Jira
@@ -215,66 +219,72 @@ es.startup=Lanzar {#ExeName} al iniciarse Windows
 
 fi.confluence=Confluence-liitännäinen
 fi.default=${default}
-fi.office=Microsoft-Office-liitännäinen
+fi.editor=Editor
 fi.externalcommand=Avaa Ulkoinen komento-liitännäisellä
 fi.imgur=Imgur-liitännäinen (Katso: http://imgur.com)
 fi.jira=Jira-liitännäinen
 fi.language=Lisäkielet
 fi.ocr=OCR-liitännäinen (Tarvitaan: Microsoft Office Document Imaging (MODI))
+fi.office=Microsoft-Office-liitännäinen
 fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
 fi.startgreenshot=Käynnistä {#ExeName}
 fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
 
 fr.confluence=Greffon Confluence
 fr.default=${default}
-fr.office=Greffon Microsoft Office
+fr.editor=Editor
 fr.externalcommand=Ouvrir avec le greffon de commande externe
 fr.imgur=Greffon Imgur (Voir: http://imgur.com)
 fr.jira=Greffon Jira
 fr.language=Langues additionnelles
 fr.ocr=Greffon OCR (nécessite Document Imaging de Microsoft Office [MODI])
+fr.office=Greffon Microsoft Office
 fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
-lt.office=Microsoft Office spraudnis
+lt.editor=Editor
 lt.externalcommand=Pielāgotu darbību spraudnis
 lt.imgur=Imgur spraudnis (Vairāk šeit: http://imgur.com)
 lt.jira=Jira spraudnis
 lt.language=Papildus valodas
 lt.ocr=OCR spraudnis (nepieciešams Microsoft Office Document Imaging (MODI))
+lt.office=Microsoft Office spraudnis
 lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
 lt.startup=Palaist {#ExeName} uzsākot darbus
 
 nl.confluence=Confluence plug-in
 nl.default=Default installation
-nl.office=Microsoft Office plug-in
+nl.editor=Editor
 nl.externalcommand=Open met externes commando plug-in
 nl.imgur=Imgur plug-in (Zie: http://imgur.com)
 nl.jira=Jira plug-in
 nl.language=Extra talen
 nl.ocr=OCR plug-in (heeft Microsoft Office Document Imaging (MODI) nodig)
+nl.office=Microsoft Office plug-in
 nl.optimize=Prestaties verbeteren, kan even duren.
 nl.startgreenshot=Start {#ExeName}
 nl.startup=Start {#ExeName} wanneer Windows opstart
 
 nn.confluence=Confluence-tillegg
-nn.default=Default installation 
-nn.office=Microsoft Office Tillegg
+nn.default=${default}
+nn.editor=Editor
 nn.externalcommand=Tillegg for å opne med ekstern kommando
 nn.imgur=Imgur-tillegg (sjå http://imgur.com)
 nn.jira=Jira-tillegg
 nn.language=Andre språk
 nn.ocr=OCR-tillegg (krev Microsoft Office Document Imaging (MODI))
+nn.office=Microsoft Office Tillegg
 nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
 
 sr.confluence=Прикључак за Конфлуенс
 sr.default=${default}
+sr.editor=Editor
 sr.externalcommand=Отвори са прикључком за спољне наредбе
 sr.imgur=Прикључак за Имиџер (http://imgur.com)
 sr.jira=Прикључак за Џиру
@@ -284,18 +294,21 @@ sr.optimize=Оптимизујем перформансе…
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
 
-sv.startup=Starta {#ExeName} med Windows
-sv.startgreenshot=Starta {#ExeName}
-sv.jira=Jira-insticksprogram
 sv.confluence=Confluence-insticksprogram
+sv.default=${default}
+sv.editor=Editor
 sv.externalcommand=Öppna med externt kommando-insticksprogram
-sv.ocr=OCR-insticksprogram (kräver Microsoft Office Document Imaging (MODI))
 sv.imgur=Imgur-insticksprogram (Se: http://imgur.com)
+sv.jira=Jira-insticksprogram
 sv.language=Ytterligare språk
+sv.ocr=OCR-insticksprogram (kräver Microsoft Office Document Imaging (MODI))
 sv.optimize=Optimerar prestanda, detta kan ta en stund.
+sv.startgreenshot=Starta {#ExeName}
+sv.startup=Starta {#ExeName} med Windows
 
 uk.confluence=Плагін Confluence
 uk.default=${default}
+uk.editor=Editor
 uk.externalcommand=Плагін запуску зовнішньої команди
 uk.imgur=Плагін Imgur (див.: http://imgur.com)
 uk.jira=Плагін Jira
@@ -307,6 +320,7 @@ uk.startup=Запускати {#ExeName} під час запуску Windows
 
 cn.confluence=Confluence插件
 cn.default=${default}
+cn.editor=Editor
 cn.externalcommand=使用外部命令打开插件
 cn.imgur=Imgur插件( (请访问： http://imgur.com))
 cn.jira=Jira插件
@@ -316,7 +330,6 @@ cn.optimize=正在优化性能，这可能需要一点时间。
 cn.startgreenshot=启动{#ExeName}
 cn.startup=让{#ExeName}随Windows一起启动
 
-
 [Types]
 Name: "default"; Description: "{cm:default}"
 Name: "full"; Description: "{code:FullInstall}"
@@ -325,13 +338,13 @@ Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 
 [Components]
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
+Name: "plugins\editor"; Description: {cm:editor}; Types: default full compact custom; Flags: fixed 
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning 
-;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
 Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning 

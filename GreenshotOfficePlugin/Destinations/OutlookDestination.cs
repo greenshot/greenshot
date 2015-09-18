@@ -45,7 +45,7 @@ namespace GreenshotOfficePlugin
 		private const string OUTLOOK_PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE";
 
 		private static Image mailIcon = GreenshotResources.GetImage("Email.Image");
-		private static IOfficeConfiguration conf = IniConfig.Get("Greenshot", "greenshot").Get<IOfficeConfiguration>();
+		private static IOfficeConfiguration conf = IniConfig.Current.Get<IOfficeConfiguration>();
 		private static string exePath = null;
 		private static bool isActiveFlag = false;
 		private static string mapiClient = "Microsoft Outlook";

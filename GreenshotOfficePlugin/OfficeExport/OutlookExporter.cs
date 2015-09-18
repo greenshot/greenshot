@@ -39,7 +39,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 	public class OutlookExporter
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookExporter));
-		private static readonly IOfficeConfiguration Conf = IniConfig.Get("Greenshot", "greenshot").Get<IOfficeConfiguration>();
+		private static readonly IOfficeConfiguration Conf = IniConfig.Current.Get<IOfficeConfiguration>();
 		private static readonly string SignaturePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
 		private static Version _outlookVersion;
 		private static string _currentUser;

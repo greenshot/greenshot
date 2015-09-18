@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
+using GreenshotEditorPlugin.Drawing;
 using GreenshotEditorPlugin.Forms;
 using GreenshotPlugin.Core;
 using log4net;
@@ -36,7 +37,7 @@ namespace GreenshotEditorPlugin {
 	/// </summary>
 	public class EditorDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot", "greenshot").Get<IEditorConfiguration>();
+		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private IImageEditor editor = null;
 		private static Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 
@@ -87,6 +88,13 @@ namespace GreenshotEditorPlugin {
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+            if (surface == null && captureDetails.Filename != null && captureDetails.Filename.ToLower().EndsWith("." + OutputFormat.greenshot))
+            {
+                // Only a file, create a surface from the filename and continue!
+                surface = new Surface();
+                surface = ImageOutput.LoadGreenshotSurface(captureDetails.Filename, surface);
+                surface.CaptureDetails = captureDetails;
+            }
 			var exportInformation = new ExportInformation {
 				DestinationDesignation = Designation,
 				DestinationDescription = Description

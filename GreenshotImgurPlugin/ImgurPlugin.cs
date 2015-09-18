@@ -78,7 +78,7 @@ namespace GreenshotImgurPlugin
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the imgur configuration
-			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IImgurConfiguration>();
+			config = await IniConfig.Current.RegisterAndGetAsync<IImgurConfiguration>();
 
 			_host = (IGreenshotHost)pluginHost;
 			Attributes = pluginAttributes;

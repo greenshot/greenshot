@@ -46,7 +46,7 @@ namespace Greenshot.Forms {
 		private enum FixMode {None, Initiated, Horizontal, Vertical};
 
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureForm));
-		private static readonly ICoreConfiguration Conf = IniConfig.Get("Greenshot", "greenshot").Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
 		private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
 		private static CaptureForm _currentForm;

@@ -39,7 +39,7 @@ namespace GreenshotPhotobucketPlugin {
 	/// </summary>
 	public static class PhotobucketUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketUtils));
-		private static readonly PhotobucketConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<PhotobucketConfiguration>();
+		private static readonly PhotobucketConfiguration config = IniConfig.Current.Get<PhotobucketConfiguration>();
 		private static List<string> albumsCache = null;
 
 		/// <summary>

@@ -76,7 +76,7 @@ namespace GreenshotFlickrPlugin
 		/// <param name="pluginAttribute">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the flickr configuration
-			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IFlickrConfiguration>();
+			_config = await IniConfig.Current.RegisterAndGetAsync<IFlickrConfiguration>();
 			_host = pluginHost;
 			Attributes = pluginAttributes;
 

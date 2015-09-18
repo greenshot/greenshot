@@ -75,7 +75,7 @@ namespace GreenshotDropboxPlugin
 		/// <param name="pluginAttribute">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the dropbox configuration
-			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IDropboxConfiguration>();
+			config = await IniConfig.Current.RegisterAndGetAsync<IDropboxConfiguration>();
 			this.host = (IGreenshotHost)pluginHost;
 			Attributes = pluginAttributes;
 

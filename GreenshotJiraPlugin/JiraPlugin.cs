@@ -70,7 +70,7 @@ namespace GreenshotJiraPlugin
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the jira configuration
-			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IJiraConfiguration>();
+			config = await IniConfig.Current.RegisterAndGetAsync<IJiraConfiguration>();
 			_host = (IGreenshotHost)pluginHost;
 			jiraPluginAttributes = pluginAttributes;
 

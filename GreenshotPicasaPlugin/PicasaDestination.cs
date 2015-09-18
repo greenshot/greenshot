@@ -32,7 +32,7 @@ using System.Windows;
 namespace GreenshotPicasaPlugin {
 	public class PicasaDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaDestination));
-		private static PicasaConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<PicasaConfiguration>();
+		private static PicasaConfiguration _config = IniConfig.Current.Get<PicasaConfiguration>();
 
 		public override string Designation {
 			get {

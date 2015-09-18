@@ -35,7 +35,7 @@ namespace GreenshotDropboxPlugin {
 	/// </summary>
 	public static class DropboxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxUtils));
-		private static IDropboxConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IDropboxConfiguration>();
+		private static IDropboxConfiguration config = IniConfig.Current.Get<IDropboxConfiguration>();
 		private static readonly Uri DROPBOX_API_URI = new Uri("https://api.dropbox.com/1");
 		private static readonly Uri DROPBOX_OAUTH_URI = DROPBOX_API_URI.AppendSegments("oauth");
 		private static readonly Uri DROPBOX_API_CONTENT_URI = new Uri("https://api-content.dropbox.com/1/files_put/sandbox/");

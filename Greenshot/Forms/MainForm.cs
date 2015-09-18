@@ -25,8 +25,6 @@ using Greenshot.Experimental;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using Greenshot.Windows;
-//using GreenshotEditorPlugin;
-using GreenshotEditorPlugin.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
@@ -1500,20 +1498,23 @@ namespace Greenshot.Forms
 
 			foreach (Form form in Application.OpenForms)
 			{
-				if (form.Handle != Handle && !form.GetType().Equals(typeof(ImageEditorForm)))
+				if (form.Handle != Handle)
 				{
 					formsToClose.Add(form);
 				}
 			}
-			foreach (var formLV in formsToClose)
+
+            foreach (var formLV in formsToClose)
 			{
 				var form = formLV;	// Capture the loop variable for the lambda
 				LOG.InfoFormat("Closing form: {0}", form.Name);
 				this.AsyncInvoke(() => form.Close());
 			}
+            // Make sure any "save" actions are shown and handled!
+            Application.DoEvents();
 
-			// Make sure hotkeys are disabled
-			try
+            // Make sure hotkeys are disabled
+            try
 			{
 				HotkeyControl.UnregisterHotkeys();
 			}

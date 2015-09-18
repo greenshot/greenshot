@@ -28,7 +28,7 @@ using Dapplo.Config.Ini;
 namespace ExternalCommand
 {
 	public static class IconCache {
-		private static IExternalCommandConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IExternalCommandConfiguration>();
+		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
 
 		public static Image IconForCommand(string commandName) {

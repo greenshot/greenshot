@@ -111,7 +111,7 @@ namespace GreenshotOCR {
 				return false;
 			}
 			// Register / get the ocr configuration
-			_config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<IOCRConfiguration>(token);
+			_config = await IniConfig.Current.RegisterAndGetAsync<IOCRConfiguration>(token);
 			
 			if (_config.Language != null) {
 				_config.Language = _config.Language.Replace("miLANG_","").Replace("_"," ");

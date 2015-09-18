@@ -128,7 +128,7 @@ namespace Greenshot.Windows
 				case Key.I:
 					try
 					{
-						Process.Start(IniConfig.Get("Greenshot", "greenshot").IniLocation);
+						Process.Start(IniConfig.Current.IniLocation);
 					}
 					catch (Exception ex)
 					{

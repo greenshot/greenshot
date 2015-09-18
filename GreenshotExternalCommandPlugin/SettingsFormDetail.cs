@@ -36,7 +36,7 @@ namespace ExternalCommand
 		private int commandIndex;
 
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
-		private static IExternalCommandConfiguration config = IniConfig.Get("Greenshot", "greenshot").Get<IExternalCommandConfiguration>();
+		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 
 		public SettingsFormDetail(string commando) {
 			InitializeComponent();

@@ -80,7 +80,7 @@ namespace GreenshotPhotobucketPlugin
 			Attributes = myAttributes;
 
 			// Register / get the photobucket configuration
-			config = await IniConfig.Get("Greenshot", "greenshot").RegisterAndGetAsync<PhotobucketConfiguration>();
+			config = await IniConfig.Current.RegisterAndGetAsync<PhotobucketConfiguration>();
 			resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
 			
 			itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure));

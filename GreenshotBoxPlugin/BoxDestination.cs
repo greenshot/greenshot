@@ -35,7 +35,7 @@ namespace GreenshotBoxPlugin
 {
 	public class BoxDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(BoxDestination));
-		private static IBoxConfiguration _config = IniConfig.Get("Greenshot", "greenshot").Get<IBoxConfiguration>();
+		private static IBoxConfiguration _config = IniConfig.Current.Get<IBoxConfiguration>();
 
 		private readonly BoxPlugin _plugin;
 		public BoxDestination(BoxPlugin plugin) {

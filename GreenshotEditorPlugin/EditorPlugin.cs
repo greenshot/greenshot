@@ -74,11 +74,11 @@ namespace GreenshotEditorPlugin
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken())
 		{
 			LOG.DebugFormat("Initialize called of {0}", pluginAttributes.Name);
-			var iniConfig = IniConfig.Get("Greenshot", "greenshot");
+			var iniConfig = IniConfig.Current;
 
 			// Make sure the defaults are set
 			config = await iniConfig.RegisterAndGetAsync<IEditorConfiguration>();
-			IniConfig.Get("Greenshot", "greenshot").Get<IEditorConfiguration>();
+			IniConfig.Current.Get<IEditorConfiguration>();
             myAttributes = pluginAttributes;
 			return true;
 		}
