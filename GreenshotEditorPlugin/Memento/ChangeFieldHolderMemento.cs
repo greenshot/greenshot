@@ -20,85 +20,73 @@
  */
 
 using Greenshot.Plugin.Drawing;
-using GreenshotEditorPlugin.Drawing.Fields;
+using System;
 
 namespace GreenshotEditorPlugin.Memento
 {
-	/// <summary>
-	/// The ChangeFieldHolderMemento makes it possible to undo-redo an IDrawableContainer move
-	/// </summary>
-	public class ChangeFieldHolderMemento : IMemento
-	{
-		private readonly Field _fieldToBeChanged;
-		private readonly object _oldValue;
-		private IDrawableContainer _drawableContainer;
+    /// <summary>
+    /// The ChangeFieldHolderMemento makes it possible to undo-redo an IDrawableContainer move
+    /// </summary>
+    public class ChangeFieldHolderMemento : IMemento
+    {
+        private IFieldHolder fieldHolder;
+        private readonly FieldAttribute fieldAttribute;
+        private readonly object oldValue;
 
-		public ChangeFieldHolderMemento(IDrawableContainer drawableContainer, Field fieldToBeChanged)
-		{
-			_drawableContainer = drawableContainer;
-			_fieldToBeChanged = fieldToBeChanged;
-			_oldValue = fieldToBeChanged.Value;
-		}
+        public ChangeFieldHolderMemento(IFieldHolder fieldHolder, FieldAttribute fieldAttribute)
+        {
+            this.fieldHolder = fieldHolder;
+            this.fieldAttribute = fieldAttribute;
+            oldValue = fieldAttribute.GetValue(fieldHolder);
+        }
 
-		public LangKey ActionLanguageKey
-		{
-			get
-			{
-				return LangKey.none;
-			}
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		public bool Merge(IMemento otherMemento)
-		{
-			ChangeFieldHolderMemento other = otherMemento as ChangeFieldHolderMemento;
-			if (other != null)
-			{
-				if (other._drawableContainer.Equals(_drawableContainer))
-				{
-					if (other._fieldToBeChanged.Equals(_fieldToBeChanged))
-					{
-						// Match, do not store anything as the initial state is what we want.
-						return true;
-					}
-				}
-			}
-			return false;
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            //if (disposing) { }
+            fieldHolder = null;
+        }
 
-		public IMemento Restore()
-		{
-			// Before
-			_drawableContainer.Invalidate();
-			var oldState = new ChangeFieldHolderMemento(_drawableContainer, _fieldToBeChanged);
-			_fieldToBeChanged.Value = _oldValue;
-			// After
-			_drawableContainer.Invalidate();
-			return oldState;
-		}
+        public LangKey ActionLanguageKey
+        {
+            get
+            {
+                return LangKey.none;
+            }
+        }
 
-		#region IDisposable Support
-		private bool _disposedValue = false; // To detect redundant calls
+        public bool Merge(IMemento otherMemento)
+        {
+            ChangeFieldHolderMemento other = otherMemento as ChangeFieldHolderMemento;
+            if (other != null)
+            {
+                // Check if it's the same IFieldHolder
+                if (other.fieldHolder.Equals(fieldHolder))
+                {
+                    // Check if it'S the same field
+                    if (other.fieldAttribute.Equals(fieldAttribute))
+                    {
+                        // Match, do not store anything as the initial state is what we want.
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!_disposedValue)
-			{
-				if (disposing)
-				{
-					// dispose managed state (managed objects).
-				}
-				_drawableContainer = null;
-
-				_disposedValue = true;
-			}
-		}
-
-		// This code added to correctly implement the disposable pattern.
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
-		}
-		#endregion
-	}
+        public IMemento Restore()
+        {
+            // Before
+            fieldHolder.Invalidate();
+            ChangeFieldHolderMemento oldState = new ChangeFieldHolderMemento(fieldHolder, fieldAttribute);
+            // invalidation will be triggered by the SetValue
+            fieldAttribute.SetValue(fieldHolder, oldValue);
+            return oldState;
+        }
+    }
 }

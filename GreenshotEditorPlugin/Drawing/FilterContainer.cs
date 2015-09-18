@@ -21,53 +21,111 @@
 
 using System;
 using System.Drawing;
-using GreenshotEditorPlugin.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Extensions;
 using System.Drawing.Drawing2D;
 using GreenshotEditorPlugin.Helpers;
+using GreenshotEditorPlugin.Drawing.Filters;
 
 namespace GreenshotEditorPlugin.Drawing {
 	/// <summary>
 	/// empty container for filter-only elements
 	/// </summary>
-	[Serializable()] 
+	[Serializable] 
 	public abstract class FilterContainer : DrawableContainer {
-		
-		public enum PreparedFilterMode {OBFUSCATE, HIGHLIGHT};
 		public enum PreparedFilter {BLUR, PIXELIZE, TEXT_HIGHTLIGHT, AREA_HIGHLIGHT, GRAYSCALE, MAGNIFICATION};
-		
-		public PreparedFilter Filter {
-			get {  return (PreparedFilter)GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT); }
+
+		private int _lineThickness;
+		[Field(FieldTypes.LINE_THICKNESS)]
+		public int LineThickness {
+			get {
+				return _lineThickness;
+			}
+			set {
+				_lineThickness = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
+			}
 		}
-		
+
+		private Color _lineColor = Color.Red;
+		[Field(FieldTypes.LINE_COLOR)]
+		public Color LineColor {
+			get {
+				return _lineColor;
+			}
+			set {
+				_lineColor = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
+			}
+		}
+
+		private bool _shadow;
+		[Field(FieldTypes.SHADOW)]
+		public bool Shadow {
+			get {
+				return _shadow;
+			}
+			set {
+				_shadow = value;
+				OnFieldPropertyChanged(FieldTypes.SHADOW);
+			}
+		}
+
+		public abstract PreparedFilter Filter {
+			get;
+			set;
+		}
+
 		public FilterContainer(Surface parent) : base(parent) {
 		}
 
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.SHADOW, false);
+		protected void ConfigurePreparedFilters() {
+			Filters.Clear();
+			switch (Filter) {
+				case PreparedFilter.BLUR:
+					Add(new BlurFilter(this));
+					break;
+				case PreparedFilter.PIXELIZE:
+					Add(new PixelizationFilter(this));
+					break;
+				case PreparedFilter.TEXT_HIGHTLIGHT:
+					Add(new HighlightFilter(this));
+					break;
+				case PreparedFilter.AREA_HIGHLIGHT:
+					AbstractFilter bf = new BrightnessFilter(this);
+					bf.Invert = true;
+					Add(bf);
+					bf = new BlurFilter(this);
+					bf.Invert = true;
+					Add(bf);
+					break;
+				case PreparedFilter.GRAYSCALE:
+					AbstractFilter f = new GrayscaleFilter(this);
+					f.Invert = true;
+					Add(f);
+					break;
+				case PreparedFilter.MAGNIFICATION:
+					Add(new MagnifierFilter(this));
+					break;
+			}
 		}
-		
+
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));
-			if (lineVisible) {
+			bool lineVisible = (_lineThickness > 0 && ColorHelper.IsVisible(_lineColor));
+			var state = graphics.Save();
+            if (lineVisible) {
 				graphics.SmoothingMode = SmoothingMode.HighSpeed;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.None;
-				//draw shadow first
-				if (shadow) {
+				//draw _shadow first
+				if (_shadow) {
 					int basealpha = 100;
 					int alpha = basealpha;
 					int steps = 5;
 					int currentStep = lineVisible ? 1 : 0;
 					while (currentStep <= steps) {
-						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
+						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), _lineThickness)) {
 							Rectangle shadowRect = new Rectangle(Left + currentStep, Top + currentStep, Width, Height).MakeGuiRectangle();
 							graphics.DrawRectangle(shadowPen, shadowRect);
 							currentStep++;
@@ -76,12 +134,12 @@ namespace GreenshotEditorPlugin.Drawing {
 					}
 				}
 				Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-				if (lineThickness > 0) {
-					using (Pen pen = new Pen(lineColor, lineThickness)) {
+				if (_lineThickness > 0) {
+					using (Pen pen = new Pen(_lineColor, _lineThickness)) {
 						graphics.DrawRectangle(pen, rect);
 					}
 				}
-			}
+				graphics.Restore(state);			}
 		}
 	}
 }

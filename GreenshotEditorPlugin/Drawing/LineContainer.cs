@@ -24,7 +24,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 
-using GreenshotEditorPlugin.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotEditorPlugin.Helpers;
 
@@ -32,21 +31,51 @@ namespace GreenshotEditorPlugin.Drawing {
 	/// <summary>
 	/// Description of LineContainer.
 	/// </summary>
-	[Serializable()] 
+	[Serializable] 
 	public class LineContainer : DrawableContainer {
-		public static readonly int MAX_CLICK_DISTANCE_TOLERANCE = 10;
-		
+		public static readonly int MaxClickDistanceTolerance = 10;
+
+		int _lineThickness = 2;
+		[Field(FieldTypes.LINE_THICKNESS)]
+		public int LineThickness {
+			get {
+				return _lineThickness;
+			}
+			set {
+				_lineThickness = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
+			}
+		}
+
+		Color _lineColor = Color.Red;
+		[Field(FieldTypes.LINE_COLOR)]
+		public Color LineColor {
+			get {
+				return _lineColor;
+			}
+			set {
+				_lineColor = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
+			}
+		}
+
+		bool _shadow;
+		[Field(FieldTypes.SHADOW)]
+		public bool Shadow {
+			get {
+				return _shadow;
+			}
+			set {
+				_shadow = value;
+				OnFieldPropertyChanged(FieldTypes.SHADOW);
+			}
+		}
+
 		public LineContainer(Surface parent) : base(parent) {
 			Init();
 		}
 
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.SHADOW, true);
-		}
-		
-		[OnDeserialized()]
+		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
 			InitGrippers();
 			DoLayout();
@@ -54,9 +83,9 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		protected void Init() {
-			if (_grippers != null) {
+			if (Grippers != null) {
 				foreach (int index in new[] { 1, 2, 3, 5, 6, 7 }) {
-					_grippers[index].Enabled = false;
+					Grippers[index].Enabled = false;
 				}
 			}
 		}
@@ -67,19 +96,15 @@ namespace GreenshotEditorPlugin.Drawing {
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-
-			if (lineThickness > 0) {
-				if (shadow) {
-					//draw shadow first
+			if (LineThickness > 0) {
+				if (Shadow) {
+					//draw _shadow first
 					int basealpha = 100;
 					int alpha = basealpha;
 					int steps = 5;
 					int currentStep = 1;
 					while (currentStep <= steps) {
-						using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
+						using (var shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), LineThickness)) {
 							graphics.DrawLine(shadowCapPen,
 								Left + currentStep,
 								Top + currentStep,
@@ -92,25 +117,32 @@ namespace GreenshotEditorPlugin.Drawing {
 					}
 				}
 
-				using (Pen pen = new Pen(lineColor, lineThickness)) {
+				using (var pen = new Pen(LineColor, LineThickness)) {
 					graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
 				}
 			}
 		}
-		
-		public override bool ClickableAt(int x, int y) {
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) +5;
-			if (lineThickness > 0) {
-				using (Pen pen = new Pen(Color.White)) {
-					pen.Width = lineThickness;
-					using (GraphicsPath path = new GraphicsPath()) {
-						path.AddLine(Left, Top, Left + Width, Top + Height);
-						return path.IsOutlineVisible(x, y, pen);
-					}
-				}
-			}
-			return false;
-		}
+
+        public override bool ClickableAt(int x, int y)
+        {
+            int lineWidth = _lineThickness + 5;
+            if (_lineThickness > 0)
+            {
+                using (var pen = new Pen(Color.White))
+                {
+                    pen.Width = lineWidth;
+                    using (var path = new GraphicsPath())
+                    {
+                        path.AddLine(Left, Top, Left + Width, Top + Height);
+                        return path.IsOutlineVisible(x, y, pen);
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
 		
 		protected override ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {
 			return ScaleHelper.LineAngleRoundBehavior.Instance;

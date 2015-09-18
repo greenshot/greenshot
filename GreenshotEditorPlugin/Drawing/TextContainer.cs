@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotEditorPlugin.Drawing.Fields;
-using GreenshotEditorPlugin.Memento;
+using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
+using GreenshotEditorPlugin.Memento;
 using GreenshotPlugin.Extensions;
 using System;
 using System.ComponentModel;
@@ -31,15 +31,17 @@ using System.Drawing.Text;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Drawing {
-	/// <summary>
-	/// Represents a textbox (extends RectangleContainer for border/background support
-	/// </summary>
-	[Serializable] 
+namespace GreenshotEditorPlugin.Drawing
+{
+    /// <summary>
+    /// Represents a textbox (extends RectangleContainer for border/background support
+    /// </summary>
+    [Serializable] 
 	public class TextContainer : RectangleContainer, ITextContainer {
 		// If makeUndoable is true the next text-change will make the change undoable.
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
-		private bool makeUndoable;
+		private bool _makeUndoable;
+
 		[NonSerialized]
 		private Font _font;
 		public Font Font {
@@ -61,41 +63,100 @@ namespace GreenshotEditorPlugin.Drawing {
 				return _stringFormat;
 			}
 		}
-		private string text;
+		
+		private string _text;
 		// there is a binding on the following property!
 		public string Text {
-			get { return text; }
+			get { return _text; }
 			set { 
 				ChangeText(value, true);
 			}
 		}
 		
 		public void ChangeText(string newText, bool allowUndoable) {
-			if ((text == null && newText != null)  || !text.Equals(newText)) {
-				if (makeUndoable && allowUndoable) {
-					makeUndoable = false;
+			if ((_text == null && newText != null)  || !_text.Equals(newText)) {
+				if (_makeUndoable && allowUndoable) {
+					_makeUndoable = false;
 					_parent.MakeUndoable(new TextChangeMemento(this), false);
 				}
-				text = newText; 
+				_text = newText; 
 				OnPropertyChanged("Text"); 
+			}
+		}
+
+		protected bool _italic = false;
+		[Field(FieldTypes.FONT_ITALIC)]
+		public bool Italic {
+			get {
+				return _italic;
+			}
+			set {
+				_italic = value;
+				OnFieldPropertyChanged(FieldTypes.FONT_ITALIC);
+			}
+		}
+
+		protected bool _bold = false;
+		[Field(FieldTypes.FONT_BOLD)]
+		public bool Bold {
+			get {
+				return _bold;
+			}
+			set {
+				_bold = value;
+				OnFieldPropertyChanged(FieldTypes.FONT_BOLD);
+			}
+		}
+
+		protected float _fontSize = 11f;
+		[Field(FieldTypes.FONT_SIZE)]
+		public float FontSize {
+			get {
+				return _fontSize;
+			}
+			set {
+				_fontSize = value;
+				OnFieldPropertyChanged(FieldTypes.FONT_SIZE);
+			}
+		}
+		protected string _fontFamily = FontFamily.GenericSansSerif.Name;
+		[Field(FieldTypes.FONT_FAMILY)]
+		public string Family {
+			get {
+				return _fontFamily;
+			}
+			set {
+				_fontFamily = value;
+				OnFieldPropertyChanged(FieldTypes.FONT_FAMILY);
+			}
+		}
+
+		private HorizontalAlignment _horizontalAlignment = HorizontalAlignment.Center;
+		[Field(FieldTypes.TEXT_HORIZONTAL_ALIGNMENT)]
+		public HorizontalAlignment HorizontalAlignment {
+			get {
+				return _horizontalAlignment;
+			}
+			set {
+				_horizontalAlignment = value;
+				OnFieldPropertyChanged(FieldTypes.TEXT_HORIZONTAL_ALIGNMENT);
+			}
+		}
+
+		private VerticalAlignment _verticalAlignment = VerticalAlignment.CENTER;
+		[Field(FieldTypes.TEXT_VERTICAL_ALIGNMENT)]
+		public VerticalAlignment VerticalAlignment {
+			get {
+				return _verticalAlignment;
+			}
+			set {
+				_verticalAlignment = value;
+				OnFieldPropertyChanged(FieldTypes.TEXT_VERTICAL_ALIGNMENT);
 			}
 		}
 		
 		public TextContainer(Surface parent) : base(parent) {
 			Init();
-		}
-
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.SHADOW, true);
-			AddField(GetType(), FieldType.FONT_ITALIC, false);
-			AddField(GetType(), FieldType.FONT_BOLD, false);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
-			AddField(GetType(), FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
-			AddField(GetType(), FieldType.FONT_SIZE, 11f);
-			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
-			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
 		}
 		
 		[OnDeserialized]
@@ -122,18 +183,14 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 		
 		private void Init() {
-			_stringFormat = new StringFormat();
-			_stringFormat.Trimming = StringTrimming.EllipsisWord;
-
+			_stringFormat = new StringFormat {
+				Trimming = StringTrimming.EllipsisWord
+			};
 			CreateTextBox();
-
 			UpdateFormat();
 			UpdateTextBoxFormat();
-
 			PropertyChanged += TextContainer_PropertyChanged;
-			FieldChanged += TextContainer_FieldChanged;
 		}
-
 
 		public override void Invalidate() {
 			base.Invalidate();
@@ -141,12 +198,11 @@ namespace GreenshotEditorPlugin.Drawing {
 				_textBox.Invalidate();
 			}
 		}
-		
+
 		public void FitToText() {
-			Size textSize = TextRenderer.MeasureText(text, _font);
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Width = textSize.Width + lineThickness;
-			Height = textSize.Height + lineThickness;
+			Size textSize = TextRenderer.MeasureText(_text, _font);
+			Width = textSize.Width + _lineThickness;
+			Height = textSize.Height + _lineThickness;
 		}
 
 		void TextContainer_PropertyChanged(object sender, PropertyChangedEventArgs e) {
@@ -166,25 +222,6 @@ namespace GreenshotEditorPlugin.Drawing {
 					_parent.KeysLocked = true;
 				}
 			}
-			if (_textBox.Visible) {
-				_textBox.Invalidate();
-			}
-		}
-		
-		void TextContainer_FieldChanged(object sender, FieldChangedEventArgs e) {
-			if (_textBox.Visible) {
-				_textBox.Invalidate();
-			}
-			// Only dispose the font, and re-create it, when a font field has changed.
-			if (e.Field.FieldType.Name.StartsWith("FONT")) {
-				_font.Dispose();
-				_font = null;
-				UpdateFormat();
-			} else { 
-				UpdateAlignment();
-			}
-			UpdateTextBoxFormat();
-			
 			if (_textBox.Visible) {
 				_textBox.Invalidate();
 			}
@@ -220,7 +257,7 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// Makes textbox background dark if text color is very bright
 		/// </summary>
 		private void EnsureTextBoxContrast() {
-			Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            Color lc = _lineColor;
 			if (lc.R > 203 && lc.G > 203 && lc.B > 203) {
 				_textBox.BackColor = Color.FromArgb(51, 51, 51);
 			} else {
@@ -250,9 +287,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			int pixelsAfter = rect.Width * rect.Height;
 			float factor = pixelsAfter / (float)pixelsBefore;
 
-			float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
-			fontSize *= factor;
-			SetFieldValue(FieldType.FONT_SIZE, fontSize);
+			_fontSize = _fontSize * factor;
 			UpdateFormat();
 		}
 
@@ -260,23 +295,19 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// Generate the Font-Formal so we can draw correctly
 		/// </summary>
 		protected void UpdateFormat() {
-			string fontFamily = GetFieldValueAsString(FieldType.FONT_FAMILY);
-			bool fontBold = GetFieldValueAsBool(FieldType.FONT_BOLD);
-			bool fontItalic = GetFieldValueAsBool(FieldType.FONT_ITALIC);
-			float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
 			try {
 				FontStyle fs = FontStyle.Regular;
 					
 				bool hasStyle = false;
-				using(FontFamily fam = new FontFamily(fontFamily)) {
+				using(FontFamily fam = new FontFamily(_fontFamily)) {
 					bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
-					if (fontBold && boldAvailable) {
+					if (_bold && boldAvailable) {
 						fs |= FontStyle.Bold;
 						hasStyle = true;
 					}
 
 					bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
-					if (fontItalic && italicAvailable) {
+						if (_italic && italicAvailable) {
 						fs |= FontStyle.Italic;
 						hasStyle = true;
 					}
@@ -288,19 +319,19 @@ namespace GreenshotEditorPlugin.Drawing {
 						} else {
 							if (boldAvailable) {
 								fs = FontStyle.Bold;
-							} else if(italicAvailable) {
+								} else if (italicAvailable) {
 								fs = FontStyle.Italic;
 							}
 						}
 					}
-					_font = new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
+					_font = new Font(fam, _fontSize, fs, GraphicsUnit.Pixel);
 					_textBox.Font = _font;
 				}
 			} catch (Exception ex) {
-				ex.Data.Add("fontFamily", fontFamily);
-				ex.Data.Add("fontBold", fontBold);
-				ex.Data.Add("fontItalic", fontItalic);
-				ex.Data.Add("fontSize", fontSize);
+				ex.Data.Add("fontFamily", _fontFamily);
+				ex.Data.Add("fontBold", _bold);
+				ex.Data.Add("fontItalic", _italic);
+				ex.Data.Add("fontSize", _fontSize);
 				throw;
 			}
 			
@@ -308,8 +339,8 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		private void UpdateAlignment() {
-			_stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
-			_stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
+			_stringFormat.Alignment = (StringAlignment)_horizontalAlignment;
+			_stringFormat.LineAlignment = (StringAlignment)_verticalAlignment;
 		}
 
 		/// <summary>
@@ -317,18 +348,16 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// is a bit of a hack, but for now it seems to work...
 		/// </summary>
 		private void UpdateTextBoxPosition() {
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-
-			int lineWidth = (int)Math.Floor(lineThickness / 2d);
-			int correction = (lineThickness +1 ) % 2;
-			if (lineThickness <= 1) {
+			int lineWidth = (int)Math.Floor(_lineThickness / 2d);
+			int correction = (_lineThickness + 1) % 2;
+			if (_lineThickness <= 1) {
 				lineWidth = 1;
 				correction = -1;
 			}
 			Rectangle absRectangle = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 			_textBox.Left = absRectangle.Left + lineWidth;
 			_textBox.Top = absRectangle.Top + lineWidth;
-			if (lineThickness <= 1) {
+			if (_lineThickness <= 1) {
 				lineWidth = 0;
 			}
 			_textBox.Width = absRectangle.Width - (2 * lineWidth) + correction;
@@ -344,7 +373,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			if (_textBox == null) {
 				return;
 			}
-			StringAlignment alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+			StringAlignment alignment = (StringAlignment)_horizontalAlignment;
 			switch (alignment) {
 				case StringAlignment.Near:
 					_textBox.TextAlign = HorizontalAlignment.Left;
@@ -357,8 +386,7 @@ namespace GreenshotEditorPlugin.Drawing {
 					break;
 			}
 
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			_textBox.ForeColor = lineColor;
+			_textBox.ForeColor = _lineColor;
 		}
 		
 		void textBox_KeyDown(object sender, KeyEventArgs e) {
@@ -371,7 +399,7 @@ namespace GreenshotEditorPlugin.Drawing {
 
 		void textBox_LostFocus(object sender, EventArgs e) {
 			// next change will be made undoable
-			makeUndoable = true;
+			_makeUndoable = true;
 			HideTextBox();
 		}
 	
@@ -388,19 +416,15 @@ namespace GreenshotEditorPlugin.Drawing {
 			if (Selected && rm == RenderMode.EDIT) {
 				DrawSelectionBorder(graphics, rect);
 			}
-			
-			if (text == null || text.Length == 0 ) {
+
+			if (string.IsNullOrEmpty(_text)) {
 				return;
 			}
 
-			// we only draw the shadow if there is no background
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			bool drawShadow = shadow && (fillColor == Color.Transparent || fillColor == Color.Empty);
+			// we only draw the _shadow if there is no background
+			bool drawShadow = _shadow && (_fillColor == Color.Transparent || _fillColor == Color.Empty);
 
-			DrawText(graphics, rect, lineThickness, lineColor, drawShadow, _stringFormat, text, _font);
+			DrawText(graphics, rect, _lineThickness, _lineColor, drawShadow, _stringFormat, _text, _font);
 		}
 
 		/// <summary>

@@ -19,21 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotEditorPlugin.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Extensions;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
-using GreenshotPlugin.Extensions;
 
-namespace GreenshotEditorPlugin.Drawing {
-	/// <summary>
-	/// This is an enumerated label, every single StepLabelContainer shows the number of the order it was created.
-	/// To make sure that deleting recalculates, we check the location before every draw.
-	/// </summary>
-	[Serializable]
+namespace GreenshotEditorPlugin.Drawing
+{
+    /// <summary>
+    /// This is an enumerated label, every single StepLabelContainer shows the number of the order it was created.
+    /// To make sure that deleting recalculates, we check the location before every draw.
+    /// </summary>
+    [Serializable]
 	public class StepLabelContainer : DrawableContainer {
 		[NonSerialized]
 		private StringFormat _stringFormat = new StringFormat();
@@ -103,7 +103,7 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		public override bool InitContent() {
-			_defaultEditMode = EditStatus.IDLE;
+			DefaultEditMode = EditStatus.IDLE;
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;
 
@@ -121,13 +121,28 @@ namespace GreenshotEditorPlugin.Drawing {
 			return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
 		}
 
-		/// <summary>
-		/// We set our own field values
-		/// </summary>
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.FILL_COLOR, Color.DarkRed);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
-			AddField(GetType(), FieldType.FLAGS, FieldType.Flag.COUNTER);
+		private Color _lineColor = Color.White;
+		[Field(FieldTypes.LINE_COLOR)]
+		public Color LineColor {
+			get {
+				return _lineColor;
+			}
+			set {
+				_lineColor = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
+			}
+		}
+
+		private Color _fillColor = Color.DarkRed;
+		[Field(FieldTypes.FILL_COLOR)]
+		public Color FillColor {
+			get {
+				return _fillColor;
+			}
+			set {
+				_fillColor = value;
+				OnFieldPropertyChanged(FieldTypes.FILL_COLOR);
+			}
 		}
 
 		/// <summary>
@@ -186,27 +201,24 @@ namespace GreenshotEditorPlugin.Drawing {
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 			string text = ((Surface)Parent).CountStepLabels(this).ToString();
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			if (_drawAsRectangle) {
-				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, _fillColor, false);
 			} else {
-				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, _fillColor, false);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
 				using (Font _font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
-					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
+					TextContainer.DrawText(graphics, rect, 0, _lineColor, false, _stringFormat, text, _font);
 				}
 			}
 		}
 
 		public override bool ClickableAt(int x, int y) {
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			if (_drawAsRectangle) {
-				return RectangleContainer.RectangleClickableAt(rect, 0, fillColor, x, y);
+				return RectangleContainer.RectangleClickableAt(rect, 0, _fillColor, x, y);
 			} else {
-				return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
+				return EllipseContainer.EllipseClickableAt(rect, 0, _fillColor, x, y);
 			}
 		}
 	}

@@ -18,29 +18,70 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Plugin.Drawing;
+using GreenshotEditorPlugin.Helpers;
+using GreenshotPlugin.Extensions;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
-using GreenshotEditorPlugin.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Extensions;
-using GreenshotEditorPlugin.Helpers;
-
-namespace GreenshotEditorPlugin.Drawing {
-	/// <summary>
-	/// Description of EllipseContainer.
-	/// </summary>
-	[Serializable()] 
+namespace GreenshotEditorPlugin.Drawing
+{
+    /// <summary>
+    /// Description of EllipseContainer.
+    /// </summary>
+    [Serializable] 
 	public class EllipseContainer : DrawableContainer {
-		public EllipseContainer(Surface parent) : base(parent) {
+		private int _lineThickness = 2;
+		[Field(FieldTypes.LINE_THICKNESS)]
+		public int LineThickness {
+			get {
+				return _lineThickness;
+			}
+			set {
+				_lineThickness = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
+			}
 		}
 
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
-			AddField(GetType(), FieldType.SHADOW, true);
+		private Color _lineColor = Color.Red;
+		[Field(FieldTypes.LINE_COLOR)]
+		public Color LineColor {
+			get {
+				return _lineColor;
+			}
+			set {
+				_lineColor = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
+			}
+		}
+
+		private Color _fillColor = Color.Transparent;
+		[Field(FieldTypes.FILL_COLOR)]
+		public Color FillColor {
+			get {
+				return _fillColor;
+			}
+			set {
+				_fillColor = value;
+				OnFieldPropertyChanged(FieldTypes.FILL_COLOR);
+			}
+		}
+
+		private bool _shadow = true;
+		[Field(FieldTypes.SHADOW)]
+		public bool Shadow {
+			get {
+				return _shadow;
+			}
+			set {
+				_shadow = value;
+				OnFieldPropertyChanged(FieldTypes.SHADOW);
+			}
+		}
+
+		public EllipseContainer(Surface parent) : base(parent) {
 		}
 
 		public override void Draw(Graphics graphics, RenderMode renderMode) {
@@ -48,13 +89,8 @@ namespace GreenshotEditorPlugin.Drawing {
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
-			
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			DrawEllipse(rect, graphics, renderMode, lineThickness, lineColor, fillColor, shadow);
+			DrawEllipse(rect, graphics, renderMode, _lineThickness, _lineColor, _fillColor, _shadow);
 		}
 
 		/// <summary>
@@ -66,7 +102,7 @@ namespace GreenshotEditorPlugin.Drawing {
 		public static void DrawEllipse(Rectangle rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow) {
 
 			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));
-			// draw shadow before anything else
+			// draw _shadow before anything else
 			if (shadow && (lineVisible || ColorHelper.IsVisible(fillColor))) {
 				int basealpha = 100;
 				int alpha = basealpha;
@@ -114,11 +150,9 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		public override bool ClickableAt(int x, int y) {
-
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			return EllipseClickableAt(rect, lineThickness, fillColor, x, y);
+			int lineWidth = _lineThickness + 10;
+			return EllipseClickableAt(rect, lineWidth, _fillColor, x, y);
 		}
 
 		public static bool EllipseClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y) {

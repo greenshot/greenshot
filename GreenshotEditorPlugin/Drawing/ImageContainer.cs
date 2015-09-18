@@ -18,35 +18,49 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Drawing;
-using System.IO;
-using GreenshotEditorPlugin.Drawing.Fields;
+
+using Greenshot.Core;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
-using System.Drawing.Drawing2D;
-using Greenshot.Core;
 using log4net;
+using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.IO;
 
-namespace GreenshotEditorPlugin.Drawing {
-	/// <summary>
-	/// Description of BitmapContainer.
-	/// </summary>
-	[Serializable] 
+namespace GreenshotEditorPlugin.Drawing
+{
+    /// <summary>
+    /// Description of BitmapContainer.
+    /// </summary>
+    [Serializable] 
 	public class ImageContainer : DrawableContainer, IImageContainer {
 		private static ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
 
-		private Image image;
+		protected bool _shadow = true;
+		[Field(FieldTypes.SHADOW)]
+		public bool Shadow {
+			get {
+				return _shadow;
+			}
+			set {
+				_shadow = value;
+				OnFieldPropertyChanged(FieldTypes.SHADOW);
+				ChangeShadowField();
+			}
+		}
+
+		private Image _image;
 
 		/// <summary>
-		/// This is the shadow version of the bitmap, rendered once to save performance
-		/// Do not serialize, as the shadow is recreated from the original bitmap if it's not available
+		/// This is the _shadow version of the bitmap, rendered once to save performance
+		/// Do not serialize, as the _shadow is recreated from the original bitmap if it's not available
 		/// </summary>
 		[NonSerialized]
 		private Image _shadowBitmap;
 
 		/// <summary>
-		/// This is the offset for the shadow version of the bitmap
+		/// This is the offset for the _shadow version of the bitmap
 		/// Do not serialize, as the offset is recreated
 		/// </summary>
 		[NonSerialized]
@@ -57,32 +71,18 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		public ImageContainer(Surface parent) : base(parent) {
-			FieldChanged += BitmapContainer_OnFieldChanged;
-		}
-
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.SHADOW, false);
-		}
-
-		protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
-			if (sender.Equals(this)) {
-				if (e.Field.FieldType == FieldType.SHADOW) {
-					ChangeShadowField();
-				}
-			}
 		}
 
 		public void ChangeShadowField() {
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			if (shadow) {
-				CheckShadow(true);
+			if (_shadow) {
+				CheckShadow(_shadow);
 				Width = _shadowBitmap.Width;
 				Height = _shadowBitmap.Height;
 				Left = Left - _shadowOffset.X;
 				Top = Top - _shadowOffset.Y;
-			} else {
-				Width = image.Width;
-				Height = image.Height;
+			} else if (_image != null) {
+				Width = _image.Width;
+				Height = _image.Height;
 				if (_shadowBitmap != null) {
 					Left = Left + _shadowOffset.X;
 					Top = Top + _shadowOffset.Y;
@@ -95,20 +95,19 @@ namespace GreenshotEditorPlugin.Drawing {
 				// Remove all current bitmaps
 				DisposeImage();
 				DisposeShadow();
-				image = ImageHelper.Clone(value);
-				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-				CheckShadow(shadow);
-				if (!shadow) {
-					Width = image.Width;
-					Height = image.Height;
-				} else {
+				_image = ImageHelper.Clone(value);
+				CheckShadow(_shadow);
+				if (!_shadow) {
+					Width = _image.Width;
+					Height = _image.Height;
+				} else if (_shadowBitmap != null) {
 					Width = _shadowBitmap.Width;
 					Height = _shadowBitmap.Height;
 					Left = Left - _shadowOffset.X;
 					Top = Top - _shadowOffset.Y;
 				}
 			}
-			get { return image; }
+			get { return _image; }
 		}
 
 		/// <summary>
@@ -126,10 +125,10 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		private void DisposeImage() {
-			if (image != null) {
-				image.Dispose();
+			if (_image != null) {
+				_image.Dispose();
 			}
-			image = null;
+			_image = null;
 		}
 		private void DisposeShadow() {
 			if (_shadowBitmap != null) {
@@ -137,8 +136,6 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 			_shadowBitmap = null;
 		}
-
-
 
 		/// <summary>
 		/// Make sure the content is also transformed.
@@ -151,8 +148,8 @@ namespace GreenshotEditorPlugin.Drawing {
 				LOG.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
 				DisposeShadow();
 				using (var tmpMatrix = new Matrix()) {
-					using (Image tmpImage = image) {
-						image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
+					using (Image tmpImage = _image) {
+						_image = ImageHelper.ApplyEffect(_image, new RotateEffect(rotateAngle), tmpMatrix);
 					}
 				}
 			}
@@ -174,14 +171,15 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 		}
 
+
 		/// <summary>
-		/// This checks if a shadow is already generated
+		/// This checks if a _shadow is already generated
 		/// </summary>
-		/// <param name="shadow"></param>
+		/// <param name="_shadow"></param>
 		private void CheckShadow(bool shadow) {
 			if (shadow && _shadowBitmap == null) {
 				using (var matrix = new Matrix()) {
-					_shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), matrix);
+					_shadowBitmap = ImageHelper.ApplyEffect(_image, new DropShadowEffect(), matrix);
 				}
 			}
 		}
@@ -192,19 +190,20 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// <param name="graphics"></param>
 		/// <param name="rm"></param>
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (image != null) {
-				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			if (_image != null) {
+				GraphicsState state = graphics.Save();
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-				if (shadow) {
-					CheckShadow(true);
+				if (_shadow) {
+					CheckShadow(_shadow);
 					graphics.DrawImage(_shadowBitmap, Bounds);
 				} else {
-					graphics.DrawImage(image, Bounds);
+					graphics.DrawImage(_image, Bounds);
 				}
+				graphics.Restore(state);
 			}
 		}
 
@@ -216,7 +215,7 @@ namespace GreenshotEditorPlugin.Drawing {
 
 		public override Size DefaultSize {
 			get {
-				return image.Size;
+				return _image.Size;
 			}
 		}
 	}

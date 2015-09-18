@@ -19,27 +19,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Plugin.Drawing;
+using GreenshotEditorPlugin.Helpers;
+using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-using GreenshotEditorPlugin.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Core;
-using GreenshotEditorPlugin.Helpers;
-
-namespace GreenshotEditorPlugin.Drawing.Filters {
-	[Serializable()] 
+namespace GreenshotEditorPlugin.Drawing.Filters
+{
+    [Serializable] 
 	public class PixelizationFilter : AbstractFilter {
-				
+		protected int _pixelSize = 5;
+		[Field(FieldTypes.PIXEL_SIZE)]
+		public int PixelSize {
+			get {
+				return _pixelSize;
+			}
+			set {
+                _pixelSize = value;
+				OnFieldPropertyChanged(FieldTypes.PIXEL_SIZE);
+			}
+		}		
 		public PixelizationFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.PIXEL_SIZE, 5);
 		}
 		
 		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-			if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0) {
+            var pixelSize = _pixelSize;
+            if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0) {
 				// Nothing to do
 				return;
 			}

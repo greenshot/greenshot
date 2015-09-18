@@ -278,18 +278,6 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 		
 		/// <summary>
-		/// Pass the field changed event to all elements in the list
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void HandleFieldChangedEvent(object sender, FieldChangedEventArgs e) {
-			foreach(var drawableContainer in this) {
-				var dc = (DrawableContainer) drawableContainer;
-				dc.HandleFieldChanged(sender, e);
-			}
-		}		
-
-		/// <summary>
 		/// Invalidate the bounds of all the DC's in this list
 		/// </summary>
 		public void Invalidate() {

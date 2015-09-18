@@ -18,18 +18,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Drawing;
-using GreenshotEditorPlugin.Drawing.Fields;
+
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace GreenshotEditorPlugin.Drawing.Filters {
-	[Serializable()] 
+namespace GreenshotEditorPlugin.Drawing.Filters
+{
+    [Serializable] 
 	public class HighlightFilter : AbstractFilter {
+
+		protected Color _fillColor = Color.Yellow;
+		[Field(FieldTypes.FILL_COLOR)]
+		public Color FillColor {
+			get {
+				return _fillColor;
+			}
+			set {
+				_fillColor = value;
+				OnFieldPropertyChanged(FieldTypes.FILL_COLOR);
+			}
+		}
+
 		public HighlightFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
 		}
 
 		/// <summary>
@@ -52,11 +65,10 @@ namespace GreenshotEditorPlugin.Drawing.Filters {
 				graphics.ExcludeClip(rect);
 			}
 			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
-				Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 				for (int y = fastBitmap.Top; y < fastBitmap.Bottom; y++) {
 					for (int x = fastBitmap.Left; x < fastBitmap.Right; x++) {
 						Color color = fastBitmap.GetColorAt(x, y);
-						color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
+						color = Color.FromArgb(color.A, Math.Min(_fillColor.R, color.R), Math.Min(_fillColor.G, color.G), Math.Min(_fillColor.B, color.B));
 						fastBitmap.SetColorAt(x, y, color);
 					}
 				}

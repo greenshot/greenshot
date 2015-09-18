@@ -18,20 +18,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Drawing;
-using GreenshotEditorPlugin.Drawing.Fields;
+
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
-using System.Drawing.Imaging;
+using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
-namespace GreenshotEditorPlugin.Drawing.Filters {
-	[Serializable()] 
+namespace GreenshotEditorPlugin.Drawing.Filters
+{
+    [Serializable] 
 	public class BrightnessFilter : AbstractFilter {
-		
+
+		protected double _brightness = 0.9f;
+		[Field(FieldTypes.BRIGHTNESS)]
+		public double Brightness {
+			get {
+				return _brightness;
+			}
+			set {
+				_brightness = value;
+				OnFieldPropertyChanged(FieldTypes.BRIGHTNESS);
+			}
+		}
+
 		public BrightnessFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.BRIGHTNESS, 0.9d);
 		}
 
 		/// <summary>
@@ -54,8 +66,7 @@ namespace GreenshotEditorPlugin.Drawing.Filters {
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			float brightness = GetFieldValueAsFloat(FieldType.BRIGHTNESS);
-			using (ImageAttributes ia = ImageHelper.CreateAdjustAttributes(brightness, 1f, 1f)) {
+			using (ImageAttributes ia = ImageHelper.CreateAdjustAttributes((float)_brightness, 1f, 1f)) {
 				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
 			}
 			graphics.Restore(state);

@@ -18,52 +18,50 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Drawing;
-using GreenshotEditorPlugin.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
+using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
-using log4net;
 
-namespace GreenshotEditorPlugin.Drawing.Filters {
-	[Serializable()] 
+namespace GreenshotEditorPlugin.Drawing.Filters
+{
+    [Serializable] 
 	public class BlurFilter : AbstractFilter {
-		private static ILog LOG = LogManager.GetLogger(typeof(BlurFilter));
-
-		public double previewQuality;
-		public double PreviewQuality {
-			get { return previewQuality; }
-			set { previewQuality = value; OnPropertyChanged("PreviewQuality"); }
+		private int _blurRadius = 3;
+		[Field(FieldTypes.BLUR_RADIUS)]
+		public int BlurRadius {
+			get {
+				return _blurRadius;
+			}
+			set {
+				_blurRadius = value;
+				OnFieldPropertyChanged(FieldTypes.BLUR_RADIUS);
+			}
 		}
-		
 		public BlurFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.BLUR_RADIUS, 3);
-			AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
 		}
 
-		public unsafe override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 			if (applyRect.Width == 0 || applyRect.Height == 0) {
 				return;
 			}
-			GraphicsState state = graphics.Save();
+			var state = graphics.Save();
 			if (Invert) {
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			if (GDIplus.isBlurPossible(blurRadius)) {
-				GDIplus.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
+			if (GDIplus.IsBlurPossible(_blurRadius)) {
+				GDIplus.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, _blurRadius, false);
 			} else {
 				using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
-					ImageHelper.ApplyBoxBlur(fastBitmap, blurRadius);
+					ImageHelper.ApplyBoxBlur(fastBitmap, _blurRadius);
 					fastBitmap.DrawTo(graphics, applyRect);
 				}
 			}
 			graphics.Restore(state);
-			return;
 		}
 	}
 }

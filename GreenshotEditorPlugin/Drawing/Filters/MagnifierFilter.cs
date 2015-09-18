@@ -18,18 +18,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Drawing;
-using GreenshotEditorPlugin.Drawing.Fields;
+
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace GreenshotEditorPlugin.Drawing.Filters {
-	[Serializable] 
+namespace GreenshotEditorPlugin.Drawing.Filters
+{
+    [Serializable] 
 	public class MagnifierFilter : AbstractFilter {
+
+		protected int _magnificationFactor = 2;
+		[Field(FieldTypes.MAGNIFICATION_FACTOR)]
+		public int MagnificationFactor {
+			get {
+				return _magnificationFactor;
+			}
+			set {
+				_magnificationFactor = value;
+				OnFieldPropertyChanged(FieldTypes.MAGNIFICATION_FACTOR);
+			}
+		}
+
 		public MagnifierFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.MAGNIFICATION_FACTOR, 2);
 		}
 
 		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
@@ -39,7 +52,6 @@ namespace GreenshotEditorPlugin.Drawing.Filters {
 				// nothing to do
 				return;
 			}
-			int magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
 			GraphicsState state =  graphics.Save();
 			if (Invert) {
 				graphics.SetClip(applyRect);
@@ -51,8 +63,8 @@ namespace GreenshotEditorPlugin.Drawing.Filters {
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			int halfWidth = rect.Width / 2;
 			int halfHeight = rect.Height / 2;
-			int newWidth = rect.Width / magnificationFactor;
-			int newHeight = rect.Height / magnificationFactor;
+			int newWidth = rect.Width / _magnificationFactor;
+			int newHeight = rect.Height / _magnificationFactor;
 			Rectangle source = new Rectangle(rect.X + halfWidth - (newWidth / 2), rect.Y + halfHeight - (newHeight / 2), newWidth, newHeight);
 			graphics.DrawImage(applyBitmap, rect, source, GraphicsUnit.Pixel);
 			graphics.Restore(state);

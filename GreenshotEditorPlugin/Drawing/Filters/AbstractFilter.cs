@@ -31,51 +31,48 @@ using Greenshot.Plugin.Drawing;
 /// OnPropertyChanged whenever a public property has been changed.
 /// </summary>
 namespace GreenshotEditorPlugin.Drawing.Filters {
-	[Serializable()]
-	public abstract class AbstractFilter : AbstractFieldHolder, IFilter {
-		
-		[NonSerialized]
-		private PropertyChangedEventHandler propertyChanged;
-		public event PropertyChangedEventHandler PropertyChanged {
-			add { propertyChanged += value; }
-			remove{ propertyChanged -= value; }
-		}
-		
-		private bool invert = false;
-		public bool Invert {
-			get {
-				return invert;
-			}
-			set {
-				invert = value;
-				OnPropertyChanged("Invert");
-			}
-		}
+	[Serializable]
+    public abstract class AbstractFilter : AbstractFieldHolder, IFilter
+    {
+        private bool invert;
+        public bool Invert
+        {
+            get
+            {
+                return invert;
+            }
+            set
+            {
+                invert = value;
+                OnPropertyChanged("Invert");
+            }
+        }
 
-		protected DrawableContainer parent;
-		public DrawableContainer Parent {
-			get {
-				return parent;
-			}
-			set {
-				parent = value;
-			}
-		}
-		
-		public AbstractFilter(DrawableContainer parent) {
-			this.parent = parent;
-		}
-		
-		public DrawableContainer GetParent() {
-			return parent;
-		}
+        [NonSerialized]
+        protected IDrawableContainer parent;
+        public IDrawableContainer Parent
+        {
+            get
+            {
+                return parent;
+            }
+            set
+            {
+                parent = value;
+            }
+        }
 
-		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode);
-		
-		protected void OnPropertyChanged(string propertyName) {
-			if (propertyChanged != null) {
-				propertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
+        public AbstractFilter(DrawableContainer parent) : base()
+        {
+            this.parent = parent;
+            InitFieldAttributes();
+        }
+
+        public abstract void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode);
+
+        public override void Invalidate()
+        {
+            parent.Invalidate();
+        }
+    }
 }

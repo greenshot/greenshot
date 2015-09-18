@@ -19,23 +19,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotEditorPlugin.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
+using GreenshotEditorPlugin.Helpers;
 using GreenshotPlugin.Extensions;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
-using GreenshotEditorPlugin.Helpers;
 
-namespace GreenshotEditorPlugin.Drawing {
-	/// <summary>
-	/// Description of SpeechbubbleContainer.
-	/// </summary>
-	[Serializable]
+namespace GreenshotEditorPlugin.Drawing
+{
+    /// <summary>
+    /// Description of SpeechbubbleContainer.
+    /// </summary>
+    [Serializable]
 	public class SpeechbubbleContainer : TextContainer {
-
 		private Point _initialGripperPoint;
 
 		#region TargetGripper serializing code
@@ -63,24 +62,12 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 		#endregion
 
-		public SpeechbubbleContainer(Surface parent)
-			: base(parent) {
+		public SpeechbubbleContainer(Surface parent) : base(parent) {
 		}
 
-		/// <summary>
-		/// We set our own field values
-		/// </summary>
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Blue);
-			AddField(GetType(), FieldType.SHADOW, false);
-			AddField(GetType(), FieldType.FONT_ITALIC, false);
-			AddField(GetType(), FieldType.FONT_BOLD, true);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.White);
-			AddField(GetType(), FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
-			AddField(GetType(), FieldType.FONT_SIZE, 20f);
-			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
-			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
+		protected override void TargetGripperMove(int absX, int absY) {
+			base.TargetGripperMove(absX, absY);
+			Invalidate();
 		}
 
 		/// <summary>
@@ -90,7 +77,7 @@ namespace GreenshotEditorPlugin.Drawing {
 		public override bool HandleMouseDown(int mouseX, int mouseY) {
 			if (TargetGripper == null) {
 				_initialGripperPoint = new Point(mouseX, mouseY);
-				InitTargetGripper(Color.Green, new Point(mouseX, mouseY));
+				InitTargetGripper(Color.Green, _initialGripperPoint);
 			}
 			return base.HandleMouseDown(mouseX, mouseY);
 		}
@@ -113,7 +100,7 @@ namespace GreenshotEditorPlugin.Drawing {
 
 			Point newGripperLocation = _initialGripperPoint;
 			newGripperLocation.Offset(xOffset, yOffset);
-			
+
 			if (TargetGripper.Location != newGripperLocation) {
 				Invalidate();
 				TargetGripperMove(newGripperLocation.X, newGripperLocation.Y);
@@ -128,11 +115,8 @@ namespace GreenshotEditorPlugin.Drawing {
 		public override Rectangle DrawingBounds {
 			get {
 				if (Status != EditStatus.UNDRAWN) {
-					int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-					Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-					bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-					using (Pen pen = new Pen(lineColor, lineThickness)) {
-						int inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
+					using (Pen pen = new Pen(_lineColor, _lineThickness)) {
+						int inflateValue = _lineThickness + 2 + (_shadow ? 6 : 0);
 						using (GraphicsPath tailPath = CreateTail()) {
 							return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)), new Rectangle(Left, Top, Width, Height).MakeGuiRectangle()), inflateValue, inflateValue);
 						}
@@ -216,24 +200,19 @@ namespace GreenshotEditorPlugin.Drawing {
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-
-			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));
+			bool lineVisible = (_lineThickness > 0 && ColorHelper.IsVisible(_lineColor));
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
 			if (Selected && renderMode == RenderMode.EDIT) {
 				DrawSelectionBorder(graphics, rect);
 			}
 
-			GraphicsPath bubble = CreateBubble(lineThickness);
+			GraphicsPath bubble = CreateBubble(_lineThickness);
 
 			GraphicsPath tail = CreateTail();
 
 			//draw shadow first
-			if (shadow && (lineVisible || ColorHelper.IsVisible(fillColor))) {
+			if (_shadow && (lineVisible || ColorHelper.IsVisible(_fillColor))) {
 				const int basealpha = 100;
 				int alpha = basealpha;
 				const int steps = 5;
@@ -244,7 +223,7 @@ namespace GreenshotEditorPlugin.Drawing {
 					shadowMatrix.Translate(1, 1);
 					while (currentStep <= steps) {
 						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
-							shadowPen.Width = lineVisible ? lineThickness : 1;
+							shadowPen.Width = lineVisible ? _lineThickness : 1;
 							tailClone.Transform(shadowMatrix);
 							graphics.DrawPath(shadowPen, tailClone);
 							bubbleClone.Transform(shadowMatrix);
@@ -260,16 +239,16 @@ namespace GreenshotEditorPlugin.Drawing {
 			// draw the tail border where the bubble is not visible
 			using (Region clipRegion = new Region(bubble)) {
 				graphics.SetClip(clipRegion, CombineMode.Exclude);
-				using (Pen pen = new Pen(lineColor, lineThickness)) {
+				using (Pen pen = new Pen(_lineColor, _lineThickness)) {
 					graphics.DrawPath(pen, tail);
 				}
 			}
 			graphics.Restore(state);
 
-			if (ColorHelper.IsVisible(fillColor)) {
+			if (ColorHelper.IsVisible(_fillColor)) {
 				//draw the bubbleshape
 				state = graphics.Save();
-				using (Brush brush = new SolidBrush(fillColor)) {
+				using (Brush brush = new SolidBrush(_fillColor)) {
 					graphics.FillPath(brush, bubble);
 				}
 				graphics.Restore(state);
@@ -281,7 +260,7 @@ namespace GreenshotEditorPlugin.Drawing {
 				// Draw bubble where the Tail is not visible.
 				using (Region clipRegion = new Region(tail)) {
 					graphics.SetClip(clipRegion, CombineMode.Exclude);
-					using (Pen pen = new Pen(lineColor, lineThickness)) {
+					using (Pen pen = new Pen(_lineColor, _lineThickness)) {
 						//pen.EndCap = pen.StartCap = LineCap.Round;
 						graphics.DrawPath(pen, bubble);
 					}
@@ -289,10 +268,10 @@ namespace GreenshotEditorPlugin.Drawing {
 				graphics.Restore(state);
 			}
 
-			if (ColorHelper.IsVisible(fillColor)) {
+			if (ColorHelper.IsVisible(_fillColor)) {
 				// Draw the tail border
 				state = graphics.Save();
-				using (Brush brush = new SolidBrush(fillColor)) {
+				using (Brush brush = new SolidBrush(_fillColor)) {
 					graphics.FillPath(brush, tail);
 				}
 				graphics.Restore(state);
@@ -304,7 +283,7 @@ namespace GreenshotEditorPlugin.Drawing {
 
 			// Draw the text
 			UpdateFormat();
-			DrawText(graphics, rect, lineThickness, lineColor, shadow, StringFormat, Text, Font);
+			DrawText(graphics, rect, _lineThickness, _lineColor, _shadow, StringFormat, Text, Font);
 		}
 
 		public override bool Contains(int x, int y) {
@@ -313,10 +292,8 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 			Point clickedPoint = new Point(x, y);
 			if (Status != EditStatus.UNDRAWN) {
-				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-				Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-				using (Pen pen = new Pen(lineColor, lineThickness)) {
-					using (GraphicsPath bubblePath = CreateBubble(lineThickness)) {
+				using (Pen pen = new Pen(_lineColor, _lineThickness)) {
+					using (GraphicsPath bubblePath = CreateBubble(_lineThickness)) {
 						bubblePath.Widen(pen);
 						if (bubblePath.IsVisible(clickedPoint)) {
 							return true;

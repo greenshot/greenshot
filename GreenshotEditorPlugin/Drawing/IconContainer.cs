@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.IO;
@@ -33,7 +34,7 @@ namespace GreenshotEditorPlugin.Drawing {
 	public class IconContainer : DrawableContainer, IIconContainer {
 		private static ILog LOG = LogManager.GetLogger(typeof(IconContainer));
 
-		protected Icon icon;
+		private Icon _icon;
 
 		public IconContainer(Surface parent) : base(parent) {
 		}
@@ -44,14 +45,14 @@ namespace GreenshotEditorPlugin.Drawing {
 
 		public Icon Icon {
 			set {
-				if (icon != null) {
-					icon.Dispose();
+				if (_icon != null) {
+					_icon.Dispose();
 				}
-				icon = (Icon)value.Clone();
+				_icon = (Icon)value.Clone();
 				Width = value.Width;
 				Height = value.Height;
 			}
-			get { return icon; }
+			get { return _icon; }
 		}
 
 		/**
@@ -60,11 +61,11 @@ namespace GreenshotEditorPlugin.Drawing {
 		 */
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				if (icon != null) {
-					icon.Dispose();
+				if (_icon != null) {
+					_icon.Dispose();
 				}
 			}
-			icon = null;
+			_icon = null;
 			base.Dispose(disposing);
 		}
 
@@ -78,12 +79,14 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (icon != null) {
+			if (_icon != null) {
+				GraphicsState state = graphics.Save();
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 				graphics.CompositingQuality = CompositingQuality.Default;
-				graphics.PixelOffsetMode = PixelOffsetMode.None;
-				graphics.DrawIcon(icon, Bounds);
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.DrawIcon(_icon, Bounds);
+				graphics.Restore(state);
 			}
 		}
 
@@ -95,7 +98,7 @@ namespace GreenshotEditorPlugin.Drawing {
 
 		public override Size DefaultSize {
 			get {
-				return icon.Size;
+				return _icon.Size;
 			}
 		}
 	}

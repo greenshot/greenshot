@@ -19,39 +19,76 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Plugin.Drawing;
+using GreenshotEditorPlugin.Helpers;
+using GreenshotPlugin.Extensions;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using GreenshotEditorPlugin.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Extensions;
-using GreenshotEditorPlugin.Helpers;
 
-namespace GreenshotEditorPlugin.Drawing {
-	/// <summary>
-	/// Represents a rectangular shape on the Surface
-	/// </summary>
-	[Serializable] 
+namespace GreenshotEditorPlugin.Drawing
+{
+    /// <summary>
+    /// Represents a rectangular shape on the Surface
+    /// </summary>
+    [Serializable] 
 	public class RectangleContainer : DrawableContainer {
+		protected int _lineThickness = 2;
+		[Field(FieldTypes.LINE_THICKNESS)]
+		public int LineThickness {
+			get {
+				return _lineThickness;
+			}
+			set {
+				_lineThickness = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
+			}
+		}
+
+		protected Color _lineColor = Color.Red;
+		[Field(FieldTypes.LINE_COLOR)]
+		public Color LineColor {
+			get {
+				return _lineColor;
+			}
+			set {
+				_lineColor = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
+			}
+		}
+
+		protected Color _fillColor = Color.Transparent;
+		[Field(FieldTypes.FILL_COLOR)]
+		public Color FillColor {
+			get {
+				return _fillColor;
+			}
+			set {
+				_fillColor = value;
+				OnFieldPropertyChanged(FieldTypes.FILL_COLOR);
+			}
+		}
+
+		protected bool _shadow = true;
+		[Field(FieldTypes.SHADOW)]
+		public bool Shadow {
+			get {
+				return _shadow;
+			}
+			set {
+				_shadow = value;
+				OnFieldPropertyChanged(FieldTypes.SHADOW);
+			}
+		}
 
 		public RectangleContainer(Surface parent) : base(parent) {
 		}
-
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
-			AddField(GetType(), FieldType.SHADOW, true);
-		}
+		
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
-			DrawRectangle(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
+			DrawRectangle(rect, graphics, rm, _lineThickness, _lineColor, _fillColor, _shadow);
 		}
 
 		/// <summary>
@@ -109,18 +146,14 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 		public override bool ClickableAt(int x, int y) {
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-
-			return RectangleClickableAt(rect, lineThickness, fillColor, x, y);
+			return RectangleClickableAt(rect, _lineThickness, _fillColor, x, y);
 		}
-
 
 		public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y) {
 
 			// If we clicked inside the rectangle and it's visible we are clickable at.
 			if (!Color.Transparent.Equals(fillColor)) {
-				if (rect.Contains(x,y)) {
+				if (rect.Contains(x, y)) {
 					return true;
 				}
 			}

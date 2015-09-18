@@ -39,8 +39,8 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="Dapplo.Config, Version=0.1.59.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.59.0\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.60.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.60.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
@@ -95,8 +95,8 @@
     <Compile Include="Drawing\DrawableContainerList.cs" />
     <Compile Include="Drawing\EllipseContainer.cs" />
     <Compile Include="Drawing\Fields\AbstractFieldHolder.cs" />
-    <Compile Include="Drawing\Fields\AbstractFieldHolderWithChildren.cs" />
     <Compile Include="Drawing\Fields\Binding\AbstractBindingConverter.cs" />
+    <Compile Include="Drawing\Fields\Binding\AlignmentConverter.cs" />
     <Compile Include="Drawing\Fields\Binding\BidirectionalBinding.cs" />
     <Compile Include="Drawing\Fields\Binding\DecimalDoublePercentageConverter.cs" />
     <Compile Include="Drawing\Fields\Binding\DecimalFloatConverter.cs" />
@@ -104,17 +104,12 @@
     <Compile Include="Drawing\Fields\Binding\IBindingConverter.cs" />
     <Compile Include="Drawing\Fields\Binding\IBindingValidator.cs" />
     <Compile Include="Drawing\Fields\Binding\NotNullValidator.cs" />
-    <Compile Include="Drawing\Fields\Field.cs" />
-    <Compile Include="Drawing\Fields\FieldAggregator.cs" />
-    <Compile Include="Drawing\Fields\FieldType.cs" />
-    <Compile Include="Drawing\Fields\IFieldHolder.cs" />
     <Compile Include="Drawing\FilterContainer.cs" />
     <Compile Include="Drawing\Filters\AbstractFilter.cs" />
     <Compile Include="Drawing\Filters\BlurFilter.cs" />
     <Compile Include="Drawing\Filters\BrightnessFilter.cs" />
     <Compile Include="Drawing\Filters\GrayscaleFilter.cs" />
     <Compile Include="Drawing\Filters\HighlightFilter.cs" />
-    <Compile Include="Drawing\Filters\IFilter.cs" />
     <Compile Include="Drawing\Filters\MagnifierFilter.cs" />
     <Compile Include="Drawing\Filters\PixelizationFilter.cs" />
     <Compile Include="Drawing\FreehandContainer.cs" />
@@ -187,7 +182,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Forms\ImageEditorForm.resx">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>

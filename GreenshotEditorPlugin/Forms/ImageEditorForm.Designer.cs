@@ -166,8 +166,6 @@ namespace GreenshotEditorPlugin.Forms
 			this.blurRadiusUpDown = new GreenshotEditorPlugin.Controls.ToolStripNumericUpDown();
 			this.brightnessLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
 			this.brightnessUpDown = new GreenshotEditorPlugin.Controls.ToolStripNumericUpDown();
-			this.previewQualityLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
-			this.previewQualityUpDown = new GreenshotEditorPlugin.Controls.ToolStripNumericUpDown();
 			this.magnificationFactorLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
 			this.magnificationFactorUpDown = new GreenshotEditorPlugin.Controls.ToolStripNumericUpDown();
 			this.pixelSizeLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
@@ -1015,7 +1013,7 @@ namespace GreenshotEditorPlugin.Forms
 			this.propertiesToolStrip.Renderer = new Controls.CustomToolStripProfessionalRenderer();
 			this.propertiesToolStrip.BackColor = System.Drawing.SystemColors.Control;
 			this.propertiesToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
-			this.propertiesToolStrip.Paint += propertiesToolStrip_Paint;
+			this.propertiesToolStrip.Paint += PropertiesToolStrip_Paint;
 			this.propertiesToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.obfuscateModeButton,
 									this.highlightModeButton,
@@ -1034,8 +1032,6 @@ namespace GreenshotEditorPlugin.Forms
 									this.blurRadiusUpDown,
 									this.brightnessLabel,
 									this.brightnessUpDown,
-									this.previewQualityLabel,
-									this.previewQualityUpDown,
 									this.magnificationFactorLabel,
 									this.magnificationFactorUpDown,
 									this.pixelSizeLabel,
@@ -1361,40 +1357,6 @@ namespace GreenshotEditorPlugin.Forms
 			this.brightnessUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.brightnessUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
-			// previewQualityLabel
-			// 
-			this.previewQualityLabel.LanguageKey = "editor_preview_quality";
-			this.previewQualityLabel.Name = "previewQualityLabel";
-			this.previewQualityLabel.Text = "Preview quality";
-			// 
-			// previewQualityUpDown
-			// 
-			this.previewQualityUpDown.DecimalPlaces = 0;
-			this.previewQualityUpDown.Increment = new decimal(new int[] {
-									10,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Maximum = new decimal(new int[] {
-									100,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Minimum = new decimal(new int[] {
-									10,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Name = "previewQualityUpDown";
-			this.previewQualityUpDown.Text = "50";
-			this.previewQualityUpDown.Value = new decimal(new int[] {
-									50,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
-			this.previewQualityUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
-			// 
 			// magnificationFactorLabel
 			// 
 			this.magnificationFactorLabel.LanguageKey = "editor_magnification_factor";
@@ -1484,28 +1446,28 @@ namespace GreenshotEditorPlugin.Forms
 			// 
 			this.arrowHeadStartMenuItem.LanguageKey = "editor_arrowheads_start";
 			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
-			this.arrowHeadStartMenuItem.Tag = GreenshotEditorPlugin.Drawing.ArrowContainer.ArrowHeadCombination.START_POINT;
+			this.arrowHeadStartMenuItem.Tag = Greenshot.Plugin.Drawing.ArrowHeadCombination.START_POINT;
 			this.arrowHeadStartMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadEndMenuItem
 			// 
 			this.arrowHeadEndMenuItem.LanguageKey = "editor_arrowheads_end";
 			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
-			this.arrowHeadEndMenuItem.Tag = GreenshotEditorPlugin.Drawing.ArrowContainer.ArrowHeadCombination.END_POINT;
+			this.arrowHeadEndMenuItem.Tag = Greenshot.Plugin.Drawing.ArrowHeadCombination.END_POINT;
 			this.arrowHeadEndMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadBothMenuItem
 			// 
 			this.arrowHeadBothMenuItem.LanguageKey = "editor_arrowheads_both";
 			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
-			this.arrowHeadBothMenuItem.Tag = GreenshotEditorPlugin.Drawing.ArrowContainer.ArrowHeadCombination.BOTH;
+			this.arrowHeadBothMenuItem.Tag = Greenshot.Plugin.Drawing.ArrowHeadCombination.BOTH;
 			this.arrowHeadBothMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadNoneMenuItem
 			// 
 			this.arrowHeadNoneMenuItem.LanguageKey = "editor_arrowheads_none";
 			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
-			this.arrowHeadNoneMenuItem.Tag = GreenshotEditorPlugin.Drawing.ArrowContainer.ArrowHeadCombination.NONE;
+			this.arrowHeadNoneMenuItem.Tag = Greenshot.Plugin.Drawing.ArrowHeadCombination.NONE;
 			this.arrowHeadNoneMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// shadowButton
@@ -1695,8 +1657,6 @@ namespace GreenshotEditorPlugin.Forms
 		private GreenshotPlugin.Controls.GreenshotToolStripLabel pixelSizeLabel;
 		private GreenshotEditorPlugin.Controls.ToolStripNumericUpDown magnificationFactorUpDown;
 		private GreenshotPlugin.Controls.GreenshotToolStripLabel magnificationFactorLabel;
-		private GreenshotEditorPlugin.Controls.ToolStripNumericUpDown previewQualityUpDown;
-		private GreenshotPlugin.Controls.GreenshotToolStripLabel previewQualityLabel;
 		private GreenshotEditorPlugin.Controls.ToolStripNumericUpDown blurRadiusUpDown;
 		private GreenshotPlugin.Controls.GreenshotToolStripLabel blurRadiusLabel;
 		private GreenshotEditorPlugin.Controls.ToolStripEx propertiesToolStrip;

@@ -825,7 +825,7 @@ namespace GreenshotPlugin.Core {
 			if ((shadowSize & 1) == 0) {
 				shadowSize++;
 			}
-			bool useGDIBlur = GDIplus.isBlurPossible(shadowSize);
+			bool useGDIBlur = GDIplus.IsBlurPossible(shadowSize);
 			// Create "mask" for the shadow
 			ColorMatrix maskMatrix = new ColorMatrix();
 			maskMatrix.Matrix00 = 0;

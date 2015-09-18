@@ -19,32 +19,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotEditorPlugin.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
+using GreenshotEditorPlugin.Helpers;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
-using GreenshotEditorPlugin.Helpers;
 
-namespace GreenshotEditorPlugin.Drawing {
-	/// <summary>
-	/// Description of PathContainer.
-	/// </summary>
-	[Serializable] 
+namespace GreenshotEditorPlugin.Drawing
+{
+    /// <summary>
+    /// The FreehandContainer can be used to draw freehand on the surface
+    /// </summary>
+    [Serializable] 
 	public class FreehandContainer : DrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FreehandContainer));
-		private static readonly float [] POINT_OFFSET = new float[]{0.5f, 0.25f, 0.75f};
+		private static readonly float [] PointOffset = {0.5f, 0.25f, 0.75f};
 
 		[NonSerialized]
-		private GraphicsPath freehandPath = new GraphicsPath();
-		private Rectangle myBounds = Rectangle.Empty;
-		private Point lastMouse = Point.Empty;
-		private List<Point> capturePoints = new List<Point>();
-		private bool isRecalculated = false;
-		
+		private GraphicsPath _freehandPath = new GraphicsPath();
+		private Rectangle _myBounds = Rectangle.Empty;
+		private Point _lastMouse = Point.Empty;
+		private readonly List<Point> _capturePoints = new List<Point>();
+		private bool _isRecalculated;
+
+		private int _lineThickness = 2;
+		[Field(FieldTypes.LINE_THICKNESS)]
+		public int LineThickness {
+			get {
+				return _lineThickness;
+			}
+			set {
+				_lineThickness = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
+			}
+		}
+
+		private Color _lineColor = Color.Red;
+		[Field(FieldTypes.LINE_COLOR)]
+		public Color LineColor {
+			get {
+				return _lineColor;
+			}
+			set {
+				_lineColor = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
+			}
+		}
 		/// <summary>
 		/// Constructor
 		/// </summary>
@@ -55,28 +78,22 @@ namespace GreenshotEditorPlugin.Drawing {
 			Top = 0;
 			Left = 0;
 		}
-
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 3);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-		}
-
 		
 		protected void Init() {
-			if (_grippers != null) {
-				for (int i = 0; i < _grippers.Length; i++) {
-					_grippers[i].Enabled = false;
-					_grippers[i].Visible = false;
+			if (Grippers != null) {
+				for (int i = 0; i < Grippers.Length; i++) {
+					Grippers[i].Enabled = false;
+					Grippers[i].Visible = false;
 				}
 			}
 		}
 
 		public override void Transform(Matrix matrix) {
-			Point[] points = capturePoints.ToArray();
+			Point[] points = _capturePoints.ToArray();
 
 			matrix.TransformPoints(points);
-			capturePoints.Clear();
-			capturePoints.AddRange(points);
+			_capturePoints.Clear();
+			_capturePoints.AddRange(points);
 			RecalculatePath();
 		}
 		
@@ -95,39 +112,39 @@ namespace GreenshotEditorPlugin.Drawing {
 		protected override void Dispose(bool disposing) {
 			base.Dispose(disposing);
 			if (disposing) {
-				if (freehandPath != null) {
-					freehandPath.Dispose();
+				if (_freehandPath != null) {
+					_freehandPath.Dispose();
 				}
 			}
-			freehandPath = null;
+			_freehandPath = null;
 		}
 		
 		/// <summary>
-		/// Called from Surface (the parent) when the drawing begins (mouse-down)
+		/// Called from Surface (the _parent) when the drawing begins (mouse-down)
 		/// </summary>
 		/// <returns>true if the surface doesn't need to handle the event</returns>
 		public override bool HandleMouseDown(int mouseX, int mouseY) {
-			lastMouse = new Point(mouseX, mouseY);
-			capturePoints.Add(lastMouse);
+			_lastMouse = new Point(mouseX, mouseY);
+			_capturePoints.Add(_lastMouse);
 			return true;
 		}
 
 		/// <summary>
-		/// Called from Surface (the parent) if a mouse move is made while drawing
+		/// Called from Surface (the _parent) if a mouse move is made while drawing
 		/// </summary>
 		/// <returns>true if the surface doesn't need to handle the event</returns>
 		public override bool HandleMouseMove(int mouseX, int mouseY) {
-			Point previousPoint = capturePoints[capturePoints.Count-1];
+			Point previousPoint = _capturePoints[_capturePoints.Count-1];
 
 			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= (2*EditorConfig.FreehandSensitivity)) {
-				capturePoints.Add(new Point(mouseX, mouseY));
+				_capturePoints.Add(new Point(mouseX, mouseY));
 			}
-			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
+			if (GeometryHelper.Distance2D(_lastMouse.X, _lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
 				//path.AddCurve(new Point[]{lastMouse, new Point(mouseX, mouseY)});
-				freehandPath.AddLine(lastMouse, new Point(mouseX, mouseY));
-				lastMouse = new Point(mouseX, mouseY);
+				_freehandPath.AddLine(_lastMouse, new Point(mouseX, mouseY));
+				_lastMouse = new Point(mouseX, mouseY);
 				// Only re-calculate the bounds & redraw when we added something to the path
-				myBounds = Rectangle.Round(freehandPath.GetBounds());
+				_myBounds = Rectangle.Round(_freehandPath.GetBounds());
 				Invalidate();
 			}
 			return true;
@@ -138,8 +155,8 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// </summary>
 		public override void HandleMouseUp(int mouseX, int mouseY) {
 			// Make sure we don't loose the ending point
-			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
-				capturePoints.Add(new Point(mouseX, mouseY));
+			if (GeometryHelper.Distance2D(_lastMouse.X, _lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
+				_capturePoints.Add(new Point(mouseX, mouseY));
 			}
 			RecalculatePath();
 		}
@@ -148,27 +165,27 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// Here we recalculate the freehand path by smoothing out the lines with Beziers.
 		/// </summary>
 		private void RecalculatePath() {
-			isRecalculated = true;
+			_isRecalculated = true;
 			// Dispose the previous path, if we have one
-			if (freehandPath != null) {
-				freehandPath.Dispose();
+			if (_freehandPath != null) {
+				_freehandPath.Dispose();
 			}
-			freehandPath = new GraphicsPath();
+			_freehandPath = new GraphicsPath();
 
 			// Here we can put some cleanup... like losing all the uninteresting  points.
-			if (capturePoints.Count >= 3) {
+			if (_capturePoints.Count >= 3) {
 				int index = 0;
-				while ((capturePoints.Count - 1) % 3 != 0) {
+				while ((_capturePoints.Count - 1) % 3 != 0) {
 					// duplicate points, first at 50% than 25% than 75%
-					capturePoints.Insert((int)(capturePoints.Count*POINT_OFFSET[index]), capturePoints[(int)(capturePoints.Count*POINT_OFFSET[index++])]);
+					_capturePoints.Insert((int)(_capturePoints.Count*PointOffset[index]), _capturePoints[(int)(_capturePoints.Count*PointOffset[index++])]);
 				}
-				freehandPath.AddBeziers(capturePoints.ToArray());
-			} else if (capturePoints.Count == 2) {
-				freehandPath.AddLine(capturePoints[0], capturePoints[1]);
+				_freehandPath.AddBeziers(_capturePoints.ToArray());
+			} else if (_capturePoints.Count == 2) {
+				_freehandPath.AddLine(_capturePoints[0], _capturePoints[1]);
 			}
 
 			// Recalculate the bounds
-			myBounds = Rectangle.Round(freehandPath.GetBounds());
+			_myBounds = Rectangle.Round(_freehandPath.GetBounds());
 		}
 
 		/// <summary>
@@ -182,10 +199,8 @@ namespace GreenshotEditorPlugin.Drawing {
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 			
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			using (Pen pen = new Pen(lineColor)) {
-				pen.Width = lineThickness;
+			using (Pen pen = new Pen(_lineColor)) {
+				pen.Width = _lineThickness;
 				if (pen.Width > 0) {
 					// Make sure the lines are nicely rounded
 					pen.EndCap = LineCap.Round;
@@ -194,10 +209,10 @@ namespace GreenshotEditorPlugin.Drawing {
 
 					// Move to where we need to draw
 					graphics.TranslateTransform(Left,Top);
-					if (isRecalculated && Selected && renderMode == RenderMode.EDIT) {
+					if (_isRecalculated && Selected && renderMode == RenderMode.EDIT) {
 						DrawSelectionBorder(graphics, pen);
 					}
-					graphics.DrawPath(pen, freehandPath);
+					graphics.DrawPath(pen, _freehandPath);
 					// Move back, otherwise everything is shifted
 					graphics.TranslateTransform(-Left,-Top);
 				}
@@ -211,7 +226,7 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// <param name="linePen"></param>
 		protected void DrawSelectionBorder(Graphics graphics, Pen linePen) {
 			using (Pen selectionPen = (Pen) linePen.Clone()) {
-				using (GraphicsPath selectionPath = (GraphicsPath) freehandPath.Clone()) {
+				using (GraphicsPath selectionPath = (GraphicsPath) _freehandPath.Clone()) {
 					selectionPen.Width += 5;
 					selectionPen.Color = Color.FromArgb(120, Color.LightSeaGreen);
 					graphics.DrawPath(selectionPen, selectionPath);
@@ -229,10 +244,10 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// </summary>
 		public override Rectangle DrawingBounds {
 			get {
-				if (!myBounds.IsEmpty) {
-					int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldType.LINE_THICKNESS));
-					int safetymargin = 10;
-					return new Rectangle((myBounds.Left + Left) - (safetymargin+lineThickness), (myBounds.Top + Top) - (safetymargin+lineThickness), myBounds.Width + (2*(lineThickness+safetymargin)), myBounds.Height + (2*(lineThickness+safetymargin)));
+				if (!_myBounds.IsEmpty) {
+					int lineThickness = Math.Max(10, LineThickness);
+					const int safetymargin = 10;
+					return new Rectangle((_myBounds.Left + Left) - (safetymargin+lineThickness), (_myBounds.Top + Top) - (safetymargin+lineThickness), _myBounds.Width + (2*(lineThickness+safetymargin)), _myBounds.Height + (2*(lineThickness+safetymargin)));
 				}
 				return new Rectangle(0, 0, _parent.Width, _parent.Height);
 			}
@@ -245,9 +260,9 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// <returns></returns>
 		public override bool Equals(object obj) {
 			bool ret = false;
-			if(obj != null && GetType().Equals(obj.GetType())) {
+			if(obj != null && GetType() == obj.GetType()) {
 				FreehandContainer other = obj as FreehandContainer;
-				if(freehandPath.Equals(other.freehandPath)) {
+				if(other != null && _freehandPath.Equals(other._freehandPath)) {
 					ret = true;
 				}
 			}
@@ -255,7 +270,7 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		public override int GetHashCode() {
-			return freehandPath.GetHashCode();
+			return _freehandPath.GetHashCode();
 		}
 
 		/// <summary>
@@ -272,10 +287,9 @@ namespace GreenshotEditorPlugin.Drawing {
 		public override bool ClickableAt(int x, int y) {
 			bool returnValue = base.ClickableAt(x, y);
 			if (returnValue) {
-				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 				using (Pen pen = new Pen(Color.White)) {
-					pen.Width = lineThickness + 10;
-					returnValue = freehandPath.IsOutlineVisible(x-Left,y-Top, pen);
+					pen.Width = _lineThickness + 10;
+					returnValue = _freehandPath.IsOutlineVisible(x-Left,y-Top, pen);
 				}
 			}
 			return returnValue;

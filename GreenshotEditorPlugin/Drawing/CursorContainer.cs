@@ -35,7 +35,7 @@ namespace GreenshotEditorPlugin.Drawing {
 	public class CursorContainer : DrawableContainer, ICursorContainer {
 		private static ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
 
-		protected Cursor cursor;
+		private Cursor _cursor;
 
 		public CursorContainer(Surface parent) : base(parent) {
 		}
@@ -46,15 +46,15 @@ namespace GreenshotEditorPlugin.Drawing {
 
 		public Cursor Cursor {
 			set {
-				if (cursor != null) {
-					cursor.Dispose();
+				if (_cursor != null) {
+					_cursor.Dispose();
 				}
 				// Clone cursor (is this correct??)
-				cursor = new Cursor(value.Handle);
+				_cursor = new Cursor(value.CopyHandle());
 				Width = value.Size.Width;
 				Height = value.Size.Height;
 			}
-			get { return cursor; }
+			get { return _cursor; }
 		}
 
 		/// <summary>
@@ -64,11 +64,11 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				if (cursor != null) {
-					cursor.Dispose();
+				if (_cursor != null) {
+					_cursor.Dispose();
 				}
 			}
-			cursor = null;
+			_cursor = null;
 			base.Dispose(disposing);
 		}
 
@@ -83,19 +83,19 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (cursor == null) {
+			if (_cursor == null) {
 				return;
 			}
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.Default;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
-			cursor.DrawStretched(graphics, Bounds);
+			_cursor.DrawStretched(graphics, Bounds);
 		}
 
 		public override Size DefaultSize {
 			get {
-				return cursor.Size;
+				return _cursor.Size;
 			}
 		}
 	}

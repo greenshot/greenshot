@@ -19,179 +19,104 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
+using Greenshot.Plugin.Drawing;
+using log4net;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Runtime.Serialization;
+using System.ComponentModel;
+using System.Reflection;
 
-using log4net;
-using Dapplo.Config.Ini;
-
-namespace GreenshotEditorPlugin.Drawing.Fields {
-	/// <summary>
-	/// Basic IFieldHolder implementation, providing access to a set of fields
-	/// </summary>
-	[Serializable]
+namespace GreenshotEditorPlugin.Drawing.Fields
+{
+    /// <summary>
+    /// Basic IFieldHolder implementation, providing access to a set of fields
+    /// </summary>
+    [Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
 		private static IEditorConfiguration editorConfiguration = IniConfig.Get("Greenshot","greenshot").Get<IEditorConfiguration>();
 
+		protected IDictionary<FieldTypes, FieldAttribute> fieldAttributes = new Dictionary<FieldTypes, FieldAttribute>();
+		public IDictionary<FieldTypes, FieldAttribute> FieldAttributes {
+			get {
+				return fieldAttributes;
+			}
+		}
+
+		[NonSerialized]
+		private PropertyChangedEventHandler propertyChanged;
+		public event PropertyChangedEventHandler PropertyChanged {
+			add {
+				propertyChanged += value;
+			}
+			remove {
+				propertyChanged -= value;
+			}
+		}
+
 		/// <summary>
-		/// called when a field's value has changed
+		/// Initializes all the fields in "this", using the editor configuration for caching and writing default values
 		/// </summary>
-		[NonSerialized]
-		private FieldChangedEventHandler fieldChanged;
-		public event FieldChangedEventHandler FieldChanged {
-			add { fieldChanged += value; }
-			remove{ fieldChanged -= value; }
-		}
-		
-		// we keep two Collections of our fields, dictionary for quick access, list for serialization
-		// this allows us to use default serialization
-		[NonSerialized]
-		private Dictionary<FieldType, Field> fieldsByType = new Dictionary<FieldType, Field>();
-		private List<Field> fields = new List<Field>();
-		
-		public AbstractFieldHolder() {}
-		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
-			fieldsByType = new Dictionary<FieldType, Field>();
-			// listen to changing properties
-			foreach(Field field in fields) {
-				field.PropertyChanged += delegate {
-					if (fieldChanged != null) {
-						fieldChanged(this, new FieldChangedEventArgs(field));
+		protected void InitFieldAttributes() {
+			// Build cache if needed
+			if (fieldAttributes.Count == 0) {
+				foreach (var propertyInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
+					foreach (Attribute attribute in propertyInfo.GetCustomAttributes(true)) {
+						var fieldAttribute = attribute as FieldAttribute;
+						if (fieldAttribute != null) {
+							if (fieldAttributes.ContainsKey(fieldAttribute.FieldType)) {
+								throw new NotSupportedException(string.Format("Can't have two fields of type {0}", fieldAttribute.FieldType));
+							}
+							// Cache value (this is not directly needed, as get/set value will solve this, but is quicker!)
+							fieldAttribute.LinkedProperty = propertyInfo;
+							// Overwrite scope if it's not set
+							if (fieldAttribute.Scope == null) {
+								fieldAttribute.Scope = GetType().Name;
+							}
+							fieldAttributes.Add(fieldAttribute.FieldType, fieldAttribute);
+						}
 					}
-				};
-				fieldsByType[field.FieldType] = field;
-			}
-		}
-
-		public void AddField(Type requestingType, FieldType fieldType, object fieldValue) {
-			AddField(CreateField(requestingType, fieldType, fieldValue));
-		}
-
-		/// <param name="requestingType">Type of the class for which to create the field</param>
-		/// <param name="fieldType">FieldType of the field to construct</param>
-		/// <param name="scope">FieldType of the field to construct</param>
-		/// <returns>a new Field of the given fieldType, with the scope of it's value being restricted to the Type scope</returns>
-		private static Field CreateField(Type requestingType, FieldType fieldType, object preferredDefaultValue) {
-			string requestingTypeName = requestingType.Name;
-			string requestedField = requestingTypeName + "." + fieldType.Name;
-			object fieldValue = preferredDefaultValue;
-
-			// Check if the configuration exists
-			if (editorConfiguration.LastUsedFieldValues == null) {
-				editorConfiguration.LastUsedFieldValues = new Dictionary<string, object>();
-			}
-
-			// Check if settings for the requesting type exist, if not create!
-			if (editorConfiguration.LastUsedFieldValues.ContainsKey(requestedField)) {
-				// Check if a value is set (not null)!
-				if (editorConfiguration.LastUsedFieldValues[requestedField] != null) {
-					fieldValue = editorConfiguration.LastUsedFieldValues[requestedField];
-				} else {
-					// Overwrite null value
-					editorConfiguration.LastUsedFieldValues[requestedField] = fieldValue;
 				}
-			} else {
-				editorConfiguration.LastUsedFieldValues.Add(requestedField, fieldValue);
 			}
-			Field returnField = new Field(fieldType, requestingType);
-			returnField.Value = fieldValue;
-			return returnField;
+
+			// Fill the attributes with their default or cached value
+			foreach (FieldAttribute fieldAttribute in fieldAttributes.Values) {
+				object defaultValue = fieldAttribute.GetValue(this);
+
+				// TODO: Fix this
+				//object fieldValue = editorConfiguration.CreateCachedValue(fieldAttribute.Scope, fieldAttribute.FieldType, defaultValue);
+				//fieldAttribute.SetValue(this, fieldValue);
+			}
 		}
 
-		public virtual void AddField(Field field) {
-			if (fieldsByType != null && fieldsByType.ContainsKey(field.FieldType)) {
-				if (LOG.IsDebugEnabled) {
-					LOG.DebugFormat("A field with of type '{0}' already exists in this {1}, will overwrite.", field.FieldType, GetType());
-				}
-			} 
-			
-			fields.Add(field);
-			fieldsByType[field.FieldType] = field;
-			field.PropertyChanged += delegate { if(fieldChanged != null) fieldChanged(this, new FieldChangedEventArgs(field)); };
-		}
-		
-		public void RemoveField(Field field) {
-			fields.Remove(field);
-			fieldsByType.Remove(field.FieldType);
-			field.PropertyChanged -= delegate {
-				if (fieldChanged != null) {
-					fieldChanged(this, new FieldChangedEventArgs(field));
-				}
-			};
-		}
-		
-		public List<Field> GetFields() {
-			return fields;
+		/// <summary>
+		/// Call this to propegate the changed event and update the editor configuration
+		/// </summary>
+		/// <param name="fieldType"></param>
+		protected void OnFieldPropertyChanged(FieldTypes fieldType) {
+			FieldAttribute fieldAttribute = FieldAttributes[fieldType];
+			if (fieldAttribute != null) {
+                // TODO: Implement
+                //editorConfiguration.UpdateCachedValue(fieldAttribute.Scope, fieldType, fieldAttribute.GetValue(this));
+            }
+            OnPropertyChanged(fieldType.ToString());
 		}
 
-		
-		public Field GetField(FieldType fieldType) {
-			try {
-				return fieldsByType[fieldType];
-			} catch(KeyNotFoundException e) {
-				throw new ArgumentException("Field '" + fieldType + "' does not exist in " + GetType(), e);
+		/// <summary>
+		/// Call this to send an PropertyChanged event
+		/// </summary>
+		/// <param name="propertyName"></param>
+		protected void OnPropertyChanged(string propertyName) {
+			if (propertyChanged != null) {
+				propertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
+			Invalidate();
 		}
-		
-		public object GetFieldValue(FieldType fieldType) {
-			return GetField(fieldType).Value;
-		}
-		
-		#region convenience methods to save us some casts outside
-		public string GetFieldValueAsString(FieldType fieldType) {
-			return Convert.ToString(GetFieldValue(fieldType));
-		}
-		
-		public int GetFieldValueAsInt(FieldType fieldType) {
-			return Convert.ToInt32(GetFieldValue(fieldType));
-		}
-		
-		public decimal GetFieldValueAsDecimal(FieldType fieldType) {
-			return Convert.ToDecimal(GetFieldValue(fieldType));
-		}
-		
-		public double GetFieldValueAsDouble(FieldType fieldType) {
-			return Convert.ToDouble(GetFieldValue(fieldType));
-		}
-		
-		public float GetFieldValueAsFloat(FieldType fieldType) {
-			return Convert.ToSingle(GetFieldValue(fieldType));
-		}
-		
-		public bool GetFieldValueAsBool(FieldType fieldType) {
-			return Convert.ToBoolean(GetFieldValue(fieldType));
-		}
-		
-		public Color GetFieldValueAsColor(FieldType fieldType) {
-			return (Color)GetFieldValue(fieldType);
-		}
-		#endregion
-		
-		public bool HasField(FieldType fieldType) {
-			return fieldsByType.ContainsKey(fieldType);
-		}
-		
-		public bool HasFieldValue(FieldType fieldType) {
-			return HasField(fieldType) && fieldsByType[fieldType].HasValue;
-		}
-		
-		public void SetFieldValue(FieldType fieldType, object value) {
-			try {
-				fieldsByType[fieldType].Value = value;
-			} catch(KeyNotFoundException e) {
-				throw new ArgumentException("Field '"+fieldType+"' does not exist in " + GetType(), e);
-			}
-		}
-		
-		protected void OnFieldChanged(object sender, FieldChangedEventArgs e){
-			if (fieldChanged != null) {
-				fieldChanged(sender, e);
-			}
-		}
+
+		/// <summary>
+		/// Every field holder should invalidate when a PropertyChanged event is generated, therefor it needs to implement this
+		/// </summary>
+		public abstract void Invalidate();
 	}
 }

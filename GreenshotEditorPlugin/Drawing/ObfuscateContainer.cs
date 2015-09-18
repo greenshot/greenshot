@@ -18,57 +18,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Plugin.Drawing;
 using System;
 using System.Runtime.Serialization;
-using GreenshotEditorPlugin.Drawing.Fields;
-using GreenshotEditorPlugin.Drawing.Filters;
 
-namespace GreenshotEditorPlugin.Drawing {
-	/// <summary>
-	/// Description of ObfuscateContainer.
-	/// </summary>
-	[Serializable] 
+namespace GreenshotEditorPlugin.Drawing
+{
+    /// <summary>
+    /// Description of ObfuscateContainer.
+    /// </summary>
+    [Serializable] 
 	public class ObfuscateContainer : FilterContainer {
-		public ObfuscateContainer(Surface parent) : base(parent) {
-			Init();
+
+		private PreparedFilter _preparedFilter = PreparedFilter.PIXELIZE;
+		[Field(FieldTypes.PREPARED_FILTER_OBFUSCATE)]
+		public override PreparedFilter Filter {
+			get {
+				return _preparedFilter;
+			}
+			set {
+				_preparedFilter = value;
+				OnFieldPropertyChanged(FieldTypes.PREPARED_FILTER_OBFUSCATE);
+				// Before we had to register to events to know if the value was changed
+				ConfigurePreparedFilters();
+			}
 		}
 
-		protected override void InitializeFields() {
-			base.InitializeFields();
-			AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
+		public ObfuscateContainer(Surface parent) : base(parent) {
 		}
 		
 		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
-			Init();
-		}
-		
-		private void Init() {
-			FieldChanged += ObfuscateContainer_OnFieldChanged;
 			ConfigurePreparedFilters();
-		}	
-		
-		protected void ObfuscateContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
-			if(sender.Equals(this)) {
-				if(e.Field.FieldType == FieldType.PREPARED_FILTER_OBFUSCATE) {
-					ConfigurePreparedFilters();
-				}
-			}
-		}
-		
-		private void ConfigurePreparedFilters() {
-			PreparedFilter preset = (PreparedFilter)GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
-			while(Filters.Count>0) {
-				Remove(Filters[0]);
-			}
-			switch(preset) {
-				case PreparedFilter.BLUR:
-					Add(new BlurFilter(this));
-					break;
-				case PreparedFilter.PIXELIZE:
-					Add(new PixelizationFilter(this));
-					break;
-			}
 		}
 	}
 }

@@ -33,15 +33,15 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// 7   3
 		/// 6 5 4
 		/// </summary>
-		public const int POSITION_TOP_LEFT = 0;
-		public const int POSITION_TOP_CENTER = 1;
-		public const int POSITION_TOP_RIGHT = 2;
-		public const int POSITION_MIDDLE_RIGHT = 3;
-		public const int POSITION_BOTTOM_RIGHT = 4;
+		public const int POSITION_TOP_LEFT      = 0;
+		public const int POSITION_TOP_CENTER    = 1;
+		public const int POSITION_TOP_RIGHT     = 2;
+		public const int POSITION_MIDDLE_RIGHT  = 3;
+		public const int POSITION_BOTTOM_RIGHT  = 4;
 		public const int POSITION_BOTTOM_CENTER = 5;
-		public const int POSITION_BOTTOM_LEFT = 6;
-		public const int POSITION_MIDDLE_LEFT = 7;
-
+		public const int POSITION_BOTTOM_LEFT   = 6;
+		public const int POSITION_MIDDLE_LEFT   = 7;
+		
 		public int Position {
 			get;
 			set;
@@ -51,6 +51,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			Width = 5;
 			Height = 5;
 			BackColor = Color.Black;
+			
 		}
 	}
 }

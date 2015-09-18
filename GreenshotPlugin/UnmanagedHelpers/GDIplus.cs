@@ -171,7 +171,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="radius"></param>
 		/// <returns></returns>
-		public static bool isBlurPossible(int radius) {
+		public static bool IsBlurPossible(int radius) {
 			if (!isBlurEnabled) {
 				return false;
 			} else if (Environment.OSVersion.Version.Minor >= 2 && radius < 20) {
@@ -189,7 +189,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="expandEdges">bool true if the edges are expanded with the radius</param>
 		/// <returns>false if there is no GDI+ available or an exception occured</returns>
 		public static bool ApplyBlur(Bitmap destinationBitmap, Rectangle area, int radius, bool expandEdges) {
-			if (!isBlurPossible(radius)) {
+			if (!IsBlurPossible(radius)) {
 				return false;
 			}
 			IntPtr hBlurParams = IntPtr.Zero;
@@ -249,7 +249,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <returns>false if there is no GDI+ available or an exception occured</returns>
 		public static bool DrawWithBlur(Graphics graphics, Bitmap image, Rectangle source, Matrix transform, ImageAttributes imageAttributes, int radius, bool expandEdges) {
-			if (!isBlurPossible(radius)) {
+			if (!IsBlurPossible(radius)) {
 				return false;
 			}
 

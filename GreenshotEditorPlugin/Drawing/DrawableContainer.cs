@@ -20,30 +20,30 @@
  */
 
 using Dapplo.Config.Ini;
-using GreenshotEditorPlugin.Drawing.Fields;
-using GreenshotEditorPlugin.Drawing.Filters;
-using GreenshotEditorPlugin.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
+using GreenshotEditorPlugin.Drawing.Fields;
+using GreenshotEditorPlugin.Drawing.Filters;
+using GreenshotEditorPlugin.Helpers;
+using GreenshotEditorPlugin.Memento;
 using GreenshotPlugin.Extensions;
 using log4net;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using GreenshotEditorPlugin.Helpers;
 
-namespace GreenshotEditorPlugin.Drawing {
-	/// <summary>
-	/// represents a rectangle, ellipse, label or whatever. Can contain filters, too.
-	/// serializable for clipboard support
-	/// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
-	/// OnPropertyChanged whenever a public property has been changed.
-	/// </summary>
-	[Serializable]
-	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer {
+namespace GreenshotEditorPlugin.Drawing
+{
+    /// <summary>
+    /// represents a rectangle, ellipse, label or whatever. Can contain filters, too.
+    /// serializable for clipboard support
+    /// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
+    /// OnPropertyChanged whenever a public property has been changed.
+    /// </summary>
+    [Serializable]
+	public abstract class DrawableContainer : AbstractFieldHolder, IDrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
 		protected static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
 		private bool isMadeUndoable;
@@ -52,62 +52,24 @@ namespace GreenshotEditorPlugin.Drawing {
 		private const int M21 = 2;
 		private const int M22 = 3;
 
-
-		protected EditStatus _defaultEditMode = EditStatus.DRAWING;
+		[NonSerialized]
+		private EditStatus _defaultEditMode = EditStatus.DRAWING;
 		public EditStatus DefaultEditMode {
 			get {
 				return _defaultEditMode;
 			}
-		}
-
-		/// <summary>
-		/// The public accessible Dispose
-		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
-		/// </summary>
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing) {
-			if (!disposing) {
-				return;
+			protected set {
+				_defaultEditMode = value;
 			}
-			if (_grippers != null) {
-				for (int i = 0; i < _grippers.Length; i++) {
-					if (_grippers[i] == null) {
-						continue;
-					}
-					_grippers[i].Dispose();
-					_grippers[i] = null;
-				}
-				_grippers = null;
-			}
-
-			FieldAggregator aggProps = _parent.FieldAggregator;
-			aggProps.UnbindElement(this);
-		}
-
-		~DrawableContainer() {
-			Dispose(false);
 		}
 
 		[NonSerialized]
-		private PropertyChangedEventHandler _propertyChanged;
-		public event PropertyChangedEventHandler PropertyChanged {
-			add { _propertyChanged += value; }
-			remove{ _propertyChanged -= value; }
-		}
-		
+		private bool _isMadeUndoable;
+
+		readonly List<IFilter> _filters = new List<IFilter>();
 		public List<IFilter> Filters {
 			get {
-				List<IFilter> ret = new List<IFilter>();
-				foreach(IFieldHolder c in Children) {
-					if (c is IFilter) {
-						ret.Add(c as IFilter);
-					}
-				}
-				return ret;
+				return _filters;
 			}
 		}
 			
@@ -118,8 +80,12 @@ namespace GreenshotEditorPlugin.Drawing {
 			set { SwitchParent((Surface)value); }
 		}
 		[NonSerialized]
-		protected Gripper[] _grippers;
-		private bool layoutSuspended;
+		private Gripper[] _grippers;
+		public Gripper[] Grippers {
+			get {
+				return _grippers;
+			}
+		}
 
 		[NonSerialized]
 		private Gripper _targetGripper;
@@ -130,6 +96,9 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 		}
 
+		[NonSerialized]
+		private bool _layoutSuspended;
+		
 		[NonSerialized]
 		private bool _selected;
 		public bool Selected {
@@ -152,80 +121,72 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		
-		private int left;
+		private int _left;
 		public int Left {
-			get { return left; }
+			get { return _left; }
 			set {
-				if (value == left) {
-					return;
+				if(value != _left) {
+					_left = value;
+					DoLayout();
 				}
-				left = value;
-				DoLayout();
 			}
 		}
 		
-		private int top;
+		private int _top;
 		public int Top {
-			get { return top; }
+			get { return _top; }
 			set {
-				if (value == top) {
-					return;
+				if (value != _top) {
+					_top = value;
+					DoLayout();
 				}
-				top = value;
-				DoLayout();
 			}
 		}
 		
-		private int width;
+		private int _width;
 		public int Width {
-			get { return width; }
+			get { return _width; }
 			set {
-				if (value == width) {
-					return;
+				if(value != _width) {
+					_width = value;
+					DoLayout();
 				}
-				width = value;
-				DoLayout();
 			}
 		}
 		
-		private int height;
+		private int _height;
 		public int Height {
-			get { return height; }
+			get { return _height; }
 			set {
-				if (value == height) {
-					return;
+				if (value != _height) {
+					_height = value;
+					DoLayout();
 				}
-				height = value;
-				DoLayout();
 			}
 		}
 		
 		public Point Location {
 			get {
-				return new Point(left, top);
-			}
-			set {
-				left = value.X;
-				top = value.Y;
+				return new Point(_left, _top);
 			}
 		}
 
 		public Size Size {
 			get {
-				return new Size(width, height);
-			}
-			set {
-				width = value.Width;
-				height = value.Height;
+				return new Size(_width, _height);
 			}
 		}
 
+		/// <summary>
+		/// will store current bounds of this DrawableContainer before starting a resize
+		/// </summary>
 		[NonSerialized]
-		// will store current bounds of this DrawableContainer before starting a resize
 		protected Rectangle _boundsBeforeResize = Rectangle.Empty;
-		
+
+		/// <summary>
+		/// "workbench" rectangle - used for calculatoing bounds during resizing (to be applied to this DrawableContainer afterwards)
+		/// </summary>
 		[NonSerialized]
-		// "workbench" rectangle - used for calculating bounds during resizing (to be applied to this DrawableContainer afterwards)
 		protected RectangleF _boundsAfterResize = RectangleF.Empty;
 		
 		public Rectangle Bounds {
@@ -244,28 +205,83 @@ namespace GreenshotEditorPlugin.Drawing {
 			Width = Round(newBounds.Width);
 			Height = Round(newBounds.Height);
 		}
-		
+
+		/// <summary>
+		/// Don't allow default constructor!
+		/// </summary>
+		private DrawableContainer() {
+		}
+
+		public virtual void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				if (_grippers != null) {
+					for (int i = 0; i < _grippers.Length; i++) {
+						if (_grippers[i] != null) {
+							_grippers[i].Dispose();
+							_grippers[i] = null;
+						}
+					}
+					_grippers = null;
+				}
+				if (_targetGripper != null) {
+					_targetGripper.Dispose();
+					_targetGripper = null;
+				}
+			}
+		}
+
+		~DrawableContainer() {
+			Dispose(false);
+		}
+
+		/// <summary>
+		/// a drawable container is always linked to a surface
+		/// </summary>
+		/// <param name="parent"></param>
 		public DrawableContainer(Surface parent) {
-			InitializeFields();
 			_parent = parent;
+			InitFieldAttributes();
 			InitControls();
 		}
 
 		public void Add(IFilter filter) {
-			AddChild(filter);
+			_filters.Add(filter);
 		}
 		
 		public void Remove(IFilter filter) {
-			RemoveChild(filter);
+			_filters.Remove(filter);
 		}
 		
-		private static int Round(float f) {
+		private int Round(float f) {
 			if(float.IsPositiveInfinity(f) || f>int.MaxValue/2) return int.MaxValue/2;
 			if (float.IsNegativeInfinity(f) || f<int.MinValue/2) return int.MinValue/2;
 			return (int)Math.Round(f);
 		}
-		
-		private bool accountForShadowChange;
+
+		private int InternalLineThickness {
+			get {
+				FieldAttribute fieldAttribute;
+				if (FieldAttributes.TryGetValue(FieldTypes.LINE_THICKNESS, out fieldAttribute)) {
+					return (int)fieldAttribute.GetValue(this);
+				}
+				return 0;
+			}
+		}
+		private bool HasShadow {
+			get {
+				FieldAttribute fieldAttribute;
+				if (FieldAttributes.TryGetValue(FieldTypes.SHADOW, out fieldAttribute)) {
+					return (bool)fieldAttribute.GetValue(this);
+				}
+				return false;
+			}
+		}
+
 		public virtual Rectangle DrawingBounds {
 			get {
 				foreach(IFilter filter in Filters) {
@@ -274,30 +290,29 @@ namespace GreenshotEditorPlugin.Drawing {
 					}
 				}
 				// Take a base safetymargin
-				int lineThickness = 5;
-				if (HasField(FieldType.LINE_THICKNESS)) {
-					lineThickness += GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-				}
+				int lineThickness = 5 + InternalLineThickness;
 				int offset = lineThickness/2;
 
 				int shadow = 0;
-				if (accountForShadowChange || (HasField(FieldType.SHADOW) && GetFieldValueAsBool(FieldType.SHADOW))){
-					accountForShadowChange = false;
+				if (HasShadow) {
 					shadow += 10;
 				}
 				return new Rectangle(Bounds.Left-offset, Bounds.Top-offset, Bounds.Width+lineThickness+shadow, Bounds.Height+lineThickness+shadow);
 			}
 		}
 
-		public virtual void Invalidate() {
-			if (Status != EditStatus.UNDRAWN) {
+		public override void Invalidate() {
+			if (_parent != null) {
 				_parent.Invalidate(DrawingBounds);
 			}
 		}
 		
 		public void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment) {
-			
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			if (_parent == null) {
+				return;
+			}
+
+			int lineThickness = InternalLineThickness;
 			if (horizontalAlignment == HorizontalAlignment.Left) {
 				Left = lineThickness/2;
 			}
@@ -328,7 +343,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			
 			DoLayout();
 		}
-
+		
 		/// <summary>
 		/// Move the TargetGripper around, confined to the surface to solve BUG-1682
 		/// </summary>
@@ -378,16 +393,16 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 
 		protected void InitGrippers() {
-			
 			_grippers = new Gripper[8];
 			for(int i=0; i<_grippers.Length; i++) {
-				_grippers[i] = new Gripper();
-				_grippers[i].Position = i;
+				_grippers[i] = new Gripper {
+					Position = i,
+					Visible = false,
+					Parent = _parent
+				};
 				_grippers[i].MouseDown += GripperMouseDown;
 				_grippers[i].MouseUp += GripperMouseUp;
 				_grippers[i].MouseMove += GripperMouseMove;
-				_grippers[i].Visible = false;
-				_grippers[i].Parent = _parent;
 			}
 			_grippers[Gripper.POSITION_TOP_CENTER].Cursor = Cursors.SizeNS;
 			_grippers[Gripper.POSITION_MIDDLE_RIGHT].Cursor = Cursors.SizeWE;
@@ -399,11 +414,11 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 		
 		public void SuspendLayout() {
-			layoutSuspended = true;
+			_layoutSuspended = true;
 		}
 		
 		public void ResumeLayout() {
-			layoutSuspended = false;
+			_layoutSuspended = false;
 			DoLayout();
 		}
 		
@@ -411,7 +426,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			if (_grippers == null) {
 				return;
 			}
-			if (!layoutSuspended) {
+			if (!_layoutSuspended) {
 				int[] xChoords = {Left-2,Left+Width/2-2,Left+Width-2};
 				int[] yChoords = {Top-2,Top+Height/2-2,Top+Height-2};
 
@@ -450,12 +465,12 @@ namespace GreenshotEditorPlugin.Drawing {
 			Gripper originatingGripper = (Gripper)sender;
 			if (originatingGripper != _targetGripper) {
 				Status = EditStatus.RESIZING;
-				_boundsBeforeResize = new Rectangle(left, top, width, height);
+				_boundsBeforeResize = new Rectangle(_left, _top, _width, _height);
 				_boundsAfterResize = new RectangleF(_boundsBeforeResize.Left, _boundsBeforeResize.Top, _boundsBeforeResize.Width, _boundsBeforeResize.Height);
 			} else {
 				Status = EditStatus.MOVING;
 			}
-			isMadeUndoable = false;
+			_isMadeUndoable = false;
 		}
 
 		private void GripperMouseUp(object sender, MouseEventArgs e) {
@@ -463,12 +478,12 @@ namespace GreenshotEditorPlugin.Drawing {
 			if (originatingGripper != _targetGripper) {
 				_boundsBeforeResize = Rectangle.Empty;
 				_boundsAfterResize = RectangleF.Empty;
-				isMadeUndoable = false;
+				_isMadeUndoable = false;
 			}
 			Status = EditStatus.IDLE;
 			Invalidate();
 		}
-		
+
 		private void GripperMouseMove(object sender, MouseEventArgs e) {
 			Invalidate();
 			Gripper originatingGripper = (Gripper)sender;
@@ -478,9 +493,9 @@ namespace GreenshotEditorPlugin.Drawing {
 				TargetGripperMove(absX, absY);
 			} else if (Status.Equals(EditStatus.RESIZING)) {
 				// check if we already made this undoable
-				if (!isMadeUndoable) {
+				if (!_isMadeUndoable) {
 					// don't allow another undo until we are finished with this move
-					isMadeUndoable = true;
+					_isMadeUndoable = true;
 					// Make undo-able
 					MakeBoundsChangeUndoable(false);
 				}
@@ -503,7 +518,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 			Invalidate();
 		}
-				
+
 		public bool hasFilters {
 			get {
 				return Filters.Count > 0;
@@ -513,7 +528,7 @@ namespace GreenshotEditorPlugin.Drawing {
 		public abstract void Draw(Graphics graphics, RenderMode renderMode);
 		
 		public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, Rectangle clipRectangle) {
-			if (Children.Count > 0) {
+			if (Filters.Count > 0) {
 				if (Status != EditStatus.IDLE) {
 					DrawSelectionBorder(graphics, Bounds);
 				} else {
@@ -602,7 +617,9 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// </summary>
 		/// <param name="allowMerge">true means allow the moves to be merged</param>
 		public void MakeBoundsChangeUndoable(bool allowMerge) {
-			_parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
+			if (_parent != null) {
+				_parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
+			}
 		}
 		
 		public void MoveBy(int dx, int dy) {
@@ -671,6 +688,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			} else if (_grippers == null) {
 				InitControls();
 			}
+
 			_parent = newParent;
 			// Target gripper
 			if (_parent != null && _targetGripper != null) {
@@ -678,7 +696,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 			// Normal grippers
 			if (_grippers != null) {
-				_parent.Controls.AddRange(_grippers);				
+				_parent.Controls.AddRange(_grippers);
 			}
 
 			foreach(IFilter filter in Filters) {
@@ -691,7 +709,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			bool ret = false;
 			if (obj != null && GetType() == obj.GetType()) {
 				DrawableContainer other = obj as DrawableContainer;
-				if (other != null && left==other.left && top==other.top && width==other.width && height==other.height) {
+				if (other != null && (_left==other._left && _top==other._top && _width==other._width && _height==other._height)) {
 					ret = true;
 				}
 			}
@@ -699,38 +717,13 @@ namespace GreenshotEditorPlugin.Drawing {
 		}
 		
 		public override int GetHashCode() {
-			return left.GetHashCode() ^ top.GetHashCode() ^ width.GetHashCode() ^ height.GetHashCode() ^ GetFields().GetHashCode();
+			return _left.GetHashCode() ^ _top.GetHashCode() ^ _width.GetHashCode() ^ _height.GetHashCode() ^ fieldAttributes.GetHashCode();
 		}
-		
-		protected void OnPropertyChanged(string propertyName) {
-			if (_propertyChanged != null) {
-				_propertyChanged(this, new PropertyChangedEventArgs(propertyName));
-				Invalidate();
+
+		public virtual bool CanRotate {
+			get {
+				return true;
 			}
-		}
-		
-		/// <summary>
-		/// This method will be called before a field is changes.
-		/// Using this makes it possible to invalidate the object as is before changing.
-		/// </summary>
-		/// <param name="fieldToBeChanged">The field to be changed</param>
-		/// <param name="newValue">The new value</param>
-		public virtual void BeforeFieldChange(Field fieldToBeChanged, object newValue) {
-			_parent.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
-			Invalidate();
-		}
-		
-		/// <summary>
-		/// Handle the field changed event, this should invalidate the correct bounds (e.g. when shadow comes or goes more pixels!)
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
-			LOG.DebugFormat("Field {0} changed", e.Field.FieldType);
-			if (e.Field.FieldType == FieldType.SHADOW) {
-				accountForShadowChange = true;
-			}
-			Invalidate();
 		}
 
 		/// <summary>
@@ -817,12 +810,6 @@ namespace GreenshotEditorPlugin.Drawing {
 			get {
 				throw new NotSupportedException("Object doesn't have a default size");
 			}
-		}
-
-		/// <summary>
-		/// Allows to override the initializing of the fields, so we can actually have our own defaults
-		/// </summary>
-		protected virtual void InitializeFields() {
 		}
 	}
 }

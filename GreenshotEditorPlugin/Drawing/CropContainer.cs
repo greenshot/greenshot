@@ -23,20 +23,28 @@ using System.Drawing;
 using GreenshotPlugin.Extensions;
 using GreenshotEditorPlugin.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
+using System;
 
 namespace GreenshotEditorPlugin.Drawing {
 	/// <summary>
 	/// Description of CropContainer.
 	/// </summary>
 	public class CropContainer : DrawableContainer {
-		public CropContainer(Surface parent) : base(parent) {
+        [NonSerialized]
+        protected FieldFlag flags = FieldFlag.CONFIRMABLE;
+        [Field(FieldTypes.FLAGS)]
+        public FieldFlag Flags
+        {
+            get
+            {
+                return flags;
+            }
+        }
+
+        public CropContainer(Surface parent) : base(parent) {
 		}
 
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.FLAGS, FieldType.Flag.CONFIRMABLE);
-		}
-
-		public override void Invalidate() {
+        public override void Invalidate() {
 			_parent.Invalidate();
 		}
 
