@@ -43,7 +43,7 @@ environment:
 before_build:
 - ps: iex (new-object Net.WebClient).DownloadString("https://raw.githubusercontent.com/greenshot/greenshot/1.3/prebuild.ps1")
 build:
-  project: greenshot\greenshot.sln
+  project: greenshot.sln
   verbosity: normal
 after_build:
 - ps: iex (new-object Net.WebClient).DownloadString("https://raw.githubusercontent.com/greenshot/greenshot/1.3/build.ps1")
