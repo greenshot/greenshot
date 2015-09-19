@@ -29,12 +29,13 @@ using System.Runtime.Serialization;
 
 namespace GreenshotEditorPlugin.Drawing
 {
-    /// <summary>
-    /// This is an enumerated label, every single StepLabelContainer shows the number of the order it was created.
-    /// To make sure that deleting recalculates, we check the location before every draw.
-    /// </summary>
-    [Serializable]
-	public class StepLabelContainer : DrawableContainer {
+	/// <summary>
+	/// This is an enumerated label, every single StepLabelContainer shows the number of the order it was created.
+	/// To make sure that deleting recalculates, we check the location before every draw.
+	/// </summary>
+	[Serializable, Flag(ElementFlag.COUNTER)]
+	public class StepLabelContainer : DrawableContainer
+	{
 		[NonSerialized]
 		private StringFormat _stringFormat = new StringFormat();
 
@@ -42,21 +43,12 @@ namespace GreenshotEditorPlugin.Drawing
 
 		private float fontSize = 16;
 
-		public StepLabelContainer(Surface parent) : base(parent) {
+		public StepLabelContainer(Surface parent) : base(parent)
+		{
 			parent.AddStepLabel(this);
 			InitContent();
 		}
 
-		[NonSerialized]
-		protected FieldFlag flags = FieldFlag.COUNTER;
-		[Field(FieldTypes.FLAGS)]
-		public FieldFlag Flags
-		{
-			get
-			{
-				return flags;
-			}
-		}
 		[Field(FieldTypes.COUNTER_START)]
 		public int CounterStart
 		{
@@ -64,18 +56,22 @@ namespace GreenshotEditorPlugin.Drawing
 			{
 				return Parent.CounterStart;
 			}
-			set {
+			set
+			{
 				Parent.CounterStart = value;
 			}
 		}
 
 		// Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
 		private int _number;
-		public int Number {
-			get {
+		public int Number
+		{
+			get
+			{
 				return _number;
 			}
-			set {
+			set
+			{
 				_number = value;
 			}
 		}
@@ -85,8 +81,10 @@ namespace GreenshotEditorPlugin.Drawing
 		/// </summary>
 		/// <param name="context"></param>
 		[OnSerializing]
-		private void SetValuesOnSerializing(StreamingContext context) {
-			if (Parent != null) {
+		private void SetValuesOnSerializing(StreamingContext context)
+		{
+			if (Parent != null)
+			{
 				Number = ((Surface)Parent).CountStepLabels(this);
 			}
 		}
@@ -96,7 +94,8 @@ namespace GreenshotEditorPlugin.Drawing
 		/// </summary>
 		/// <param name="context"></param>
 		[OnDeserialized]
-		private void SetValuesOnDeserialized(StreamingContext context) {
+		private void SetValuesOnDeserialized(StreamingContext context)
+		{
 			_stringFormat = new StringFormat();
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;
@@ -106,23 +105,29 @@ namespace GreenshotEditorPlugin.Drawing
 		/// Add the StepLabel to the parent
 		/// </summary>
 		/// <param name="newParent"></param>
-		protected override void SwitchParent(Surface newParent) {
-			if (Parent != null) {
+		protected override void SwitchParent(Surface newParent)
+		{
+			if (Parent != null)
+			{
 				((Surface)Parent).RemoveStepLabel(this);
 			}
 			base.SwitchParent(newParent);
-			if (newParent != null) {
+			if (newParent != null)
+			{
 				((Surface)Parent).AddStepLabel(this);
 			}
 		}
 
-		public override Size DefaultSize {
-			get {
+		public override Size DefaultSize
+		{
+			get
+			{
 				return new Size(30, 30);
 			}
 		}
 
-		public override bool InitContent() {
+		public override bool InitContent()
+		{
 			DefaultEditMode = EditStatus.IDLE;
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;
@@ -137,17 +142,21 @@ namespace GreenshotEditorPlugin.Drawing
 		/// <summary>
 		/// This makes it possible for the label to be placed exactly in the middle of the pointer.
 		/// </summary>
-		public override bool HandleMouseDown(int mouseX, int mouseY) {
+		public override bool HandleMouseDown(int mouseX, int mouseY)
+		{
 			return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
 		}
 
 		private Color _lineColor = Color.White;
 		[Field(FieldTypes.LINE_COLOR)]
-		public Color LineColor {
-			get {
+		public Color LineColor
+		{
+			get
+			{
 				return _lineColor;
 			}
-			set {
+			set
+			{
 				_lineColor = value;
 				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
 			}
@@ -155,11 +164,14 @@ namespace GreenshotEditorPlugin.Drawing
 
 		private Color _fillColor = Color.DarkRed;
 		[Field(FieldTypes.FILL_COLOR)]
-		public Color FillColor {
-			get {
+		public Color FillColor
+		{
+			get
+			{
 				return _fillColor;
 			}
-			set {
+			set
+			{
 				_fillColor = value;
 				OnFieldPropertyChanged(FieldTypes.FILL_COLOR);
 			}
@@ -168,19 +180,23 @@ namespace GreenshotEditorPlugin.Drawing
 		/// <summary>
 		/// Make sure this element is no longer referenced from the surface
 		/// </summary>
-		protected override void Dispose(bool disposing) {
+		protected override void Dispose(bool disposing)
+		{
 			base.Dispose(disposing);
-			if (!disposing) {
+			if (!disposing)
+			{
 				return;
 			}
 			((Surface)Parent).RemoveStepLabel(this);
-			if (_stringFormat != null) {
+			if (_stringFormat != null)
+			{
 				_stringFormat.Dispose();
 				_stringFormat = null;
 			}
 		}
 
-		public override bool HandleMouseMove(int x, int y) {
+		public override bool HandleMouseMove(int x, int y)
+		{
 			Invalidate();
 			Left = x - (Width / 2);
 			Top = y - (Height / 2);
@@ -192,8 +208,9 @@ namespace GreenshotEditorPlugin.Drawing
 		/// Make sure the size of the font is scaled
 		/// </summary>
 		/// <param name="matrix"></param>
-		public override void Transform(Matrix matrix) {
-			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
+		public override void Transform(Matrix matrix)
+		{
+			var rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 			int widthBefore = rect.Width;
 			int heightBefore = rect.Height;
 
@@ -213,7 +230,8 @@ namespace GreenshotEditorPlugin.Drawing
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <param name="rm"></param>
-		public override void Draw(Graphics graphics, RenderMode rm) {
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
@@ -221,23 +239,32 @@ namespace GreenshotEditorPlugin.Drawing
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 			string text = ((Surface)Parent).CountStepLabels(this).ToString();
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			if (_drawAsRectangle) {
+			if (_drawAsRectangle)
+			{
 				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, _fillColor, false);
-			} else {
+			}
+			else
+			{
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, _fillColor, false);
 			}
-			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				using (Font _font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
+			using (var fam = new FontFamily(FontFamily.GenericSansSerif.Name))
+			{
+				using (var _font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
+				{
 					TextContainer.DrawText(graphics, rect, 0, _lineColor, false, _stringFormat, text, _font);
 				}
 			}
 		}
 
-		public override bool ClickableAt(int x, int y) {
-			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			if (_drawAsRectangle) {
+		public override bool ClickableAt(int x, int y)
+		{
+			var rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
+			if (_drawAsRectangle)
+			{
 				return RectangleContainer.RectangleClickableAt(rect, 0, _fillColor, x, y);
-			} else {
+			}
+			else
+			{
 				return EllipseContainer.EllipseClickableAt(rect, 0, _fillColor, x, y);
 			}
 		}

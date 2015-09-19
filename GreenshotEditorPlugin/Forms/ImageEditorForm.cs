@@ -1046,8 +1046,8 @@ namespace GreenshotEditorPlugin.Forms
 				brightnessLabel.Visible = brightnessUpDown.Visible;
 				arrowHeadsLabel.Visible = arrowHeadsDropDownButton.Visible;
                 fontSizeLabel.Visible = fontSizeUpDown.Visible;
-                btnConfirm.Visible = btnCancel.Visible = _surface.IsElementWithFlagSelected(FieldFlag.CONFIRMABLE);
-                counterLabel.Visible = counterUpDown.Visible = _surface.IsElementWithFlagSelected(FieldFlag.COUNTER);
+                btnConfirm.Visible = btnCancel.Visible = _surface.IsElementWithFlagSelected(ElementFlag.CONFIRMABLE);
+                counterLabel.Visible = counterUpDown.Visible = _surface.IsElementWithFlagSelected(ElementFlag.COUNTER);
 			} else {
 				HideToolstripItems();
 			}
@@ -1076,7 +1076,7 @@ namespace GreenshotEditorPlugin.Forms
 
 			// if a confirmable element is selected, we must disable most of the controls
 			// since we demand confirmation or cancel for confirmable element
-			if (_surface.IsElementWithFieldTypeSelected(FieldTypes.FLAGS)) { // && ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS) & FieldType.Flag.CONFIRMABLE) == FieldType.Flag.CONFIRMABLE) {
+			if (_surface.IsElementWithFlagSelected(ElementFlag.CONFIRMABLE)) {
 				// disable most controls
 				if(!_controlsDisabledDueToConfirmable) {
 					ToolStripItemEndisabler.Disable(menuStrip1);
@@ -1115,7 +1115,6 @@ namespace GreenshotEditorPlugin.Forms
 			// finally show/hide field controls depending on the fields of selected elements
 			RefreshFieldControls();
 		}
-	
 		
 		void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e) {
 			_surface.ChangeFields(FieldTypes.ARROWHEADS, (ArrowHeadCombination)((ToolStripMenuItem)sender).Tag);

@@ -39,12 +39,23 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 
 		protected IDictionary<FieldTypes, FieldAttribute> fieldAttributes = new Dictionary<FieldTypes, FieldAttribute>();
+		/// <summary>
+		/// Store the field attributes for this element
+		/// </summary>
 		public IDictionary<FieldTypes, FieldAttribute> FieldAttributes
 		{
 			get
 			{
 				return fieldAttributes;
 			}
+		}
+
+		/// <summary>
+		/// Get the flag of this element
+		/// </summary>
+		public ElementFlag Flag {
+			get;
+			private set;
 		}
 
 		[NonSerialized]
@@ -66,6 +77,11 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 		/// </summary>
 		protected void InitFieldAttributes()
 		{
+			var flagAttribute = GetType().GetCustomAttribute<FlagAttribute>();
+			if (flagAttribute != null)
+			{
+				Flag = flagAttribute.Flag;
+			}
 			// Build cache if needed
 			if (fieldAttributes.Count == 0)
 			{
@@ -96,8 +112,12 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 			// Fill the attributes with their default or cached value
 			foreach (FieldAttribute fieldAttribute in fieldAttributes.Values)
 			{
-				object defaultValue = CreateCachedValue(fieldAttribute);
-				fieldAttribute.SetValue(this, defaultValue);
+				object defaultValue = fieldAttribute.GetValue(this);
+				if (fieldAttribute.FieldType != FieldTypes.COUNTER_START)
+				{
+					defaultValue = CreateCachedValue(fieldAttribute, defaultValue);
+					fieldAttribute.SetValue(this, defaultValue);
+				}
 			}
 		}
 
@@ -106,9 +126,8 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 		/// </summary>
 		/// <param name="fieldAttribute"></param>
 		/// <returns>object</returns>
-		private object CreateCachedValue(FieldAttribute fieldAttribute)
+		private object CreateCachedValue(FieldAttribute fieldAttribute, object defaultValue)
 		{
-			object defaultValue = fieldAttribute.GetValue(this);
 			string key = string.Format("{0}-{1}", fieldAttribute.Scope, fieldAttribute.FieldType);
 			var converter = TypeDescriptor.GetConverter(fieldAttribute.PropertyType);
 			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
@@ -146,7 +165,7 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 		protected void OnFieldPropertyChanged(FieldTypes fieldType)
 		{
 			FieldAttribute fieldAttribute = FieldAttributes[fieldType];
-			if (fieldAttribute != null)
+			if (fieldAttribute != null && fieldAttribute.FieldType != FieldTypes.COUNTER_START)
 			{
 				UpdateCachedValue(fieldAttribute);
 			}

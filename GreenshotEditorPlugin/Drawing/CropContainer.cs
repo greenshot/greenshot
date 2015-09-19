@@ -19,28 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Drawing;
-using GreenshotPlugin.Extensions;
-using GreenshotEditorPlugin.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
-using System;
+using GreenshotPlugin.Extensions;
+using System.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing {
+namespace GreenshotEditorPlugin.Drawing
+{
 	/// <summary>
 	/// Description of CropContainer.
 	/// </summary>
+	[Flag(ElementFlag.CONFIRMABLE)]
 	public class CropContainer : DrawableContainer {
-        [NonSerialized]
-        protected FieldFlag flags = FieldFlag.CONFIRMABLE;
-        [Field(FieldTypes.FLAGS)]
-        public FieldFlag Flags
-        {
-            get
-            {
-                return flags;
-            }
-        }
-
         public CropContainer(Surface parent) : base(parent) {
 		}
 

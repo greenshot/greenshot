@@ -255,11 +255,14 @@ namespace GreenshotEditorPlugin.Drawing
             }
             set
             {
-                if (PropertyChanged != null && _counterStart != value)
+                if (_counterStart != value)
                 {
                     _counterStart = value;
-                    PropertyChanged(this, new PropertyChangedEventArgs("CounterStart"));
-                    Invalidate();
+					if (PropertyChanged != null)
+					{
+						PropertyChanged(this, new PropertyChangedEventArgs("CounterStart"));
+					}
+					Invalidate();
                 }
             }
         }
@@ -1586,19 +1589,15 @@ namespace GreenshotEditorPlugin.Drawing
         /// </summary>
         /// <param name="flag"></param>
         /// <returns></returns>
-        public bool IsElementWithFlagSelected(FieldFlag flag)
+        public bool IsElementWithFlagSelected(ElementFlag flag)
         {
-            foreach (IFieldHolder fieldHolder in ReturnSelectedElementsWithFieldType(FieldTypes.FLAGS))
+
+            foreach (IFieldHolder fieldHolder in GetSelectedElements())
             {
-                FieldAttribute fieldAttribute;
-                if (fieldHolder.FieldAttributes.TryGetValue(FieldTypes.FLAGS, out fieldAttribute))
-                {
-                    FieldFlag flags = (FieldFlag)fieldAttribute.GetValue(fieldHolder);
-                    if (flags.HasFlag(FieldFlag.CONFIRMABLE))
-                    {
-                        return true;
-                    }
-                }
+				if (flag == fieldHolder.Flag)
+				{
+					return true;
+				}
             }
             return false;
         }
@@ -1613,20 +1612,29 @@ namespace GreenshotEditorPlugin.Drawing
             return ReturnSelectedElementsWithFieldType(fieldType).Any();
         }
 
-        /// <summary>
-        /// Loop over the IFieldHolder that have the field we need
-        /// </summary>
-        /// <param name="fieldType"></param>
-        /// <returns>IEnumerable IFieldHolder</returns>
-        public IEnumerable<IFieldHolder> ReturnSelectedElementsWithFieldType(FieldTypes fieldType)
+		/// <summary>
+		/// Get a list of all the currently selected, the undrawn element too
+		/// </summary>
+		/// <returns>list of IDrawableContainer s</returns>
+		private IList<IDrawableContainer> GetSelectedElements()
+		{
+			List<IDrawableContainer> elementsToConsider = new List<IDrawableContainer>();
+			elementsToConsider.AddRange(_selectedElements);
+			if (_undrawnElement != null)
+			{
+				elementsToConsider.Add(_undrawnElement);
+			}
+			return elementsToConsider;
+		}
+
+		/// <summary>
+		/// Loop over the IFieldHolder that have the field we need
+		/// </summary>
+		/// <param name="fieldType"></param>
+		/// <returns>IEnumerable IFieldHolder</returns>
+		public IEnumerable<IFieldHolder> ReturnSelectedElementsWithFieldType(FieldTypes fieldType)
         {
-            List<IDrawableContainer> elementsToConsider = new List<IDrawableContainer>();
-            elementsToConsider.AddRange(_selectedElements);
-            if (_undrawnElement != null)
-            {
-                elementsToConsider.Add(_undrawnElement);
-            }
-            foreach (IDrawableContainer container in elementsToConsider)
+            foreach (IDrawableContainer container in GetSelectedElements())
             {
                 if (container.FieldAttributes.ContainsKey(fieldType))
                 {

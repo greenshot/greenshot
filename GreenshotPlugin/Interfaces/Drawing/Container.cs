@@ -85,7 +85,7 @@ namespace Greenshot.Plugin.Drawing
     }
 
     [Flags, Serializable]
-    public enum FieldFlag
+    public enum ElementFlag
     {
         NONE = 0,
         CONFIRMABLE = 1,
@@ -214,15 +214,45 @@ namespace Greenshot.Plugin.Drawing
         }
     }
 
-    /// <summary>
-    /// All elements that have "fields" that need to be bound in the editor must implement this interface
-    /// </summary>
-    public interface IFieldHolder : INotifyPropertyChanged
+	/// <summary>
+	/// Attribute for telling that a container has a certain meaning to the editor
+	/// </summary>
+	[Serializable, AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+	public class FlagAttribute : Attribute
+	{
+		private ElementFlag _flag;
+
+		public FlagAttribute(ElementFlag flag)
+		{
+			_flag = flag;
+		}
+
+		/// <summary>
+		/// Flag for the element
+		/// </summary>
+		public ElementFlag Flag
+		{
+			get
+			{
+				return _flag;
+			}
+		}
+	}
+
+	/// <summary>
+	/// All elements that have "fields" that need to be bound in the editor must implement this interface
+	/// </summary>
+	public interface IFieldHolder : INotifyPropertyChanged
     {
         IDictionary<FieldTypes, FieldAttribute> FieldAttributes
         {
             get;
         }
+
+		ElementFlag Flag
+		{
+			get;
+		}
 
         void Invalidate();
     }
