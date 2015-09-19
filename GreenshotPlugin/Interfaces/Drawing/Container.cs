@@ -80,7 +80,8 @@ namespace Greenshot.Plugin.Drawing
         SHADOW,
         PREPARED_FILTER_OBFUSCATE,
         PREPARED_FILTER_HIGHLIGHT,
-        FLAGS
+        FLAGS,
+		COUNTER_START
     }
 
     [Flags, Serializable]

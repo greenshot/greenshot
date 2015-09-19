@@ -47,7 +47,28 @@ namespace GreenshotEditorPlugin.Drawing
 			InitContent();
 		}
 
-		#region Number serializing
+		[NonSerialized]
+		protected FieldFlag flags = FieldFlag.COUNTER;
+		[Field(FieldTypes.FLAGS)]
+		public FieldFlag Flags
+		{
+			get
+			{
+				return flags;
+			}
+		}
+		[Field(FieldTypes.COUNTER_START)]
+		public int CounterStart
+		{
+			get
+			{
+				return Parent.CounterStart;
+			}
+			set {
+				Parent.CounterStart = value;
+			}
+		}
+
 		// Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
 		private int _number;
 		public int Number {
@@ -69,7 +90,6 @@ namespace GreenshotEditorPlugin.Drawing
 				Number = ((Surface)Parent).CountStepLabels(this);
 			}
 		}
-		#endregion
 
 		/// <summary>
 		/// Restore values that don't serialize

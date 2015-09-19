@@ -210,5 +210,11 @@ namespace Greenshot.Plugin {
 			get;
 			set;
 		}
+
+		int CounterStart
+		{
+			get;
+			set;
+		}
 	}
 }

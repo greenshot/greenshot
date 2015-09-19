@@ -1012,8 +1012,7 @@ namespace GreenshotEditorPlugin.Forms
             _bindings.Add(new BidirectionalBinding(btnFillColor, "SelectedColor", _surface, FieldTypes.FILL_COLOR, NotNullValidator.GetInstance()));
             _bindings.Add(new BidirectionalBinding(btnLineColor, "SelectedColor", _surface, FieldTypes.LINE_COLOR, NotNullValidator.GetInstance()));
             _bindings.Add(new BidirectionalBinding(lineThicknessUpDown, "Value", _surface, FieldTypes.LINE_THICKNESS, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
-            // TODO:
-            //_bindings.Add(new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
+            _bindings.Add(new BidirectionalBinding(counterUpDown, "Value", _surface, FieldTypes.COUNTER_START, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
             _bindings.Add(new BidirectionalBinding(blurRadiusUpDown, "Value", _surface, FieldTypes.BLUR_RADIUS, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
             _bindings.Add(new BidirectionalBinding(magnificationFactorUpDown, "Value", _surface, FieldTypes.MAGNIFICATION_FACTOR, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
             _bindings.Add(new BidirectionalBinding(pixelSizeUpDown, "Value", _surface, FieldTypes.PIXEL_SIZE, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));

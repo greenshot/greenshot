@@ -20,7 +20,6 @@
  */
 
 using Greenshot.Core;
-using GreenshotEditorPlugin.Drawing.Fields;
 using Dapplo.Config.Ini;
 using GreenshotEditorPlugin.Memento;
 using Greenshot.Plugin;
@@ -42,12 +41,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
 
-namespace GreenshotEditorPlugin.Drawing {
+namespace GreenshotEditorPlugin.Drawing
+{
 
-    /// <summary>
-    /// Description of Surface.
-    /// </summary>
-    public class Surface : Control, ISurface, INotifyPropertyChanged
+	/// <summary>
+	/// Description of Surface.
+	/// </summary>
+	public class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static ILog LOG = LogManager.GetLogger(typeof(Surface));
         public static int Count = 0;
@@ -239,6 +239,9 @@ namespace GreenshotEditorPlugin.Drawing {
             _stepLabels.Remove(stepLabel);
         }
 
+		/// <summary>
+		/// This value is used to start counting the step labels
+		/// </summary>
         private int _counterStart = 1;
 
         /// <summary>

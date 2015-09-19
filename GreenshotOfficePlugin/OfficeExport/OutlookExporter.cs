@@ -78,29 +78,32 @@ namespace GreenshotOfficePlugin.OfficeExport
 							if (activeExplorer != null)
 							{
 								var untypedInlineResponse = activeExplorer.ComObject.ActiveInlineResponse;
-								string caption = activeExplorer.ComObject.Caption;
-								using (DisposableCom.Create(untypedInlineResponse))
+								if (untypedInlineResponse != null)
 								{
-									var inlineResponseClass = (Outlook.OlObjectClass)untypedInlineResponse.Class;
-									switch (inlineResponseClass)
+									string caption = activeExplorer.ComObject.Caption;
+									using (DisposableCom.Create(untypedInlineResponse))
 									{
-										case Outlook.OlObjectClass.olMail:
-											var mailItem = (Outlook.MailItem)untypedInlineResponse;
-											if (!mailItem.Sent)
-											{
-												inspectorCaptions.Add(caption, inlineResponseClass);
-											}
-											break;
-										case Outlook.OlObjectClass.olAppointment:
-											var appointmentItem = (Outlook.AppointmentItem)untypedInlineResponse;
-											if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2010 && Conf.OutlookAllowExportInMeetings)
-											{
-												if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
+										var inlineResponseClass = (Outlook.OlObjectClass)untypedInlineResponse.Class;
+										switch (inlineResponseClass)
+										{
+											case Outlook.OlObjectClass.olMail:
+												var mailItem = (Outlook.MailItem)untypedInlineResponse;
+												if (!mailItem.Sent)
 												{
 													inspectorCaptions.Add(caption, inlineResponseClass);
 												}
-											}
-											break;
+												break;
+											case Outlook.OlObjectClass.olAppointment:
+												var appointmentItem = (Outlook.AppointmentItem)untypedInlineResponse;
+												if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2010 && Conf.OutlookAllowExportInMeetings)
+												{
+													if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
+													{
+														inspectorCaptions.Add(caption, inlineResponseClass);
+													}
+												}
+												break;
+										}
 									}
 								}
 							}
