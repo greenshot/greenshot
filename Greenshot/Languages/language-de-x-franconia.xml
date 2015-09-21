@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Frängisch" ietf="de-x-franconia" version="1.0.5" languagegroup="1">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Lefft was falsch, meldst di hier</resource>
 		<resource name="about_donations">Wenn der Greenshot gfälld, kannsd uns gern a weng helfn:</resource>
 		<resource name="about_host">Greenshot is a bei sourceforge, und zwa dordn:</resource>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Українська" version="1.0.0" ietf="uk-UA">
-	<resources>
+	<resources prefix="Box">
 		<resource name="label_AfterUploadLinkToClipBoard">Посилання в буфер обміну</resource>
 		<resource name="label_AfterUpload">Після вивантаження</resource>
 		<resource name="Configure">Налаштувати Box</resource>

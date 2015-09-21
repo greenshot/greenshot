@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
-	<resources>
+	<resources prefix="Confluence">
 		<resource name="browse_pages">Przeglądaj strony</resource>
 		<resource name="CANCEL">Anuluj</resource>
 		<resource name="communication_wait">Trwa komunikacja z Confluence. Proszę czekać...</resource>

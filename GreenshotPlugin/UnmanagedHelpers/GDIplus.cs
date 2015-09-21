@@ -92,7 +92,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// GDIplus Helpers
 	/// </summary>
 	public static class GDIplus {
-		private static ILog LOG = LogManager.GetLogger(typeof(GDIplus));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(GDIplus));
 
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipBitmapApplyEffect(IntPtr bitmap, IntPtr effect, ref RECT rectOfInterest, bool useAuxData, IntPtr auxData, int auxDataSize);

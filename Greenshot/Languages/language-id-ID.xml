@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Bahasa Indonesia" ietf="id-ID" version="1.2" languagegroup="1">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Harap laporkan kesalahan ke</resource>
 		<resource name="about_donations">Jika anda menyukai Greenshot, anda dipersilahkan untuk mendukung kami:</resource>
 		<resource name="about_host">Greenshot dikelola oleh sourceforge.net di</resource>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Deutsch" ietf="de-DE" version="0.8.0" prefix="confluence">
- <resources>
+ <resources prefix="Confluence">
 	<resource name="plugin_settings">
 		Confluence einstellungen
 	</resource>

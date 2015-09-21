@@ -27,7 +27,6 @@ using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Forms;
 using Greenshot.Helpers;
@@ -37,14 +36,13 @@ using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using System.Text.RegularExpressions;
 using log4net;
-using Dapplo.Config.Ini;
 
 namespace Greenshot {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : BaseForm {
-		private static ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
 		//private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
@@ -200,10 +198,10 @@ namespace Greenshot {
 			if (coreConfiguration.HideExpertSettings) {
 				tabcontrol.Controls.Remove(tab_expert);
 			}
-			_toolTip.SetToolTip(label_language, Language.GetString(LangKey.settings_tooltip_language));
-			_toolTip.SetToolTip(label_storagelocation, Language.GetString(LangKey.settings_tooltip_storagelocation));
-			_toolTip.SetToolTip(label_screenshotname, Language.GetString(LangKey.settings_tooltip_filenamepattern));
-			_toolTip.SetToolTip(label_primaryimageformat, Language.GetString(LangKey.settings_tooltip_primaryimageformat));
+			_toolTip.SetToolTip(label_language, language.SettingsTooltipLanguage);
+			_toolTip.SetToolTip(label_storagelocation, language.SettingsTooltipStoragelocation);
+			_toolTip.SetToolTip(label_screenshotname, language.SettingsTooltipFilenamepattern);
+			_toolTip.SetToolTip(label_primaryimageformat, language.SettingsTooltipPrimaryimageformat);
 
 			// Removing, otherwise we keep getting the event multiple times!
 			combobox_language.SelectedIndexChanged -= Combobox_languageSelectedIndexChanged;
@@ -230,13 +228,12 @@ namespace Greenshot {
 		}
 
 		private bool CheckFilenamePattern() { 
-			bool settingsOk = true;
 			string filename = FilenameHelper.GetFilenameFromPattern(textbox_screenshotname.Text, coreConfiguration.OutputFileFormat, null);
 			// we allow dynamically created subfolders, need to check for them, too
 			string[] pathParts = filename.Split(Path.DirectorySeparatorChar);
 
 			string filenamePart = pathParts[pathParts.Length-1];
-			settingsOk = FilenameHelper.IsFilenameValid(filenamePart);
+			bool settingsOk = FilenameHelper.IsFilenameValid(filenamePart);
 
 			for (int i = 0; (settingsOk && i<pathParts.Length-1); i++) {
 				settingsOk = FilenameHelper.IsDirectoryNameValid(pathParts[i]);
@@ -303,8 +300,7 @@ namespace Greenshot {
 		/// Build the view with all the destinations
 		/// </summary>
 		private void DisplayDestinations() {
-			bool destinationsEnabled = true;
-			destinationsEnabled = !coreConfiguration.IsWriteProtected(x => x.OutputDestinations);
+			bool destinationsEnabled = !coreConfiguration.IsWriteProtected(x => x.OutputDestinations);
 			checkbox_picker.Checked = false;
 
 			listview_destinations.Items.Clear();
@@ -502,10 +498,10 @@ namespace Greenshot {
 
 		
 		void BtnPatternHelpClick(object sender, EventArgs e) {
-			string filenamepatternText = Language.GetString(LangKey.settings_message_filenamepattern);
+			string filenamepatternText = language.SettingsMessageFilenamepattern;
 			// Convert %NUM% to ${NUM} for old language files!
 			filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
-			MessageBox.Show(filenamepatternText, Language.GetString(LangKey.settings_filenamepattern));
+			MessageBox.Show(filenamepatternText, language.SettingsFilenamepattern);
 		}
 		
 		void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
@@ -648,7 +644,7 @@ namespace Greenshot {
 				return 1;
 			}
 			if (firstDestination != null && firstDestination.Priority == secondDestination.Priority) {
-				return firstDestination.Description.CompareTo(secondDestination.Description);
+				return String.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
 			}
 			if (firstDestination != null) {
 				return firstDestination.Priority - secondDestination.Priority;

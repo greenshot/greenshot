@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="正體中文" ietf="zh-TW" version="1.1.4" languagegroup="9">
-	<resources>
+	<resources prefix="Core">
 		<resource name="about_bugs">請回報錯誤到以下網址</resource>
 		<resource name="about_donations">如果您喜歡 Greenshot，歡迎您支持我們:</resource>
 		<resource name="about_host">Greenshot 的主機在 sourceforge.net 網址是</resource>

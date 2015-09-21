@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotEditorPlugin.Drawing.Fields;
 using GreenshotEditorPlugin.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
@@ -34,6 +33,7 @@ using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
 using GreenshotEditorPlugin.Forms;
 
 namespace GreenshotEditorPlugin.Drawing {
@@ -43,6 +43,7 @@ namespace GreenshotEditorPlugin.Drawing {
 	[Serializable]
 	public class DrawableContainerList : List<IDrawableContainer> {
 		private static readonly ComponentResourceManager editorFormResources = new ComponentResourceManager(typeof(ImageEditorForm));
+		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IEditorLanguage>();
 
 		public Guid ParentID {
 			get;
@@ -121,7 +122,8 @@ namespace GreenshotEditorPlugin.Drawing {
 		public void MakeBoundsChangeUndoable(bool allowMerge) {
 			List<IDrawableContainer> movingList = new List<IDrawableContainer>();
 			Surface surface = null;
-			foreach(DrawableContainer dc in this) {
+			foreach(var drawableContainer in this) {
+				var dc = (DrawableContainer) drawableContainer;
 				movingList.Add(dc);
 				surface = dc._parent;
 			}
@@ -416,13 +418,13 @@ namespace GreenshotEditorPlugin.Drawing {
 
 			// Pull "up"
 			if (pull) {
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_uptotop));
+				item = new ToolStripMenuItem(Language.EditorUptotop);
 				item.Click += delegate {
 					surface.Elements.PullElementsToTop(this);
 					surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_uponelevel));
+				item = new ToolStripMenuItem(Language.EditorUponelevel);
 				item.Click += delegate {
 					surface.Elements.PullElementsUp(this);
 					surface.Elements.Invalidate();
@@ -431,13 +433,13 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 			// Push "down"
 			if (push) {
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_downtobottom));
+				item = new ToolStripMenuItem(Language.EditorDowntobottom);
 				item.Click += delegate {
 					surface.Elements.PushElementsToBottom(this);
 					surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_downonelevel));
+				item = new ToolStripMenuItem(Language.EditorDownonelevel);
 				item.Click += delegate {
 					surface.Elements.PushElementsDown(this);
 					surface.Elements.Invalidate();
@@ -446,7 +448,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 
 			// Duplicate
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_duplicate));
+			item = new ToolStripMenuItem(Language.EditorDuplicate);
 			item.Click += delegate {
 				DrawableContainerList dcs = this.Clone();
 				dcs.Parent = surface;
@@ -458,7 +460,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			menu.Items.Add(item);
 
 			// Copy
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard));
+			item = new ToolStripMenuItem(Language.EditorCopytoclipboard);
 			item.Image = ((Image)(editorFormResources.GetObject("copyToolStripMenuItem.Image")));
 			item.Click += delegate {
 				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), this);
@@ -466,7 +468,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			menu.Items.Add(item);
 
 			// Cut
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard));
+			item = new ToolStripMenuItem(Language.EditorCuttoclipboard);
 			item.Image = ((Image)(editorFormResources.GetObject("btnCut.Image")));
 			item.Click += delegate {
 				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), this);
@@ -482,7 +484,7 @@ namespace GreenshotEditorPlugin.Drawing {
 			menu.Items.Add(item);
 
 			// Delete
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement));
+			item = new ToolStripMenuItem(Language.EditorDeleteelement);
 			item.Image = ((Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
 			item.Click += delegate {
 				List<DrawableContainer> containersToDelete = new List<DrawableContainer>();
@@ -505,7 +507,7 @@ namespace GreenshotEditorPlugin.Drawing {
 				}
 			}
 			if (canReset) {
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resetsize));
+				item = new ToolStripMenuItem(Language.EditorResetsize);
 				//item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
 				item.Click += delegate {
 					foreach (var drawableContainer in this) {

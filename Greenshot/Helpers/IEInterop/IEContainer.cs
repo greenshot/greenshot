@@ -34,7 +34,7 @@ using IServiceProvider = Greenshot.Interop.IServiceProvider;
 namespace Greenshot.Helpers.IEInterop
 {
 	public class DocumentContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(DocumentContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(DocumentContainer));
 		private static ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
 		private const int  E_ACCESSDENIED = unchecked((int)0x80070005L);
 		private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");

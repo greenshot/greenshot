@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<language description="Svenska" ietf="sv-SE" version="1.0.4" languagegroup="1">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Var vänlig att rapportera in fel till</resource>
 		<resource name="about_donations">Om du gillar Greenshot, så är du välkommen att stödja oss:</resource>
 		<resource name="about_host">Greenshots hemsida tillhandahålls av sourceforge.net på</resource>

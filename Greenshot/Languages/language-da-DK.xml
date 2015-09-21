@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<language description="Dansk" ietf="da-DK" version="0.8.0" languagegroup="1">
-  <resources>
-	<!--    
-	Note to translator: uncomment entry "about_translation" to have 
-	your efforts honored in the "About Greenshot" dialog 
-	-->
+<language>
+  <resources prefix="Core">
 	<resource name="about_translation">
 		Dansk oversættelse af Jens Jacob Thomsen
 	</resource>

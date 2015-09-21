@@ -52,11 +52,11 @@ namespace GreenshotEditorPlugin.Memento
             fieldHolder = null;
         }
 
-        public LangKey ActionLanguageKey
+        public string ActionDescription
         {
             get
             {
-                return LangKey.none;
+                return "";
             }
         }
 

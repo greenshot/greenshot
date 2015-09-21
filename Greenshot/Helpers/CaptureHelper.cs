@@ -35,6 +35,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Helpers
 {
@@ -44,6 +46,7 @@ namespace Greenshot.Helpers
 	public class CaptureHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureHelper));
 		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
 		private WindowDetails _selectedCaptureWindow;
@@ -200,6 +203,7 @@ namespace Greenshot.Helpers
 		/// Make Capture with file name
 		/// </summary>
 		/// <param name="filename">filename</param>
+		/// <param name="token"></param>
 		private async Task MakeCaptureAsync(string filename, CancellationToken token = default(CancellationToken)) {
 			_capture.CaptureDetails.Filename = filename;
 			await MakeCaptureAsync(token);
@@ -366,13 +370,13 @@ namespace Greenshot.Helpers
 							}
 						} catch (Exception e) {
 							LOG.Error(e.Message, e);
-							MessageBox.Show(Language.GetFormattedString(Configuration.LangKey.error_openfile, filename));
+							MessageBox.Show(string.Format(language.ErrorOpenfile, filename));
 						}
 						try {
 							fileImage = ImageHelper.LoadImage(filename);
 						} catch (Exception e) {
 							LOG.Error(e.Message, e);
-							MessageBox.Show(Language.GetFormattedString(Configuration.LangKey.error_openfile, filename));
+							MessageBox.Show(string.Format(language.ErrorOpenfile, filename));
 						}
 					}
 					if (fileImage != null) {
@@ -608,8 +612,7 @@ namespace Greenshot.Helpers
 
 			// Register notify events if this is wanted			
 			if (conf.ShowTrayNotification && !conf.HideTrayicon) {
-				surface.SurfaceMessage += SurfaceMessageReceived;
-				
+				surface.SurfaceMessage += SurfaceMessageReceived;				
 			}
 			// Let the processors do their job
 			foreach(var processor in ProcessorHelper.GetAllProcessors()) {

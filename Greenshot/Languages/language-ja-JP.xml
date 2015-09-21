@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="日本語" ietf="ja-JP" version="1.0.0" languagegroup="7">
-	<resources>
+	<resources prefix="Core">
 		<resource name="about_bugs">バグ等の報告先 :</resource>
 		<resource name="about_donations">Greenshot がお気に召したなら、是非支援をお願いします :</resource>
 		<resource name="about_host">Greenshot は sourceforge.net によって運営されています :</resource>

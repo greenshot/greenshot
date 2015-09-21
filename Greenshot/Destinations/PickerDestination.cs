@@ -20,22 +20,23 @@
  */
 
 using System.Collections.Generic;
-using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
-using Greenshot.Helpers;
 using Dapplo.Config.Ini;
 using log4net;
 using System.Threading.Tasks;
 using System.Threading;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
 	/// </summary>
 	public class PickerDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(PickerDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PickerDestination));
 		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
 		public override string Designation {
 			get {
@@ -45,7 +46,7 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return Language.GetString(LangKey.settings_destination_picker);
+				return language.SettingsDestinationPicker;
 			}
 		}
 

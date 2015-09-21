@@ -56,8 +56,8 @@
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="CustomMarshalers" />
-    <Reference Include="Dapplo.Config, Version=0.1.60.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.60.0\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.65.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.65.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
@@ -81,6 +81,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\IGreenshotLanguage.cs" />
     <Compile Include="Controls\AnimatedGreenshotLogo.xaml.cs">
       <DependentUpon>AnimatedGreenshotLogo.xaml</DependentUpon>
     </Compile>

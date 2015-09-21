@@ -38,8 +38,8 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="Dapplo.Config, Version=0.1.60.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.60.0\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.65.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.65.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
@@ -85,7 +85,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConfluenceAPI.cs" />
-    <Compile Include="LanguageKeys.cs" />
+    <Compile Include="IConfluenceLanguage.cs" />
     <Compile Include="Model\Content.cs" />
     <Compile Include="Model\IConfluenceModel.cs" />
     <Compile Include="Model\Space.cs" />

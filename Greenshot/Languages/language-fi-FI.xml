@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Suomi" ietf="fi-FI" version="1.0.0" languagegroup="1">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Raportoi virheet tänne</resource>
 		<resource name="about_donations">Jos pidät Greenshotista niin toivottavasti tuet meitä:</resource>
 		<resource name="about_host">Greenshot is hosted by sourceforge.net at</resource>

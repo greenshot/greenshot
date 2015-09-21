@@ -182,7 +182,7 @@ namespace GreenshotPlugin.Core
 		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
 		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
 
-		private static ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly List<IntPtr> _ignoreHandles = new List<IntPtr>();
 		private static readonly List<string> _excludeProcessesFromFreeze = new List<string>();

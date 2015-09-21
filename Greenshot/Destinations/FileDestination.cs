@@ -22,7 +22,6 @@
 using System;
 using System.Drawing;
 using System.IO;
-using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Dapplo.Config.Ini;
@@ -31,14 +30,17 @@ using log4net;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Windows;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of FileSaveAsDestination.
 	/// </summary>
 	public class FileDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(FileDestination));
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FileDestination));
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
 		public override string Designation {
 			get {
@@ -48,7 +50,7 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return Language.GetString(LangKey.quicksettings_destination_file);
+				return language.QuicksettingsDestinationFile;
 			}
 		}
 
@@ -117,7 +119,7 @@ namespace Greenshot.Destinations {
 			} catch (Exception ex2) {
 				LOG.Error("Error saving screenshot!", ex2);
 				// Show the problem
-				MessageBox.Show(Designation, Language.GetString(LangKey.error_save) + " " + ex2.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(Designation, language.ErrorSave + " " + ex2.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 				// when save failed we present a SaveWithDialog
 				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
 				outputMade = (fullPath != null);
@@ -149,7 +151,7 @@ namespace Greenshot.Destinations {
 				// configured filename or path not valid, show error message...
 				LOG.InfoFormat("Generated path or filename not valid: {0}, {1}", filepath, filename);
 
-				MessageBox.Show(Language.GetString(LangKey.error_save_invalid_chars), Language.GetString(LangKey.error), MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(language.ErrorSaveInvalidChars, language.Error, MessageBoxButton.OK, MessageBoxImage.Error);
 				// ... lets get the pattern fixed....
 				var dialogResult = new SettingsForm().ShowDialog();
 				if (dialogResult == System.Windows.Forms.DialogResult.OK) { 

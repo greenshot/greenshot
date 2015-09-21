@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Controls {
 	/// For some reason SFD is sealed :(
 	/// </summary>
 	public class SaveImageFileDialog : IDisposable {
-		private static ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
 		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		protected SaveFileDialog saveFileDialog;
 		private FilterOption[] filterOptions;

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="العربية" ietf="ar-SY" version="1.0.0" languagegroup="d">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">رجاء بلغ عن الاخطاء الى</resource>
 		<resource name="about_donations">اذا اعجبك البرنامج انت مدعو لدعمنا:</resource>
 		<resource name="about_host">جرين شوت استضيف بواسطة sourceforge.net في</resource>

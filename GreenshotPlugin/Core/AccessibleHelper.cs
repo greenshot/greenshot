@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Core {
 	/// Maybe move the basic Accessible functions to WindowDetails!?
 	/// </summary>
 	public class Accessible {
-		private static ILog LOG = LogManager.GetLogger(typeof(Accessible));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(Accessible));
 
 		#region Interop
 		private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc) {

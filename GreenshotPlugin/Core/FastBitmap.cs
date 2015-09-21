@@ -284,7 +284,7 @@ namespace GreenshotPlugin.Core {
 	/// The base class for the fast bitmap implementation
 	/// </summary>
 	public unsafe abstract class FastBitmap : IFastBitmap, IFastBitmapWithClip, IFastBitmapWithOffset {
-		private static ILog LOG = LogManager.GetLogger(typeof(FastBitmap));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FastBitmap));
 
 		protected const int PIXELFORMAT_INDEX_A = 3;
 		protected const int PIXELFORMAT_INDEX_R = 2;

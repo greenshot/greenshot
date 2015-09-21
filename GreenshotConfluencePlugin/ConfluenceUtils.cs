@@ -26,13 +26,14 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Automation;
+using log4net;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
-	/// Description of ConfluenceUtils.
+	/// Confluence utils are to support the confluence plugin with retrieving the current confluence pages.
 	/// </summary>
 	public class ConfluenceUtils {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceUtils));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ConfluenceUtils));
 		private static readonly Regex pageIdRegex = new Regex(@"pageId=(\d+)", RegexOptions.Compiled);
 		private static readonly Regex displayRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)", RegexOptions.Compiled);
 		private static readonly Regex viewPageRegex = new Regex(@"pages\/viewpage.action\?title=(.+)&spaceKey=(.+)", RegexOptions.Compiled);
@@ -40,7 +41,7 @@ namespace GreenshotConfluencePlugin {
 		public async static Task<IList<Content>> GetCurrentPages() {
 			IList<Content> pages = new List<Content>();
 			foreach(string browserurl in GetBrowserUrls()) {
-				string url = null;
+				string url;
 				try {
 					url = Uri.UnescapeDataString(browserurl).Replace("+", " ");
 				} catch {
@@ -48,7 +49,7 @@ namespace GreenshotConfluencePlugin {
 					continue;
 				}
 				MatchCollection pageIdMatch = pageIdRegex.Matches(url);
-				if (pageIdMatch != null && pageIdMatch.Count > 0) {
+				if (pageIdMatch.Count > 0) {
 					long contentId;
 					if (!long.TryParse(pageIdMatch[0].Groups[1].Value, out contentId)) {
 						continue;
@@ -75,7 +76,7 @@ namespace GreenshotConfluencePlugin {
 					}
 				}
 				MatchCollection spacePageMatch = displayRegex.Matches(url);
-				if (spacePageMatch != null && spacePageMatch.Count > 0) {
+				if (spacePageMatch.Count > 0) {
 					if (spacePageMatch[0].Groups.Count >= 2) {
 						string space = spacePageMatch[0].Groups[1].Value;
 						string title = spacePageMatch[0].Groups[2].Value;
@@ -92,7 +93,7 @@ namespace GreenshotConfluencePlugin {
 								}
 							}
 							if (!pageDouble) {
-								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title).ConfigureAwait(false); ;
+								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title).ConfigureAwait(false);
 								LOG.DebugFormat("Adding page {0}", content.Title);
 								pages.Add(content);
 
@@ -106,7 +107,7 @@ namespace GreenshotConfluencePlugin {
 					}
 				}
 				MatchCollection viewPageMatch = viewPageRegex.Matches(url);
-				if (viewPageMatch != null && viewPageMatch.Count > 0) {
+				if (viewPageMatch.Count > 0) {
 					if (viewPageMatch[0].Groups.Count >= 2) {
 						string title = viewPageMatch[0].Groups[1].Value;
 						string space = viewPageMatch[0].Groups[2].Value;
@@ -123,13 +124,12 @@ namespace GreenshotConfluencePlugin {
 								}
 							}
 							if (!pageDouble) {
-								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title).ConfigureAwait(false); ;
+								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title).ConfigureAwait(false);
 								if (content != null) {
 									LOG.DebugFormat("Adding page {0}", content.Title);
 									pages.Add(content);
 								}
 							}
-							continue;
 						} catch (Exception ex) {
 							// Preventing security problems
 							LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
@@ -167,10 +167,14 @@ namespace GreenshotConfluencePlugin {
 					if (pattern.ProgrammaticName != "ValuePatternIdentifiers.Pattern") {
 						continue;
 					}
-					string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value.ToString();
-					if (!string.IsNullOrEmpty(url)) {
-						urls.Add(url);
-						break;
+					var valuePattern = docElement.GetCurrentPattern(pattern) as ValuePattern;
+					if (valuePattern != null)
+					{
+						string url = valuePattern.Current.Value;
+						if (!string.IsNullOrEmpty(url)) {
+							urls.Add(url);
+							break;
+						}
 					}
 				}
 			}

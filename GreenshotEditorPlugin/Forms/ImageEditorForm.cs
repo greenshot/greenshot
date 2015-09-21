@@ -40,6 +40,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
 using GreenshotEditorPlugin.Helpers;
 using Greenshot.Plugin.Drawing;
 
@@ -51,6 +52,7 @@ namespace GreenshotEditorPlugin.Forms
 	public partial class ImageEditorForm : BaseForm, IImageEditor {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageEditorForm));
 		private static readonly IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
+		private static readonly IEditorLanguage editorLanguage = LanguageLoader.Current.Get<IEditorLanguage>();
 		private static readonly List<string> ignoreDestinations = new List<string>() { BuildInDestinationEnum.Picker.ToString(), BuildInDestinationEnum.Editor.ToString() };
 		private static readonly List<IImageEditor> editorList = new List<IImageEditor>();
 
@@ -76,9 +78,7 @@ namespace GreenshotEditorPlugin.Forms
 		public static List<IImageEditor> Editors {
 			get {
 				try {
-					editorList.Sort(delegate(IImageEditor e1, IImageEditor e2) {
-						return e1.Surface.CaptureDetails.Title.CompareTo(e2.Surface.CaptureDetails.Title);
-					});
+					editorList.Sort((e1, e2) => String.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
 				} catch(Exception ex) {
 					LOG.Warn("Sorting of editors failed.", ex);
 				}
@@ -131,8 +131,7 @@ namespace GreenshotEditorPlugin.Forms
 
 
 			// Make sure the editor is placed on the same location as the last editor was on close
-			var thisForm = new WindowDetails(Handle);
-			thisForm.WindowPlacement = GetEditorPlacement();
+			new WindowDetails(Handle).WindowPlacement = GetEditorPlacement();
 
 			// init surface
 			Surface = iSurface;
@@ -195,7 +194,11 @@ namespace GreenshotEditorPlugin.Forms
 			surfacePanel.Height = 10;
 			surfacePanel.Width = 10;
 			_surface = newSurface as Surface;
-			surfacePanel.Controls.Add(_surface as Surface);
+			if (_surface == null)
+			{
+				return;
+			}
+			surfacePanel.Controls.Add(_surface);
 			var backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
 			_surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 
@@ -210,8 +213,8 @@ namespace GreenshotEditorPlugin.Forms
 			BindFieldControls();
 			RefreshEditorControls();
 			// Fix title
-			if (_surface != null && _surface.CaptureDetails != null && _surface.CaptureDetails.Title != null) {
-				Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+			if (_surface.CaptureDetails != null && _surface.CaptureDetails.Title != null) {
+				Text = _surface.CaptureDetails.Title + " - " + editorLanguage.EditorTitle;
 			}
 			WindowDetails.ToForeground(Handle);
 		}
@@ -293,7 +296,8 @@ namespace GreenshotEditorPlugin.Forms
 				};
 
 				// Generate the entries for the drop down
-				destinationButton.DropDownOpening += delegate(object sender, EventArgs e) {
+				destinationButton.DropDownOpening += delegate
+				{
 					ClearItems(destinationButton.DropDownItems);
 					destinationButton.DropDownItems.Add(defaultItem);
 
@@ -381,11 +385,8 @@ namespace GreenshotEditorPlugin.Forms
 						// Put the event message on the status label and attach the context menu
 						UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
 						// Change title
-						Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
+						Text = eventArgs.Surface.LastSaveFullPath + " - " + editorLanguage.EditorTitle;
 						break;
-					case SurfaceMessageTyp.Error:
-					case SurfaceMessageTyp.Info:
-					case SurfaceMessageTyp.UploadedUri:
 					default:
 						// Put the event message on the status label
 						UpdateStatusLabel(dateTime + " - " + eventArgs.Message);
@@ -397,7 +398,8 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// This is called when the size of the surface chances, used for resizing and displaying the size information
 		/// </summary>
-		/// <param name="source"></param>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void SurfaceSizeChanged(object sender, EventArgs e) {
 			if (editorConfiguration.MatchSizeToCapture) {
 				// Set editor's initial size to the size of the surface plus the size of the chrome
@@ -433,8 +435,8 @@ namespace GreenshotEditorPlugin.Forms
 			if (fullpath == null) {
 				return;
 			}
-			UpdateStatusLabel(Language.GetFormattedString(LangKey.editor_imagesaved, fullpath), fileSavedStatusContextMenu);
-			Text = Path.GetFileName(fullpath) + " - " + Language.GetString(LangKey.editor_title);
+			UpdateStatusLabel(string.Format(editorLanguage.EditorImagesaved, fullpath), fileSavedStatusContextMenu);
+			Text = Path.GetFileName(fullpath) + " - " + editorLanguage.EditorTitle;
 		}
 		
 		void surface_DrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs) {
@@ -627,14 +629,6 @@ namespace GreenshotEditorPlugin.Forms
 			BtnArrowClick(sender, e);
 		}
 		
-		void DrawHighlightToolStripMenuItemClick(object sender, EventArgs e) {
-			BtnHighlightClick(sender, e);
-		}
-		
-		void BlurToolStripMenuItemClick(object sender, EventArgs e) {
-			BtnObfuscateClick(sender, e);
-		}
-		
 		void RemoveObjectToolStripMenuItemClick(object sender, EventArgs e) {
 			_surface.RemoveSelectedElements();
 		}
@@ -754,7 +748,7 @@ namespace GreenshotEditorPlugin.Forms
 				if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing) {
 					buttons = MessageBoxButtons.YesNo;
 				}
-				DialogResult result = MessageBox.Show(Language.GetString(LangKey.editor_close_on_save), Language.GetString(LangKey.editor_close_on_save_title), buttons, MessageBoxIcon.Question);
+				DialogResult result = MessageBox.Show(editorLanguage.EditorCloseOnSave, editorLanguage.EditorCloseOnSaveTitle, buttons, MessageBoxIcon.Question);
 				if (result.Equals(DialogResult.Cancel)) {
 					e.Cancel = true;
 					return;
@@ -921,29 +915,16 @@ namespace GreenshotEditorPlugin.Forms
 			bool canUndo = _surface.CanUndo;
 			btnUndo.Enabled = canUndo;
 			undoToolStripMenuItem.Enabled = canUndo;
-			string undoAction = "";
-			if (canUndo) {
-				if (_surface.UndoActionLanguageKey != LangKey.none) {
-					undoAction = Language.GetString(_surface.UndoActionLanguageKey);
-				}
-			}
-			string undoText = Language.GetFormattedString(LangKey.editor_undo, undoAction);
+			string undoText = string.Format(editorLanguage.EditorUndo, _surface.UndoActionLanguageKey);
 			btnUndo.Text = undoText;
 			undoToolStripMenuItem.Text = undoText;
 
 			bool canRedo = _surface.CanRedo;
 			btnRedo.Enabled = canRedo;
 			redoToolStripMenuItem.Enabled = canRedo;
-			string redoAction = "";
-			if (canRedo) {
-                if (_surface.RedoActionLanguageKey != LangKey.none) {
-                    redoAction = Language.GetString(_surface.RedoActionLanguageKey);
-                }
-			}
-			string redoText = Language.GetFormattedString(LangKey.editor_redo, redoAction);
+			string redoText = string.Format(editorLanguage.EditorRedo, _surface.RedoActionLanguageKey);
 			btnRedo.Text = redoText;
 			redoToolStripMenuItem.Text = redoText;
-
 		}
 
 		private void UpdateClipboardSurfaceDependencies() {
@@ -998,9 +979,10 @@ namespace GreenshotEditorPlugin.Forms
 		}
 		
 		void OpenDirectoryMenuItemClick(object sender, EventArgs e) {
-			var psi = new ProcessStartInfo("explorer");
-			psi.Arguments = Path.GetDirectoryName(_surface.LastSaveFullPath);
-			psi.UseShellExecute = false;
+			var psi = new ProcessStartInfo("explorer")
+			{
+				Arguments = Path.GetDirectoryName(_surface.LastSaveFullPath), UseShellExecute = false
+			};
 			using (var p = new Process()) {
 				p.StartInfo = psi;
 				p.Start();
@@ -1035,7 +1017,7 @@ namespace GreenshotEditorPlugin.Forms
 			propertiesToolStrip.SuspendLayout();
 			if(_surface.HasSelectedElements || _surface.DrawingMode != DrawingModes.None) {
                 // Update bindings
-                foreach (BidirectionalBinding binding in _bindings)
+                foreach (var binding in _bindings)
                 {
                     binding.Refresh();
                 }
@@ -1127,8 +1109,8 @@ namespace GreenshotEditorPlugin.Forms
 
 		void FontPropertyChanged(object sender, EventArgs e) {
 			// in case we forced another FontStyle before, reset it first.
-			if(_originalBoldCheckState != fontBoldButton.Checked) fontBoldButton.Checked = _originalBoldCheckState;
-			if(_originalItalicCheckState != fontItalicButton.Checked) fontItalicButton.Checked = _originalItalicCheckState;
+			fontBoldButton.Checked = _originalBoldCheckState;
+			fontItalicButton.Checked = _originalItalicCheckState;
 			
             FontFamily fam = fontFamilyComboBox.FontFamily;
            
@@ -1287,8 +1269,6 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// This is used when the dropshadow button is used
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
 		private async Task AddDropshadowToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
 			var dropShadowEffect = editorConfiguration.DropShadowEffectSettings;
 			var result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
@@ -1301,8 +1281,6 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// Open the resize settings from, and resize if ok was pressed
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
 		private async Task BtnResizeClickAsync(CancellationToken token = default(CancellationToken)) {
 			var resizeEffect = new ResizeEffect(_surface.Image.Width, _surface.Image.Height, true);
 			var result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
@@ -1315,8 +1293,7 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// Call the torn edge effect
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
+		/// <param name="token"></param>
 		private async Task TornEdgesToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
 			var tornEdgeEffect = editorConfiguration.TornEdgeEffectSettings;
 			var result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);

@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
 
 namespace GreenshotBoxPlugin
 {
@@ -39,6 +40,7 @@ namespace GreenshotBoxPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
 		private static IBoxConfiguration _config;
+		private static IBoxLanguage _language;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
@@ -76,15 +78,17 @@ namespace GreenshotBoxPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
+		/// <param name="token"></param>
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttribute, CancellationToken token = new CancellationToken()) {
 			// Register / get the box configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IBoxConfiguration>();
+			_config = await IniConfig.Current.RegisterAndGetAsync<IBoxConfiguration>(token);
+			_language = await LanguageLoader.Current.RegisterAndGetAsync<IBoxLanguage>(token);
 			_resources = new ComponentResourceManager(typeof(BoxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
 				Image = (Image)_resources.GetObject("Box"),
-				Text = Language.GetString("box", LangKey.Configure)
+				Text = _language.Configure
 			};
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
@@ -97,7 +101,7 @@ namespace GreenshotBoxPlugin
 		{
 			if (_itemPlugInConfig != null)
 			{
-				_itemPlugInConfig.Text = Language.GetString("box", LangKey.Configure);
+				_itemPlugInConfig.Text = _language.Configure;
 			}
 		}
 

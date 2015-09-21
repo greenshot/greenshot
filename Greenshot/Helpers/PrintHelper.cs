@@ -18,12 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
+ using System;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
@@ -31,6 +31,8 @@ using GreenshotPlugin.Extensions;
 using Greenshot.Core;
 using log4net;
 using Dapplo.Config.Ini;
+ using Dapplo.Config.Language;
+ using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Helpers
 {
@@ -39,20 +41,21 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class PrintHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PrintHelper));
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
-		private ISurface surface;
-		private ICaptureDetails captureDetails;
-		private PrintDocument printDocument = new PrintDocument();
-		private PrintDialog printDialog = new PrintDialog();
+		private ISurface _surface;
+		private readonly ICaptureDetails _captureDetails;
+		private PrintDocument _printDocument = new PrintDocument();
+		private PrintDialog _printDialog = new PrintDialog();
 
 		public PrintHelper(ISurface surface, ICaptureDetails captureDetails) {
-			this.surface = surface;
-			this.captureDetails = captureDetails;
-			printDialog.UseEXDialog = true;
-			printDocument.DocumentName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, captureDetails);
-			printDocument.PrintPage += DrawImageForPrint;
-			printDialog.Document = printDocument;
+			_surface = surface;
+			_captureDetails = captureDetails;
+			_printDialog.UseEXDialog = true;
+			_printDocument.DocumentName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, captureDetails);
+			_printDocument.PrintPage += DrawImageForPrint;
+			_printDialog.Document = _printDocument;
 		}
 
 		/**
@@ -77,16 +80,16 @@ namespace Greenshot.Helpers
 		 */
 		protected void Dispose(bool disposing) {
 			if (disposing) {
-				if (printDocument != null) {
-					printDocument.Dispose();
+				if (_printDocument != null) {
+					_printDocument.Dispose();
 				}
-				if (printDialog != null) {
-					printDialog.Dispose();
+				if (_printDialog != null) {
+					_printDialog.Dispose();
 				}
 			}
-			surface = null;
-			printDocument = null;
-			printDialog = null;
+			_surface = null;
+			_printDocument = null;
+			_printDialog = null;
 		}
 
 		/// <summary>
@@ -99,16 +102,16 @@ namespace Greenshot.Helpers
 			DialogResult? printOptionsResult = ShowPrintOptionsDialog();
 				try {
 					if (printOptionsResult == null || printOptionsResult == DialogResult.OK) {
-					printDocument.PrinterSettings.PrinterName = printerName;
+					_printDocument.PrinterSettings.PrinterName = printerName;
 					if (!IsColorPrint()) {
-						printDocument.DefaultPageSettings.Color = false;
+						_printDocument.DefaultPageSettings.Color = false;
 					}
-					printDocument.Print();
-					returnPrinterSettings = printDocument.PrinterSettings;
+					_printDocument.Print();
+					returnPrinterSettings = _printDocument.PrinterSettings;
 				}
 			} catch (Exception e) {
 				LOG.Error("An error ocurred while trying to print", e);
-				MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
+				MessageBox.Show(language.PrintError, language.Error);
 			}
 			return returnPrinterSettings;
 		}
@@ -120,19 +123,19 @@ namespace Greenshot.Helpers
 		/// <returns>printer settings if actually printed, or null if print was cancelled or has failed</returns>
 		public PrinterSettings PrintWithDialog() {
 			PrinterSettings returnPrinterSettings = null;
-			if (printDialog.ShowDialog() == DialogResult.OK) {
+			if (_printDialog.ShowDialog() == DialogResult.OK) {
 				DialogResult? printOptionsResult = ShowPrintOptionsDialog();
 				try {
 					if (printOptionsResult == null || printOptionsResult == DialogResult.OK) {
 						if (!IsColorPrint()) {
-							printDocument.DefaultPageSettings.Color = false;
+							_printDocument.DefaultPageSettings.Color = false;
 						}
-						printDocument.Print();
-						returnPrinterSettings = printDialog.PrinterSettings;
+						_printDocument.Print();
+						returnPrinterSettings = _printDialog.PrinterSettings;
 					}
 				} catch (Exception e) {
 					LOG.Error("An error ocurred while trying to print", e);
-					MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
+					MessageBox.Show(language.PrintError, language.Error);
 				}
 
 			}
@@ -166,7 +169,7 @@ namespace Greenshot.Helpers
 			ApplyEffects(printOutputSettings);
 
 			Image image;
-			bool disposeImage = ImageOutput.CreateImageFromSurface(surface, printOutputSettings, out image);
+			bool disposeImage = ImageOutput.CreateImageFromSurface(_surface, printOutputSettings, out image);
 			try {
 				ContentAlignment alignment = conf.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
 
@@ -175,7 +178,7 @@ namespace Greenshot.Helpers
 				float footerStringHeight = 0;
 				string footerString = null; //DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
 				if (conf.OutputPrintFooter) {
-					footerString = FilenameHelper.FillPattern(conf.OutputPrintFooterPattern, captureDetails, false);
+					footerString = FilenameHelper.FillPattern(conf.OutputPrintFooterPattern, _captureDetails, false);
 					using (Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular)) {
 						footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
 						footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;

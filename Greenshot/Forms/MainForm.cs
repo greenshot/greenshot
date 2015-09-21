@@ -20,8 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Configuration;
-using Greenshot.Experimental;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using Greenshot.Windows;
@@ -45,6 +43,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
@@ -86,7 +86,7 @@ namespace Greenshot.Forms
 				iniDirectory = PortableHelper.PortableIniFileLocation;
 			}
 
-			// Initialize the string encryption, TODO: Move to build server
+			// Initialize the string encryption, TODO: Move "credentials" to build server / yaml
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 			iniConfig = new IniConfig("Greenshot", "greenshot", iniDirectory);
@@ -98,14 +98,15 @@ namespace Greenshot.Forms
 			// Get logger
 			LOG = LogManager.GetLogger(typeof(MainForm));
 
-			// Read configuration
+			// Read configuration & languages
+			new LanguageLoader("Greenshot");
 			Task.Run(async () => {
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
+				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
 			}).Wait();
 
 			// Log the startup
 			LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
-
 
 			try
 			{
@@ -199,7 +200,7 @@ namespace Greenshot.Forms
 				dummyForm.Show();
 				// Make sure the language files are loaded, so we can show the error message "Greenshot is already running" in the right language.
 
-				MessageBox.Show(dummyForm, Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				MessageBox.Show(dummyForm, language.ErrorMultipleinstances + "\r\n" + instanceInfo, language.Error, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 			}
 		}
 
@@ -367,7 +368,7 @@ namespace Greenshot.Forms
 				try {
 					notifyIcon.BalloonTipClicked += BalloonTipClicked;
 					notifyIcon.BalloonTipClosed += BalloonTipClosed;
-					notifyIcon.ShowBalloonTip(2000, "Greenshot", Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
+					notifyIcon.ShowBalloonTip(2000, "Greenshot", string.Format(language.TooltipFirststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
 				} catch (Exception ex) {
 					LOG.Warn("Exception while showing first launch: ", ex);
 				}
@@ -576,7 +577,7 @@ namespace Greenshot.Forms
 		private static bool HandleFailedHotkeyRegistration(string failedKeys)
 		{
 			bool success = false;
-			DialogResult dr = MessageBox.Show(Instance, Language.GetFormattedString(LangKey.warning_hotkeys, failedKeys), Language.GetString(LangKey.warning), MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
+			DialogResult dr = MessageBox.Show(Instance, string.Format(language.WarningHotkeys, failedKeys), language.Warning, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
 			if (dr == DialogResult.Retry)
 			{
 				LOG.DebugFormat("Re-trying to register hotkeys");
@@ -840,7 +841,7 @@ namespace Greenshot.Forms
 			ToolStripMenuItem captureScreenItem;
 			var allScreensBounds = WindowCapture.GetScreenBounds();
 
-			captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
+			captureScreenItem = new ToolStripMenuItem(language.ContextmenuCapturefullscreenAll);
 			captureScreenItem.Click += (item, eventArgs) =>
 			{
 				this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen));
@@ -852,19 +853,19 @@ namespace Greenshot.Forms
 				string deviceAlignment = "";
 				if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
 				{
-					deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
+					deviceAlignment += " " + language.ContextmenuCapturefullscreenTop;
 				}
 				else if (screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom)
 				{
-					deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
+					deviceAlignment += " " + language.ContextmenuCapturefullscreenBottom;
 				}
 				if (screen.Bounds.Left == allScreensBounds.Left && screen.Bounds.Right != allScreensBounds.Right)
 				{
-					deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
+					deviceAlignment += " " + language.ContextmenuCapturefullscreenLeft;
 				}
 				else if (screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right)
 				{
-					deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
+					deviceAlignment += " " + language.ContextmenuCapturefullscreenRight;
 				}
 				captureScreenItem = new ToolStripMenuItem(deviceAlignment);
 				captureScreenItem.Click += (item, eventArgs) =>
@@ -1176,7 +1177,7 @@ namespace Greenshot.Forms
 			{
 				// screenshot destination
 				selectList = new ToolStripMenuSelectList("destinations", true);
-				selectList.Text = Language.GetString(LangKey.settings_destination);
+				selectList.Text = language.SettingsDestination;
 				// Working with IDestination:
 				foreach (IDestination destination in DestinationHelper.GetAllDestinations())
 				{
@@ -1190,7 +1191,7 @@ namespace Greenshot.Forms
 			{
 				// Capture Modes
 				selectList = new ToolStripMenuSelectList("capturemodes", false);
-				selectList.Text = Language.GetString(LangKey.settings_window_capture_mode);
+				selectList.Text = language.SettingsWindowCaptureMode;
 				string enumTypeName = typeof(WindowCaptureMode).Name;
 				foreach (WindowCaptureMode captureMode in Enum.GetValues(typeof(WindowCaptureMode)))
 				{
@@ -1202,7 +1203,7 @@ namespace Greenshot.Forms
 
 			// print options
 			selectList = new ToolStripMenuSelectList("printoptions", true);
-			selectList.Text = Language.GetString(LangKey.settings_printoptions);
+			selectList.Text = language.SettingsPrintoptions;
 
 			var outputPrintValues =
 				from iniValue in coreConfiguration.GetIniValues()
@@ -1224,7 +1225,7 @@ namespace Greenshot.Forms
 
 			// effects
 			selectList = new ToolStripMenuSelectList("effects", true);
-			selectList.Text = Language.GetString(LangKey.settings_visualization);
+			selectList.Text = language.SettingsVisualization;
 
 			IniValue currentIniValue;
 			if (coreConfiguration.TryGetIniValue(x => x.PlayCameraSound, out currentIniValue)) {

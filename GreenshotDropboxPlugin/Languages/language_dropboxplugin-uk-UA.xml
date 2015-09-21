@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Українська" ietf="uk-UA" version="1.0.0">
-	<resources>
+	<resources prefix="Dropbox">
 		<resource name="label_AfterUploadLinkToClipBoard">Посилання в буфер обміну</resource>
 		<resource name="label_AfterUploadOpenHistory">Відкрити історію</resource>
 		<resource name="label_AfterUpload">Після вивантаження</resource>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="正體中文" ietf="zh-TW" version="0.8.0" languagegroup="9">
-	<resources>
+	<resources prefix="Confluence">
 		<resource name="browse_pages">瀏覽頁面</resource>
 		<resource name="CANCEL">取消</resource>
 		<resource name="communication_wait">正在與 Confluence 通訊，請稍候...</resource>

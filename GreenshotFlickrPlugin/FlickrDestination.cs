@@ -35,7 +35,7 @@ using Dapplo.Config.Ini;
 namespace GreenshotFlickrPlugin
 {
 	public class FlickrDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(FlickrDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrDestination));
 		private static IFlickrConfiguration _config = IniConfig.Current.Get<IFlickrConfiguration>();
 
 		public override string Designation {

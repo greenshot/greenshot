@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Српски" ietf="sr-RS" version="0.8.0" languagegroup="">
-	<resources>
+	<resources prefix="Confluence">
 		<resource name="browse_pages">Прегледај странице</resource>
 		<resource name="CANCEL">Откажи</resource>
 		<resource name="communication_wait">Преносим податке на Конфлуенс…</resource>

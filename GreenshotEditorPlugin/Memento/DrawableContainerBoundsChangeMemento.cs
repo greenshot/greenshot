@@ -52,9 +52,9 @@ namespace GreenshotEditorPlugin.Memento {
 			StoreBounds();
 		}
 
-		public LangKey ActionLanguageKey {
+		public string ActionDescription {
 			get {
-				return LangKey.none;
+				return "";
 			}
 		}
 

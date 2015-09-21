@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -19,17 +19,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotConfluencePlugin {
-	public enum LangKey {
-		login_error,
-		login_title,
-		label_url,
-		label_upload_format,
-		OK,
-		CANCEL,
-		upload_menu_item,
-		upload_success,
-		upload_failure,
-		communication_wait
+using Dapplo.Config.Language;
+
+namespace GreenshotBoxPlugin
+{
+	[Language("Box")]
+	public interface IBoxLanguage : ILanguage
+	{
+		string UploadMenuItem
+		{
+			get;
+		}
+		string SettingsTitle
+		{
+			get;
+		}
+		string LabelUploadFormat
+		{
+			get;
+		}
+		string UploadSuccess
+		{
+			get;
+		}
+		string UploadFailure
+		{
+			get;
+		}
+		string CommunicationWait
+		{
+			get;
+		}
+		string Configure
+		{
+			get;
+		}
+		string LabelAfterUpload
+		{
+			get;
+		}
+		string LabelAfterUploadLinkToClipBoard
+		{
+			get;
+		}
 	}
 }

@@ -30,14 +30,16 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Config.Language;
 
 namespace GreenshotEditorPlugin {
 	/// <summary>
 	/// Description of EditorDestination.
 	/// </summary>
 	public class EditorDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
 		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
+		private static readonly IEditorLanguage language = LanguageLoader.Current.Get<IEditorLanguage>();
 		private IImageEditor editor = null;
 		private static Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 
@@ -57,9 +59,9 @@ namespace GreenshotEditorPlugin {
 		public override string Description {
 			get {
 				if (editor == null) {
-					return Language.GetString(LangKey.settings_destination_editor);
+					return language.SettingsDestinationEditor;
 				}
-				return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title;
+				return language.SettingsDestinationEditor + " - " + editor.CaptureDetails.Title;
 			}
 		}
 

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Português do Brasil" ietf="pt-BR" version="1.0.0" languagegroup="1">
-	<resources>
+	<resources prefix="Core">
 		<resource name="about_bugs">Por favor envie erros para</resource>
 		<resource name="about_donations">Se você gostou do Greenshot, por favor contribua:</resource>
 		<resource name="about_host">O Greenshot está armazenado no sourceforge.net em</resource>

@@ -220,7 +220,7 @@ namespace Greenshot.Core {
 	/// ReduceColorsEffect
 	/// </summary>
 	public class ReduceColorsEffect : IEffect {
-		private static ILog LOG = LogManager.GetLogger(typeof(ReduceColorsEffect));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ReduceColorsEffect));
 		public ReduceColorsEffect() {
 			Reset();
 		}

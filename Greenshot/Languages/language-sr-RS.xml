@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Српски" ietf="sr-RS" version="1.0.4" languagegroup="5">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Пријавите грешке на:</resource>
 		<resource name="about_donations">Ако вам се свиђа Гриншот, помозите нам:</resource>
 		<resource name="about_host">Гриншот покреће Сорсфорџ (sourceforge.net):</resource>

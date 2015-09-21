@@ -18,16 +18,48 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using System.ComponentModel;
+using Dapplo.Config.Language;
+
 namespace GreenshotDropboxPlugin {
-	public enum LangKey {
-		upload_menu_item,
-		settings_title,
-		label_upload_format,
-		upload_success,
-		upload_failure,
-		communication_wait,
-		Configure,
-		label_AfterUpload,
-		label_AfterUploadLinkToClipBoard
+	[Language("Dropbox")]
+	public interface IDropboxLanguage : ILanguage, INotifyPropertyChanged {
+		string UploadMenuItem
+		{
+			get;
+		}
+        string SettingsTitle
+		{
+			get;
+		}
+		string LabelUploadFormat
+		{
+			get;
+		}
+		string UploadSuccess
+		{
+			get;
+		}
+		string UploadFailure
+		{
+			get;
+		}
+		string CommunicationWait
+		{
+			get;
+		}
+		string Configure
+		{
+			get;
+		}
+		string LabelAfterUpload
+		{
+			get;
+		}
+		string LabelAfterUploadLinkToClipBoard
+		{
+			get;
+		}
 	}
 }

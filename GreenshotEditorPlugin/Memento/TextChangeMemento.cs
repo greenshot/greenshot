@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using Greenshot.Plugin.Drawing;
 
 namespace GreenshotEditorPlugin.Memento {
@@ -27,16 +28,16 @@ namespace GreenshotEditorPlugin.Memento {
 	/// </summary>
 	public class TextChangeMemento : IMemento  {
 		private ITextContainer _textContainer;
-		private string oldText;
+		private readonly string _oldText;
 		
 		public TextChangeMemento(ITextContainer textContainer) {
 			_textContainer = textContainer;
-			oldText = textContainer.Text;
+			_oldText = textContainer.Text;
 		}
 
-		public LangKey ActionLanguageKey {
+		public string ActionDescription {
 			get {
-				return LangKey.none;
+				return "";
 			}
 		}
 
@@ -55,7 +56,7 @@ namespace GreenshotEditorPlugin.Memento {
 			// Before
 			_textContainer.Invalidate();
 			var oldState = new TextChangeMemento(_textContainer);
-			_textContainer.ChangeText(oldText, false);
+			_textContainer.ChangeText(_oldText, false);
 			// After
 			_textContainer.Invalidate();
 			return oldState;

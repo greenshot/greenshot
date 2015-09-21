@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Nynorsk" ietf="nn-NO" version="1.0.2" languagegroup="1">
-	<resources>
+	<resources prefix="Core">
 		<resource name="about_bugs">Ver venleg å melde frå om feil til</resource>
 		<resource name="about_donations">Om du likar Greenshot er du velkomen til å støtte oss:</resource>
 		<resource name="about_host">Greenshot held virtuelt hus hjå sourceforge.net:</resource>

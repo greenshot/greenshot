@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Turkish" ietf="tr-TR" version="1.0.2" languagegroup="6">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Hataları şu adrese bildirebilirsiniz:</resource>
 		<resource name="about_donations">Greenshot'ı sevdiyseniz, bizi destekleyin:</resource>
 		<resource name="about_host">Greenshot sourceforge.net üzerinde şu adreste barındırılmaktadır:</resource>

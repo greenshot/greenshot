@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
 using TranslationByMarkupExtension;
 
 namespace GreenshotConfluencePlugin
@@ -37,6 +38,7 @@ namespace GreenshotConfluencePlugin
 	public class ConfluencePlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
 		private static IConfluenceConfiguration _config;
+		private static IConfluenceLanguage _language;
 		private static ConfluenceAPI _confluenceApi;
 
 		public void Dispose() {
@@ -65,8 +67,10 @@ namespace GreenshotConfluencePlugin
 		/// <param name="myAttributes">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the confluence configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IConfluenceConfiguration>();
-			try {
+			_config = await IniConfig.Current.RegisterAndGetAsync<IConfluenceConfiguration>(token);
+			_language = await LanguageLoader.Current.RegisterAndGetAsync<IConfluenceLanguage>(token);
+			try
+			{
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
 				//resources = new ComponentResourceManager(typeof(ConfluencePlugin));
 			} catch (Exception ex) {
@@ -77,7 +81,8 @@ namespace GreenshotConfluencePlugin
 			if (_confluenceApi != null)
 			{
 				LOG.Info("Loading spaces");
-				var ignoreTask = _confluenceApi.LoadSpacesAsync().ContinueWith((_) => LOG.Info("Finished loading spaces")).ConfigureAwait(false);
+				// Store the task, so the compiler doesn't complain but do not wait so the task runs in the background
+				var ignoreTask = _confluenceApi.LoadSpacesAsync(token: token).ContinueWith((_) => LOG.Info("Finished loading spaces"), token).ConfigureAwait(false);
 			}
 			return true;
 		}

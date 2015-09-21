@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Română" ietf="ro-RO" version="0.8.0" languagegroup="2">
-  <resources>
-	<!--    
-	Note to translator: uncomment entry "about_translation" to have 
-	your efforts honored in the "About Greenshot" dialog 
-	-->
+<language>
+  <resources prefix="Core">
 	<resource name="about_translation">
 		Traducere în limba română - Radu Mogoș
 	</resource>

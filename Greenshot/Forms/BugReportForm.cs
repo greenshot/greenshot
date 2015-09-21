@@ -18,11 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
-using Greenshot.Configuration;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	public partial class BugReportForm : BaseForm {
@@ -47,7 +46,7 @@ namespace Greenshot.Forms {
 				link.LinkVisited = true;
 				Process.Start(link.Text);
 			} catch (Exception) {
-				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link.Text), Language.GetString(LangKey.error));
+				MessageBox.Show(string.Format(language.ErrorOpenlink, link.Text), language.Error);
 			}
 		}
 	}

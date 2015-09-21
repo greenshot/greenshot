@@ -24,7 +24,6 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
@@ -33,6 +32,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System;
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Destinations
 {
@@ -40,16 +41,17 @@ namespace Greenshot.Destinations
 	/// Description of PrinterDestination.
 	/// </summary>
 	public class PrinterDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(PrinterDestination));
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PrinterDestination));
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		public const string DESIGNATION = "Printer";
-		public string printerName = null;
+		private readonly string _printerName;
 
 		public PrinterDestination() {
 		}
 
 		public PrinterDestination(string printerName) {
-			this.printerName = printerName;
+			_printerName = printerName;
 		}
 		public override string Designation {
 			get {
@@ -59,10 +61,10 @@ namespace Greenshot.Destinations
 
 		public override string Description {
 			get {
-				if (printerName != null) {
-					return Language.GetString(LangKey.settings_destination_printer) + " - " + printerName;
+				if (_printerName != null) {
+					return language.SettingsDestinationPrinter + " - " + _printerName;
 				}
-				return Language.GetString(LangKey.settings_destination_printer);
+				return language.SettingsDestinationPrinter;
 			}
 		}
 
@@ -131,9 +133,9 @@ namespace Greenshot.Destinations
 			try {
 				await Task.Factory.StartNew(() => {
 					PrinterSettings printerSettings = null;
-					if (!string.IsNullOrEmpty(printerName)) {
+					if (!string.IsNullOrEmpty(_printerName)) {
 						using (var printHelper = new PrintHelper(surface, captureDetails)) {
-							printerSettings = printHelper.PrintTo(printerName);
+							printerSettings = printHelper.PrintTo(_printerName);
 						}
 					} else if (!manuallyInitiated) {
 						var settings = new PrinterSettings();

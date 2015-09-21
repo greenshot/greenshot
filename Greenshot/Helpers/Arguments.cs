@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Greenshot.Helpers {
 	public class Arguments {
-		private static ILog LOG = LogManager.GetLogger(typeof(GreenshotServer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotServer));
 
 		public IList<string> FilesToOpen {
 			get;

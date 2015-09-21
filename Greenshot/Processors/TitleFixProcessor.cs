@@ -33,7 +33,7 @@ namespace Greenshot.Processors
 	/// Description of TitleFixProcessor.
 	/// </summary>
 	public class TitleFixProcessor : AbstractProcessor {
-		private static ILog LOG = LogManager.GetLogger(typeof(TitleFixProcessor));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(TitleFixProcessor));
 		private static ICoreConfiguration config = IniConfig.Current.Get<ICoreConfiguration>();
 		
 		public TitleFixProcessor() {

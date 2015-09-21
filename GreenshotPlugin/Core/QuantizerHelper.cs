@@ -71,7 +71,7 @@ namespace GreenshotPlugin.Core {
 	}
 
 	public class WuQuantizer : IDisposable {
-		private static ILog LOG = LogManager.GetLogger(typeof(WuQuantizer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(WuQuantizer));
 
 		private const Int32 MAXCOLOR = 512;
 		private const Int32 RED = 2;

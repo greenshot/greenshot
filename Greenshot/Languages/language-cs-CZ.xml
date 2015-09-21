@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Čeština" ietf="cs-CZ" version="1.0.1" languagegroup="2">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Chyby hlašte, prosím, na</resource>
 		<resource name="about_donations">Pokud se vám Greenshot líbí, uvítáme Vaší podporu:</resource>
 		<resource name="about_host">Greenshot hostuje na sourceforge.net</resource>

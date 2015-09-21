@@ -21,11 +21,11 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Config.Language;
 
 namespace GreenshotEditorPlugin
 {
@@ -35,8 +35,7 @@ namespace GreenshotEditorPlugin
 	public class EditorPlugin : IGreenshotPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EditorPlugin));
-		private static IEditorConfiguration config;
-		private PluginAttribute myAttributes;
+		private PluginAttribute _myAttributes;
 
 		public void Dispose()
 		{
@@ -49,10 +48,6 @@ namespace GreenshotEditorPlugin
 			if (disposing)
 			{
 			}
-		}
-
-		public EditorPlugin()
-		{
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -68,29 +63,24 @@ namespace GreenshotEditorPlugin
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="pluginAttributes">My own attributes</param>
+		/// <param name="token"></param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken())
 		{
 			LOG.DebugFormat("Initialize called of {0}", pluginAttributes.Name);
 			var iniConfig = IniConfig.Current;
 
 			// Make sure the defaults are set
-			config = await iniConfig.RegisterAndGetAsync<IEditorConfiguration>();
-			IniConfig.Current.Get<IEditorConfiguration>();
-            myAttributes = pluginAttributes;
+			await iniConfig.RegisterAndGetAsync<IEditorConfiguration>(token);
+			await LanguageLoader.Current.RegisterAndGetAsync<IEditorLanguage>(token);
+            _myAttributes = pluginAttributes;
 			return true;
 		}
 
 		public void Shutdown()
 		{
-			LOG.Debug("Shutdown of " + myAttributes.Name);
-		}
-
-		private void ConfigMenuClick(object sender, EventArgs eventArgs)
-		{
-			Configure();
+			LOG.Debug("Shutdown of " + _myAttributes.Name);
 		}
 
 		/// <summary>

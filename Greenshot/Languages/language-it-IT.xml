@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Italiano" ietf="it-IT" version="1.0.4" languagegroup="1">
-  <resources>
+  <resources prefix="Core">
   	<resource name="about_bugs">Per favore, riporta le anomalie a</resource>
 	<resource name="about_donations">Se gradisci Greenshot, puoi darci il tuo aiuto su:</resource>
 	<resource name="about_host">Greenshot è disponibile su sourceforge.net a</resource>

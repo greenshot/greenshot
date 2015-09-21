@@ -34,7 +34,7 @@ namespace Greenshot.Helpers {
 	/// This startup action starts the Greenshot "server", which allows to open files etc.
 	/// </summary>
 	public class GreenshotServer : IGreenshotContract {
-		private static ILog LOG = LogManager.GetLogger(typeof(GreenshotServer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotServer));
 		private ServiceHost _host;
 		private const string PIPE_BASE_ENDPOINT = "net.pipe://localhost/Greenshot";
 		private const string PIPE_ADDRESS_ENDPOINT = "/Server_";

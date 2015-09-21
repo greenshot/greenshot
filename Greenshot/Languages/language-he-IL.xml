@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Hebrew - עִבְרִית" ietf="he-IL" version="1.0.0" languagegroup="c">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">:אנא דווח באגים בכתובת</resource>
 		<resource name="about_donations">:אם את\ה נהנה\ית משימוש בתוכנה, את\ה מוזמן לתרום לנו</resource>
 		<resource name="about_host">Greenshot is hosted by sourceforge.net at</resource>

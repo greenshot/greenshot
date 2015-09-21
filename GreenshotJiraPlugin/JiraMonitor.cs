@@ -34,7 +34,7 @@ namespace GreenshotJiraPlugin {
 	/// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
 	/// </summary>
 	public class JiraMonitor : IDisposable {
-		private static ILog LOG = LogManager.GetLogger(typeof(JiraMonitor));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(JiraMonitor));
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly TitleChangeMonitor _monitor;
 		private readonly IList<JiraAPI> _jiraInstances = new List<JiraAPI>();

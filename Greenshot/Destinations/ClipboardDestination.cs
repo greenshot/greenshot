@@ -18,25 +18,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Dapplo.Config.Ini;
 using log4net;
 using System.Threading.Tasks;
 using System.Threading;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of ClipboardDestination.
 	/// </summary>
 	public class ClipboardDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(ClipboardDestination));
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ClipboardDestination));
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		public const string DESIGNATION = "Clipboard";
 
 		public override string Designation {
@@ -47,7 +50,7 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return Language.GetString(LangKey.settings_destination_clipboard);
+				return language.SettingsDestinationClipboard;
 			}
 		}
 		public override int Priority {
@@ -88,7 +91,7 @@ namespace Greenshot.Destinations {
 				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 				exportInformation.ExportMade = true;
 			} catch (Exception) {
-				exportInformation.ErrorMessage = Language.GetString(LangKey.editor_clipboardfailed);
+				exportInformation.ErrorMessage = language.EditorClipboardfailed;
 			}
 
 			ProcessExport(exportInformation, surface);

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="1.0.4" languagegroup="5">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
 		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
 		<resource name="about_host">Greenshot is розташовується на sourceforge.net</resource>

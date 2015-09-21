@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Nederlands" ietf="nl-NL" version="1.0.2" languagegroup="1">
-	<resources>
+	<resources prefix="Core">
 		<resource name="about_bugs">Meld problemen bij</resource>
 		<resource name="about_donations">Als U Greenshot goed vindt kunt U ons ondersteunen:</resource>
 		<resource name="about_host">Greenshot word gehost door sourceforge.net op</resource>

@@ -18,12 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
 using Greenshot.Interop;
 using Greenshot.Plugin;
@@ -34,6 +34,8 @@ using log4net;
 using mshtml;
 using System.Threading;
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Helpers
 {
@@ -44,8 +46,9 @@ namespace Greenshot.Helpers
 	/// Many thanks to all the people who contributed here!
 	/// </summary>
 	public static class IECaptureHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
 		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex) {
@@ -374,10 +377,10 @@ namespace Greenshot.Helpers
 			// do not show the please wait when we capture from the screen
 			if (!isScreenCapture) {
 				// TODO: Use PleaseWaitWindow
-				backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
+				backgroundForm = new BackgroundForm(language.ContextmenuCaptureie, language.WaitIeCapture);
 				backgroundForm.Show();
 			}
-			//BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(LangKey.contextmenu_captureie), language.GetString(LangKey.wait_ie_capture));
+			//BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(IGreenshotLanguage.contextmenu_captureie), language.GetString(IGreenshotLanguage.wait_ie_capture));
 			DocumentContainer documentContainer = null;
 			try {
 				//Get IHTMLDocument2 for the current active window

@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
@@ -30,33 +30,32 @@ using Dapplo.Config.Ini;
 using log4net;
 using System.Threading.Tasks;
 using System.Threading;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of EmailDestination.
 	/// </summary>
 	public class EmailDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(EmailDestination));
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private static Image mailIcon = GreenshotResources.GetImage("Email.Image");
-		private static bool isActiveFlag = false;
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(EmailDestination));
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly Image mailIcon = GreenshotResources.GetImage("Email.Image");
+		private static bool _isActiveFlag = false;
 		private static string mapiClient = null;
 		public const string DESIGNATION = "EMail";
 
 		static EmailDestination() {
 			// Logic to decide what email implementation we use
 			if (EmailConfigHelper.HasMAPI()) {
-				isActiveFlag = true;
+				_isActiveFlag = true;
 				mapiClient = EmailConfigHelper.GetMapiClient();
 				if (!string.IsNullOrEmpty(mapiClient)) {
 					// Active as we have a mapi client, can be disabled later
-					isActiveFlag = true;
+					_isActiveFlag = true;
 				}
 			}
-		}
-
-		public EmailDestination() {
-			
 		}
 
 		public override string Designation {
@@ -69,7 +68,7 @@ namespace Greenshot.Destinations {
 			get {
 				// Make sure there is some kind of "mail" name
 				if (mapiClient == null) {
-					mapiClient = Language.GetString(LangKey.editor_email);
+					mapiClient = language.EditorEmail;
 				}
 				return mapiClient;
 			}
@@ -83,17 +82,17 @@ namespace Greenshot.Destinations {
 
 		public override bool IsActive {
 			get {
-				if (isActiveFlag) {
+				if (_isActiveFlag) {
 					// Disable if the office plugin is installed and the client is outlook
 					// TODO: Change this! It always creates an exception, as the plugin has not been loaded the type is not there :(
 					Type outlookdestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin");
 					if (outlookdestination != null) {
 						if (mapiClient == null || mapiClient.ToLower().Contains("microsoft outlook")) {
-							isActiveFlag = false;
+							_isActiveFlag = false;
 						}
 					}
 				}
-				return base.IsActive && isActiveFlag;
+				return base.IsActive && _isActiveFlag;
 			}
 		}
 

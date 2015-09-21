@@ -20,7 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Configuration;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using log4net;
@@ -32,9 +31,8 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Windows
 {
@@ -43,8 +41,9 @@ namespace Greenshot.Windows
 	/// </summary>
 	public partial class AboutWindow : Window
 	{
-		private static ILog LOG = LogManager.GetLogger(typeof(AboutWindow));
-		private static object lockObject = new Object();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(AboutWindow));
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly object lockObject = new Object();
 		private static AboutWindow _aboutWindow;
 
 		public static void Create()
@@ -80,14 +79,14 @@ namespace Greenshot.Windows
 
 		void SetTranslations()
 		{
-			Title = GreenshotPlugin.Core.Language.GetString(LangKey.about_title);
-			AboutBugs.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_bugs);
-			AboutDonations.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_donations);
-			AboutIcons.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_icons);
-			AboutLicense.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_license);
-			if (GreenshotPlugin.Core.Language.HasKey(LangKey.about_translation))
+			Title = language.AboutTitle;
+			AboutBugs.Text = language.AboutBugs;
+			AboutDonations.Text = language.AboutDonations;
+			AboutIcons.Text = language.AboutIcons;
+			AboutLicense.Text = language.AboutLicense;
+			if (string.IsNullOrEmpty(language.AboutTranslation))
 			{
-				AboutTranslation.Text = GreenshotPlugin.Core.Language.GetString(LangKey.about_translation);
+				AboutTranslation.Text = language.AboutTranslation;
 			}
 
 		}
@@ -111,17 +110,20 @@ namespace Greenshot.Windows
 		private void Hyperlink_Click(object sender, RoutedEventArgs e)
 		{
 			var hyperLink = sender as Hyperlink;
-			try
+			if (hyperLink != null)
 			{
-				Process.Start(hyperLink.NavigateUri.AbsoluteUri);
-			}
-			catch (Exception ex)
-			{
-				LOG.Error("Error opening link: ", ex);
+				try
+				{
+					Process.Start(hyperLink.NavigateUri.AbsoluteUri);
+				}
+				catch (Exception ex)
+				{
+					LOG.Error("Error opening link: ", ex);
+				}
 			}
 		}
 
-		private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+		private void Window_KeyDown(object sender, KeyEventArgs e)
 		{
 			switch (e.Key)
 			{

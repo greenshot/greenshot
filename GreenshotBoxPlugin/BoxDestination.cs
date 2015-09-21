@@ -30,12 +30,15 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace GreenshotBoxPlugin
 {
 	public class BoxDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(BoxDestination));
-		private static IBoxConfiguration _config = IniConfig.Current.Get<IBoxConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(BoxDestination));
+		private static readonly IBoxConfiguration _config = IniConfig.Current.Get<IBoxConfiguration>();
+		private static readonly IBoxLanguage language = LanguageLoader.Current.Get<IBoxLanguage>();
 
 		private readonly BoxPlugin _plugin;
 		public BoxDestination(BoxPlugin plugin) {
@@ -50,7 +53,7 @@ namespace GreenshotBoxPlugin
 
 		public override string Description {
 			get {
-				return Language.GetString("box", LangKey.upload_menu_item);
+				return language.UploadMenuItem;
 			}
 		}
 
@@ -67,23 +70,25 @@ namespace GreenshotBoxPlugin
 				DestinationDescription = Description
 			};
 			try {
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) => {
 					return await BoxUtils.UploadToBoxAsync(surface, captureDetails, progress, token);
-				});
+				}, token);
 
-				if (url != null && _config.AfterUploadLinkToClipBoard) {
-					ClipboardHelper.SetClipboardData(url);
+				if (url != null) {
+					exportInformation.ExportedToUri = new Uri(url);
+					if (_config.AfterUploadLinkToClipBoard) {
+						ClipboardHelper.SetClipboardData(url);
+					}
 				}
 
 				exportInformation.ExportMade = true;
-				exportInformation.ExportedToUri = new Uri(url);
 			} catch (TaskCanceledException tcEx) {
 				exportInformation.ErrorMessage = tcEx.Message;
 				LOG.Info(tcEx.Message);
 			} catch (Exception e) {
 				exportInformation.ErrorMessage = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(Designation, Language.GetString("box", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(Designation, language.UploadFailure + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

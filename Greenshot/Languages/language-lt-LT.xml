@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Lietuvių" ietf="lt-LT" version="1.0.0" languagegroup="3">
-	<resources>
+	<resources prefix="Core">
 		<resource name="about_bugs">Apie klaidas praneškite</resource>
 		<resource name="about_donations">Jei jums patiko Greenshot, galite mus paremti:</resource>
 		<resource name="about_host">Greenshot talpinamas sourceforge.net</resource>

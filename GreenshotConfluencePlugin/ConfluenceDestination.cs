@@ -36,6 +36,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Dapplo.Config.Language;
 
 namespace GreenshotConfluencePlugin
 {
@@ -45,7 +46,7 @@ namespace GreenshotConfluencePlugin
 	public class ConfluenceDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
 		private static readonly IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
-		private static readonly ICoreConfiguration coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IConfluenceLanguage _language = LanguageLoader.Current.Get<IConfluenceLanguage>();
 		private static Image confluenceIcon = null;
 		private Content _content;
 		public static bool IsInitialized {
@@ -84,9 +85,9 @@ namespace GreenshotConfluencePlugin
 		public override string Description {
 			get {
 				if (_content == null) {
-					return Language.GetString("confluence", LangKey.upload_menu_item);
+					return _language.UploadMenuItem;
 				} else {
-					return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _content.Title + "\"";
+					return _language.UploadMenuItem + ": \"" + _content.Title + "\"";
 				}
 			}
 		}
@@ -145,7 +146,7 @@ namespace GreenshotConfluencePlugin
 				try {
 					var confluenceApi = ConfluencePlugin.ConfluenceAPI;
 					// Run upload in the background
-					await PleaseWaitWindow.CreateAndShowAsync(Description, Language.GetString("confluence", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+					await PleaseWaitWindow.CreateAndShowAsync(Description, _language.CommunicationWait, async (progress, pleaseWaitToken) => {
 						var multipartFormDataContent = new MultipartFormDataContent();
 						using (var stream = new MemoryStream()) {
 							ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
@@ -154,11 +155,11 @@ namespace GreenshotConfluencePlugin
 								using (var streamContent = new StreamContent(uploadStream)) {
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 									multipartFormDataContent.Add(streamContent, "file", filename);
-									return await confluenceApi.AttachToContentAsync(_content.Id, multipartFormDataContent);
+									return await confluenceApi.AttachToContentAsync(_content.Id, multipartFormDataContent, pleaseWaitToken);
 								}
 							}
 						}
-					});
+					}, token);
 
 					LOG.Debug("Uploaded to Confluence.");
 					exportInformation.ExportMade = true;
@@ -178,7 +179,7 @@ namespace GreenshotConfluencePlugin
 				} catch (Exception e) {
 					exportInformation.ErrorMessage = e.Message;
 					LOG.Warn(e);
-					MessageBox.Show(Designation, Language.GetString("confluence", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+					MessageBox.Show(Designation, _language.UploadFailure + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}
 			ProcessExport(exportInformation, surfaceToUpload);

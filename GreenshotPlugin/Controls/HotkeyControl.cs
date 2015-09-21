@@ -36,7 +36,7 @@ namespace GreenshotPlugin.Controls {
 	/// But is modified to fit in Greenshot, and have localized support
 	/// </summary>
 	public class HotkeyControl : GreenshotTextBox {
-		private static ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
 		private static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
 		private static bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
-	<resources>
+	<resources prefix="Box">
 		<resource name="communication_wait">正在與 Box 通訊，請稍候...</resource>
 		<resource name="Configure">組態 Box</resource>
 		<resource name="label_AfterUpload">上傳後</resource>

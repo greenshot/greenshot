@@ -44,7 +44,7 @@ namespace GreenshotEditorPlugin.Memento {
 		/// <summary>
 		/// Returns the language key for the action which is performed
 		/// </summary>
-		LangKey ActionLanguageKey {
+		string ActionDescription {
 			get;
 		}
 	}

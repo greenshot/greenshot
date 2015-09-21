@@ -32,7 +32,7 @@ namespace GreenshotPlugin.Core {
 	/// Description of InterfaceUtils.
 	/// </summary>
 	public static class InterfaceUtils {
-		private static ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
 
 		public static IEnumerable<Type> GetSubclassesOf(Type implementingType, bool excludeSystemTypes) {
 			var subClasses = from assembly in AppDomain.CurrentDomain.GetAssemblies()

@@ -22,21 +22,23 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Dapplo.Config.Ini;
 using log4net;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of FileWithDialog.
 	/// </summary>
 	public class FileWithDialogDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(FileWithDialogDestination));
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FileWithDialogDestination));
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
 		public override string Designation {
 			get {
@@ -46,7 +48,7 @@ namespace Greenshot.Destinations {
 
 		public override string Description {
 			get {
-				return Language.GetString(LangKey.settings_destination_fileas);
+				return language.SettingsDestinationFileas;
 			}
 		}
 

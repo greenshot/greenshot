@@ -32,12 +32,15 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Dapplo.Config.Language;
+using log4net;
 
 namespace GreenshotDropboxPlugin
 {
 	class DropboxDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxDestination));
-		private static IDropboxConfiguration _config = IniConfig.Current.Get<IDropboxConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(DropboxDestination));
+		private static readonly IDropboxConfiguration _config = IniConfig.Current.Get<IDropboxConfiguration>();
+		private static readonly IDropboxLanguage _language = LanguageLoader.Current.Get<IDropboxLanguage>();
 
 		private DropboxPlugin plugin = null;
 		public DropboxDestination(DropboxPlugin plugin) {
@@ -52,7 +55,7 @@ namespace GreenshotDropboxPlugin
 
 		public override string Description {
 			get {
-				return Language.GetString("dropbox", LangKey.upload_menu_item);
+				return _language.UploadMenuItem;
 			}
 		}
 
@@ -71,7 +74,7 @@ namespace GreenshotDropboxPlugin
 			};
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try {
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("dropbox", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, _language.CommunicationWait, async (progress, pleaseWaitToken) => {
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 					using (var stream = new MemoryStream())
 					{
@@ -87,7 +90,7 @@ namespace GreenshotDropboxPlugin
 						}
 					}
 
-				});
+				}, token);
 
 				if (url != null) {
 					exportInformation.ExportMade = true;
@@ -98,7 +101,7 @@ namespace GreenshotDropboxPlugin
 				}
 			} catch (Exception e) {
 				LOG.Error("Error uploading.", e);
-				MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
+				MessageBox.Show(_language.UploadFailure + " " + e.Message);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

@@ -48,12 +48,12 @@ namespace GreenshotEditorPlugin.Memento
 			return false;
 		}
 
-		public LangKey ActionLanguageKey
+		public string ActionDescription
 		{
 			get
 			{
 				//return LangKey.editor_crop;
-				return LangKey.none;
+				return "";
 			}
 		}
 

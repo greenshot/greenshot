@@ -19,32 +19,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Config.Support;
-using Greenshot.Configuration;
-using Greenshot.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-
-using log4net;
 using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using Dapplo.Config.Support;
+using Greenshot.Forms;
+using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
+using log4net;
 
-namespace Greenshot.Experimental {
+namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of RssFeedHelper.
 	/// </summary>
 	public static class UpdateHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(UpdateHelper));
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(UpdateHelper));
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private const string STABLE_DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
 		private const string VERSION_HISTORY_LINK = "http://getgreenshot.org/version-history/";
 		private static AsyncLock _asyncLock = new AsyncLock();
-		private static SourceforgeFile latestGreenshot;
-		private static SourceforgeFile currentGreenshot;
+		private static SourceforgeFile _latestGreenshot;
+		private static SourceforgeFile _currentGreenshot;
 		private static string downloadLink = STABLE_DOWNLOAD_LINK;
 
 		/// <summary>
@@ -83,13 +84,13 @@ namespace Greenshot.Experimental {
 				// currentVersion = new Version("0.8.1.1198");
 	
 				try {
-					latestGreenshot = null;
+					_latestGreenshot = null;
 					await ProcessRSSInfoAsync(currentVersion).ConfigureAwait(false);
-					if (latestGreenshot != null) {
+					if (_latestGreenshot != null) {
 						MainForm.Instance.AsyncInvoke(() => {
 							MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
 							MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, "'" + latestGreenshot.File + "'"), ToolTipIcon.Info);
+							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", string.Format(language.UpdateFound, "'" + _latestGreenshot.File + "'"), ToolTipIcon.Info);
 						});
 					}
 					conf.LastUpdateCheck = DateTimeOffset.Now;
@@ -106,14 +107,14 @@ namespace Greenshot.Experimental {
 		
 		private static void HandleBalloonTipClick(object sender, EventArgs e) {
 			try {
-				if (latestGreenshot != null) {
+				if (_latestGreenshot != null) {
 					// "Direct" download link
 					// Process.Start(latestGreenshot.Link);
 					// Go to getgreenshot.org
 					Process.Start(downloadLink);
 				}
 			} catch (Exception) {
-				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, downloadLink), Language.GetString(LangKey.error));
+				MessageBox.Show(string.Format(language.ErrorOpenlink, downloadLink), language.Error);
 			} finally {
 				CleanupBalloonTipClick(sender, e);
 			}
@@ -182,8 +183,8 @@ namespace Greenshot.Experimental {
 						int versionCompare = rssFile.Version.CompareTo(currentVersion);
 						if (versionCompare > 0) {
 							LOG.DebugFormat("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
-							if (latestGreenshot == null || rssFile.Version.CompareTo(latestGreenshot.Version) > 0) {
-								latestGreenshot = rssFile;
+							if (_latestGreenshot == null || rssFile.Version.CompareTo(_latestGreenshot.Version) > 0) {
+								_latestGreenshot = rssFile;
 								if (rssFile.isReleaseCandidate || rssFile.isUnstable) {
 									downloadLink = VERSION_HISTORY_LINK;
 								} else {
@@ -193,7 +194,7 @@ namespace Greenshot.Experimental {
 						} else if (versionCompare < 0) {
 							LOG.DebugFormat("Skipping older greenshot with version {0}", rssFile.Version);
 						} else if (versionCompare == 0) {
-							currentGreenshot = rssFile;
+							_currentGreenshot = rssFile;
 							LOG.DebugFormat("Found current version as exe {0} with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 						}
 					}

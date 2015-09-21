@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="پارسی" ietf="fa-IR" version="1.0.0" languagegroup="d">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">:لطفا مشکلات این نرم افزار را به این آدرس گزارش دهید</resource>
 		<resource name="about_donations">:اگر از گرین شات خوشتان آماده و علاقه مند به پشتیبانی هستید</resource>
 		<resource name="about_host">:جایگاه بارگذاری گرین شات در سورس فورج.نت</resource>

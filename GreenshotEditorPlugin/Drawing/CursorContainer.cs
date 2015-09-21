@@ -33,7 +33,7 @@ namespace GreenshotEditorPlugin.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class CursorContainer : DrawableContainer, ICursorContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
 
 		private Cursor _cursor;
 

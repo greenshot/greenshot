@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Slovenščina" ietf="sl-SI" version="1.0.6" languagegroup="2">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Napake prosimo javite na</resource>
 		<resource name="about_donations">Če vam je Greenshot všeč nas prosim podprite:</resource>
 		<resource name="about_host">Greenshot gostuje pri sourceforge.net</resource>

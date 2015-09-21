@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Portuguese (Portugal)" ietf="pt-PT" version="0.8.0">
- <resources>
+ <resources prefix="Confluence">
 	<resource name="plugin_settings">
 		Definições do Confluence
 	</resource>

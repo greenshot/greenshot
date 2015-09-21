@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Ελληνικά" ietf="el-GR" version="1.1.0" languagegroup="4">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Αναφορά προβλημάτων:</resource>
 		<resource name="about_donations">Αν σας αρέσει το Greenshot, είστε ευπρόσδεκτοι να μας υποστηρίξετε:</resource>
 		<resource name="about_host">Το Greenshot φιλοξενείται από τη sourceforge.net:</resource>

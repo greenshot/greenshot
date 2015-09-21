@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Magyar" ietf="hu-HU" version="1.0.0" languagegroup="2">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Kérük a hibákat az alábbi helyen jelezzék</resource>
 		<resource name="about_donations">Ha szereted Greenshot -ot, akkor támogass minket:</resource>
 		<resource name="about_host">Greenshot kiszolgálója a sourceforge.net</resource>

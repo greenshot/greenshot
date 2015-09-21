@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Eesti" ietf="et-EE" version="1.1.4" languagegroup="2">
-	<resources>
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Palun saatke veateated</resource>
 		<resource name="about_donations">Greenshoti kasutamismugavust ja arendust saate toetada siin:</resource>
 		<resource name="about_host">Greenshot asub portaalis sourceforge.net</resource>

@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Core {
 	/// The language resources are loaded from the language files found on fixed or supplied paths
 	/// </summary>
 	public class Language {
-		private static ILog LOG = LogManager.GetLogger(typeof(Language));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(Language));
 		private static List<string> languagePaths = new List<string>();
 		private static IDictionary<string, List<LanguageFile>> languageFiles = new Dictionary<string, List<LanguageFile>>();
 		private static IDictionary<string, Uri> helpFiles = new Dictionary<string, Uri>();

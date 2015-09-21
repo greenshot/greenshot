@@ -49,7 +49,7 @@ namespace GreenshotEditorPlugin.Drawing
 	/// </summary>
 	public class Surface : Control, ISurface, INotifyPropertyChanged
     {
-        private static ILog LOG = LogManager.GetLogger(typeof(Surface));
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
         public static int Count = 0;
         private static ICoreConfiguration conf = IniConfig.Get("Greenshot", "greenshot").Get<ICoreConfiguration>();
 
@@ -658,30 +658,30 @@ namespace GreenshotEditorPlugin.Drawing
         /// <summary>
         /// Get the language key for the undo action
         /// </summary>
-        public LangKey UndoActionLanguageKey
+        public string UndoActionLanguageKey
         {
             get
             {
                 if (CanUndo)
                 {
-                    return _undoStack.Peek().ActionLanguageKey;
+                    return _undoStack.Peek().ActionDescription;
                 }
-                return LangKey.none;
+                return "";
             }
         }
 
         /// <summary>
         /// Get the language key for redo action
         /// </summary>
-        public LangKey RedoActionLanguageKey
+        public string RedoActionLanguageKey
         {
             get
             {
                 if (CanRedo)
                 {
-                    return _redoStack.Peek().ActionLanguageKey;
+                    return _redoStack.Peek().ActionDescription;
                 }
-                return LangKey.none;
+                return "";
             }
         }
 

@@ -39,8 +39,8 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="Dapplo.Config, Version=0.1.60.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.60.0\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.65.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.65.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
@@ -162,7 +162,7 @@
     </Compile>
     <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
     <Compile Include="IEditorConfiguration.cs" />
-    <Compile Include="LangKey.cs" />
+    <Compile Include="IEditorLanguage.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
     <Compile Include="Memento\DeleteElementMemento.cs" />
@@ -180,15 +180,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Forms\ImageEditorForm.resx">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Languages\language_editorplugin-en-US.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"

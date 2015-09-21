@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Việt" ietf="vi-VN" version="1.0.0" languagegroup="e">
-	<resources>
+	<resources prefix="Core">
 		<resource name="about_bugs">Địa chỉ gửi báo cáo lỗi:</resource>
 		<resource name="about_donations">Hãy ủng hộ nếu bạn thấy Greenshot hữu dụng:</resource>
 		<resource name="about_host">Greenshot được tài trợ bởi sourceforge.net</resource>
