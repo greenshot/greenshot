@@ -49,7 +49,13 @@ namespace GreenshotPlugin.Core
 			}
 			if (Priority == other.Priority)
 			{
-				return Description.CompareTo(other.Description);
+				if (Description != null)
+				{
+					return Description.CompareTo(other.Description);
+				} else
+				{
+					return -1;
+				}
 			}
 			return Priority - other.Priority;
 		}

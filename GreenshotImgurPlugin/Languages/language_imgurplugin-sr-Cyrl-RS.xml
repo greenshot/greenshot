@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Српски" ietf="sr-RS" version="1.0.0" languagegroup="">
-	<resources>
+	<resources prefix="Imgur">
 		<resource name="anonymous_access">Анонимни приступ</resource>
 		<resource name="CANCEL">Откажи</resource>
 		<resource name="clear_question">Желите ли да обришете локалну историју Имиџера?</resource>

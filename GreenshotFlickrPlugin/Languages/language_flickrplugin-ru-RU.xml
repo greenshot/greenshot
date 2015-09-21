@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Русский" ietf="ru-RU" version="1.1.0.2515" languagegroup="5">
-	<resources>
+	<resources prefix="Flickr">
 		<resource name="communication_wait">Общение с Flickr. Подождите...</resource>
 		<resource name="Configure">Настройка Flickr</resource>
 		<resource name="family">Семья</resource>

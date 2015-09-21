@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Українська" ietf="uk-UA" version="1.0.0">
-  <resources>
+  <resources prefix="Photobucket">
 	<resource name="upload_menu_item">Вивантажити на Photobucket</resource>
 	<resource name="settings_title">Параметри Photobucket</resource>
 	<resource name="OK">Гаразд</resource>

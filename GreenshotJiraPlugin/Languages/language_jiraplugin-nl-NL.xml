@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Nederlands" ietf="nl-NL" version="1.0.0">
-  <resources>
+  <resources prefix="Jira">
 	<resource name="upload_menu_item">
 		Naar Jira uploaden
 	</resource>

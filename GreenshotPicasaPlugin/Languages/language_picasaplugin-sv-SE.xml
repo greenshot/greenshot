@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Svenska" ietf="sv-SE" version="1.0.0">
-  <resources>
+  <resources prefix="Picasa">
 	<resource name="label_AfterUploadLinkToClipBoard">
 	  Länk till urklipp
 	</resource>

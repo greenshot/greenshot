@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="简体中文" ietf="zh-CN" version="1.0.0" languagegroup="a">
-	<resources>
+	<resources prefix="ExternalCommand">
 		<resource name="contextmenu_configure">配置外部命令</resource>
 		<resource name="label_argument">参数</resource>
 		<resource name="label_command">命令</resource>

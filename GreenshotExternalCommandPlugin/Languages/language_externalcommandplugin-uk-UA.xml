@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Українська" ietf="uk-UA" version="1.0.0">
-  <resources>
+  <resources prefix="ExternalCommand">
   <resource name="contextmenu_configure">Налаштувати зовнішні команди</resource>
   <resource name="settings_title">Параметри зовнішньої команди</resource>
 	<resource name="settings_detail_title">Налаштувати команду</resource>

@@ -39,7 +39,7 @@ namespace GreenshotEditorPlugin {
 			set;
 		}
 
-		[DataMember(Name = "LastFieldValue"), Description("Field values, make sure the last used settings are re-used")]
+		[DataMember(Name = "LastUsedFieldValues"), Description("Field values, make sure the last used settings are re-used")]
 		IDictionary<string, string> LastUsedFieldValues {
 			get;
 			set;

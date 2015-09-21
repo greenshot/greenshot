@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="简体中文" ietf="zh-CN" version="1.0.0">
-  <resources>
+  <resources prefix="OCR">
 	<resource name="language">
 		OCR语言
 	</resource>

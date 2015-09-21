@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Italiano" ietf="it-IT" version="1.0.0">
-  <resources>
+  <resources prefix="OCR">
 	<resource name="language">
 		Lingua OCR
 	</resource>

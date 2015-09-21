@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="简体中文" ietf="zh-CN" version="1.0.0">
-  <resources>
+  <resources prefix="Photobucket">
 	<resource name="upload_menu_item">
 		上传到 Photobucket
 	</resource>

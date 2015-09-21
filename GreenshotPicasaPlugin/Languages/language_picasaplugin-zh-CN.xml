@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="简体中文" ietf="zh-CN" version="1.0.3" languagegroup="a">
-	<resources>
+	<resources prefix="Picasa">
 		<resource name="communication_wait">正在连接到Picasa。请稍后...</resource>
 		<resource name="Configure">配置 Picasa</resource>
 		<resource name="label_AfterUpload">上传之后</resource>

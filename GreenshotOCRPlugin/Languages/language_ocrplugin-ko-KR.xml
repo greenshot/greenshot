@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="korean" ietf="ko-KR" version="1.0.0">
-  <resources>
+  <resources prefix="OCR">
 	<resource name="language">
 		OCR 언어
 	</resource>

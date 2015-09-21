@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Slovenčina" ietf="sk-SK" version="1.0.0">
-  <resources>
+  <resources prefix="Imgur">
 	<resource name="upload_menu_item">
 		Nahrať na Imgur
 	</resource>

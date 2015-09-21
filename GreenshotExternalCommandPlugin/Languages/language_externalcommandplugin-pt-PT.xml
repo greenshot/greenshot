@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Portuguese (Portugal)" ietf="pt-PT" version="1.0.0">
-  <resources>
+  <resources prefix="ExternalCommand">
   <resource name="contextmenu_configure">
     Configurar comandos externos
   </resource>

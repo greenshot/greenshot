@@ -37,8 +37,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.Config, Version=0.1.65.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.65.0\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.68.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.68.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
@@ -146,43 +146,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Sounds.resx" />
     <None Include="greenshot.manifest" />
-    <None Include="Languages\help-en-US.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-de-DE.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-es-ES.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-fr-FR.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-hu-HU.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-it-IT.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-nl-NL.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-nn-NO.html" />
-    <None Include="Languages\help-pl-PL.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-ru-RU.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-sv-SE.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-tr-TR.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-zh-CN.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Languages\language-ar-SY.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -249,9 +212,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\language-sk-SK.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-sr-RS.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\language-sv-SE.xml">
