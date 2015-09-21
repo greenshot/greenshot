@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 using Greenshot.Destinations;
@@ -36,6 +37,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using System.Text.RegularExpressions;
 using log4net;
+using Dapplo.Config.Language;
 
 namespace Greenshot {
 	/// <summary>
@@ -166,10 +168,10 @@ namespace Greenshot {
 				listview_plugins.Items.Clear();
 				listview_plugins.Columns.Clear();
 				string[] columns = {
-					Language.GetString("settings_plugins_name"), 
-					Language.GetString("settings_plugins_version"), 
-					Language.GetString("settings_plugins_createdby"), 
-					Language.GetString("settings_plugins_dllpath")};
+					language.SettingsPluginsName,
+					language.SettingsPluginsVersion,
+                    language.SettingsPluginsCreatedby,
+                    language.SettingsPluginsDllpath};
 				foreach (string column in columns) {
 					listview_plugins.Columns.Add(column);
 				}
@@ -207,13 +209,13 @@ namespace Greenshot {
 			combobox_language.SelectedIndexChanged -= Combobox_languageSelectedIndexChanged;
 
 			// Initialize the Language ComboBox
-			combobox_language.DisplayMember = "Description";
-			combobox_language.ValueMember = "Ietf";
+			combobox_language.DisplayMember = "Value";
+			combobox_language.ValueMember = "Key";
 			// Set datasource last to prevent problems
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-			combobox_language.DataSource = Language.SupportedLanguages;
-			if (Language.CurrentLanguage != null) {
-				combobox_language.SelectedValue = Language.CurrentLanguage;
+			combobox_language.DataSource = LanguageLoader.Current.AvailableLanguages.ToList();
+			if (LanguageLoader.Current.CurrentLanguage != null) {
+				combobox_language.SelectedValue = LanguageLoader.Current.CurrentLanguage;
 			}
 
 			// Delaying the SelectedIndexChanged events untill all is initiated
@@ -348,10 +350,12 @@ namespace Greenshot {
 				item.Tag = clipboardFormat;
 				item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
 			}
-			
-			if (Language.CurrentLanguage != null) {
-				combobox_language.SelectedValue = Language.CurrentLanguage;
+
+			if (LanguageLoader.Current.CurrentLanguage != null)
+			{
+				combobox_language.SelectedValue = LanguageLoader.Current.CurrentLanguage;
 			}
+
 			// Disable editing when the value is fixed
 			combobox_language.Enabled = !coreConfiguration.IsWriteProtected(x => x.Language);
 
@@ -512,13 +516,13 @@ namespace Greenshot {
 			PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
 		}
 
-		void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {
+		async void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {
 			// Get the combobox values BEFORE changing the language
 			//EmailFormat selectedEmailFormat = GetSelected<EmailFormat>(combobox_emailformat);
 			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (combobox_language.SelectedItem != null) {
 				LOG.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
-				Language.CurrentLanguage = (string)combobox_language.SelectedValue;
+				await LanguageLoader.Current.ChangeLanguage((string)combobox_language.SelectedValue);
 			}
 			// Reflect language changes to the settings form
 			UpdateUI();

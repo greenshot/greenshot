@@ -97,25 +97,6 @@ namespace GreenshotPlugin.Controls {
 			if (DesignMode) {
 				_designTimeControls = new Dictionary<string, Control>();
 				_designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
-				try {
-					ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
-					
-					// Add a hard-path if you are using SharpDevelop
-					// Language.AddLanguageFilePath(@"C:\Greenshot\Greenshot\Languages");
-					
-					// this "type"
-					Assembly currentAssembly = GetType().Assembly;
-					string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
-					string assemblyDirectory = Path.GetDirectoryName(assemblyPath);
-					if (!Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Greenshot\Languages\"))) {
-						Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Greenshot\Languages\"));
-					}
-					if (!Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\"))) {
-						Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
-					}
-				} catch (Exception ex) {
-					MessageBox.Show(ex.Message);
-				}
 			}
 		}
 
@@ -275,22 +256,11 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		protected void ApplyLanguage(ToolStripItem applyTo, string languageKey) {
-			string langString = null;
 			if (!string.IsNullOrEmpty(languageKey)) {
-				if (!Language.TryGetString(languageKey, out langString)) {
-					LOG.WarnFormat("Unknown language key '{0}' configured for control '{1}', this might be okay.", languageKey, applyTo.Name);
-					return;
-				}
-				applyTo.Text = langString;
+				applyTo.Text = language[languageKey];
 			} else {
 				// Fallback to control name!
-				if (Language.TryGetString(applyTo.Name, out langString)) {
-					applyTo.Text = langString;
-					return;
-				}
-				if (!DesignMode) {
-					LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
-				}
+				applyTo.Text = language[applyTo.Name];
 			}
 		}
 
@@ -351,12 +321,11 @@ namespace GreenshotPlugin.Controls {
 		/// Apply all the language settings to the "Greenshot" Controls on this form
 		/// </summary>
 		protected void ApplyLanguage() {
-			string langString = null;
 			SuspendLayout();
 			try {
 				// Set title of the form
-				if (!string.IsNullOrEmpty(LanguageKey) && Language.TryGetString(LanguageKey, out langString)) {
-					Text = langString;
+				if (!string.IsNullOrEmpty(LanguageKey)) {
+					Text = language[LanguageKey];
 				}
 
 				// Reset the text values for all GreenshotControls
@@ -396,22 +365,11 @@ namespace GreenshotPlugin.Controls {
 		/// Apply the language text to supplied control
 		/// </summary>
 		protected void ApplyLanguage(Control applyTo, string languageKey) {
-			string langString = null;
 			if (!string.IsNullOrEmpty(languageKey)) {
-				if (!Language.TryGetString(languageKey, out langString)) {
-					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
-					return;
-				}
-				applyTo.Text = langString;
+				applyTo.Text = language[languageKey];
 			} else {
 				// Fallback to control name!
-				if (Language.TryGetString(applyTo.Name, out langString)) {
-					applyTo.Text = langString;
-					return;
-				}
-				if (!DesignMode) {
-					LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
-				}
+				applyTo.Text = language[applyTo.Name];
 			}
 		}
 
