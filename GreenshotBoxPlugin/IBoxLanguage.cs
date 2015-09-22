@@ -19,12 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel;
 using Dapplo.Config.Language;
 
 namespace GreenshotBoxPlugin
 {
 	[Language("Box")]
-	public interface IBoxLanguage : ILanguage
+	public interface IBoxLanguage : ILanguage, INotifyPropertyChanged
 	{
 		string UploadMenuItem
 		{

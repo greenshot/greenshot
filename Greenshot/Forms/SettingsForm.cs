@@ -115,7 +115,8 @@ namespace Greenshot {
 		/// with the items from the enumeration
 		/// </summary>
 		/// <param name="comboBox">ComboBox to populate</param>
-		/// <param name="enumeration">Enum to populate with</param>
+		/// <param name="availableValues">Enum to populate with</param>
+		/// <param name="selectedValue"></param>
 		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) where ET : struct {
 			comboBox.Items.Clear();
 			foreach(ET enumValue in availableValues) {
@@ -136,7 +137,7 @@ namespace Greenshot {
 			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
 			ET returnValue = availableValues[0];
 			foreach(ET enumValue in availableValues) {
-				string translation = Language.GetString(enumTypeName + "." + enumValue.ToString());
+				string translation = Language.GetString(enumTypeName + "." + enumValue);
 				if (translation.Equals(selectedValue)) {
 					returnValue = enumValue;
 					break;
@@ -346,7 +347,7 @@ namespace Greenshot {
 
 			// Expert mode, the clipboard formats
 			foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof(ClipboardFormat))) {
-				ListViewItem item = listview_clipboardformats.Items.Add(Language.Translate(clipboardFormat));
+				var item = listview_clipboardformats.Items.Add(language[clipboardFormat.ToString()]);
 				item.Tag = clipboardFormat;
 				item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
 			}
@@ -554,8 +555,7 @@ namespace Greenshot {
 		void CheckDestinationSettings() {
 			bool clipboardDestinationChecked = false;
 			bool pickerSelected = checkbox_picker.Checked;
-			bool destinationsEnabled = true;
-			destinationsEnabled = !coreConfiguration.IsWriteProtected(x => x.OutputDestinations);
+			bool destinationsEnabled = !coreConfiguration.IsWriteProtected(x => x.OutputDestinations);
 			listview_destinations.Enabled = destinationsEnabled;
 			
 			foreach(int index in listview_destinations.CheckedIndices) {

@@ -1165,7 +1165,7 @@ namespace Greenshot.Forms
 			{
 				// For the capture mousecursor option
 				ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem();
-				captureMouseItem.Text = Language.GetString("settings_capture_mousepointer");
+				captureMouseItem.Text = language.SettingsCaptureMousepointer;
 				captureMouseItem.Checked = coreConfiguration.CaptureMousepointer;
 				captureMouseItem.CheckOnClick = true;
 				captureMouseItem.CheckStateChanged += CheckStateChangedHandler;
@@ -1214,7 +1214,7 @@ namespace Greenshot.Forms
 			{
 				var languageKey = coreConfiguration.GetTagValue(iniValue.IniPropertyName, ConfigTags.LanguageKey) as string;
 				if (languageKey != null) {
-					selectList.AddItem(Language.GetString(languageKey), iniValue, (bool)iniValue.Value);
+					selectList.AddItem(language[languageKey], iniValue, (bool)iniValue.Value);
 				}
 			}
 			if (selectList.DropDownItems.Count > 0)
@@ -1232,7 +1232,7 @@ namespace Greenshot.Forms
 				if (!coreConfiguration.IsWriteProtected(x => x.PlayCameraSound)) {
 					var languageKey = coreConfiguration.GetTagValue(x => x.PlayCameraSound, ConfigTags.LanguageKey) as string;
 					if (languageKey != null) {
-						selectList.AddItem(Language.GetString(languageKey), currentIniValue, (bool)currentIniValue.Value);
+						selectList.AddItem(language[languageKey], currentIniValue, (bool)currentIniValue.Value);
 					}
 				}
 			}
@@ -1240,7 +1240,7 @@ namespace Greenshot.Forms
 				if (!coreConfiguration.IsWriteProtected(x => x.ShowTrayNotification)) {
 					var languageKey = coreConfiguration.GetTagValue(x => x.ShowTrayNotification, ConfigTags.LanguageKey) as string;
 					if (languageKey != null) {
-						selectList.AddItem(Language.GetString(languageKey), currentIniValue, (bool)currentIniValue.Value);
+						selectList.AddItem(language[languageKey], currentIniValue, (bool)currentIniValue.Value);
 					}
 				}
 			}
@@ -1583,8 +1583,6 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// Do work in the background
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
 		private async Task BackgroundWorkerTimerTick() {
 			if (coreConfiguration.MinimizeWorkingSetSize) {
 				PsAPI.EmptyWorkingSet();

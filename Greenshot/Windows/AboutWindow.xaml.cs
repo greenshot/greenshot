@@ -67,13 +67,8 @@ namespace Greenshot.Windows
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 			VersionLabel.Content = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (PortableHelper.IsPortable ? " Portable" : "") + (" (" + Helpers.OSInfo.Bits + " bit)");
 
-			GreenshotPlugin.Core.Language.LanguageChanged += Language_LanguageChanged;
+			language.PropertyChanged += (sender, args) => { SetTranslations(); };
 
-			SetTranslations();
-		}
-
-		private void Language_LanguageChanged(object sender, EventArgs e)
-		{
 			SetTranslations();
 		}
 

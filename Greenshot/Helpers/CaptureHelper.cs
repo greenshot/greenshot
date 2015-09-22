@@ -353,8 +353,6 @@ namespace Greenshot.Helpers
 							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()));
 						}
 						await HandleCaptureAsync(token);
-					} else {
-						MessageBox.Show(Language.GetString("clipboard_noimage"));
 					}
 					break;
 				case CaptureMode.File:

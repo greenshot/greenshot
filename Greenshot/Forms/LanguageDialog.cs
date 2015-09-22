@@ -19,8 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
 using GreenshotPlugin.Core;
 using log4net;
 
@@ -30,8 +32,8 @@ namespace Greenshot.Forms {
 	/// </summary>
 	public partial class LanguageDialog : Form {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(LanguageDialog));
-		private static LanguageDialog uniqueInstance;
-		private bool properOkPressed = false;
+		private static LanguageDialog _uniqueInstance;
+		private bool _properOkPressed;
 
 		private LanguageDialog() {
 			//
@@ -44,7 +46,8 @@ namespace Greenshot.Forms {
 		}
 		
 		private void PreventFormClose(object sender, FormClosingEventArgs e) {
-			if(!properOkPressed) {
+			if (!_properOkPressed)
+			{
 				e.Cancel = true;
 			}
 		}
@@ -52,45 +55,47 @@ namespace Greenshot.Forms {
 		public string SelectedLanguage {
 			get { return comboBoxLanguage.SelectedValue.ToString(); }
 		}
-		
-		protected void FormLoad(object sender, EventArgs e) {
+
+		protected async void FormLoad(object sender, EventArgs e) {
 			// Initialize the Language ComboBox
-			comboBoxLanguage.DisplayMember = "Description";
-			comboBoxLanguage.ValueMember = "Ietf";
+			comboBoxLanguage.DisplayMember = "Value";
+			comboBoxLanguage.ValueMember = "Key";
 
 			// Set datasource last to prevent problems
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-			comboBoxLanguage.DataSource = Language.SupportedLanguages;
+			comboBoxLanguage.DataSource = LanguageLoader.Current.AvailableLanguages.ToList();
 
-			if (Language.CurrentLanguage != null) {
-				LOG.DebugFormat("Selecting {0}", Language.CurrentLanguage);
-				comboBoxLanguage.SelectedValue = Language.CurrentLanguage;
+			if (LanguageLoader.Current.CurrentLanguage != null) {
+				LOG.DebugFormat("Selecting {0}", LanguageLoader.Current.CurrentLanguage);
+				comboBoxLanguage.SelectedValue = LanguageLoader.Current.CurrentLanguage;
 			} else {
 				comboBoxLanguage.SelectedValue = Thread.CurrentThread.CurrentUICulture.Name;
 			}
 
 			// Close again when there is only one language, this shows the form briefly!
 			// But the use-case is not so interesting, only happens once, to invest a lot of time here.
-			if (Language.SupportedLanguages.Count == 1) {
-				comboBoxLanguage.SelectedValue = Language.SupportedLanguages[0].Ietf;
-				Language.CurrentLanguage = SelectedLanguage;
-				properOkPressed = true;
+			if (LanguageLoader.Current.AvailableLanguages.Count == 1)
+			{
+				var key = LanguageLoader.Current.AvailableLanguages.Keys.First();
+                comboBoxLanguage.SelectedValue = key;
+				await LanguageLoader.Current.ChangeLanguage(key);
+				_properOkPressed = true;
 				Close();
 			}
 		}
-		
-		void BtnOKClick(object sender, EventArgs e) {
-			properOkPressed = true;
+
+		async void BtnOKClick(object sender, EventArgs e) {
+			_properOkPressed = true;
 			// Fix for Bug #3431100 
-			Language.CurrentLanguage = SelectedLanguage;
+			await LanguageLoader.Current.ChangeLanguage(SelectedLanguage);
 			Close();
 		}
 		
 		public static LanguageDialog GetInstance() {
-			if(uniqueInstance == null) {
-				uniqueInstance = new LanguageDialog();
+			if(_uniqueInstance == null) {
+				_uniqueInstance = new LanguageDialog();
 			}
-			return uniqueInstance;
+			return _uniqueInstance;
 		}
 	}
 }

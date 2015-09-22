@@ -93,16 +93,14 @@ namespace GreenshotBoxPlugin
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
 			PluginUtils.AddToContextMenu(pluginHost, _itemPlugInConfig);
-			Language.LanguageChanged += OnLanguageChanged;
-			return true;
-		}
-
-		public void OnLanguageChanged(object sender, EventArgs e)
-		{
-			if (_itemPlugInConfig != null)
+			_language.PropertyChanged += (sender, args) =>
 			{
-				_itemPlugInConfig.Text = _language.Configure;
-			}
+				if (_itemPlugInConfig != null)
+				{
+					_itemPlugInConfig.Text = _language.Configure;
+				}
+			};
+			return true;
 		}
 
 		public void Shutdown()
