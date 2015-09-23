@@ -120,7 +120,8 @@ namespace Greenshot {
 		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) where ET : struct {
 			comboBox.Items.Clear();
 			foreach(ET enumValue in availableValues) {
-				comboBox.Items.Add(Language.Translate(enumValue));
+				string translation = language[enumValue.GetType().Name + "." + enumValue];
+				comboBox.Items.Add(translation);
 			}
 			comboBox.SelectedItem = Language.Translate(selectedValue);
 		}
@@ -137,7 +138,7 @@ namespace Greenshot {
 			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
 			ET returnValue = availableValues[0];
 			foreach(ET enumValue in availableValues) {
-				string translation = Language.GetString(enumTypeName + "." + enumValue);
+				string translation = language[enumTypeName + "." + enumValue];
 				if (translation.Equals(selectedValue)) {
 					returnValue = enumValue;
 					break;

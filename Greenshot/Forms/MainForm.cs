@@ -1179,7 +1179,7 @@ namespace Greenshot.Forms
 				selectList = new ToolStripMenuSelectList("destinations", true);
 				selectList.Text = language.SettingsDestination;
 				// Working with IDestination:
-				foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+				foreach (var destination in DestinationHelper.GetAllDestinations())
 				{
 					selectList.AddItem(destination.Description, destination, coreConfiguration.OutputDestinations.Contains(destination.Designation));
 				}
@@ -1195,7 +1195,9 @@ namespace Greenshot.Forms
 				string enumTypeName = typeof(WindowCaptureMode).Name;
 				foreach (WindowCaptureMode captureMode in Enum.GetValues(typeof(WindowCaptureMode)))
 				{
-					selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode.ToString()), captureMode, coreConfiguration.WindowCaptureMode == captureMode);
+					var languageKey = string.Format("{0}.{1}", enumTypeName, captureMode);
+					var translation = language[languageKey];
+                    selectList.AddItem(translation, captureMode, coreConfiguration.WindowCaptureMode == captureMode);
 				}
 				selectList.CheckedChanged += QuickSettingCaptureModeChanged;
 				contextmenu_quicksettings.DropDownItems.Add(selectList);
