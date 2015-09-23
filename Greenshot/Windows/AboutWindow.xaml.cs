@@ -67,12 +67,11 @@ namespace Greenshot.Windows
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 			VersionLabel.Content = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (PortableHelper.IsPortable ? " Portable" : "") + (" (" + Helpers.OSInfo.Bits + " bit)");
 
-			language.PropertyChanged += (sender, args) => { SetTranslations(); };
-
+			language.PropertyChanged += SetTranslations;
 			SetTranslations();
 		}
 
-		void SetTranslations()
+		void SetTranslations(object sender = null, PropertyChangedEventArgs args = null)
 		{
 			Title = language.AboutTitle;
 			AboutBugs.Text = language.AboutBugs;
@@ -94,7 +93,7 @@ namespace Greenshot.Windows
 		void Window_Closing(object sender, CancelEventArgs e)
 		{
 			_aboutWindow = null;
-			GreenshotPlugin.Core.Language.LanguageChanged -= Language_LanguageChanged;
+			language.PropertyChanged -= SetTranslations;
 		}
 
 		/// <summary>
