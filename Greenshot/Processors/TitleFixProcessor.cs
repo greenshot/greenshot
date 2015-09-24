@@ -19,13 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using log4net;
-using Dapplo.Config.Ini;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Greenshot.Processors
 {

@@ -21,12 +21,12 @@
 
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
+using GreenshotPlugin.Configuration;
 using System;
 using System.ComponentModel;
-using System.Windows.Forms;
 
-namespace GreenshotBoxPlugin {
+namespace GreenshotBoxPlugin
+{
 	/// <summary>
 	/// Description of ImgurConfiguration.
 	/// </summary>

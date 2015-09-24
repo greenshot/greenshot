@@ -18,16 +18,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Dapplo.Config.Ini;
+using Greenshot.Core;
+using GreenshotPlugin.Configuration;
+using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.Core;
-using log4net;
-using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.Core {
 	internal enum ExifOrientations : byte {

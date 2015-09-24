@@ -20,10 +20,11 @@
  */
 
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
+using GreenshotPlugin.Configuration;
 using System.ComponentModel;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin
+{
 	/// <summary>
 	/// Description of ConfluenceConfiguration.
 	/// </summary>

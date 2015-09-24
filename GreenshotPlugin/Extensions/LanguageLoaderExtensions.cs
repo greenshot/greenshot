@@ -19,31 +19,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using System.ComponentModel;
+using Dapplo.Config.Language;
 
-namespace GreenshotPlugin.Configuration
+namespace GreenshotPlugin.Extensions
 {
-	/// <summary>
-	/// This interface represents all the generic plugin/extension settings
-	/// </summary>
-	public interface IExtensionConfiguration {
-		[Description("Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
-		IList<string> IncludePlugins {
-			get;
-			set;
-		}
+	public static class LanguageLoaderExtensions
+	{
+		public static string Translate(this LanguageLoader loader, string key)
+		{
+			var languagePrefix = "Core";
+			var keyParts = key.Split('.');
 
-		[Description("Comma separated list of Plugins which are NOT allowed.")]
-		IList<string> ExcludePlugins {
-			get;
-			set;
-		}
-
-		[Description("Comma separated list of destinations which should be disabled.")]
-		IList<string> ExcludeDestinations {
-			get;
-			set;
+			if (keyParts.Length > 1)
+			{
+				languagePrefix = keyParts[0];
+				key = keyParts[1];
+			}
+			return LanguageLoader.Current[languagePrefix][key];
 		}
 	}
 }

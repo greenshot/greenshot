@@ -742,7 +742,7 @@ namespace Greenshot.Forms
 			contextmenu_capturefullscreen.Click -= CaptureFullScreenToolStripMenuItemClick;
 			contextmenu_capturefullscreen.DropDownOpening -= MultiScreenDropDownOpening;
 			contextmenu_capturefullscreen.DropDownClosed -= MultiScreenDropDownClosing;
-			if (Screen.AllScreens.Length > 1)
+			if (DisplayInfo.AllDisplays().Count > 1)
 			{
 				contextmenu_capturefullscreen.DropDownOpening += MultiScreenDropDownOpening;
 				contextmenu_capturefullscreen.DropDownClosed += MultiScreenDropDownClosing;
@@ -836,7 +836,7 @@ namespace Greenshot.Forms
 		{
 			var captureScreenMenuItem = (ToolStripMenuItem)sender;
 			captureScreenMenuItem.DropDownItems.Clear();
-			if (Screen.AllScreens.Length <= 1)
+			if (DisplayInfo.AllDisplays().Count <= 1)
 			{
 				return;
 			}
@@ -849,23 +849,23 @@ namespace Greenshot.Forms
 				this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen));
 			};
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-			foreach (var screen in Screen.AllScreens)
+			foreach (var display in DisplayInfo.AllDisplays())
 			{
-				var screenToCapture = screen;	// Capture loop variable
+				var screenToCapture = display;	// Capture loop variable
 				string deviceAlignment = "";
-				if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
+				if (display.Bounds.Top == allScreensBounds.Top && display.Bounds.Bottom != allScreensBounds.Bottom)
 				{
 					deviceAlignment += " " + language.ContextmenuCapturefullscreenTop;
 				}
-				else if (screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom)
+				else if (display.Bounds.Top != allScreensBounds.Top && display.Bounds.Bottom == allScreensBounds.Bottom)
 				{
 					deviceAlignment += " " + language.ContextmenuCapturefullscreenBottom;
 				}
-				if (screen.Bounds.Left == allScreensBounds.Left && screen.Bounds.Right != allScreensBounds.Right)
+				if (display.Bounds.Left == allScreensBounds.Left && display.Bounds.Right != allScreensBounds.Right)
 				{
 					deviceAlignment += " " + language.ContextmenuCapturefullscreenLeft;
 				}
-				else if (screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right)
+				else if (display.Bounds.Left != allScreensBounds.Left && display.Bounds.Right == allScreensBounds.Right)
 				{
 					deviceAlignment += " " + language.ContextmenuCapturefullscreenRight;
 				}

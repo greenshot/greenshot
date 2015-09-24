@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
@@ -434,11 +435,11 @@ namespace GreenshotPlugin.Core {
 		/// <returns>A Rectangle of the bounds of the entire display area.</returns>
 		public static Rectangle GetScreenBounds() {
 			int left = 0, top = 0, bottom = 0, right = 0;
-			foreach (Screen screen in Screen.AllScreens) {
-				left = Math.Min(left, screen.Bounds.X);
-				top = Math.Min(top, screen.Bounds.Y);
-				int screenAbsRight = screen.Bounds.X + screen.Bounds.Width;
-				int screenAbsBottom = screen.Bounds.Y + screen.Bounds.Height;
+			foreach (var display in DisplayInfo.AllDisplays()) {
+				left = Math.Min(left, display.Bounds.X);
+				top = Math.Min(top, display.Bounds.Y);
+				int screenAbsRight = display.Bounds.X + display.Bounds.Width;
+				int screenAbsBottom = display.Bounds.Y + display.Bounds.Height;
 				right = Math.Max(right, screenAbsRight);
 				bottom = Math.Max(bottom, screenAbsBottom);
 			}
@@ -678,18 +679,18 @@ namespace GreenshotPlugin.Core {
 						for (int i = 0; i < 3; i++) {
 							try {
 								// Collect all screens inside this capture
-								List<Screen> screensInsideCapture = new List<Screen>();
-								foreach (Screen screen in Screen.AllScreens) {
-									if (screen.Bounds.IntersectsWith(captureBounds)) {
-										screensInsideCapture.Add(screen);
+								var screensInsideCapture = new List<DisplayInfo>();
+								foreach (var display in DisplayInfo.AllDisplays()) {
+									if (display.Bounds.IntersectsWith(captureBounds)) {
+										screensInsideCapture.Add(display);
 									}
 								}
 								// Check all all screens are of an equal size
 								bool offscreenContent;
 								using (Region captureRegion = new Region(captureBounds)) {
 									// Exclude every visible part
-									foreach (Screen screen in screensInsideCapture) {
-										captureRegion.Exclude(screen.Bounds);
+									foreach (var display in screensInsideCapture) {
+										captureRegion.Exclude(display.Bounds);
 									}
 									// If the region is not empty, we have "offscreenContent"
 									using (Graphics screenGraphics = Graphics.FromHwnd(User32.GetDesktopWindow())) {
@@ -704,8 +705,8 @@ namespace GreenshotPlugin.Core {
 										// Content will be copied here
 										using (Graphics graphics = Graphics.FromImage(returnBitmap)) {
 											// For all screens copy the content to the new bitmap
-											foreach (Screen screen in Screen.AllScreens) {
-												Rectangle screenBounds = screen.Bounds;
+											foreach (var display in DisplayInfo.AllDisplays()) {
+												Rectangle screenBounds = display.Bounds;
 												// Make sure the bounds are offsetted to the capture bounds
 												screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
 												graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);

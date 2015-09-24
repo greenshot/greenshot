@@ -20,7 +20,9 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using log4net;
 using System;
@@ -33,7 +35,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
+using System.Windows;
 using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace GreenshotPlugin.Core {
@@ -43,6 +45,7 @@ namespace GreenshotPlugin.Core {
 	public static class ImageOutput {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageOutput));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
 		private static Cache<string, string> tmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
 
@@ -490,8 +493,8 @@ namespace GreenshotPlugin.Core {
 		public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails) {
 			string returnValue = null;
 			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails)) {
-				DialogResult dialogResult = saveImageFileDialog.ShowDialog();
-				if (dialogResult.Equals(DialogResult.OK)) {
+				var dialogResult = saveImageFileDialog.ShowDialog();
+				if (dialogResult.Equals(System.Windows.Forms.DialogResult.OK)) {
 					try {
 						string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
 						var outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
@@ -505,7 +508,7 @@ namespace GreenshotPlugin.Core {
 							ClipboardHelper.SetClipboardData(returnValue);
 						}
 					} catch (ExternalException) {
-						MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
+						MessageBox.Show(string.Format(language.ErrorNowriteaccess, saveImageFileDialog.FileName).Replace(@"\\", @"\"), language.Error);
 					}
 				}
 			}

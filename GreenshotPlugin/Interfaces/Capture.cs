@@ -1,5 +1,4 @@
-﻿using GreenshotPlugin.Core;
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using GreenshotPlugin.Configuration;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;

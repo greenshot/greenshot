@@ -22,6 +22,7 @@
 using Dapplo.Config.Ini;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
@@ -573,7 +574,7 @@ namespace Greenshot.Forms {
 		/// <param name="pos">preferred destination location for the zoom area</param>
 		/// <param name="allowZoomOverCaptureRect">false to try to find a location which is neither out of screen bounds nor intersects with the selected rectangle</param>
 		private void VerifyZoomAnimation(Point pos, bool allowZoomOverCaptureRect) {
-			Rectangle screenBounds = Screen.GetBounds(MousePosition);
+			Rectangle screenBounds = DisplayInfo.GetBounds(MousePosition);
 			// convert to be relative to top left corner of all screen bounds
 			screenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location);
 			int relativeZoomSize = Math.Min(screenBounds.Width, screenBounds.Height) / 5;

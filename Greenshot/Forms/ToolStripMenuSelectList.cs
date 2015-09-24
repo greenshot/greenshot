@@ -19,14 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Drawing.Imaging;
+using Dapplo.Config.Ini;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
-using Dapplo.Config.Ini;
 
 namespace Greenshot.Forms
 {

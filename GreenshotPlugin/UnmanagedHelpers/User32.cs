@@ -223,6 +223,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		internal static extern bool CloseDesktop(IntPtr hDesktop);
 
+		#region Screen.AllScreens replacement
+		public delegate bool MonitorEnumDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData);
+
+		[DllImport("user32", SetLastError = true)]
+		public static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, MonitorEnumDelegate lpfnEnum, IntPtr dwData);
+		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
+		public static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfoEx lpmi);
+		#endregion
 
 		#endregion
 

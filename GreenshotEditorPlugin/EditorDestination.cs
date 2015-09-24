@@ -20,9 +20,11 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotEditorPlugin.Drawing;
 using GreenshotEditorPlugin.Forms;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using log4net;
 using System;
@@ -30,7 +32,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Config.Language;
 
 namespace GreenshotEditorPlugin {
 	/// <summary>

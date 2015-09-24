@@ -20,6 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using System.Drawing;
 using System.Windows.Forms;

@@ -162,7 +162,6 @@
     </Compile>
     <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
     <Compile Include="IEditorConfiguration.cs" />
-    <Compile Include="IEditorLanguage.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
     <Compile Include="Memento\DeleteElementMemento.cs" />

@@ -21,18 +21,19 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using Microsoft.Win32;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
 	/// Description of PluginUtils.
 	/// </summary>

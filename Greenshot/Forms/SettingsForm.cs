@@ -19,6 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Language;
+using Greenshot.Destinations;
+using Greenshot.Forms;
+using Greenshot.Helpers;
+using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,18 +36,8 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
-
-using Greenshot.Destinations;
-using Greenshot.Forms;
-using Greenshot.Helpers;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.Plugin;
 using System.Text.RegularExpressions;
-using log4net;
-using Dapplo.Config.Language;
+using System.Windows.Forms;
 
 namespace Greenshot {
 	/// <summary>

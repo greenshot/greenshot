@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Extension;
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Configuration
 {
 	/// <summary>
 	/// Supporting clipboard formats

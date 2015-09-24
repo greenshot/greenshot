@@ -20,13 +20,14 @@
  */
 
 using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
-using GreenshotPlugin.Interop;
 using OneNote = Microsoft.Office.Interop.OneNote;
 
 namespace GreenshotOfficePlugin.OfficeExport

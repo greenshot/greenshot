@@ -19,23 +19,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
+using Greenshot.Forms;
+using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
+using log4net;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
-using Greenshot.Forms;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-
-using log4net;
-using Dapplo.Config.Ini;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
-using System.Linq;
+using System.Windows.Forms;
 
 namespace Greenshot.Helpers
 {

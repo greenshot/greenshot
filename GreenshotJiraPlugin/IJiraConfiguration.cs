@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-using Dapplo.Config.Ini;
-using System.ComponentModel;
 using Dapplo.Config.Converters;
+using Dapplo.Config.Ini;
+using GreenshotPlugin.Configuration;
+using System.ComponentModel;
 
 namespace GreenshotJiraPlugin
 {

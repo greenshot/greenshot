@@ -19,6 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using log4net;
 using System;
@@ -99,7 +101,7 @@ namespace Greenshot.Core {
 		}
 		public override string Name {
 			get {
-				return Language.GetString("editor_torn_edge");
+				return LanguageLoader.Current.Get<IEditorLanguage>().EditorTornEdge;
 			}
 		}
 		public int ToothHeight {
@@ -149,7 +151,7 @@ namespace Greenshot.Core {
 	public class GrayscaleEffect : IEffect {
 		public string Name {
 			get {
-				return Language.GetString("editor_grayscale");
+				return LanguageLoader.Current.Get<IEditorLanguage>().EditorGrayscale;
 			}
 		}
 		public Image Apply(Image sourceImage, Matrix matrix) {
@@ -277,7 +279,7 @@ namespace Greenshot.Core {
 		}
 		public string Name {
 			get {
-				return Language.GetString("editor_border");
+				return LanguageLoader.Current.Get<IEditorLanguage>().EditorBorder;
 			}
 		}
 		public Color Color {
@@ -307,9 +309,9 @@ namespace Greenshot.Core {
 		public string Name {
 			get {
 				if (Angle == 90) {
-					return Language.GetString("editor_rotatecw");
+					return LanguageLoader.Current.Get<IEditorLanguage>()["editor_rotatecw"];
 				} else {
-					return Language.GetString("editor_rotateccw");
+					return LanguageLoader.Current.Get<IEditorLanguage>()["editor_rotateccw"];
 				}
 			}
 		}
@@ -348,7 +350,7 @@ namespace Greenshot.Core {
 		}
 		public string Name {
 			get {
-				return Language.GetString("editor_resize");
+				return LanguageLoader.Current.Get<IEditorLanguage>()["editor_resize"];
 			}
 		}
 		public int Width {

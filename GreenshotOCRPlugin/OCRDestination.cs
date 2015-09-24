@@ -22,6 +22,7 @@
 using Dapplo.Config.Ini;
 using Greenshot.Core;
 using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using System;

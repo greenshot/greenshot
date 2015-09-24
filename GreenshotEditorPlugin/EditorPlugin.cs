@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace GreenshotEditorPlugin
 {

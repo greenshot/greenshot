@@ -21,7 +21,7 @@
 
 using System.ComponentModel;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Configuration {
 
 	/// <summary>
 	/// Supporting output formats

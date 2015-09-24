@@ -20,15 +20,17 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Core;
-using GreenshotEditorPlugin.Drawing;
-using GreenshotEditorPlugin.Drawing.Fields;
-using GreenshotEditorPlugin.Drawing.Fields.Binding;
 using Greenshot.Plugin;
+using Greenshot.Plugin.Drawing;
+using GreenshotEditorPlugin.Drawing;
+using GreenshotEditorPlugin.Drawing.Fields.Binding;
+using GreenshotEditorPlugin.Helpers;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
@@ -40,9 +42,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
-using GreenshotEditorPlugin.Helpers;
-using Greenshot.Plugin.Drawing;
 
 namespace GreenshotEditorPlugin.Forms
 {

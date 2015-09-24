@@ -60,9 +60,9 @@ namespace GreenshotPlugin.Controls {
 			zoomerLocation.X += cursorSize.Width + 5 - hotspot.X;
 			zoomerLocation.Y += cursorSize.Height + 5 - hotspot.Y;
 
-			foreach (Screen screen in Screen.AllScreens) {
-				Rectangle screenRectangle = screen.Bounds;
-				if (screen.Bounds.Contains(screenCoordinates)) {
+			foreach (var display in DisplayInfo.AllDisplays()) {
+				Rectangle screenRectangle = display.Bounds;
+				if (display.Bounds.Contains(screenCoordinates)) {
 					if (zoomerLocation.X < screenRectangle.X) {
 						zoomerLocation.X = screenRectangle.X;
 					} else if (zoomerLocation.X + Width > screenRectangle.X + screenRectangle.Width) {

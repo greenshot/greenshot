@@ -81,6 +81,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\IEditorLanguage.cs" />
     <Compile Include="Configuration\IGreenshotLanguage.cs" />
     <Compile Include="Controls\AnimatedGreenshotLogo.xaml.cs">
       <DependentUpon>AnimatedGreenshotLogo.xaml</DependentUpon>
@@ -255,6 +256,7 @@
     <Compile Include="OAuth\OAuthSession.cs" />
     <Compile Include="OAuth\OAuthSignatureTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnmanagedHelpers\DisplayInfo.cs" />
     <Compile Include="UnmanagedHelpers\DWM.cs" />
     <Compile Include="UnmanagedHelpers\Enumerations.cs" />
     <Compile Include="UnmanagedHelpers\GDI32.cs" />

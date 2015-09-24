@@ -20,10 +20,12 @@
  */
 
 using Dapplo.Config.Extension;
+using GreenshotPlugin.Configuration;
 using System.ComponentModel;
 using System.Drawing;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Configuration
+{
 	/// <summary>
 	/// This interface represents all the UI settings
 	/// </summary>

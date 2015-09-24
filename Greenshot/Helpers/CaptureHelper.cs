@@ -309,17 +309,17 @@ namespace Greenshot.Helpers
 					switch (_screenCaptureMode) {
 						case ScreenCaptureMode.Auto:
 							Point mouseLocation = User32.GetCursorLocation();
-							foreach (Screen screen in Screen.AllScreens) {
-								if (screen.Bounds.Contains(mouseLocation)) {
-									_capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
+							foreach (var display in DisplayInfo.AllDisplays()) {
+								if (display.Bounds.Contains(mouseLocation)) {
+									_capture = WindowCapture.CaptureRectangle(_capture, display.Bounds);
 									captureTaken = true;
 									break;
 								}
 							}
 							break;
 						case ScreenCaptureMode.Fixed:
-							if (conf.ScreenToCapture > 0 && conf.ScreenToCapture <= Screen.AllScreens.Length) {
-								_capture = WindowCapture.CaptureRectangle(_capture, Screen.AllScreens[conf.ScreenToCapture].Bounds);
+							if (conf.ScreenToCapture > 0 && conf.ScreenToCapture <= DisplayInfo.AllDisplays().Count) {
+								_capture = WindowCapture.CaptureRectangle(_capture, DisplayInfo.AllDisplays()[conf.ScreenToCapture].Bounds);
 								captureTaken = true;
 							}
 							break;

@@ -19,8 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Linq;
+using Dapplo.Config.Ini;
+using Greenshot.Interop;
 using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interop;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
@@ -29,12 +31,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Dapplo.Config.Ini;
-using Greenshot.Interop;
 
 namespace GreenshotPlugin.Core
 {
@@ -787,11 +788,11 @@ namespace GreenshotPlugin.Core
 					if (Visible)
 					{
 						Rectangle windowRectangle = WindowRectangle;
-						foreach (Screen screen in Screen.AllScreens)
+						foreach (var display in DisplayInfo.AllDisplays())
 						{
-							if (screen.Bounds.Contains(windowRectangle))
+							if (display.Bounds.Contains(windowRectangle))
 							{
-								if (windowRectangle.Equals(screen.Bounds))
+								if (windowRectangle.Equals(display.Bounds))
 								{
 									return true;
 								}
@@ -833,15 +834,15 @@ namespace GreenshotPlugin.Core
 				if (IsApp)
 				{
 					Rectangle windowRectangle = WindowRectangle;
-					foreach (Screen screen in Screen.AllScreens)
+					foreach (var display in DisplayInfo.AllDisplays())
 					{
-						if (screen.Bounds.Contains(windowRectangle))
+						if (display.Bounds.Contains(windowRectangle))
 						{
-							if (windowRectangle.Equals(screen.Bounds))
+							if (windowRectangle.Equals(display.Bounds))
 							{
 								// Fullscreen, it's "visible" when AppVisibilityOnMonitor says yes
 								// Although it might be the other App, this is not "very" important
-								RECT rect = new RECT(screen.Bounds);
+								RECT rect = new RECT(display.Bounds);
 								IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
 								if (monitor != IntPtr.Zero)
 								{
@@ -1364,14 +1365,15 @@ namespace GreenshotPlugin.Core
 			Rectangle windowRectangle = WindowRectangle;
 			// assume own location
 			formLocation = windowRectangle.Location;
-			using (Region workingArea = new Region(Screen.PrimaryScreen.Bounds))
+			var primaryDisplay = DisplayInfo.AllDisplays().Where(x => x.IsPrimary).First();
+            using (Region workingArea = new Region(primaryDisplay.Bounds))
 			{
 				// Create a region with the screens working area
-				foreach (Screen screen in Screen.AllScreens)
+				foreach (var display in DisplayInfo.AllDisplays())
 				{
-					if (screen != Screen.PrimaryScreen)
+					if (!display.IsPrimary)
 					{
-						workingArea.Union(screen.Bounds);
+						workingArea.Union(display.Bounds);
 					}
 				}
 
@@ -1379,12 +1381,12 @@ namespace GreenshotPlugin.Core
 				if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
 				{
 					// If none found we find the biggest screen
-					foreach (Screen screen in Screen.AllScreens)
+					foreach (var display in DisplayInfo.AllDisplays())
 					{
-						Rectangle newWindowRectangle = new Rectangle(screen.WorkingArea.Location, windowRectangle.Size);
+						Rectangle newWindowRectangle = new Rectangle(display.WorkingArea.Location, windowRectangle.Size);
 						if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
 						{
-							formLocation = screen.Bounds.Location;
+							formLocation = display.Bounds.Location;
 							doesCaptureFit = true;
 							break;
 						}

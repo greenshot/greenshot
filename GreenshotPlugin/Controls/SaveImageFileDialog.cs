@@ -19,15 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Linq;
-using System.IO;
-using System.Windows.Forms;
-
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using log4net;
-using Dapplo.Config.Ini;
+using System;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>

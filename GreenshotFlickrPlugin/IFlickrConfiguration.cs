@@ -21,12 +21,12 @@
 
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
+using GreenshotPlugin.Configuration;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using System.Windows.Forms;
 
-namespace GreenshotFlickrPlugin {
+namespace GreenshotFlickrPlugin
+{
 	public enum SafetyLevel {
 		Safe = 1,
 		Moderate = 2,

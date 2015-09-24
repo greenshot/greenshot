@@ -3,10 +3,11 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:gscp="clr-namespace:GreenshotConfluencePlugin"
     xmlns:l="clr-namespace:TranslationByMarkupExtension"
-    xmlns:gsc="clr-namespace:GreenshotPlugin.Core;assembly=GreenshotPlugin"
-	Title="{l:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
+    xmlns:gscore="clr-namespace:GreenshotPlugin.Core;assembly=GreenshotPlugin"
+    xmlns:gsconfig="clr-namespace:GreenshotPlugin.Configuration;assembly=GreenshotPlugin"
+        Title="{l:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
 	<Window.Resources>
-        <gscp:EnumDisplayer Type="{x:Type gsc:OutputFormat}" x:Key="outputFormats"/>
+        <gscp:EnumDisplayer Type="{x:Type gsconfig:OutputFormat}" x:Key="outputFormats"/>
 	</Window.Resources>
 
 	<StackPanel>

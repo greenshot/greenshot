@@ -20,9 +20,11 @@
  */
 
 using Dapplo.Config.Extension;
+using GreenshotPlugin.Configuration;
 using System.ComponentModel;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Configuration
+{
 	/// <summary>
 	/// This interface represents all the printer settings
 	/// </summary>

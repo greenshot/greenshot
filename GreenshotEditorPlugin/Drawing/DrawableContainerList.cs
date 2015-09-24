@@ -19,12 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotEditorPlugin.Memento;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
+using GreenshotEditorPlugin.Forms;
+using GreenshotEditorPlugin.Memento;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,8 +35,6 @@ using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
-using GreenshotEditorPlugin.Forms;
 
 namespace GreenshotEditorPlugin.Drawing {
 	/// <summary>

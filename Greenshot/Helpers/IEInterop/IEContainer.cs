@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Interop.IE;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using log4net;
 using mshtml;

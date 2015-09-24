@@ -20,11 +20,12 @@
 
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
+using GreenshotPlugin.Configuration;
 using System;
 using System.ComponentModel;
 
-namespace GreenshotPicasaPlugin {
+namespace GreenshotPicasaPlugin
+{
 	/// <summary>
 	/// Description of PicasaConfiguration.
 	/// </summary>

@@ -28,6 +28,7 @@ using Greenshot.Core;
 using System.Threading.Tasks;
 using System.Threading;
 using Dapplo.Config.Ini;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Plugin {
 	[Serializable]

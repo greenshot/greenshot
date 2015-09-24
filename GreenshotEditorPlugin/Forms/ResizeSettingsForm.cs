@@ -19,12 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Language;
+using Greenshot.Core;
+using GreenshotPlugin.Configuration;
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
-using Greenshot.Core;
 
 namespace GreenshotEditorPlugin.Forms {
 	/// <summary>

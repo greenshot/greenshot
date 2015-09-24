@@ -29,6 +29,7 @@ using GreenshotPlugin.Extensions;
 using log4net;
 using System.Threading.Tasks;
 using Dapplo.Config.Ini;
+using GreenshotPlugin.Configuration;
 
 namespace GreenshotPlugin.Core
 {

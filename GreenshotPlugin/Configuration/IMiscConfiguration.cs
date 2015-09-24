@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Configuration {
 	public interface IMiscConfiguration {
 		[Description("Optimize memory footprint, but with a performance penalty!"), DefaultValue(false)]
 		bool MinimizeWorkingSetSize {

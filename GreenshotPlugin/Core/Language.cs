@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,6 +28,7 @@ using System.Xml;
 using log4net;
 using Microsoft.Win32;
 using Dapplo.Config.Ini;
+using GreenshotPlugin.Configuration;
 
 namespace GreenshotPlugin.Core {
 	public delegate void LanguageChangedHandler(object sender, EventArgs e);

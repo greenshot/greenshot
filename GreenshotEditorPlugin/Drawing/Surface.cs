@@ -19,13 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Core;
 using Dapplo.Config.Ini;
-using GreenshotEditorPlugin.Memento;
+using Greenshot.Core;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Extensions;
+using GreenshotEditorPlugin.Memento;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Windows;
 using log4net;
 using System;
@@ -35,11 +36,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Linq;
 
 namespace GreenshotEditorPlugin.Drawing
 {
@@ -51,7 +52,7 @@ namespace GreenshotEditorPlugin.Drawing
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
         public static int Count = 0;
-        private static ICoreConfiguration conf = IniConfig.Get("Greenshot", "greenshot").Get<ICoreConfiguration>();
+        private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 

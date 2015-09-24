@@ -20,7 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
@@ -31,7 +31,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Greenshot.Helpers {
+namespace Greenshot.Helpers
+{
 	/// <summary>
 	/// Soundhelper
 	/// Create to fix the sometimes wrongly played sample, especially after first start from IDE

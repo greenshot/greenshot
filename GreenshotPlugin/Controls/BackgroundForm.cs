@@ -25,6 +25,7 @@ using System.Threading;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
+using GreenshotPlugin.UnmanagedHelpers;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -65,10 +66,10 @@ namespace GreenshotPlugin.Controls {
 		public new void Show() {
 			base.Show();
 			bool positioned = false;
-			foreach(Screen screen in Screen.AllScreens) {
-				if (screen.Bounds.Contains(Cursor.Position)) {
+			foreach(var display in DisplayInfo.AllDisplays()) {
+				if (display.Bounds.Contains(Cursor.Position)) {
 					positioned = true;
-					Location = new Point(screen.Bounds.X + (screen.Bounds.Width / 2) - (Width / 2), screen.Bounds.Y + (screen.Bounds.Height / 2) - (Height / 2));
+					Location = new Point(display.Bounds.X + (display.Bounds.Width / 2) - (Width / 2), display.Bounds.Y + (display.Bounds.Height / 2) - (Height / 2));
 					break;
 				}
 			}

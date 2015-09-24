@@ -21,12 +21,11 @@
 
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
+using GreenshotPlugin.Configuration;
 using System.ComponentModel;
-using System.Windows.Forms;
 
-namespace GreenshotPhotobucketPlugin {
+namespace GreenshotPhotobucketPlugin
+{
 	/// <summary>
 	/// Description of PhotobucketConfiguration.
 	/// </summary>

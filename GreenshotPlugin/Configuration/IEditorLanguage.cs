@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Language;
 
-namespace GreenshotEditorPlugin
+namespace GreenshotPlugin.Configuration
 {
 	[Language("Editor")]
 	public interface IEditorLanguage : ILanguage

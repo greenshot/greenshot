@@ -19,11 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
+using Dapplo.Config.Language;
 using GreenshotPlugin.Extensions;
-using System.Diagnostics;
 using log4net;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace GreenshotPlugin.Core
@@ -42,8 +42,9 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <returns>Task</returns>
 		public static async Task LoadHelpAsync() {
-			var uri = await FindOnlineHelpUrl(Language.CurrentLanguage);
+			var uri = await FindOnlineHelpUrl(LanguageLoader.Current.CurrentLanguage);
 			if (uri == null) {
+				// TODO: Helpfile Uri
 				uri = Language.HelpFileUri;
 			}
 			Process.Start(uri.AbsoluteUri);			
