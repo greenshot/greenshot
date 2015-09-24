@@ -138,6 +138,7 @@ namespace Greenshot.Forms
 				}
 
 				// From here on we continue starting Greenshot
+				Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 
