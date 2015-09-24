@@ -1,9 +1,8 @@
 /*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * A Picasa Plugin for Greenshot
+ * Copyright (C) 2011  Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,23 +18,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotImgurPlugin {
-	public enum LangKey {
-		upload_menu_item,
-		settings_title,
-		label_url,
-		label_upload_format,
-		label_clear,
-		OK,
-		CANCEL,
-		upload_success,
-		upload_failure,
-		communication_wait,
-		delete_question,
-		clear_question,
-		delete_title,
-		use_page_link,
-		history,
-		configure
+using Dapplo.Config.Language;
+using System.ComponentModel;
+
+namespace GreenshotPicasaPlugin {
+	[Language("Picasa")]
+	public interface IPicasaLanguage : ILanguage, INotifyPropertyChanged
+	{
+		string UploadMenuItem {
+			get;
+		}
+		string SettingsTitle
+		{
+			get;
+		}
+		string LabelUploadFormat
+		{
+			get;
+		}
+		string UploadSuccess
+		{
+			get;
+		}
+		string UploadFailure
+		{
+			get;
+		}
+		string CommunicationWait
+		{
+			get;
+		}
+		string Configure
+		{
+			get;
+		}
+		string LabelAfterUpload
+		{
+			get;
+		}
+		string LabelAfterUploadLinkToClipBoard
+		{
+			get;
+		}
 	}
 }

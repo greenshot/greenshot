@@ -20,6 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
@@ -38,7 +39,8 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public class ImgurDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
-		private static IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
+		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
+		private static readonly IImgurLanguage imgurLanguage = LanguageLoader.Current.Get<IImgurLanguage>();
 		private ImgurPlugin plugin = null;
 
 		public ImgurDestination(ImgurPlugin plugin) {
@@ -53,7 +55,7 @@ namespace GreenshotImgurPlugin
 
 		public override string Description {
 			get {
-				return Language.GetString("imgur", LangKey.upload_menu_item);
+				return imgurLanguage.UploadMenuItem;
 			}
 		}
 
@@ -81,7 +83,7 @@ namespace GreenshotImgurPlugin
 			string uploadURL = null;
 			try {
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
-				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("imgur", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, imgurLanguage.CommunicationWait, async (progress, pleaseWaitToken) => {
 					return await ImgurUtils.UploadToImgurAsync(surface, outputSettings, captureDetails.Title, filename, progress, pleaseWaitToken);
 				});
 
@@ -109,7 +111,7 @@ namespace GreenshotImgurPlugin
 			} catch (Exception e) {
 				exportInformation.ErrorMessage = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(Designation, Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(Designation, imgurLanguage.UploadFailure + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

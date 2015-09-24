@@ -19,27 +19,75 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotJiraPlugin {
-    public enum LangKey {
-		upload_menu_item,
-		column_assignee,
-		column_created,
-		column_id,
-		column_reporter,
-		column_summary,
-		label_comment,
-		label_filename,
-		label_jira,
-		label_jirafilter,
-		login_error,
-		login_title,
-		settings_title,
-		label_url,
-		label_upload_format,
-		OK,
-		CANCEL,
-		upload_success,
-		upload_failure,
-		communication_wait,
-    }
+using Dapplo.Config.Language;
+using System.ComponentModel;
+
+namespace GreenshotImgurPlugin {
+	[Language("Imgur")]
+	public interface IImgurLanguage : ILanguage, INotifyPropertyChanged {
+		string UploadMenuItem
+		{
+			get;
+		}
+		string SettingsTitle
+		{
+			get;
+		}
+		string LabelUrl
+		{
+			get;
+		}
+		string LabelUploadFormat
+		{
+			get;
+		}
+		string LabelClear
+		{
+			get;
+		}
+		string Ok
+		{
+			get;
+		}
+		string Cancel
+		{
+			get;
+		}
+		string UploadSuccess
+		{
+			get;
+		}
+		string UploadFailure
+		{
+			get;
+		}
+		string CommunicationWait
+		{
+			get;
+		}
+		string DeleteQuestion
+		{
+			get;
+		}
+		string ClearQuestion
+		{
+			get;
+		}
+		string DeleteTitle
+		{
+			get;
+		}
+		string UsePageLink
+		{
+			get;
+		}
+		string History
+		{
+			get;
+		}
+		string Configure
+		{
+			get;
+		}
+	}
 }

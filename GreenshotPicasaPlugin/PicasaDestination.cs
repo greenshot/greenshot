@@ -19,6 +19,7 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
@@ -31,8 +32,9 @@ using System.Windows;
 
 namespace GreenshotPicasaPlugin {
 	public class PicasaDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaDestination));
-		private static PicasaConfiguration _config = IniConfig.Current.Get<PicasaConfiguration>();
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaDestination));
+		private static readonly IPicasaConfiguration _config = IniConfig.Current.Get<IPicasaConfiguration>();
+		private static readonly IPicasaLanguage language = LanguageLoader.Current.Get<IPicasaLanguage>();
 
 		public override string Designation {
 			get {
@@ -42,7 +44,7 @@ namespace GreenshotPicasaPlugin {
 
 		public override string Description {
 			get {
-				return Language.GetString("picasa", LangKey.upload_menu_item);
+				return language.UploadMenuItem;
 			}
 		}
 
@@ -68,7 +70,7 @@ namespace GreenshotPicasaPlugin {
 			};
 
 			try {
-				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("box", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) => {
 					return await PicasaUtils.UploadToPicasa(surface, captureDetails, progress, token).ConfigureAwait(false);
 				});
 
@@ -82,7 +84,7 @@ namespace GreenshotPicasaPlugin {
 			} catch (Exception e) {
 				exportInformation.ErrorMessage = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(Designation, Language.GetString("picasa", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(Designation, language.UploadFailure + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

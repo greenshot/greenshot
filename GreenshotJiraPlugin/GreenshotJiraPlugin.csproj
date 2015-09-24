@@ -87,7 +87,7 @@
     <Compile Include="JiraDetails.cs" />
     <Compile Include="JiraMonitor.cs" />
     <Compile Include="JiraPlugin.cs" />
-    <Compile Include="LanguageKeys.cs" />
+    <Compile Include="IJiraLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Languages\language_jiraplugin-de-DE.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -20,6 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Extensions;
 
@@ -40,6 +41,7 @@ namespace GreenshotJiraPlugin
 		private PluginAttribute jiraPluginAttributes;
 		private IGreenshotHost _host;
 		private IJiraConfiguration config = null;
+		private IJiraLanguage language = null;
 		private ComponentResourceManager resources;
 		private JiraMonitor _jiraMonitor;
 
@@ -71,7 +73,8 @@ namespace GreenshotJiraPlugin
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the jira configuration
 			config = await IniConfig.Current.RegisterAndGetAsync<IJiraConfiguration>();
-			_host = (IGreenshotHost)pluginHost;
+			language = await LanguageLoader.Current.RegisterAndGetAsync<IJiraLanguage>();
+			_host = pluginHost;
 			jiraPluginAttributes = pluginAttributes;
 
 			resources = new ComponentResourceManager(typeof(JiraPlugin));

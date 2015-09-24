@@ -76,7 +76,7 @@
     <Compile Include="ImgurPlugin.cs" />
     <Compile Include="IImgurConfiguration.cs" />
     <Compile Include="ImgurUtils.cs" />
-    <Compile Include="LanguageKeys.cs" />
+    <Compile Include="IImgurLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Languages\language_imgurplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

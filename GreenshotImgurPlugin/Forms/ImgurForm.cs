@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Language;
 using GreenshotPlugin.Controls;
 
 namespace GreenshotImgurPlugin {
@@ -26,6 +27,8 @@ namespace GreenshotImgurPlugin {
 	/// This class is needed for design-time resolving of the language files
 	/// </summary>
 	public class ImgurForm : GreenshotForm {
+		protected static readonly IImgurLanguage imgurLanguage = LanguageLoader.Current.Get<IImgurLanguage>();
+
 		public ImgurForm() : base() {
 		}
 	}

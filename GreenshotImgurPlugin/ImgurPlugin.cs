@@ -20,6 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -38,6 +39,7 @@ namespace GreenshotImgurPlugin
 	public class ImgurPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
 		private static IImgurConfiguration config;
+		private static IImgurLanguage language;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
@@ -79,8 +81,9 @@ namespace GreenshotImgurPlugin
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the imgur configuration
 			config = await IniConfig.Current.RegisterAndGetAsync<IImgurConfiguration>();
+			language = await LanguageLoader.Current.RegisterAndGetAsync<IImgurLanguage>();
 
-			_host = (IGreenshotHost)pluginHost;
+			_host = pluginHost;
 			Attributes = pluginAttributes;
 
 			_resources = new ComponentResourceManager(typeof(ImgurPlugin));
@@ -89,7 +92,7 @@ namespace GreenshotImgurPlugin
 			itemPlugInRoot.Image = (Image)_resources.GetObject("Imgur");
 
 			_historyMenuItem = new ToolStripMenuItem {
-				Text = Language.GetString("imgur", LangKey.history),
+				Text = language.History,
 				Tag = _host,
 				Enabled = config.TrackHistory
 			};
@@ -98,28 +101,28 @@ namespace GreenshotImgurPlugin
 			};
 			itemPlugInRoot.DropDownItems.Add(_historyMenuItem);
 
-			_itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
+			_itemPlugInConfig = new ToolStripMenuItem(language.Configure);
 			_itemPlugInConfig.Tag = _host;
 			_itemPlugInConfig.Click += (sender, e) => ShowConfigDialog();
 			itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
 
 			PluginUtils.AddToContextMenu(_host, itemPlugInRoot);
-			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
+			language.PropertyChanged += OnLanguageChanged;
 			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e) {
 			if (_itemPlugInConfig != null) {
-				_itemPlugInConfig.Text = Language.GetString("imgur", LangKey.configure);
+				_itemPlugInConfig.Text = language.Configure;
 			}
 			if (_historyMenuItem != null) {
-				_historyMenuItem.Text = Language.GetString("imgur", LangKey.history);
+				_historyMenuItem.Text = language.History;
 			}
 		}
 
 		public void Shutdown() {
 			LOG.Debug("Imgur Plugin shutdown.");
-			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
+			language.PropertyChanged -= OnLanguageChanged;
 		}
 
 		/// <summary>

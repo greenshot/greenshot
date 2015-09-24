@@ -20,6 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
@@ -44,6 +45,7 @@ namespace GreenshotJiraPlugin
 	public class JiraDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
 		private static IJiraConfiguration config = IniConfig.Current.Get<IJiraConfiguration>();
+		private static IJiraLanguage language = LanguageLoader.Current.Get<IJiraLanguage>();
 		private JiraPlugin _jiraPlugin = null;
 		private JiraDetails _jira = null;
 
@@ -69,7 +71,7 @@ namespace GreenshotJiraPlugin
 		public override string Description {
 			get {
 				if (_jira == null) {
-					return Language.GetString("jira", LangKey.upload_menu_item);
+					return language.UploadMenuItem;
 				} else {
 					return FormatUpload(_jira);
 				}
@@ -114,7 +116,7 @@ namespace GreenshotJiraPlugin
 				try {
 					var jiraApi = _jiraPlugin.JiraMonitor.GetJiraApiForKey(_jira);
 					// Run upload in the background
-					await PleaseWaitWindow.CreateAndShowAsync(Description, Language.GetString("jira", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+					await PleaseWaitWindow.CreateAndShowAsync(Description, language.CommunicationWait, async (progress, pleaseWaitToken) => {
 						var multipartFormDataContent = new MultipartFormDataContent();
 						using (var stream = new MemoryStream()) {
 							ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
@@ -140,7 +142,7 @@ namespace GreenshotJiraPlugin
 				} catch (Exception e) {
 					exportInformation.ErrorMessage = e.Message;
 					LOG.Warn(e);
-					MessageBox.Show(Designation, Language.GetString("jira", LangKey.upload_failure) + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+					MessageBox.Show(Designation, language.UploadFailure + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}
 			ProcessExport(exportInformation, surfaceToUpload);

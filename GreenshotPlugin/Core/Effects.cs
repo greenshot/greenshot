@@ -64,7 +64,7 @@ namespace Greenshot.Core {
 		}
 		public virtual string Name {
 			get {
-				return Language.GetString("editor_image_shadow");
+				return LanguageLoader.Current.Get<IEditorLanguage>()["editor_image_shadow"];
 			}
 		}
 		public float Darkness {

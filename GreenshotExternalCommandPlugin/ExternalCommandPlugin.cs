@@ -20,6 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
@@ -42,6 +43,7 @@ namespace ExternalCommand
 		private const string MSPAINT = "MS Paint";
 		private const string PAINTDOTNET = "Paint.NET";
 		private static ICoreConfiguration coreConfig;
+		private static IExternalCommandLanguage language;
 		private static IExternalCommandConfiguration config;
 		private PluginAttribute myAttributes;
 		private ToolStripMenuItem itemPlugInRoot;
@@ -126,7 +128,8 @@ namespace ExternalCommand
 			// Make sure the defaults are set
 			iniConfig.AfterLoad<IExternalCommandConfiguration>((conf) => AfterLoad(conf));
 			coreConfig = iniConfig.Get<ICoreConfiguration>();
-			config = await iniConfig.RegisterAndGetAsync<IExternalCommandConfiguration>();
+			config = await iniConfig.RegisterAndGetAsync<IExternalCommandConfiguration>(token);
+			language = await LanguageLoader.Current.RegisterAndGetAsync<IExternalCommandLanguage>(token);
 
 			IList<string> commandsToDelete = new List<string>();
 			// Check configuration
@@ -157,7 +160,7 @@ namespace ExternalCommand
 			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
 
 			PluginUtils.AddToContextMenu(pluginHost, itemPlugInRoot);
-			Language.LanguageChanged += OnLanguageChanged;
+			language.PropertyChanged += OnLanguageChanged;
 			coreConfig.PropertyChanged += OnIconSizeChanged;
 			return true;
 		}
@@ -190,7 +193,7 @@ namespace ExternalCommand
 		{
 			if (itemPlugInRoot != null)
 			{
-				itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
+				itemPlugInRoot.Text = language.ContextmenuConfigure;
 			}
 		}
 

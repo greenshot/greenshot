@@ -39,7 +39,7 @@ namespace GreenshotImgurPlugin
 	public partial class ImgurHistory : ImgurForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
 		private GreenshotColumnSorter columnSorter;
-		private static IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
+		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
 		private static readonly string[] _columns = { "hash", "title", "deleteHash", "Date" };
 		private static ImgurHistory instance = new ImgurHistory();
 
@@ -48,7 +48,7 @@ namespace GreenshotImgurPlugin
 		}
 		
 		private ImgurHistory() {
-			this.ManualLanguageApply = true;
+			ManualLanguageApply = true;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -63,14 +63,14 @@ namespace GreenshotImgurPlugin
 			ApplyLanguage();
 			ClearWindow();
 			Shown += async (sender, eventArgs) => {
-				this.Text = Language.GetString("imgur.history") + " Loading...";
+				Text = imgurLanguage.History + " Loading...";
 				BeginRedrawWindow();
 				ClearWindow();
 				EndRedrawWindow();
 				await LoadHistory();
 				await ImgurUtils.RetrieveImgurCredits();
 				if (config.Credits > 0) {
-					this.Text = Language.GetString("imgur.history") + " (" + config.Credits + " credits)";
+					Text = imgurLanguage.History + " (" + config.Credits + " credits)";
 				}
 			};
 		}
@@ -149,12 +149,12 @@ namespace GreenshotImgurPlugin
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
 					var imgurInfo = (ImageInfo)listview_imgur_uploads.SelectedItems[i].Tag;
-					var result = MessageBox.Show(Language.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title), Language.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Id), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+					var result = MessageBox.Show(string.Format(imgurLanguage.DeleteQuestion, imgurInfo.Title), string.Format(imgurLanguage.DeleteTitle, imgurInfo.Id), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 					if (result == DialogResult.Yes) {
 						// Should fix Bug #3378699 
 						pictureBox1.Image = null;
 
-						await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+						await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", imgurLanguage.CommunicationWait, async (progress, pleaseWaitToken) => {
 							return await ImgurUtils.DeleteImgurImageAsync(imgurInfo, pleaseWaitToken);
 						});
 
@@ -182,7 +182,7 @@ namespace GreenshotImgurPlugin
 		}
 
 		private void ClearHistoryButtonClick(object sender, EventArgs e) {
-			var result = MessageBox.Show(Language.GetString("imgur", LangKey.clear_question), "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+			var result = MessageBox.Show(imgurLanguage.ClearQuestion, "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 			if (result == DialogResult.Yes) {
 				config.runtimeImgurHistory.Clear();
 				config.ImgurUploadHistory.Clear();
@@ -215,7 +215,7 @@ namespace GreenshotImgurPlugin
 			}
 
 			// Perform the sort with these new sort options.
-			this.listview_imgur_uploads.Sort();
+			listview_imgur_uploads.Sort();
 		}
 
 		/// <summary>

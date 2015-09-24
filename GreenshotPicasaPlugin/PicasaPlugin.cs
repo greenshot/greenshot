@@ -19,6 +19,7 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -35,7 +36,8 @@ namespace GreenshotPicasaPlugin {
 	/// </summary>
 	public class PicasaPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaPlugin));
-		private static PicasaConfiguration config;
+		private static IPicasaConfiguration config;
+		private static IPicasaLanguage language;
 		private ComponentResourceManager resources;
 		private ToolStripMenuItem itemPlugInRoot;
 
@@ -73,29 +75,29 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="pluginAttribute">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
 			// Register / get the picasa configuration
-			config = await IniConfig.Current.RegisterAndGetAsync<PicasaConfiguration>();
-			
+			config = await IniConfig.Current.RegisterAndGetAsync<IPicasaConfiguration>();
+			language = await LanguageLoader.Current.RegisterAndGetAsync<IPicasaLanguage>();
 			resources = new ComponentResourceManager(typeof(PicasaPlugin));
 
 			itemPlugInRoot = new ToolStripMenuItem();
-			itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
+			itemPlugInRoot.Text = language.Configure;
 			itemPlugInRoot.Tag = pluginHost;
 			itemPlugInRoot.Image = (Image)resources.GetObject("Picasa");
-			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
+			itemPlugInRoot.Click += ConfigMenuClick;
 			PluginUtils.AddToContextMenu(pluginHost, itemPlugInRoot);
-			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
+			language.PropertyChanged += OnLanguageChanged;
 			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e) {
 			if (itemPlugInRoot != null) {
-				itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
+				itemPlugInRoot.Text = language.Configure;
 			}
 		}
 
 		public void Shutdown() {
 			LOG.Debug("Picasa Plugin shutdown.");
-			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
+			language.PropertyChanged -= OnLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
 		}
 
@@ -122,7 +124,7 @@ namespace GreenshotPicasaPlugin {
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
 		public bool ShowConfigDialog() {
-			DialogResult result = new SettingsForm(config).ShowDialog();
+			DialogResult result = new SettingsForm().ShowDialog();
 			if (result == DialogResult.OK) {
 				return true;
 			}

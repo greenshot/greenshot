@@ -123,7 +123,7 @@ namespace Greenshot {
 				string translation = language[enumValue.GetType().Name + "." + enumValue];
 				comboBox.Items.Add(translation);
 			}
-			comboBox.SelectedItem = Language.Translate(selectedValue);
+			comboBox.SelectedItem = language[selectedValue.GetType().Name + "." + selectedValue];
 		}
 		
 		

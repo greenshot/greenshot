@@ -66,8 +66,8 @@
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LanguageKeys.cs" />
-    <Compile Include="PicasaConfiguration.cs" />
+    <Compile Include="IPicasaLanguage.cs" />
+    <Compile Include="IPicasaConfiguration.cs" />
     <Compile Include="PicasaDestination.cs" />
     <Compile Include="PicasaPlugin.cs" />
     <Compile Include="PicasaUtils.cs" />

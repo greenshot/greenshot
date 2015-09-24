@@ -30,7 +30,7 @@ namespace GreenshotPicasaPlugin
 	/// Description of PicasaConfiguration.
 	/// </summary>
 	[IniSection("Picasa"), Description("Greenshot Picasa Plugin configuration")]
-	public interface PicasaConfiguration : IIniSection<PicasaConfiguration> {
+	public interface IPicasaConfiguration : IIniSection<IPicasaConfiguration> {
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat {
 			get;
