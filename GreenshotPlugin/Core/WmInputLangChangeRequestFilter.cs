@@ -35,7 +35,6 @@ namespace GreenshotPlugin.Core
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(WmInputLangChangeRequestFilter));
 		public bool PreFilterMessage(ref Message m)
 		{
-			LOG.DebugFormat("PreFilterMessage: {0}", (WindowsMessages)m.Msg);
 			if (m.Msg == (int)WindowsMessages.WM_INPUTLANGCHANGEREQUEST || m.Msg == (int)WindowsMessages.WM_INPUTLANGCHANGE)
 			{
 				return m.HWnd.ToInt64() > 0x7FFFFFFF;
