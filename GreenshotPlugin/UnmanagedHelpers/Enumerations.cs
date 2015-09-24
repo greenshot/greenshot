@@ -791,6 +791,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		WM_MENUGETOBJECT = 0x0124,
 		WM_UNINITMENUPOPUP = 0x0125,
 		WM_MENUCOMMAND = 0x0126,
+		WM_CHANGEUISTATE = 0x0127,
+		WM_UPDATEUISTATE = 0x0128,
+		WM_QUERYUISTATE = 0x0129,
 		WM_CTLCOLORMSGBOX = 0x0132,
 		WM_CTLCOLOREDIT = 0x0133,
 		WM_CTLCOLORLISTBOX = 0x0134,
@@ -874,8 +877,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		WM_AFXLAST = 0x037F,
 		WM_PENWINFIRST = 0x0380,
 		WM_PENWINLAST = 0x038F,
+		WM_USER = 0x0400,
 		WM_APP = 0x8000,
-		WM_USER = 0x0400
+		WM_RASDIALEVENT = 0xCCCD
 	}
 	
 	// Get/Set WindowLong Enum See: http://msdn.microsoft.com/en-us/library/ms633591.aspx

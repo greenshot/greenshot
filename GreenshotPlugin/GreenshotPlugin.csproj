@@ -110,6 +110,7 @@
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\DestinationHelper.cs" />
     <Compile Include="Core\HelpFileLoader.cs" />
+    <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="Extensions\ControlExtension.cs" />
     <Compile Include="Core\DynamicJson.cs" />
     <Compile Include="Core\EventDelay.cs" />

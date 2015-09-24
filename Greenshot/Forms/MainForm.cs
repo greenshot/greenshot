@@ -138,8 +138,9 @@ namespace Greenshot.Forms
 				}
 
 				// From here on we continue starting Greenshot
-				Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
 				Application.EnableVisualStyles();
+				// BUG-1809: Add message filter, to filter out all the InputLangChanged messages which go to a target control with a handle > 32 bit.
+				Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
 				Application.SetCompatibleTextRenderingDefault(false);
 
 				// if language is not set, show language dialog
