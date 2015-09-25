@@ -676,5 +676,10 @@ namespace GreenshotPlugin.Configuration
 		{
 			get;
 		}
-	}
+
+		string DestinationExportFailed
+		{
+			get;
+		}
+    }
 }

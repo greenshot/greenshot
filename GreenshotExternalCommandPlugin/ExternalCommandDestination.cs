@@ -19,11 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,8 +27,12 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Config.Ini;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
 	/// Description of OCRDestination.

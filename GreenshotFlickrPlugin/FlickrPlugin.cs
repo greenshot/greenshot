@@ -30,6 +30,7 @@ using log4net;
 using Dapplo.Config.Ini;
 using System.Threading.Tasks;
 using System.Threading;
+using Dapplo.Config.Language;
 
 namespace GreenshotFlickrPlugin
 {
@@ -39,7 +40,7 @@ namespace GreenshotFlickrPlugin
 	public class FlickrPlugin : IGreenshotPlugin {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrPlugin));
 		private static IFlickrConfiguration _config;
-		public static PluginAttribute Attributes;
+		private static IFlickrLanguage _language;
 		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
@@ -74,29 +75,28 @@ namespace GreenshotFlickrPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttribute, CancellationToken token = new CancellationToken()) {
 			// Register / get the flickr configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IFlickrConfiguration>();
+			_config = await IniConfig.Current.RegisterAndGetAsync<IFlickrConfiguration>(token);
+			_language = await LanguageLoader.Current.RegisterAndGetAsync<IFlickrLanguage>(token);
 			_host = pluginHost;
-			Attributes = pluginAttributes;
-
 
 			_resources = new ComponentResourceManager(typeof(FlickrPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem();
-			_itemPlugInConfig.Text = Language.GetString("flickr", LangKey.Configure);
+			_itemPlugInConfig.Text = _language.Configure;
 			_itemPlugInConfig.Tag = _host;
 			_itemPlugInConfig.Image = (Image)_resources.GetObject("flickr");
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
 			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
-			Language.LanguageChanged += OnLanguageChanged;
+			_language.PropertyChanged += OnLanguageChanged;
 			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e) {
 			if (_itemPlugInConfig != null) {
-				_itemPlugInConfig.Text = Language.GetString("flickr", LangKey.Configure);
+				_itemPlugInConfig.Text = _language.Configure;
 			}
 		}
 

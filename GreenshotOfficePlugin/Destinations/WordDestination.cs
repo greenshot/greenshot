@@ -30,6 +30,8 @@ using System.Linq;
 using GreenshotOfficePlugin.OfficeExport;
 using System.Threading.Tasks;
 using System.Threading;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -37,10 +39,11 @@ namespace GreenshotOfficePlugin {
 	/// </summary>
 	public class WordDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_DOCUMENT = 1;
-		private static string exePath = null;
-		private string documentCaption = null;
+		private static readonly string exePath;
+		private readonly string _documentCaption;
 
 		static WordDestination() {
 			exePath = PluginUtils.GetExePath("WINWORD.EXE");
@@ -54,7 +57,7 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public WordDestination(string wordCaption) {
-			this.documentCaption = wordCaption;
+			_documentCaption = wordCaption;
 		}
 
 		public override string Designation {
@@ -65,10 +68,10 @@ namespace GreenshotOfficePlugin {
 
 		public override string Description {
 			get {
-				if (documentCaption == null) {
+				if (_documentCaption == null) {
 					return "Microsoft Word";
 				} else {
-					return documentCaption;
+					return _documentCaption;
 				}
 			}
 		}
@@ -93,7 +96,7 @@ namespace GreenshotOfficePlugin {
 
 		public override Image DisplayIcon {
 			get {
-				if (!string.IsNullOrEmpty(documentCaption)) {
+				if (!string.IsNullOrEmpty(_documentCaption)) {
 					return PluginUtils.GetCachedExeIcon(exePath, ICON_DOCUMENT);
 				}
 				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
@@ -115,18 +118,18 @@ namespace GreenshotOfficePlugin {
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
 				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
-			if (documentCaption != null) {
+			if (_documentCaption != null) {
 				try {
-					WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+					WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
 					exportInformation.ExportMade = true;
 				} catch (Exception) {
 					try {
-						WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+						WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
 						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
 						LOG.Error(ex);
 						// TODO: Change to general logic in ProcessExport
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
+						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, string.Format(language.DestinationExportFailed, Description));
 					}
 				}
 			} else {
@@ -160,7 +163,7 @@ namespace GreenshotOfficePlugin {
 						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
 						LOG.Error(ex);
-						exportInformation.ErrorMessage = Language.GetFormattedString("destination_exportfailed", Description);
+						exportInformation.ErrorMessage = string.Format(language.DestinationExportFailed, Description);
 					}
 				}
 			}

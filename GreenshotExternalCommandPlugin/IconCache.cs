@@ -22,10 +22,10 @@
 using System;
 using System.Drawing;
 using System.IO;
-using GreenshotPlugin.Core;
 using Dapplo.Config.Ini;
+using GreenshotPlugin.Core;
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	public static class IconCache {
 		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();

@@ -18,18 +18,56 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using System.ComponentModel;
+using Dapplo.Config.Language;
+
 namespace GreenshotFlickrPlugin {
-	public enum LangKey {
-		upload_menu_item,
-		settings_title,
-		label_upload_format,
-		upload_success,
-		upload_failure,
-		communication_wait,
-		Configure,
-		label_HiddenFromSearch,
-		label_SafetyLevel,
-		label_AfterUpload,
-		label_AfterUploadLinkToClipBoard
+	[Language("flickr")]
+	public interface IFlickrLanguage : ILanguage, INotifyPropertyChanged {
+		string UploadMenuItem
+		{
+			get;
+		}
+        string SettingsTitle
+		{
+			get;
+		}
+		string LabelUploadFormat
+		{
+			get;
+		}
+		string UploadSuccess
+		{
+			get;
+		}
+		string UploadFailure
+		{
+			get;
+		}
+		string CommunicationWait
+		{
+			get;
+		}
+		string Configure
+		{
+			get;
+		}
+		string LabelHiddenFromSearch
+		{
+			get;
+		}
+		string LabelSafetyLevel
+		{
+			get;
+		}
+		string LabelAfterUpload
+		{
+			get;
+		}
+		string LabelAfterUploadLinkToClipBoard
+		{
+			get;
+		}
 	}
 }

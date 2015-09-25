@@ -19,14 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using GreenshotPlugin.Core;
-using Dapplo.Config.Ini;
 using System.ComponentModel;
+using Dapplo.Config.Ini;
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
 	/// Description of FlickrConfiguration.

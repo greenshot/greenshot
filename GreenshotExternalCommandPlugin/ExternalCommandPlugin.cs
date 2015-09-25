@@ -31,8 +31,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ExternalCommand;
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
 	/// An Plugin to run commands after an image was written
@@ -45,8 +46,8 @@ namespace ExternalCommand
 		private static ICoreConfiguration coreConfig;
 		private static IExternalCommandLanguage language;
 		private static IExternalCommandConfiguration config;
-		private PluginAttribute myAttributes;
-		private ToolStripMenuItem itemPlugInRoot;
+		private PluginAttribute _myAttributes;
+		private ToolStripMenuItem _itemPlugInRoot;
 
 		public void Dispose()
 		{
@@ -58,16 +59,12 @@ namespace ExternalCommand
 		{
 			if (disposing)
 			{
-				if (itemPlugInRoot != null)
+				if (_itemPlugInRoot != null)
 				{
-					itemPlugInRoot.Dispose();
-					itemPlugInRoot = null;
+					_itemPlugInRoot.Dispose();
+					_itemPlugInRoot = null;
 				}
 			}
-		}
-
-		public ExternalCommandPlugin()
-		{
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -117,9 +114,8 @@ namespace ExternalCommand
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="pluginAttributes">My own attributes</param>
 		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken())
 		{
 			LOG.DebugFormat("Initialize called of {0}", pluginAttributes.Name);
@@ -150,16 +146,16 @@ namespace ExternalCommand
 				config.Commands.Remove(command);
 			}
 
-			myAttributes = pluginAttributes;
+			_myAttributes = pluginAttributes;
 
 
-			itemPlugInRoot = new ToolStripMenuItem();
-			itemPlugInRoot.Tag = pluginHost;
+			_itemPlugInRoot = new ToolStripMenuItem();
+			_itemPlugInRoot.Tag = pluginHost;
 			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
 			OnLanguageChanged(this, null);
-			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
+			_itemPlugInRoot.Click += ConfigMenuClick;
 
-			PluginUtils.AddToContextMenu(pluginHost, itemPlugInRoot);
+			PluginUtils.AddToContextMenu(pluginHost, _itemPlugInRoot);
 			language.PropertyChanged += OnLanguageChanged;
 			coreConfig.PropertyChanged += OnIconSizeChanged;
 			return true;
@@ -179,7 +175,7 @@ namespace ExternalCommand
 					string exePath = PluginUtils.GetExePath("cmd.exe");
 					if (exePath != null && File.Exists(exePath))
 					{
-						itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
+						_itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
 					}
 				}
 				catch (Exception ex)
@@ -191,15 +187,15 @@ namespace ExternalCommand
 
 		private void OnLanguageChanged(object sender, EventArgs e)
 		{
-			if (itemPlugInRoot != null)
+			if (_itemPlugInRoot != null)
 			{
-				itemPlugInRoot.Text = language.ContextmenuConfigure;
+				_itemPlugInRoot.Text = language.ContextmenuConfigure;
 			}
 		}
 
 		public void Shutdown()
 		{
-			LOG.Debug("Shutdown of " + myAttributes.Name);
+			LOG.Debug("Shutdown of " + _myAttributes.Name);
 		}
 
 		private void ConfigMenuClick(object sender, EventArgs eventArgs)

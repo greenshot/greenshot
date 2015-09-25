@@ -296,7 +296,7 @@ namespace Greenshot {
 		private void UpdateClipboardFormatDescriptions() {
 			foreach(ListViewItem item in listview_clipboardformats.Items) {
 				ClipboardFormat cf = (ClipboardFormat) item.Tag;
-			    item.Text = Language.Translate(cf);
+				item.Text = language[cf.GetType().Name + "." + cf];
 			}
 		}
 

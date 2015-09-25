@@ -31,12 +31,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using GreenshotPlugin.Windows;
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 
 namespace GreenshotFlickrPlugin
 {
 	public class FlickrDestination : AbstractDestination {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrDestination));
 		private static IFlickrConfiguration _config = IniConfig.Current.Get<IFlickrConfiguration>();
+		private static IFlickrLanguage language = LanguageLoader.Current.Get<IFlickrLanguage>();
 
 		public override string Designation {
 			get {
@@ -46,7 +48,7 @@ namespace GreenshotFlickrPlugin
 
 		public override string Description {
 			get {
-				return Language.GetString("flickr", LangKey.upload_menu_item);
+				return language.UploadMenuItem;
 			}
 		}
 
@@ -64,7 +66,7 @@ namespace GreenshotFlickrPlugin
 			};
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try {
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("flickr", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) => {
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 					return await FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename, progress, token);
 				});
@@ -78,7 +80,7 @@ namespace GreenshotFlickrPlugin
 				}
 			} catch (Exception e) {
 				LOG.Error("Error uploading.", e);
-				MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
+				MessageBox.Show(language.UploadFailure + " " + e.Message);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

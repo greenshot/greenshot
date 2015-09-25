@@ -19,16 +19,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel;
+using Dapplo.Config.Language;
+
 namespace GreenshotPhotobucketPlugin {
-	public enum LangKey {
-		upload_menu_item,
-		settings_title,
-		label_upload_format,
-		label_clear,
-		upload_success,
-		upload_failure,
-		communication_wait,
-		use_page_link,
-		configure
+	[Language("Photobucket")]
+	public interface IPhotobucketLanguage : ILanguage, INotifyPropertyChanged {
+		string UploadMenuItem
+		{
+			get;
+		}
+        string SettingsTitle
+		{
+			get;
+		}
+		string LabelUploadFormat
+		{
+			get;
+		}
+		string LabelClear
+		{
+			get;
+		}
+		string UploadSuccess
+		{
+			get;
+		}
+		string UploadFailure
+		{
+			get;
+		}
+		string CommunicationWait
+		{
+			get;
+		}
+		string UsePageLink
+		{
+			get;
+		}
+		string Configure
+		{
+			get;
+		}
 	}
 }

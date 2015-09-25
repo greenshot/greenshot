@@ -61,15 +61,16 @@ namespace GreenshotConfluencePlugin {
 				
 				var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
 				foreach (var field in fields) {
-					DisplayKeyAttribute[] a = (DisplayKeyAttribute[])field.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
+					DisplayKeyAttribute[] displayKeyAttributes = (DisplayKeyAttribute[])field.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
 				
-					string displayKey = GetDisplayKeyValue(a);
+					string displayKey = GetDisplayKeyValue(displayKeyAttributes);
 					object enumValue = field.GetValue(null);
 					
-					string displayString = null;
+					string displayString;
 					if (displayKey != null && Language.HasKey(displayKey)) {
 						displayString = Language.GetString(displayKey);
-					} if (displayKey != null) {
+					}
+					if (displayKey != null) {
 						displayString = displayKey;
 					} else {
 						displayString = enumValue.ToString();
@@ -84,12 +85,11 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 		
-		private string GetDisplayKeyValue(DisplayKeyAttribute[] a) {
-			if (a == null || a.Length == 0) {
+		private string GetDisplayKeyValue(DisplayKeyAttribute[] displayKeyAttributes) {
+			if (displayKeyAttributes == null || displayKeyAttributes.Length == 0) {
 				return null;
 			}
-			DisplayKeyAttribute dka = a[0];
-			return dka.Value;
+			return displayKeyAttributes[0].Value;
 		}
 		
 		object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture) {
