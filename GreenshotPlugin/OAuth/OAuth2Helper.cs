@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotPlugin.OAuth {
 
@@ -63,7 +64,7 @@ namespace GreenshotPlugin.OAuth {
 
 			dynamic refreshTokenResult;
 			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token)) {
-				refreshTokenResult = await responseMessage.GetAsJsonAsync();
+				refreshTokenResult = await responseMessage.GetJsonAsync(token: token);
 			}
 
 			if (refreshTokenResult.IsDefined("error")) {
@@ -106,7 +107,7 @@ namespace GreenshotPlugin.OAuth {
 
 			dynamic accessTokenResult;
 			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token)) {
-				accessTokenResult = await responseMessage.GetAsJsonAsync();
+				accessTokenResult = await responseMessage.GetJsonAsync(token: token);
 			}
 
 			if (accessTokenResult.IsDefined("error")) {

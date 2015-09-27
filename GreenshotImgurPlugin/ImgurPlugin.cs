@@ -78,13 +78,13 @@ namespace GreenshotImgurPlugin
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
 			// Register / get the imgur configuration
 			config = await IniConfig.Current.RegisterAndGetAsync<IImgurConfiguration>();
 			language = await LanguageLoader.Current.RegisterAndGetAsync<IImgurLanguage>();
 
 			_host = pluginHost;
-			Attributes = pluginAttributes;
+			Attributes = myAttribute;
 
 			_resources = new ComponentResourceManager(typeof(ImgurPlugin));
 			

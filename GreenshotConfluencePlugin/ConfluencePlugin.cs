@@ -39,7 +39,7 @@ namespace GreenshotConfluencePlugin
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
 		private static IConfluenceConfiguration _config;
 		private static IConfluenceLanguage _language;
-		private static ConfluenceAPI _confluenceApi;
+		private static ConfluenceApi _confluenceApi;
 
 		public void Dispose() {
 			Dispose(true);
@@ -64,8 +64,8 @@ namespace GreenshotConfluencePlugin
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
+		/// <param name="myAttribute">My own attributes</param>
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
 			// Register / get the confluence configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IConfluenceConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IConfluenceLanguage>(token);
@@ -95,21 +95,21 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public static ConfluenceAPI ConfluenceAPI {
+		public static ConfluenceApi ConfluenceAPI {
 			get {
 				return _confluenceApi;
 			}
 		}
 
-		public async static Task<ConfluenceAPI> GetConfluenceAPI() {
-			ConfluenceAPI confluenceApi = null;
+		public async static Task<ConfluenceApi> GetConfluenceAPI() {
+			ConfluenceApi confluenceApi = null;
 			if (!string.IsNullOrEmpty(_config.RestUrl)) {
 				try {
 					// Get the system name, so the user knows where to login to
 					CredentialsDialog dialog = new CredentialsDialog(_config.RestUrl);
 					dialog.Name = null;
 					while (dialog.Show(dialog.Name) == DialogResult.OK) {
-						confluenceApi = new ConfluenceAPI(new Uri(_config.RestUrl));
+						confluenceApi = new ConfluenceApi(new Uri(_config.RestUrl));
 						confluenceApi.SetBasicAuthentication(dialog.Name, dialog.Password);
 						try {
 							// Try loading content for id 0, should be null (or something) but not give an exception

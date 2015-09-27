@@ -20,11 +20,11 @@
  */
 
 using Dapplo.Config.Language;
-using GreenshotPlugin.Extensions;
 using log4net;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotPlugin.Core
 {
@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Core
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(HelpFileLoader));
 		
-		private static readonly Uri EXT_HELP_URL = new Uri(@"http://getgreenshot.org/help/");
+		private static readonly Uri ExtHelpUrl = new Uri(@"http://getgreenshot.org/help/");
 		
 		/// <summary>
 		/// Start a process with the help, this can either be an online link, or a local file
@@ -52,11 +52,11 @@ namespace GreenshotPlugin.Core
 		
 		/// <summary>
 		/// </summary>
-		/// <param name="currentIETF">Language.CurrentLanguage</param>
+		/// <param name="currentIetf">Language.CurrentLanguage</param>
 		/// <returns>URL of help file in selected ietf, or (if not present) default ietf, or null (if not present, too. probably indicating that there is no internet connection)</returns>
-		private static async Task<Uri> FindOnlineHelpUrl(string currentIETF) {
-			if (!currentIETF.Equals("en-US")) {
-				var localizedContentUri = EXT_HELP_URL.AppendSegments(currentIETF.ToLower());
+		private static async Task<Uri> FindOnlineHelpUrl(string currentIetf) {
+			if (!currentIetf.Equals("en-US")) {
+				var localizedContentUri = ExtHelpUrl.AppendSegments(currentIetf.ToLower());
 
 				// Check if the online localized content is available.
 				try {
@@ -68,15 +68,15 @@ namespace GreenshotPlugin.Core
 					// NO internet or wrong URI
 				}
 
-				LOG.InfoFormat("Localized online help not found at {0}, will try {1} as fallback", localizedContentUri, EXT_HELP_URL);
+				LOG.InfoFormat("Localized online help not found at {0}, will try {1} as fallback", localizedContentUri, ExtHelpUrl);
 			}
 
 			// Check if the online content (en-US) is available.
 			try {
 				// Although a "HeadAsync" should be enough, this give an OK when the SF-Database has problems.
 				// TODO: change to HeadAsync after we moved to GitHub
-				await EXT_HELP_URL.GetAsStringAsync();
-				return EXT_HELP_URL;
+				await ExtHelpUrl.GetAsStringAsync();
+				return ExtHelpUrl;
 			} catch {
 				// NO internet or wrong URI
 			}

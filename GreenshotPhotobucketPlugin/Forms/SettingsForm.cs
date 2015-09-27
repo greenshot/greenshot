@@ -24,7 +24,7 @@ namespace GreenshotPhotobucketPlugin {
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : PhotobucketForm {
-		public SettingsForm(PhotobucketConfiguration config) : base() {
+		public SettingsForm(IPhotobucketConfiguration config) : base() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

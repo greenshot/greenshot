@@ -20,14 +20,13 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using GreenshotPlugin.OAuth;
 using System;
 using System.Drawing;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotDropboxPlugin {
 	/// <summary>

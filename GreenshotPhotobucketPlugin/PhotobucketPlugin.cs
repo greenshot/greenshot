@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
 
 namespace GreenshotPhotobucketPlugin
 {
@@ -37,11 +38,13 @@ namespace GreenshotPhotobucketPlugin
 	/// </summary>
 	public class PhotobucketPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketPlugin));
-		private static PhotobucketConfiguration config;
+		private static IPhotobucketConfiguration _config;
+		private static IPhotobucketLanguage _language;
+
 		public static PluginAttribute Attributes;
-		private IGreenshotHost host;
-		private ComponentResourceManager resources;
-		private ToolStripMenuItem itemPlugInConfig;
+		private IGreenshotHost _host;
+		private ComponentResourceManager _resources;
+		private ToolStripMenuItem _itemPlugInConfig;
 
 		public void Dispose() {
 			Dispose(true);
@@ -50,14 +53,11 @@ namespace GreenshotPhotobucketPlugin
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (itemPlugInConfig != null) {
-					itemPlugInConfig.Dispose();
-					itemPlugInConfig = null;
+				if (_itemPlugInConfig != null) {
+					_itemPlugInConfig.Dispose();
+					_itemPlugInConfig = null;
 				}
 			}
-		}
-
-		public PhotobucketPlugin() {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
@@ -71,39 +71,40 @@ namespace GreenshotPhotobucketPlugin
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttribute">My own attributes</param>
+		/// <param name="token"></param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
-			this.host = (IGreenshotHost)pluginHost;
-			Attributes = myAttributes;
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
+			_host = pluginHost;
+			Attributes = myAttribute;
 
 			// Register / get the photobucket configuration
-			config = await IniConfig.Current.RegisterAndGetAsync<PhotobucketConfiguration>();
-			resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
+			_config = await IniConfig.Current.RegisterAndGetAsync<IPhotobucketConfiguration>(token);
+			_language = await LanguageLoader.Current.RegisterAndGetAsync<IPhotobucketLanguage>(token);
+			_resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
 			
-			itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure));
-			itemPlugInConfig.Tag = host;
-			itemPlugInConfig.Click += delegate {
+			_itemPlugInConfig = new ToolStripMenuItem(_language.Configure);
+			_itemPlugInConfig.Tag = _host;
+			_itemPlugInConfig.Click += delegate {
 				ShowConfigDialog();
 			};
-			itemPlugInConfig.Image = (Image)resources.GetObject("Photobucket");
+			_itemPlugInConfig.Image = (Image)_resources.GetObject("Photobucket");
 
-			PluginUtils.AddToContextMenu(host, itemPlugInConfig);
-			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
+			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			_language.PropertyChanged += OnLanguageChanged;
 			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (itemPlugInConfig != null) {
-				itemPlugInConfig.Text = Language.GetString("photobucket", LangKey.configure);
+			if (_itemPlugInConfig != null) {
+				_itemPlugInConfig.Text = _language.Configure;
 			}
 		}
 
 		public void Shutdown() {
 			LOG.Debug("Photobucket Plugin shutdown.");
-			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
+			_language.PropertyChanged -= OnLanguageChanged;
 		}
 
 		/// <summary>
@@ -118,13 +119,10 @@ namespace GreenshotPhotobucketPlugin
 		/// A form for username/password
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		private bool ShowConfigDialog() {
-			SettingsForm settingsForm = new SettingsForm(config);
-			DialogResult result = settingsForm.ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
+		private void ShowConfigDialog()
+		{
+			var settingsForm = new SettingsForm(_config);
+			settingsForm.ShowDialog();
 		}
 
 		/// <summary>

@@ -92,14 +92,14 @@ namespace GreenshotOCR {
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
 		/// <param name="greenshotHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
+		/// <param name="myAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
-			LOG.Debug("Initialize called of " + myAttributes.Name);
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
+			LOG.Debug("Initialize called of " + myAttribute.Name);
 
-			_myAttributes = myAttributes;
+			_myAttributes = myAttribute;
 
-			var dllPath = Path.GetDirectoryName(myAttributes.DllFile);
+			var dllPath = Path.GetDirectoryName(myAttribute.DllFile);
 
 			if (dllPath != null)
 			{

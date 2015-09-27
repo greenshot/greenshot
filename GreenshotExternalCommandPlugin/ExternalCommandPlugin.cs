@@ -115,10 +115,10 @@ namespace GreenshotExternalCommandPlugin
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="pluginAttributes">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken())
+		/// <param name="myAttribute">My own attributes</param>
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
 		{
-			LOG.DebugFormat("Initialize called of {0}", pluginAttributes.Name);
+			LOG.DebugFormat("Initialize called of {0}", myAttribute.Name);
 			var iniConfig = IniConfig.Current;
 
 			// Make sure the defaults are set
@@ -146,7 +146,7 @@ namespace GreenshotExternalCommandPlugin
 				config.Commands.Remove(command);
 			}
 
-			_myAttributes = pluginAttributes;
+			_myAttributes = myAttribute;
 
 
 			_itemPlugInRoot = new ToolStripMenuItem();

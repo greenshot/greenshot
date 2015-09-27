@@ -27,10 +27,10 @@ using System.ComponentModel;
 namespace GreenshotPhotobucketPlugin
 {
 	/// <summary>
-	/// Description of PhotobucketConfiguration.
+	/// Description of IPhotobucketConfiguration.
 	/// </summary>
 	[IniSection("Photobucket"), Description("Greenshot Photobucket Plugin configuration")]
-	public interface PhotobucketConfiguration : IIniSection<PhotobucketConfiguration> {
+	public interface IPhotobucketConfiguration : IIniSection<IPhotobucketConfiguration> {
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat {
 			get;

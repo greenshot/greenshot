@@ -66,10 +66,10 @@
     <Compile Include="PhotobucketDestination.cs" />
     <Compile Include="PhotobucketInfo.cs" />
     <Compile Include="PhotobucketPlugin.cs" />
-    <Compile Include="PhotobucketConfiguration.cs" />
+    <Compile Include="IPhotobucketConfiguration.cs" />
     <Compile Include="PhotobucketCredentials.cs" />
     <Compile Include="PhotobucketUtils.cs" />
-    <Compile Include="LanguageKeys.cs" />
+    <Compile Include="IPhotobucketLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Languages\language_Photobucketplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

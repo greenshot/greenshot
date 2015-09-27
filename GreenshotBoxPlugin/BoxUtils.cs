@@ -22,7 +22,6 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using GreenshotPlugin.OAuth;
 using System;
 using System.Collections.Generic;
@@ -34,6 +33,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotBoxPlugin
 {
@@ -51,9 +51,10 @@ namespace GreenshotBoxPlugin
 		/// Do the actual upload to Box
 		/// For more details on the available parameters, see: http://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
 		/// </summary>
-		/// <param name="image">Image for box upload</param>
-		/// <param name="title">Title of box upload</param>
-		/// <param name="filename">Filename of box upload</param>
+		/// <param name="surfaceToUpload"></param>
+		/// <param name="captureDetails"></param>
+		/// <param name="progress"></param>
+		/// <param name="token"></param>
 		/// <returns>url to uploaded image</returns>
 		public static async Task<string> UploadToBoxAsync(ISurface surfaceToUpload, ICaptureDetails captureDetails, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
@@ -95,7 +96,7 @@ namespace GreenshotBoxPlugin
 								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 								multiPartContent.Add(streamContent);
 								using (var responseMessage = await httpClient.PostAsync(UploadFileUri, multiPartContent, token)) {
-									response = await responseMessage.GetAsStringAsync(token);
+									response = await responseMessage.GetAsStringAsync(token: token);
 								}
 							}
 						}
@@ -111,7 +112,7 @@ namespace GreenshotBoxPlugin
 						Uri uri = new Uri(string.Format(FilesUri, upload.Entries[0].Id));
 						var content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8);
 						using (var responseMessage = await httpClient.PutAsync(uri, content, token)) {
-							var file = await responseMessage.GetAsJsonAsync(token);
+							var file = await responseMessage.GetJsonAsync(token: token);
 							return file.SharedLink.Url;
 						}
 					}

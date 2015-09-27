@@ -37,8 +37,8 @@ namespace GreenshotJiraPlugin {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(JiraMonitor));
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly TitleChangeMonitor _monitor;
-		private readonly IList<JiraAPI> _jiraInstances = new List<JiraAPI>();
-		private readonly IDictionary<string, JiraAPI> _projectJiraApiMap = new Dictionary<string, JiraAPI>();
+		private readonly IList<JiraApi> _jiraInstances = new List<JiraApi>();
+		private readonly IDictionary<string, JiraApi> _projectJiraApiMap = new Dictionary<string, JiraApi>();
 		private readonly int _maxEntries;
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
 
@@ -79,7 +79,7 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		/// <param name="jiraDetails"></param>
 		/// <returns>JiraAPI</returns>
-		public JiraAPI GetJiraApiForKey(JiraDetails jiraDetails) {
+		public JiraApi GetJiraApiForKey(JiraDetails jiraDetails) {
 			return _projectJiraApiMap[jiraDetails.ProjectKey];
 		}
 
@@ -107,18 +107,19 @@ namespace GreenshotJiraPlugin {
 		/// <summary>
 		/// Add an instance of a JIRA system
 		/// </summary>
-		/// <param name="url"></param>
+		/// <param name="uri"></param>
 		/// <param name="username"></param>
 		/// <param name="password"></param>
+		/// <param name="token"></param>
 		public async Task AddJiraInstance(Uri uri, string username, string password, CancellationToken token = default(CancellationToken)) {
-			var jiraInstance = new JiraAPI(uri);
+			var jiraInstance = new JiraApi(uri);
 			jiraInstance.SetBasicAuthentication(username, password);
-			var serverInfo = await jiraInstance.ServerInfo().ConfigureAwait(false);
+			var serverInfo = await jiraInstance.ServerInfo(token).ConfigureAwait(false);
 			jiraInstance.ServerTitle = serverInfo.serverTitle;
 			jiraInstance.JiraVersion = serverInfo.version;
 
 			_jiraInstances.Add(jiraInstance);
-			foreach (var project in await jiraInstance.Projects().ConfigureAwait(false)) {
+			foreach (var project in await jiraInstance.Projects(token).ConfigureAwait(false)) {
 				if (!_projectJiraApiMap.ContainsKey(project.key)) {
 					_projectJiraApiMap.Add(project.key, jiraInstance);
 				}
@@ -128,11 +129,11 @@ namespace GreenshotJiraPlugin {
 		/// <summary>
 		/// A helper method to retrieve the title for a Jira (so we can display this clean) in the background (async)
 		/// </summary>
-		/// <param name="jiraKey">key for the jira to retrieve the title (XYZ-1234)</param>
+		/// <param name="jiraDetails">Contains the jira key to retrieve the title (XYZ-1234)</param>
 		/// <returns>title for the _jira key</returns>
 		private async Task GetTitle(JiraDetails jiraDetails) {
 			try {
-				JiraAPI jiraApi;
+				JiraApi jiraApi;
 				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi)) {
 					var issue = await jiraApi.Issue(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.Title = issue.fields.summary;
@@ -146,10 +147,11 @@ namespace GreenshotJiraPlugin {
 		/// Try to make the title as clean as possible
 		/// </summary>
 		/// <param name="jiraApi"></param>
-		/// <param name="windowsTitle"></param>
+		/// <param name="windowTitle"></param>
+		/// <param name="jiraKey"></param>
 		/// <returns>a clean windows title</returns>
-		private string CleanWindowTitle(JiraAPI jiraAPI, string jiraKey, string windowTitle) {
-			var title = windowTitle.Replace(jiraAPI.ServerTitle, "");
+		private string CleanWindowTitle(JiraApi jiraApi, string jiraKey, string windowTitle) {
+			var title = windowTitle.Replace(jiraApi.ServerTitle, "");
 			// Remove for emails:
 			title = title.Replace("[JIRA]", "");
 			title = Regex.Replace(title, string.Format(@"^[^a-zA-Z0-9]*{0}[^a-zA-Z0-9]*", jiraKey), "");
@@ -162,6 +164,7 @@ namespace GreenshotJiraPlugin {
 		/// <summary>
 		/// Handle title changes, check for JIRA
 		/// </summary>
+		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
 		private void monitor_TitleChangeEvent(object sender, TitleChangeEventArgs eventArgs) {
 			string windowTitle = eventArgs.Title;
@@ -176,10 +179,10 @@ namespace GreenshotJiraPlugin {
 				var projectKey = jiraKeyParts[0];
 				var jiraId = jiraKeyParts[1];
 
-				JiraAPI jiraAPI;
+				JiraApi jiraApi;
 				// Check if we have a JIRA instance with a project for this key
-				if (_projectJiraApiMap.TryGetValue(projectKey, out jiraAPI)) {
-					LOG.InfoFormat("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", jiraKey, jiraAPI.ServerTitle);
+				if (_projectJiraApiMap.TryGetValue(projectKey, out jiraApi)) {
+					LOG.InfoFormat("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", jiraKey, jiraApi.ServerTitle);
 					// We have found a project for this _jira key, so it must be a valid & known JIRA
 					JiraDetails currentJiraDetails;
 					if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails)) {
@@ -192,7 +195,7 @@ namespace GreenshotJiraPlugin {
 					currentJiraDetails = new JiraDetails() {
 						Id = jiraId,
 						ProjectKey = projectKey,
-						Title = CleanWindowTitle(jiraAPI, jiraKey, windowTitle) // Try to make it as clean as possible, although we retrieve the issue title later
+						Title = CleanWindowTitle(jiraApi, jiraKey, windowTitle) // Try to make it as clean as possible, although we retrieve the issue title later
 					};
 					_recentJiras.Add(currentJiraDetails.JiraKey, currentJiraDetails);
 

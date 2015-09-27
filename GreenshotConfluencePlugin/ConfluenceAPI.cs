@@ -23,7 +23,6 @@ using Dapplo.Config;
 using Dapplo.Config.Support;
 using GreenshotConfluencePlugin.Model;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -32,13 +31,14 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
 	/// Confluence API, using the FlurlClient
 	/// </summary>
-	public class ConfluenceAPI : IDisposable {
-		private const string restPath = "rest/api";
+	public class ConfluenceApi : IDisposable {
+		private const string RestPath = "rest/api";
 		private readonly HttpClient _client;
 		public string ConfluenceVersion {
 			get;
@@ -58,14 +58,13 @@ namespace GreenshotConfluencePlugin {
 
 		public IConfluenceModel Model {
 			get;
-			private set;
 		}
 
 		/// <summary>
 		/// Create the ConfluenceAPI object, here the HttpClient is configured
 		/// </summary>
-		/// <param name="baseurl">Base URL</param>
-		public ConfluenceAPI(Uri baseUri, bool useProxy = true, bool useDefaultCredentials = true, bool useCookieContainer = true) {
+		/// <param name="baseUri">Base URL</param>
+		public ConfluenceApi(Uri baseUri) {
 			ConfluenceBaseUri = baseUri;
 			_client = baseUri.CreateHttpClient();
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
@@ -107,7 +106,7 @@ namespace GreenshotConfluencePlugin {
 		#endregion
 
 		private Uri Format(params object[] segments) {
-			var sb = new StringBuilder(string.Format("{0}{1}", ConfluenceBaseUri.AbsoluteUri, restPath));
+			var sb = new StringBuilder(string.Format("{0}{1}", ConfluenceBaseUri.AbsoluteUri, RestPath));
 			foreach(var segment in segments) {
 				sb.AppendFormat("/{0}", segment);
 			}
@@ -119,17 +118,18 @@ namespace GreenshotConfluencePlugin {
 		/// </summary>
 		/// <param name="start">the start of the spaces collection, can be used for paging together with the limit</param>
 		/// <param name="limit">the maximum number of spaces to read</param>
+		/// <param name="token"></param>
 		/// <returns>Spaces</returns>
 		public async Task LoadSpacesAsync(int start = 0,int limit = 500, CancellationToken token = default(CancellationToken)) {
-			bool finished = false;
+			bool finished;
 			// Loop until we have all we need
 			int loaded = 0;
 			do {
 				var spacesUri = Format("space").ExtendQuery(new Dictionary<string, object> { { "start", start }, { "limit", limit } });
 				dynamic jsonResponse;
 				using (var responseMessage = await _client.GetAsync(spacesUri, token).ConfigureAwait(false)) {
-					await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-					jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+					await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+					jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
 				}
 				foreach (var spaceJson in jsonResponse.results) {
 					if (spaceJson._expandable.IsDefined("homepage")) {
@@ -149,6 +149,8 @@ namespace GreenshotConfluencePlugin {
 		/// Get the content by id
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="useCache"></param>
+		/// <param name="token"></param>
 		/// <returns>Content</returns>
 		public async Task<Content> GetContentAsync(long id, bool useCache = true, CancellationToken token = default(CancellationToken)) {
 			Content resultContent;
@@ -159,8 +161,8 @@ namespace GreenshotConfluencePlugin {
 				if (responseMessage.StatusCode == HttpStatusCode.NotFound) {
 					return null;
 				}
-				await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-				var jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
 				resultContent = Content.CreateFromContent(jsonResponse);
 			}
 			if (useCache) {
@@ -172,14 +174,16 @@ namespace GreenshotConfluencePlugin {
 		/// <summary>
 		/// Get the children of the content
 		/// </summary>
-		/// <param name="id"></param>
+		/// <param name="contentId"></param>
+		/// <param name="useCache"></param>
+		/// <param name="token"></param>
 		/// <returns>list of content</returns>
 		public async Task<IList<Content>> GetChildrenAsync(long contentId, bool useCache = true, CancellationToken token = default(CancellationToken)) {
 			IList<Content> children = new List<Content>();
 			Uri childUri = Format("content", contentId, "child").ExtendQuery(new Dictionary<string, object> { { "expand", "page" }});
 			using (var responseMessage = await _client.GetAsync(childUri, token).ConfigureAwait(false)) {
-				await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-				var jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
 				foreach (var pageContent in jsonResponse.page.results) {
 					Content child = Content.CreateFromContent(pageContent);
 					children.Add(child);
@@ -195,20 +199,22 @@ namespace GreenshotConfluencePlugin {
 		/// Search content
 		/// </summary>
 		/// <param name="cql">Confluence Query Language</param>
+		/// <param name="token"></param>
 		/// <returns>list of content</returns>
 		private async Task<dynamic> SearchAsync(string cql, CancellationToken token = default(CancellationToken)) {
 			Uri searchdUri = Format("content", "search").ExtendQuery(new Dictionary<string, string> { { "cql", cql } });
 			using (var responseMessage = await _client.GetAsync(searchdUri, token).ConfigureAwait(false)) {
-				await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
+				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
 				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
 			}
 		}
-		
+
 		/// <summary>
 		/// Search content
 		/// </summary>
 		/// <param name="spaceKey">Key of the space to search with</param>
 		/// <param name="title">Title of the page to search for</param>
+		/// <param name="token"></param>
 		/// <returns>list of content</returns>
 		public async Task<Content> SearchPageAsync(string spaceKey, string title, CancellationToken token = default(CancellationToken)) {
 			Content foundPage;
@@ -218,7 +224,7 @@ namespace GreenshotConfluencePlugin {
 			int loaded = 0;
 			int start = 0;
 			int limit = 100;
-			bool finished = false;
+			bool finished;
 			do {
 				Uri searchUri = Format("content").ExtendQuery(new Dictionary<string, object> {
 					{ "start", start },
@@ -229,8 +235,8 @@ namespace GreenshotConfluencePlugin {
 				});
 				dynamic jsonResponse;
 				using (var responseMessage = await _client.GetAsync(searchUri, token).ConfigureAwait(false)) {
-					await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-					jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+					await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+					jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
 				}
 				foreach (var pageContent in jsonResponse.results) {
 					foundPage = Content.CreateFromContent(pageContent);
@@ -254,11 +260,12 @@ namespace GreenshotConfluencePlugin {
 		/// </summary>
 		/// <param name="id">content id</param>
 		/// <param name="content">HttpContent like StreamContent or ByteArrayContent</param>
+		/// <param name="token"></param>
 		/// <returns>attachment id</returns>
 		public async Task<string> AttachToContentAsync(long id, HttpContent content, CancellationToken token = default(CancellationToken)) {
 			using (var responseMessage = await _client.PostAsync(Format("content", id, "child", "attachment"), content, token).ConfigureAwait(false)) {
-				await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-				var jsonResponse = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
 				return jsonResponse.results[0].id;
 			}
 		}

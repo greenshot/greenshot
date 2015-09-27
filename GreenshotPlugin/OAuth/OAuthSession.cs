@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Controls;
-using GreenshotPlugin.Extensions;
+using Dapplo.HttpExtensions;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -398,7 +398,7 @@ namespace GreenshotPlugin.OAuth
 		/// <typeparam name="T"></typeparam>
 		/// <param name="func"></param>
 		/// <returns>Task</returns>
-		private static Task<T> StartSTATask<T>(Func<T> func) {
+		private static Task<T> StartStaTask<T>(Func<T> func) {
 			var tcs = new TaskCompletionSource<T>();
 			Thread thread = new Thread(() => {
 				try {
@@ -432,7 +432,7 @@ namespace GreenshotPlugin.OAuth
 				throw new NotSupportedException("Service is not available: " + ex.Message);
 			}
 			// Run the WebBrowser on a STA thread!
-			var token = await StartSTATask(GetAuthorizeToken);
+			var token = await StartStaTask(GetAuthorizeToken);
 			if (string.IsNullOrEmpty(token))
 			{
 				LOG.Debug("User didn't authenticate!");
@@ -471,7 +471,7 @@ namespace GreenshotPlugin.OAuth
 		/// <param name="headers">Headers for the request</param>
 		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
 		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
-		/// <param name="postData">Data to post (MemoryStream)</param>
+		/// <param name="content">Data to post (HttpContent)</param>
 		/// <returns>The web server response.</returns>
 		public async Task<string> MakeOAuthRequest(HttpMethod method, Uri signUri, Uri requestUri, IDictionary<string, string> headers = null, IDictionary<string, object> parametersToSign = null, IDictionary<string, object> additionalParameters = null, HttpContent content = null)
 		{
@@ -551,19 +551,19 @@ namespace GreenshotPlugin.OAuth
 		/// And additionally a signature is added.
 		/// </summary>
 		/// <param name="method">Method (POST,PUT,GET)</param>
-		/// <param name="requestURL">Url to call</param>
-		/// <param name="parameters">IDictionary<string, string></param>
+		/// <param name="requestUri">Url to call</param>
+		/// <param name="parameters">IDictionar&lt;string, string&gt;</param>
 		private void Sign(HttpMethod method, Uri requestUri, IDictionary<string, object> parameters)
 		{
 			if (parameters == null)
 			{
-				throw new ArgumentNullException("parameters");
+				throw new ArgumentNullException(nameof(parameters));
 			}
 			// Build the signature base
 			var signatureBase = new StringBuilder();
 
 			// Add Method to signature base
-			signatureBase.Append(method.ToString()).Append("&");
+			signatureBase.Append(method).Append("&");
 
 			// Add normalized URL
 			signatureBase.Append(Uri.EscapeDataString(requestUri.Normalize().ToString())).Append("&");
@@ -580,7 +580,6 @@ namespace GreenshotPlugin.OAuth
 				case OAuthSignatureTypes.PLAINTEXT:
 					parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, PlainTextSignatureType);
 					break;
-				case OAuthSignatureTypes.HMACSHA1:
 				default:
 					parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, HMACSHA1SignatureType);
 					break;
@@ -609,29 +608,28 @@ namespace GreenshotPlugin.OAuth
 					string certFilePath = _consumerKey; // The .P12 certificate file path Example: "C:/mycertificate/MCOpenAPI.p12
 					string password = _consumerSecret; // password to read certificate .p12 file
 													   // Read the Certification from .P12 file.
-					var cert = new X509Certificate2(certFilePath.ToString(), password);
+					var cert = new X509Certificate2(certFilePath, password);
 					// Retrieve the Private key from Certificate.
 					var rsaCrypt = (RSACryptoServiceProvider)cert.PrivateKey;
 					// Create a RSA-SHA1 Hash object
-					using (var shaHASHObject = new SHA1Managed())
+					using (var shaHashObject = new SHA1Managed())
 					{
 						// Create Byte Array of Signature base string
 						byte[] data = Encoding.ASCII.GetBytes(signatureBase.ToString());
 						// Create Hashmap of Signature base string
-						byte[] hash = shaHASHObject.ComputeHash(data);
+						byte[] hash = shaHashObject.ComputeHash(data);
 						// Create Sign Hash of base string
 						// NOTE - 'SignHash' gives correct data. Don't use SignData method
 						byte[] rsaSignature = rsaCrypt.SignHash(hash, CryptoConfig.MapNameToOID("SHA1"));
 						// Convert to Base64 string
-						string base64string = Convert.ToBase64String(rsaSignature);
+						string base64String = Convert.ToBase64String(rsaSignature);
 						// Return the Encoded UTF8 string
-						parameters.Add(OAUTH_SIGNATURE_KEY, Uri.EscapeDataString(base64string));
+						parameters.Add(OAUTH_SIGNATURE_KEY, Uri.EscapeDataString(base64String));
 					}
 					break;
 				case OAuthSignatureTypes.PLAINTEXT:
 					parameters.Add(OAUTH_SIGNATURE_KEY, key);
 					break;
-				case OAuthSignatureTypes.HMACSHA1:
 				default:
 					// Generate Signature and add it to the parameters
 					var hmacsha1 = new HMACSHA1();
@@ -650,7 +648,8 @@ namespace GreenshotPlugin.OAuth
 		/// <param name="requestUri"></param>
 		/// <param name="headers"></param>
 		/// <param name="parameters"></param>
-		/// <param name="postData">IBinaryParameter</param>
+		/// <param name="content">HttpContent</param>
+		/// <param name="token">CancellationToken</param>
 		/// <returns>Response from server</returns>
 		private async Task<string> MakeRequest(HttpMethod method, Uri requestUri, IDictionary<string, string> headers, IDictionary<string, object> parameters, HttpContent content, CancellationToken token = default(CancellationToken))
 		{
@@ -739,7 +738,7 @@ namespace GreenshotPlugin.OAuth
 
 				try
 				{
-					responseData = await responseMessage.GetAsStringAsync(token).ConfigureAwait(false);
+					responseData = await responseMessage.GetAsStringAsync(true, token).ConfigureAwait(false);
 					LOG.DebugFormat("Response: {0}", responseData);
 				}
 				catch (Exception ex)

@@ -65,17 +65,17 @@ namespace GreenshotEditorPlugin
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="pluginAttributes">My own attributes</param>
+		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttributes, CancellationToken token = new CancellationToken())
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
 		{
-			LOG.DebugFormat("Initialize called of {0}", pluginAttributes.Name);
+			LOG.DebugFormat("Initialize called of {0}", myAttribute.Name);
 			var iniConfig = IniConfig.Current;
 
 			// Make sure the defaults are set
 			await iniConfig.RegisterAndGetAsync<IEditorConfiguration>(token);
 			await LanguageLoader.Current.RegisterAndGetAsync<IEditorLanguage>(token);
-            _myAttributes = pluginAttributes;
+            _myAttributes = myAttribute;
 			return true;
 		}
 

@@ -37,6 +37,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.Config.Language;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotConfluencePlugin
 {
@@ -139,7 +140,7 @@ namespace GreenshotConfluencePlugin
 			}
 
 			string extension = "." + config.UploadFormat;
-			if (!filename.ToLower().EndsWith(extension)) {
+			if (filename != null && !filename.ToLower().EndsWith(extension)) {
 				filename = filename + extension;
 			}
 			if (_content != null) {
@@ -171,7 +172,11 @@ namespace GreenshotConfluencePlugin
 					if (config.OpenPageAfterUpload) {
 						try {
 							Process.Start(exportInformation.ExportedToUri.AbsoluteUri);
-						} catch { }
+						}
+						catch
+						{
+							// ignored
+						}
 					}
 				} catch (TaskCanceledException tcEx) {
 					exportInformation.ErrorMessage = tcEx.Message;

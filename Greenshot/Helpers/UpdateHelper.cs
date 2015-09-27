@@ -65,7 +65,7 @@ namespace Greenshot.Helpers {
 						return false;
 					}
 					LOG.DebugFormat("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
-					if (!await SourceForgeHelper.isRSSModifiedAfter(conf.LastUpdateCheck).ConfigureAwait(false)) {
+					if (!await SourceForgeHelper.IsRssModifiedAfter(conf.LastUpdateCheck).ConfigureAwait(false)) {
 						LOG.DebugFormat("RSS feed has not been updated since after {0}", conf.LastUpdateCheck);
 						return false;
 					}
@@ -140,7 +140,7 @@ namespace Greenshot.Helpers {
 
 		private static async Task ProcessRSSInfoAsync(Version currentVersion) {
 			// Reset latest Greenshot
-			var rssFiles = await SourceForgeHelper.readRSS().ConfigureAwait(false);
+			var rssFiles = await SourceForgeHelper.ReadRss().ConfigureAwait(false);
 
 			if (rssFiles == null) {
 				return;
@@ -152,7 +152,7 @@ namespace Greenshot.Helpers {
 					SourceforgeFile rssFile = rssFiles[fileType][file];
 					if (fileType.StartsWith("Greenshot")) {
 						// check for exe
-						if (!rssFile.isExe) {
+						if (!rssFile.IsExe) {
 							continue;
 						}
 
@@ -164,7 +164,7 @@ namespace Greenshot.Helpers {
 
 						// if the file is unstable, we will skip it when:
 						// the current version is a release or release candidate AND check unstable is turned off.
-						if (rssFile.isUnstable) {
+						if (rssFile.IsUnstable) {
 							// Skip if we shouldn't check unstables
 							if ((BuildState == BuildStates.RELEASE) && !conf.CheckForUnstable) {
 								continue;
@@ -173,7 +173,7 @@ namespace Greenshot.Helpers {
 
 						// if the file is a release candidate, we will skip it when:
 						// the current version is a release AND check unstable is turned off.
-						if (rssFile.isReleaseCandidate) {
+						if (rssFile.IsReleaseCandidate) {
 							if (BuildState == BuildStates.RELEASE && !conf.CheckForUnstable) {
 								continue;
 							}
@@ -185,7 +185,7 @@ namespace Greenshot.Helpers {
 							LOG.DebugFormat("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 							if (_latestGreenshot == null || rssFile.Version.CompareTo(_latestGreenshot.Version) > 0) {
 								_latestGreenshot = rssFile;
-								if (rssFile.isReleaseCandidate || rssFile.isUnstable) {
+								if (rssFile.IsReleaseCandidate || rssFile.IsUnstable) {
 									downloadLink = VERSION_HISTORY_LINK;
 								} else {
 									downloadLink = STABLE_DOWNLOAD_LINK;

@@ -26,71 +26,74 @@ using System.ServiceModel.Syndication;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
-using GreenshotPlugin.Extensions;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotPlugin.Core {
 	public class SourceforgeFile {
-		private string _file;
-		public string File {
-			get {return _file;}
+		public string File
+		{
+			get;
 		}
-		private DateTimeOffset _pubdate;
-		public DateTimeOffset Pubdate {
-			get {return _pubdate;}
+
+		public DateTimeOffset Pubdate
+		{
+			get;
 		}
-		private string _link;
-		public string Link {
-			get {return _link;}
+
+		public string Link
+		{
+			get;
 		}
-		private string _directLink;
-		public string DirectLink {
-			get {return _directLink;}
+
+		public string DirectLink
+		{
+			get;
 		}
-		private Version _version;
-		public Version Version {
-			get {return _version;}
-			set {
-				_version = value;
-			}
+
+		public Version Version
+		{
+			get;
+			set;
 		}
+
 		private string _language;
 		public string Language {
 			get {return _language;}
 			set {_language = value;}
 		}
 
-		public bool isExe {
+		public bool IsExe {
 			get {
-				if (_file != null) {
-					return _file.ToLower().EndsWith(".exe");
+				if (File != null) {
+					return File.ToLower().EndsWith(".exe");
 				}
 				return false;
 			}
 		}
 
-		public bool isUnstable {
+		public bool IsUnstable {
 			get {
-				if (_file != null) {
-					return _file.ToLower().Contains("unstable");
+				if (File != null) {
+					return File.ToLower().Contains("unstable");
 				}
 				return false;
 			}
 		}
 
-		public bool isReleaseCandidate {
+		public bool IsReleaseCandidate {
 			get {
-				if (_file != null) {
-					return Regex.IsMatch(_file.ToLower(), "rc[0-9]+");
+				if (File != null) {
+					return Regex.IsMatch(File.ToLower(), "rc[0-9]+");
 				}
 				return false;
 			}
 		}
 
 		public SourceforgeFile(string file, DateTimeOffset pubdate, string link, string directLink) {
-			this._file = file;
-			this._pubdate = pubdate;
-			this._link = link;
-			this._directLink = directLink;
+			File = file;
+			Pubdate = pubdate;
+			Link = link;
+			DirectLink = directLink;
 		}
 	}
 	/// <summary>
@@ -98,25 +101,25 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class SourceForgeHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
-		private static readonly Uri RSSFEED = new Uri("http://getgreenshot.org/project-feed/");
+		private static readonly Uri Rssfeed = new Uri("http://getgreenshot.org/project-feed/");
 
 		/// <summary>
 		/// This is using the HTTP HEAD Method to check if the RSS Feed is modified after the supplied date
 		/// </summary>
 		/// <param name="updateTime">DateTime</param>
 		/// <returns>true if the feed is newer</returns>
-		public static async Task<bool> isRSSModifiedAfter(DateTimeOffset updateTime) {
-			DateTimeOffset lastModified = await RSSFEED.LastModifiedAsync().ConfigureAwait(false);
+		public static async Task<bool> IsRssModifiedAfter(DateTimeOffset updateTime) {
+			DateTimeOffset lastModified = await Rssfeed.LastModifiedAsync().ConfigureAwait(false);
 			return updateTime.CompareTo(lastModified) < 0;
 		}
 
 		/// <summary>
 		/// Read the Greenshot RSS feed, so we can use this information to check for updates
 		/// </summary>
-		/// <returns>Dictionary<string, Dictionary<string, RssFile>> with files and their RssFile "description"</returns>
-		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> readRSS() {
+		/// <returns>Dictionary&lt;string, Dictionary&lt;string, RssFile&gt;&gt; with files and their RssFile "description"</returns>
+		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> ReadRss() {
 			var rssFiles = new Dictionary<string, IDictionary<string, SourceforgeFile>>();
-			var rssContent = await RSSFEED.GetAsync().ConfigureAwait(false);
+			var rssContent = await Rssfeed.GetAsync().ConfigureAwait(false);
 			if (rssContent == null) {
 				return rssFiles;
 			}
@@ -124,9 +127,14 @@ namespace GreenshotPlugin.Core {
 			if (stream == null) {
 				return rssFiles;
 			}
-			using (XmlReader reader = XmlReader.Create(stream)) {
+			using (XmlReader reader = XmlReader.Create(stream))
+			{
 				var feed = SyndicationFeed.Load(reader);
 
+				if (feed == null)
+				{
+					return rssFiles;
+				}
 				foreach (var item in feed.Items) {
 					var sfLink = item.Links[0].Uri.ToString();
 					var pubdate = item.PublishDate;
@@ -185,9 +193,6 @@ namespace GreenshotPlugin.Core {
 			}
 
 			return rssFiles;
-			
-
-
 		}
 	}
 }

@@ -22,7 +22,6 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using GreenshotPlugin.OAuth;
 using System;
 using System.Collections.Generic;
@@ -32,6 +31,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotImgurPlugin
 {
@@ -53,8 +53,9 @@ namespace GreenshotImgurPlugin
 		/// </summary>
 		/// <param name="surfaceToUpload">Image to upload</param>
 		/// <param name="outputSettings"></param>
-		/// <param name="title"></param>
-		/// <param name="filename"></param>
+		/// <param name="otherParameters"></param>
+		/// <param name="progress"></param>
+		/// <param name="token"></param>
 		/// <returns>PicasaResponse</returns>
 		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			// Fill the OAuth2Settings
@@ -76,7 +77,7 @@ namespace GreenshotImgurPlugin
 			try {
 				DynamicJson imageJson;
 				var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, oauth2Settings)) {
+				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, oauth2Settings, token)) {
 					using (var imageStream = new MemoryStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
 						imageStream.Position = 0;
@@ -85,13 +86,13 @@ namespace GreenshotImgurPlugin
 							using (var content = new StreamContent(uploadStream)) {
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-								await responseMessage.HandleErrorAsync(token).ConfigureAwait(false);
-								imageJson = await responseMessage.GetAsJsonAsync().ConfigureAwait(false);
+								await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+								imageJson = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
 							}
 						}
 					}
 				}
-				return (ImageInfo)CreateImageInfo(imageJson);
+				return CreateImageInfo(imageJson);
 			} finally {
 				// Copy the settings back to the config, so they are stored.
 				config.RefreshToken = oauth2Settings.RefreshToken;
@@ -101,11 +102,11 @@ namespace GreenshotImgurPlugin
 		}
 
 		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
-			dynamic imageJson = null;
 			var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
 			using (var client = uploadUri.CreateHttpClient()) {
 				client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
 				client.DefaultRequestHeaders.ExpectContinue = false;
+				dynamic imageJson;
 				using (var imageStream = new MemoryStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
 						imageStream.Position = 0;
@@ -113,8 +114,8 @@ namespace GreenshotImgurPlugin
 							using (var content = new StreamContent(uploadStream)) {
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var response = await client.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-								await response.HandleErrorAsync(token).ConfigureAwait(false);
-								imageJson = await response.GetAsJsonAsync().ConfigureAwait(false);
+								await response.HandleErrorAsync(token: token).ConfigureAwait(false);
+								imageJson = await response.GetJsonAsync(token: token).ConfigureAwait(false);
 							}
 						}
 				}
@@ -130,6 +131,8 @@ namespace GreenshotImgurPlugin
 		/// <param name="outputSettings">OutputSettings for the image file format</param>
 		/// <param name="title">Title</param>
 		/// <param name="filename">Filename</param>
+		/// <param name="progress"></param>
+		/// <param name="token"></param>
 		/// <returns>ImgurInfo with details</returns>
 		public static async Task<ImageInfo> UploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			IDictionary<string, string> otherParameters = new Dictionary<string, string>();
@@ -141,7 +144,7 @@ namespace GreenshotImgurPlugin
 			if (filename != null && config.AddFilename) {
 				otherParameters.Add("name", filename);
 			}
-			ImageInfo imageInfo = null;
+			ImageInfo imageInfo;
 			if (config.AnonymousAccess) {
 				imageInfo = await AnnonymousUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
 			} else {
@@ -163,6 +166,7 @@ namespace GreenshotImgurPlugin
 		/// Retrieve the thumbnail of an imgur image
 		/// </summary>
 		/// <param name="imgurInfo"></param>
+		/// <param name="token"></param>
 		public static async Task RetrieveImgurThumbnailAsync(ImageInfo imgurInfo, CancellationToken token = default(CancellationToken)) {
 			if (imgurInfo.SmallSquare == null) {
 				LOG.Info("RetrieveImgurThumbnailAsync: Imgur URL was null, not retrieving thumbnail.");
@@ -171,12 +175,11 @@ namespace GreenshotImgurPlugin
 			LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
 			using (var client = imgurInfo.SmallSquare.CreateHttpClient()) {
 				using (var response = await client.GetAsync(imgurInfo.SmallSquare, token).ConfigureAwait(false)) {
-					await response.HandleErrorAsync(token).ConfigureAwait(false);
+					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
 					using (var stream = await response.GetAsMemoryStreamAsync(true, token).ConfigureAwait(false)) {
-						using (var tmpImage = Image.FromStream(stream)) {
-							if (tmpImage != null) {
-								imgurInfo.Image = ImageHelper.Clone(tmpImage);
-							}
+						using (var tmpImage = Image.FromStream(stream))
+						{
+							imgurInfo.Image = ImageHelper.Clone(tmpImage);
 						}
 					}
 				}
@@ -188,6 +191,7 @@ namespace GreenshotImgurPlugin
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="deleteHash"></param>
+		/// <param name="token"></param>
 		/// <returns>ImgurInfo</returns>
 		public static async Task<ImageInfo> RetrieveImgurInfoAsync(string id, string deleteHash, CancellationToken token = default(CancellationToken)) {
 			Uri imageUri = new Uri(string.Format(config.ApiUrl + "/image/{0}.json", id));
@@ -202,8 +206,8 @@ namespace GreenshotImgurPlugin
 				if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Redirect || response.StatusCode == HttpStatusCode.Unauthorized) {
 					return null;
 				}
-				await response.HandleErrorAsync(token).ConfigureAwait(false);
-				imageJson = await response.GetAsJsonAsync().ConfigureAwait(false);
+				await response.HandleErrorAsync(token: token).ConfigureAwait(false);
+				imageJson = await response.GetJsonAsync(token: token).ConfigureAwait(false);
 			}
 
 			return (ImageInfo)CreateImageInfo(imageJson, deleteHash);
@@ -244,6 +248,7 @@ namespace GreenshotImgurPlugin
 		/// Delete an imgur image, this is done by specifying the delete hash
 		/// </summary>
 		/// <param name="imgurInfo"></param>
+		/// <param name="token"></param>
 		public static async Task<string> DeleteImgurImageAsync(ImageInfo imgurInfo, CancellationToken token = default(CancellationToken)) {
 			LOG.InfoFormat("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
 			Uri deleteUri = new Uri(string.Format(config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
@@ -253,9 +258,9 @@ namespace GreenshotImgurPlugin
 				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.DeleteAsync(deleteUri, token).ConfigureAwait(false);
 				if (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.BadRequest) {
-					await response.HandleErrorAsync(token).ConfigureAwait(false);
+					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
 				}
-				responseString = await response.GetAsStringAsync(token, false).ConfigureAwait(false);
+				responseString = await response.GetAsStringAsync(false, token).ConfigureAwait(false);
 				LOG.InfoFormat("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured
@@ -270,7 +275,7 @@ namespace GreenshotImgurPlugin
 		/// <summary>
 		/// Retrieve the thumbnail of an imgur image
 		/// </summary>
-		/// <param name="imgurInfo"></param>
+		/// <param name="token"></param>
 		public static async Task RetrieveImgurCredits(CancellationToken token = default(CancellationToken)) {
 			Uri creditsUri = new Uri(string.Format("{0}/credits.json", config.ApiUrl));
 
@@ -278,8 +283,8 @@ namespace GreenshotImgurPlugin
 				client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
 				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
-				await response.HandleErrorAsync(token).ConfigureAwait(false);
-				var creditsJson = await response.GetAsJsonAsync().ConfigureAwait(false);
+				await response.HandleErrorAsync(token: token).ConfigureAwait(false);
+				var creditsJson = await response.GetJsonAsync(token: token).ConfigureAwait(false);
 				if (creditsJson != null && creditsJson.IsDefined("data")) {
 					dynamic data = creditsJson.data;
 					int credits = 0;

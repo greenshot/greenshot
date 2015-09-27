@@ -73,7 +73,7 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttributes, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
 			// Register / get the picasa configuration
 			config = await IniConfig.Current.RegisterAndGetAsync<IPicasaConfiguration>();
 			language = await LanguageLoader.Current.RegisterAndGetAsync<IPicasaLanguage>();

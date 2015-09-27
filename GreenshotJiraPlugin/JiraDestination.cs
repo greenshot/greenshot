@@ -23,7 +23,6 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Windows;
 using System;
 using System.Collections.Generic;
@@ -36,6 +35,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotJiraPlugin
 {
@@ -44,10 +44,10 @@ namespace GreenshotJiraPlugin
 	/// </summary>
 	public class JiraDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
-		private static IJiraConfiguration config = IniConfig.Current.Get<IJiraConfiguration>();
-		private static IJiraLanguage language = LanguageLoader.Current.Get<IJiraLanguage>();
-		private JiraPlugin _jiraPlugin = null;
-		private JiraDetails _jira = null;
+		private static readonly IJiraConfiguration config = IniConfig.Current.Get<IJiraConfiguration>();
+		private static readonly IJiraLanguage language = LanguageLoader.Current.Get<IJiraLanguage>();
+		private readonly JiraPlugin _jiraPlugin;
+		private readonly JiraDetails _jira;
 
 		public JiraDestination(JiraPlugin jiraPlugin) {
 			_jiraPlugin = jiraPlugin;
@@ -125,13 +125,13 @@ namespace GreenshotJiraPlugin
 								using (var streamContent = new StreamContent(uploadStream)) {
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 									multipartFormDataContent.Add(streamContent, "file", filename);
-									using (var reponseMessage = await jiraApi.Attach(_jira.JiraKey, multipartFormDataContent)) {
-										return reponseMessage.GetAsStringAsync(token);
+									using (var reponseMessage = await jiraApi.Attach(_jira.JiraKey, multipartFormDataContent, pleaseWaitToken)) {
+										return reponseMessage.GetAsStringAsync(token: token);
 									}
 								}
 							}
 						}
-					});
+					}, token);
 
 					LOG.Debug("Uploaded to Jira.");
 					exportInformation.ExportMade = true;

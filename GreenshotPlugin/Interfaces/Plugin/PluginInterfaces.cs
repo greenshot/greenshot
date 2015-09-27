@@ -230,12 +230,12 @@ namespace Greenshot.Plugin {
 
 	public interface IGreenshotPlugin : IDisposable {
 		/// <summary>
-		/// Is called after the plugin is instanciated, the Plugin should keep a copy of the host and pluginAttribute.
+		/// Is called after the plugin is instanciated, the Plugin should keep a copy of the host and myAttribute.
 		/// </summary>
 		/// <param name="host">The IPluginHost that will be hosting the plugin</param>
-		/// <param name="pluginAttribute">The PluginAttribute for the actual plugin</param>
+		/// <param name="myAttribute">The PluginAttribute for the actual plugin</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		Task<bool> InitializeAsync(IGreenshotHost host, PluginAttribute pluginAttribute, CancellationToken token = new CancellationToken());
+		Task<bool> InitializeAsync(IGreenshotHost host, PluginAttribute myAttribute, CancellationToken token = new CancellationToken());
 
 		/// <summary>
 		/// Unload of the plugin

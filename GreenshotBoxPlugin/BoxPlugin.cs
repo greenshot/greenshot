@@ -77,9 +77,9 @@ namespace GreenshotBoxPlugin
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttribute, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
 			// Register / get the box configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IBoxConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IBoxLanguage>(token);

@@ -32,15 +32,17 @@ using GreenshotPlugin.Windows;
 using System.IO;
 using System;
 using System.Windows;
+using Dapplo.Config.Language;
 
 namespace GreenshotPhotobucketPlugin  {
 	/// <summary>
 	/// Description of PhotobucketDestination.
 	/// </summary>
 	public class PhotobucketDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
-		private static PhotobucketConfiguration _config = IniConfig.Current.Get<PhotobucketConfiguration>();
-		private string albumPath = null;
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
+		private static readonly IPhotobucketConfiguration Config = IniConfig.Current.Get<IPhotobucketConfiguration>();
+		private static readonly IPhotobucketLanguage Language = LanguageLoader.Current.Get<IPhotobucketLanguage>();
+		private readonly string _albumPath;
 
 		public PhotobucketDestination()
 		{
@@ -49,10 +51,9 @@ namespace GreenshotPhotobucketPlugin  {
 		/// <summary>
 		/// Create a Photobucket destination, which also has the path to the album in it
 		/// </summary>
-		/// <param name="plugin"></param>
 		/// <param name="albumPath">path to the album, null for default</param>
 		public PhotobucketDestination(string albumPath) {
-			this.albumPath = albumPath;
+			_albumPath = albumPath;
 		}
 		
 		public override string Designation {
@@ -63,10 +64,10 @@ namespace GreenshotPhotobucketPlugin  {
 
 		public override string Description {
 			get {
-				if (albumPath != null) {
-					return albumPath;
+				if (_albumPath != null) {
+					return _albumPath;
 				}
-				return Language.GetString("photobucket", LangKey.upload_menu_item);
+				return Language.UploadMenuItem;
 			}
 		}
 
@@ -100,42 +101,39 @@ namespace GreenshotPhotobucketPlugin  {
 		/// <param name="manuallyInitiated"></param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
+		/// <param name="token"></param>
 		/// <returns></returns>
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
 			var exportInformation = new ExportInformation {
 				DestinationDesignation = Designation,
 				DestinationDescription = Description
 			};
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, false);
 			try {
-				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.GetString("photobucket", LangKey.communication_wait), async (progress, pleaseWaitToken) => {
-					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-					return await PhotobucketUtils.UploadToPhotobucket(surface, outputSettings, albumPath, captureDetails.Title, filename, progress);
-				});
+				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.CommunicationWait, async (progress, pleaseWaitToken) => {
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
+					return await PhotobucketUtils.UploadToPhotobucket(surface, outputSettings, _albumPath, captureDetails.Title, filename, progress);
+				}, token);
 
 				// This causes an exeption if the upload failed :)
 				LOG.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
-				string uploadURL = null;
+				string uploadUrl = null;
 				try {
-					if (_config.UsePageLink) {
-						uploadURL = photobucketInfo.Page;
-					} else {
-						uploadURL = photobucketInfo.Original;
-					}
+					uploadUrl = Config.UsePageLink ? photobucketInfo.Page : photobucketInfo.Original;
 				} catch (Exception ex) {
 					LOG.Error("Can't write to clipboard: ", ex);
 				}
 
-				if (uploadURL != null) {
+				if (uploadUrl != null) {
 					exportInformation.ExportMade = true;
-					exportInformation.ExportedToUri = new Uri(uploadURL);
-					if (_config.AfterUploadLinkToClipBoard) {
-						ClipboardHelper.SetClipboardData(uploadURL);
+					exportInformation.ExportedToUri = new Uri(uploadUrl);
+					if (Config.AfterUploadLinkToClipBoard) {
+						ClipboardHelper.SetClipboardData(uploadUrl);
 					}
 				}
 			} catch (Exception e) {
 				LOG.Error("Error uploading.", e);
-				MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
+				MessageBox.Show(Language.UploadFailure + " " + e.Message);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

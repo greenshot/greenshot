@@ -21,7 +21,6 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using GreenshotPlugin.OAuth;
 using System;
 using System.IO;
@@ -29,6 +28,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotPicasaPlugin {
 	/// <summary>
@@ -47,6 +47,8 @@ namespace GreenshotPicasaPlugin {
 		/// </summary>
 		/// <param name="surfaceToUpload">Image to upload</param>
 		/// <param name="captureDetails">ICaptureDetails</param>
+		/// <param name="progress"></param>
+		/// <param name="token"></param>
 		/// <returns>url</returns>
 		public static async Task<string> UploadToPicasa(ISurface surfaceToUpload, ICaptureDetails captureDetails, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
@@ -68,7 +70,7 @@ namespace GreenshotPicasaPlugin {
 			try {
 				string response;
 				var uploadUri = new Uri(string.Format(UploadUrl, _config.UploadUser, _config.UploadAlbum));
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, settings)) {
+				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, settings, token)) {
 					if (_config.AddFilename) {
 						httpClient.AddDefaultRequestHeader("Slug", Uri.EscapeDataString(filename));
 					}
@@ -79,7 +81,7 @@ namespace GreenshotPicasaPlugin {
 							using (var content = new StreamContent(uploadStream)) {
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-								response = await responseMessage.GetAsStringAsync(token).ConfigureAwait(false);
+								response = await responseMessage.GetAsStringAsync(token: token).ConfigureAwait(false);
 							}
 						}
 					}
