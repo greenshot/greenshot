@@ -91,5 +91,26 @@ namespace GreenshotPhotobucketPlugin
 			get;
 			set;
 		}
+
+		/// <summary>
+		/// Not stored, but read so people could theoretically specify their own Client ID.
+		/// </summary>
+		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_photobucket_consumer_key@")]
+		string ClientId
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Not stored, but read so people could theoretically specify their own client secret.
+		/// </summary>
+		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_photobucket_consumer_secret@")]
+		string ClientSecret
+		{
+			get;
+			set;
+		}
+
 	}
 }

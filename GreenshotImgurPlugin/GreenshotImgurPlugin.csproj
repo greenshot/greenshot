@@ -74,7 +74,6 @@
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ImgurCredentials.cs" />
     <Compile Include="ImgurDestination.cs" />
     <Compile Include="ImgurInfo.cs" />
     <Compile Include="ImgurPlugin.cs" />

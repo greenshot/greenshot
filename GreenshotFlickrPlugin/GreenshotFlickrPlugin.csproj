@@ -62,7 +62,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FlickrCredentials.cs" />
     <Compile Include="FlickrDestination.cs" />
     <Compile Include="Forms\FlickrForm.cs">
       <SubType>Form</SubType>

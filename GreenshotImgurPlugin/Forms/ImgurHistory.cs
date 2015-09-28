@@ -81,7 +81,7 @@ namespace GreenshotImgurPlugin
 		private void Redraw() {
 			BeginRedrawWindow();
 			ClearWindow();
-			foreach (var imgurInfo in config.runtimeImgurHistory.Values) {
+			foreach (var imgurInfo in config.RuntimeImgurHistory.Values) {
 				AddImgurItem(imgurInfo);
 			}
 			EndRedrawWindow();
@@ -184,7 +184,7 @@ namespace GreenshotImgurPlugin
 		private void ClearHistoryButtonClick(object sender, EventArgs e) {
 			var result = MessageBox.Show(imgurLanguage.ClearQuestion, "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 			if (result == DialogResult.Yes) {
-				config.runtimeImgurHistory.Clear();
+				config.RuntimeImgurHistory.Clear();
 				config.ImgurUploadHistory.Clear();
 				Redraw();
 			}
@@ -226,16 +226,16 @@ namespace GreenshotImgurPlugin
 
 			// Load the ImUr history
 			foreach (string hash in config.ImgurUploadHistory.Keys) {
-				if (config.runtimeImgurHistory.ContainsKey(hash)) {
+				if (config.RuntimeImgurHistory.ContainsKey(hash)) {
 					// Already loaded, only add it to the view
-					AddImgurItem(config.runtimeImgurHistory[hash]);
+					AddImgurItem(config.RuntimeImgurHistory[hash]);
 					continue;
 				}
 				try {
 					var imgurInfo = await ImgurUtils.RetrieveImgurInfoAsync(hash, config.ImgurUploadHistory[hash]);
 					if (imgurInfo != null) {
 						await ImgurUtils.RetrieveImgurThumbnailAsync(imgurInfo);
-						config.runtimeImgurHistory.Add(hash, imgurInfo);
+						config.RuntimeImgurHistory.Add(hash, imgurInfo);
 						// Already loaded, only add it to the view
 						AddImgurItem(imgurInfo);
 					} else {

@@ -64,8 +64,8 @@ namespace GreenshotImgurPlugin
 			oauth2Settings.TokenUrl = TokenUrl;
 			oauth2Settings.RedirectUrl = "https://imgur.com";
             oauth2Settings.CloudServiceName = "Imgur";
-			oauth2Settings.ClientId = ImgurCredentials.CONSUMER_KEY;
-			oauth2Settings.ClientSecret = ImgurCredentials.CONSUMER_SECRET;
+			oauth2Settings.ClientId = config.ClientId;
+			oauth2Settings.ClientSecret = config.ClientSecret;
 			oauth2Settings.AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser;
 			oauth2Settings.BrowserSize = new Size(680, 880);
 
@@ -104,7 +104,7 @@ namespace GreenshotImgurPlugin
 		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
 			var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
 			using (var client = uploadUri.CreateHttpClient()) {
-				client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
+				client.SetAuthorization("Client-ID", config.ClientId);
 				client.DefaultRequestHeaders.ExpectContinue = false;
 				dynamic imageJson;
 				using (var imageStream = new MemoryStream()) {
@@ -153,7 +153,7 @@ namespace GreenshotImgurPlugin
 
 			if (imageInfo != null && config.TrackHistory) {
 				config.ImgurUploadHistory.Add(imageInfo.Id, imageInfo.DeleteHash);
-				config.runtimeImgurHistory.Add(imageInfo.Id, imageInfo);
+				config.RuntimeImgurHistory.Add(imageInfo.Id, imageInfo);
 				using (Image tmpImage = surfaceToUpload.GetImageForExport()) {
 					imageInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
 				}
@@ -199,7 +199,7 @@ namespace GreenshotImgurPlugin
 
 			dynamic imageJson;
 			using (var client = imageUri.CreateHttpClient()) {
-				client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
+				client.SetAuthorization("Client-ID", config.ClientId);
 				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.GetAsync(imageUri, token).ConfigureAwait(false);
 				// retrieving image data seems to throw a 403 (Unauthorized) if it has been deleted
@@ -254,7 +254,7 @@ namespace GreenshotImgurPlugin
 			Uri deleteUri = new Uri(string.Format(config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
 			string responseString;
 			using (var client = deleteUri.CreateHttpClient()) {
-				client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
+				client.SetAuthorization("Client-ID", config.ClientId);
 				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.DeleteAsync(deleteUri, token).ConfigureAwait(false);
 				if (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.BadRequest) {
@@ -264,7 +264,7 @@ namespace GreenshotImgurPlugin
 				LOG.InfoFormat("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured
-			config.runtimeImgurHistory.Remove(imgurInfo.Id);
+			config.RuntimeImgurHistory.Remove(imgurInfo.Id);
 			config.ImgurUploadHistory.Remove(imgurInfo.Id);
 
 			// dispose is called inside the imgurInfo object
@@ -280,7 +280,7 @@ namespace GreenshotImgurPlugin
 			Uri creditsUri = new Uri(string.Format("{0}/credits.json", config.ApiUrl));
 
 			using (var client = creditsUri.CreateHttpClient()) {
-				client.SetAuthorization("Client-ID", ImgurCredentials.CONSUMER_KEY);
+				client.SetAuthorization("Client-ID", config.ClientId);
 				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
 				await response.HandleErrorAsync(token: token).ConfigureAwait(false);

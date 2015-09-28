@@ -65,8 +65,6 @@ namespace GreenshotPlugin.OAuth
 
 		protected static Random random = new Random();
 
-		private string _callbackUrl = "http://getgreenshot.org";
-		private bool _checkVerifier = true;
 		private IDictionary<string, string> _accessTokenResponseParameters;
 		private IDictionary<string, string> _requestTokenResponseParameters;
 
@@ -95,8 +93,6 @@ namespace GreenshotPlugin.OAuth
 		private readonly string _consumerSecret;
 
 		// default _browser size
-		private Size _browserSize = new Size(864, 587);
-		private string _loginTitle = "Authorize Greenshot access";
 
 		#region PublicProperties
 		public HttpMethod RequestTokenMethod
@@ -154,51 +150,27 @@ namespace GreenshotPlugin.OAuth
 
 		public string CallbackUrl
 		{
-			get
-			{
-				return _callbackUrl;
-			}
-			set
-			{
-				_callbackUrl = value;
-			}
-		}
+			get;
+			set;
+		} = "http://getgreenshot.org";
 
 		public bool CheckVerifier
 		{
-			get
-			{
-				return _checkVerifier;
-			}
-			set
-			{
-				_checkVerifier = value;
-			}
-		}
+			get;
+			set;
+		} = true;
 
 		public Size BrowserSize
 		{
-			get
-			{
-				return _browserSize;
-			}
-			set
-			{
-				_browserSize = value;
-			}
-		}
+			get;
+			set;
+		} = new Size(864, 587);
 
 		public string LoginTitle
 		{
-			get
-			{
-				return _loginTitle;
-			}
-			set
-			{
-				_loginTitle = value;
-			}
-		}
+			get;
+			set;
+		} = "Authorize Greenshot access";
 
 		public bool AutoLogin
 		{

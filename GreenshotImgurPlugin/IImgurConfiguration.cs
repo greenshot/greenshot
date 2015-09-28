@@ -145,10 +145,30 @@ namespace GreenshotImgurPlugin
 		}
 
 		/// <summary>
+		/// Not stored, but read so people could theoretically specify their own consumer key.
+		/// </summary>
+		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_imgur_consumer_key@")]
+		string ClientId
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Not stored, but read so people could theoretically specify their own consumer secret.
+		/// </summary>
+		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_imgur_consumer_secret@")]
+		string ClientSecret
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// runtimeImgurHistory, not stored
 		/// </summary>
 		[IniPropertyBehavior(Read = false, Write = false)]
-		IDictionary<string, ImageInfo> runtimeImgurHistory {
+		IDictionary<string, ImageInfo> RuntimeImgurHistory {
 			get;
 			set;
 		}

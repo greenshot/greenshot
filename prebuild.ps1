@@ -3,7 +3,7 @@
 # Assumes the installation of Microsoft .NET Framework 4.5
 ################################################################
 # Greenshot - a free and open source screenshot tool
-# Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
+# Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
 # 
 # For more information see: http://getgreenshot.org/
 # The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -22,10 +22,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################
 
-# Fill the credentials
-Function FillCredentials {
-	Write-Host "Filling credentials with Environment variable values`n`n"
-	Get-ChildItem . -recurse *Credentials.cs | foreach {
+# Fill the environment variables
+Function FillEnvirommentInConfig {
+	Write-Host "Filling I*Configuration files with Environment variable values`n`n"
+	Get-ChildItem . -recurse I*Configuration.cs | foreach {
 		$template = Get-Content $_.FullName
 		# Create an empty array, this will contain the replaced lines
 		$newtext = @()
@@ -43,4 +43,4 @@ Function FillCredentials {
 	}
 }
 
-FillCredentials
+FillEnvirommentInConfig

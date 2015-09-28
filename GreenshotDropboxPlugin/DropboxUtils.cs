@@ -41,7 +41,7 @@ namespace GreenshotDropboxPlugin {
 		private static readonly Uri DROPBOX_SHARES_URI = DROPBOX_API_URI.AppendSegments("shares", "sandbox");
 
 		public static async Task<string> UploadToDropbox(HttpContent content, string filename) {
-			OAuthSession oAuth = new OAuthSession(DropBoxCredentials.CONSUMER_KEY, DropBoxCredentials.CONSUMER_SECRET);
+			var oAuth = new OAuthSession(config.ClientId, config.ClientSecret);
 			oAuth.BrowserSize = new Size(1080, 650);
 			oAuth.CheckVerifier = false;
 

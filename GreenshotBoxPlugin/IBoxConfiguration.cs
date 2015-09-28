@@ -85,5 +85,25 @@ namespace GreenshotBoxPlugin
 			get;
 			set;
 		}
+
+		/// <summary>
+		/// Not stored, but read so people could theoretically specify their own Client ID.
+		/// </summary>
+		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_box_client_id@")]
+		string ClientId
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Not stored, but read so people could theoretically specify their own client secret.
+		/// </summary>
+		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_box_client_secret@")]
+		string ClientSecret
+		{
+			get;
+			set;
+		}
 	}
 }

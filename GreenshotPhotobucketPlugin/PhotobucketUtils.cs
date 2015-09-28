@@ -132,7 +132,7 @@ namespace GreenshotPhotobucketPlugin
 		/// </summary>
 		/// <returns>OAuthSession</returns>
 		private static async Task<OAuthSession> CreateSession(bool autoLogin) {
-			OAuthSession oAuth = new OAuthSession(PhotobucketCredentials.ConsumerKey, PhotobucketCredentials.ConsumerSecret);
+			OAuthSession oAuth = new OAuthSession(Config.ClientId, Config.ClientSecret);
 			oAuth.AutoLogin = autoLogin;
 			oAuth.CheckVerifier = false;
 			// This url is configured in the Photobucket API settings in the Photobucket site!!

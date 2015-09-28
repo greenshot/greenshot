@@ -63,7 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IBoxConfiguration.cs" />
-    <Compile Include="BoxCredentials.cs" />
     <Compile Include="BoxDestination.cs" />
     <Compile Include="BoxEntities.cs" />
     <Compile Include="BoxPlugin.cs" />

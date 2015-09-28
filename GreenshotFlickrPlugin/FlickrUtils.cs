@@ -65,7 +65,7 @@ namespace GreenshotFlickrPlugin
 		/// <param name="filename"></param>
 		/// <returns>url to image</returns>
 		public static async Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress = null, CancellationToken token = default(CancellationToken)) {
-			var oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret);
+			var oAuth = new OAuthSession(config.ClientId, config.ClientSecret);
 			oAuth.BrowserSize = new Size(520, 800);
 			oAuth.CheckVerifier = false;
 			oAuth.AccessTokenUrl = FLICKR_ACCESS_TOKEN_URL;

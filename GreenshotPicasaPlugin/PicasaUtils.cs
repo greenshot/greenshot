@@ -58,8 +58,8 @@ namespace GreenshotPicasaPlugin {
 			settings.AuthUrlPattern = AuthUrl;
 			settings.TokenUrl = TokenUrl;
 			settings.CloudServiceName = "Picasa";
-			settings.ClientId = PicasaCredentials.ClientId;
-			settings.ClientSecret = PicasaCredentials.ClientSecret;
+			settings.ClientId = _config.ClientId;
+			settings.ClientSecret = _config.ClientSecret;
 			settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
 
 			// Copy the settings from the config, which is kept in memory and on the disk

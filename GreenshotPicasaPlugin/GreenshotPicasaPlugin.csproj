@@ -60,7 +60,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PicasaCredentials.cs" />
     <Compile Include="Forms\PicasaForm.cs">
       <SubType>Form</SubType>
     </Compile>
