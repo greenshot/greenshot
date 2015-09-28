@@ -112,7 +112,7 @@ namespace GreenshotBoxPlugin
 						Uri uri = new Uri(string.Format(FilesUri, upload.Entries[0].Id));
 						var content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8);
 						using (var responseMessage = await httpClient.PutAsync(uri, content, token)) {
-							var file = await responseMessage.GetJsonAsync(token: token);
+							var file = await responseMessage.GetAsJsonAsync(token: token);
 							return file.SharedLink.Url;
 						}
 					}

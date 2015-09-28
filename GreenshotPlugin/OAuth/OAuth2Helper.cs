@@ -64,7 +64,7 @@ namespace GreenshotPlugin.OAuth {
 
 			dynamic refreshTokenResult;
 			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token)) {
-				refreshTokenResult = await responseMessage.GetJsonAsync(token: token);
+				refreshTokenResult = await responseMessage.GetAsJsonAsync(token: token);
 			}
 
 			if (refreshTokenResult.IsDefined("error")) {
@@ -107,7 +107,7 @@ namespace GreenshotPlugin.OAuth {
 
 			dynamic accessTokenResult;
 			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token)) {
-				accessTokenResult = await responseMessage.GetJsonAsync(token: token);
+				accessTokenResult = await responseMessage.GetAsJsonAsync(token: token);
 			}
 
 			if (accessTokenResult.IsDefined("error")) {

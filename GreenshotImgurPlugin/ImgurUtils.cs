@@ -87,7 +87,7 @@ namespace GreenshotImgurPlugin
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
 								await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-								imageJson = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
+								imageJson = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
 							}
 						}
 					}
@@ -115,7 +115,7 @@ namespace GreenshotImgurPlugin
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var response = await client.PostAsync(uploadUri, content, token).ConfigureAwait(false);
 								await response.HandleErrorAsync(token: token).ConfigureAwait(false);
-								imageJson = await response.GetJsonAsync(token: token).ConfigureAwait(false);
+								imageJson = await response.GetAsJsonAsync(token: token).ConfigureAwait(false);
 							}
 						}
 				}
@@ -207,7 +207,7 @@ namespace GreenshotImgurPlugin
 					return null;
 				}
 				await response.HandleErrorAsync(token: token).ConfigureAwait(false);
-				imageJson = await response.GetJsonAsync(token: token).ConfigureAwait(false);
+				imageJson = await response.GetAsJsonAsync(token: token).ConfigureAwait(false);
 			}
 
 			return (ImageInfo)CreateImageInfo(imageJson, deleteHash);
@@ -284,7 +284,7 @@ namespace GreenshotImgurPlugin
 				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
 				await response.HandleErrorAsync(token: token).ConfigureAwait(false);
-				var creditsJson = await response.GetJsonAsync(token: token).ConfigureAwait(false);
+				var creditsJson = await response.GetAsJsonAsync(token: token).ConfigureAwait(false);
 				if (creditsJson != null && creditsJson.IsDefined("data")) {
 					dynamic data = creditsJson.data;
 					int credits = 0;

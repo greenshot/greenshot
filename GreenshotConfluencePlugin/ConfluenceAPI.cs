@@ -129,7 +129,7 @@ namespace GreenshotConfluencePlugin {
 				dynamic jsonResponse;
 				using (var responseMessage = await _client.GetAsync(spacesUri, token).ConfigureAwait(false)) {
 					await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-					jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
+					jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
 				}
 				foreach (var spaceJson in jsonResponse.results) {
 					if (spaceJson._expandable.IsDefined("homepage")) {
@@ -162,7 +162,7 @@ namespace GreenshotConfluencePlugin {
 					return null;
 				}
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-				var jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
 				resultContent = Content.CreateFromContent(jsonResponse);
 			}
 			if (useCache) {
@@ -183,7 +183,7 @@ namespace GreenshotConfluencePlugin {
 			Uri childUri = Format("content", contentId, "child").ExtendQuery(new Dictionary<string, object> { { "expand", "page" }});
 			using (var responseMessage = await _client.GetAsync(childUri, token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-				var jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
 				foreach (var pageContent in jsonResponse.page.results) {
 					Content child = Content.CreateFromContent(pageContent);
 					children.Add(child);
@@ -236,7 +236,7 @@ namespace GreenshotConfluencePlugin {
 				dynamic jsonResponse;
 				using (var responseMessage = await _client.GetAsync(searchUri, token).ConfigureAwait(false)) {
 					await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-					jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
+					jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
 				}
 				foreach (var pageContent in jsonResponse.results) {
 					foundPage = Content.CreateFromContent(pageContent);
@@ -265,7 +265,7 @@ namespace GreenshotConfluencePlugin {
 		public async Task<string> AttachToContentAsync(long id, HttpContent content, CancellationToken token = default(CancellationToken)) {
 			using (var responseMessage = await _client.PostAsync(Format("content", id, "child", "attachment"), content, token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-				var jsonResponse = await responseMessage.GetJsonAsync(token: token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
 				return jsonResponse.results[0].id;
 			}
 		}
