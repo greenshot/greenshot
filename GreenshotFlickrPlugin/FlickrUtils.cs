@@ -22,7 +22,6 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using GreenshotPlugin.OAuth;
 using log4net;
 using System;
@@ -34,6 +33,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotFlickrPlugin
 {
