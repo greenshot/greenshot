@@ -23,8 +23,19 @@
 ################################################################
 
 $version=$env:APPVEYOR_BUILD_VERSION
+if ( !$version ) {
+	$version = "1.3.0.0"
+}
+
 $buildType=$env:build_type
+if ( !$buildType ) {
+	$buildType = "local"
+}
+
 $gitcommit=$env:APPVEYOR_REPO_COMMIT
+if ( !$gitcommit ) {
+	$gitcommit = "abcdefghijklmnopqrstuvwxy"
+}
 $gitcommit=$gitcommit.SubString(0, [math]::Min($gitcommit.Length, 7))
 $detailversion=$version + '-' + $gitcommit + " " + $buildType
 $release=(([version]$version).build) % 2 -eq 1
@@ -109,7 +120,7 @@ Function PackagePortable {
 		"$sourcebase\log4net.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
 
-	Copy-Item -Path "$sourcebase\Languages\help-en-US.html" -Destination "$destbase\portabletmp\help.html"
+	Copy-Item -Path "$(get-location)\Greenshot\Languages\help-en-US.html" -Destination "$destbase\portabletmp\help.html"
 
 	Copy-Item -Path "$sourcebase\Greenshot.exe" -Destination "$destbase\portabletmp"
 
