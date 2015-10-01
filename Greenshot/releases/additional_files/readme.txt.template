@@ -10,15 +10,20 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 @DETAILVERSION@
 
 Chances:
-This is a "special" release, we upgrade the .NET Framework from 2.0 to 4.5 as this helps us to solve some issues.
-Although we are working on Greenshot 2, modernizing Greenshot, it still makes sense to have a .NET 4.5 version of Greenshot 1.x
-This will also solve some installation problems on Windows 8 and 10
+* Windows 10 compatibility
+* Greenshot now depends on the .NET Framework 4.5 (before it was 2.0), with this we can make Greenshot respond a bit snappier.
+* Complete rework of the Internet Explorer capture and Office integration, which fixes some bugs (BUG-1651)
+* JIRA plugin -> migration to a newer API (REST vs SOAP) and made more efficient
+* Imgur plugin -> migration to a newer API (V3) and made a lot of changes to the history
 
 Features added:
-* 
+* FEATURE-863: Editor - Added the possibility to change the start value of the counters.
+* FEATURE-852: changed JIRA API from SOAP to REST
 
 Bugs Resolved:
 * BUG-1651: Internet Explorer capture works only once.
+* BUG-1809: OverflowException in InputLanguageChangingEventArgs on Windows Server 2008 and some other systems.
+* BUG-1811: Jira SOAP API deprecated
 
 
 1.2.6.7-RELEASE-359dcf30f24ef
