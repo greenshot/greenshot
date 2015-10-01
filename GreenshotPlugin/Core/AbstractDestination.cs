@@ -30,6 +30,7 @@ using log4net;
 using System.Threading.Tasks;
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
+using Dapplo.Config.Language;
 
 namespace GreenshotPlugin.Core
 {
@@ -40,6 +41,7 @@ namespace GreenshotPlugin.Core
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
 		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
 		public virtual int CompareTo(object obj)
 		{
@@ -159,22 +161,22 @@ namespace GreenshotPlugin.Core
 				if (exportInformation.ExportedToUri != null)
 				{
 					surface.UploadUri = exportInformation.ExportedToUri;
-					surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUri, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+					surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUri, string.Format(language.ExportedTo, exportInformation.DestinationDescription));
 				}
 				else if (!string.IsNullOrEmpty(exportInformation.Filepath))
 				{
 					surface.LastSaveFullPath = exportInformation.Filepath;
-					surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+					surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, string.Format(language.ExportedTo, exportInformation.DestinationDescription));
 				}
 				else
 				{
-					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, string.Format(language.ExportedTo, exportInformation.DestinationDescription));
 				}
 				surface.Modified = false;
 			}
 			else if (exportInformation != null && !string.IsNullOrEmpty(exportInformation.ErrorMessage))
 			{
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("exported_to_error", exportInformation.DestinationDescription) + " " + exportInformation.ErrorMessage);
+				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, string.Format(language.ExportedTo, exportInformation.DestinationDescription) + " " + exportInformation.ErrorMessage);
 			}
 		}
 
@@ -287,7 +289,7 @@ namespace GreenshotPlugin.Core
 					//  Add Close item
 					var closeItem = new ToolStripMenuItem
 					{
-						Text = Language.GetString("editor_close"),
+						Text = language.EditorClose,
 						Image = GreenshotResources.GetImage("Close.Image")
 					};
 					closeItem.Click += (source, eventArgs) => {

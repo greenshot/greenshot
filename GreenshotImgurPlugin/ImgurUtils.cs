@@ -75,6 +75,7 @@ namespace GreenshotImgurPlugin
 			oauth2Settings.AccessTokenExpires = config.AccessTokenExpires;
 
 			try {
+				// TODO: Move to HttpExtensions GetAsJsonAsync
 				DynamicJson imageJson;
 				var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
 				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, oauth2Settings, token)) {

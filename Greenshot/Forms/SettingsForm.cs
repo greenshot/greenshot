@@ -27,6 +27,7 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
@@ -348,7 +349,8 @@ namespace Greenshot {
 
 			// Expert mode, the clipboard formats
 			foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof(ClipboardFormat))) {
-				var item = listview_clipboardformats.Items.Add(language[clipboardFormat.ToString()]);
+				var translation = LanguageLoader.Current.Translate(clipboardFormat);
+				var item = listview_clipboardformats.Items.Add(translation);
 				item.Tag = clipboardFormat;
 				item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
 			}

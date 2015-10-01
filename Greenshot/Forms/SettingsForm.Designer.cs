@@ -900,7 +900,6 @@ namespace Greenshot {
 			this.radioBtnColorPrint.LanguageKey = "printoptions_printcolor";
 			this.radioBtnColorPrint.Location = new System.Drawing.Point(13, 19);
 			this.radioBtnColorPrint.Name = "radioBtnColorPrint";
-			this.radioBtnColorPrint.PropertyName = "OutputPrintColor";
 			this.radioBtnColorPrint.Size = new System.Drawing.Size(90, 17);
 			this.radioBtnColorPrint.TabIndex = 11;
 			this.radioBtnColorPrint.TextAlign = System.Drawing.ContentAlignment.TopLeft;

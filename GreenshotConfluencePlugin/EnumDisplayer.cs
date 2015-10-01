@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,61 +28,72 @@ using System.Reflection;
 using System.Windows.Data;
 
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
+using Dapplo.Config.Language;
 
 namespace GreenshotConfluencePlugin {
 	public class EnumDisplayer : IValueConverter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EnumDisplayer));
 
-		private Type type;
-		private IDictionary displayValues;
-		private IDictionary reverseValues;
+		private Type _type;
+		private IDictionary _displayValues;
+		private IDictionary _reverseValues;
 		
 		public EnumDisplayer() {
 		}
 	
 		public EnumDisplayer(Type type) {
-			this.Type = type;
+			Type = type;
 		}
 	
+		/// <summary>
+		/// Specify the Type of the enum
+		/// </summary>
 		public Type Type {
-			get { return type; }
+			get { return _type; }
 			set {
 				if (!value.IsEnum) {
 					throw new ArgumentException("parameter is not an Enumerated type", "value");
 				}
-				this.type = value;
+				_type = value;
 			}
 		}
-		
+
+		/// <summary>
+		/// Specify from what language module the translation needs to be retrieved
+		/// </summary>
+		public string LanguageModule
+		{
+			get;
+			set;
+		} = "Core";
+
 		public ReadOnlyCollection<string> DisplayNames {
 			get {
-				this.reverseValues = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(typeof(string),type));
+				_reverseValues = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(typeof(string),_type));
 				
-				this.displayValues = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(type, typeof(string)));
+				_displayValues = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(_type, typeof(string)));
 				
-				var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+				var fields = _type.GetFields(BindingFlags.Public | BindingFlags.Static);
 				foreach (var field in fields) {
 					DisplayKeyAttribute[] displayKeyAttributes = (DisplayKeyAttribute[])field.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
 				
 					string displayKey = GetDisplayKeyValue(displayKeyAttributes);
 					object enumValue = field.GetValue(null);
 					
-					string displayString;
-					if (displayKey != null && Language.HasKey(displayKey)) {
-						displayString = Language.GetString(displayKey);
-					}
-					if (displayKey != null) {
+					string displayString = LanguageLoader.Current.Translate(displayKey, LanguageModule);
+					if (string.IsNullOrEmpty(displayKey)) {
 						displayString = displayKey;
 					} else {
 						displayString = enumValue.ToString();
 					}
 				
 					if (displayString != null) {
-						displayValues.Add(enumValue, displayString);
-						reverseValues.Add(displayString, enumValue);
+						_displayValues.Add(enumValue, displayString);
+						_reverseValues.Add(displayString, enumValue);
 					}
 				}
-				return new List<string>((IEnumerable<string>)displayValues.Values).AsReadOnly();
+				return new List<string>((IEnumerable<string>)_displayValues.Values).AsReadOnly();
 			}
 		}
 		
@@ -93,11 +105,11 @@ namespace GreenshotConfluencePlugin {
 		}
 		
 		object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-			return displayValues[value];
+			return _displayValues[value];
 		}
 		
 		object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-			return reverseValues[value];
+			return _reverseValues[value];
 		}
 	}
 }

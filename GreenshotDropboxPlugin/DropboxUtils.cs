@@ -72,6 +72,7 @@ namespace GreenshotDropboxPlugin {
 				string responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, DROPBOX_SHARES_URI.AppendSegments(Uri.EscapeDataString(filename)), null);
 				if (responseString != null) {
 					LOG.DebugFormat("Parsing output: {0}", responseString);
+					// TODO: Move to HttpExtensions GetAsJsonAsync
 					var result = DynamicJson.Parse(responseString);
 					return result.url;
 				}

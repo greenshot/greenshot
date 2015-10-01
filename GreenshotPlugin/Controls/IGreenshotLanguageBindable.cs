@@ -25,12 +25,20 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public interface IGreenshotLanguageBindable {
 		/// <summary>
+		/// Language module from which the translation is picked
+		/// </summary>
+		string LanguageModule
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Language key to use to fill the Text value with
 		/// </summary>
 		string LanguageKey {
 			get;
 			set;
 		}
-
 	}
 }

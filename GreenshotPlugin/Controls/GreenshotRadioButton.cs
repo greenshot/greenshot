@@ -33,19 +33,22 @@ namespace GreenshotPlugin.Controls {
 			set;
 		}
 
-		private string sectionName = "Core";
 		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
-		public string SectionName {
-			get {
-				return sectionName;
-			}
-			set {
-				sectionName = value;
-			}
-		}
+		public string SectionName
+		{
+			get;
+			set;
+		} = "Core";
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
 		public string PropertyName {
+			get;
+			set;
+		}
+
+		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies module for the language file to use when displaying the translation.")]
+		public string LanguageModule
+		{
 			get;
 			set;
 		}

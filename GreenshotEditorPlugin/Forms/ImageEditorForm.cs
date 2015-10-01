@@ -51,7 +51,7 @@ namespace GreenshotEditorPlugin.Forms
 	public partial class ImageEditorForm : BaseForm, IImageEditor {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageEditorForm));
 		private static readonly IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
-		private static readonly IEditorLanguage editorLanguage = LanguageLoader.Current.Get<IEditorLanguage>();
+		private static readonly IEditorLanguage editorLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly List<string> ignoreDestinations = new List<string>() { BuildInDestinationEnum.Picker.ToString(), BuildInDestinationEnum.Editor.ToString() };
 		private static readonly List<IImageEditor> editorList = new List<IImageEditor>();
 

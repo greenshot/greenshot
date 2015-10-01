@@ -33,8 +33,15 @@ namespace Greenshot.Controls {
 		public event PropertyChangedEventHandler PropertyChanged;
 		private Color selectedColor = Color.White;
 
-		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the translation.")]
 		public string LanguageKey {
+			get;
+			set;
+		}
+
+		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies module for the language file to use when displaying the translation.")]
+		public string LanguageModule
+		{
 			get;
 			set;
 		}

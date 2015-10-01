@@ -20,11 +20,15 @@
  */
 
 using Dapplo.Config.Language;
+using Dapplo.Config.Support;
+using Dapplo.HttpExtensions;
 using log4net;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using Dapplo.HttpExtensions;
 
 namespace GreenshotPlugin.Core
 {
@@ -34,37 +38,61 @@ namespace GreenshotPlugin.Core
 	public static class HelpFileLoader
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(HelpFileLoader));
-		
+
 		private static readonly Uri ExtHelpUrl = new Uri(@"http://getgreenshot.org/help/");
-		
+		private static readonly string HelpfilePattern = "help-{0}.html";
 		/// <summary>
 		/// Start a process with the help, this can either be an online link, or a local file
 		/// </summary>
 		/// <returns>Task</returns>
-		public static async Task LoadHelpAsync() {
+		public static async Task LoadHelpAsync()
+		{
 			var uri = await FindOnlineHelpUrl(LanguageLoader.Current.CurrentLanguage);
-			if (uri == null) {
-				// TODO: Helpfile Uri
-				uri = Language.HelpFileUri;
+			if (uri == null)
+			{
+				var currentLanguage = LanguageLoader.Current.CurrentLanguage;
+				var startupDirectory = FileLocations.StartupDirectory;
+				var directories = new List<string>();
+				// Portable
+				directories.Add(Path.Combine(startupDirectory, "App", "Greenshot", "Languages"));
+
+				// Application data path
+				directories.Add(Path.Combine(FileLocations.RoamingAppDataDirectory("Greenshot"), "Greenshot", "Languages"));
+
+				// Startup path
+				directories.Add(Path.Combine(Path.Combine(startupDirectory, @"Languages")));
+				var helpFilePath = FileLocations.Scan(directories, string.Format(HelpfilePattern, currentLanguage)).FirstOrDefault();
+				if (helpFilePath != null)
+				{
+					uri = new Uri(string.Format(@"file://{0}", helpFilePath));
+				}
 			}
-			Process.Start(uri.AbsoluteUri);			
+			if (uri != null)
+			{
+				Process.Start(uri.AbsoluteUri);
+			}
 		}
-		
+
 		/// <summary>
 		/// </summary>
 		/// <param name="currentIetf">Language.CurrentLanguage</param>
 		/// <returns>URL of help file in selected ietf, or (if not present) default ietf, or null (if not present, too. probably indicating that there is no internet connection)</returns>
-		private static async Task<Uri> FindOnlineHelpUrl(string currentIetf) {
-			if (!currentIetf.Equals("en-US")) {
+		private static async Task<Uri> FindOnlineHelpUrl(string currentIetf)
+		{
+			if (!currentIetf.Equals("en-US"))
+			{
 				var localizedContentUri = ExtHelpUrl.AppendSegments(currentIetf.ToLower());
 
 				// Check if the online localized content is available.
-				try {
+				try
+				{
 					// Although a "HeadAsync" should be enough, this give an OK when the SF-Database has problems.
 					// TODO: change to HeadAsync after we moved to GitHub
 					await localizedContentUri.GetAsStringAsync();
 					return localizedContentUri;
-				} catch {
+				}
+				catch
+				{
 					// NO internet or wrong URI
 				}
 
@@ -72,12 +100,15 @@ namespace GreenshotPlugin.Core
 			}
 
 			// Check if the online content (en-US) is available.
-			try {
+			try
+			{
 				// Although a "HeadAsync" should be enough, this give an OK when the SF-Database has problems.
 				// TODO: change to HeadAsync after we moved to GitHub
 				await ExtHelpUrl.GetAsStringAsync();
 				return ExtHelpUrl;
-			} catch {
+			}
+			catch
+			{
 				// NO internet or wrong URI
 			}
 			return null;

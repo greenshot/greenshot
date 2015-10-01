@@ -39,8 +39,8 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="Dapplo.Config, Version=0.1.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.75.0\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.82.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.82.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
@@ -182,15 +182,15 @@
     <EmbeddedResource Include="Forms\ImageEditorForm.resx">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="Languages\language_editor-en-US.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
 copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
 copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
-mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
-copy "$(ProjectDir)Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"</PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -52,13 +52,13 @@ namespace GreenshotPlugin.Configuration {
 			set;
 		}
 
-		[Description("Amount of colors to reduce to, when reducing"), DefaultValue("256")]
+		[Description("Amount of colors to reduce to, when reducing"), DefaultValue(256)]
 		int OutputFileReduceColorsTo {
 			get;
 			set;
 		}
 
-		[Description("JPEG file save quality in %."), DefaultValue("80")]
+		[Description("JPEG file save quality in %."), DefaultValue(80)]
 		int OutputFileJpegQuality {
 			get;
 			set;

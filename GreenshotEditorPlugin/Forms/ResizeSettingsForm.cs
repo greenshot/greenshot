@@ -33,7 +33,7 @@ namespace GreenshotEditorPlugin.Forms {
 	/// </summary>
 	public partial class ResizeSettingsForm : BaseForm
 	{
-		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IEditorLanguage>();
+		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
 		private ResizeEffect _effect;
 		private readonly string _valuePercent;

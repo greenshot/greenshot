@@ -97,13 +97,13 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)"), DefaultValue("SHOW_CONTEXT_MENU")]
+		[Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)"), DefaultValue(ClickActions.SHOW_CONTEXT_MENU)]
 		ClickActions LeftClickAction {
 			get;
 			set;
 		}
 
-		[Description("Specify what action is made if the tray icon is double clicked"), DefaultValue("OPEN_LAST_IN_EXPLORER")]
+		[Description("Specify what action is made if the tray icon is double clicked"), DefaultValue(ClickActions.OPEN_LAST_IN_EXPLORER)]
 		ClickActions DoubleClickAction {
 			get;
 			set;
@@ -115,13 +115,13 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)"), DefaultValue("1")]
+		[Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)"), DefaultValue(1)]
 		float ZoomerOpacity {
 			get;
 			set;
 		}
 
-		[Description("Maximum length of submenu items in the context menu, making this longer might cause context menu issues on dual screen systems."), DefaultValue("25")]
+		[Description("Maximum length of submenu items in the context menu, making this longer might cause context menu issues on dual screen systems."), DefaultValue(25)]
 		int MaxMenuItemLength {
 			get;
 			set;

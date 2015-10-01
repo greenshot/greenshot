@@ -101,6 +101,7 @@ namespace Greenshot.Forms {
 			this.contextMenu.Name = "contextMenu";
 			this.contextMenu.Closing += new System.Windows.Forms.ToolStripDropDownClosingEventHandler(this.ContextMenuClosing);
 			this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuOpening);
+			this.contextMenu.Opened += new System.EventHandler(this.ContextMenuOpened);
 			this.contextMenu.Renderer = new Greenshot.Controls.ContextMenuToolStripProfessionalRenderer();
 			// 
 			// contextmenu_capturearea

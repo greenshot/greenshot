@@ -25,7 +25,7 @@ using Dapplo.Config.Language;
 namespace GreenshotPlugin.Configuration
 {
 	[Language("Core")]
-	public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged
+	public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged, IEditorLanguage
 	{
 		string AboutBugs
 		{
@@ -237,16 +237,6 @@ namespace GreenshotPlugin.Configuration
 			get;
 		}
 
-		string EditorClipboardfailed
-		{
-			get;
-		}
-
-		string EditorEmail
-		{
-			get;
-		}
-
 		string Error
 		{
 			get;
@@ -428,11 +418,6 @@ namespace GreenshotPlugin.Configuration
 		}
 
 		string SettingsDestinationClipboard
-		{
-			get;
-		}
-
-		string SettingsDestinationEditor
 		{
 			get;
 		}

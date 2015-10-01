@@ -25,17 +25,48 @@ namespace GreenshotPlugin.Extensions
 {
 	public static class LanguageLoaderExtensions
 	{
-		public static string Translate(this LanguageLoader loader, string key)
+		public static string Translate(this LanguageLoader loader, string languageKey, string languageModule)
 		{
-			var languagePrefix = "Core";
-			var keyParts = key.Split('.');
-
-			if (keyParts.Length > 1)
+			if (string.IsNullOrEmpty(languageModule))
 			{
-				languagePrefix = keyParts[0];
-				key = keyParts[1];
+				var keyParts = languageKey.Split('.');
+
+				if (keyParts.Length > 1)
+				{
+					languageModule = keyParts[0];
+					languageKey = keyParts[1];
+				}
+				else
+				{
+					languageModule = "Core";
+
+				}
 			}
-			return LanguageLoader.Current[languagePrefix][key];
+			return LanguageLoader.Current[languageModule][languageKey];
+		}
+
+		/// <summary>
+		/// Search for a translation of the languageKeyObject string-value in the languageModule
+		/// </summary>
+		/// <param name="loader"></param>
+		/// <param name="languageModule"></param>
+		/// <param name="languageKeyObject"></param>
+		/// <returns>Returns the translation or languageKeyObject.ToString() when none is found</returns>
+		public static string Translate(this LanguageLoader loader, object languageKeyObject, string languageModule = "Core")
+		{
+			string typename = languageKeyObject.GetType().Name;
+			string languageKey = typename + "." + languageKeyObject.ToString();
+			// Even if there is a default, null can be supplied!
+			if (string.IsNullOrEmpty(languageModule))
+			{
+				languageModule = "Core";
+            }
+			var translation = LanguageLoader.Current[languageModule][languageKey];
+			if (string.IsNullOrEmpty(translation))
+			{
+				return languageKeyObject.ToString();
+            }
+            return translation;
 		}
 	}
 }

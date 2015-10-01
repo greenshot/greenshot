@@ -99,10 +99,12 @@ namespace Greenshot.Forms
 			LOG = LogManager.GetLogger(typeof(MainForm));
 
 			// Read configuration & languages
-			new LanguageLoader("Greenshot");
+			var languageLoader = new LanguageLoader("Greenshot");
+			languageLoader.CorrectMissingTranslations();
+
 			Task.Run(async () => {
-				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
 				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
+				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
 			}).Wait();
 
 			// Log the startup
@@ -714,9 +716,13 @@ namespace Greenshot.Forms
 
 
 		#region contextmenu
-		void ContextMenuOpening(object sender, CancelEventArgs e)
+		void ContextMenuOpened(object sender, EventArgs e)
 		{
 			contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
+		}
+
+		void ContextMenuOpening(object sender, CancelEventArgs e)
+		{
 			contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != Rectangle.Empty;
 
 			// IE context menu code

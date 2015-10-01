@@ -120,6 +120,7 @@ namespace GreenshotFlickrPlugin
 				// Get Photo Info
 				signedParameters = new Dictionary<string, object> { { "photo_id", photoId }, { "format", "json" }, { "nojsoncallback", "1" } };
 				response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, FLICKR_GET_INFO_URL, null, signedParameters);
+				// TODO: Move to HttpExtensions GetAsJsonAsync
 				var photoInfo = DynamicJson.Parse(response);
 				if (config.UsePageLink) {
 					return photoInfo.photo.urls.url[0]._content;

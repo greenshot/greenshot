@@ -105,6 +105,7 @@ Function PackagePortable {
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\log4net.dll",
 		"$sourcebase\Dapplo.Config.dll",
+		"$sourcebase\Dapplo.HttpExtensions.dll",
 		"$sourcebase\log4net.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
 
@@ -171,6 +172,7 @@ Function PackageZip {
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\Dapplo.Config.dll",
+		"$sourcebase\Dapplo.HttpExtensions.dll",
 		"$sourcebase\log4net.dll",
 		"$sourcebase\log4net.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }

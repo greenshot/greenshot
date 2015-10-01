@@ -77,7 +77,7 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("Threshold for monochrome filter (0 - 255), lower value means less black"), DefaultValue("127")]
+		[Description("Threshold for monochrome filter (0 - 255), lower value means less black"), DefaultValue(127)]
 		byte OutputPrintMonochromeThreshold {
 			get;
 			set;

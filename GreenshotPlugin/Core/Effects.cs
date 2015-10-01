@@ -64,7 +64,7 @@ namespace Greenshot.Core {
 		}
 		public virtual string Name {
 			get {
-				return LanguageLoader.Current.Get<IEditorLanguage>()["editor_image_shadow"];
+				return LanguageLoader.Current.Get<IGreenshotLanguage>()["editor_image_shadow"];
 			}
 		}
 		public float Darkness {
@@ -101,7 +101,7 @@ namespace Greenshot.Core {
 		}
 		public override string Name {
 			get {
-				return LanguageLoader.Current.Get<IEditorLanguage>().EditorTornEdge;
+				return LanguageLoader.Current.Get<IGreenshotLanguage>().EditorTornEdge;
 			}
 		}
 		public int ToothHeight {
@@ -151,7 +151,7 @@ namespace Greenshot.Core {
 	public class GrayscaleEffect : IEffect {
 		public string Name {
 			get {
-				return LanguageLoader.Current.Get<IEditorLanguage>().EditorGrayscale;
+				return LanguageLoader.Current.Get<IGreenshotLanguage>().EditorGrayscale;
 			}
 		}
 		public Image Apply(Image sourceImage, Matrix matrix) {
@@ -279,7 +279,7 @@ namespace Greenshot.Core {
 		}
 		public string Name {
 			get {
-				return LanguageLoader.Current.Get<IEditorLanguage>().EditorBorder;
+				return LanguageLoader.Current.Get<IGreenshotLanguage>().EditorBorder;
 			}
 		}
 		public Color Color {
@@ -309,9 +309,9 @@ namespace Greenshot.Core {
 		public string Name {
 			get {
 				if (Angle == 90) {
-					return LanguageLoader.Current.Get<IEditorLanguage>()["editor_rotatecw"];
+					return LanguageLoader.Current.Get<IGreenshotLanguage>()["editor_rotatecw"];
 				} else {
-					return LanguageLoader.Current.Get<IEditorLanguage>()["editor_rotateccw"];
+					return LanguageLoader.Current.Get<IGreenshotLanguage>()["editor_rotateccw"];
 				}
 			}
 		}
@@ -350,7 +350,7 @@ namespace Greenshot.Core {
 		}
 		public string Name {
 			get {
-				return LanguageLoader.Current.Get<IEditorLanguage>()["editor_resize"];
+				return LanguageLoader.Current.Get<IGreenshotLanguage>()["editor_resize"];
 			}
 		}
 		public int Width {

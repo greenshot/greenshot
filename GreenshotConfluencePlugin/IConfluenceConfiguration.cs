@@ -36,7 +36,7 @@ namespace GreenshotConfluencePlugin
 			set;
 		}
 
-		[Description("Session timeout in minutes"), DefaultValue("30")]
+		[Description("Session timeout in minutes"), DefaultValue(30)]
 		int Timeout {
 			get;
 			set;

@@ -7,7 +7,7 @@
     xmlns:gsconfig="clr-namespace:GreenshotPlugin.Configuration;assembly=GreenshotPlugin"
         Title="{l:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
 	<Window.Resources>
-        <gscp:EnumDisplayer Type="{x:Type gsconfig:OutputFormat}" x:Key="outputFormats"/>
+        <gscp:EnumDisplayer Type="{x:Type gsconfig:OutputFormat}" LanguageModule="Core" x:Key="outputFormats"/>
 	</Window.Resources>
 
 	<StackPanel>

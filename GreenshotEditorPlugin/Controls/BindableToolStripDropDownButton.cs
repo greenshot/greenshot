@@ -38,6 +38,13 @@ namespace GreenshotEditorPlugin.Controls {
 			set;
 		}
 
+		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies module for the language file to use when displaying the translation.")]
+		public string LanguageModule
+		{
+			get;
+			set;
+		}
+
 		public BindableToolStripDropDownButton() {
 		}
 		

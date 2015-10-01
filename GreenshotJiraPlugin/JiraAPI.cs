@@ -116,6 +116,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<dynamic> Issue(string issue, CancellationToken token = default(CancellationToken)) {
 			using (var responseMessage = await _client.GetAsync(Format("issue", issue), token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				// TODO: Move to HttpExtensions GetAsJsonAsync
 				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
 			}
 		}
@@ -128,6 +129,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<dynamic> ServerInfo(CancellationToken token = default(CancellationToken)) {
 			using (var responseMessage = await _client.GetAsync(Format("serverInfo"), token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				// TODO: Move to HttpExtensions GetAsJsonAsync
 				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
 			}
 		}
@@ -142,6 +144,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<dynamic> User(string username, CancellationToken token = default(CancellationToken)) {
 			using (var responseMessage = await _client.GetAsync(Format("user") + string.Format("?{0}={1}", "username", username), token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				// TODO: Move to HttpExtensions GetAsJsonAsync
 				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
 			}
 		}
@@ -154,6 +157,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<dynamic> Myself(CancellationToken token = default(CancellationToken)) {
 			using (var responseMessage = await _client.GetAsync(Format("myself"), token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				// TODO: Move to HttpExtensions GetAsJsonAsync
 				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
 			}
 		}
@@ -166,6 +170,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<dynamic> Projects(CancellationToken token = default(CancellationToken)) {
 			using (var responseMessage = await _client.GetAsync(Format("project"), token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				// TODO: Move to HttpExtensions GetAsJsonAsync
 				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
 			}
 		}
@@ -193,6 +198,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<dynamic> Filters(CancellationToken token = default(CancellationToken)) {
 			using (var responseMessage = await _client.GetAsync(Format("filter", "favourite"), token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				// TODO: Move to HttpExtensions GetAsJsonAsync
 				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
 			}
 		}
@@ -205,6 +211,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<dynamic> Search(string jql, CancellationToken token = default(CancellationToken)) {
 			using (var responseMessage = await _client.GetAsync(Format("search", "favourite") + string.Format("&jql={0}", WebUtility.UrlEncode(jql)), token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
+				// TODO: Move to HttpExtensions GetAsJsonAsync
 				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
 			}
 		}

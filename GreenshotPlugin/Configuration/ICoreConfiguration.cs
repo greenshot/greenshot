@@ -168,7 +168,7 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("The number for the ${NUM} in the filename pattern, is increased automatically after each save."), DefaultValue("1")]
+		[Description("The number for the ${NUM} in the filename pattern, is increased automatically after each save."), DefaultValue(1)]
 		uint OutputFileIncrementingNumber
 		{
 			get;
@@ -182,7 +182,7 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("How many days between every update check? (0=no checks)"), DefaultValue("7")]
+		[Description("How many days between every update check? (0=no checks)"), DefaultValue(7)]
 		int UpdateCheckInterval
 		{
 			get;

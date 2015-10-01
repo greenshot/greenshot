@@ -56,8 +56,8 @@
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="CustomMarshalers" />
-    <Reference Include="Dapplo.Config, Version=0.1.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.75.0\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.82.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.82.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions, Version=0.1.7.0, Culture=neutral, processorArchitecture=MSIL">
@@ -235,8 +235,6 @@
     <Compile Include="Core\GreenshotResources.cs" />
     <Compile Include="Core\IEHelper.cs" />
     <Compile Include="Core\ImageHelper.cs" />
-    <Compile Include="Core\JSONHelper.cs" />
-    <Compile Include="Core\Language.cs" />
     <Compile Include="Core\LogHelper.cs" />
     <Compile Include="Core\Objects.cs" />
     <Compile Include="Core\PluginUtils.cs" />

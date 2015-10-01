@@ -54,25 +54,25 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("Capture delay in millseconds."), DefaultValue("100")]
+		[Description("Capture delay in millseconds."), DefaultValue(100)]
 		int CaptureDelay {
 			get;
 			set;
 		}
 
-		[Description("The capture mode used to capture a screen. (Auto, FullScreen, Fixed)"), DefaultValue("Auto")]
+		[Description("The capture mode used to capture a screen. (Auto, FullScreen, Fixed)"), DefaultValue(ScreenCaptureMode.Auto)]
 		ScreenCaptureMode ScreenCaptureMode {
 			get;
 			set;
 		}
 
-		[Description("The screen number to capture when using ScreenCaptureMode Fixed."), DefaultValue("1")]
+		[Description("The screen number to capture when using ScreenCaptureMode Fixed."), DefaultValue(1)]
 		int ScreenToCapture {
 			get;
 			set;
 		}
 
-		[Description("The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto)."), DefaultValue("Auto")]
+		[Description("The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto)."), DefaultValue(WindowCaptureMode.Auto)]
 		WindowCaptureMode WindowCaptureMode {
 			get;
 			set;
@@ -102,7 +102,7 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("The capture mode used to capture IE (Screen, GDI)."), DefaultValue("Screen")]
+		[Description("The capture mode used to capture IE (Screen, GDI)."), DefaultValue(WindowCaptureMode.Screen)]
 		WindowCaptureMode IECaptureMode {
 			get;
 			set;

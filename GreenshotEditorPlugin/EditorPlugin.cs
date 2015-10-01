@@ -74,7 +74,7 @@ namespace GreenshotEditorPlugin
 
 			// Make sure the defaults are set
 			await iniConfig.RegisterAndGetAsync<IEditorConfiguration>(token);
-			await LanguageLoader.Current.RegisterAndGetAsync<IEditorLanguage>(token);
+			//await LanguageLoader.Current.RegisterAndGetAsync<IEditorLanguage>(token);
             _myAttributes = myAttribute;
 			return true;
 		}

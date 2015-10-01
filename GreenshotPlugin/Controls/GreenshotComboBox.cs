@@ -22,24 +22,36 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Extensions;
 
 namespace GreenshotPlugin.Controls {
-	public class GreenshotComboBox : ComboBox, IGreenshotConfigBindable {
+	public class GreenshotComboBox : ComboBox, IGreenshotConfigBindable, IGreenshotLanguageBindable {
 		private Type enumType = null;
 		private Enum selectedEnum = null;
-		private string sectionName = "Core";
 		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
-		public string SectionName {
-			get {
-				return sectionName;
-			}
-			set {
-				sectionName = value;
-			}
-		}
+		public string SectionName
+		{
+			get;
+			set;
+		} = "Core";
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
 		public string PropertyName {
+			get;
+			set;
+		}
+
+		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies module for the language file to use when displaying the translation.")]
+		public string LanguageModule
+		{
+			get;
+			set;
+		}
+
+
+		public string LanguageKey
+		{
 			get;
 			set;
 		}
@@ -53,7 +65,7 @@ namespace GreenshotPlugin.Controls {
 		public void SetValue(Enum currentValue) {
 			if (currentValue != null) {
 				selectedEnum = currentValue;
-				SelectedItem = Language.Translate(currentValue);
+				SelectedItem = LanguageLoader.Current.Translate(currentValue, LanguageModule);
 			}
 		}
 
@@ -70,7 +82,7 @@ namespace GreenshotPlugin.Controls {
 			Items.Clear();
 			string enumTypeName = enumType.Name;
 			foreach (var enumValue in availableValues) {
-				Items.Add(Language.Translate((Enum)enumValue));
+				Items.Add(LanguageLoader.Current.Translate(enumValue, LanguageModule));
 			}
 		}
 
@@ -90,11 +102,9 @@ namespace GreenshotPlugin.Controls {
 
 			foreach (Enum enumValue in availableValues) {
 				string enumKey = enumTypeName + "." + enumValue.ToString();
-				if (Language.HasKey(enumKey)) {
-					string translation = Language.GetString(enumTypeName + "." + enumValue.ToString());
-					if (translation.Equals(selectedValue)) {
-						returnValue = enumValue;
-					}
+				string translation = LanguageLoader.Current.Translate(enumValue, LanguageModule);
+				if (translation.Equals(selectedValue)) {
+					returnValue = enumValue;
 				}
 			}
 			selectedEnum = (Enum)returnValue;

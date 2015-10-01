@@ -40,7 +40,7 @@ namespace GreenshotEditorPlugin {
 	public class EditorDestination : AbstractDestination {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
 		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
-		private static readonly IEditorLanguage language = LanguageLoader.Current.Get<IEditorLanguage>();
+		private static readonly IEditorLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private IImageEditor editor = null;
 		private static Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 

@@ -301,7 +301,7 @@ namespace Greenshot.Helpers
 						}
 						if (conf.IncludePlugins != null && conf.IncludePlugins.Count > 0 && !conf.IncludePlugins.Contains(pluginAttribute.Name)) {
 							// Whitelist is set
-							LOG.WarnFormat("Include list: {0}", String.Join(",", conf.IncludePlugins));
+							LOG.WarnFormat("Include list (excludes all others): {0}", String.Join(",", conf.IncludePlugins));
 							LOG.WarnFormat("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							continue;
 						}

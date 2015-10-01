@@ -43,7 +43,7 @@ namespace GreenshotEditorPlugin.Drawing {
 	[Serializable]
 	public class DrawableContainerList : List<IDrawableContainer> {
 		private static readonly ComponentResourceManager editorFormResources = new ComponentResourceManager(typeof(ImageEditorForm));
-		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IEditorLanguage>();
+		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
 		public Guid ParentID {
 			get;

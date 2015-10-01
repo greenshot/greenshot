@@ -23,8 +23,7 @@ using Dapplo.Config.Language;
 
 namespace GreenshotPlugin.Configuration
 {
-	[Language("Editor")]
-	public interface IEditorLanguage : ILanguage
+	public interface IEditorLanguage
 	{
 		string None
 		{
