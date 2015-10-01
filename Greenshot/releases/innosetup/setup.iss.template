@@ -71,7 +71,7 @@ Source: ..\..\Languages\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: ..\..\bin\Release\Plugins\GreenshotOfficePlugin\GreenshotOfficePlugin.gsp; DestDir: {app}\Plugins\GreenshotOfficePlugin; Components: plugins\office; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;Editor Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotEditorPlugin\GreenshotEditorPlugin.gsp; DestDir: {app}\Plugins\GreenshotEditorPlugin; Components: plugins\editor; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: ..\..\bin\Release\Languages\Plugins\GreenshotEditorPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotEditorPlugin; Components: plugins\editor; Flags: overwritereadonly ignoreversion replacesameversion;
+;Source: ..\..\bin\Release\Languages\Plugins\GreenshotEditorPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotEditorPlugin; Components: plugins\editor; Flags: overwritereadonly ignoreversion replacesameversion;
 ;OCR Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotOCRPlugin\GreenshotOCRPlugin.gsp; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Plugins\GreenshotOCRPlugin\GreenshotOCRCommand.exe; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
