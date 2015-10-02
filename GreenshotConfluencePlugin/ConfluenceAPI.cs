@@ -205,8 +205,7 @@ namespace GreenshotConfluencePlugin {
 			Uri searchdUri = Format("content", "search").ExtendQuery(new Dictionary<string, string> { { "cql", cql } });
 			using (var responseMessage = await _client.GetAsync(searchdUri, token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-				// TODO: Move to HttpExtensions GetAsJsonAsync
-				return DynamicJson.Parse(await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false));
+				return await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
 			}
 		}
 

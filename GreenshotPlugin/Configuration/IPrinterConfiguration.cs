@@ -20,7 +20,6 @@
  */
 
 using Dapplo.Config.Extension;
-using GreenshotPlugin.Configuration;
 using System.ComponentModel;
 
 namespace GreenshotPlugin.Configuration

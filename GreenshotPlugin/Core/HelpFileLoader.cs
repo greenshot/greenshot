@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GreenshotPlugin.Core
@@ -45,9 +46,9 @@ namespace GreenshotPlugin.Core
 		/// Start a process with the help, this can either be an online link, or a local file
 		/// </summary>
 		/// <returns>Task</returns>
-		public static async Task LoadHelpAsync()
+		public static async Task LoadHelpAsync(CancellationToken token = default(CancellationToken))
 		{
-			var uri = await FindOnlineHelpUrl(LanguageLoader.Current.CurrentLanguage);
+			var uri = await FindOnlineHelpUrlAsync(LanguageLoader.Current.CurrentLanguage, token);
 			if (uri == null)
 			{
 				var currentLanguage = LanguageLoader.Current.CurrentLanguage;
@@ -77,7 +78,7 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="currentIetf">Language.CurrentLanguage</param>
 		/// <returns>URL of help file in selected ietf, or (if not present) default ietf, or null (if not present, too. probably indicating that there is no internet connection)</returns>
-		private static async Task<Uri> FindOnlineHelpUrl(string currentIetf)
+		private static async Task<Uri> FindOnlineHelpUrlAsync(string currentIetf, CancellationToken token = default(CancellationToken))
 		{
 			if (!currentIetf.Equals("en-US"))
 			{
@@ -86,9 +87,8 @@ namespace GreenshotPlugin.Core
 				// Check if the online localized content is available.
 				try
 				{
-					// Although a "HeadAsync" should be enough, this give an OK when the SF-Database has problems.
-					// TODO: change to HeadAsync after we moved to GitHub
-					await localizedContentUri.GetAsStringAsync();
+					// Although a "HeadAsync" should be enough, this gives an OK when the SF-Database has problems.
+					await localizedContentUri.HeadAsync(true, token);
 					return localizedContentUri;
 				}
 				catch
@@ -103,8 +103,7 @@ namespace GreenshotPlugin.Core
 			try
 			{
 				// Although a "HeadAsync" should be enough, this give an OK when the SF-Database has problems.
-				// TODO: change to HeadAsync after we moved to GitHub
-				await ExtHelpUrl.GetAsStringAsync();
+				await ExtHelpUrl.HeadAsync(true, token);
 				return ExtHelpUrl;
 			}
 			catch

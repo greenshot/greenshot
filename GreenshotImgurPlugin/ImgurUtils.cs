@@ -75,9 +75,8 @@ namespace GreenshotImgurPlugin
 			oauth2Settings.AccessTokenExpires = config.AccessTokenExpires;
 
 			try {
-				// TODO: Move to HttpExtensions GetAsJsonAsync
-				DynamicJson imageJson;
-				var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
+				dynamic imageJson;
+				var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, oauth2Settings, token)) {
 					using (var imageStream = new MemoryStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
@@ -87,7 +86,6 @@ namespace GreenshotImgurPlugin
 							using (var content = new StreamContent(uploadStream)) {
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-								await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
 								imageJson = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
 							}
 						}
@@ -103,7 +101,7 @@ namespace GreenshotImgurPlugin
 		}
 
 		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
-			var uploadUri = new Uri(config.ApiUrl + "/upload.json").ExtendQuery(otherParameters);
+			var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 			using (var client = uploadUri.CreateHttpClient()) {
 				client.SetAuthorization("Client-ID", config.ClientId);
 				client.DefaultRequestHeaders.ExpectContinue = false;
@@ -115,7 +113,6 @@ namespace GreenshotImgurPlugin
 							using (var content = new StreamContent(uploadStream)) {
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var response = await client.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-								await response.HandleErrorAsync(token: token).ConfigureAwait(false);
 								imageJson = await response.GetAsJsonAsync(token: token).ConfigureAwait(false);
 							}
 						}
@@ -227,16 +224,16 @@ namespace GreenshotImgurPlugin
 		/// <returns>filled ImageInfo</returns>
 		private static ImageInfo CreateImageInfo(dynamic imageJson, string deleteHash = null) {
 			ImageInfo imageInfo = null;
-			if (imageJson != null && imageJson.IsDefined("data")) {
+			if (imageJson != null && imageJson.data != null) {
 				dynamic data = imageJson.data;
 				imageInfo = new ImageInfo {
-					Id = data.IsDefined("id") ? data.id : null,
-					DeleteHash = data.IsDefined("deletehash") ? data.deletehash : null,
-					Title = data.IsDefined("title") ? data.title : null,
-					Timestamp = data.IsDefined("datetime") ? FromUnixTime(data.datetime) : default(DateTimeOffset),
-					Original = data.IsDefined("link") ? new Uri(data.link) : null,
-					Page = data.IsDefined("id") ? new Uri(string.Format(PAGE_URL_PATTERN, data.id)) : null,
-					SmallSquare = data.IsDefined("id") ? new Uri(string.Format(SMALL_URL_PATTERN, data.id)) : null
+					Id = data.id,
+					DeleteHash = data.deletehash,
+					Title = data.title,
+					Timestamp = data.datetime != null ? FromUnixTime(data.datetime) : default(DateTimeOffset),
+					Original = data.link != null ? new Uri(data.link) : null,
+					Page = data.id != null ? new Uri(string.Format(PAGE_URL_PATTERN, data.id)) : null,
+					SmallSquare = data.id != null ? new Uri(string.Format(SMALL_URL_PATTERN, data.id)) : null
 				};
 				if (string.IsNullOrEmpty(imageInfo.DeleteHash)) {
 					imageInfo.DeleteHash = deleteHash;
