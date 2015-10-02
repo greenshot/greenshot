@@ -41,10 +41,10 @@ namespace GreenshotImgurPlugin
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
 		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
 		private static readonly IImgurLanguage imgurLanguage = LanguageLoader.Current.Get<IImgurLanguage>();
-		private ImgurPlugin plugin = null;
+		private ImgurPlugin _plugin = null;
 
 		public ImgurDestination(ImgurPlugin plugin) {
-			this.plugin = plugin;
+			this._plugin = plugin;
 		}
 		
 		public override string Designation {
@@ -80,26 +80,25 @@ namespace GreenshotImgurPlugin
 				DestinationDescription = Description
 			};
 			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			string uploadURL = null;
 			try {
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, imgurLanguage.CommunicationWait, async (progress, pleaseWaitToken) => {
 					return await ImgurUtils.UploadToImgurAsync(surface, outputSettings, captureDetails.Title, filename, progress, pleaseWaitToken);
-				});
+				}, token);
 
 				if (imgurInfo != null) {
 					exportInformation.ExportMade = true;
 
 					if (config.UsePageLink) {
-						if (imgurInfo.Page.AbsoluteUri != null) {
+						if (imgurInfo.Page != null) {
 							exportInformation.ExportedToUri = new Uri(imgurInfo.Page.AbsoluteUri);
 						}
-					} else if (imgurInfo.Original.AbsoluteUri != null) {
+					} else if (imgurInfo.Original != null) {
 						exportInformation.ExportedToUri = new Uri(imgurInfo.Original.AbsoluteUri);
 					}
 					try {
-						if (config.CopyUrlToClipboard) {
-							ClipboardHelper.SetClipboardData(uploadURL);
+						if (config.CopyUrlToClipboard && exportInformation.ExportedToUri != null) {
+							ClipboardHelper.SetClipboardData(exportInformation.ExportedToUri);
 						}
 					} catch (Exception ex) {
 						LOG.Error("Can't write to clipboard: ", ex);
@@ -111,7 +110,7 @@ namespace GreenshotImgurPlugin
 			} catch (Exception e) {
 				exportInformation.ErrorMessage = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(Designation, imgurLanguage.UploadFailure + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(imgurLanguage.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

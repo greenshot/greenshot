@@ -1010,11 +1010,12 @@ namespace GreenshotEditorPlugin.Drawing
             }
         }
 
-        /// <summary>
-        /// Apply a bitmap effect to the surface
-        /// </summary>
-        /// <param name="effect"></param>
-        public async Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken token = default(CancellationToken))
+		/// <summary>
+		/// Apply a bitmap effect to the surface
+		/// </summary>
+		/// <param name="effect"></param>
+		/// <param name="token"></param>
+		public async Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken token = default(CancellationToken))
         {
             await PleaseWaitWindow.CreateAndShowAsync(effect.Name, "Please wait", async (progress, pleaseWaitToken) =>
             {
@@ -1045,7 +1046,7 @@ namespace GreenshotEditorPlugin.Drawing
                     }
                     return false;
                 }, token, TaskCreationOptions.None, scheduler);
-            });
+            }, token);
         }
 
         /// <summary>

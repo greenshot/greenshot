@@ -184,7 +184,7 @@ namespace GreenshotConfluencePlugin
 				} catch (Exception e) {
 					exportInformation.ErrorMessage = e.Message;
 					LOG.Warn(e);
-					MessageBox.Show(Designation, _language.UploadFailure + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+					MessageBox.Show(_language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}
 			ProcessExport(exportInformation, surfaceToUpload);

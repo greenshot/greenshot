@@ -72,7 +72,7 @@ namespace GreenshotPicasaPlugin {
 			try {
 				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) => {
 					return await PicasaUtils.UploadToPicasa(surface, captureDetails, progress, token).ConfigureAwait(false);
-				});
+				}, token);
 
 				if (!string.IsNullOrEmpty(uploadURL)) {
 					exportInformation.ExportMade = true;
@@ -84,7 +84,7 @@ namespace GreenshotPicasaPlugin {
 			} catch (Exception e) {
 				exportInformation.ErrorMessage = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(Designation, language.UploadFailure + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

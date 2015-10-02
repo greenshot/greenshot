@@ -119,7 +119,7 @@ namespace Greenshot.Destinations {
 			} catch (Exception ex2) {
 				LOG.Error("Error saving screenshot!", ex2);
 				// Show the problem
-				MessageBox.Show(Designation, language.ErrorSave + " " + ex2.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(language.ErrorSave + " " + ex2.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 				// when save failed we present a SaveWithDialog
 				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
 				outputMade = (fullPath != null);

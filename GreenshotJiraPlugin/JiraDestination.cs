@@ -142,7 +142,7 @@ namespace GreenshotJiraPlugin
 				} catch (Exception e) {
 					exportInformation.ErrorMessage = e.Message;
 					LOG.Warn(e);
-					MessageBox.Show(Designation, language.UploadFailure + " " + e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+					MessageBox.Show(language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}
 			ProcessExport(exportInformation, surfaceToUpload);
