@@ -188,3 +188,34 @@ a.cta {
 .clearfix {
     *zoom: 1;
 }
+
+/***** wordpress legacy stuff below *****/
+
+.body-content .alignleft,
+.body-content img.alignleft {
+	display: inline;
+	float: left;
+	margin-right: 24px;
+	margin-top: 4px;
+}
+.body-content .alignright,
+.body-content img.alignright {
+	display: inline;
+	float: right;
+	margin-left: 24px;
+	margin-top: 4px;
+}
+.body-content .aligncenter,
+.body-content img.aligncenter {
+	clear: both;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+.body-content img.alignleft, 
+.body-content img.alignright, 
+.body-content img.aligncenter {
+	margin-bottom: 12px;
+}
+
+
