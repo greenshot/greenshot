@@ -95,6 +95,15 @@ h2 {
 	font-weight: bold;
 }
 
+a {
+	color:#000;
+}
+
+a:hover {
+	color:#6cb711;
+	text-decoration: none;
+}
+
 table.cta-button {
 	float: left;
 	margin-top: 20px;
