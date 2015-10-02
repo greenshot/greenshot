@@ -11,20 +11,20 @@ layout: default
 			{% for post in site.posts %}
 				{% if found == true and nextset == false %}
 					{% assign nextset = true %}
-					<li class="next"><a href="{{ post.url | prepend: site.baseurl }}">Next post: {{post.title}} &rarr;</a></li>
+					<li class="next"><a href="{{ post.url | prepend: site.baseurl }}">{{post.title}} <i class="fa fa-arrow-right"></i></a></li>
 				{% endif %}
 				{% if post.url == page.url %}
 					{% assign found = true %}
 					{% if previous != null %}
-					<li class="previous"><a href="{{ previous.url | prepend: site.baseurl }}">&larr; Previous post: {{previous.title}}</a></li>
+					<li class="previous"><a href="{{ previous.url | prepend: site.baseurl }}"><i class="fa fa-arrow-left"></i> {{previous.title}}</a></li>
 					{% else %}
-					<li class="previous disabled"><a href="#">&larr; Previous post</a></li>
+					<li class="previous disabled"><a href="#"><i class="fa fa-arrow-left"></i></a></li>
 					{% endif %}
 				{% endif %}
 				{% assign previous = post %}
 			{% endfor %}
 			{% if nextset == false %}
-				<li class="next disabled"><a href="#">Next post &rarr;</a></li>
+				<li class="next disabled"><a href="#"><i class="fa fa-arrow-right"></i></a></li>
 			{% endif %}
 		</ul>
 		<div class="panel panel-primary" id="blog_{{counter}}">
