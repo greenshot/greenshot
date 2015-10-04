@@ -97,6 +97,17 @@ nav a:hover, nav a.active {
     border-bottom: 3px solid #89e916;
 }
 
+.servicelinks {
+	position:absolute;
+	top:205px;
+	right:0;
+	font-size:12px;
+	color:#999;
+}
+.servicelinks a {
+	color:#666;
+}
+
 .content-wrapper {
 	position:relative;
 	margin: 0 10px;
