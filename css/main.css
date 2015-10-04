@@ -25,8 +25,8 @@ header, footer {
 
 .header-ad {
 	position:absolute;
-	top:20px;
-	right:10px;
+	top:10px;
+	right:0;
 	z-index:50;
 }
 
@@ -61,10 +61,6 @@ a.slidesjs-navigation {
 	color: #000000;
 }
 
-.content-wrapper, .content-wrapper-body {
-	width: 100%;
-}
-
 main .content-wrapper {
 	margin-top: 50px;
 }
@@ -74,11 +70,17 @@ nav {
 	right:0;
 	bottom:0;
 	margin-left:137px;
+	text-align: right;
 }
 
 nav ul {
 	margin: 0;
 	padding: 0;
+}
+
+nav li {
+	display:inline;
+	white-space: nowrap;
 }
 
 nav a,
@@ -95,17 +97,9 @@ nav a:hover, nav a.active {
     border-bottom: 3px solid #89e916;
 }
 
-nav {
-	padding-right:10px;
-	text-align: right;
-}
-nav li {
-	display:inline;
-	white-space: nowrap;
-}
-
 .content-wrapper {
 	position:relative;
+	margin: 0 10px;
 }	
 
 h1 {
