@@ -270,6 +270,9 @@ namespace Greenshot {
 					return;
 				}
 
+				// BUG-1809: Add message filter, to filter out all the InputLangChanged messages which go to a target control with a handle > 32 bit.
+				Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
+
 				// From here on we continue starting Greenshot
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);

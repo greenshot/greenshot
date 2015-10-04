@@ -291,7 +291,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		[IniProperty("WebRequestTimeout", Description = "The connect timeout value for webrequets, these are seconds", DefaultValue = "10")]
+		[IniProperty("WebRequestTimeout", Description = "The connect timeout value for webrequets, these are seconds", DefaultValue = "100")]
 		public int WebRequestTimeout;
 		[IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for webrequets, these are seconds", DefaultValue = "100")]
 		public int WebRequestReadWriteTimeout;
@@ -509,8 +509,8 @@ namespace GreenshotPlugin.Core {
 				OutputFileReduceColorsTo = 256;
 			}
 
-			if (WebRequestTimeout < 1) {
-				WebRequestTimeout = 10;
+			if (WebRequestTimeout <= 10) {
+				WebRequestTimeout = 100;
 			}
 			if (WebRequestReadWriteTimeout < 1) {
 				WebRequestReadWriteTimeout = 100;

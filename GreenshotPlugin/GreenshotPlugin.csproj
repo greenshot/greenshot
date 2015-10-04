@@ -37,6 +37,7 @@
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
+    <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IEInterop\IHTMLBodyElement.cs" />
     <Compile Include="IEInterop\IHTMLCurrentStyle.cs" />
