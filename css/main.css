@@ -23,6 +23,23 @@ header, footer {
 	clear: both;
 }
 
+.header-ad {
+	position:absolute;
+	top:20px;
+	right:10px;
+	z-index:50;
+}
+
+header .content-wrapper {
+	height:200px;
+}
+
+header .logo {
+	position:absolute;
+	bottom: 0;
+	height:127px;
+}
+
 footer {
 	margin-top: 30px;
 	padding: 20px 0;
@@ -44,13 +61,8 @@ a.slidesjs-navigation {
 	color: #000000;
 }
 
-header img {
-	margin: 20px;
-}
-
 .content-wrapper, .content-wrapper-body {
 	width: 100%;
-	margin: 0;
 }
 
 main .content-wrapper {
@@ -58,29 +70,43 @@ main .content-wrapper {
 }
 
 nav {
-	margin-left: 20px;
+	position:absolute;
+	right:0;
+	bottom:0;
+	margin-left:137px;
 }
+
 nav ul {
-    margin: 0;
-    padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
-nav a {
-	font-family: 'Bangers', cursive;
-	font-size: 2em;
-
-    text-decoration: none;
-    color: white;
-}
-
+nav a,
 nav a:visited {
+	 font-family: 'Bangers', cursive;
+	 font-size: 2em;
+	 text-decoration: none;
     color: white;
+    margin-left:20px;
 }
 
 nav a:hover, nav a.active {
     color: white;
     border-bottom: 3px solid #89e916;
 }
+
+nav {
+	padding-right:10px;
+	text-align: right;
+}
+nav li {
+	display:inline;
+	white-space: nowrap;
+}
+
+.content-wrapper {
+	position:relative;
+}	
 
 h1 {
 	font-family: 'Bangers', cursive;
@@ -148,6 +174,10 @@ a.cta {
 	text-align: center;
 }
 
+a.cta:hover {
+	background-color:#6cb711;
+}
+
 .cta-aside {
 	font-family: 'Bangers', cursive;
 	font-size: 2em;
@@ -163,44 +193,32 @@ a.cta {
 	text-align: center;
 }
 
+.body-ad {
+	display: inline-block;
+	width: 180px;
+}
+
 
 @media only screen and (min-width: 1000px) {
 	
 	.content-wrapper {
-		width: 1160px;
+		width: 960px;
 		margin: 0 auto;
 	}
 	.body-content, .body-ad {
-		display: inline-block;
-		float: left;
+		
 	}
 	.body-content {
 		width: 960px;
 	}
 	.body-ad {
+		position:absolute;
+		top:0;
+		right:-200px;
 		width: 180px;
-		margin-top: 30px;
-		margin-left: 20px;
 		overflow: visible;
 	}
-	
-	header img {
-		margin-top: 70px;
-		margin-bottom: -20px;
-		margin-left: -10px;
-	}
-	
-	nav, nav ul, nav li {
-		display: inline;
-	}
-	
-	nav ul {
-		margin-left: 130px;
-	}
-	
-	nav a {
-		margin-right: 20px;
-	}
+
 
 }
 
