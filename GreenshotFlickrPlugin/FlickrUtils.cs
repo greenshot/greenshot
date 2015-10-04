@@ -63,6 +63,8 @@ namespace GreenshotFlickrPlugin
 		/// <param name="outputSettings"></param>
 		/// <param name="title"></param>
 		/// <param name="filename"></param>
+		/// <param name="progress">IProgres is used to report the progress to</param>
+		/// <param name="token"></param>
 		/// <returns>url to image</returns>
 		public static async Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress = null, CancellationToken token = default(CancellationToken)) {
 			var oAuth = new OAuthSession(config.ClientId, config.ClientSecret);
@@ -120,8 +122,7 @@ namespace GreenshotFlickrPlugin
 				// Get Photo Info
 				signedParameters = new Dictionary<string, object> { { "photo_id", photoId }, { "format", "json" }, { "nojsoncallback", "1" } };
 				response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, FLICKR_GET_INFO_URL, null, signedParameters);
-				// TODO: Move to HttpExtensions GetAsJsonAsync
-				var photoInfo = DynamicJson.Parse(response);
+				dynamic photoInfo = SimpleJson.DeserializeObject(response);
 				if (config.UsePageLink) {
 					return photoInfo.photo.urls.url[0]._content;
 				}

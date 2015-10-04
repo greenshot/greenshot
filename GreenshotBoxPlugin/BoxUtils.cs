@@ -20,16 +20,15 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.OAuth;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,10 +41,9 @@ namespace GreenshotBoxPlugin
 	/// Description of ImgurUtils.
 	/// </summary>
 	public static class BoxUtils {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxUtils));
-		private static readonly IBoxConfiguration _config = IniConfig.Current.Get<IBoxConfiguration>();
+		private static readonly IBoxConfiguration Config = IniConfig.Current.Get<IBoxConfiguration>();
 		private static readonly Uri UploadFileUri = new Uri("https://upload.box.com/api/2.0/files/content");
-		private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
+		private static readonly Uri FilesUri = new Uri("https://www.box.com/api/2.0/files/");
 
 		/// <summary>
 		/// Do the actual upload to Box
@@ -57,107 +55,89 @@ namespace GreenshotBoxPlugin
 		/// <param name="token"></param>
 		/// <returns>url to uploaded image</returns>
 		public static async Task<string> UploadToBoxAsync(ISurface surfaceToUpload, ICaptureDetails captureDetails, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
-			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+			string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
+			var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, false);
 
 			// Fill the OAuth2Settings
-			OAuth2Settings settings = new OAuth2Settings();
-
-			settings.AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}";
-			settings.TokenUrl = new Uri("https://api.box.com/oauth2/token");
-			settings.CloudServiceName = "Box";
-			settings.ClientId = _config.ClientId;
-			settings.ClientSecret = _config.ClientSecret;
-			settings.RedirectUrl = "https://www.box.com/home";
-			settings.BrowserSize = new Size(1060, 600);
-			settings.AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser;
+			OAuth2Settings settings = new OAuth2Settings
+			{
+				AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}",
+				TokenUrl = new Uri("https://api.box.com/oauth2/token"),
+				CloudServiceName = "Box",
+				ClientId = Config.ClientId,
+				ClientSecret = Config.ClientSecret,
+				RedirectUrl = "https://www.box.com/home/",
+				BrowserSize = new Size(1060, 600),
+				AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
+				RefreshToken = Config.RefreshToken,
+				AccessToken = Config.AccessToken,
+				AccessTokenExpires = Config.AccessTokenExpires
+			};
 
 			// Copy the settings from the config, which is kept in memory and on the disk
-			settings.RefreshToken = _config.RefreshToken;
-			settings.AccessToken = _config.AccessToken;
-			settings.AccessTokenExpires = _config.AccessTokenExpires;
 
-			try {
-				string response;
+			try
+			{
 				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(UploadFileUri, settings, token)) {
-
+					dynamic response;
 					using (var stream = new MemoryStream()) {
 						var multiPartContent = new MultipartFormDataContent();
-						var formData = new Dictionary<string, string>();
-						formData.Add("parent_id", _config.FolderId);
-						formData.Add("filename", filename);
-						var formContent = new FormUrlEncodedContent(formData);
-						multiPartContent.Add(formContent);
-
+						var parentIdContent = new StringContent(Config.FolderId);
+						parentIdContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") {
+							Name = "\"parent_id\""
+						};
+						multiPartContent.Add(parentIdContent);
 						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
 						stream.Position = 0;
 						using (var uploadStream = new ProgressStream(stream, progress)) {
-							using (var streamContent = new StreamContent(uploadStream)) {
-								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+							using (var streamContent = new StreamContent(uploadStream))
+							{
+								streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream"); //"image/" + outputSettings.Format);
+								streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+								{
+									Name = "\"file\"",
+									FileName = "\"" + filename + "\""
+								}; // the extra quotes are important here
 								multiPartContent.Add(streamContent);
 								using (var responseMessage = await httpClient.PostAsync(UploadFileUri, multiPartContent, token)) {
-									response = await responseMessage.GetAsStringAsync(token: token);
+									response = await responseMessage.GetAsJsonAsync(token: token);
 								}
 							}
 						}
 					}
-					LOG.DebugFormat("Box response: {0}", response);
 
-					var upload = JsonSerializer.Deserialize<Upload>(response);
-					if (upload == null || upload.Entries == null || upload.Entries.Count == 0) {
+					if (response == null || !response.ContainsKey("total_count")) {
 						return null;
 					}
 
-					if (_config.UseSharedLink) {
-						Uri uri = new Uri(string.Format(FilesUri, upload.Entries[0].Id));
-						var content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8);
+					if (Config.UseSharedLink) {
+						var uri = FilesUri.AppendSegments((string)response.entries[0].id);
+						var updateAcces = new JsonObject
+						{
+							{
+								"shared_link", new JsonObject
+								{
+									{
+										"access", "open"
+
+									}
+								}
+							}
+						};
+						var content = new StringContent(updateAcces.ToString(), Encoding.UTF8);
 						using (var responseMessage = await httpClient.PutAsync(uri, content, token)) {
 							var file = await responseMessage.GetAsJsonAsync(token: token);
-							return file.SharedLink.Url;
+							return file.shared_link.url;
 						}
 					}
-					return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", upload.Entries[0].Id);
-
+					return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", response.entries[0].id);
 				}
 			} finally {
 				// Copy the settings back to the config, so they are stored.
-				_config.RefreshToken = settings.RefreshToken;
-				_config.AccessToken = settings.AccessToken;
-				_config.AccessTokenExpires = settings.AccessTokenExpires;
+				Config.RefreshToken = settings.RefreshToken;
+				Config.AccessToken = settings.AccessToken;
+				Config.AccessTokenExpires = settings.AccessTokenExpires;
 				// TODO: Save? IniConfig.Save();
-			}
-		}
-	}
-	/// <summary>
-	/// A simple helper class for the DataContractJsonSerializer
-	/// </summary>
-	internal static class JsonSerializer {
-		/// <summary>
-		/// Helper method to serialize object to JSON
-		/// </summary>
-		/// <param name="jsonObject">JSON object</param>
-		/// <returns>string</returns>
-		public static string Serialize(object jsonObject) {
-			var serializer = new DataContractJsonSerializer(jsonObject.GetType());
-			using (MemoryStream stream = new MemoryStream()) {
-				serializer.WriteObject(stream, jsonObject);
-				return Encoding.UTF8.GetString(stream.ToArray());
-			}
-		}
-
-		/// <summary>
-		/// Helper method to parse JSON to object
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="jsonString"></param>
-		/// <returns></returns>
-		public static T Deserialize<T>(string jsonString) {
-			var deserializer = new DataContractJsonSerializer(typeof(T));
-			using (MemoryStream stream = new MemoryStream()) {
-				byte[] content = Encoding.UTF8.GetBytes(jsonString);
-				stream.Write(content, 0, content.Length);
-				stream.Seek(0, SeekOrigin.Begin);
-				return (T)deserializer.ReadObject(stream);
 			}
 		}
 	}

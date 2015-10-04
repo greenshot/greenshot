@@ -43,10 +43,10 @@ namespace GreenshotConfluencePlugin.Model {
 			Id = Convert.ToInt64(contentJson.id);
 			ContentType = contentJson.type;
 			Title = contentJson.title;
-			if (contentJson.IsDefined("space")) {
+			if (contentJson.ContainsKey("space")) {
 				SpaceKey = contentJson.space.key;
-			} else if (contentJson.IsDefined("_expandable")) {
-				SpaceKey = SpaceKeyRegEx.Match((string)contentJson._expandable.space).Groups["spacekey"].Value; ;
+			} else if (contentJson.ContainsKey("_expandable")) {
+				SpaceKey = SpaceKeyRegEx.Match((string)contentJson._expandable.space).Groups["spacekey"].Value;
 			}
 			return this;
 		}

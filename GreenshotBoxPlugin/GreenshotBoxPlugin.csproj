@@ -64,7 +64,6 @@
   <ItemGroup>
     <Compile Include="IBoxConfiguration.cs" />
     <Compile Include="BoxDestination.cs" />
-    <Compile Include="BoxEntities.cs" />
     <Compile Include="BoxPlugin.cs" />
     <Compile Include="BoxUtils.cs" />
     <Compile Include="Forms\BoxForm.cs">

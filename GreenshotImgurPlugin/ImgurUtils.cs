@@ -26,6 +26,7 @@ using GreenshotPlugin.OAuth;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Dynamic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -117,7 +118,7 @@ namespace GreenshotImgurPlugin
 							}
 						}
 				}
-				return (ImageInfo)CreateImageInfo(imageJson);
+				return CreateImageInfo(imageJson);
 			}
 		}
 
@@ -152,7 +153,7 @@ namespace GreenshotImgurPlugin
 			if (imageInfo != null && config.TrackHistory) {
 				config.ImgurUploadHistory.Add(imageInfo.Id, imageInfo.DeleteHash);
 				config.RuntimeImgurHistory.Add(imageInfo.Id, imageInfo);
-				using (Image tmpImage = surfaceToUpload.GetImageForExport()) {
+				using (var tmpImage = surfaceToUpload.GetImageForExport()) {
 					imageInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
 				}
 			}
@@ -192,7 +193,7 @@ namespace GreenshotImgurPlugin
 		/// <param name="token"></param>
 		/// <returns>ImgurInfo</returns>
 		public static async Task<ImageInfo> RetrieveImgurInfoAsync(string id, string deleteHash, CancellationToken token = default(CancellationToken)) {
-			Uri imageUri = new Uri(string.Format(config.ApiUrl + "/image/{0}.json", id));
+			var imageUri = new Uri(string.Format(config.ApiUrl + "/image/{0}.json", id));
 			LOG.InfoFormat("Retrieving Imgur info for {0} with url {1}", id, imageUri);
 
 			dynamic imageJson;
@@ -208,7 +209,7 @@ namespace GreenshotImgurPlugin
 				imageJson = await response.GetAsJsonAsync(token: token).ConfigureAwait(false);
 			}
 
-			return (ImageInfo)CreateImageInfo(imageJson, deleteHash);
+			return CreateImageInfo(imageJson, deleteHash);
 		}
 
 		private static DateTimeOffset FromUnixTime(double secondsSince) {
@@ -224,16 +225,20 @@ namespace GreenshotImgurPlugin
 		/// <returns>filled ImageInfo</returns>
 		private static ImageInfo CreateImageInfo(dynamic imageJson, string deleteHash = null) {
 			ImageInfo imageInfo = null;
-			if (imageJson != null && imageJson.data != null) {
-				dynamic data = imageJson.data;
+			if (imageJson == null)
+			{
+				return null;
+			}
+			if (imageJson.ContainsKey("data")) {
+				var data = imageJson.data;
 				imageInfo = new ImageInfo {
-					Id = data.id,
-					DeleteHash = data.deletehash,
-					Title = data.title,
-					Timestamp = data.datetime != null ? FromUnixTime(data.datetime) : default(DateTimeOffset),
-					Original = data.link != null ? new Uri(data.link) : null,
-					Page = data.id != null ? new Uri(string.Format(PAGE_URL_PATTERN, data.id)) : null,
-					SmallSquare = data.id != null ? new Uri(string.Format(SMALL_URL_PATTERN, data.id)) : null
+					Id = data.ContainsKey("id") ? data.id : null,
+					DeleteHash = data.ContainsKey("deletehash") ? data.deletehash : null,
+					Title = data.ContainsKey("title") ? data.title : null,
+					Timestamp = data.ContainsKey("datetime") ? FromUnixTime(data.datetime) : default(DateTimeOffset),
+					Original = data.ContainsKey("link") ? new Uri(data.link) : null,
+					Page = data.ContainsKey("id") ? new Uri(string.Format(PAGE_URL_PATTERN, data.id)) : null,
+					SmallSquare = data.ContainsKey("id") ? new Uri(string.Format(SMALL_URL_PATTERN, data.id)) : null
 				};
 				if (string.IsNullOrEmpty(imageInfo.DeleteHash)) {
 					imageInfo.DeleteHash = deleteHash;
@@ -275,7 +280,7 @@ namespace GreenshotImgurPlugin
 		/// </summary>
 		/// <param name="token"></param>
 		public static async Task RetrieveImgurCredits(CancellationToken token = default(CancellationToken)) {
-			Uri creditsUri = new Uri(string.Format("{0}/credits.json", config.ApiUrl));
+			var creditsUri = new Uri(string.Format("{0}/credits.json", config.ApiUrl));
 
 			using (var client = creditsUri.CreateHttpClient()) {
 				client.SetAuthorization("Client-ID", config.ClientId);
@@ -283,14 +288,14 @@ namespace GreenshotImgurPlugin
 				var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
 				await response.HandleErrorAsync(token: token).ConfigureAwait(false);
 				var creditsJson = await response.GetAsJsonAsync(token: token).ConfigureAwait(false);
-				if (creditsJson != null && creditsJson.IsDefined("data")) {
+				if (creditsJson != null && creditsJson.ContainsKey("data")) {
 					dynamic data = creditsJson.data;
 					int credits = 0;
-					if (data.IsDefined("ClientRemaining")) {
+					if (data.ContainsKey("ClientRemaining")) {
 						credits = (int)data.ClientRemaining;
 						LOG.InfoFormat("{0}={1}", "ClientRemaining", (int)data.ClientRemaining);
 					}
-					if (data.IsDefined("UserRemaining")) {
+					if (data.ContainsKey("UserRemaining")) {
 						credits = Math.Min(credits, (int)data.UserRemaining);
 						LOG.InfoFormat("{0}={1}", "UserRemaining", (int)data.UserRemaining);
 					}

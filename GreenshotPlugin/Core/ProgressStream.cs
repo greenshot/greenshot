@@ -85,16 +85,14 @@ namespace GreenshotPlugin.Core
 
 		public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
 		{
-			// Report the bytes read in a new callback, wrapping the passed one.
-			var wrappedCallback = new AsyncCallback((result) =>
-			{
-				ReportBytesReceived(count);
-				if (callback != null)
-				{
-					callback.Invoke(result);
-				}
-			});
-			return InnerStream.BeginRead(buffer, offset, count, wrappedCallback, state);
+			return InnerStream.BeginRead(buffer, offset, count, callback, state);
+		}
+
+		public override int EndRead(IAsyncResult asyncResult)
+		{
+			int count = base.EndRead(asyncResult);
+			ReportBytesSent(count);
+			return count;
 		}
 
 		public override void Write(byte[] buffer, int offset, int count)
@@ -119,13 +117,13 @@ namespace GreenshotPlugin.Core
 		public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
 		{
 			// Report the bytes read in a new callback, wrapping the passed one.
-			var wrappedCallback = new AsyncCallback((result) =>
+			var wrappedCallback = new AsyncCallback(result =>
 			{
-				ReportBytesSent(count);
-				if(callback != null)
+				if (callback != null)
 				{
 					callback.Invoke(result);
 				}
+				ReportBytesSent(count);
 			});
 			return base.BeginWrite(buffer, offset, count, wrappedCallback, state);
 		}
@@ -153,7 +151,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Report the bytes received to the IProgress
 		/// </summary>
-		/// <param name="bytesSent"></param>
+		/// <param name="bytesReceived"></param>
 		private void ReportBytesReceived(int bytesReceived)
 		{
 			if (bytesReceived > 0)

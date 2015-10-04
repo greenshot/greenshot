@@ -22,7 +22,6 @@
 using Dapplo.Config;
 using Dapplo.Config.Support;
 using GreenshotConfluencePlugin.Model;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -132,7 +131,7 @@ namespace GreenshotConfluencePlugin {
 					jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
 				}
 				foreach (var spaceJson in jsonResponse.results) {
-					if (spaceJson._expandable.IsDefined("homepage")) {
+					if (spaceJson._expandable.ContainsKey("homepage")) {
 						var space = (Space)Space.CreateFrom(spaceJson);
 						Model.Spaces.SafelyAddOrOverwrite(space.SpaceKey, space);
 					}
@@ -201,7 +200,7 @@ namespace GreenshotConfluencePlugin {
 		/// <param name="cql">Confluence Query Language</param>
 		/// <param name="token"></param>
 		/// <returns>list of content</returns>
-		private async Task<dynamic> SearchAsync(string cql, CancellationToken token = default(CancellationToken)) {
+		public async Task<dynamic> SearchAsync(string cql, CancellationToken token = default(CancellationToken)) {
 			Uri searchdUri = Format("content", "search").ExtendQuery(new Dictionary<string, string> { { "cql", cql } });
 			using (var responseMessage = await _client.GetAsync(searchdUri, token).ConfigureAwait(false)) {
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
