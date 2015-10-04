@@ -1,13 +1,13 @@
 # Site settings
 title: Greenshot
-email: getgreenshot@gmail.com
+#email: getgreenshot@gmail.com
 description: "Greenshot - a free screenshot tool optimized for productivity"
 baseurl: ""
 # TODO change URL to getgreenshot.org
 url: "http://greenshot.github.io"
 twitter_username: greenshot_tool
 github_username: greenshot
-facebook: Greenshot.Tool
+#facebook: Greenshot.Tool
 googleplus: 108405649004966849465
 openhub_project: greenshot
 

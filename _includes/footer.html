@@ -43,9 +43,11 @@
 	<div class="content-wrapper">
 		
 		<ul>
+			{% if site.email %}
 			<li>
 				<a href="mailto:{{ site.email }}"><i class="glyphicon glyphicon-envelope"></i> e-Mail</a>
 			</li>
+			{% endif %}
 			{% if site.github_username %}
 			<li>
 				<a href="https://github.com/{{ site.github_username }}"><i class="fa fa-github fa-fw"></i> Github</a>
