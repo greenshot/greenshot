@@ -19,22 +19,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
-using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.HttpExtensions;
 
-namespace GreenshotPlugin.OAuth {
+namespace GreenshotPlugin.OAuth
+{
 
 	/// <summary>
 	/// Code to simplify OAuth 2
 	/// </summary>
 	public static class OAuth2Helper {
+		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private const string REFRESH_TOKEN = "refresh_token";
 		private const string ACCESS_TOKEN = "access_token";
 		private const string CODE = "code";
@@ -259,7 +262,7 @@ namespace GreenshotPlugin.OAuth {
 		public static async Task<HttpClient> CreateOAuth2HttpClientAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
 			await CheckAndAuthenticateOrRefreshAsync(settings, token).ConfigureAwait(false);
 
-			var httpClient = HttpClientFactory.CreateHttpClient();
+			var httpClient = HttpClientFactory.CreateHttpClient(NetworkConfig);
 			if (!string.IsNullOrEmpty(settings.AccessToken)) {
 				httpClient.SetBearer(settings.AccessToken);
 			}

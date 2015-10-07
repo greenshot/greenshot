@@ -105,6 +105,7 @@ namespace Greenshot.Forms
 			Task.Run(async () => {
 				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
+				await iniConfig.RegisterAndGetAsync<INetworkConfiguration>();
 			}).Wait();
 
 			// Log the startup

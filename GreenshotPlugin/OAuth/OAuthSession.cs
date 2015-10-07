@@ -33,6 +33,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GreenshotPlugin.Configuration;
+using Dapplo.Config.Ini;
 
 namespace GreenshotPlugin.OAuth
 {
@@ -42,6 +44,7 @@ namespace GreenshotPlugin.OAuth
 	public class OAuthSession
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthSession));
+		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		protected const string OAUTH_VERSION = "1.0";
 		protected const string OAUTH_PARAMETER_PREFIX = "oauth_";
 
@@ -659,7 +662,7 @@ namespace GreenshotPlugin.OAuth
 				}
 			}
 			string responseData;
-			using (var httpClient = HttpClientFactory.CreateHttpClient())
+			using (var httpClient = HttpClientFactory.CreateHttpClient(NetworkConfig))
 			{
 				httpClient.DefaultRequestHeaders.ExpectContinue = false;
 				// TODO: Auth headers could be passed/stored different, maybe only one httpclient pro session?

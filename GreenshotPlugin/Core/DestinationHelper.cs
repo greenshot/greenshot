@@ -36,7 +36,7 @@ namespace GreenshotPlugin.Core
 	public static class DestinationHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DestinationHelper));
 		private static Dictionary<string, IDestination> RegisteredDestinations = new Dictionary<string, IDestination>();
-		private static ICoreConfiguration coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// Initialize the destinations		
 		static DestinationHelper() {

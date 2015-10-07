@@ -19,7 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
+using GreenshotPlugin.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,6 +36,7 @@ namespace GreenshotJiraPlugin
 	/// Jira API, using Dapplo.HttpExtensions
 	/// </summary>
 	public class JiraApi : IDisposable {
+		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private const string RestPath = "rest/api/2";
 		private readonly HttpClient _client;
 
@@ -59,7 +62,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="baseUri">Base URL</param>
 		public JiraApi(Uri baseUri) {
 			JiraBaseUri = baseUri;
-			_client = HttpClientFactory.CreateHttpClient();
+			_client = HttpClientFactory.CreateHttpClient(NetworkConfig);
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
 		}
 

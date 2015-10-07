@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -19,26 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotDropboxPlugin.Forms;
+using Dapplo.Config.Extension;
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions;
+using System.ComponentModel;
 
-namespace GreenshotDropboxPlugin
+namespace GreenshotPlugin.Configuration
 {
 	/// <summary>
-	/// Description of PasswordRequestForm.
+	/// Store all network specific settings, currently only the properties in the IHttpSettings are includes.
 	/// </summary>
-	public partial class SettingsForm : DropboxForm {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private static readonly IDropboxConfiguration config = IniConfig.Current.Get<IDropboxConfiguration>();
-
-		public SettingsForm() {
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
-			AcceptButton = buttonOK;
-			CancelButton = buttonCancel;
-		}
-
+	[IniSection("Network"), Description("Greenshot network configuration")]
+	public interface INetworkConfiguration : IHttpSettings, IIniSection<INetworkConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>
+	{
 	}
 }

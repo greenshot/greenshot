@@ -30,7 +30,7 @@ namespace GreenshotPlugin.Controls {
 	/// Description of JpegQualityDialog.
 	/// </summary>
 	public partial class QualityDialog : GreenshotForm {
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		public SurfaceOutputSettings Settings {
 			get;
 			set;

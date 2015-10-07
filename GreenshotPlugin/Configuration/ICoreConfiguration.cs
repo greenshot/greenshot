@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Extension;
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions;
 using GreenshotPlugin.Core;
 using log4net;
 using System;

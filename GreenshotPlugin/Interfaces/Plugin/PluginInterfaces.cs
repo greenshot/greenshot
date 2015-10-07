@@ -78,7 +78,7 @@ namespace Greenshot.Plugin {
 	public delegate void HotKeyHandler(CancellationToken token);
 
 	public class SurfaceOutputSettings {
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private bool reduceColors;
 		private bool disableReduceColors;
 		private List<IEffect> effects = new List<IEffect>();

@@ -31,12 +31,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
+using GreenshotPlugin.Configuration;
+using Dapplo.Config.Ini;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
 	/// Confluence API, using the FlurlClient
 	/// </summary>
 	public class ConfluenceApi : IDisposable {
+		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private const string RestPath = "rest/api";
 		private readonly HttpClient _client;
 		public string ConfluenceVersion {
@@ -65,7 +68,7 @@ namespace GreenshotConfluencePlugin {
 		/// <param name="baseUri">Base URL</param>
 		public ConfluenceApi(Uri baseUri) {
 			ConfluenceBaseUri = baseUri;
-			_client = HttpClientFactory.CreateHttpClient();
+			_client = HttpClientFactory.CreateHttpClient(NetworkConfig);
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
 			Model = ProxyBuilder.CreateProxy<IConfluenceModel>().PropertyObject;
 			Model.ContentCachedById = new ConcurrentDictionary<long, Content>();

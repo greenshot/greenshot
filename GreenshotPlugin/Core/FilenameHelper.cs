@@ -43,7 +43,7 @@ namespace GreenshotPlugin.Core {
 
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
 		private const int MAX_TITLE_LENGTH = 80;
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private const string UNSAFE_REPLACEMENT = "_";
 
 		/// <summary>
