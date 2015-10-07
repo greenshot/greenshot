@@ -32,7 +32,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.HttpExtensions;
 
 namespace GreenshotBoxPlugin
 {
@@ -78,7 +77,7 @@ namespace GreenshotBoxPlugin
 
 			try
 			{
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(UploadFileUri, settings, token)) {
+				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(settings, token)) {
 					dynamic response;
 					using (var stream = new MemoryStream()) {
 						var multiPartContent = new MultipartFormDataContent();

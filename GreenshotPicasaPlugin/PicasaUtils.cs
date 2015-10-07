@@ -70,7 +70,7 @@ namespace GreenshotPicasaPlugin {
 			try {
 				string response;
 				var uploadUri = new Uri(string.Format(UploadUrl, _config.UploadUser, _config.UploadAlbum));
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(uploadUri, settings, token)) {
+				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(settings, token)) {
 					if (_config.AddFilename) {
 						httpClient.AddDefaultRequestHeader("Slug", Uri.EscapeDataString(filename));
 					}

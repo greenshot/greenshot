@@ -659,7 +659,7 @@ namespace GreenshotPlugin.OAuth
 				}
 			}
 			string responseData;
-			using (var httpClient = requestUri.CreateHttpClient())
+			using (var httpClient = HttpClientFactory.CreateHttpClient())
 			{
 				httpClient.DefaultRequestHeaders.ExpectContinue = false;
 				// TODO: Auth headers could be passed/stored different, maybe only one httpclient pro session?

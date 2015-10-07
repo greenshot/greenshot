@@ -59,7 +59,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="baseUri">Base URL</param>
 		public JiraApi(Uri baseUri) {
 			JiraBaseUri = baseUri;
-			_client = baseUri.CreateHttpClient();
+			_client = HttpClientFactory.CreateHttpClient();
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
 		}
 

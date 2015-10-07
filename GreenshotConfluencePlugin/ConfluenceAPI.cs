@@ -65,7 +65,7 @@ namespace GreenshotConfluencePlugin {
 		/// <param name="baseUri">Base URL</param>
 		public ConfluenceApi(Uri baseUri) {
 			ConfluenceBaseUri = baseUri;
-			_client = baseUri.CreateHttpClient();
+			_client = HttpClientFactory.CreateHttpClient();
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
 			Model = ProxyBuilder.CreateProxy<IConfluenceModel>().PropertyObject;
 			Model.ContentCachedById = new ConcurrentDictionary<long, Content>();

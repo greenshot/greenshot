@@ -256,10 +256,10 @@ namespace GreenshotPlugin.OAuth {
 		/// <param name="settings">OAuth2Settings</param>
 		/// <param name="token"></param>
 		/// <returns>HttpClient</returns>
-		public static async Task<HttpClient> CreateOAuth2HttpClientAsync(Uri uri, OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+		public static async Task<HttpClient> CreateOAuth2HttpClientAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
 			await CheckAndAuthenticateOrRefreshAsync(settings, token).ConfigureAwait(false);
 
-			var httpClient = uri.CreateHttpClient();
+			var httpClient = HttpClientFactory.CreateHttpClient();
 			if (!string.IsNullOrEmpty(settings.AccessToken)) {
 				httpClient.SetBearer(settings.AccessToken);
 			}
