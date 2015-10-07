@@ -22,7 +22,15 @@ categories: []
 tags: []
 comments: []
 ---
+
+{% for release in site.github.releases %}
+   {{release.name}}}
+	{% for asset in release.assets %}
+ 		* [{{asset.name}}]({{asset.browser_download_url}})
+ 	{% endfor %}
+{% endfor %}
 <!-- TODO retrieve downloadable files -->
+
 <div class="two-col left-box">
 <h2>Download other versions of Greenshot</h2>
 <p><strong>Please note:</strong> Unstable versions are not thoroughly tested and might include faulty behavior or experimental features. If you do not like surprises you should rather <a href="/current/">download the latest stable version</a>. </p>
