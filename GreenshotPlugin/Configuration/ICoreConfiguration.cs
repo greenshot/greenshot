@@ -175,13 +175,6 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("Use your global proxy?"), DefaultValue(true)]
-		bool UseProxy
-		{
-			get;
-			set;
-		}
-
 		[Description("How many days between every update check? (0=no checks)"), DefaultValue(7)]
 		int UpdateCheckInterval
 		{
@@ -191,20 +184,6 @@ namespace GreenshotPlugin.Configuration
 
 		[Description("Last update check")]
 		DateTimeOffset LastUpdateCheck
-		{
-			get;
-			set;
-		}
-
-		[Description("The connect timeout value for http-connections, these are seconds"), DefaultValue(120)]
-		int HttpConnectionTimeout
-		{
-			get;
-			set;
-		}
-
-		[Description("The read/write timeout value for webrequets, these are seconds"), DefaultValue(100)]
-		int WebRequestReadWriteTimeout
 		{
 			get;
 			set;
@@ -432,12 +411,6 @@ namespace GreenshotPlugin.Configuration
 				coreConfiguration.OutputFileReduceColorsTo = 256;
 			}
 
-			if (coreConfiguration.HttpConnectionTimeout < 1) {
-				coreConfiguration.HttpConnectionTimeout = 10;
-			}
-			if (coreConfiguration.WebRequestReadWriteTimeout < 1) {
-				coreConfiguration.WebRequestReadWriteTimeout = 100;
-			}
 			// Make sure the path is lowercase
 			if (coreConfiguration.IgnoreHotkeyProcessList != null && coreConfiguration.IgnoreHotkeyProcessList.Count > 0) {
 				for (int i = 0; i < coreConfiguration.IgnoreHotkeyProcessList.Count; i++) {

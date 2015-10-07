@@ -37,7 +37,7 @@ namespace GreenshotPlugin.Core
 		{
 			if (m.Msg == (int)WindowsMessages.WM_INPUTLANGCHANGEREQUEST || m.Msg == (int)WindowsMessages.WM_INPUTLANGCHANGE)
 			{
-				return m.HWnd.ToInt64() > 0x7FFFFFFF;
+				return m.LParam.ToInt64() > 0x7FFFFFFF;
 			}
 			return false;
 		}
